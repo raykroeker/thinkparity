@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raykroeker.codebase">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.jivesoftware.smack.1.5.0">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="java.lib/xstream-1.1.src.zip" kind="lib" path="java.lib/xstream-1.1.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="java.lib/commons-codec-1.3-src.zip" kind="lib" path="java.lib/commons-codec-1.3.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="java.lib/swt-3.1M7.src.zip" kind="lib" path="java.lib/swt-3.1M7.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="java.lib/org.eclipse.jface_3.1.0.src.zip" kind="lib" path="java.lib/org.eclipse.jface_3.1.0.jar">
+		<attributes>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="java.bin"/>
+</classpath>

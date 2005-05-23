@@ -1,32 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="java">
-		<attributes>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<attributes>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" path="java.test">
-		<attributes>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" sourcepath="java.lib/log4j-1.2.9.src.zip" kind="lib" path="java.lib/log4j-1.2.9.jar">
-		<attributes>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="java.lib/mail.jar">
-		<attributes>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="java.lib/activation.jar">
-		<attributes>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="java.lib/junit-3.8.1.src.jar" kind="lib" path="java.lib/junit-3.8.1.jar">
-		<attributes>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="java.test"/>
+	<classpathentry exported="true" sourcepath="java.lib/log4j-1.2.9.src.zip" kind="lib" path="java.lib/log4j-1.2.9.jar"/>
+	<classpathentry sourcepath="java.lib/junit-3.8.1.src.jar" kind="lib" path="java.lib/junit-3.8.1.jar"/>
 	<classpathentry kind="output" path="java.bin"/>
 </classpath>

@@ -6,7 +6,7 @@
 	<classpathentry sourcepath="java.lib/commons-codec-1.3-src.zip" kind="lib" path="java.lib/commons-codec-1.3.jar"/>
 	<classpathentry sourcepath="java.lib/swt-3.1M7.src.zip" kind="lib" path="java.lib/swt-3.1M7.jar"/>
 	<classpathentry sourcepath="java.lib/org.eclipse.jface_3.1.0.src.zip" kind="lib" path="java.lib/org.eclipse.jface_3.1.0.jar"/>
-	<classpathentry sourcepath="java.lib/com.raykroeker.codebase.src.jar" kind="lib" path="java.lib/com.raykroeker.codebase.jar"/>
+	<classpathentry sourcepath="java.lib/com.raykroeker.codebase.src.zip" kind="lib" path="java.lib/com.raykroeker.codebase.jar"/>
 	<classpathentry kind="lib" path="java.lib/log4j-1.2.9.jar"/>
 	<classpathentry kind="lib" path="java.lib/smack.jar"/>
 	<classpathentry kind="lib" path="java.lib/smackx.jar"/>

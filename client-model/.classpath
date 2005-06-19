@@ -8,7 +8,7 @@
 	<classpathentry sourcepath="java.lib/org.eclipse.jface_3.1.0.src.zip" kind="lib" path="java.lib/org.eclipse.jface_3.1.0.jar"/>
 	<classpathentry kind="lib" path="java.lib/log4j-1.2.9.jar"/>
 	<classpathentry sourcepath="C:/home/raymond/workspace/eclipse.org/org.jivesoftware.smack.1.5.0/source" kind="lib" path="java.lib/smack.jar"/>
-	<classpathentry kind="lib" path="java.lib/smackx.jar"/>
+	<classpathentry sourcepath="C:/home/raymond/workspace/eclipse.org/org.jivesoftware.smack.1.5.0/source" kind="lib" path="java.lib/smackx.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raykroeker.codebase"/>
 	<classpathentry kind="output" path="java.bin"/>
 </classpath>

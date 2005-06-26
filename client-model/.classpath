@@ -9,5 +9,8 @@
 	<classpathentry kind="lib" path="java.build/java.lib/smack.jar"/>
 	<classpathentry kind="lib" path="java.build/java.lib/smackx.jar"/>
 	<classpathentry kind="lib" path="java.build/java.lib/xstream-1.1.jar"/>
+	<classpathentry kind="lib" path="java.build/java.lib/org.eclipse.jface_3.1.0.jar"/>
+	<classpathentry kind="lib" path="java.build/java.lib/swt-3.1M7.jar"/>
+	<classpathentry kind="lib" path="java.build/java.lib/swt-libs.jar"/>
 	<classpathentry kind="output" path="java.bin"/>
 </classpath>

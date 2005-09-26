@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <pomVersion>3</pomVersion>
+    <artifactId>thinkparity.com - model</artifactId>
+    <name>thinkparity.com - model</name>
+    <groupId>thinkparity.com - model</groupId>
+    <currentVersion>1.0</currentVersion>
+    <inceptionYear>2005</inceptionYear>
+    <logo>/images/logo.gif</logo>
+    <mailingLists>
+        <mailingList>
+            <name>${pom.name} Dev List</name>
+        </mailingList>
+        <mailingList>
+            <name>${pom.name} User List</name>
+        </mailingList>
+    </mailingLists>
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+    </build>
+    <dependencies>
+    	<dependency>
+    		<groupId>commons-codec</groupId>
+    		<artifactId>commons-codec</artifactId>
+    		<version>1.3</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>xstream</groupId>
+    		<artifactId>xstream</artifactId>
+    		<version>1.1</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>jivesoftware</groupId>
+    		<artifactId>smack</artifactId>
+    		<version>1.5.0</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>thinkparity.com</groupId>
+    		<artifactId>codebase</artifactId>
+    		<version>1.0-SNAPSHOT</version>
+    	</dependency>
+    </dependencies>
+</project>
+

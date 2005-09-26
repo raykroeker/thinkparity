@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!-- thinkparity.com - codebase -->
+<project name="thinkparity.com - codebase" default="all">
+	<!-- properties -->
+	<property name="name" value="${ant.project.name}"/>
+	<property name="version" value="M200509281800"/>
+
+	<!-- output -->
+	<property name="target.classes" value="${basedir}/target/classes"/>
+	<property name="target.xdocs.javadoc" value="${basedir}/target/xdocs/javadoc"/>
+
+	<property name="jar" value="${basedir}/${name}-${version}.jar"/>
+	<property name="src.zip" value="${basedir}/${name}-${version}.src.zip"/>
+
+	<!-- libs -->
+	<property environment="env"/>
+	<property name="maven.repo" value="${env.HOME}/workspace/apache.org/maven/repository"/>
+	<property name="lib.log4j" value="${maven.repo}/log4j/jars/log4j-1.2.8.jar"/>
+
+	<!-- paths -->
+	<path id="java.classpath">
+		<fileset file="${lib.log4j}"/>
+	</path>
+	
+	<!-- targets -->
+	<target name="all" depends=""
+		description="clean, compile, document, jar, packsource tidy"
+		if="" unless="">
+    	<antcall target="clean" inheritAll="true" inheritRefs="true"/>
+    	<antcall target="compile" inheritAll="true" inheritRefs="true"/>
+		<antcall target="document" inheritAll="true" inheritRefs="true"/>
+    	<antcall target="jar" inheritAll="true" inheritRefs="true"/>
+		<antcall target="zipsource" inheritAll="true" inheritRefs="true"/>
+		<echo message="${name} - ${version}"/>
+	</target>
+
+	<!-- delete the contents of the build directory -->
+    <target name="clean" description="">
+    	<delete includeemptydirs="true">
+			<fileset dir="${target.classes}"/>
+		</delete>
+    </target>
+
+	<!-- compile all source -->
+	<target name="compile" depends="" description="" if="" unless="">
+		<mkdir dir="${target.classes}"/>
+		<copy todir="${target.classes}">
+			<fileset dir="${basedir}/src/main/java" excludes="**/*.java"/>
+			<filterchain>
+				<replacetokens>
+					<token key="version" value="${version}"/>
+					<token key="name" value="${name}"/>
+				</replacetokens>
+			</filterchain>
+		</copy>
+		<javac srcdir="${basedir}/src/main/java" destdir="${target.classes}"
+			classpathref="java.classpath" debug="true"/>
+	</target>
+
+	<!-- document all source -->
+	<target name="document" depends="" description="" if="" unless="">
+		<mkdir dir="${target.xdocs.javadoc}"/>
+		<javadoc destdir="${target.xdocs.javadoc}"
+			access="package" version="true" use="true" author="true"
+			windowtitle="${name} - ${version}"
+			packagenames="com.thinkparity.codebase.*">
+			<classpath>
+				<pathelement path="${lib.log4j}"/>
+			</classpath>
+			<sourcepath>
+				<pathelement path="${basedir}/src/main/java"/>
+			</sourcepath>
+		</javadoc>
+	</target>
+
+	<!-- package all compiled binaries -->
+	<target name="jar" depends="" description="" if="" unless="">
+		<delete file="${jar}"/>
+		<jar destfile="${jar}" update="false">
+			<fileset dir="${target.classes}"/>
+		</jar>
+	</target>
+
+	<!-- package all source/documentation -->
+	<target name="zipsource" depends="" description="" if="">
+		<zip destfile="${src.zip}">
+			<fileset dir="${basedir}" includes="src/main/java/**/*"/>
+			<fileset dir="${target.xdocs.javadoc}" includes="*"/>
+		</zip>
+	</target>
+</project>

@@ -1,2 +1,4 @@
 java.bin*
 .keystore
+thinkparity.com - codebase-*.jar
+thinkparity.com - codebase-*.src.zip

@@ -3,7 +3,7 @@
 <project name="thinkparity.com - codebase" default="all">
 	<!-- properties -->
 	<property name="name" value="${ant.project.name}"/>
-	<property name="version" value="M200509281800"/>
+	<property name="version" value="1.0-SNAPSHOT"/>
 
 	<!-- output -->
 	<property name="target" value="${basedir}/target"/>

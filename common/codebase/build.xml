@@ -6,8 +6,9 @@
 	<property name="version" value="M200509281800"/>
 
 	<!-- output -->
-	<property name="target.classes" value="${basedir}/target/classes"/>
-	<property name="target.xdocs.javadoc" value="${basedir}/target/xdocs/javadoc"/>
+	<property name="target" value="${basedir}/target"/>
+	<property name="target.classes" value="${target}/classes"/>
+	<property name="target.xdocs.javadoc" value="${target}/xdocs/javadoc"/>
 
 	<property name="jar" value="${basedir}/${name}-${version}.jar"/>
 	<property name="src.zip" value="${basedir}/${name}-${version}.src.zip"/>

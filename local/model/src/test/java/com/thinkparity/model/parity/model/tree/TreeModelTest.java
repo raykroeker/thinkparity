@@ -4,7 +4,7 @@
 package com.thinkparity.model.parity.model.tree;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.ParityTest;
+import com.thinkparity.model.parity.ParityTestCase;
 import com.thinkparity.model.parity.model.tree.Tree;
 import com.thinkparity.model.parity.model.tree.TreeModel;
 
@@ -13,7 +13,7 @@ import com.thinkparity.model.parity.model.tree.TreeModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class TreeModelTest extends ParityTest {
+public class TreeModelTest extends ParityTestCase {
 
 	/**
 	 * Handle to the actual tree model returned.

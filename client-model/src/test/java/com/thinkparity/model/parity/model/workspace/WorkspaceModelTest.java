@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model.workspace;
 
 import java.net.URL;
 
-import com.thinkparity.model.parity.ParityTest;
+import com.thinkparity.model.parity.ParityTestCase;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -14,7 +14,7 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class WorkspaceModelTest extends ParityTest {
+public class WorkspaceModelTest extends ParityTestCase {
 
 	/**
 	 * Create a WorkspaceModelTest

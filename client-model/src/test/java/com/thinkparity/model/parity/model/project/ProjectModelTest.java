@@ -9,7 +9,7 @@ import java.util.Vector;
 import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.ParityTest;
+import com.thinkparity.model.parity.ParityTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 
@@ -18,7 +18,7 @@ import com.thinkparity.model.parity.model.project.ProjectModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ProjectModelTest extends ParityTest {
+public class ProjectModelTest extends ParityTestCase {
 
 	private Vector<CreateProjectData> testCreateProjectData;
 
@@ -68,7 +68,7 @@ public class ProjectModelTest extends ParityTest {
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.ParityTest#setUp()
+	 * @see com.thinkparity.model.parity.ParityTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -80,7 +80,7 @@ public class ProjectModelTest extends ParityTest {
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.ParityTest#tearDown()
+	 * @see com.thinkparity.model.parity.ParityTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();

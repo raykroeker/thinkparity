@@ -2,7 +2,7 @@
 <!-- thinkparity.com - codebase -->
 <project name="thinkparity.com - codebase" default="all">
 	<!-- properties -->
-	<property name="name" value="${ant.project.name}"/>
+	<property name="name" value="codebase"/>
 	<property name="version" value="1.0-SNAPSHOT"/>
 
 	<!-- output -->

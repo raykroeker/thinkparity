@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="java.test"/>
-	<classpathentry exported="true" sourcepath="java.lib/log4j-1.2.9.src.zip" kind="lib" path="java.lib/log4j-1.2.9.jar"/>
-	<classpathentry sourcepath="java.lib/junit-3.8.1.src.jar" kind="lib" path="java.lib/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.8.jar"/>
 	<classpathentry kind="output" path="java.bin"/>
 </classpath>

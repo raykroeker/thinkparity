@@ -16,7 +16,7 @@
 	<!-- libs -->
 	<property environment="env"/>
 	<property name="maven.repo" value="${env.HOME}/workspace/apache.org/maven/repository"/>
-	<property name="lib.log4j" value="${maven.repo}/log4j/jars/log4j-1.2.8.jar"/>
+	<property name="lib.log4j" value="${maven.repo}/log4j/jars/log4j-1.2.9.jar"/>
 
 	<!-- paths -->
 	<path id="java.classpath">
@@ -38,7 +38,7 @@
 	<!-- delete the contents of the build directory -->
     <target name="clean" description="">
     	<delete includeemptydirs="true">
-			<fileset dir="${target.classes}"/>
+			<fileset dir="${target}"/>
 		</delete>
     </target>
 
@@ -84,6 +84,7 @@
 
 	<!-- package all source/documentation -->
 	<target name="zipsource" depends="" description="" if="">
+		<delete file="${src.zip}"/>
 		<zip destfile="${src.zip}">
 			<fileset dir="${basedir}" includes="src/main/java/**/*"/>
 			<fileset dir="${target.xdocs.javadoc}" includes="*"/>

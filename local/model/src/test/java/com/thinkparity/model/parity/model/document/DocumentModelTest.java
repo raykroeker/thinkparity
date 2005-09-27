@@ -13,7 +13,7 @@ import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * DocumentModelTest
- * @author raymond@thinkparity.com
+ * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class DocumentModelTest extends ParityTestCase {

@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 /**
  * <b>Title:</b>  CodebaseTestCase
  * <br><b>Description:</b>  
- * @author ray@sunskidirect.com
+ * @author raykroeker@gmail.com
  * @version 1.0.0
  */
 public abstract class CodebaseTestCase extends TestCase {

@@ -51,7 +51,7 @@ public class LoggerFactory {
 
 	/**
 	 * LoggerCategory
-	 * @author raymond@thinkparity.com
+	 * @author raykroeker@gmail.com
 	 * @version 1.1
 	 */
 	private enum LoggerCategory {
@@ -85,7 +85,7 @@ public class LoggerFactory {
 	 * LoggerFile
 	 * Is a simple wrapper around the java File object which represents the
 	 * output log file.
-	 * @author raymond@thinkparity.com
+	 * @author raykroeker@gmail.com
 	 * @version 1.1
 	 */
 	private class LoggerFile {

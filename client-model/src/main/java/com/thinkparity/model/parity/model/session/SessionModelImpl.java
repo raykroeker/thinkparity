@@ -21,7 +21,7 @@ import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
+import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.util.prefs.ParityPrefs;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.XMPPSession;
@@ -42,7 +42,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		BrowserLoggerFactory.getLogger(SessionModelImpl.class);
+		ModelLoggerFactory.getLogger(SessionModelImpl.class);
 
 	/**
 	 * List of all of the registered parity presence listeners.

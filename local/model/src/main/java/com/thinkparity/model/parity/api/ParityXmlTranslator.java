@@ -25,7 +25,7 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
+import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.xml.XmlUtil;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -41,7 +41,7 @@ public abstract class ParityXmlTranslator {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		BrowserLoggerFactory.getLogger(ParityXmlTranslator.class);
+		ModelLoggerFactory.getLogger(ParityXmlTranslator.class);
 
 	/**
 	 * Handle to parity preferences.

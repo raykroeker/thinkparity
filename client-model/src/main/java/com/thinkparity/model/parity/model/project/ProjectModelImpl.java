@@ -28,7 +28,7 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
+import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 
 /**
  * ProjectApi_Impl
@@ -60,7 +60,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		BrowserLoggerFactory.getLogger(ProjectModelImpl.class);
+		ModelLoggerFactory.getLogger(ProjectModelImpl.class);
 
 	/**
 	 * Handle to a class used to handle output of specific classes.

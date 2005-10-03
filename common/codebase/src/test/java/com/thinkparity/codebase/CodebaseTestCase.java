@@ -5,8 +5,6 @@ package com.thinkparity.codebase;
 
 import junit.framework.TestCase;
 
-import com.thinkparity.codebase.log4j.LoggerFactory;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -20,8 +18,7 @@ public abstract class CodebaseTestCase extends TestCase {
 	/**
 	 * Test logger.
 	 */
-	protected static final Logger logger =
-		LoggerFactory.getRootConsoleLogger();
+	protected final Logger logger = Logger.getRootLogger();
 
 	/**
 	 * Create a new CodebaseTestCase

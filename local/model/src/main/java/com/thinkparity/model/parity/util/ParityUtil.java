@@ -11,7 +11,7 @@ import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 import com.thinkparity.model.parity.Parity;
-import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
+import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 
 /**
  * ParityUtil
@@ -37,7 +37,7 @@ public class ParityUtil {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		BrowserLoggerFactory.getLogger(ParityUtil.class);
+		ModelLoggerFactory.getLogger(ParityUtil.class);
 
 	/**
 	 * Obtain a handle to the Parity class.

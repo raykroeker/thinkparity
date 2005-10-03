@@ -6,12 +6,12 @@ package com.thinkparity.model.parity.util.log4j;
 import org.apache.log4j.Logger;
 
 /**
- * BrowserLoggerFactory
+ * ModelLoggerFactory
  * A singleton factory for creating rootLogger instances for this client.
  * @author raykroeker@gmail.com
  * @version 1.3
  */
-public class BrowserLoggerFactory {
+public class ModelLoggerFactory {
 
 	/**
 	 * Obtain a logger.

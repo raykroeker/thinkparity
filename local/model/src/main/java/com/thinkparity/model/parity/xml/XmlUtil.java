@@ -11,16 +11,13 @@ import java.nio.charset.Charset;
 
 import com.thinkparity.codebase.FileUtil;
 
-
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityXmlSerializable;
 import com.thinkparity.model.parity.util.Base64;
-import com.thinkparity.model.parity.util.LoggerFactory;
 import com.thinkparity.model.parity.util.ParityUtil;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;
-
-import org.apache.log4j.Logger;
 
 /**
  * XmlUtil
@@ -28,12 +25,6 @@ import org.apache.log4j.Logger;
  * @version 1.1
  */
 public class XmlUtil {
-
-	/**
-	 * Handle to the xml util's logger.
-	 */
-	private static final Logger logger =
-		LoggerFactory.createInstance(XmlUtil.class);
 
 	/**
 	 * Handle to the main XStream class for the client application.

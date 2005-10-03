@@ -31,7 +31,7 @@ import com.thinkparity.codebase.log4j.Loggable;
 
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
-import com.thinkparity.model.parity.util.LoggerFactory;
+import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
 import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smack.SmackRosterListener;
@@ -62,7 +62,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * Interal logger implemenation.
 	 */
 	private static final Logger logger =
-		LoggerFactory.createInstance(XMPPSessionImpl.class);
+		BrowserLoggerFactory.getLogger(XMPPSessionImpl.class);
 
 	/**
 	 * Logger helper class that will format XMPP specific objects into loggable

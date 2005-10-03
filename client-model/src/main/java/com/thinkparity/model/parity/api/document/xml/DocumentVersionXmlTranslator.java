@@ -3,21 +3,16 @@
  */
 package com.thinkparity.model.parity.api.document.xml;
 
-import com.thinkparity.codebase.CompressionUtil.Level;
-
-
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
 import com.thinkparity.model.parity.api.document.Document;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.DocumentVersionBuilder;
-import com.thinkparity.model.parity.util.LoggerFactory;
 import com.thinkparity.model.parity.xml.XmlTranslator;
+
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-
-import org.apache.log4j.Logger;
 
 /**
  * DocumentVersionXmlTranslator
@@ -26,17 +21,6 @@ import org.apache.log4j.Logger;
  */
 public class DocumentVersionXmlTranslator extends ParityXmlTranslator implements
 		XmlTranslator {
-
-	/**
-	 * Compression level to use when writing the content to the version file.
-	 */
-	private static final Level compressionLevel = Level.Nine;
-
-	/**
-	 * Handle to an internal logger
-	 */
-	private static final Logger logger =
-		LoggerFactory.createInstance(DocumentVersionXmlTranslator.class);
 
 	private DocumentXmlTranslator documentXmlTranslator;
 

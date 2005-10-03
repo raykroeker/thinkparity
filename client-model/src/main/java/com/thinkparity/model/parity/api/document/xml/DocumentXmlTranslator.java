@@ -11,19 +11,16 @@ import java.util.UUID;
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 
-
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
 import com.thinkparity.model.parity.api.document.Document;
 import com.thinkparity.model.parity.util.Base64;
-import com.thinkparity.model.parity.util.LoggerFactory;
 import com.thinkparity.model.parity.xml.XmlTranslator;
+
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-
-import org.apache.log4j.Logger;
 
 /**
  * DocumentXmlTranslator
@@ -37,12 +34,6 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	 * Compression level to use when writing the content to the version file.
 	 */
 	private static final Level compressionLevel = Level.Nine;
-
-	/**
-	 * Handle to an internal logger.
-	 */
-	private static final Logger logger =
-		LoggerFactory.createInstance(DocumentXmlTranslator.class);
 
 	/**
 	 * Create a DocumentXmlTranslator
@@ -99,8 +90,6 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	private Content readContent(final HierarchicalStreamReader reader)
 			throws IOException {
 		reader.moveDown();										// <content>
-		final String encoding = reader.getAttribute("encoding");
-		final String compressionLevel = reader.getAttribute("compressionlevel");
 		final String byteContentChecksum = reader.getAttribute("checksum");
 		final String encodedCompressedContent =
 			reader.getValue();

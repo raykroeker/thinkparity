@@ -9,7 +9,7 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 
-import com.thinkparity.model.parity.util.LoggerFactory;
+import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
 import com.thinkparity.model.xmpp.XMPPLoggerFormatter;
 
 /**
@@ -26,7 +26,7 @@ public abstract class SmackPresenceListener implements PacketListener {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		LoggerFactory.createInstance(SmackPresenceListener.class);
+		BrowserLoggerFactory.getLogger(SmackPresenceListener.class);
 
 	/**
 	 * Handle to a log formatter for xmpp.

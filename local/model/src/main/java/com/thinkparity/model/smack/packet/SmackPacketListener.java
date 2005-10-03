@@ -4,7 +4,7 @@
 package com.thinkparity.model.smack.packet;
 
 
-import com.thinkparity.model.parity.util.LoggerFactory;
+import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
 import com.thinkparity.model.xmpp.XMPPLoggerFormatter;
 
 import org.apache.log4j.Logger;
@@ -18,7 +18,7 @@ public abstract class SmackPacketListener implements PacketListener {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		LoggerFactory.createInstance(SmackPacketListener.class);
+		BrowserLoggerFactory.getLogger(SmackPacketListener.class);
 
 	/**
 	 * Handle to a log formatter for xmpp.

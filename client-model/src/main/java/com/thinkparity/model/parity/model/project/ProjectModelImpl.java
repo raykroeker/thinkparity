@@ -24,13 +24,11 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.project.xml.ProjectXml;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.tree.DataTree;
-import com.thinkparity.model.parity.model.tree.DataTreeNode;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.util.LoggerFactory;
 import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
+import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
 
 /**
  * ProjectApi_Impl
@@ -62,7 +60,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		LoggerFactory.createInstance(ProjectModelImpl.class);
+		BrowserLoggerFactory.getLogger(ProjectModelImpl.class);
 
 	/**
 	 * Handle to a class used to handle output of specific classes.
@@ -91,11 +89,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 		new Vector<UpdateListener>(10);
 
 	/**
-	 * Handle to parity workspace.
-	 */
-	private final Workspace workspace;
-
-	/**
 	 * Handle to parity preferences.
 	 */
 	private final Preferences preferences;
@@ -105,7 +98,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	ProjectModelImpl(final Workspace workspace) {
 		super();
-		this.workspace = workspace;
 		this.preferences = workspace.getPreferences();
 	}
 
@@ -115,7 +107,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	ProjectModelImpl() {
 		super();
-		this.workspace = null;
 		this.preferences = null;
 	}
 
@@ -192,12 +183,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 
 	private File buildDirectory(final Project parent, final String name) {
 		return new File(parent.getDirectory(), name);
-	}
-	private DataTree buildProjectTree(final Project rootProject)
-			throws ProjectException {
-		final DataTreeNode rootProjectNode =
-			DataTreeNode.createInstance(rootProject);
-		return DataTree.createParityTree(rootProjectNode);
 	}
 
 	private void createDirectory(final Project project) throws ProjectException {

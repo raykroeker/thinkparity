@@ -10,18 +10,14 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
-
-
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
 import com.thinkparity.model.parity.api.document.Document;
 import com.thinkparity.model.parity.api.document.DocumentApi;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
-import com.thinkparity.model.parity.util.LoggerFactory;
 import com.thinkparity.model.parity.xml.XmlTranslator;
+
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -33,12 +29,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * @version 1.2
  */
 public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTranslator {
-
-	/**
-	 * Handle to an internal logger.
-	 */
-	private static final Logger logger =
-		LoggerFactory.createInstance(ProjectXmlTranslator.class);
 
 	/**
 	 * Create a ProjectXmlTranslator

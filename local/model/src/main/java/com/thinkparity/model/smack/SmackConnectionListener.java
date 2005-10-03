@@ -9,7 +9,7 @@ import org.jivesoftware.smack.ConnectionEstablishedListener;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
 
-import com.thinkparity.model.parity.util.LoggerFactory;
+import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
 
 /**
  * SmackConnectionListener
@@ -23,7 +23,7 @@ public abstract class SmackConnectionListener implements
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		LoggerFactory.createInstance(SmackConnectionListener.class);
+		BrowserLoggerFactory.getLogger(SmackConnectionListener.class);
 
 	/**
 	 * Handle to a log statement formatter.

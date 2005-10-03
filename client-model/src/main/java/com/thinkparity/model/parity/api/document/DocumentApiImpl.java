@@ -35,10 +35,10 @@ import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.util.LoggerFactory;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
+import com.thinkparity.model.parity.util.log4j.BrowserLoggerFactory;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -58,7 +58,7 @@ class DocumentApiImpl {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		LoggerFactory.createInstance(DocumentApiImpl.class);
+		BrowserLoggerFactory.getLogger(DocumentApiImpl.class);
 
 	/**
 	 * Handle to a class used to format various classes.

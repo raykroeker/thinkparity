@@ -41,16 +41,6 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	private class PreferencesImpl implements Preferences {
 
 		/**
-		 * System preferences.
-		 */
-		private final java.util.prefs.Preferences systemRoot;
-
-		/**
-		 * User preferences.
-		 */
-		private final java.util.prefs.Preferences userRoot;
-
-		/**
 		 * PreferencesImpl
 		 * Represents the interface to both the user preferences as well as the
 		 * system preferences for parity.
@@ -65,8 +55,6 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 					new File(systemPreferencesURL.getFile())));
 			java.util.prefs.Preferences.importPreferences(new FileInputStream(
 					new File(userPreferencesURL.getFile())));
-			this.systemRoot = java.util.prefs.Preferences.systemRoot();
-			this.userRoot = java.util.prefs.Preferences.userRoot();
 		}
 
 		/**

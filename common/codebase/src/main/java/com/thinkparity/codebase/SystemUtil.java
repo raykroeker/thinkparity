@@ -3,6 +3,9 @@
  */
 package com.thinkparity.codebase;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 
 /**
  * <b>Title:</b>  SystemUtil
@@ -12,6 +15,61 @@ package com.thinkparity.codebase;
  */
 public final class SystemUtil {
 
+	/**
+	 * Used to synchronize access to the system properties.
+	 */
+	private static final Object SYSTEM_PROPERTY_LOCK = new Object();
+
+	/**
+	 * Obtain a system property
+	 * @param systemProperty <code>SystemUtil$SystemProperty</code>
+	 * @return <code>java.lang.String</code>
+	 */
+	public static String getSystemProperty(SystemProperty systemProperty) {
+		synchronized(SYSTEM_PROPERTY_LOCK) {
+			return System.getProperty(systemProperty.toString());
+		}
+	}
+
+	/**
+	 * Obtain a system proeprty
+	 * @param systemProperty <code>SystemUtil$SystemProperty</code>
+	 * @param defaultValue <code>java.lang.String</code>
+	 * @return <code>java.lang.String</code>
+	 */
+	public static String getSystemProperty(SystemProperty systemProperty, String defaultValue) {
+		synchronized(SYSTEM_PROPERTY_LOCK) {
+			return System.getProperty(systemProperty.toString(), defaultValue);
+		}
+	}
+
+	/**
+	 * Save the system properties to an output stream.
+	 * 
+	 * @param out
+	 *            Outputstream to save the properties to.
+	 * @param comments
+	 *            Comments to apply to the output.
+	 * @throws IOException
+	 */
+	public static void storeSystemProperties(final OutputStream out,
+			final String comments) throws IOException {
+		synchronized(SYSTEM_PROPERTY_LOCK) {
+			System.getProperties().store(out, comments);
+		}
+	}
+
+	/**
+	 * Set a system property.
+	 * @param systemProperty <code>SystemUtil$SystemProperty</code>
+	 * @param value <code>java.lang.String</code>
+	 */	
+	public static String setSystemProperty(SystemProperty systemProperty, String value) {
+		synchronized(SYSTEM_PROPERTY_LOCK) {
+			return System.setProperty(systemProperty.toString(), value);
+		}
+	}
+	
 	/**
 	 * <b>Title:</b>  SystemProperty
 	 * <br><b>Description:</b>  Provides an enum of commonly retrieved system
@@ -24,10 +82,16 @@ public final class SystemUtil {
 		private static final long serialVersionUID = 1;
 
 		/**
-		 * Line Separator
+		 * Application Home
 		 */
-		public static final SystemProperty LineSeparator =
-			new SystemProperty("line.separator");
+		public static final SystemProperty AppHome =
+			new SystemProperty("app.home");
+		
+		/**
+		 * Application Var
+		 */			
+		public static final SystemProperty AppVar =
+			new SystemProperty("app.var");
 		
 		/**
 		 * Config
@@ -46,7 +110,13 @@ public final class SystemUtil {
 		 */
 		public static final SystemProperty HomeDirectory =
 			new SystemProperty("user.home");
-		
+
+		/**
+		 * Line Separator
+		 */
+		public static final SystemProperty LineSeparator =
+			new SystemProperty("line.separator");
+
 		/**
 		 * SysLog Ouptut File
 		 */
@@ -66,18 +136,6 @@ public final class SystemUtil {
 			new SystemProperty("user.dir");
 
 		/**
-		 * Application Home
-		 */
-		public static final SystemProperty AppHome =
-			new SystemProperty("app.home");
-
-		/**
-		 * Application Var
-		 */			
-		public static final SystemProperty AppVar =
-			new SystemProperty("app.var");
-
-		/**
 		 * Create a new SystemProperty
 		 * @param systemProperty <code>java.lang.String</code>
 		 */
@@ -88,33 +146,5 @@ public final class SystemUtil {
 	 * Create a new SystemUtil [Singleton]
 	 */
 	public SystemUtil() {super();}
-
-	/**
-	 * Obtain a system property
-	 * @param systemProperty <code>SystemUtil$SystemProperty</code>
-	 * @return <code>java.lang.String</code>
-	 */
-	public static synchronized String getSystemProperty(SystemProperty systemProperty) {
-		return System.getProperty(systemProperty.toString());
-	}
-	
-	/**
-	 * Obtain a system proeprty
-	 * @param systemProperty <code>SystemUtil$SystemProperty</code>
-	 * @param defaultValue <code>java.lang.String</code>
-	 * @return <code>java.lang.String</code>
-	 */
-	public static synchronized String getSystemProperty(SystemProperty systemProperty, String defaultValue) {
-		return System.getProperty(systemProperty.toString(), defaultValue);
-	}
-
-	/**
-	 * Set a system property.
-	 * @param systemProperty <code>SystemUtil$SystemProperty</code>
-	 * @param value <code>java.lang.String</code>
-	 */	
-	public static synchronized void setSystemProperty(SystemProperty systemProperty, String value) {
-		System.setProperty(systemProperty.toString(), value);
-	}
 
 }

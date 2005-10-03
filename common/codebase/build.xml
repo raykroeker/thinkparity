@@ -25,7 +25,7 @@
 	
 	<!-- targets -->
 	<target name="all" depends=""
-		description="clean, compile, document, jar, packsource tidy"
+		description="clean, compile, document, jar, zipsource"
 		if="" unless="">
     	<antcall target="clean" inheritAll="true" inheritRefs="true"/>
     	<antcall target="compile" inheritAll="true" inheritRefs="true"/>

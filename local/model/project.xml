@@ -23,6 +23,15 @@
                 <include>**/*Test__FILTER_NONE.java</include>
             </includes>
         </unitTest>
+    	<resources>
+    		<resource>
+    			<targetPath>com/thinkparity/model</targetPath>
+		        <directory>src/main/java/com/thinkparity/model</directory>
+		        <includes>
+		        	<include>**/*.properties</include>
+		        </includes>
+			</resource>
+    	</resources>
     </build>
     <dependencies>
     	<dependency>

@@ -17,9 +17,9 @@ import java.net.URL;
 public abstract class ResourceUtil {
 
 	/**
-	 * Create a new ResourceUtil
+	 * Create a new ResourceUtil [Singleton]
 	 */
-	private ResourceUtil() {super();}
+	private ResourceUtil() { super(); }
 
 	/**
 	 * Obtain the url for a resource
@@ -27,32 +27,32 @@ public abstract class ResourceUtil {
 	 * @return <code>java.net.URL</code> or null if resource path is null
 	 */
 	public static URL getURL(String resourcePath) {
-		if(null == resourcePath)
+		if (null == resourcePath)
 			return null;
 		return ResourceUtil.class.getClassLoader().getResource(resourcePath);
 	}
-	
+
 	/**
 	 * Obtain an InputStream for a resource
 	 * @param resourcePath <code>java.lang.String</code>
 	 * @return <code>java.io.InputStream</code>
 	 */
-    public static InputStream getInputStream(String resourcePath) {
-    	if(null == resourcePath)
-    		return null;
+	public static InputStream getInputStream(String resourcePath) {
+		if (null == resourcePath)
+			return null;
 		return ResourceUtil.class.getClassLoader().getResourceAsStream(
-			resourcePath);
-    }
+				resourcePath);
+	}
 
 	/**
 	 * Obtain a File for a resource
 	 * @param resourcePath <code>java.lang.String</code>
 	 * @return <code>java.io.File</code>
-	 */    
-    public static File getFile(String resourcePath) {
-    	if(null == resourcePath)
-    		return null;
+	 */
+	public static File getFile(String resourcePath) {
+		if (null == resourcePath)
+			return null;
 		return new File(getURL(resourcePath).getFile());
-    }
-    
+	}
+
 }

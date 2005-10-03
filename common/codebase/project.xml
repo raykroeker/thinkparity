@@ -23,6 +23,15 @@
                 <include>**/*Test.java</include>
             </includes>
         </unitTest>
+    	<resources>
+    		<resource>
+	    		<targetPath>com/thinkparity/codebase</targetPath>
+		        <directory>src/main/java/com/thinkparity/codebase</directory>
+		        <includes>
+		        	<include>**/*.properties</include>
+		        </includes>
+    		</resource>
+    	</resources>
     </build>
     <dependencies>
     	<dependency>

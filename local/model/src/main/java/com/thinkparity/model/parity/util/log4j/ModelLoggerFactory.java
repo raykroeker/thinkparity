@@ -14,6 +14,16 @@ import org.apache.log4j.Logger;
 public class ModelLoggerFactory {
 
 	/**
+	 * Obtain a handle to a model logger.
+	 * 
+	 * @return An instance of a log4j logger.
+	 */
+	private static Logger getModelLogger() {
+		final Logger modelLogger = Logger.getLogger("thinkparity.com - model");
+		return modelLogger;
+	}
+
+	/**
 	 * Obtain a logger.
 	 * 
 	 * @param clasz
@@ -21,7 +31,11 @@ public class ModelLoggerFactory {
 	 * @return The logger.
 	 */
 	public static Logger getLogger(final Class clasz) {
-		final Logger logger = Logger.getLogger(clasz);
-		return logger;
+		return getModelLogger();
 	}
+
+	/**
+	 * Create a new ModelLoggerFactory [Singleton, Factory]
+	 */
+	private ModelLoggerFactory() { super(); }
 }

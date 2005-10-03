@@ -71,18 +71,18 @@
 
 	<!-- document all source -->
 	<target name="document" depends="" description="" if="" unless="">
-		<mkdir dir="${basedir}/java.build/java.doc"/>
-		<javadoc destdir="${target.xdocs.javadoc}"
-			access="package" version="true" use="true" author="true"
-			windowtitle="${name} - ${version}"
-			packagenames="com.thinkparity.model.*">
-			<classpath>
-				<path refid="java.classpath"/>
-			</classpath>
-			<sourcepath>
-				<pathelement path="${basedir}/src/main/java"/>
-			</sourcepath>
-		</javadoc>
+		<mkdir dir="${target.xdocs.javadoc}"/>
+				<javadoc destdir="${target.xdocs.javadoc}"
+					access="package" version="true" use="true" author="true"
+					windowtitle="${name} - ${version}"
+					packagenames="com.thinkparity.model.*">
+					<classpath>
+						<path refid="java.classpath"/>
+					</classpath>
+					<sourcepath>
+						<pathelement path="${basedir}/src/main/java"/>
+					</sourcepath>
+				</javadoc>
 	</target>
 
 	<!-- package all compiled binaries -->

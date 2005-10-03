@@ -70,7 +70,7 @@
 			windowtitle="${name} - ${version}"
 			packagenames="com.thinkparity.codebase.*">
 			<classpath>
-				<pathelement path="${lib.log4j}"/>
+				<path refid="java.classpath"/>
 			</classpath>
 			<sourcepath>
 				<pathelement path="${basedir}/src/main/java"/>

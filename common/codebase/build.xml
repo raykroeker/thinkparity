@@ -10,8 +10,8 @@
 	<property name="target.classes" value="${target}/classes"/>
 	<property name="target.xdocs.javadoc" value="${target}/xdocs/javadoc"/>
 
-	<property name="jar" value="${basedir}/${name}-${version}.jar"/>
-	<property name="src.zip" value="${basedir}/${name}-${version}.src.zip"/>
+	<property name="jar" value="${target}/${name}-${version}.jar"/>
+	<property name="src.zip" value="${target}/${name}-${version}.src.zip"/>
 
 	<!-- libs -->
 	<property environment="env"/>

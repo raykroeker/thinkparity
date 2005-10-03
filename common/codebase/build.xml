@@ -18,6 +18,9 @@
 	<property name="maven.repo" value="${env.HOME}/workspace/apache.org/maven/repository"/>
 	<property name="lib.log4j" value="${maven.repo}/log4j/jars/log4j-1.2.9.jar"/>
 
+	<!-- maven -->
+	<property name="groupId" value="thinkparity.com"/>
+
 	<!-- paths -->
 	<path id="java.classpath">
 		<fileset file="${lib.log4j}"/>
@@ -25,13 +28,14 @@
 	
 	<!-- targets -->
 	<target name="all" depends=""
-		description="clean, compile, document, jar, zipsource"
+		description="clean, compile, document, jar, zipsource, installsource"
 		if="" unless="">
     	<antcall target="clean" inheritAll="true" inheritRefs="true"/>
     	<antcall target="compile" inheritAll="true" inheritRefs="true"/>
 		<antcall target="document" inheritAll="true" inheritRefs="true"/>
     	<antcall target="jar" inheritAll="true" inheritRefs="true"/>
 		<antcall target="zipsource" inheritAll="true" inheritRefs="true"/>
+		<antcall target="installsource" inheritAll="true" inheritRefs="true"/>
 		<echo message="${name} - ${version}"/>
 	</target>
 
@@ -83,11 +87,18 @@
 	</target>
 
 	<!-- package all source/documentation -->
-	<target name="zipsource" depends="" description="" if="">
+	<target name="zipsource" depends="document" description="" if="">
 		<delete file="${src.zip}"/>
 		<zip destfile="${src.zip}">
 			<fileset dir="${basedir}" includes="src/main/java/**/*"/>
 			<fileset dir="${target.xdocs.javadoc}" includes="*"/>
 		</zip>
+	</target>
+
+	<!-- install the source in the maven repository -->
+	<target name="installsource" depends="zipsource" description="" if="">
+		<copy todir="${maven.repo}/${groupId}/src">
+			<fileset file="${src.zip}"/>
+		</copy>
 	</target>
 </project>

@@ -22,6 +22,9 @@
 	<property name="lib.smack" value="${maven.repo}/jivesoftware/jars/smack-1.5.0.jar"/>
 	<property name="lib.xstream" value="${maven.repo}/xstream/jars/xstream-1.1.jar"/>
 
+	<!-- maven -->
+	<property name="groupId" value="thinkparity.com"/>
+
 	<!-- paths -->
 	<path id="java.classpath">
 		<fileset file="${lib.codebase}"/>
@@ -91,11 +94,18 @@
 	</target>
 
 	<!-- package all source -->
-	<target name="zipsource" depends="" description="" if="">
+	<target name="zipsource" depends="document" description="" if="">
 		<delete file="${src.zip}"/>
 		<zip destfile="${src.zip}">
 			<fileset dir="${basedir}" includes="src/main/java/**/*"/>
 			<fileset dir="${target.xdocs.javadoc}" includes="*"/>
 		</zip>
+	</target>
+
+	<!-- install source to maven repo -->
+	<target name="installsource" depends="zipsource" description="" if="">
+		<copy todir="${maven.repo}/${groupId}/src">
+			<fileset file="${src.zip}"/>
+		</copy>
 	</target>
 </project>

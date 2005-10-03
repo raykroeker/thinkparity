@@ -8,6 +8,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/commons-codec/jars/commons-codec-1.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xstream/jars/xstream-1.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jivesoftware/jars/smack-1.5.0.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/thinkparity.com/jars/codebase-1.0-SNAPSHOT.jar"/>
+	<classpathentry sourcepath="/MAVEN_REPO/thinkparity.com/src/codebase-1.0-SNAPSHOT.src.zip" kind="var" path="MAVEN_REPO/thinkparity.com/jars/codebase-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="java.bin"/>
 </classpath>

@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 
-import com.thinkparity.model.parity.api.note.Note;
+import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;

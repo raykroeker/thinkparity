@@ -13,7 +13,7 @@ import java.util.Vector;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Loggable;
 
-import com.thinkparity.model.parity.api.note.Note;
+import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 
 /**

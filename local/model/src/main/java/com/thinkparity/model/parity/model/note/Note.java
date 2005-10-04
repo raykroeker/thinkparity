@@ -1,7 +1,7 @@
 /*
  * Apr 25, 2005
  */
-package com.thinkparity.model.parity.api.note;
+package com.thinkparity.model.parity.model.note;
 
 import com.thinkparity.codebase.log4j.Loggable;
 
@@ -23,7 +23,17 @@ public class Note implements Loggable {
 	private String subject;
 
 	/**
-	 * Create a new Note
+	 * Create a new Note.
+	 */
+	public Note() { this(null, null); }
+
+	/**
+	 * Create a new Note.
+	 * 
+	 * @param subject
+	 *            The subject of the new note.
+	 * @param content
+	 *            The content of the new note.
 	 */
 	public Note(final String subject, final String content) {
 		super();

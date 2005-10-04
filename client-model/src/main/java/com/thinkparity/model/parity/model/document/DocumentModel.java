@@ -1,8 +1,7 @@
 /*
  * Mar 6, 2005
  */
-package com.thinkparity.model.parity.api.document;
-
+package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.util.Collection;
@@ -10,6 +9,7 @@ import java.util.Collection;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.note.Note;
@@ -19,21 +19,16 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
- * DocumentApi
+ * DocumentModel
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentApi {
+public class DocumentModel {
 
 	/**
 	 * Handle to the document api's implementation.
 	 */
-	private static final DocumentApiImpl impl = new DocumentApiImpl();
-
-	/**
-	 * Synchronization lock.
-	 */
-	private static final Object LOCK = new Object();
+	private static final DocumentModelImpl impl = new DocumentModelImpl();
 
 	/**
 	 * Add a listener that is notified whenever a document is created.
@@ -44,11 +39,6 @@ public class DocumentApi {
 	public static void addCreationListener(
 			final CreationListener creationListener) {
 		impl.addCreationListener(creationListener);
-	}
-
-	public static void addNote(final Document document, final Note note)
-			throws ParityException {
-		impl.addNote(document, note);
 	}
 
 	/**
@@ -63,12 +53,12 @@ public class DocumentApi {
 
 	public static void closeDocument(final Document document)
 			throws ParityException {
-		Assert.assertNotYetImplemented("DocumentApi.closeDocument()");
+		Assert.assertNotYetImplemented("DocumentModel.closeDocument()");
 	}
 
 	public static void deleteDocument(final Document document)
 			throws ParityException {
-		Assert.assertNotYetImplemented("DocumentApi.deleteDocument()");
+		Assert.assertNotYetImplemented("DocumentModel.deleteDocument()");
 	}
 
 	/**
@@ -91,12 +81,11 @@ public class DocumentApi {
 	}
 
 	/**
-	 * Create a DocumentApi.
-	 * @return DocumentApi
+	 * Obtain a handle to a document model.
+	 * 
+	 * @return The handle to the model.
 	 */
-	public static DocumentApi getModel() {
-		synchronized(LOCK) { return new DocumentApi(); }
-	}
+	public static DocumentModel getModel() { return new DocumentModel(); }
 
 	public static StringBuffer getRelativePath(final Document document)
 			throws ParityException {
@@ -145,7 +134,12 @@ public class DocumentApi {
 	/**
 	 * Handle to the document api implementation.
 	 */
-	private final DocumentApiImpl impl2;
+	private final DocumentModelImpl impl2;
+
+	/**
+	 * Synchronization lock for access to impl2.
+	 */
+	private final Object impl2Lock = new Object();
 
 	/**
 	 * Handle to the parity workspace.
@@ -153,12 +147,17 @@ public class DocumentApi {
 	private final Workspace workspace;
 
 	/**
-	 * Create a DocumentApi [Singleton]
+	 * Create a DocumentModel [Singleton]
 	 */
-	private DocumentApi() {
+	private DocumentModel() {
 		super();
 		this.workspace = WorkspaceModel.getModel().getWorkspace();
-		this.impl2 = new DocumentApiImpl(workspace);
+		this.impl2 = new DocumentModelImpl(workspace);
+	}
+
+	public void addNote(final Document document, final Note note)
+			throws ParityException {
+		synchronized(impl2Lock) { impl2.addNote(document, note); }
 	}
 
 	/**
@@ -193,6 +192,8 @@ public class DocumentApi {
 	public Document createDocument(final Project project,
 			final String name, final String description, final File documentFile)
 			throws ParityException {
-		return impl2.createDocument(project, name, description, documentFile);
+		synchronized(impl2Lock) {
+			return impl2.createDocument(project, name, description, documentFile);
+		}
 	}
 }

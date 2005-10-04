@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.thinkparity.model.parity.ParityTestCase;
-import com.thinkparity.model.parity.api.document.Document;
 import com.thinkparity.model.parity.model.project.Project;
 
 /**

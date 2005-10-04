@@ -1,7 +1,7 @@
 /*
  * Mar 27, 2005
  */
-package com.thinkparity.model.parity.api.document;
+package com.thinkparity.model.parity.model.document;
 
 import com.thinkparity.model.parity.model.tree.DataTreeNode;
 

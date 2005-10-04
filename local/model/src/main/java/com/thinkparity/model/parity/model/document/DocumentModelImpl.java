@@ -1,7 +1,7 @@
 /*
  * Mar 6, 2005
  */
-package com.thinkparity.model.parity.api.document;
+package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,6 +22,7 @@ import com.thinkparity.codebase.log4j.LoggerFormatter;
 
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
@@ -42,11 +43,11 @@ import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
- * DocumentApiImpl
+ * DocumentModelImpl
  * @author raykroeker@gmail.com
  * @version 1.2
  */
-class DocumentApiImpl {
+class DocumentModelImpl {
 
 	/**
 	 * List of listeners to notify when a new document is created.
@@ -58,7 +59,7 @@ class DocumentApiImpl {
 	 * Handle to an internal logger.
 	 */
 	private static final Logger logger =
-		ModelLoggerFactory.getLogger(DocumentApiImpl.class);
+		ModelLoggerFactory.getLogger(DocumentModelImpl.class);
 
 	/**
 	 * Handle to a class used to format various classes.
@@ -98,16 +99,16 @@ class DocumentApiImpl {
 	private final Workspace workspace;
 
 	/**
-	 * Create a DocumentApiImpl
+	 * Create a DocumentModelImpl
 	 * @deprecated
 	 */
-	DocumentApiImpl() {
+	DocumentModelImpl() {
 		super();
 		this.workspace = null;
 		this.preferences = null;
 	}
 
-	DocumentApiImpl(final Workspace workspace) {
+	DocumentModelImpl(final Workspace workspace) {
 		super();
 		this.workspace = workspace;
 		this.preferences = workspace.getPreferences();
@@ -415,13 +416,13 @@ class DocumentApiImpl {
 	Document createDocument(final Project project, final String name,
 			final String description, final File documentFile)
 			throws ParityException {
-		debug("DocumentApiImpl.createDocument():project", project);
-		debug("DocumentApiImpl.createDocument():name", name);
-		debug("DocumentApiImpl.createDocument():description", description);
-		debug("DocumentApiImpl.createDocument():documentFile", documentFile);
+		debug("DocumentModelImpl.createDocument():project", project);
+		debug("DocumentModelImpl.createDocument():name", name);
+		debug("DocumentModelImpl.createDocument():description", description);
+		debug("DocumentModelImpl.createDocument():documentFile", documentFile);
 		try {
 			final UUID nextDocumentId = UUIDGenerator.nextUUID();
-			debug("DocumentApiImpl.createDocument():nextDocumentId", nextDocumentId);
+			debug("DocumentModelImpl.createDocument():nextDocumentId", nextDocumentId);
 			final byte[] documentContent = FileUtil.readFile(documentFile);
 			final Document document = new Document(project, name, DateUtil
 					.getInstance(), preferences.getUsername(), preferences
@@ -478,8 +479,8 @@ class DocumentApiImpl {
 	 */
 	void exportDocument(final File file, final Document document)
 			throws ParityException {
-		debug("DocumentApiImpl.exportDocument():file", file);
-		debug("DocumentApiImpl.exportDocument():document", document);
+		debug("DocumentModelImpl.exportDocument():file", file);
+		debug("DocumentModelImpl.exportDocument():document", document);
 		exportDocument_CheckRules(file, document);
 		createFile(file);
 		writeDocumentContent(file, readDocument(document));
@@ -516,7 +517,7 @@ class DocumentApiImpl {
 	 * @throws ParityException
 	 */
 	void openDocument(final Document document) throws ParityException {
-		debug("DocumentApiImpl.openDocument():document", document);
+		debug("DocumentModelImpl.openDocument():document", document);
 		try {
 			final File documentCacheFile = getFileFromDiskCache(document);
 			ParityUtil.launchFileWin32(documentCacheFile.getAbsolutePath());
@@ -539,8 +540,8 @@ class DocumentApiImpl {
 	void sendDocument(final Collection<User> users, final Document document)
 			throws ParityException {
 		trace();
-		debug("DocumentApiImpl.sendDocument():users", users);
-		debug("DocumentApiImpl.sendDocument():document", document);
+		debug("DocumentModelImpl.sendDocument():users", users);
+		debug("DocumentModelImpl.sendDocument():document", document);
 		final DocumentVersion newDocumentVersion =
 			createDocumentVersion(document);
 		for(Iterator<User> i = users.iterator(); i.hasNext();) {
@@ -549,7 +550,7 @@ class DocumentApiImpl {
 	}
 
 	void updateDocument(final Document document) throws ParityException {
-		debug("DocumentApiImpl.updateDocument():document", document);
+		debug("DocumentModelImpl.updateDocument():document", document);
 		try {
 			serialize(document);
 			notifyUpdate(document);

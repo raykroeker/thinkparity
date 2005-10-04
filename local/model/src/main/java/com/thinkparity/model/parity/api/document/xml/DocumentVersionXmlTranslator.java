@@ -4,9 +4,9 @@
 package com.thinkparity.model.parity.api.document.xml;
 
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
-import com.thinkparity.model.parity.api.document.Document;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
-import com.thinkparity.model.parity.api.document.DocumentVersionBuilder;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentVersionBuilder;
 import com.thinkparity.model.parity.xml.XmlTranslator;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;

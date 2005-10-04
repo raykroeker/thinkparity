@@ -10,8 +10,8 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.document.Document;
-import com.thinkparity.model.parity.api.document.DocumentTreeNode;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentTreeNode;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectTreeNode;
 

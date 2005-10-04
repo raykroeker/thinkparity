@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
+
 import com.thinkparity.model.parity.api.note.Note;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -27,6 +28,7 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.xml.XmlUtil;
+
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
@@ -40,7 +42,7 @@ public abstract class ParityXmlTranslator {
 	/**
 	 * Handle to an internal logger.
 	 */
-	private static final Logger logger =
+	protected final Logger logger =
 		ModelLoggerFactory.getLogger(ParityXmlTranslator.class);
 
 	/**

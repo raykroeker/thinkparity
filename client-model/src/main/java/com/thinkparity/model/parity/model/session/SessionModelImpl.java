@@ -12,13 +12,13 @@ import com.thinkparity.codebase.assertion.Assert;
 
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.document.Document;
-import com.thinkparity.model.parity.api.document.DocumentApi;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.events.PresenceEvent;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
@@ -125,7 +125,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	/**
 	 * Handle to the document model's api.
 	 */
-	private DocumentApi documentModel;
+	private DocumentModel documentModel;
 
 	private final Preferences preferences;
 
@@ -265,7 +265,7 @@ class SessionModelImpl extends AbstractModelImpl {
 
 		this.xmppExtensionListenerImpl = new XMPPExtensionListenerImpl();
 		this.xmppSession.addListener(this.xmppExtensionListenerImpl);
-		this.documentModel = DocumentApi.getModel();
+		this.documentModel = DocumentModel.getModel();
 	}
 
 	void acceptPresence(final User xmppUser) throws ParityException {

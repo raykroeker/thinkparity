@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.api.document;
 
+import com.thinkparity.model.parity.model.document.Document;
+
 /**
  * DocumentNameComparator
  * @author raykroeker@gmail.com

@@ -12,8 +12,8 @@ import java.util.Vector;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
-import com.thinkparity.model.parity.api.document.Document;
-import com.thinkparity.model.parity.api.document.DocumentApi;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.xml.XmlTranslator;
@@ -44,7 +44,7 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 		while(reader.hasMoreChildren()) {
 			reader.moveDown();
 			childDocument =
-				DocumentApi.getDocument(new File(reader.getAttribute("meta-data")));
+				DocumentModel.getDocument(new File(reader.getAttribute("meta-data")));
 			childDocument.setProject(project);
 			childDocuments.add(childDocument);
 			reader.moveUp();

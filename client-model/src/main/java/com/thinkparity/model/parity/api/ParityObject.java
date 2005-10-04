@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Loggable;
+
 import com.thinkparity.model.parity.api.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -36,13 +37,6 @@ public abstract class ParityObject implements Loggable {
 	 * The custom properties of the parity object.
 	 */
 	private Properties customProperties;
-
-	/**
-	 * The default properties for the customProperties.  These are used to set
-	 * defaults for properties which overlap into the public properties, such
-	 * as name and description.
-	 */
-	private Properties customPropertiesDefaults;
 
 	/**
 	 * The description of the parity object.
@@ -94,12 +88,24 @@ public abstract class ParityObject implements Loggable {
 		this.createdBy = createdBy;
 		this.keyHolder = keyHolder;
 		this.notes = new Vector<Note>(7);
-		this.customPropertiesDefaults = new Properties();
-		this.customPropertiesDefaults.setProperty("name", name);
-		this.customPropertiesDefaults.setProperty("description", description);
-		this.customProperties = new Properties(customPropertiesDefaults);
+		this.customProperties = new Properties(createDefaultCustomProperties(name, description));
 		this.versions = new Vector<ParityObjectVersion>(10);
 		this.id = id;
+	}
+
+	/**
+	 * Create a default instance of the custom properties.
+	 * 
+	 * @return The default custom properties.
+	 */
+	private Properties createDefaultCustomProperties(final String name,
+			final String description) {
+		if(null == name) { throw new NullPointerException(); }
+		final Properties customProperties = new Properties();
+		customProperties.setProperty("name", name);
+		if(null != description)
+			customProperties.setProperty("description", description);
+		return customProperties;
 	}
 
 	/**

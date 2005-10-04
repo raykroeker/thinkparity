@@ -14,9 +14,9 @@ import java.util.Vector;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
-import com.thinkparity.model.parity.api.document.Document;
 import com.thinkparity.model.parity.api.document.DocumentComparator;
 import com.thinkparity.model.parity.api.project.xml.ProjectXml;
+import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * Project

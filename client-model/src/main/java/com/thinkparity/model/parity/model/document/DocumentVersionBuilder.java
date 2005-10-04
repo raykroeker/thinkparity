@@ -1,10 +1,12 @@
 /*
  * Jun 18, 2005
  */
-package com.thinkparity.model.parity.api.document;
+package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.io.FileFilter;
+
+import com.thinkparity.model.parity.api.document.DocumentVersion;
 
 /**
  * DocumentVersionBuilder

@@ -13,7 +13,7 @@ import com.thinkparity.codebase.CompressionUtil.Level;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
-import com.thinkparity.model.parity.api.document.Document;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.util.Base64;
 import com.thinkparity.model.parity.xml.XmlTranslator;
 
@@ -45,7 +45,9 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	 */
 	public void marshal(Object source, HierarchicalStreamWriter writer,
 			MarshallingContext context) {
+		logger.info(new Throwable());
 		final Document document = (Document) source;
+		logger.debug(document);
 		writeName(document.getName(), writer);
 		writeCreatedBy(document.getCreatedBy(), writer);
 		writeKeyHolder(document, writer);

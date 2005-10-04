@@ -7,6 +7,7 @@ import java.io.File;
 
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
+import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * DocumentVersion

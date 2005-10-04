@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.api.document;
 
 import java.util.Comparator;
 
+import com.thinkparity.model.parity.model.document.Document;
+
 /**
  * DocumentComparator
  * @author raykroeker@gmail.com

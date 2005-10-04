@@ -1,7 +1,7 @@
 /*
  * Feb 27, 2005
  */
-package com.thinkparity.model.parity.api.document;
+package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -12,6 +12,7 @@ import com.thinkparity.codebase.StringUtil;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
+import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;

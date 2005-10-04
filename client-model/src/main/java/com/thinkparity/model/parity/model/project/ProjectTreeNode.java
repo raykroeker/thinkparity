@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model.project;
 
 import java.util.Iterator;
 
-import com.thinkparity.model.parity.api.document.Document;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.tree.DataTreeNode;
 
 public class ProjectTreeNode extends DataTreeNode {

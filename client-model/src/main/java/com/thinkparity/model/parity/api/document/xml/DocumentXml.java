@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 
-import com.thinkparity.model.parity.api.document.Document;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.xml.XmlUtil;
 
 /**

@@ -54,6 +54,15 @@ public class Note implements Loggable {
 	public String getSubject() { return subject; }
 
 	/**
+	 * Determine if the content of the note is set.
+	 * 
+	 * @return True if it is set, false otherwise.
+	 */
+	public Boolean isSetContent() {
+		return (null != content && 0 < content.length());
+	}
+
+	/**
 	 * @see com.thinkparity.codebase.log4j.Loggable#logMe()
 	 */
 	public StringBuffer logMe() {

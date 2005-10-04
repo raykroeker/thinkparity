@@ -523,7 +523,8 @@ public abstract class ParityXmlTranslator {
 			final HierarchicalStreamWriter writer) {
 		writer.startNode("note");									// <note>
 		writer.addAttribute("subject", note.getSubject());
-		writer.setValue(note.getContent());
+		if(note.isSetContent())
+			writer.setValue(note.getContent());
 		writer.endNode();											// </note>
 	}
 	protected final void writeNotes(final ParityObject parityObject,

@@ -5,6 +5,8 @@ package com.thinkparity.codebase;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Properties;
 
 
 /**
@@ -57,6 +59,33 @@ public final class SystemUtil {
 		synchronized(SYSTEM_PROPERTY_LOCK) {
 			System.getProperties().store(out, comments);
 		}
+	}
+
+	/**
+	 * Save the system properties to a print writer. In most cases this will be a
+	 * wrapper around System.out.
+	 * 
+	 * @param printWriter
+	 *            The output writer.
+	 * @param comments
+	 *            Any comments to write to the beginning of the output.
+	 */
+	public static void storeSystemProperties(final PrintWriter printWriter,
+			final String comments) {
+		final Properties systemProperties;
+		synchronized(SYSTEM_PROPERTY_LOCK) {
+			systemProperties = System.getProperties();
+		}
+		if(null == comments) {
+			printWriter.println(PropertiesUtil.generateComment());
+		}
+		else { printWriter.println(comments); }
+		for(Object key : systemProperties.keySet()) {
+			printWriter.print(key);
+			printWriter.print(":  ");
+			printWriter.println(systemProperties.get(key));
+		}
+		printWriter.println();
 	}
 
 	/**

@@ -65,12 +65,12 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 		/**
 		 * @see com.thinkparity.model.parity.model.workspace.Preferences#getServerHost()
 		 */
-		public String getServerHost() { return "mob-002.raykroeker.com"; }
+		public String getServerHost() { return "thinkparity.dyndns.org"; }
 
 		/**
 		 * @see com.thinkparity.model.parity.model.workspace.Preferences#getServerPort()
 		 */
-		public Integer getServerPort() { return 5222; }
+		public Integer getServerPort() { return 5223; }
 
 		/**
 		 * @see com.thinkparity.model.parity.model.workspace.Preferences#getUsername()

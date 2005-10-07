@@ -15,6 +15,7 @@ import org.jivesoftware.smack.ConnectionEstablishedListener;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.SSLXMPPConnection;
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -607,7 +608,7 @@ public class XMPPSessionImpl implements XMPPSession {
 		try {
 			if(Boolean.TRUE == isLoggedIn())
 				logout();
-			smackXMPPConnection = new XMPPConnection(host, port);
+			smackXMPPConnection = new SSLXMPPConnection(host, port);
 			smackXMPPConnection.addConnectionListener((ConnectionListener) smackConnectionListenerImpl);
 
 			smackXMPPConnection.addPacketListener(documentVersionXListenerImpl, documentVersionXFilter);

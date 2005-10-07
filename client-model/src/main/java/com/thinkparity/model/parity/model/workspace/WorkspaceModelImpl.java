@@ -29,11 +29,6 @@ import com.thinkparity.model.parity.util.SystemUtil;
 class WorkspaceModelImpl extends AbstractModelImpl {
 
 	/**
-	 * Cached workspace.
-	 */
-	private static Workspace cachedWorkspace;
-
-	/**
 	 * PreferencesImpl
 	 * @author raykroeker@gmail.com
 	 * @version 1.1
@@ -201,6 +196,11 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Cached workspace.
+	 */
+	private static Workspace cachedWorkspace;
+
+	/**
 	 * Create a WorkspaceModelImpl
 	 */
 	WorkspaceModelImpl() { super(); }
@@ -213,14 +213,28 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 		try {
 			final URL workspaceURL = getWorkspaceURL();
 			return new WorkspaceImpl(
-					getWorkspaceChildURL(workspaceURL, ".data"),
-					getWorkspaceChildURL(workspaceURL, ".log"),
-					getWorkspaceChildURL(workspaceURL, ".prefs"),
+					getWorkspaceChildURL(workspaceURL, "data"),
+					getWorkspaceChildURL(workspaceURL, "log"),
+					getWorkspaceChildURL(workspaceURL, "preferences"),
 					workspaceURL);
 		}
 		catch(MalformedURLException murlx) {
 			throw new RuntimeException("Could not initialize parity workspace.");
 		}
+	}
+
+	/**
+	 * Obtain the workspace for the parity model software. After initial
+	 * creation the workspace is cached in order to facilitate subsequent
+	 * requests.
+	 * 
+	 * @return <code>Workspace</code>
+	 */
+	Workspace getWorkspace() {
+		if(null == WorkspaceModelImpl.cachedWorkspace) {
+			WorkspaceModelImpl.cachedWorkspace = createWorkspace();
+		}
+		return WorkspaceModelImpl.cachedWorkspace;
 	}
 
 	/**
@@ -252,30 +266,36 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 		case LINUX:
 			return getWorkspaceDirectory_Linux();
 		}
-		throw Assert.createNotYetImplemented("Windows xp is the only supported operating system.");
+		throw Assert.createNotYetImplemented("Operating system:  " + os.toString() + " not yet supported.");
 	}
 
+	/**
+	 * Obtain the workspace directory for a linux environment.
+	 * 
+	 * @return The workspace root directory.
+	 */
 	private File getWorkspaceDirectory_Linux() {
 		final StringBuffer linuxWorkspaceURL =
 			new StringBuffer(SystemUtil.getenv("HOME"))
-				.append(File.separatorChar).append(".Parity Software")
+				.append(File.separatorChar).append("Parity Software")
 				.append(File.separatorChar).append("Parity");
 		final File linuxWorkspace = new File(linuxWorkspaceURL.toString());
 		return linuxWorkspace;
 	}
 
 	/**
-	 * Obtain the workspace directory's file for a win32 environment.
-	 * @return <code>java.io.File</code>
-	 * @throws MalformedURLException
+	 * Obtain the workspace directory file for a win32 environment.
+	 * 
+	 * @return The workspace root directory.
 	 */
 	private File getWorkspaceDirectory_Win32() {
 		// application data directory
 		// TODO:  Move the corporation name and the product name to an external
 		// configuration
-		final StringBuffer win32WorkspaceURL = new StringBuffer(SystemUtil
-				.getenv("APPDATA")).append(File.separatorChar).append(
-				"Parity Software").append(File.separatorChar).append("Parity");
+		final StringBuffer win32WorkspaceURL =
+			new StringBuffer(SystemUtil.getenv("APPDATA"))
+				.append(File.separatorChar).append("Parity Software")
+				.append(File.separatorChar).append("Parity");
 		final File win32Workspace = new File(win32WorkspaceURL.toString());
 		return win32Workspace;
 	}
@@ -292,19 +312,5 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 					workspaceDirectory.mkdirs());
 		try { return workspaceDirectory.toURL(); }
 		catch(MalformedURLException murlx) { return null; }
-	}
-
-	/**
-	 * Obtain the workspace for the parity model software. After initial
-	 * creation the workspace is cached in order to facilitate subsequent
-	 * requests.
-	 * 
-	 * @return <code>Workspace</code>
-	 */
-	Workspace getWorkspace() {
-		if(null == WorkspaceModelImpl.cachedWorkspace) {
-			WorkspaceModelImpl.cachedWorkspace = createWorkspace();
-		}
-		return WorkspaceModelImpl.cachedWorkspace;
 	}
 }

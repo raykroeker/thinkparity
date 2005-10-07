@@ -50,14 +50,6 @@
     		<properties>
     		</properties>
     	</dependency>
-		<dependency>
-    		<groupId>jivesoftware</groupId>
-    		<artifactId>smackx</artifactId>
-    		<version>1.5.0</version>
-    		<type>jar</type>
-    		<properties>
-    		</properties>
-    	</dependency>
     	<dependency>
     		<groupId>log4j</groupId>
     		<artifactId>log4j</artifactId>

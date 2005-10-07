@@ -246,13 +246,13 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	 */
 	private File getWorkspaceDirectory(final OS os) {
 		switch(os) {
+		case WINDOWS_2000:
 		case WINDOWS_XP:
 			return getWorkspaceDirectory_Win32();
 		case LINUX:
 			return getWorkspaceDirectory_Linux();
 		}
-		throw Assert
-				.createNotYetImplemented("Windows xp is the only supported operating system.");
+		throw Assert.createNotYetImplemented("Windows xp is the only supported operating system.");
 	}
 
 	private File getWorkspaceDirectory_Linux() {

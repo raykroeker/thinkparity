@@ -33,12 +33,12 @@ public interface XMPPSession {
 	public void removeListener(final XMPPSessionListener xmppSessionListener);
 
 
-	public void acceptPresence(final User xmppUser) throws SmackException;
-	public void addRosterEntry(final User xmppUser)
-			throws SmackException;
-	public void denyPresence(final User xmppUser) throws SmackException;
+	public void acceptPresence(final User user) throws SmackException;
+	public void addRosterEntry(final User user) throws SmackException;
+	public void denyPresence(final User user) throws SmackException;
 	public void debugRoster();
 	public Collection<User> getRosterEntries() throws SmackException;
+	public void updateRosterEntry(final User user);
 
 	public Boolean isLoggedIn();
 	public void login(final String host, final Integer port,

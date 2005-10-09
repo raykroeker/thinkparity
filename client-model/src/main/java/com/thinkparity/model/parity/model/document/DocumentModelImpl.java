@@ -98,22 +98,21 @@ class DocumentModelImpl {
 
 	private final Workspace workspace;
 
+	private final SessionModel sessionModel;
+
 	/**
 	 * Create a DocumentModelImpl
 	 * @deprecated
 	 */
-	DocumentModelImpl() {
-		super();
-		this.workspace = null;
-		this.preferences = null;
-	}
+	DocumentModelImpl() { this(null); }
 
 	DocumentModelImpl(final Workspace workspace) {
 		super();
 		this.workspace = workspace;
-		this.preferences = workspace.getPreferences();
+		// TODO:  Remove the bunk constructor
+		this.preferences = (null == workspace ? null : workspace.getPreferences());
+		this.sessionModel = SessionModel.getModel();
 	}
-
 
 	private void createDocument(final Project project, final Document document)
 			throws DocumentException {
@@ -299,7 +298,7 @@ class DocumentModelImpl {
 
 	private void sendDocument(final User user,
 			final DocumentVersion documentVersion) throws ParityException {
-		SessionModel.send(user, documentVersion);
+		sessionModel.send(user, documentVersion);
 	}
 
 	/**

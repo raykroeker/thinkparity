@@ -17,7 +17,6 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.xml.XmlTranslator;
-
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -31,9 +30,71 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTranslator {
 
 	/**
+	 * Handle to a document model.
+	 */
+	private final DocumentModel documentModel;
+
+	/**
 	 * Create a ProjectXmlTranslator
 	 */
-	ProjectXmlTranslator() { super("project", Project.class); }
+	ProjectXmlTranslator() {
+		super("project", Project.class);
+		this.documentModel = DocumentModel.getModel();
+	}
+
+	/**
+	 * @see com.thoughtworks.xstream.converters.Converter#canConvert(java.lang.Class)
+	 */
+	public boolean canConvert(Class type) { return type.equals(Project.class); }
+
+	/**
+	 * @see com.thoughtworks.xstream.converters.Converter#marshal(java.lang.Object, com.thoughtworks.xstream.io.HierarchicalStreamWriter, com.thoughtworks.xstream.converters.MarshallingContext)
+	 */
+	public void marshal(Object source, HierarchicalStreamWriter writer,
+			MarshallingContext context) {
+		final Project project = (Project) source;
+		writeName(project.getName(), writer);
+		writeCreatedBy(project.getCreatedBy(), writer);
+		writeKeyHolder(project, writer);
+		writeId(project.getId(), writer);
+		writeCreatedOn(project.getCreatedOn(), writer);
+		writeDescription(project.getDescription(), writer);
+		writeProjectDirectory(project.getDirectory(), writer);
+		writeChildProjects(project.getProjects(), writer);
+		writeChildDocuments(project.getDocuments().iterator(), writer);
+		writeCustomProperties(project, writer);
+	}
+
+	/**
+	 * @see com.thoughtworks.xstream.converters.Converter#unmarshal(com.thoughtworks.xstream.io.HierarchicalStreamReader, com.thoughtworks.xstream.converters.UnmarshallingContext)
+	 */
+	public Object unmarshal(HierarchicalStreamReader reader,
+			UnmarshallingContext context) {
+		Project project = null;
+		try {
+			final String name = readName(reader);
+			final String createdBy = readCreatedBy(reader);
+			final String keyHolder = readKeyHolder(reader);
+			final UUID id = readId(reader);
+			final Calendar createdOn = readCreatedOn(reader);
+			final String description = readDescription(reader);
+			final File directory = readDirectory(reader);
+			project = new Project(name, createdOn, createdBy, keyHolder,
+					description, directory, id);
+		}
+		catch(Exception x) { fatal(project, "An unknown error occured parsing project xml.", x); }
+
+		try { project.setProjects(readChildProjects(reader)); }
+		catch(Exception x) { fatal(project, "An unknown error occured parsing child projects' xml.", x); }
+
+		try { project.setDocuments(readChildDocuments(reader, project)); }
+		catch(Exception x) { fatal(project, "An unknown error occured parsing child documents' xml.", x); }
+
+		try { readCustomProperties(project, reader); }
+		catch(Exception x) { fatal(project, "An unknown error occured parsing project custom xml.", x); }
+
+		return project;
+	}
 
 	private Collection<Document> readChildDocuments(
 			final HierarchicalStreamReader reader, final Project project)
@@ -44,7 +105,7 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 		while(reader.hasMoreChildren()) {
 			reader.moveDown();
 			childDocument =
-				DocumentModel.getDocument(new File(reader.getAttribute("meta-data")));
+				documentModel.getDocument(new File(reader.getAttribute("meta-data")));
 			childDocument.setProject(project);
 			childDocuments.add(childDocument);
 			reader.moveUp();
@@ -100,59 +161,5 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 		writer.startNode("directory");
 		writer.setValue(projectDirectory.getAbsolutePath());
 		writer.endNode();
-	}
-
-	/**
-	 * @see com.thoughtworks.xstream.converters.Converter#canConvert(java.lang.Class)
-	 */
-	public boolean canConvert(Class type) { return type.equals(Project.class); }
-
-	/**
-	 * @see com.thoughtworks.xstream.converters.Converter#marshal(java.lang.Object, com.thoughtworks.xstream.io.HierarchicalStreamWriter, com.thoughtworks.xstream.converters.MarshallingContext)
-	 */
-	public void marshal(Object source, HierarchicalStreamWriter writer,
-			MarshallingContext context) {
-		final Project project = (Project) source;
-		writeName(project.getName(), writer);
-		writeCreatedBy(project.getCreatedBy(), writer);
-		writeKeyHolder(project, writer);
-		writeId(project.getId(), writer);
-		writeCreatedOn(project.getCreatedOn(), writer);
-		writeDescription(project.getDescription(), writer);
-		writeProjectDirectory(project.getDirectory(), writer);
-		writeChildProjects(project.getProjects(), writer);
-		writeChildDocuments(project.getDocuments().iterator(), writer);
-		writeCustomProperties(project, writer);
-	}
-
-	/**
-	 * @see com.thoughtworks.xstream.converters.Converter#unmarshal(com.thoughtworks.xstream.io.HierarchicalStreamReader, com.thoughtworks.xstream.converters.UnmarshallingContext)
-	 */
-	public Object unmarshal(HierarchicalStreamReader reader,
-			UnmarshallingContext context) {
-		Project project = null;
-		try {
-			final String name = readName(reader);
-			final String createdBy = readCreatedBy(reader);
-			final String keyHolder = readKeyHolder(reader);
-			final UUID id = readId(reader);
-			final Calendar createdOn = readCreatedOn(reader);
-			final String description = readDescription(reader);
-			final File directory = readDirectory(reader);
-			project = new Project(name, createdOn, createdBy, keyHolder,
-					description, directory, id);
-		}
-		catch(Exception x) { fatal(project, "An unknown error occured parsing project xml.", x); }
-
-		try { project.setProjects(readChildProjects(reader)); }
-		catch(Exception x) { fatal(project, "An unknown error occured parsing child projects' xml.", x); }
-
-		try { project.setDocuments(readChildDocuments(reader, project)); }
-		catch(Exception x) { fatal(project, "An unknown error occured parsing child documents' xml.", x); }
-
-		try { readCustomProperties(project, reader); }
-		catch(Exception x) { fatal(project, "An unknown error occured parsing project custom xml.", x); }
-
-		return project;
 	}
 }

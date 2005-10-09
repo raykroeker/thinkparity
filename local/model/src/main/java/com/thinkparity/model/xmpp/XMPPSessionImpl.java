@@ -29,7 +29,6 @@ import org.jivesoftware.smack.packet.Presence.Type;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Loggable;
-
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
@@ -49,7 +48,6 @@ import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
-import com.thinkparity.model.xmpp.user.User.State;
 
 /**
  * XMPPSessionImpl
@@ -173,7 +171,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	private SmackPresenceFilter smackPresenceFilter;
 	private SmackPresenceListenerImpl smackPresenceListenerImpl;
 	private SmackRosterListenerImpl smackRosterListenerImpl;
-	private XMPPConnection smackXMPPConnection;
+	private SSLXMPPConnection smackXMPPConnection;
 	private Vector<XMPPExtensionListener> xmppExtensionListeners;
 	private Vector<XMPPPresenceListener> xmppPresenceListeners;
 	private Vector<XMPPSessionListener> xmppSessionListeners;
@@ -189,7 +187,7 @@ public class XMPPSessionImpl implements XMPPSession {
 		xmppSessionListeners = new Vector<XMPPSessionListener>(10);
 
 		smackConnectionListenerImpl = new SmackConnectionListenerImpl();
-		XMPPConnection.addConnectionListener((ConnectionEstablishedListener) smackConnectionListenerImpl);
+		SSLXMPPConnection.addConnectionListener((ConnectionEstablishedListener) smackConnectionListenerImpl);
 
 		pendingXMPPUsers = new Hashtable<String, User>(10);
 
@@ -212,16 +210,20 @@ public class XMPPSessionImpl implements XMPPSession {
 
 	private User createUser(final Roster roster, final RosterEntry rosterEntry) {
 		final Presence presence = roster.getPresence(rosterEntry.getUser());
-		final State state;
-		if(presence == null) { state = State.PENDING; }
+
+		final User.Presence userPresence;
+		if(presence == null) { userPresence = User.Presence.OFFLINE; }
 		else {
 			final Type type = presence.getType();
-			if(Type.SUBSCRIBED == type) { state = State.ACCEPTED; }
-			else if(Type.SUBSCRIBE == type) { state = State.PENDING; }
-			else { state = State.DECLINED; }
+			final Mode mode = presence.getMode();
+			if(Type.AVAILABLE == type && Mode.AVAILABLE == mode) {
+				userPresence = User.Presence.AVAILABLE;
+			}
+			else { userPresence = User.Presence.UNAVAILABLE; }
 		}
-		return new User(rosterEntry.getName(), rosterEntry.getUser(), state);
+		return new User(rosterEntry.getName(), rosterEntry.getUser(), userPresence);
 	}
+
 	private void debug(final String context, final Integer integer) {
 		logger.debug(loggerFormatter.format(context, integer));
 	}
@@ -463,7 +465,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 */
 	private User getXMPPUser_From(final Packet packet) {
 		// TODO:  Figure out a way to extract the name.
-		return new User(null, packet.getFrom(), null);
+		return new User(null, packet.getFrom(), User.Presence.OFFLINE);
 	}
 
 	private void send(final User user, final PacketExtension packetExtension) {
@@ -479,33 +481,51 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @param username <code>java.lang.String</code.
 	 */
 	private void sendPresenceAcceptance(final String username) {
-		sendPresencePacket(username, Mode.AVAILABLE, Type.SUBSCRIBED);
+		sendPresencePacket(username, Type.SUBSCRIBED, Mode.AVAILABLE);
 	}
 
 	/**
-	 * Send a presence packet of type presenceType to user username.
+	 * Send a presence packet to a user.
 	 * 
 	 * @param username
-	 *            <code>java.lang.String</code>
-	 * @param presenceMode
-	 *            <code>org.jivesoftware.packet.Presence$PresenceMode</code>
-	 * @param presenceType
-	 *            <code>org.jivesoftware.packet.Presence$PresenceType</code>
+	 *            The user to send the packet to.
+	 * @param type
+	 *            The type of packet to send.
+	 * @param mode
+	 *            The mode of the packet. If the mode is null, no mode is set.
+	 * @see XMPPSessionImpl#sendPresencePacket(String, Presence.Type)
 	 */
-	private void sendPresencePacket(final String username,
-			final Presence.Mode presenceMode, final Presence.Type presenceType) {
-		final Presence presence = new Presence(presenceType);
-		presence.setMode(presenceMode);
+	private void sendPresencePacket(final String username, final Presence.Type type,
+			final Presence.Mode mode) {
+		final Presence presence = new Presence(type);
+		if(null != mode) { presence.setMode(mode); }
 		presence.setTo(username);
 		presence.setFrom(smackXMPPConnection.getUser());
 		smackXMPPConnection.sendPacket(presence);
 	}
 
-	public void acceptPresence(User xmppUser) throws SmackException {
+	/**
+	 * Send a presence packet to a user.
+	 * 
+	 * @param username
+	 *            The user to send the packet to.
+	 * @param type
+	 *            The type of packet to send.
+	 */
+	private void sendPresencePacket(final String username,
+			final Presence.Type type) {
+		sendPresencePacket(username, type, null);
+	}
+
+	/**
+	 * Accept the presence request of user.  This will send a presence packet
+	 * indicating that the user is subscribed and available.
+	 * 
+	 */
+	public void acceptPresence(final User user) throws SmackException {
 		// save the user for use by the roster event later on
-		pendingXMPPUsers.put(xmppUser.getUsername(), xmppUser);
-		sendPresencePacket(xmppUser.getUsername(), Mode.AVAILABLE,
-				Type.SUBSCRIBED);
+		pendingXMPPUsers.put(user.getUsername(), user);
+		sendPresencePacket(user.getUsername(), Type.SUBSCRIBED, Mode.AVAILABLE);
 	}
 
 	/**
@@ -569,8 +589,10 @@ public class XMPPSessionImpl implements XMPPSession {
 		}
 	}
 
-	public void denyPresence(User xmppUser) throws SmackException {
-		// TODO Auto-generated method stub
+	public void denyPresence(User user) throws SmackException {
+		// save the user for use by the roster event later on
+		pendingXMPPUsers.put(user.getUsername(), user);
+		sendPresencePacket(user.getUsername(), Type.UNSUBSCRIBED);
 	}
 
 	public Collection<User> getRosterEntries() throws SmackException {
@@ -676,5 +698,14 @@ public class XMPPSessionImpl implements XMPPSession {
 		catch(UnsupportedXTypeException uxtx) {
 			throw error("Could not send packet extension.", uxtx);
 		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#updateRosterEntry(com.thinkparity.model.xmpp.user.User)
+	 */
+	public void updateRosterEntry(User user) {
+		final Roster roster = getRoster();
+		final RosterEntry rosterEntry = roster.getEntry(user.getUsername());
+		rosterEntry.setName(user.getName());
 	}
 }

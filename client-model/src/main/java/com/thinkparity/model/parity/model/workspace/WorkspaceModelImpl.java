@@ -59,13 +59,23 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 
 		/**
 		 * @see com.thinkparity.model.parity.model.workspace.Preferences#getServerHost()
+		 * @override parity.serverhost
 		 */
-		public String getServerHost() { return "thinkparity.dyndns.org"; }
+		public String getServerHost() {
+			final String override = System.getProperty("parity.serverhost");
+			if(null != override && 0 < override.length()) { return override; }
+			else { return "thinkparity.dyndns.org"; }
+		}
 
 		/**
 		 * @see com.thinkparity.model.parity.model.workspace.Preferences#getServerPort()
+		 * @override parity.serverport
 		 */
-		public Integer getServerPort() { return 5223; }
+		public Integer getServerPort() {
+			final Integer override = Integer.getInteger("parity.serverport");
+			if(null != override) { return override; }
+			else { return 5223; }
+		}
 
 		/**
 		 * @see com.thinkparity.model.parity.model.workspace.Preferences#getUsername()

@@ -24,19 +24,32 @@ public class SystemUtil {
 	 * Provides an internal override if applicable.
 	 * @see java.lang.System#getenv(java.lang.String)
 	 */
-	public static String getenv(String name) { return internalGetenv(name); }
+	public static String getenv(String name) { return getenvImpl(name); }
 
-    private static String internalGetenv(final String name) {
+	/**
+	 * Check to see if there exists an system-property override for the named
+	 * environment variable. This will do a lookup in the envNameToPropertyMap
+	 * for name, then check the system property for a match.
+	 * 
+	 * @param name
+	 *            The environment variable name.
+	 * @return The system property override (if one exists) or the environment
+	 *         variable value.
+	 */
+    private static String getenvImpl(final String name) {
     	final String override = System.getProperty(internalGetPropertyKey(name));
     	if(null == override) { return System.getenv(name); }
     	else { return override; }
     }
 
     /**
-     * Obtain the property name mapped to the env variable name.
-     * @param name <code>String</code>
-     * @return <code>String</code>
-     */
+	 * Obtain the system property name mapped to the env variable name.
+	 * 
+	 * @param name
+	 *            The environment variable name.
+	 * @return The name of the system property that can override the environment
+	 *         variable name.
+	 */
     private static String internalGetPropertyKey(final String name) {
     	return envNameToPropertyMap.get(name);
     }

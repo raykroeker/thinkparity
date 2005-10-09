@@ -26,9 +26,34 @@ import com.thinkparity.model.xmpp.user.User;
 public class DocumentModel {
 
 	/**
-	 * Handle to the document api's implementation.
+	 * Obtain a handle to a document model.
+	 * 
+	 * @return The handle to the model.
 	 */
-	private static final DocumentModelImpl impl = new DocumentModelImpl();
+	public static DocumentModel getModel() {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		final DocumentModel documentModel = new DocumentModel(workspace);
+		return documentModel;
+	}
+
+	/**
+	 * Internal implementation class.
+	 */
+	private final DocumentModelImpl impl;
+
+	/**
+	 * Synchronization lock for the implementation class.
+	 */
+	private final Object implLock;
+
+	/**
+	 * Create a DocumentModel [Singleton]
+	 */
+	private DocumentModel(final Workspace workspace) {
+		super();
+		this.impl = new DocumentModelImpl(workspace);
+		this.implLock = new Object();
+	}
 
 	/**
 	 * Add a listener that is notified whenever a document is created.
@@ -36,9 +61,13 @@ public class DocumentModel {
 	 * @param creationListener
 	 *            <code>com.thinkparity.model.parity.api.events.CreationListener</code>
 	 */
-	public static void addCreationListener(
-			final CreationListener creationListener) {
-		impl.addCreationListener(creationListener);
+	public void addCreationListener(final CreationListener creationListener) {
+		synchronized(implLock) { impl.addCreationListener(creationListener); }
+	}
+
+	public void addNote(final Document document, final Note note)
+			throws ParityException {
+		synchronized(implLock) { impl.addNote(document, note); }
 	}
 
 	/**
@@ -47,117 +76,12 @@ public class DocumentModel {
 	 * @param updateListener
 	 *            <code>com.thinkparity.model.parity.api.events.UpdateListener</code>
 	 */
-	public static void addUpdateListener(final UpdateListener updateListener) {
-		impl.addUpdateListener(updateListener);
+	public void addUpdateListener(final UpdateListener updateListener) {
+		synchronized(implLock) { impl.addUpdateListener(updateListener); }
 	}
 
-	public static void closeDocument(final Document document)
-			throws ParityException {
+	public void closeDocument(final Document document) throws ParityException {
 		Assert.assertNotYetImplemented("DocumentModel.closeDocument()");
-	}
-
-	public static void deleteDocument(final Document document)
-			throws ParityException {
-		Assert.assertNotYetImplemented("DocumentModel.deleteDocument()");
-	}
-
-	/**
-	 * Take the given document, and export it to the specified file. This will
-	 * obtain the document's content, and save it to the file.
-	 * 
-	 * @param file
-	 *            <code>java.io.File</code>
-	 * @param document
-	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
-	 * @throws ParityException
-	 */
-	public static void exportDocument(final File file, final Document document)
-			throws ParityException {
-		impl.exportDocument(file, document);
-	}
-
-	public static Document getDocument(final File documentMetaDataFile) throws ParityException {
-		return impl.getDocument(documentMetaDataFile);
-	}
-
-	/**
-	 * Obtain a handle to a document model.
-	 * 
-	 * @return The handle to the model.
-	 */
-	public static DocumentModel getModel() { return new DocumentModel(); }
-
-	public static StringBuffer getRelativePath(final Document document)
-			throws ParityException {
-		return impl.getRelativePath(document);
-	}
-
-	public static Boolean isDocumentClosable(final Document document)
-			throws ParityException {
-		return impl.isDocumentClosable(document);
-	}
-
-	public static Boolean isDocumentDeletable(final Document document)
-			throws ParityException {
-		return impl.isDocumentDeletable(document);
-	}
-
-	public static void openDocument(final Document document)
-			throws ParityException {
-		impl.openDocument(document);
-	}
-
-	/**
-	 * Remove a creation listener.
-	 * @see <code>com.thinkparity.model.parity.api.document.DocumentApi#addCreationListener</code>
-	 * @param creationListener <code>com.thinkparity.model.parity.api.events.CreationListener</code>
-	 */
-	public static void removeCreationListener(
-			final CreationListener creationListener) {
-		impl.removeCreationListener(creationListener);
-	}
-
-	public static void removeUpdateListener(final UpdateListener updateListener) {
-		impl.removeUpdateListener(updateListener);
-	}
-
-	public static void sendDocument(final Collection<User> users,
-			final Document document) throws ParityException {
-		impl.sendDocument(users, document);
-	}
-
-	public static void updateDocument(final Document document)
-			throws ParityException {
-		impl.updateDocument(document);
-	}
-
-	/**
-	 * Handle to the document api implementation.
-	 */
-	private final DocumentModelImpl impl2;
-
-	/**
-	 * Synchronization lock for access to impl2.
-	 */
-	private final Object impl2Lock = new Object();
-
-	/**
-	 * Handle to the parity workspace.
-	 */
-	private final Workspace workspace;
-
-	/**
-	 * Create a DocumentModel [Singleton]
-	 */
-	private DocumentModel() {
-		super();
-		this.workspace = WorkspaceModel.getModel().getWorkspace();
-		this.impl2 = new DocumentModelImpl(workspace);
-	}
-
-	public void addNote(final Document document, final Note note)
-			throws ParityException {
-		synchronized(impl2Lock) { impl2.addNote(document, note); }
 	}
 
 	/**
@@ -192,8 +116,78 @@ public class DocumentModel {
 	public Document createDocument(final Project project,
 			final String name, final String description, final File documentFile)
 			throws ParityException {
-		synchronized(impl2Lock) {
-			return impl2.createDocument(project, name, description, documentFile);
+		synchronized(implLock) {
+			return impl.createDocument(project, name, description, documentFile);
 		}
+	}
+
+	public void deleteDocument(final Document document) throws ParityException {
+		Assert.assertNotYetImplemented("DocumentModel.deleteDocument()");
+	}
+
+	/**
+	 * Take the given document, and export it to the specified file. This will
+	 * obtain the document's content, and save it to the file.
+	 * 
+	 * @param file
+	 *            <code>java.io.File</code>
+	 * @param document
+	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
+	 * @throws ParityException
+	 */
+	public void exportDocument(final File file, final Document document)
+			throws ParityException {
+		synchronized(implLock) { impl.exportDocument(file, document); }
+	}
+
+	public Document getDocument(final File documentMetaDataFile)
+			throws ParityException {
+		synchronized(implLock) {
+			return impl.getDocument(documentMetaDataFile);
+		}
+	}
+
+	public StringBuffer getRelativePath(final Document document)
+			throws ParityException {
+		synchronized(implLock) { return impl.getRelativePath(document); }
+	}
+
+	public Boolean isDocumentClosable(final Document document)
+			throws ParityException {
+		synchronized(implLock) { return impl.isDocumentClosable(document); }
+	}
+
+	public Boolean isDocumentDeletable(final Document document)
+			throws ParityException {
+		synchronized(implLock) { return impl.isDocumentDeletable(document); }
+	}
+
+	public void openDocument(final Document document)
+			throws ParityException {
+		synchronized(implLock) { impl.openDocument(document); }
+	}
+
+	/**
+	 * Remove a creation listener.
+	 * @see <code>com.thinkparity.model.parity.api.document.DocumentApi#addCreationListener</code>
+	 * @param creationListener <code>com.thinkparity.model.parity.api.events.CreationListener</code>
+	 */
+	public void removeCreationListener(final CreationListener creationListener) {
+		synchronized(implLock) {
+			impl.removeCreationListener(creationListener);
+		}
+	}
+
+	public void removeUpdateListener(final UpdateListener updateListener) {
+		synchronized(implLock) { impl.removeUpdateListener(updateListener); }
+	}
+
+	public void sendDocument(final Collection<User> users,
+			final Document document) throws ParityException {
+		synchronized(implLock) { impl.sendDocument(users, document); }
+	}
+
+	public void updateDocument(final Document document) throws ParityException {
+		synchronized(implLock) { impl.updateDocument(document); }
 	}
 }

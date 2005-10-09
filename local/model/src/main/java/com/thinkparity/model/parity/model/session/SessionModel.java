@@ -3,9 +3,7 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-
 import java.util.Collection;
-
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
@@ -24,96 +22,111 @@ import com.thinkparity.model.xmpp.user.User;
 public class SessionModel extends AbstractModel {
 
 	/**
-	 * Handle to the implementation of this session api.
-	 */
-	private static SessionModelImpl impl = new SessionModelImpl();
-
-	public static void acceptPresence(final User xmppUser) throws ParityException {
-		impl.acceptPresence(xmppUser);
-	}
-
-	public static void debugRoster() {
-		impl.debugRoster();
-	}
-
-	public static void denyPresence(final User xmppUser) throws ParityException {
-		impl.denyPresence(xmppUser);
-	}
-
-	/**
 	 * Obtain a handle to a session model interface.
-	 * @return SessionModel
+	 * @return A handle to the session model interface.
 	 */
-	public static SessionModel getModel() { return new SessionModel(); }
-
-	/**
-	 * Terminate the current parity session.
-	 * @throws ParityException
-	 */
-	public static void logout() throws ParityException { impl.logout(); }
-
-	/**
-	 * Deregister an instance of a listener for parity session events.
-	 * 
-	 * @param sessionListener
-	 *            <code>com.thinkparity.model.parity.api.session.SessionListener</code>
-	 */
-	public static void removeListener(final SessionListener sessionListener) {
-		impl.removeListener(sessionListener);
-	}
-
-	public static void send(final User user,
-			final DocumentVersion documentVersion) throws ParityException {
-		impl.send(user, documentVersion);
+	public static SessionModel getModel() {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		final SessionModel sessionModel = new SessionModel(workspace);
+		return sessionModel;
 	}
 
 	/**
 	 * Instance implementation.
 	 */
-	private final SessionModelImpl impl2;
+	private final SessionModelImpl impl;
 
 	/**
-	 * Handle to the parity workspace.
+	 * Synchronization lock for impl.
 	 */
-	private final Workspace workspace;
+	private final Object implLock;
 
 	/**
 	 * Create a SessionModel
 	 */
-	private SessionModel() {
+	private SessionModel(final Workspace workspace) {
 		super();
-		this.workspace = WorkspaceModel.getModel().getWorkspace();
-		this.impl2 = new SessionModelImpl(workspace);
-	}
-
-	public void addListener(final PresenceListener presenceListener) {
-		impl2.addListener(presenceListener);
+		this.impl = new SessionModelImpl(workspace);
+		this.implLock = new Object();
 	}
 
 	/**
-	 * Register an instance of a listener for parity session events.
+	 * Accept the presence visibility request from user to the currently logged
+	 * in user.
+	 * 
+	 * @param user
+	 *            The user who's presence request the currently logged in user
+	 *            will accept.
+	 * @see SessionModel#denyPresence(User)
+	 * @throws ParityException
+	 */
+	public void acceptPresence(final User user) throws ParityException {
+		synchronized(implLock) { impl.acceptPresence(user); }
+	}
+
+	/**
+	 * Add a presence listener to the session.
+	 * 
+	 * @param presenceListener
+	 *            The presence listener to add.
+	 */
+	public void addListener(final PresenceListener presenceListener) {
+		synchronized(implLock) { impl.addListener(presenceListener); }
+	}
+
+	/**
+	 * Add a session listener to the session.
 	 * 
 	 * @param sessionListener
-	 *            <code>com.thinkparity.model.parity.api.session.SessionListener</code>
+	 *            The session listener to add.
 	 */
 	public void addListener(final SessionListener sessionListener) {
-		impl2.addListener(sessionListener);
+		synchronized(implLock) { impl.addListener(sessionListener); }
 	}
 
-	public void addRosterEntry(final User xmppUser)
-			throws ParityException {
-		impl2.addRosterEntry(xmppUser);
+	/**
+	 * Add a roster entry for the user. This will send a presence request to
+	 * user.
+	 * 
+	 * @param user
+	 *            The user to add to the roster.
+	 * @throws ParityException
+	 */
+	public void addRosterEntry(final User user) throws ParityException {
+		synchronized(implLock) { impl.addRosterEntry(user); }
 	}
 
+	/**
+	 * Deny the presence visibility request from user to the currently logged
+	 * in user.
+	 * 
+	 * @param user
+	 *            The user who's presence request the currently logged in user
+	 *            will deny.
+	 * @see SessionModel#acceptPresence(User)
+	 * @throws ParityException
+	 */
+	public void denyPresence(final User user) throws ParityException {
+		synchronized(implLock) { impl.denyPresence(user); }
+	}
+
+	/**
+	 * Obtain a list of roster entries.
+	 * 
+	 * @return The list of roster entries.
+	 * @throws ParityException
+	 */
 	public Collection<User> getRosterEntries() throws ParityException {
-		return impl2.getRosterEntries();
+		synchronized(implLock) { return impl.getRosterEntries(); }
 	}
 
 	/**
 	 * Determine whether or not the parity session has been established.
 	 * @return Boolean
 	 */
-	public Boolean isLoggedIn() { return impl2.isLoggedIn(); }
+	public Boolean isLoggedIn() {
+		synchronized(implLock) { return impl.isLoggedIn(); }
+	}
 
 	/**
 	 * Login to parity. This will create a new singleton instance of a parity
@@ -127,6 +140,47 @@ public class SessionModel extends AbstractModel {
 	 */
 	public void login(final String username, final String password)
 			throws ParityException {
-		impl2.login(username, password);
+		synchronized(implLock) { impl.login(username, password); }
+	}
+
+	/**
+	 * Terminate the current parity session.
+	 * @throws ParityException
+	 */
+	public void logout() throws ParityException {
+		synchronized(implLock) { impl.logout(); }
+	}
+
+	/**
+	 * Remove a session listener from the session.
+	 * 
+	 * @param sessionListener
+	 *            The registered session listener to remove.
+	 */
+	public void removeListener(final SessionListener sessionListener) {
+		synchronized(implLock) { impl.removeListener(sessionListener); }
+	}
+
+	/**
+	 * Send a document version to a user.
+	 * 
+	 * @param user
+	 *            The user to send the document to.
+	 * @param documentVersion
+	 *            The document to send.
+	 * @throws ParityException
+	 */
+	public void send(final User user,
+			final DocumentVersion documentVersion) throws ParityException {
+		synchronized(implLock) { impl.send(user, documentVersion); }
+	}
+
+	/**
+	 * Update the roster entry to the values found in user.
+	 * @param user
+	 * @throws ParityException
+	 */
+	public void updateRosterEntry(final User user) throws ParityException {
+		synchronized(implLock) { impl.updateRosterEntry(user); }
 	}
 }

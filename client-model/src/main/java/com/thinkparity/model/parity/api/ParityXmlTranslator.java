@@ -27,7 +27,7 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.xml.XmlUtil;
+import com.thinkparity.model.xstream.XStreamUtil;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -328,7 +328,7 @@ public abstract class ParityXmlTranslator {
 			final HierarchicalStreamReader reader) throws FileNotFoundException {
 		reader.moveDown();	// <version>
 		final File versionMetaDataFile = new File(reader.getValue());
-		parityObject.add((ParityObjectVersion) XmlUtil
+		parityObject.add((ParityObjectVersion) XStreamUtil
 				.fromXml(new InputStreamReader(new FileInputStream(
 						versionMetaDataFile))));
 		reader.moveUp();	// </version>

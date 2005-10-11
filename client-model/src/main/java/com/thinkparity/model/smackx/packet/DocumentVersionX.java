@@ -5,9 +5,9 @@ package com.thinkparity.model.smackx.packet;
 
 
 import com.thinkparity.model.parity.api.document.DocumentVersion;
-import com.thinkparity.model.parity.xml.XmlUtil;
 import com.thinkparity.model.smackx.PacketX;
 import com.thinkparity.model.smackx.XProvider;
+import com.thinkparity.model.xstream.XStreamUtil;
 
 /**
  * DocumentVersion
@@ -109,7 +109,7 @@ public class DocumentVersionX extends PacketX {
 			.append(" xmlns=\"")
 			.append(DocumentVersionX.NAMESPACE)
 			.append("\">")
-			.append(XmlUtil.toExtensionXml(documentVersion))
+			.append(XStreamUtil.toExtensionXml(documentVersion))
 			.append("</")
 			.append(DocumentVersionX.ELEMENTNAME)
 			.append(">").toString();

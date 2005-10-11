@@ -19,7 +19,7 @@ class TreeModelImpl extends AbstractModelImpl {
 	/**
 	 * Create a TreeModelImpl
 	 */
-	TreeModelImpl() { super(); }
+	TreeModelImpl() { super(null); }
 
 	Tree getTree(final Workspace workspace) throws ParityException {
 		final Project rootProject = ProjectModel.getRootProject(workspace);

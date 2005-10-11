@@ -12,15 +12,11 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Loggable;
 import com.thinkparity.codebase.log4j.LoggerFormatter;
-
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
@@ -30,16 +26,15 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.api.project.xml.ProjectXml;
+import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -47,30 +42,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.2
  */
-class DocumentModelImpl {
-
-	/**
-	 * List of listeners to notify when a new document is created.
-	 */
-	private static final Collection<CreationListener> creationListeners =
-		new Vector<CreationListener>(10);
-
-	/**
-	 * Handle to an internal logger.
-	 */
-	private static final Logger logger =
-		ModelLoggerFactory.getLogger(DocumentModelImpl.class);
-
-	/**
-	 * Handle to a class used to format various classes.
-	 */
-	private static final LoggerFormatter loggerFormatter = new LoggerFormatter();
-
-	/**
-	 * List of listeners to notify when a document has been updated.
-	 */
-	private static final Collection<UpdateListener> updateListeners =
-		new Vector<UpdateListener>(10);
+class DocumentModelImpl extends AbstractModelImpl {
 
 	/**
 	 * DocumentException
@@ -94,39 +66,305 @@ class DocumentModelImpl {
 		private DocumentException(final Throwable cause) { super(cause); }
 	}
 
-	private final Preferences preferences;
+	/**
+	 * List of listeners to notify when a document is created or received.
+	 * @see DocumentModelImpl#creationListenersLock
+	 */
+	private static final Collection<CreationListener> creationListeners;
 
-	private final Workspace workspace;
+	/**
+	 * Synchronization lock for the creation listeners.
+	 * @see DocumentModelImpl#creationListeners
+	 */
+	private static final Object creationListenersLock;
 
+	/**
+	 * Handle to a class used to format various classes.
+	 */
+	private static final LoggerFormatter loggerFormatter = new LoggerFormatter();
+
+	/**
+	 * List of listeners to notify when a document has been updated.
+	 * @see DocumentModelImpl#updateListenersLock
+	 */
+	private static final Collection<UpdateListener> updateListeners;
+
+	/**
+	 * Synchronization lock for the update listeners.
+	 * @see DocumentModelImpl#updateListeners
+	 */
+	private static final Object updateListenersLock;
+
+	static {
+		creationListeners = new Vector<CreationListener>(7);
+		creationListenersLock = new Object();
+
+		updateListeners = new Vector<UpdateListener>(7);
+		updateListenersLock = new Object();
+	}
+
+	/**
+	 * Handle to the session model.
+	 */
 	private final SessionModel sessionModel;
 
 	/**
 	 * Create a DocumentModelImpl
-	 * @deprecated
+	 * 
+	 * @param workspace
+	 *            The workspace to work within.
 	 */
-	DocumentModelImpl() { this(null); }
-
 	DocumentModelImpl(final Workspace workspace) {
-		super();
-		this.workspace = workspace;
-		// TODO:  Remove the bunk constructor
-		this.preferences = (null == workspace ? null : workspace.getPreferences());
+		super(workspace);
 		this.sessionModel = SessionModel.getModel();
+	}
+
+	/**
+	 * @see DocumentModel#addCreationListener(CreationListener)
+	 * @param creationListener
+	 */
+	void addCreationListener(final CreationListener creationListener) {
+		Assert.assertNotNull("Null creation listener.", creationListener);
+		synchronized(DocumentModelImpl.creationListenersLock) {
+			Assert.assertNotTrue("Creation listener already registered.",
+					DocumentModelImpl.creationListeners.contains(creationListener));
+			DocumentModelImpl.creationListeners.add(creationListener);
+		}
+	}
+
+	void addNote(final Document document, final Note note)
+			throws ParityException {
+		debug("documentapiimpl.addnote:document", document);
+		debug("documentapiimpl.addnote:note", note);
+		try {
+			document.add(note);
+			serialize(document);
+			notifyUpdate_objectUpdated(document);
+		}
+		catch(DocumentException dx) { throw new ParityException(dx); }
+	}
+
+	/**
+	 * @see DocumentModel#addUpdateListener(UpdateListener)
+	 * @param updateListener
+	 *            The update listener to add.
+	 */
+	void addUpdateListener(final UpdateListener updateListener) {
+		Assert.assertNotNull("Null update listener.", updateListener);
+		synchronized(DocumentModelImpl.updateListenersLock) {
+			Assert.assertNotTrue("Update listener already registered.",
+					DocumentModelImpl.updateListeners.contains(updateListener));
+			DocumentModelImpl.updateListeners.add(updateListener);
+		}
+	}
+
+	Document createDocument(final Project project, final String name,
+			final String description, final File documentFile)
+			throws ParityException {
+		debug("DocumentModelImpl.createDocument():project", project);
+		debug("DocumentModelImpl.createDocument():name", name);
+		debug("DocumentModelImpl.createDocument():description", description);
+		debug("DocumentModelImpl.createDocument():documentFile", documentFile);
+		try {
+			final UUID nextDocumentId = UUIDGenerator.nextUUID();
+			debug("DocumentModelImpl.createDocument():nextDocumentId", nextDocumentId);
+			final byte[] documentContent = FileUtil.readFile(documentFile);
+			final Document document = new Document(project, name, DateUtil
+					.getInstance(), preferences.getUsername(), preferences
+					.getUsername(), description, project.getDirectory(),
+					nextDocumentId, documentContent);
+			createDocument(project, document);
+			createDocumentVersion(document);
+			return document;
+		}
+		catch(DocumentException dx) { throw new ParityException(dx); }
+		catch(IOException iox) { throw new ParityException(iox); }
+	}
+
+	/**
+	 * Create a new document version based upon an existing document.  This will
+	 * check the cache for updates to the document, write the updates to the document,
+	 * then create a new version based upon that document.
+	 * @param document <code>Document</code>
+	 * @return <code>DocumentVersion</code>
+	 * @throws DocumentException
+	 * @throws IOException
+	 * @throws ParityException
+	 */
+	DocumentVersion createDocumentVersion(final Document document)
+			throws ParityException {
+		try {
+			final File cacheFile = getCacheFile(document);
+			if(cacheFile.exists()) {
+				final byte[] cacheFileBytes = getCacheFileBytes(document);
+				final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
+				if(!cacheFileChecksum.equals(document.getContentChecksum())) {
+					document.setContent(cacheFileBytes);
+					updateDocument(document);
+				}
+			}
+			final DocumentVersion newDocumentVersion =
+					DocumentVersionBuilder.newDocumentVersion(document);
+			createDocumentVersion(newDocumentVersion);
+			return newDocumentVersion;
+		}
+		catch(DocumentException dx) { throw new ParityException(dx); }
+		catch(IOException iox) { throw new ParityException(iox); }
+	}
+
+	/**
+	 * Take the given document, and export it to the specified file. This will
+	 * obtain the document's content, and save it to the file.
+	 * 
+	 * @param file
+	 *            <code>java.io.File</code>
+	 * @param document
+	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
+	 * @throws ParityException
+	 */
+	void exportDocument(final File file, final Document document)
+			throws ParityException {
+		debug("DocumentModelImpl.exportDocument():file", file);
+		debug("DocumentModelImpl.exportDocument():document", document);
+		exportDocument_CheckRules(file, document);
+		createFile(file);
+		writeDocumentContent(file, readDocument(document));
+	}
+
+	Document getDocument(final File documentMetaDataFile) throws ParityException {
+		debug("documentapiimpl.getdocument:documentMetaDataFile", documentMetaDataFile);
+		try { return DocumentXml.readXml(documentMetaDataFile); }
+		catch(IOException iox) { throw new ParityException(iox); }
+	}
+
+	StringBuffer getRelativePath(final Document document) throws ParityException {
+		debug("documentapiimpl.getrelativepath:document", document);
+		final Project rootProject = ProjectModel.getRootProject(workspace);
+		final URI relativeURI = rootProject.getDirectory().toURI()
+			.relativize(document.getDirectory().toURI());
+		return new StringBuffer(relativeURI.toString());
+	}
+
+	Boolean isDocumentClosable(final Document document) throws ParityException {
+		debug("documentapiimpl.isdocumentclosable:document", document);
+		return Boolean.FALSE;
+	}
+
+	Boolean isDocumentDeletable(final Document document) throws ParityException {
+		debug("documentapiimpl.isdocumentdeletable:document", document);
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * Determine if a document exists in the disk cache, and open it. If it does
+	 * not exists in the cache, create it, and open it.
+	 * 
+	 * @param document
+	 *            <code>Document</code>
+	 * @throws ParityException
+	 */
+	void openDocument(final Document document) throws ParityException {
+		debug("DocumentModelImpl.openDocument():document", document);
+		try {
+			final File documentCacheFile = getFileFromDiskCache(document);
+			ParityUtil.launchFileWin32(documentCacheFile.getAbsolutePath());
+		}
+		catch(IOException iox) { throw new ParityException(iox); }
+	}
+
+	/**
+	 * @see DocumentModel#receiveDocumentVersion(DocumentVersion)
+	 * @param documentVersion
+	 *            The document version to receive.
+	 * @throws ParityException
+	 */
+	void receiveDocumentVersion(final DocumentVersion documentVersion)
+			throws ParityException {
+		debug("DocumenApiImpl.createDocument():documentVersion:",
+				documentVersion);
+		try {
+			// the imported document will reside within the root project
+			final Project project = ProjectModel.getRootProject(workspace);
+
+			// create a new instance of a document based upon the imported
+			// document with a few modifications
+			final Document originalDocument = documentVersion.getDocument();
+			final Document newDocument = new Document(originalDocument);
+			newDocument.setDirectory(project);
+
+			// create a temporary file using the documentVersion's content
+			// final File documentFile = createTempFile(documentVersion);
+
+			// create the document
+			createMetaData(newDocument);
+			updateProjectMetaData(project, newDocument);
+			notifyCreation_objectReceived(newDocument);
+		}
+		catch(DocumentException dx) { throw new ParityException(dx); }
+	}
+
+	/**
+	 * @see DocumentModel#removeCreationListener(CreationListener)
+	 * @param creationListener
+	 */
+	void removeCreationListener(final CreationListener creationListener) {
+		Assert.assertNotNull("Null creation listener.", creationListener);
+		synchronized(DocumentModelImpl.creationListenersLock) {
+			Assert.assertTrue("Creation listener not registered.",
+					DocumentModelImpl.creationListeners.contains(creationListener));
+			DocumentModelImpl.creationListeners.remove(creationListener);
+		}
+	}
+
+	/**
+	 * @see DocumentModel#removeUpdateListener(UpdateListener)
+	 * @param updateListener
+	 *            The update listener to remove.
+	 */
+	void removeUpdateListener(final UpdateListener updateListener) {
+		Assert.assertNotNull("Null update listener.", updateListener);
+		synchronized(DocumentModelImpl.updateListenersLock) {
+			Assert.assertTrue("Update listener not registered.",
+					DocumentModelImpl.updateListeners.contains(updateListener));
+			DocumentModelImpl.updateListeners.remove(updateListener);
+		}
+	}
+
+	void sendDocument(final Collection<User> users, final Document document)
+			throws ParityException {
+		trace();
+		debug("DocumentModelImpl.sendDocument():users", users);
+		debug("DocumentModelImpl.sendDocument():document", document);
+		final DocumentVersion newDocumentVersion =
+			createDocumentVersion(document);
+		for(Iterator<User> i = users.iterator(); i.hasNext();) {
+			sendDocument(i.next(), newDocumentVersion);
+		}
+	}
+
+	void updateDocument(final Document document) throws ParityException {
+		debug("DocumentModelImpl.updateDocument():document", document);
+		try {
+			serialize(document);
+			notifyUpdate_objectUpdated(document);
+		}
+		catch(DocumentException dx) { throw new ParityException(dx); }
 	}
 
 	private void createDocument(final Project project, final Document document)
 			throws DocumentException {
 		createMetaData(document);
 		updateProjectMetaData(project, document);
-		notifyCreation(document);
+		notifyCreation_objectCreated(document);
 	}
+
 	private void createDocumentVersion(final DocumentVersion documentVersion)
 			throws DocumentException {
 		serialize(documentVersion);
 		final Document document = documentVersion.getDocument();
 		document.add(documentVersion);
 		serialize(document);
-		notifyVersionCreation(documentVersion);
+		notifyCreation_objectVersionCreated(documentVersion);
 	}
 
 	/**
@@ -202,7 +440,7 @@ class DocumentModelImpl {
 			throw new ParityException("Export file " + file.getAbsolutePath()
 					+ " already exists.");
 	}
-	
+
 	/**
 	 * Obtain the directory used to cache content for the document. If the
 	 * directory does not yet exist it is created.
@@ -234,6 +472,7 @@ class DocumentModelImpl {
 		return FileUtil.readFile(getCacheFile(document));
 	}
 
+
 	/**
 	 * Obtain the document's representative file from the underlying disk cache.
 	 * 
@@ -251,24 +490,63 @@ class DocumentModelImpl {
 		return documentCacheFile;
 	}
 
-	private void notifyCreation(final Document document) {
-		for (Iterator<CreationListener> i = creationListeners.iterator(); i
-				.hasNext();) {
-			i.next().objectCreated(new CreationEvent(document));
+	/**
+	 * Fire the objectCreated event for all of the creation listeners.
+	 * 
+	 * @param document
+	 *            The document to use as the event source.
+	 * @see CreationListener#objectCreated(CreationEvent)
+	 */
+	private void notifyCreation_objectCreated(final Document document) {
+		synchronized(DocumentModelImpl.creationListenersLock) {
+			for(CreationListener listener : DocumentModelImpl.creationListeners) {
+				listener.objectCreated(new CreationEvent(document));
+			}
 		}
 	}
 
-	private void notifyUpdate(final Document document) {
-		for (Iterator<UpdateListener> i = updateListeners.iterator(); i
-				.hasNext();) {
-			i.next().objectUpdated(new UpdateEvent(document));
+	/**
+	 * Fire the objectReceived event for all creation listeners.
+	 * 
+	 * @param document
+	 *            The document to use as the event source.
+	 * @see CreationListener#objectReceived(CreationEvent)
+	 */
+	private void notifyCreation_objectReceived(final Document document) {
+		synchronized(DocumentModelImpl.creationListenersLock) {
+			for(CreationListener listener : DocumentModelImpl.creationListeners) {
+				listener.objectReceived(new CreationEvent(document));
+			}
 		}
 	}
 
-	private void notifyVersionCreation(final DocumentVersion documentVersion) {
-		for (Iterator<CreationListener> i = creationListeners.iterator(); i
-				.hasNext();) {
-			i.next().objectVersionCreated(new VersionCreationEvent(documentVersion));
+	/**
+	 * Fire the objectVersionCreated event for all of the creation listeners.
+	 * 
+	 * @param documentVersion
+	 *            The document version to use as the event source.
+	 * @see CreationListener#objectVersionCreated(VersionCreationEvent)
+	 */
+	private void notifyCreation_objectVersionCreated(final DocumentVersion documentVersion) {
+		synchronized(DocumentModelImpl.creationListenersLock) {
+			for(CreationListener listener : DocumentModelImpl.creationListeners) {
+				listener.objectVersionCreated(new VersionCreationEvent(documentVersion));
+			}
+		}
+	}
+
+	/**
+	 * Fire the objectUpdated event for all of the udpate listeners.
+	 * 
+	 * @param document
+	 *            The document to use as the event source.
+	 * @see UpdateListener#objectUpdated(UpdateEvent)
+	 */
+	private void notifyUpdate_objectUpdated(final Document document) {
+		synchronized(DocumentModelImpl.updateListenersLock) {
+			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
+				listener.objectUpdated(new UpdateEvent(document));
+			}
 		}
 	}
 
@@ -359,201 +637,5 @@ class DocumentModelImpl {
 			logger.error("Could not write file:  " + file.getAbsolutePath() + ".");
 			throw new ParityException(iox);
 		}
-	}
-
-	void addCreationListener(final CreationListener creationListener) {
-		if(null != creationListener)
-			if(!creationListeners.contains(creationListener))
-				creationListeners.add(creationListener);
-	}
-
-	void addNote(final Document document, final Note note)
-			throws ParityException {
-		debug("documentapiimpl.addnote:document", document);
-		debug("documentapiimpl.addnote:note", note);
-		try {
-			document.add(note);
-			serialize(document);
-			notifyUpdate(document);
-		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
-	}
-
-	void addUpdateListener(final UpdateListener updateListener) {
-		if(null != updateListener)
-			if(!updateListeners.contains(updateListener))
-				updateListeners.add(updateListener);
-	}
-
-	Document createDocument(final DocumentVersion documentVersion)
-			throws ParityException {
-		debug("DocumenApiImpl.createDocument():documentVersion:",
-				documentVersion);
-		try {
-			// the imported document will reside within the root project
-			final Project project = ProjectModel.getRootProject(workspace);
-
-			// create a new instance of a document based upon the imported
-			// document with a few modifications
-			final Document originalDocument = documentVersion.getDocument();
-			final Document newDocument = new Document(originalDocument);
-			newDocument.setDirectory(project);
-
-			// create a temporary file using the documentVersion's content
-			final File documentFile = createTempFile(documentVersion);
-
-			// create the document
-			createMetaData(newDocument);
-			updateProjectMetaData(project, newDocument);
-			notifyCreation(newDocument);
-			return newDocument;
-		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
-	}
-
-
-	Document createDocument(final Project project, final String name,
-			final String description, final File documentFile)
-			throws ParityException {
-		debug("DocumentModelImpl.createDocument():project", project);
-		debug("DocumentModelImpl.createDocument():name", name);
-		debug("DocumentModelImpl.createDocument():description", description);
-		debug("DocumentModelImpl.createDocument():documentFile", documentFile);
-		try {
-			final UUID nextDocumentId = UUIDGenerator.nextUUID();
-			debug("DocumentModelImpl.createDocument():nextDocumentId", nextDocumentId);
-			final byte[] documentContent = FileUtil.readFile(documentFile);
-			final Document document = new Document(project, name, DateUtil
-					.getInstance(), preferences.getUsername(), preferences
-					.getUsername(), description, project.getDirectory(),
-					nextDocumentId, documentContent);
-			createDocument(project, document);
-			createDocumentVersion(document);
-			return document;
-		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
-		catch(IOException iox) { throw new ParityException(iox); }
-	}
-
-	/**
-	 * Create a new document version based upon an existing document.  This will
-	 * check the cache for updates to the document, write the updates to the document,
-	 * then create a new version based upon that document.
-	 * @param document <code>Document</code>
-	 * @return <code>DocumentVersion</code>
-	 * @throws DocumentException
-	 * @throws IOException
-	 * @throws ParityException
-	 */
-	DocumentVersion createDocumentVersion(final Document document)
-			throws ParityException {
-		try {
-			final File cacheFile = getCacheFile(document);
-			if(cacheFile.exists()) {
-				final byte[] cacheFileBytes = getCacheFileBytes(document);
-				final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
-				if(!cacheFileChecksum.equals(document.getContentChecksum())) {
-					document.setContent(cacheFileBytes);
-					updateDocument(document);
-				}
-			}
-			final DocumentVersion newDocumentVersion =
-					DocumentVersionBuilder.newDocumentVersion(document);
-			createDocumentVersion(newDocumentVersion);
-			return newDocumentVersion;
-		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
-		catch(IOException iox) { throw new ParityException(iox); }
-	}
-
-	/**
-	 * Take the given document, and export it to the specified file. This will
-	 * obtain the document's content, and save it to the file.
-	 * 
-	 * @param file
-	 *            <code>java.io.File</code>
-	 * @param document
-	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
-	 * @throws ParityException
-	 */
-	void exportDocument(final File file, final Document document)
-			throws ParityException {
-		debug("DocumentModelImpl.exportDocument():file", file);
-		debug("DocumentModelImpl.exportDocument():document", document);
-		exportDocument_CheckRules(file, document);
-		createFile(file);
-		writeDocumentContent(file, readDocument(document));
-	}
-
-	Document getDocument(final File documentMetaDataFile) throws ParityException {
-		debug("documentapiimpl.getdocument:documentMetaDataFile", documentMetaDataFile);
-		try { return DocumentXml.readXml(documentMetaDataFile); }
-		catch(IOException iox) { throw new ParityException(iox); }
-	}
-	StringBuffer getRelativePath(final Document document) throws ParityException {
-		debug("documentapiimpl.getrelativepath:document", document);
-		final Project rootProject = ProjectModel.getRootProject(workspace);
-		final URI relativeURI = rootProject.getDirectory().toURI()
-			.relativize(document.getDirectory().toURI());
-		return new StringBuffer(relativeURI.toString());
-	}
-	Boolean isDocumentClosable(final Document document) throws ParityException {
-		debug("documentapiimpl.isdocumentclosable:document", document);
-		return Boolean.FALSE;
-	}
-
-	Boolean isDocumentDeletable(final Document document) throws ParityException {
-		debug("documentapiimpl.isdocumentdeletable:document", document);
-		return Boolean.FALSE;
-	}
-
-	/**
-	 * Determine if a document exists in the disk cache, and open it. If it does
-	 * not exists in the cache, create it, and open it.
-	 * 
-	 * @param document
-	 *            <code>Document</code>
-	 * @throws ParityException
-	 */
-	void openDocument(final Document document) throws ParityException {
-		debug("DocumentModelImpl.openDocument():document", document);
-		try {
-			final File documentCacheFile = getFileFromDiskCache(document);
-			ParityUtil.launchFileWin32(documentCacheFile.getAbsolutePath());
-		}
-		catch(IOException iox) { throw new ParityException(iox); }
-	}
-
-	void removeCreationListener(final CreationListener creationListener) {
-		if(null != creationListener)
-			if(creationListeners.contains(creationListener))
-				creationListeners.remove(creationListener);
-	}
-
-	void removeUpdateListener(final UpdateListener updateListener) {
-		if(null != updateListener)
-			if(updateListeners.contains(updateListener))
-				updateListeners.remove(updateListener);
-	}
-
-	void sendDocument(final Collection<User> users, final Document document)
-			throws ParityException {
-		trace();
-		debug("DocumentModelImpl.sendDocument():users", users);
-		debug("DocumentModelImpl.sendDocument():document", document);
-		final DocumentVersion newDocumentVersion =
-			createDocumentVersion(document);
-		for(Iterator<User> i = users.iterator(); i.hasNext();) {
-			sendDocument(i.next(), newDocumentVersion);
-		}
-	}
-
-	void updateDocument(final Document document) throws ParityException {
-		debug("DocumentModelImpl.updateDocument():document", document);
-		try {
-			serialize(document);
-			notifyUpdate(document);
-		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
 	}
 }

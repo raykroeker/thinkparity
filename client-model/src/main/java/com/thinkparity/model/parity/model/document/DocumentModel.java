@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.Collection;
 
 import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.events.CreationListener;
@@ -85,19 +84,6 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Import a document version into a project. This will take an existing
-	 * version of a document and create it within the root project.
-	 * 
-	 * @param documentVersion
-	 *            <code>com.thinkparity.model.parity.api.document.DocumentVersion</code>
-	 * @return <code>com.thinkparity.model.parity.api.document.Document</code>
-	 */
-	public Document createDocument(final DocumentVersion documentVersion)
-			throws ParityException {
-		return impl.createDocument(documentVersion);
-	}
-
-	/**
 	 * Import a document into a project. This will take a name, description and
 	 * location of a document and copy the document into an internal store for
 	 * the project, then returns the newly created document.
@@ -165,6 +151,18 @@ public class DocumentModel {
 	public void openDocument(final Document document)
 			throws ParityException {
 		synchronized(implLock) { impl.openDocument(document); }
+	}
+
+	/**
+	 * Use the document model to receive a document from another parity user.
+	 * 
+	 * @param documentVersion
+	 *            The document version to receive.
+	 * @throws ParityException
+	 */
+	public void receiveDocumentVersion(final DocumentVersion documentVersion)
+			throws ParityException {
+		synchronized(implLock) { impl.receiveDocumentVersion(documentVersion); }
 	}
 
 	/**

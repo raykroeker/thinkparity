@@ -37,12 +37,6 @@ public abstract class AbstractModelImpl {
 	protected final Workspace workspace;
 
 	/**
-	 * Create a AbstractModelImpl
-	 * @deprecated
-	 */
-	protected AbstractModelImpl() { this(null); }
-
-	/**
 	 * Create an AbstractModelImpl
 	 * 
 	 * @param workspace

@@ -16,7 +16,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.LoggerFormatter;
-
+import com.thinkparity.model.parity.IParityConstants;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
@@ -24,7 +24,6 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.project.xml.ProjectXml;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -35,7 +34,7 @@ import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
  * @author raykroeker@gmail.com
  * @version 1.3
  */
-class ProjectModelImpl extends AbstractModelImpl {
+class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 
 	private class ProjectException extends Exception {
 		private static final long serialVersionUID = -1;
@@ -67,21 +66,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	private static final LoggerFormatter loggerFormatter = new LoggerFormatter();
 
-	private static final String ROOT_PROJECT_CUSTOM_NAME =
-		"Parity Browser";
-
-	private static final String ROOT_PROJECT_DESCRIPTION =
-		"Parity Browser";
-
-	private static final String ROOT_PROJECT_META_DATA_FILE_NAME =
-		"parity.project";
-
-	private static final String ROOT_PROJECT_NAME =
-		"parity";
-
-	private static final String META_DATA_DIRECTORY_NAME =
-		".metadata";
-
 	/**
 	 * List of listeners interested when a project has been updated.
 	 */
@@ -89,26 +73,15 @@ class ProjectModelImpl extends AbstractModelImpl {
 		new Vector<UpdateListener>(10);
 
 	/**
-	 * Handle to parity preferences.
-	 */
-	private final Preferences preferences;
-
-	/**
 	 * Create a ProjectApi_Impl
 	 */
-	ProjectModelImpl(final Workspace workspace) {
-		super();
-		this.preferences = workspace.getPreferences();
-	}
+	ProjectModelImpl(final Workspace workspace) { super(workspace); }
 
 	/**
 	 * Create a ProjectModelImpl.
 	 * @deprecated
 	 */
-	ProjectModelImpl() {
-		super();
-		this.preferences = null;
-	}
+	ProjectModelImpl() { this(null); }
 
 	void addCreationListener(final CreationListener creationListener) {
 		if(null != creationListener)
@@ -238,14 +211,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 
 	private void debug(final String context, final File file) {
 		logger.debug(loggerFormatter.format(context, file));
-	}
-
-	private void debug(final String context, final Project project) {
-		logger.debug(loggerFormatter.format(context, project));
-	}
-
-	private void debug(final String context, final String string) {
-		logger.debug(loggerFormatter.format(context, string));
 	}
 
 	private void notifyCreation(final Project project) {

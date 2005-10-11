@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.xml.XmlUtil;
+import com.thinkparity.model.xstream.XStreamUtil;
 
 /**
  * DocumentXml
@@ -18,22 +18,13 @@ import com.thinkparity.model.parity.xml.XmlUtil;
  */
 public class DocumentXml {
 
-	/**
-	 * Register a document converter.  The document converter is responsible for
-	 * translating a document to xml and vice-versa.
-	 */
-	static {
-		XmlUtil.registerTranslator(new DocumentXmlTranslator());
-		XmlUtil.registerTranslator(new DocumentVersionXmlTranslator());
-	}
-
 	public static void deleteXml(final Document document) {
-		XmlUtil.delete(document);
+		XStreamUtil.delete(document);
 	}
 
 	public static Document readXml(final File documentMetaDataFile)
 			throws IOException {
-		final Document document = (Document) XmlUtil.read(documentMetaDataFile);
+		final Document document = (Document) XStreamUtil.read(documentMetaDataFile);
 		return document;
 	}
 
@@ -44,29 +35,29 @@ public class DocumentXml {
 		final File documentVersionXmlFile =
 			documentVersion.getMetaDataFile(parentDirectory);
 		if(documentVersionXmlFile.exists())
-			XmlUtil.delete(parentDirectory, documentVersion);
-		XmlUtil.write(parentDirectory, documentVersion);
+			XStreamUtil.delete(parentDirectory, documentVersion);
+		XStreamUtil.write(parentDirectory, documentVersion);
 	}
 
 	public static StringBuffer toXml(final Document document) {
-		return XmlUtil.toXml(document);
+		return XStreamUtil.toXml(document);
 	}
 
 	public static StringBuffer toXml(final DocumentVersion documentVersion) {
-		return XmlUtil.toXml(documentVersion);
+		return XStreamUtil.toXml(documentVersion);
 	}
 
 	public static void writeCreationXml(final Document document)
 			throws IOException {
-		XmlUtil.write(document);
+		XStreamUtil.write(document);
 	}
 
 	public static void writeUpdateXml(final Document document)
 			throws IOException {
-		final boolean didDelete = XmlUtil.delete(document);
+		final boolean didDelete = XStreamUtil.delete(document);
 		if(false == didDelete)
 			throw new IOException("Could not delete document xml.");
-		XmlUtil.write(document);
+		XStreamUtil.write(document);
 	}
 
 	/**

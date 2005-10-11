@@ -213,7 +213,7 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	/**
 	 * Create a WorkspaceModelImpl
 	 */
-	WorkspaceModelImpl() { super(); }
+	WorkspaceModelImpl() { super(null); }
 
 	/**
 	 * Create the workspace artifact from scratch.

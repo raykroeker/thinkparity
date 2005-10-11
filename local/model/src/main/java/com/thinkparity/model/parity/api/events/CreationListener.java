@@ -6,10 +6,11 @@ package com.thinkparity.model.parity.api.events;
 /**
  * CreationListener
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.2
  */
 public interface CreationListener {
-
 	public void objectCreated(final CreationEvent creationEvent);
+	public void objectReceived(final CreationEvent creationEvent);
 	public void objectVersionCreated(final VersionCreationEvent versionCreationEvent);
+	public void objectVersionReceived(final VersionCreationEvent versionCreationEvent);
 }

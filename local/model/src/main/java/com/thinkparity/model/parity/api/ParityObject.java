@@ -12,7 +12,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Loggable;
-
+import com.thinkparity.model.parity.IParityConstants;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -21,7 +21,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class ParityObject implements Loggable {
+public abstract class ParityObject implements IParityConstants, Loggable {
 
 	/**
 	 * The parity username of the person who created the parity object.
@@ -204,7 +204,7 @@ public abstract class ParityObject implements Loggable {
 	 */
 	public final File getMetaDataDirectory() {
 		final File directory = getDirectory();
-		return new File(directory, ".metadata");
+		return new File(directory, META_DATA_DIRECTORY_NAME);
 	}
 
 	/**

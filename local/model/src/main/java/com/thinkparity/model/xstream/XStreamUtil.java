@@ -1,7 +1,7 @@
 /*
  * Feb 21, 2005
  */
-package com.thinkparity.model.parity.xml;
+package com.thinkparity.model.xstream;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,32 +10,27 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 import com.thinkparity.codebase.FileUtil;
-
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityXmlSerializable;
 import com.thinkparity.model.parity.util.Base64;
 import com.thinkparity.model.parity.util.ParityUtil;
-
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;
 
 /**
- * XmlUtil
+ * XStreamUtil
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class XmlUtil {
+public class XStreamUtil {
 
 	/**
 	 * Handle to the main XStream class for the client application.
 	 */
-	private static final XStream xStream = new XStream();
+	private static final XStream xStream;
 
-	/**
-	 * Register a converter for byte arrays.
-	 */
 	static {
-		XmlUtil.xStream.registerConverter(new EncodedByteArrayConverter());
+		xStream = new XStream();
+		XStreamRegistry.createRegistry(xStream);
 	}
 
 	/**
@@ -92,21 +87,8 @@ public class XmlUtil {
 		return (ParityXmlSerializable) xStream.fromXML(xmlString);
 	}
 
-
-	/**
-	 * Register an XStream converter for the client application.  The
-	 * implementation of the singleton xml object should register the translator
-	 * within a static initializer before any reading\writing of the object.
-	 * @param xmlTranslator
-	 * <code>org.kcs.projectmanager.client.xml.XmlTranslator</code>
-	 */
-	public static void registerTranslator(XmlTranslator xmlTranslator) {
-		XmlUtil.xStream.registerConverter(xmlTranslator);
-		XmlUtil.xStream.alias(xmlTranslator.getXmlAlias(), xmlTranslator.getXmlAliasClass());
-	}
-
 	public static void write(ParityObject pariObject) throws IOException {
-		final String xStreamXml = XmlUtil.toXml(pariObject).toString();
+		final String xStreamXml = XStreamUtil.toXml(pariObject).toString();
 		// encode the xml using Base64
 		FileUtil.writeFile(
 				pariObject.getMetaDataFile(),
@@ -115,7 +97,7 @@ public class XmlUtil {
 	public static void write(final File parentDirectory,
 			final ParityXmlSerializable parityXmlSerializable)
 			throws IOException {
-		final String xStreamXml = XmlUtil.toXml(parityXmlSerializable).toString();
+		final String xStreamXml = XStreamUtil.toXml(parityXmlSerializable).toString();
 		// encode the xml using Base64
 		FileUtil.writeFile(
 				parityXmlSerializable.getMetaDataFile(parentDirectory),
@@ -143,7 +125,7 @@ public class XmlUtil {
 	 */
 	public static StringBuffer toExtensionXml(
 			final ParityXmlSerializable parityXmlSerializable) {
-		final StringBuffer toXml = XmlUtil.toXml(parityXmlSerializable);
+		final StringBuffer toXml = XStreamUtil.toXml(parityXmlSerializable);
 		return new StringBuffer(Base64.encodeBytes(toXml.toString().getBytes()));
 	}
 
@@ -160,7 +142,7 @@ public class XmlUtil {
 		return xStream.fromXML(reader);
 	}
 	/**
-	 * Create an XmlUtil [Singleton]
+	 * Create an XStreamUtil [Singleton]
 	 */
-	private XmlUtil() { super(); }
+	private XStreamUtil() { super(); }
 }

@@ -37,7 +37,7 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 	/**
 	 * Create a ProjectXmlTranslator
 	 */
-	ProjectXmlTranslator() {
+	public ProjectXmlTranslator() {
 		super("project", Project.class);
 		this.documentModel = DocumentModel.getModel();
 	}

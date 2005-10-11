@@ -38,7 +38,7 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	/**
 	 * Create a DocumentXmlTranslator
 	 */
-	DocumentXmlTranslator() { super("document", Document.class); }
+	public DocumentXmlTranslator() { super("document", Document.class); }
 
 	/**
 	 * @see com.thoughtworks.xstream.converters.Converter#marshal(java.lang.Object, com.thoughtworks.xstream.io.HierarchicalStreamWriter, com.thoughtworks.xstream.converters.MarshallingContext)

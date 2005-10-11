@@ -7,8 +7,8 @@ import java.io.UnsupportedEncodingException;
 
 
 import com.thinkparity.model.parity.api.document.DocumentVersion;
-import com.thinkparity.model.parity.xml.XmlUtil;
 import com.thinkparity.model.smackx.XProvider;
+import com.thinkparity.model.xstream.XStreamUtil;
 
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.xmlpull.v1.XmlPullParser;
@@ -67,7 +67,7 @@ public class DocumentVersionXProvider extends XProvider {
 			throws UnsupportedEncodingException {
 		final String currentTagText = getTagText(parser);
 		final DocumentVersion documentVersion =
-			(DocumentVersion) XmlUtil.fromExtensionXml(currentTagText);
+			(DocumentVersion) XStreamUtil.fromExtensionXml(currentTagText);
 		final DocumentVersionX documentVersionX = new DocumentVersionX();
 		documentVersionX.setDocumentVersion(documentVersion);
 		return documentVersionX;

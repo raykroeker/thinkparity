@@ -16,23 +16,39 @@ public abstract class Version {
 
 	/**
 	 * Handle to the version config file
+	 * @see Version#configLock
 	 */
-	private static final Config versionConfig =
-		ConfigFactory.newInstance(Version.class);
+	private static final Config config;
 
 	/**
-	 * Obtain the version of the application
-	 * @return <code>java.lang.String</code>
+	 * Synchronization lock for config.
+	 * @see Version#config
 	 */
-	public static synchronized String getVersion() {
-		return versionConfig.getProperty("version");
+	private static final Object configLock;
+
+	static {
+		config = ConfigFactory.newInstance(Version.class);
+		configLock = new Object();
 	}
 
 	/**
-	 * Obtain the name of the application
-	 * @return <code>java.lang.String</code>
+	 * Obtain the build id of the codebase.
+	 * 
+	 * @return The build id.
 	 */
-	public static synchronized String getName() {
-		return versionConfig.getProperty("name");
-	}
+	public static String getBuildId() { return config.getProperty("buildId"); }
+
+	/**
+	 * Obtain the name of the codebase.
+	 * 
+	 * @return The name.
+	 */
+	public static String getName() { return config.getProperty("name"); }
+
+	/**
+	 * Obtain the version of the codebase.
+	 * 
+	 * @return The version
+	 */
+	public static String getVersion() {return config.getProperty("version"); }
 }

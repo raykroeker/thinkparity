@@ -15,6 +15,21 @@
             <name>${pom.name} User List</name>
         </mailingList>
     </mailingLists>
+    <developers>
+    	<developer>
+	    	<id>raymond</id>
+	    	<name>Raymond Kroeker</name>
+	    	<email>raykroeker@gmail.com</email>
+	    	<url>http://www.raykroeker.com</url>
+	    	<organization>Parity Software Inc.</organization>
+	    	<organizationUrl>http://www.thinkparity.com</organizationUrl>
+	    	<roles>
+	    		<role>architect</role>
+	    		<role>developer</role>
+	    	</roles>
+	    	<timezone>-8</timezone>
+	    </developer>
+    </developers>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <unitTestSourceDirectory>src/test/java</unitTestSourceDirectory>

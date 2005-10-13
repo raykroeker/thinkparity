@@ -8,7 +8,8 @@
 	<!-- output -->
 	<property name="target" value="${basedir}/target"/>
 	<property name="target.classes" value="${target}/classes"/>
-	<property name="target.xdocs.javadoc" value="${target}/xdocs/javadoc"/>
+
+	<property name="site.xdoc.javadoc" value="${basedir}/src/site/xdocs/javadoc"/>
 
 	<property name="jar" value="${target}/${name}-${version}.jar"/>
 	<property name="src.zip" value="${target}/${name}-${version}.src.zip"/>
@@ -71,8 +72,8 @@
 
 	<!-- document all source -->
 	<target name="document" depends="" description="" if="" unless="">
-		<mkdir dir="${target.xdocs.javadoc}"/>
-				<javadoc destdir="${target.xdocs.javadoc}"
+		<mkdir dir="${site.xdoc.javadoc}"/>
+				<javadoc destdir="${site.xdoc.javadoc}"
 					access="package" version="true" use="true" author="true"
 					windowtitle="${name} - ${version}"
 					packagenames="com.thinkparity.model.*">
@@ -98,7 +99,7 @@
 		<delete file="${src.zip}"/>
 		<zip destfile="${src.zip}">
 			<fileset dir="${basedir}" includes="src/main/java/**/*"/>
-			<fileset dir="${target.xdocs.javadoc}" includes="*"/>
+			<fileset dir="${site.xdoc.javadoc}" includes="*"/>
 		</zip>
 	</target>
 

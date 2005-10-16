@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- thinkparity.com - codebase -->
-<project name="thinkparity.com - codebase" default="all">
+<project name="thinkparity.com - codebase" default="help">
 	<!-- properties -->
 	<property name="name" value="codebase"/>
 	<property name="version" value="1.0-SNAPSHOT"/>
@@ -16,7 +16,7 @@
 
 	<!-- libs -->
 	<property environment="env"/>
-	<property name="maven.repo" value="${env.HOME}/workspace/apache.org/maven/repository"/>
+	<property name="maven.repo" value="${env.HOME}/.maven/repository"/>
 	<property name="lib.log4j" value="${maven.repo}/log4j/jars/log4j-1.2.9.jar"/>
 
 	<!-- maven -->
@@ -26,8 +26,12 @@
 	<path id="java.classpath">
 		<fileset file="${lib.log4j}"/>
 	</path>
-	
+
 	<!-- targets -->
+	<target name="help" depends="" if="" unless="">
+		<echo message="${name} - ${version}"/>
+	</target>
+
 	<target name="all" depends=""
 		description="clean, compile, document, jar, zipsource, installsource"
 		if="" unless="">

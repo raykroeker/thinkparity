@@ -15,65 +15,58 @@ import com.thinkparity.codebase.SystemUtil.SystemProperty;
  * <br><b>Description:</b>  Contains utilities and constants commonly used in
  * String and StringBuffer manipulation.
  * @author raykroeker@gmail.com
- * @version 1.0.1
+ * @version 1.2
  */
 public abstract class StringUtil {
 	
 	/**
-	 * <b>Title:</b>  Charset
-	 * <br><b>Description:</b>  Charset is used as a quick-reference for
-	 * commonly used character sets supported by the java implementation.
+	 * Provides an enumeration of some common character sets.  The enumerated
+	 * types also contain references to the actual java charsets.
 	 * @author raykroeker@gmail.com
 	 * @version 1.0.0
+	 * @see java.nio.charset.Charset
 	 */
-	public static final class Charset extends Enum {
+	public enum Charset {
 
-		private static final long serialVersionUID = 1;
-	
-		/**
-		 * 7-bit ASCII
-		 */
-		public static final Charset Us_Ascii = new Charset("US-ASCII");
-		
-		/**
-		 * ISO Latin Alphabet 1
-		 */
-		public static final Charset Iso_8859_1 = new Charset("ISO-8859-1");
+		US_ASCII("US-ASCII"), ISO_8859_1("ISO-8859-1"), UTF_8("UTF-8"),
+		UTF_16_BE("UTF-16BE"), UTF_16_LE("UTF-16LE"), UTF_16("UTF-16");
 
 		/**
-		 * UTF-8
+		 * The charset name.
 		 */
-		public static final Charset Utf_8 = new Charset("UTF-8");
-		
-		/**
-		 * UTF-16-BE (Big Endian)
-		 */
-		public static final Charset Utf_16_Be = new Charset("UTF-16BE");
-		
-		/**
-		 * UTF-16-LE (Little Endian)
-		 */
-		public static final Charset Utf_16_Le = new Charset("UTF-16LE");
-		
-		/**
-		 * UTF-16
-		 */
-		public static final Charset Utf_16 = new Charset("UTF-16");
+		private final String charsetName;
 
 		/**
-		 * Find a named character set.
-		 * @param charset <code>java.lang.String</code>
-		 * @return <code>StringUtil$Charset</code>
+		 * Reference to the java charset for the enumerated type.
 		 */
-		public static Charset find(String charset) {
-			return (Charset) Enum.find(Charset.class, charset);
+		private final java.nio.charset.Charset charset;
+		
+		/**
+		 * Create a Charset. This will create a java charset reference upon
+		 * creation.
+		 * 
+		 * @param charsetName
+		 *            The name of the charset.
+		 * @see java.nio.charset.Charset#forName(java.lang.String)
+		 */
+		private Charset(final String charsetName) {
+			this.charsetName = charsetName;
+			this.charset = java.nio.charset.Charset.forName(charsetName);
 		}
 
 		/**
-		 * Create a new Charset
-		 * @param charset <code>java.lang.String</code>
+		 * Obtain the charset name for the enumerated charset.
+		 * 
+		 * @return The charset name.
 		 */
-		private Charset(String charset) {super(charset);}
+		public String getCharsetName() { return charsetName; }
+
+		/**
+		 * Obtain the java charset for the enumerated charset.
+		 * 
+		 * @return The java charset.
+		 */
+		public java.nio.charset.Charset getCharset() { return charset; }
 	}
 	
 	/**
@@ -586,12 +579,12 @@ public abstract class StringUtil {
 
 	public static String convertFrom(final byte[] bytes)
 			throws UnsupportedEncodingException {
-		return new String(bytes, Charset.Iso_8859_1.toString());
+		return new String(bytes, Charset.ISO_8859_1.getCharsetName());
 	}
 
 	public static byte[] convertToBytes(final String string)
 			throws UnsupportedEncodingException {
-		return string.getBytes(Charset.Iso_8859_1.toString());
+		return string.getBytes(Charset.ISO_8859_1.getCharsetName());
 	}
 
 	/**

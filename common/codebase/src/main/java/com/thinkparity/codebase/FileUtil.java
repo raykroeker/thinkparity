@@ -41,8 +41,7 @@ public abstract class FileUtil {
 	/**
 	 * Default character set to use
 	 */
-	private static final Charset DEFAULT_CHARSET =
-		Charset.find(fileUtilConfig.getProperty("default.charset"));
+	private static final Charset DEFAULT_CHARSET = Charset.UTF_8;
 
 	/**
 	 * Create a new FileUtil [Singleton]

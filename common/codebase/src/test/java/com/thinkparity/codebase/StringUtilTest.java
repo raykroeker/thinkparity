@@ -1,5 +1,9 @@
 package com.thinkparity.codebase;
 
+import java.nio.charset.Charset;
+
+import junit.framework.Assert;
+
 import com.thinkparity.codebase.StringUtil;
 
 public class StringUtilTest extends CodebaseTestCase {
@@ -8,8 +12,41 @@ public class StringUtilTest extends CodebaseTestCase {
 		junit.textui.TestRunner.run(StringUtilTest.class);
 	}
 
+	protected Charset CHARSET_ISO_8559_1;
+	protected Charset CHARSET_US_ASCII;
+	protected Charset CHARSET_UTF_16;
+	protected Charset CHARSET_UTF_16_BE;
+	protected Charset CHARSET_UTF_16_LE;
+	protected Charset CHARSET_UTF_8;
+
 	public StringUtilTest(String name) {
 		super(name);
+	}
+
+	public void testCharset() {
+		Charset charset = StringUtil.Charset.ISO_8859_1.getCharset();
+		Assert.assertNotNull(charset);
+		Assert.assertSame(charset, CHARSET_ISO_8559_1);
+
+		charset = StringUtil.Charset.US_ASCII.getCharset();
+		Assert.assertNotNull(charset);
+		Assert.assertSame(charset, CHARSET_US_ASCII);
+
+		charset = StringUtil.Charset.UTF_16.getCharset();
+		Assert.assertNotNull(charset);
+		Assert.assertSame(charset, CHARSET_UTF_16);
+
+		charset = StringUtil.Charset.UTF_16_BE.getCharset();
+		Assert.assertNotNull(charset);
+		Assert.assertSame(charset, CHARSET_UTF_16_BE);
+		
+		charset = StringUtil.Charset.UTF_16_LE.getCharset();
+		Assert.assertNotNull(charset);
+		Assert.assertSame(charset, CHARSET_UTF_16_LE);
+		
+		charset = StringUtil.Charset.UTF_8.getCharset();
+		Assert.assertNotNull(charset);
+		Assert.assertSame(charset, CHARSET_UTF_8);
 	}
 
 	public void testRemoveAfter() {
@@ -17,29 +54,35 @@ public class StringUtilTest extends CodebaseTestCase {
 		final String case0Find = "/";
 		final String case0Result = StringUtil.removeAfter(case0Search, case0Find);
 		final String case0Target = "user@domain";
-		assertEquals(case0Result, case0Target);
+		Assert.assertEquals(case0Result, case0Target);
 
 		final String case1Search = "user@domain/resource";
 		final String case1Find = "";
 		final String case1Result = StringUtil.removeAfter(case1Search, case1Find);
 		final String case1Target = case1Search;
-		assertEquals(case1Result, case1Target);
+		Assert.assertEquals(case1Result, case1Target);
 
 		final String case2Search = "user@domain/resource";
 		final String case2Find = null;
 		final String case2Result = StringUtil.removeAfter(case2Search, case2Find);
 		final String case2Target = case2Search;
-		assertEquals(case2Result, case2Target);
+		Assert.assertEquals(case2Result, case2Target);
 
 		final String case3Search = "user@domain/resource";
 		final String case3Find = "userf";
 		final String case3Result = StringUtil.removeAfter(case3Search, case3Find);
 		final String case3Target = case3Search;
-		assertEquals(case3Result, case3Target);
+		Assert.assertEquals(case3Result, case3Target);
 	}
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		CHARSET_ISO_8559_1 = Charset.forName(StringUtil.Charset.ISO_8859_1.getCharsetName());
+		CHARSET_US_ASCII = Charset.forName(StringUtil.Charset.US_ASCII.getCharsetName());
+		CHARSET_UTF_16 = Charset.forName(StringUtil.Charset.UTF_16.getCharsetName());
+		CHARSET_UTF_16_BE = Charset.forName(StringUtil.Charset.UTF_16_BE.getCharsetName());
+		CHARSET_UTF_16_LE = Charset.forName(StringUtil.Charset.UTF_16_LE.getCharsetName());
+		CHARSET_UTF_8 = Charset.forName(StringUtil.Charset.UTF_8.getCharsetName());
 	}
 
 	protected void tearDown() throws Exception {

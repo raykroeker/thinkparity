@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- thinkparity.com - model -->
-<project name="thinkparity.com -  model" default="all">
+<project name="thinkparity.com -  model" default="help">
 	<!-- properties -->
 	<property name="name" value="model"/>
 	<property name="version" value="1.0-SNAPSHOT"/>
@@ -16,7 +16,7 @@
 
 	<!-- libs -->
 	<property environment="env"/>
-	<property name="maven.repo" value="${env.HOME}/workspace/apache.org/maven/repository"/>
+	<property name="maven.repo" value="${env.HOME}/.maven/repository"/>
 	<property name="lib.codebase" value="${maven.repo}/thinkparity.com/jars/codebase-1.0-SNAPSHOT.jar"/>
 	<property name="lib.commmons-codec" value="${maven.repo}/commons-codec/jars/commons-codec-1.3.jar"/>
 	<property name="lib.log4j" value="${maven.repo}/log4j/jars/log4j-1.2.9.jar"/>
@@ -36,6 +36,10 @@
 	</path>
 
 	<!-- targets -->
+	<target name="help" description="" depends="" if="" unless="">
+		<echo message="${name} - ${version}"/>
+	</target>
+
 	<target name="all" depends=""
 		description="clean, compile, document, jar, zipsource"
 		if="" unless="">

@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import com.thinkparity.codebase.StringUtil.Charset;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.SystemUtil.SystemProperty;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
@@ -331,5 +332,37 @@ public abstract class FileUtil {
 		FileUtil.writeFile(tempFile, content);
 		tempFile.deleteOnExit();
 		return tempFile;
+	}
+
+	/**
+	 * Delete a filesystem tree.
+	 * 
+	 * @param directory
+	 *            The root directory of the tree.
+	 * @throws NullPointerException
+	 *             If directory is null.
+	 * @throws IllegalArgumentException
+	 *             If directory doesn't exist; is not a directory; cannot be
+	 *             read from; or written to.
+	 */
+	public static void deleteTree(final File directory) {
+		if(null == directory) { throw new NullPointerException(); }
+		if(!(directory.exists() && directory.isDirectory() &&
+				directory.canRead() && directory.canWrite())) {
+			throw new IllegalArgumentException();
+		}
+		// grab all files/directories
+		final File[] files = directory.listFiles();
+		for(int i = 0; i < files.length; i++) {
+			if(!files[i].isDirectory()) {
+				Assert.assertTrue(
+						"Could not delete file:  " + files[i].getAbsolutePath(),
+						files[i].delete());
+			}
+			else { FileUtil.deleteTree(files[i]); }
+		}
+		Assert.assertTrue(
+				"Could not delete directory:  " + directory.getAbsolutePath(),
+				directory.delete());
 	}
 }

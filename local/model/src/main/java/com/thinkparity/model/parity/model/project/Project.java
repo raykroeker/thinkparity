@@ -4,18 +4,11 @@
 package com.thinkparity.model.parity.model.project;
 
 import java.io.File;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
 import com.thinkparity.model.parity.api.document.DocumentComparator;
-import com.thinkparity.model.parity.api.project.xml.ProjectXml;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -141,11 +134,6 @@ public class Project extends ParityObject {
 	private Integer getChildCount() {
 		return projects.size() + documents.size();
 	}
-
-	/**
-	 * @see com.thinkparity.codebase.log4j.Loggable#logMe()
-	 */
-	public StringBuffer logMe() { return ProjectXml.toXml(this); }
 
 	/**
 	 * Remove a document from the project.

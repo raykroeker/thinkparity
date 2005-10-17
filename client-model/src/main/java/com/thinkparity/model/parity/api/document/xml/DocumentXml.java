@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.api.document.xml;
 import java.io.File;
 import java.io.IOException;
 
-
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.xstream.XStreamUtil;
@@ -37,14 +36,6 @@ public class DocumentXml {
 		if(documentVersionXmlFile.exists())
 			XStreamUtil.delete(parentDirectory, documentVersion);
 		XStreamUtil.write(parentDirectory, documentVersion);
-	}
-
-	public static StringBuffer toXml(final Document document) {
-		return XStreamUtil.toXml(document);
-	}
-
-	public static StringBuffer toXml(final DocumentVersion documentVersion) {
-		return XStreamUtil.toXml(documentVersion);
 	}
 
 	public static void writeCreationXml(final Document document)

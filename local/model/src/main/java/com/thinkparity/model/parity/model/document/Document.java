@@ -13,7 +13,6 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
-import com.thinkparity.model.parity.api.document.xml.DocumentXml;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
 
@@ -30,17 +29,27 @@ public class Document extends ParityObject {
 	private String contentChecksum;
 	private File directory;
 
-	Document(final Document document) {
-		super(document.getParent(), document.getName(), document
-				.getDescription(), document.getCreatedOn(), document
-				.getCreatedBy(), document.getKeyHolder(), document.getId());
-		this.directory = document.getDirectory();
-		this.content = document.getContent();
-		this.contentChecksum = document.getContentChecksum();
-	}
-
 	/**
-	 * Create a Document
+	 * Create a Document.
+	 * 
+	 * @param parent
+	 *            The parent project.
+	 * @param name
+	 *            The document name.
+	 * @param createdOn
+	 *            The document creation date.
+	 * @param createdBy
+	 *            The document creator.
+	 * @param keyHolder
+	 *            The document keyholder.
+	 * @param description
+	 *            The document description.
+	 * @param directory
+	 *            The document directory.
+	 * @param id
+	 *            The document id.
+	 * @param content
+	 *            The document content.
 	 */
 	public Document(final Project parent, final String name,
 			final Calendar createdOn, final String createdBy,
@@ -53,7 +62,26 @@ public class Document extends ParityObject {
 	}
 
 	/**
-	 * Create a Document
+	 * Create a Document.
+	 * 
+	 * @param name
+	 *            The document name.
+	 * @param createdOn
+	 *            The document creation date.
+	 * @param createdBy
+	 *            The document creator.
+	 * @param keyHolder
+	 *            The document key holder.
+	 * @param description
+	 *            The document description.
+	 * @param directory
+	 *            The document directory.
+	 * @param id
+	 *            The document id.
+	 * @param content
+	 *            The document content.
+	 * @param contentChecksum
+	 *            The document content's checksum.
 	 */
 	public Document(final String name,
 			final Calendar createdOn, final String createdBy,
@@ -124,11 +152,6 @@ public class Document extends ParityObject {
 	 * @see com.thinkparity.model.parity.api.ParityObject#getType()
 	 */
 	public ParityObjectType getType() { return ParityObjectType.DOCUMENT; }
-
-	/**
-	 * @see com.thinkparity.codebase.log4j.Loggable#logMe()
-	 */
-	public StringBuffer logMe() { return DocumentXml.toXml(this); }
 
 	public void setProject(final Project project) { setParent(project); }
 }

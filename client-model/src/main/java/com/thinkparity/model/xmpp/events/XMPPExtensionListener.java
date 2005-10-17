@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.xmpp.events;
 
-import com.thinkparity.model.parity.api.document.DocumentVersion;
+import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * XMPPExtensionListener
@@ -12,5 +12,5 @@ import com.thinkparity.model.parity.api.document.DocumentVersion;
  */
 public interface XMPPExtensionListener {
 
-	public void documentReceived(final DocumentVersion documentVersion);
+	public void documentReceived(final XMPPDocument xmppDocument);
 }

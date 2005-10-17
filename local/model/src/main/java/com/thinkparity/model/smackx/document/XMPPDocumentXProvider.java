@@ -1,43 +1,39 @@
 /*
  * Jun 6, 2005
  */
-package com.thinkparity.model.smackx.packet;
+package com.thinkparity.model.smackx.document;
 
 import java.io.UnsupportedEncodingException;
-
-
-import com.thinkparity.model.parity.api.document.DocumentVersion;
-import com.thinkparity.model.smackx.XProvider;
-import com.thinkparity.model.xstream.XStreamUtil;
 
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.xmlpull.v1.XmlPullParser;
 
+import com.thinkparity.model.smackx.XProvider;
+import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xstream.XStreamUtil;
+
 /**
- * DocumentVersionXProvider
+ * XMPPDocumentXProvider
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentVersionXProvider extends XProvider {
+public class XMPPDocumentXProvider extends XProvider {
 
 	private static final String xElementName =
-		DocumentVersionX.getXElementName();
-
-	private static final String xNamespace =
-		DocumentVersionX.getXNamespace();
+		XMPPDocumentPacketX.getXElementName();
 
 	/**
-	 * Create a DocumentVersionXProvider
+	 * Create a XMPPDocumentXProvider
 	 */
-	public DocumentVersionXProvider() { super(); }
+	public XMPPDocumentXProvider() { super(); }
 
 	/**
-	 * Use the xmlPullParser to create a DocumentVersionX packet extension.
+	 * Use the xmlPullParser to create a XMPPDocumentPacketX packet extension.
 	 * @see org.jivesoftware.smack.provider.PacketExtensionProvider#parseExtension(org.xmlpull.v1.XmlPullParser)
 	 */
 	public PacketExtension parseExtension(final XmlPullParser parser)
 			throws Exception {
-		DocumentVersionX documentVersionX = null;
+		XMPPDocumentPacketX documentVersionX = null;
 
 		Boolean isDone = Boolean.FALSE;
 		while(Boolean.FALSE == isDone) {
@@ -63,13 +59,12 @@ public class DocumentVersionXProvider extends XProvider {
 		return documentVersionX;
 	}
 
-	private DocumentVersionX extractExtension(final XmlPullParser parser)
+	private XMPPDocumentPacketX extractExtension(final XmlPullParser parser)
 			throws UnsupportedEncodingException {
-		final String currentTagText = getTagText(parser);
-		final DocumentVersion documentVersion =
-			(DocumentVersion) XStreamUtil.fromExtensionXml(currentTagText);
-		final DocumentVersionX documentVersionX = new DocumentVersionX();
-		documentVersionX.setDocumentVersion(documentVersion);
-		return documentVersionX;
+		final XMPPDocument xmppDocument =
+			(XMPPDocument) XStreamUtil.fromXML(decodeXML(getTagText(parser)));
+		final XMPPDocumentPacketX xmppDocumentPacketX = new XMPPDocumentPacketX();
+		xmppDocumentPacketX.setXMPPDocument(xmppDocument);
+		return xmppDocumentPacketX;
 	}
 }

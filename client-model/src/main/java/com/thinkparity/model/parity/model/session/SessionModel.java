@@ -6,10 +6,10 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Collection;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModel;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.user.User;
@@ -162,17 +162,17 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send a document version to a user.
+	 * Send a document to a list of parity users.
 	 * 
-	 * @param user
-	 *            The user to send the document to.
-	 * @param documentVersion
+	 * @param users
+	 *            The list of parity users to send to.
+	 * @param document
 	 *            The document to send.
 	 * @throws ParityException
 	 */
-	public void send(final User user,
-			final DocumentVersion documentVersion) throws ParityException {
-		synchronized(implLock) { impl.send(user, documentVersion); }
+	public void send(final Collection<User> users, final Document document)
+			throws ParityException {
+		synchronized(implLock) { impl.send(users, document); }
 	}
 
 	/**

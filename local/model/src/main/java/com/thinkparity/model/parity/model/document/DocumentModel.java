@@ -4,18 +4,17 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.util.Collection;
 
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * DocumentModel
@@ -156,13 +155,13 @@ public class DocumentModel {
 	/**
 	 * Use the document model to receive a document from another parity user.
 	 * 
-	 * @param documentVersion
-	 *            The document version to receive.
+	 * @param xmppDocument
+	 *            The xmpp document received from another parity user.
 	 * @throws ParityException
 	 */
-	public void receiveDocumentVersion(final DocumentVersion documentVersion)
+	public void receiveDocument(final XMPPDocument xmppDocument)
 			throws ParityException {
-		synchronized(implLock) { impl.receiveDocumentVersion(documentVersion); }
+		synchronized(implLock) { impl.receiveDocument(xmppDocument); }
 	}
 
 	/**
@@ -178,11 +177,6 @@ public class DocumentModel {
 
 	public void removeUpdateListener(final UpdateListener updateListener) {
 		synchronized(implLock) { impl.removeUpdateListener(updateListener); }
-	}
-
-	public void sendDocument(final Collection<User> users,
-			final Document document) throws ParityException {
-		synchronized(implLock) { impl.sendDocument(users, document); }
 	}
 
 	public void updateDocument(final Document document) throws ParityException {

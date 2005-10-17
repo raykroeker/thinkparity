@@ -9,7 +9,7 @@
 	<property name="target" value="${basedir}/target"/>
 	<property name="target.classes" value="${target}/classes"/>
 
-	<property name="site.xdoc.javadoc" value="${basedir}/src/site/xdocs/javadoc"/>
+	<property name="site.xdoc.javadoc" value="${basedir}/src/site/xdoc/javadoc"/>
 
 	<property name="jar" value="${target}/${name}-${version}.jar"/>
 	<property name="src.zip" value="${target}/${name}-${version}.src.zip"/>

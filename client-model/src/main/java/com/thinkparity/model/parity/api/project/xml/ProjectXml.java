@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.api.project.xml;
 import java.io.File;
 import java.io.IOException;
 
-
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.xstream.XStreamUtil;
 
@@ -37,9 +36,5 @@ public class ProjectXml {
 		if(false == didDelete)
 			throw new IOException("Could not delete project xml.");
 		XStreamUtil.write(project);
-	}
-
-	public static StringBuffer toXml(final Project project) {
-		return XStreamUtil.toXml(project);
 	}
 }

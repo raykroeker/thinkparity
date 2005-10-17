@@ -16,6 +16,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.LoggerFormatter;
+
 import com.thinkparity.model.parity.IParityConstants;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationEvent;
@@ -146,7 +147,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	void updateProject(final Project project) throws ParityException {
-		logger.debug("project:  " + (null == project ? "null" : project.logMe()));
+		logger.debug(project);
 		try {
 			updateMetaData(project);
 			notifyUpdate(project);

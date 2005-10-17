@@ -10,15 +10,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ConnectionEstablishedListener;
-import org.jivesoftware.smack.ConnectionListener;
-import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.SSLXMPPConnection;
-import org.jivesoftware.smack.SmackConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
@@ -29,8 +21,7 @@ import org.jivesoftware.smack.packet.Presence.Type;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Loggable;
-import com.thinkparity.model.parity.api.ParityObjectVersion;
-import com.thinkparity.model.parity.api.document.DocumentVersion;
+
 import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
@@ -39,11 +30,10 @@ import com.thinkparity.model.smack.packet.SmackPacketFilter;
 import com.thinkparity.model.smack.packet.SmackPacketListener;
 import com.thinkparity.model.smack.packet.SmackPresenceFilter;
 import com.thinkparity.model.smack.packet.SmackPresenceListener;
-import com.thinkparity.model.smackx.UnsupportedXTypeException;
 import com.thinkparity.model.smackx.XFactory;
-import com.thinkparity.model.smackx.packet.DocumentVersionX;
-import com.thinkparity.model.smackx.packet.DocumentVersionXFilter;
-import com.thinkparity.model.smackx.packet.DocumentVersionXListener;
+import com.thinkparity.model.smackx.document.XMPPDocumentXFilter;
+import com.thinkparity.model.smackx.document.XMPPDocumentXListener;
+import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -56,39 +46,6 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.7
  */
 public class XMPPSessionImpl implements XMPPSession {
-
-	/**
-	 * Interal logger implemenation.
-	 */
-	private static final Logger logger =
-		ModelLoggerFactory.getLogger(XMPPSessionImpl.class);
-
-	/**
-	 * Logger helper class that will format XMPP specific objects into loggable
-	 * statements.
-	 */
-	private static final XMPPLoggerFormatter loggerFormatter =
-		new XMPPLoggerFormatter();
-
-	static {
-		// set the subscription mode such that all requests are manual
-		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
-	}
-
-	/**
-	 * DocumentVersionXListenerImpl
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class DocumentVersionXListenerImpl extends DocumentVersionXListener {
-		/**
-		 * @see com.thinkparity.model.smackx.packet.DocumentVersionXListener#processDocumentVersion(com.thinkparity.model.smackx.packet.DocumentVersionX)
-		 */
-		public void processDocumentVersion(
-				final DocumentVersionX documentVersionX) {
-			doNotifyProcessDocumentVersionX(documentVersionX);			
-		}
-	}
 
 	/**
 	 * SmackConnectionListenerImpl Is used to translate smack connection events
@@ -162,8 +119,32 @@ public class XMPPSessionImpl implements XMPPSession {
 		public void rosterModified() { doNotifyRosterModified(); }
 	}
 
-	private DocumentVersionXFilter documentVersionXFilter;
-	private DocumentVersionXListenerImpl documentVersionXListenerImpl;
+	/**
+	 * Interal logger implemenation.
+	 */
+	private static final Logger logger =
+		ModelLoggerFactory.getLogger(XMPPSessionImpl.class);
+
+	/**
+	 * Logger helper class that will format XMPP specific objects into loggable
+	 * statements.
+	 */
+	private static final XMPPLoggerFormatter loggerFormatter =
+		new XMPPLoggerFormatter();
+
+	/**
+	 * The number of milliseconds to sleep subsequent to each maual packet sent
+	 * via the smack connection. If this number is reduced or removed, the smack
+	 * library will have a tendancy to swallow messages.
+	 * @see XMPPSessionImpl#send(Collection, PacketExtension)
+	 */
+	private static final int SEND_PACKET_SLEEP_DURATION = 30;
+
+	static {
+		// set the subscription mode such that all requests are manual
+		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
+	}
+
 	private Map<String, User> pendingXMPPUsers;
 	private SmackConnectionListenerImpl smackConnectionListenerImpl;
 	private SmackPacketFilter smackPacketFilter;
@@ -198,9 +179,209 @@ public class XMPPSessionImpl implements XMPPSession {
 
 		smackPresenceFilter = new SmackPresenceFilter();
 		smackPresenceListenerImpl = new SmackPresenceListenerImpl();
+	}
 
-		documentVersionXListenerImpl = new DocumentVersionXListenerImpl();
-		documentVersionXFilter = new DocumentVersionXFilter();
+	/**
+	 * Accept the presence request of user.  This will send a presence packet
+	 * indicating that the user is subscribed and available.
+	 * 
+	 */
+	public void acceptPresence(final User user) throws SmackException {
+		// save the user for use by the roster event later on
+		pendingXMPPUsers.put(user.getUsername(), user);
+		sendPresencePacket(user.getUsername(), Type.SUBSCRIBED, Mode.AVAILABLE);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
+	 */
+	public void addListener(XMPPExtensionListener xmppExtensionListener) {
+		Assert.assertNotNull("Cannot register a null xmpp extension listener.",
+				xmppExtensionListener);
+		Assert.assertTrue(
+				"Cannot register an extension listener more than once.",
+				!xmppExtensionListeners.contains(xmppExtensionListener));
+		xmppExtensionListeners.add(xmppExtensionListener);
+	}
+
+	public void addListener(final XMPPPresenceListener xmppPresenceListener) {
+		Assert.assertNotNull("Cannot register a null presence listener.",
+				xmppPresenceListener);
+		Assert.assertTrue("Cannot re-register the same presence listener.",
+				!xmppPresenceListeners.contains(xmppPresenceListener));
+		xmppPresenceListeners.add(xmppPresenceListener);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPSessionListener)
+	 */
+	public void addListener(final XMPPSessionListener xmppSessionListener) {
+		Assert.assertNotNull("Cannot register a null session listener.",
+				xmppSessionListener);
+		Assert.assertTrue("Cannot re-register the same session listener.",
+				!xmppSessionListeners.contains(xmppSessionListener));
+		xmppSessionListeners.add(xmppSessionListener);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#addRosterEntry(com.thinkparity.model.xmpp.user.User)
+	 */
+	public void addRosterEntry(final User xmppUser)
+			throws SmackException {
+		assertLoggedIn();
+		Assert.assertNotNull("Cannot add null user to your roster.", xmppUser);
+		debug("XMPPSessionImpl$addRosterEntry():xmppUser", xmppUser);
+		debug("XMPPSessionImpl$addRosterEntry():xmppUser.getUsername()",
+				xmppUser.getUsername());
+		// in phase 2, we'll implement the groups
+		try {
+			final Roster roster = getRoster();
+			if(!roster.contains(xmppUser.getUsername()))
+				roster.createEntry(xmppUser.getUsername(), xmppUser.getName(), null);
+		}
+		catch(XMPPException xmppx) {
+			throw error("Could not create roster entry.", xmppx);
+		}
+	}
+
+	public void debugRoster() {
+		final Roster roster = getRoster();
+		roster.reload();
+		for(Iterator<?> i = roster.getEntries(); i.hasNext();) {
+			debug("xmppsessionimpl.debugroster:rosterEntry", (RosterEntry) i
+					.next());
+		}
+	}
+
+	public void denyPresence(User user) throws SmackException {
+		// save the user for use by the roster event later on
+		pendingXMPPUsers.put(user.getUsername(), user);
+		sendPresencePacket(user.getUsername(), Type.UNSUBSCRIBED);
+	}
+
+	public Collection<User> getRosterEntries() throws SmackException {
+		assertLoggedIn();
+		final Collection<User> rosterEntries =
+			new Vector<User>(getRosterEntryCount());
+		final Roster roster = getRoster();
+		RosterEntry rosterEntry;
+		for(Iterator<?> i = roster.getEntries(); i.hasNext();) {
+			rosterEntry = (RosterEntry) i.next();
+			rosterEntries.add(createUser(roster, rosterEntry));
+		}
+		return rosterEntries;
+	}
+
+	/**
+	 * Determine whether the parity user is logged in.
+	 * @return <code>java.lang.Boolean</code>
+	 */
+	public Boolean isLoggedIn() {
+		return (null != smackXMPPConnection
+				&& smackXMPPConnection.isConnected()
+				&& smackXMPPConnection.isAuthenticated());
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#login(java.lang.String, java.lang.Integer, java.lang.String, java.lang.String)
+	 */
+	public void login(final String host, final Integer port,
+			final String username, final String password) throws SmackException {
+		debug("xmppsessionimpl.login:host", host);
+		debug("xmppsessionimpl.login:port", port);
+		debug("xmppsessionimpl.login:username", username);
+		debug("xmppsessionimpl.login:password", password);
+		try {
+			if(Boolean.TRUE == isLoggedIn())
+				logout();
+			smackXMPPConnection = new SSLXMPPConnection(host, port);
+			smackXMPPConnection.addConnectionListener((ConnectionListener) smackConnectionListenerImpl);
+
+			smackXMPPConnection.addPacketListener(new XMPPDocumentXListener() {
+				public void documentRecieved(final XMPPDocument xmppDocument) {
+					handleDocumentRecieved(xmppDocument);
+				}
+			}, new XMPPDocumentXFilter());
+			smackXMPPConnection.addPacketListener(smackPacketListenerImpl, smackPacketFilter);
+			smackXMPPConnection.addPacketListener(smackPresenceListenerImpl, smackPresenceFilter);
+
+			smackXMPPConnection.login(username, password, "parity");
+			smackXMPPConnection.getRoster().addRosterListener(smackRosterListenerImpl);
+		}
+		catch(XMPPException xmppx) {
+			throw error("Could not establish an xmpp connection.", xmppx);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#logout()
+	 */
+	public void logout() throws SmackException {
+		smackXMPPConnection.close();
+		smackXMPPConnection = null;
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
+	 */
+	public void removeListener(XMPPExtensionListener xmppExtensionListener) {
+		Assert.assertNotNull("Cannot remove a null xmpp extension listener.",
+				xmppExtensionListener);
+		Assert.assertTrue(
+				"Cannot remove an extension listener that has note been registered.",
+				xmppExtensionListeners.contains(xmppExtensionListener));
+		xmppExtensionListeners.remove(xmppExtensionListener);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPPresenceListener)
+	 */
+	public void removeListener(final XMPPPresenceListener xmppPresenceListener) {
+		Assert.assertNotNull("Cannot un-register a null presence listener.",
+				xmppPresenceListener);
+		Assert.assertTrue(
+				"Cannot un-register a non-registered presence listener.",
+				xmppPresenceListeners.contains(xmppPresenceListener));
+		xmppPresenceListeners.remove(xmppPresenceListener);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPSessionListener)
+	 */
+	public void removeListener(final XMPPSessionListener xmppSessionListener) {
+		Assert.assertNotNull("Cannot un-register a null session listener.",
+				xmppSessionListener);
+		Assert.assertTrue(
+				"Cannot unregister a non-registered session listener.",
+				xmppSessionListeners.contains(xmppSessionListener));
+		xmppSessionListeners.remove(xmppSessionListener);
+	}
+
+	/**
+	 * Send the document to the user. This is done by creating a smack packet
+	 * extension for the xmpp document, using the xstream library to serialize
+	 * the xmpp document; then sending the packet extension as an attachment to
+	 * a message to the user.
+	 * 
+	 * @param user
+	 *            The user to send the document to.
+	 * @param xmppDocument
+	 *            The document to send.
+	 * @see com.thinkparity.model.xmpp.XMPPSession#send(com.thinkparity.model.xmpp.user.User,
+	 *      com.thinkparity.model.xmpp.document.XMPPDocument)
+	 */
+	public void send(final Collection<User> users, final XMPPDocument xmppDocument)
+			throws SmackException {
+		send(users, XFactory.createPacketX(xmppDocument));
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#updateRosterEntry(com.thinkparity.model.xmpp.user.User)
+	 */
+	public void updateRosterEntry(User user) {
+		final Roster roster = getRoster();
+		final RosterEntry rosterEntry = roster.getEntry(user.getUsername());
+		rosterEntry.setName(user.getName());
 	}
 
 	private void assertLoggedIn() {
@@ -243,22 +424,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	private void debug(final String context, final String string) {
 		logger.debug(loggerFormatter.format(context, string));
 	}
-
-	/**
-	 * Iterate through the list of xmppExtensionListeners and fire the
-	 * extensionReceived event.
-	 * 
-	 * @param documentVersion
-	 *            <code>com.smack.extensions.DocumentVersionExtension</code>
-	 */
-	private void doFireDocumentVersionReceived(
-			final DocumentVersion documentVersion) {
-		for (Iterator<XMPPExtensionListener> i = xmppExtensionListeners
-				.iterator(); i.hasNext();) {
-			i.next().documentReceived(documentVersion);
-		}
-	}
-
+	
 	/**
 	 * Iterate through the list of xmppPresenceListeners and fire the
 	 * presenceRequested event.
@@ -268,9 +434,8 @@ public class XMPPSessionImpl implements XMPPSession {
 	 */
 	private void doFirePresenceRequested(final Packet packet) {
 		final User fromXMPPUser = getXMPPUser_From(packet);
-		for(Iterator<XMPPPresenceListener> i = xmppPresenceListeners.iterator();
-			i.hasNext();) {
-			i.next().presenceRequested(fromXMPPUser);
+		for(XMPPPresenceListener listener : xmppPresenceListeners) {
+			listener.presenceRequested(fromXMPPUser);
 		}
 	}
 
@@ -332,20 +497,6 @@ public class XMPPSessionImpl implements XMPPSession {
 			final RosterEntry rosterEntry = getRosterEntry(pendingXMPPUser);
 			rosterEntry.setName(pendingXMPPUser.getName());
 		}
-	}
-
-	/**
-	 * Event handler for the processPacket event generated by the
-	 * documentVersionXListenerImpl. This event is fired when the user
-	 * receives a document version from another parity user. The parity
-	 * application is notified of the new document version.
-	 * 
-	 * @param documentVersionExtension
-	 *            <code>com.thinkparity.model.smack.extensions.DocumentVersionExtension</code>
-	 */
-	private void doNotifyProcessDocumentVersionX(
-			final DocumentVersionX documentVersionX) {
-		doFireDocumentVersionReceived(documentVersionX.getDocumentVersion());
 	}
 
 	/**
@@ -468,20 +619,73 @@ public class XMPPSessionImpl implements XMPPSession {
 		return new User(null, packet.getFrom(), User.Presence.OFFLINE);
 	}
 
-	private void send(final User user, final PacketExtension packetExtension) {
-		final Chat chat = smackXMPPConnection.createChat(user.getUsername());
-		final Message message = chat.createMessage();
-		message.addExtension(packetExtension);
-		debug("message.toXML():", message.toXML());
-		smackXMPPConnection.sendPacket(message);
+	/**
+	 * Event handler that gets called when an xmpp document is recieved via the
+	 * smack connection.
+	 * 
+	 * @param xmppDocument
+	 *            The xmpp document.
+	 */
+	private void handleDocumentRecieved(final XMPPDocument xmppDocument) {
+		for(XMPPExtensionListener listener : xmppExtensionListeners) {
+			listener.documentReceived(xmppDocument);
+		}
 	}
-	
+
+	/**
+	 * Send a packet extension to a single user.
+	 * 
+	 * @param user
+	 *            The user to send the packet extension to.
+	 * @param packetExtension
+	 *            The packet extension to send.
+	 */
+	private void send(final Collection<User> users,
+			final PacketExtension packetExtension) {
+		logger.debug(users);
+		logger.debug(packetExtension);
+		for(User user : users) {
+			final Message message = smackXMPPConnection.createChat(
+					user.getUsername()).createMessage();
+			message.addExtension(packetExtension);
+			sendPacket(message);
+		}
+	}
+
+	/**
+	 * Send a packet through the smack xmpp connection.
+	 * 
+	 * @param packet
+	 *            The packet to send.
+	 */
+	private void sendPacket(final Packet packet) {
+		smackXMPPConnection.sendPacket(packet);
+		// this sleep has been inserted because when packets are sent within
+		// 30 milliseconds of each other, they tend to get swallowed by the
+		// smack library
+		try { Thread.sleep(SEND_PACKET_SLEEP_DURATION); }
+		catch(InterruptedException ix) { logger.error(ix); }
+	}
+
 	/**
 	 * Send a subscription acceptance presence packet to username.
 	 * @param username <code>java.lang.String</code.
 	 */
 	private void sendPresenceAcceptance(final String username) {
 		sendPresencePacket(username, Type.SUBSCRIBED, Mode.AVAILABLE);
+	}
+
+	/**
+	 * Send a presence packet to a user.
+	 * 
+	 * @param username
+	 *            The user to send the packet to.
+	 * @param type
+	 *            The type of packet to send.
+	 */
+	private void sendPresencePacket(final String username,
+			final Presence.Type type) {
+		sendPresencePacket(username, type, null);
 	}
 
 	/**
@@ -501,211 +705,6 @@ public class XMPPSessionImpl implements XMPPSession {
 		if(null != mode) { presence.setMode(mode); }
 		presence.setTo(username);
 		presence.setFrom(smackXMPPConnection.getUser());
-		smackXMPPConnection.sendPacket(presence);
-	}
-
-	/**
-	 * Send a presence packet to a user.
-	 * 
-	 * @param username
-	 *            The user to send the packet to.
-	 * @param type
-	 *            The type of packet to send.
-	 */
-	private void sendPresencePacket(final String username,
-			final Presence.Type type) {
-		sendPresencePacket(username, type, null);
-	}
-
-	/**
-	 * Accept the presence request of user.  This will send a presence packet
-	 * indicating that the user is subscribed and available.
-	 * 
-	 */
-	public void acceptPresence(final User user) throws SmackException {
-		// save the user for use by the roster event later on
-		pendingXMPPUsers.put(user.getUsername(), user);
-		sendPresencePacket(user.getUsername(), Type.SUBSCRIBED, Mode.AVAILABLE);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
-	 */
-	public void addListener(XMPPExtensionListener xmppExtensionListener) {
-		Assert.assertNotNull("Cannot register a null xmpp extension listener.",
-				xmppExtensionListener);
-		Assert.assertTrue(
-				"Cannot register an extension listener more than once.",
-				!xmppExtensionListeners.contains(xmppExtensionListener));
-		xmppExtensionListeners.add(xmppExtensionListener);
-	}
-
-	public void addListener(final XMPPPresenceListener xmppPresenceListener) {
-		Assert.assertNotNull("Cannot register a null presence listener.",
-				xmppPresenceListener);
-		Assert.assertTrue("Cannot re-register the same presence listener.",
-				!xmppPresenceListeners.contains(xmppPresenceListener));
-		xmppPresenceListeners.add(xmppPresenceListener);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPSessionListener)
-	 */
-	public void addListener(final XMPPSessionListener xmppSessionListener) {
-		Assert.assertNotNull("Cannot register a null session listener.",
-				xmppSessionListener);
-		Assert.assertTrue("Cannot re-register the same session listener.",
-				!xmppSessionListeners.contains(xmppSessionListener));
-		xmppSessionListeners.add(xmppSessionListener);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#addRosterEntry(com.thinkparity.model.xmpp.user.User)
-	 */
-	public void addRosterEntry(final User xmppUser)
-			throws SmackException {
-		assertLoggedIn();
-		Assert.assertNotNull("Cannot add null user to your roster.", xmppUser);
-		debug("XMPPSessionImpl$addRosterEntry():xmppUser", xmppUser);
-		debug("XMPPSessionImpl$addRosterEntry():xmppUser.getUsername()",
-				xmppUser.getUsername());
-		// in phase 2, we'll implement the groups
-		try {
-			final Roster roster = getRoster();
-			if(!roster.contains(xmppUser.getUsername()))
-				roster.createEntry(xmppUser.getUsername(), xmppUser.getName(), null);
-		}
-		catch(XMPPException xmppx) {
-			throw error("Could not create roster entry.", xmppx);
-		}
-	}
-
-	public void debugRoster() {
-		final Roster roster = getRoster();
-		roster.reload();
-		for(Iterator<?> i = roster.getEntries(); i.hasNext();) {
-			debug("xmppsessionimpl.debugroster:rosterEntry", (RosterEntry) i
-					.next());
-		}
-	}
-
-	public void denyPresence(User user) throws SmackException {
-		// save the user for use by the roster event later on
-		pendingXMPPUsers.put(user.getUsername(), user);
-		sendPresencePacket(user.getUsername(), Type.UNSUBSCRIBED);
-	}
-
-	public Collection<User> getRosterEntries() throws SmackException {
-		assertLoggedIn();
-		final Collection<User> rosterEntries =
-			new Vector<User>(getRosterEntryCount());
-		final Roster roster = getRoster();
-		RosterEntry rosterEntry;
-		for(Iterator<?> i = roster.getEntries(); i.hasNext();) {
-			rosterEntry = (RosterEntry) i.next();
-			rosterEntries.add(createUser(roster, rosterEntry));
-		}
-		return rosterEntries;
-	}
-
-	/**
-	 * Determine whether the parity user is logged in.
-	 * @return <code>java.lang.Boolean</code>
-	 */
-	public Boolean isLoggedIn() {
-		return (null != smackXMPPConnection
-				&& smackXMPPConnection.isConnected()
-				&& smackXMPPConnection.isAuthenticated());
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#login(java.lang.String, java.lang.Integer, java.lang.String, java.lang.String)
-	 */
-	public void login(final String host, final Integer port,
-			final String username, final String password) throws SmackException {
-		debug("xmppsessionimpl.login:host", host);
-		debug("xmppsessionimpl.login:port", port);
-		debug("xmppsessionimpl.login:username", username);
-		debug("xmppsessionimpl.login:password", password);
-		try {
-			if(Boolean.TRUE == isLoggedIn())
-				logout();
-			smackXMPPConnection = new SSLXMPPConnection(host, port);
-			smackXMPPConnection.addConnectionListener((ConnectionListener) smackConnectionListenerImpl);
-
-			smackXMPPConnection.addPacketListener(documentVersionXListenerImpl, documentVersionXFilter);
-			smackXMPPConnection.addPacketListener(smackPacketListenerImpl, smackPacketFilter);
-			smackXMPPConnection.addPacketListener(smackPresenceListenerImpl, smackPresenceFilter);
-
-			smackXMPPConnection.login(username, password, "parity");
-			smackXMPPConnection.getRoster().addRosterListener(smackRosterListenerImpl);
-		}
-		catch(XMPPException xmppx) {
-			throw error("Could not establish an xmpp connection.", xmppx);
-		}
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#logout()
-	 */
-	public void logout() throws SmackException {
-		smackXMPPConnection.close();
-		smackXMPPConnection = null;
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
-	 */
-	public void removeListener(XMPPExtensionListener xmppExtensionListener) {
-		Assert.assertNotNull("Cannot remove a null xmpp extension listener.",
-				xmppExtensionListener);
-		Assert.assertTrue(
-				"Cannot remove an extension listener that has note been registered.",
-				xmppExtensionListeners.contains(xmppExtensionListener));
-		xmppExtensionListeners.remove(xmppExtensionListener);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPPresenceListener)
-	 */
-	public void removeListener(final XMPPPresenceListener xmppPresenceListener) {
-		Assert.assertNotNull("Cannot un-register a null presence listener.",
-				xmppPresenceListener);
-		Assert.assertTrue(
-				"Cannot un-register a non-registered presence listener.",
-				xmppPresenceListeners.contains(xmppPresenceListener));
-		xmppPresenceListeners.remove(xmppPresenceListener);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPSessionListener)
-	 */
-	public void removeListener(final XMPPSessionListener xmppSessionListener) {
-		Assert.assertNotNull("Cannot un-register a null session listener.",
-				xmppSessionListener);
-		Assert.assertTrue(
-				"Cannot unregister a non-registered session listener.",
-				xmppSessionListeners.contains(xmppSessionListener));
-		xmppSessionListeners.remove(xmppSessionListener);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#send(com.thinkparity.model.xmpp.user.User, com.thinkparity.model.parity.api.ParityObjectVersion)
-	 */
-	public void send(User user, ParityObjectVersion parityObjectVersion)
-			throws SmackException {
-		try { send(user, XFactory.createPacketX(parityObjectVersion)); }
-		catch(UnsupportedXTypeException uxtx) {
-			throw error("Could not send packet extension.", uxtx);
-		}
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#updateRosterEntry(com.thinkparity.model.xmpp.user.User)
-	 */
-	public void updateRosterEntry(User user) {
-		final Roster roster = getRoster();
-		final RosterEntry rosterEntry = roster.getEntry(user.getUsername());
-		rosterEntry.setName(user.getName());
+		sendPacket(presence);
 	}
 }

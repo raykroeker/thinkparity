@@ -99,7 +99,7 @@ public abstract class ParityXmlTranslator {
 			final String message, final Throwable cause) {
 		final StringBuffer contextMessage = new StringBuffer(message)
 			.append(Separator.SystemNewLine)
-			.append((null == parityObject ? "<null/>" : parityObject.logMe()));
+			.append((null == parityObject ? "<null/>" : parityObject.toString()));
 		logger.error(contextMessage, cause);
 	}
 
@@ -118,7 +118,7 @@ public abstract class ParityXmlTranslator {
 			final String message, final Throwable cause) {
 		final StringBuffer contextMessage = new StringBuffer(message)
 			.append(Separator.SystemNewLine)
-			.append((null == parityObject ? "<null/>" : parityObject.logMe()));
+			.append((null == parityObject ? "<null/>" : parityObject.toString()));
 		logger.fatal(contextMessage, cause);
 		throw new MalformedXmlException(message, cause);
 	}
@@ -128,7 +128,7 @@ public abstract class ParityXmlTranslator {
 			final String message, final Throwable cause) {
 		final StringBuffer messageBuffer = new StringBuffer(message)
 			.append(Separator.SystemNewLine)
-			.append((null == parityXmlSerializable ? "<null/>" : parityXmlSerializable.logMe()));
+			.append((null == parityXmlSerializable ? "<null/>" : parityXmlSerializable.toString()));
 		logger.fatal(messageBuffer.toString(), cause);
 		throw new MalformedXmlException(message, cause);
 	}
@@ -329,7 +329,7 @@ public abstract class ParityXmlTranslator {
 		reader.moveDown();	// <version>
 		final File versionMetaDataFile = new File(reader.getValue());
 		parityObject.add((ParityObjectVersion) XStreamUtil
-				.fromXml(new InputStreamReader(new FileInputStream(
+				.fromXML(new InputStreamReader(new FileInputStream(
 						versionMetaDataFile))));
 		reader.moveUp();	// </version>
 	}

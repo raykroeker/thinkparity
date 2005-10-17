@@ -3,10 +3,11 @@
  */
 package com.thinkparity.model.smackx.provider;
 
-import com.thinkparity.model.smackx.XProvider;
-import com.thinkparity.model.smackx.packet.DocumentVersionX;
-
 import org.jivesoftware.smack.provider.ProviderManager;
+
+import com.thinkparity.model.smackx.ISmackXConstants;
+import com.thinkparity.model.smackx.XProvider;
+import com.thinkparity.model.smackx.document.XMPPDocumentPacketX;
 
 /**
  * XManager This class is used register the packet extensions for the parity
@@ -23,8 +24,8 @@ public class XManager {
 	 * Register all of the packet extensions for this application.
 	 */
 	public static void register() {
-		register(DocumentVersionX.getXElementName(), DocumentVersionX
-				.getXNamespace(), DocumentVersionX.getXProvider());	
+		register(
+				XMPPDocumentPacketX.getXElementName(), XMPPDocumentPacketX.getXProvider());	
 	}
 
 	/**
@@ -33,15 +34,14 @@ public class XManager {
 	 * correctly by provider.
 	 * 
 	 * @param xElementName
-	 *            <code>java.lang.String</code>
-	 * @param xNamespace
-	 *            <code>java.lang.String</code>
+	 *            The element name to register.
 	 * @param xProvider
-	 *            <code>java.lang.Class</code>
+	 *            The instance of the provider to register.
 	 */
 	private static void register(final String xElementName,
-			final String xNamespace, final XProvider xProvider) {
-		ProviderManager.addExtensionProvider(xElementName, xNamespace, xProvider);
+			final XProvider xProvider) {
+		ProviderManager.addExtensionProvider(
+				xElementName, ISmackXConstants.NAMESPACE, xProvider);
 	}
 
 	/**

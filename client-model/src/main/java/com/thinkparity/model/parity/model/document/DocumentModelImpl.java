@@ -8,15 +8,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.log4j.Loggable;
-import com.thinkparity.codebase.log4j.LoggerFormatter;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
@@ -30,12 +28,11 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * DocumentModelImpl
@@ -79,11 +76,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private static final Object creationListenersLock;
 
 	/**
-	 * Handle to a class used to format various classes.
-	 */
-	private static final LoggerFormatter loggerFormatter = new LoggerFormatter();
-
-	/**
 	 * List of listeners to notify when a document has been updated.
 	 * @see DocumentModelImpl#updateListenersLock
 	 */
@@ -104,20 +96,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Handle to the session model.
-	 */
-	private final SessionModel sessionModel;
-
-	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
 	 *            The workspace to work within.
 	 */
-	DocumentModelImpl(final Workspace workspace) {
-		super(workspace);
-		this.sessionModel = SessionModel.getModel();
-	}
+	DocumentModelImpl(final Workspace workspace) { super(workspace); }
 
 	/**
 	 * @see DocumentModel#addCreationListener(CreationListener)
@@ -134,8 +118,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 	void addNote(final Document document, final Note note)
 			throws ParityException {
-		debug("documentapiimpl.addnote:document", document);
-		debug("documentapiimpl.addnote:note", note);
+		logger.debug(document);
+		logger.debug(note);
 		try {
 			document.add(note);
 			serialize(document);
@@ -161,14 +145,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 	Document createDocument(final Project project, final String name,
 			final String description, final File documentFile)
 			throws ParityException {
-		debug("DocumentModelImpl.createDocument():project", project);
-		debug("DocumentModelImpl.createDocument():name", name);
-		debug("DocumentModelImpl.createDocument():description", description);
-		debug("DocumentModelImpl.createDocument():documentFile", documentFile);
+		logger.debug(project);
+		logger.debug(name);
+		logger.debug(description);
+		logger.debug(documentFile);
 		try {
 			final UUID nextDocumentId = UUIDGenerator.nextUUID();
-			debug("DocumentModelImpl.createDocument():nextDocumentId", nextDocumentId);
+			logger.debug(nextDocumentId);
 			final byte[] documentContent = FileUtil.readFile(documentFile);
+			logger.debug(documentContent);
 			final Document document = new Document(project, name, DateUtil
 					.getInstance(), preferences.getUsername(), preferences
 					.getUsername(), description, project.getDirectory(),
@@ -224,21 +209,21 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	void exportDocument(final File file, final Document document)
 			throws ParityException {
-		debug("DocumentModelImpl.exportDocument():file", file);
-		debug("DocumentModelImpl.exportDocument():document", document);
+		logger.debug(file);
+		logger.debug(document);
 		exportDocument_CheckRules(file, document);
 		createFile(file);
 		writeDocumentContent(file, readDocument(document));
 	}
 
 	Document getDocument(final File documentMetaDataFile) throws ParityException {
-		debug("documentapiimpl.getdocument:documentMetaDataFile", documentMetaDataFile);
+		logger.debug(documentMetaDataFile);
 		try { return DocumentXml.readXml(documentMetaDataFile); }
 		catch(IOException iox) { throw new ParityException(iox); }
 	}
 
 	StringBuffer getRelativePath(final Document document) throws ParityException {
-		debug("documentapiimpl.getrelativepath:document", document);
+		logger.debug(document);
 		final Project rootProject = ProjectModel.getRootProject(workspace);
 		final URI relativeURI = rootProject.getDirectory().toURI()
 			.relativize(document.getDirectory().toURI());
@@ -246,12 +231,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	Boolean isDocumentClosable(final Document document) throws ParityException {
-		debug("documentapiimpl.isdocumentclosable:document", document);
+		logger.debug(document);
 		return Boolean.FALSE;
 	}
 
 	Boolean isDocumentDeletable(final Document document) throws ParityException {
-		debug("documentapiimpl.isdocumentdeletable:document", document);
+		logger.debug(document);
 		return Boolean.FALSE;
 	}
 
@@ -264,7 +249,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void openDocument(final Document document) throws ParityException {
-		debug("DocumentModelImpl.openDocument():document", document);
+		logger.debug(document);
 		try {
 			final File documentCacheFile = getFileFromDiskCache(document);
 			ParityUtil.launchFileWin32(documentCacheFile.getAbsolutePath());
@@ -273,31 +258,32 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * @see DocumentModel#receiveDocumentVersion(DocumentVersion)
-	 * @param documentVersion
-	 *            The document version to receive.
+	 * Use the document model to receive a document from another parity user.
+	 * 
+	 * @param xmppDocument
+	 *            The xmpp document received from another parity user.
 	 * @throws ParityException
+	 * @see DocumentModel#receiveDocument(XMPPDocument)
 	 */
-	void receiveDocumentVersion(final DocumentVersion documentVersion)
+	void receiveDocument(final XMPPDocument xmppDocument)
 			throws ParityException {
-		debug("DocumenApiImpl.createDocument():documentVersion:",
-				documentVersion);
+		logger.debug(xmppDocument);
 		try {
-			// the imported document will reside within the root project
-			final Project project = ProjectModel.getRootProject(workspace);
+			/*
+			 * Obtain the root parity project within the workspace, and place
+			 * the received document within it, the notify all listeners about
+			 * the new document.
+			 */
+			final Project rootProject = ProjectModel.getRootProject(workspace);
 
-			// create a new instance of a document based upon the imported
-			// document with a few modifications
-			final Document originalDocument = documentVersion.getDocument();
-			final Document newDocument = new Document(originalDocument);
-			newDocument.setDirectory(project);
+			final Document newDocument = new Document(rootProject,
+					xmppDocument.getName(), xmppDocument.getCreatedOn(),
+					xmppDocument.getCreatedBy(), "",
+					xmppDocument.getDescription(), rootProject.getDirectory(),
+					xmppDocument.getId(), xmppDocument.getContent());
+			createDocument(rootProject, newDocument);
+			createDocumentVersion(newDocument);
 
-			// create a temporary file using the documentVersion's content
-			// final File documentFile = createTempFile(documentVersion);
-
-			// create the document
-			createMetaData(newDocument);
-			updateProjectMetaData(project, newDocument);
 			notifyCreation_objectReceived(newDocument);
 		}
 		catch(DocumentException dx) { throw new ParityException(dx); }
@@ -330,20 +316,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	void sendDocument(final Collection<User> users, final Document document)
-			throws ParityException {
-		trace();
-		debug("DocumentModelImpl.sendDocument():users", users);
-		debug("DocumentModelImpl.sendDocument():document", document);
-		final DocumentVersion newDocumentVersion =
-			createDocumentVersion(document);
-		for(Iterator<User> i = users.iterator(); i.hasNext();) {
-			sendDocument(i.next(), newDocumentVersion);
-		}
-	}
-
 	void updateDocument(final Document document) throws ParityException {
-		debug("DocumentModelImpl.updateDocument():document", document);
+		logger.debug(document);
 		try {
 			serialize(document);
 			notifyUpdate_objectUpdated(document);
@@ -391,47 +365,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private void createMetaData(final Document document) throws DocumentException {
 		try { DocumentXml.writeCreationXml(document); }
 		catch(IOException iox ) { throw new DocumentException(iox); }
-	}
-
-	private File createTempFile(final DocumentVersion documentVersion)
-			throws DocumentException {
-		try {
-			final Document document = documentVersion.getDocument();
-			final String documentName = document.getName();
-			return FileUtil.writeTempFile(ParityUtil
-					.getClientName(), documentName, documentVersion
-					.getContent());
-		}
-		catch(IOException iox) { throw new DocumentException(iox); }
-	}
-
-	private void debug(final String context, final Collection<User> users) {
-		if(null == users) { debug(context, (Loggable) null); }
-		else {
-			for(Iterator<User> i = users.iterator(); i.hasNext();) {
-				debug(context, i.next());
-			}
-		}
-	}
-
-	private void debug(final String context, final File file) {
-		logger.debug(loggerFormatter.format(context, file));
-	}
-
-	private void debug(final String context, final Loggable loggable) {
-		logger.debug(loggerFormatter.format(context, loggable));
-	}
-
-	private void debug(final String context, final String string) {
-		logger.debug(loggerFormatter.format(context, string));
-	}
-
-	private void debug(final String context, final UUID uuid) {
-		logger.debug(loggerFormatter.format(context, uuid));
-	}
-
-	private void deleteMetaData(final Document document) {
-		DocumentXml.deleteXml(document);
 	}
 
 	private void exportDocument_CheckRules(final File file,
@@ -574,11 +507,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	private void sendDocument(final User user,
-			final DocumentVersion documentVersion) throws ParityException {
-		sessionModel.send(user, documentVersion);
-	}
-
 	/**
 	 * Serialize the document to xml.
 	 * @param document <code>Document</code>
@@ -615,8 +543,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throw new DocumentException("Could not serialize project xml.");
 		}
 	}
-
-	private void trace() { logger.debug("REMEMBER TO INSERT STACK-TRACE"); }
 
 	private void updateProjectMetaData(final Project project,
 			final Document document) throws DocumentException {

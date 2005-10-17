@@ -5,9 +5,8 @@ package com.thinkparity.model.xmpp;
 
 import java.util.Collection;
 
-
-import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.smack.SmackException;
+import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -45,7 +44,6 @@ public interface XMPPSession {
 			final String username, final String password) throws SmackException;
 	public void logout() throws SmackException;
 
-	public void send(final User user,
-			final ParityObjectVersion parityObjectVersion)
-			throws SmackException;
+	public void send(final Collection<User> users,
+			final XMPPDocument xmppDocument) throws SmackException;
 }

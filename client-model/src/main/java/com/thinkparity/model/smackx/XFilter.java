@@ -13,11 +13,13 @@ import org.jivesoftware.smack.filter.PacketExtensionFilter;
 public abstract class XFilter extends PacketExtensionFilter {
 
 	/**
-	 * Create a XFilter
+	 * Create an XFilter. All x filters will filter on the
+	 * <code>ISmackXConstants#NAMESPACE</code> namespace.
+	 * 
 	 * @param elementName
-	 * @param namespace
+	 *            The xml element name of the packet extension to filter.
 	 */
-	protected XFilter(final String elementName, final String namespace) {
-		super(elementName, namespace);
+	protected XFilter(final String elementName) {
+		super(elementName, ISmackXConstants.NAMESPACE);
 	}
 }

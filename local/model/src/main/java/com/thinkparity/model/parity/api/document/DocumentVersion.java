@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.api.document;
 import java.io.File;
 
 import com.thinkparity.model.parity.api.ParityObjectVersion;
-import com.thinkparity.model.parity.api.document.xml.DocumentXml;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -58,9 +57,4 @@ public class DocumentVersion extends ParityObjectVersion {
 	}
 
 	public String getName() { return document.getName(); }
-
-	/**
-	 * @see com.thinkparity.codebase.log4j.Loggable#logMe()
-	 */
-	public StringBuffer logMe() { return DocumentXml.toXml(this); }
 }

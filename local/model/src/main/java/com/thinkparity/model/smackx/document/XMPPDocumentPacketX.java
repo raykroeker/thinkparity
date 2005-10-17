@@ -50,8 +50,10 @@ public class XMPPDocumentPacketX extends PacketX {
 	public XMPPDocumentPacketX() { this(null); }
 
 	/**
-	 * Create a XMPPDocumentPacketX
-	 * @param documentVersion
+	 * Create a XMPPDocumentPacketX.
+	 * 
+	 * @param xmppDocument
+	 *            The xmpp document to base the extension from.
 	 */
 	public XMPPDocumentPacketX(final XMPPDocument xmppDocument) {
 		super();

@@ -363,12 +363,11 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * the xmpp document; then sending the packet extension as an attachment to
 	 * a message to the user.
 	 * 
-	 * @param user
-	 *            The user to send the document to.
+	 * @param users
+	 *            The users to send the document to.
 	 * @param xmppDocument
 	 *            The document to send.
-	 * @see com.thinkparity.model.xmpp.XMPPSession#send(com.thinkparity.model.xmpp.user.User,
-	 *      com.thinkparity.model.xmpp.document.XMPPDocument)
+	 * @see XMPPSessionImpl#send(Collection, PacketExtension)
 	 */
 	public void send(final Collection<User> users, final XMPPDocument xmppDocument)
 			throws SmackException {

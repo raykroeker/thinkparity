@@ -8,17 +8,16 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
+import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.ParityTestCase;
-import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * ProjectModelTest
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ProjectModelTest extends ParityTestCase {
+public class ProjectModelTest extends ModelTestCase {
 
 	private Vector<CreateProjectData> testCreateProjectData;
 
@@ -35,7 +34,8 @@ public class ProjectModelTest extends ParityTestCase {
 	 */
 	public void testGetRootProject() {
 		try {
-			final Project rootProject = ProjectModel.getRootProject(workspace);
+			final Project rootProject =
+				ProjectModel.getRootProject(getWorkspace());
 			assertNotNull(rootProject);
 			assertNotNull(rootProject.getMetaDataDirectory());
 			assertNotNull(rootProject.getMetaDataFile());
@@ -45,7 +45,7 @@ public class ProjectModelTest extends ParityTestCase {
 
 	public void testCreateProject() {
 		Project rootProject = null;
-		try { rootProject = ProjectModel.getRootProject(workspace); }
+		try { rootProject = ProjectModel.getRootProject(getWorkspace()); }
 		catch(ParityException px) { fail(px.getMessage()); }
 
 		for (Iterator<CreateProjectData> i = testCreateProjectData.iterator(); i
@@ -57,7 +57,7 @@ public class ProjectModelTest extends ParityTestCase {
 	private void testCreateProject(final Project parentProject,
 			final CreateProjectData createProjectData) {
 		try {
-			projectModel.createProject(parentProject, createProjectData.name,
+			getProjectModel().createProject(parentProject, createProjectData.name,
 					createProjectData.description);
 		}
 		catch(ParityException px) {
@@ -68,7 +68,7 @@ public class ProjectModelTest extends ParityTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.ParityTestCase#setUp()
+	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -80,7 +80,7 @@ public class ProjectModelTest extends ParityTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.ParityTestCase#tearDown()
+	 * @see com.thinkparity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();

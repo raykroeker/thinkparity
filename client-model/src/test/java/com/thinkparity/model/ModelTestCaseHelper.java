@@ -1,22 +1,23 @@
 /*
  * Jul 1, 2005
  */
-package com.thinkparity.model.parity;
+package com.thinkparity.model;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
-import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.ResourceUtil;
 
 
 /**
- * ParityTestCaseHelper
+ * ModelTestCaseHelper
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ParityTestCaseHelper {
+public class ModelTestCaseHelper {
 
 	private static final Long vmStartTime = System.currentTimeMillis();
 
@@ -32,17 +33,14 @@ public class ParityTestCaseHelper {
 		System.setProperty("parity.workspace", parityWorkspace);
 	}
 
-	/**
-	 * Handle to the workspace model.
-	 */
-	private final WorkspaceModel workspaceModel;
+	private final ModelTestCase modelTestCase;
 
 	/**
-	 * Create a ParityTestCaseHelper
+	 * Create a ModelTestCaseHelper
 	 */
-	ParityTestCaseHelper() {
+	ModelTestCaseHelper(final ModelTestCase modelTestCase) {
 		super();
-		this.workspaceModel = WorkspaceModel.getModel();
+		this.modelTestCase = modelTestCase;
 	}
 
 	/**
@@ -85,17 +83,36 @@ public class ParityTestCaseHelper {
 		return "JUnit.Test." + vmStartTime + "." + index;
 	}
 
-	/**
-	 * Obtain the workspace for the parity system.
-	 * @return <code>Workspace</code>
-	 */
-	Workspace getWorkspace() { return workspaceModel.getWorkspace(); }
-	
 	private URL buildURL(final StringBuffer url) {
 		try { return new URL(url.toString()); }
 		catch(MalformedURLException murlx) {
-			ParityTestCase.fail(murlx.getMessage());
+			ModelTestCase.fail(murlx.getMessage());
 			return null;
 		}
 	}
+
+	void deleteWorkspace(final ModelTestUser modelTestUser) {
+		final File workspaceDirectory = getWorkspaceDirectory(modelTestUser);
+		deleteTree(workspaceDirectory);
+		ModelTestCase.assertFalse(
+				"Could not delete workspace directory.",
+				workspaceDirectory.exists());
+		workspaceDirectory.mkdir();
+	}
+
+	private void deleteTree(final File rootDirectory) {
+		FileUtil.deleteTree(rootDirectory);
+	}
+
+	private File getWorkspaceDirectory(final ModelTestUser modelTestUser) {
+		final URL rootURL = ResourceUtil.getURL("resources/workspace");
+		File rootDirectory = null;
+		try { rootDirectory = new File(rootURL.toURI()); }
+		catch(URISyntaxException usx) {
+			ModelTestCase.fail(modelTestCase.getFailMessage(usx));
+		}
+		return new File(rootDirectory, modelTestUser.getUsername());
+	}
+
+	ModelTestUser getModelTestUserJUnit0() { return ModelTestUser.getJUnit0(); }
 }

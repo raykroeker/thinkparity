@@ -3,8 +3,8 @@
  */
 package com.thinkparity.model.parity.model.tree;
 
+import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.ParityTestCase;
 import com.thinkparity.model.parity.model.tree.Tree;
 import com.thinkparity.model.parity.model.tree.TreeModel;
 
@@ -13,7 +13,7 @@ import com.thinkparity.model.parity.model.tree.TreeModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class TreeModelTest extends ParityTestCase {
+public class TreeModelTest extends ModelTestCase {
 
 	/**
 	 * Handle to the actual tree model returned.
@@ -44,7 +44,8 @@ public class TreeModelTest extends ParityTestCase {
 
 	public void testGetTree() {
 		try {
-			final Tree tree = treeModel.getTree(workspace);
+			final Tree tree = treeModel.getTree(
+					getWorkspaceModel().getWorkspace());
 			TreeModelTest.assertNotNull(tree);
 		}
 		catch(ParityException px) { fail(px.getMessage()); }

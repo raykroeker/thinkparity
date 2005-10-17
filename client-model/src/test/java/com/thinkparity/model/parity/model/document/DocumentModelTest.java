@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.thinkparity.model.parity.ParityTestCase;
+import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 
 /**
@@ -15,7 +15,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentModelTest extends ParityTestCase {
+public class DocumentModelTest extends ModelTestCase {
 
 	private Project testGetPathRootProject;
 	private Collection<Document> testGetPathDocuments;
@@ -28,17 +28,17 @@ public class DocumentModelTest extends ParityTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.ParityTestCase#setUp()
+	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		testGetPathRootProject = projectModel.getRootProject(workspace);
+		testGetPathRootProject = getProjectModel().getRootProject(getWorkspace());
 		testGetPathDocuments = testGetPathRootProject.getDocuments();
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.ParityTestCase#tearDown()
+	 * @see com.thinkparity.model.ModelTestCase#tearDown()
 	 */
 	@Override
 	protected void tearDown() throws Exception {

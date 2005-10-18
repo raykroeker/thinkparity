@@ -96,12 +96,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Handle to a project model api.
+	 */
+	private final ProjectModel projectModel;
+
+	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
 	 *            The workspace to work within.
 	 */
-	DocumentModelImpl(final Workspace workspace) { super(workspace); }
+	DocumentModelImpl(final Workspace workspace) {
+		super(workspace);
+		this.projectModel = ProjectModel.getModel();
+	}
 
 	/**
 	 * @see DocumentModel#addCreationListener(CreationListener)
@@ -224,7 +232,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 	StringBuffer getRelativePath(final Document document) throws ParityException {
 		logger.debug(document);
-		final Project rootProject = ProjectModel.getRootProject(workspace);
+		final Project rootProject = projectModel.getRootProject(workspace);
 		final URI relativeURI = rootProject.getDirectory().toURI()
 			.relativize(document.getDirectory().toURI());
 		return new StringBuffer(relativeURI.toString());
@@ -274,7 +282,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			 * the received document within it, the notify all listeners about
 			 * the new document.
 			 */
-			final Project rootProject = ProjectModel.getRootProject(workspace);
+			final Project rootProject = projectModel.getRootProject(workspace);
 
 			final Document newDocument = new Document(rootProject,
 					xmppDocument.getName(), xmppDocument.getCreatedOn(),

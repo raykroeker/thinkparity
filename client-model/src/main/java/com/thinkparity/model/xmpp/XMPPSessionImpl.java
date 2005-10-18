@@ -138,7 +138,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * library will have a tendancy to swallow messages.
 	 * @see XMPPSessionImpl#send(Collection, PacketExtension)
 	 */
-	private static final int SEND_PACKET_SLEEP_DURATION = 30;
+	private static final int SEND_PACKET_SLEEP_DURATION = 35;
 
 	static {
 		// set the subscription mode such that all requests are manual

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.workspace;
 
-import java.net.URL;
 import java.util.Locale;
 
 /**
@@ -27,9 +26,8 @@ class PreferencesHelper {
 	 *            The preferences directory.
 	 * @return The interface with which the client can interact.
 	 */
-	Preferences getPreferences(final URL prefsDirectory) {
-		final java.util.prefs.Preferences javaPrefs =
-			initJavaPrefs(prefsDirectory);
+	Preferences getPreferences() {
+		final java.util.prefs.Preferences javaPrefs = initJavaPrefs();
 
 		return new Preferences() {
 			/**
@@ -59,7 +57,9 @@ class PreferencesHelper {
 			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getUsername()
 			 */
 			public String getUsername() {
-				return javaPrefs.get("parity.username", null);
+				final String username = javaPrefs.get("parity.username", null);
+				if(null != username) { return username; }
+				else { return "system"; }
 			}
 
 			/**

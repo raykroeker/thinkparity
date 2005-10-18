@@ -24,11 +24,6 @@ public class ProjectModel extends AbstractModel {
 	 */
 	private static final ProjectModelImpl impl = new ProjectModelImpl();
 
-	/**
-	 * Synchronization lock.
-	 */
-	private static final Object LOCK = new Object();
-
 	public static void addCreationListener(
 			final CreationListener creationListener) {
 		impl.addCreationListener(creationListener);
@@ -39,20 +34,18 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
-	 * Create a ProjectModel.
+	 * Obtain a handle to the project model.
+	 * 
+	 * @return A handle to the project model.
 	 */
 	public static ProjectModel getModel() {
-		synchronized(LOCK) { return new ProjectModel(); }
+		final ProjectModel projectModel = new ProjectModel();
+		return projectModel;
 	}
 
 	public static Project getProject(final File projectMetaDataFile)
 			throws ParityException {
 		return impl.getProject(projectMetaDataFile);
-	}
-
-	public static Project getRootProject(final Workspace workspace)
-			throws ParityException {
-		return impl.getRootProject(workspace);
 	}
 
 	public static void removeCreationListener(
@@ -71,8 +64,15 @@ public class ProjectModel extends AbstractModel {
 
 	/**
 	 * Instance implementation.
+	 * @see ProjectModel#impl2Lock
 	 */
 	private final ProjectModelImpl impl2;
+
+	/**
+	 * Synchronization lock for the implementation.
+	 * @see ProjectModel#impl2
+	 */
+	private final Object impl2Lock;
 
 	/**
 	 * Handle to the current workspace.
@@ -86,10 +86,16 @@ public class ProjectModel extends AbstractModel {
 		super();
 		this.workspace = WorkspaceModel.getModel().getWorkspace();
 		this.impl2 = new ProjectModelImpl(workspace);
+		this.impl2Lock = new Object();
 	}
 
 	public Project createProject(final Project parent, final String name,
 			final String description) throws ParityException {
 		return impl2.createProject(parent, name, description);
+	}
+
+	public Project getRootProject(final Workspace workspace)
+			throws ParityException {
+		synchronized(impl2Lock) { return impl2.getRootProject(workspace); }
 	}
 }

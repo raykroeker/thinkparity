@@ -18,9 +18,7 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	 */
 	private static final Workspace cachedWorkspace;
 
-	static {
-		cachedWorkspace = new WorkspaceHelper().openWorkspace();
-	}
+	static { cachedWorkspace = new WorkspaceHelper().openWorkspace(); }
 
 	/**
 	 * Create a WorkspaceModelImpl

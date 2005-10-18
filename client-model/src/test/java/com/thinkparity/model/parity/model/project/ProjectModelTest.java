@@ -19,6 +19,20 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  */
 public class ProjectModelTest extends ModelTestCase {
 
+	/**
+	 * CreateProjectData
+	 * @author raykroeker@gmail.com
+	 * @version 1.1
+	 */
+	private class CreateProjectData {
+		private String description;
+		private String name;
+		private CreateProjectData(final String name, final String description) {
+			this.name = name;
+			this.description = description;
+		}
+	}
+
 	private Vector<CreateProjectData> testCreateProjectData;
 
 	/**
@@ -29,23 +43,9 @@ public class ProjectModelTest extends ModelTestCase {
 		super("Test:  Project model.");
 	}
 
-	/**
-	 * Obtain the root project for the specified workspace.
-	 */
-	public void testGetRootProject() {
-		try {
-			final Project rootProject =
-				ProjectModel.getRootProject(getWorkspace());
-			assertNotNull(rootProject);
-			assertNotNull(rootProject.getMetaDataDirectory());
-			assertNotNull(rootProject.getMetaDataFile());
-		}
-		catch(ParityException px) { fail(px.getMessage()); }
-	}
-
 	public void testCreateProject() {
 		Project rootProject = null;
-		try { rootProject = ProjectModel.getRootProject(getWorkspace()); }
+		try { rootProject = getRootProject(); }
 		catch(ParityException px) { fail(px.getMessage()); }
 
 		for (Iterator<CreateProjectData> i = testCreateProjectData.iterator(); i
@@ -54,17 +54,17 @@ public class ProjectModelTest extends ModelTestCase {
 		}
 	}
 
-	private void testCreateProject(final Project parentProject,
-			final CreateProjectData createProjectData) {
+	/**
+	 * Obtain the root project for the specified workspace.
+	 */
+	public void testGetRootProject() {
 		try {
-			getProjectModel().createProject(parentProject, createProjectData.name,
-					createProjectData.description);
+			final Project rootProject = getRootProject();
+			assertNotNull(rootProject);
+			assertNotNull(rootProject.getMetaDataDirectory());
+			assertNotNull(rootProject.getMetaDataFile());
 		}
-		catch(ParityException px) {
-			fail(px.getMessage() + Separator.SystemNewLine +
-					"name:  " + createProjectData.name + Separator.SystemNewLine +
-					"description:  " + createProjectData.description);
-		}
+		catch(ParityException px) { fail(px.getMessage()); }
 	}
 
 	/**
@@ -86,17 +86,20 @@ public class ProjectModelTest extends ModelTestCase {
 		super.tearDown();
 	}
 
-	/**
-	 * CreateProjectData
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class CreateProjectData {
-		private String name;
-		private String description;
-		private CreateProjectData(final String name, final String description) {
-			this.name = name;
-			this.description = description;
+	private Project getRootProject() throws ParityException {
+		return getProjectModel().getRootProject(getWorkspace());
+	}
+
+	private void testCreateProject(final Project parentProject,
+			final CreateProjectData createProjectData) {
+		try {
+			getProjectModel().createProject(parentProject, createProjectData.name,
+					createProjectData.description);
+		}
+		catch(ParityException px) {
+			fail(px.getMessage() + Separator.SystemNewLine +
+					"name:  " + createProjectData.name + Separator.SystemNewLine +
+					"description:  " + createProjectData.description);
 		}
 	}
 }

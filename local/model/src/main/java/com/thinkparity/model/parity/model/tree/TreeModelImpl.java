@@ -17,21 +17,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 class TreeModelImpl extends AbstractModelImpl {
 
 	/**
-	 * Create a TreeModelImpl
-	 */
-	TreeModelImpl() { super(null); }
-
-	Tree getTree(final Workspace workspace) throws ParityException {
-		final Project rootProject = ProjectModel.getRootProject(workspace);
-		return createTree(rootProject);
-	}
-
-	private Tree createTree(final Project rootProject) {
-		final TreeNode rootNode = TreeNode.createTreeNode(new ProjectContentProvider(rootProject));
-		return Tree.createTree(rootNode);
-	}
-
-	/**
 	 * ProjectContentProvider
 	 * @author raykroeker@gmail.com
 	 * @version 1.1
@@ -55,5 +40,24 @@ class TreeModelImpl extends AbstractModelImpl {
 		 * @see com.thinkparity.model.parity.model.tree.TreeNodeContentProvider#getName()
 		 */
 		public String getName() { return project.getName(); }
+	}
+
+	private final ProjectModel projectModel;
+
+	/**
+	 * Create a TreeModelImpl
+	 */
+	TreeModelImpl() {
+		super(null);
+		this.projectModel = ProjectModel.getModel();
+	}
+
+	Tree getTree(final Workspace workspace) throws ParityException {
+		return createTree(projectModel.getRootProject(workspace));
+	}
+
+	private Tree createTree(final Project rootProject) {
+		final TreeNode rootNode = TreeNode.createTreeNode(new ProjectContentProvider(rootProject));
+		return Tree.createTree(rootNode);
 	}
 }

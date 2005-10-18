@@ -51,11 +51,6 @@ class WorkspaceHelper {
 			final URL loggerURL = initWorkspaceChild(workspaceRootURL, "logs");
 
 			/**
-			 * URL to the preferences file directory within the workspace.
-			 */
-			final URL prefsURL = initWorkspaceChild(workspaceRootURL, "prefs");
-
-			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataURL()
 			 */
 			public URL getDataURL() { return dataURL; }
@@ -69,7 +64,7 @@ class WorkspaceHelper {
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getPreferences()
 			 */
 			public Preferences getPreferences() {
-				return preferencesHelper.getPreferences(prefsURL);
+				return preferencesHelper.getPreferences();
 			}
 
 			/**

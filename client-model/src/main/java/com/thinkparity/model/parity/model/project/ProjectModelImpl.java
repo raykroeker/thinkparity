@@ -74,15 +74,15 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		new Vector<UpdateListener>(10);
 
 	/**
-	 * Create a ProjectApi_Impl
-	 */
-	ProjectModelImpl(final Workspace workspace) { super(workspace); }
-
-	/**
 	 * Create a ProjectModelImpl.
 	 * @deprecated
 	 */
 	ProjectModelImpl() { this(null); }
+
+	/**
+	 * Create a ProjectApi_Impl
+	 */
+	ProjectModelImpl(final Workspace workspace) { super(workspace); }
 
 	void addCreationListener(final CreationListener creationListener) {
 		if(null != creationListener)
@@ -117,7 +117,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	Project getProject(final File metaDataFile) throws ParityException {
-		debug("projectapiimpl.getproject:metadatafile", metaDataFile);
+		logger.debug(metaDataFile);
 		if(!metaDataFile.exists()) { return null; }
 		else {
 			try { return ProjectXml.readXml(metaDataFile); }
@@ -208,10 +208,6 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 			}
 			catch(ProjectException px) { throw new ParityException(px); }
 		}
-	}
-
-	private void debug(final String context, final File file) {
-		logger.debug(loggerFormatter.format(context, file));
 	}
 
 	private void notifyCreation(final Project project) {

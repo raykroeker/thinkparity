@@ -21,22 +21,26 @@ import com.thinkparity.model.parity.model.AbstractModel;
 public class WorkspaceModel extends AbstractModel {
 
 	/**
-	 * Lock used for synch operations.
-	 */
-	private static final Object LOCK = new Object();
-
-	/**
-	 * Create a WorkspaceModel.
-	 * @return WorkspaceModel
+	 * Obtain a handle to a workspace model.
+	 * 
+	 * @return The workspace model interface.
 	 */
 	public static WorkspaceModel getModel() {
-		synchronized(LOCK) { return new WorkspaceModel(); }
+		final WorkspaceModel workspaceModel = new WorkspaceModel();
+		return workspaceModel;
 	}
 
 	/**
 	 * Internal implementation of the workspace model.
+	 * @see WorkspaceModel#implLock
 	 */
 	private final WorkspaceModelImpl impl;
+
+	/**
+	 * Synchronization lock for the impl.
+	 * @see WorkspaceModel#impl
+	 */
+	private final Object implLock;
 
 	/**
 	 * Create a WorkspaceModel
@@ -44,11 +48,15 @@ public class WorkspaceModel extends AbstractModel {
 	private WorkspaceModel() {
 		super();
 		impl = new WorkspaceModelImpl();
+		implLock = new Object();
 	}
 
 	/**
-	 * Obtain the workspace.
-	 * @return <code>
+	 * Obtain the handle to a workspace.
+	 * 
+	 * @return The handle to the workspace.
 	 */
-	public Workspace getWorkspace() { return impl.getWorkspace(); }
+	public Workspace getWorkspace() {
+		synchronized(implLock) { return impl.getWorkspace(); }
+	}
 }

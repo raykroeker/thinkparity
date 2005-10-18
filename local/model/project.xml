@@ -35,8 +35,17 @@
         <unitTestSourceDirectory>src/test/java</unitTestSourceDirectory>
         <unitTest>
             <includes>
-                <include>**/*Test__FILTER_NONE.java</include>
+                <include>**/*Test.java</include>
             </includes>
+			<resources>
+				<resource>
+					<targetPath>com/thinkparity/model</targetPath>
+					<directory>src/test/java/com/thinkparity/model</directory>
+					<includes>
+						<include>**/*</include>
+					</includes>
+				</resource>
+			</resources>
         </unitTest>
     	<resources>
     		<resource>

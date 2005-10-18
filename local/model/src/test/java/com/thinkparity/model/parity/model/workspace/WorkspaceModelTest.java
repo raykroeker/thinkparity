@@ -6,8 +6,6 @@ package com.thinkparity.model.parity.model.workspace;
 import java.net.URL;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
  * WorkspaceModelTest
@@ -16,36 +14,48 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public class WorkspaceModelTest extends ModelTestCase {
 
+	private WorkspaceModel workspaceModel;
+
 	/**
 	 * Create a WorkspaceModelTest
 	 * @param name
 	 */
-	public WorkspaceModelTest() {
-		super("Test:  Workspace model.");
-	}
+	public WorkspaceModelTest() { super("Test:  Workspace model."); }
 
 	/**
-	 * Test the workspace reference.
-	 * 
+	 * Test getWorkspace()
+	 *
 	 */
 	public void testGetWorkspace() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
-		WorkspaceModelTest.assertNotNull(workspace);
-		final URL workspaceURL = workspace.getWorkspaceURL();
-		final URL workspaceDataURL = workspace.getDataURL();
-		WorkspaceModelTest.assertNotNull(workspaceURL);
-		WorkspaceModelTest.assertNotNull(workspaceDataURL);
-		WorkspaceModelTest.assertEquals(getExpectedWorkspaceDataURL(), workspaceDataURL);
-		WorkspaceModelTest.assertEquals(getExpectedWorkspaceURL(), workspaceURL);
+		final Workspace workspace = workspaceModel.getWorkspace();
+		WorkspaceModelTest.assertNotNull("Workspace is null.", workspace);
+
+		final URL dataURL = workspace.getDataURL();
+		WorkspaceModelTest.assertNotNull(dataURL);
+
+		final URL loggerURL = workspace.getLoggerURL();
+		WorkspaceModelTest.assertNotNull(loggerURL);
+
+		final Preferences prefs = workspace.getPreferences();
+		WorkspaceModelTest.assertNotNull(prefs);
+
+		final URL url = workspace.getWorkspaceURL();
+		WorkspaceModelTest.assertNotNull(url);
 	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
-	protected void setUp() throws Exception { super.setUp(); }
+	protected void setUp() throws Exception {
+		super.setUp();
+		workspaceModel = getWorkspaceModel();
+	}
 
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown() throws Exception { super.tearDown(); }
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		workspaceModel = null;
+	}
 }

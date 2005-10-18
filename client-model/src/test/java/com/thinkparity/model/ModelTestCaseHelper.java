@@ -43,52 +43,8 @@ public class ModelTestCaseHelper {
 		this.modelTestCase = modelTestCase;
 	}
 
-	/**
-	 * Obtain the workspace url expected based upon the parity.workspace system
-	 * variable set above.
-	 * @return
-	 */
-	URL getExpectedWorkspaceDataURL() {
-		final StringBuffer expectedURL = new StringBuffer()
-			.append(getExpectedWorkspaceURL().toString())
-			.append(".data/");
-		return buildURL(expectedURL);
-	}
-
-	/**
-	 * Obtain the workspace url expected based upon the parity.workspace system
-	 * variable set above.
-	 * @return
-	 */
-	URL getExpectedWorkspaceLogURL() {
-		final StringBuffer expectedURL = new StringBuffer()
-			.append(getExpectedWorkspaceURL().toString())
-			.append(".log/");
-		return buildURL(expectedURL);
-	}
-
-	/**
-	 * Obtain the workspace url expected based upon the parity.workspace system
-	 * variable set above.
-	 * @return
-	 */
-	URL getExpectedWorkspaceURL() {
-		final StringBuffer expectedURL = new StringBuffer("file:")
-			.append(System.getProperty("parity.workspace"))
-			.append("/.Parity Software/Parity/");
-		return buildURL(expectedURL);
-	}
-
 	String getUniqueProjectName(final Integer index) {
 		return "JUnit.Test." + vmStartTime + "." + index;
-	}
-
-	private URL buildURL(final StringBuffer url) {
-		try { return new URL(url.toString()); }
-		catch(MalformedURLException murlx) {
-			ModelTestCase.fail(murlx.getMessage());
-			return null;
-		}
 	}
 
 	void deleteWorkspace(final ModelTestUser modelTestUser) {

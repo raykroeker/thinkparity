@@ -41,14 +41,6 @@ public abstract class ModelTestCase extends TestCase {
 		helper.deleteWorkspace(modelTestUser);
 	}
 
-	protected URL getExpectedWorkspaceDataURL() {
-		return helper.getExpectedWorkspaceDataURL();
-	}
-
-	protected URL getExpectedWorkspaceURL() {
-		return helper.getExpectedWorkspaceURL();
-	}
-
 	protected ModelTestUser getModelTestUser() {
 		return helper.getModelTestUserJUnit0();
 	}

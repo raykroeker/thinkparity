@@ -5,10 +5,13 @@ package com.thinkparity.model;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
+import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -27,7 +30,6 @@ public abstract class ModelTestCase extends TestCase {
 	 */
 	private final ModelTestCaseHelper helper;
 
-
 	/**
 	 * Create a ModelTestCase
 	 * @param name
@@ -37,20 +39,61 @@ public abstract class ModelTestCase extends TestCase {
 		this.helper = new ModelTestCaseHelper(this);
 	}
 
-	protected void deleteWorkspace(final ModelTestUser modelTestUser) {
-		helper.deleteWorkspace(modelTestUser);
+	/**
+	 * Create a project for the given test. This method does not check for
+	 * project existance.  It will attempt to create a project every time.
+	 *
+	 * @param testName
+	 *            The name of the test currently being setup\run; ie
+	 *            testCreateDocument
+	 */
+	protected Project createTestProject(final String test) throws ParityException {
+		final String name = String.valueOf(System.currentTimeMillis());
+		final String description = getClass().getCanonicalName() + "." + test;
+		return getProjectModel().createProject(
+				helper.getJUnitProject(), name, description);
+	}
+
+	/**
+	 * Obtain a handle to the document model.
+	 * 
+	 * @return A handle to the document model.
+	 */
+	protected DocumentModel getDocumentModel() {
+		return helper.getDocumentModel();
+	}
+
+	protected String getFailMessage(final Throwable t) {
+		final StringWriter stringWriter = new StringWriter();
+		final PrintWriter printWriter = new PrintWriter(stringWriter, true);
+		t.printStackTrace(printWriter);
+		return stringWriter.toString();
+	}
+
+	/**
+	 * Obtain the files for use with the jUnit test framework.
+	 * 
+	 * @return The list of test files.
+	 */
+	protected Collection<ModelTestFile> getJUnitTestFiles() {
+		return helper.getJUnitTestFiles();
 	}
 
 	protected ModelTestUser getModelTestUser() {
-		return helper.getModelTestUserJUnit0();
+		return helper.getJUnitTestUser();
 	}
 
 	protected ProjectModel getProjectModel() {
 		return ProjectModel.getModel();
 	}
 
-	protected String getUniqueProjectName(final Integer index) {
-		return helper.getUniqueProjectName(index);
+	/**
+	 * Obtain a handle to the root parity project.
+	 * 
+	 * @return The root parity project.
+	 */
+	protected Project getRootProject() throws ParityException {
+		return helper.getRootProject();
 	}
 
 	protected Workspace getWorkspace() {
@@ -65,16 +108,9 @@ public abstract class ModelTestCase extends TestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception { super.setUp(); }
-
+	
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception { super.tearDown(); }
-
-	protected String getFailMessage(final Throwable t) {
-		final StringWriter stringWriter = new StringWriter();
-		final PrintWriter printWriter = new PrintWriter(stringWriter, true);
-		t.printStackTrace(printWriter);
-		return stringWriter.toString();
-	}
 }

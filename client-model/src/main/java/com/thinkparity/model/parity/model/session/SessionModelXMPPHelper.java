@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
 
-import com.thinkparity.model.log4j.or.xmpp.user.UserRenderer;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.XMPPSession;
@@ -82,8 +81,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param user
 	 *            The user seeking visibility into the presence.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#addRosterEntry(UserRenderer)
-	 * @see SessionModelXMPPHelper#denyPresence(UserRenderer)
+	 * @see SessionModelXMPPHelper#addRosterEntry(User)
+	 * @see SessionModelXMPPHelper#denyPresence(User)
 	 */
 	void acceptPresence(final User user) throws SmackException {
 		xmppSession.acceptPresence(user);
@@ -107,8 +106,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param user
 	 *            The user seeking visibility into the presence.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#addRosterEntry(UserRenderer)
-	 * @see SessionModelXMPPHelper#acceptPresence(UserRenderer)
+	 * @see SessionModelXMPPHelper#addRosterEntry(User)
+	 * @see SessionModelXMPPHelper#acceptPresence(User)
 	 */
 	void denyPresence(final User user) throws SmackException {
 		xmppSession.denyPresence(user);

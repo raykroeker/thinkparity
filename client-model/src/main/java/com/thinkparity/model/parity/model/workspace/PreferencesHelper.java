@@ -22,8 +22,6 @@ class PreferencesHelper {
 	 * allows the user to get\set specific preferences that will be persisted
 	 * between sessions.
 	 * 
-	 * @param prefsDirectory
-	 *            The preferences directory.
 	 * @return The interface with which the client can interact.
 	 */
 	Preferences getPreferences() {

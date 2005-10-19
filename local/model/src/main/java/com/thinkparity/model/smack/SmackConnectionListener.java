@@ -9,7 +9,7 @@ import org.jivesoftware.smack.ConnectionEstablishedListener;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.XMPPConnection;
 
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 
 /**
  * SmackConnectionListener

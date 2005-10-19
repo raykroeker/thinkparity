@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 
 /**
  * AbstractModelImplHelper

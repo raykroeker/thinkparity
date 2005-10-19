@@ -24,26 +24,21 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public interface XMPPSession {
 
+	public void acceptPresence(final User user) throws SmackException;
 	public void addListener(final XMPPExtensionListener xmppExtensionListener);
 	public void addListener(final XMPPPresenceListener xmppPresenceListener);
 	public void addListener(final XMPPSessionListener xmppSessionListener);
-	public void removeListener(final XMPPExtensionListener xmppExtensionListener);
-	public void removeListener(final XMPPPresenceListener xmppPresenceListener);
-	public void removeListener(final XMPPSessionListener xmppSessionListener);
-
-
-	public void acceptPresence(final User user) throws SmackException;
 	public void addRosterEntry(final User user) throws SmackException;
 	public void denyPresence(final User user) throws SmackException;
-	public void debugRoster();
 	public Collection<User> getRosterEntries() throws SmackException;
-	public void updateRosterEntry(final User user);
-
 	public Boolean isLoggedIn();
 	public void login(final String host, final Integer port,
 			final String username, final String password) throws SmackException;
 	public void logout() throws SmackException;
-
+	public void removeListener(final XMPPExtensionListener xmppExtensionListener);
+	public void removeListener(final XMPPPresenceListener xmppPresenceListener);
+	public void removeListener(final XMPPSessionListener xmppSessionListener);
 	public void send(final Collection<User> users,
 			final XMPPDocument xmppDocument) throws SmackException;
+	public void updateRosterEntry(final User user);
 }

@@ -6,10 +6,11 @@ package com.thinkparity.model.parity.model;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.smack.SmackException;
 
 

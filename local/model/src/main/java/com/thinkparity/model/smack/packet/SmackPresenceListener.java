@@ -9,7 +9,7 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Packet;
 
 
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.xmpp.XMPPLoggerFormatter;
 
 /**

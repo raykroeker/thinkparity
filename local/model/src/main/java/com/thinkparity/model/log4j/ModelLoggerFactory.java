@@ -1,7 +1,7 @@
 /*
  * Feb 2, 2005
  */
-package com.thinkparity.model.parity.util.log4j;
+package com.thinkparity.model.log4j;
 
 import org.apache.log4j.Logger;
 
@@ -13,15 +13,7 @@ import org.apache.log4j.Logger;
  */
 public class ModelLoggerFactory {
 
-	/**
-	 * Obtain a handle to a model logger.
-	 * 
-	 * @return An instance of a log4j logger.
-	 */
-	private static Logger getModelLogger() {
-		final Logger modelLogger = Logger.getLogger("thinkparity.com - model");
-		return modelLogger;
-	}
+	static { ModelLog4JConfigurator.configure(); }
 
 	/**
 	 * Obtain a logger.
@@ -32,6 +24,16 @@ public class ModelLoggerFactory {
 	 */
 	public static Logger getLogger(final Class clasz) {
 		return getModelLogger();
+	}
+
+	/**
+	 * Obtain a handle to a model logger.
+	 * 
+	 * @return An instance of a log4j logger.
+	 */
+	private static Logger getModelLogger() {
+		final Logger modelLogger = Logger.getLogger("thinkparity.com - model");
+		return modelLogger;
 	}
 
 	/**

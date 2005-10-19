@@ -9,8 +9,8 @@ import java.nio.charset.IllegalCharsetNameException;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.packet.PacketExtension;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.util.Base64;
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 
 /**
  * PacketX

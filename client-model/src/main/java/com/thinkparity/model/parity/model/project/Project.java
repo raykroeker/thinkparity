@@ -184,8 +184,8 @@ public class Project extends ParityObject {
 		if(isSetParent()) {
 			return new StringBuffer(getParent().getPath())
 				.append("/")
-				.append(getName());
+				.append(getCustomName());
 		}
-		else { return new StringBuffer(getName()); }
+		else { return new StringBuffer(getCustomName()); }
 	}
 }

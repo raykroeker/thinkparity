@@ -13,8 +13,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.thinkparity.codebase.StringUtil;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.util.Base64;
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 
 /**
  * XProvider

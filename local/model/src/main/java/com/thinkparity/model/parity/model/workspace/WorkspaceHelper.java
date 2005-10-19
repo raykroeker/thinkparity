@@ -4,7 +4,6 @@
 package com.thinkparity.model.parity.model.workspace;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -36,8 +35,6 @@ class WorkspaceHelper {
 	 */
 	Workspace openWorkspace() {
 		final URL workspaceRootURL = initWorkspaceRootURL();
-		assertWorkspaceIsNotLocked(workspaceRootURL);
-		lockWorkspace(workspaceRootURL);
 		final PreferencesHelper preferencesHelper = new PreferencesHelper();
 		return new Workspace() {
 			/**
@@ -72,17 +69,6 @@ class WorkspaceHelper {
 			 */
 			public URL getWorkspaceURL() { return workspaceRootURL; }
 		};
-	}
-
-	/**
-	 * Assert that the workspace is only open by a single jvm.
-	 * 
-	 * @param workspaceRootURL
-	 *            The workspace root url.
-	 */
-	private void assertWorkspaceIsNotLocked(final URL workspaceRootURL) {
-		final File lockFile = new File(workspaceRootURL.getFile(), ".lock");
-		Assert.assertNotTrue("Workspace has been locked.", lockFile.exists());
 	}
 
 	/**
@@ -163,24 +149,6 @@ class WorkspaceHelper {
 		catch(MalformedURLException murlx) {
 			murlx.printStackTrace();
 			return null;
-		}
-	}
-
-	/**
-	 * Lock the workspace.
-	 * 
-	 * @param workspaceRootURL
-	 *            The workspace root url.
-	 */
-	private void lockWorkspace(final URL workspaceRootURL) {
-		final File lockFile = new File(workspaceRootURL.getFile(), ".lock");
-		try {
-			Assert.assertTrue("Cannot lock workspace.", lockFile.createNewFile());
-			lockFile.deleteOnExit();
-		}
-		catch(IOException iox) {
-			iox.printStackTrace();
-			throw new RuntimeException("Could not lock the parity workspace.");
 		}
 	}
 }

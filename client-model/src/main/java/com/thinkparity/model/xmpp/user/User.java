@@ -6,7 +6,7 @@ package com.thinkparity.model.xmpp.user;
 import com.thinkparity.codebase.log4j.Loggable;
 
 /**
- * User Represents the parity model client's interface to all users within the
+ * UserRenderer Represents the parity model client's interface to all users within the
  * parity world.
  * 
  * @author raykroeker@gmail.com
@@ -38,7 +38,7 @@ public class User implements Loggable {
 	private final String username;
 
 	/**
-	 * Create a User
+	 * Create a UserRenderer
 	 * 
 	 * @param name
 	 *            The name of the user.

@@ -12,8 +12,6 @@ import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityXmlSerializable;
-import com.thinkparity.model.parity.util.Base64;
-import com.thinkparity.model.parity.util.ParityUtil;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -120,25 +118,17 @@ public class XStreamUtil {
 	}
 
 	/**
-	 * Decode the xml using a base64 encoding.
-	 * @param encodedXml <code>byte[]</code>
-	 * @return <code>byte[]</code>
+	 * @deprecated
 	 */
 	private static byte[] decodeMetaData(final byte[] metaDataContent) {
-		if(ParityUtil.isDevelopmentMachine())
-			return metaDataContent;
-		return Base64.decodeBytes(new String(metaDataContent));
+		return metaDataContent;
 	}
 
 	/**
-	 * Encode the xml using a base64 encoding.
-	 * @param xml <code>byte[]</code>
-	 * @return <code>byte[]</code>
+	 * @deprecated
 	 */
 	private static String encodeMetaData(final String metaDataXml) {
-		if(ParityUtil.isDevelopmentMachine())
-			return metaDataXml;
-		return Base64.encodeBytes(metaDataXml.getBytes());
+		return metaDataXml;
 	}
 
 	/**

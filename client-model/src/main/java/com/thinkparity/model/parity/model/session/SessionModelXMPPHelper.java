@@ -81,8 +81,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param user
 	 *            The user seeking visibility into the presence.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#addRosterEntry(User)
-	 * @see SessionModelXMPPHelper#denyPresence(User)
+	 * @see SessionModelXMPPHelper#addRosterEntry(UserRenderer)
+	 * @see SessionModelXMPPHelper#denyPresence(UserRenderer)
 	 */
 	void acceptPresence(final User user) throws SmackException {
 		xmppSession.acceptPresence(user);
@@ -106,8 +106,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param user
 	 *            The user seeking visibility into the presence.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#addRosterEntry(User)
-	 * @see SessionModelXMPPHelper#acceptPresence(User)
+	 * @see SessionModelXMPPHelper#addRosterEntry(UserRenderer)
+	 * @see SessionModelXMPPHelper#acceptPresence(UserRenderer)
 	 */
 	void denyPresence(final User user) throws SmackException {
 		xmppSession.denyPresence(user);

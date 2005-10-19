@@ -17,6 +17,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.LoggerFormatter;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.IParityConstants;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationEvent;
@@ -28,7 +29,6 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 
 /**
  * ProjectApi_Impl
@@ -113,7 +113,9 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 			notifyCreation(project);
 			return project;
 		}
-		catch(ProjectException px) { throw new ParityException(px); }
+		catch(ProjectException px) {
+			throw new ParityException(px);
+		}
 	}
 
 	Project getProject(final File metaDataFile) throws ParityException {

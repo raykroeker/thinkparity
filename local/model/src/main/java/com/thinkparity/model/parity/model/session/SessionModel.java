@@ -57,7 +57,7 @@ public class SessionModel extends AbstractModel {
 	 * @param user
 	 *            The user who's presence request the currently logged in user
 	 *            will accept.
-	 * @see SessionModel#denyPresence(User)
+	 * @see SessionModel#denyPresence(UserRenderer)
 	 * @throws ParityException
 	 */
 	public void acceptPresence(final User user) throws ParityException {
@@ -103,7 +103,7 @@ public class SessionModel extends AbstractModel {
 	 * @param user
 	 *            The user who's presence request the currently logged in user
 	 *            will deny.
-	 * @see SessionModel#acceptPresence(User)
+	 * @see SessionModel#acceptPresence(UserRenderer)
 	 * @throws ParityException
 	 */
 	public void denyPresence(final User user) throws ParityException {

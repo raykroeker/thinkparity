@@ -10,8 +10,8 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.Parity;
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 
 /**
  * ParityUtil
@@ -63,10 +63,6 @@ public class ParityUtil {
 	 * @return <code>String</code>
 	 */
 	public static String getVersion() { return config.getProperty("version"); }
-
-	public static Boolean isDevelopmentMachine() {
-		return Boolean.getBoolean("parity.dev.env");
-	}
 
 	public static void launchFileWin32(final String fileAbsolutePath)
 			throws IOException {

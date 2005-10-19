@@ -21,12 +21,12 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.parity.util.log4j.ModelLoggerFactory;
 import com.thinkparity.model.xstream.XStreamUtil;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;

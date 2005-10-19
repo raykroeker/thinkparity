@@ -6,8 +6,18 @@ package com.thinkparity.model.log4j;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.PacketExtension;
 
+import com.thinkparity.model.log4j.or.parity.document.DocumentRenderer;
+import com.thinkparity.model.log4j.or.parity.project.ProjectRenderer;
+import com.thinkparity.model.log4j.or.smack.packet.PacketExtensionRenderer;
+import com.thinkparity.model.log4j.or.smack.packet.PacketRenderer;
+import com.thinkparity.model.log4j.or.xmpp.document.XMPPDocumentRenderer;
 import com.thinkparity.model.log4j.or.xmpp.user.UserRenderer;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -69,6 +79,11 @@ public class ModelLog4JConfigurator {
 	 */
 	private static void configureRenderers(final Properties configuration) {
 		configureRenderer(configuration, User.class, UserRenderer.class);
+		configureRenderer(configuration, Document.class, DocumentRenderer.class);
+		configureRenderer(configuration, Packet.class, PacketRenderer.class);
+		configureRenderer(configuration, PacketExtension.class, PacketExtensionRenderer.class);
+		configureRenderer(configuration, Project.class, ProjectRenderer.class);
+		configureRenderer(configuration, XMPPDocument.class, XMPPDocumentRenderer.class);
 	}
 
 	/**

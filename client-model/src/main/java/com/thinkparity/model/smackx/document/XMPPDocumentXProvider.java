@@ -34,17 +34,17 @@ public class XMPPDocumentXProvider extends XProvider {
 	public PacketExtension parseExtension(final XmlPullParser parser)
 			throws Exception {
 		XMPPDocumentPacketX documentVersionX = null;
-
 		Boolean isDone = Boolean.FALSE;
 		while(Boolean.FALSE == isDone) {
 			String currentTag = getTag(parser);
 			Integer currentTagType = getTagType(parser);
-
 			switch(currentTagType) {
 				case XmlPullParser.START_TAG:
+					nextTag(parser);
 					break;
 				case XmlPullParser.TEXT:
 					documentVersionX = extractExtension(parser);
+					nextTag(parser);
 					break;
 				case XmlPullParser.END_TAG:
 					if(xElementName.equals(currentTag)) { isDone = Boolean.TRUE; }
@@ -52,19 +52,19 @@ public class XMPPDocumentXProvider extends XProvider {
 				default:
 					break;
 			}
-
-			nextTag(parser);			
 		}
-
 		return documentVersionX;
 	}
 
 	private XMPPDocumentPacketX extractExtension(final XmlPullParser parser)
 			throws UnsupportedEncodingException {
+		logger.info("extractExtension(XmlPullParser)");
 		final XMPPDocument xmppDocument =
 			(XMPPDocument) XStreamUtil.fromXML(decodeXML(getTagText(parser)));
+		logger.debug(xmppDocument);
 		final XMPPDocumentPacketX xmppDocumentPacketX = new XMPPDocumentPacketX();
 		xmppDocumentPacketX.setXMPPDocument(xmppDocument);
+		logger.debug(xmppDocumentPacketX);
 		return xmppDocumentPacketX;
 	}
 }

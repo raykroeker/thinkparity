@@ -4,9 +4,12 @@
 package com.thinkparity.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * 
@@ -41,6 +44,13 @@ public class ModelTestLoggerConfigurator {
 		browserHTML.setProperty("log4j.appender.broswerHTML.MaxBackupIndex", "5");
 		final File browserHTMLOutputFile =
 			new File(outputDirectory, "parity.log4j.html");
+		if(browserHTMLOutputFile.exists()) { browserHTMLOutputFile.delete(); }
+		try {
+			Assert.assertTrue(
+					"Could not create jUnit log4j file.",
+					browserHTMLOutputFile.createNewFile());
+		}
+		catch(IOException iox) { throw new RuntimeException(iox); }
 		browserHTML.setProperty("log4j.appender.broswerHTML.File", browserHTMLOutputFile.getAbsolutePath());
 	}
 

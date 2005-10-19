@@ -13,6 +13,8 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -83,6 +85,15 @@ public abstract class ModelTestCase extends TestCase {
 		return helper.getJUnitTestUser();
 	}
 
+	/**
+	 * Obtain a handle to the parity preferences.
+	 * 
+	 * @return A handle to the parity preferences.
+	 */
+	protected Preferences getPreferences() {
+		return helper.getPreferences();
+	}
+
 	protected ProjectModel getProjectModel() {
 		return ProjectModel.getModel();
 	}
@@ -96,10 +107,19 @@ public abstract class ModelTestCase extends TestCase {
 		return helper.getRootProject();
 	}
 
+	/**
+	 * Obtain a handle to a session model.
+	 * 
+	 * @return A handle to a session model.
+	 */
+	protected SessionModel getSessionModel() {
+		return helper.getSessionModel();
+	}
+
 	protected Workspace getWorkspace() {
 		return getWorkspaceModel().getWorkspace();
 	}
-
+	
 	protected WorkspaceModel getWorkspaceModel() {
 		return WorkspaceModel.getModel();
 	}

@@ -10,14 +10,9 @@ package com.thinkparity.model;
  */
 public class ModelTestUser {
 
-	public static ModelTestUser getJUnit0() {
+	public static ModelTestUser getJUnit() {
 		return new ModelTestUser(
-				"parity", "thinkparity.dyndns.org", 5223, "junit.0");
-	}
-
-	public static ModelTestUser getJUnit1() {
-		return new ModelTestUser(
-				"parity", "thinkparity.dyndns.org", 5223, "junit.1");
+				"parity", "thinkparity.dyndns.org", 5223, "junit");
 	}
 
 	private final String password;

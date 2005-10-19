@@ -19,6 +19,8 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -49,7 +51,7 @@ public class ModelTestCaseHelper {
 	private static final Vector<ModelTestFile> jUnitTestFiles;
 
 	/**
-	 * User to use when testing.
+	 * UserRenderer to use when testing.
 	 */
 	private static final ModelTestUser jUnitTestUser;
 
@@ -71,7 +73,6 @@ public class ModelTestCaseHelper {
 		// set the workspace directory, then delete its contents
 		final File jUnitWorkspace =
 			new File(resourcesDirectory, "junit.workspace");
-		FileUtil.deleteTree(jUnitWorkspace);
 		// set the test files
 		final File jUnitResourcesFiles =
 			new File(resourcesDirectory, "junit.files");
@@ -89,7 +90,7 @@ public class ModelTestCaseHelper {
 				new ModelTestFile(
 						new File(jUnitResourcesFiles, "JUnit Test Framework.txt")));
 		// set the test user
-		jUnitTestUser = ModelTestUser.getJUnit0();
+		jUnitTestUser = ModelTestUser.getJUnit();
 		System.setProperty(
 				"parity.workspace",
 				jUnitWorkspace.getAbsolutePath());
@@ -150,6 +151,16 @@ public class ModelTestCaseHelper {
 	}
 
 	/**
+	 * Obtain a list of the test files available to the jUnit test framework.
+	 * 
+	 * @return A list of the test files available to the jUnit test framework.
+	 */
+	Collection<ModelTestFile> getJUnitTestFiles() { 
+		return Collections.unmodifiableCollection(
+				ModelTestCaseHelper.jUnitTestFiles);
+	}
+
+	/**
 	 * Get the test user.
 	 * 
 	 * @return The model test user.
@@ -157,6 +168,13 @@ public class ModelTestCaseHelper {
 	ModelTestUser getJUnitTestUser() {
 		return ModelTestCaseHelper.jUnitTestUser;
 	}
+
+	/**
+	 * Obtain a handle to the parity preferences.
+	 * 
+	 * @return A handle to the parity preferences.
+	 */
+	Preferences getPreferences() { return getWorkspace().getPreferences(); }
 
 	/**
 	 * Obtain a handle to the project model.
@@ -173,6 +191,13 @@ public class ModelTestCaseHelper {
 	Project getRootProject() throws ParityException {
 		return getProjectModel().getRootProject(getWorkspace());
 	}
+	
+	/**
+	 * Obtain a handle to the session model.
+	 * 
+	 * @return A handle to the session model.
+	 */
+	SessionModel getSessionModel() { return SessionModel.getModel(); }
 
 	/**
 	 * Obtain a handle to the workspace.
@@ -182,11 +207,11 @@ public class ModelTestCaseHelper {
 	Workspace getWorkspace() {
 		return WorkspaceModel.getModel().getWorkspace();
 	}
-
+	
 	private void deleteTree(final File rootDirectory) {
 		FileUtil.deleteTree(rootDirectory);
 	}
-	
+
 	private File getWorkspaceDirectory(final ModelTestUser modelTestUser) {
 		final URL rootURL = ResourceUtil.getURL("resources/workspace");
 		File rootDirectory = null;
@@ -195,15 +220,5 @@ public class ModelTestCaseHelper {
 			ModelTestCase.fail(modelTestCase.getFailMessage(usx));
 		}
 		return new File(rootDirectory, modelTestUser.getUsername());
-	}
-
-	/**
-	 * Obtain a list of the test files available to the jUnit test framework.
-	 * 
-	 * @return A list of the test files available to the jUnit test framework.
-	 */
-	Collection<ModelTestFile> getJUnitTestFiles() { 
-		return Collections.unmodifiableCollection(
-				ModelTestCaseHelper.jUnitTestFiles);
 	}
 }

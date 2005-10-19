@@ -9,5 +9,6 @@
 	<classpathentry sourcepath="/MAVEN_REPO/thinkparity.com/src/codebase-1.0-SNAPSHOT.src.zip" kind="var" path="MAVEN_REPO/thinkparity.com/jars/codebase-1.0-SNAPSHOT.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/log4j/src/log4j-1.2.9.src.jar" kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/jivesoftware/src/smack-2.0.0.src.jar" kind="var" path="MAVEN_REPO/jivesoftware/jars/smack-2.0.0.jar"/>
-	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="src" path="src/test/resources"/>
+	<classpathentry kind="output" path="target/test-classes/com/thinkparity/model"/>
 </classpath>

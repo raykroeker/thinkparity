@@ -40,5 +40,7 @@ public interface XMPPSession {
 	public void removeListener(final XMPPSessionListener xmppSessionListener);
 	public void send(final Collection<User> users,
 			final XMPPDocument xmppDocument) throws SmackException;
+	public void send(final Collection<User> users, final String message)
+			throws SmackException;
 	public void updateRosterEntry(final User user);
 }

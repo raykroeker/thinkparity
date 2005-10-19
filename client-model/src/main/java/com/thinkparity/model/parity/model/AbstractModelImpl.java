@@ -58,6 +58,17 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+	 * Translate a runtime exception into a parity exception.
+	 * 
+	 * @param rx
+	 *            The runtime exception to translate.
+	 * @return The translated parity exception.
+	 */
+	protected ParityException translate(final RuntimeException rx) {
+		return translate((Throwable) rx);
+	}
+
+	/**
 	 * Translate a smack exception into a parity exception.
 	 * 
 	 * @param sx

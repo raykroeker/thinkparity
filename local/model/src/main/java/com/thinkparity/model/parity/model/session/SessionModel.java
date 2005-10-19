@@ -176,6 +176,20 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
+	 * Send a message to a list of parity users.
+	 * 
+	 * @param users
+	 *            The list of parity users to send to.
+	 * @param message
+	 *            The message to send.
+	 * @throws ParityException
+	 */
+	public void send(final Collection<User> users, final String message)
+		throws ParityException {
+		synchronized(implLock) { impl.send(users, message); }
+	}
+
+	/**
 	 * Update the roster entry to the values found in user.
 	 * @param user
 	 * @throws ParityException

@@ -303,9 +303,29 @@ class SessionModelImpl extends AbstractModelImpl {
 	void send(final Collection<User> users, final Document document)
 			throws ParityException {
 		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("send", xmppHelper);
+			assertIsLoggedIn("send(Collection<User>,Document)", xmppHelper);
 			try { xmppHelper.send(users, XMPPDocument.create(document)); }
 			catch(SmackException sx) { throw translate(sx); }
+			catch(RuntimeException rx) { throw translate(rx); }
+		}
+	}
+
+	/**
+	 * Send a message to a list of parity users.
+	 * 
+	 * @param users
+	 *            The list of parity users to send to.
+	 * @param message
+	 *            The message to send.
+	 * @throws ParityException
+	 */
+	void send(final Collection<User> users, final String message)
+			throws ParityException {
+		synchronized(xmppHelperLock) {
+			assertIsLoggedIn("send(Collection<User>,String)", xmppHelper);
+			try { xmppHelper.send(users, message); }
+			catch(SmackException sx) { throw translate(sx); }
+			catch(RuntimeException rx) { throw translate(rx); }
 		}
 	}
 

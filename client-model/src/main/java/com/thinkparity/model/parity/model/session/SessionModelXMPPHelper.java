@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
 
+import com.thinkparity.model.log4j.or.xmpp.user.UserRenderer;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.XMPPSession;
@@ -156,7 +157,21 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	void logout() throws SmackException { xmppSession.logout(); }
 
 	/**
-	 * Send a document to a user.
+	 * Send a message to a list of users.
+	 * 
+	 * @param users
+	 *            The users to send the message to.
+	 * @param message
+	 *            The message to send.
+	 * @throws SmackException
+	 */
+	void send(final Collection<User> users, final String message)
+			throws SmackException {
+		xmppSession.send(users, message);
+	}
+
+	/**
+	 * Send a document to a list of users.
 	 * 
 	 * @param users
 	 *            The users to send the document to.

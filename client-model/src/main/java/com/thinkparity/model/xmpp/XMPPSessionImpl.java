@@ -81,7 +81,10 @@ public class XMPPSessionImpl implements XMPPSession {
 		 * @see org.jivesoftware.smack.PacketListener#processPacket(org.jivesoftware.smack.packet.Packet)
 		 */
 		public void processPacket(final Packet packet) {
-			doNotifyProcessPresence((Presence) packet);
+			try { doNotifyProcessPresence((Presence) packet); }
+			catch(InterruptedException ix) {
+				logger.error("processPacket(Packet)", ix);
+			}
 		}
 	}
 
@@ -115,7 +118,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * library will have a tendancy to swallow messages.
 	 * @see XMPPSessionImpl#send(Collection, PacketExtension)
 	 */
-	private static final int SEND_PACKET_SLEEP_DURATION = 35;
+	private static final int SEND_PACKET_SLEEP_DURATION = 75;
 
 	static {
 		// set the subscription mode such that all requests are manual
@@ -160,9 +163,15 @@ public class XMPPSessionImpl implements XMPPSession {
 	public void acceptPresence(final User user) throws SmackException {
 		logger.info("acceptPresence(UserRenderer)");
 		logger.debug(user);
-		// save the user for use by the roster event later on
-		pendingXMPPUsers.put(user.getUsername(), user);
-		sendPresencePacket(user.getUsername(), Type.SUBSCRIBED, Mode.AVAILABLE);
+		try {
+			// save the user for use by the roster event later on
+			pendingXMPPUsers.put(user.getUsername(), user);
+			sendPresencePacket(user.getUsername(), Type.SUBSCRIBED, Mode.AVAILABLE);
+		}
+		catch(InterruptedException ix) {
+			logger.error("acceptPresence(User)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
 	}
 
 	/**
@@ -221,7 +230,8 @@ public class XMPPSessionImpl implements XMPPSession {
 				roster.createEntry(xmppUser.getUsername(), xmppUser.getName(), null);
 		}
 		catch(XMPPException xmppx) {
-			throw error("Could not create roster entry.", xmppx);
+			logger.error("addRosterEntry(User)", xmppx);
+			throw XMPPErrorTranslator.translate(xmppx);
 		}
 	}
 
@@ -231,9 +241,15 @@ public class XMPPSessionImpl implements XMPPSession {
 	public void denyPresence(User user) throws SmackException {
 		logger.info("denyPresence(UserRenderer)");
 		logger.debug(user);
-		// save the user for use by the roster event later on
-		pendingXMPPUsers.put(user.getUsername(), user);
-		sendPresencePacket(user.getUsername(), Type.UNSUBSCRIBED);
+		try {
+			// save the user for use by the roster event later on
+			pendingXMPPUsers.put(user.getUsername(), user);
+			sendPresencePacket(user.getUsername(), Type.UNSUBSCRIBED);
+		}
+		catch(InterruptedException ix) {
+			logger.error("denyPresence(User)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
 	}
 
 	/**
@@ -278,16 +294,6 @@ public class XMPPSessionImpl implements XMPPSession {
 			smackXMPPConnection = new SSLXMPPConnection(host, port);
 			smackXMPPConnection.addConnectionListener((ConnectionListener) smackConnectionListenerImpl);
 
-			// document extension handler
-			smackXMPPConnection.addPacketListener(
-					new XMPPDocumentXListener() {
-						public void documentRecieved(
-								final XMPPDocument xmppDocument) {
-							handleDocumentRecieved(xmppDocument);
-						}
-					},
-					new XMPPDocumentXFilter());
-
 			// packet debugger
 			smackXMPPConnection.addPacketListener(
 					new PacketListener() {
@@ -299,13 +305,24 @@ public class XMPPSessionImpl implements XMPPSession {
 						public boolean accept(Packet packet) { return true; }
 					});
 
+			// document extension handler
+			smackXMPPConnection.addPacketListener(
+					new XMPPDocumentXListener() {
+						public void documentRecieved(
+								final XMPPDocument xmppDocument) {
+							handleDocumentRecieved(xmppDocument);
+						}
+					},
+					new XMPPDocumentXFilter());
+
 			smackXMPPConnection.addPacketListener(smackPresenceListenerImpl, smackPresenceFilter);
 
 			smackXMPPConnection.login(username, password, "parity");
 			smackXMPPConnection.getRoster().addRosterListener(smackRosterListenerImpl);
 		}
 		catch(XMPPException xmppx) {
-			throw error("Could not establish an xmpp connection.", xmppx);
+			logger.error("login(String,Integer,String,String)", xmppx);
+			throw XMPPErrorTranslator.translate(xmppx);
 		}
 	}
 
@@ -377,7 +394,11 @@ public class XMPPSessionImpl implements XMPPSession {
 		logger.info("send(Collection<User>,XMPPDocument)");
 		logger.debug(users);
 		logger.debug(xmppDocument);
-		send(users, XFactory.createPacketX(xmppDocument));
+		try { send(users, XFactory.createPacketX(xmppDocument)); }
+		catch(InterruptedException ix) {
+			logger.error("send(Collection<User>,XMPPDocument)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
 	}
 
 	/**
@@ -498,7 +519,8 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @param presence
 	 *            <code>org.jivesoftware.packet.Presence</code>
 	 */
-	private void doNotifyProcessPresence(final Presence presence) {
+	private void doNotifyProcessPresence(final Presence presence)
+			throws InterruptedException {
 		logger.debug(presence);
 		final Type presencePacketType = presence.getType();
 		if(presencePacketType == Type.SUBSCRIBE) {
@@ -520,21 +542,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	private void doNotifyRosterModified() {
 		final Integer entryCount = getRosterEntryCount();
 		logger.debug(entryCount);
-	}
-
-	/**
-	 * Log the message\cause using the internal logger, then construct an
-	 * appropriate SmackException for throwing.
-	 * 
-	 * @param message
-	 *            <code>java.lang.String</code>
-	 * @param cause
-	 *            <code>java.lang.Throwable</code>
-	 * @return <code>org.kcs.projectmanager.smack.SmackException</code>
-	 */
-	private SmackException error(final String message, final Throwable cause) {
-		logger.error(message, cause);
-		return new SmackException(message);
 	}
 
 	/**
@@ -616,7 +623,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            The packet extension to send.
 	 */
 	private void send(final Collection<User> users,
-			final PacketExtension packetExtension) {
+			final PacketExtension packetExtension) throws InterruptedException {
 		logger.debug(users);
 		logger.debug(packetExtension);
 		for(User user : users) {
@@ -633,20 +640,20 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @param packet
 	 *            The packet to send.
 	 */
-	private void sendPacket(final Packet packet) {
+	private void sendPacket(final Packet packet) throws InterruptedException {
 		smackXMPPConnection.sendPacket(packet);
 		// this sleep has been inserted because when packets are sent within
 		// 30 milliseconds of each other, they tend to get swallowed by the
 		// smack library
-		try { Thread.sleep(SEND_PACKET_SLEEP_DURATION); }
-		catch(InterruptedException ix) { logger.error(ix); }
+		Thread.sleep(SEND_PACKET_SLEEP_DURATION);
 	}
 
 	/**
 	 * Send a subscription acceptance presence packet to username.
 	 * @param username <code>java.lang.String</code.
 	 */
-	private void sendPresenceAcceptance(final String username) {
+	private void sendPresenceAcceptance(final String username)
+			throws InterruptedException {
 		sendPresencePacket(username, Type.SUBSCRIBED, Mode.AVAILABLE);
 	}
 
@@ -659,7 +666,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            The type of packet to send.
 	 */
 	private void sendPresencePacket(final String username,
-			final Presence.Type type) {
+			final Presence.Type type) throws InterruptedException {
 		sendPresencePacket(username, type, null);
 	}
 
@@ -674,8 +681,9 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            The mode of the packet. If the mode is null, no mode is set.
 	 * @see XMPPSessionImpl#sendPresencePacket(String, Presence.Type)
 	 */
-	private void sendPresencePacket(final String username, final Presence.Type type,
-			final Presence.Mode mode) {
+	private void sendPresencePacket(final String username,
+			final Presence.Type type, final Presence.Mode mode)
+			throws InterruptedException {
 		final Presence presence = new Presence(type);
 		if(null != mode) { presence.setMode(mode); }
 		presence.setTo(username);

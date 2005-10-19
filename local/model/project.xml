@@ -39,7 +39,7 @@
             </includes>
 			<resources>
 				<resource>
-					<targetPath>com/thinkparity/model/resources</targetPath>
+					<targetPath>com/thinkparity/model</targetPath>
 					<directory>src/test/resources</directory>
 					<includes>
 						<include>**/*</include>

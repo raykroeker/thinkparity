@@ -47,8 +47,10 @@ public abstract class XProvider implements PacketExtensionProvider {
 		logger.debug(encodedXML);
 		final byte[] decodedXMLBytes = Base64.decodeBytes(encodedXML);
 		logger.debug(decodedXMLBytes);
-		return new String(
+		final String decodedXML = new String(
 				decodedXMLBytes, StringUtil.Charset.ISO_8859_1.getCharsetName());
+		logger.debug(decodedXML);
+		return decodedXML;
 	}
 
 	protected String getTag(final XmlPullParser parser) {

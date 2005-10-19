@@ -63,6 +63,11 @@ public class ModelTestCaseHelper {
 				.append(File.separatorChar).append("model")
 				.append(File.separatorChar).append("resources")
 				.toString());
+		// set the output directory
+		final File outputDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
+			.append(File.separatorChar).append("target")
+			.append(File.separatorChar).append("test-reports")
+			.toString());
 		// set the workspace directory, then delete its contents
 		final File jUnitWorkspace =
 			new File(resourcesDirectory, "junit.workspace");
@@ -85,14 +90,13 @@ public class ModelTestCaseHelper {
 						new File(jUnitResourcesFiles, "JUnit Test Framework.txt")));
 		// set the test user
 		jUnitTestUser = ModelTestUser.getJUnit0();
-		// TODO:  Figure out a work-around
-		// Set the system to dev environment
-		System.setProperty("parity.dev.env", "true");
 		System.setProperty(
 				"parity.workspace",
 				jUnitWorkspace.getAbsolutePath());
 		// set the jUnit session id
 		jUnitSessionId = System.currentTimeMillis();
+		// initialize the logger
+		ModelTestLoggerConfigurator.configure(outputDirectory);
 	}
 
 	/**

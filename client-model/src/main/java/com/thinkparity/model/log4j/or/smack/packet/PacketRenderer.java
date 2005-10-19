@@ -19,6 +19,7 @@ public class PacketRenderer implements ObjectRenderer {
 	private static final String PREFIX =
 		Packet.class.getName() + IRendererConstants.PREFIX_SUFFIX;
 	private static final String TO = ",to:";
+	private static final String TYPE = ",type:";
 
 	/**
 	 * Create a PacketRenderer.
@@ -35,11 +36,12 @@ public class PacketRenderer implements ObjectRenderer {
 				.append(IRendererConstants.SUFFIX).toString();
 		}
 		else {
-			final Packet packet = (Packet) o;
+			final Packet p = (Packet) o;
 			return new StringBuffer(PREFIX)
-				.append(IRendererConstants.ID).append(packet.getPacketID())
-				.append(TO).append(packet.getTo())
-				.append(FROM).append(packet.getFrom())
+				.append(IRendererConstants.ID).append(p.getPacketID())
+				.append(TYPE).append(p.getClass().getSimpleName())
+				.append(TO).append(p.getTo())
+				.append(FROM).append(p.getFrom())
 				.append(IRendererConstants.SUFFIX)
 				.toString();
 		}

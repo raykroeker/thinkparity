@@ -63,7 +63,6 @@ public class ModelTestCaseHelper {
 				.append(File.separatorChar).append("com")
 				.append(File.separatorChar).append("thinkparity")
 				.append(File.separatorChar).append("model")
-				.append(File.separatorChar).append("resources")
 				.toString());
 		// set the output directory
 		final File outputDirectory = new File(new StringBuffer(System.getProperty("user.dir"))

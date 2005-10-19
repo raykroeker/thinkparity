@@ -374,7 +374,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 */
 	public void send(final Collection<User> users, final XMPPDocument xmppDocument)
 			throws SmackException {
-		logger.info("send(Collection<UserRenderer>,XMPPDocument)");
+		logger.info("send(Collection<User>,XMPPDocument)");
 		logger.debug(users);
 		logger.debug(xmppDocument);
 		send(users, XFactory.createPacketX(xmppDocument));

@@ -73,6 +73,7 @@ public class ModelTestCaseHelper {
 		// set the workspace directory, then delete its contents
 		final File jUnitWorkspace =
 			new File(resourcesDirectory, "junit.workspace");
+		FileUtil.deleteTree(jUnitWorkspace);
 		// set the test files
 		final File jUnitResourcesFiles =
 			new File(resourcesDirectory, "junit.files");

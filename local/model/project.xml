@@ -39,8 +39,8 @@
             </includes>
 			<resources>
 				<resource>
-					<targetPath>com/thinkparity/model</targetPath>
-					<directory>src/test/java/com/thinkparity/model</directory>
+					<targetPath>com/thinkparity/model/resources</targetPath>
+					<directory>src/test/resources</directory>
 					<includes>
 						<include>**/*</include>
 					</includes>

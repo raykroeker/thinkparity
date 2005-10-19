@@ -45,9 +45,9 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	 */
 	public void marshal(Object source, HierarchicalStreamWriter writer,
 			MarshallingContext context) {
-		logger.info(new Throwable());
+		logger.info("marshal(Object, HierarchicalStreamWriter)");
+		logger.debug(source);
 		final Document document = (Document) source;
-		logger.debug(document);
 		writeName(document.getName(), writer);
 		writeCreatedBy(document.getCreatedBy(), writer);
 		writeKeyHolder(document, writer);

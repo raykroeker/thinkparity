@@ -3,8 +3,11 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.Stack;
 import java.util.Vector;
+
+import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestFile;
@@ -16,6 +19,23 @@ import com.thinkparity.model.parity.model.project.Project;
  * @version 1.1
  */
 public class DocumentModelTest extends ModelTestCase {
+
+	/**
+	 * Export data definition for the export document test.
+	 * @see DocumentModelTest#testExportDocument()
+	 * @see DocumentModelTest#setUpExportDocument()
+	 */
+	private class ExportDocumentData {
+		private final Document document;
+		private final DocumentModel documentModel;
+		private final File exportFile;
+		private ExportDocumentData(final Document document,
+				final DocumentModel documentModel, final File exportFile) {
+			this.document = document;
+			this.documentModel = documentModel;
+			this.exportFile = exportFile;
+		}
+	}
 
 	/**
 	 * Test data definition for the get path test.
@@ -32,12 +52,37 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 
+	private Vector<ExportDocumentData> exportDocumentData;
 	private Vector<GetPathData> getPathData;
 
 	/**
 	 * Create a DocumentModelTest.
 	 */
 	public DocumentModelTest() { super("Test:  Document model"); }
+
+
+	/**
+	 * Test the export of a document. The content of the document and the
+	 * exported file will be compared.
+	 * 
+	 */
+	public void testExportDocument() {
+		try {
+			byte[] fileContent;
+			byte[] documentContent;
+			for(ExportDocumentData data : exportDocumentData) {
+				data.documentModel.exportDocument(data.exportFile, data.document);
+				DocumentModelTest.assertTrue(data.exportFile.exists());
+				fileContent = FileUtil.readFile(data.exportFile);
+				documentContent = data.document.getContent();
+				DocumentModelTest.assertEquals(fileContent.length, documentContent.length);
+				for(int i = 0; i < fileContent.length; i++) {
+					DocumentModelTest.assertEquals(fileContent[i], documentContent[i]);
+				}
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
 
 	/**
 	 * Test the paths generated for all of the documents attached to the
@@ -60,7 +105,34 @@ public class DocumentModelTest extends ModelTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		setUpExportDocument();
 		setUpGetPath();
+	}
+
+	/**
+	 * Set up the testExportDocument data.
+	 * 
+	 * @throws Exception
+	 */
+	protected void setUpExportDocument() throws Exception {
+		final Project testProject = createTestProject("testExportDocument");
+		final DocumentModel documentModel = getDocumentModel();
+		exportDocumentData = new Vector<ExportDocumentData>(1);
+		String name, description;
+		Document document;
+		File exportFile;
+		
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+
+			exportFile = new File(
+					System.getProperty("java.io.tmpdir"), testFile.getName());
+			document = documentModel.createDocument(
+					testProject, name, description, testFile.getFile());
+			exportDocumentData.add(
+					new ExportDocumentData(document, documentModel, exportFile));	
+		}
 	}
 
 	/**
@@ -89,14 +161,30 @@ public class DocumentModelTest extends ModelTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		tearDownExportDocument();
 		tearDownGetPath();
+	}
+
+	/**
+	 * Clean up the export document data.
+	 * 
+	 * @throws Exception
+	 */
+	protected void tearDownExportDocument() throws Exception {
+		// delete the exported files
+		for(ExportDocumentData data : exportDocumentData) {
+			FileUtil.delete(data.exportFile);
+		}
+		exportDocumentData.clear();
+		exportDocumentData = null;
 	}
 
 	/**
 	 * Clean up the get path data.
 	 * 
+	 * @throws Exception
 	 */
-	protected void tearDownGetPath() {
+	protected void tearDownGetPath() throws Exception {
 		getPathData.clear();
 		getPathData = null;
 	}

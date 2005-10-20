@@ -1,0 +1,80 @@
+/*
+ * 20-Oct-2005
+ */
+package com.thinkparity.model.parity;
+
+import java.io.IOException;
+
+/**
+ * 
+ * @author raykroeker@gmail.com
+ * @version 1.0
+ */
+public class ParityErrorTranslator {
+
+	/**
+	 * Singleton instance.
+	 * @see ParityErrorTranslator#singletonLock
+	 */
+	private static final ParityErrorTranslator singleton;
+
+	/**
+	 * Singleton synchronization lock.
+	 * @see ParityErrorTranslator#singleton
+	 */
+	private static final Object singletonLock;
+	
+	static {
+		singleton = new ParityErrorTranslator();
+		singletonLock = new Object();
+	}
+
+	/**
+	 * Create a parity error based upon an io error.
+	 * 
+	 * @param iox
+	 *            The java io error.
+	 * @return The parity error.
+	 */
+	public static ParityException translate(final IOException iox) {
+		synchronized(singletonLock) { return singleton.translateImpl(iox); }
+	}
+
+	/**
+	 * Create a parity error based upon a java runtime error.
+	 * 
+	 * @param rx
+	 *            The java runtime error.
+	 * @return The parity error.
+	 */
+	public static ParityException translate(final RuntimeException rx) {
+		synchronized(singletonLock) { return singleton.translateImpl(rx); }
+	}
+
+	/**
+	 * Create a ParityErrorTranslator [Singleton]
+	 */
+	private ParityErrorTranslator() { super(); }
+
+	/**
+	 * Create a parity error based upon an io error.
+	 * 
+	 * @param iox
+	 *            The java io error.
+	 * @return The parity error.
+	 */
+	private ParityException translateImpl(final IOException iox) {
+		return new ParityException(iox);
+	}
+
+	/**
+	 * Create a parity error based upon a java runtime error.
+	 * 
+	 * @param rx
+	 *            The java runtime error.
+	 * @return The parity error.
+	 */
+	private ParityException translateImpl(final RuntimeException rx) {
+		return new ParityException(rx);
+	}
+}

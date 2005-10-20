@@ -4,7 +4,6 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
@@ -15,6 +14,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
@@ -36,53 +36,68 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * DocumentModelImpl
+ * 
  * @author raykroeker@gmail.com
  * @version 1.2
  */
 class DocumentModelImpl extends AbstractModelImpl {
 
 	/**
-	 * DocumentException
-	 * Is used as an error indicator within the document api implementation.
-	 * This exception should never escape the impl as a DocumentException, but
-	 * rather as a ParityException.
+	 * DocumentException Is used as an error indicator within the document api
+	 * implementation. This exception should never escape the impl as a
+	 * DocumentException, but rather as a ParityException.
+	 * 
 	 * @author raykroeker@gmail.com
 	 * @version 1.1
 	 */
 	private class DocumentException extends Exception {
 		private static final long serialVersionUID = -1;
+
 		/**
 		 * Create a DocumentException
-		 * @param message <code>java.lang.String</code>
+		 * 
+		 * @param message
+		 *            <code>java.lang.String</code>
 		 */
-		private DocumentException(final String message) { super(message); }
+		private DocumentException(final String message) {
+			super(message);
+		}
+
 		/**
 		 * Create a DocumentException
-		 * @param cause <code>java.lang.Throwable</code>
+		 * 
+		 * @param cause
+		 *            <code>java.lang.Throwable</code>
 		 */
-		private DocumentException(final Throwable cause) { super(cause); }
+		private DocumentException(final Throwable cause) {
+			super(cause);
+		}
 	}
 
 	/**
 	 * List of listeners to notify when a document is created or received.
+	 * 
 	 * @see DocumentModelImpl#creationListenersLock
 	 */
 	private static final Collection<CreationListener> creationListeners;
 
 	/**
 	 * Synchronization lock for the creation listeners.
+	 * 
 	 * @see DocumentModelImpl#creationListeners
 	 */
 	private static final Object creationListenersLock;
 
 	/**
 	 * List of listeners to notify when a document has been updated.
+	 * 
 	 * @see DocumentModelImpl#updateListenersLock
 	 */
 	private static final Collection<UpdateListener> updateListeners;
 
 	/**
 	 * Synchronization lock for the update listeners.
+	 * 
 	 * @see DocumentModelImpl#updateListeners
 	 */
 	private static final Object updateListenersLock;
@@ -117,9 +132,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	void addCreationListener(final CreationListener creationListener) {
 		Assert.assertNotNull("Null creation listener.", creationListener);
-		synchronized(DocumentModelImpl.creationListenersLock) {
+		synchronized (DocumentModelImpl.creationListenersLock) {
 			Assert.assertNotTrue("Creation listener already registered.",
-					DocumentModelImpl.creationListeners.contains(creationListener));
+					DocumentModelImpl.creationListeners
+							.contains(creationListener));
 			DocumentModelImpl.creationListeners.add(creationListener);
 		}
 	}
@@ -132,8 +148,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			document.add(note);
 			serialize(document);
 			notifyUpdate_objectUpdated(document);
+		} catch (DocumentException dx) {
+			throw new ParityException(dx);
 		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
 	}
 
 	/**
@@ -143,7 +160,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	void addUpdateListener(final UpdateListener updateListener) {
 		Assert.assertNotNull("Null update listener.", updateListener);
-		synchronized(DocumentModelImpl.updateListenersLock) {
+		synchronized (DocumentModelImpl.updateListenersLock) {
 			Assert.assertNotTrue("Update listener already registered.",
 					DocumentModelImpl.updateListeners.contains(updateListener));
 			DocumentModelImpl.updateListeners.add(updateListener);
@@ -169,16 +186,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 			createDocument(project, document);
 			createDocumentVersion(document);
 			return document;
+		} catch (DocumentException dx) {
+			throw new ParityException(dx);
+		} catch (IOException iox) {
+			throw new ParityException(iox);
 		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
-		catch(IOException iox) { throw new ParityException(iox); }
 	}
 
 	/**
-	 * Create a new document version based upon an existing document.  This will
-	 * check the cache for updates to the document, write the updates to the document,
-	 * then create a new version based upon that document.
-	 * @param document <code>Document</code>
+	 * Create a new document version based upon an existing document. This will
+	 * check the cache for updates to the document, write the updates to the
+	 * document, then create a new version based upon that document.
+	 * 
+	 * @param document
+	 *            <code>Document</code>
 	 * @return <code>DocumentVersion</code>
 	 * @throws DocumentException
 	 * @throws IOException
@@ -188,53 +209,64 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throws ParityException {
 		try {
 			final File cacheFile = getCacheFile(document);
-			if(cacheFile.exists()) {
+			if (cacheFile.exists()) {
 				final byte[] cacheFileBytes = getCacheFileBytes(document);
 				final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
-				if(!cacheFileChecksum.equals(document.getContentChecksum())) {
+				if (!cacheFileChecksum.equals(document.getContentChecksum())) {
 					document.setContent(cacheFileBytes);
 					updateDocument(document);
 				}
 			}
-			final DocumentVersion newDocumentVersion =
-					DocumentVersionBuilder.newDocumentVersion(document);
+			final DocumentVersion newDocumentVersion = DocumentVersionBuilder
+					.newDocumentVersion(document);
 			createDocumentVersion(newDocumentVersion);
 			return newDocumentVersion;
+		} catch (DocumentException dx) {
+			throw new ParityException(dx);
+		} catch (IOException iox) {
+			throw new ParityException(iox);
 		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
-		catch(IOException iox) { throw new ParityException(iox); }
 	}
 
 	/**
 	 * Take the given document, and export it to the specified file. This will
-	 * obtain the document's content, and save it to the file.
+	 * obtain the document's content, and save it to the file. Note that if file
+	 * exists it will be overwritten.
 	 * 
 	 * @param file
-	 *            <code>java.io.File</code>
+	 *            The file to export to.
 	 * @param document
-	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
+	 *            The document to export.
 	 * @throws ParityException
 	 */
 	void exportDocument(final File file, final Document document)
 			throws ParityException {
 		logger.debug(file);
 		logger.debug(document);
-		exportDocument_CheckRules(file, document);
-		createFile(file);
-		writeDocumentContent(file, readDocument(document));
+		try {
+			createNewFile(file);
+			writeDocumentContent(file, document);
+		}
+		catch(IOException iox) { throw ParityErrorTranslator.translate(iox); }
+		catch(RuntimeException rx) { throw ParityErrorTranslator.translate(rx); }
 	}
 
-	Document getDocument(final File documentMetaDataFile) throws ParityException {
+	Document getDocument(final File documentMetaDataFile)
+			throws ParityException {
 		logger.debug(documentMetaDataFile);
-		try { return DocumentXml.readXml(documentMetaDataFile); }
-		catch(IOException iox) { throw new ParityException(iox); }
+		try {
+			return DocumentXml.readXml(documentMetaDataFile);
+		} catch (IOException iox) {
+			throw new ParityException(iox);
+		}
 	}
 
-	StringBuffer getRelativePath(final Document document) throws ParityException {
+	StringBuffer getRelativePath(final Document document)
+			throws ParityException {
 		logger.debug(document);
 		final Project rootProject = projectModel.getRootProject(workspace);
-		final URI relativeURI = rootProject.getDirectory().toURI()
-			.relativize(document.getDirectory().toURI());
+		final URI relativeURI = rootProject.getDirectory().toURI().relativize(
+				document.getDirectory().toURI());
 		return new StringBuffer(relativeURI.toString());
 	}
 
@@ -261,8 +293,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final File documentCacheFile = getFileFromDiskCache(document);
 			ParityUtil.launchFileWin32(documentCacheFile.getAbsolutePath());
+		} catch (IOException iox) {
+			throw new ParityException(iox);
 		}
-		catch(IOException iox) { throw new ParityException(iox); }
 	}
 
 	/**
@@ -284,17 +317,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 			 */
 			final Project rootProject = projectModel.getRootProject(workspace);
 
-			final Document newDocument = new Document(rootProject,
-					xmppDocument.getName(), xmppDocument.getCreatedOn(),
-					xmppDocument.getCreatedBy(), "",
-					xmppDocument.getDescription(), rootProject.getDirectory(),
-					xmppDocument.getId(), xmppDocument.getContent());
+			final Document newDocument = new Document(rootProject, xmppDocument
+					.getName(), xmppDocument.getCreatedOn(), xmppDocument
+					.getCreatedBy(), "", xmppDocument.getDescription(),
+					rootProject.getDirectory(), xmppDocument.getId(),
+					xmppDocument.getContent());
 			createDocument(rootProject, newDocument);
 			createDocumentVersion(newDocument);
 
 			notifyCreation_objectReceived(newDocument);
+		} catch (DocumentException dx) {
+			throw new ParityException(dx);
 		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
 	}
 
 	/**
@@ -303,9 +337,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	void removeCreationListener(final CreationListener creationListener) {
 		Assert.assertNotNull("Null creation listener.", creationListener);
-		synchronized(DocumentModelImpl.creationListenersLock) {
+		synchronized (DocumentModelImpl.creationListenersLock) {
 			Assert.assertTrue("Creation listener not registered.",
-					DocumentModelImpl.creationListeners.contains(creationListener));
+					DocumentModelImpl.creationListeners
+							.contains(creationListener));
 			DocumentModelImpl.creationListeners.remove(creationListener);
 		}
 	}
@@ -317,7 +352,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	void removeUpdateListener(final UpdateListener updateListener) {
 		Assert.assertNotNull("Null update listener.", updateListener);
-		synchronized(DocumentModelImpl.updateListenersLock) {
+		synchronized (DocumentModelImpl.updateListenersLock) {
 			Assert.assertTrue("Update listener not registered.",
 					DocumentModelImpl.updateListeners.contains(updateListener));
 			DocumentModelImpl.updateListeners.remove(updateListener);
@@ -329,8 +364,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			serialize(document);
 			notifyUpdate_objectUpdated(document);
+		} catch (DocumentException dx) {
+			throw new ParityException(dx);
 		}
-		catch(DocumentException dx) { throw new ParityException(dx); }
 	}
 
 	private void createDocument(final Project project, final Document document)
@@ -349,37 +385,25 @@ class DocumentModelImpl extends AbstractModelImpl {
 		notifyCreation_objectVersionCreated(documentVersion);
 	}
 
+	private void createMetaData(final Document document)
+			throws DocumentException {
+		try {
+			DocumentXml.writeCreationXml(document);
+		} catch (IOException iox) {
+			throw new DocumentException(iox);
+		}
+	}
+
 	/**
-	 * Use the <code>java.io.File</code> API to create a new file on disk.
+	 * Create a new file.
 	 * 
 	 * @param file
-	 *            <code>java.io.File</code>
-	 * @throws ParityException -
-	 *             If an IOException is thrown while creating the file, or if
-	 *             the creation API does not return true.
+	 *            The file to create.
+	 * @throws IOException
 	 */
-	private void createFile(final File file) throws ParityException {
-		try {
-			final Boolean didCreateFile = file.createNewFile();
-			if(Boolean.TRUE != didCreateFile)
-				throw new ParityException("Could not create file:  " + file.getAbsolutePath() + ".");
-		}
-		catch(IOException iox) {
-			logger.error("Could not create file:  " + file.getAbsolutePath() + ".");
-			throw new ParityException(iox);
-		}
-	}
-
-	private void createMetaData(final Document document) throws DocumentException {
-		try { DocumentXml.writeCreationXml(document); }
-		catch(IOException iox ) { throw new DocumentException(iox); }
-	}
-
-	private void exportDocument_CheckRules(final File file,
-			final Document document) throws ParityException {
-		if(file.exists())
-			throw new ParityException("Export file " + file.getAbsolutePath()
-					+ " already exists.");
+	private void createNewFile(final File file) throws IOException {
+		Assert.assertNotTrue("File cannot already exist.", file.exists());
+		Assert.assertTrue("Could not create new file.", file.createNewFile());
 	}
 
 	/**
@@ -392,7 +416,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private File getCacheDirectory(final Document document) {
 		final File cacheDirectory = new File(document.getDirectory(), ".cache");
-		if(!cacheDirectory.exists())
+		if (!cacheDirectory.exists())
 			Assert.assertTrue("Could not create cache directory:  "
 					+ cacheDirectory.getAbsolutePath(), cacheDirectory.mkdir());
 		return cacheDirectory;
@@ -400,7 +424,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 	/**
 	 * Obtain the file used to store the cached content of the document.
-	 * @param document <code>Document</code>
+	 * 
+	 * @param document
+	 *            <code>Document</code>
 	 * @return <code>java.io.File</code>
 	 */
 	private File getCacheFile(final Document document) {
@@ -413,7 +439,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return FileUtil.readFile(getCacheFile(document));
 	}
 
-
 	/**
 	 * Obtain the document's representative file from the underlying disk cache.
 	 * 
@@ -424,7 +449,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private File getFileFromDiskCache(final Document document)
 			throws IOException {
 		final File documentCacheFile = getCacheFile(document);
-		if(!documentCacheFile.exists()) {
+		if (!documentCacheFile.exists()) {
 			// write the cache file
 			FileUtil.writeFile(documentCacheFile, document.getContent());
 		}
@@ -439,8 +464,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @see CreationListener#objectCreated(CreationEvent)
 	 */
 	private void notifyCreation_objectCreated(final Document document) {
-		synchronized(DocumentModelImpl.creationListenersLock) {
-			for(CreationListener listener : DocumentModelImpl.creationListeners) {
+		synchronized (DocumentModelImpl.creationListenersLock) {
+			for (CreationListener listener : DocumentModelImpl.creationListeners) {
 				listener.objectCreated(new CreationEvent(document));
 			}
 		}
@@ -454,8 +479,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @see CreationListener#objectReceived(CreationEvent)
 	 */
 	private void notifyCreation_objectReceived(final Document document) {
-		synchronized(DocumentModelImpl.creationListenersLock) {
-			for(CreationListener listener : DocumentModelImpl.creationListeners) {
+		synchronized (DocumentModelImpl.creationListenersLock) {
+			for (CreationListener listener : DocumentModelImpl.creationListeners) {
 				listener.objectReceived(new CreationEvent(document));
 			}
 		}
@@ -468,10 +493,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document version to use as the event source.
 	 * @see CreationListener#objectVersionCreated(VersionCreationEvent)
 	 */
-	private void notifyCreation_objectVersionCreated(final DocumentVersion documentVersion) {
-		synchronized(DocumentModelImpl.creationListenersLock) {
-			for(CreationListener listener : DocumentModelImpl.creationListeners) {
-				listener.objectVersionCreated(new VersionCreationEvent(documentVersion));
+	private void notifyCreation_objectVersionCreated(
+			final DocumentVersion documentVersion) {
+		synchronized (DocumentModelImpl.creationListenersLock) {
+			for (CreationListener listener : DocumentModelImpl.creationListeners) {
+				listener.objectVersionCreated(new VersionCreationEvent(
+						documentVersion));
 			}
 		}
 	}
@@ -484,45 +511,24 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @see UpdateListener#objectUpdated(UpdateEvent)
 	 */
 	private void notifyUpdate_objectUpdated(final Document document) {
-		synchronized(DocumentModelImpl.updateListenersLock) {
-			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
+		synchronized (DocumentModelImpl.updateListenersLock) {
+			for (UpdateListener listener : DocumentModelImpl.updateListeners) {
 				listener.objectUpdated(new UpdateEvent(document));
 			}
 		}
 	}
 
 	/**
-	 * Read the document's underlying content from the filesystem.
+	 * Serialize the document to xml.
 	 * 
 	 * @param document
-	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
-	 * @return <code>java.lang.byte[]</code>
-	 * @throws ParityException -
-	 *             If the document's underlying file cannot be found, or if the
-	 *             document's underlying file cannot be read.
-	 */
-	private byte[] readDocument(final Document document)
-			throws ParityException {
-		final File documentFile = new File(document.getDocumentAbsolutePath());
-		try { return FileUtil.readFile(documentFile); }
-		catch(FileNotFoundException fnfx) {
-			logger.error("Could not find document:  " + document.getDocumentAbsolutePath() + ".");
-			throw new ParityException(fnfx);
-		}
-		catch(IOException iox) {
-			logger.error("Could not read document:  " + document.getDocumentAbsolutePath() + ".");
-			throw new ParityException(iox);
-		}
-	}
-
-	/**
-	 * Serialize the document to xml.
-	 * @param document <code>Document</code>
+	 *            <code>Document</code>
 	 * @throws DocumentException
 	 */
 	private void serialize(final Document document) throws DocumentException {
-		try { DocumentXml.writeUpdateXml(document); }
-		catch(IOException iox) {
+		try {
+			DocumentXml.writeUpdateXml(document);
+		} catch (IOException iox) {
 			logger.error("Could not serialize document xml.", iox);
 			throw new DocumentException("Could not serialize document xml.");
 		}
@@ -530,23 +536,31 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 	/**
 	 * Serialize the document version to xml.
-	 * @param documentVersion <code>DocumentVersion</code>
+	 * 
+	 * @param documentVersion
+	 *            <code>DocumentVersion</code>
 	 * @throws DocumentException
 	 */
 	private void serialize(final DocumentVersion documentVersion)
 			throws DocumentException {
-		try { DocumentXml.serializeXml(documentVersion); }
-		catch(IOException iox) { throw new DocumentException(iox); }
+		try {
+			DocumentXml.serializeXml(documentVersion);
+		} catch (IOException iox) {
+			throw new DocumentException(iox);
+		}
 	}
 
 	/**
 	 * Serialize the project to xml.
-	 * @param project <code>Project</code>
+	 * 
+	 * @param project
+	 *            <code>Project</code>
 	 * @throws DocumentException
 	 */
 	private void serialize(final Project project) throws DocumentException {
-		try { ProjectXml.writeUpdateXml(project); }
-		catch(IOException iox) {
+		try {
+			ProjectXml.writeUpdateXml(project);
+		} catch (IOException iox) {
 			logger.error("Could not serialie project xml.", iox);
 			throw new DocumentException("Could not serialize project xml.");
 		}
@@ -559,17 +573,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Write the document's content to a file.
-	 * @param file <code>java.io.File</code>
-	 * @param documentContent <code>java.lang.byte[]</code>
-	 * @throws ParityException - If the file cannot be written.
+	 * Write the content of a document to a java file.
+	 * 
+	 * @param file
+	 *            The target java file.
+	 * @param document
+	 *            The source parity document.
+	 * @throws IOException
 	 */
-	private void writeDocumentContent(final File file,
-			final byte[] documentContent) throws ParityException {
-		try { FileUtil.writeFile(file, documentContent); }
-		catch(IOException iox) {
-			logger.error("Could not write file:  " + file.getAbsolutePath() + ".");
-			throw new ParityException(iox);
-		}
+	private void writeDocumentContent(final File file, final Document document)
+			throws IOException {
+		FileUtil.writeFile(file, document.getContent());
 	}
 }

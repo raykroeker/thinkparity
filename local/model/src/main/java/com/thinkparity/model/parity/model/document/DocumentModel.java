@@ -112,12 +112,13 @@ public class DocumentModel {
 
 	/**
 	 * Take the given document, and export it to the specified file. This will
-	 * obtain the document's content, and save it to the file.
+	 * obtain the document's content, and save it to the file. Note that if file
+	 * exists, it will be overwritten.
 	 * 
 	 * @param file
-	 *            <code>java.io.File</code>
+	 *            The file to export the document to.
 	 * @param document
-	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
+	 *            The document to export.
 	 * @throws ParityException
 	 */
 	public void exportDocument(final File file, final Document document)

@@ -42,6 +42,11 @@ public abstract class ModelTestCase extends TestCase {
 	}
 
 	/**
+	 * Counter of the number of projects created.
+	 */
+	private static Integer projectCount = 0;
+
+	/**
 	 * Create a project for the given test. This method does not check for
 	 * project existance.  It will attempt to create a project every time.
 	 *
@@ -50,7 +55,7 @@ public abstract class ModelTestCase extends TestCase {
 	 *            testCreateDocument
 	 */
 	protected Project createTestProject(final String test) throws ParityException {
-		final String name = String.valueOf(System.currentTimeMillis());
+		final String name = String.valueOf(projectCount++);
 		final String description = getClass().getCanonicalName() + "." + test;
 		return getProjectModel().createProject(
 				helper.getJUnitProject(), name, description);

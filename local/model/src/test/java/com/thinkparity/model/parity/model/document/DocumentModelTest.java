@@ -1,4 +1,4 @@
-/*
+ /*
  * Aug 21, 2005
  */
 package com.thinkparity.model.parity.model.document;
@@ -21,7 +21,32 @@ import com.thinkparity.model.parity.model.project.Project;
 public class DocumentModelTest extends ModelTestCase {
 
 	/**
-	 * Export data definition for the export document test.
+	 * Create document data definition.
+	 */
+	private class CreateDocumentData {
+		private final String description;
+		private final File documentFile;
+		private final byte[] documentFileContent;
+		private final DocumentModel documentModel;
+		private final String name;
+		private final Project parent;
+		private CreateDocumentData(final String description,
+				final File documentFile, final byte[] documentFileContent,
+				final DocumentModel documentModel, final String name,
+				final Project parent) {
+			this.description = description;
+			this.documentFile = documentFile;
+			this.documentFileContent = new byte[documentFileContent.length];
+			System.arraycopy(documentFileContent, 0,
+					this.documentFileContent, 0, documentFileContent.length);
+			this.documentModel = documentModel;
+			this.name = name;
+			this.parent = parent;
+		}
+	}
+
+	/**
+	 * Export document data definition for the export document test.
 	 * @see DocumentModelTest#testExportDocument()
 	 * @see DocumentModelTest#setUpExportDocument()
 	 */
@@ -52,6 +77,7 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 
+	private Vector<CreateDocumentData> createDocumentData;
 	private Vector<ExportDocumentData> exportDocumentData;
 	private Vector<GetPathData> getPathData;
 
@@ -60,6 +86,30 @@ public class DocumentModelTest extends ModelTestCase {
 	 */
 	public DocumentModelTest() { super("Test:  Document model"); }
 
+	/**
+	 * Test the create document method.  The content of the document and the
+	 * original file will be compared.
+	 *
+	 */
+	public void testCreateDocument() {
+		try {
+			Document newDocument;
+			byte[] newDocumentContent;
+			for(CreateDocumentData data : createDocumentData) {
+				newDocument = data.documentModel.createDocument(
+						data.parent, data.name, data.description, data.documentFile);
+				newDocumentContent = newDocument.getContent();
+				DocumentModelTest.assertNotNull(newDocument);
+				DocumentModelTest.assertEquals(
+						newDocumentContent.length, data.documentFileContent.length);
+				for(int i = 0; i < newDocumentContent.length; i++) {
+					DocumentModelTest.assertEquals(
+							newDocumentContent[i], data.documentFileContent[i]);
+				}
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
 
 	/**
 	 * Test the export of a document. The content of the document and the
@@ -98,15 +148,35 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
-
+	
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		setUpCreateDocument();
 		setUpExportDocument();
 		setUpGetPath();
+	}
+
+	protected void setUpCreateDocument() throws Exception {
+		final Project testProject = createTestProject("testCreateDocument");
+		final DocumentModel documentModel = getDocumentModel();
+		createDocumentData = new Vector<CreateDocumentData>(4);
+		String name, description;
+		File documentFile;
+		byte[] documentFileContent;
+
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			documentFile = testFile.getFile();
+			documentFileContent = FileUtil.readFile(documentFile);
+			createDocumentData.add(new CreateDocumentData(description,
+					documentFile, documentFileContent, documentModel, name,
+					testProject));
+		}
 	}
 
 	/**
@@ -117,7 +187,7 @@ public class DocumentModelTest extends ModelTestCase {
 	protected void setUpExportDocument() throws Exception {
 		final Project testProject = createTestProject("testExportDocument");
 		final DocumentModel documentModel = getDocumentModel();
-		exportDocumentData = new Vector<ExportDocumentData>(1);
+		exportDocumentData = new Vector<ExportDocumentData>(4);
 		String name, description;
 		Document document;
 		File exportFile;
@@ -161,8 +231,19 @@ public class DocumentModelTest extends ModelTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		tearDownCreateDocument();
 		tearDownExportDocument();
 		tearDownGetPath();
+	}
+	
+	/**
+	 * Clean up the create document data.
+	 * 
+	 * @throws Exception
+	 */
+	protected void tearDownCreateDocument() throws Exception {
+		createDocumentData.clear();
+		createDocumentData = null;
 	}
 
 	/**

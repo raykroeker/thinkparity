@@ -27,15 +27,15 @@ public class DocumentXml {
 		return document;
 	}
 
-	public static void serializeXml(final DocumentVersion documentVersion)
+	public static void serializeXml(final DocumentVersion version)
 			throws IOException {
 		final File parentDirectory =
-			documentVersion.getDocument().getMetaDataDirectory();
+			version.getDocument().getMetaDataDirectory();
 		final File documentVersionXmlFile =
-			documentVersion.getMetaDataFile(parentDirectory);
+			version.getMetaDataFile(parentDirectory);
 		if(documentVersionXmlFile.exists())
-			XStreamUtil.delete(parentDirectory, documentVersion);
-		XStreamUtil.write(parentDirectory, documentVersion);
+			XStreamUtil.delete(parentDirectory, version);
+		XStreamUtil.write(parentDirectory, version);
 	}
 
 	public static void writeCreationXml(final Document document)

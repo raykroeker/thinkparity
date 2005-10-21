@@ -49,7 +49,7 @@ public class DocumentVersionXmlTranslator extends ParityXmlTranslator implements
 			UnmarshallingContext context) {
 		final String version = readVersion(reader);
 		final Document document = readDocument(reader, context);
-		return DocumentVersionBuilder.newDocumentVersion(document, version);
+		return DocumentVersionBuilder.getVersion(document, version);
 	}
 
 	private Document readDocument(final HierarchicalStreamReader reader,

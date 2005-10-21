@@ -4,8 +4,12 @@
 package com.thinkparity.model.parity.api.document.xml;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.UUID;
 
 import com.thinkparity.codebase.CompressionUtil;
@@ -13,9 +17,11 @@ import com.thinkparity.codebase.CompressionUtil.Level;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
+import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.util.Base64;
 import com.thinkparity.model.parity.xml.XmlTranslator;
+import com.thinkparity.model.xstream.XStreamUtil;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -29,6 +35,11 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  */
 public class DocumentXmlTranslator extends ParityXmlTranslator implements
 		XmlTranslator {
+
+	private class Content {
+		private byte[] content;
+		private String contentChecksum;
+	}
 
 	/**
 	 * Compression level to use when writing the content to the version file.
@@ -60,7 +71,7 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 			fatal((ParityObject) source, "Could not serialize file content.", iox);
 		}
 		writeNotes(document, writer);
-		writeVersions(document, writer);
+		writeVersions(document.getVersions(), writer);
 		writeCustomProperties(document, writer);
 	}
 
@@ -89,6 +100,24 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 		return document;
 	}
 
+
+	protected final void readVersion(final Document document,
+			final HierarchicalStreamReader reader) throws FileNotFoundException {
+		reader.moveDown();
+		final File versionMetaDataFile = new File(reader.getValue());
+		document.add((DocumentVersion) XStreamUtil
+				.fromXML(new InputStreamReader(new FileInputStream(
+						versionMetaDataFile))));
+		reader.moveUp();
+	}
+
+	protected final void readVersions(final Document document,
+			final HierarchicalStreamReader reader) throws FileNotFoundException {
+		reader.moveDown();
+		while(reader.hasMoreChildren()) { readVersion(document, reader); }
+		reader.moveUp();
+	}
+
 	private Content readContent(final HierarchicalStreamReader reader)
 			throws IOException {
 		reader.moveDown();										// <content>
@@ -102,7 +131,7 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 		content.content = byteContent;
 		content.contentChecksum = byteContentChecksum;
 		return content;
-	}
+	}	
 
 	private void writeContent(final Document document,
 			final HierarchicalStreamWriter writer) throws IOException {
@@ -118,8 +147,38 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 		writer.endNode();											// </content>
 	}
 
-	private class Content {
-		private byte[] content;
-		private String contentChecksum;
+	/**
+	 * Write the version to the xml writer.
+	 * 
+	 * @param version
+	 *            The version to write.
+	 * @param writer
+	 *            The writer to write to.
+	 */
+	private void writeVersion(final DocumentVersion version,
+			final HierarchicalStreamWriter writer) {
+		final Document document = version.getDocument();
+		writer.startNode("version");
+		writer.addAttribute("versionId", version.getVersion());
+		writer.setValue(version.getMetaDataFile(
+				document.getMetaDataDirectory()).getAbsolutePath());
+		writer.endNode();		
+	}
+
+	/**
+	 * Write the document's versions to the xml writer.
+	 * 
+	 * @param versions
+	 *            The document versions to write.
+	 * @param writer
+	 *            The writer to write to.
+	 */
+	private void writeVersions(final Collection<DocumentVersion> versions,
+			final HierarchicalStreamWriter writer) {
+		writer.startNode("versions");
+		for(DocumentVersion version : versions) {
+			writeVersion(version, writer);
+		}
+		writer.endNode();
 	}
 }

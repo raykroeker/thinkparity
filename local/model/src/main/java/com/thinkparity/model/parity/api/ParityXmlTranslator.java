@@ -4,17 +4,8 @@
 package com.thinkparity.model.parity.api;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -27,7 +18,6 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.xstream.XStreamUtil;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -324,23 +314,6 @@ public abstract class ParityXmlTranslator {
 		catch(Exception x) { fatal(parityObject, "Could not read parity object's notes.", x); }
 	}
 
-	protected final void readVersion(final ParityObject parityObject,
-			final HierarchicalStreamReader reader) throws FileNotFoundException {
-		reader.moveDown();	// <version>
-		final File versionMetaDataFile = new File(reader.getValue());
-		parityObject.add((ParityObjectVersion) XStreamUtil
-				.fromXML(new InputStreamReader(new FileInputStream(
-						versionMetaDataFile))));
-		reader.moveUp();	// </version>
-	}
-
-	protected final void readVersions(final ParityObject parityObject,
-			final HierarchicalStreamReader reader) throws FileNotFoundException {
-		reader.moveDown();	// <versions>
-		while(reader.hasMoreChildren()) { readVersion(parityObject, reader); }
-		reader.moveUp();	// </versions>
-	}
-
 	/**
 	 * Write the creation username of a parity object. The creation username is
 	 * required for all parity objects, and this cannot be overridden.
@@ -537,23 +510,5 @@ public abstract class ParityXmlTranslator {
 		writer.endNode();											// </notes>
 	}
 
-	protected final void writeVersion(final ParityObject parityObject,
-			final ParityObjectVersion version,
-			final HierarchicalStreamWriter writer) {
-		writer.startNode("version");								// <version>
-		writer.addAttribute("versionId", version.getVersion());
-		writer.setValue(version.getMetaDataFile(
-				parityObject.getMetaDataDirectory()).getAbsolutePath());
-		writer.endNode();										// </version>		
-	}
-
-	protected final void writeVersions(final ParityObject parityObject,
-			final HierarchicalStreamWriter writer) {
-		writer.startNode("versions");
-		for (Iterator<ParityObjectVersion> i = parityObject.getVersions()
-				.iterator(); i.hasNext();) {
-			writeVersion(parityObject, i.next(), writer);
-		}
-		writer.endNode();
-	}
+	
 }

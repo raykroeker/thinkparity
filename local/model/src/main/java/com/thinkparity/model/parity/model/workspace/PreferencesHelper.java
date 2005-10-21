@@ -52,6 +52,11 @@ class PreferencesHelper {
 			}
 
 			/**
+			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getSystemUsername()
+			 */
+			public String getSystemUsername() { return "system"; }
+
+			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getUsername()
 			 */
 			public String getUsername() {

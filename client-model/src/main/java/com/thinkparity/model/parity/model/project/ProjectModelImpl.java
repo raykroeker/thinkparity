@@ -23,8 +23,8 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.project.xml.ProjectXml;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.util.ParityUtil;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 
 /**
@@ -299,11 +299,13 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		Project rootProject = getProject(rootProjectMetaDataFile);
 		if(null != rootProject) { return rootProject; } 
 		else {
+			final Preferences preferences = workspace.getPreferences();
+			final String systemUsername = preferences.getSystemUsername();
 			final UUID rootProjectId = UUIDGenerator.nextUUID();
-			rootProject = new Project(ROOT_PROJECT_NAME, DateUtil
-					.getInstance(), ParityUtil.getSystemUsername(), ParityUtil
-					.getSystemUsername(), ROOT_PROJECT_DESCRIPTION,
-					new File(workspace.getDataURL().getFile()), rootProjectId);
+			rootProject = new Project(ROOT_PROJECT_NAME,
+					DateUtil.getInstance(), systemUsername, systemUsername,
+					ROOT_PROJECT_DESCRIPTION, new File(workspace.getDataURL()
+							.getFile()), rootProjectId);
 			rootProject.setCustomName(ROOT_PROJECT_CUSTOM_NAME);
 			createMetaDataDirectory(rootProject);
 			createMetaData(rootProject);

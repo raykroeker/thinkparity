@@ -16,6 +16,8 @@ public interface Preferences {
 
 	public Integer getServerPort();
 
+	public String getSystemUsername();
+
 	public String getUsername();
 
 	public Boolean isSetLocale();

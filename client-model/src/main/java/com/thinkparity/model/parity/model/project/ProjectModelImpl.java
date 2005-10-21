@@ -10,15 +10,12 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.log4j.LoggerFormatter;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.IParityConstants;
+import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
@@ -37,144 +34,250 @@ import com.thinkparity.model.parity.util.UUIDGenerator;
  */
 class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 
-	private class ProjectException extends Exception {
-		private static final long serialVersionUID = -1;
-
-		private ProjectException(Exception x) { super(x); }
-
-		private ProjectException(String message) { super(message); }
-	}
-
 	/**
 	 * Cached root project reference.
 	 */
 	private static Project cachedRootProject;
 
 	/**
-	 * List of listeners interested when a project has been created.
+	 * Project creation event listeners.
+	 * @see ProjectModelImpl#creationListenersLock
 	 */
-	private static final Collection<CreationListener> creationListeners =
-		new Vector<CreationListener>(10);
+	private static final Collection<CreationListener> creationListeners;
 
 	/**
-	 * Handle to an internal logger.
+	 * Synchronization lock for creation listeners.
+	 * @see ProjectModelImpl#creationListeners
 	 */
-	private static final Logger logger =
-		ModelLoggerFactory.getLogger(ProjectModelImpl.class);
+	private static final Object creationListenersLock;
 
 	/**
-	 * Handle to a class used to handle output of specific classes.
+	 * Project update event listeners.
+	 * @see ProjectModelImpl#updateListenersLock
 	 */
-	private static final LoggerFormatter loggerFormatter = new LoggerFormatter();
+	private static final Collection<UpdateListener> updateListeners;
 
 	/**
-	 * List of listeners interested when a project has been updated.
+	 * Synchronization lock for the update listener list.
+	 * @see ProjectModelImpl#updateListeners
 	 */
-	private static final Collection<UpdateListener> updateListeners =
-		new Vector<UpdateListener>(10);
+	private static final Object updateListenersLock;
+
+	static {
+		// initialize creation listeners
+		creationListeners = new Vector<CreationListener>(7);
+		creationListenersLock = new Object();
+		// initialize update listeners
+		updateListeners = new Vector<UpdateListener>(7);
+		updateListenersLock = new Object();
+	}
 
 	/**
 	 * Create a ProjectModelImpl.
-	 * @deprecated
-	 */
-	ProjectModelImpl() { this(null); }
-
-	/**
-	 * Create a ProjectApi_Impl
+	 * 
+	 * @param workspace
+	 *            The workspace reference to use.
 	 */
 	ProjectModelImpl(final Workspace workspace) { super(workspace); }
 
-	void addCreationListener(final CreationListener creationListener) {
-		if(null != creationListener)
-			if(!creationListeners.contains(creationListener))
-				creationListeners.add(creationListener);
+	/**
+	 * Add a listener for project creation.
+	 * 
+	 * @param listener
+	 *            The listener to add.
+	 */
+	void addCreationListener(final CreationListener listener) {
+		logger.info("addCreationListener(CreationListener)");
+		logger.debug(listener);
+		Assert.assertNotNull("addCreationListener(CreationListener)", listener);
+		synchronized (ProjectModelImpl.creationListenersLock) {
+			Assert.assertNotTrue(
+					"addCreationListener(CreationListener)",
+					ProjectModelImpl.creationListeners.contains(listener));
+			ProjectModelImpl.creationListeners.add(listener);
+		}
 	}
 
-	void addUpdateListener(final UpdateListener updateListener) {
-		if(null != updateListener)
-			if(!updateListeners.contains(updateListener))
-				updateListeners.add(updateListener);
+	/**
+	 * Add a project update event listener.
+	 * 
+	 * @param listener
+	 *            The listener to add.
+	 */
+	void addUpdateListener(final UpdateListener listener) {
+		logger.info("addUpdateListener(UpdateListener)");
+		logger.debug(listener);
+		Assert.assertNotNull("addUpdateListener(UpdateListener)", listener);
+		synchronized (ProjectModelImpl.updateListenersLock) {
+			Assert.assertNotTrue("Update listener already registered.",
+					ProjectModelImpl.updateListeners.contains(listener));
+			ProjectModelImpl.updateListeners.add(listener);
+		}
 	}
 
-	Project createProject(final Project parent, final String name,
+	/**
+	 * Create a new project.
+	 * 
+	 * @param parent
+	 *            The parent project.
+	 * @param name
+	 *            The name.
+	 * @param description
+	 *            The description.
+	 * @return The new project.
+	 * @throws ParityException
+	 */
+	Project create(final Project parent, final String name,
 			final String description) throws ParityException {
-		Assert.assertNotNull("Parent is null.", parent);
-		Assert.assertNotNull("Name is null.", name);
+		logger.info("create(Project,String,String)");
+		logger.debug(parent);
+		logger.debug(name);
+		logger.debug(description);
+		Assert.assertNotNull("create(Project,String,String)", parent);
+		Assert.assertNotNull("create(Project,String,String)", name);
 		try {
 			final File directory = buildDirectory(parent, name);
 			final UUID projectId = UUIDGenerator.nextUUID();
 			final Project project = new Project(parent, name, DateUtil.getInstance(),
 					preferences.getUsername(), preferences.getUsername(),
 					description, directory, projectId);
-			createDirectory(project);
+			createDirectory(project.getDirectory());
 			createMetaDataDirectory(project);
 			createMetaData(project);
 			updateParentMetaData(parent, project);
 			notifyCreation(project);
 			return project;
 		}
-		catch(ProjectException px) {
-			throw new ParityException(px);
+		catch(IOException iox) {
+			logger.error("create(Project,String,String)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("create(Project,String,String)", rx);
+			throw ParityErrorTranslator.translate(rx);
 		}
 	}
 
+	/**
+	 * Obtain a project for a given meta data file.
+	 * 
+	 * @param metaDataFile
+	 *            The project's meta data file.
+	 * @return The project.
+	 * @throws ParityException
+	 */
 	Project getProject(final File metaDataFile) throws ParityException {
+		logger.info("getProject(File)");
 		logger.debug(metaDataFile);
-		if(!metaDataFile.exists()) { return null; }
-		else {
-			try { return ProjectXml.readXml(metaDataFile); }
-			catch(IOException iox) {
-				throw new ParityException("Could not read project.", iox);
-			}
+		try {
+			if(!metaDataFile.exists()) { return null; }
+			else { return ProjectXml.readXml(metaDataFile); }
+		}
+		catch(IOException iox) {
+			logger.error("getProject(File)", iox);
+			throw ParityErrorTranslator.translate(iox);
 		}
 	}
 
+	/**
+	 * Obtain the root project.
+	 * 
+	 * @return The root project.
+	 * @throws ParityException
+	 */
 	Project getRootProject(final Workspace workspace) throws ParityException {
-		if(null == ProjectModelImpl.cachedRootProject) {
-			ProjectModelImpl.cachedRootProject = createRootProject(workspace);
+		logger.info("getRootProject(Workspace)");
+		logger.debug(workspace);
+		try {
+			if(null == ProjectModelImpl.cachedRootProject) {
+				ProjectModelImpl.cachedRootProject = createRootProject(workspace);
+			}
+			return ProjectModelImpl.cachedRootProject;
 		}
-		return ProjectModelImpl.cachedRootProject;
+		catch(IOException iox) {
+			logger.error("getRootProject(Workspace)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("getRootProject(Workspace)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
-	void removeCreationListener(final CreationListener creationListener) {
-		if(null != creationListener)
-			if(creationListeners.contains(creationListener))
-				creationListeners.remove(creationListener);
+	/**
+	 * Remove a project creation event listener.
+	 * 
+	 * @param listener
+	 *            The listener to remove.
+	 */
+	void removeCreationListener(final CreationListener listener) {
+		logger.info("removeCreationListener(CreationListener)");
+		logger.debug(listener);
+		Assert.assertNotNull(
+				"removeCreationListener(CreationListener)", listener);
+		synchronized(ProjectModelImpl.creationListenersLock) {
+			Assert.assertTrue(
+					"removeCreationListener(CreationListener)",
+					ProjectModelImpl.creationListeners.contains(listener));
+			ProjectModelImpl.creationListeners.remove(listener);
+		}
 	}
 
-	void removeUpdateListener(final UpdateListener updateListener) {
-		if(null != updateListener)
-			if(updateListeners.contains(updateListener))
-				updateListeners.remove(updateListener);
+	/**
+	 * Remove a project update event listener.
+	 * 
+	 * @param listener
+	 *            The listener to remove.
+	 */
+	void removeUpdateListener(final UpdateListener listener) {
+		logger.info("removeUpdateListener(UpdateListener)");
+		logger.debug(listener);
+		Assert.assertNotNull("removeUpdateListener(UpdateListener)", listener);
+		synchronized (ProjectModelImpl.updateListenersLock) {
+			Assert.assertTrue(
+					"removeUpdateListener(UpdateListener)",
+					ProjectModelImpl.updateListeners.contains(listener));
+			ProjectModelImpl.updateListeners.remove(listener);
+		}
 	}
 
-	void updateProject(final Project project) throws ParityException {
+	/**
+	 * Update a project.
+	 * 
+	 * @param project
+	 *            The project to update.
+	 * @throws ParityException
+	 */
+	void update(final Project project) throws ParityException {
+		logger.info("update(Project)");
 		logger.debug(project);
 		try {
 			updateMetaData(project);
 			notifyUpdate(project);
 		}
-		catch(ProjectException px) { throw new ParityException(px); }
+		catch(IOException iox) {
+			logger.error("update(Project)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("update(Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
 	private File buildDirectory(final Project parent, final String name) {
 		return new File(parent.getDirectory(), name);
 	}
 
-	private void createDirectory(final Project project) throws ProjectException {
-		try {
-			if(false == project.getDirectory().mkdir())
-				throw new ProjectException("Could not create project directory.");
-		}
-		catch(Exception x) { throw new ProjectException(x); }
+	private void createDirectory(final File directory) {
+		Assert.assertTrue("createDirectory(File)", directory.mkdir());
 	}
 
-	private void createMetaData(final Project project) throws ProjectException {
-		try { ProjectXml.writeCreationXml(project); }
-		catch(IOException iox) { throw new ProjectException(iox); }
+	private void createMetaData(final Project project) throws IOException {
+		ProjectXml.writeCreationXml(project);
 	}
 
-	private void createMetaDataDirectory(final Project project) throws ProjectException {
+	private void createMetaDataDirectory(final Project project) {
 		final File metaDataDirectory = project.getMetaDataDirectory();
 		if(metaDataDirectory.exists()) {
 			if(0 == metaDataDirectory.list().length) {
@@ -189,26 +292,23 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	private Project createRootProject(final Workspace workspace)
-			throws ParityException {
+			throws IOException, ParityException {
 		final File rootProjectMetaDataFile = new File(new File(workspace
 				.getDataURL().getFile(), META_DATA_DIRECTORY_NAME),
 				ROOT_PROJECT_META_DATA_FILE_NAME);
 		Project rootProject = getProject(rootProjectMetaDataFile);
 		if(null != rootProject) { return rootProject; } 
 		else {
-			try {
-				final UUID rootProjectId = UUIDGenerator.nextUUID();
-				rootProject = new Project(ROOT_PROJECT_NAME, DateUtil
-						.getInstance(), ParityUtil.getSystemUsername(), ParityUtil
-						.getSystemUsername(), ROOT_PROJECT_DESCRIPTION,
-						new File(workspace.getDataURL().getFile()), rootProjectId);
-				rootProject.setCustomName(ROOT_PROJECT_CUSTOM_NAME);
-				createMetaDataDirectory(rootProject);
-				createMetaData(rootProject);
-				notifyCreation(rootProject);
-				return getProject(rootProjectMetaDataFile);
-			}
-			catch(ProjectException px) { throw new ParityException(px); }
+			final UUID rootProjectId = UUIDGenerator.nextUUID();
+			rootProject = new Project(ROOT_PROJECT_NAME, DateUtil
+					.getInstance(), ParityUtil.getSystemUsername(), ParityUtil
+					.getSystemUsername(), ROOT_PROJECT_DESCRIPTION,
+					new File(workspace.getDataURL().getFile()), rootProjectId);
+			rootProject.setCustomName(ROOT_PROJECT_CUSTOM_NAME);
+			createMetaDataDirectory(rootProject);
+			createMetaData(rootProject);
+			notifyCreation(rootProject);
+			return getProject(rootProjectMetaDataFile);
 		}
 	}
 
@@ -226,22 +326,13 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		}
 	}
 
-	private void updateMetaData(final Project project) throws ParityException,
-			ProjectException {
-		try { ProjectXml.writeUpdateXml(project); }
-		catch(IOException iox) {
-			logger.error("Could not update project meta-data.", iox);
-			throw new ProjectException("Could not update the project meta-data.");
-		}
+	private void updateMetaData(final Project project) throws IOException {
+		ProjectXml.writeUpdateXml(project);
 	}
 
 	private void updateParentMetaData(final Project parent,
-			final Project project) throws ParityException, ProjectException {
+			final Project project) throws IOException {
 		parent.addProject(project);
-		try { ProjectXml.writeUpdateXml(parent); }
-		catch(IOException iox) {
-			logger.error("Could not update the parent project meta-data.", iox);
-			throw new ProjectException("Could not update the parent project meta-data.");
-		}
+		ProjectXml.writeUpdateXml(parent);
 	}
 }

@@ -20,20 +20,6 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 public class ProjectModel extends AbstractModel {
 
 	/**
-	 * Project api implementation.
-	 */
-	private static final ProjectModelImpl impl = new ProjectModelImpl();
-
-	public static void addCreationListener(
-			final CreationListener creationListener) {
-		impl.addCreationListener(creationListener);
-	}
-
-	public static void addUpdateListener(final UpdateListener updateListener) {
-		impl.addUpdateListener(updateListener);
-	}
-
-	/**
 	 * Obtain a handle to the project model.
 	 * 
 	 * @return A handle to the project model.
@@ -43,36 +29,17 @@ public class ProjectModel extends AbstractModel {
 		return projectModel;
 	}
 
-	public static Project getProject(final File projectMetaDataFile)
-			throws ParityException {
-		return impl.getProject(projectMetaDataFile);
-	}
-
-	public static void removeCreationListener(
-			final CreationListener creationListener) {
-		impl.removeCreationListener(creationListener);
-	}
-
-	public static void removeUpdateListener(final UpdateListener updateListener) {
-		impl.removeUpdateListener(updateListener);
-	}
-
-	public static void updateProject(final Project project)
-			throws ParityException {
-		impl.updateProject(project);
-	}
-
 	/**
 	 * Instance implementation.
-	 * @see ProjectModel#impl2Lock
+	 * @see ProjectModel#implLock
 	 */
-	private final ProjectModelImpl impl2;
+	private final ProjectModelImpl impl;
 
 	/**
 	 * Synchronization lock for the implementation.
-	 * @see ProjectModel#impl2
+	 * @see ProjectModel#impl
 	 */
-	private final Object impl2Lock;
+	private final Object implLock;
 
 	/**
 	 * Handle to the current workspace.
@@ -85,17 +52,101 @@ public class ProjectModel extends AbstractModel {
 	private ProjectModel() {
 		super();
 		this.workspace = WorkspaceModel.getModel().getWorkspace();
-		this.impl2 = new ProjectModelImpl(workspace);
-		this.impl2Lock = new Object();
+		this.impl = new ProjectModelImpl(workspace);
+		this.implLock = new Object();
 	}
 
-	public Project createProject(final Project parent, final String name,
+	/**
+	 * Add a listener for project creation.
+	 * 
+	 * @param listener
+	 *            The listener to add.
+	 */
+	public void addCreationListener(final CreationListener listener) {
+		synchronized(implLock) { impl.addCreationListener(listener); }
+	}
+
+	/**
+	 * Add a project update event listener.
+	 * 
+	 * @param listener
+	 *            The listener to add.
+	 */
+	public void addUpdateListener(final UpdateListener listener) {
+		synchronized(implLock) { impl.addUpdateListener(listener); }
+	}
+
+	/**
+	 * Create a new project.
+	 * 
+	 * @param parent
+	 *            The parent project.
+	 * @param name
+	 *            The name.
+	 * @param description
+	 *            The description.
+	 * @return The new project.
+	 * @throws ParityException
+	 */
+	public Project create(final Project parent, final String name,
 			final String description) throws ParityException {
-		return impl2.createProject(parent, name, description);
+		synchronized(implLock) {
+			return impl.create(parent, name, description);
+		}
 	}
 
-	public Project getRootProject(final Workspace workspace)
-			throws ParityException {
-		synchronized(impl2Lock) { return impl2.getRootProject(workspace); }
+	/**
+	 * Obtain a project for a given meta data file.
+	 * 
+	 * @param metaDataFile
+	 *            The project's meta data file.
+	 * @return The project.
+	 * @throws ParityException
+	 */
+	public Project getProject(final File metaDataFile) throws ParityException {
+		synchronized(implLock) {
+			return impl.getProject(metaDataFile);
+		}
+	}
+
+	/**
+	 * Obtain the root project.
+	 * 
+	 * @return The root project.
+	 * @throws ParityException
+	 */
+	public Project getRootProject() throws ParityException {
+		synchronized(implLock) { return impl.getRootProject(workspace); }
+	}
+
+	/**
+	 * Remove a project creation event listener.
+	 * 
+	 * @param listener
+	 *            The listener to remove.
+	 */
+	public void removeCreationListener(final CreationListener listener) {
+		synchronized(implLock) { impl.removeCreationListener(listener); }
+	}
+
+	/**
+	 * Remove a project update event listener.
+	 * 
+	 * @param listener
+	 *            The listener to remove.
+	 */
+	public void removeUpdateListener(final UpdateListener listener) {
+		synchronized(implLock) { impl.removeUpdateListener(listener); }
+	}
+
+	/**
+	 * Update a project.
+	 * 
+	 * @param project
+	 *            The project to update.
+	 * @throws ParityException
+	 */
+	public void update(final Project project) throws ParityException {
+		synchronized(implLock) { impl.update(project); }
 	}
 }

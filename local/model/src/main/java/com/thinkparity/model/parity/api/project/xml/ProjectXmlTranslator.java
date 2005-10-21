@@ -30,9 +30,14 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTranslator {
 
 	/**
-	 * Handle to a document model.
+	 * Document model api.
 	 */
 	private final DocumentModel documentModel;
+
+	/**
+	 * Project model api.
+	 */
+	private final ProjectModel projectModel;
 
 	/**
 	 * Create a ProjectXmlTranslator
@@ -40,6 +45,7 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 	public ProjectXmlTranslator() {
 		super("project", Project.class);
 		this.documentModel = DocumentModel.getModel();
+		this.projectModel = ProjectModel.getModel();
 	}
 
 	/**
@@ -120,7 +126,7 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 		reader.moveDown();
 		while(reader.hasMoreChildren()) {
 			reader.moveDown();
-			childProjects.add(ProjectModel.getProject(new File(reader
+			childProjects.add(projectModel.getProject(new File(reader
 					.getAttribute("meta-data"))));
 			reader.moveUp();
 		}

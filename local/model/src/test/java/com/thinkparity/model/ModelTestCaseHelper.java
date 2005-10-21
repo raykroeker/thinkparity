@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.ResourceUtil;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -72,11 +73,6 @@ public class ModelTestCaseHelper {
 				.append(File.separatorChar).append("thinkparity")
 				.append(File.separatorChar).append("model")
 				.toString());
-		// set the output directory
-		final File outputDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
-			.append(File.separatorChar).append("target")
-			.append(File.separatorChar).append("test-reports")
-			.toString());
 		// set the workspace directory, then delete its contents
 		final File jUnitWorkspace =
 			new File(resourcesDirectory, "junit.workspace");
@@ -102,6 +98,13 @@ public class ModelTestCaseHelper {
 		System.setProperty(
 				"parity.workspace",
 				jUnitWorkspace.getAbsolutePath());
+		// set the output directory
+		final File outputDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
+			.append(File.separatorChar).append("target")
+			.append(File.separatorChar).append("test-reports")
+			.toString());
+		if(!outputDirectory.exists())
+			Assert.assertTrue("jUnit<init>", outputDirectory.mkdir());
 		// initialize the logger
 		ModelTestLoggerConfigurator.configure(jUnitSessionId, outputDirectory);
 	}

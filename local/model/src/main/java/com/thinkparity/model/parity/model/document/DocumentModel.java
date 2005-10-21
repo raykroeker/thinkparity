@@ -98,11 +98,10 @@ public class DocumentModel {
 	 * @return The newly created document.
 	 * @throws ParityException
 	 */
-	public Document createDocument(final Project project,
-			final String name, final String description, final File documentFile)
-			throws ParityException {
+	public Document create(final Project project, final String name,
+			final String description, final File file) throws ParityException {
 		synchronized(implLock) {
-			return impl.createDocument(project, name, description, documentFile);
+			return impl.create(project, name, description, file);
 		}
 	}
 
@@ -113,8 +112,8 @@ public class DocumentModel {
 	 *            The document to delete.
 	 * @throws ParityException
 	 */
-	public void deleteDocument(final Document document) throws ParityException {
-		synchronized(implLock) { impl.deleteDocument(document); }
+	public void delete(final Document document) throws ParityException {
+		synchronized(implLock) { impl.delete(document); }
 	}
 
 	/**
@@ -128,9 +127,9 @@ public class DocumentModel {
 	 *            The document to export.
 	 * @throws ParityException
 	 */
-	public void exportDocument(final File file, final Document document)
+	public void export(final Document document, final File file)
 			throws ParityException {
-		synchronized(implLock) { impl.exportDocument(file, document); }
+		synchronized(implLock) { impl.export(document, file); }
 	}
 
 	public Document getDocument(final File documentMetaDataFile)
@@ -155,9 +154,8 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.isDocumentDeletable(document); }
 	}
 
-	public void openDocument(final Document document)
-			throws ParityException {
-		synchronized(implLock) { impl.openDocument(document); }
+	public void open(final Document document) throws ParityException {
+		synchronized(implLock) { impl.open(document); }
 	}
 
 	/**

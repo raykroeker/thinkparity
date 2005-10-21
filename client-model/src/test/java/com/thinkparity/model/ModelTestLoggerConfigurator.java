@@ -39,11 +39,9 @@ public class ModelTestLoggerConfigurator {
 	 */
 	private static void configureHTMLAppender(final String jUnitSessionId,
 			final Properties log4jConfig, final File outputDirectory) {
-		log4jConfig.setProperty("log4j.appender.html", "org.apache.log4j.RollingFileAppender");
+		log4jConfig.setProperty("log4j.appender.html", "org.apache.log4j.FileAppender");
 		log4jConfig.setProperty("log4j.appender.html.layout", "org.apache.log4j.HTMLLayout");
 		log4jConfig.setProperty("log4j.appender.html.HTMLLayout.Title", jUnitSessionId);
-		log4jConfig.setProperty("log4j.appender.html.MaxFileSize", "300KB");
-		log4jConfig.setProperty("log4j.appender.html.MaxBackupIndex", "5");
 		final File htmlFile = new File(outputDirectory, jUnitSessionId + ".html");
 		log4jConfig.setProperty("log4j.appender.html.File", htmlFile.getAbsolutePath());
 		// print the path to the log file when shut down

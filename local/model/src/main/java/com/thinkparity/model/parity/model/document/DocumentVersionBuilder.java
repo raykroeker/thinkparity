@@ -16,25 +16,83 @@ import com.thinkparity.model.parity.api.document.DocumentVersion;
 public class DocumentVersionBuilder {
 
 	/**
-	 * File extension of the document version files.
+	 * Singleton instance of the builder.
+	 * @see DocumentVersionBuilder#singletonLock
 	 */
-	private static final String documentVersionFileExtension = new StringBuffer(
-			".").append(DocumentVersion.class.getSimpleName().toLowerCase())
-			.toString();
+	private static final DocumentVersionBuilder singleton;
 
 	/**
-	 * Obtain the next version id in the sequence.
-	 * @param document <code>Document</code>
-	 * @return <code>java.lang.String</code>
+	 * Synchronization lock.
+	 * @see DocumentVersionBuilder#singleton
 	 */
-	private static String getNewVersion(final Document document) {
+	private static final Object singletonLock;
+
+	static {
+		singleton = new DocumentVersionBuilder();
+		singletonLock = new Object();
+	}
+
+	/**
+	 * Create a new version for an existing document.
+	 * 
+	 * @param document
+	 *            The document to create the version for.
+	 * @return The new version for the document.
+	 */
+	public static DocumentVersion create(final Document document) {
+		synchronized(singletonLock) {
+			return singleton.createImpl(document);
+		}
+	}
+
+	/**
+	 * Obtain an named document version for a given document.
+	 * 
+	 * @param document
+	 *            The document to obtain the version for.
+	 * @param version
+	 *            The named version of the document.
+	 * @return The version of the document.
+	 */
+	public static DocumentVersion getVersion(final Document document,
+			final String version) {
+		synchronized(singletonLock) {
+			return singleton.getVersionImpl(document, version);
+		}
+	}
+
+	/**
+	 * Create a DocumentVersionBuilder [Builder, Singleton]
+	 */
+	private DocumentVersionBuilder() { super(); }
+
+	/**
+	 * Obtain the next document version for a given document.
+	 * 
+	 * @param document
+	 *            The document to obtain the version for.
+	 * @return The next document version.
+	 */
+	private DocumentVersion createImpl(final Document document) {
+		final String newVersion = createNextVersion(document);
+		return new DocumentVersion(document, newVersion);
+	}
+
+	/**
+	 * Obtain the next version in the sequence for a document.
+	 * 
+	 * @param document
+	 *            The document to obtain the version for.
+	 * @return The next version in the sequence.
+	 */
+	private String createNextVersion(final Document document) {
 		// use a file filter to get a list of "name.v?.documentversion" documents
 		final FileFilter documentVersionFileFilter = new FileFilter() {
 			public boolean accept(File pathname) {
 				final String name = pathname.getName();
 				if(pathname.isFile())
 					if(name.startsWith(document.getName() + ".v"))
-						if(name.endsWith(documentVersionFileExtension))
+						if(name.endsWith(".documentversion"))
 							return Boolean.TRUE;
 				return Boolean.FALSE;
 			}
@@ -47,18 +105,17 @@ public class DocumentVersionBuilder {
 		return new StringBuffer("v").append(++numberOfVersions).toString();
 	}
 
-	static DocumentVersion newDocumentVersion(final Document document) {
-		final String newVersion = getNewVersion(document);
-		return new DocumentVersion(document, newVersion);
-	}
-
-	public static DocumentVersion newDocumentVersion(final Document document,
+	/**
+	 * Obtain an named document version for a given document.
+	 * 
+	 * @param document
+	 *            The document to obtain the version for.
+	 * @param version
+	 *            The named version of the document.
+	 * @return The version of the document.
+	 */
+	private DocumentVersion getVersionImpl(final Document document,
 			final String version) {
 		return new DocumentVersion(document, version);
 	}
-
-	/**
-	 * Create a DocumentVersionBuilder [Builder, Singleton]
-	 */
-	private DocumentVersionBuilder() { super(); }
 }

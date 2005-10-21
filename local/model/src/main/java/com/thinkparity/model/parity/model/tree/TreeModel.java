@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.tree;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
-import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * TreeModel
@@ -15,23 +14,42 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 public class TreeModel extends AbstractModel {
 
 	/**
-	 * Handle to the internal implementation.
+	 * Obtain a handle to the tree model interface.
+	 * 
+	 * @return The tree model interface.
+	 */
+	public static TreeModel getModel() {
+		final TreeModel treeModel = new TreeModel();
+		return treeModel;
+	}
+
+	/**
+	 * Implementation.
+	 * @see TreeModel#implLock
 	 */
 	private final TreeModelImpl impl;
 
 	/**
+	 * Synchronization lock.
+	 * @see TreeModel#impl
+	 */
+	private final Object implLock;
+
+	/**
 	 * Create a TreeModel
 	 */
-	public TreeModel() {
+	private TreeModel() {
 		super();
-		impl = new TreeModelImpl();
+		this.impl = new TreeModelImpl();
+		this.implLock = new Object();
 	}
 
 	/**
 	 * Obtain the tree.
-	 * @return <code>DataTree</code>
+	 * 
+	 * @return The parity tree.
 	 */
-	public Tree getTree(final Workspace workspace) throws ParityException {
-		return impl.getTree(workspace);
+	public Tree getTree() throws ParityException {
+		synchronized(implLock) { return impl.getTree(); }
 	}
 }

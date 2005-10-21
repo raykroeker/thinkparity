@@ -7,7 +7,6 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
-import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * TreeModelImpl
@@ -52,8 +51,8 @@ class TreeModelImpl extends AbstractModelImpl {
 		this.projectModel = ProjectModel.getModel();
 	}
 
-	Tree getTree(final Workspace workspace) throws ParityException {
-		return createTree(projectModel.getRootProject(workspace));
+	Tree getTree() throws ParityException {
+		return createTree(projectModel.getRootProject());
 	}
 
 	private Tree createTree(final Project rootProject) {

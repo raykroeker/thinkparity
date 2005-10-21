@@ -3,14 +3,9 @@
  */
 package com.thinkparity.model.parity.util;
 
-import java.io.IOException;
-
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.Parity;
 
 /**
@@ -32,12 +27,6 @@ public class ParityUtil {
 	 */
 	private static final Config config =
 		ConfigFactory.newInstance(ParityUtil.class);
-
-	/**
-	 * Handle to an internal logger.
-	 */
-	private static final Logger logger =
-		ModelLoggerFactory.getLogger(ParityUtil.class);
 
 	/**
 	 * Obtain a handle to the Parity class.
@@ -63,14 +52,6 @@ public class ParityUtil {
 	 * @return <code>String</code>
 	 */
 	public static String getVersion() { return config.getProperty("version"); }
-
-	public static void launchFileWin32(final String fileAbsolutePath)
-			throws IOException {
-		logger.debug("fileAbsolutePath:  " + fileAbsolutePath);
-		final Runtime runtime = Runtime.getRuntime();
-		runtime.exec(new String[] { "rundll32.exe",
-					"url.dll,FileProtocolHandler", fileAbsolutePath });
-	}
 
 	/**
 	 * Create a ParityUtil [Singleton]

@@ -12,6 +12,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * DocumentModelTest
@@ -42,6 +43,24 @@ public class DocumentModelTest extends ModelTestCase {
 			this.documentModel = documentModel;
 			this.name = name;
 			this.parent = parent;
+		}
+	}
+
+	/**
+	 * Delete document data definition.
+	 */
+	private class DeleteDocumentData {
+		private final Document document;
+		private final DocumentModel documentModel;
+		private final Project documentProject;
+		private final ProjectModel projectModel;
+		private DeleteDocumentData(final Document document,
+				final DocumentModel documentModel,
+				final Project documentProject, final ProjectModel projectModel) {
+			this.document = document;
+			this.documentModel = documentModel;
+			this.documentProject = documentProject;
+			this.projectModel = projectModel;
 		}
 	}
 
@@ -78,6 +97,7 @@ public class DocumentModelTest extends ModelTestCase {
 	}
 
 	private Vector<CreateDocumentData> createDocumentData;
+	private Vector<DeleteDocumentData> deleteDocumentData;
 	private Vector<ExportDocumentData> exportDocumentData;
 	private Vector<GetPathData> getPathData;
 
@@ -109,6 +129,18 @@ public class DocumentModelTest extends ModelTestCase {
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
+	/**
+	 * Test the deletion of documents. This will check the project to ensure
+	 * that no documents remain post deletion.
+	 * 
+	 */
+	public void testDeleteDocument() {
+		for(DeleteDocumentData data : deleteDocumentData) {
+			try { data.documentModel.deleteDocument(data.document); }
+			catch(Throwable t) { fail(getFailMessage(t)); }
+		}
 	}
 
 	/**
@@ -156,6 +188,7 @@ public class DocumentModelTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		setUpCreateDocument();
+		setUpDeleteDocument();
 		setUpExportDocument();
 		setUpGetPath();
 	}
@@ -176,6 +209,29 @@ public class DocumentModelTest extends ModelTestCase {
 			createDocumentData.add(new CreateDocumentData(description,
 					documentFile, documentFileContent, documentModel, name,
 					testProject));
+		}
+	}
+
+	protected void setUpDeleteDocument() throws Exception {
+		final Project testProject = createTestProject("testDeleteDocument");
+		final DocumentModel documentModel = getDocumentModel();
+		final ProjectModel projectModel = getProjectModel();
+		Document document;
+		Project documentProject;
+		String name, description;
+		File documentFile;
+
+		deleteDocumentData = new Vector<DeleteDocumentData>(4);
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			documentFile = testFile.getFile();
+			document = documentModel.createDocument(
+					testProject, name, description, documentFile);
+			documentProject = document.getParent();
+
+			deleteDocumentData.add(
+					new DeleteDocumentData(document, documentModel, documentProject, projectModel));
 		}
 	}
 
@@ -232,10 +288,11 @@ public class DocumentModelTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		tearDownCreateDocument();
+		tearDownDeleteDocument();
 		tearDownExportDocument();
 		tearDownGetPath();
 	}
-	
+
 	/**
 	 * Clean up the create document data.
 	 * 
@@ -244,6 +301,11 @@ public class DocumentModelTest extends ModelTestCase {
 	protected void tearDownCreateDocument() throws Exception {
 		createDocumentData.clear();
 		createDocumentData = null;
+	}
+
+	protected void tearDownDeleteDocument() {
+		deleteDocumentData.clear();
+		deleteDocumentData = null;
 	}
 
 	/**

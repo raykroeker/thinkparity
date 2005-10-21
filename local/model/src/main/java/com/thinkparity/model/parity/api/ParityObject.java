@@ -24,6 +24,11 @@ import com.thinkparity.model.parity.model.project.Project;
 public abstract class ParityObject implements IParityConstants {
 
 	/**
+	 * List of versions associated with this document.
+	 */
+	protected final Collection<ParityObjectVersion> versions;
+
+	/**
 	 * The parity username of the person who created the parity object.
 	 */
 	private String createdBy;
@@ -70,11 +75,6 @@ public abstract class ParityObject implements IParityConstants {
 	private Project parent;
 
 	/**
-	 * List of versions associated with this document.
-	 */
-	private Collection<ParityObjectVersion> versions;
-
-	/**
 	 * Create a ParityObject
 	 */
 	protected ParityObject(final Project parent, final String name, final String description,
@@ -92,33 +92,6 @@ public abstract class ParityObject implements IParityConstants {
 		this.versions = new Vector<ParityObjectVersion>(10);
 		this.id = id;
 	}
-
-	/**
-	 * Create a default instance of the custom properties.
-	 * 
-	 * @return The default custom properties.
-	 */
-	private Properties createDefaultCustomProperties(final String name,
-			final String description) {
-		if(null == name) { throw new NullPointerException(); }
-		final Properties customProperties = new Properties();
-		customProperties.setProperty("name", name);
-		if(null != description)
-			customProperties.setProperty("description", description);
-		return customProperties;
-	}
-
-	/**
-	 * Add a new revision to this parity object.
-	 * @param version <code>ParityObjectVersion</code>
-	 */
-	protected final void add(final ParityObjectVersion version) {
-		Assert.assertTrue("Cannot add the same version more than once.",
-				!versions.contains(version));
-		versions.add(version);
-	}
-
-	protected void setParent(final Project parent) { this.parent = parent; }
 
 	public final void add(final Note note) {
 		Assert.assertTrue("Cannot add the same note more than once.", !notes
@@ -231,7 +204,7 @@ public abstract class ParityObject implements IParityConstants {
 	 * Obtain parent.
 	 * @return Project
 	 */
-	public final Project getParent() { return parent; }
+	public Project getParent() { return parent; }
 
 	/**
 	 * Obtain the path for the object.
@@ -293,5 +266,32 @@ public abstract class ParityObject implements IParityConstants {
 	public final void setCustomProperty(final String customPropertyName,
 			final String customPropertyValue) {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
+	}
+
+	/**
+	 * Add a new revision to this parity object.
+	 * @param version <code>ParityObjectVersion</code>
+	 */
+	protected final void add(final ParityObjectVersion version) {
+		Assert.assertTrue("Cannot add the same version more than once.",
+				!versions.contains(version));
+		versions.add(version);
+	}
+
+	protected void setParent(final Project parent) { this.parent = parent; }
+
+	/**
+	 * Create a default instance of the custom properties.
+	 * 
+	 * @return The default custom properties.
+	 */
+	private Properties createDefaultCustomProperties(final String name,
+			final String description) {
+		if(null == name) { throw new NullPointerException(); }
+		final Properties customProperties = new Properties();
+		customProperties.setProperty("name", name);
+		if(null != description)
+			customProperties.setProperty("description", description);
+		return customProperties;
 	}
 }

@@ -28,15 +28,15 @@ public class DocumentVersionBuilder {
 	 * @return <code>java.lang.String</code>
 	 */
 	private static String getNewVersion(final Document document) {
-		// use a file filter to get a list of "*.version" documents
+		// use a file filter to get a list of "name.v?.documentversion" documents
 		final FileFilter documentVersionFileFilter = new FileFilter() {
-			/**
-			 * @see java.io.FileFilter#accept(java.io.File)
-			 */
 			public boolean accept(File pathname) {
 				final String name = pathname.getName();
-				return (pathname.isFile() && name
-						.endsWith(documentVersionFileExtension));
+				if(pathname.isFile())
+					if(name.startsWith(document.getName() + ".v"))
+						if(name.endsWith(documentVersionFileExtension))
+							return Boolean.TRUE;
+				return Boolean.FALSE;
 			}
 		};
 		final File[] versionFiles = document.getMetaDataDirectory().listFiles(

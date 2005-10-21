@@ -229,6 +229,41 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Delete a document.
+	 * 
+	 * @param document
+	 *            The document to delete.
+	 * @throws ParityException
+	 */
+	void deleteDocument(final Document document) throws ParityException {
+		logger.info("deleteDocument(Document)");
+		logger.debug(document);
+		try {
+			final Project documentProject = document.getParent();
+			// remove the document from the project and update
+			final Project parent =
+				projectModel.getProject(documentProject.getMetaDataFile());
+			Assert.assertTrue(
+					"Document cannot be removed from project.",
+					parent.removeDocument(document));
+			projectModel.updateProject(parent);
+			// delete the .documentversion files
+			final Collection<DocumentVersion> versions =
+				document.getDocumentVersions();
+			for(DocumentVersion version : versions) {
+				deleteFile(
+						version.getMetaDataFile(document.getMetaDataDirectory()));
+			}
+			// delete the .document file
+			deleteFile(document.getMetaDataFile());
+		}
+		catch(RuntimeException rx) {
+			logger.error("deleteDocument(Document)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Take the given document, and export it to the specified file. This will
 	 * obtain the document's content, and save it to the file. Note that if file
 	 * exists it will be overwritten.
@@ -404,6 +439,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private void createNewFile(final File file) throws IOException {
 		Assert.assertNotTrue("File cannot already exist.", file.exists());
 		Assert.assertTrue("Could not create new file.", file.createNewFile());
+	}
+
+	/**
+	 * Delete a file.
+	 * 
+	 * @param file
+	 *            The file to delete.
+	 */
+	private void deleteFile(final File file) {
+		Assert.assertTrue("Could not delete file.", file.delete());
 	}
 
 	/**

@@ -106,8 +106,15 @@ public class DocumentModel {
 		}
 	}
 
+	/**
+	 * Delete a document.
+	 * 
+	 * @param document
+	 *            The document to delete.
+	 * @throws ParityException
+	 */
 	public void deleteDocument(final Document document) throws ParityException {
-		Assert.assertNotYetImplemented("DocumentModel.deleteDocument()");
+		synchronized(implLock) { impl.deleteDocument(document); }
 	}
 
 	/**

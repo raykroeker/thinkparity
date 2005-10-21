@@ -6,12 +6,15 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.UUID;
+import java.util.Vector;
 
 import com.thinkparity.codebase.StringUtil;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
+import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
@@ -154,4 +157,13 @@ public class Document extends ParityObject {
 	public ParityObjectType getType() { return ParityObjectType.DOCUMENT; }
 
 	public void setProject(final Project project) { setParent(project); }
+
+	public Collection<DocumentVersion> getDocumentVersions() {
+		final Vector<DocumentVersion> dVersions =
+			new Vector<DocumentVersion>(versions.size());
+		for(ParityObjectVersion poVersion : versions) {
+			dVersions.add((DocumentVersion) poVersion);
+		}
+		return dVersions;
+	}
 }

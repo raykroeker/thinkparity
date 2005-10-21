@@ -139,10 +139,19 @@ public class Project extends ParityObject {
 	 * Remove a document from the project.
 	 * 
 	 * @param document
-	 *            <code>com.thinkparity.model.parity.api.document.Document</code>
+	 *            The document to remove from the project.
+	 * @return Whether or not the list of documents was actually modified.
 	 */
-	public void removeDocument(final Document document) {
-		documents.remove(document);
+	public Boolean removeDocument(final Document document) {
+		if(null == document) { throw new NullPointerException(); }
+		final Integer size = documents.size();
+		final Collection<Document> modList = new Vector<Document>(size - 1);
+		for(Document d : documents) {
+			if(!d.getId().equals(document.getId())) { modList.add(d); }
+		}
+		documents.clear();
+		documents.addAll(modList);
+		return (size != documents.size());
 	}
 
 	/**

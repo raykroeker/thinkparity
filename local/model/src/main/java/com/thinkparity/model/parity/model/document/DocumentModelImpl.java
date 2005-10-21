@@ -97,7 +97,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 	/**
 	 * @see DocumentModel#addCreationListener(CreationListener)
-	 * @param creationListener
+	 * @param listener
 	 */
 	void addCreationListener(final CreationListener listener) {
 		logger.info("addCreationListener(CreationListener)");

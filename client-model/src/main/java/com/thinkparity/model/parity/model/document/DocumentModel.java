@@ -93,7 +93,7 @@ public class DocumentModel {
 	 *            Name of the document you wish to import.
 	 * @param description
 	 *            Description of the document you wish to import.
-	 * @param documentFile
+	 * @param file
 	 *            File content of the document
 	 * @return The newly created document.
 	 * @throws ParityException

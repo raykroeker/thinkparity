@@ -174,6 +174,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	Document create(final Project project, final String name,
 			final String description, final File file) throws ParityException {
+		logger.info("create(Project,String,String,File)");
 		logger.debug(project);
 		logger.debug(name);
 		logger.debug(description);
@@ -216,14 +217,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(Document)");
 		logger.debug(document);
 		try {
-			final Project documentProject = document.getParent();
 			// remove the document from the project and update
-			final Project parent =
-				projectModel.getProject(documentProject.getMetaDataFile());
+			final Project project = document.getParent();
 			Assert.assertTrue(
 					"Document cannot be removed from project.",
-					parent.removeDocument(document));
-			projectModel.update(parent);
+					project.removeDocument(document));
+			projectModel.update(project);
 
 			// delete the versions
 			final Collection<DocumentVersion> versions = document.getVersions();

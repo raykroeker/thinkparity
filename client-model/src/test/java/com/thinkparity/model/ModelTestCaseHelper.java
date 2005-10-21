@@ -10,16 +10,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Vector;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.ResourceUtil;
-import com.thinkparity.codebase.DateUtil.DateImage;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.tree.TreeModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -41,9 +40,14 @@ public class ModelTestCaseHelper {
 	private static Project jUnitProject;
 
 	/**
-	 * Time this class was initialized.
+	 * Unique session id for each junit session.
 	 */
-	private static final Long jUnitSessionId;
+	private static final String jUnitSessionId;
+
+	/**
+	 * Start time of the junit session.
+	 */
+	private static final Long jUnitSessionStart;
 
 	/**
 	 * Files to use when testing.
@@ -56,6 +60,10 @@ public class ModelTestCaseHelper {
 	private static final ModelTestUser jUnitTestUser;
 
 	static {
+		// record the session start time.
+		jUnitSessionStart = System.currentTimeMillis();
+		// record the session id.
+		jUnitSessionId = "jUnit." + jUnitSessionStart;
 		// set the resources directory
 		final File resourcesDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
 				.append(File.separatorChar).append("target")
@@ -94,10 +102,8 @@ public class ModelTestCaseHelper {
 		System.setProperty(
 				"parity.workspace",
 				jUnitWorkspace.getAbsolutePath());
-		// set the jUnit session id
-		jUnitSessionId = System.currentTimeMillis();
 		// initialize the logger
-		ModelTestLoggerConfigurator.configure(outputDirectory);
+		ModelTestLoggerConfigurator.configure(jUnitSessionId, outputDirectory);
 	}
 
 	/**
@@ -141,11 +147,10 @@ public class ModelTestCaseHelper {
 	Project getJUnitProject() throws ParityException {
 		if(null == ModelTestCaseHelper.jUnitProject) {
 			final Project rootProject = getRootProject();
-			final String name = "JUnit." + jUnitSessionId;
-			final String description = "JUnit:  " +
-				DateUtil.format(jUnitSessionId, DateImage.YearMonthDayHourMinute);
+			final String name = jUnitSessionId;
+			final String description = name;
 			ModelTestCaseHelper.jUnitProject =
-				getProjectModel().createProject(rootProject, name, description);
+				getProjectModel().create(rootProject, name, description);
 		}
 		return ModelTestCaseHelper.jUnitProject;
 	}
@@ -189,7 +194,7 @@ public class ModelTestCaseHelper {
 	 * @return A handle to the root project.
 	 */
 	Project getRootProject() throws ParityException {
-		return getProjectModel().getRootProject(getWorkspace());
+		return getProjectModel().getRootProject();
 	}
 	
 	/**
@@ -200,6 +205,13 @@ public class ModelTestCaseHelper {
 	SessionModel getSessionModel() { return SessionModel.getModel(); }
 
 	/**
+	 * Obtain a handle to the tree model.
+	 * 
+	 * @return A handle to the tree model.
+	 */
+	TreeModel getTreeModel() { return TreeModel.getModel(); }
+	
+	/**
 	 * Obtain a handle to the workspace.
 	 * 
 	 * @return A handle to the workspace.
@@ -207,7 +219,7 @@ public class ModelTestCaseHelper {
 	Workspace getWorkspace() {
 		return WorkspaceModel.getModel().getWorkspace();
 	}
-	
+
 	private void deleteTree(final File rootDirectory) {
 		FileUtil.deleteTree(rootDirectory);
 	}

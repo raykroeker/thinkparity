@@ -6,8 +6,6 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Collection;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.workspace.Preferences;

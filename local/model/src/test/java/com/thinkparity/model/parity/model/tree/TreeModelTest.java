@@ -3,10 +3,9 @@
  */
 package com.thinkparity.model.parity.model.tree;
 
+import java.util.Vector;
+
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.tree.Tree;
-import com.thinkparity.model.parity.model.tree.TreeModel;
 
 /**
  * TreeModelTest
@@ -16,9 +15,16 @@ import com.thinkparity.model.parity.model.tree.TreeModel;
 public class TreeModelTest extends ModelTestCase {
 
 	/**
-	 * Handle to the actual tree model returned.
+	 * Get tree data structure.
 	 */
-	private TreeModel treeModel;
+	private class GetTreeData {
+		private TreeModel treeModel;
+		private GetTreeData(final TreeModel treeModel) {
+			this.treeModel = treeModel;
+		}
+	}
+
+	private Vector<GetTreeData> getTreeData;
 
 	/**
 	 * Create a TreeModelTest
@@ -26,12 +32,28 @@ public class TreeModelTest extends ModelTestCase {
 	 */
 	public TreeModelTest() { super("Test:  Tree model."); }
 
+	public void testGetTree() {
+		try {
+			Tree tree;
+			for(GetTreeData data : getTreeData) {
+				tree = data.treeModel.getTree();
+				TreeModelTest.assertNotNull(tree);
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.treeModel = new TreeModel();
+		setUpGetTree();
+	}
+
+	protected void setUpGetTree() throws Exception {
+		getTreeData = new Vector<GetTreeData>(1);
+		getTreeData.add(new GetTreeData(getTreeModel()));
 	}
 
 	/**
@@ -39,15 +61,11 @@ public class TreeModelTest extends ModelTestCase {
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		this.treeModel = null;
+		tearDownGetTree();
 	}
-
-	public void testGetTree() {
-		try {
-			final Tree tree = treeModel.getTree(
-					getWorkspaceModel().getWorkspace());
-			TreeModelTest.assertNotNull(tree);
-		}
-		catch(ParityException px) { fail(px.getMessage()); }
+	
+	protected void tearDownGetTree() throws Exception {
+		getTreeData.clear();
+		getTreeData = null;
 	}
 }

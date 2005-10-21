@@ -12,7 +12,6 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * DocumentModelTest
@@ -22,21 +21,21 @@ import com.thinkparity.model.parity.model.project.ProjectModel;
 public class DocumentModelTest extends ModelTestCase {
 
 	/**
-	 * Create document data definition.
+	 * Create document data structure.
 	 */
-	private class CreateDocumentData {
+	private class CreateData {
 		private final String description;
-		private final File documentFile;
 		private final byte[] documentFileContent;
 		private final DocumentModel documentModel;
+		private final File file;
 		private final String name;
 		private final Project parent;
-		private CreateDocumentData(final String description,
-				final File documentFile, final byte[] documentFileContent,
+		private CreateData(final String description,
+				final File file, final byte[] documentFileContent,
 				final DocumentModel documentModel, final String name,
 				final Project parent) {
 			this.description = description;
-			this.documentFile = documentFile;
+			this.file = file;
 			this.documentFileContent = new byte[documentFileContent.length];
 			System.arraycopy(documentFileContent, 0,
 					this.documentFileContent, 0, documentFileContent.length);
@@ -49,35 +48,30 @@ public class DocumentModelTest extends ModelTestCase {
 	/**
 	 * Delete document data definition.
 	 */
-	private class DeleteDocumentData {
+	private class DeleteData {
 		private final Document document;
 		private final DocumentModel documentModel;
-		private final Project documentProject;
-		private final ProjectModel projectModel;
-		private DeleteDocumentData(final Document document,
-				final DocumentModel documentModel,
-				final Project documentProject, final ProjectModel projectModel) {
+		private DeleteData(final Document document,
+				final DocumentModel documentModel) {
 			this.document = document;
 			this.documentModel = documentModel;
-			this.documentProject = documentProject;
-			this.projectModel = projectModel;
 		}
 	}
 
 	/**
 	 * Export document data definition for the export document test.
-	 * @see DocumentModelTest#testExportDocument()
-	 * @see DocumentModelTest#setUpExportDocument()
+	 * @see DocumentModelTest#testExport()
+	 * @see DocumentModelTest#setUpExport()
 	 */
-	private class ExportDocumentData {
+	private class ExportData {
 		private final Document document;
 		private final DocumentModel documentModel;
-		private final File exportFile;
-		private ExportDocumentData(final Document document,
-				final DocumentModel documentModel, final File exportFile) {
+		private final File file;
+		private ExportData(final Document document,
+				final DocumentModel documentModel, final File file) {
 			this.document = document;
 			this.documentModel = documentModel;
-			this.exportFile = exportFile;
+			this.file = file;
 		}
 	}
 
@@ -96,10 +90,28 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 
-	private Vector<CreateDocumentData> createDocumentData;
-	private Vector<DeleteDocumentData> deleteDocumentData;
-	private Vector<ExportDocumentData> exportDocumentData;
+	/**
+	 * Open document data structure.
+	 */
+	private class OpenData {
+		private final Document document;
+		private final DocumentModel documentModel;
+		private OpenData(final Document document,
+				final DocumentModel documentModel) {
+			this.document = document;
+			this.documentModel = documentModel;
+		}
+	}
+
+	private Vector<CreateData> createData;
+
+	private Vector<DeleteData> deleteData;
+
+	private Vector<ExportData> exportData;
+
 	private Vector<GetPathData> getPathData;
+
+	private Vector<OpenData> openData;
 
 	/**
 	 * Create a DocumentModelTest.
@@ -111,13 +123,13 @@ public class DocumentModelTest extends ModelTestCase {
 	 * original file will be compared.
 	 *
 	 */
-	public void testCreateDocument() {
+	public void testCreate() {
 		try {
 			Document newDocument;
 			byte[] newDocumentContent;
-			for(CreateDocumentData data : createDocumentData) {
-				newDocument = data.documentModel.createDocument(
-						data.parent, data.name, data.description, data.documentFile);
+			for(CreateData data : createData) {
+				newDocument = data.documentModel.create(data.parent, data.name,
+						data.description, data.file);
 				newDocumentContent = newDocument.getContent();
 				DocumentModelTest.assertNotNull(newDocument);
 				DocumentModelTest.assertEquals(
@@ -136,9 +148,9 @@ public class DocumentModelTest extends ModelTestCase {
 	 * that no documents remain post deletion.
 	 * 
 	 */
-	public void testDeleteDocument() {
-		for(DeleteDocumentData data : deleteDocumentData) {
-			try { data.documentModel.deleteDocument(data.document); }
+	public void testDelete() {
+		for(DeleteData data : deleteData) {
+			try { data.documentModel.delete(data.document); }
 			catch(Throwable t) { fail(getFailMessage(t)); }
 		}
 	}
@@ -148,14 +160,14 @@ public class DocumentModelTest extends ModelTestCase {
 	 * exported file will be compared.
 	 * 
 	 */
-	public void testExportDocument() {
+	public void testExport() {
 		try {
 			byte[] fileContent;
 			byte[] documentContent;
-			for(ExportDocumentData data : exportDocumentData) {
-				data.documentModel.exportDocument(data.exportFile, data.document);
-				DocumentModelTest.assertTrue(data.exportFile.exists());
-				fileContent = FileUtil.readFile(data.exportFile);
+			for(ExportData data : exportData) {
+				data.documentModel.export(data.document, data.file);
+				DocumentModelTest.assertTrue(data.file.exists());
+				fileContent = FileUtil.readFile(data.file);
 				documentContent = data.document.getContent();
 				DocumentModelTest.assertEquals(fileContent.length, documentContent.length);
 				for(int i = 0; i < fileContent.length; i++) {
@@ -180,70 +192,89 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
-	
+
+	/**
+	 * Test the document model's open api.
+	 *
+	 */
+	public void testOpen() {
+		try {
+			for(OpenData data : openData) {
+				data.documentModel.open(data.document);
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		setUpCreateDocument();
-		setUpDeleteDocument();
-		setUpExportDocument();
+		setUpCreate();
+		setUpDelete();
+		setUpExport();
 		setUpGetPath();
+		setUpOpen();
 	}
 
-	protected void setUpCreateDocument() throws Exception {
-		final Project testProject = createTestProject("testCreateDocument");
+	/**
+	 * Set up the create data structure.
+	 * 
+	 * @throws Exception
+	 */
+	protected void setUpCreate() throws Exception {
+		final Project testProject = createTestProject("testCreate");
 		final DocumentModel documentModel = getDocumentModel();
-		createDocumentData = new Vector<CreateDocumentData>(4);
+		createData = new Vector<CreateData>(4);
 		String name, description;
-		File documentFile;
+		File file;
 		byte[] documentFileContent;
 
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			documentFile = testFile.getFile();
-			documentFileContent = FileUtil.readFile(documentFile);
-			createDocumentData.add(new CreateDocumentData(description,
-					documentFile, documentFileContent, documentModel, name,
+			file = testFile.getFile();
+			documentFileContent = FileUtil.readFile(file);
+			createData.add(new CreateData(description,
+					file, documentFileContent, documentModel, name,
 					testProject));
 		}
 	}
 
-	protected void setUpDeleteDocument() throws Exception {
-		final Project testProject = createTestProject("testDeleteDocument");
+	/**
+	 * Set up the delete data structure.
+	 * 
+	 * @throws Exception
+	 */
+	protected void setUpDelete() throws Exception {
+		final Project testProject = createTestProject("testDelete");
 		final DocumentModel documentModel = getDocumentModel();
-		final ProjectModel projectModel = getProjectModel();
 		Document document;
-		Project documentProject;
 		String name, description;
-		File documentFile;
+		File file;
 
-		deleteDocumentData = new Vector<DeleteDocumentData>(4);
+		deleteData = new Vector<DeleteData>(4);
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			documentFile = testFile.getFile();
-			document = documentModel.createDocument(
-					testProject, name, description, documentFile);
-			documentProject = document.getParent();
+			file = testFile.getFile();
+			document = documentModel.create(testProject, name, description, file);
 
-			deleteDocumentData.add(
-					new DeleteDocumentData(document, documentModel, documentProject, projectModel));
+			deleteData.add(new DeleteData(document, documentModel));
 		}
 	}
 
 	/**
-	 * Set up the testExportDocument data.
+	 * Set up the export data structure.
 	 * 
 	 * @throws Exception
 	 */
-	protected void setUpExportDocument() throws Exception {
-		final Project testProject = createTestProject("testExportDocument");
+	protected void setUpExport() throws Exception {
+		final Project testProject = createTestProject("testExport");
 		final DocumentModel documentModel = getDocumentModel();
-		exportDocumentData = new Vector<ExportDocumentData>(4);
+		exportData = new Vector<ExportData>(4);
 		String name, description;
 		Document document;
 		File exportFile;
@@ -254,15 +285,15 @@ public class DocumentModelTest extends ModelTestCase {
 
 			exportFile = new File(
 					System.getProperty("java.io.tmpdir"), testFile.getName());
-			document = documentModel.createDocument(
+			document = documentModel.create(
 					testProject, name, description, testFile.getFile());
-			exportDocumentData.add(
-					new ExportDocumentData(document, documentModel, exportFile));	
+			exportData.add(
+					new ExportData(document, documentModel, exportFile));	
 		}
 	}
 
 	/**
-	 * Set up the testGetPath data.
+	 * Set up the get path data structure.
 	 * 
 	 * @throws Exception
 	 */
@@ -275,9 +306,32 @@ public class DocumentModelTest extends ModelTestCase {
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			document = getDocumentModel().createDocument(testProject, name, description, testFile.getFile());
+			document = getDocumentModel().create(testProject, name, description, testFile.getFile());
 			getPathData.add(
 					new GetPathData(getExpectedPath(document), document.getPath()));
+		}
+	}
+
+	/**
+	 * Set up the open data structure.
+	 *
+	 */
+	protected void setUpOpen() throws Exception {
+		final Project testOpenProject = super.createTestProject("testOpen");
+		final DocumentModel documentModel = getDocumentModel();
+		openData = new Vector<OpenData>(4);
+		Document document;
+		String name, description;
+		File documentFile;
+
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			documentFile = testFile.getFile();
+
+			document = documentModel.create(testOpenProject, name,
+					description, documentFile);
+			openData.add(new OpenData(document, documentModel));
 		}
 	}
 
@@ -287,39 +341,45 @@ public class DocumentModelTest extends ModelTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		tearDownCreateDocument();
-		tearDownDeleteDocument();
-		tearDownExportDocument();
+		tearDownCreate();
+		tearDownDelete();
+		tearDownExport();
 		tearDownGetPath();
+		tearDownOpen();
 	}
 
 	/**
-	 * Clean up the create document data.
+	 * Clean up the create data structure.
 	 * 
 	 * @throws Exception
 	 */
-	protected void tearDownCreateDocument() throws Exception {
-		createDocumentData.clear();
-		createDocumentData = null;
-	}
-
-	protected void tearDownDeleteDocument() {
-		deleteDocumentData.clear();
-		deleteDocumentData = null;
+	protected void tearDownCreate() throws Exception {
+		createData.clear();
+		createData = null;
 	}
 
 	/**
-	 * Clean up the export document data.
+	 * Clean up the delete data structure.
 	 * 
 	 * @throws Exception
 	 */
-	protected void tearDownExportDocument() throws Exception {
+	protected void tearDownDelete() throws Exception {
+		deleteData.clear();
+		deleteData = null;
+	}
+
+	/**
+	 * Clean up the export data structure.
+	 * 
+	 * @throws Exception
+	 */
+	protected void tearDownExport() throws Exception {
 		// delete the exported files
-		for(ExportDocumentData data : exportDocumentData) {
-			FileUtil.delete(data.exportFile);
+		for(ExportData data : exportData) {
+			FileUtil.delete(data.file);
 		}
-		exportDocumentData.clear();
-		exportDocumentData = null;
+		exportData.clear();
+		exportData = null;
 	}
 
 	/**
@@ -330,6 +390,15 @@ public class DocumentModelTest extends ModelTestCase {
 	protected void tearDownGetPath() throws Exception {
 		getPathData.clear();
 		getPathData = null;
+	}
+
+	/**
+	 * Clean up the open data structure.
+	 *
+	 */
+	protected void tearDownOpen() throws Exception {
+		openData.clear();
+		openData = null;
 	}
 
 	/**

@@ -22,7 +22,7 @@ import com.thinkparity.model.smack.SmackException;
 public abstract class AbstractModelImpl {
 
 	/**
-	 * Handle to a model logger.
+	 * Handle to an apache logger.
 	 */
 	protected final Logger logger =
 		ModelLoggerFactory.getLogger(AbstractModelImpl.class);

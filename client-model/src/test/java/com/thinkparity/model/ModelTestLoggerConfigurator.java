@@ -15,33 +15,43 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public class ModelTestLoggerConfigurator {
 
-	static void configure(final File outputDirectory) {
+	static void configure(final String jUnitSessionId, final File outputDirectory) {
 		final Properties log4jProperties = new Properties();
 
 		log4jProperties.setProperty("log4j.threshold", "debug");
-		log4jProperties.setProperty("log4j.rootLogger", "debug, broswerHTML");
+		log4jProperties.setProperty("log4j.rootLogger", "debug, html");
 
-		configureBrowserHTMLAppender(log4jProperties, outputDirectory);
+		configureHTMLAppender(jUnitSessionId, log4jProperties, outputDirectory);
 		configureConsoleAppender(log4jProperties);
 
 		PropertyConfigurator.configure(log4jProperties);
 	}
 
 	/**
-	 * Configure the browser html appender.
+	 * Configure the html appender.
 	 * 
-	 * @param browserHTML
-	 *            The configuration to write the appender properties to.
+	 * @param jUnitSessionId
+	 *            The junit session id.
+	 * @param log4jConfig
+	 *            The log4j configuration to set.
+	 * @param outputDirectory
+	 *            The output directory to place the file within.
 	 */
-	private static void configureBrowserHTMLAppender(
-			final Properties browserHTML, final File outputDirectory) {
-		browserHTML.setProperty("log4j.appender.broswerHTML", "org.apache.log4j.RollingFileAppender");
-		browserHTML.setProperty("log4j.appender.broswerHTML.layout", "org.apache.log4j.HTMLLayout");
-		browserHTML.setProperty("log4j.appender.broswerHTML.MaxFileSize", "300KB");
-		browserHTML.setProperty("log4j.appender.broswerHTML.MaxBackupIndex", "5");
-		final File browserHTMLOutputFile =
-			new File(outputDirectory, "parity.log4j.html");
-		browserHTML.setProperty("log4j.appender.broswerHTML.File", browserHTMLOutputFile.getAbsolutePath());
+	private static void configureHTMLAppender(final String jUnitSessionId,
+			final Properties log4jConfig, final File outputDirectory) {
+		log4jConfig.setProperty("log4j.appender.html", "org.apache.log4j.RollingFileAppender");
+		log4jConfig.setProperty("log4j.appender.html.layout", "org.apache.log4j.HTMLLayout");
+		log4jConfig.setProperty("log4j.appender.html.HTMLLayout.Title", jUnitSessionId);
+		log4jConfig.setProperty("log4j.appender.html.MaxFileSize", "300KB");
+		log4jConfig.setProperty("log4j.appender.html.MaxBackupIndex", "5");
+		final File htmlFile = new File(outputDirectory, jUnitSessionId + ".html");
+		log4jConfig.setProperty("log4j.appender.html.File", htmlFile.getAbsolutePath());
+		// print the path to the log file when shut down
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				System.out.println("Log file:  " + htmlFile.getAbsolutePath());
+			}
+		});
 	}
 
 	/**

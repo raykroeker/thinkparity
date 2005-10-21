@@ -14,6 +14,7 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.tree.TreeModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -25,6 +26,11 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  * @version 1.1
  */
 public abstract class ModelTestCase extends TestCase {
+
+	/**
+	 * Counter of the number of projects created.
+	 */
+	private static Integer projectCount = 0;
 
 	/**
 	 * Helper class for the parity test cases.  Used to offload the
@@ -42,11 +48,6 @@ public abstract class ModelTestCase extends TestCase {
 	}
 
 	/**
-	 * Counter of the number of projects created.
-	 */
-	private static Integer projectCount = 0;
-
-	/**
 	 * Create a project for the given test. This method does not check for
 	 * project existance.  It will attempt to create a project every time.
 	 *
@@ -57,8 +58,7 @@ public abstract class ModelTestCase extends TestCase {
 	protected Project createTestProject(final String test) throws ParityException {
 		final String name = String.valueOf(projectCount++);
 		final String description = getClass().getCanonicalName() + "." + test;
-		return getProjectModel().createProject(
-				helper.getJUnitProject(), name, description);
+		return getProjectModel().create(helper.getJUnitProject(), name, description);
 	}
 
 	/**
@@ -121,19 +121,25 @@ public abstract class ModelTestCase extends TestCase {
 		return helper.getSessionModel();
 	}
 
+	/**
+	 * Obtain a handle to the tree model.
+	 * @return A handle to the tree model.
+	 */
+	protected TreeModel getTreeModel() { return helper.getTreeModel(); }
+	
 	protected Workspace getWorkspace() {
 		return getWorkspaceModel().getWorkspace();
 	}
-	
+
 	protected WorkspaceModel getWorkspaceModel() {
 		return WorkspaceModel.getModel();
 	}
-
+	
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception { super.setUp(); }
-	
+
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */

@@ -49,7 +49,7 @@ public class ProjectModelTest extends ModelTestCase {
 	public void testCreateProject() {
 		try {
 			for(CreateProjectData data : createProjectData) {
-				data.projectModel.createProject(data.parent, data.name, data.description);
+				data.projectModel.create(data.parent, data.name, data.description);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }

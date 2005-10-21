@@ -24,11 +24,6 @@ import com.thinkparity.model.parity.model.project.Project;
 public abstract class ParityObject implements IParityConstants {
 
 	/**
-	 * List of versions associated with this document.
-	 */
-	protected final Collection<ParityObjectVersion> versions;
-
-	/**
 	 * The parity username of the person who created the parity object.
 	 */
 	private String createdBy;
@@ -89,7 +84,6 @@ public abstract class ParityObject implements IParityConstants {
 		this.keyHolder = keyHolder;
 		this.notes = new Vector<Note>(7);
 		this.customProperties = new Properties(createDefaultCustomProperties(name, description));
-		this.versions = new Vector<ParityObjectVersion>(10);
 		this.id = id;
 	}
 
@@ -220,15 +214,6 @@ public abstract class ParityObject implements IParityConstants {
 	public abstract ParityObjectType getType();
 
 	/**
-	 * Obtain the versions for this parity object.
-	 * 
-	 * @return <code>java.util.Collection&lt;com.thinkparity.model.parity.api.ParityObjectVersion&gt;</code>
-	 */
-	public final Collection<ParityObjectVersion> getVersions() {
-		return versions;
-	}
-
-	/**
 	 * Determine whether or not the parent is set.
 	 * @return Boolean</code>
 	 */
@@ -266,16 +251,6 @@ public abstract class ParityObject implements IParityConstants {
 	public final void setCustomProperty(final String customPropertyName,
 			final String customPropertyValue) {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
-	}
-
-	/**
-	 * Add a new revision to this parity object.
-	 * @param version <code>ParityObjectVersion</code>
-	 */
-	protected final void add(final ParityObjectVersion version) {
-		Assert.assertTrue("Cannot add the same version more than once.",
-				!versions.contains(version));
-		versions.add(version);
 	}
 
 	protected void setParent(final Project parent) { this.parent = parent; }

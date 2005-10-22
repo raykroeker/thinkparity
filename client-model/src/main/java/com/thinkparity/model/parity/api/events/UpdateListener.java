@@ -9,6 +9,6 @@ package com.thinkparity.model.parity.api.events;
  * @version 1.1
  */
 public interface UpdateListener {
-
+	public void objectDeleted(final DeleteEvent deleteEvent);
 	public void objectUpdated(final UpdateEvent updateEvent);
 }

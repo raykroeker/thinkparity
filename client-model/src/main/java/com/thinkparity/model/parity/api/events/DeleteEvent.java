@@ -1,26 +1,26 @@
 /*
- * Apr 20, 2005
+ * 21-Oct-2005
  */
 package com.thinkparity.model.parity.api.events;
 
 import com.thinkparity.model.parity.api.ParityObject;
 
 /**
- * UpdateEvent
+ * The deletion event is fired whenever a parity object is deleted.
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class UpdateEvent {
+public class DeleteEvent {
 
 	/**
-	 * Source of the update event.
+	 * Source of the deletion event.
 	 */
 	private final ParityObject source;
 
 	/**
-	 * Create a new UpdateEvent
+	 * Create a DeleteEvent.
 	 */
-	public UpdateEvent(final ParityObject source) {
+	public DeleteEvent(final ParityObject source) {
 		super();
 		this.source = source;
 	}

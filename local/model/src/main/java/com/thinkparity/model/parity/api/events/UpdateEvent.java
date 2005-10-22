@@ -15,7 +15,7 @@ public class UpdateEvent {
 	/**
 	 * Source of the update event.
 	 */
-	private ParityObject source;
+	private final ParityObject source;
 
 	/**
 	 * Create a new UpdateEvent
@@ -26,8 +26,9 @@ public class UpdateEvent {
 	}
 
 	/**
-	 * Obtain the value of source.
-	 * @return <code>Object</code>
+	 * Obtain the event source.
+	 * 
+	 * @return The event source.
 	 */
 	public ParityObject getSource() { return source; }
 }

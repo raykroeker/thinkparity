@@ -21,6 +21,7 @@ import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
+import com.thinkparity.model.parity.api.events.DeleteEvent;
 import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
@@ -230,6 +231,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// delete the .document file
 			deleteFile(document.getMetaDataFile());
+			notifyUpdate_objectDeleted(document);
 		}
 		catch(RuntimeException rx) {
 			logger.error("delete(Document)", rx);
@@ -596,6 +598,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Fire the object deleted event for all of the update listeners.
+	 * 
+	 * @param document
+	 *            The document that was deleted.
+	 */
+	private void notifyUpdate_objectDeleted(final Document document) {
+		synchronized(DocumentModelImpl.updateListeners) {
+			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
+				listener.objectDeleted(new DeleteEvent(document));
+			}
+		}
+	}
+
+	/**
 	 * Fire the objectUpdated event for all of the udpate listeners.
 	 * 
 	 * @param document
@@ -604,7 +620,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private void notifyUpdate_objectUpdated(final Document document) {
 		synchronized (DocumentModelImpl.updateListenersLock) {
-			for (UpdateListener listener : DocumentModelImpl.updateListeners) {
+			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
 				listener.objectUpdated(new UpdateEvent(document));
 			}
 		}

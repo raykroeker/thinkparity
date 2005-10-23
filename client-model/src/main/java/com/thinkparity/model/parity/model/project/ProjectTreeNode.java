@@ -3,8 +3,6 @@
  */
 package com.thinkparity.model.parity.model.project;
 
-import java.util.Iterator;
-
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.tree.DataTreeNode;
 
@@ -13,17 +11,11 @@ public class ProjectTreeNode extends DataTreeNode {
 	public ProjectTreeNode(final Project project) {
 		super(project.getId().toString(), NodeType.Project, project
 				.getCustomName(), project.getMetaDataFile());
-		Project childProject;
-		for(Iterator<Project> iChildProjects = project.getProjects();
-			iChildProjects.hasNext();) {
-			childProject = iChildProjects.next();
-			addChild(DataTreeNode.createInstance(childProject));
+		for(Project subProject : project.getProjects()) {
+			addChild(DataTreeNode.createInstance(subProject));
 		}
-		Document childDocument;
-		for(Iterator<Document> iChildDocuments = project.getDocuments().iterator();
-			iChildDocuments.hasNext();) {
-			childDocument = iChildDocuments.next();
-			addChild(DataTreeNode.createInstance(childDocument));
+		for(Document subDocument : project.getDocuments()) {
+			addChild(DataTreeNode.createInstance(subDocument));
 		}
 	}
 }

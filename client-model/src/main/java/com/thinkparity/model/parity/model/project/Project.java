@@ -4,7 +4,12 @@
 package com.thinkparity.model.parity.model.project;
 
 import java.io.File;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.Vector;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
@@ -81,23 +86,28 @@ public class Project extends ParityObject {
 		projects.add(project);
 	}
 
+	public Collection<ParityObject> getChildren() {
+		final Vector<ParityObject> children =
+			new Vector<ParityObject>(getChildCount());
+		children.addAll(projects);
+		children.addAll(documents);
+		return children;
+	}
+
 	/**
 	 * @see com.thinkparity.model.parity.api.ParityObject#getDirectory()
 	 */
 	public File getDirectory() { return directory; }
 
 	/**
-	 * Obtain a list of documents attached to this project. Note that the
-	 * iterator returned is disconnected from the underlying list of documents,
-	 * and removing elements from it will not affect the list.
+	 * Obtain a list of documents for this project.
 	 * 
-	 * @return <code>java.util.Iterator&lt;com.thinkparity.model.parity.api.document.Document&gt;</code>
+	 * @return A list of documents for this project.
 	 */
 	public Collection<Document> getDocuments() {
-		final Collection<Document> newDocuments = new Vector<Document>(
-				documents.size());
-		newDocuments.addAll(documents);
-		return newDocuments;
+		final Collection<Document> copy = new Vector<Document>(documents.size());
+		copy.addAll(documents);
+		return copy;
 	}
 
 	public Collection<Document> getDocuments(
@@ -110,29 +120,36 @@ public class Project extends ParityObject {
 	}
 
 	/**
-	 * Obtain a list of sub-projects attached to this project. Note that this
-	 * iterator is disconnected from the underlying list of projects, and
-	 * removing elements from it will have not affect on the list.
-	 * 
-	 * @return <code>java.util.Iterator&lt;com.thinkparity.model.parity.api.project.Project&gt;</code>
+	 * @see com.thinkparity.model.parity.api.ParityObject#getPath()
 	 */
-	public Iterator<Project> getProjects() {
-		final Collection<Project> newProjects = new Vector<Project>(projects
-				.size());
-		newProjects.addAll(projects);
-		return newProjects.iterator();
+	@Override
+	public StringBuffer getPath() {
+		if(isSetParent()) {
+			return new StringBuffer(getParent().getPath())
+				.append("/")
+				.append(getCustomName());
+		}
+		else { return new StringBuffer(getCustomName()); }
 	}
 
-	public Collection<ParityObject> getChildren() {
-		final Vector<ParityObject> children =
-			new Vector<ParityObject>(getChildCount());
-		children.addAll(projects);
-		children.addAll(documents);
-		return children;
+	/**
+	 * Obtain the child projects.
+	 * 
+	 * @return A list of child projects.
+	 */
+	public Collection<Project> getProjects() {
+		final Collection<Project> copy = new Vector<Project>(projects.size());
+		copy.addAll(projects);
+		return copy;
 	}
 
-	private Integer getChildCount() {
-		return projects.size() + documents.size();
+	/**
+	 * @see com.thinkparity.model.parity.api.ParityObject#getType()
+	 */
+	public ParityObjectType getType() { return ParityObjectType.PROJECT; }
+
+	public Boolean hasChildren() {
+		return (0 < projects.size() || 0 < documents.size());
 	}
 
 	/**
@@ -176,25 +193,7 @@ public class Project extends ParityObject {
 		this.projects.addAll(projects);
 	}
 
-	/**
-	 * @see com.thinkparity.model.parity.api.ParityObject#getType()
-	 */
-	public ParityObjectType getType() { return ParityObjectType.PROJECT; }
-
-	public Boolean hasChildren() {
-		return (0 < projects.size() || 0 < documents.size());
-	}
-
-	/**
-	 * @see com.thinkparity.model.parity.api.ParityObject#getPath()
-	 */
-	@Override
-	public StringBuffer getPath() {
-		if(isSetParent()) {
-			return new StringBuffer(getParent().getPath())
-				.append("/")
-				.append(getCustomName());
-		}
-		else { return new StringBuffer(getCustomName()); }
+	private Integer getChildCount() {
+		return projects.size() + documents.size();
 	}
 }

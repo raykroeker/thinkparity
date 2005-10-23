@@ -17,6 +17,7 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.xml.XmlTranslator;
+
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -148,15 +149,13 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 		writer.endNode();
 	}
 
-	private void writeChildProjects(final Iterator<Project> iChildProjects,
+	private void writeChildProjects(final Collection<Project> subProjects,
 			final HierarchicalStreamWriter writer) {
 		writer.startNode("projects");
-		Project childProject;
-		while(iChildProjects.hasNext()) {
-			childProject = iChildProjects.next();
+		for(Project subProject : subProjects) {
 			writer.startNode("project");
 			writer.addAttribute("meta-data",
-					childProject.getMetaDataFile().getAbsolutePath());
+					subProject.getMetaDataFile().getAbsolutePath());
 			writer.endNode();
 		}
 		writer.endNode();

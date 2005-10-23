@@ -23,6 +23,8 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.project.xml.ProjectXml;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -78,7 +80,9 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	 * @param workspace
 	 *            The workspace reference to use.
 	 */
-	ProjectModelImpl(final Workspace workspace) { super(workspace); }
+	ProjectModelImpl(final Workspace workspace) {
+		super(workspace);
+	}
 
 	/**
 	 * Add a listener for project creation.
@@ -156,6 +160,50 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 			logger.error("create(Project,String,String)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
+	}
+
+	/**
+	 * Delete an existing project. Note that this will delete any sub-projects
+	 * and\or sub-documents in the project without warning.
+	 * 
+	 * @param project
+	 *            The project to delete.
+	 * @throws ParityException
+	 */
+	void delete(final Project project) throws ParityException {
+		logger.info("delete(Project)");
+		logger.debug(project);
+		
+		final DocumentModel documentModel = DocumentModel.getModel();
+		for(Document subDocument : project.getDocuments()) {
+			documentModel.delete(subDocument);
+		}
+		for(Project subProject : project.getProjects()) {
+			delete(subProject);
+		}
+		deleteFile(project.getMetaDataFile());
+		deleteTree(project.getDirectory());
+	}
+
+	/**
+	 * Delete a file.
+	 * 
+	 * @param file
+	 *            The file to delete.
+	 */
+	private void deleteFile(final File file) {
+		Assert.assertTrue("Could not delete file.", file.delete());
+	}
+
+	/**
+	 * Delete a directory tree beneath.
+	 * 
+	 * @param directory
+	 *            The directory below which to delete all files\directories.
+	 */
+	private void deleteTree(final File directory) {
+		logger.warn("deleteTree(File):  " + directory.getAbsolutePath());
+		FileUtil.deleteTree(directory);
 	}
 
 	/**

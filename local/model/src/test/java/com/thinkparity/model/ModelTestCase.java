@@ -86,6 +86,11 @@ public abstract class ModelTestCase extends TestCase {
 		return helper.getJUnitTestFiles();
 	}
 
+	/**
+	 * Obtain the junit test user.
+	 * 
+	 * @return The junit test user.
+	 */
 	protected ModelTestUser getModelTestUser() {
 		return helper.getJUnitTestUser();
 	}

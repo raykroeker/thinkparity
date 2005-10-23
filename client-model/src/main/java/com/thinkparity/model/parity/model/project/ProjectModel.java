@@ -96,6 +96,18 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
+	 * Delete an existing project. Note that this will delete any sub-projects
+	 * and\or sub-documents in the project without warning.
+	 * 
+	 * @param project
+	 *            The project to delete.
+	 * @throws ParityException
+	 */
+	public void delete(final Project project) throws ParityException {
+		synchronized(implLock) { impl.delete(project); }
+	}
+
+	/**
 	 * Obtain a project for a given meta data file.
 	 * 
 	 * @param metaDataFile

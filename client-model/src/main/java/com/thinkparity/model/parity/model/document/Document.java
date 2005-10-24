@@ -171,6 +171,34 @@ public class Document extends ParityObject {
 	}
 
 	/**
+	 * Obtain the document versions, with a set of exclusions.
+	 * 
+	 * @param exclusions
+	 *            The document versions to exclude from the list.
+	 * @return A list of document versions.
+	 */
+	public Collection<DocumentVersion> getVersionsExclude(
+			final Collection<DocumentVersion> exclusions) {
+		final Collection<DocumentVersion> copy = getVersions();
+		if(null == exclusions || 0 == exclusions.size()) { return copy; }
+		else {
+			final Collection<DocumentVersion> modList =
+				new Vector<DocumentVersion>(copy.size() - exclusions.size());
+			Boolean doExclude = Boolean.FALSE;
+			for(DocumentVersion copyVersion : copy) {
+				for(DocumentVersion exclusion : exclusions) {
+					if(copyVersion.getVersion().equals(exclusion.getVersion())) {
+						doExclude = Boolean.TRUE;
+						break;
+					}
+				}
+				if(Boolean.FALSE == doExclude) { modList.add(copyVersion); } 
+			}
+			return modList;
+		}
+	}
+
+	/**
 	 * Obtain the path of the document.
 	 * 
 	 * @return The path of the document.

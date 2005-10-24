@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.Vector;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
@@ -86,11 +87,11 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	 * @param context
 	 *            The output context.
 	 */
-	void marshalForVersion(Object source, HierarchicalStreamWriter writer,
-			MarshallingContext context) {
+	void marshalForVersion(final DocumentVersion version,
+			final Document document, final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
 		logger.info("marshal(Object, HierarchicalStreamWriter)");
-		logger.debug(source);
-		final Document document = (Document) source;
+		logger.debug(document);
 		writeName(document.getName(), writer);
 		writeCreatedBy(document.getCreatedBy(), writer);
 		writeKeyHolder(document, writer);
@@ -100,8 +101,15 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 		writeDirectory(document.getDirectory(), writer);
 		try { writeContent(document, writer); }
 		catch(IOException iox) {
-			fatal((ParityObject) source, "Could not serialize file content.", iox);
+			fatal((ParityObject) document, "Could not serialize file content.", iox);
 		}
+		// get a list of the versions minus the current one
+		final Collection<DocumentVersion> excludeList =
+			new Vector<DocumentVersion>(1);
+		excludeList.add(version);
+		final Collection<DocumentVersion> versions =
+			document.getVersionsExclude(excludeList);
+		writeVersions(versions, writer);
 		writeNotes(document, writer);
 		writeCustomProperties(document, writer);
 	}

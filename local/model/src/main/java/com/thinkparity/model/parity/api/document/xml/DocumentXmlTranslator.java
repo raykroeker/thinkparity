@@ -80,8 +80,10 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	 * Marshal the document for the version translator. This will omit the
 	 * version listings from the writing.
 	 * 
-	 * @param source
-	 *            The source document.
+	 * @param document
+	 *            The document.
+	 * @param version
+	 *            The document version.
 	 * @param writer
 	 *            The output writer.
 	 * @param context

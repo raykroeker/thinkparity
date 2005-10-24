@@ -76,6 +76,37 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 	}
 
 	/**
+	 * Marshal the document for the version translator. This will omit the
+	 * version listings from the writing.
+	 * 
+	 * @param source
+	 *            The source document.
+	 * @param writer
+	 *            The output writer.
+	 * @param context
+	 *            The output context.
+	 */
+	void marshalForVersion(Object source, HierarchicalStreamWriter writer,
+			MarshallingContext context) {
+		logger.info("marshal(Object, HierarchicalStreamWriter)");
+		logger.debug(source);
+		final Document document = (Document) source;
+		writeName(document.getName(), writer);
+		writeCreatedBy(document.getCreatedBy(), writer);
+		writeKeyHolder(document, writer);
+		writeId(document.getId(), writer);
+		writeCreatedOn(document.getCreatedOn(), writer);
+		writeDescription(document.getDescription(), writer);
+		writeDirectory(document.getDirectory(), writer);
+		try { writeContent(document, writer); }
+		catch(IOException iox) {
+			fatal((ParityObject) source, "Could not serialize file content.", iox);
+		}
+		writeNotes(document, writer);
+		writeCustomProperties(document, writer);
+	}
+
+	/**
 	 * @see com.thoughtworks.xstream.converters.Converter#unmarshal(com.thoughtworks.xstream.io.HierarchicalStreamReader, com.thoughtworks.xstream.converters.UnmarshallingContext)
 	 */
 	public Object unmarshal(HierarchicalStreamReader reader,

@@ -69,8 +69,8 @@ public class DocumentVersionXmlTranslator extends ParityXmlTranslator implements
 	private void writeDocument(final DocumentVersion documentVersion,
 			final HierarchicalStreamWriter writer,
 			final MarshallingContext context) {
-		documentXmlTranslator.marshal(documentVersion.getDocument(), writer,
-				context);
+		documentXmlTranslator.marshalForVersion(
+				documentVersion.getDocument(), writer, context);
 	}
 
 	private void writeVersion(final DocumentVersion documentVersion,

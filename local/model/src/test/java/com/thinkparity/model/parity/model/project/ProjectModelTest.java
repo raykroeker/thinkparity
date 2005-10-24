@@ -114,7 +114,7 @@ public class ProjectModelTest extends ModelTestCase {
 		Project project;
 
 		// scenario 1:  simple project
-		name = "Prj.2";
+		name = "Prj.1";
 		description = name;
 		project = projectModel.create(testProject, name, description);
 		deleteData.add(new DeleteData(project, projectModel));
@@ -141,7 +141,7 @@ public class ProjectModelTest extends ModelTestCase {
 		deleteData.add(new DeleteData(project, projectModel));
 
 		// scenario 4:  simple project with sub-documents & sub-projects
-		name = "Prj.3";
+		name = "Prj.4";
 		description = name;
 		project = projectModel.create(testProject, name, description);
 		projectModel.create(project, name + "Sub1", description + "Sub1");

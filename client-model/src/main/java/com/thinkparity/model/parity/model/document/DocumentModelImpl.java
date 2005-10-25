@@ -17,15 +17,15 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.document.xml.DocumentXml;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.DeleteEvent;
 import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
-import com.thinkparity.model.parity.api.project.xml.ProjectXml;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.io.xml.document.DocumentXmlIO;
+import com.thinkparity.model.parity.model.io.xml.project.ProjectXmlIO;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
@@ -288,7 +288,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throws ParityException {
 		logger.info("getDocument(File)");
 		logger.debug(metaDataFile);
-		try { return DocumentXml.readXml(metaDataFile); }
+		try { return DocumentXmlIO.readXml(metaDataFile); }
 		catch(IOException iox) {
 			logger.error("getDocument(File)", iox);
 			throw ParityErrorTranslator.translate(iox);
@@ -439,7 +439,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	private void createMetaData(final Document document) throws IOException {
-		DocumentXml.writeCreationXml(document);
+		DocumentXmlIO.writeCreationXml(document);
 	}
 
 	/**
@@ -669,7 +669,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private void serialize(final Document document) throws IOException {
-		DocumentXml.writeUpdateXml(document);
+		DocumentXmlIO.writeUpdateXml(document);
 	}
 
 	/**
@@ -678,7 +678,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private void serialize(final DocumentVersion version) throws IOException {
-		DocumentXml.serializeXml(version);
+		DocumentXmlIO.serializeXml(version);
 	}
 
 	/**
@@ -689,7 +689,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private void serialize(final Project project) throws IOException {
-		ProjectXml.writeUpdateXml(project);
+		ProjectXmlIO.writeUpdateXml(project);
 	}
 
 	/**

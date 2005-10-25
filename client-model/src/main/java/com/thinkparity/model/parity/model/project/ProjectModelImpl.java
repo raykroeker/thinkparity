@@ -21,10 +21,10 @@ import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
-import com.thinkparity.model.parity.api.project.xml.ProjectXml;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.io.xml.project.ProjectXmlIO;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -219,7 +219,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		logger.debug(metaDataFile);
 		try {
 			if(!metaDataFile.exists()) { return null; }
-			else { return ProjectXml.readXml(metaDataFile); }
+			else { return ProjectXmlIO.readXml(metaDataFile); }
 		}
 		catch(IOException iox) {
 			logger.error("getProject(File)", iox);
@@ -322,7 +322,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	private void createMetaData(final Project project) throws IOException {
-		ProjectXml.writeCreationXml(project);
+		ProjectXmlIO.writeCreationXml(project);
 	}
 
 	private void createMetaDataDirectory(final Project project) {
@@ -377,12 +377,12 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	private void updateMetaData(final Project project) throws IOException {
-		ProjectXml.writeUpdateXml(project);
+		ProjectXmlIO.writeUpdateXml(project);
 	}
 
 	private void updateParentMetaData(final Project parent,
 			final Project project) throws IOException {
 		parent.addProject(project);
-		ProjectXml.writeUpdateXml(parent);
+		ProjectXmlIO.writeUpdateXml(parent);
 	}
 }

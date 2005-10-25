@@ -1,25 +1,26 @@
 /*
  * Feb 20, 2005
  */
-package com.thinkparity.model.parity.api.project.xml;
+package com.thinkparity.model.parity.model.io.xml.project;
 
 import java.io.File;
 import java.io.IOException;
 
+import com.thinkparity.model.parity.model.io.xml.AbstractXmlIO;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.xstream.XStreamUtil;
 
 /**
- * ProjectXml
+ * ProjectXmlIO
  * @author raykroeker@gmail.com
  * @version 1.2
  */
-public class ProjectXml {
+public class ProjectXmlIO extends AbstractXmlIO {
 
 	/**
-	 * Create a ProjectXml [Singleton]
+	 * Create a ProjectXmlIO [Singleton]
 	 */
-	private ProjectXml() { super(); }
+	private ProjectXmlIO() { super(); }
 
 	public static Project readXml(final File projectMetaDataFile)
 			throws IOException {

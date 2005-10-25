@@ -1,21 +1,22 @@
 /*
  * Feb 27, 2005
  */
-package com.thinkparity.model.parity.api.document.xml;
+package com.thinkparity.model.parity.model.io.xml.document;
 
 import java.io.File;
 import java.io.IOException;
 
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.io.xml.AbstractXmlIO;
 import com.thinkparity.model.xstream.XStreamUtil;
 
 /**
- * DocumentXml
+ * DocumentXmlIO
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentXml {
+public class DocumentXmlIO extends AbstractXmlIO {
 
 	public static void deleteXml(final Document document) {
 		XStreamUtil.delete(document);
@@ -52,7 +53,7 @@ public class DocumentXml {
 	}
 
 	/**
-	 * Create a DocumentXml [Singleton]
+	 * Create a DocumentXmlIO [Singleton]
 	 */
-	private DocumentXml() { super(); }
+	private DocumentXmlIO() { super(); }
 }

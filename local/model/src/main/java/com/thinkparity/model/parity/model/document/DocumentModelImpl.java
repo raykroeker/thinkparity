@@ -85,6 +85,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private final ProjectModel projectModel;
 
 	/**
+	 * Document xml input\output.
+	 */
+	private final DocumentXmlIO documentXmlIO;
+
+	/**
+	 * Project xml input\output.
+	 */
+	private final ProjectXmlIO projectXmlIO;
+
+	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -92,6 +102,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	DocumentModelImpl(final Workspace workspace) {
 		super(workspace);
+		this.documentXmlIO = new DocumentXmlIO(workspace);
+		this.projectXmlIO = new ProjectXmlIO(workspace);
 		this.projectModel = ProjectModel.getModel();
 	}
 
@@ -288,7 +300,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throws ParityException {
 		logger.info("getDocument(File)");
 		logger.debug(metaDataFile);
-		try { return DocumentXmlIO.readXml(metaDataFile); }
+		try { return documentXmlIO.readXml(metaDataFile); }
 		catch(IOException iox) {
 			logger.error("getDocument(File)", iox);
 			throw ParityErrorTranslator.translate(iox);
@@ -439,7 +451,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	private void createMetaData(final Document document) throws IOException {
-		DocumentXmlIO.writeCreationXml(document);
+		documentXmlIO.writeCreationXml(document);
 	}
 
 	/**
@@ -669,7 +681,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private void serialize(final Document document) throws IOException {
-		DocumentXmlIO.writeUpdateXml(document);
+		documentXmlIO.writeUpdateXml(document);
 	}
 
 	/**
@@ -678,7 +690,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private void serialize(final DocumentVersion version) throws IOException {
-		DocumentXmlIO.serializeXml(version);
+		documentXmlIO.serializeXml(version);
 	}
 
 	/**
@@ -689,7 +701,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private void serialize(final Project project) throws IOException {
-		ProjectXmlIO.writeUpdateXml(project);
+		projectXmlIO.writeUpdateXml(project);
 	}
 
 	/**

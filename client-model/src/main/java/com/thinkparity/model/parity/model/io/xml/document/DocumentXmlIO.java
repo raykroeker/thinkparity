@@ -9,27 +9,63 @@ import java.io.IOException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xml.AbstractXmlIO;
+import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xstream.XStreamUtil;
 
 /**
  * DocumentXmlIO
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.1
  */
 public class DocumentXmlIO extends AbstractXmlIO {
 
-	public static void deleteXml(final Document document) {
+	/**
+	 * Create a DocumentXmlIO.
+	 * 
+	 * @param workspace
+	 *            The parity workspace to work within.
+	 */
+	public DocumentXmlIO(final Workspace workspace) { super(workspace); }
+
+	/**
+	 * Delete the xml file for the given document.
+	 * 
+	 * @param document
+	 *            The document to delete the xml for.
+	 */
+	public void deleteXml(final Document document) {
+		logger.info("deleteXml(Document)");
+		logger.debug(document);
 		XStreamUtil.delete(document);
 	}
 
-	public static Document readXml(final File documentMetaDataFile)
+	/**
+	 * Read a document from an xml file.
+	 * 
+	 * @param documentMetaDataFile
+	 *            The document xml file.
+	 * @return A document.
+	 * @throws IOException
+	 */
+	public Document readXml(final File documentMetaDataFile)
 			throws IOException {
+		logger.info("readXml(File)");
+		logger.debug(documentMetaDataFile);
 		final Document document = (Document) XStreamUtil.read(documentMetaDataFile);
 		return document;
 	}
 
-	public static void serializeXml(final DocumentVersion version)
+	/**
+	 * Serialize a document version to xml.
+	 * 
+	 * @param version
+	 *            The document version to serialize.
+	 * @throws IOException
+	 */
+	public void serializeXml(final DocumentVersion version)
 			throws IOException {
+		logger.info("serializeXml(DocumentVersion)");
+		logger.debug(version);
 		final File parentDirectory =
 			version.getDocument().getMetaDataDirectory();
 		final File documentVersionXmlFile =
@@ -39,21 +75,34 @@ public class DocumentXmlIO extends AbstractXmlIO {
 		XStreamUtil.write(parentDirectory, version);
 	}
 
-	public static void writeCreationXml(final Document document)
+	/**
+	 * Write creation xml for the given document.
+	 * 
+	 * @param document
+	 *            The document to write the xml for.
+	 * @throws IOException
+	 */
+	public void writeCreationXml(final Document document)
 			throws IOException {
+		logger.info("writeCreationXml(Document)");
+		logger.debug(document);
 		XStreamUtil.write(document);
 	}
 
-	public static void writeUpdateXml(final Document document)
+	/**
+	 * Write update xml for the given document.
+	 * 
+	 * @param document
+	 *            The document to write the xml for.
+	 * @throws IOException
+	 */
+	public void writeUpdateXml(final Document document)
 			throws IOException {
+		logger.info("writeUpdateXml(Document)");
+		logger.debug(document);
 		final boolean didDelete = XStreamUtil.delete(document);
 		if(false == didDelete)
 			throw new IOException("Could not delete document xml.");
 		XStreamUtil.write(document);
 	}
-
-	/**
-	 * Create a DocumentXmlIO [Singleton]
-	 */
-	private DocumentXmlIO() { super(); }
 }

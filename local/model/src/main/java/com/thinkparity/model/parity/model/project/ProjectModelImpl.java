@@ -75,6 +75,11 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	/**
+	 * Project xml input\output;
+	 */
+	private final ProjectXmlIO projectXmlIO;
+
+	/**
 	 * Create a ProjectModelImpl.
 	 * 
 	 * @param workspace
@@ -82,6 +87,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	 */
 	ProjectModelImpl(final Workspace workspace) {
 		super(workspace);
+		this.projectXmlIO = new ProjectXmlIO(workspace);
 	}
 
 	/**
@@ -219,7 +225,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		logger.debug(metaDataFile);
 		try {
 			if(!metaDataFile.exists()) { return null; }
-			else { return ProjectXmlIO.readXml(metaDataFile); }
+			else { return projectXmlIO.readXml(metaDataFile); }
 		}
 		catch(IOException iox) {
 			logger.error("getProject(File)", iox);
@@ -322,7 +328,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	private void createMetaData(final Project project) throws IOException {
-		ProjectXmlIO.writeCreationXml(project);
+		projectXmlIO.writeCreationXml(project);
 	}
 
 	private void createMetaDataDirectory(final Project project) {
@@ -377,12 +383,12 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	}
 
 	private void updateMetaData(final Project project) throws IOException {
-		ProjectXmlIO.writeUpdateXml(project);
+		projectXmlIO.writeUpdateXml(project);
 	}
 
 	private void updateParentMetaData(final Project parent,
 			final Project project) throws IOException {
 		parent.addProject(project);
-		ProjectXmlIO.writeUpdateXml(parent);
+		projectXmlIO.writeUpdateXml(parent);
 	}
 }

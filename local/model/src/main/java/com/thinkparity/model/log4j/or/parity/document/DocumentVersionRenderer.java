@@ -6,7 +6,7 @@ package com.thinkparity.model.log4j.or.parity.document;
 import org.apache.log4j.or.ObjectRenderer;
 
 import com.thinkparity.model.log4j.or.IRendererConstants;
-import com.thinkparity.model.parity.api.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 
 /**
  * Write the document version object to the apache log.

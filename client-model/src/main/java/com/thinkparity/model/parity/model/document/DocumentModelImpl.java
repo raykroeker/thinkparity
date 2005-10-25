@@ -17,7 +17,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentXml;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;

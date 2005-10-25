@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.io.FileFilter;
 
-import com.thinkparity.model.parity.api.document.DocumentVersion;
 
 /**
  * DocumentVersionBuilder

@@ -1,12 +1,11 @@
 /*
  * Apr 16, 2005
  */
-package com.thinkparity.model.parity.api.document;
+package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 
 import com.thinkparity.model.parity.api.ParityObjectVersion;
-import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * DocumentVersion

@@ -13,7 +13,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
-import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
 

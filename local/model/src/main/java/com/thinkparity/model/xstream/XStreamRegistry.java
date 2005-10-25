@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.xstream;
 
-import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.api.document.xml.DocumentVersionXmlTranslator;
 import com.thinkparity.model.parity.api.document.xml.DocumentXmlTranslator;
 import com.thinkparity.model.parity.api.project.xml.ProjectXmlTranslator;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;

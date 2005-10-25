@@ -18,8 +18,8 @@ import com.thinkparity.codebase.CompressionUtil.Level;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityXmlTranslator;
-import com.thinkparity.model.parity.api.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.util.Base64;
 import com.thinkparity.model.parity.xml.XmlTranslator;
 import com.thinkparity.model.xstream.XStreamUtil;

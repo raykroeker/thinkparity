@@ -40,6 +40,18 @@ public class DocumentXmlIO extends AbstractXmlIO {
 	}
 
 	/**
+	 * Obtain the xml file to use with the given document.
+	 * 
+	 * @param document
+	 *            The document for which the xml file will be used.
+	 * @return The xml file.
+	 * @see AbstractXmlIO#getXmlFile(ParityObject)
+	 */
+	public File getXmlFile(final Document document) {
+		return super.getXmlFile(document);
+	}
+
+	/**
 	 * Read a document from an xml file.
 	 * 
 	 * @param documentMetaDataFile

@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.io.xml.project;
 import java.io.File;
 import java.io.IOException;
 
+import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.io.xml.AbstractXmlIO;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -25,6 +26,18 @@ public class ProjectXmlIO extends AbstractXmlIO {
 	 *            The parity workspace to use.
 	 */
 	public ProjectXmlIO(final Workspace workspace) { super(workspace); }
+
+	/**
+	 * Build an xml file reference for the project.
+	 * 
+	 * @param project
+	 *            The project to build the xml file for.
+	 * @return The xml file reference.
+	 * @see AbstractXmlIO#getXmlFile(ParityObject)
+	 */
+	public File getXmlFile(final Project project) {
+		return super.getXmlFile(project);
+	}
 
 	/**
 	 * Read a project from a given xml file.

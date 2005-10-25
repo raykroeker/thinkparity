@@ -44,7 +44,7 @@ public class Project extends ParityObject {
 	public Project(final Project parent, final String name, final Calendar createdOn,
 			final String createdBy, final String keyHolder,
 			final String description, final File directory, final UUID id) {
-		super(parent, name, description, createdOn, createdBy, keyHolder, id);
+		super(parent, name, description, createdOn, createdBy, id);
 		this.directory = directory;
 		// sub-projects documents and contacts are set in the project
 		// via the addXXX\setXXX apis.
@@ -58,7 +58,7 @@ public class Project extends ParityObject {
 	public Project(final String name, final Calendar createdOn,
 			final String createdBy, final String keyHolder,
 			final String description, final File directory, final UUID id) {
-		super(null, name, description, createdOn, createdBy, keyHolder, id);
+		super(null, name, description, createdOn, createdBy, id);
 		this.directory = directory;
 		// sub-projects documents and contacts are set in the project
 		// via the addXXX\setXXX apis.

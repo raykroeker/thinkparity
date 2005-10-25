@@ -62,7 +62,6 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 		final Document document = (Document) source;
 		writeName(document.getName(), writer);
 		writeCreatedBy(document.getCreatedBy(), writer);
-		writeKeyHolder(document, writer);
 		writeId(document.getId(), writer);
 		writeCreatedOn(document.getCreatedOn(), writer);
 		writeDescription(document.getDescription(), writer);
@@ -96,7 +95,6 @@ public class DocumentXmlTranslator extends ParityXmlTranslator implements
 		logger.debug(document);
 		writeName(document.getName(), writer);
 		writeCreatedBy(document.getCreatedBy(), writer);
-		writeKeyHolder(document, writer);
 		writeId(document.getId(), writer);
 		writeCreatedOn(document.getCreatedOn(), writer);
 		writeDescription(document.getDescription(), writer);

@@ -458,10 +458,6 @@ public abstract class ParityXmlTranslator {
 		writer.setValue(uuid.toString());
 		writer.endNode();											// </id>
 	}
-	protected final void writeKeyHolder(final ParityObject parityObject,
-			final HierarchicalStreamWriter writer) {
-		writer.addAttribute("keyHolder", parityObject.getKeyHolder());
-	}
 
 	/**
 	 * Write the name of a parity object. The name is required for all parity

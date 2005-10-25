@@ -46,39 +46,6 @@ public class Document extends ParityObject {
 	/**
 	 * Create a Document.
 	 * 
-	 * @param parent
-	 *            The parent project.
-	 * @param name
-	 *            The document name.
-	 * @param createdOn
-	 *            The document creation date.
-	 * @param createdBy
-	 *            The document creator.
-	 * @param keyHolder
-	 *            The document keyholder.
-	 * @param description
-	 *            The document description.
-	 * @param directory
-	 *            The document directory.
-	 * @param id
-	 *            The document id.
-	 * @param content
-	 *            The document content.
-	 */
-	public Document(final Project parent, final String name,
-			final Calendar createdOn, final String createdBy,
-			final String keyHolder, final String description,
-			final File directory, final UUID id, final byte[] content) {
-		super(parent, name, description, createdOn, createdBy, keyHolder, id);
-		this.directory = directory;
-		this.content = content;
-		this.contentChecksum = MD5Util.md5Hex(content);
-		this.versions = new Vector<DocumentVersion>(1);
-	}
-
-	/**
-	 * Create a Document.
-	 * 
 	 * @param name
 	 *            The document name.
 	 * @param createdOn
@@ -103,11 +70,44 @@ public class Document extends ParityObject {
 			final String keyHolder, final String description,
 			final File directory, final UUID id, final byte[] content,
 			final String contentChecksum) {
-		super(null, name, description, createdOn, createdBy, keyHolder, id);
+		super(null, name, description, createdOn, createdBy, id);
 		this.directory = directory;
 		this.content = content;
 		this.contentChecksum = contentChecksum;
 		this.versions = new Vector<DocumentVersion>(3);
+	}
+
+	/**
+	 * Create a Document.
+	 * 
+	 * @param parent
+	 *            The parent project.
+	 * @param name
+	 *            The document name.
+	 * @param createdOn
+	 *            The document creation date.
+	 * @param createdBy
+	 *            The document creator.
+	 * @param keyHolder
+	 *            The document keyholder.
+	 * @param description
+	 *            The document description.
+	 * @param directory
+	 *            The document directory.
+	 * @param id
+	 *            The document id.
+	 * @param content
+	 *            The document content.
+	 */
+	Document(final Project parent, final String name,
+			final Calendar createdOn, final String createdBy,
+			final String keyHolder, final String description,
+			final File directory, final UUID id, final byte[] content) {
+		super(parent, name, description, createdOn, createdBy, id);
+		this.directory = directory;
+		this.content = content;
+		this.contentChecksum = MD5Util.md5Hex(content);
+		this.versions = new Vector<DocumentVersion>(1);
 	}
 
 	/**
@@ -158,6 +158,25 @@ public class Document extends ParityObject {
 	}
 
 	/**
+	 * Obtain the path of the document.
+	 * 
+	 * @return The path of the document.
+	 * @see com.thinkparity.model.parity.api.ParityObject#getPath()
+	 */
+	public StringBuffer getPath() {
+		return getParent().getPath().append("/").append(getCustomName());
+	}
+
+	/**
+	 * Obtain the type of parity object.
+	 * 
+	 * @return The type of parity object.
+	 * @see ParityObject#getType()
+	 * @see ParityObjectType#DOCUMENT
+	 */
+	public ParityObjectType getType() { return ParityObjectType.DOCUMENT; }
+
+	/**
 	 * Obtain a copy of the document versions.
 	 * 
 	 * @return The list of document versions.
@@ -196,25 +215,6 @@ public class Document extends ParityObject {
 			return modList;
 		}
 	}
-
-	/**
-	 * Obtain the path of the document.
-	 * 
-	 * @return The path of the document.
-	 * @see com.thinkparity.model.parity.api.ParityObject#getPath()
-	 */
-	public StringBuffer getPath() {
-		return getParent().getPath().append("/").append(getCustomName());
-	}
-
-	/**
-	 * Obtain the type of parity object.
-	 * 
-	 * @return The type of parity object.
-	 * @see ParityObject#getType()
-	 * @see ParityObjectType#DOCUMENT
-	 */
-	public ParityObjectType getType() { return ParityObjectType.DOCUMENT; }
 
 	/**
 	 * Remove a version from this document.

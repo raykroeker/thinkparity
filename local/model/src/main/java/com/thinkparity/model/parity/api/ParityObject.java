@@ -49,12 +49,6 @@ public abstract class ParityObject implements IParityConstants {
 	private UUID id;
 
 	/**
-	 * The parity username of the person in possetion of the key for this
-	 * parity object.
-	 */
-	private String keyHolder;
-
-	/**
 	 * The name of the parity object.
 	 */
 	private String name;
@@ -72,16 +66,15 @@ public abstract class ParityObject implements IParityConstants {
 	/**
 	 * Create a ParityObject
 	 */
-	protected ParityObject(final Project parent, final String name, final String description,
-			final Calendar createdOn, final String createdBy,
-			final String keyHolder, final UUID id) {
+	protected ParityObject(final Project parent, final String name,
+			final String description, final Calendar createdOn,
+			final String createdBy, final UUID id) {
 		super();
 		this.parent = parent;
 		this.name = name;
 		this.description = description;
 		this.createdOn = createdOn;
 		this.createdBy = createdBy;
-		this.keyHolder = keyHolder;
 		this.notes = new Vector<Note>(7);
 		this.customProperties = new Properties(createDefaultCustomProperties(name, description));
 		this.id = id;
@@ -157,12 +150,6 @@ public abstract class ParityObject implements IParityConstants {
 	 * @return <code>UUID</code>
 	 */
 	public UUID getId() { return id; }
-
-	/**
-	 * Obtain keyHolder.
-	 * @return <code>String</code>
-	 */
-	public String getKeyHolder() { return keyHolder; }
 
 	/**
 	 * Obtain the File identifing the directory within which the meta-data for

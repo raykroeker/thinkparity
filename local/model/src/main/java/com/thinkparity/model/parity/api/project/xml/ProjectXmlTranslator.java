@@ -62,7 +62,6 @@ public class ProjectXmlTranslator extends ParityXmlTranslator implements XmlTran
 		final Project project = (Project) source;
 		writeName(project.getName(), writer);
 		writeCreatedBy(project.getCreatedBy(), writer);
-		writeKeyHolder(project, writer);
 		writeId(project.getId(), writer);
 		writeCreatedOn(project.getCreatedOn(), writer);
 		writeDescription(project.getDescription(), writer);

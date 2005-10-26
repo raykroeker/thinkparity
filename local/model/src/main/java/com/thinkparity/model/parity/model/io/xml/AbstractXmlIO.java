@@ -4,15 +4,11 @@
 package com.thinkparity.model.parity.model.io.xml;
 
 import java.io.File;
-import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.IParityConstants;
-import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -37,78 +33,70 @@ public abstract class AbstractXmlIO {
 	private final Workspace workspace;
 
 	/**
+	 * Used to build xml file paths for parity objects.
+	 */
+	private final XmlPathBuilder xmlPathBuilder;
+
+	/**
 	 * Create a AbstractXmlIO.
 	 */
 	protected AbstractXmlIO(final Workspace workspace) {
 		super();
 		this.workspace = workspace;
+		this.xmlPathBuilder = new XmlPathBuilder(workspace);
 	}
 
 	/**
-	 * Build an xml file for a parity object.
+	 * Obtain the xml file for the given document.
 	 * 
-	 * @param parityObject
-	 *            The parity object to build the xml file for.
+	 * @param document
+	 *            The document to obtain the xml file for.
 	 * @return The xml file.
-	 * @see AbstractXmlIO#getXmlFileChild(ParityObject)
-	 * @see AbstractXmlIO#getXmlFileParent(ParityObject)
 	 */
-	protected File getXmlFile(final ParityObject parityObject) {
-		logger.info("buildXmlFile(ParityObject)");
-		logger.debug(parityObject);
-		final String child = getXmlFileChild(parityObject);
-		logger.debug(child);
-		final String parent = getXmlFileParent(parityObject);
-		logger.debug(parent);
-		return new File(parent, child);
+	protected File getXmlFile(final Document document) {
+		logger.info("getXmlFile(Document)");
+		logger.debug(document);
+		return xmlPathBuilder.getXmlFile(document);
 	}
 
 	/**
-	 * Build the child portion(name) of an xml file for a given parity object.
+	 * Obtain the xml file for the given project.
 	 * 
-	 * @param parityObject
-	 *            The parity object to build the child portion(name) of the xml
-	 *            file for.
-	 * @return The child portion(name) of an xml file.
-	 * @see AbstractXmlIO#getXmlFile(ParityObject)
-	 * @see AbstractXmlIO#getXmlFileParent(ParityObject)
+	 * @param project
+	 *            The project to obtain the xml file for.
+	 * @return The xml file.
 	 */
-	private String getXmlFileChild(final ParityObject parityObject) {
-		return new StringBuffer(parityObject.getName())
-			.append(".")
-			.append(parityObject.getClass().getSimpleName().toLowerCase())
-			.toString();
+	protected File getXmlFile(final Project project) {
+		logger.info("getXmlFile(Project)");
+		logger.debug(project);
+		return xmlPathBuilder.getXmlFile(project);
 	}
 
 	/**
-	 * Build the parent portion(path) of an xml file for a given parity object.
+	 * Obtain the directory of the xml file for the document.
 	 * 
-	 * @param parityObject
-	 *            The parity object to build the parent portion(path) of the xml
-	 *            file for.
-	 * @return The parent portion(path) of an xml file.
-	 * @see AbstractXmlIO#getXmlFile(ParityObject)
-	 * @see AbstractXmlIO#getXmlFileChild(ParityObject)
+	 * @param document
+	 *            The document to obtain the directory for.
+	 * @return The directory of the document's xml file.
 	 */
-	private String getXmlFileParent(final ParityObject parityObject) {
-		final Stack<ParityObject> parentStack = new Stack<ParityObject>();
-		ParityObject parityObjectParent = parityObject.getParent();
-		while(null != parityObjectParent) {
-			Assert.assertTrue(
-					"getXmlFile(ParityObject)",
-					parityObjectParent instanceof Project);
-			parentStack.push(parityObjectParent);
-			parityObjectParent = parityObjectParent.getParent();
-		}
-		final StringBuffer path = new StringBuffer()
-			.append(workspace.getDataURL().getFile());
-		parentStack.pop();	// the root project doesn't exist in the path
-		while(!parentStack.isEmpty()) {
-			path.append(File.separatorChar)
-				.append(parentStack.pop().getName());
-		}
-		return path.append(File.separatorChar)
-			.append(IParityConstants.META_DATA_DIRECTORY_NAME)		
-			.toString();
+	File getXmlFileDirectory(final Document document) {
+		logger.info("getXmlFileDirectory(Document)");
+		logger.debug(document);
+		return xmlPathBuilder.getXmlFileDirectory(document);
 	}
+
+	/**
+	 * Obtain the directory of the xml file for the project.
+	 * 
+	 * @param project
+	 *            The project to obtain the xml file directory for.
+	 * @return The directory of the project xml file.
+	 */
+	File getXmlFileDirectory(final Project project) {
+		logger.info("getXmlFileDirectory(Project)");
+		logger.debug(project);
+		return xmlPathBuilder.getXmlFileDirectory(project);
+	}
+
+	
 }

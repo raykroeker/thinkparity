@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.project;
 
+import java.util.Collection;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
@@ -106,21 +108,6 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain a project for a given meta data file.
-	 * 
-	 * @param name
-	 *            The project's name.
-	 * @param parent
-	 *            The project's parent project.
-	 * @return The project; or null if the project cannot be found.
-	 * @throws ParityException
-	 */
-	public Project getProject(final String name, final Project parent)
-			throws ParityException {
-		synchronized(implLock) { return impl.getProject(name, parent); }
-	}
-
-	/**
 	 * Obtain the root project.
 	 * 
 	 * @return The root project.
@@ -128,6 +115,29 @@ public class ProjectModel extends AbstractModel {
 	 */
 	public Project getRootProject() throws ParityException {
 		synchronized(implLock) { return impl.getRootProject(); }
+	}
+
+	/**
+	 * Obtain a list of the root projects.
+	 * 
+	 * @return A list of the root projects.
+	 * @throws ParityException
+	 */
+	public Collection<Project> list() throws ParityException {
+		synchronized(implLock) { return impl.list(); }
+	}
+
+	/**
+	 * Obtain a list of projects for a given parent project.
+	 * 
+	 * @param parent
+	 *            A parent project.
+	 * @return A list of the parent's child projects
+	 * @throws ParityException
+	 */
+	public Collection<Project> list(final Project parent)
+			throws ParityException {
+		synchronized(implLock) { return impl.list(parent); }
 	}
 
 	/**

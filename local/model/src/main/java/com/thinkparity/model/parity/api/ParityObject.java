@@ -11,7 +11,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.IParityConstants;
+import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -20,7 +20,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class ParityObject implements IParityConstants {
+public abstract class ParityObject implements IParityModelConstants {
 
 	/**
 	 * The parity username of the person who created the parity object.

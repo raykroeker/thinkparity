@@ -14,6 +14,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationEvent;
@@ -556,9 +557,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private File getCacheDirectory(final Document document) {
 		logger.debug(document);
-		// TODO:  BIG HACK.  Separate cache from the xml data
 		final File dataDirectory = new File(workspace.getDataURL().getFile());
-		final File cacheDirectory = new File(dataDirectory, document.getId().toString());
+		final File cacheDirectory = new File(
+				dataDirectory,
+				IParityModelConstants.DIRECTORY_NAME_CACHE_DATA);
+		if(!cacheDirectory.exists())
+			Assert.assertTrue("", cacheDirectory.mkdir());
 		logger.debug(cacheDirectory);
 		if(!cacheDirectory.exists())
 			Assert.assertTrue("getCacheDirectory(Document)", cacheDirectory.mkdir());

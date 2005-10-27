@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.IParityConstants;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -45,12 +44,15 @@ public class XmlIOPathBuilder {
 	}
 
 	/**
-	 * Obtain the root directory of all of the xml files\directories.
+	 * Obtain the root directory of all of the xml files\directories. The root
+	 * xml data directory is beneath the parity browser's data directory.
 	 * 
 	 * @return The data directory of the parity workspace.
 	 */
 	File getRootXmlDirectory() {
-		return new File(workspace.getDataURL().getFile());
+		return new File(
+				workspace.getDataURL().getFile(),
+				IXmlIOConstants.DIRECTORY_NAME_XML_DATA);
 	}
 
 	/**
@@ -196,9 +198,7 @@ public class XmlIOPathBuilder {
 		default:
 			Assert.assertUnreachable("getParent(ParityObject)");
 		}
-		return parent.append(File.separatorChar)
-			.append(IParityConstants.META_DATA_DIRECTORY_NAME)
-			.toString();
+		return parent.toString();
 	}
 
 	/**
@@ -226,7 +226,6 @@ public class XmlIOPathBuilder {
 		return new StringBuffer(document.getName())
 			.append(".")
 			.append(version.getVersion())
-			.append(".")
 			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION)
 			.toString();
 	}

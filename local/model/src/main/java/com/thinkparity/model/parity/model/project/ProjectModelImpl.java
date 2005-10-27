@@ -13,7 +13,7 @@ import java.util.Vector;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.IParityConstants;
+import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationEvent;
@@ -186,32 +186,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a project for a given meta data file.
-	 * 
-	 * @param name
-	 *            The project's name.
-	 * @param parent
-	 *            The project's parent project.
-	 * @return The project; or null if the project cannot be found.
-	 * @throws ParityException
-	 */
-	Project getProject(final String name, final Project parent)
-			throws ParityException {
-		logger.info("getProject(String,Project)");
-		logger.debug(name);
-		logger.debug(parent);
-		try { return projectXmlIO.get(name, parent); }
-		catch(IOException iox) {
-			logger.error("getProject(String,Project)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
-			logger.error("getProject(String,Project)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
 	 * Obtain the root project.
 	 * 
 	 * @return The root project.
@@ -232,6 +206,47 @@ class ProjectModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("getRootProject()", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Obtain a list of the root projects.
+	 * 
+	 * @return A list of the root projects.
+	 * @throws ParityException
+	 */
+	Collection<Project> list() throws ParityException {
+		logger.info("list()");
+		try { return projectXmlIO.list(); }
+		catch(IOException iox) {
+			logger.error("list()", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("list()", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Obtain a list of projects for a given parent project.
+	 * 
+	 * @param parent
+	 *            A parent project.
+	 * @return A list of the parent's child projects
+	 * @throws ParityException
+	 */
+	Collection<Project> list(final Project parent) throws ParityException {
+		logger.info("list(Project)");
+		logger.debug(parent);
+		try { return projectXmlIO.list(parent); }
+		catch(IOException iox) {
+			logger.error("list(Project)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("list(Project)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -307,10 +322,10 @@ class ProjectModelImpl extends AbstractModelImpl {
 		final Preferences preferences = workspace.getPreferences();
 		final String systemUsername = preferences.getSystemUsername();
 		final UUID rootProjectId = UUIDGenerator.nextUUID();
-		final Project root = new Project(IParityConstants.ROOT_PROJECT_NAME,
+		final Project root = new Project(IParityModelConstants.ROOT_PROJECT_NAME,
 				DateUtil.getInstance(), systemUsername,
-				IParityConstants.ROOT_PROJECT_DESCRIPTION, rootProjectId);
-		root.setCustomName(IParityConstants.ROOT_PROJECT_CUSTOM_NAME);
+				IParityModelConstants.ROOT_PROJECT_DESCRIPTION, rootProjectId);
+		root.setCustomName(IParityModelConstants.ROOT_PROJECT_CUSTOM_NAME);
 		projectXmlIO.create(root);
 		notifyCreation(root);
 	}

@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.document.Document;
@@ -52,7 +53,11 @@ public abstract class XmlIO {
 	 * @return The root of the xml storage.
 	 */
 	protected File getRootXmlDirectory() {
-		return xmlPathBuilder.getRootXmlDirectory();
+		final File rootXmlDirectory = xmlPathBuilder.getRootXmlDirectory();
+		if(!rootXmlDirectory.exists()) {
+			Assert.assertTrue("getRootXmlDirectory()", rootXmlDirectory.mkdir());
+		}
+		return rootXmlDirectory;
 	}
 
 	/**

@@ -140,7 +140,7 @@ public class DocumentXmlIO extends XmlIO {
 		logger.info("get(Project)");
 		logger.debug(project);
 		final File xmlFileDirectory = getXmlFileDirectory(project);
-		final File[] xmlFiles = getDocumentXmlFiles(xmlFileDirectory);
+		final File[] xmlFiles = getXmlFiles(xmlFileDirectory);
 		final Collection<Document> documents = new Vector<Document>(xmlFiles.length);
 		for(File xmlFile : xmlFiles) {
 			documents.add(fromXml(xmlFile));
@@ -221,7 +221,7 @@ public class DocumentXmlIO extends XmlIO {
 	 *            The xml file directory.
 	 * @return A list of files representing document xml files.
 	 */
-	private File[] getDocumentXmlFiles(final File xmlFileDirectory) {
+	private File[] getXmlFiles(final File xmlFileDirectory) {
 		return xmlFileDirectory.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				if(name.endsWith(IXmlIOConstants.FILE_EXTENSION_DOCUMENT)) {

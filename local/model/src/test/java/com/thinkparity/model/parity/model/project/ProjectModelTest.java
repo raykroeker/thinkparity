@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.project;
 
+import java.util.Collection;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -39,10 +40,22 @@ public class ProjectModelTest extends ModelTestCase {
 			this.projectModel = projectModel;
 		}
 	}
+	
+	private class ListData {
+		private final Collection<Project> expectedProjects;
+		private final Project parent;
+		private final ProjectModel projectModel;
+		private ListData(final Collection<Project> expectedProjects,
+				final Project parent, final ProjectModel projectModel) {
+			this.expectedProjects = expectedProjects;
+			this.parent = parent;
+			this.projectModel = projectModel;
+		}
+	}
 
 	private Vector<CreateData> createData;
-
 	private Vector<DeleteData> deleteData;
+	private Vector<ListData> listData;
 
 	/**
 	 * Create a ProjectModelTest
@@ -57,7 +70,6 @@ public class ProjectModelTest extends ModelTestCase {
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
-
 	public void testDelete() {
 		try {
 			for(DeleteData data : deleteData) {
@@ -75,6 +87,25 @@ public class ProjectModelTest extends ModelTestCase {
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
 
+	public void testList() {
+		try {
+			Collection<Project> projectList;
+			for(ListData data : listData) {
+				if(null == data.parent) {
+					projectList = data.projectModel.list();
+				}
+				else {
+					projectList = data.projectModel.list(data.parent);
+				}
+				ProjectModelTest.assertNotNull(projectList);
+				ProjectModelTest.assertEquals(
+						data.expectedProjects.size(),
+						projectList.size());
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
@@ -82,6 +113,7 @@ public class ProjectModelTest extends ModelTestCase {
 		super.setUp();
 		setUpCreate();
 		setUpDelete();
+		setUpList();
 	}
 
 	/**
@@ -154,6 +186,30 @@ public class ProjectModelTest extends ModelTestCase {
 		deleteData.add(new DeleteData(project, projectModel));
 	}
 
+	protected void setUpList() throws Exception {
+		listData = new Vector<ListData>(4);
+		final Project testProject = createTestProject("testList");
+		final ProjectModel projectModel = getProjectModel();
+		Collection<Project> expectedProjectList;
+		String name, description;
+
+		expectedProjectList = new Vector<Project>(1);
+		expectedProjectList.add(projectModel.getRootProject());
+		listData.add(new ListData(expectedProjectList, null, projectModel));
+
+		expectedProjectList = new Vector<Project>(3);
+		name = "p.0";
+		description = "Project:  " + name;
+		expectedProjectList.add(projectModel.create(testProject, name, description));
+		name = "p.1";
+		description = "Project:  " + name;
+		expectedProjectList.add(projectModel.create(testProject, name, description));
+		name = "p.2";
+		description = "Project:  " + name;
+		expectedProjectList.add(projectModel.create(testProject, name, description));
+		listData.add(new ListData(expectedProjectList, testProject, projectModel));
+	}
+
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#tearDown()
 	 */
@@ -161,6 +217,7 @@ public class ProjectModelTest extends ModelTestCase {
 		super.tearDown();
 		tearDownCreate();
 		tearDownDelete();
+		tearDownList();
 	}
 
 	/**
@@ -181,5 +238,10 @@ public class ProjectModelTest extends ModelTestCase {
 	protected void tearDownDelete() throws Exception {
 		deleteData.clear();
 		deleteData = null;
+	}
+
+	protected void tearDownList() throws Exception {
+		listData.clear();
+		listData = null;
 	}
 }

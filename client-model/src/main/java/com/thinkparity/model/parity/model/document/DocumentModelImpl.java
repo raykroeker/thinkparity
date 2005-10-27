@@ -309,27 +309,47 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a document of a given name for a given parent project.
+	 * Obtain a list of documents for a project.
 	 * 
-	 * @param name
-	 *            The name of the document.
-	 * @param parent
-	 *            The parent project.
-	 * @return The document; or null if the document cannot be found.
+	 * @param project
+	 *            The project which contains the documents.
+	 * @return A list of documents for a project.
 	 * @throws ParityException
 	 */
-	Document getDocument(final String name, final Project parent)
+	Collection<Document> list(final Project project)
 			throws ParityException {
-		logger.info("getDocument(String,Project)");
-		logger.debug(name);
-		logger.debug(parent);
-		try { return documentXmlIO.get(name, parent); }
+		logger.info("list(Project)");
+		logger.debug(project);
+		try { return documentXmlIO.list(project); }
 		catch(IOException iox) {
-			logger.error("getDocument(File)", iox);
+			logger.error("list(Project)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("getDocument(String,Project)", rx);
+			logger.error("list(Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Obtain a list of document versions for a document.
+	 * 
+	 * @param document
+	 *            The document which contains the versions.
+	 * @return The list of document versions.
+	 * @throws ParityException
+	 */
+	Collection<DocumentVersion> listVersions(final Document document)
+			throws ParityException {
+		logger.info("listVersions(Document)");
+		logger.debug(document);
+		try { return documentXmlIO.listVersions(document); }
+		catch(IOException iox) {
+			logger.error("listVersions(Document)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("listVersions(Document)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

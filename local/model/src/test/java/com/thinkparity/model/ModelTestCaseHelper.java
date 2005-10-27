@@ -170,6 +170,15 @@ public class ModelTestCaseHelper {
 	}
 
 	/**
+	 * Obtain the number of jUnit test files.
+	 * 
+	 * @return The number of jUnit test files.
+	 */
+	Integer getJUnitTestFilesSize(){
+		return ModelTestCaseHelper.jUnitTestFiles.size();
+	}
+
+	/**
 	 * Get the test user.
 	 * 
 	 * @return The model test user.

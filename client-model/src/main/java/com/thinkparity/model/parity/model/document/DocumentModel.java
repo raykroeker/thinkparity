@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
+import java.util.Collection;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -132,9 +133,30 @@ public class DocumentModel {
 		synchronized(implLock) { impl.export(document, file); }
 	}
 
-	public Document getDocument(final String name, final Project parent)
+	/**
+	 * Obtain a list of documents for a project.
+	 * 
+	 * @param project
+	 *            The project which contains the documents.
+	 * @return A list of documents for a project.
+	 * @throws ParityException
+	 */
+	public Collection<Document> list(final Project project)
 			throws ParityException {
-		synchronized(implLock) { return impl.getDocument(name, parent); }
+		synchronized(implLock) { return impl.list(project); }
+	}
+
+	/**
+	 * Obtain a list of document versions for a document.
+	 * 
+	 * @param document
+	 *            The document which contains the versions.
+	 * @return The list of document versions.
+	 * @throws ParityException
+	 */
+	public Collection<DocumentVersion> listVersions(final Document document)
+			throws ParityException {
+		synchronized(implLock) { return impl.listVersions(document); }
 	}
 
 	/**

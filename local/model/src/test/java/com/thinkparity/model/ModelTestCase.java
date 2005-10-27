@@ -88,6 +88,15 @@ public abstract class ModelTestCase extends TestCase {
 	}
 
 	/**
+	 * Obtain the number of jUnit test files.
+	 * 
+	 * @return The number of jUnit test files.
+	 */
+	protected Integer getJUnitTestFilesSize() {
+		return helper.getJUnitTestFilesSize();
+	}
+
+	/**
 	 * Obtain the junit test user.
 	 * 
 	 * @return The junit test user.

@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -12,6 +13,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * DocumentModelTest
@@ -91,6 +93,33 @@ public class DocumentModelTest extends ModelTestCase {
 	}
 
 	/**
+	 * Test data definition for list.
+	 */
+	private class ListData {
+		private final DocumentModel documentModel;
+		private final Collection<Document> expectedDocumentList;
+		private final Project project;
+		private ListData(final DocumentModel documentModel, final Collection<Document> expectedDocumentList, final Project project) {
+			this.documentModel = documentModel;
+			this.expectedDocumentList = expectedDocumentList;
+			this.project = project;
+		}
+	}
+
+	/**
+	 * Test data definition for listVersions.
+	 */
+	private class ListVersionsData {
+		private final Document document;
+		private final DocumentModel documentModel;
+		private ListVersionsData(final Document document,
+				final DocumentModel documentModel) {
+			this.document = document;
+			this.documentModel = documentModel;
+		}
+	}
+
+	/**
 	 * Open document data structure.
 	 */
 	private class OpenData {
@@ -110,6 +139,9 @@ public class DocumentModelTest extends ModelTestCase {
 	private Vector<ExportData> exportData;
 
 	private Vector<GetPathData> getPathData;
+	private Collection<ListData> listData;
+
+	private Collection<ListVersionsData> listVersionsData;
 
 	private Vector<OpenData> openData;
 
@@ -194,6 +226,40 @@ public class DocumentModelTest extends ModelTestCase {
 	}
 
 	/**
+	 * Test the listing of documents from the model api.
+	 *
+	 */
+	public void testList() {
+		try {
+			Collection<Document> documentList;
+			for(ListData data : listData) {
+				documentList = data.documentModel.list(data.project);
+				DocumentModelTest.assertNotNull(documentList);
+				DocumentModelTest.assertEquals(
+						documentList.size(), data.expectedDocumentList.size());
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
+	/**
+	 * Test the document model listVersions api.
+	 *
+	 */
+	public void testListVersions() {
+		try {
+			Collection<DocumentVersion> documentVersionsList;
+			for(ListVersionsData data : listVersionsData) {
+				documentVersionsList =
+					data.documentModel.listVersions(data.document);
+				DocumentModelTest.assertNotNull(documentVersionsList);
+				DocumentModelTest.assertEquals(1, documentVersionsList.size());
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
+	/**
 	 * Test the document model's open api.
 	 *
 	 */
@@ -216,6 +282,8 @@ public class DocumentModelTest extends ModelTestCase {
 		setUpDelete();
 		setUpExport();
 		setUpGetPath();
+		setUpList();
+		setUpListVersions();
 		setUpOpen();
 	}
 
@@ -312,6 +380,48 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 
+	protected void setUpList() throws Exception {
+		final Integer scenarioCount = 4;
+		listData = new Vector<ListData>(scenarioCount);
+		final Project testProject = createTestProject("testList");
+		final DocumentModel documentModel = getDocumentModel();
+		final ProjectModel projectModel = getProjectModel();
+		Collection<Document> documentList;
+		Project project;
+		String name, description;
+		Document document;
+
+		for(int i = 0; i < scenarioCount; i++) {
+			name = "p." + i;
+			description = "Project:  " + name;
+			project = projectModel.create(testProject, name, description);
+			documentList = new Vector<Document>(getJUnitTestFilesSize());
+			for(ModelTestFile testFile : getJUnitTestFiles()) {
+				name = testFile.getName();
+				description = "Document:  " + name;
+				document =
+					documentModel.create(project, name, description, testFile.getFile());
+				documentList.add(document);
+			}
+			listData.add(new ListData(documentModel, documentList, project));
+		}
+	}
+
+	protected void setUpListVersions() throws Exception {
+		listVersionsData = new Vector<ListVersionsData>(getJUnitTestFilesSize());
+		final Project testProject = createTestProject("testListVersions");
+		final DocumentModel documentModel = getDocumentModel();
+		String name, description;
+		Document document;
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = "Document:  " + name;
+			document =
+				documentModel.create(testProject, name, description, testFile.getFile());
+			listVersionsData.add(new ListVersionsData(document, documentModel));
+		}
+	}
+
 	/**
 	 * Set up the open data structure.
 	 *
@@ -345,6 +455,8 @@ public class DocumentModelTest extends ModelTestCase {
 		tearDownDelete();
 		tearDownExport();
 		tearDownGetPath();
+		tearDownList();
+		tearDownListVersions();
 		tearDownOpen();
 	}
 
@@ -390,6 +502,16 @@ public class DocumentModelTest extends ModelTestCase {
 	protected void tearDownGetPath() throws Exception {
 		getPathData.clear();
 		getPathData = null;
+	}
+
+	protected void tearDownList() throws Exception {
+		listData.clear();
+		listData = null;
+	}
+
+	protected void tearDownListVersions() throws Exception {
+		listVersionsData.clear();
+		listVersionsData = null;
 	}
 
 	/**

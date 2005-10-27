@@ -5,15 +5,18 @@ package com.thinkparity.model.parity.model.io.xml.document;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.io.xml.XmlIO;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
+import com.thinkparity.model.parity.model.io.xml.XmlIO;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xstream.XStreamUtil;
@@ -92,33 +95,6 @@ public class DocumentXmlIO extends XmlIO {
 	}
 
 	/**
-	 * Obtain a document for a given name within a parent project.
-	 * 
-	 * @param name
-	 *            The name of the document.
-	 * @param parent
-	 *            The parent.
-	 * @return The document; or null if no document can be found.
-	 */
-	public Document get(final String name, final Project parent)
-			throws FileNotFoundException, IOException {
-		logger.info("get(String,Project)");
-		logger.debug(name);
-		logger.debug(parent);
-		final File parentXmlFileDirectory = getXmlFileDirectory(parent);
-		logger.debug(parentXmlFileDirectory);
-		final File xmlFile = new File(parentXmlFileDirectory, getXmlFileName(name));
-		logger.debug(xmlFile);
-		if(xmlFile.exists()) {
-			final String xml = readXmlFile(xmlFile);
-			logger.debug(xml);
-			final Document document = (Document) XStreamUtil.fromXML(xml);
-			return document;
-		}
-		else { return null; }
-	}
-
-	/**
 	 * Obtain a named document version for a document.
 	 * 
 	 * @param versionId
@@ -148,6 +124,50 @@ public class DocumentXmlIO extends XmlIO {
 			return dVersion;
 		}
 		else { return null; }
+	}
+
+	/**
+	 * Obtain a list of documents for a project.
+	 * 
+	 * @param project
+	 *            The project to get the documents for.
+	 * @return A list of documents for a project.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public Collection<Document> list(final Project project)
+			throws FileNotFoundException, IOException {
+		logger.info("get(Project)");
+		logger.debug(project);
+		final File xmlFileDirectory = getXmlFileDirectory(project);
+		final File[] xmlFiles = getDocumentXmlFiles(xmlFileDirectory);
+		final Collection<Document> documents = new Vector<Document>(xmlFiles.length);
+		for(File xmlFile : xmlFiles) {
+			documents.add(fromXml(xmlFile));
+		}
+		return documents;
+	}
+
+	/**
+	 * Obtain a list of document versions for a document.
+	 * 
+	 * @param document
+	 *            The document which contains the versions.
+	 * @return The list of document versions.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public Collection<DocumentVersion> listVersions(final Document document)
+			throws FileNotFoundException, IOException {
+		logger.info("listVersions(Document)");
+		logger.debug(document);
+		final File xmlFileDirectory = getXmlFileDirectory(document);
+		final File[] xmlFiles = getVersionXmlFiles(document.getName(), xmlFileDirectory);
+		final Collection<DocumentVersion> versions = new Vector<DocumentVersion>(xmlFiles.length);
+		for(File xmlFile : xmlFiles) {
+			versions.add(fromVersionXml(xmlFile));
+		}
+		return versions;
 	}
 
 	/**
@@ -182,17 +202,58 @@ public class DocumentXmlIO extends XmlIO {
 		return super.getXmlFile(document);
 	}
 
+	private DocumentVersion fromVersionXml(final File xmlFile)
+			throws FileNotFoundException, IOException {
+		final String xml = readXmlFile(xmlFile);
+		return (DocumentVersion) XStreamUtil.fromXML(xml);
+	}
+
+	private Document fromXml(final File xmlFile) throws FileNotFoundException,
+			IOException {
+		final String xml = readXmlFile(xmlFile);
+		return (Document) XStreamUtil.fromXML(xml);
+	}
+
 	/**
-	 * Obtain the xml file name for a given document name.
+	 * Obtain a list of document xml files for a given xml file directory.
 	 * 
-	 * @param name
-	 *            The document name.
-	 * @return The xml file name.
+	 * @param xmlFileDirectory
+	 *            The xml file directory.
+	 * @return A list of files representing document xml files.
 	 */
-	private String getXmlFileName(final String name) {
-		return new StringBuffer(name)
-			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT)
-			.toString();
+	private File[] getDocumentXmlFiles(final File xmlFileDirectory) {
+		return xmlFileDirectory.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				if(name.endsWith(IXmlIOConstants.FILE_EXTENSION_DOCUMENT)) {
+					return true;
+				}
+				else { return false; }
+			}
+		});
+	}
+
+	/**
+	 * Obtain a list of document version xml files for a given xml file
+	 * directory.
+	 * 
+	 * @param documentName
+	 *            The name of the document.
+	 * @param xmlFileDirectory
+	 *            The xml file directory.
+	 * @return A list of files representing document version xml files.
+	 */
+	private File[] getVersionXmlFiles(final String documentName,
+			final File xmlFileDirectory) {
+		return xmlFileDirectory.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				if(name.startsWith(documentName)) {
+					if(name.endsWith(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		});
 	}
 
 	private String getXmlFileName(final String name, final String versionId) {

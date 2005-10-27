@@ -3,16 +3,6 @@
  */
 package com.thinkparity.model.xstream;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.charset.Charset;
-
-import com.thinkparity.codebase.FileUtil;
-
-import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.ParityXmlSerializable;
-
 import com.thoughtworks.xstream.XStream;
 
 /**
@@ -32,112 +22,12 @@ public class XStreamUtil {
 		XStreamRegistry.createRegistry(xStream);
 	}
 
-	public static Boolean delete(final File parentDirectory,
-			final ParityXmlSerializable parityXmlSerializable) {
-		return FileUtil.delete(parityXmlSerializable.getMetaDataFile(parentDirectory));
+	public static Object fromXML(final String xml) {
+		return xStream.fromXML(xml);
 	}
 
-	/**
-	 * Delete the meta-data file which represents the parity object.
-	 * @param pariObject <code>org.kcs.projectmanager.client.api.ParityObject</code>
-	 * @return <code>java.lang.Boolean</code>
-	 */
-	public static Boolean delete(ParityObject pariObject) {
-		return FileUtil.delete(pariObject.getMetaDataFile());
-	}
-
-	/**
-	 * Read an xstream serialilzable object from the xml reader.
-	 * 
-	 * @param xml
-	 *            The reader to read xml from.
-	 * @return The xstream serializable object.
-	 * @see XStream#fromXML(java.io.Reader)
-	 */
-	public static XStreamSerializable fromXML(final Reader xml) {
-		return (XStreamSerializable) xStream.fromXML(xml);
-	}
-	/**
-	 * Read an xstream serializable object from the xml.
-	 * 
-	 * @param xml
-	 *            The xml to read.
-	 * @return The xstream serializable object.
-	 * @see XStream#fromXML(java.lang.String)
-	 */
-	public static XStreamSerializable fromXML(final String xml) {
-		return (XStreamSerializable) xStream.fromXML(xml);
-	}
-
-	public static ParityObject read(final File metaDataFile) throws IOException {
-		// read the xml using a default character-set then a base64 decoding
-		// into a string
-		final byte[] xmlBytes = decodeMetaData(FileUtil.readFile(metaDataFile));
-		final String xmlString = new String(xmlBytes, Charset.defaultCharset().name());
-		// use the xml serialization library to load the object
-		// from the xml
-		return (ParityObject) xStream.fromXML(xmlString);
-	}
-	public static ParityXmlSerializable read2(final File metaDataFile) throws IOException {
-		// read the xml using a default character-set then a base64 decoding
-		// into a string
-		final byte[] xmlBytes = decodeMetaData(FileUtil.readFile(metaDataFile));
-		final String xmlString = new String(xmlBytes, Charset.defaultCharset().name());
-		// use the xml serialization library to load the object
-		// from the xml
-		return (ParityXmlSerializable) xStream.fromXML(xmlString);
-	}
-
-	/**
-	 * Convert an x stream serializable object into an xml string.
-	 * 
-	 * @param serializable
-	 *            The serializable object.
-	 * @return The xml string.
-	 */
-	public static String toXML(final XStreamSerializable serializable) {
-		return xStream.toXML(serializable);
-	}
-
-	public static void write(final File parentDirectory,
-			final ParityXmlSerializable parityXmlSerializable)
-			throws IOException {
-		final String xStreamXml = XStreamUtil.toXML(parityXmlSerializable).toString();
-		// encode the xml using Base64
-		FileUtil.writeFile(
-				parityXmlSerializable.getMetaDataFile(parentDirectory),
-				encodeMetaData(xStreamXml).getBytes());		
-	}
-
-	public static void write(ParityObject pariObject) throws IOException {
-		final String xStreamXml = XStreamUtil.toXML(pariObject).toString();
-		// encode the xml using Base64
-		FileUtil.writeFile(
-				pariObject.getMetaDataFile(),
-				encodeMetaData(xStreamXml).getBytes());
-	}
-
-	/**
-	 * @deprecated
-	 */
-	private static byte[] decodeMetaData(final byte[] metaDataContent) {
-		return metaDataContent;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	private static String encodeMetaData(final String metaDataXml) {
-		return metaDataXml;
-	}
-
-	/**
-	 * @deprecated Use XStreamUtil.toXML(XStreamSerializable) instead
-	 * @param parityObject
-	 * @return
-	 */
-	private static StringBuffer toXML(final ParityObject parityObject) {
-		return new StringBuffer(xStream.toXML(parityObject));
+	public static String toXML(final Object object) {
+		return xStream.toXML(object);
 	}
 
 	/**

@@ -40,7 +40,7 @@ public class DocumentRenderer implements ObjectRenderer {
 			return new StringBuffer(PREFIX)
 				.append(IRendererConstants.ID).append(d.getId())
 				.append(NAME).append(d.getName())
-				.append(PARENT).append(d.getParent().getName())
+				.append(PARENT).append(d.getParent().getCustomName())
 				.append(IRendererConstants.SUFFIX)
 				.toString();
 		}

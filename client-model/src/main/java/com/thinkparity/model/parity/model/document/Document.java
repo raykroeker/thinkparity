@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.UUID;
@@ -34,11 +33,6 @@ public class Document extends ParityObject {
 	private String contentChecksum;
 
 	/**
-	 * The directory this document resides in.
-	 */
-	private File directory;
-
-	/**
 	 * The versions of this document.
 	 */
 	private final Collection<DocumentVersion> versions;
@@ -52,8 +46,6 @@ public class Document extends ParityObject {
 	 *            The document creation date.
 	 * @param createdBy
 	 *            The document creator.
-	 * @param keyHolder
-	 *            The document key holder.
 	 * @param description
 	 *            The document description.
 	 * @param directory
@@ -65,16 +57,10 @@ public class Document extends ParityObject {
 	 * @param contentChecksum
 	 *            The document content's checksum.
 	 */
-	public Document(final String name,
-			final Calendar createdOn, final String createdBy,
-			final String keyHolder, final String description,
-			final File directory, final UUID id, final byte[] content,
-			final String contentChecksum) {
-		super(null, name, description, createdOn, createdBy, id);
-		this.directory = directory;
-		this.content = content;
-		this.contentChecksum = contentChecksum;
-		this.versions = new Vector<DocumentVersion>(3);
+	public Document(final String name, final Calendar createdOn,
+			final String createdBy, final String description, final UUID id,
+			final byte[] content, final String contentChecksum) {
+		this(null, name, createdOn,createdBy, description, id, content);
 	}
 
 	/**
@@ -88,8 +74,6 @@ public class Document extends ParityObject {
 	 *            The document creation date.
 	 * @param createdBy
 	 *            The document creator.
-	 * @param keyHolder
-	 *            The document keyholder.
 	 * @param description
 	 *            The document description.
 	 * @param directory
@@ -99,12 +83,10 @@ public class Document extends ParityObject {
 	 * @param content
 	 *            The document content.
 	 */
-	Document(final Project parent, final String name,
-			final Calendar createdOn, final String createdBy,
-			final String keyHolder, final String description,
-			final File directory, final UUID id, final byte[] content) {
+	Document(final Project parent, final String name, final Calendar createdOn,
+			final String createdBy, final String description, final UUID id,
+			final byte[] content) {
 		super(parent, name, description, createdOn, createdBy, id);
-		this.directory = directory;
 		this.content = content;
 		this.contentChecksum = MD5Util.md5Hex(content);
 		this.versions = new Vector<DocumentVersion>(1);
@@ -137,25 +119,6 @@ public class Document extends ParityObject {
 	 * @return The document content's checksum.
 	 */
 	public String getContentChecksum() { return contentChecksum; }
-
-	/**
-	 * Obtain the directory this document resides in.
-	 * 
-	 * @return The directory this document resides in.
-	 * @see com.thinkparity.model.parity.api.ParityObject#getDirectory()
-	 */
-	public File getDirectory() { return directory; }
-
-	/**
-	 * Obtain the absolute path of the document on disk.
-	 * 
-	 * @return The document's absolute path.
-	 */
-	public String getDocumentAbsolutePath() {
-		return new StringBuffer(directory.getAbsolutePath())
-			.append(File.separator)
-			.append(getName()).toString();
-	}
 
 	/**
 	 * Obtain the path of the document.

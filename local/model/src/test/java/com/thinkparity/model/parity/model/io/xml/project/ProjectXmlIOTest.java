@@ -39,9 +39,9 @@ public class ProjectXmlIOTest extends ModelTestCase {
 			for(GetXmlFileData data : getXmlFileData) {
 				xmlFile = data.projectXmlIO.getXmlFile(data.project);
 				ProjectXmlIOTest.assertNotNull(xmlFile);
-				ProjectXmlIOTest.assertNotNull(xmlFile.exists());
-				ProjectXmlIOTest.assertNotNull(xmlFile.canRead());
-				ProjectXmlIOTest.assertNotNull(xmlFile.canWrite());
+				ProjectXmlIOTest.assertTrue(xmlFile.exists());
+				ProjectXmlIOTest.assertTrue(xmlFile.canRead());
+				ProjectXmlIOTest.assertTrue(xmlFile.canWrite());
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -64,42 +64,42 @@ public class ProjectXmlIOTest extends ModelTestCase {
 		String name, description;
 		Project project;
 
-		name = "Prj.1";
+		name = "1";
 		description = name;
 		project = projectModel.create(testProject, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));
 
-		name = "Prj.1.1";
+		name = "1.1";
 		description = name;
 		project = projectModel.create(project, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));
 
-		name = "Prj.1.2";
+		name = "1.2";
 		description = name;
 		project = projectModel.create(project, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));
 
-		name = "Prj.1.3";
+		name = "1.3";
 		description = name;
 		project = projectModel.create(project, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));
 
-		name = "Prj.1.4";
+		name = "1.4";
 		description = name;
 		project = projectModel.create(project, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));
 
-		name = "Prj.2";
+		name = "2";
 		description = name;
 		project = projectModel.create(testProject, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));
 
-		name = "Prj.3";
+		name = "3";
 		description = name;
 		project = projectModel.create(testProject, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));
 
-		name = "Prj.4";
+		name = "4";
 		description = name;
 		project = projectModel.create(testProject, name, description);
 		getXmlFileData.add(new GetXmlFileData(project, projectXmlIO));

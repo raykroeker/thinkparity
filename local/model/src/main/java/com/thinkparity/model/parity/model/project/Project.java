@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.project;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,18 +14,14 @@ import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
 import com.thinkparity.model.parity.api.document.DocumentComparator;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.xstream.XStreamSerializable;
 
 /**
  * Project
  * @author raykroeker@gmail.com
  * @version 1.3
  */
-public class Project extends ParityObject {
-
-	/**
-	 * Project directory.
-	 */
-	private File directory;
+public class Project extends ParityObject implements XStreamSerializable {
 
 	/**
 	 * List of documents in this project.
@@ -41,11 +36,10 @@ public class Project extends ParityObject {
 	/**
 	 * Create a Project
 	 */
-	public Project(final Project parent, final String name, final Calendar createdOn,
-			final String createdBy, final String keyHolder,
-			final String description, final File directory, final UUID id) {
+	public Project(final Project parent, final String name,
+			final Calendar createdOn, final String createdBy,
+			final String description, final UUID id) {
 		super(parent, name, description, createdOn, createdBy, id);
-		this.directory = directory;
 		// sub-projects documents and contacts are set in the project
 		// via the addXXX\setXXX apis.
 		this.projects = new Vector<Project>(0);
@@ -56,14 +50,8 @@ public class Project extends ParityObject {
 	 * Create a Project
 	 */
 	public Project(final String name, final Calendar createdOn,
-			final String createdBy, final String keyHolder,
-			final String description, final File directory, final UUID id) {
-		super(null, name, description, createdOn, createdBy, id);
-		this.directory = directory;
-		// sub-projects documents and contacts are set in the project
-		// via the addXXX\setXXX apis.
-		this.projects = new Vector<Project>(0);
-		this.documents = new Vector<Document>(0);
+			final String createdBy, final String description, final UUID id) {
+		this(null, name, createdOn, createdBy, description, id);
 	}
 
 	/**
@@ -93,11 +81,6 @@ public class Project extends ParityObject {
 		children.addAll(documents);
 		return children;
 	}
-
-	/**
-	 * @see com.thinkparity.model.parity.api.ParityObject#getDirectory()
-	 */
-	public File getDirectory() { return directory; }
 
 	/**
 	 * Obtain a list of documents for this project.

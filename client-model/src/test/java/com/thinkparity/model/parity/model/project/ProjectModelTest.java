@@ -49,7 +49,7 @@ public class ProjectModelTest extends ModelTestCase {
 	 */
 	public ProjectModelTest() { super("Test:  Project model"); }
 
-	public void testCreateProject() {
+	public void testCreate() {
 		try {
 			for(CreateData data : createData) {
 				data.projectModel.create(data.parent, data.name, data.description);
@@ -71,8 +71,6 @@ public class ProjectModelTest extends ModelTestCase {
 		try {
 			final Project rootProject = getRootProject();
 			assertNotNull(rootProject);
-			assertNotNull(rootProject.getMetaDataDirectory());
-			assertNotNull(rootProject.getMetaDataFile());
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
@@ -92,7 +90,7 @@ public class ProjectModelTest extends ModelTestCase {
 	 * @throws Exception
 	 */
 	protected void setUpCreate() throws Exception {
-		final Project testProject = createTestProject("testCeate");
+		final Project testProject = createTestProject("testCreate");
 		final ProjectModel projectModel = getProjectModel();
 		createData = new Vector<CreateData>(10);
 		createData.add(new CreateData("Prj.1", "Project1", testProject, projectModel));

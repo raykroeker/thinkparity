@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.log4j.or;
 
+import com.thinkparity.codebase.StringUtil.Separator;
+
 /**
  * 
  * @author raykroeker@gmail.com
@@ -10,11 +12,13 @@ package com.thinkparity.model.log4j.or;
  */
 public interface IRendererConstants {
 	
-	public static final String PREFIX_SUFFIX = "[";
+	public static final Separator EMPTY_STRING = Separator.EmptyString;
 
-	public static final String SUFFIX = "]";
+	public static final String ID = "id:";
 
 	public static final String NULL = "null";
 	
-	public static final String ID = "id:";
+	public static final String PREFIX_SUFFIX = "[";
+
+	public static final String SUFFIX = "]";
 }

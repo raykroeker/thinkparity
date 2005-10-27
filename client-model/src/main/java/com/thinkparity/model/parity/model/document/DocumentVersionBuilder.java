@@ -3,8 +3,6 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.io.File;
-import java.io.FileFilter;
 
 
 /**
@@ -85,23 +83,8 @@ public class DocumentVersionBuilder {
 	 * @return The next version in the sequence.
 	 */
 	private String createNextVersion(final Document document) {
-		// use a file filter to get a list of "name.v?.documentversion" documents
-		final FileFilter documentVersionFileFilter = new FileFilter() {
-			public boolean accept(File pathname) {
-				final String name = pathname.getName();
-				if(pathname.isFile())
-					if(name.startsWith(document.getName() + ".v"))
-						if(name.endsWith(".documentversion"))
-							return Boolean.TRUE;
-				return Boolean.FALSE;
-			}
-		};
-		final File[] versionFiles = document.getMetaDataDirectory().listFiles(
-				documentVersionFileFilter);
-		// use the size of the files returned to imply the next version
-		Integer numberOfVersions = 0;
-		if(null != versionFiles) { numberOfVersions = versionFiles.length; }
-		return new StringBuffer("v").append(++numberOfVersions).toString();
+		final Integer numberOfVersions = document.getVersions().size();
+		return new StringBuffer("v").append(numberOfVersions + 1).toString();
 	}
 
 	/**

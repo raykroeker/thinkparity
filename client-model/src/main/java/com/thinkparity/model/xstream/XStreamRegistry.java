@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.xstream;
 
-import com.thinkparity.model.parity.api.document.xml.DocumentVersionXmlTranslator;
-import com.thinkparity.model.parity.api.document.xml.DocumentXmlTranslator;
-import com.thinkparity.model.parity.api.project.xml.ProjectXmlTranslator;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.io.xml.document.DocumentVersionConverter;
+import com.thinkparity.model.parity.model.io.xml.document.DocumentConverter;
+import com.thinkparity.model.parity.model.io.xml.project.ProjectConverter;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;
@@ -54,9 +54,9 @@ public class XStreamRegistry {
 	 * Register the list of converters required for the parity model library.
 	 * <ol>
 	 * <li>EncodedByteArrayConverter
-	 * <li>ProjectXmlTranslator
-	 * <li>DocumentXmlTranslator
-	 * <li>DocumentVersionXmlTranslator
+	 * <li>ProjectConverter
+	 * <li>DocumentConverter
+	 * <li>DocumentVersionConverter
 	 * 
 	 * @param xStream
 	 *            The xStream instance to register.
@@ -64,13 +64,13 @@ public class XStreamRegistry {
 	private void registerConverters(final XStream xStream) {
 		xStream.registerConverter(new EncodedByteArrayConverter());
 
-		xStream.registerConverter(new ProjectXmlTranslator());
+		xStream.registerConverter(new ProjectConverter());
 		xStream.alias("project", Project.class);
 
-		xStream.registerConverter(new DocumentXmlTranslator());
+		xStream.registerConverter(new DocumentConverter());
 		xStream.alias("document", Document.class);
 
-		xStream.registerConverter(new DocumentVersionXmlTranslator());
+		xStream.registerConverter(new DocumentVersionConverter());
 		xStream.alias("documentversion", DocumentVersion.class);
 	}
 }

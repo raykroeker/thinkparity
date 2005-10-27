@@ -132,15 +132,26 @@ public class DocumentModel {
 		synchronized(implLock) { impl.export(document, file); }
 	}
 
-	public Document getDocument(final File documentMetaDataFile)
+	public Document getDocument(final String name, final Project parent)
 			throws ParityException {
-		synchronized(implLock) {
-			return impl.getDocument(documentMetaDataFile);
-		}
+		synchronized(implLock) { return impl.getDocument(name, parent); }
 	}
 
-	public StringBuffer getRelativePath(final Document document)
-			throws ParityException {
+	/**
+	 * Obtain a version for a specific document.
+	 * 
+	 * @param versionId
+	 *            The version to obtain.
+	 * @param document
+	 *            The document for which to obtain the version.
+	 * @return The version.
+	 */
+	public DocumentVersion getVersion(final String versionId,
+			final Document document) throws ParityException {
+		synchronized(implLock) { return impl.getVersion(versionId, document); }
+	}
+
+	public String getRelativePath(final Document document) {
 		synchronized(implLock) { return impl.getRelativePath(document); }
 	}
 

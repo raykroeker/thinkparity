@@ -14,6 +14,7 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.IParityConstants;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -22,13 +23,13 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class XmlPathBuilder {
+public class XmlIOPathBuilder {
 
 	/**
 	 * Handle to an apache logger.
 	 */
 	protected final Logger logger =
-		ModelLoggerFactory.getLogger(XmlPathBuilder.class);
+		ModelLoggerFactory.getLogger(XmlIOPathBuilder.class);
 
 	/**
 	 * Parity workspace.
@@ -36,11 +37,20 @@ public class XmlPathBuilder {
 	private final Workspace workspace;
 
 	/**
-	 * Create a XmlPathBuilder.
+	 * Create a XmlIOPathBuilder.
 	 */
-	XmlPathBuilder(final Workspace workspace) {
+	XmlIOPathBuilder(final Workspace workspace) {
 		super();
 		this.workspace = workspace;
+	}
+
+	/**
+	 * Obtain the root directory of all of the xml files\directories.
+	 * 
+	 * @return The data directory of the parity workspace.
+	 */
+	File getRootXmlDirectory() {
+		return new File(workspace.getDataURL().getFile());
 	}
 
 	/**
@@ -61,6 +71,23 @@ public class XmlPathBuilder {
 	}
 
 	/**
+	 * Obtain the xml file for the given document version.
+	 * 
+	 * @param version
+	 *            The document version to obtain the xml file for.
+	 * @return The xml file.
+	 */
+	File getXmlFile(final DocumentVersion version) {
+		logger.info("getXmlFile(DocumentVersion)");
+		logger.debug(version);
+		final File xmlFileDirectory = getXmlFileDirectory(version);
+		logger.debug(xmlFileDirectory);
+		final String xmlFileName = getXmlFileName(version);
+		logger.debug(xmlFileName);
+		return new File(xmlFileDirectory, xmlFileName);
+	}
+
+	/**
 	 * Obtain the xml file for the given project.
 	 * 
 	 * @param project
@@ -76,6 +103,7 @@ public class XmlPathBuilder {
 		logger.debug(xmlFileName);
 		return new File(xmlFileDirectory, xmlFileName);
 	}
+	
 
 	/**
 	 * Obtain the directory of the xml file for the document.
@@ -87,6 +115,22 @@ public class XmlPathBuilder {
 	File getXmlFileDirectory(final Document document) {
 		logger.info("getXmlFileDirectory(Document)");
 		logger.debug(document);
+		final String pathname = getPathname(document);
+		logger.debug(pathname);
+		return new File(pathname);
+	}
+
+	/**
+	 * Obtain the directory of the xml file for the document version.
+	 * 
+	 * @param version
+	 *            The document version to obtain the directory for.
+	 * @return The directory of the document version's xml file.
+	 */
+	File getXmlFileDirectory(final DocumentVersion version) {
+		logger.info("getXmlFileDirectory(DocumentVersion)");
+		logger.debug(version);
+		final Document document = version.getDocument();
 		final String pathname = getPathname(document);
 		logger.debug(pathname);
 		return new File(pathname);
@@ -125,15 +169,6 @@ public class XmlPathBuilder {
 	}
 
 	/**
-	 * Obtain the data directory of for the parity workspace.
-	 * 
-	 * @return The data directory of the parity workspace.
-	 */
-	private File getDataDirectory() {
-		return new File(workspace.getDataURL().getFile());
-	}
-
-	/**
 	 * Obtain the pathname of the parity object. This will traverse the parent
 	 * project tree and build a path accordingly. If we are dealing with a
 	 * project the project name is appended to the pathname. The metadata path
@@ -146,7 +181,7 @@ public class XmlPathBuilder {
 	private String getPathname(final ParityObject parityObject) {
 		final Stack<Project> parentStack = fillParentStack(parityObject);
 		final StringBuffer parent = new StringBuffer()
-			.append(getDataDirectory().getAbsolutePath());
+			.append(getRootXmlDirectory().getAbsolutePath());
 		while(!parentStack.isEmpty()) {
 			parent.append(File.separatorChar)
 				.append(parentStack.pop().getName());
@@ -176,6 +211,23 @@ public class XmlPathBuilder {
 	private String getXmlFileName(final Document document) {
 		return new StringBuffer(document.getName())
 			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT)
+			.toString();
+	}
+
+	/**
+	 * Obtain the xml file name for the document version.
+	 * 
+	 * @param version
+	 *            The version to get the xml file name for.
+	 * @return The xml file name.
+	 */
+	private String getXmlFileName(final DocumentVersion version) {
+		final Document document = version.getDocument();
+		return new StringBuffer(document.getName())
+			.append(".")
+			.append(version.getVersion())
+			.append(".")
+			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION)
 			.toString();
 	}
 

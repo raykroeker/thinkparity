@@ -57,7 +57,8 @@ public abstract class ModelTestCase extends TestCase {
 	 */
 	protected Project createTestProject(final String test) throws ParityException {
 		final String name = String.valueOf(projectCount++);
-		final String description = getClass().getCanonicalName() + "." + test;
+		final String description = "Automated test project for:  " +
+			getClass().getCanonicalName() + "." + test + "()";
 		return getProjectModel().create(helper.getJUnitProject(), name, description);
 	}
 

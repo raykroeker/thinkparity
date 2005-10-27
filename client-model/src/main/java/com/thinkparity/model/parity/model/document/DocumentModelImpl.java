@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
@@ -80,14 +79,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Handle to a project model api.
-	 */
-	private final ProjectModel projectModel;
-
-	/**
 	 * Document xml input\output.
 	 */
 	private final DocumentXmlIO documentXmlIO;
+
+	/**
+	 * Handle to a project model api.
+	 */
+	private final ProjectModel projectModel;
 
 	/**
 	 * Project xml input\output.
@@ -138,7 +137,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(note);
 		try {
 			document.add(note);
-			serialize(document);
+			documentXmlIO.update(document);
 			notifyUpdate_objectUpdated(document);
 		}
 		catch(IOException iox) {
@@ -192,16 +191,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(description);
 		logger.debug(file);
 		try {
-			final UUID nextDocumentId = UUIDGenerator.nextUUID();
-			logger.debug(nextDocumentId);
-			final byte[] documentContent = FileUtil.readFile(file);
-			logger.debug(documentContent);
-			final Document document = new Document(project, name, DateUtil
-					.getInstance(), preferences.getUsername(), preferences
-					.getUsername(), description, project.getDirectory(),
-					nextDocumentId, documentContent);
-			createMetaData(document);
-			updateProjectMetaData(project, document);
+			final UUID id = UUIDGenerator.nextUUID();
+			logger.debug(id);
+			final byte[] content = FileUtil.readFile(file);
+			logger.debug(content);
+			final Document document = new Document(project, name,
+					DateUtil.getInstance(), preferences.getUsername(),
+					description, id, content);
+			// create the document
+			documentXmlIO.create(document);
+			// update the project
+			project.addDocument(document);
+			projectXmlIO.update(project);
 			// create a new version
 			createVersion(document);
 			// fire a creation event
@@ -240,8 +241,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Collection<DocumentVersion> versions = document.getVersions();
 			for(DocumentVersion version : versions) { delete(version); }
 
-			// delete the .document file
-			deleteFile(document.getMetaDataFile());
+			// delete the xml file
+			documentXmlIO.delete(document);
 			notifyUpdate_objectDeleted(document);
 		}
 		catch(RuntimeException rx) {
@@ -259,12 +260,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(DocumentVersion)");
 		logger.debug(version);
 		try {
-			// remove the version from its document
+			// update the document
 			final Document document = version.getDocument();
 			document.remove(version);
-			updateDocument(document);
-			// delete the .documentversion file
-			deleteFile(version.getMetaDataFile(document.getMetaDataDirectory()));
+			documentXmlIO.update(document);
+			// delete the xml file
+			documentXmlIO.delete(version);
+		}
+		catch(IOException iox) {
+			logger.error("delete(DocumentVersion)", iox);
+			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
 			logger.error("delete(DocumentVersion)", rx);
@@ -289,31 +294,74 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(file);
 		logger.debug(document);
 		try {
-			createNewFile(file);
+			Assert.assertNotTrue("File cannot already exist.", file.exists());
+			Assert.assertTrue("Could not create new file.", file.createNewFile());
 			writeDocumentContent(file, document);
 		}
-		catch(IOException iox) { throw ParityErrorTranslator.translate(iox); }
-		catch(RuntimeException rx) { throw ParityErrorTranslator.translate(rx); }
+		catch(IOException iox) {
+			logger.error("export(Document,File)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("export(Document,File)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
-	Document getDocument(final File metaDataFile)
+	/**
+	 * Obtain a document of a given name for a given parent project.
+	 * 
+	 * @param name
+	 *            The name of the document.
+	 * @param parent
+	 *            The parent project.
+	 * @return The document; or null if the document cannot be found.
+	 * @throws ParityException
+	 */
+	Document getDocument(final String name, final Project parent)
 			throws ParityException {
-		logger.info("getDocument(File)");
-		logger.debug(metaDataFile);
-		try { return documentXmlIO.readXml(metaDataFile); }
+		logger.info("getDocument(String,Project)");
+		logger.debug(name);
+		logger.debug(parent);
+		try { return documentXmlIO.get(name, parent); }
 		catch(IOException iox) {
 			logger.error("getDocument(File)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
+		catch(RuntimeException rx) {
+			logger.error("getDocument(String,Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
-	StringBuffer getRelativePath(final Document document)
-			throws ParityException {
+	String getRelativePath(final Document document) {
 		logger.debug(document);
-		final Project rootProject = projectModel.getRootProject();
-		final URI relativeURI = rootProject.getDirectory().toURI().relativize(
-				document.getDirectory().toURI());
-		return new StringBuffer(relativeURI.toString());
+		return super.getRelativePath(document);
+	}
+
+	/**
+	 * Obtain a version for a specific document.
+	 * 
+	 * @param version
+	 *            The version to obtain.
+	 * @param document
+	 *            The document for which to obtain the version.
+	 * @return The version.
+	 */
+	DocumentVersion getVersion(final String version, final Document document)
+			throws ParityException {
+		logger.info("getVerision(String,Document)");
+		logger.debug(version);
+		logger.debug(document);
+		try { return documentXmlIO.getVersion(version, document); }
+		catch(IOException iox ) {
+			logger.error("getVersion(String,Document)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx ) {
+			logger.error("getVersion(String,Document)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
 	Boolean isDocumentClosable(final Document document) throws ParityException {
@@ -367,13 +415,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 			 */
 			final Project project = projectModel.getRootProject();
 	
-			final Document document = new Document(project, xmppDocument
-					.getName(), xmppDocument.getCreatedOn(), xmppDocument
-					.getCreatedBy(), "", xmppDocument.getDescription(),
-					project.getDirectory(), xmppDocument.getId(),
-					xmppDocument.getContent());
-			createMetaData(document);
-			updateProjectMetaData(project, document);
+			final Document document = new Document(project,
+					xmppDocument.getName(), xmppDocument.getCreatedOn(),
+					xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
+					xmppDocument.getId(), xmppDocument.getContent());
+			documentXmlIO.create(document);
+			project.addDocument(document);
+			projectXmlIO.update(project);
 			// create a new version
 			createVersion(document);
 			// fire a receive event
@@ -437,7 +485,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("updateDocument(Document)");
 		logger.debug(document);
 		try {
-			serialize(document);
+			documentXmlIO.update(document);
 			notifyUpdate_objectUpdated(document);
 		}
 		catch(IOException iox) {
@@ -448,22 +496,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			logger.error("updateDocument(Document)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
-	}
-
-	private void createMetaData(final Document document) throws IOException {
-		documentXmlIO.writeCreationXml(document);
-	}
-
-	/**
-	 * Create a new file.
-	 * 
-	 * @param file
-	 *            The file to create.
-	 * @throws IOException
-	 */
-	private void createNewFile(final File file) throws IOException {
-		Assert.assertNotTrue("File cannot already exist.", file.exists());
-		Assert.assertTrue("Could not create new file.", file.createNewFile());
 	}
 
 	/**
@@ -487,27 +519,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 			}
 		}
 		final DocumentVersion version = DocumentVersionBuilder.create(document);
-		createVersion(version);
+		document.add(version);
+		documentXmlIO.update(document);
+		documentXmlIO.create(version);
+		notifyCreation_objectVersionCreated(version);
 		return version;
-	}
-
-	private void createVersion(final DocumentVersion documentVersion)
-			throws IOException {
-		final Document document = documentVersion.getDocument();
-		document.add(documentVersion);
-		serialize(document);
-		serialize(documentVersion);
-		notifyCreation_objectVersionCreated(documentVersion);
-	}
-
-	/**
-	 * Delete a file.
-	 * 
-	 * @param file
-	 *            The file to delete.
-	 */
-	private void deleteFile(final File file) {
-		Assert.assertTrue("Could not delete file.", file.delete());
 	}
 
 	/**
@@ -520,11 +536,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private File getCacheDirectory(final Document document) {
 		logger.debug(document);
-		final File cache = new File(document.getDirectory(), ".cache");
-		logger.debug(cache);
-		if(!cache.exists())
-			Assert.assertTrue("getCacheDirectory(Document)", cache.mkdir());
-		return cache;
+		// TODO:  BIG HACK.  Separate cache from the xml data
+		final File dataDirectory = new File(workspace.getDataURL().getFile());
+		final File cacheDirectory = new File(dataDirectory, document.getId().toString());
+		logger.debug(cacheDirectory);
+		if(!cacheDirectory.exists())
+			Assert.assertTrue("getCacheDirectory(Document)", cacheDirectory.mkdir());
+		return cacheDirectory;
 	}
 
 	/**
@@ -671,52 +689,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 						"rundll32.exe",
 						"url.dll,FileProtocolHandler",
 						file.getAbsolutePath() });
-	}
-
-	/**
-	 * Serialize the document to xml.
-	 * 
-	 * @param document
-	 *            The document to serialize.
-	 * @throws IOException
-	 */
-	private void serialize(final Document document) throws IOException {
-		documentXmlIO.writeUpdateXml(document);
-	}
-
-	/**
-	 * Serialize the document version to xml.
-	 * @param version The document version to serialize.
-	 * @throws IOException
-	 */
-	private void serialize(final DocumentVersion version) throws IOException {
-		documentXmlIO.serializeXml(version);
-	}
-
-	/**
-	 * Serialize the project to xml.
-	 * 
-	 * @param project
-	 *            The project to serialize.
-	 * @throws IOException
-	 */
-	private void serialize(final Project project) throws IOException {
-		projectXmlIO.writeUpdateXml(project);
-	}
-
-	/**
-	 * Update the project's meta data after adding the document to the project.
-	 * 
-	 * @param project
-	 *            The project to update.
-	 * @param document
-	 *            The document to add to the project.
-	 * @throws IOException
-	 */
-	private void updateProjectMetaData(final Project project,
-			final Document document) throws IOException {
-		project.addDocument(document);
-		serialize(project);
 	}
 
 	/**

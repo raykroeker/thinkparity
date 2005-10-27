@@ -3,12 +3,16 @@
  */
 package com.thinkparity.model.parity.model;
 
+import java.util.Stack;
+
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
@@ -91,5 +95,20 @@ public abstract class AbstractModelImpl {
 		final ParityException px = new ParityException();
 		px.initCause(t);
 		return px;
+	}
+
+	protected String getRelativePath(final ParityObject parityObject) {
+		final Stack<Project> parentStack = new Stack<Project>();
+		Project parent = parityObject.getParent();
+		while(null != parent) {
+			parentStack.push(parent);
+			parent = parent.getParent();
+		}
+		final StringBuffer relativePath = new StringBuffer();
+		while(!parentStack.isEmpty()) {
+			relativePath.append(parentStack.pop().getCustomName())
+				.append("/");
+		}
+		return relativePath.append(parityObject.getCustomName()).toString();
 	}
 }

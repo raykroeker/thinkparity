@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.project;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.IParityConstants;
@@ -34,12 +33,7 @@ import com.thinkparity.model.parity.util.UUIDGenerator;
  * @author raykroeker@gmail.com
  * @version 1.3
  */
-class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
-
-	/**
-	 * Cached root project reference.
-	 */
-	private static Project cachedRootProject;
+class ProjectModelImpl extends AbstractModelImpl {
 
 	/**
 	 * Project creation event listeners.
@@ -146,15 +140,16 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		Assert.assertNotNull("create(Project,String,String)", parent);
 		Assert.assertNotNull("create(Project,String,String)", name);
 		try {
-			final File directory = buildDirectory(parent, name);
-			final UUID projectId = UUIDGenerator.nextUUID();
-			final Project project = new Project(parent, name, DateUtil.getInstance(),
-					preferences.getUsername(), preferences.getUsername(),
-					description, directory, projectId);
-			createDirectory(project.getDirectory());
-			createMetaDataDirectory(project);
-			createMetaData(project);
-			updateParentMetaData(parent, project);
+			// create the project
+			final UUID id = UUIDGenerator.nextUUID();
+			final Project project = new Project(parent, name,
+					DateUtil.getInstance(), preferences.getUsername(),
+					description, id);
+			projectXmlIO.create(project);
+			// update the parent
+			parent.addProject(project);
+			projectXmlIO.update(parent);
+
 			notifyCreation(project);
 			return project;
 		}
@@ -187,49 +182,32 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		for(Project subProject : project.getProjects()) {
 			delete(subProject);
 		}
-		deleteFile(project.getMetaDataFile());
-		deleteTree(project.getDirectory());
-	}
-
-	/**
-	 * Delete a file.
-	 * 
-	 * @param file
-	 *            The file to delete.
-	 */
-	private void deleteFile(final File file) {
-		Assert.assertTrue("Could not delete file.", file.delete());
-	}
-
-	/**
-	 * Delete a directory tree beneath.
-	 * 
-	 * @param directory
-	 *            The directory below which to delete all files\directories.
-	 */
-	private void deleteTree(final File directory) {
-		logger.warn("deleteTree(File):  " + directory.getAbsolutePath());
-		FileUtil.deleteTree(directory);
+		projectXmlIO.delete(project);
 	}
 
 	/**
 	 * Obtain a project for a given meta data file.
 	 * 
-	 * @param metaDataFile
-	 *            The project's meta data file.
-	 * @return The project.
+	 * @param name
+	 *            The project's name.
+	 * @param parent
+	 *            The project's parent project.
+	 * @return The project; or null if the project cannot be found.
 	 * @throws ParityException
 	 */
-	Project getProject(final File metaDataFile) throws ParityException {
-		logger.info("getProject(File)");
-		logger.debug(metaDataFile);
-		try {
-			if(!metaDataFile.exists()) { return null; }
-			else { return projectXmlIO.readXml(metaDataFile); }
-		}
+	Project getProject(final String name, final Project parent)
+			throws ParityException {
+		logger.info("getProject(String,Project)");
+		logger.debug(name);
+		logger.debug(parent);
+		try { return projectXmlIO.get(name, parent); }
 		catch(IOException iox) {
-			logger.error("getProject(File)", iox);
+			logger.error("getProject(String,Project)", iox);
 			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("getProject(String,Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
 		}
 	}
 
@@ -239,21 +217,21 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 	 * @return The root project.
 	 * @throws ParityException
 	 */
-	Project getRootProject(final Workspace workspace) throws ParityException {
-		logger.info("getRootProject(Workspace)");
+	Project getRootProject() throws ParityException {
+		logger.info("getRootProject()");
 		logger.debug(workspace);
 		try {
-			if(null == ProjectModelImpl.cachedRootProject) {
-				ProjectModelImpl.cachedRootProject = createRootProject(workspace);
-			}
-			return ProjectModelImpl.cachedRootProject;
+			if(!projectXmlIO.doesRootProjectExist()) { createRootProject(); }
+			final Project rootProject = projectXmlIO.getRootProject();
+			Assert.assertNotNull("getRootProject()", rootProject);
+			return rootProject;
 		}
 		catch(IOException iox) {
-			logger.error("getRootProject(Workspace)", iox);
+			logger.error("getRootProject()", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("getRootProject(Workspace)", rx);
+			logger.error("getRootProject()", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -306,7 +284,7 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		logger.info("update(Project)");
 		logger.debug(project);
 		try {
-			updateMetaData(project);
+			projectXmlIO.update(project);
 			notifyUpdate(project);
 		}
 		catch(IOException iox) {
@@ -319,53 +297,22 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 		}
 	}
 
-	private File buildDirectory(final Project parent, final String name) {
-		return new File(parent.getDirectory(), name);
-	}
-
-	private void createDirectory(final File directory) {
-		Assert.assertTrue("createDirectory(File)", directory.mkdir());
-	}
-
-	private void createMetaData(final Project project) throws IOException {
-		projectXmlIO.writeCreationXml(project);
-	}
-
-	private void createMetaDataDirectory(final Project project) {
-		final File metaDataDirectory = project.getMetaDataDirectory();
-		if(metaDataDirectory.exists()) {
-			if(0 == metaDataDirectory.list().length) {
-				Assert.assertTrue("Could not delete empty project meta data directory:  " +
-						metaDataDirectory.getAbsolutePath(),
-						metaDataDirectory.delete());
-			}
-		}
-		Assert.assertTrue("Could not create project meta data directory:  " +
-				metaDataDirectory.getAbsolutePath(),
-				FileUtil.createDirectory(metaDataDirectory));
-	}
-
-	private Project createRootProject(final Workspace workspace)
-			throws IOException, ParityException {
-		final File rootProjectMetaDataFile = new File(new File(workspace
-				.getDataURL().getFile(), META_DATA_DIRECTORY_NAME),
-				ROOT_PROJECT_META_DATA_FILE_NAME);
-		Project rootProject = getProject(rootProjectMetaDataFile);
-		if(null != rootProject) { return rootProject; } 
-		else {
-			final Preferences preferences = workspace.getPreferences();
-			final String systemUsername = preferences.getSystemUsername();
-			final UUID rootProjectId = UUIDGenerator.nextUUID();
-			rootProject = new Project(ROOT_PROJECT_NAME,
-					DateUtil.getInstance(), systemUsername, systemUsername,
-					ROOT_PROJECT_DESCRIPTION, new File(workspace.getDataURL()
-							.getFile()), rootProjectId);
-			rootProject.setCustomName(ROOT_PROJECT_CUSTOM_NAME);
-			createMetaDataDirectory(rootProject);
-			createMetaData(rootProject);
-			notifyCreation(rootProject);
-			return getProject(rootProjectMetaDataFile);
-		}
+	/**
+	 * Create the root parity project.
+	 * 
+	 * @throws IOException
+	 * @throws ParityException
+	 */
+	private void createRootProject() throws FileNotFoundException, IOException {
+		final Preferences preferences = workspace.getPreferences();
+		final String systemUsername = preferences.getSystemUsername();
+		final UUID rootProjectId = UUIDGenerator.nextUUID();
+		final Project root = new Project(IParityConstants.ROOT_PROJECT_NAME,
+				DateUtil.getInstance(), systemUsername,
+				IParityConstants.ROOT_PROJECT_DESCRIPTION, rootProjectId);
+		root.setCustomName(IParityConstants.ROOT_PROJECT_CUSTOM_NAME);
+		projectXmlIO.create(root);
+		notifyCreation(root);
 	}
 
 	private void notifyCreation(final Project project) {
@@ -380,15 +327,5 @@ class ProjectModelImpl extends AbstractModelImpl implements IParityConstants {
 			iUpdateListeners.hasNext();) {
 			iUpdateListeners.next().objectUpdated(new UpdateEvent(project));
 		}
-	}
-
-	private void updateMetaData(final Project project) throws IOException {
-		projectXmlIO.writeUpdateXml(project);
-	}
-
-	private void updateParentMetaData(final Project parent,
-			final Project project) throws IOException {
-		parent.addProject(project);
-		projectXmlIO.writeUpdateXml(parent);
 	}
 }

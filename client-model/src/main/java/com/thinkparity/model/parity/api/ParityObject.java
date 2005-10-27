@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.api;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Properties;
@@ -143,35 +142,11 @@ public abstract class ParityObject implements IParityConstants {
 	 */
 	public final String getDescription() { return description; }
 
-	public abstract File getDirectory();
-
 	/**
 	 * Obtain the value of id.
 	 * @return <code>UUID</code>
 	 */
 	public UUID getId() { return id; }
-
-	/**
-	 * Obtain the File identifing the directory within which the meta-data for
-	 * the parity object resides.
-	 * @return <code>java.io.File</code>
-	 */
-	public final File getMetaDataDirectory() {
-		final File directory = getDirectory();
-		return new File(directory, META_DATA_DIRECTORY_NAME);
-	}
-
-	/**
-	 * Obatin the File identifying the meta-data file for the parity object.
-	 * @return <code>java.io.File</code>
-	 */
-	public final File getMetaDataFile() {
-		final File metaDataDirectory = getMetaDataDirectory();
-		final String metaDataFileName = new StringBuffer(getName())
-				.append(".").append(getClass().getSimpleName().toLowerCase())
-				.toString();
-		return new File(metaDataDirectory, metaDataFileName);
-	}
 
 	/**
 	 * Obtain the name for the parity object.

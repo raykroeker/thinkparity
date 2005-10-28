@@ -48,8 +48,6 @@ public class Document extends ParityObject {
 	 *            The document creator.
 	 * @param description
 	 *            The document description.
-	 * @param directory
-	 *            The document directory.
 	 * @param id
 	 *            The document id.
 	 * @param content
@@ -76,8 +74,6 @@ public class Document extends ParityObject {
 	 *            The document creator.
 	 * @param description
 	 *            The document description.
-	 * @param directory
-	 *            The document directory.
 	 * @param id
 	 *            The document id.
 	 * @param content

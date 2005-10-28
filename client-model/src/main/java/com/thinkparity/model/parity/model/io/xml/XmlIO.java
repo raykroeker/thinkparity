@@ -17,6 +17,7 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xstream.XStreamUtil;
 
 /**
  * This is an abstraction of the xml input\output routines used by the parity
@@ -47,17 +48,16 @@ public abstract class XmlIO {
 	}
 
 	/**
-	 * Obtain the root directory within which all of the xml persistance is
-	 * stored.
+	 * Obtain the root of the xml io filesystem.
 	 * 
-	 * @return The root of the xml storage.
+	 * @return The root of the xml io filesystem.
 	 */
-	protected File getRootXmlDirectory() {
-		final File rootXmlDirectory = xmlPathBuilder.getRootXmlDirectory();
-		if(!rootXmlDirectory.exists()) {
-			Assert.assertTrue("getRootXmlDirectory()", rootXmlDirectory.mkdir());
+	protected File getRoot() {
+		final File root = xmlPathBuilder.getRoot();
+		if(!root.exists()) {
+			Assert.assertTrue("getRoot()", root.mkdir());
 		}
-		return rootXmlDirectory;
+		return root;
 	}
 
 	/**
@@ -126,6 +126,51 @@ public abstract class XmlIO {
 	}
 
 	/**
+	 * Read a document from an xml file.
+	 * 
+	 * @param xmlFile
+	 *            The xml file for the document.
+	 * @return A document
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected Document readDocument(final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("readDocument(File)");
+		return (Document) fromXml(readXmlFile(xmlFile));
+	}
+
+	/**
+	 * Read a document version from an xml file.
+	 * 
+	 * @param xmlFile
+	 *            The xml file for the document version.
+	 * @return The document version.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected DocumentVersion readDocumentVersion(final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("readDocumentVersion(File)");
+		return (DocumentVersion) fromXml(readXmlFile(xmlFile));
+	}
+
+	/**
+	 * Read a project from an xml file.
+	 * 
+	 * @param xmlFile
+	 *            The xml file for the project.
+	 * @return A project.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected Project readProject(final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("readProject(File)");
+		return (Project) fromXml(readXmlFile(xmlFile));
+	}
+
+	/**
 	 * Read an xml file's content into a string.
 	 * 
 	 * @param xmlFile
@@ -147,18 +192,90 @@ public abstract class XmlIO {
 	}
 
 	/**
-	 * Write the xml to the xml file.
+	 * Write the document to the xml file.
+	 * 
+	 * @param document
+	 *            The document to write.
+	 * @param xmlFile
+	 *            The xml file to write to.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected void write(final Document document, final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("write(Document,File)");
+		writeXmlFile(toXml(document), xmlFile);
+	}
+
+	/**
+	 * Write the document version to the xml file.
+	 * 
+	 * @param documentVersion
+	 *            The document version to write.
+	 * @param xmlFile
+	 *            The xml file to write to.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected void write(final DocumentVersion documentVersion,
+			final File xmlFile) throws FileNotFoundException, IOException {
+		logger.info("write(DocumentVersion,File)");
+		logger.debug(documentVersion);
+		writeXmlFile(toXml(documentVersion), xmlFile);
+	}
+
+	/**
+	 * Write the project to the xml file.
+	 * 
+	 * @param project
+	 *            The project to write.
+	 * @param xmlFile
+	 *            The xml file to write to.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected void write(final Project project, final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("write(Project,File)");
+		writeXmlFile(toXml(project), xmlFile);
+	}
+
+	/**
+	 * Use the XStream framework to read an object from xml.
+	 * 
+	 * @param xml
+	 *            The xml to read.
+	 * @return A constructed object.
+	 */
+	private Object fromXml(final String xml) {
+		return XStreamUtil.fromXML(xml);
+	}
+
+	/**
+	 * Use the XStream framework to serialize an object to xml.
+	 * 
+	 * @param object
+	 *            The object to serialize.
+	 * @return The xml representation of the object.
+	 */
+	private String toXml(final Object object) {
+		return XStreamUtil.toXML(object);
+	}
+
+	/**
+	 * Write the xml to the xml file. If the xml file already exists, it will be
+	 * deleted first.
 	 * 
 	 * @param xml
 	 *            The xml to write.
 	 * @param xmlFile
 	 *            The xml file to write to.
 	 */
-	protected void writeXmlFile(final String xml, final File xmlFile)
+	private void writeXmlFile(final String xml, final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("writeXmlFile(String,File)");
-		logger.debug(xml);
-		logger.debug(xmlFile);
+		if(xmlFile.exists()) {
+			Assert.assertTrue("writeXmlFile(String,File)", xmlFile.delete());
+		}
 		FileUtil.writeFile(xmlFile, xml.getBytes());
 	}
 }

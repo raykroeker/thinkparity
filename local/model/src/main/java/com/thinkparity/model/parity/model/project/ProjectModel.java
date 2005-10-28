@@ -62,8 +62,8 @@ public class ProjectModel extends AbstractModel {
 	 * @param listener
 	 *            The listener to add.
 	 */
-	public void addCreationListener(final CreationListener listener) {
-		synchronized(implLock) { impl.addCreationListener(listener); }
+	public void addListener(final CreationListener listener) {
+		synchronized(implLock) { impl.addListener(listener); }
 	}
 
 	/**
@@ -72,8 +72,8 @@ public class ProjectModel extends AbstractModel {
 	 * @param listener
 	 *            The listener to add.
 	 */
-	public void addUpdateListener(final UpdateListener listener) {
-		synchronized(implLock) { impl.addUpdateListener(listener); }
+	public void addListener(final UpdateListener listener) {
+		synchronized(implLock) { impl.addListener(listener); }
 	}
 
 	/**
@@ -108,13 +108,24 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain the root project.
+	 * Obtain the inbox project.
 	 * 
-	 * @return The root project.
+	 * @return The inbox project.
 	 * @throws ParityException
 	 */
-	public Project getRootProject() throws ParityException {
-		synchronized(implLock) { return impl.getRootProject(); }
+	public Project getInbox() throws ParityException {
+		synchronized(implLock) { return impl.getInbox(); }
+	}
+
+	/**
+	 * Obtain the "My Projects" project. This is where the client should create
+	 * their own projects and documents.
+	 * 
+	 * @return My project.
+	 * @throws ParityException
+	 */
+	public Project getMyProjects() throws ParityException {
+		synchronized(implLock) { return impl.getMyProjects(); }
 	}
 
 	/**
@@ -146,8 +157,8 @@ public class ProjectModel extends AbstractModel {
 	 * @param listener
 	 *            The listener to remove.
 	 */
-	public void removeCreationListener(final CreationListener listener) {
-		synchronized(implLock) { impl.removeCreationListener(listener); }
+	public void removeListener(final CreationListener listener) {
+		synchronized(implLock) { impl.removeListener(listener); }
 	}
 
 	/**
@@ -156,8 +167,8 @@ public class ProjectModel extends AbstractModel {
 	 * @param listener
 	 *            The listener to remove.
 	 */
-	public void removeUpdateListener(final UpdateListener listener) {
-		synchronized(implLock) { impl.removeUpdateListener(listener); }
+	public void removeListener(final UpdateListener listener) {
+		synchronized(implLock) { impl.removeListener(listener); }
 	}
 
 	/**

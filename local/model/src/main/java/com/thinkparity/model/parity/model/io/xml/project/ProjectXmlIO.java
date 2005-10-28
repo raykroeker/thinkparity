@@ -13,9 +13,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
 import com.thinkparity.model.parity.model.project.Project;
@@ -48,15 +46,11 @@ public class ProjectXmlIO extends XmlIO {
 			IOException {
 		logger.info("create(Project)");
 		logger.debug(project);
-		final File xmlFileDirectory = getXmlFileDirectory(project);
-		logger.debug(xmlFileDirectory);
-		final File xmlFile = getXmlFile(project);
-		logger.debug(xmlFile);
-
-		Assert.assertTrue("create(Project)", xmlFileDirectory.mkdir());
-		final String xml = XStreamUtil.toXML(project);
-		logger.debug(xml);
-		writeXmlFile(xml, xmlFile);
+		// create the xml file directory
+		Assert.assertTrue(
+				"create(Project)",
+				getXmlFileDirectory(project).mkdir());
+		write(project, getXmlFile(project));
 	}
 
 	/**
@@ -71,56 +65,9 @@ public class ProjectXmlIO extends XmlIO {
 		logger.info("delete(Project)");
 		logger.debug(project);
 		// delete the xml file
-		final File xmlFile = getXmlFile(project);
-		logger.debug(xmlFile);
-		Assert.assertTrue("delete(Project)", xmlFile.delete());
+		Assert.assertTrue("delete(Project)", getXmlFile(project).delete());
 		// delete the xml file directory
-		final File xmlFileDirectory = getXmlFileDirectory(project);
-		logger.debug(xmlFileDirectory);
-		Assert.assertTrue("delete(Project)", xmlFileDirectory.delete());
-	}
-
-	/**
-	 * Determine whether or not the parity root project exists.
-	 * 
-	 * @return True if the root project exists, false otherwise.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public Boolean doesRootProjectExist() throws FileNotFoundException,
-			IOException {
-		logger.info("doesRootProjectExist()");
-		final File xmlFile = getRootProjectXmlFile();
-		logger.debug(xmlFile);
-		if(xmlFile.exists()) {
-			final String xml = readXmlFile(xmlFile);
-			final Project rootProject = (Project) XStreamUtil.fromXML(xml);
-			Assert.assertNotNull("doesRootProjectExist()", rootProject);
-			return Boolean.TRUE;
-		}
-		return Boolean.FALSE;
-	}
-
-	/**
-	 * Obtain a project with a given name for a given parent. If parent is
-	 * specified the project must exist within the parent; otherwise the project
-	 * must exist within the root project.
-	 * 
-	 * @param name
-	 *            The name of the project.
-	 * @param parent
-	 *            The parent project (Optional)
-	 * @return The project.
-	 */
-	public Project getRootProject() throws FileNotFoundException, IOException {
-		logger.info("getRootProject()");
-		final File xmlFile = getRootProjectXmlFile();
-		logger.debug(xmlFile);
-		final String xml = readXmlFile(xmlFile);
-		logger.debug(xml);
-		final Project rootProject = (Project) XStreamUtil.fromXML(xml);
-		logger.debug(rootProject);
-		return rootProject;
+		Assert.assertTrue("delete(Project)", getXmlFileDirectory(project).delete());
 	}
 
 	/**
@@ -131,18 +78,7 @@ public class ProjectXmlIO extends XmlIO {
 	 */
 	public Collection<Project> list() throws FileNotFoundException, IOException {
 		logger.info("list()");
-		final File[] xmlFileDirectories = getRootXmlDirectory().listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.isDirectory();
-			}
-		});
-		final Collection<Project> projects = new Vector<Project>(7);
-		File xmlFile;
-		for(File xmlFileDirectory : xmlFileDirectories) {
-			xmlFile = getXmlFile(xmlFileDirectory);
-			projects.add(fromXml(xmlFile));
-		}
-		return projects;
+		return list(getXmlFileDirectories());
 	}
 
 	/**
@@ -157,18 +93,7 @@ public class ProjectXmlIO extends XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("list(Project)");
 		logger.debug(parent);
-		final File[] xmlFileDirectories = getXmlFileDirectory(parent).listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.isDirectory();
-			}
-		});
-		final Collection<Project> projects = new Vector<Project>(7);
-		File xmlFile;
-		for(File xmlFileDirectory : xmlFileDirectories) {
-			xmlFile = getXmlFile(xmlFileDirectory);
-			projects.add(fromXml(xmlFile));
-		}
-		return projects;
+		return list(getXmlFileDirectories(parent));
 	}
 
 	/**
@@ -183,23 +108,7 @@ public class ProjectXmlIO extends XmlIO {
 			IOException {
 		logger.info("update(Project)");
 		logger.debug(project);
-		final File xmlFile = getXmlFile(project);
-		Assert.assertTrue("update(Project)", xmlFile.delete());
-		final String xml = XStreamUtil.toXML(project);
-		logger.debug(xml);
-		writeXmlFile(xml, xmlFile);
-	}
-
-	/**
-	 * Build an xml file reference for the project.
-	 * 
-	 * @param project
-	 *            The project to build the xml file for.
-	 * @return The xml file reference.
-	 * @see XmlIO#getXmlFile(ParityObject)
-	 */
-	protected File getXmlFile(final Project project) {
-		return super.getXmlFile(project);
+		write(project, getXmlFile(project));
 	}
 
 	/**
@@ -215,17 +124,6 @@ public class ProjectXmlIO extends XmlIO {
 			IOException {
 		final String xml = readXmlFile(xmlFile);
 		return (Project) XStreamUtil.fromXML(xml);
-	}
-
-	/**
-	 * Obtain the xml file for the root project.
-	 * 
-	 * @return The xml file for the root project.
-	 */
-	private File getRootProjectXmlFile() {
-		final File xmlFileDirectory =
-			new File(getRootXmlDirectory(), IParityModelConstants.ROOT_PROJECT_NAME);
-		return new File(xmlFileDirectory, IXmlIOConstants.XML_FILE_NAME_ROOT_PROJECT);
 	}
 
 	/**
@@ -248,5 +146,54 @@ public class ProjectXmlIO extends XmlIO {
 		});
 		Assert.assertTrue("getXmlFile(File)", xmlFiles.length == 1);
 		return xmlFiles[0];
+	}
+
+	/**
+	 * Obtain a list of xml file directories for the root of the xml io
+	 * filesystem.
+	 * 
+	 * @return A list of xml file directories.
+	 */
+	private File[] getXmlFileDirectories() {
+		return getRoot().listFiles(new FileFilter() {
+			public boolean accept(final File pathname) {
+				return pathname.isDirectory();
+			}
+		});
+	}
+
+	/**
+	 * Obtain a list of xml file directories for the parent.
+	 * 
+	 * @param parent
+	 *            The parent project.
+	 * @return A list of xml file directories.
+	 */
+	private File[] getXmlFileDirectories(final Project parent) {
+		return getXmlFileDirectory(parent).listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.isDirectory();
+			}
+		});
+	}
+
+	/**
+	 * Obtain a list of projects within a list of project xml file directories.
+	 * 
+	 * @param xmlFileDirectories
+	 *            The project xml file directories.
+	 * @return A list of projects.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private Collection<Project> list(final File[] xmlFileDirectories)
+			throws FileNotFoundException, IOException {
+		final Collection<Project> projects = new Vector<Project>(7);
+		File xmlFile;
+		for(File xmlFileDirectory : xmlFileDirectories) {
+			xmlFile = getXmlFile(xmlFileDirectory);
+			projects.add(fromXml(xmlFile));
+		}
+		return projects;
 	}
 }

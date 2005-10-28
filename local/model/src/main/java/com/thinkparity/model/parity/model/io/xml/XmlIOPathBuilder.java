@@ -44,12 +44,11 @@ public class XmlIOPathBuilder {
 	}
 
 	/**
-	 * Obtain the root directory of all of the xml files\directories. The root
-	 * xml data directory is beneath the parity browser's data directory.
+	 * Obtain the root directory for the xml io driver.
 	 * 
-	 * @return The data directory of the parity workspace.
+	 * @return The root directory of the xml io driver.
 	 */
-	File getRootXmlDirectory() {
+	File getRoot() {
 		return new File(
 				workspace.getDataURL().getFile(),
 				IXmlIOConstants.DIRECTORY_NAME_XML_DATA);
@@ -183,7 +182,7 @@ public class XmlIOPathBuilder {
 	private String getPathname(final ParityObject parityObject) {
 		final Stack<Project> parentStack = fillParentStack(parityObject);
 		final StringBuffer parent = new StringBuffer()
-			.append(getRootXmlDirectory().getAbsolutePath());
+			.append(getRoot().getAbsolutePath());
 		while(!parentStack.isEmpty()) {
 			parent.append(File.separatorChar)
 				.append(parentStack.pop().getName());

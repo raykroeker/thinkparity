@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.project;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -18,13 +17,13 @@ import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
+import com.thinkparity.model.parity.api.events.DeleteEvent;
 import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.io.xml.project.ProjectXmlIO;
-import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 
@@ -90,7 +89,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * @param listener
 	 *            The listener to add.
 	 */
-	void addCreationListener(final CreationListener listener) {
+	void addListener(final CreationListener listener) {
 		logger.info("addCreationListener(CreationListener)");
 		logger.debug(listener);
 		Assert.assertNotNull("addCreationListener(CreationListener)", listener);
@@ -108,7 +107,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * @param listener
 	 *            The listener to add.
 	 */
-	void addUpdateListener(final UpdateListener listener) {
+	void addListener(final UpdateListener listener) {
 		logger.info("addUpdateListener(UpdateListener)");
 		logger.debug(listener);
 		Assert.assertNotNull("addUpdateListener(UpdateListener)", listener);
@@ -123,12 +122,12 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * Create a new project.
 	 * 
 	 * @param parent
-	 *            The parent project.
+	 *            The parent.
 	 * @param name
-	 *            The name.
+	 *            The project name.
 	 * @param description
-	 *            The description.
-	 * @return The new project.
+	 *            The project description.
+	 * @return The project.
 	 * @throws ParityException
 	 */
 	Project create(final Project parent, final String name,
@@ -137,8 +136,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.debug(parent);
 		logger.debug(name);
 		logger.debug(description);
-		Assert.assertNotNull("create(Project,String,String)", parent);
-		Assert.assertNotNull("create(Project,String,String)", name);
 		try {
 			// create the project
 			final UUID id = UUIDGenerator.nextUUID();
@@ -149,8 +146,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 			// update the parent
 			parent.addProject(project);
 			projectXmlIO.update(parent);
-
-			notifyCreation(project);
+			notifyCreation_objectCreated(project);
 			return project;
 		}
 		catch(IOException iox) {
@@ -174,38 +170,65 @@ class ProjectModelImpl extends AbstractModelImpl {
 	void delete(final Project project) throws ParityException {
 		logger.info("delete(Project)");
 		logger.debug(project);
-		
-		final DocumentModel documentModel = DocumentModel.getModel();
-		for(Document subDocument : project.getDocuments()) {
-			documentModel.delete(subDocument);
+		try {
+			final DocumentModel documentModel = DocumentModel.getModel();
+			for(Document subDocument : project.getDocuments()) {
+				documentModel.delete(subDocument);
+			}
+			for(Project subProject : project.getProjects()) {
+				delete(subProject);
+			}
+			projectXmlIO.delete(project);
+			notifyUpdate_objectDeleted(project);
 		}
-		for(Project subProject : project.getProjects()) {
-			delete(subProject);
+		catch(RuntimeException rx) {
+			logger.error("delete(Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
 		}
-		projectXmlIO.delete(project);
 	}
 
 	/**
-	 * Obtain the root project.
+	 * Obtain the inbox project.
 	 * 
-	 * @return The root project.
+	 * @return The inbox project.
 	 * @throws ParityException
 	 */
-	Project getRootProject() throws ParityException {
-		logger.info("getRootProject()");
-		logger.debug(workspace);
+	Project getInbox() throws ParityException {
+		logger.info("getInbox()");
 		try {
-			if(!projectXmlIO.doesRootProjectExist()) { createRootProject(); }
-			final Project rootProject = projectXmlIO.getRootProject();
-			Assert.assertNotNull("getRootProject()", rootProject);
-			return rootProject;
+			for(Project project : projectXmlIO.list()) {
+				if(project.getName().equals(IParityModelConstants.PROJECT_NAME_INBOX)) {
+					return project;
+				}
+			}
+			return lazyCreateInbox();
 		}
 		catch(IOException iox) {
-			logger.error("getRootProject()", iox);
+			logger.error("getInbox()", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("getRootProject()", rx);
+			logger.error("getInbox()", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	Project getMyProjects() throws ParityException {
+		logger.info("getMyProject()");
+		try {
+			for(Project project : projectXmlIO.list()) {
+				if(project.getName().equals(IParityModelConstants.PROJECT_NAME_MYPROJECTS)) {
+					return project;
+				}
+			}
+			return lazyCreateMyProjects();
+		}
+		catch(IOException iox) {
+			logger.error("getMyProject()", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("getMyProject()", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -257,7 +280,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * @param listener
 	 *            The listener to remove.
 	 */
-	void removeCreationListener(final CreationListener listener) {
+	void removeListener(final CreationListener listener) {
 		logger.info("removeCreationListener(CreationListener)");
 		logger.debug(listener);
 		Assert.assertNotNull(
@@ -276,7 +299,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * @param listener
 	 *            The listener to remove.
 	 */
-	void removeUpdateListener(final UpdateListener listener) {
+	void removeListener(final UpdateListener listener) {
 		logger.info("removeUpdateListener(UpdateListener)");
 		logger.debug(listener);
 		Assert.assertNotNull("removeUpdateListener(UpdateListener)", listener);
@@ -300,7 +323,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.debug(project);
 		try {
 			projectXmlIO.update(project);
-			notifyUpdate(project);
+			notifyUpdate_objectUpdated(project);
 		}
 		catch(IOException iox) {
 			logger.error("update(Project)", iox);
@@ -313,34 +336,81 @@ class ProjectModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Create the root parity project.
+	 * Create the inbox project.
 	 * 
+	 * @return The inbox project.
+	 * @throws FileNotFoundException
 	 * @throws IOException
-	 * @throws ParityException
 	 */
-	private void createRootProject() throws FileNotFoundException, IOException {
-		final Preferences preferences = workspace.getPreferences();
-		final String systemUsername = preferences.getSystemUsername();
-		final UUID rootProjectId = UUIDGenerator.nextUUID();
-		final Project root = new Project(IParityModelConstants.ROOT_PROJECT_NAME,
-				DateUtil.getInstance(), systemUsername,
-				IParityModelConstants.ROOT_PROJECT_DESCRIPTION, rootProjectId);
-		root.setCustomName(IParityModelConstants.ROOT_PROJECT_CUSTOM_NAME);
-		projectXmlIO.create(root);
-		notifyCreation(root);
+	private Project lazyCreateInbox() throws FileNotFoundException, IOException {
+		final Project inbox = new Project(
+				IParityModelConstants.PROJECT_NAME_INBOX,
+				IParityModelConstants.PROJECT_CREATED_ON_INBOX,
+				IParityModelConstants.PROJECT_CREATED_BY_INBOX,
+				IParityModelConstants.PROJECT_DESCRIPTION_INBOX,
+				IParityModelConstants.PROJECT_ID_INBOX);
+		projectXmlIO.create(inbox);
+		return inbox;
 	}
 
-	private void notifyCreation(final Project project) {
-		for(Iterator<CreationListener> iCreationListeners = creationListeners.iterator();
-			iCreationListeners.hasNext();) {
-			iCreationListeners.next().objectCreated(new CreationEvent(project));
+	/**
+	 * Create the my projects project.
+	 * 
+	 * @return The my projects project.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private Project lazyCreateMyProjects() throws FileNotFoundException,
+			IOException {
+		final Project myProjects = new Project(
+				IParityModelConstants.PROJECT_NAME_MYPROJECTS,
+				IParityModelConstants.PROJECT_CREATED_ON_MYPROJECTS,
+				IParityModelConstants.PROJECT_CREATED_BY_MYPROJECTS,
+				IParityModelConstants.PROJECT_DESCRIPTION_MYPROJECTS,
+				IParityModelConstants.PROJECT_ID_MYPROJECTS);
+		projectXmlIO.create(myProjects);
+		return myProjects;
+	}
+
+	/**
+	 * Fire the object created event for all of the creation listeners.
+	 * 
+	 * @param project
+	 *            The project that was just created.
+	 */
+	private void notifyCreation_objectCreated(final Project project) {
+		synchronized(ProjectModelImpl.creationListenersLock) {
+			for(CreationListener listener : ProjectModelImpl.creationListeners) {
+				listener.objectCreated(new CreationEvent(project));
+			}
 		}
 	}
 
-	private void notifyUpdate(final Project project) {
-		for(Iterator<UpdateListener> iUpdateListeners = updateListeners.iterator();
-			iUpdateListeners.hasNext();) {
-			iUpdateListeners.next().objectUpdated(new UpdateEvent(project));
+	/**
+	 * Fire the object deleted event for all of the deletion listeners.
+	 * 
+	 * @param project
+	 *            The project that was deleted.
+	 */
+	private void notifyUpdate_objectDeleted(final Project project) {
+		synchronized(ProjectModelImpl.updateListenersLock) {
+			for(UpdateListener listener : ProjectModelImpl.updateListeners) {
+				listener.objectDeleted(new DeleteEvent(project));
+			}
+		}
+	}
+
+	/**
+	 * Fire the object updated event for all of the update listeners.
+	 * 
+	 * @param project
+	 *            The project that was updated.
+	 */
+	private void notifyUpdate_objectUpdated(final Project project) {
+		synchronized(ProjectModelImpl.updateListenersLock) {
+			for(UpdateListener listener : ProjectModelImpl.updateListeners) {
+				listener.objectUpdated(new UpdateEvent(project));
+			}
 		}
 	}
 }

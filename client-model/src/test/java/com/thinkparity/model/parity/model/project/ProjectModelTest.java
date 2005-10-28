@@ -79,10 +79,18 @@ public class ProjectModelTest extends ModelTestCase {
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
 
-	public void testGetRootProject() {
+	public void testGetInbox() {
 		try {
-			final Project rootProject = getRootProject();
-			assertNotNull(rootProject);
+			final Project inbox = getProjectModel().getInbox();
+			assertNotNull(inbox);
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
+	public void testGetMyProjects() {
+		try {
+			final Project myProjects = getProjectModel().getMyProjects();
+			assertNotNull(myProjects);
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
@@ -194,7 +202,8 @@ public class ProjectModelTest extends ModelTestCase {
 		String name, description;
 
 		expectedProjectList = new Vector<Project>(1);
-		expectedProjectList.add(projectModel.getRootProject());
+		expectedProjectList.add(projectModel.getInbox());
+		expectedProjectList.add(projectModel.getMyProjects());
 		listData.add(new ListData(expectedProjectList, null, projectModel));
 
 		expectedProjectList = new Vector<Project>(3);

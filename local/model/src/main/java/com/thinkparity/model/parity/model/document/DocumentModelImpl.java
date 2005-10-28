@@ -111,7 +111,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @see DocumentModel#addCreationListener(CreationListener)
 	 * @param listener
 	 */
-	void addCreationListener(final CreationListener listener) {
+	void addListener(final CreationListener listener) {
 		logger.info("addCreationListener(CreationListener)");
 		logger.debug(listener);
 		Assert.assertNotNull("addCreationListener(CreationListener)", listener);
@@ -120,6 +120,23 @@ class DocumentModelImpl extends AbstractModelImpl {
 					"addCreationListener(CreationListener)",
 					DocumentModelImpl.creationListeners.contains(listener));
 			DocumentModelImpl.creationListeners.add(listener);
+		}
+	}
+
+	/**
+	 * Add a document update event listener.
+	 * 
+	 * @param listener
+	 *            The listener to add.
+	 */
+	void addListener(final UpdateListener listener) {
+		logger.info("addUpdateListener(UpdateListener)");
+		logger.debug(listener);
+		Assert.assertNotNull("addUpdateListener(UpdateListener)", listener);
+		synchronized (DocumentModelImpl.updateListenersLock) {
+			Assert.assertNotTrue("Update listener already registered.",
+					DocumentModelImpl.updateListeners.contains(listener));
+			DocumentModelImpl.updateListeners.add(listener);
 		}
 	}
 
@@ -148,23 +165,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		catch(RuntimeException rx) {
 			logger.error("addNote(Document,Note)", rx);
 			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
-	 * Add a document update event listener.
-	 * 
-	 * @param listener
-	 *            The listener to add.
-	 */
-	void addUpdateListener(final UpdateListener listener) {
-		logger.info("addUpdateListener(UpdateListener)");
-		logger.debug(listener);
-		Assert.assertNotNull("addUpdateListener(UpdateListener)", listener);
-		synchronized (DocumentModelImpl.updateListenersLock) {
-			Assert.assertNotTrue("Update listener already registered.",
-					DocumentModelImpl.updateListeners.contains(listener));
-			DocumentModelImpl.updateListeners.add(listener);
 		}
 	}
 
@@ -309,6 +309,24 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	String getRelativePath(final Document document) {
+		logger.info("getRelativePath(Document)");
+		logger.debug(document);
+		return super.getRelativePath(document);
+	}
+
+	Boolean isClosable(final Document document) throws ParityException {
+		logger.info("isClosable(Document)");
+		logger.debug(document);
+		return Boolean.FALSE;
+	}
+
+	Boolean isDeletable(final Document document) throws ParityException {
+		logger.info("isDeletable(Document)");
+		logger.debug(document);
+		return Boolean.FALSE;
+	}
+
 	/**
 	 * Obtain a list of documents for a project.
 	 * 
@@ -355,46 +373,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	String getRelativePath(final Document document) {
-		logger.debug(document);
-		return super.getRelativePath(document);
-	}
-
-	/**
-	 * Obtain a version for a specific document.
-	 * 
-	 * @param version
-	 *            The version to obtain.
-	 * @param document
-	 *            The document for which to obtain the version.
-	 * @return The version.
-	 */
-	DocumentVersion getVersion(final String version, final Document document)
-			throws ParityException {
-		logger.info("getVerision(String,Document)");
-		logger.debug(version);
-		logger.debug(document);
-		try { return documentXmlIO.getVersion(version, document); }
-		catch(IOException iox ) {
-			logger.error("getVersion(String,Document)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx ) {
-			logger.error("getVersion(String,Document)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	Boolean isDocumentClosable(final Document document) throws ParityException {
-		logger.debug(document);
-		return Boolean.FALSE;
-	}
-
-	Boolean isDocumentDeletable(final Document document) throws ParityException {
-		logger.debug(document);
-		return Boolean.FALSE;
-	}
-
 	/**
 	 * Open the document. First obtain the file from the cache, then open it
 	 * based upon underlying operating system constraints.
@@ -424,25 +402,25 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The xmpp document received from another parity user.
 	 * @throws ParityException
 	 */
-	void receiveDocument(final XMPPDocument xmppDocument)
+	void receive(final XMPPDocument xmppDocument)
 			throws ParityException {
 		logger.info("receiveDocument(XMPPDocument)");
 		logger.debug(xmppDocument);
 		try {
 			/*
-			 * Obtain the root parity project within the workspace, and place
+			 * Obtain the inbox parity project within the workspace, and place
 			 * the received document within it, the notify all listeners about
 			 * the new document.
 			 */
-			final Project project = projectModel.getRootProject();
+			final Project inbox = projectModel.getInbox();
 	
-			final Document document = new Document(project,
+			final Document document = new Document(inbox,
 					xmppDocument.getName(), xmppDocument.getCreatedOn(),
 					xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
 					xmppDocument.getId(), xmppDocument.getContent());
 			documentXmlIO.create(document);
-			project.addDocument(document);
-			projectXmlIO.update(project);
+			inbox.addDocument(document);
+			projectXmlIO.update(inbox);
 			// create a new version
 			createVersion(document);
 			// fire a receive event
@@ -464,7 +442,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @param listener
 	 *            The listener to remove.
 	 */
-	void removeCreationListener(final CreationListener listener) {
+	void removeListener(final CreationListener listener) {
 		logger.info("removeCreationListener(CreationListener)");
 		logger.debug(listener);
 		Assert.assertNotNull(
@@ -483,7 +461,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @param listener
 	 *            The listener to remove.
 	 */
-	void removeUpdateListener(final UpdateListener listener) {
+	void removeListener(final UpdateListener listener) {
 		logger.info("removeUpdateListener(UpdateListener)");
 		logger.debug(listener);
 		Assert.assertNotNull("removeUpdateListener(UpdateListener)", listener);
@@ -502,19 +480,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document to update.
 	 * @throws ParityException
 	 */
-	void updateDocument(final Document document) throws ParityException {
-		logger.info("updateDocument(Document)");
+	void update(final Document document) throws ParityException {
+		logger.info("update(Document)");
 		logger.debug(document);
 		try {
 			documentXmlIO.update(document);
 			notifyUpdate_objectUpdated(document);
 		}
 		catch(IOException iox) {
-			logger.error("updateDocument(Document)", iox);
+			logger.error("update(Document)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("updateDocument(Document)", rx);
+			logger.error("update(Document)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -536,7 +514,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
 			if(!cacheFileChecksum.equals(document.getContentChecksum())) {
 				document.setContent(cacheFileBytes);
-				updateDocument(document);
+				update(document);
 			}
 		}
 		final DocumentVersion version = DocumentVersionBuilder.create(document);
@@ -611,8 +589,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @see CreationListener#objectCreated(CreationEvent)
 	 */
 	private void notifyCreation_objectCreated(final Document document) {
-		synchronized (DocumentModelImpl.creationListenersLock) {
-			for (CreationListener listener : DocumentModelImpl.creationListeners) {
+		synchronized(DocumentModelImpl.creationListenersLock) {
+			for(CreationListener listener : DocumentModelImpl.creationListeners) {
 				listener.objectCreated(new CreationEvent(document));
 			}
 		}

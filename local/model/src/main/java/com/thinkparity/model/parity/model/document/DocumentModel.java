@@ -60,13 +60,8 @@ public class DocumentModel {
 	 * @param creationListener
 	 *            <code>com.thinkparity.model.parity.api.events.CreationListener</code>
 	 */
-	public void addCreationListener(final CreationListener creationListener) {
-		synchronized(implLock) { impl.addCreationListener(creationListener); }
-	}
-
-	public void addNote(final Document document, final Note note)
-			throws ParityException {
-		synchronized(implLock) { impl.addNote(document, note); }
+	public void addListener(final CreationListener creationListener) {
+		synchronized(implLock) { impl.addListener(creationListener); }
 	}
 
 	/**
@@ -75,11 +70,16 @@ public class DocumentModel {
 	 * @param updateListener
 	 *            <code>com.thinkparity.model.parity.api.events.UpdateListener</code>
 	 */
-	public void addUpdateListener(final UpdateListener updateListener) {
-		synchronized(implLock) { impl.addUpdateListener(updateListener); }
+	public void addListener(final UpdateListener updateListener) {
+		synchronized(implLock) { impl.addListener(updateListener); }
 	}
 
-	public void closeDocument(final Document document) throws ParityException {
+	public void addNote(final Document document, final Note note)
+			throws ParityException {
+		synchronized(implLock) { impl.addNote(document, note); }
+	}
+
+	public void close(final Document document) throws ParityException {
 		Assert.assertNotYetImplemented("DocumentModel.closeDocument()");
 	}
 
@@ -133,6 +133,20 @@ public class DocumentModel {
 		synchronized(implLock) { impl.export(document, file); }
 	}
 
+	public String getRelativePath(final Document document) {
+		synchronized(implLock) { return impl.getRelativePath(document); }
+	}
+
+	public Boolean isClosable(final Document document)
+			throws ParityException {
+		synchronized(implLock) { return impl.isClosable(document); }
+	}
+
+	public Boolean isDeletable(final Document document)
+			throws ParityException {
+		synchronized(implLock) { return impl.isDeletable(document); }
+	}
+
 	/**
 	 * Obtain a list of documents for a project.
 	 * 
@@ -159,34 +173,6 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.listVersions(document); }
 	}
 
-	/**
-	 * Obtain a version for a specific document.
-	 * 
-	 * @param versionId
-	 *            The version to obtain.
-	 * @param document
-	 *            The document for which to obtain the version.
-	 * @return The version.
-	 */
-	public DocumentVersion getVersion(final String versionId,
-			final Document document) throws ParityException {
-		synchronized(implLock) { return impl.getVersion(versionId, document); }
-	}
-
-	public String getRelativePath(final Document document) {
-		synchronized(implLock) { return impl.getRelativePath(document); }
-	}
-
-	public Boolean isDocumentClosable(final Document document)
-			throws ParityException {
-		synchronized(implLock) { return impl.isDocumentClosable(document); }
-	}
-
-	public Boolean isDocumentDeletable(final Document document)
-			throws ParityException {
-		synchronized(implLock) { return impl.isDocumentDeletable(document); }
-	}
-
 	public void open(final Document document) throws ParityException {
 		synchronized(implLock) { impl.open(document); }
 	}
@@ -198,9 +184,8 @@ public class DocumentModel {
 	 *            The xmpp document received from another parity user.
 	 * @throws ParityException
 	 */
-	public void receiveDocument(final XMPPDocument xmppDocument)
-			throws ParityException {
-		synchronized(implLock) { impl.receiveDocument(xmppDocument); }
+	public void receive(final XMPPDocument xmppDocument) throws ParityException {
+		synchronized(implLock) { impl.receive(xmppDocument); }
 	}
 
 	/**
@@ -208,17 +193,17 @@ public class DocumentModel {
 	 * @see <code>com.thinkparity.model.parity.api.document.DocumentApi#addCreationListener</code>
 	 * @param creationListener <code>com.thinkparity.model.parity.api.events.CreationListener</code>
 	 */
-	public void removeCreationListener(final CreationListener creationListener) {
+	public void removeListener(final CreationListener creationListener) {
 		synchronized(implLock) {
-			impl.removeCreationListener(creationListener);
+			impl.removeListener(creationListener);
 		}
 	}
 
-	public void removeUpdateListener(final UpdateListener updateListener) {
-		synchronized(implLock) { impl.removeUpdateListener(updateListener); }
+	public void removeListener(final UpdateListener updateListener) {
+		synchronized(implLock) { impl.removeListener(updateListener); }
 	}
 
-	public void updateDocument(final Document document) throws ParityException {
-		synchronized(implLock) { impl.updateDocument(document); }
+	public void update(final Document document) throws ParityException {
+		synchronized(implLock) { impl.update(document); }
 	}
 }

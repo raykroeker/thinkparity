@@ -19,7 +19,6 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.tree.TreeModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -150,11 +149,11 @@ public class ModelTestCaseHelper {
 	 */
 	Project getJUnitProject() throws ParityException {
 		if(null == ModelTestCaseHelper.jUnitProject) {
-			final Project rootProject = getRootProject();
+			final Project myProjects = getMyProjects();
 			final String name = jUnitSessionId;
 			final String description = name;
 			ModelTestCaseHelper.jUnitProject =
-				getProjectModel().create(rootProject, name, description);
+				getProjectModel().create(myProjects, name, description);
 		}
 		return ModelTestCaseHelper.jUnitProject;
 	}
@@ -202,27 +201,11 @@ public class ModelTestCaseHelper {
 	ProjectModel getProjectModel() { return ProjectModel.getModel(); }
 
 	/**
-	 * Obtain a handle to the root project.
-	 * 
-	 * @return A handle to the root project.
-	 */
-	Project getRootProject() throws ParityException {
-		return getProjectModel().getRootProject();
-	}
-	
-	/**
 	 * Obtain a handle to the session model.
 	 * 
 	 * @return A handle to the session model.
 	 */
 	SessionModel getSessionModel() { return SessionModel.getModel(); }
-
-	/**
-	 * Obtain a handle to the tree model.
-	 * 
-	 * @return A handle to the tree model.
-	 */
-	TreeModel getTreeModel() { return TreeModel.getModel(); }
 	
 	/**
 	 * Obtain a handle to the workspace.
@@ -232,9 +215,18 @@ public class ModelTestCaseHelper {
 	Workspace getWorkspace() {
 		return WorkspaceModel.getModel().getWorkspace();
 	}
-
+	
 	private void deleteTree(final File rootDirectory) {
 		FileUtil.deleteTree(rootDirectory);
+	}
+
+	/**
+	 * Obtain a handle to the root project.
+	 * 
+	 * @return A handle to the root project.
+	 */
+	private Project getMyProjects() throws ParityException {
+		return getProjectModel().getMyProjects();
 	}
 
 	private File getWorkspaceDirectory(final ModelTestUser modelTestUser) {

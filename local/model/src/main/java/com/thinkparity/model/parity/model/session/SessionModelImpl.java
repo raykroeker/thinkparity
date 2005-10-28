@@ -84,7 +84,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	static void notifyDocumentReceived(final XMPPDocument xmppDocument) {
 		final DocumentModel documentModel = DocumentModel.getModel();
-		try { documentModel.receiveDocument(xmppDocument); }
+		try { documentModel.receive(xmppDocument); }
 		catch(ParityException px) {}
 	}
 

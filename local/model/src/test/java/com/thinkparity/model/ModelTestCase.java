@@ -14,7 +14,6 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.tree.TreeModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -114,17 +113,13 @@ public abstract class ModelTestCase extends TestCase {
 		return helper.getPreferences();
 	}
 
+	/**
+	 * Obtain a handle to the project model.
+	 * 
+	 * @return A handle to the project model.
+	 */
 	protected ProjectModel getProjectModel() {
 		return ProjectModel.getModel();
-	}
-
-	/**
-	 * Obtain a handle to the root parity project.
-	 * 
-	 * @return The root parity project.
-	 */
-	protected Project getRootProject() throws ParityException {
-		return helper.getRootProject();
 	}
 
 	/**
@@ -137,15 +132,19 @@ public abstract class ModelTestCase extends TestCase {
 	}
 
 	/**
-	 * Obtain a handle to the tree model.
-	 * @return A handle to the tree model.
+	 * Obtain a handle to the parity workspace.
+	 * 
+	 * @return A handle to the parity workspace.
 	 */
-	protected TreeModel getTreeModel() { return helper.getTreeModel(); }
-	
 	protected Workspace getWorkspace() {
 		return getWorkspaceModel().getWorkspace();
 	}
 
+	/**
+	 * Obtain a handle to the parity workspace model.
+	 * 
+	 * @return A handle to the parity workspace model.
+	 */
 	protected WorkspaceModel getWorkspaceModel() {
 		return WorkspaceModel.getModel();
 	}

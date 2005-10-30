@@ -129,6 +129,19 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
+	 * Determine whether a project has children or not.
+	 * 
+	 * @param project
+	 *            The project to check.
+	 * @return True if the project contains any projects or documents; false
+	 *         otherwise.
+	 * @throws ParityException
+	 */
+	public Boolean hasChildren(final Project project) throws ParityException {
+		synchronized(implLock) { return impl.hasChildren(project); }
+	}
+
+	/**
 	 * Obtain a list of the root projects.
 	 * 
 	 * @return A list of the root projects.

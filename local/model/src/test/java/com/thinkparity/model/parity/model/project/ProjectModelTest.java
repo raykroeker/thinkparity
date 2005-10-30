@@ -30,7 +30,6 @@ public class ProjectModelTest extends ModelTestCase {
 			this.projectModel = projectModel;
 		}
 	}
-
 	private class DeleteData {
 		private final Project project;
 		private final ProjectModel projectModel;
@@ -40,7 +39,16 @@ public class ProjectModelTest extends ModelTestCase {
 			this.projectModel = projectModel;
 		}
 	}
-	
+	private class HasChildrenData {
+		private final Boolean expectedHasChildren;
+		private final Project project;
+		private final ProjectModel projectModel;
+		private HasChildrenData(final Boolean expectedHasChildren, final Project project, final ProjectModel projectModel) {
+			this.expectedHasChildren = expectedHasChildren;
+			this.project = project;
+			this.projectModel = projectModel;
+		}
+	}
 	private class ListData {
 		private final Collection<Project> expectedProjects;
 		private final Project parent;
@@ -55,6 +63,7 @@ public class ProjectModelTest extends ModelTestCase {
 
 	private Vector<CreateData> createData;
 	private Vector<DeleteData> deleteData;
+	private Vector<HasChildrenData> hasChildrenData;
 	private Vector<ListData> listData;
 
 	/**
@@ -70,6 +79,7 @@ public class ProjectModelTest extends ModelTestCase {
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
+
 	public void testDelete() {
 		try {
 			for(DeleteData data : deleteData) {
@@ -91,6 +101,16 @@ public class ProjectModelTest extends ModelTestCase {
 		try {
 			final Project myProjects = getProjectModel().getMyProjects();
 			assertNotNull(myProjects);
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+	public void testHasChildren() {
+		try {
+			for(HasChildrenData data : hasChildrenData) {
+				ProjectModelTest.assertEquals(
+						data.expectedHasChildren,
+						data.projectModel.hasChildren(data.project));
+			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
@@ -121,6 +141,7 @@ public class ProjectModelTest extends ModelTestCase {
 		super.setUp();
 		setUpCreate();
 		setUpDelete();
+		setUpHasChildren();
 		setUpList();
 	}
 
@@ -194,6 +215,44 @@ public class ProjectModelTest extends ModelTestCase {
 		deleteData.add(new DeleteData(project, projectModel));
 	}
 
+	protected void setUpHasChildren() throws Exception {
+		hasChildrenData = new Vector<HasChildrenData>(3);
+		final Project testProject = createTestProject("testHasChildren");
+		final DocumentModel documentModel = getDocumentModel();
+		final ProjectModel projectModel = getProjectModel();
+		Project project;
+		String name, description;
+		
+		name = "1";
+		description = name;
+		project = projectModel.create(testProject, name, description);
+		hasChildrenData.add(new HasChildrenData(Boolean.FALSE, project, projectModel));
+
+		name = "2";
+		description = name;
+		project = projectModel.create(testProject, name, description);
+		name = "2.1";
+		description = name;
+		projectModel.create(project, name, description);
+		name = "2.2";
+		description = name;
+		projectModel.create(project, name, description);
+		name = "2.3";
+		description = name;
+		projectModel.create(project, name, description);
+		hasChildrenData.add(new HasChildrenData(Boolean.TRUE, project, projectModel));
+
+		name = "3";
+		description = name;
+		project = projectModel.create(testProject, name, description);
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			documentModel.create(project, name, description, testFile.getFile());
+		}
+		hasChildrenData.add(new HasChildrenData(Boolean.TRUE, project, projectModel));
+	}
+
 	protected void setUpList() throws Exception {
 		listData = new Vector<ListData>(4);
 		final Project testProject = createTestProject("testList");
@@ -226,6 +285,7 @@ public class ProjectModelTest extends ModelTestCase {
 		super.tearDown();
 		tearDownCreate();
 		tearDownDelete();
+		tearDownHasChildren();
 		tearDownList();
 	}
 
@@ -247,6 +307,11 @@ public class ProjectModelTest extends ModelTestCase {
 	protected void tearDownDelete() throws Exception {
 		deleteData.clear();
 		deleteData = null;
+	}
+
+	protected void tearDownHasChildren() throws Exception {
+		hasChildrenData.clear();
+		hasChildrenData = null;
 	}
 
 	protected void tearDownList() throws Exception {

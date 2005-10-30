@@ -408,4 +408,25 @@ class ProjectModelImpl extends AbstractModelImpl {
 			}
 		}
 	}
+
+	/**
+	 * Determine whether a project has children or not.
+	 * 
+	 * @param project
+	 *            The project to check.
+	 * @return True if the project contains any projects or documents; false
+	 *         otherwise.
+	 * @throws ParityException
+	 */
+	Boolean hasChildren(final Project project) throws ParityException {
+		logger.info("hasChildren(Project)");
+		logger.debug(project);
+		try {
+			return projectXmlIO.hasChildren(project);
+		}
+		catch(RuntimeException rx) {
+			logger.error("hasChildren(Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
 }

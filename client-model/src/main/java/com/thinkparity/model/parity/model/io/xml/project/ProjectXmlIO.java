@@ -70,6 +70,27 @@ public class ProjectXmlIO extends XmlIO {
 	}
 
 	/**
+	 * Determine whether a project has children or not.
+	 * 
+	 * @param project
+	 *            The project to check.
+	 * @return True if the project contains any projects or documents; false
+	 *         otherwise.
+	 */
+	public Boolean hasChildren(final Project project) {
+		logger.info("hasChildren(Project)");
+		logger.debug(project);
+		final File[] xmlFileDirectories = getXmlFileDirectories(project);
+		if(1 <= xmlFileDirectories.length) { return Boolean.TRUE; }
+		else {
+			final File xmlFileDirectory = getXmlFileDirectory(project);
+			final File[] documentXmlFiles = getDocumentXmlFiles(xmlFileDirectory);
+			if(1 <= documentXmlFiles.length) { return Boolean.TRUE; }
+			else { return Boolean.FALSE; }
+		}
+	}
+
+	/**
 	 * Obtain a list of root projects.
 	 * 
 	 * @return A list of projects.
@@ -108,6 +129,24 @@ public class ProjectXmlIO extends XmlIO {
 		logger.info("update(Project)");
 		logger.debug(project);
 		write(project, getXmlFile(project));
+	}
+
+	/**
+	 * Obtain a list of document xml files for a given xml file directory.
+	 * 
+	 * @param xmlFileDirectory
+	 *            The xml file directory.
+	 * @return A list of files representing document xml files.
+	 */
+	private File[] getDocumentXmlFiles(final File xmlFileDirectory) {
+		return xmlFileDirectory.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				if(name.endsWith(IXmlIOConstants.FILE_EXTENSION_DOCUMENT)) {
+					return true;
+				}
+				else { return false; }
+			}
+		});
 	}
 
 	/**

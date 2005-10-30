@@ -18,7 +18,6 @@ import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xstream.XStreamUtil;
 
 /**
  * ProjectXmlIO
@@ -73,12 +72,12 @@ public class ProjectXmlIO extends XmlIO {
 	/**
 	 * Obtain a list of root projects.
 	 * 
-	 * @return A list of the parent's child projects
+	 * @return A list of projects.
 	 * @throws ParityException
 	 */
 	public Collection<Project> list() throws FileNotFoundException, IOException {
 		logger.info("list()");
-		return list(getXmlFileDirectories());
+		return list(null, getXmlFileDirectories());
 	}
 
 	/**
@@ -93,7 +92,7 @@ public class ProjectXmlIO extends XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("list(Project)");
 		logger.debug(parent);
-		return list(getXmlFileDirectories(parent));
+		return list(parent, getXmlFileDirectories(parent));
 	}
 
 	/**
@@ -109,21 +108,6 @@ public class ProjectXmlIO extends XmlIO {
 		logger.info("update(Project)");
 		logger.debug(project);
 		write(project, getXmlFile(project));
-	}
-
-	/**
-	 * Convert a project xml file into a project.
-	 * 
-	 * @param xmlFile
-	 *            Read the xml file and stream it into a project.
-	 * @return A project
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	private Project fromXml(final File xmlFile) throws FileNotFoundException,
-			IOException {
-		final String xml = readXmlFile(xmlFile);
-		return (Project) XStreamUtil.fromXML(xml);
 	}
 
 	/**
@@ -180,19 +164,25 @@ public class ProjectXmlIO extends XmlIO {
 	/**
 	 * Obtain a list of projects within a list of project xml file directories.
 	 * 
+	 * @param parent
+	 *            The parent project (Optional).
 	 * @param xmlFileDirectories
 	 *            The project xml file directories.
 	 * @return A list of projects.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private Collection<Project> list(final File[] xmlFileDirectories)
-			throws FileNotFoundException, IOException {
+	private Collection<Project> list(final Project parent,
+			final File[] xmlFileDirectories) throws FileNotFoundException,
+			IOException {
 		final Collection<Project> projects = new Vector<Project>(7);
 		File xmlFile;
+		Project project;
 		for(File xmlFileDirectory : xmlFileDirectories) {
 			xmlFile = getXmlFile(xmlFileDirectory);
-			projects.add(fromXml(xmlFile));
+			project = readProject(xmlFile);
+			project.setParent(parent);
+			projects.add(project);
 		}
 		return projects;
 	}

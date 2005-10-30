@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import com.thinkparity.model.parity.ParityException;
+
 
 
 /**
@@ -36,7 +38,8 @@ public class DocumentVersionBuilder {
 	 *            The document to create the version for.
 	 * @return The new version for the document.
 	 */
-	public static DocumentVersion create(final Document document) {
+	public static DocumentVersion create(final Document document)
+			throws ParityException {
 		synchronized(singletonLock) {
 			return singleton.createImpl(document);
 		}
@@ -45,16 +48,16 @@ public class DocumentVersionBuilder {
 	/**
 	 * Obtain an named document version for a given document.
 	 * 
-	 * @param document
+	 * @param snapshot
 	 *            The document to obtain the version for.
 	 * @param version
 	 *            The named version of the document.
 	 * @return The version of the document.
 	 */
-	public static DocumentVersion getVersion(final Document document,
-			final String version) {
+	public static DocumentVersion getVersion(final String version,
+			final Document snapshot) {
 		synchronized(singletonLock) {
-			return singleton.getVersionImpl(document, version);
+			return singleton.getVersionImpl(version, snapshot);
 		}
 	}
 
@@ -70,9 +73,10 @@ public class DocumentVersionBuilder {
 	 *            The document to obtain the version for.
 	 * @return The next document version.
 	 */
-	private DocumentVersion createImpl(final Document document) {
+	private DocumentVersion createImpl(final Document document)
+			throws ParityException {
 		final String newVersion = createNextVersion(document);
-		return new DocumentVersion(document, newVersion);
+		return new DocumentVersion(document, newVersion, document);
 	}
 
 	/**
@@ -82,22 +86,24 @@ public class DocumentVersionBuilder {
 	 *            The document to obtain the version for.
 	 * @return The next version in the sequence.
 	 */
-	private String createNextVersion(final Document document) {
-		final Integer numberOfVersions = document.getVersions().size();
+	private String createNextVersion(final Document document)
+			throws ParityException {
+		final DocumentModel documentModel = DocumentModel.getModel();
+		final Integer numberOfVersions = documentModel.listVersions(document).size();
 		return new StringBuffer("v").append(numberOfVersions + 1).toString();
 	}
 
 	/**
 	 * Obtain an named document version for a given document.
 	 * 
-	 * @param document
+	 * @param snapshot
 	 *            The document to obtain the version for.
 	 * @param version
 	 *            The named version of the document.
 	 * @return The version of the document.
 	 */
-	private DocumentVersion getVersionImpl(final Document document,
-			final String version) {
-		return new DocumentVersion(document, version);
+	private DocumentVersion getVersionImpl(final String version,
+			final Document snapshot) {
+		return new DocumentVersion(version, snapshot);
 	}
 }

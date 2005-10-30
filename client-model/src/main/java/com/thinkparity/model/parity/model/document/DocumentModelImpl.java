@@ -25,7 +25,6 @@ import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentXmlIO;
-import com.thinkparity.model.parity.model.io.xml.project.ProjectXmlIO;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
@@ -90,11 +89,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private final ProjectModel projectModel;
 
 	/**
-	 * Project xml input\output.
-	 */
-	private final ProjectXmlIO projectXmlIO;
-
-	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -103,7 +97,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	DocumentModelImpl(final Workspace workspace) {
 		super(workspace);
 		this.documentXmlIO = new DocumentXmlIO(workspace);
-		this.projectXmlIO = new ProjectXmlIO(workspace);
 		this.projectModel = ProjectModel.getModel();
 	}
 
@@ -202,9 +195,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 					description, id, content);
 			// create the document
 			documentXmlIO.create(document);
-			// update the project
-			project.addDocument(document);
-			projectXmlIO.update(project);
 			// create a new version
 			createVersion(document);
 			// fire a creation event
@@ -232,17 +222,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(Document)");
 		logger.debug(document);
 		try {
-			// remove the document from the project and update
-			final Project project = document.getParent();
-			Assert.assertTrue(
-					"Document cannot be removed from project.",
-					project.removeDocument(document));
-			projectModel.update(project);
-
 			// delete the versions
-			final Collection<DocumentVersion> versions = document.getVersions();
-			for(DocumentVersion version : versions) { delete(version); }
-
+			for(DocumentVersion version : listVersions(document)) {
+				delete(version);
+			}
 			// delete the xml file
 			documentXmlIO.delete(document);
 			notifyUpdate_objectDeleted(document);
@@ -262,16 +245,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(DocumentVersion)");
 		logger.debug(version);
 		try {
-			// update the document
-			final Document document = version.getDocument();
-			document.remove(version);
-			documentXmlIO.update(document);
 			// delete the xml file
 			documentXmlIO.delete(version);
-		}
-		catch(IOException iox) {
-			logger.error("delete(DocumentVersion)", iox);
-			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
 			logger.error("delete(DocumentVersion)", rx);
@@ -420,8 +395,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 					xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
 					xmppDocument.getId(), xmppDocument.getContent());
 			documentXmlIO.create(document);
-			inbox.addDocument(document);
-			projectXmlIO.update(inbox);
 			// create a new version
 			createVersion(document);
 			// fire a receive event
@@ -519,8 +492,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			}
 		}
 		final DocumentVersion version = DocumentVersionBuilder.create(document);
-		document.add(version);
-		documentXmlIO.update(document);
 		documentXmlIO.create(version);
 		notifyCreation_objectVersionCreated(version);
 		return version;

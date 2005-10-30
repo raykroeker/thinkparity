@@ -65,8 +65,8 @@ public class DocumentVersionConverter extends XmlIOConverter {
 			UnmarshallingContext context) {
 		final String version = readVersionId(reader, context);
 		final UUID documentId = readDocumentId(reader, context);
-		final Document document = readDocument(reader, context);
-		return DocumentVersionBuilder.getVersion(document, version);
+		final Document snapshot = readDocument(reader, context);
+		return DocumentVersionBuilder.getVersion(version, snapshot);
 	}
 
 	/**

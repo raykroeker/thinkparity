@@ -3,8 +3,6 @@
  */
 package com.thinkparity.model.parity.api;
 
-import java.io.File;
-
 import com.thinkparity.model.xstream.XStreamSerializable;
 
 /**
@@ -12,7 +10,4 @@ import com.thinkparity.model.xstream.XStreamSerializable;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public interface ParityXmlSerializable extends XStreamSerializable {
-
-	public File getMetaDataFile(final File parentDirectory);
-}
+public interface ParityXmlSerializable extends XStreamSerializable {}

@@ -60,6 +60,7 @@ public class ProjectConverter extends XmlIOConverter {
 		try {
 			final UUID id = readId(reader, context);
 			final String name = readName(reader, context);
+			final UUID projectId = readProjectId(reader, context);
 			final String createdBy = readCreatedBy(reader, context);
 			final Calendar createdOn = readCreatedOn(reader, context);
 			final String description = readDescription(reader, context);

@@ -143,9 +143,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 					DateUtil.getInstance(), preferences.getUsername(),
 					description, id);
 			projectXmlIO.create(project);
-			// update the parent
-			parent.addProject(project);
-			projectXmlIO.update(parent);
 			notifyCreation_objectCreated(project);
 			return project;
 		}
@@ -172,12 +169,10 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.debug(project);
 		try {
 			final DocumentModel documentModel = DocumentModel.getModel();
-			for(Document subDocument : project.getDocuments()) {
+			for(Document subDocument : documentModel.list(project)) {
 				documentModel.delete(subDocument);
 			}
-			for(Project subProject : project.getProjects()) {
-				delete(subProject);
-			}
+			for(Project subProject : list(project)) { delete(subProject); }
 			projectXmlIO.delete(project);
 			notifyUpdate_objectDeleted(project);
 		}

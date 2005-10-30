@@ -101,8 +101,11 @@ public class DocumentXmlIO extends XmlIO {
 		final File xmlFileDirectory = getXmlFileDirectory(project);
 		final File[] xmlFiles = getXmlFiles(xmlFileDirectory);
 		final Collection<Document> documents = new Vector<Document>(xmlFiles.length);
+		Document document;
 		for(File xmlFile : xmlFiles) {
-			documents.add(readDocument(xmlFile));
+			document = readDocument(xmlFile);
+			document.setParent(project);
+			documents.add(document);
 		}
 		return documents;
 	}
@@ -123,8 +126,11 @@ public class DocumentXmlIO extends XmlIO {
 		final File xmlFileDirectory = getXmlFileDirectory(document);
 		final File[] xmlFiles = getVersionXmlFiles(document.getName(), xmlFileDirectory);
 		final Collection<DocumentVersion> versions = new Vector<DocumentVersion>(xmlFiles.length);
+		DocumentVersion version;
 		for(File xmlFile : xmlFiles) {
-			versions.add(readDocumentVersion(xmlFile));
+			version = readDocumentVersion(xmlFile);
+			version.setDocument(document);
+			versions.add(version);
 		}
 		return versions;
 	}

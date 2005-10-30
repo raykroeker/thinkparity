@@ -215,7 +215,7 @@ public abstract class ParityObject implements IParityModelConstants {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
 	}
 
-	protected void setParent(final Project parent) { this.parent = parent; }
+	public void setParent(final Project parent) { this.parent = parent; }
 
 	/**
 	 * Create a default instance of the custom properties.

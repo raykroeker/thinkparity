@@ -4,11 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.UUID;
-import java.util.Vector;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
@@ -31,11 +27,6 @@ public class Document extends ParityObject {
 	 * The document content's checksum.
 	 */
 	private String contentChecksum;
-
-	/**
-	 * The versions of this document.
-	 */
-	private final Collection<DocumentVersion> versions;
 
 	/**
 	 * Create a Document.
@@ -85,21 +76,6 @@ public class Document extends ParityObject {
 		super(parent, name, description, createdOn, createdBy, id);
 		this.content = content;
 		this.contentChecksum = MD5Util.md5Hex(content);
-		this.versions = new Vector<DocumentVersion>(1);
-	}
-
-	/**
-	 * Add a version to this document.
-	 * 
-	 * @param version
-	 *            The version to add.
-	 */
-	public void add(final DocumentVersion version) {
-		Assert.assertNotNull("add(DocumentVersion)", version);
-		Assert.assertNotTrue(
-				"add(DocumentVersion) - contains(DocumentVersion)",
-				contains(version));
-		versions.add(version);
 	}
 
 	/**
@@ -136,77 +112,6 @@ public class Document extends ParityObject {
 	public ParityObjectType getType() { return ParityObjectType.DOCUMENT; }
 
 	/**
-	 * Obtain a copy of the document versions.
-	 * 
-	 * @return The list of document versions.
-	 */
-	public Collection<DocumentVersion> getVersions() {
-		final Collection<DocumentVersion> copy =
-			new Vector<DocumentVersion>(versions.size());
-		copy.addAll(versions);
-		return copy;
-	}
-
-	/**
-	 * Obtain the document versions, with a set of exclusions.
-	 * 
-	 * @param exclusions
-	 *            The document versions to exclude from the list.
-	 * @return A list of document versions.
-	 */
-	public Collection<DocumentVersion> getVersionsExclude(
-			final Collection<DocumentVersion> exclusions) {
-		final Collection<DocumentVersion> copy = getVersions();
-		if(null == exclusions || 0 == exclusions.size()) { return copy; }
-		else {
-			final Collection<DocumentVersion> modList =
-				new Vector<DocumentVersion>(copy.size() - exclusions.size());
-			Boolean doExclude = Boolean.FALSE;
-			for(DocumentVersion copyVersion : copy) {
-				for(DocumentVersion exclusion : exclusions) {
-					if(copyVersion.getVersion().equals(exclusion.getVersion())) {
-						doExclude = Boolean.TRUE;
-						break;
-					}
-				}
-				if(Boolean.FALSE == doExclude) { modList.add(copyVersion); } 
-			}
-			return modList;
-		}
-	}
-
-	/**
-	 * Remove a version from this document.
-	 * 
-	 * @param version
-	 *            The version to remove.
-	 * @return Whether or not the list of versions was modified via this
-	 *         operation.
-	 */
-	public Boolean remove(final DocumentVersion version) {
-		Assert.assertNotNull("remove(DocumentVersion)", version);
-		final Integer size = versions.size();
-		final Collection<DocumentVersion> modList =
-			new Vector<DocumentVersion>(size - 1);
-		for(DocumentVersion dv : versions) {
-			if(!dv.getVersion().equals(version.getVersion())) {
-				modList.add(dv);
-			}
-		}
-		versions.clear();
-		versions.addAll(modList);
-		return (size != versions.size());
-	}
-
-	/**
-	 * Set the project for this document.
-	 * 
-	 * @param project
-	 *            The new project.
-	 */
-	public void setProject(final Project project) { setParent(project); }
-
-	/**
 	 * Set the content of the document.
 	 * 
 	 * @param content
@@ -215,22 +120,5 @@ public class Document extends ParityObject {
 	void setContent(byte[] content) {
 		this.content = new byte[content.length];
 		System.arraycopy(content, 0, this.content, 0, content.length);
-	}
-
-	/**
-	 * Determine whether the list of versions contains this version. A simple
-	 * equals check is made on the version id.
-	 * 
-	 * @param version
-	 *            The version to look for.
-	 * @return True if the list of versions contains the provided version.
-	 */
-	private Boolean contains(final DocumentVersion version) {
-		for(DocumentVersion dv : versions) {
-			if(dv.getVersion().equals(version.getVersion())) {
-				return Boolean.TRUE;
-			}
-		}
-		return Boolean.FALSE;
 	}
 }

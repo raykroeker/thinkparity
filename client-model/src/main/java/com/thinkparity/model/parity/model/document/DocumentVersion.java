@@ -3,8 +3,6 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.io.File;
-
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 
 /**
@@ -14,7 +12,15 @@ import com.thinkparity.model.parity.api.ParityObjectVersion;
  */
 public class DocumentVersion extends ParityObjectVersion {
 
+	/**
+	 * Reference to the main document.
+	 */
 	private Document document;
+
+	/**
+	 * Reference to the document snapshot representd by this version.
+	 */
+	private final Document snapshot;
 
 	/**
 	 * Create a DocumentVersion
@@ -24,36 +30,42 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * @param versionId
 	 *            The version id of the new version.
 	 */
-	public DocumentVersion(final Document document, final String versionId) {
+	public DocumentVersion(final Document document, final String versionId,
+			final Document snapshot) {
 		super(versionId);
 		this.document = document;
+		this.snapshot = snapshot;
 	}
 
-	public byte[] getContent() { return document.getContent(); }
-
 	/**
-	 * Obtain the author of the originating document.
-	 * @return <code>java.lang.String</code>
+	 * Create a DocumentVersion
+	 * 
+	 * @param versionId
+	 *            The version id.
+	 * @param snapshot
+	 *            The version snapshot of the document.
 	 */
-	public String getCreatedBy() { return document.getCreatedBy(); }
-
-	public String getDescription() { return document.getDescription(); }
+	public DocumentVersion(final String versionId, final Document snapshot) {
+		this(null, versionId, snapshot);
+	}
 
 	/**
-	 * Obtain document.
-	 * @return <code>Document</code>
+	 * Obtain the document.
+	 * 
+	 * @return The document this version belongs to.
 	 */
 	public Document getDocument() { return document; }
 
 	/**
-	 * @see com.thinkparity.model.parity.api.ParityXmlSerializable#getMetaDataFile(java.io.File)
+	 * Obtain the snapshot of the document for this version.
+	 * 
+	 * @return The snapshot;
 	 */
-	public File getMetaDataFile(File parentDirectory) {
-		final String filename = new StringBuffer(document.getName())
-			.append(".").append(getVersion())
-			.append(".").append(getClass().getSimpleName().toLowerCase()).toString();
-		return new File(parentDirectory, filename);
-	}
+	public Document getSnapshot() { return snapshot; }
 
-	public String getName() { return document.getName(); }
+	/**
+	 * Set the document reference.
+	 * @param document The document reference.
+	 */
+	public void setDocument(Document document) { this.document = document; }
 }

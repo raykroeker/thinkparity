@@ -73,8 +73,9 @@ public class ModelTestCaseHelper {
 				.append(File.separatorChar).append("model")
 				.toString());
 		// set the workspace directory, then delete its contents
-		final File jUnitWorkspace =
-			new File(resourcesDirectory, "junit.workspace");
+		final File jUnitWorkspace = new File(
+				"C:\\Documents and Settings\\raymond\\My Documents\\thinkparity.com",
+				"jUnit");
 		if(jUnitWorkspace.exists())
 			FileUtil.deleteTree(jUnitWorkspace);
 		// set the test files

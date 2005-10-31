@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.io.xml.document;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentAction;
+import com.thinkparity.model.parity.model.document.DocumentActionData;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionBuilder;
 import com.thinkparity.model.parity.model.io.xml.XmlIOConverter;
@@ -23,6 +25,19 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * @version 1.1
  */
 public class DocumentVersionConverter extends XmlIOConverter {
+
+	/**
+	 * Simple wrapper used by writeAction\readAction.
+	 */
+	private class ActionWrapper {
+		private final DocumentAction action;
+		private final DocumentActionData actionData;
+		private ActionWrapper(final DocumentAction action,
+				final DocumentActionData actionData) {
+			this.action = action;
+			this.actionData = actionData;
+		}
+	}
 
 	/**
 	 * Handle to a document converter.
@@ -55,6 +70,7 @@ public class DocumentVersionConverter extends XmlIOConverter {
 		logger.debug(document);
 		writeVersionId(version.getVersion(), writer, context);
 		writeDocumentId(document.getId(), writer, context);
+		writeAction(new ActionWrapper(version.getAction(), version.getActionData()), writer, context);
 		writeDocument(version.getDocument(), writer, context);
 	}
 
@@ -65,8 +81,58 @@ public class DocumentVersionConverter extends XmlIOConverter {
 			UnmarshallingContext context) {
 		final String version = readVersionId(reader, context);
 		final UUID documentId = readDocumentId(reader, context);
+		final ActionWrapper actionWrapper = readAction(reader, context);
+		final DocumentAction action = actionWrapper.action;
+		final DocumentActionData actionData = actionWrapper.actionData;
 		final Document snapshot = readDocument(reader, context);
-		return DocumentVersionBuilder.getVersion(version, snapshot);
+		return DocumentVersionBuilder.getVersion(version, snapshot, action, actionData);
+	}
+
+	/**
+	 * Read an action into an action wrapper.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 * @return The action; and action data.
+	 */
+	private ActionWrapper readAction(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		reader.moveDown();
+		final DocumentAction action =
+			DocumentAction.fromId(reader.getAttribute("id"));
+		final DocumentActionData actionData;
+		if(reader.hasMoreChildren()) {
+			reader.moveDown();
+			actionData = new DocumentActionData();
+			while(reader.hasMoreChildren()) {
+				readActionDataItem(actionData, reader, context);
+			}
+			reader.moveUp();
+		}
+		else { actionData = null; }
+		reader.moveUp();
+		return new ActionWrapper(action, actionData);
+	}
+
+	/**
+	 * Read an extra action data item from the xml reader into the action data
+	 * object.
+	 * 
+	 * @param actionData
+	 *            The action data to set the data item within.
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 */
+	private void readActionDataItem(final DocumentActionData actionData,
+			final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		reader.moveDown();
+		actionData.setDataItem(reader.getAttribute("key"), reader.getValue());
+		reader.moveUp();
 	}
 
 	/**
@@ -114,6 +180,51 @@ public class DocumentVersionConverter extends XmlIOConverter {
 	private String readVersionId(final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		return reader.getAttribute("id");
+	}
+
+	/**
+	 * Write the action for the document version.
+	 * 
+	 * @param actionWrapper
+	 *            The action\action data to write.
+	 * @param writer
+	 *            The xStream xml writer.
+	 * @param context
+	 *            The xStream xml writer's context.
+	 */
+	private void writeAction(final ActionWrapper actionWrapper,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.startNode("action");
+		writer.addAttribute("id", actionWrapper.action.getActionId());
+		if(actionWrapper.actionData.containsData()) {
+			for(String key : actionWrapper.actionData.keys()) {
+				writeActionDataItem(key, actionWrapper.actionData
+						.getDataItem(key), writer, context);
+			}
+		}
+		writer.endNode();
+	}
+
+	/**
+	 * Write an action data item to the writer.
+	 * 
+	 * @param key
+	 *            The data item key.
+	 * @param value
+	 *            The data item value.
+	 * @param writer
+	 *            The xStream xml writer.
+	 * @param context
+	 *            The xStream xml writer's context.
+	 */
+	private void writeActionDataItem(final String key, final String value,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.startNode("item");
+		writer.addAttribute("key", key);
+		writer.setValue(value);
+		writer.endNode();
 	}
 
 	/**

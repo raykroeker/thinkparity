@@ -38,10 +38,11 @@ public class DocumentVersionBuilder {
 	 *            The document to create the version for.
 	 * @return The new version for the document.
 	 */
-	public static DocumentVersion create(final Document document)
+	public static DocumentVersion create(final Document document,
+			final DocumentAction action, final DocumentActionData actionData)
 			throws ParityException {
 		synchronized(singletonLock) {
-			return singleton.createImpl(document);
+			return singleton.createImpl(document, action, actionData);
 		}
 	}
 
@@ -55,9 +56,10 @@ public class DocumentVersionBuilder {
 	 * @return The version of the document.
 	 */
 	public static DocumentVersion getVersion(final String version,
-			final Document snapshot) {
+			final Document snapshot, final DocumentAction action,
+			final DocumentActionData actionData) {
 		synchronized(singletonLock) {
-			return singleton.getVersionImpl(version, snapshot);
+			return singleton.getVersionImpl(version, snapshot, action, actionData);
 		}
 	}
 
@@ -73,10 +75,11 @@ public class DocumentVersionBuilder {
 	 *            The document to obtain the version for.
 	 * @return The next document version.
 	 */
-	private DocumentVersion createImpl(final Document document)
+	private DocumentVersion createImpl(final Document document,
+			final DocumentAction action, final DocumentActionData actionData)
 			throws ParityException {
 		final String newVersion = createNextVersion(document);
-		return new DocumentVersion(document, newVersion, document);
+		return new DocumentVersion(document, newVersion, document, action, actionData);
 	}
 
 	/**
@@ -103,7 +106,8 @@ public class DocumentVersionBuilder {
 	 * @return The version of the document.
 	 */
 	private DocumentVersion getVersionImpl(final String version,
-			final Document snapshot) {
-		return new DocumentVersion(version, snapshot);
+			final Document snapshot, final DocumentAction action,
+			final DocumentActionData actionData) {
+		return new DocumentVersion(version, snapshot, action, actionData);
 	}
 }

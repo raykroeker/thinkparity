@@ -196,7 +196,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// create the document
 			documentXmlIO.create(document);
 			// create a new version
-			createVersion(document);
+			createVersion(document, DocumentAction.CREATE, create_ActionData(document));
 			// fire a creation event
 			notifyCreation_objectCreated(document);
 			return document;
@@ -396,7 +396,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 					xmppDocument.getId(), xmppDocument.getContent());
 			documentXmlIO.create(document);
 			// create a new version
-			createVersion(document);
+			createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
 			// fire a receive event
 			notifyCreation_objectReceived(document);
 		}
@@ -472,6 +472,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Create the action data for the create api.
+	 * 
+	 * @param document
+	 *            The document that was created.
+	 * @return The action data for the create api.
+	 */
+	private DocumentActionData create_ActionData(final Document document) {
+		return new DocumentActionData();
+	}
+
+	/**
 	 * Create a new document version based upon an existing document. This will
 	 * check the cache for updates to the document, write the updates to the
 	 * document, then create a new version based upon that document.
@@ -480,7 +491,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document to create the version for.
 	 * @return The newly created version.
 	 */
-	private DocumentVersion createVersion(final Document document)
+	private DocumentVersion createVersion(final Document document,
+			final DocumentAction action, final DocumentActionData actionData)
 			throws IOException, ParityException {
 		final File cacheFile = getCacheFile(document);
 		if(cacheFile.exists()) {
@@ -491,7 +503,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 				update(document);
 			}
 		}
-		final DocumentVersion version = DocumentVersionBuilder.create(document);
+		final DocumentVersion version =
+			DocumentVersionBuilder.create(document, action, actionData);
 		documentXmlIO.create(version);
 		notifyCreation_objectVersionCreated(version);
 		return version;
@@ -663,6 +676,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 						"rundll32.exe",
 						"url.dll,FileProtocolHandler",
 						file.getAbsolutePath() });
+	}
+
+	/**
+	 * Create the action data for the receive api.
+	 * 
+	 * @param document
+	 *            The document that was received.
+	 * @return The action data for the receive api.
+	 */
+	private DocumentActionData receive_ActionData(final Document document) {
+		return new DocumentActionData();
 	}
 
 	/**

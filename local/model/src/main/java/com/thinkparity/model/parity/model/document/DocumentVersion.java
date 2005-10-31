@@ -13,6 +13,16 @@ import com.thinkparity.model.parity.api.ParityObjectVersion;
 public class DocumentVersion extends ParityObjectVersion {
 
 	/**
+	 * The action causing the version creation.
+	 */
+	private final DocumentAction action;
+
+	/**
+	 * Additional action data for the version.
+	 */
+	private final DocumentActionData actionData;
+
+	/**
 	 * Reference to the main document.
 	 */
 	private Document document;
@@ -31,8 +41,11 @@ public class DocumentVersion extends ParityObjectVersion {
 	 *            The version id of the new version.
 	 */
 	public DocumentVersion(final Document document, final String versionId,
-			final Document snapshot) {
+			final Document snapshot, final DocumentAction action,
+			final DocumentActionData actionData) {
 		super(versionId);
+		this.action = action;
+		this.actionData = actionData;
 		this.document = document;
 		this.snapshot = snapshot;
 	}
@@ -45,9 +58,24 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * @param snapshot
 	 *            The version snapshot of the document.
 	 */
-	public DocumentVersion(final String versionId, final Document snapshot) {
-		this(null, versionId, snapshot);
+	public DocumentVersion(final String versionId, final Document snapshot,
+			final DocumentAction action, final DocumentActionData actionData) {
+		this(null, versionId, snapshot, action, actionData);
 	}
+
+	/**
+	 * Obtain the action for this version.
+	 * 
+	 * @return The action for this version.
+	 */
+	public DocumentAction getAction() { return action; }
+
+	/**
+	 * Obtain the action data for this version.
+	 * 
+	 * @return The action data for this version.
+	 */
+	public DocumentActionData getActionData() { return actionData; }
 
 	/**
 	 * Obtain the document.

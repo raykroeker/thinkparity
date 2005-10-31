@@ -229,6 +229,27 @@ class ProjectModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Determine whether a project has children or not.
+	 * 
+	 * @param project
+	 *            The project to check.
+	 * @return True if the project contains any projects or documents; false
+	 *         otherwise.
+	 * @throws ParityException
+	 */
+	Boolean hasChildren(final Project project) throws ParityException {
+		logger.info("hasChildren(Project)");
+		logger.debug(project);
+		try {
+			return projectXmlIO.hasChildren(project);
+		}
+		catch(RuntimeException rx) {
+			logger.error("hasChildren(Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Obtain a list of the root projects.
 	 * 
 	 * @return A list of the root projects.
@@ -236,10 +257,11 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	Collection<Project> list() throws ParityException {
 		logger.info("list()");
-		try { return projectXmlIO.list(); }
-		catch(IOException iox) {
-			logger.error("list()", iox);
-			throw ParityErrorTranslator.translate(iox);
+		try {
+			final Collection<Project> list = new Vector<Project>(2);
+			list.add(getInbox());
+			list.add(getMyProjects());
+			return list; 
 		}
 		catch(RuntimeException rx) {
 			logger.error("list()", rx);
@@ -406,27 +428,6 @@ class ProjectModelImpl extends AbstractModelImpl {
 			for(UpdateListener listener : ProjectModelImpl.updateListeners) {
 				listener.objectUpdated(new UpdateEvent(project));
 			}
-		}
-	}
-
-	/**
-	 * Determine whether a project has children or not.
-	 * 
-	 * @param project
-	 *            The project to check.
-	 * @return True if the project contains any projects or documents; false
-	 *         otherwise.
-	 * @throws ParityException
-	 */
-	Boolean hasChildren(final Project project) throws ParityException {
-		logger.info("hasChildren(Project)");
-		logger.debug(project);
-		try {
-			return projectXmlIO.hasChildren(project);
-		}
-		catch(RuntimeException rx) {
-			logger.error("hasChildren(Project)", rx);
-			throw ParityErrorTranslator.translate(rx);
 		}
 	}
 }

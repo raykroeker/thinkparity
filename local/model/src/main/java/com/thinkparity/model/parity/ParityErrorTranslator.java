@@ -5,6 +5,8 @@ package com.thinkparity.model.parity;
 
 import java.io.IOException;
 
+import com.thinkparity.model.smack.SmackException;
+
 /**
  * 
  * @author raykroeker@gmail.com
@@ -52,6 +54,17 @@ public class ParityErrorTranslator {
 	}
 
 	/**
+	 * Create a parity error based upon a smack error.
+	 * 
+	 * @param sx
+	 *            The smack error.
+	 * @return The parity error.
+	 */
+	public static ParityException translate(final SmackException sx) {
+		synchronized(singletonLock) { return singleton.translateImpl(sx);}
+	}
+
+	/**
 	 * Create a ParityErrorTranslator [Singleton]
 	 */
 	private ParityErrorTranslator() { super(); }
@@ -76,5 +89,16 @@ public class ParityErrorTranslator {
 	 */
 	private ParityException translateImpl(final RuntimeException rx) {
 		return new ParityException(rx);
+	}
+
+	/**
+	 * Create a parity error base upon a smack error.
+	 * 
+	 * @param sx
+	 *            The smack error.
+	 * @return The parity error.
+	 */
+	private ParityException translateImpl(final SmackException sx) {
+		return new ParityException(sx);
 	}
 }

@@ -7,7 +7,11 @@ import java.util.Collection;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.ModelTestUser;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -41,9 +45,21 @@ public class SessionModelTest extends ModelTestCase {
 			this.username = username;
 		}
 	}
+	private class SendData {
+		private final Document document;
+		private final SessionModel sessionModel;
+		private final Collection<User> users;
+		private SendData(final Document document,
+				final SessionModel sessionModel, final Collection<User> users) {
+			this.document = document;
+			this.sessionModel = sessionModel;
+			this.users = users;
+		}
+	}
 
 	private Collection<GetRosterEntriesData> getRosterEntriesData;
 	private Collection<LoginData> loginData;
+	private Collection<SendData> sendData;
 
 	/**
 	 * Create a SessionModelTest.
@@ -67,11 +83,19 @@ public class SessionModelTest extends ModelTestCase {
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
-
 	public void testLogin() {
 		try {
 			for(LoginData data : loginData) {
 				data.sessionModel.login(data.username, data.password);
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
+	public void testSend() {
+		try {
+			for(SendData data : sendData) {
+				data.sessionModel.send(data.users, data.document);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -85,8 +109,9 @@ public class SessionModelTest extends ModelTestCase {
 		super.setUp();
 		setUpGetRosterEntries();
 		setUpLogin();
+		setUpSend();
 	}
-	
+
 	protected void setUpGetRosterEntries() throws Exception {
 		final ModelTestUser modelTestUser = getModelTestUser();
 		final SessionModel sessionModel = getSessionModel();
@@ -110,6 +135,27 @@ public class SessionModelTest extends ModelTestCase {
 		loginData.add(new LoginData(
 				testUser.getPassword(), sessionModel, testUser.getUsername()));
 	}
+	
+	protected void setUpSend() throws Exception {
+		sendData = new Vector<SendData>(4);
+		final Project testProject = createTestProject("testSend");
+		final DocumentModel documentModel = getDocumentModel();
+		final SessionModel sessionModel = getSessionModel();
+		Document document;
+		String name, description;
+
+		final ModelTestUser testUser = getModelTestUser();
+		sessionModel.login(testUser.getUsername(), testUser.getPassword());
+		final Collection<User> users = sessionModel.getRosterEntries();
+
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			document = documentModel.create(testProject, name, description, testFile.getFile());
+
+			sendData.add(new SendData(document, sessionModel, users));
+		}
+	}
 
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#tearDown()
@@ -118,10 +164,16 @@ public class SessionModelTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		tearDownLogin();
+		tearDownSend();
 	}
 
 	protected void tearDownLogin() throws Exception {
 		loginData.clear();
 		loginData = null;
+	}
+
+	protected void tearDownSend() throws Exception {
+		sendData.clear();
+		sendData = null;
 	}
 }

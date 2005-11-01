@@ -10,12 +10,10 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.smack.SmackException;
 
 
 /**
@@ -59,42 +57,6 @@ public abstract class AbstractModelImpl {
 	 */
 	protected void assertNYI() {
 		Assert.assertNotYetImplemented("The calling method has not yet been implemented.");
-	}
-
-	/**
-	 * Translate a runtime exception into a parity exception.
-	 * 
-	 * @param rx
-	 *            The runtime exception to translate.
-	 * @return The translated parity exception.
-	 */
-	protected ParityException translate(final RuntimeException rx) {
-		return translate((Throwable) rx);
-	}
-
-	/**
-	 * Translate a smack exception into a parity exception.
-	 * 
-	 * @param sx
-	 *            The smack exception to translate.
-	 * @throws ParityException
-	 *             The translated parity exception.
-	 */
-	protected ParityException translate(final SmackException sx) {
-		return translate((Throwable) sx);
-	}
-
-	/**
-	 * Translate a throwable into a parity exception.
-	 * 
-	 * @param t
-	 *            The throwable to translate.
-	 * @return The translated parity exception.
-	 */
-	private ParityException translate(final Throwable t) {
-		final ParityException px = new ParityException();
-		px.initCause(t);
-		return px;
 	}
 
 	protected String getRelativePath(final ParityObject parityObject) {

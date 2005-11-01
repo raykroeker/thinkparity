@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.PresenceEvent;
 import com.thinkparity.model.parity.api.events.PresenceListener;
@@ -160,7 +161,14 @@ class SessionModelImpl extends AbstractModelImpl {
 	void acceptPresence(final User user) throws ParityException {
 		synchronized(xmppHelperLock) {
 			try { xmppHelper.acceptPresence(user); }
-			catch(SmackException sx) { throw translate(sx); }
+			catch(SmackException sx) {
+				logger.error("acceptPresence(User)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("acceptPresence(User)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 
@@ -205,7 +213,14 @@ class SessionModelImpl extends AbstractModelImpl {
 	void addRosterEntry(final User user) throws ParityException {
 		synchronized(xmppHelperLock) {
 			try { xmppHelper.addRosterEntry(user); }
-			catch(SmackException sx) { throw translate(sx); }
+			catch(SmackException sx) {
+				logger.error("addRosterEntry(User)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("addRosterEntry(User)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 
@@ -220,7 +235,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("denyPresence", xmppHelper);
 			try { xmppHelper.denyPresence(user); }
-			catch(SmackException sx) { throw translate(sx); }
+			catch(SmackException sx) {
+				logger.error("denyPresence(User)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("denyPresence(User)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 
@@ -234,7 +256,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("getRosterEntries", xmppHelper);
 			try { return xmppHelper.getRosterEntries(); }
-			catch(SmackException sx) { throw translate(sx); }
+			catch(SmackException sx) {
+				logger.error("getRosterEntries()", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("getRosterEntries()", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 
@@ -261,7 +290,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		final Integer port = preferences.getServerPort();
 		synchronized(xmppHelperLock) {
 			try { xmppHelper.login(host, port, username, password); }
-			catch(SmackException sx) { throw translate(sx); }
+			catch(SmackException sx) {
+				logger.error("login(String,String)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("login(String,String)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 
@@ -273,7 +309,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("logout", xmppHelper);
 			try { xmppHelper.logout(); }
-			catch(SmackException sx) { throw translate(sx); }
+			catch(SmackException sx) {
+				logger.error("logout()", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("logout()", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 
@@ -305,8 +348,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("send(Collection<User>,Document)", xmppHelper);
 			try { xmppHelper.send(users, XMPPDocument.create(document)); }
-			catch(SmackException sx) { throw translate(sx); }
-			catch(RuntimeException rx) { throw translate(rx); }
+			catch(SmackException sx) {
+				logger.error("send(Collection<User>,Document)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("send(Collection<User>,Document)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 
@@ -324,8 +373,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("send(Collection<User>,String)", xmppHelper);
 			try { xmppHelper.send(users, message); }
-			catch(SmackException sx) { throw translate(sx); }
-			catch(RuntimeException rx) { throw translate(rx); }
+			catch(SmackException sx) {
+				logger.error("send(Collection<User>,String)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("send(Collection<User>,String)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
 		}
 	}
 

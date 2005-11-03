@@ -291,7 +291,10 @@ public class XMPPSessionImpl implements XMPPSession {
 		try {
 			if(Boolean.TRUE == isLoggedIn())
 				logout();
-			smackXMPPConnection = new SSLXMPPConnection(host, port);
+			if(Boolean.getBoolean("parity.secure")) {
+				smackXMPPConnection = new SSLXMPPConnection(host, port);
+			}
+			else { smackXMPPConnection = new XMPPConnection(host, port); }
 			smackXMPPConnection.addConnectionListener((ConnectionListener) smackConnectionListenerImpl);
 
 			// packet debugger

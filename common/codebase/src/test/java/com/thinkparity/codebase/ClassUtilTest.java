@@ -1,14 +1,14 @@
 package com.thinkparity.codebase;
 
-import com.thinkparity.codebase.ClassUtil;
 
 public class ClassUtilTest extends CodebaseTestCase {
 
-	public static void main(String[] args) {
-		junit.textui.TestRunner.run(ClassUtilTest.class);
-	}
 
 	private StringBuffer[] testGetPathData;
+
+	public ClassUtilTest() {
+		super("Class util test");
+	}
 
 	public void testGetPath() {
 		final StringBuffer path = ClassUtil.getPath(ClassUtilTest.class);

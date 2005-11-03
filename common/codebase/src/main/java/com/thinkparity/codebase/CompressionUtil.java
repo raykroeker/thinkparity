@@ -3,95 +3,101 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
 
 /**
- * CompressionUtil
+ * Compression utility class.
+ * 
  * @author raykroeker@gmail.com
- *
+ * @version 1.2
  */
 public class CompressionUtil {
 
+	/**
+	 * Enumeration of the various levels of compression available.
+	 */
 	public enum Level {
-		One(1), Two(2), Three(3),
-		Four(4), Five(5), Six(6),
-		Seven(7), Eight(8), Nine(9);
+		Eight(8), Five(5), Four(4), Nine(9), One(1), Seven(7), Six(6), Three(3), Two(2);
 
 		/**
-		 * Integer representation of the level.
+		 * Integer representation of the compression level.
 		 */
 		private Integer level;
 
 		/**
-		 * Create a Level
-		 * @param level <code>java.lang.Integer</code>
+		 * Create a compression Level
+		 * 
+		 * @param level
+		 *            The compression level.
 		 */
 		Level(final Integer level) { this.level = level; }
 
 		/**
-		 * Obtain level.
-		 * @return <code>Integer</code>
+		 * Obtain the compression level.
+		 * 
+		 * @return The compression level.
 		 */
 		public Integer getLevel() { return level; }
-		
 	}
 
 	/**
-	 * Compress bytes using the maximum compression possible.
-	 * @param bytes <code>byte[]</code>
-	 * @return <code>byte[]</code>
+	 * Default buffer size to use.
+	 */
+	private static final int BUFFER_SIZE = 1024;
+
+	/**
+	 * Compress bytes using the specified level.
+	 * 
+	 * @param bytes
+	 *            The bytes to compress.
+	 * @param level
+	 *            The level of compression to use.
+	 * @return A compressed representation of the bytes.
 	 * @throws IOException
 	 */
 	public static synchronized byte[] compress(final byte[] bytes,
 			final Level level) throws IOException {
-		final ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		final Deflater deflater = new Deflater(level.getLevel());
-		final DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(
-				bytesOut, deflater, bytes.length);
-		deflaterOutputStream.write(bytes);
-		deflaterOutputStream.finish();
-		return bytesOut.toByteArray();
+		final Deflater deflater = new Deflater();
+		deflater.setLevel(level.getLevel());
+		deflater.setInput(bytes);
+		deflater.finish();
+		final ByteArrayOutputStream byteOutput =
+			new ByteArrayOutputStream(bytes.length);
+		byte[] byteBuffer = new byte[BUFFER_SIZE];
+	    while(!deflater.finished()) {
+	        int count = deflater.deflate(byteBuffer);
+	        byteOutput.write(byteBuffer, 0, count);
+	    }
+	    byteOutput.close();
+	    return byteOutput.toByteArray();
 	}
 
 	/**
-	 * Decompress bytes.
-	 * @param bytes <code>byte[]</code>
-	 * @return <code>byte[]</code>
+	 * Decompress a sequence of bytes.
+	 * 
+	 * @param bytes
+	 *            A sequence of bytes to decompress.
+	 * @return The decompressed bytes.
+	 * @throws DataFormatException
 	 * @throws IOException
 	 */
 	public static synchronized byte[] decompress(final byte[] bytes)
-			throws IOException {
-		final ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
+			throws DataFormatException, IOException {
 		final Inflater inflater = new Inflater();
-		final InflaterInputStream inflaterInputStream = new InflaterInputStream(
-				bytesIn, inflater, bytes.length);
-		byte[] decompressedContent = new byte[0];
-		byte[] inflatedBytes = new byte[1024];
-		byte[] tempoararyBytes;
-		int bytesRead = inflaterInputStream.read(inflatedBytes);
-		int offset = 0;
-		while (-1 != bytesRead) {
-			/* Copy that which is already read to a temp location. */
-			tempoararyBytes = new byte[decompressedContent.length];
-			System.arraycopy(decompressedContent, 0, tempoararyBytes, 0,
-					decompressedContent.length);
-			/* Enlarge and copy that in the temp location back. */
-			decompressedContent = new byte[tempoararyBytes.length + bytesRead];
-			System.arraycopy(tempoararyBytes, 0, decompressedContent, 0,
-					tempoararyBytes.length);
-			/* Copy that which was just read. */
-			System.arraycopy(inflatedBytes, 0, decompressedContent, offset,
-					bytesRead);
-			bytesRead = inflaterInputStream.read(inflatedBytes);
-			offset += bytesRead;
-		}
-		return decompressedContent;
+		inflater.setInput(bytes);
+		final ByteArrayOutputStream byteOutput =
+			new ByteArrayOutputStream(bytes.length);
+		byte[] byteBuffer = new byte[1024];
+	    while(!inflater.finished()) {
+	    	int count = inflater.inflate(byteBuffer);
+	    	byteOutput.write(byteBuffer, 0, count);
+	    }
+	    byteOutput.close();
+	    return byteOutput.toByteArray();
 	}
 
 	/**

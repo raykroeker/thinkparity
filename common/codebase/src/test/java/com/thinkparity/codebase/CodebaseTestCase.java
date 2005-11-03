@@ -5,6 +5,7 @@ package com.thinkparity.codebase;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collection;
 
 import junit.framework.TestCase;
 
@@ -23,16 +24,16 @@ public abstract class CodebaseTestCase extends TestCase {
 	 */
 	protected final Logger logger = Logger.getRootLogger();
 
-	/**
-	 * Create a new CodebaseTestCase
-	 */
-	public CodebaseTestCase() {super();}
+	private final CodebaseTestHelper helper;
 
 	/**
 	 * Create a new CodebaseTestCase
 	 * @param arg0
 	 */
-	public CodebaseTestCase(String arg0) {super(arg0);}
+	public CodebaseTestCase(String arg0) {
+		super(arg0);
+		this.helper = new CodebaseTestHelper();
+	}
 
 	/**
 	 * Write the stack of the throwable to a string for a failure message.
@@ -47,5 +48,13 @@ public abstract class CodebaseTestCase extends TestCase {
 		final PrintWriter printWriter = new PrintWriter(stringWriter);
 		throwable.printStackTrace(printWriter);
 		return stringWriter.toString();
+	}
+
+	protected Collection<CodebaseTestFile> getJUnitTestFiles() {
+		return helper.getJUnitTestFiles();
+	}
+
+	protected Integer getJUnitTestFilesSize() {
+		return helper.getJUnitTestFilesSize();
 	}
 }

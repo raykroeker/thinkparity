@@ -189,14 +189,16 @@ public abstract class FileUtil {
 	}
 
 	/**
-	 * Read file into a byte[]
-	 * @param file <code>File</code>
-	 * @return <code>byte[]</code>
+	 * Read a file's contents into a byte array.
+	 * 
+	 * @param file
+	 *            The file to read.
+	 * @return The file's contents.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static byte[] readFile(File file) throws FileNotFoundException,
-			IOException {
+	public static byte[] readFile(final File file)
+			throws FileNotFoundException, IOException {
 		final FileInputStream fis = new FileInputStream(file);
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(fis.available());
 		final byte[] fileContentBuffer = new byte[1024];

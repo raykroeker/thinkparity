@@ -9,6 +9,9 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
@@ -30,6 +33,11 @@ public abstract class ModelTestCase extends TestCase {
 	 * Counter of the number of projects created.
 	 */
 	private static Integer projectCount = 0;
+
+	/**
+	 * Handle to an apache logger.
+	 */
+	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
 
 	/**
 	 * Helper class for the parity test cases.  Used to offload the
@@ -96,6 +104,17 @@ public abstract class ModelTestCase extends TestCase {
 	}
 
 	/**
+	 * Obtain random test text to use with junit.
+	 * 
+	 * @param size
+	 *            The size of the text in characters.
+	 * @return The text.
+	 */
+	protected String getJUnitTestText(final Integer size) {
+		return helper.getJUnitTestText(size);
+	}
+
+	/**
 	 * Obtain the junit test user.
 	 * 
 	 * @return The junit test user.
@@ -139,7 +158,7 @@ public abstract class ModelTestCase extends TestCase {
 	protected Workspace getWorkspace() {
 		return getWorkspaceModel().getWorkspace();
 	}
-
+	
 	/**
 	 * Obtain a handle to the parity workspace model.
 	 * 
@@ -148,7 +167,7 @@ public abstract class ModelTestCase extends TestCase {
 	protected WorkspaceModel getWorkspaceModel() {
 		return WorkspaceModel.getModel();
 	}
-	
+
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */

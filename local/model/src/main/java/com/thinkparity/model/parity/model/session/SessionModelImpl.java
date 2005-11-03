@@ -15,6 +15,7 @@ import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
@@ -347,7 +348,11 @@ class SessionModelImpl extends AbstractModelImpl {
 			throws ParityException {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("send(Collection<User>,Document)", xmppHelper);
-			try { xmppHelper.send(users, XMPPDocument.create(document)); }
+			try {
+				final DocumentModel documentModel = DocumentModel.getModel();
+				final DocumentContent content = documentModel.getContent(document);
+				xmppHelper.send(users, XMPPDocument.create(document, content));
+			}
 			catch(SmackException sx) {
 				logger.error("send(Collection<User>,Document)", sx);
 				throw ParityErrorTranslator.translate(sx);

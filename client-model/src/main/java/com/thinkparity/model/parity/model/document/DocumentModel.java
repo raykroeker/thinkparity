@@ -6,8 +6,6 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Collection;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
@@ -55,32 +53,41 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Add a listener that is notified whenever a document is created.
+	 * Add a creation listener for documents.
 	 * 
-	 * @param creationListener
-	 *            <code>com.thinkparity.model.parity.api.events.CreationListener</code>
+	 * @param listener
+	 *            The creation listener to add.
 	 */
-	public void addListener(final CreationListener creationListener) {
-		synchronized(implLock) { impl.addListener(creationListener); }
+	public void addListener(final CreationListener listener) {
+		synchronized(implLock) { impl.addListener(listener); }
 	}
 
 	/**
-	 * Add a listener that is notified whenever a document is updated.
+	 * Add a an update listener for documents.
 	 * 
-	 * @param updateListener
-	 *            <code>com.thinkparity.model.parity.api.events.UpdateListener</code>
+	 * @param listener
+	 *            The update listener to add.
 	 */
 	public void addListener(final UpdateListener updateListener) {
 		synchronized(implLock) { impl.addListener(updateListener); }
 	}
 
-	public void addNote(final Document document, final Note note)
-			throws ParityException {
-		synchronized(implLock) { impl.addNote(document, note); }
-	}
-
-	public void close(final Document document) throws ParityException {
-		Assert.assertNotYetImplemented("DocumentModel.closeDocument()");
+	/**
+	 * Add a note to a document.
+	 * 
+	 * @param document
+	 *            The document to add the note to.
+	 * @param subject
+	 *            The subject of the note.
+	 * @param content
+	 *            The content of the note (Optional).
+	 * @throws ParityException
+	 */
+	public Note addNote(final Document document, final String subject,
+			final String content) throws ParityException {
+		synchronized(implLock) {
+			return impl.addNote(document, subject, content);
+		}
 	}
 
 	/**
@@ -133,18 +140,17 @@ public class DocumentModel {
 		synchronized(implLock) { impl.export(document, file); }
 	}
 
-	public String getRelativePath(final Document document) {
-		synchronized(implLock) { return impl.getRelativePath(document); }
-	}
-
-	public Boolean isClosable(final Document document)
+	/**
+	 * Obtain the document content for a given document.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @return The document's content.
+	 * @throws ParityException
+	 */
+	public DocumentContent getContent(final Document document)
 			throws ParityException {
-		synchronized(implLock) { return impl.isClosable(document); }
-	}
-
-	public Boolean isDeletable(final Document document)
-			throws ParityException {
-		synchronized(implLock) { return impl.isDeletable(document); }
+		synchronized(implLock) { return impl.getContent(document); }
 	}
 
 	/**
@@ -173,6 +179,13 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.listVersions(document); }
 	}
 
+	/**
+	 * Open a document.
+	 * 
+	 * @param document
+	 *            The document to open.
+	 * @throws ParityException
+	 */
 	public void open(final Document document) throws ParityException {
 		synchronized(implLock) { impl.open(document); }
 	}
@@ -190,19 +203,31 @@ public class DocumentModel {
 
 	/**
 	 * Remove a creation listener.
-	 * @see <code>com.thinkparity.model.parity.api.document.DocumentApi#addCreationListener</code>
-	 * @param creationListener <code>com.thinkparity.model.parity.api.events.CreationListener</code>
+	 * 
+	 * @param listener
+	 *            The creation listener to remove.
 	 */
-	public void removeListener(final CreationListener creationListener) {
-		synchronized(implLock) {
-			impl.removeListener(creationListener);
-		}
+	public void removeListener(final CreationListener listener) {
+		synchronized(implLock) { impl.removeListener(listener); }
 	}
 
-	public void removeListener(final UpdateListener updateListener) {
-		synchronized(implLock) { impl.removeListener(updateListener); }
+	/**
+	 * Remove an update listener.
+	 * 
+	 * @param listener
+	 *            The update listener to remove.
+	 */
+	public void removeListener(final UpdateListener listener) {
+		synchronized(implLock) { impl.removeListener(listener); }
 	}
 
+	/**
+	 * Update the document.
+	 * 
+	 * @param document
+	 *            The document to update.
+	 * @throws ParityException
+	 */
 	public void update(final Document document) throws ParityException {
 		synchronized(implLock) { impl.update(document); }
 	}

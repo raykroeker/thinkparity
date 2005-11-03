@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Random;
 import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
@@ -40,6 +41,11 @@ public class ModelTestCaseHelper {
 	private static Project jUnitProject;
 
 	/**
+	 * Test randomizer.
+	 */
+	private static final Random jUnitRandom = new Random();
+
+	/**
 	 * Unique session id for each junit session.
 	 */
 	private static final String jUnitSessionId;
@@ -55,11 +61,25 @@ public class ModelTestCaseHelper {
 	private static final Vector<ModelTestFile> jUnitTestFiles;
 
 	/**
+	 * Seed data for generating random test text.
+	 */
+	private static final char[] jUnitTestTextSeed =
+		{ 'A','B','C','D','E','F','G','H','I','J',
+		  'K','L','M','N','O','P','Q','R','S','T',
+		  'U','V','W','X','Y','Z',
+		  '0','1','2','3','4','5','6','7','8','9',
+		  'a','b','c','d','e','f','g','h','i','j',
+		  'k','l','m','n','o','p','q','r','s','t',
+		  'u','v','w','x','y','z' };
+
+	/**
 	 * UserRenderer to use when testing.
 	 */
 	private static final ModelTestUser jUnitTestUser;
 
 	static {
+		// set the smack debugger to launch
+		System.setProperty("smack.debugEnabled", "true");
 		// record the session start time.
 		jUnitSessionStart = System.currentTimeMillis();
 		// record the session id.
@@ -81,7 +101,7 @@ public class ModelTestCaseHelper {
 		// set the test files
 		final File jUnitResourcesFiles =
 			new File(resourcesDirectory, "junit.files");
-		jUnitTestFiles = new Vector<ModelTestFile>(4);
+		jUnitTestFiles = new Vector<ModelTestFile>(7);
 		jUnitTestFiles.add(
 				new ModelTestFile(
 						new File(jUnitResourcesFiles, "JUnit Test Framework.doc")));
@@ -94,6 +114,9 @@ public class ModelTestCaseHelper {
 		jUnitTestFiles.add(
 				new ModelTestFile(
 						new File(jUnitResourcesFiles, "JUnit Test Framework.txt")));
+		jUnitTestFiles.add(
+				new ModelTestFile(
+						new File(jUnitResourcesFiles, "JUnit Test Framework 1MB.txt")));
 		// set the test user
 		jUnitTestUser = ModelTestUser.getJUnit();
 		System.setProperty(
@@ -179,6 +202,23 @@ public class ModelTestCaseHelper {
 	}
 
 	/**
+	 * Obtain random test text to use with junit.
+	 * 
+	 * @param size
+	 *            The size of the text in characters.
+	 * @return The text.
+	 */
+	String getJUnitTestText(final Integer size) {
+		Assert.assertNotNull("getJUnitTestText(Integer)", size);
+		Assert.assertTrue("getJUnitTestText(Integer)", size > 0);
+		final StringBuffer textBuffer = new StringBuffer(size);
+		for(int i = 0; i < size; i++) {
+			textBuffer.append(jUnitTestTextSeed[jUnitRandom.nextInt(jUnitTestTextSeed.length)]);
+		}
+		return textBuffer.toString();
+	}
+
+	/**
 	 * Get the test user.
 	 * 
 	 * @return The model test user.
@@ -186,14 +226,14 @@ public class ModelTestCaseHelper {
 	ModelTestUser getJUnitTestUser() {
 		return ModelTestCaseHelper.jUnitTestUser;
 	}
-
+	
 	/**
 	 * Obtain a handle to the parity preferences.
 	 * 
 	 * @return A handle to the parity preferences.
 	 */
 	Preferences getPreferences() { return getWorkspace().getPreferences(); }
-
+	
 	/**
 	 * Obtain a handle to the project model.
 	 * 
@@ -207,7 +247,7 @@ public class ModelTestCaseHelper {
 	 * @return A handle to the session model.
 	 */
 	SessionModel getSessionModel() { return SessionModel.getModel(); }
-	
+
 	/**
 	 * Obtain a handle to the workspace.
 	 * 
@@ -216,7 +256,7 @@ public class ModelTestCaseHelper {
 	Workspace getWorkspace() {
 		return WorkspaceModel.getModel().getWorkspace();
 	}
-	
+
 	private void deleteTree(final File rootDirectory) {
 		FileUtil.deleteTree(rootDirectory);
 	}

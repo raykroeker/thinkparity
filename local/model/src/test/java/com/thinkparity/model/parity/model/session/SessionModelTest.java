@@ -47,11 +47,13 @@ public class SessionModelTest extends ModelTestCase {
 	}
 	private class SendData {
 		private final Document document;
+		private final String message;
 		private final SessionModel sessionModel;
 		private final Collection<User> users;
-		private SendData(final Document document,
+		private SendData(final Document document, final String message,
 				final SessionModel sessionModel, final Collection<User> users) {
 			this.document = document;
+			this.message = message;
 			this.sessionModel = sessionModel;
 			this.users = users;
 		}
@@ -96,6 +98,7 @@ public class SessionModelTest extends ModelTestCase {
 		try {
 			for(SendData data : sendData) {
 				data.sessionModel.send(data.users, data.document);
+				data.sessionModel.send(data.users, data.message);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -143,6 +146,7 @@ public class SessionModelTest extends ModelTestCase {
 		final SessionModel sessionModel = getSessionModel();
 		Document document;
 		String name, description;
+		String message;
 
 		final ModelTestUser testUser = getModelTestUser();
 		sessionModel.login(testUser.getUsername(), testUser.getPassword());
@@ -151,9 +155,11 @@ public class SessionModelTest extends ModelTestCase {
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(testProject, name, description, testFile.getFile());
+			document =
+				documentModel.create(testProject, name, description, testFile.getFile());
+			message = getJUnitTestText(250);
 
-			sendData.add(new SendData(document, sessionModel, users));
+			sendData.add(new SendData(document, message, sessionModel, users));
 		}
 	}
 

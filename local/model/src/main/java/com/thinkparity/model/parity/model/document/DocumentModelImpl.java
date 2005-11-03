@@ -143,14 +143,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The note to add.
 	 * @throws ParityException
 	 */
-	void addNote(final Document document, final Note note)
-			throws ParityException {
+	Note addNote(final Document document, final String subject,
+			final String content) throws ParityException {
 		logger.debug(document);
-		logger.debug(note);
+		logger.debug(subject);
+		logger.debug(content);
+		if(null == subject) { throw new NullPointerException(); }
 		try {
-			document.add(note);
+			final Note newNote = new Note(subject, content);
+			document.add(newNote);
 			documentXmlIO.update(document);
 			notifyUpdate_objectUpdated(document);
+			return newNote;
 		}
 		catch(IOException iox) {
 			logger.error("addNote(Document,Note)", iox);
@@ -185,16 +189,21 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(name);
 		logger.debug(description);
 		logger.debug(file);
+		Assert.assertTrue(
+				"create(Project,String,String,File)",
+				(file.length() <= IParityModelConstants.FILE_SIZE_UPPER_BOUNDS));
 		try {
 			final UUID id = UUIDGenerator.nextUUID();
 			logger.debug(id);
-			final byte[] content = FileUtil.readFile(file);
-			logger.debug(content);
 			final Document document = new Document(project, name,
 					DateUtil.getInstance(), preferences.getUsername(),
-					description, id, content);
+					description, id);
+			final byte[] contentBytes = FileUtil.readFile(file);
+			final DocumentContent content = new DocumentContent(
+					MD5Util.md5Hex(contentBytes), contentBytes, document);
 			// create the document
 			documentXmlIO.create(document);
+			documentXmlIO.create(content);
 			// create a new version
 			createVersion(document, DocumentAction.CREATE, create_ActionData(document));
 			// fire a creation event
@@ -222,6 +231,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(Document)");
 		logger.debug(document);
 		try {
+			// delete the content
+			delete(getContent(document));
 			// delete the versions
 			for(DocumentVersion version : listVersions(document)) {
 				delete(version);
@@ -232,24 +243,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("delete(Document)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
-	 * Delete a document version.  
-	 * @param version The version to delete.
-	 * @throws ParityException
-	 */
-	void delete(final DocumentVersion version) throws ParityException {
-		logger.info("delete(DocumentVersion)");
-		logger.debug(version);
-		try {
-			// delete the xml file
-			documentXmlIO.delete(version);
-		}
-		catch(RuntimeException rx) {
-			logger.error("delete(DocumentVersion)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -268,12 +261,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	void export(final Document document, final File file)
 			throws ParityException {
 		logger.info("export(Document)");
-		logger.debug(file);
 		logger.debug(document);
+		logger.debug(file);
 		try {
 			Assert.assertNotTrue("File cannot already exist.", file.exists());
 			Assert.assertTrue("Could not create new file.", file.createNewFile());
-			writeDocumentContent(file, document);
+			writeDocumentContent(document, file);
 		}
 		catch(IOException iox) {
 			logger.error("export(Document,File)", iox);
@@ -285,22 +278,28 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	String getRelativePath(final Document document) {
-		logger.info("getRelativePath(Document)");
+	/**
+	 * Obtain the document content for a given document.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @return The document's content.
+	 * @throws ParityException
+	 */
+	DocumentContent getContent(final Document document) throws ParityException {
+		logger.info("getContent(Document)");
 		logger.debug(document);
-		return super.getRelativePath(document);
-	}
-
-	Boolean isClosable(final Document document) throws ParityException {
-		logger.info("isClosable(Document)");
-		logger.debug(document);
-		return Boolean.FALSE;
-	}
-
-	Boolean isDeletable(final Document document) throws ParityException {
-		logger.info("isDeletable(Document)");
-		logger.debug(document);
-		return Boolean.FALSE;
+		try {
+			return documentXmlIO.getContent(document);
+		}
+		catch(IOException iox) {
+			logger.error("getContent(Document)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("getContent(Document)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
 	/**
@@ -393,8 +392,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Document document = new Document(inbox,
 					xmppDocument.getName(), xmppDocument.getCreatedOn(),
 					xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
-					xmppDocument.getId(), xmppDocument.getContent());
+					xmppDocument.getId());
+			final DocumentContent content = new DocumentContent(
+					MD5Util.md5Hex(xmppDocument.getContent()),
+					xmppDocument.getContent(), document);
 			documentXmlIO.create(document);
+			documentXmlIO.create(content);
 			// create a new version
 			createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
 			// fire a receive event
@@ -498,9 +501,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 		if(cacheFile.exists()) {
 			final byte[] cacheFileBytes = getCacheFileBytes(document);
 			final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
-			if(!cacheFileChecksum.equals(document.getContentChecksum())) {
-				document.setContent(cacheFileBytes);
-				update(document);
+
+			final DocumentContent content = getContent(document);
+			if(!cacheFileChecksum.equals(content.getChecksum())) {
+				content.setContent(cacheFileBytes);
+				documentXmlIO.update(content);
 			}
 		}
 		final DocumentVersion version =
@@ -508,6 +513,34 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentXmlIO.create(version);
 		notifyCreation_objectVersionCreated(version);
 		return version;
+	}
+
+	/**
+	 * Delete the content.
+	 * 
+	 * @param content
+	 *            The document content to delete.
+	 * @throws ParityException
+	 */
+	private void delete(final DocumentContent content) throws ParityException {
+		logger.info("delete(DocumentContent)");
+		logger.debug(content);
+		try { documentXmlIO.delete(content); }
+		catch(RuntimeException rx) {
+			logger.error("delete(DocumentContent)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Delete a document version.
+	 * 
+	 * @param version
+	 *            The version to delete.
+	 * @throws ParityException
+	 */
+	private void delete(final DocumentVersion version) throws ParityException {
+		documentXmlIO.delete(version);
 	}
 
 	/**
@@ -520,16 +553,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private File getCacheDirectory(final Document document) {
 		logger.debug(document);
-		final File dataDirectory = new File(workspace.getDataURL().getFile());
-		final File cacheDirectory = new File(
-				dataDirectory,
+		final File cacheRoot = new File(
+				new File(workspace.getDataURL().getFile()),
 				IParityModelConstants.DIRECTORY_NAME_CACHE_DATA);
-		if(!cacheDirectory.exists())
-			Assert.assertTrue("", cacheDirectory.mkdir());
-		logger.debug(cacheDirectory);
-		if(!cacheDirectory.exists())
-			Assert.assertTrue("getCacheDirectory(Document)", cacheDirectory.mkdir());
-		return cacheDirectory;
+		logger.debug(cacheRoot);
+		if(!cacheRoot.exists())
+			Assert.assertTrue("getCacheDirectory(Document)", cacheRoot.mkdir());
+		final File cache = new File(cacheRoot, document.getId().toString());
+		logger.debug(cache);
+		if(!cache.exists())
+			Assert.assertTrue("getCacheDirectory(Document)", cache.mkdir());
+		return cache;
 	}
 
 	/**
@@ -550,18 +584,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain the document's representative file from the underlying disk cache.
+	 * Obtain the document's content's cached file from the filesystem.
 	 * 
 	 * @param document
-	 *            <code>Document</code.
-	 * @return <code>java.io.File</code>
+	 *            The document.
+	 * @return The file.
 	 */
 	private File getFileFromDiskCache(final Document document)
-			throws IOException {
+			throws ParityException, IOException {
 		final File documentCacheFile = getCacheFile(document);
 		if (!documentCacheFile.exists()) {
 			// write the cache file
-			FileUtil.writeFile(documentCacheFile, document.getContent());
+			final DocumentContent content = getContent(document);
+			FileUtil.writeFile(documentCacheFile, content.getContent());
 		}
 		return documentCacheFile;
 	}
@@ -692,14 +727,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/**
 	 * Write the content of a document to a file.
 	 * 
-	 * @param file
-	 *            The target file.
 	 * @param document
 	 *            The source parity document.
+	 * @param file
+	 *            The target file.
+	 * 
 	 * @throws IOException
 	 */
-	private void writeDocumentContent(final File file, final Document document)
-			throws IOException {
-		FileUtil.writeFile(file, document.getContent());
+	private void writeDocumentContent(final Document document, final File file)
+			throws ParityException, IOException {
+		final DocumentContent content = getContent(document);
+		FileUtil.writeFile(file, content.getContent());
 	}
 }

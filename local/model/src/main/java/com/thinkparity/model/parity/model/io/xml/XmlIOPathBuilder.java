@@ -13,6 +13,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -72,6 +73,23 @@ public class XmlIOPathBuilder {
 	}
 
 	/**
+	 * Obtain the xml file for the given document content.
+	 * 
+	 * @param content
+	 *            The document content.
+	 * @return The xml file.
+	 */
+	File getXmlFile(final DocumentContent content) {
+		logger.info("getXmlFile(DocumentContent)");
+		logger.debug(content);
+		final File xmlFileDirectory = getXmlFileDirectory(content.getDocument());
+		logger.debug(xmlFileDirectory);
+		final String xmlFileName = getXmlFileName(content);
+		logger.debug(xmlFileName);
+		return new File(xmlFileDirectory, xmlFileName);
+	}
+
+	/**
 	 * Obtain the xml file for the given document version.
 	 * 
 	 * @param version
@@ -87,6 +105,7 @@ public class XmlIOPathBuilder {
 		logger.debug(xmlFileName);
 		return new File(xmlFileDirectory, xmlFileName);
 	}
+	
 
 	/**
 	 * Obtain the xml file for the given project.
@@ -104,7 +123,6 @@ public class XmlIOPathBuilder {
 		logger.debug(xmlFileName);
 		return new File(xmlFileDirectory, xmlFileName);
 	}
-	
 
 	/**
 	 * Obtain the directory of the xml file for the document.
@@ -210,6 +228,19 @@ public class XmlIOPathBuilder {
 	private String getXmlFileName(final Document document) {
 		return new StringBuffer(document.getName())
 			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT)
+			.toString();
+	}
+
+	/**
+	 * Obtain the xml file name for the document's content.
+	 * 
+	 * @param content
+	 *            The content to get the xml file name for.
+	 * @return The xml file name.
+	 */
+	private String getXmlFileName(final DocumentContent content) {
+		return new StringBuffer(content.getDocument().getName())
+			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_CONTENT)
 			.toString();
 	}
 

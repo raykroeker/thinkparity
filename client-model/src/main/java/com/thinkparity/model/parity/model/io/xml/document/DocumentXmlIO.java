@@ -13,6 +13,7 @@ import java.util.Vector;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
@@ -35,7 +36,8 @@ public class DocumentXmlIO extends XmlIO {
 	public DocumentXmlIO(final Workspace workspace) { super(workspace); }
 
 	/**
-	 * Create the document xml.  This 
+	 * Create the document xml. This
+	 * 
 	 * @param document
 	 * @throws FileNotFoundException
 	 * @throws IOException
@@ -45,6 +47,21 @@ public class DocumentXmlIO extends XmlIO {
 		logger.info("create(Document)");
 		logger.debug(document);
 		write(document, getXmlFile(document));
+	}
+
+	/**
+	 * Create the document's content xml.
+	 * 
+	 * @param content
+	 *            The document's content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void create(final DocumentContent content)
+			throws FileNotFoundException, IOException {
+		logger.info("create(DocumentContent)");
+		logger.debug(content);
+		write(content, getXmlFile(content));
 	}
 
 	/**
@@ -63,7 +80,9 @@ public class DocumentXmlIO extends XmlIO {
 
 	/**
 	 * Delete the document's xml.
-	 * @param document The document.
+	 * 
+	 * @param document
+	 *            The document.
 	 */
 	public void delete(final Document document) {
 		logger.info("delete(Document)");
@@ -72,6 +91,18 @@ public class DocumentXmlIO extends XmlIO {
 		Assert.assertTrue("delete(Document)", xmlFile.delete());
 	}
 
+	/**
+	 * Delete the document content's xml.
+	 * 
+	 * @param content
+	 *            The content.
+	 */
+	public void delete(final DocumentContent content) {
+		logger.info("delete(DocumentContent)");
+		logger.debug(content);
+		final File xmlFile = getXmlFile(content);
+		Assert.assertTrue("delete(DocumentContent)", xmlFile.delete());
+	}
 	/**
 	 * Delete the document version's xml.
 	 * 
@@ -83,6 +114,26 @@ public class DocumentXmlIO extends XmlIO {
 		logger.debug(version);
 		final File xmlFile = getXmlFile(version);
 		Assert.assertTrue("delete(DocumentVersion)", xmlFile.delete());
+	}
+
+	/**
+	 * Obtain the document content for a given document.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @return The document content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public DocumentContent getContent(final Document document)
+			throws FileNotFoundException, IOException {
+		logger.info("getContent(Document)");
+		logger.debug(document);
+		final File xmlFileDirectory = getXmlFileDirectory(document);
+		final DocumentContent content = readDocumentContent(
+				getContentXmlFile(document.getName(), xmlFileDirectory));
+		content.setDocument(document);
+		return content;
 	}
 
 	/**
@@ -148,6 +199,39 @@ public class DocumentXmlIO extends XmlIO {
 		logger.info("update(Document)");
 		logger.debug(document);
 		write(document, getXmlFile(document));
+	}
+
+	/**
+	 * Update a document's content xml.
+	 * 
+	 * @param content
+	 *            The document content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void update(final DocumentContent content)
+			throws FileNotFoundException, IOException {
+		logger.info("update(DocumentContent)");
+		logger.debug(content);
+		write(content, getXmlFile(content));
+	}
+
+	/**
+	 * Obtain the xml file for the document content; given the document name.
+	 * 
+	 * @param documentName
+	 *            The document name.
+	 * @param xmlFileDirectory
+	 *            The xml file directory.
+	 * @return The document content xml file.
+	 */
+	private File getContentXmlFile(final String documentName,
+			final File xmlFileDirectory) {
+		return new File(
+				xmlFileDirectory,
+				new StringBuffer(documentName)
+					.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_CONTENT)
+					.toString());
 	}
 
 	/**

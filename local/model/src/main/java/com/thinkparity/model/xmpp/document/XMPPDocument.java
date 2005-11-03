@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.xmpp.XMPPSerializable;
 
 /**
@@ -26,8 +27,9 @@ public class XMPPDocument implements XMPPSerializable {
 	 *            The parity document to base the xmpp document upon.
 	 * @return The new xmpp document.
 	 */
-	public static XMPPDocument create(final Document document) {
-		return new XMPPDocument(document.getContent(), document.getCreatedBy(),
+	public static XMPPDocument create(final Document document,
+			final DocumentContent content) {
+		return new XMPPDocument(content.getContent(), document.getCreatedBy(),
 				document.getCreatedOn(), document.getDescription(),
 				document.getId(), document.getName());
 	}

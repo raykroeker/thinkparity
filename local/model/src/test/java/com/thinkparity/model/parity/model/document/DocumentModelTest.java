@@ -12,8 +12,10 @@ import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestFile;
+import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.util.MD5Util;
 
 /**
  * DocumentModelTest
@@ -22,31 +24,41 @@ import com.thinkparity.model.parity.model.project.ProjectModel;
  */
 public class DocumentModelTest extends ModelTestCase {
 
+	private class AddNoteData {
+		private final String content;
+		private final Document document;
+		private final DocumentModel documentModel;
+		private final String subject;
+		private AddNoteData(final String content, final Document document,
+				final DocumentModel documentModel, final String subject) {
+			this.content = content;
+			this.document = document;
+			this.documentModel = documentModel;
+			this.subject = subject;
+		}
+	}
 	/**
 	 * Create document data structure.
 	 */
 	private class CreateData {
 		private final String description;
-		private final byte[] documentFileContent;
+		private final String documentContentChecksum;
 		private final DocumentModel documentModel;
 		private final File file;
 		private final String name;
 		private final Project parent;
 		private CreateData(final String description,
-				final File file, final byte[] documentFileContent,
+				final File file, final String documentContentChecksum,
 				final DocumentModel documentModel, final String name,
 				final Project parent) {
 			this.description = description;
 			this.file = file;
-			this.documentFileContent = new byte[documentFileContent.length];
-			System.arraycopy(documentFileContent, 0,
-					this.documentFileContent, 0, documentFileContent.length);
+			this.documentContentChecksum = documentContentChecksum;
 			this.documentModel = documentModel;
 			this.name = name;
 			this.parent = parent;
 		}
 	}
-
 	/**
 	 * Delete document data definition.
 	 */
@@ -59,24 +71,36 @@ public class DocumentModelTest extends ModelTestCase {
 			this.documentModel = documentModel;
 		}
 	}
-
 	/**
 	 * Export document data definition for the export document test.
 	 * @see DocumentModelTest#testExport()
 	 * @see DocumentModelTest#setUpExport()
 	 */
 	private class ExportData {
+		private final String contentChecksum;
 		private final Document document;
 		private final DocumentModel documentModel;
 		private final File file;
-		private ExportData(final Document document,
+		private ExportData(final String contentChecksum, final Document document,
 				final DocumentModel documentModel, final File file) {
+			this.contentChecksum = contentChecksum;
 			this.document = document;
 			this.documentModel = documentModel;
 			this.file = file;
 		}
 	}
-
+	private class GetContentData {
+		final Document document;
+		final DocumentModel documentModel;
+		final String expectedContentChecksum;
+		private GetContentData(final Document document,
+				final DocumentModel documentModel,
+				final String expectedContentChecksum) {
+			this.document = document;
+			this.documentModel = documentModel;
+			this.expectedContentChecksum = expectedContentChecksum;
+		}
+	}
 	/**
 	 * Test data definition for the get path test.
 	 * @see DocumentModelTest#setUpGetPath()
@@ -91,7 +115,6 @@ public class DocumentModelTest extends ModelTestCase {
 			this.path = path;
 		}
 	}
-
 	/**
 	 * Test data definition for list.
 	 */
@@ -105,7 +128,6 @@ public class DocumentModelTest extends ModelTestCase {
 			this.project = project;
 		}
 	}
-
 	/**
 	 * Test data definition for listVersions.
 	 */
@@ -132,23 +154,33 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 
+	private Vector<AddNoteData> addNoteData;
 	private Vector<CreateData> createData;
-
 	private Vector<DeleteData> deleteData;
-
 	private Vector<ExportData> exportData;
-
+	private Vector<GetContentData> getContentData;
 	private Vector<GetPathData> getPathData;
-	private Collection<ListData> listData;
-
-	private Collection<ListVersionsData> listVersionsData;
-
+	private Vector<ListData> listData;
+	private Vector<ListVersionsData> listVersionsData;
 	private Vector<OpenData> openData;
 
 	/**
 	 * Create a DocumentModelTest.
 	 */
 	public DocumentModelTest() { super("Test:  Document model"); }
+
+	public void testAddNote() {
+		try {
+			Note note;
+			for(AddNoteData data : addNoteData) {
+				note = data.documentModel.addNote(data.document, data.subject, data.content);
+				DocumentModelTest.assertNotNull(note);
+				DocumentModelTest.assertEquals(note.getSubject(), data.subject);
+				DocumentModelTest.assertEquals(note.getContent(), data.content);
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
 
 	/**
 	 * Test the create document method.  The content of the document and the
@@ -158,18 +190,14 @@ public class DocumentModelTest extends ModelTestCase {
 	public void testCreate() {
 		try {
 			Document newDocument;
-			byte[] newDocumentContent;
+			DocumentContent newDocumentContent;
 			for(CreateData data : createData) {
 				newDocument = data.documentModel.create(data.parent, data.name,
 						data.description, data.file);
-				newDocumentContent = newDocument.getContent();
+				newDocumentContent = data.documentModel.getContent(newDocument);
 				DocumentModelTest.assertNotNull(newDocument);
-				DocumentModelTest.assertEquals(
-						newDocumentContent.length, data.documentFileContent.length);
-				for(int i = 0; i < newDocumentContent.length; i++) {
-					DocumentModelTest.assertEquals(
-							newDocumentContent[i], data.documentFileContent[i]);
-				}
+				DocumentModelTest.assertNotNull(newDocumentContent);
+				DocumentModelTest.assertEquals(newDocumentContent.getChecksum(), data.documentContentChecksum);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -195,16 +223,27 @@ public class DocumentModelTest extends ModelTestCase {
 	public void testExport() {
 		try {
 			byte[] fileContent;
-			byte[] documentContent;
+			String fileContentChecksum;
 			for(ExportData data : exportData) {
 				data.documentModel.export(data.document, data.file);
 				DocumentModelTest.assertTrue(data.file.exists());
 				fileContent = FileUtil.readFile(data.file);
-				documentContent = data.document.getContent();
-				DocumentModelTest.assertEquals(fileContent.length, documentContent.length);
-				for(int i = 0; i < fileContent.length; i++) {
-					DocumentModelTest.assertEquals(fileContent[i], documentContent[i]);
-				}
+				fileContentChecksum = MD5Util.md5Hex(fileContent);
+				DocumentModelTest.assertEquals(fileContentChecksum, data.contentChecksum);
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
+	public void testGetContent() {
+		try {
+			DocumentContent content;
+			for(GetContentData data : getContentData) {
+				content = data.documentModel.getContent(data.document);
+				DocumentModelTest.assertNotNull(content);
+				DocumentModelTest.assertEquals(
+						data.expectedContentChecksum,
+						content.getChecksum());
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -278,13 +317,35 @@ public class DocumentModelTest extends ModelTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		setUpAddNote();
 		setUpCreate();
 		setUpDelete();
 		setUpExport();
+		setUpGetContent();
 		setUpGetPath();
 		setUpList();
 		setUpListVersions();
 		setUpOpen();
+	}
+
+	protected void setUpAddNote() throws Exception {
+		addNoteData = new Vector<AddNoteData>(5);
+		final Project testProject = createTestProject("testAddNote");
+		final DocumentModel documentModel = getDocumentModel();
+		String name, description;
+		Document document;
+		String subject, content;
+
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			document = documentModel.create(testProject, name,
+					description, testFile.getFile());
+			subject = "New note.";
+			content = subject;
+
+			addNoteData.add(new AddNoteData(content, document, documentModel, subject));
+		}
 	}
 
 	/**
@@ -298,16 +359,15 @@ public class DocumentModelTest extends ModelTestCase {
 		createData = new Vector<CreateData>(4);
 		String name, description;
 		File file;
-		byte[] documentFileContent;
+		String documentContentChecksum;
 
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			file = testFile.getFile();
-			documentFileContent = FileUtil.readFile(file);
-			createData.add(new CreateData(description,
-					file, documentFileContent, documentModel, name,
-					testProject));
+			documentContentChecksum = MD5Util.md5Hex(FileUtil.readFile(file));
+			createData.add(new CreateData(description, file,
+					documentContentChecksum, documentModel, name, testProject));
 		}
 	}
 
@@ -340,23 +400,45 @@ public class DocumentModelTest extends ModelTestCase {
 	 * @throws Exception
 	 */
 	protected void setUpExport() throws Exception {
+		exportData = new Vector<ExportData>(getJUnitTestFilesSize());
 		final Project testProject = createTestProject("testExport");
 		final DocumentModel documentModel = getDocumentModel();
-		exportData = new Vector<ExportData>(4);
-		String name, description;
 		Document document;
+		String name, description, contentChecksum;
+		byte[] content;
 		File exportFile;
-		
+
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-
-			exportFile = new File(
-					System.getProperty("java.io.tmpdir"), testFile.getName());
+			content = FileUtil.readFile(testFile.getFile());
+			contentChecksum = MD5Util.md5Hex(content);
 			document = documentModel.create(
 					testProject, name, description, testFile.getFile());
-			exportData.add(
-					new ExportData(document, documentModel, exportFile));	
+			exportFile = new File(
+					System.getProperty("java.io.tmpdir"),
+					testFile.getName());
+			exportData.add(new ExportData(contentChecksum, document, documentModel, exportFile));	
+		}
+	}
+
+	protected void setUpGetContent() throws Exception {
+		getContentData = new Vector<GetContentData>(getJUnitTestFilesSize());
+		final Project testProject = createTestProject("testGetContent");
+		final DocumentModel documentModel = getDocumentModel();
+		Document document;
+		String name, description, contentChecksum;
+		byte[] content;
+		
+
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			content = FileUtil.readFile(testFile.getFile());
+			contentChecksum = MD5Util.md5Hex(content);
+			document = documentModel.create(testProject, name, description, testFile.getFile());
+
+			getContentData.add(new GetContentData(document, documentModel, contentChecksum));
 		}
 	}
 
@@ -451,13 +533,20 @@ public class DocumentModelTest extends ModelTestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		tearDownAddNote();
 		tearDownCreate();
 		tearDownDelete();
 		tearDownExport();
 		tearDownGetPath();
+		tearDownGetContent();
 		tearDownList();
 		tearDownListVersions();
 		tearDownOpen();
+	}
+
+	protected void tearDownAddNote() throws Exception {
+		addNoteData.clear();
+		addNoteData = null;
 	}
 
 	/**
@@ -492,6 +581,11 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 		exportData.clear();
 		exportData = null;
+	}
+
+	protected void tearDownGetContent() throws Exception {
+		getContentData.clear();
+		getContentData = null;
 	}
 
 	/**

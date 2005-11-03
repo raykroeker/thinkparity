@@ -14,6 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -71,6 +72,19 @@ public abstract class XmlIO {
 		logger.info("getXmlFile(Document)");
 		logger.debug(document);
 		return xmlPathBuilder.getXmlFile(document);
+	}
+
+	/**
+	 * Obtain the xml file for the given document content.
+	 * 
+	 * @param content
+	 *            The document content to obtain the xml file for.
+	 * @return The xml file.
+	 */
+	protected File getXmlFile(final DocumentContent content) {
+		logger.info("getXmlFile(DocumentContent)");
+		logger.debug(content);
+		return xmlPathBuilder.getXmlFile(content);
 	}
 
 	/**
@@ -141,6 +155,19 @@ public abstract class XmlIO {
 	}
 
 	/**
+	 * Read the document content from an xml file.
+	 * 
+	 * @param xmlFile
+	 *            The xml file for the document content.
+	 * @return The document content.
+	 */
+	protected DocumentContent readDocumentContent(final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("readDocumentContent(File)");
+		return (DocumentContent) fromXml(readXmlFile(xmlFile));
+	}
+
+	/**
 	 * Read a document version from an xml file.
 	 * 
 	 * @param xmlFile
@@ -205,6 +232,19 @@ public abstract class XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("write(Document,File)");
 		writeXmlFile(toXml(document), xmlFile);
+	}
+
+	/**
+	 * Write the document content to the xml file.
+	 * @param content The content to write.
+	 * @param xmlFile The xml file to write to.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected void write(final DocumentContent content, final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("write(DocumentContent,File)");
+		writeXmlFile(toXml(content), xmlFile);
 	}
 
 	/**

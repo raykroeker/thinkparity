@@ -71,7 +71,7 @@ public class DocumentVersionConverter extends XmlIOConverter {
 		writeVersionId(version.getVersion(), writer, context);
 		writeDocumentId(document.getId(), writer, context);
 		writeAction(new ActionWrapper(version.getAction(), version.getActionData()), writer, context);
-		writeDocument(version.getDocument(), writer, context);
+		writeDocument(version.getSnapshot(), writer, context);
 	}
 
 	/**

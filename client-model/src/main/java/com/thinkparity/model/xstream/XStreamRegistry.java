@@ -4,7 +4,9 @@
 package com.thinkparity.model.xstream;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.io.xml.document.DocumentContentConverter;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentVersionConverter;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentConverter;
 import com.thinkparity.model.parity.model.io.xml.project.ProjectConverter;
@@ -69,6 +71,9 @@ public class XStreamRegistry {
 
 		xStream.registerConverter(new DocumentConverter());
 		xStream.alias("document", Document.class);
+
+		xStream.registerConverter(new DocumentContentConverter());
+		xStream.alias("documentcontent", DocumentContent.class);
 
 		xStream.registerConverter(new DocumentVersionConverter());
 		xStream.alias("documentversion", DocumentVersion.class);

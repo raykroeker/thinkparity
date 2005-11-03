@@ -139,8 +139,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param document
 	 *            The document to add the note to.
-	 * @param note
-	 *            The note to add.
+	 * @param subject
+	 *            The subject of the note.
+	 * @param content
+	 *            The content of the note (Optional).
 	 * @throws ParityException
 	 */
 	Note addNote(final Document document, final String subject,

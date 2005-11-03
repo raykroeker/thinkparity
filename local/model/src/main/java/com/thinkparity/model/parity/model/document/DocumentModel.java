@@ -68,8 +68,8 @@ public class DocumentModel {
 	 * @param listener
 	 *            The update listener to add.
 	 */
-	public void addListener(final UpdateListener updateListener) {
-		synchronized(implLock) { impl.addListener(updateListener); }
+	public void addListener(final UpdateListener listener) {
+		synchronized(implLock) { impl.addListener(listener); }
 	}
 
 	/**

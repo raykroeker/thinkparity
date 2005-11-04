@@ -292,6 +292,7 @@ public class XMPPSessionImpl implements XMPPSession {
 			if(Boolean.TRUE == isLoggedIn())
 				logout();
 			if(Boolean.getBoolean("parity.insecure")) {
+				logger.warn("Non ssl connection to host");
 				smackXMPPConnection = new XMPPConnection(host, port);
 			}
 			else { smackXMPPConnection = new SSLXMPPConnection(host, port); }

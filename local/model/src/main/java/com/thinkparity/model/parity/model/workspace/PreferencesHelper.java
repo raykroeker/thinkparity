@@ -48,7 +48,10 @@ class PreferencesHelper {
 			public Integer getServerPort() {
 				final Integer override = Integer.getInteger("parity.serverport");
 				if(null != override) { return override; }
-				else { return 5223; }
+				else {
+					if(Boolean.getBoolean("parity.insecure")) { return 5222; }
+					else { return 5223; }
+				}
 			}
 
 			/**

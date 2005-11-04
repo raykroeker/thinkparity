@@ -78,8 +78,6 @@ public class ModelTestCaseHelper {
 	private static final ModelTestUser jUnitTestUser;
 
 	static {
-		// set the smack debugger to launch
-		System.setProperty("smack.debugEnabled", "true");
 		// record the session start time.
 		jUnitSessionStart = System.currentTimeMillis();
 		// record the session id.

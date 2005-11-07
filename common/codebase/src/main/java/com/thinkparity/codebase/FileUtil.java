@@ -3,11 +3,7 @@
  */
 package com.thinkparity.codebase;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -47,6 +43,28 @@ public abstract class FileUtil {
 	}
 
 	/**
+	 * Copy a file.
+	 * 
+	 * @param file
+	 *            The file to copy.
+	 * @param destinationDirectory
+	 *            The directory to copy the file to.
+	 */
+	public static void copy(final File file, final File target)
+			throws FileNotFoundException, IOException {
+		final BufferedInputStream bis = new BufferedInputStream(
+				new FileInputStream(file));
+		Assert.assertTrue("copy(File,File)", target.createNewFile());
+		final BufferedOutputStream bos = new BufferedOutputStream(
+				new FileOutputStream(target));
+		try { copy(bis, bos); }
+		finally {
+			bos.flush();
+			bos.close();
+		}
+	}
+
+	/**
 	 * Create a new directory.
 	 * @param directory <code>java.io.File</code>
 	 * @return <code>java.lang.Boolean</code>
@@ -65,7 +83,7 @@ public abstract class FileUtil {
 	public static synchronized Boolean delete(final File file) {
 		return file.delete();
 	}
-
+	
 	/**
 	 * Delete a filesystem tree.
 	 * 
@@ -97,7 +115,7 @@ public abstract class FileUtil {
 				"Could not delete directory:  " + directory.getAbsolutePath(),
 				directory.delete());
 	}
-
+	
 	/**
 	 * Obtain the file name without its extension, of the File.  If there is not 
 	 * extension the entire name is returned.
@@ -137,7 +155,7 @@ public abstract class FileUtil {
 				"File " + file.getAbsolutePath() + " is not a file.");
 		return FileUtil.getFileNameExtension(file.getName());
 	}
-	
+
 	/**
 	 * Obtain the file extension of a file name.  If none exists null is returned.
 	 * @param fileName <code>java.lang.String</code>
@@ -178,7 +196,7 @@ public abstract class FileUtil {
 			tempDirectory.mkdir();
 		return tempDirectory;
 	}
-	
+
 	public static synchronized String getTempDirectoryPath(
 			final String applicationName) {
 		return new StringBuffer()
@@ -251,6 +269,15 @@ public abstract class FileUtil {
 		FileUtil.writeFile(tempFile, content);
 		tempFile.deleteOnExit();
 		return tempFile;
+	}
+
+	private static void copy(final InputStream is, final OutputStream os)
+			throws IOException {
+		int byteRead = is.read();
+		while(byteRead != -1) {
+			os.write(byteRead);
+			byteRead = is.read();
+		}
 	}
 
 	/**

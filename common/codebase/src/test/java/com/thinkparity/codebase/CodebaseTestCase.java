@@ -3,6 +3,9 @@
  */
 package com.thinkparity.codebase;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -30,9 +33,32 @@ public abstract class CodebaseTestCase extends TestCase {
 	 * Create a new CodebaseTestCase
 	 * @param arg0
 	 */
-	public CodebaseTestCase(String arg0) {
-		super(arg0);
+	protected CodebaseTestCase(String name) {
+		super(name);
 		this.helper = new CodebaseTestHelper();
+	}
+
+	/**
+	 * Assert the content of the two files is equal.
+	 * 
+	 * @param expected
+	 *            The file with the expected content.
+	 * @param actual
+	 *            The actual content.
+	 */
+	protected void assertContentEquals(final File expected, final File actual)
+			throws FileNotFoundException, IOException {
+		helper.assertContentEquals(expected, actual);
+	}
+
+	/**
+	 * Create a test directory.
+	 * 
+	 * @param name
+	 *            The name of the test directory.
+	 */
+	protected File createTestDirectory(final String name) {
+		return helper.createTestDirectory(name);
 	}
 
 	/**

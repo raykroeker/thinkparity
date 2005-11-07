@@ -47,8 +47,8 @@ public abstract class FileUtil {
 	 * 
 	 * @param file
 	 *            The file to copy.
-	 * @param destinationDirectory
-	 *            The directory to copy the file to.
+	 * @param target
+	 *            The target to copy the file to.
 	 */
 	public static void copy(final File file, final File target)
 			throws FileNotFoundException, IOException {
@@ -283,5 +283,5 @@ public abstract class FileUtil {
 	/**
 	 * Create a new FileUtil [Singleton]
 	 */
-	private FileUtil() {super();}
+	private FileUtil() { super(); }
 }

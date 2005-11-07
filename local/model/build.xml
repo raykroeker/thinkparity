@@ -77,17 +77,17 @@
 	<!-- document all source -->
 	<target name="document" depends="" description="" if="" unless="">
 		<mkdir dir="${site.xdoc.javadoc}"/>
-				<javadoc destdir="${site.xdoc.javadoc}"
-					access="package" version="true" use="true" author="true"
-					windowtitle="${name} - ${version}"
-					packagenames="com.thinkparity.model.*">
-					<classpath>
-						<path refid="java.classpath"/>
-					</classpath>
-					<sourcepath>
-						<pathelement path="${basedir}/src/main/java"/>
-					</sourcepath>
-				</javadoc>
+		<javadoc destdir="${site.xdoc.javadoc}"
+			access="package" version="true" use="true" author="true"
+			windowtitle="${name} - ${version}"
+			packagenames="com.thinkparity.model.*">
+			<classpath>
+				<path refid="java.classpath"/>
+			</classpath>
+			<sourcepath>
+				<pathelement path="${basedir}/src/main/java"/>
+			</sourcepath>
+		</javadoc>
 	</target>
 
 	<!-- package all compiled binaries -->
@@ -103,7 +103,7 @@
 		<delete file="${src.zip}"/>
 		<zip destfile="${src.zip}">
 			<fileset dir="${basedir}" includes="src/main/java/**/*"/>
-			<fileset dir="${site.xdoc.javadoc}" includes="*"/>
+			<fileset dir="${site.xdoc.javadoc}" includes="**/*"/>
 		</zip>
 	</target>
 

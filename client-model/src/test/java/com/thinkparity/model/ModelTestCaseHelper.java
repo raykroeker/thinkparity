@@ -16,6 +16,7 @@ import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
@@ -276,5 +277,51 @@ public class ModelTestCaseHelper {
 			ModelTestCase.fail(modelTestCase.getFailMessage(usx));
 		}
 		return new File(rootDirectory, modelTestUser.getUsername());
+	}
+
+	/**
+	 * Assert that the document list provided contains the document.
+	 * 
+	 * @param documentList
+	 *            The document list to check.
+	 * @param document
+	 *            The document to validate.
+	 */
+	void assertContains(final Collection<Document> documentList,
+			Document document) {
+		final StringBuffer actualIds = new StringBuffer("");
+		Boolean didContain = Boolean.FALSE;
+		int actualCounter = 0;
+		for(Document actual : documentList) {
+			if(actual.getId().equals(document.getId())) {
+				didContain = Boolean.TRUE;
+			}
+			actualIds.append(actualCounter == 0 ? "" : ",");
+			actualIds.append(actual.getId().toString());
+		}
+		ModelTestCase.assertTrue("expected:<" + document.getId() + " but was:<" + actualIds.toString(), didContain);
+	}
+
+	/**
+	 * Assert that the document list provided doesn't contain the document.
+	 * 
+	 * @param documentList
+	 *            The document list to check.
+	 * @param document
+	 *            The document to validate.
+	 */
+	void assertNotContains(final Collection<Document> documentList,
+			Document document) {
+		final StringBuffer actualIds = new StringBuffer("");
+		Boolean didContain = Boolean.FALSE;
+		int actualCounter = 0;
+		for(Document actual : documentList) {
+			if(actual.getId().equals(document.getId())) {
+				didContain = Boolean.TRUE;
+			}
+			actualIds.append(actualCounter == 0 ? "" : ",");
+			actualIds.append(actual.getId().toString());
+		}
+		ModelTestCase.assertFalse("expected:<" + document.getId() + " but was:<" + actualIds.toString(), didContain);
 	}
 }

@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Stack;
 import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
@@ -102,20 +101,6 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 	/**
-	 * Test data definition for the get path test.
-	 * @see DocumentModelTest#setUpGetPath()
-	 * @see DocumentModelTest#testGetPath()
-	 */
-	private class GetPathData {
-		private final StringBuffer expectedPath;
-		private final StringBuffer path;
-		private GetPathData(final StringBuffer expectedPath,
-				final StringBuffer path) {
-			this.expectedPath = expectedPath;
-			this.path = path;
-		}
-	}
-	/**
 	 * Test data definition for list.
 	 */
 	private class ListData {
@@ -140,6 +125,18 @@ public class DocumentModelTest extends ModelTestCase {
 			this.documentModel = documentModel;
 		}
 	}
+	private class MoveData {
+		private final Project destination;
+		private final Document document;
+		private final DocumentModel documentModel;
+		private final Project source;
+		private MoveData(final Project destination, final Document document, final DocumentModel documentModel, final Project source) {
+			this.destination = destination;
+			this.document = document;
+			this.documentModel = documentModel;
+			this.source = source;
+		}
+	}
 
 	/**
 	 * Open document data structure.
@@ -153,22 +150,21 @@ public class DocumentModelTest extends ModelTestCase {
 			this.documentModel = documentModel;
 		}
 	}
-
 	private Vector<AddNoteData> addNoteData;
 	private Vector<CreateData> createData;
+
 	private Vector<DeleteData> deleteData;
+
 	private Vector<ExportData> exportData;
 	private Vector<GetContentData> getContentData;
-	private Vector<GetPathData> getPathData;
 	private Vector<ListData> listData;
 	private Vector<ListVersionsData> listVersionsData;
+	private Vector<MoveData> moveData;
 	private Vector<OpenData> openData;
-
 	/**
 	 * Create a DocumentModelTest.
 	 */
 	public DocumentModelTest() { super("Test:  Document model"); }
-
 	public void testAddNote() {
 		try {
 			Note note;
@@ -250,21 +246,6 @@ public class DocumentModelTest extends ModelTestCase {
 	}
 
 	/**
-	 * Test the paths generated for all of the documents attached to the
-	 * root project.
-	 *
-	 */
-	public void testGetPath() {
-		try {
-			for(GetPathData data : getPathData) {
-				DocumentModelTest.assertNotNull(data.path);
-				DocumentModelTest.assertEquals(data.path.toString(), data.expectedPath.toString());
-			}
-		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
-	}
-
-	/**
 	 * Test the listing of documents from the model api.
 	 *
 	 */
@@ -298,6 +279,24 @@ public class DocumentModelTest extends ModelTestCase {
 		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
 
+	public void testMove() {
+		try {
+			Collection<Document> sourceDocuments;
+			Collection<Document> destinationDocuments;
+			for(MoveData data : moveData) {
+				data.documentModel.move(data.document, data.destination);
+
+				sourceDocuments = data.documentModel.list(data.source);
+				destinationDocuments = data.documentModel.list(data.destination);
+				DocumentModelTest.assertNotNull(sourceDocuments);
+				DocumentModelTest.assertNotNull(destinationDocuments);
+				assertNotContains(sourceDocuments, data.document);
+				assertContains(destinationDocuments, data.document);
+			}
+		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
+	}
+
 	/**
 	 * Test the document model's open api.
 	 *
@@ -322,9 +321,9 @@ public class DocumentModelTest extends ModelTestCase {
 		setUpDelete();
 		setUpExport();
 		setUpGetContent();
-		setUpGetPath();
 		setUpList();
 		setUpListVersions();
+		setUpMove();
 		setUpOpen();
 	}
 
@@ -442,26 +441,6 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 
-	/**
-	 * Set up the get path data structure.
-	 * 
-	 * @throws Exception
-	 */
-	protected void setUpGetPath() throws Exception {
-		final Project testProject = createTestProject("testGetPath");
-		String name, description;
-		Document document;
-
-		getPathData = new Vector<GetPathData>(10);
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
-			name = testFile.getName();
-			description = name;
-			document = getDocumentModel().create(testProject, name, description, testFile.getFile());
-			getPathData.add(
-					new GetPathData(getExpectedPath(document), document.getPath()));
-		}
-	}
-
 	protected void setUpList() throws Exception {
 		final Integer scenarioCount = 4;
 		listData = new Vector<ListData>(scenarioCount);
@@ -504,6 +483,31 @@ public class DocumentModelTest extends ModelTestCase {
 		}
 	}
 
+	protected void setUpMove() throws Exception {
+		moveData = new Vector<MoveData>(getJUnitTestFilesSize());
+		final Project testProject = createTestProject("testMove");
+		final ProjectModel projectModel = getProjectModel();
+		final DocumentModel documentModel = getDocumentModel();
+		String name, description;
+		Project destination, source;
+		Document document;
+
+		name = "S";
+		description = name;
+		source = projectModel.create(testProject, name, description);
+
+		name = "D";
+		description = name;
+		destination = projectModel.create(testProject, name, description);
+		for(ModelTestFile testFile : getJUnitTestFiles()) {
+			name = testFile.getName();
+			description = name;
+			document = documentModel.create(source, name, description, testFile.getFile());
+
+			moveData.add(new MoveData(destination, document, documentModel, source));
+		}
+	}
+
 	/**
 	 * Set up the open data structure.
 	 *
@@ -537,10 +541,10 @@ public class DocumentModelTest extends ModelTestCase {
 		tearDownCreate();
 		tearDownDelete();
 		tearDownExport();
-		tearDownGetPath();
 		tearDownGetContent();
 		tearDownList();
 		tearDownListVersions();
+		tearDownMove();
 		tearDownOpen();
 	}
 
@@ -588,16 +592,6 @@ public class DocumentModelTest extends ModelTestCase {
 		getContentData = null;
 	}
 
-	/**
-	 * Clean up the get path data.
-	 * 
-	 * @throws Exception
-	 */
-	protected void tearDownGetPath() throws Exception {
-		getPathData.clear();
-		getPathData = null;
-	}
-
 	protected void tearDownList() throws Exception {
 		listData.clear();
 		listData = null;
@@ -608,6 +602,11 @@ public class DocumentModelTest extends ModelTestCase {
 		listVersionsData = null;
 	}
 
+	protected void tearDownMove() throws Exception {
+		moveData.clear();
+		moveData = null;
+	}
+
 	/**
 	 * Clean up the open data structure.
 	 *
@@ -615,32 +614,5 @@ public class DocumentModelTest extends ModelTestCase {
 	protected void tearDownOpen() throws Exception {
 		openData.clear();
 		openData = null;
-	}
-
-	/**
-	 * Build an expected path for a given document.  This uses the document to
-	 * obtain the project to obtain the project, etc.
-	 * 
-	 * @param document
-	 *            The document to build the expected path for.
-	 * @return The expected path.
-	 */
-	private StringBuffer getExpectedPath(final Document document) {
-		final Stack<Project> projectStack = new Stack<Project>();
-		Project parentProject = document.getParent();
-		while(parentProject.isSetParent()) {
-			projectStack.push(parentProject);
-			parentProject = parentProject.getParent();
-		}
-		projectStack.add(parentProject);
-
-		final StringBuffer expectedPath =
-			new StringBuffer(projectStack.pop().getCustomName());
-		while(!projectStack.isEmpty())
-			expectedPath.append("/")
-				.append(projectStack.pop().getCustomName());
-		expectedPath.append("/")
-			.append(document.getCustomName());
-		return expectedPath;
 	}
 }

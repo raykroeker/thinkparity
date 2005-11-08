@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
@@ -52,6 +53,32 @@ public abstract class ModelTestCase extends TestCase {
 	protected ModelTestCase(String name) {
 		super(name);
 		this.helper = new ModelTestCaseHelper(this);
+	}
+
+	/**
+	 * Assert that the document list provided contains the document.
+	 * 
+	 * @param documentList
+	 *            The document list to check.
+	 * @param document
+	 *            The document to validate.
+	 */
+	protected void assertContains(final Collection<Document> documentList,
+			Document document) {
+		helper.assertContains(documentList, document);
+	}
+
+	/**
+	 * Assert that the document list provided doesn't contain the document.
+	 * 
+	 * @param documentList
+	 *            The document list to check.
+	 * @param document
+	 *            The document to validate.
+	 */
+	protected void assertNotContains(final Collection<Document> documentList,
+			Document document) {
+		helper.assertNotContains(documentList, document);
 	}
 
 	/**
@@ -140,7 +167,7 @@ public abstract class ModelTestCase extends TestCase {
 	protected ProjectModel getProjectModel() {
 		return ProjectModel.getModel();
 	}
-
+	
 	/**
 	 * Obtain a handle to a session model.
 	 * 
@@ -158,7 +185,7 @@ public abstract class ModelTestCase extends TestCase {
 	protected Workspace getWorkspace() {
 		return getWorkspaceModel().getWorkspace();
 	}
-	
+
 	/**
 	 * Obtain a handle to the parity workspace model.
 	 * 

@@ -13,7 +13,7 @@ import com.thinkparity.model.xstream.XStreamSerializable;
 /**
  * Project
  * @author raykroeker@gmail.com
- * @version 1.3
+ * @version 1.3.2.7
  */
 public class Project extends ParityObject implements XStreamSerializable {
 
@@ -35,20 +35,10 @@ public class Project extends ParityObject implements XStreamSerializable {
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.api.ParityObject#getPath()
-	 */
-	@Override
-	public StringBuffer getPath() {
-		if(isSetParent()) {
-			return new StringBuffer(getParent().getPath())
-				.append("/")
-				.append(getCustomName());
-		}
-		else { return new StringBuffer(getCustomName()); }
-	}
-
-	/**
-	 * @see com.thinkparity.model.parity.api.ParityObject#getType()
+	 * Obtain the type of parity object; in this case a project.
+	 * 
+	 * @see ParityObject#getType()
+	 * @see ParityObjectType#PROJECT
 	 */
 	public ParityObjectType getType() { return ParityObjectType.PROJECT; }
 }

@@ -351,6 +351,38 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Move the document to an another project.
+	 * 
+	 * @param document
+	 *            The document to move.
+	 * @param destination
+	 *            The project to move the document to.
+	 * @throws ParityException
+	 */
+	void move(final Document document, final Project destination)
+			throws ParityException {
+		logger.info("move(Document,Project)");
+		logger.debug(document);
+		logger.debug(destination);
+		try {
+			documentXmlIO.copy(document, destination);
+			delete(document);
+			document.setParent(destination);
+			documentXmlIO.update(document);
+
+			notifyUpdate_objectUpdated(document);
+		}
+		catch(IOException iox) {
+			logger.error("move(Document,Project)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("move(Document,Project)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Open the document. First obtain the file from the cache, then open it
 	 * based upon underlying operating system constraints.
 	 * 

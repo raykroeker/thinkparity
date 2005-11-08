@@ -18,7 +18,7 @@ import com.thinkparity.model.parity.model.project.Project;
 /**
  * ParityObject
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.5.2.7
  */
 public abstract class ParityObject implements IParityModelConstants {
 
@@ -161,12 +161,6 @@ public abstract class ParityObject implements IParityModelConstants {
 	 * @return Project
 	 */
 	public Project getParent() { return parent; }
-
-	/**
-	 * Obtain the path for the object.
-	 * @return StringBuffer
-	 */
-	public abstract StringBuffer getPath();
 
 	/**
 	 * Obtain the type of parity object.

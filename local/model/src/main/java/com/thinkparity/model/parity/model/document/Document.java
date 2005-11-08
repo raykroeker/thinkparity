@@ -13,7 +13,7 @@ import com.thinkparity.model.parity.model.project.Project;
 /**
  * Document
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.2.2.10
  */
 public class Document extends ParityObject {
 
@@ -55,16 +55,6 @@ public class Document extends ParityObject {
 	Document(final Project parent, final String name, final Calendar createdOn,
 			final String createdBy, final String description, final UUID id) {
 		super(parent, name, description, createdOn, createdBy, id);
-	}
-
-	/**
-	 * Obtain the path of the document.
-	 * 
-	 * @return The path of the document.
-	 * @see com.thinkparity.model.parity.api.ParityObject#getPath()
-	 */
-	public StringBuffer getPath() {
-		return getParent().getPath().append("/").append(getCustomName());
 	}
 
 	/**

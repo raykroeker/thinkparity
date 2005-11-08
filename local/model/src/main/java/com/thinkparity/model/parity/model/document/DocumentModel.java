@@ -180,6 +180,19 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Move the document to an another project.
+	 * 
+	 * @param document
+	 *            The document to move.
+	 * @param destination
+	 *            The project to move the document to.
+	 * @throws ParityException
+	 */
+	public void move(final Document document, final Project destination) throws ParityException {
+		synchronized(implLock) { impl.move(document, destination); }
+	}
+
+	/**
 	 * Open a document.
 	 * 
 	 * @param document

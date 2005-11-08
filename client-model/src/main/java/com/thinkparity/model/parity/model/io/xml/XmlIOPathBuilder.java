@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.io.xml;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
@@ -168,6 +169,35 @@ public class XmlIOPathBuilder {
 		final String parent = getPathname(project);
 		logger.debug(parent);
 		return new File(parent);
+	}
+
+	/**
+	 * Obtain all of the xml files for the given document. This includes the
+	 * document, the document content as well as all of the document version
+	 * files.
+	 * 
+	 * @param document
+	 *            The document to obtain the xml files for.
+	 * @return The list of xml files for the document.
+	 */
+	File[] getXmlFiles(final Document document) {
+		logger.info("getXmlFile(Document)");
+		logger.debug(document);
+		final File xmlFileDirectory = getXmlFileDirectory(document);
+		logger.debug(xmlFileDirectory);
+		return xmlFileDirectory.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				if(name.startsWith(document.getName())) {
+					if(name.endsWith(IXmlIOConstants.FILE_EXTENSION_DOCUMENT))
+						return true;
+					if(name.endsWith(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_CONTENT))
+						return true;
+					if(name.endsWith(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION))
+						return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	/**

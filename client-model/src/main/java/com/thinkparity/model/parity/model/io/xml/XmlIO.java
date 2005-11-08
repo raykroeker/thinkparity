@@ -101,6 +101,21 @@ public abstract class XmlIO {
 	}
 
 	/**
+	 * Obtain all of the xml files for the given document. This includes the
+	 * document, the document content as well as all of the document version
+	 * files.
+	 * 
+	 * @param document
+	 *            The document to obtain the xml files for.
+	 * @return The list of xml files for the document.
+	 */
+	protected File[] getXmlFiles(final Document document) {
+		logger.info("getXmlFiles(Document)");
+		logger.debug(document);
+		return xmlPathBuilder.getXmlFiles(document);
+	}
+
+	/**
 	 * Obtain the xml file for the given project.
 	 * 
 	 * @param project

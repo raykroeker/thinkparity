@@ -56,9 +56,11 @@ public abstract class FileUtil {
 				new FileInputStream(file));
 		Assert.assertTrue("copy(File,File)", target.createNewFile());
 		final BufferedOutputStream bos = new BufferedOutputStream(
-				new FileOutputStream(target));
+				new FileOutputStream(target), 256);
 		try { copy(bis, bos); }
 		finally {
+			bis.close();
+
 			bos.flush();
 			bos.close();
 		}
@@ -271,6 +273,15 @@ public abstract class FileUtil {
 		return tempFile;
 	}
 
+	/**
+	 * Copy bytes from an input stream to an output stream.
+	 * 
+	 * @param is
+	 *            The input to copy from.
+	 * @param os
+	 *            The output to copy to.
+	 * @throws IOException
+	 */
 	private static void copy(final InputStream is, final OutputStream os)
 			throws IOException {
 		int byteRead = is.read();

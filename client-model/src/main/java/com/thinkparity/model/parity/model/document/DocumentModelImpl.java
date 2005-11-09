@@ -281,6 +281,28 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Obtain a document with a specified id.
+	 * 
+	 * @param id
+	 *            The id of the document.
+	 * @return The document
+	 * @throws ParityException
+	 */
+	Document get(final UUID id) throws ParityException {
+		logger.info("get(UUID)");
+		logger.debug(id);
+		try { return documentXmlIO.get(id); }
+		catch(IOException iox) {
+			logger.error("get(UUID)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("get(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Obtain the document content for a given document.
 	 * 
 	 * @param document

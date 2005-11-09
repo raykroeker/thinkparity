@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
@@ -18,6 +19,7 @@ import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
+import com.thinkparity.model.parity.model.io.xml.index.Index;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -115,6 +117,23 @@ public class DocumentXmlIO extends XmlIO {
 		logger.debug(version);
 		final File xmlFile = getXmlFile(version);
 		Assert.assertTrue("delete(DocumentVersion)", xmlFile.delete());
+	}
+
+	/**
+	 * Obtain a document with a specified id.
+	 * 
+	 * @param id
+	 *            The id of the document.
+	 * @return The document
+	 */
+	public Document get(final UUID id) throws FileNotFoundException,
+			IOException {
+		logger.info("get(UUID)");
+		logger.debug(id);
+		final File indexXmlFile = getIndexXmlFile();
+		final Index index = readIndex(indexXmlFile);
+		final File xmlFile = index.lookupXmlFile(id);
+		return readDocument(xmlFile);
 	}
 
 	/**

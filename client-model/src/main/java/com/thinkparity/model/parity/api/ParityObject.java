@@ -85,6 +85,14 @@ public abstract class ParityObject implements IParityModelConstants {
 		notes.add(note);
 	}
 
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object obj) {
+		final ParityObject otherObj = (ParityObject) obj;
+		return id.equals(otherObj.getId());
+	}
+
 	public final String getCreatedBy() { return createdBy; }
 
 	public final Calendar getCreatedOn() { return createdOn; }
@@ -168,6 +176,11 @@ public abstract class ParityObject implements IParityModelConstants {
 	 * @return <code>com.thinkparity.model.parity.api.ParityObjectType</code>
 	 */
 	public abstract ParityObjectType getType();
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() { return id.hashCode(); }
 
 	/**
 	 * Determine whether or not the parent is set.

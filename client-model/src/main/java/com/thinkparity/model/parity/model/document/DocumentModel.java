@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationListener;
@@ -138,6 +139,18 @@ public class DocumentModel {
 	public void export(final Document document, final File file)
 			throws ParityException {
 		synchronized(implLock) { impl.export(document, file); }
+	}
+
+	/**
+	 * Obtain a document with a specified id.
+	 * 
+	 * @param id
+	 *            The id of the document.
+	 * @return The document
+	 * @throws ParityException
+	 */
+	public Document get(final UUID id) throws ParityException {
+		synchronized(implLock) { return impl.get(id); }
 	}
 
 	/**

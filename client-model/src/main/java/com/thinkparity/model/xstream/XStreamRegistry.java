@@ -7,10 +7,13 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentContentConverter;
-import com.thinkparity.model.parity.model.io.xml.document.DocumentVersionConverter;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentConverter;
+import com.thinkparity.model.parity.model.io.xml.document.DocumentVersionConverter;
+import com.thinkparity.model.parity.model.io.xml.index.Index;
+import com.thinkparity.model.parity.model.io.xml.index.IndexConverter;
 import com.thinkparity.model.parity.model.io.xml.project.ProjectConverter;
 import com.thinkparity.model.parity.model.project.Project;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;
 
@@ -77,5 +80,8 @@ public class XStreamRegistry {
 
 		xStream.registerConverter(new DocumentVersionConverter());
 		xStream.alias("documentversion", DocumentVersion.class);
+
+		xStream.registerConverter(new IndexConverter());
+		xStream.alias("index", Index.class);
 	}
 }

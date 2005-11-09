@@ -21,5 +21,6 @@ public interface IXmlIOConstants {
 	public static final String FILE_EXTENSION_DOCUMENT = ".document";
 	public static final String FILE_EXTENSION_DOCUMENT_CONTENT = ".documentcontent";
 	public static final String FILE_EXTENSION_DOCUMENT_VERSION = ".documentversion";
+	public static final String FILE_EXTENSION_INDEX = ".index";
 	public static final String FILE_EXTENSION_PROJECT = ".project";
 }

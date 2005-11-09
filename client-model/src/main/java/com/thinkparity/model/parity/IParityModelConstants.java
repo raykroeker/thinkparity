@@ -17,10 +17,10 @@ import com.thinkparity.model.parity.util.UUIDGenerator;
  */
 public interface IParityModelConstants {
 
-	public static final Long FILE_SIZE_UPPER_BOUNDS = 1048576L;
-
 	public static final String DIRECTORY_NAME_CACHE_DATA = "cache";
+
 	public static final String DIRECTORY_NAME_XML_DATA = "xml.io";
+	public static final Long FILE_SIZE_UPPER_BOUNDS = 1048576L;
 
 	public static final String PROJECT_CREATED_BY = "system";
 	public static final String PROJECT_CREATED_BY_INBOX = PROJECT_CREATED_BY;

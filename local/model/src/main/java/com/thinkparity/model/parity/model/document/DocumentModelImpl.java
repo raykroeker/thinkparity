@@ -365,8 +365,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(document);
 		logger.debug(destination);
 		try {
-			documentXmlIO.copy(document, destination);
-			delete(document);
+			documentXmlIO.move(document, destination);
 			document.setParent(destination);
 			documentXmlIO.update(document);
 

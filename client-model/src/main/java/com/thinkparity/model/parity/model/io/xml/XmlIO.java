@@ -16,6 +16,8 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.io.xml.index.Index;
+import com.thinkparity.model.parity.model.io.xml.index.IndexXmlIO;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xstream.XStreamUtil;
@@ -30,10 +32,23 @@ import com.thinkparity.model.xstream.XStreamUtil;
 public abstract class XmlIO {
 
 	/**
+	 * Since the xml index is a singleton; all read\write access to the xml file
+	 * should be synchronized.
+	 */
+	private static final Object indexLock;
+
+	static { indexLock = new Object(); }
+
+	/**
 	 * Handle to an apache logger.
 	 */
 	protected final Logger logger =
 		ModelLoggerFactory.getLogger(getClass());
+
+	/**
+	 * Handle to the parity workspace.
+	 */
+	private final Workspace workspace;
 
 	/**
 	 * Used to build xml file paths for parity objects.
@@ -46,6 +61,16 @@ public abstract class XmlIO {
 	protected XmlIO(final Workspace workspace) {
 		super();
 		this.xmlPathBuilder = new XmlIOPathBuilder(workspace);
+		this.workspace = workspace;
+	}
+
+	/**
+	 * Obtain the index xml file.
+	 * 
+	 * @return The index xml file.
+	 */
+	protected File getIndexXmlFile() {
+		return xmlPathBuilder.getIndexXmlFile();
 	}
 
 	/**
@@ -101,21 +126,6 @@ public abstract class XmlIO {
 	}
 
 	/**
-	 * Obtain all of the xml files for the given document. This includes the
-	 * document, the document content as well as all of the document version
-	 * files.
-	 * 
-	 * @param document
-	 *            The document to obtain the xml files for.
-	 * @return The list of xml files for the document.
-	 */
-	protected File[] getXmlFiles(final Document document) {
-		logger.info("getXmlFiles(Document)");
-		logger.debug(document);
-		return xmlPathBuilder.getXmlFiles(document);
-	}
-
-	/**
 	 * Obtain the xml file for the given project.
 	 * 
 	 * @param project
@@ -152,6 +162,21 @@ public abstract class XmlIO {
 		logger.info("getXmlFileDirectory(Project)");
 		logger.debug(project);
 		return xmlPathBuilder.getXmlFileDirectory(project);
+	}
+
+	/**
+	 * Obtain all of the xml files for the given document. This includes the
+	 * document, the document content as well as all of the document version
+	 * files.
+	 * 
+	 * @param document
+	 *            The document to obtain the xml files for.
+	 * @return The list of xml files for the document.
+	 */
+	protected File[] getXmlFiles(final Document document) {
+		logger.info("getXmlFiles(Document)");
+		logger.debug(document);
+		return xmlPathBuilder.getXmlFiles(document);
 	}
 
 	/**
@@ -198,6 +223,23 @@ public abstract class XmlIO {
 	}
 
 	/**
+	 * Read the index from an xml file.
+	 * 
+	 * @param xmlFile
+	 *            The xml file for the index.
+	 * @return The index.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected Index readIndex(final File xmlFile) throws FileNotFoundException,
+			IOException {
+		logger.info("readIndex(File)");
+		synchronized(indexLock) {
+			return (Index) fromXml(readXmlFile(xmlFile));
+		}
+	}
+
+	/**
 	 * Read a project from an xml file.
 	 * 
 	 * @param xmlFile
@@ -210,27 +252,6 @@ public abstract class XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("readProject(File)");
 		return (Project) fromXml(readXmlFile(xmlFile));
-	}
-
-	/**
-	 * Read an xml file's content into a string.
-	 * 
-	 * @param xmlFile
-	 *            The xml file to read.
-	 * @return The xml content of the file.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	protected String readXmlFile(final File xmlFile)
-			throws FileNotFoundException, IOException {
-		logger.info("readXmlFile(File)");
-		logger.debug(xmlFile);
-		final byte[] xmlBytes = FileUtil.readFile(xmlFile);
-		logger.debug(xmlBytes);
-		final String xml =
-			new String(xmlBytes, IXmlIOConstants.DEFAULT_CHARSET.getCharsetName());
-		logger.debug(xml);
-		return xml;
 	}
 
 	/**
@@ -247,6 +268,7 @@ public abstract class XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("write(Document,File)");
 		writeXmlFile(toXml(document), xmlFile);
+		writeIndexXml(document);
 	}
 
 	/**
@@ -280,6 +302,23 @@ public abstract class XmlIO {
 	}
 
 	/**
+	 * Write the index to the xml file.
+	 * 
+	 * @param index
+	 *            The index to write.
+	 * @param xmlFile
+	 *            The xml file to write to.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected void write(final Index index, final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("write(Index,File)");
+		logger.debug(index);
+		writeXmlFile(toXml(index), xmlFile);
+	}
+
+	/**
 	 * Write the project to the xml file.
 	 * 
 	 * @param project
@@ -293,6 +332,7 @@ public abstract class XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("write(Project,File)");
 		writeXmlFile(toXml(project), xmlFile);
+		writeIndexXml(project);
 	}
 
 	/**
@@ -307,6 +347,27 @@ public abstract class XmlIO {
 	}
 
 	/**
+	 * Read an xml file's content into a string.
+	 * 
+	 * @param xmlFile
+	 *            The xml file to read.
+	 * @return The xml content of the file.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private String readXmlFile(final File xmlFile)
+			throws FileNotFoundException, IOException {
+		logger.info("readXmlFile(File)");
+		logger.debug(xmlFile);
+		final byte[] xmlBytes = FileUtil.readFile(xmlFile);
+		logger.debug(xmlBytes);
+		final String xml =
+			new String(xmlBytes, IXmlIOConstants.DEFAULT_CHARSET.getCharsetName());
+		logger.debug(xml);
+		return xml;
+	}
+
+	/**
 	 * Use the XStream framework to serialize an object to xml.
 	 * 
 	 * @param object
@@ -315,6 +376,42 @@ public abstract class XmlIO {
 	 */
 	private String toXml(final Object object) {
 		return XStreamUtil.toXML(object);
+	}
+
+	/**
+	 * Write a document to the xml index.
+	 * 
+	 * @param document
+	 *            The document to add to the xml index.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private void writeIndexXml(final Document document)
+			throws FileNotFoundException, IOException {
+		synchronized(indexLock) {
+			final IndexXmlIO indexXmlIO = new IndexXmlIO(workspace);
+			final Index index = indexXmlIO.get();
+			index.addLookup(document.getId(), getXmlFile(document));
+			write(index, getIndexXmlFile());
+		}
+	}
+
+	/**
+	 * Write a project to the xml index.
+	 * 
+	 * @param project
+	 *            The project to add to the xml index.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private void writeIndexXml(final Project project)
+			throws FileNotFoundException, IOException {
+		synchronized(indexLock) {
+			final IndexXmlIO indexXmlIO = new IndexXmlIO(workspace);
+			final Index index = indexXmlIO.get();
+			index.addLookup(project.getId(), getXmlFile(project));
+			write(index, getIndexXmlFile());
+		}
 	}
 
 	/**

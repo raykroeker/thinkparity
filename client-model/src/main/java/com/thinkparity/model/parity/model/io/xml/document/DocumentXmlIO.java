@@ -37,29 +37,6 @@ public class DocumentXmlIO extends XmlIO {
 	public DocumentXmlIO(final Workspace workspace) { super(workspace); }
 
 	/**
-	 * Copy a document from its source to a new destination project.
-	 * 
-	 * @param document
-	 *            The document to copy.
-	 * @param destination
-	 *            The destination project.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public void copy(final Document document, final Project destination)
-			throws FileNotFoundException, IOException {
-		logger.info("copy(Document,Project)");
-		logger.debug(document);
-		logger.debug(destination);
-		final File destinationXmlFileDirectory = getXmlFileDirectory(destination);
-		File target;
-		for(File documentFile : getXmlFiles(document)) {
-			target = new File(destinationXmlFileDirectory, documentFile.getName());
-			FileUtil.copy(documentFile, target);
-		}
-	}
-
-	/**
 	 * Create the document xml. This
 	 * 
 	 * @param document
@@ -114,6 +91,7 @@ public class DocumentXmlIO extends XmlIO {
 		final File xmlFile = getXmlFile(document);
 		Assert.assertTrue("delete(Document)", xmlFile.delete());
 	}
+
 	/**
 	 * Delete the document content's xml.
 	 * 
@@ -126,7 +104,6 @@ public class DocumentXmlIO extends XmlIO {
 		final File xmlFile = getXmlFile(content);
 		Assert.assertTrue("delete(DocumentContent)", xmlFile.delete());
 	}
-
 	/**
 	 * Delete the document version's xml.
 	 * 
@@ -208,6 +185,30 @@ public class DocumentXmlIO extends XmlIO {
 			versions.add(version);
 		}
 		return versions;
+	}
+
+	/**
+	 * Move a document from its source to a new destination project.
+	 * 
+	 * @param document
+	 *            The document to move.
+	 * @param destination
+	 *            The destination project.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void move(final Document document, final Project destination)
+			throws FileNotFoundException, IOException {
+		logger.info("move(Document,Project)");
+		logger.debug(document);
+		logger.debug(destination);
+		final File destinationXmlFileDirectory = getXmlFileDirectory(destination);
+		File target;
+		for(File documentFile : getXmlFiles(document)) {
+			target = new File(destinationXmlFileDirectory, documentFile.getName());
+			FileUtil.copy(documentFile, target);
+			Assert.assertTrue("move(Document,Project)", documentFile.delete());
+		}
 	}
 
 	/**

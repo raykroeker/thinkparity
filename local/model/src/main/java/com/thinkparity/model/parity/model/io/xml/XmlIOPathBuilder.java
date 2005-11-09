@@ -46,6 +46,15 @@ public class XmlIOPathBuilder {
 	}
 
 	/**
+	 * Obtain the index xml file.
+	 * 
+	 * @return The index xml file.
+	 */
+	File getIndexXmlFile() {
+		return new File(getRoot(), getIndexXmlFileName());
+	}
+
+	/**
 	 * Obtain the root directory for the xml io driver.
 	 * 
 	 * @return The root directory of the xml io driver.
@@ -89,6 +98,7 @@ public class XmlIOPathBuilder {
 		logger.debug(xmlFileName);
 		return new File(xmlFileDirectory, xmlFileName);
 	}
+	
 
 	/**
 	 * Obtain the xml file for the given document version.
@@ -106,7 +116,6 @@ public class XmlIOPathBuilder {
 		logger.debug(xmlFileName);
 		return new File(xmlFileDirectory, xmlFileName);
 	}
-	
 
 	/**
 	 * Obtain the xml file for the given project.
@@ -215,6 +224,15 @@ public class XmlIOPathBuilder {
 			parent = parent.getParent();
 		}
 		return parentStack;
+	}
+
+	/**
+	 * Obtain the index xml file's name.
+	 * 
+	 * @return The index xml file's name.
+	 */
+	private String getIndexXmlFileName() {
+		return IXmlIOConstants.FILE_EXTENSION_INDEX;
 	}
 
 	/**

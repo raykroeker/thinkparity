@@ -118,6 +118,8 @@ public class ModelTestCaseHelper {
 						new File(jUnitResourcesFiles, "JUnit Test Framework 1MB.txt")));
 		// set the test user
 		jUnitTestUser = ModelTestUser.getJUnit();
+		// set non ssl mode
+		System.setProperty("parity.insecure", "true");
 		System.setProperty(
 				"parity.workspace",
 				jUnitWorkspace.getAbsolutePath());

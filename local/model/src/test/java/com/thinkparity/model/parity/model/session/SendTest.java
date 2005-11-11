@@ -97,9 +97,6 @@ public class SendTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		for(Fixture datum : data) {
-			datum.sessionModel.logout();
-		}
 		data.clear();
 		data = null;
 	}

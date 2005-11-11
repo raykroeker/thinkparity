@@ -25,11 +25,11 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
-
 /**
- * ModelTestCaseHelper
+ * Provides singleton functionality for the model test suite.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.17
  */
 public class ModelTestCaseHelper {
 
@@ -319,9 +319,9 @@ public class ModelTestCaseHelper {
 			if(actual.getId().equals(document.getId())) {
 				didContain = Boolean.TRUE;
 			}
-			actualIds.append(actualCounter == 0 ? "" : ",");
+			actualIds.append(actualCounter++ == 0 ? "" : ",");
 			actualIds.append(actual.getId().toString());
 		}
-		ModelTestCase.assertFalse("expected:<" + document.getId() + " but was:<" + actualIds.toString(), didContain);
+		ModelTestCase.assertFalse("expected:<" + document.getId() + "> but was:<" + actualIds.toString() + ">", didContain);
 	}
 }

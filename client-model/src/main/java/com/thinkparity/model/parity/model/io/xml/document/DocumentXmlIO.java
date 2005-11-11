@@ -97,10 +97,8 @@ public class DocumentXmlIO extends XmlIO {
 			IOException {
 		logger.info("get(UUID)");
 		logger.debug(id);
-		final File indexXmlFile = getIndexXmlFile();
-		final Index index = readIndex(indexXmlFile);
-		final File xmlFile = index.lookupXmlFile(id);
-		return readDocument(xmlFile);
+		final Index index = readIndex(getIndexXmlFile());
+		return readDocument(index.lookupXmlFile(id));
 	}
 
 	/**

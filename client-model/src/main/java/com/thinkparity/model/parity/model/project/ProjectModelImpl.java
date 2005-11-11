@@ -187,6 +187,28 @@ class ProjectModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Obtain a project for a given id.
+	 * 
+	 * @param id
+	 *            The project id.
+	 * @return The project.
+	 * @throws ParityException
+	 */
+	Project get(final UUID id) throws ParityException {
+		logger.info("get(UUID)");
+		logger.debug(id);
+		try { return projectXmlIO.get(id); }
+		catch(IOException iox) {
+			logger.error("get(UUID)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("get(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Obtain the inbox project.
 	 * 
 	 * @return The inbox project.

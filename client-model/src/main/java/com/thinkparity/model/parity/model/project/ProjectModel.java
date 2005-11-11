@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.project;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationListener;
@@ -105,6 +106,18 @@ public class ProjectModel extends AbstractModel {
 	 */
 	public void delete(final Project project) throws ParityException {
 		synchronized(implLock) { impl.delete(project); }
+	}
+
+	/**
+	 * Obtain a project for a given id.
+	 * 
+	 * @param id
+	 *            The project id.
+	 * @return The project.
+	 * @throws ParityException
+	 */
+	public Project get(final UUID id) throws ParityException {
+		synchronized(implLock) { return impl.get(id); }
 	}
 
 	/**

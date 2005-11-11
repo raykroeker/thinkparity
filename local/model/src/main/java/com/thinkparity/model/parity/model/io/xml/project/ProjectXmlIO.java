@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -16,6 +17,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
+import com.thinkparity.model.parity.model.io.xml.index.Index;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -66,6 +68,22 @@ public class ProjectXmlIO extends XmlIO {
 		Assert.assertTrue("delete(Project)", getXmlFile(project).delete());
 		// delete the xml file directory
 		Assert.assertTrue("delete(Project)", getXmlFileDirectory(project).delete());
+	}
+
+	/**
+	 * Obtain a project with a specified id.
+	 * 
+	 * @param id
+	 *            The project id.
+	 * @return The project.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public Project get(final UUID id) throws FileNotFoundException, IOException {
+		logger.info("get(UUID)");
+		logger.debug(id);
+		final Index index = readIndex(getIndexXmlFile());
+		return readProject(index.lookupXmlFile(id));
 	}
 
 	/**

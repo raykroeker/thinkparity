@@ -56,7 +56,6 @@ public class GetTest extends ModelTestCase {
 			for(Fixture datum : data) {
 				document = datum.documentModel.get(datum.id);
 
-				assertNotNull(document);
 				assertEquals(datum.document, document);
 			}
 		}

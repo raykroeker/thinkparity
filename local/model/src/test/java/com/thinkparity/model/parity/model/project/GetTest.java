@@ -53,7 +53,6 @@ public class GetTest extends ModelTestCase {
 			for(Fixture datum : data) {
 				project = datum.projectModel.get(datum.projectId);
 
-				assertNotNull(project);
 				assertEquals(datum.expectedProject, project);
 			}
 		}

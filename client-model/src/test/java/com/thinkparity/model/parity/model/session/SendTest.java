@@ -18,7 +18,7 @@ import com.thinkparity.model.xmpp.user.User;
  * Test the session model send api.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1.2.1
+ * @version 1.1.2.2
  */
 public class SendTest extends ModelTestCase {
 
@@ -28,12 +28,12 @@ public class SendTest extends ModelTestCase {
 	 * @see SendTest#setUp()
 	 * @see SendTest#tearDown()
 	 */
-	private class SendData {
+	private class Fixture {
 		private final Document document;
 		private final String message;
 		private final SessionModel sessionModel;
 		private final Collection<User> users;
-		private SendData(final Document document, final String message,
+		private Fixture(final Document document, final String message,
 				final SessionModel sessionModel, final Collection<User> users) {
 			this.document = document;
 			this.message = message;
@@ -45,7 +45,7 @@ public class SendTest extends ModelTestCase {
 	/**
 	 * Test data.
 	 */
-	private Vector<SendData> sendData;
+	private Vector<Fixture> data;
 
 	/**
 	 * Create a SendTest.
@@ -58,7 +58,7 @@ public class SendTest extends ModelTestCase {
 	 */
 	public void testSend() {
 		try {
-			for(SendData datum : sendData) {
+			for(Fixture datum : data) {
 				datum.sessionModel.send(datum.users, datum.document);
 				datum.sessionModel.send(datum.users, datum.message);
 			}
@@ -70,7 +70,7 @@ public class SendTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		sendData = new Vector<SendData>(4);
+		data = new Vector<Fixture>(4);
 		final Project testProject = createTestProject("testSend");
 		final DocumentModel documentModel = getDocumentModel();
 		final SessionModel sessionModel = getSessionModel();
@@ -89,7 +89,7 @@ public class SendTest extends ModelTestCase {
 				documentModel.create(testProject, name, description, testFile.getFile());
 			message = getJUnitTestText(250);
 
-			sendData.add(new SendData(document, message, sessionModel, users));
+			data.add(new Fixture(document, message, sessionModel, users));
 		}
 	}
 
@@ -97,10 +97,10 @@ public class SendTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		for(SendData datum : sendData) {
+		for(Fixture datum : data) {
 			datum.sessionModel.logout();
 		}
-		sendData.clear();
-		sendData = null;
+		data.clear();
+		data = null;
 	}
 }

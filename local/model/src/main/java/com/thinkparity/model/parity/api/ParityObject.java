@@ -101,8 +101,10 @@ public abstract class ParityObject implements IParityModelConstants {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
-		final ParityObject otherObj = (ParityObject) obj;
-		return id.equals(otherObj.getId());
+		if(obj instanceof ParityObject) {
+			return id.equals(((ParityObject) obj).getId());
+		}
+		return false;
 	}
 
 	public final String getCreatedBy() { return createdBy; }

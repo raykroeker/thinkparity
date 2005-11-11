@@ -19,7 +19,7 @@ import ejp.tracer.TracerAPI;
  * Test the document model create api.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.2
  */
 public class CreateTest extends ModelTestCase {
 	

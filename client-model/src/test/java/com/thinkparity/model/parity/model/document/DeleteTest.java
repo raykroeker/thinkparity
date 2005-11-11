@@ -14,7 +14,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * Test the document model delete api.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.2
  */
 public class DeleteTest extends ModelTestCase {
 

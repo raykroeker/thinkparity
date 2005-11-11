@@ -15,7 +15,7 @@ import com.thinkparity.model.parity.model.project.ProjectModel;
  * Test the document model list api.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.2
  */
 public class ListTest extends ModelTestCase {
 

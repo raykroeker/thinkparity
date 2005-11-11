@@ -90,8 +90,8 @@ public class DocumentContent implements ParityXmlSerializable {
 	/**
 	 * Set the document reference for this content.
 	 * 
-	 * @param document
-	 *            The document reference for the content.
+	 * @param documentId
+	 *            The documentId.
 	 */
 	public void setDocumentId(UUID documentId) { this.documentId = documentId; }
 }

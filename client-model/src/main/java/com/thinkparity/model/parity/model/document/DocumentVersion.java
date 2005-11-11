@@ -37,10 +37,16 @@ public class DocumentVersion extends ParityObjectVersion {
 	/**
 	 * Create a DocumentVersion
 	 * 
-	 * @param document
-	 *            The document upon which to base the new version.
+	 * @param documentId
+	 *            The documentId.
 	 * @param versionId
-	 *            The version id of the new version.
+	 *            The version id.
+	 * @param snapshot
+	 *            The document snapshot.
+	 * @param action
+	 *            The version action.
+	 * @param actionData
+	 *            The action data.
 	 */
 	public DocumentVersion(final UUID documentId, final String versionId,
 			final Document snapshot, final DocumentAction action,
@@ -67,9 +73,9 @@ public class DocumentVersion extends ParityObjectVersion {
 	public DocumentActionData getActionData() { return actionData; }
 
 	/**
-	 * Obtain the document.
+	 * Obtain the documentId.
 	 * 
-	 * @return The document this version belongs to.
+	 * @return The documentId.
 	 */
 	public UUID getDocumentId() { return documentId; }
 
@@ -81,8 +87,10 @@ public class DocumentVersion extends ParityObjectVersion {
 	public Document getSnapshot() { return snapshot; }
 
 	/**
-	 * Set the document reference.
-	 * @param document The document reference.
+	 * Set the document id.
+	 * 
+	 * @param documentId
+	 *            The documentId.
 	 */
 	public void setDocumentId(final UUID documentId) { this.documentId = documentId; }
 }

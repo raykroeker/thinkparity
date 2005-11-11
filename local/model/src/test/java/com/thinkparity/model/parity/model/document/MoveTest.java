@@ -15,21 +15,22 @@ import com.thinkparity.model.parity.model.project.ProjectModel;
  * Test the document model move api.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1.2.2
+ * @version 1.1.2.3
  */
 public class MoveTest extends ModelTestCase {
 
 	/**
 	 * Test data fixture.
+	 * 
 	 * @see MoveTest#setUp()
 	 * @see MoveTest#tearDown()
 	 */
-	private class MoveData {
+	private class Fixture {
 		private final Project destination;
 		private final Document document;
 		private final DocumentModel documentModel;
 		private final Project source;
-		private MoveData(final Project destination, final Document document, final DocumentModel documentModel, final Project source) {
+		private Fixture(final Project destination, final Document document, final DocumentModel documentModel, final Project source) {
 			this.destination = destination;
 			this.document = document;
 			this.documentModel = documentModel;
@@ -40,7 +41,7 @@ public class MoveTest extends ModelTestCase {
 	/**
 	 * Test data.
 	 */
-	private Vector<MoveData> data;
+	private Vector<Fixture> data;
 
 	/**
 	 * Create a MoveTest.
@@ -54,17 +55,23 @@ public class MoveTest extends ModelTestCase {
 		try {
 			Collection<Document> sourceDocuments;
 			Collection<Document> destinationDocuments;
-			for(MoveData datum : data) {
+			Document document;
+			for(Fixture datum : data) {
 				datum.documentModel.move(datum.document, datum.destination);
 
+				// ensure the document is missing from the source project
 				sourceDocuments = datum.documentModel.list(datum.source);
-				destinationDocuments = datum.documentModel.list(datum.destination);
-
 				assertNotNull(sourceDocuments);
-				assertNotNull(destinationDocuments);
-
 				assertNotContains(sourceDocuments, datum.document);
+
+				// ensure the document is listed in the destination project
+				destinationDocuments = datum.documentModel.list(datum.destination);
+				assertNotNull(destinationDocuments);
 				assertContains(destinationDocuments, datum.document);
+
+				// ensure the moved document is correct
+				document = datum.documentModel.get(datum.document.getId());
+				assertNotNull(document);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -74,7 +81,7 @@ public class MoveTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		data = new Vector<MoveData>(getJUnitTestFilesSize());
+		data = new Vector<Fixture>(getJUnitTestFilesSize());
 		final Project testProject = createTestProject("testMove");
 		final ProjectModel projectModel = getProjectModel();
 		final DocumentModel documentModel = getDocumentModel();
@@ -94,7 +101,7 @@ public class MoveTest extends ModelTestCase {
 			description = name;
 			document = documentModel.create(source, name, description, testFile.getFile());
 
-			data.add(new MoveData(destination, document, documentModel, source));
+			data.add(new Fixture(destination, document, documentModel, source));
 		}
 	}
 

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.UUID;
+
 import com.thinkparity.model.parity.ParityException;
 
 
@@ -55,11 +57,11 @@ public class DocumentVersionBuilder {
 	 *            The named version of the document.
 	 * @return The version of the document.
 	 */
-	public static DocumentVersion getVersion(final String version,
-			final Document snapshot, final DocumentAction action,
-			final DocumentActionData actionData) {
+	public static DocumentVersion getVersion(final UUID documentId,
+			final String version, final Document snapshot,
+			final DocumentAction action, final DocumentActionData actionData) {
 		synchronized(singletonLock) {
-			return singleton.getVersionImpl(version, snapshot, action, actionData);
+			return singleton.getVersionImpl(documentId, version, snapshot, action, actionData);
 		}
 	}
 
@@ -79,7 +81,7 @@ public class DocumentVersionBuilder {
 			final DocumentAction action, final DocumentActionData actionData)
 			throws ParityException {
 		final String newVersion = createNextVersion(document);
-		return new DocumentVersion(document, newVersion, document, action, actionData);
+		return new DocumentVersion(document.getId(), newVersion, document, action, actionData);
 	}
 
 	/**
@@ -105,9 +107,9 @@ public class DocumentVersionBuilder {
 	 *            The named version of the document.
 	 * @return The version of the document.
 	 */
-	private DocumentVersion getVersionImpl(final String version,
-			final Document snapshot, final DocumentAction action,
-			final DocumentActionData actionData) {
-		return new DocumentVersion(version, snapshot, action, actionData);
+	private DocumentVersion getVersionImpl(final UUID documentId,
+			final String version, final Document snapshot,
+			final DocumentAction action, final DocumentActionData actionData) {
+		return new DocumentVersion(documentId, version, snapshot, action, actionData);
 	}
 }

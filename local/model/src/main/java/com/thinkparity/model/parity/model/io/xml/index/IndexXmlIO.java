@@ -83,7 +83,8 @@ public class IndexXmlIO extends XmlIO {
 	 * @param document
 	 *            The document to add to the index.
 	 */
-	private void lazyCreate(final Index index, final Document document) {
+	private void lazyCreate(final Index index, final Document document)
+			throws FileNotFoundException, IOException {
 		index.addLookup(document.getId(), getXmlFile(document));
 	}
 

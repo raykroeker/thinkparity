@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.UUID;
+
 import com.thinkparity.model.parity.api.ParityXmlSerializable;
 
 /**
@@ -24,7 +26,7 @@ public class DocumentContent implements ParityXmlSerializable {
 	/**
 	 * The document this content belongs to.
 	 */
-	private Document document;
+	private UUID documentId;
 
 	/**
 	 * Create a DocumentContent.
@@ -33,26 +35,16 @@ public class DocumentContent implements ParityXmlSerializable {
 	 *            The content checksum.
 	 * @param content
 	 *            The content.
+	 * @param documentId
+	 *            The document this content belongs to.
 	 */
-	DocumentContent(final String checksum, final byte[] content,
-			final Document document) {
+	public DocumentContent(final String checksum, final byte[] content,
+			final UUID documentId) {
 		super();
 		this.checksum = checksum;
 		this.content = new byte[content.length];
 		System.arraycopy(content, 0, this.content, 0, content.length);
-		this.document = document;
-	}
-
-	/**
-	 * Create a DocumentContent.
-	 * 
-	 * @param checksum
-	 *            The content checksum.
-	 * @param content
-	 *            The content.
-	 */
-	public DocumentContent(final String checksum, final byte[] content) {
-		this(checksum, content, null);
+		this.documentId = documentId;
 	}
 
 	/**
@@ -74,7 +66,7 @@ public class DocumentContent implements ParityXmlSerializable {
 	 * 
 	 * @return The document.
 	 */
-	public Document getDocument() { return document; }
+	public UUID getDocumentId() { return documentId; }
 
 	/**
 	 * Set the content checksum.
@@ -101,5 +93,5 @@ public class DocumentContent implements ParityXmlSerializable {
 	 * @param document
 	 *            The document reference for the content.
 	 */
-	public void setDocument(Document document) { this.document = document; }
+	public void setDocumentId(UUID documentId) { this.documentId = documentId; }
 }

@@ -66,10 +66,8 @@ public class DocumentVersionConverter extends XmlIOConverter {
 		logger.info("marshal(Object,HierarchicalStreamWriter,MarshallingContext)");
 		final DocumentVersion version = (DocumentVersion) source;
 		logger.debug(version);
-		final Document document = version.getDocument();
-		logger.debug(document);
 		writeVersionId(version.getVersion(), writer, context);
-		writeDocumentId(document.getId(), writer, context);
+		writeDocumentId(version.getDocumentId(), writer, context);
 		writeAction(new ActionWrapper(version.getAction(), version.getActionData()), writer, context);
 		writeDocument(version.getSnapshot(), writer, context);
 	}
@@ -85,7 +83,7 @@ public class DocumentVersionConverter extends XmlIOConverter {
 		final DocumentAction action = actionWrapper.action;
 		final DocumentActionData actionData = actionWrapper.actionData;
 		final Document snapshot = readDocument(reader, context);
-		return DocumentVersionBuilder.getVersion(version, snapshot, action, actionData);
+		return DocumentVersionBuilder.getVersion(documentId, version, snapshot, action, actionData);
 	}
 
 	/**

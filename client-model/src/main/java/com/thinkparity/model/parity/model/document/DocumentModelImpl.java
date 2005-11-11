@@ -197,17 +197,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final UUID id = UUIDGenerator.nextUUID();
 			logger.debug(id);
-			final Document document = new Document(project, name,
+			final Document document = new Document(project.getId(), name,
 					DateUtil.getInstance(), preferences.getUsername(),
 					description, id);
 			final byte[] contentBytes = FileUtil.readFile(file);
 			final DocumentContent content = new DocumentContent(
-					MD5Util.md5Hex(contentBytes), contentBytes, document);
+					MD5Util.md5Hex(contentBytes), contentBytes, id);
 			// create the document
-			documentXmlIO.create(document);
-			documentXmlIO.create(content);
-			// create a new version
+			documentXmlIO.create(document, content);
 			createVersion(document, DocumentAction.CREATE, create_ActionData(document));
+
 			// fire a creation event
 			notifyCreation_objectCreated(document);
 			return document;
@@ -233,15 +232,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(Document)");
 		logger.debug(document);
 		try {
-			// delete the content
-			delete(getContent(document));
-			// delete the versions
-			for(DocumentVersion version : listVersions(document)) {
-				delete(version);
-			}
-			// delete the xml file
+			// delete the xml files
 			documentXmlIO.delete(document);
 			notifyUpdate_objectDeleted(document);
+		}
+		catch(IOException iox) {
+			logger.error("delete(Document)", iox);
+			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
 			logger.error("delete(Document)", rx);
@@ -313,9 +310,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	DocumentContent getContent(final Document document) throws ParityException {
 		logger.info("getContent(Document)");
 		logger.debug(document);
-		try {
-			return documentXmlIO.getContent(document);
-		}
+		try { return documentXmlIO.getContent(document); }
 		catch(IOException iox) {
 			logger.error("getContent(Document)", iox);
 			throw ParityErrorTranslator.translate(iox);
@@ -387,9 +382,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(document);
 		logger.debug(destination);
 		try {
-			documentXmlIO.move(document, destination);
-			document.setParent(destination);
+			document.setParentId(destination.getId());
 			documentXmlIO.update(document);
+			documentXmlIO.move(document, destination);
 
 			notifyUpdate_objectUpdated(document);
 		}
@@ -444,15 +439,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 			 */
 			final Project inbox = projectModel.getInbox();
 	
-			final Document document = new Document(inbox,
+			final Document document = new Document(inbox.getId(),
 					xmppDocument.getName(), xmppDocument.getCreatedOn(),
 					xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
 					xmppDocument.getId());
 			final DocumentContent content = new DocumentContent(
 					MD5Util.md5Hex(xmppDocument.getContent()),
-					xmppDocument.getContent(), document);
-			documentXmlIO.create(document);
-			documentXmlIO.create(content);
+					xmppDocument.getContent(), xmppDocument.getId());
+			documentXmlIO.create(document, content);
+
 			// create a new version
 			createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
 			// fire a receive event
@@ -560,42 +555,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final DocumentContent content = getContent(document);
 			if(!cacheFileChecksum.equals(content.getChecksum())) {
 				content.setContent(cacheFileBytes);
-				documentXmlIO.update(content);
+				documentXmlIO.update(document, content);
 			}
 		}
 		final DocumentVersion version =
 			DocumentVersionBuilder.create(document, action, actionData);
-		documentXmlIO.create(version);
+		documentXmlIO.create(document, version);
 		notifyCreation_objectVersionCreated(version);
 		return version;
-	}
-
-	/**
-	 * Delete the content.
-	 * 
-	 * @param content
-	 *            The document content to delete.
-	 * @throws ParityException
-	 */
-	private void delete(final DocumentContent content) throws ParityException {
-		logger.info("delete(DocumentContent)");
-		logger.debug(content);
-		try { documentXmlIO.delete(content); }
-		catch(RuntimeException rx) {
-			logger.error("delete(DocumentContent)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
-	 * Delete a document version.
-	 * 
-	 * @param version
-	 *            The version to delete.
-	 * @throws ParityException
-	 */
-	private void delete(final DocumentVersion version) throws ParityException {
-		documentXmlIO.delete(version);
 	}
 
 	/**

@@ -18,16 +18,40 @@ import com.thinkparity.model.xstream.XStreamSerializable;
 public class Project extends ParityObject implements XStreamSerializable {
 
 	/**
-	 * Create a Project
+	 * Create a Project.
+	 * 
+	 * @param parentId
+	 *            The parent id.
+	 * @param name
+	 *            The name.
+	 * @param createdOn
+	 *            The creator.
+	 * @param createdBy
+	 *            The creation date.
+	 * @param description
+	 *            The description.
+	 * @param id
+	 *            The id.
 	 */
-	public Project(final Project parent, final String name,
+	public Project(final UUID parentId, final String name,
 			final Calendar createdOn, final String createdBy,
 			final String description, final UUID id) {
-		super(parent, name, description, createdOn, createdBy, id);
+		super(parentId, name, description, createdOn, createdBy, id);
 	}
 
 	/**
-	 * Create a Project
+	 * Create a Project.
+	 * 
+	 * @param name
+	 *            The name.
+	 * @param createdOn
+	 *            The creator.
+	 * @param createdBy
+	 *            The creation date.
+	 * @param description
+	 *            The description.
+	 * @param id
+	 *            The id.
 	 */
 	public Project(final String name, final Calendar createdOn,
 			final String createdBy, final String description, final UUID id) {

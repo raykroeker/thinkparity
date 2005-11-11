@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Document
@@ -20,6 +19,8 @@ public class Document extends ParityObject {
 	/**
 	 * Create a Document.
 	 * 
+	 * @param projectId
+	 *            The parent project id.
 	 * @param name
 	 *            The document name.
 	 * @param createdOn
@@ -31,30 +32,10 @@ public class Document extends ParityObject {
 	 * @param id
 	 *            The document id.
 	 */
-	public Document(final String name, final Calendar createdOn,
-			final String createdBy, final String description, final UUID id) {
-		this(null, name, createdOn,createdBy, description, id);
-	}
-
-	/**
-	 * Create a Document.
-	 * 
-	 * @param parent
-	 *            The parent project.
-	 * @param name
-	 *            The document name.
-	 * @param createdOn
-	 *            The document creation date.
-	 * @param createdBy
-	 *            The document creator.
-	 * @param description
-	 *            The document description.
-	 * @param id
-	 *            The document id.
-	 */
-	Document(final Project parent, final String name, final Calendar createdOn,
-			final String createdBy, final String description, final UUID id) {
-		super(parent, name, description, createdOn, createdBy, id);
+	public Document(final UUID projectId, final String name,
+			final Calendar createdOn, final String createdBy,
+			final String description, final UUID id) {
+		super(projectId, name, description, createdOn, createdBy, id);
 	}
 
 	/**

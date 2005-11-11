@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.Document;
@@ -45,26 +44,13 @@ public class DocumentXmlIO extends XmlIO {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void create(final Document document) throws FileNotFoundException,
-			IOException {
+	public void create(final Document document, final DocumentContent content)
+			throws FileNotFoundException, IOException {
 		logger.info("create(Document)");
 		logger.debug(document);
-		write(document, getXmlFile(document));
-	}
-
-	/**
-	 * Create the document's content xml.
-	 * 
-	 * @param content
-	 *            The document's content.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public void create(final DocumentContent content)
-			throws FileNotFoundException, IOException {
-		logger.info("create(DocumentContent)");
 		logger.debug(content);
-		write(content, getXmlFile(content));
+		write(document, getXmlFile(document));
+		write(content, getXmlFile(document, content));
 	}
 
 	/**
@@ -74,11 +60,11 @@ public class DocumentXmlIO extends XmlIO {
 	 *            The document version to serialize.
 	 * @throws IOException
 	 */
-	public void create(final DocumentVersion version)
+	public void create(final Document document, final DocumentVersion version)
 			throws FileNotFoundException, IOException {
 		logger.info("create(DocumentVersion)");
 		logger.debug(version);
-		write(version, getXmlFile(version));
+		write(version, getXmlFile(document, version));
 	}
 
 	/**
@@ -87,36 +73,17 @@ public class DocumentXmlIO extends XmlIO {
 	 * @param document
 	 *            The document.
 	 */
-	public void delete(final Document document) {
+	public void delete(final Document document) throws FileNotFoundException,
+			IOException {
 		logger.info("delete(Document)");
 		logger.debug(document);
-		final File xmlFile = getXmlFile(document);
-		Assert.assertTrue("delete(Document)", xmlFile.delete());
-	}
-
-	/**
-	 * Delete the document content's xml.
-	 * 
-	 * @param content
-	 *            The content.
-	 */
-	public void delete(final DocumentContent content) {
-		logger.info("delete(DocumentContent)");
-		logger.debug(content);
-		final File xmlFile = getXmlFile(content);
-		Assert.assertTrue("delete(DocumentContent)", xmlFile.delete());
-	}
-	/**
-	 * Delete the document version's xml.
-	 * 
-	 * @param version
-	 *            The document version.
-	 */
-	public void delete(final DocumentVersion version) {
-		logger.info("delete(DocumentVersion)");
-		logger.debug(version);
-		final File xmlFile = getXmlFile(version);
-		Assert.assertTrue("delete(DocumentVersion)", xmlFile.delete());
+		final DocumentContent content = getContent(document);
+		final Collection<DocumentVersion> versions = listVersions(document);
+		Assert.assertTrue("delete(Document)", getXmlFile(document, content).delete());
+		for(DocumentVersion version : versions) {
+			Assert.assertTrue("delete(Document)", getXmlFile(document, version).delete());
+		}
+		Assert.assertTrue("delete(Document)", getXmlFile(document).delete());
 	}
 
 	/**
@@ -152,7 +119,6 @@ public class DocumentXmlIO extends XmlIO {
 		final File xmlFileDirectory = getXmlFileDirectory(document);
 		final DocumentContent content = readDocumentContent(
 				getContentXmlFile(document.getName(), xmlFileDirectory));
-		content.setDocument(document);
 		return content;
 	}
 
@@ -175,7 +141,6 @@ public class DocumentXmlIO extends XmlIO {
 		Document document;
 		for(File xmlFile : xmlFiles) {
 			document = readDocument(xmlFile);
-			document.setParent(project);
 			documents.add(document);
 		}
 		return documents;
@@ -200,7 +165,6 @@ public class DocumentXmlIO extends XmlIO {
 		DocumentVersion version;
 		for(File xmlFile : xmlFiles) {
 			version = readDocumentVersion(xmlFile);
-			version.setDocument(document);
 			versions.add(version);
 		}
 		return versions;
@@ -221,13 +185,7 @@ public class DocumentXmlIO extends XmlIO {
 		logger.info("move(Document,Project)");
 		logger.debug(document);
 		logger.debug(destination);
-		final File destinationXmlFileDirectory = getXmlFileDirectory(destination);
-		File target;
-		for(File documentFile : getXmlFiles(document)) {
-			target = new File(destinationXmlFileDirectory, documentFile.getName());
-			FileUtil.copy(documentFile, target);
-			Assert.assertTrue("move(Document,Project)", documentFile.delete());
-		}
+		move(document, getContent(document), listVersions(document), getXmlFileDirectory(destination));
 	}
 
 	/**
@@ -253,11 +211,11 @@ public class DocumentXmlIO extends XmlIO {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void update(final DocumentContent content)
+	public void update(final Document document, final DocumentContent content)
 			throws FileNotFoundException, IOException {
 		logger.info("update(DocumentContent)");
 		logger.debug(content);
-		write(content, getXmlFile(content));
+		write(content, getXmlFile(document, content));
 	}
 
 	/**

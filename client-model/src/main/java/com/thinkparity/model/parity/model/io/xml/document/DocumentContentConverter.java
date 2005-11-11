@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.io.xml.document;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.zip.DataFormatException;
 
 import com.thinkparity.codebase.CompressionUtil;
@@ -45,8 +46,8 @@ public class DocumentContentConverter extends XmlIOConverter {
 		logger.info("marshal(Object,HierarchicalStreamWriter,MarshallingContext)");
 		final DocumentContent content = (DocumentContent) source;
 		logger.debug(content);
+		writeDocumentId(content.getDocumentId(), writer, context);
 		writeChecksum(content.getChecksum(), writer, context);
-
 		try { writeContent(content.getContent(), writer, context); }
 		catch(IOException iox) {
 			logger.error("marshal(Object,HierarchicalStreamWriter,MarshallingContext)", iox);
@@ -60,8 +61,8 @@ public class DocumentContentConverter extends XmlIOConverter {
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
 		logger.info("unmarshal(HierarchicalStreamReader,UnmarshallingContext)");
+		final UUID documentId = readDocumentId(reader, context);
 		final String checksum = readChecksum(reader, context);
-
 		final byte[] content;
 		try { content = readContent(reader, context); }
 		catch(DataFormatException dfx) {
@@ -72,7 +73,7 @@ public class DocumentContentConverter extends XmlIOConverter {
 			logger.error("unmarshal(HierarchicalStreamReader,UnmarshallingContext)", iox);
 			throw XmlIOConverterErrorTranslator.translate(iox);
 		}
-		return new DocumentContent(checksum, content);
+		return new DocumentContent(checksum, content, documentId);
 	}
 
 	/**
@@ -108,6 +109,20 @@ public class DocumentContentConverter extends XmlIOConverter {
 		final String encodedCompressedContent = reader.getValue();
 		reader.moveUp();
 		return CompressionUtil.decompress(Base64.decodeBytes(encodedCompressedContent));
+	}
+
+	/**
+	 * Read the document id from the xStream xml reader.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 * @return The document id.
+	 */
+	private UUID readDocumentId(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		return UUID.fromString(reader.getAttribute("documentId"));
 	}
 
 	/**
@@ -150,5 +165,21 @@ public class DocumentContentConverter extends XmlIOConverter {
 		final String encodedContent = Base64.encodeBytes(compressedContent);
 		writer.setValue(encodedContent);
 		writer.endNode();		
+	}
+
+	/**
+	 * Write the document id to the xStream xml writer.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @param writer
+	 *            The xStream xml writer.
+	 * @param context
+	 *            The xStream xml writer's context.
+	 */
+	private void writeDocumentId(final UUID documentId,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.addAttribute("documentId", documentId.toString());
 	}
 }

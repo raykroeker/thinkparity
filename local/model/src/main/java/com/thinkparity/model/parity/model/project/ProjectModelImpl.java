@@ -139,7 +139,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 		try {
 			// create the project
 			final UUID id = UUIDGenerator.nextUUID();
-			final Project project = new Project(parent, name,
+			final Project project = new Project(parent.getId(), name,
 					DateUtil.getInstance(), preferences.getUsername(),
 					description, id);
 			projectXmlIO.create(project);
@@ -176,6 +176,10 @@ class ProjectModelImpl extends AbstractModelImpl {
 			projectXmlIO.delete(project);
 			notifyUpdate_objectDeleted(project);
 		}
+		catch(IOException iox) {
+			logger.error("delete(Project)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
 		catch(RuntimeException rx) {
 			logger.error("delete(Project)", rx);
 			throw ParityErrorTranslator.translate(rx);
@@ -209,7 +213,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	}
 
 	Project getMyProjects() throws ParityException {
-		logger.info("getMyProject()");
+		logger.info("getMyProjects()");
 		try {
 			for(Project project : projectXmlIO.list()) {
 				if(project.getName().equals(IParityModelConstants.PROJECT_NAME_MYPROJECTS)) {
@@ -240,8 +244,10 @@ class ProjectModelImpl extends AbstractModelImpl {
 	Boolean hasChildren(final Project project) throws ParityException {
 		logger.info("hasChildren(Project)");
 		logger.debug(project);
-		try {
-			return projectXmlIO.hasChildren(project);
+		try { return projectXmlIO.hasChildren(project); }
+		catch(IOException iox) {
+			logger.error("hasChildren(Project)", iox);
+			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
 			logger.error("hasChildren(Project)", rx);

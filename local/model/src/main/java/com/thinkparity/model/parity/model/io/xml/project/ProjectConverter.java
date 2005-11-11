@@ -39,11 +39,9 @@ public class ProjectConverter extends XmlIOConverter {
 		logger.info("marshal(Object,HierarchicalStreamWriter,MarshallingContext)");
 		final Project project = (Project) source;
 		logger.debug(project);
-		final Project parent = project.getParent();
-		logger.debug(parent);
 		writeId(project.getId(), writer, context);
 		writeName(project.getName(), writer, context);
-		writeProjectId((null == parent ? null : parent.getId()), writer, context);
+		writeProjectId(project.getParentId(), writer, context);
 		writeCreatedBy(project.getCreatedBy(), writer, context);
 		writeCreatedOn(project.getCreatedOn(), writer, context);
 		writeDescription(project.getDescription(), writer, context);
@@ -64,11 +62,27 @@ public class ProjectConverter extends XmlIOConverter {
 			final String createdBy = readCreatedBy(reader, context);
 			final Calendar createdOn = readCreatedOn(reader, context);
 			final String description = readDescription(reader, context);
-			project = new Project(name, createdOn, createdBy, description, id);
+			project = new Project(projectId, name, createdOn, createdBy, description, id);
 			readCustomProperties(project, reader, context);
 		}
 		catch(Exception x) { fatal(project, "An unknown error occured parsing project custom xml.", x); }
 		return project;
+	}
+
+	/**
+	 * Read the project id from the xml reader.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader context.
+	 * @return The project id.
+	 */
+	private UUID readProjectId(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		final String projectId = reader.getAttribute("projectId");
+		if(null == projectId) { return null; }
+		else { return UUID.fromString(projectId); }
 	}
 
 	/**
@@ -87,21 +101,5 @@ public class ProjectConverter extends XmlIOConverter {
 		if(null != projectId) {
 			writer.addAttribute("projectId", projectId.toString());
 		}
-	}
-
-	/**
-	 * Read the project id from the xml reader.
-	 * 
-	 * @param reader
-	 *            The xStream xml reader.
-	 * @param context
-	 *            The xStream xml reader context.
-	 * @return The project id.
-	 */
-	private UUID readProjectId(final HierarchicalStreamReader reader,
-			final UnmarshallingContext context) {
-		final String projectId = reader.getAttribute("projectId");
-		if(null == projectId) { return null; }
-		else { return UUID.fromString(projectId); }
 	}
 }

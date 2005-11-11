@@ -13,7 +13,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.note.Note;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * ParityObject
@@ -60,16 +59,29 @@ public abstract class ParityObject implements IParityModelConstants {
 	/**
 	 * Reference to the parent parity object.
 	 */
-	private Project parent;
+	private UUID parentId;
 
 	/**
-	 * Create a ParityObject
+	 * Create a ParityObject.
+	 * 
+	 * @param parentId
+	 *            The parent id (Optional).
+	 * @param name
+	 *            The name.
+	 * @param description
+	 *            The description.
+	 * @param createdOn
+	 *            The creation date.
+	 * @param createdBy
+	 *            The creator.
+	 * @param id
+	 *            The id.
 	 */
-	protected ParityObject(final Project parent, final String name,
+	protected ParityObject(final UUID parentId, final String name,
 			final String description, final Calendar createdOn,
 			final String createdBy, final UUID id) {
 		super();
-		this.parent = parent;
+		this.parentId = parentId;
 		this.name = name;
 		this.description = description;
 		this.createdOn = createdOn;
@@ -165,10 +177,11 @@ public abstract class ParityObject implements IParityModelConstants {
 	public final Collection<Note> getNotes() { return notes; }
 
 	/**
-	 * Obtain parent.
-	 * @return Project
+	 * Obtain the parent id.
+	 * 
+	 * @return The parent id.
 	 */
-	public Project getParent() { return parent; }
+	public UUID getParentId() { return parentId; }
 
 	/**
 	 * Obtain the type of parity object.
@@ -186,7 +199,7 @@ public abstract class ParityObject implements IParityModelConstants {
 	 * Determine whether or not the parent is set.
 	 * @return Boolean</code>
 	 */
-	public final Boolean isSetParent() { return null != parent; }
+	public final Boolean isSetParentId() { return null != parentId; }
 
 	public final void remove(final Note note) {
 		if(notes.contains(note))
@@ -222,7 +235,13 @@ public abstract class ParityObject implements IParityModelConstants {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
 	}
 
-	public void setParent(final Project parent) { this.parent = parent; }
+	/**
+	 * Set the id of the parent.
+	 * 
+	 * @param parentId
+	 *            The parent id.
+	 */
+	public void setParentId(final UUID parentId) { this.parentId = parentId; }
 
 	/**
 	 * Create a default instance of the custom properties.

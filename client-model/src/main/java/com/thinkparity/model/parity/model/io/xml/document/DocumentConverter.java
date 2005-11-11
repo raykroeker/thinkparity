@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.io.xml.XmlIOConverter;
-import com.thinkparity.model.parity.model.project.Project;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -44,11 +43,9 @@ public class DocumentConverter extends XmlIOConverter {
 		logger.info("marshal(Object,HierarchicalStreamWriter,MarshallingContext)");
 		final Document document = (Document) source;
 		logger.debug(document);
-		final Project parent = document.getParent();
-		logger.debug(parent);
 		writeId(document.getId(), writer, context);
 		writeName(document.getName(), writer, context);
-		writeProjectId(parent.getId(), writer, context);
+		writeProjectId(document.getParentId(), writer, context);
 		writeCreatedBy(document.getCreatedBy(), writer, context);
 		writeCreatedOn(document.getCreatedOn(), writer, context);
 		writeDescription(document.getDescription(), writer, context);
@@ -70,7 +67,7 @@ public class DocumentConverter extends XmlIOConverter {
 			final String createdBy = readCreatedBy(reader, context);
 			final Calendar createdOn = readCreatedOn(reader, context);
 			final String description = readDescription(reader, context);
-			document = new Document(name, createdOn, createdBy, description, id);
+			document = new Document(projectId, name, createdOn, createdBy, description, id);
 			readNotes(document, reader, context);
 			readCustomProperties(document, reader, context);
 		}

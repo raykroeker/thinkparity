@@ -14,8 +14,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentContent;
-import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -70,50 +68,17 @@ public class XmlIOPathBuilder {
 	 * 
 	 * @param document
 	 *            The document to obtain the xml file for.
+	 * @param stack
+	 *            The parent stack of the document.
 	 * @return The xml file.
 	 */
-	File getXmlFile(final Document document) {
-		logger.info("getXmlFile(Document)");
+	File getXmlFile(final Document document, final Stack<Project> stack) {
+		logger.info("getXmlFile(Document,Stack<Project>)");
 		logger.debug(document);
-		final File xmlFileDirectory = getXmlFileDirectory(document);
+		logger.debug(stack);
+		final File xmlFileDirectory = getXmlFileDirectory(document, stack);
 		logger.debug(xmlFileDirectory);
 		final String xmlFileName = getXmlFileName(document);
-		logger.debug(xmlFileName);
-		return new File(xmlFileDirectory, xmlFileName);
-	}
-
-	/**
-	 * Obtain the xml file for the given document content.
-	 * 
-	 * @param content
-	 *            The document content.
-	 * @return The xml file.
-	 */
-	File getXmlFile(final DocumentContent content) {
-		logger.info("getXmlFile(DocumentContent)");
-		logger.debug(content);
-		final File xmlFileDirectory = getXmlFileDirectory(content.getDocument());
-		logger.debug(xmlFileDirectory);
-		final String xmlFileName = getXmlFileName(content);
-		logger.debug(xmlFileName);
-		return new File(xmlFileDirectory, xmlFileName);
-	}
-	
-
-	/**
-	 * Obtain the xml file for the given document version.
-	 * 
-	 * @param version
-	 *            The document version to obtain the xml file for.
-	 * @return The xml file.
-	 */
-	File getXmlFile(final DocumentVersion version) {
-		logger.info("getXmlFile(DocumentVersion)");
-		logger.debug(version);
-		final File xmlFileDirectory = getXmlFileDirectory(version);
-		logger.debug(xmlFileDirectory);
-		final String xmlFileName = getXmlFileName(version);
-		logger.debug(xmlFileName);
 		return new File(xmlFileDirectory, xmlFileName);
 	}
 
@@ -122,62 +87,19 @@ public class XmlIOPathBuilder {
 	 * 
 	 * @param project
 	 *            The project to obtain the xml file for.
+	 * @param stack
+	 *            The parent stack of the project.
 	 * @return The xml file.
 	 */
-	File getXmlFile(final Project project) {
-		logger.info("getXmlFile(Project)");
+	File getXmlFile(final Project project, final Stack<Project> stack) {
+		logger.info("getXmlFile(Project,Stack<Project>");
 		logger.debug(project);
-		final File xmlFileDirectory = getXmlFileDirectory(project);
+		logger.debug(stack);
+		final File xmlFileDirectory = getXmlFileDirectory(project, stack);
 		logger.debug(xmlFileDirectory);
 		final String xmlFileName = getXmlFileName(project);
 		logger.debug(xmlFileName);
 		return new File(xmlFileDirectory, xmlFileName);
-	}
-
-	/**
-	 * Obtain the directory of the xml file for the document.
-	 * 
-	 * @param document
-	 *            The document to obtain the directory for.
-	 * @return The directory of the document's xml file.
-	 */
-	File getXmlFileDirectory(final Document document) {
-		logger.info("getXmlFileDirectory(Document)");
-		logger.debug(document);
-		final String pathname = getPathname(document);
-		logger.debug(pathname);
-		return new File(pathname);
-	}
-
-	/**
-	 * Obtain the directory of the xml file for the document version.
-	 * 
-	 * @param version
-	 *            The document version to obtain the directory for.
-	 * @return The directory of the document version's xml file.
-	 */
-	File getXmlFileDirectory(final DocumentVersion version) {
-		logger.info("getXmlFileDirectory(DocumentVersion)");
-		logger.debug(version);
-		final Document document = version.getDocument();
-		final String pathname = getPathname(document);
-		logger.debug(pathname);
-		return new File(pathname);
-	}
-
-	/**
-	 * Obtain the directory of the xml file for the project.
-	 * 
-	 * @param project
-	 *            The project to obtain the xml file directory for.
-	 * @return The directory of the project xml file.
-	 */
-	File getXmlFileDirectory(final Project project) {
-		logger.info("getXmlFileDirectory(Project)");
-		logger.debug(project);
-		final String parent = getPathname(project);
-		logger.debug(parent);
-		return new File(parent);
 	}
 
 	/**
@@ -187,12 +109,14 @@ public class XmlIOPathBuilder {
 	 * 
 	 * @param document
 	 *            The document to obtain the xml files for.
+	 * @param stack
+	 *            The parent stack for the document.
 	 * @return The list of xml files for the document.
 	 */
-	File[] getXmlFiles(final Document document) {
+	File[] getXmlFiles(final Document document, final Stack<Project> stack) {
 		logger.info("getXmlFile(Document)");
 		logger.debug(document);
-		final File xmlFileDirectory = getXmlFileDirectory(document);
+		final File xmlFileDirectory = getXmlFileDirectory(document, stack);
 		logger.debug(xmlFileDirectory);
 		return xmlFileDirectory.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
@@ -207,23 +131,6 @@ public class XmlIOPathBuilder {
 				return false;
 			}
 		});
-	}
-
-	/**
-	 * Create a stack of parent projects for the parity object.
-	 * 
-	 * @param parityObject
-	 *            The parity object to fill in the stack for.
-	 * @return The stack of parent projects.
-	 */
-	private Stack<Project> fillParentStack(final ParityObject parityObject) {
-		final Stack<Project> parentStack = new Stack<Project>();
-		Project parent = parityObject.getParent();
-		while(null != parent) {
-			parentStack.push(parent);
-			parent = parent.getParent();
-		}
-		return parentStack;
 	}
 
 	/**
@@ -243,27 +150,66 @@ public class XmlIOPathBuilder {
 	 * 
 	 * @param parityObject
 	 *            The parity object to obtain the pathname for.
+	 * @param stack
+	 *            The parent stack for the parity object.
 	 * @return The pathname of the parity object.
 	 */
-	private String getPathname(final ParityObject parityObject) {
-		final Stack<Project> parentStack = fillParentStack(parityObject);
-		final StringBuffer parent = new StringBuffer()
+	private String getPathname(final ParityObject parityObject,
+			final Stack<Project> stack) {
+		// add the root; then the parent stack to the pathname
+		final StringBuffer pathname = new StringBuffer()
 			.append(getRoot().getAbsolutePath());
-		while(!parentStack.isEmpty()) {
-			parent.append(File.separatorChar)
-				.append(parentStack.pop().getName());
+		while(!stack.isEmpty()) {
+			pathname.append(File.separatorChar)
+				.append(stack.pop().getName());
 		}
 		switch(parityObject.getType()) {
 		case DOCUMENT:
 			break;
 		case PROJECT:
-			parent.append(File.separatorChar)
+			pathname.append(File.separatorChar)
 				.append(parityObject.getName());
 			break;
 		default:
-			Assert.assertUnreachable("getParent(ParityObject)");
+			Assert.assertUnreachable("getPathname(ParityObject,Stack<Project>)");
 		}
-		return parent.toString();
+		return pathname.toString();
+	}
+
+	/**
+	 * Obtain the directory of the xml file for the document.
+	 * 
+	 * @param document
+	 *            The document to obtain the directory for.
+	 * @param stack
+	 *            The parent stack of the document.
+	 * @return The directory of the document's xml file.
+	 */
+	private File getXmlFileDirectory(final Document document, final Stack<Project> stack) {
+		logger.info("getXmlFileDirectory(Document,Stack<Project>)");
+		logger.debug(document);
+		logger.debug(stack);
+		final String pathname = getPathname(document, stack);
+		logger.debug(pathname);
+		return new File(pathname);
+	}
+
+	/**
+	 * Obtain the directory of the xml file for the project.
+	 * 
+	 * @param project
+	 *            The project to obtain the xml file directory for.
+	 * @param stack
+	 *            The parent stack of the project.
+	 * @return The directory of the project xml file.
+	 */
+	private File getXmlFileDirectory(final Project project, final Stack<Project> stack) {
+		logger.info("getXmlFileDirectory(Project,Stack<Project>)");
+		logger.debug(project);
+		logger.debug(stack);
+		final String parent = getPathname(project, stack);
+		logger.debug(parent);
+		return new File(parent);
 	}
 
 	/**
@@ -276,35 +222,6 @@ public class XmlIOPathBuilder {
 	private String getXmlFileName(final Document document) {
 		return new StringBuffer(document.getName())
 			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT)
-			.toString();
-	}
-
-	/**
-	 * Obtain the xml file name for the document's content.
-	 * 
-	 * @param content
-	 *            The content to get the xml file name for.
-	 * @return The xml file name.
-	 */
-	private String getXmlFileName(final DocumentContent content) {
-		return new StringBuffer(content.getDocument().getName())
-			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_CONTENT)
-			.toString();
-	}
-
-	/**
-	 * Obtain the xml file name for the document version.
-	 * 
-	 * @param version
-	 *            The version to get the xml file name for.
-	 * @return The xml file name.
-	 */
-	private String getXmlFileName(final DocumentVersion version) {
-		final Document document = version.getDocument();
-		return new StringBuffer(document.getName())
-			.append(".")
-			.append(version.getVersion())
-			.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION)
 			.toString();
 	}
 

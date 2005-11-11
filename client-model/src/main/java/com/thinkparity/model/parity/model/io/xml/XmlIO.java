@@ -6,6 +6,10 @@ package com.thinkparity.model.parity.model.io.xml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Stack;
+import java.util.UUID;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -13,6 +17,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -87,84 +92,6 @@ public abstract class XmlIO {
 	}
 
 	/**
-	 * Obtain the xml file for the given document.
-	 * 
-	 * @param document
-	 *            The document to obtain the xml file for.
-	 * @return The xml file.
-	 */
-	protected File getXmlFile(final Document document) {
-		logger.info("getXmlFile(Document)");
-		logger.debug(document);
-		return xmlPathBuilder.getXmlFile(document);
-	}
-
-	/**
-	 * Obtain the xml file for the given document content.
-	 * 
-	 * @param content
-	 *            The document content to obtain the xml file for.
-	 * @return The xml file.
-	 */
-	protected File getXmlFile(final DocumentContent content) {
-		logger.info("getXmlFile(DocumentContent)");
-		logger.debug(content);
-		return xmlPathBuilder.getXmlFile(content);
-	}
-
-	/**
-	 * Obtain the xml file for the given document version.
-	 * 
-	 * @param version
-	 *            The document version to obtain the xml file for.
-	 * @return The xml file.
-	 */
-	protected File getXmlFile(final DocumentVersion version) {
-		logger.info("getXmlFile(DocumentVersion)");
-		logger.debug(version);
-		return xmlPathBuilder.getXmlFile(version);
-	}
-
-	/**
-	 * Obtain the xml file for the given project.
-	 * 
-	 * @param project
-	 *            The project to obtain the xml file for.
-	 * @return The xml file.
-	 */
-	protected File getXmlFile(final Project project) {
-		logger.info("getXmlFile(Project)");
-		logger.debug(project);
-		return xmlPathBuilder.getXmlFile(project);
-	}
-
-	/**
-	 * Obtain the directory of the xml file for the document.
-	 * 
-	 * @param document
-	 *            The document to obtain the directory for.
-	 * @return The directory of the document's xml file.
-	 */
-	protected File getXmlFileDirectory(final Document document) {
-		logger.info("getXmlFileDirectory(Document)");
-		logger.debug(document);
-		return xmlPathBuilder.getXmlFileDirectory(document);
-	}
-
-	/**
-	 * Obtain the directory of the xml file for the project.
-	 * 
-	 * @param project
-	 *            The project to obtain the xml file directory for.
-	 * @return The directory of the project xml file.
-	 */
-	protected File getXmlFileDirectory(final Project project) {
-		logger.info("getXmlFileDirectory(Project)");
-		logger.debug(project);
-		return xmlPathBuilder.getXmlFileDirectory(project);
-	}
-
-	/**
 	 * Obtain all of the xml files for the given document. This includes the
 	 * document, the document content as well as all of the document version
 	 * files.
@@ -173,10 +100,11 @@ public abstract class XmlIO {
 	 *            The document to obtain the xml files for.
 	 * @return The list of xml files for the document.
 	 */
-	protected File[] getXmlFiles(final Document document) {
+	protected File[] getXmlFiles(final Document document)
+			throws FileNotFoundException, IOException {
 		logger.info("getXmlFiles(Document)");
 		logger.debug(document);
-		return xmlPathBuilder.getXmlFiles(document);
+		return xmlPathBuilder.getXmlFiles(document, fillInStack(document));
 	}
 
 	/**
@@ -429,5 +357,151 @@ public abstract class XmlIO {
 			Assert.assertTrue("writeXmlFile(String,File)", xmlFile.delete());
 		}
 		FileUtil.writeFile(xmlFile, xml.getBytes());
+	}
+
+	
+	//==========================================================================
+	private File lookupXmlFile(final UUID id) throws FileNotFoundException,
+			IOException {
+		final IndexXmlIO indexXmlIO = new IndexXmlIO(workspace);
+		return indexXmlIO.get().lookupXmlFile(id);
+	}
+
+	/**
+	 * Obtain the xml file for the given document version.
+	 * 
+	 * @param version
+	 *            The document version to obtain the xml file for.
+	 * @return The xml file.
+	 */
+	protected File getXmlFile(final Document document,
+			final DocumentVersion version) throws FileNotFoundException,
+			IOException {
+		logger.info("getXmlFile(Document,DocumentVersion)");
+		logger.debug(document);
+		logger.debug(version);
+		return new File(
+				getXmlFileDirectory(document),
+				new StringBuffer(document.getName())
+					.append(".")
+					.append(version.getVersion())
+					.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION)
+					.toString());
+	}
+	/**
+	 * Obtain the xml file for the given document content.
+	 * 
+	 * @param content
+	 *            The document content to obtain the xml file for.
+	 * @return The xml file.
+	 */
+	protected File getXmlFile(final Document document,
+			final DocumentContent content) throws FileNotFoundException,
+			IOException {
+		logger.info("getXmlFile(Document,DocumentContent)");
+		logger.debug(content);
+		return new File(getXmlFileDirectory(document),
+				new StringBuffer(document.getName())
+					.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_CONTENT)
+					.toString());
+	}
+	protected File getXmlFile(final Document document)
+			throws FileNotFoundException, IOException {
+		final File xmlFile = lookupXmlFile(document.getId());
+		if(null != xmlFile) { return xmlFile; }
+		else {
+			return xmlPathBuilder.getXmlFile(document, fillInStack(document));
+		}
+	}
+	/**
+	 * Obtain the directory of the xml file for the document.
+	 * 
+	 * @param document
+	 *            The document to obtain the directory for.
+	 * @return The directory of the document's xml file.
+	 */
+	protected File getXmlFileDirectory(final Document document)
+			throws FileNotFoundException, IOException {
+		logger.info("getXmlFileDirectory(Document)");
+		logger.debug(document);
+		return getXmlFile(document).getParentFile();
+	}
+	/**
+	 * Obtain the xml file for the given project.
+	 * 
+	 * @param project
+	 *            The project to obtain the xml file for.
+	 * @return The xml file.
+	 */
+	protected File getXmlFile(final Project project)
+			throws FileNotFoundException, IOException {
+		logger.info("getXmlFile(Project)");
+		logger.debug(project);
+		final File xmlFile = lookupXmlFile(project.getId());
+		if(null != xmlFile) { return xmlFile; }
+		else {
+			return xmlPathBuilder.getXmlFile(project, fillInStack(project));
+		}
+	}
+	/**
+	 * Obtain the directory of the xml file for the project.
+	 * 
+	 * @param project
+	 *            The project to obtain the xml file directory for.
+	 * @return The directory of the project xml file.
+	 */
+	protected File getXmlFileDirectory(final Project project)
+			throws FileNotFoundException, IOException {
+		logger.info("getXmlFileDirectory(Project)");
+		logger.debug(project);
+		return getXmlFile(project).getParentFile();
+	}
+
+	private Stack<Project> fillInStack(final ParityObject parityObject)
+			throws FileNotFoundException, IOException {
+		final Stack<Project> stack = new Stack<Project>();
+		UUID parentId = parityObject.getParentId();
+		while(null != parentId) {
+			stack.push(readProject(lookupXmlFile(parentId)));
+			parentId = stack.peek().getParentId();
+		}
+		return stack;
+	}
+
+	private File[] getXmlFiles(final Document document,
+			final Collection<DocumentVersion> versions)
+			throws FileNotFoundException, IOException {
+		final Collection<File> xmlFiles = new Vector<File>(7);
+		for(DocumentVersion version : versions) {
+			xmlFiles.add(getXmlFile(document, version));
+		}
+		return xmlFiles.toArray(new File[] {});
+	}
+
+	protected void move(final Document document, final DocumentContent content, final Collection<DocumentVersion> versions,
+			final File targetXmlFileDirectory) throws FileNotFoundException,
+			IOException {
+		final File documentXmlFile = getXmlFile(document);
+		final File contentXmlFile = getXmlFile(document, content);
+		final File[] versionXmlFiles = getXmlFiles(document, versions);
+
+		final File targetDocumentXmlFile =
+			new File(targetXmlFileDirectory, documentXmlFile.getName());
+		FileUtil.copy(documentXmlFile, targetDocumentXmlFile);
+		Assert.assertTrue(
+				"move(Document,DocumentContent,DocumentVersion,File)",
+				documentXmlFile.delete());
+		FileUtil.copy(contentXmlFile, new File(targetXmlFileDirectory, contentXmlFile.getName()));
+		Assert.assertTrue(
+				"move(Document,DocumentContent,DocumentVersion,File)",
+				contentXmlFile.delete());
+		for(File versionXmlFile : versionXmlFiles) {
+			FileUtil.copy(versionXmlFile, new File(targetXmlFileDirectory, versionXmlFile.getName()));
+			Assert.assertTrue(
+					"move(Document,DocumentContent,DocumentVersion,File)",
+					versionXmlFile.delete());
+		}
+		final IndexXmlIO indexXmlIO = new IndexXmlIO(workspace);
+		indexXmlIO.get().addLookup(document.getId(), targetDocumentXmlFile);
 	}
 }

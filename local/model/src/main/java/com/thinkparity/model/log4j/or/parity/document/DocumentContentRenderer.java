@@ -15,7 +15,7 @@ import com.thinkparity.model.parity.model.document.DocumentContent;
 public class DocumentContentRenderer implements ObjectRenderer {
 
 	private static final String CHECKSUM = ",checksum:";
-	private static final String DOCUMENT = "document:";
+	private static final String DOCUMENT_ID = "document id:";
 	private static final String PREFIX =
 		DocumentContent.class.getName() + IRendererConstants.PREFIX_SUFFIX;
 	private static final String SIZE = ",size[bytes]:";
@@ -38,7 +38,7 @@ public class DocumentContentRenderer implements ObjectRenderer {
 		else {
 			final DocumentContent dc = (DocumentContent) o;
 			return new StringBuffer(PREFIX)
-				.append(DOCUMENT).append(dc.getDocument().getName())
+				.append(DOCUMENT_ID).append(dc.getDocumentId())
 				.append(CHECKSUM).append(dc.getChecksum())
 				.append(SIZE).append(dc.getContent().length)
 				.append(IRendererConstants.SUFFIX)

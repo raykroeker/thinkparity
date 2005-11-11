@@ -15,7 +15,7 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
  */
 public class DocumentVersionRenderer implements ObjectRenderer {
 
-	private static final String DOCUMENT = "document:";
+	private static final String DOCUMENT_ID = "document id:";
 	private static final String PREFIX =
 		DocumentVersion.class.getName() + IRendererConstants.PREFIX_SUFFIX;
 	private static final String VERSION = ",version:";
@@ -38,11 +38,10 @@ public class DocumentVersionRenderer implements ObjectRenderer {
 		else {
 			final DocumentVersion dv = (DocumentVersion) o;
 			return new StringBuffer(PREFIX)
-				.append(DOCUMENT).append(dv.getDocument().getName())
+				.append(DOCUMENT_ID).append(dv.getDocumentId())
 				.append(VERSION).append(dv.getVersion())
 				.append(IRendererConstants.SUFFIX)
 				.toString();
 		}
 	}
-
 }

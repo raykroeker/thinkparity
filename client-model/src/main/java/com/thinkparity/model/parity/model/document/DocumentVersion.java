@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.UUID;
+
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 
 /**
@@ -25,7 +27,7 @@ public class DocumentVersion extends ParityObjectVersion {
 	/**
 	 * Reference to the main document.
 	 */
-	private Document document;
+	private UUID documentId;
 
 	/**
 	 * Reference to the document snapshot representd by this version.
@@ -40,27 +42,14 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * @param versionId
 	 *            The version id of the new version.
 	 */
-	public DocumentVersion(final Document document, final String versionId,
+	public DocumentVersion(final UUID documentId, final String versionId,
 			final Document snapshot, final DocumentAction action,
 			final DocumentActionData actionData) {
 		super(versionId);
 		this.action = action;
 		this.actionData = actionData;
-		this.document = document;
+		this.documentId = documentId;
 		this.snapshot = snapshot;
-	}
-
-	/**
-	 * Create a DocumentVersion
-	 * 
-	 * @param versionId
-	 *            The version id.
-	 * @param snapshot
-	 *            The version snapshot of the document.
-	 */
-	public DocumentVersion(final String versionId, final Document snapshot,
-			final DocumentAction action, final DocumentActionData actionData) {
-		this(null, versionId, snapshot, action, actionData);
 	}
 
 	/**
@@ -82,7 +71,7 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * 
 	 * @return The document this version belongs to.
 	 */
-	public Document getDocument() { return document; }
+	public UUID getDocumentId() { return documentId; }
 
 	/**
 	 * Obtain the snapshot of the document for this version.
@@ -95,5 +84,5 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * Set the document reference.
 	 * @param document The document reference.
 	 */
-	public void setDocument(Document document) { this.document = document; }
+	public void setDocumentId(final UUID documentId) { this.documentId = documentId; }
 }

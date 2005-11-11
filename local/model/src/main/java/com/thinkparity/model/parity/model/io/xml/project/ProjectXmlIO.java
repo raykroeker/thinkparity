@@ -46,9 +46,7 @@ public class ProjectXmlIO extends XmlIO {
 		logger.info("create(Project)");
 		logger.debug(project);
 		// create the xml file directory
-		Assert.assertTrue(
-				"create(Project)",
-				getXmlFileDirectory(project).mkdir());
+		Assert.assertTrue("create(Project)", getXmlFileDirectory(project).mkdir());
 		write(project, getXmlFile(project));
 	}
 
@@ -60,7 +58,8 @@ public class ProjectXmlIO extends XmlIO {
 	 * @param project
 	 *            The project to delete.
 	 */
-	public void delete(final Project project) {
+	public void delete(final Project project) throws FileNotFoundException,
+			IOException {
 		logger.info("delete(Project)");
 		logger.debug(project);
 		// delete the xml file
@@ -77,7 +76,8 @@ public class ProjectXmlIO extends XmlIO {
 	 * @return True if the project contains any projects or documents; false
 	 *         otherwise.
 	 */
-	public Boolean hasChildren(final Project project) {
+	public Boolean hasChildren(final Project project)
+			throws FileNotFoundException, IOException {
 		logger.info("hasChildren(Project)");
 		logger.debug(project);
 		final File[] xmlFileDirectories = getXmlFileDirectories(project);
@@ -192,7 +192,8 @@ public class ProjectXmlIO extends XmlIO {
 	 *            The parent project.
 	 * @return A list of xml file directories.
 	 */
-	private File[] getXmlFileDirectories(final Project parent) {
+	private File[] getXmlFileDirectories(final Project parent)
+			throws FileNotFoundException, IOException {
 		return getXmlFileDirectory(parent).listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
 				return pathname.isDirectory();
@@ -220,7 +221,6 @@ public class ProjectXmlIO extends XmlIO {
 		for(File xmlFileDirectory : xmlFileDirectories) {
 			xmlFile = getXmlFile(xmlFileDirectory);
 			project = readProject(xmlFile);
-			project.setParent(parent);
 			projects.add(project);
 		}
 		return projects;

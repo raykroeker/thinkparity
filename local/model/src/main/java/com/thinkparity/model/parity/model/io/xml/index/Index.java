@@ -17,7 +17,7 @@ import java.util.Vector;
  * The current index is only on the parity object's id.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.2
  */
 public class Index {
 
@@ -31,17 +31,37 @@ public class Index {
 	 */
 	private final Map<String,String> idToXmlFileLookup;
 
-	public Index() {
+	/**
+	 * Create an Index.
+	 */
+	Index() {
 		this(new Vector<UUID>(20), new Hashtable<String,String>(20, 0.75F));
 	}
 
-	public Index(final Collection<UUID> ids,
+	/**
+	 * Create a Index.
+	 * 
+	 * @param ids
+	 *            A list of parity object ids.
+	 * @param idToXmlFileLookup
+	 *            A lookup of parity object ids to their xml files.
+	 */
+	private Index(final Collection<UUID> ids,
 			final Map<String, String> idToXmlFileLookup) {
 		super();
 		this.ids = ids;
 		this.idToXmlFileLookup = idToXmlFileLookup;
 	}
 
+	/**
+	 * Add an id to the index.
+	 * 
+	 * @param id
+	 *            The id to add.
+	 * @param xmlFile
+	 *            The xml file related to the id.
+	 * @return An existing xml file if one exists.
+	 */
 	public File addLookup(final UUID id, final File xmlFile) {
 		if(!ids.contains(id)) {
 			ids.add(id);
@@ -55,10 +75,22 @@ public class Index {
 		}
 	}
 
+	/**
+	 * Obtain the list of parity object ids.
+	 * 
+	 * @return A list of parity object ids.
+	 */
 	public Collection<UUID> getIds() {
 		return Collections.unmodifiableCollection(ids);
 	}
 
+	/**
+	 * Lookup the xml file for the given parity object.
+	 * 
+	 * @param id
+	 *            The id of the parity object.
+	 * @return The xml file for the parity object.
+	 */
 	public File lookupXmlFile(final UUID id) {
 		final String xmlFileAbsolutePath = idToXmlFileLookup.get(id.toString());
 		if(null == xmlFileAbsolutePath) { return null; }

@@ -16,7 +16,7 @@ import com.thinkparity.model.parity.model.document.Document;
 public class DocumentRenderer implements ObjectRenderer {
 
 	private static final String NAME = ",name:";
-	private static final String PARENT = ",parent:";
+	private static final String PARENT_ID = ",parent id:";
 	private static final String PREFIX =
 		Document.class.getName() + IRendererConstants.PREFIX_SUFFIX;
 
@@ -40,7 +40,7 @@ public class DocumentRenderer implements ObjectRenderer {
 			return new StringBuffer(PREFIX)
 				.append(IRendererConstants.ID).append(d.getId())
 				.append(NAME).append(d.getName())
-				.append(PARENT).append(d.getParent().getCustomName())
+				.append(PARENT_ID).append(d.getParentId())
 				.append(IRendererConstants.SUFFIX)
 				.toString();
 		}

@@ -13,8 +13,6 @@ import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
 
-import ejp.tracer.TracerAPI;
-
 /**
  * Test the document model create api.
  * 
@@ -68,13 +66,9 @@ public class CreateTest extends ModelTestCase {
 			Document newDocument;
 			DocumentContent newDocumentContent;
 			for(Fixture datum : data) {
-				TracerAPI.enableTracing();
 				newDocument = datum.documentModel.create(datum.parent, datum.name,
 						datum.description, datum.file);
-				TracerAPI.disableTracing();
-				TracerAPI.enableTracing();
 				newDocumentContent = datum.documentModel.getContent(newDocument);
-				TracerAPI.disableTracing();
 
 				assertNotNull(newDocument);
 				assertNotNull(newDocumentContent);

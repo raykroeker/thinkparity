@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.util.UUIDGenerator;
 
 /**
  * Test the project model get api.
@@ -88,6 +89,8 @@ public class GetTest extends ModelTestCase {
 		description = name;
 		expectedProject = projectModel.create(testProject, name, description);
 		data.add(new Fixture(expectedProject, expectedProject.getId(), projectModel));
+		// add a test where no project is found
+		data.add(new Fixture(null, UUIDGenerator.nextUUID(), projectModel));
 	}
 
 	/**

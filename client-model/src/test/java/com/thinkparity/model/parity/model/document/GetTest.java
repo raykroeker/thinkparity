@@ -9,6 +9,7 @@ import java.util.Vector;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.parity.util.UUIDGenerator;
 
 /**
  * Test the document model get api.
@@ -81,6 +82,8 @@ public class GetTest extends ModelTestCase {
 
 			data.add(new Fixture(document, documentModel, id));
 		}
+		// add an element where no document is found
+		data.add(new Fixture(null, documentModel, UUIDGenerator.nextUUID()));
 	}
 
 	/**

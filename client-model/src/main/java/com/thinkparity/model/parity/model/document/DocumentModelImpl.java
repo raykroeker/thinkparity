@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
@@ -432,26 +433,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("receiveDocument(XMPPDocument)");
 		logger.debug(xmppDocument);
 		try {
-			/*
-			 * Obtain the inbox parity project within the workspace, and place
-			 * the received document within it, the notify all listeners about
-			 * the new document.
-			 */
-			final Project inbox = projectModel.getInbox();
-	
-			final Document document = new Document(inbox.getId(),
-					xmppDocument.getName(), xmppDocument.getCreatedOn(),
-					xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
-					xmppDocument.getId());
-			final DocumentContent content = new DocumentContent(
-					MD5Util.md5Hex(xmppDocument.getContent()),
-					xmppDocument.getContent(), xmppDocument.getId());
-			documentXmlIO.create(document, content);
-
-			// create a new version
-			createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
-			// fire a receive event
-			notifyCreation_objectReceived(document);
+			final Document existingDocument = get(xmppDocument.getId());
+			logger.debug(existingDocument);
+			if(null == existingDocument) { receiveCreate(xmppDocument); }
+			else { receiveUpdate(xmppDocument, existingDocument); }
 		}
 		catch(IOException iox) {
 			logger.error("receiveDocument(XMPPDocument)", iox);
@@ -685,6 +670,21 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Fire the objectReceived event for all update listeners.
+	 * 
+	 * @param document
+	 *            The document to use as the event source.
+	 * @see UpdateListener#objectReceived(UpdateEvent)
+	 */
+	private void notifyUpdate_objectReceived(final Document document) {
+		synchronized(DocumentModelImpl.updateListenersLock) {
+			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
+				listener.objectReceived(new UpdateEvent(document));
+			}
+		}
+	}
+
+	/**
 	 * Fire the objectUpdated event for all of the udpate listeners.
 	 * 
 	 * @param document
@@ -692,7 +692,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @see UpdateListener#objectUpdated(UpdateEvent)
 	 */
 	private void notifyUpdate_objectUpdated(final Document document) {
-		synchronized (DocumentModelImpl.updateListenersLock) {
+		synchronized(DocumentModelImpl.updateListenersLock) {
 			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
 				listener.objectUpdated(new UpdateEvent(document));
 			}
@@ -744,6 +744,60 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private DocumentActionData receive_ActionData(final Document document) {
 		return new DocumentActionData();
+	}
+
+	/**
+	 * Receive the xmpp document and create a new local document.
+	 * 
+	 * @param xmppDocument
+	 *            The xmpp document received.
+	 * @throws ParityException
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private void receiveCreate(final XMPPDocument xmppDocument) throws ParityException, FileNotFoundException, IOException {
+		/*
+		 * Obtain the inbox parity project within the workspace, and place
+		 * the received document within it, the notify all listeners about
+		 * the new document.
+		 */
+		final Project inbox = projectModel.getInbox();
+		final Document document = new Document(inbox.getId(),
+				xmppDocument.getName(), xmppDocument.getCreatedOn(),
+				xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
+				xmppDocument.getId());
+		final DocumentContent content = new DocumentContent(
+				MD5Util.md5Hex(xmppDocument.getContent()),
+				xmppDocument.getContent(), xmppDocument.getId());
+		documentXmlIO.create(document, content);
+		// create a new version
+		createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
+		// fire a receive event
+		notifyCreation_objectReceived(document);
+	}
+
+	/**
+	 * Receive the xmpp document and update the existing local document.
+	 * 
+	 * @param xmppDocument
+	 *            The xmpp document received.
+	 * @param document
+	 *            The existing local document.
+	 * @throws IOException
+	 * @throws ParityException
+	 * @throws FileNotFoundException
+	 */
+	private void receiveUpdate(final XMPPDocument xmppDocument,
+			final Document document) throws IOException, ParityException,
+			FileNotFoundException {
+		// create a new version of the existing document
+		createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
+		// update the content
+		final DocumentContent content = new DocumentContent(
+				MD5Util.md5Hex(xmppDocument.getContent()),
+				xmppDocument.getContent(), document.getId());
+		documentXmlIO.update(document, content);
+		notifyUpdate_objectReceived(document);
 	}
 
 	/**

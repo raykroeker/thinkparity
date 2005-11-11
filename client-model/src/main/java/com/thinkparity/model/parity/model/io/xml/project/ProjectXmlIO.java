@@ -83,7 +83,9 @@ public class ProjectXmlIO extends XmlIO {
 		logger.info("get(UUID)");
 		logger.debug(id);
 		final Index index = readIndex(getIndexXmlFile());
-		return readProject(index.lookupXmlFile(id));
+		final File xmlFile = index.lookupXmlFile(id);
+		if(null == xmlFile) { return null; }
+		else { return readProject(xmlFile); }
 	}
 
 	/**

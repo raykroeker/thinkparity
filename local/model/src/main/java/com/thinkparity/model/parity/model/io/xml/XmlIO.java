@@ -501,7 +501,8 @@ public abstract class XmlIO {
 					"move(Document,DocumentContent,DocumentVersion,File)",
 					versionXmlFile.delete());
 		}
-		final IndexXmlIO indexXmlIO = new IndexXmlIO(workspace);
-		indexXmlIO.get().addLookup(document.getId(), targetDocumentXmlFile);
+		final Index index = readIndex(getIndexXmlFile());
+		index.addLookup(document.getId(), targetDocumentXmlFile);
+		write(index, getIndexXmlFile());
 	}
 }

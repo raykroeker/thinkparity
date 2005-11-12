@@ -5,13 +5,11 @@ package com.thinkparity.model.parity.model.document;
 
 import java.util.UUID;
 
-import com.thinkparity.model.parity.api.ParityXmlSerializable;
-
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.4
  */
-public class DocumentContent implements ParityXmlSerializable {
+public class DocumentContent {
 
 	/**
 	 * Document content checksum.

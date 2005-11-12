@@ -56,21 +56,17 @@ public class ProjectConverter extends XmlIOConverter {
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
 		logger.info("unmarshal(HierarchicalStreamReader,UnmarshallingContext");
-		Project project = null;
-		try {
-			final UUID id = readId(reader, context);
-			final String name = readName(reader, context);
-			final UUID projectId = readProjectId(reader, context);
-			final String createdBy = readCreatedBy(reader, context);
-			final Calendar createdOn = readCreatedOn(reader, context);
-			final String updatedBy = readUpdatedBy(reader, context);
-			final Calendar updatedOn = readUpdatedOn(reader, context);
-			final String description = readDescription(reader, context);
-			project = new Project(createdBy, createdOn, description, id, name,
-					projectId, updatedBy, updatedOn);
-			readCustomProperties(project, reader, context);
-		}
-		catch(Exception x) { fatal(project, "An unknown error occured parsing project custom xml.", x); }
+		final UUID id = readId(reader, context);
+		final String name = readName(reader, context);
+		final UUID projectId = readProjectId(reader, context);
+		final String createdBy = readCreatedBy(reader, context);
+		final Calendar createdOn = readCreatedOn(reader, context);
+		final String updatedBy = readUpdatedBy(reader, context);
+		final Calendar updatedOn = readUpdatedOn(reader, context);
+		final String description = readDescription(reader, context);
+		final Project project = new Project(createdBy, createdOn, description,
+				id, name, projectId, updatedBy, updatedOn);
+		readCustomProperties(project, reader, context);
 		return project;
 	}
 

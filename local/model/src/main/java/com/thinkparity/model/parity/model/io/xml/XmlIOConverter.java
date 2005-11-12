@@ -14,10 +14,8 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.api.MalformedXmlException;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -60,26 +58,6 @@ public abstract class XmlIOConverter implements Converter {
 		super();
 		this.workspace = WorkspaceModel.getModel().getWorkspace();
 		this.preferences = workspace.getPreferences();
-	}
-
-	/**
-	 * Log a non-recoverable error to the system logger, and throw an
-	 * application exception.
-	 * 
-	 * @param parityObject
-	 *            Context information regarding the error. (Optional)
-	 * @param message
-	 *            A custom error message.
-	 * @param cause
-	 *            The cause of the fatal error.
-	 */
-	protected void fatal(final ParityObject parityObject,
-			final String message, final Throwable cause) {
-		final StringBuffer contextMessage = new StringBuffer(message)
-			.append(Separator.SystemNewLine)
-			.append((null == parityObject ? "<null/>" : parityObject.toString()));
-		logger.fatal(contextMessage, cause);
-		throw new MalformedXmlException(message, cause);
 	}
 
 	/**
@@ -207,14 +185,11 @@ public abstract class XmlIOConverter implements Converter {
 	protected void readNotes(final ParityObject parityObject,
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
-		try { 
-			reader.moveDown();
-			while(reader.hasMoreChildren()) {
-				readNote(parityObject, reader, context);
-			}
-			reader.moveUp();
+		reader.moveDown();
+		while(reader.hasMoreChildren()) {
+			readNote(parityObject, reader, context);
 		}
-		catch(Exception x) { fatal(parityObject, "Could not read parity object's notes.", x); }
+		reader.moveUp();
 	}
 
 	/**
@@ -226,7 +201,8 @@ public abstract class XmlIOConverter implements Converter {
 	 *            The xStream xml reader's context.
 	 * @return The updator.
 	 */
-	protected String readUpdatedBy(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
+	protected String readUpdatedBy(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
 		reader.moveDown();
 		final String updatedBy = reader.getValue();
 		reader.moveUp();
@@ -483,19 +459,16 @@ public abstract class XmlIOConverter implements Converter {
 	 * @param reader
 	 *            The xStream xml reader.
 	 * @param context
-	 *            The xStream xml reader context.
+	 *            The xStream xml reader's context.
 	 */
 	private void readNote(final ParityObject parityObject,
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
-		try {
-			reader.moveDown();
-			final String subject = reader.getAttribute("subject");
-			final String content = reader.getValue();
-			parityObject.add(new Note(subject, content));
-			reader.moveUp();
-		}
-		catch(Exception x) { fatal(parityObject, "Could not read parity object's note.", x); }
+		reader.moveDown();
+		final String subject = reader.getAttribute("subject");
+		final String content = reader.getValue();
+		parityObject.add(new Note(subject, content));
+		reader.moveUp();
 	}
 
 	/**

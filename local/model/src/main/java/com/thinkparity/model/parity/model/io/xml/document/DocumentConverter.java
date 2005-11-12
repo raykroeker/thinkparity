@@ -20,7 +20,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * using the xStream framework.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.5
  */
 public class DocumentConverter extends XmlIOConverter {
 
@@ -62,21 +62,18 @@ public class DocumentConverter extends XmlIOConverter {
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
 		logger.info("unmarshal(HierarchicalStreamReader,UnmarshallingContext)");
-		Document document = null;
-		try {
-			final UUID id = readId(reader, context);
-			final String name = readName(reader, context);
-			final UUID projectId = readProjectId(reader, context);
-			final String createdBy = readCreatedBy(reader, context);
-			final Calendar createdOn = readCreatedOn(reader, context);
-			final String updatedBy = readUpdatedBy(reader, context);
-			final Calendar updatedOn = readUpdatedOn(reader, context);
-			final String description = readDescription(reader, context);
-			document = new Document(createdBy, createdOn, description, id, name, projectId, updatedBy, updatedOn);
-			readNotes(document, reader, context);
-			readCustomProperties(document, reader, context);
-		}
-		catch(Exception x) { fatal(document, "An unknown error occured parsing document xml.", x); }
+		final UUID id = readId(reader, context);
+		final String name = readName(reader, context);
+		final UUID projectId = readProjectId(reader, context);
+		final String createdBy = readCreatedBy(reader, context);
+		final Calendar createdOn = readCreatedOn(reader, context);
+		final String updatedBy = readUpdatedBy(reader, context);
+		final Calendar updatedOn = readUpdatedOn(reader, context);
+		final String description = readDescription(reader, context);
+		final Document document = new Document(createdBy, createdOn,
+				description, id, name, projectId, updatedBy, updatedOn);
+		readNotes(document, reader, context);
+		readCustomProperties(document, reader, context);
 		return document;
 	}
 

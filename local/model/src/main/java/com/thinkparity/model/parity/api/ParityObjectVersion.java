@@ -5,10 +5,11 @@ package com.thinkparity.model.parity.api;
 
 /**
  * ParityObjectVersion
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.2
  */
-public abstract class ParityObjectVersion implements ParityXmlSerializable {
+public abstract class ParityObjectVersion {
 
 	/**
 	 * Contains the version id of the parity version object.

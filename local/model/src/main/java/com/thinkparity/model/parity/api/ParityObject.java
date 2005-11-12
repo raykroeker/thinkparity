@@ -5,29 +5,36 @@ package com.thinkparity.model.parity.api;
 
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.note.Note;
 
 /**
- * ParityObject
+ * The parity object is the quintessential parity model object. It represents
+ * the main object stored in the parity model's meta data store. Additional
+ * objects are stored in the meta data; however they are all tied to a parity
+ * object.
+ * 
+ * The parity object is uniquely identifiable; as well as "shareable" across the
+ * xmpp network.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.5.2.7
+ * @version 1.5.2.11
  */
-public abstract class ParityObject implements IParityModelConstants {
+public abstract class ParityObject {
 
 	/**
-	 * The parity username of the person who created the parity object.
+	 * The creator of the object.
 	 */
 	private String createdBy;
 
 	/**
-	 * The date\time of creation of the parity object.
+	 * The creation date of the object.
 	 */
 	private Calendar createdOn;
 
@@ -37,61 +44,84 @@ public abstract class ParityObject implements IParityModelConstants {
 	private Properties customProperties;
 
 	/**
-	 * The description of the parity object.
+	 * The description of object.
 	 */
 	private String description;
 
 	/**
-	 * Universally unique id for the object.
+	 * Unique id of the object.
 	 */
 	private UUID id;
 
 	/**
-	 * The name of the parity object.
+	 * The name of the object.
 	 */
 	private String name;
 
 	/**
-	 * List of notes associated with the parity object.
+	 * List of notes.
 	 */
 	private Collection<Note> notes;
 
 	/**
-	 * Reference to the parent parity object.
+	 * Object's parent's unique id.
 	 */
 	private UUID parentId;
 
 	/**
+	 * Updator of the object.
+	 */
+	private String updatedBy;
+
+	/**
+	 * Update date of the object.
+	 */
+	private Calendar updatedOn;
+
+	/**
 	 * Create a ParityObject.
 	 * 
-	 * @param parentId
-	 *            The parent id (Optional).
-	 * @param name
-	 *            The name.
-	 * @param description
-	 *            The description.
-	 * @param createdOn
-	 *            The creation date.
 	 * @param createdBy
-	 *            The creator.
+	 *            The object creator.
+	 * @param createdOn
+	 *            The object creation date.
+	 * @param description
+	 *            The object description.
 	 * @param id
-	 *            The id.
+	 *            The object unique id.
+	 * @param name
+	 *            The object name.
+	 * @param parentId
+	 *            The object parent id.
+	 * @param updatedBy
+	 *            The object updator.
+	 * @param updatedOn
+	 *            The object update date.
 	 */
-	protected ParityObject(final UUID parentId, final String name,
-			final String description, final Calendar createdOn,
-			final String createdBy, final UUID id) {
+	protected ParityObject(final String createdBy, final Calendar createdOn,
+			final String description, final UUID id, final String name,
+			final UUID parentId, final String updatedBy,
+			final Calendar updatedOn) {
 		super();
-		this.parentId = parentId;
-		this.name = name;
-		this.description = description;
 		this.createdOn = createdOn;
 		this.createdBy = createdBy;
-		this.notes = new Vector<Note>(7);
 		this.customProperties = new Properties(createDefaultCustomProperties(name, description));
+		this.description = description;
 		this.id = id;
+		this.name = name;
+		this.notes = new Vector<Note>(7);
+		this.parentId = parentId;
+		this.updatedBy = updatedBy;
+		this.updatedOn = updatedOn;
 	}
 
-	public final void add(final Note note) {
+	/**
+	 * Add a note to the object.
+	 * 
+	 * @param note
+	 *            The note to add.
+	 */
+	public void add(final Note note) {
 		Assert.assertTrue("Cannot add the same note more than once.", !notes
 				.contains(note));
 		notes.add(note);
@@ -107,52 +137,70 @@ public abstract class ParityObject implements IParityModelConstants {
 		return false;
 	}
 
-	public final String getCreatedBy() { return createdBy; }
-
-	public final Calendar getCreatedOn() { return createdOn; }
+	/**
+	 * Get the object creator.
+	 * 
+	 * @return The object creator.
+	 */
+	public String getCreatedBy() { return createdBy; }
 
 	/**
-	 * Obtain the custom description for the parity object.  The custom
-	 * description is set on a per-user basis.
-	 * @return <code>java.lang.String</code>
+	 * Get the object creation date.
+	 * 
+	 * @return The object creation date.
 	 */
-	public final String getCustomDescription() {
+	public Calendar getCreatedOn() { return createdOn; }
+
+	/**
+	 * Obtain the custom description for the parity object. The custom
+	 * description is set on a per-user basis.
+	 * 
+	 * @return The custom description.
+	 */
+	public String getCustomDescription() {
 		return getCustomProperty("description");
 	}
 
 	/**
-	 * Obtain the custom name for the parity object.  The custom name is set on
-	 * a per-user basis.
-	 * @return <code>java.lang.String</code>
+	 * Obtain the custom name for the parity object. The custom name is set on a
+	 * per-user basis.
+	 * 
+	 * @return The custom name.
 	 */
-	public final String getCustomName() { return getCustomProperty("name"); }
+	public String getCustomName() { return getCustomProperty("name"); }
 
 	/**
-	 * Obtain all of the custom properties for the parity object.  Custom
+	 * Obtain all of the custom properties for the parity object. Custom
 	 * properties are set on a per-user basis.
-	 * @return <code>java.util.Properties</code>
+	 * 
+	 * @return The custom properties.
 	 */
-	public final Properties getCustomProperties() { return customProperties; }
+	public Properties getCustomProperties() { return customProperties; }
 
 	/**
-	 * Obtain a named custom property for the parity object.  The custom
-	 * property is set on a per-user basis.
-	 * @param customPropertyName <code>java.lang.String</code>
-	 * @return <code>java.lang.String</code>
+	 * Obtain a named custom property for the parity object. The custom property
+	 * is set on a per-user basis.
+	 * 
+	 * @param customPropertyName
+	 *            The custom property name.
+	 * @return The custom property value.
 	 */
-	public final String getCustomProperty(final String customPropertyName) {
+	public String getCustomProperty(final String customPropertyName) {
 		return customProperties.getProperty(customPropertyName);
 	}
 
 	/**
 	 * Obtain a named custom property for the parity object, and if the property
-	 * is not set, return the default value.  The custom property is set on a
+	 * is not set, return the default value. The custom property is set on a
 	 * per-user basis.
-	 * @param customPropertyName <code>java.lang.String</code>
-	 * @param customPropertyDefaultValue <code>java.lang.String</code>
-	 * @return <code>java.lang.String</code>
+	 * 
+	 * @param customPropertyName
+	 *            The custom property name.
+	 * @param customPropertyDefaultValue
+	 *            A default value for the custom property.
+	 * @return The custom property.
 	 */
-	public final String getCustomProperty(final String customPropertyName,
+	public String getCustomProperty(final String customPropertyName,
 			final String customPropertyDefaultValue) {
 		return customProperties.getProperty(customPropertyName,
 				customPropertyDefaultValue);
@@ -160,23 +208,33 @@ public abstract class ParityObject implements IParityModelConstants {
 
 	/**
 	 * Obtain the description for the parity object.
-	 * @return <code>java.lang.String</code>
+	 * 
+	 * @return The object description.
 	 */
-	public final String getDescription() { return description; }
+	public String getDescription() { return description; }
 
 	/**
-	 * Obtain the value of id.
-	 * @return <code>UUID</code>
+	 * Obtain id of the object.
+	 * 
+	 * @return The object id.
 	 */
 	public UUID getId() { return id; }
 
 	/**
-	 * Obtain the name for the parity object.
-	 * @return <code>java.lang.String</code>
+	 * Obtain the name of the object.
+	 * 
+	 * @return The name of the object.
 	 */
-	public final String getName() { return name; }
+	public String getName() { return name; }
 
-	public final Collection<Note> getNotes() { return notes; }
+	/**
+	 * Obtain the notes for the object.
+	 * 
+	 * @return The notes for the object.
+	 */
+	public Collection<Note> getNotes() {
+		return Collections.unmodifiableCollection(notes);
+	}
 
 	/**
 	 * Obtain the parent id.
@@ -186,11 +244,25 @@ public abstract class ParityObject implements IParityModelConstants {
 	public UUID getParentId() { return parentId; }
 
 	/**
-	 * Obtain the type of parity object.
+	 * Obtain the type of object.
 	 * 
-	 * @return <code>com.thinkparity.model.parity.api.ParityObjectType</code>
+	 * @return The type of object.
 	 */
 	public abstract ParityObjectType getType();
+
+	/**
+	 * Obtain the update date.
+	 * 
+	 * @return The updated date.
+	 */
+	public String getUpdatedBy() { return updatedBy; }
+
+	/**
+	 * Obtain the updator.
+	 * 
+	 * @return The updator.
+	 */
+	public Calendar getUpdatedOn() { return updatedOn;}
 
 	/**
 	 * @see java.lang.Object#hashCode()
@@ -198,41 +270,55 @@ public abstract class ParityObject implements IParityModelConstants {
 	public int hashCode() { return id.hashCode(); }
 
 	/**
-	 * Determine whether or not the parent is set.
-	 * @return Boolean</code>
+	 * Determine whether or not the parent id is set.
+	 * 
+	 * @return True if the parent id is set; false otherwise.
 	 */
 	public final Boolean isSetParentId() { return null != parentId; }
 
-	public final void remove(final Note note) {
+	/**
+	 * Remove a note from the object.
+	 * 
+	 * @param note
+	 *            The note to remove.
+	 */
+	public void remove(final Note note) {
 		if(notes.contains(note))
 			notes.remove(note);
 	}
 
 	/**
-	 * Set the custom description for the parity object.  The description is set
+	 * Set the custom description for the parity object. The description is set
 	 * on a per-user basis.
-	 * @param description <code>java.lang.String</code>
+	 * 
+	 * @param description
+	 *            The custom description.
 	 */
-	public final void setCustomDescription(final String description) {
+	public void setCustomDescription(final String description) {
 		customProperties.setProperty("description", description);
 	}
 
 	/**
-	 * Set the custom name for the parity object.  The name is set on a per-user
+	 * Set the custom name for the parity object. The name is set on a per-user
 	 * basis.
-	 * @param name <code>java.lang.String</code>
+	 * 
+	 * @param name
+	 *            The custom name.
 	 */
-	public final void setCustomName(final String name) {
+	public void setCustomName(final String name) {
 		customProperties.setProperty("name", name);
 	}
 
 	/**
-	 * Set a named custom property.  The custom property is set on a per-user
+	 * Set a named custom property. The custom property is set on a per-user
 	 * basis.
-	 * @param customPropertyName <code>java.lang.String</code>
-	 * @param customPropertyValue <code>java.lang.String</code>
+	 * 
+	 * @param customPropertyName
+	 *            The custom property name.
+	 * @param customPropertyValue
+	 *            The custom property value.
 	 */
-	public final void setCustomProperty(final String customPropertyName,
+	public void setCustomProperty(final String customPropertyName,
 			final String customPropertyValue) {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
 	}

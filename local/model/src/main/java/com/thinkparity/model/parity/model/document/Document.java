@@ -10,32 +10,47 @@ import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectType;
 
 /**
- * Document
+ * The document is the parity object that started the revolution. It is used as
+ * the anchor for both the document content and the document versions. One
+ * document has a single document content reference (or more aptly a single
+ * document content has a single document referenc) and many document versions.
+ * 
+ * The document content is a wrapper around the document's bytes. The document
+ * version contains a snapshot of the document at a single point in time.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.2.2.10
+ * @version 1.2.2.12
+ * @see DocumentContent
+ * @see DocumentVersion
  */
 public class Document extends ParityObject {
 
 	/**
 	 * Create a Document.
 	 * 
-	 * @param projectId
-	 *            The parent project id.
-	 * @param name
-	 *            The document name.
-	 * @param createdOn
-	 *            The document creation date.
 	 * @param createdBy
-	 *            The document creator.
+	 *            The creator.
+	 * @param createdOn
+	 *            The creation date.
 	 * @param description
-	 *            The document description.
+	 *            The description.
 	 * @param id
-	 *            The document id.
+	 *            The unique id.
+	 * @param name
+	 *            The name.
+	 * @param parentId
+	 *            The parent id.
+	 * @param updatedBy
+	 *            The updator.
+	 * @param updatedOn
+	 *            The update date.
 	 */
-	public Document(final UUID projectId, final String name,
-			final Calendar createdOn, final String createdBy,
-			final String description, final UUID id) {
-		super(projectId, name, description, createdOn, createdBy, id);
+	public Document(final String createdBy, final Calendar createdOn,
+			final String description, final UUID id, final String name,
+			final UUID parentId, final String updatedBy,
+			final Calendar updatedOn) {
+		super(createdBy, createdOn, description, id, name, parentId, updatedBy,
+				updatedOn);
 	}
 
 	/**

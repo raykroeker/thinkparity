@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.project;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
@@ -138,10 +139,10 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.debug(description);
 		try {
 			// create the project
-			final UUID id = UUIDGenerator.nextUUID();
-			final Project project = new Project(parent.getId(), name,
-					DateUtil.getInstance(), preferences.getUsername(),
-					description, id);
+			final Calendar now = DateUtil.getInstance();
+			final Project project = new Project(preferences.getUsername(), now,
+					description, UUIDGenerator.nextUUID(), name, parent.getId(),
+					preferences.getUsername(), now);
 			projectXmlIO.create(project);
 			notifyCreation_objectCreated(project);
 			return project;
@@ -389,11 +390,14 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	private Project lazyCreateInbox() throws FileNotFoundException, IOException {
 		final Project inbox = new Project(
-				IParityModelConstants.PROJECT_NAME_INBOX,
-				IParityModelConstants.PROJECT_CREATED_ON_INBOX,
 				IParityModelConstants.PROJECT_CREATED_BY_INBOX,
+				IParityModelConstants.PROJECT_CREATED_ON_INBOX,
 				IParityModelConstants.PROJECT_DESCRIPTION_INBOX,
-				IParityModelConstants.PROJECT_ID_INBOX);
+				IParityModelConstants.PROJECT_ID_INBOX,
+				IParityModelConstants.PROJECT_NAME_INBOX,
+				null,
+				IParityModelConstants.PROJECT_UPDATED_BY_MYPROJECTS,
+				IParityModelConstants.PROJECT_UPDATED_ON_MYPROJECTS);
 		projectXmlIO.create(inbox);
 		return inbox;
 	}
@@ -408,11 +412,14 @@ class ProjectModelImpl extends AbstractModelImpl {
 	private Project lazyCreateMyProjects() throws FileNotFoundException,
 			IOException {
 		final Project myProjects = new Project(
-				IParityModelConstants.PROJECT_NAME_MYPROJECTS,
-				IParityModelConstants.PROJECT_CREATED_ON_MYPROJECTS,
 				IParityModelConstants.PROJECT_CREATED_BY_MYPROJECTS,
+				IParityModelConstants.PROJECT_CREATED_ON_MYPROJECTS,
 				IParityModelConstants.PROJECT_DESCRIPTION_MYPROJECTS,
-				IParityModelConstants.PROJECT_ID_MYPROJECTS);
+				IParityModelConstants.PROJECT_ID_MYPROJECTS,
+				IParityModelConstants.PROJECT_NAME_MYPROJECTS,
+				null,
+				IParityModelConstants.PROJECT_UPDATED_BY_MYPROJECTS,
+				IParityModelConstants.PROJECT_UPDATED_ON_MYPROJECTS);
 		projectXmlIO.create(myProjects);
 		return myProjects;
 	}

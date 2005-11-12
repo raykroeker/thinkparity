@@ -20,42 +20,29 @@ public class Project extends ParityObject implements XStreamSerializable {
 	/**
 	 * Create a Project.
 	 * 
+	 * @param createdBy
+	 *            The creation date.
+	 * @param createdOn
+	 *            The creator.
+	 * @param description
+	 *            The description.
+	 * @param id
+	 *            The unique id.
+	 * @param name
+	 *            The name.
 	 * @param parentId
 	 *            The parent id.
-	 * @param name
-	 *            The name.
-	 * @param createdOn
-	 *            The creator.
-	 * @param createdBy
-	 *            The creation date.
-	 * @param description
-	 *            The description.
-	 * @param id
-	 *            The id.
+	 * @param updatedBy
+	 *            The updator.
+	 * @param updatedOn
+	 *            The update date.
 	 */
-	public Project(final UUID parentId, final String name,
-			final Calendar createdOn, final String createdBy,
-			final String description, final UUID id) {
-		super(parentId, name, description, createdOn, createdBy, id);
-	}
-
-	/**
-	 * Create a Project.
-	 * 
-	 * @param name
-	 *            The name.
-	 * @param createdOn
-	 *            The creator.
-	 * @param createdBy
-	 *            The creation date.
-	 * @param description
-	 *            The description.
-	 * @param id
-	 *            The id.
-	 */
-	public Project(final String name, final Calendar createdOn,
-			final String createdBy, final String description, final UUID id) {
-		this(null, name, createdOn, createdBy, description, id);
+	public Project(final String createdBy, final Calendar createdOn,
+			final String description, final UUID id, final String name,
+			final UUID parentId, final String updatedBy,
+			final Calendar updatedOn) {
+		super(createdBy, createdOn, description, id, name, parentId, updatedBy,
+				updatedOn);
 	}
 
 	/**

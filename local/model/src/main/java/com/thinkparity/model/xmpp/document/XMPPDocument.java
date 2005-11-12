@@ -31,7 +31,8 @@ public class XMPPDocument implements XMPPSerializable {
 			final DocumentContent content) {
 		return new XMPPDocument(content.getContent(), document.getCreatedBy(),
 				document.getCreatedOn(), document.getDescription(),
-				document.getId(), document.getName());
+				document.getId(), document.getName(), document.getUpdatedBy(),
+				document.getUpdatedOn());
 	}
 
 	private final byte[] content;
@@ -40,6 +41,8 @@ public class XMPPDocument implements XMPPSerializable {
 	private final String description;
 	private final UUID id;
 	private final String name;
+	private final String updatedBy;
+	private final Calendar updatedOn;
 
 	/**
 	 * Create an XMPPDocument.
@@ -59,7 +62,7 @@ public class XMPPDocument implements XMPPSerializable {
 	 */
 	private XMPPDocument(final byte[] content, final String createdBy,
 			final Calendar createdOn, final String description, final UUID id,
-			final String name) {
+			final String name, final String updatedBy, final Calendar updatedOn) {
 		super();
 		this.content = new byte[content.length];
 		System.arraycopy(content, 0, this.content, 0, content.length);
@@ -68,6 +71,8 @@ public class XMPPDocument implements XMPPSerializable {
 		this.description = description;
 		this.id = id;
 		this.name = name;
+		this.updatedBy = updatedBy;
+		this.updatedOn = updatedOn;
 	}
 
 	/**
@@ -110,4 +115,20 @@ public class XMPPDocument implements XMPPSerializable {
 	 * @return The name.
 	 */
 	public String getName() { return name; }
+
+	/**
+	 * Obtain the updator.
+	 * 
+	 * @return The updator.
+	 */
+	public String getUpdatedBy() { return updatedBy; }
+
+	/**
+	 * Obtain the update date.
+	 * 
+	 * @return The update date.
+	 */
+	public Calendar getUpdatedOn() { return updatedOn; }
+
+
 }

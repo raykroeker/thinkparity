@@ -44,6 +44,8 @@ public class ProjectConverter extends XmlIOConverter {
 		writeProjectId(project.getParentId(), writer, context);
 		writeCreatedBy(project.getCreatedBy(), writer, context);
 		writeCreatedOn(project.getCreatedOn(), writer, context);
+		writeUpdatedBy(project.getUpdatedBy(), writer, context);
+		writeUpdatedOn(project.getUpdatedOn(), writer, context);
 		writeDescription(project.getDescription(), writer, context);
 		writeCustomProperties(project, writer, context);
 	}
@@ -61,8 +63,11 @@ public class ProjectConverter extends XmlIOConverter {
 			final UUID projectId = readProjectId(reader, context);
 			final String createdBy = readCreatedBy(reader, context);
 			final Calendar createdOn = readCreatedOn(reader, context);
+			final String updatedBy = readUpdatedBy(reader, context);
+			final Calendar updatedOn = readUpdatedOn(reader, context);
 			final String description = readDescription(reader, context);
-			project = new Project(projectId, name, createdOn, createdBy, description, id);
+			project = new Project(createdBy, createdOn, description, id, name,
+					projectId, updatedBy, updatedOn);
 			readCustomProperties(project, reader, context);
 		}
 		catch(Exception x) { fatal(project, "An unknown error occured parsing project custom xml.", x); }

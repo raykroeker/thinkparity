@@ -109,28 +109,9 @@ public abstract class XmlIOConverter implements Converter {
 	 * @return The creation date.
 	 * @throws ParseException
 	 */
-	protected Calendar readCreatedOn(
-			final HierarchicalStreamReader reader,
-			final UnmarshallingContext context) throws ParseException {
-		reader.moveDown();
-		reader.moveDown();
-		final String timestamp = reader.getValue();
-		reader.moveUp();
-		reader.moveDown();
-		reader.moveDown();
-		final String country = reader.getValue();
-		reader.moveUp();
-		reader.moveDown();
-		final String language = reader.getValue();
-		reader.moveUp();
-		reader.moveUp();
-		reader.moveDown();
-		final String timeZoneID = reader.getValue();
-		reader.moveUp();
-		reader.moveUp();
-		final Locale locale = new Locale(country, language);
-		final TimeZone timeZone = TimeZone.getTimeZone(timeZoneID);
-		return DateUtil.getInstance(new Long(timestamp), timeZone, locale);
+	protected Calendar readCreatedOn(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		return readCalendar(reader, context);
 	}
 
 	/**
@@ -237,6 +218,36 @@ public abstract class XmlIOConverter implements Converter {
 	}
 
 	/**
+	 * Read the updator from the xStream xml reader.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 * @return The updator.
+	 */
+	protected String readUpdatedBy(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
+		reader.moveDown();
+		final String updatedBy = reader.getValue();
+		reader.moveUp();
+		return updatedBy;
+	}
+
+	/**
+	 * Read the update date from the xStream xml reader.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 * @return The update date.
+	 */
+	protected Calendar readUpdatedOn(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		return readCalendar(reader, context);
+	}
+
+	/**
 	 * Write the creation username of a parity object. The creation username is
 	 * required for all parity objects, and this cannot be overridden.
 	 * 
@@ -256,11 +267,10 @@ public abstract class XmlIOConverter implements Converter {
 	}
 
 	/**
-	 * Write the creation date of a parity object. The format for the creation
-	 * date is as follows: yyyy-MM-dd HH:mm:ss.SSS;;
+	 * Write the creation date to the xStream xml writer.
 	 * 
 	 * @param createdOn
-	 *            The parity object's creation date.
+	 *            The creation date.
 	 * @param writer
 	 *            The xStream xml writer.
 	 * @param context
@@ -269,25 +279,8 @@ public abstract class XmlIOConverter implements Converter {
 	protected void writeCreatedOn(final Calendar createdOn,
 			final HierarchicalStreamWriter writer,
 			final MarshallingContext context) {
-		final String timestamp = String.valueOf(createdOn.getTimeInMillis());
-		final TimeZone timeZone = createdOn.getTimeZone();
-		final Locale locale = preferences.getLocale();
-		writer.startNode("createdOn");
-		writer.startNode("timestamp");
-		writer.setValue(timestamp);
-		writer.endNode();
-		writer.startNode("locale");
-		writer.startNode("country");
-		writer.setValue(locale.getCountry());
-		writer.endNode();
-		writer.startNode("language");
-		writer.setValue(locale.getLanguage());
-		writer.endNode();
-		writer.endNode();
-		writer.startNode("timeZone");
-		writer.setValue(timeZone.getID());
-		writer.endNode();
-		writer.endNode();
+		context.put("attribute", "createdOn");
+		writeCalendar(createdOn, writer, context);
 	}
 
 	/**
@@ -396,6 +389,72 @@ public abstract class XmlIOConverter implements Converter {
 	}
 
 	/**
+	 * Write the updated by to the xStream xml writer.
+	 * 
+	 * @param updatedBy
+	 *            The updator.
+	 * @param writer
+	 *            The xStream xml writer.
+	 * @param context
+	 *            The xStream xml writer's context.
+	 */
+	protected void writeUpdatedBy(final String updatedBy,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.startNode("updatedBy");
+		writer.setValue(updatedBy);
+		writer.endNode();
+	}
+	
+	/**
+	 * Write the update date to the xStream xml writer.
+	 * 
+	 * @param updatedOn
+	 *            The update date.
+	 * @param writer
+	 *            The xStream xml writer.
+	 * @param context
+	 *            The xStream xml writer's context.
+	 */
+	protected void writeUpdatedOn(final Calendar updatedOn,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		context.put("attribute", "updatedOn");
+		writeCalendar(updatedOn, writer, context);
+	}
+
+	/**
+	 * Read a parity calendar from the xStream xml reader.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 * @return A java calendar.
+	 */
+	private Calendar readCalendar(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		reader.moveDown();
+		reader.moveDown();
+		final String timestamp = reader.getValue();
+		reader.moveUp();
+		reader.moveDown();
+		reader.moveDown();
+		final String country = reader.getValue();
+		reader.moveUp();
+		reader.moveDown();
+		final String language = reader.getValue();
+		reader.moveUp();
+		reader.moveUp();
+		reader.moveDown();
+		final String timeZoneID = reader.getValue();
+		reader.moveUp();
+		reader.moveUp();
+		final Locale locale = new Locale(country, language);
+		final TimeZone timeZone = TimeZone.getTimeZone(timeZoneID);
+		return DateUtil.getInstance(new Long(timestamp), timeZone, locale);
+	}
+	/**
 	 * Read a custom property from the xml reader and add it to the parity
 	 * object.
 	 * 
@@ -415,6 +474,7 @@ public abstract class XmlIOConverter implements Converter {
 		parityObject.setCustomProperty(key, value);
 		reader.moveUp();
 	}
+
 	/**
 	 * Read a note from the xml reader and add it to the parity object.
 	 * 
@@ -439,6 +499,42 @@ public abstract class XmlIOConverter implements Converter {
 	}
 
 	/**
+	 * Write a calendar to the xStream xml writer. Note that the "attribute"
+	 * data must be set within the context. This attribute is used to generate
+	 * the primary tag.
+	 * 
+	 * @param calendar
+	 *            The calendar to write.
+	 * @param writer
+	 *            The xStream xml writer.
+	 * @param context
+	 *            The xStream xml writer's context.
+	 */
+	private void writeCalendar(final Calendar calendar,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		final String timestamp = String.valueOf(calendar.getTimeInMillis());
+		final TimeZone timeZone = calendar.getTimeZone();
+		final Locale locale = preferences.getLocale();
+		writer.startNode((String) context.get("attribute"));
+		writer.startNode("timestamp");
+		writer.setValue(timestamp);
+		writer.endNode();
+		writer.startNode("locale");
+		writer.startNode("country");
+		writer.setValue(locale.getCountry());
+		writer.endNode();
+		writer.startNode("language");
+		writer.setValue(locale.getLanguage());
+		writer.endNode();
+		writer.endNode();
+		writer.startNode("timeZone");
+		writer.setValue(timeZone.getID());
+		writer.endNode();
+		writer.endNode();
+	}
+
+	/**
 	 * Write a note to the xml writer.
 	 * 
 	 * @param note
@@ -457,7 +553,5 @@ public abstract class XmlIOConverter implements Converter {
 			writer.setValue(note.getContent());
 		writer.endNode();
 	}
-
-	
 }
 

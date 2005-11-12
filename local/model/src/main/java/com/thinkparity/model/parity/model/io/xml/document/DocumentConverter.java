@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.io.xml.document;
 import java.util.Calendar;
 import java.util.UUID;
 
+
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.io.xml.XmlIOConverter;
 
@@ -48,6 +49,8 @@ public class DocumentConverter extends XmlIOConverter {
 		writeProjectId(document.getParentId(), writer, context);
 		writeCreatedBy(document.getCreatedBy(), writer, context);
 		writeCreatedOn(document.getCreatedOn(), writer, context);
+		writeUpdatedBy(document.getUpdatedBy(), writer, context);
+		writeUpdatedOn(document.getUpdatedOn(), writer, context);
 		writeDescription(document.getDescription(), writer, context);
 		writeNotes(document, writer, context);
 		writeCustomProperties(document, writer, context);
@@ -66,8 +69,10 @@ public class DocumentConverter extends XmlIOConverter {
 			final UUID projectId = readProjectId(reader, context);
 			final String createdBy = readCreatedBy(reader, context);
 			final Calendar createdOn = readCreatedOn(reader, context);
+			final String updatedBy = readUpdatedBy(reader, context);
+			final Calendar updatedOn = readUpdatedOn(reader, context);
 			final String description = readDescription(reader, context);
-			document = new Document(projectId, name, createdOn, createdBy, description, id);
+			document = new Document(createdBy, createdOn, description, id, name, projectId, updatedBy, updatedOn);
 			readNotes(document, reader, context);
 			readCustomProperties(document, reader, context);
 		}

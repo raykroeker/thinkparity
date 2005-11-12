@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
@@ -196,18 +197,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 				"create(Project,String,String,File)",
 				(file.length() <= IParityModelConstants.FILE_SIZE_UPPER_BOUNDS));
 		try {
-			final UUID id = UUIDGenerator.nextUUID();
-			logger.debug(id);
-			final Document document = new Document(project.getId(), name,
-					DateUtil.getInstance(), preferences.getUsername(),
-					description, id);
+			final Calendar now = DateUtil.getInstance();
+			final Document document = new Document(preferences.getUsername(),
+					now, description, UUIDGenerator.nextUUID(), name,
+					project.getId(), preferences.getUsername(), now);
 			final byte[] contentBytes = FileUtil.readFile(file);
 			final DocumentContent content = new DocumentContent(
-					MD5Util.md5Hex(contentBytes), contentBytes, id);
+					MD5Util.md5Hex(contentBytes), contentBytes, document.getId());
 			// create the document
 			documentXmlIO.create(document, content);
 			createVersion(document, DocumentAction.CREATE, create_ActionData(document));
-
 			// fire a creation event
 			notifyCreation_objectCreated(document);
 			return document;
@@ -762,10 +761,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		 * the new document.
 		 */
 		final Project inbox = projectModel.getInbox();
-		final Document document = new Document(inbox.getId(),
-				xmppDocument.getName(), xmppDocument.getCreatedOn(),
-				xmppDocument.getCreatedBy(), xmppDocument.getDescription(),
-				xmppDocument.getId());
+		final Document document = new Document(xmppDocument.getCreatedBy(),
+				xmppDocument.getCreatedOn(), xmppDocument.getDescription(),
+				xmppDocument.getId(), xmppDocument.getName(), inbox.getId(),
+				xmppDocument.getUpdatedBy(), xmppDocument.getUpdatedOn());
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), xmppDocument.getId());

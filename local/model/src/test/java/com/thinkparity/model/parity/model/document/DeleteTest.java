@@ -49,10 +49,16 @@ public class DeleteTest extends ModelTestCase {
 	 * 
 	 */
 	public void testDelete() {
-		for(Fixture datum : data) {
-			try { datum.documentModel.delete(datum.document); }
-			catch(Throwable t) { fail(getFailMessage(t)); }
+		try {
+			Document document;
+			for(Fixture datum : data) {
+				datum.documentModel.delete(datum.document);
+
+				document = datum.documentModel.get(datum.document.getId());
+				assertNull(document);
+			}
 		}
+		catch(Throwable t) { fail(getFailMessage(t)); }
 	}
 
 	/**

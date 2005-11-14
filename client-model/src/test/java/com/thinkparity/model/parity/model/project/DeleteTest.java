@@ -48,8 +48,12 @@ public class DeleteTest extends ModelTestCase {
 	 */
 	public void testDelete() {
 		try {
+			Project project;
 			for(Fixture datum : data) {
 				datum.projectModel.delete(datum.project);
+
+				project = datum.projectModel.get(datum.project.getId());
+				assertNull(project);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }

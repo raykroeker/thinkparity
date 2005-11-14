@@ -17,7 +17,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
-import com.thinkparity.model.parity.model.io.xml.index.Index;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -67,6 +66,7 @@ public class ProjectXmlIO extends XmlIO {
 		// delete the xml file
 		Assert.assertTrue("delete(Project)", getXmlFile(project).delete());
 		// delete the xml file directory
+		removeXmlFileLookup(project);
 		Assert.assertTrue("delete(Project)", getXmlFileDirectory(project).delete());
 	}
 
@@ -82,8 +82,7 @@ public class ProjectXmlIO extends XmlIO {
 	public Project get(final UUID id) throws FileNotFoundException, IOException {
 		logger.info("get(UUID)");
 		logger.debug(id);
-		final Index index = readIndex(getIndexXmlFile());
-		final File xmlFile = index.lookupXmlFile(id);
+		final File xmlFile = lookupXmlFile(id);
 		if(null == xmlFile) { return null; }
 		else { return readProject(xmlFile); }
 	}

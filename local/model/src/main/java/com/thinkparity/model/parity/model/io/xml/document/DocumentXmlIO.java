@@ -18,7 +18,6 @@ import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
-import com.thinkparity.model.parity.model.io.xml.index.Index;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -83,6 +82,7 @@ public class DocumentXmlIO extends XmlIO {
 		for(DocumentVersion version : versions) {
 			Assert.assertTrue("delete(Document)", getXmlFile(document, version).delete());
 		}
+		removeXmlFileLookup(document);
 		Assert.assertTrue("delete(Document)", getXmlFile(document).delete());
 	}
 
@@ -97,8 +97,7 @@ public class DocumentXmlIO extends XmlIO {
 			IOException {
 		logger.info("get(UUID)");
 		logger.debug(id);
-		final Index index = readIndex(getIndexXmlFile());
-		final File xmlFile = index.lookupXmlFile(id);
+		final File xmlFile = lookupXmlFile(id);
 		if(null == xmlFile) { return null; }
 		else { return readDocument(xmlFile); }
 	}

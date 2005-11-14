@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 
 /**
  * The index object provides an index of parity objects in a single location.
@@ -60,9 +62,10 @@ public class Index {
 	 *            The id to add.
 	 * @param xmlFile
 	 *            The xml file related to the id.
-	 * @return An existing xml file if one exists.
+	 * @return The previous value of the id's xml file if one existed; null
+	 *         otherwise.
 	 */
-	public File addLookup(final UUID id, final File xmlFile) {
+	public File addXmlFileLookup(final UUID id, final File xmlFile) {
 		if(!ids.contains(id)) {
 			ids.add(id);
 			idToXmlFileLookup.put(id.toString(), xmlFile.getAbsolutePath());
@@ -92,8 +95,21 @@ public class Index {
 	 * @return The xml file for the parity object.
 	 */
 	public File lookupXmlFile(final UUID id) {
-		final String xmlFileAbsolutePath = idToXmlFileLookup.get(id.toString());
-		if(null == xmlFileAbsolutePath) { return null; }
-		else { return new File(xmlFileAbsolutePath); }
+		if(ids.contains(id)) {
+			return new File(idToXmlFileLookup.get(id.toString()));
+		}
+		else { return null; }
+	}
+
+	/**
+	 * Remove an index entry for a given parity object.
+	 * 
+	 * @param id
+	 *            The parity object's id.
+	 * @return The previous xml file associated with the id.
+	 */
+	public File removeXmlFileLookup(final UUID id) {
+		Assert.assertTrue("removeXmlFileLookup(UUID)", ids.remove(id));
+		return new File(idToXmlFileLookup.remove(id.toString()));
 	}
 }

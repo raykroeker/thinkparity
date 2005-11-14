@@ -68,7 +68,7 @@ public class IndexConverter extends XmlIOConverter {
 			final UnmarshallingContext context) {
 		while(reader.hasMoreChildren()) {
 			reader.moveDown();
-			index.addLookup(
+			index.addXmlFileLookup(
 					UUID.fromString(reader.getAttribute("id")),
 					new File(reader.getAttribute("xmlFile")));
 			reader.moveUp();

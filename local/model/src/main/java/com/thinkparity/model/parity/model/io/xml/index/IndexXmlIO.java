@@ -85,7 +85,7 @@ public class IndexXmlIO extends XmlIO {
 	 */
 	private void lazyCreate(final Index index, final Document document)
 			throws FileNotFoundException, IOException {
-		index.addLookup(document.getId(), getXmlFile(document));
+		index.addXmlFileLookup(document.getId(), getXmlFile(document));
 	}
 
 	/**
@@ -107,6 +107,6 @@ public class IndexXmlIO extends XmlIO {
 		for(Document childDocument : documentXmlIO.list(project)) {
 			lazyCreate(index, childDocument);
 		}
-		index.addLookup(project.getId(), getXmlFile(project));
+		index.addXmlFileLookup(project.getId(), getXmlFile(project));
 	}
 }

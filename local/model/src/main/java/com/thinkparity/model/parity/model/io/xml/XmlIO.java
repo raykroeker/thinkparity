@@ -356,7 +356,7 @@ public abstract class XmlIO {
 	/**
 	 * Remove an entry from the xml file index.
 	 * 
-	 * @param id
+	 * @param parityObject
 	 *            The parity object to remove.
 	 * @return The previous xml file value.
 	 * @throws FileNotFoundException

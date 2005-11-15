@@ -7,6 +7,9 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
+import java.util.Vector;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.document.Document;
@@ -24,6 +27,37 @@ import com.thinkparity.model.xmpp.XMPPSerializable;
 public class XMPPDocument implements XMPPSerializable {
 
 	/**
+	 * Create a new xmpp document.
+	 * 
+	 * @param content
+	 *            The document content.
+	 * @param createdBy
+	 *            The document creator.
+	 * @param createdOn
+	 *            The document creation date.
+	 * @param description
+	 *            The document description.
+	 * @param flags
+	 *            The document flags.
+	 * @param id
+	 *            The document id.
+	 * @param name
+	 *            The document name.
+	 * @param updatedBy
+	 *            The document updator.
+	 * @param updatedOn
+	 *            The document update date.
+	 * @return The new xmpp document.
+	 */
+	public static XMPPDocument create(final byte[] content,
+			final String createdBy, final Calendar createdOn,
+			final String description, final Collection<ParityObjectFlag> flags,
+			final UUID id, final String name, final String updatedBy,
+			final Calendar updatedOn) {
+		return new XMPPDocument(content, createdBy, createdOn, description, flags, id, name, updatedBy, updatedOn);
+	}
+
+	/**
 	 * Create a new XMPPDocument based upon a parity document.
 	 * 
 	 * @param document
@@ -32,7 +66,7 @@ public class XMPPDocument implements XMPPSerializable {
 	 */
 	public static XMPPDocument create(final Document document,
 			final DocumentContent content) {
-		return new XMPPDocument(content.getContent(), document.getCreatedBy(),
+		return XMPPDocument.create(content.getContent(), document.getCreatedBy(),
 				document.getCreatedOn(), document.getDescription(),
 				document.getFlags(), document.getId(), document.getName(),
 				document.getUpdatedBy(), document.getUpdatedOn());
@@ -74,7 +108,8 @@ public class XMPPDocument implements XMPPSerializable {
 		this.createdBy = createdBy;
 		this.createdOn = createdOn;
 		this.description = description;
-		this.flags = flags;
+		this.flags = new Vector<ParityObjectFlag>(flags.size());
+		add(flags);
 		this.id = id;
 		this.name = name;
 		this.updatedBy = updatedBy;
@@ -144,4 +179,25 @@ public class XMPPDocument implements XMPPSerializable {
 	 * @return The update date.
 	 */
 	public Calendar getUpdatedOn() { return updatedOn; }
+
+	/**
+	 * Add a list of flags.
+	 * 
+	 * @param flags
+	 *            The flags to add.
+	 */
+	private void add(final Collection<ParityObjectFlag> flags) {
+		for(ParityObjectFlag flag : flags) { add(flag); }
+	}
+
+	/**
+	 * Add a flag to the xmpp document.
+	 * 
+	 * @param flag
+	 *            The flag to add.
+	 */
+	private void add(final ParityObjectFlag flag) {
+		Assert.assertNotTrue("add(ParityObjectFlag)", flags.contains(flag));
+		flags.add(flag);
+	}
 }

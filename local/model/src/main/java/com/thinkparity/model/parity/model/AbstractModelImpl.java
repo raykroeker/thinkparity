@@ -73,11 +73,70 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+	 * Flag the object as not having been seen. This will remove the seen flag
+	 * from the object, and remove the seen flag from the parent objects all the
+	 * way up the tree.
+	 * 
+	 * @param parityObject
+	 *            The object to flag.
+	 * @throws ParityException
+	 */
+	protected void flagAsNotSEEN(final ParityObject parityObject)
+			throws ParityException {
+		switch(parityObject.getType()) {
+		case DOCUMENT:
+			flagAsNotSEEN((Document) parityObject);
+			break;
+		case PROJECT:
+			flagAsNotSEEN((Project) parityObject);
+			break;
+		default:
+			throw Assert.createUnreachable(
+					"removeFlag(ParityObject,ParityObjectFlag)");
+		}
+	}
+
+	/**
+	 * Flag the object as having been seen. This will add the SEEN flag to the
+	 * object; then check the parent to see if all of the siblings of the object
+	 * contain the SEEN flag; and if they do, the parent will be flagged as
+	 * well.
+	 * 
+	 * @param parityObject
+	 *            The object to flag.
+	 * @throws ParityException
+	 */
+	protected void flagAsSEEN(final ParityObject parityObject) throws ParityException {
+		switch(parityObject.getType()) {
+		case DOCUMENT:
+			flagAsSEEN((Document) parityObject);
+			break;
+		case PROJECT:
+			flagAsSEEN((Project) parityObject);
+			break;
+		default:
+			throw Assert.createUnreachable("flagAsSEEN(ParityObject)");
+		}
+	}
+
+	/**
 	 * Obtain a handle to the project model.
 	 * 
 	 * @return A handle to the project model.
 	 */
 	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
+
+	/**
+	 * Obtain the parent project for the document.
+	 * 
+	 * @param parityObject
+	 *            The object.
+	 * @return The parent project.
+	 * @throws ParityException
+	 */
+	protected Project getParent(final ParityObject parityObject) throws ParityException {
+		return getProjectModel().get(parityObject.getParentId());
+	}
 
 	/**
 	 * Obtain a handle to the project model.
@@ -87,66 +146,108 @@ public abstract class AbstractModelImpl {
 	protected ProjectModel getProjectModel() { return ProjectModel.getModel(); }
 
 	/**
-	 * Remove the flag from the parity object. Also recursively remove the flag
-	 * from the object's parent projects.
+	 * Obtain the siblings of a parity object.
 	 * 
 	 * @param parityObject
-	 *            The object to remove the flag from.
-	 * @param flag
-	 *            The flag to remove.
+	 *            The object.
+	 * @return A list of parity object siblings.
 	 * @throws ParityException
 	 */
-	protected void removeFlag(final ParityObject parityObject,
-			final ParityObjectFlag flag) throws ParityException {
-		switch(parityObject.getType()) {
-		case DOCUMENT:
-			removeFlag((Document) parityObject, flag);
-			break;
-		case PROJECT:
-			removeFlag((Project) parityObject, flag);
-			break;
-		default:
-			throw Assert.createUnreachable(
-					"removeFlag(ParityObject,ParityObjectFlag)");
+	protected Collection<ParityObject> listSiblings(final ParityObject parityObject) throws ParityException {
+		final Project parent = getParent(parityObject);
+		final Collection<ParityObject> siblings = new Vector<ParityObject>(7);
+		if(null != parent) {
+			siblings.addAll(getDocumentModel().list(parent));
+			siblings.addAll(getProjectModel().list(parent));
 		}
+		return siblings;
 	}
 
 	/**
-	 * Remove a flag from the document; and it's parent proejcts recursively.
+	 * Remove the seen flag from the document. This will also update the parent
+	 * so that its seen flag is removed.
 	 * 
 	 * @param document
-	 *            The document to remove the flag from.
-	 * @param flag
-	 *            The flag to remove.
+	 *            The document to flag.
 	 * @throws ParityException
 	 */
-	private void removeFlag(final Document document, final ParityObjectFlag flag)
-			throws ParityException {
-		if(document.contains(flag)) {
-			document.remove(flag);
+	private void flagAsNotSEEN(final Document document) throws ParityException {
+		if(document.contains(ParityObjectFlag.SEEN)) {
+			// remove the seen flag
+			document.remove(ParityObjectFlag.SEEN);
 			getDocumentModel().update(document);
+
+			// remove the parent's seen flag
+			final Project parent = getProjectModel().get(document.getParentId());
+			if(null != parent) { flagAsNotSEEN(parent); }
 		}
-		final Project parent = getProjectModel().get(document.getParentId());
-		if(null != parent) { removeFlag(parent, flag); }
 	}
 
 	/**
-	 * Remove a flag from the project; and it's parent projects recursively.
+	 * Remove the seen flag from the project. This will also update the parent
+	 * so that its seen flag is removed.
 	 * 
 	 * @param project
-	 *            The project to remove the flag from.
-	 * @param flag
-	 *            The flag to remove.
+	 *            The project flag.
 	 * @throws ParityException
 	 */
-	private void removeFlag(final Project project, final ParityObjectFlag flag)
-			throws ParityException {
-		final ProjectModel projectModel = getProjectModel();
-		if(project.contains(flag)) {
-			project.remove(flag);
-			getProjectModel().update(project);
+	private void flagAsNotSEEN(final Project project) throws ParityException {
+		if(project.contains(ParityObjectFlag.SEEN)) {
+			final ProjectModel projectModel = getProjectModel();
+
+			// remove the seen flag
+			project.remove(ParityObjectFlag.SEEN);
+			projectModel.update(project);
+
+			// remove the parent's seen flag
+			final Project parent = projectModel.get(project.getParentId());
+			if(null != parent) { flagAsNotSEEN(parent); }
 		}
-		final Project parent = projectModel.get(project.getParentId());
-		if(null != parent) { removeFlag(parent, flag); }
+	}
+
+	/**
+	 * Flag a document as having been seen. If the document's sibling objects
+	 * have all been seen as well, the parent will be updated.
+	 * 
+	 * @param document
+	 *            The document to flag.
+	 * @throws ParityException
+	 */
+	private void flagAsSEEN(final Document document) throws ParityException {
+		if(!document.contains(ParityObjectFlag.SEEN)) {
+			document.add(ParityObjectFlag.SEEN);
+			getDocumentModel().update(document);
+
+			// if all of the siblings have the SEEN flag; flag the parent as
+			// well
+			final Collection<ParityObject> siblings = listSiblings(document);
+			for(ParityObject sibling : siblings) {
+				if(!sibling.contains(ParityObjectFlag.SEEN)) { return; }
+			}
+			flagAsSEEN(getParent(document));
+		}
+	}
+
+	/**
+	 * Flag a project as having been seen. If the project's sibling objects have
+	 * all been seen as well, the parent will be updated.
+	 * 
+	 * @param project
+	 *            The project to flag.
+	 * @throws ParityException
+	 */
+	private void flagAsSEEN(final Project project) throws ParityException {
+		if(!project.contains(ParityObjectFlag.SEEN)) {
+			project.add(ParityObjectFlag.SEEN);
+			getProjectModel().update(project);
+
+			// if all of the siblings have the SEEN flag; flag the parent as
+			// well
+			final Collection<ParityObject> siblings = listSiblings(project);
+			for(ParityObject sibling : siblings) {
+				if(!sibling.contains(ParityObjectFlag.SEEN)) { return; }
+			}
+			flagAsSEEN(getParent(project));
+		}
 	}
 }

@@ -405,7 +405,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 	void open(final Document document) throws ParityException {
 		logger.info("open(Document)");
 		logger.debug(document);
-		try { open(getFileFromDiskCache(document)); }
+		try {
+			open(getFileFromDiskCache(document));
+			flagAsSEEN(document);
+		}
 		catch(IOException iox) {
 			logger.error("open(Document)", iox);
 			throw ParityErrorTranslator.translate(iox);
@@ -768,7 +771,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), xmppDocument.getId());
 		documentXmlIO.create(document, content);
-		removeFlag(document, ParityObjectFlag.SEEN);
+		flagAsNotSEEN(document);
 		// create a new version
 		createVersion(document, DocumentAction.RECEIVE, createActionData(document));
 		// fire a receive event
@@ -796,7 +799,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), document.getId());
 		documentXmlIO.update(document, content);
-		removeFlag(document, ParityObjectFlag.SEEN);
+		flagAsNotSEEN(document);
 		notifyUpdate_objectReceived(document);
 	}
 

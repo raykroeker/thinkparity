@@ -200,9 +200,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final Calendar now = DateUtil.getInstance();
 			final Document document = new Document(preferences.getUsername(),
-					now, description, new Vector<ParityObjectFlag>(0),
-					UUIDGenerator.nextUUID(), name, project.getId(),
-					preferences.getUsername(), now);
+					now, description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
+					project.getId(), preferences.getUsername(), now);
 			final byte[] contentBytes = FileUtil.readFile(file);
 			final DocumentContent content = new DocumentContent(
 					MD5Util.md5Hex(contentBytes), contentBytes, document.getId());

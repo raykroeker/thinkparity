@@ -4,8 +4,11 @@
 package com.thinkparity.model.xmpp.document;
 
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.xmpp.XMPPSerializable;
@@ -31,14 +34,15 @@ public class XMPPDocument implements XMPPSerializable {
 			final DocumentContent content) {
 		return new XMPPDocument(content.getContent(), document.getCreatedBy(),
 				document.getCreatedOn(), document.getDescription(),
-				document.getId(), document.getName(), document.getUpdatedBy(),
-				document.getUpdatedOn());
+				document.getFlags(), document.getId(), document.getName(),
+				document.getUpdatedBy(), document.getUpdatedOn());
 	}
 
 	private final byte[] content;
 	private final String createdBy;
 	private final Calendar createdOn;
 	private final String description;
+	private final Collection<ParityObjectFlag> flags;
 	private final UUID id;
 	private final String name;
 	private final String updatedBy;
@@ -61,7 +65,8 @@ public class XMPPDocument implements XMPPSerializable {
 	 *            The xmpp document's name.
 	 */
 	private XMPPDocument(final byte[] content, final String createdBy,
-			final Calendar createdOn, final String description, final UUID id,
+			final Calendar createdOn, final String description,
+			final Collection<ParityObjectFlag> flags, final UUID id,
 			final String name, final String updatedBy, final Calendar updatedOn) {
 		super();
 		this.content = new byte[content.length];
@@ -69,6 +74,7 @@ public class XMPPDocument implements XMPPSerializable {
 		this.createdBy = createdBy;
 		this.createdOn = createdOn;
 		this.description = description;
+		this.flags = flags;
 		this.id = id;
 		this.name = name;
 		this.updatedBy = updatedBy;
@@ -103,6 +109,15 @@ public class XMPPDocument implements XMPPSerializable {
 	public String getDescription() { return description; }
 
 	/**
+	 * Obtain the flags.
+	 * 
+	 * @return The flags.
+	 */
+	public Collection<ParityObjectFlag> getFlags() {
+		return Collections.unmodifiableCollection(flags);
+	}
+
+	/**
 	 * Obtain the unique id of the xmpp document.
 	 * 
 	 * @return The unique id.
@@ -129,6 +144,4 @@ public class XMPPDocument implements XMPPSerializable {
 	 * @return The update date.
 	 */
 	public Calendar getUpdatedOn() { return updatedOn; }
-
-
 }

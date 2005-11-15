@@ -4,9 +4,11 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.api.ParityObjectType;
 
 /**
@@ -34,6 +36,8 @@ public class Document extends ParityObject {
 	 *            The creation date.
 	 * @param description
 	 *            The description.
+	 * @param flags
+	 *            The object flags.
 	 * @param id
 	 *            The unique id.
 	 * @param name
@@ -46,11 +50,11 @@ public class Document extends ParityObject {
 	 *            The update date.
 	 */
 	public Document(final String createdBy, final Calendar createdOn,
-			final String description, final UUID id, final String name,
-			final UUID parentId, final String updatedBy,
-			final Calendar updatedOn) {
-		super(createdBy, createdOn, description, id, name, parentId, updatedBy,
-				updatedOn);
+			final String description, final Collection<ParityObjectFlag> flags,
+			final UUID id, final String name, final UUID parentId,
+			final String updatedBy, final Calendar updatedOn) {
+		super(createdBy, createdOn, description, flags, id, name, parentId,
+				updatedBy, updatedOn);
 	}
 
 	/**

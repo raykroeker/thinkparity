@@ -4,9 +4,11 @@
 package com.thinkparity.model.parity.model.project;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.api.ParityObjectType;
 import com.thinkparity.model.xstream.XStreamSerializable;
 
@@ -26,6 +28,8 @@ public class Project extends ParityObject implements XStreamSerializable {
 	 *            The creator.
 	 * @param description
 	 *            The description.
+	 * @param flags
+	 *            The project flags.
 	 * @param id
 	 *            The unique id.
 	 * @param name
@@ -38,11 +42,11 @@ public class Project extends ParityObject implements XStreamSerializable {
 	 *            The update date.
 	 */
 	public Project(final String createdBy, final Calendar createdOn,
-			final String description, final UUID id, final String name,
-			final UUID parentId, final String updatedBy,
-			final Calendar updatedOn) {
-		super(createdBy, createdOn, description, id, name, parentId, updatedBy,
-				updatedOn);
+			final String description, final Collection<ParityObjectFlag> flags,
+			final UUID id, final String name, final UUID parentId,
+			final String updatedBy, final Calendar updatedOn) {
+		super(createdBy, createdOn, description, flags, id, name, parentId,
+				updatedBy, updatedOn);
 	}
 
 	/**

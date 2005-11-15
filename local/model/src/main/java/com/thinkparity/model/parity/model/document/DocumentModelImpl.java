@@ -19,6 +19,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.DeleteEvent;
@@ -199,11 +200,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final Calendar now = DateUtil.getInstance();
 			final Document document = new Document(preferences.getUsername(),
-					now, description, UUIDGenerator.nextUUID(), name,
-					project.getId(), preferences.getUsername(), now);
+					now, description, new Vector<ParityObjectFlag>(0),
+					UUIDGenerator.nextUUID(), name, project.getId(),
+					preferences.getUsername(), now);
 			final byte[] contentBytes = FileUtil.readFile(file);
 			final DocumentContent content = new DocumentContent(
 					MD5Util.md5Hex(contentBytes), contentBytes, document.getId());
+			// flag the document as having been seen
+			document.add(ParityObjectFlag.SEEN);
 			// create the document
 			documentXmlIO.create(document, content);
 			createVersion(document, DocumentAction.CREATE, create_ActionData(document));
@@ -763,11 +767,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 		final Project inbox = projectModel.getInbox();
 		final Document document = new Document(xmppDocument.getCreatedBy(),
 				xmppDocument.getCreatedOn(), xmppDocument.getDescription(),
-				xmppDocument.getId(), xmppDocument.getName(), inbox.getId(),
+				xmppDocument.getFlags(), xmppDocument.getId(),
+				xmppDocument.getName(), inbox.getId(),
 				xmppDocument.getUpdatedBy(), xmppDocument.getUpdatedOn());
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), xmppDocument.getId());
+		document.remove(ParityObjectFlag.SEEN);
 		documentXmlIO.create(document, content);
 		// create a new version
 		createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
@@ -795,6 +801,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), document.getId());
+		// remove the seen flag
+		document.remove(ParityObjectFlag.SEEN);
 		documentXmlIO.update(document, content);
 		notifyUpdate_objectReceived(document);
 	}

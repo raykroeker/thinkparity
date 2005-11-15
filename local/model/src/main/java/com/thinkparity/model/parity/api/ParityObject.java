@@ -49,6 +49,11 @@ public abstract class ParityObject {
 	private String description;
 
 	/**
+	 * The current state of the object.
+	 */
+	private Collection<ParityObjectFlag> flags;
+
+	/**
 	 * Unique id of the object.
 	 */
 	private UUID id;
@@ -87,6 +92,8 @@ public abstract class ParityObject {
 	 *            The object creation date.
 	 * @param description
 	 *            The object description.
+	 * @param flags
+	 *            The flags to apply to this parity object.
 	 * @param id
 	 *            The object unique id.
 	 * @param name
@@ -99,9 +106,9 @@ public abstract class ParityObject {
 	 *            The object update date.
 	 */
 	protected ParityObject(final String createdBy, final Calendar createdOn,
-			final String description, final UUID id, final String name,
-			final UUID parentId, final String updatedBy,
-			final Calendar updatedOn) {
+			final String description, final Collection<ParityObjectFlag> flags,
+			final UUID id, final String name, final UUID parentId,
+			final String updatedBy, final Calendar updatedOn) {
 		super();
 		this.createdOn = createdOn;
 		this.createdBy = createdBy;
@@ -111,8 +118,20 @@ public abstract class ParityObject {
 		this.name = name;
 		this.notes = new Vector<Note>(7);
 		this.parentId = parentId;
+		this.flags = new Vector<ParityObjectFlag>(flags.size());
+		add(flags);
 		this.updatedBy = updatedBy;
 		this.updatedOn = updatedOn;
+	}
+
+	/**
+	 * Add a list of flags to the object.
+	 * 
+	 * @param flags
+	 *            The list of flags to add.
+	 */
+	public void add(final Collection<ParityObjectFlag> flags) {
+		for(ParityObjectFlag flag : flags) { add(flag); }
 	}
 
 	/**
@@ -122,9 +141,32 @@ public abstract class ParityObject {
 	 *            The note to add.
 	 */
 	public void add(final Note note) {
-		Assert.assertTrue("Cannot add the same note more than once.", !notes
-				.contains(note));
+		Assert.assertNotTrue(
+				"Cannot add the same note more than once.",
+				notes.contains(note));
 		notes.add(note);
+	}
+
+	/**
+	 * Add a flag to this parity object.
+	 * 
+	 * @param flag
+	 *            The flag to add to the object.
+	 */
+	public void add(final ParityObjectFlag flag) {
+		Assert.assertNotTrue("add(ParityObjectFlag)", flags.contains(flag));
+		flags.add(flag);
+	}
+
+	/**
+	 * Determine whether or not the object has been flagged with flag.
+	 * 
+	 * @param flag
+	 *            The target flag.
+	 * @return True if the object has been flagged with flag; false otherwise.
+	 */
+	public Boolean contains(final ParityObjectFlag flag) {
+		return flags.contains(flag);
 	}
 
 	/**
@@ -214,6 +256,15 @@ public abstract class ParityObject {
 	public String getDescription() { return description; }
 
 	/**
+	 * Obtain the current object state.
+	 * 
+	 * @return The current object state.
+	 */
+	public Collection<ParityObjectFlag> getFlags() {
+		return Collections.unmodifiableCollection(flags);
+	}
+
+	/**
 	 * Obtain id of the object.
 	 * 
 	 * @return The object id.
@@ -285,6 +336,17 @@ public abstract class ParityObject {
 	public void remove(final Note note) {
 		if(notes.contains(note))
 			notes.remove(note);
+	}
+
+	/**
+	 * Remove a flag from the object.
+	 * 
+	 * @param flag
+	 *            The flag to remove.
+	 */
+	public void remove(final ParityObjectFlag flag) {
+		Assert.assertTrue("remove(ParityObjectFlag)", flags.contains(flag));
+		flags.remove(flag);
 	}
 
 	/**

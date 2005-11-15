@@ -3,11 +3,16 @@
  */
 package com.thinkparity.model.parity.model;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -18,6 +23,12 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  * @version 1.1
  */
 public abstract class AbstractModelImpl {
+
+	/**
+	 * Empty list of parity object flags.
+	 */
+	protected static final Collection<ParityObjectFlag> NO_FLAGS =
+		Collections.unmodifiableCollection(new Vector<ParityObjectFlag>(0));
 
 	/**
 	 * Handle to an apache logger.

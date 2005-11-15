@@ -16,6 +16,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.DeleteEvent;
@@ -141,8 +142,9 @@ class ProjectModelImpl extends AbstractModelImpl {
 			// create the project
 			final Calendar now = DateUtil.getInstance();
 			final Project project = new Project(preferences.getUsername(), now,
-					description, UUIDGenerator.nextUUID(), name, parent.getId(),
+					description, NO_FLAGS, UUIDGenerator.nextUUID(), name, parent.getId(),
 					preferences.getUsername(), now);
+			project.add(ParityObjectFlag.SEEN);
 			projectXmlIO.create(project);
 			notifyCreation_objectCreated(project);
 			return project;
@@ -393,11 +395,13 @@ class ProjectModelImpl extends AbstractModelImpl {
 				IParityModelConstants.PROJECT_CREATED_BY_INBOX,
 				IParityModelConstants.PROJECT_CREATED_ON_INBOX,
 				IParityModelConstants.PROJECT_DESCRIPTION_INBOX,
+				NO_FLAGS,
 				IParityModelConstants.PROJECT_ID_INBOX,
 				IParityModelConstants.PROJECT_NAME_INBOX,
 				null,
 				IParityModelConstants.PROJECT_UPDATED_BY_MYPROJECTS,
 				IParityModelConstants.PROJECT_UPDATED_ON_MYPROJECTS);
+		inbox.add(ParityObjectFlag.SEEN);
 		projectXmlIO.create(inbox);
 		return inbox;
 	}
@@ -415,11 +419,13 @@ class ProjectModelImpl extends AbstractModelImpl {
 				IParityModelConstants.PROJECT_CREATED_BY_MYPROJECTS,
 				IParityModelConstants.PROJECT_CREATED_ON_MYPROJECTS,
 				IParityModelConstants.PROJECT_DESCRIPTION_MYPROJECTS,
+				NO_FLAGS,
 				IParityModelConstants.PROJECT_ID_MYPROJECTS,
 				IParityModelConstants.PROJECT_NAME_MYPROJECTS,
 				null,
 				IParityModelConstants.PROJECT_UPDATED_BY_MYPROJECTS,
 				IParityModelConstants.PROJECT_UPDATED_ON_MYPROJECTS);
+		myProjects.add(ParityObjectFlag.SEEN);
 		projectXmlIO.create(myProjects);
 		return myProjects;
 	}

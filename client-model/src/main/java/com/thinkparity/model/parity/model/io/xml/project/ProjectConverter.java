@@ -4,8 +4,10 @@
 package com.thinkparity.model.parity.model.io.xml.project;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.UUID;
 
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.io.xml.XmlIOConverter;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -46,6 +48,7 @@ public class ProjectConverter extends XmlIOConverter {
 		writeCreatedOn(project.getCreatedOn(), writer, context);
 		writeUpdatedBy(project.getUpdatedBy(), writer, context);
 		writeUpdatedOn(project.getUpdatedOn(), writer, context);
+		writeFlags(project.getFlags(), writer, context);
 		writeDescription(project.getDescription(), writer, context);
 		writeCustomProperties(project, writer, context);
 	}
@@ -63,9 +66,10 @@ public class ProjectConverter extends XmlIOConverter {
 		final Calendar createdOn = readCreatedOn(reader, context);
 		final String updatedBy = readUpdatedBy(reader, context);
 		final Calendar updatedOn = readUpdatedOn(reader, context);
+		final Collection<ParityObjectFlag> flags = readFlags(reader, context);
 		final String description = readDescription(reader, context);
 		final Project project = new Project(createdBy, createdOn, description,
-				id, name, projectId, updatedBy, updatedOn);
+				flags, id, name, projectId, updatedBy, updatedOn);
 		readCustomProperties(project, reader, context);
 		return project;
 	}

@@ -4,12 +4,7 @@
 package com.thinkparity.model.parity.model.io.xml;
 
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -17,6 +12,7 @@ import com.thinkparity.codebase.DateUtil;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -141,6 +137,28 @@ public abstract class XmlIOConverter implements Converter {
 		final String description = reader.getValue();
 		reader.moveUp();
 		return description;
+	}
+
+	/**
+	 * Read the list of flags from the xStream xml reader.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 * @return The list of flags read from the xml reader.
+	 */
+	protected Collection<ParityObjectFlag> readFlags(
+			final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		reader.moveDown();
+		final Collection<ParityObjectFlag> flags =
+			new Vector<ParityObjectFlag>(1);
+		while(reader.hasMoreChildren()) {
+			readFlag(flags, reader, context);
+		}
+		reader.moveUp();
+		return flags;
 	}
 
 	/**
@@ -312,6 +330,28 @@ public abstract class XmlIOConverter implements Converter {
 	}
 
 	/**
+	 * Write the list of flags to the xStream xml writer.
+	 * 
+	 * @param flags
+	 *            The list of flags to write.
+	 * @param writer
+	 *            The xStream xml writer.
+	 * @param context
+	 *            The xStream xml writer's context.
+	 */
+	protected void writeFlags(final Collection<ParityObjectFlag> flags,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.startNode("flags");
+		for(ParityObjectFlag flag : flags) {
+			writer.startNode("flag");
+			writer.setValue(flag.toString());
+			writer.endNode();
+		}
+		writer.endNode();
+	}
+
+	/**
 	 * Write the id for the parity object.
 	 * 
 	 * @param uuid
@@ -343,7 +383,7 @@ public abstract class XmlIOConverter implements Converter {
 			final MarshallingContext context) {
 		writer.addAttribute("name", name);
 	}
-
+	
 	/**
 	 * Write a series of notes for the parity object.
 	 * 
@@ -381,7 +421,6 @@ public abstract class XmlIOConverter implements Converter {
 		writer.setValue(updatedBy);
 		writer.endNode();
 	}
-	
 	/**
 	 * Write the update date to the xStream xml writer.
 	 * 
@@ -430,6 +469,7 @@ public abstract class XmlIOConverter implements Converter {
 		final TimeZone timeZone = TimeZone.getTimeZone(timeZoneID);
 		return DateUtil.getInstance(new Long(timestamp), timeZone, locale);
 	}
+
 	/**
 	 * Read a custom property from the xml reader and add it to the parity
 	 * object.
@@ -448,6 +488,24 @@ public abstract class XmlIOConverter implements Converter {
 		final String key = reader.getNodeName();
 		final String value = reader.getValue();
 		parityObject.setCustomProperty(key, value);
+		reader.moveUp();
+	}
+
+	/**
+	 * Read an individual flag into the list of flags.
+	 * 
+	 * @param flags
+	 *            The list of existing flags.
+	 * @param reader
+	 *            The xStream xml reader.
+	 * @param context
+	 *            The xStream xml reader's context.
+	 */
+	private void readFlag(final Collection<ParityObjectFlag> flags,
+			final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		reader.moveDown();
+		flags.add(ParityObjectFlag.valueOf(reader.getValue()));
 		reader.moveUp();
 	}
 

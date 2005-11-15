@@ -224,7 +224,8 @@ public abstract class AbstractModelImpl {
 			for(ParityObject sibling : siblings) {
 				if(!sibling.contains(ParityObjectFlag.SEEN)) { return; }
 			}
-			flagAsSEEN(getParent(document));
+			final Project parent = getParent(document);
+			if(null != parent) { flagAsSEEN(parent); }
 		}
 	}
 
@@ -247,7 +248,8 @@ public abstract class AbstractModelImpl {
 			for(ParityObject sibling : siblings) {
 				if(!sibling.contains(ParityObjectFlag.SEEN)) { return; }
 			}
-			flagAsSEEN(getParent(project));
+			final Project parent = getParent(project);
+			if(null != parent) { flagAsSEEN(parent); }
 		}
 	}
 }

@@ -30,7 +30,6 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentXmlIO;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -87,11 +86,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private final DocumentXmlIO documentXmlIO;
 
 	/**
-	 * Handle to a project model api.
-	 */
-	private final ProjectModel projectModel;
-
-	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -100,7 +94,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	DocumentModelImpl(final Workspace workspace) {
 		super(workspace);
 		this.documentXmlIO = new DocumentXmlIO(workspace);
-		this.projectModel = ProjectModel.getModel();
 	}
 
 	/**
@@ -523,6 +516,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Create the action data for the receive api.
+	 * 
+	 * @param document
+	 *            The document that was received.
+	 * @return The action data for the receive api.
+	 */
+	private DocumentActionData createActionData(final Document document) {
+		return new DocumentActionData();
+	}
+
+	/**
 	 * Create a new document version based upon an existing document. This will
 	 * check the cache for updates to the document, write the updates to the
 	 * document, then create a new version based upon that document.
@@ -738,17 +742,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Create the action data for the receive api.
-	 * 
-	 * @param document
-	 *            The document that was received.
-	 * @return The action data for the receive api.
-	 */
-	private DocumentActionData receive_ActionData(final Document document) {
-		return new DocumentActionData();
-	}
-
-	/**
 	 * Receive the xmpp document and create a new local document.
 	 * 
 	 * @param xmppDocument
@@ -757,13 +750,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private void receiveCreate(final XMPPDocument xmppDocument) throws ParityException, FileNotFoundException, IOException {
+	private void receiveCreate(final XMPPDocument xmppDocument)
+			throws ParityException, FileNotFoundException, IOException {
 		/*
-		 * Obtain the inbox parity project within the workspace, and place
-		 * the received document within it, the notify all listeners about
-		 * the new document.
+		 * Obtain the inbox parity project within the workspace, and place the
+		 * received document within it, check if the SEEN flag has been
+		 * transferred across and if it has, remove it; then notify all
+		 * listeners about the new document.
 		 */
-		final Project inbox = projectModel.getInbox();
+		final Project inbox = getProjectModel().getInbox();
 		final Document document = new Document(xmppDocument.getCreatedBy(),
 				xmppDocument.getCreatedOn(), xmppDocument.getDescription(),
 				xmppDocument.getFlags(), xmppDocument.getId(),
@@ -772,10 +767,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), xmppDocument.getId());
-		document.remove(ParityObjectFlag.SEEN);
 		documentXmlIO.create(document, content);
+		removeFlag(document, ParityObjectFlag.SEEN);
 		// create a new version
-		createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
+		createVersion(document, DocumentAction.RECEIVE, createActionData(document));
 		// fire a receive event
 		notifyCreation_objectReceived(document);
 	}
@@ -795,14 +790,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Document document) throws IOException, ParityException,
 			FileNotFoundException {
 		// create a new version of the existing document
-		createVersion(document, DocumentAction.RECEIVE, receive_ActionData(document));
+		createVersion(document, DocumentAction.RECEIVE, createActionData(document));
 		// update the content
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), document.getId());
-		// remove the seen flag
-		document.remove(ParityObjectFlag.SEEN);
 		documentXmlIO.update(document, content);
+		removeFlag(document, ParityObjectFlag.SEEN);
 		notifyUpdate_objectReceived(document);
 	}
 

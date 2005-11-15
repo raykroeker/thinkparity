@@ -228,6 +228,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(Document)");
 		logger.debug(document);
 		try {
+			flagAsSEEN(document);
 			// delete the xml files
 			documentXmlIO.delete(document);
 			notifyUpdate_objectDeleted(document);

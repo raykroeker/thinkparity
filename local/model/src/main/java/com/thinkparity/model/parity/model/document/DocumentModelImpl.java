@@ -13,7 +13,6 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.IParityModelConstants;
@@ -198,11 +197,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final byte[] contentBytes = FileUtil.readFile(file);
 			final DocumentContent content = new DocumentContent(
 					MD5Util.md5Hex(contentBytes), contentBytes, document.getId());
-			// flag the document as having been seen
-			document.add(ParityObjectFlag.SEEN);
+
+			// create the local file
+			final DocumentLocalFile localFile = getLocalFile(document);
+			localFile.write(contentBytes);
+
 			// create the document
 			documentXmlIO.create(document, content);
+
+			// create a version
 			createVersion(document, DocumentAction.CREATE, createActionData(document));
+
+			// flag the document as having been seen.
+			flagAsSEEN(document);
+
 			// fire a creation event
 			notifyCreation_objectCreated(document);
 			return document;
@@ -239,20 +247,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(action);
 		logger.debug(actionData);
 		try {
-			final File cacheFile = getCacheFile(document);
-			if(cacheFile.exists()) {
-				final byte[] cacheFileBytes = getCacheFileBytes(document);
-				final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
-	
-				final DocumentContent content = getContent(document);
-				if(!cacheFileChecksum.equals(content.getChecksum())) {
-					content.setContent(cacheFileBytes);
-					documentXmlIO.update(document, content);
-					Assert.assertTrue(
-							"createVersion(Document,DocumentAction,DocumentActionData",
-							cacheFile.delete());
-				}
-			}
+			final DocumentLocalFile localFile = getLocalFile(document);
+			localFile.read();
+
+			final DocumentContent content = getContent(document);
+			content.setContent(localFile.getFileBytes());
+			content.setChecksum(localFile.getFileChecksum());
+			documentXmlIO.update(document, content);
+
 			final DocumentVersion version =
 				DocumentVersionBuilder.create(document, action, actionData);
 			documentXmlIO.create(document, version);
@@ -281,17 +283,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(document);
 		try {
 			flagAsSEEN(document);
+			// delete the local file
+			getLocalFile(document).delete();
 			// delete the xml files
 			documentXmlIO.delete(document);
-			// delete the cached content file
-			final File cacheFileDirectory = getCacheDirectory(document);
-			if(cacheFileDirectory.exists()) {
-				final File cacheFile = getCacheFile(document);
-				if(cacheFile.exists()) {
-					Assert.assertTrue("delete(Document)", cacheFile.delete());
-				}
-				Assert.assertTrue("delete(Document)", cacheFileDirectory.delete());
-			}
 			notifyUpdate_objectDeleted(document);
 		}
 		catch(IOException iox) {
@@ -440,9 +435,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(document);
 		logger.debug(destination);
 		try {
+			// if the document was unseen, flag it as unseen
+			final Boolean hadBeenSeen = document.contains(ParityObjectFlag.SEEN);
+			if(Boolean.FALSE == hadBeenSeen) { flagAsSEEN(document); }
+			
 			document.setParentId(destination.getId());
 			documentXmlIO.update(document);
 			documentXmlIO.move(document, destination);
+
+			// flag as not seen
+			if(Boolean.FALSE == hadBeenSeen) { flagAsNotSEEN(document); }
 
 			notifyUpdate_objectUpdated(document);
 		}
@@ -468,7 +470,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("open(Document)");
 		logger.debug(document);
 		try {
-			open(getFileFromDiskCache(document));
+			final DocumentLocalFile localFile = getLocalFile(document);
+			localFile.open();
 			flagAsSEEN(document);
 		}
 		catch(IOException iox) {
@@ -581,61 +584,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain the directory used to cache content for the document. If the
-	 * directory does not yet exist it is created.
-	 * 
-	 * @param document
-	 *            The document to obtain the cache directory for.
-	 * @return The cache directory.
-	 */
-	private File getCacheDirectory(final Document document) {
-		logger.debug(document);
-		final File cacheRoot = new File(
-				new File(workspace.getDataURL().getFile()),
-				IParityModelConstants.DIRECTORY_NAME_CACHE_DATA);
-		logger.debug(cacheRoot);
-		if(!cacheRoot.exists())
-			Assert.assertTrue("getCacheDirectory(Document)", cacheRoot.mkdir());
-		final File cache = new File(cacheRoot, document.getId().toString());
-		logger.debug(cache);
-		if(!cache.exists())
-			Assert.assertTrue("getCacheDirectory(Document)", cache.mkdir());
-		return cache;
-	}
-
-	/**
-	 * Obtain the file used to store the cached content of the document.
-	 * 
-	 * @param document
-	 *            <code>Document</code>
-	 * @return <code>java.io.File</code>
-	 */
-	private File getCacheFile(final Document document) {
-		final File cacheDirectory = getCacheDirectory(document);
-		return new File(cacheDirectory, document.getCustomName());
-	}
-
-	private byte[] getCacheFileBytes(final Document document)
-			throws IOException {
-		return FileUtil.readFile(getCacheFile(document));
-	}
-
-	/**
-	 * Obtain the document's content's cached file from the filesystem.
+	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
 	 *            The document.
-	 * @return The file.
+	 * @return The document local file reference.
 	 */
-	private File getFileFromDiskCache(final Document document)
-			throws ParityException, IOException {
-		final File documentCacheFile = getCacheFile(document);
-		if (!documentCacheFile.exists()) {
-			// write the cache file
-			final DocumentContent content = getContent(document);
-			FileUtil.writeFile(documentCacheFile, content.getContent());
-		}
-		return documentCacheFile;
+	private DocumentLocalFile getLocalFile(final Document document) {
+		return new DocumentLocalFile(workspace, document);
 	}
 
 	/**
@@ -730,42 +686,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Use the operating system to open a file. Decide which operating system we
-	 * are using and dispatch to the correct api.
-	 * 
-	 * @param file
-	 *            The file to open.
-	 * @throws IOException
-	 */
-	private void open(final File file) throws IOException {
-		switch(OSUtil.getOS()) {
-		case WINDOWS_2000:
-		case WINDOWS_XP:
-			openWin32(file);
-			break;
-		case LINUX:
-		default:
-			Assert.assertNotYetImplemented("launchFile(File)");
-			break;
-		}
-	}
-
-	/**
-	 * Use the operating system to open a file in a win32 environment.
-	 * 
-	 * @param file
-	 *            The file to open.
-	 * @throws IOException
-	 */
-	private void openWin32(final File file) throws IOException {
-		Runtime.getRuntime().exec(
-				new String[] {
-						"rundll32.exe",
-						"url.dll,FileProtocolHandler",
-						file.getAbsolutePath() });
-	}
-
-	/**
 	 * Receive the xmpp document and create a new local document.
 	 * 
 	 * @param xmppDocument
@@ -791,10 +711,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), xmppDocument.getId());
+
+		// create the local file
+		final DocumentLocalFile localFile = getLocalFile(document);
+		localFile.write(content.getContent());
+
+		// create the document
 		documentXmlIO.create(document, content);
-		flagAsNotSEEN(document);
-		// create a new version
+
+		// create a version
 		createVersion(document, DocumentAction.RECEIVE, createActionData(document));
+
+		// flag as not seen
+		flagAsNotSEEN(document);
+
 		// fire a receive event
 		notifyCreation_objectReceived(document);
 	}
@@ -815,13 +745,34 @@ class DocumentModelImpl extends AbstractModelImpl {
 			FileNotFoundException {
 		// create a new version of the existing document
 		createVersion(document, DocumentAction.RECEIVE, createActionData(document));
+
 		// update the content
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),
 				xmppDocument.getContent(), document.getId());
-		documentXmlIO.update(document, content);
+		update(document, content);
+
+		// flag the document
 		flagAsNotSEEN(document);
+
+		// notify
 		notifyUpdate_objectReceived(document);
+	}
+
+	/**
+	 * Update the documentcontent.
+	 * 
+	 * @param document
+	 *            The document reference.
+	 * @param content
+	 *            The updated content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	private void update(final Document document, final DocumentContent content)
+			throws FileNotFoundException, IOException {
+		documentXmlIO.update(document, content);
+		getLocalFile(document).write(content.getContent());
 	}
 
 	/**

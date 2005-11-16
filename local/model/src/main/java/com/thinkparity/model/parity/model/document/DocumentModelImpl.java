@@ -39,7 +39,7 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
  * Implementation of the document model interface.
  * 
  * @author raykroeker@gmail.com
- * @version 1.5.2.3
+ * @version 1.5.2.31
  */
 class DocumentModelImpl extends AbstractModelImpl {
 
@@ -202,7 +202,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			document.add(ParityObjectFlag.SEEN);
 			// create the document
 			documentXmlIO.create(document, content);
-			createVersion(document, DocumentAction.CREATE, create_ActionData(document));
+			createVersion(document, DocumentAction.CREATE, createActionData(document));
 			// fire a creation event
 			notifyCreation_objectCreated(document);
 			return document;
@@ -213,6 +213,58 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("createDocument(Document)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Create a new document version based upon an existing document. This will
+	 * check the cache for updates to the document, write the updates to the
+	 * document, then create a new version based upon that document.
+	 * 
+	 * @param document
+	 *            The document to create the version for.
+	 * @param action
+	 *            The action causing the version creation.
+	 * @param actionData
+	 *            The data associated with the version creation action.
+	 * @return The newly created version.
+	 * @throws ParityException
+	 */
+	DocumentVersion createVersion(final Document document,
+			final DocumentAction action, final DocumentActionData actionData)
+			throws ParityException {
+		logger.info("createVersion(Document,DocumentAction,DocumentActionData)");
+		logger.debug(document);
+		logger.debug(action);
+		logger.debug(actionData);
+		try {
+			final File cacheFile = getCacheFile(document);
+			if(cacheFile.exists()) {
+				final byte[] cacheFileBytes = getCacheFileBytes(document);
+				final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
+	
+				final DocumentContent content = getContent(document);
+				if(!cacheFileChecksum.equals(content.getChecksum())) {
+					content.setContent(cacheFileBytes);
+					documentXmlIO.update(document, content);
+					Assert.assertTrue(
+							"createVersion(Document,DocumentAction,DocumentActionData",
+							cacheFile.delete());
+				}
+			}
+			final DocumentVersion version =
+				DocumentVersionBuilder.create(document, action, actionData);
+			documentXmlIO.create(document, version);
+			notifyCreation_objectVersionCreated(version);
+			return version;
+		}
+		catch(IOException iox) {
+			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -231,6 +283,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 			flagAsSEEN(document);
 			// delete the xml files
 			documentXmlIO.delete(document);
+			// delete the cached content file
+			final File cacheFileDirectory = getCacheDirectory(document);
+			if(cacheFileDirectory.exists()) {
+				final File cacheFile = getCacheFile(document);
+				if(cacheFile.exists()) {
+					Assert.assertTrue("delete(Document)", cacheFile.delete());
+				}
+				Assert.assertTrue("delete(Document)", cacheFileDirectory.delete());
+			}
 			notifyUpdate_objectDeleted(document);
 		}
 		catch(IOException iox) {
@@ -509,17 +570,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Create the action data for the create api.
-	 * 
-	 * @param document
-	 *            The document that was created.
-	 * @return The action data for the create api.
-	 */
-	private DocumentActionData create_ActionData(final Document document) {
-		return new DocumentActionData();
-	}
-
-	/**
 	 * Create the action data for the receive api.
 	 * 
 	 * @param document
@@ -528,36 +578,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private DocumentActionData createActionData(final Document document) {
 		return new DocumentActionData();
-	}
-
-	/**
-	 * Create a new document version based upon an existing document. This will
-	 * check the cache for updates to the document, write the updates to the
-	 * document, then create a new version based upon that document.
-	 * 
-	 * @param document
-	 *            The document to create the version for.
-	 * @return The newly created version.
-	 */
-	private DocumentVersion createVersion(final Document document,
-			final DocumentAction action, final DocumentActionData actionData)
-			throws IOException, ParityException {
-		final File cacheFile = getCacheFile(document);
-		if(cacheFile.exists()) {
-			final byte[] cacheFileBytes = getCacheFileBytes(document);
-			final String cacheFileChecksum = MD5Util.md5Hex(cacheFileBytes);
-
-			final DocumentContent content = getContent(document);
-			if(!cacheFileChecksum.equals(content.getChecksum())) {
-				content.setContent(cacheFileBytes);
-				documentXmlIO.update(document, content);
-			}
-		}
-		final DocumentVersion version =
-			DocumentVersionBuilder.create(document, action, actionData);
-		documentXmlIO.create(document, version);
-		notifyCreation_objectVersionCreated(version);
-		return version;
 	}
 
 	/**

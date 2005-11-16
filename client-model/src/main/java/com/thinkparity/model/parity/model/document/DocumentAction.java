@@ -10,7 +10,7 @@ package com.thinkparity.model.parity.model.document;
  */
 public enum DocumentAction {
 
-	CREATE("create"), RECEIVE("receive");
+	CREATE("create"), RECEIVE("receive"), SEND("send");
 
 	/**
 	 * Obtain a document action based upon its id.
@@ -22,6 +22,7 @@ public enum DocumentAction {
 	public static DocumentAction fromId(final String actionId) {
 		if(actionId.equals("create")) { return CREATE; }
 		else if(actionId.equals("receive")) { return RECEIVE; }
+		else if(actionId.equals("send")) { return SEND; }
 		else {
 			throw new IllegalArgumentException(
 					"Unrecognized document action:  " + actionId);

@@ -171,7 +171,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.info("delete(Project)");
 		logger.debug(project);
 		try {
-			final DocumentModel documentModel = DocumentModel.getModel();
+			final DocumentModel documentModel = getDocumentModel();
 			for(Document subDocument : documentModel.list(project)) {
 				documentModel.delete(subDocument);
 			}

@@ -115,6 +115,28 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Create a new document version based upon an existing document. This will
+	 * check the cache for updates to the document, write the updates to the
+	 * document, then create a new version based upon that document.
+	 * 
+	 * @param document
+	 *            The document to create the version for.
+	 * @param action
+	 *            The action causing the version creation.
+	 * @param actionData
+	 *            The data associated with the version creation action.
+	 * @return The newly created version.
+	 * @throws ParityException
+	 */
+	public DocumentVersion createVersion(final Document document,
+			final DocumentAction action, final DocumentActionData actionData)
+			throws ParityException {
+		synchronized(implLock) {
+			return impl.createVersion(document, action, actionData);
+		}
+	}
+
+	/**
 	 * Delete a document.
 	 * 
 	 * @param document

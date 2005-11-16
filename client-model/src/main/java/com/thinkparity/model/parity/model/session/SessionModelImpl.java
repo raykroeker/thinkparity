@@ -15,7 +15,8 @@ import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentContent;
+import com.thinkparity.model.parity.model.document.DocumentAction;
+import com.thinkparity.model.parity.model.document.DocumentActionData;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
@@ -349,9 +350,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("send(Collection<User>,Document)", xmppHelper);
 			try {
-				final DocumentModel documentModel = DocumentModel.getModel();
-				final DocumentContent content = documentModel.getContent(document);
-				xmppHelper.send(users, XMPPDocument.create(document, content));
+				// create a new version (updating local content into the
+				// document content metadata) then send.
+				final DocumentModel documentModel = getDocumentModel();
+				documentModel.createVersion(
+						document, DocumentAction.SEND, createSendDocumentActionData());
+				xmppHelper.send(
+						users, XMPPDocument.create(
+								document, documentModel.getContent(document)));
 			}
 			catch(SmackException sx) {
 				logger.error("send(Collection<User>,Document)", sx);
@@ -362,6 +368,10 @@ class SessionModelImpl extends AbstractModelImpl {
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
+	}
+
+	private DocumentActionData createSendDocumentActionData() {
+		return new DocumentActionData();
 	}
 
 	/**

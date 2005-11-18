@@ -46,6 +46,18 @@ public class DocumentContent {
 	}
 
 	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object obj) {
+		if(obj instanceof DocumentContent) {
+			final DocumentContent dc = (DocumentContent) obj;
+			return documentId.equals(dc.documentId)
+					&& checksum.equals(dc.checksum);
+		}
+		return false;
+	}
+
+	/**
 	 * Obtain the content checksum.
 	 * 
 	 * @return The content checksum.
@@ -65,6 +77,11 @@ public class DocumentContent {
 	 * @return The document.
 	 */
 	public UUID getDocumentId() { return documentId; }
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() { return documentId.hashCode(); }
 
 	/**
 	 * Set the content checksum.
@@ -92,4 +109,6 @@ public class DocumentContent {
 	 *            The documentId.
 	 */
 	public void setDocumentId(UUID documentId) { this.documentId = documentId; }
+
+
 }

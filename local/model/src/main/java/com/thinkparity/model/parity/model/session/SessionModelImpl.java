@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Collection;
 import java.util.Vector;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
@@ -291,7 +292,10 @@ class SessionModelImpl extends AbstractModelImpl {
 		final String host = preferences.getServerHost();
 		final Integer port = preferences.getServerPort();
 		synchronized(xmppHelperLock) {
-			try { xmppHelper.login(host, port, username, password); }
+			try {
+				xmppHelper.login(host, port, username, password);
+				preferences.setUsername(xmppHelper.getUser().getUsername());
+			}
 			catch(SmackException sx) {
 				logger.error("login(String,String)", sx);
 				throw ParityErrorTranslator.translate(sx);
@@ -354,7 +358,8 @@ class SessionModelImpl extends AbstractModelImpl {
 				// document content metadata) then send.
 				final DocumentModel documentModel = getDocumentModel();
 				documentModel.createVersion(
-						document, DocumentAction.SEND, createSendDocumentActionData());
+						document, DocumentAction.SEND,
+						createSendDocumentActionData(users));
 				xmppHelper.send(
 						users, XMPPDocument.create(
 								document, documentModel.getContent(document)));
@@ -368,10 +373,6 @@ class SessionModelImpl extends AbstractModelImpl {
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
-	}
-
-	private DocumentActionData createSendDocumentActionData() {
-		return new DocumentActionData();
 	}
 
 	/**
@@ -425,5 +426,24 @@ class SessionModelImpl extends AbstractModelImpl {
 	private void assertIsLoggedIn(final String message,
 			final SessionModelXMPPHelper xmppHelper) {
 		Assert.assertTrue(message, xmppHelper.isLoggedIn());
+	}
+
+	/**
+	 * Create the action data for a send action.
+	 * 
+	 * @param users
+	 *            The users the document was sent to.
+	 * @return The action data.
+	 */
+	private DocumentActionData createSendDocumentActionData(
+			final Collection<User> users) {
+		final DocumentActionData actionData = new DocumentActionData();
+		final StringBuffer userList = new StringBuffer();
+		for(User user : users) {
+			if(0 < userList.length()) { userList.append(Separator.Comma); }
+			userList.append(user.getUsername());
+		}
+		actionData.setDataItem("users", userList.toString());
+		return actionData;
 	}
 }

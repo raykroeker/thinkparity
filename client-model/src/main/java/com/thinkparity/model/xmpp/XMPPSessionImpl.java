@@ -270,6 +270,16 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#getUser()
+	 */
+	public User getUser() {
+		assertLoggedIn("getUser()");
+		final String user = smackXMPPConnection.getUser();
+		return new User(
+				null, user.substring(0, user.indexOf("/")), User.Presence.AVAILABLE);
+	}
+
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#isLoggedIn()
 	 */
 	public Boolean isLoggedIn() {

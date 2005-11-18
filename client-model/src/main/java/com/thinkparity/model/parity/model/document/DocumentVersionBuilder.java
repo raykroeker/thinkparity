@@ -34,34 +34,51 @@ public class DocumentVersionBuilder {
 	}
 
 	/**
-	 * Create a new version for an existing document.
+	 * Create a new version.
 	 * 
 	 * @param document
-	 *            The document to create the version for.
-	 * @return The new version for the document.
+	 *            The document.
+	 * @param content
+	 *            The document content.
+	 * @param action
+	 *            The action.
+	 * @param actionData
+	 *            The action data.
+	 * @return The new version.
+	 * @throws ParityException
 	 */
 	public static DocumentVersion create(final Document document,
-			final DocumentAction action, final DocumentActionData actionData)
-			throws ParityException {
+			final DocumentContent content, final DocumentAction action,
+			final DocumentActionData actionData) throws ParityException {
 		synchronized(singletonLock) {
-			return singleton.createImpl(document, action, actionData);
+			return singleton.createImpl(document, content, action, actionData);
 		}
 	}
 
 	/**
-	 * Obtain an named document version for a given document.
+	 * Obtain a reference to a version.
 	 * 
+	 * @param contentSnapshot
+	 *            The content snapshot.
+	 * @param documentId
+	 *            The document id.
+	 * @param versionId
+	 *            The version id.
 	 * @param snapshot
-	 *            The document to obtain the version for.
-	 * @param version
-	 *            The named version of the document.
-	 * @return The version of the document.
+	 *            The snapshot.
+	 * @param action
+	 *            The action.
+	 * @param actionData
+	 *            The action data.
+	 * @return A reference to a version.
 	 */
-	public static DocumentVersion getVersion(final UUID documentId,
-			final String version, final Document snapshot,
-			final DocumentAction action, final DocumentActionData actionData) {
+	public static DocumentVersion get(final DocumentContent contentSnapshot,
+			final UUID documentId, final String versionId,
+			final Document snapshot, final DocumentAction action,
+			final DocumentActionData actionData) {
 		synchronized(singletonLock) {
-			return singleton.getVersionImpl(documentId, version, snapshot, action, actionData);
+			return singleton.getVersionImpl(contentSnapshot, documentId,
+					versionId, snapshot, action, actionData);
 		}
 	}
 
@@ -71,17 +88,25 @@ public class DocumentVersionBuilder {
 	private DocumentVersionBuilder() { super(); }
 
 	/**
-	 * Obtain the next document version for a given document.
+	 * Create a reference to a new version.
 	 * 
 	 * @param document
-	 *            The document to obtain the version for.
-	 * @return The next document version.
+	 *            The document.
+	 * @param content
+	 *            The document content.
+	 * @param action
+	 *            The action.
+	 * @param actionData
+	 *            The action data.
+	 * @return The new version.
+	 * @throws ParityException
 	 */
 	private DocumentVersion createImpl(final Document document,
-			final DocumentAction action, final DocumentActionData actionData)
-			throws ParityException {
+			final DocumentContent content, final DocumentAction action,
+			final DocumentActionData actionData) throws ParityException {
 		final String newVersion = createNextVersion(document);
-		return new DocumentVersion(document.getId(), newVersion, document, action, actionData);
+		return new DocumentVersion(content, document.getId(), newVersion,
+				document, action, actionData);
 	}
 
 	/**
@@ -99,17 +124,27 @@ public class DocumentVersionBuilder {
 	}
 
 	/**
-	 * Obtain an named document version for a given document.
+	 * Obtain a reference to a version.
 	 * 
+	 * @param contentSnapshot
+	 *            The content snapshot.
+	 * @param documentId
+	 *            The document id.
+	 * @param versionId
+	 *            The version id.
 	 * @param snapshot
-	 *            The document to obtain the version for.
-	 * @param version
-	 *            The named version of the document.
-	 * @return The version of the document.
+	 *            The snapshot.
+	 * @param action
+	 *            The action.
+	 * @param actionData
+	 *            The action data.
+	 * @return The version reference.
 	 */
-	private DocumentVersion getVersionImpl(final UUID documentId,
-			final String version, final Document snapshot,
+	private DocumentVersion getVersionImpl(
+			final DocumentContent contentSnapshot, final UUID documentId,
+			final String versionId, final Document snapshot,
 			final DocumentAction action, final DocumentActionData actionData) {
-		return new DocumentVersion(documentId, version, snapshot, action, actionData);
+		return new DocumentVersion(contentSnapshot, documentId, versionId,
+				snapshot, action, actionData);
 	}
 }

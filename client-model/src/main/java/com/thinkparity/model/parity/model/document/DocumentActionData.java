@@ -32,7 +32,7 @@ public class DocumentActionData {
 	 * @return True if action data contains any data; false otherwise.
 	 */
 	public Boolean containsData() {
-		return actionData.isEmpty();
+		return !actionData.isEmpty();
 	}
 
 	/**

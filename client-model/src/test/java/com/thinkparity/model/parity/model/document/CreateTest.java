@@ -63,16 +63,26 @@ public class CreateTest extends ModelTestCase {
 	 */
 	public void testCreate() {
 		try {
-			Document newDocument;
-			DocumentContent newDocumentContent;
+			Document document;
+			DocumentContent content;
+			DocumentVersion version;
+			Document snapshot;
+			DocumentContent contentSnapshot;
 			for(Fixture datum : data) {
-				newDocument = datum.documentModel.create(datum.parent, datum.name,
+				document = datum.documentModel.create(datum.parent, datum.name,
 						datum.description, datum.file);
-				newDocumentContent = datum.documentModel.getContent(newDocument);
+				assertNotNull(document);
 
-				assertNotNull(newDocument);
-				assertNotNull(newDocumentContent);
-				assertEquals(newDocumentContent.getChecksum(), datum.documentContentChecksum);
+				content = datum.documentModel.getContent(document);
+				assertNotNull(content);
+				assertEquals(content.getChecksum(), datum.documentContentChecksum);
+
+				version = datum.documentModel.listVersions(document).iterator().next();
+				snapshot = version.getSnapshot();
+				contentSnapshot = version.getContentSnapshot();
+				assertNotNull(version);
+				assertEquals(snapshot, document);
+				assertEquals(contentSnapshot, content);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }

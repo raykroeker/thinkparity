@@ -3,12 +3,14 @@
  */
 package com.thinkparity.model.parity.model;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
@@ -19,8 +21,10 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.user.User;
 
 
 /**
@@ -144,6 +148,42 @@ public abstract class AbstractModelImpl {
 	 * @return A handle to the project model.
 	 */
 	protected ProjectModel getProjectModel() { return ProjectModel.getModel(); }
+
+	/**
+	 * Obtain a handle to the session model.
+	 * 
+	 * @return Obtain a handle to the session model.
+	 */
+	protected SessionModel getSessionModel() { return SessionModel.getModel(); }
+
+	/**
+	 * Obtain a timestamp representing now.
+	 * @return The timestamp.
+	 */
+	protected Calendar getTimestamp() {
+		return DateUtil.getInstance();
+	}
+
+	/**
+	 * Obtain a user reference for a given username. This will obtain the user's
+	 * roster and compare the username. If a match is found; the user will be
+	 * returned; otherwise null will be returned. This api assumes that the
+	 * user's session is established.
+	 * 
+	 * @param username
+	 *            The target username to find.
+	 * @return The user reference.
+	 * @throws ParityException
+	 */
+	protected User getUser(final String username) throws ParityException {
+		final SessionModel sessionModel = getSessionModel();
+		Assert.assertTrue("getUser(String)", sessionModel.isLoggedIn());
+		final Collection<User> rosterEntries = sessionModel.getRosterEntries();
+		for(User user : rosterEntries) {
+			if(user.getUsername().equals(username)) { return user; }
+		}
+		return null;
+	}
 
 	/**
 	 * Obtain the siblings of a parity object.

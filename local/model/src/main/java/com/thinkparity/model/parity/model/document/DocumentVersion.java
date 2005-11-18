@@ -10,7 +10,7 @@ import com.thinkparity.model.parity.api.ParityObjectVersion;
 /**
  * DocumentVersion
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.6
  */
 public class DocumentVersion extends ParityObjectVersion {
 
@@ -25,18 +25,25 @@ public class DocumentVersion extends ParityObjectVersion {
 	private final DocumentActionData actionData;
 
 	/**
+	 * Reference to the document content snapshot.
+	 */
+	private final DocumentContent contentSnapshot;
+
+	/**
 	 * Reference to the main document.
 	 */
 	private UUID documentId;
 
 	/**
-	 * Reference to the document snapshot representd by this version.
+	 * Reference to the document snapshot.
 	 */
 	private final Document snapshot;
 
 	/**
 	 * Create a DocumentVersion
 	 * 
+	 * @param contentSnapshot
+	 *            The document content snapshot.
 	 * @param documentId
 	 *            The documentId.
 	 * @param versionId
@@ -48,10 +55,12 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * @param actionData
 	 *            The action data.
 	 */
-	public DocumentVersion(final UUID documentId, final String versionId,
+	public DocumentVersion(final DocumentContent contentSnapshot,
+			final UUID documentId, final String versionId,
 			final Document snapshot, final DocumentAction action,
 			final DocumentActionData actionData) {
 		super(versionId);
+		this.contentSnapshot = contentSnapshot;
 		this.action = action;
 		this.actionData = actionData;
 		this.documentId = documentId;
@@ -73,6 +82,13 @@ public class DocumentVersion extends ParityObjectVersion {
 	public DocumentActionData getActionData() { return actionData; }
 
 	/**
+	 * Obtain the content snapshot.
+	 * 
+	 * @return The content snapshot.
+	 */
+	public DocumentContent getContentSnapshot() { return contentSnapshot; }
+
+	/**
 	 * Obtain the documentId.
 	 * 
 	 * @return The documentId.
@@ -80,17 +96,9 @@ public class DocumentVersion extends ParityObjectVersion {
 	public UUID getDocumentId() { return documentId; }
 
 	/**
-	 * Obtain the snapshot of the document for this version.
+	 * Obtain the snapshot.
 	 * 
 	 * @return The snapshot;
 	 */
 	public Document getSnapshot() { return snapshot; }
-
-	/**
-	 * Set the document id.
-	 * 
-	 * @param documentId
-	 *            The documentId.
-	 */
-	public void setDocumentId(final UUID documentId) { this.documentId = documentId; }
 }

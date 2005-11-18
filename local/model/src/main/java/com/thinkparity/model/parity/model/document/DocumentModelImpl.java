@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -33,6 +32,7 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Implementation of the document model interface.
@@ -189,7 +189,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 				"create(Project,String,String,File)",
 				(file.length() <= IParityModelConstants.FILE_SIZE_UPPER_BOUNDS));
 		try {
-			final Calendar now = DateUtil.getInstance();
+			final Calendar now = getTimestamp();
 			final Document document = new Document(preferences.getUsername(),
 					now, description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
 					project.getId(), preferences.getUsername(), now);
@@ -254,8 +254,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 			content.setChecksum(localFile.getFileChecksum());
 			documentXmlIO.update(document, content);
 
+			document.setUpdatedBy(preferences.getUsername());
+			document.setUpdatedOn(getTimestamp());
 			final DocumentVersion version =
-				DocumentVersionBuilder.create(document, action, actionData);
+				DocumentVersionBuilder.create(
+						document, content, action, actionData);
 			documentXmlIO.create(document, version);
 			notifyCreation_objectVersionCreated(version);
 			return version;
@@ -583,6 +586,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Create the action data for the version created by receiving a document.
+	 * 
+	 * @param user
+	 *            The user who sent the document.
+	 * @return The receive version action data.
+	 */
+	private DocumentActionData createReceiveActionData(final User user) {
+		final DocumentActionData actionData = new DocumentActionData();
+		actionData.setDataItem("user", user.getUsername());
+		return actionData;
+	}
+
+	/**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
@@ -719,7 +735,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentXmlIO.create(document, content);
 
 		// create a version
-		createVersion(document, DocumentAction.RECEIVE, createActionData(document));
+		createVersion(document, DocumentAction.RECEIVE,
+				createReceiveActionData(getUser(xmppDocument.getUpdatedBy())));
 
 		// flag as not seen
 		flagAsNotSEEN(document);
@@ -743,7 +760,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Document document) throws IOException, ParityException,
 			FileNotFoundException {
 		// create a new version of the existing document
-		createVersion(document, DocumentAction.RECEIVE, createActionData(document));
+		createVersion(
+				document, DocumentAction.RECEIVE,
+				createReceiveActionData(getUser(xmppDocument.getUpdatedBy())));
 
 		// update the content
 		final DocumentContent content = new DocumentContent(

@@ -31,6 +31,7 @@ public interface XMPPSession {
 	public void addRosterEntry(final User user) throws SmackException;
 	public void denyPresence(final User user) throws SmackException;
 	public Collection<User> getRosterEntries() throws SmackException;
+	public User getUser() throws SmackException;
 	public Boolean isLoggedIn();
 	public void login(final String host, final Integer port,
 			final String username, final String password) throws SmackException;

@@ -3,24 +3,18 @@
  */
 package com.thinkparity.model.xmpp.user;
 
-import com.thinkparity.codebase.log4j.Loggable;
-
 /**
- * UserRenderer Represents the parity model client's interface to all users within the
- * parity world.
+ * Represents a parity user.
  * 
  * @author raykroeker@gmail.com
- * @version 1.0
+ * @version 1.2.2.1
  */
-public class User implements Loggable {
+public class User {
 
 	/**
-	 * State
-	 * Potential states for a user.
-	 * @author raykroeker@gmail.com
-	 * @version 1.0
+	 * User presence.
 	 */
-	public enum Presence { AVAILABLE, UNAVAILABLE, OFFLINE }
+	public enum Presence { AVAILABLE, OFFLINE, UNAVAILABLE }
 
 	/**
 	 * The name of the user.
@@ -47,7 +41,8 @@ public class User implements Loggable {
 	 * @param presence
 	 *            The presence of the user.
 	 */
-	public User(final String name, final String username, final Presence presence) {
+	public User(final String name, final String username,
+			final Presence presence) {
 		super();
 		this.name = name;
 		this.username = username;
@@ -62,11 +57,11 @@ public class User implements Loggable {
 	public String getName() { return name; }
 
 	/**
-	 * Obtain the state of the user.
+	 * Obtain the presence of the user.
 	 * 
-	 * @return The State of the user.
+	 * @return The presence of the user.
 	 */
-	public Presence getState() { return presence; }
+	public Presence getPresence() { return presence; }
 
 	/**
 	 * Obtain the username of the user.
@@ -74,15 +69,4 @@ public class User implements Loggable {
 	 * @return The username of the user.
 	 */
 	public String getUsername() { return username; }
-
-	/**
-	 * @see com.thinkparity.codebase.log4j.Loggable#logMe()
-	 */
-	public StringBuffer logMe() {
-		return new StringBuffer("<user>")
-			.append("<name>").append(name).append("</name>")
-			.append("<presence>").append(presence).append("</presence>")
-			.append("<username>").append(username).append("</username>")
-			.append("</user>");
-	}
 }

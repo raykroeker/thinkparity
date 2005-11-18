@@ -124,6 +124,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+	 * Obtain the user for the current session.
+	 * 
+	 * @return The user for the current session.
+	 */
+	User getUser() throws SmackException { return xmppSession.getUser(); }
+
+	/**
 	 * Determine if the user is logged in.
 	 * 
 	 * @return True if the user is logged in false, otherwise.

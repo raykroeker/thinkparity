@@ -174,7 +174,7 @@ public abstract class ParityObject {
 	 */
 	public boolean equals(Object obj) {
 		if(obj instanceof ParityObject) {
-			return id.equals(((ParityObject) obj).getId());
+			return id.equals(((ParityObject) obj).id);
 		}
 		return false;
 	}
@@ -392,6 +392,26 @@ public abstract class ParityObject {
 	 *            The parent id.
 	 */
 	public void setParentId(final UUID parentId) { this.parentId = parentId; }
+
+	/**
+	 * Set the updator.
+	 * 
+	 * @param updatedBy
+	 *            The new updator.
+	 */
+	public void setUpdatedBy(final String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	/**
+	 * Set the update date.
+	 * 
+	 * @param updatedOn
+	 *            The new update date.
+	 */
+	public void setUpdatedOn(final Calendar updatedOn) {
+		this.updatedOn = updatedOn;
+	}
 
 	/**
 	 * Create a default instance of the custom properties.

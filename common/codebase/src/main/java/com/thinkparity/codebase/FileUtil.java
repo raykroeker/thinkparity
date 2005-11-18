@@ -31,6 +31,11 @@ public abstract class FileUtil {
 	private static final Config fileUtilConfig;
 
 	/**
+	 * The read api's buffer size to use when reading the file.
+	 */
+	private static final int READ_BUFFER_SIZE;
+
+	/**
 	 * Synchronization lock for the writeFile api.
 	 * @see FileUtil#writeFile(File, byte[])
 	 */
@@ -38,6 +43,7 @@ public abstract class FileUtil {
 
 	static {
 		fileUtilConfig = ConfigFactory.newInstance(FileUtil.class);
+		READ_BUFFER_SIZE = Integer.parseInt(fileUtilConfig.getProperty("read.buffer.size"));
 		BLOCK_SIZE = Integer.parseInt(fileUtilConfig.getProperty("block.size"));
 		writeFileLock = new Object();
 	}
@@ -76,7 +82,7 @@ public abstract class FileUtil {
 	public static synchronized Boolean createDirectory(final File directory) {
 		return directory.mkdir();
 	}
-
+	
 	/**
 	 * Delete a file.
 	 * @param file <code>java.io.File</code>
@@ -138,7 +144,7 @@ public abstract class FileUtil {
 				fileName.lastIndexOf(Separator.Period.toString()));
 		return fileName;
 	}
-	
+
 	/**
 	 * Obtain the file extension of the File.  If none exists, null is returned.  Is the 
 	 * same as:
@@ -157,7 +163,7 @@ public abstract class FileUtil {
 				"File " + file.getAbsolutePath() + " is not a file.");
 		return FileUtil.getFileNameExtension(file.getName());
 	}
-
+	
 	/**
 	 * Obtain the file extension of a file name.  If none exists null is returned.
 	 * @param fileName <code>java.lang.String</code>
@@ -169,7 +175,7 @@ public abstract class FileUtil {
 				fileName.lastIndexOf(Separator.Period.toString()));
 		return null;
 	}
-	
+
 	/**
 	 * Obtain the path for the file.  If the file is a file, the path of the parent is 
 	 * returned; if it is a directory, return its absolute path.  If it is neither, return
@@ -206,6 +212,29 @@ public abstract class FileUtil {
 			.append(File.separatorChar)
 			.append(".")
 			.append(applicationName).toString();
+	}
+
+	/**
+	 * Read a file into a string.
+	 * 
+	 * @param file
+	 *            The file to read.
+	 * @return The contents of the file.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static String read(final File file) throws FileNotFoundException,
+			IOException {
+		final BufferedReader br =
+			new BufferedReader(new FileReader(file), READ_BUFFER_SIZE);
+
+		final StringBuffer sbuf = new StringBuffer();
+		char[] cbuf = new char[READ_BUFFER_SIZE];
+		int chars;
+		while((chars = br.read(cbuf)) > 0) {
+			sbuf.append(cbuf, 0, chars);
+		}
+		return sbuf.toString();
 	}
 
 	/**

@@ -523,9 +523,7 @@ public abstract class XmlIOConverter implements Converter {
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		reader.moveDown();
-		final String subject = reader.getAttribute("subject");
-		final String content = reader.getValue();
-		parityObject.add(new Note(subject, content));
+		parityObject.add(new Note(reader.getValue()));
 		reader.moveUp();
 	}
 
@@ -579,9 +577,7 @@ public abstract class XmlIOConverter implements Converter {
 			final HierarchicalStreamWriter writer,
 			final MarshallingContext context) {
 		writer.startNode("note");
-		writer.addAttribute("subject", note.getSubject());
-		if(note.isSetContent())
-			writer.setValue(note.getContent());
+		writer.setValue(note.getNote());
 		writer.endNode();
 	}
 }

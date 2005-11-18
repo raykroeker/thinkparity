@@ -13,7 +13,6 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
-import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -192,26 +191,6 @@ public abstract class XMPPConverter implements Converter {
 	}
 
 	/**
-	 * Read notes from the xml reader and add them to the parity object.
-	 * 
-	 * @param parityObject
-	 *            The parity object to add the notes to.
-	 * @param reader
-	 *            The xStream xml reader.
-	 * @param context
-	 *            The xStream xml reader context.
-	 */
-	protected void readNotes(final ParityObject parityObject,
-			final HierarchicalStreamReader reader,
-			final UnmarshallingContext context) {
-		reader.moveDown();
-		while(reader.hasMoreChildren()) {
-			readNote(parityObject, reader, context);
-		}
-		reader.moveUp();
-	}
-
-	/**
 	 * Read the updator from the xStream xml reader.
 	 * 
 	 * @param reader
@@ -384,26 +363,6 @@ public abstract class XMPPConverter implements Converter {
 			final MarshallingContext context) {
 		writer.addAttribute("name", name);
 	}
-	
-	/**
-	 * Write a series of notes for the parity object.
-	 * 
-	 * @param parityObject
-	 *            The parity object containing the notes.
-	 * @param writer
-	 *            The xStream xml writer.
-	 * @param context
-	 *            The xStream xml writer context.
-	 */
-	protected void writeNotes(final ParityObject parityObject,
-			final HierarchicalStreamWriter writer,
-			final MarshallingContext context) {
-		writer.startNode("notes");
-		for(Note note : parityObject.getNotes()) {
-			writeNote(note, writer, context);
-		}		
-		writer.endNode();
-	}
 
 	/**
 	 * Write the updated by to the xStream xml writer.
@@ -511,26 +470,6 @@ public abstract class XMPPConverter implements Converter {
 	}
 
 	/**
-	 * Read a note from the xml reader and add it to the parity object.
-	 * 
-	 * @param parityObject
-	 *            The parity object to add the note to.
-	 * @param reader
-	 *            The xStream xml reader.
-	 * @param context
-	 *            The xStream xml reader's context.
-	 */
-	private void readNote(final ParityObject parityObject,
-			final HierarchicalStreamReader reader,
-			final UnmarshallingContext context) {
-		reader.moveDown();
-		final String subject = reader.getAttribute("subject");
-		final String content = reader.getValue();
-		parityObject.add(new Note(subject, content));
-		reader.moveUp();
-	}
-
-	/**
 	 * Write a calendar to the xStream xml writer. Note that the "attribute"
 	 * data must be set within the context. This attribute is used to generate
 	 * the primary tag.
@@ -563,26 +502,6 @@ public abstract class XMPPConverter implements Converter {
 		writer.startNode("timeZone");
 		writer.setValue(timeZone.getID());
 		writer.endNode();
-		writer.endNode();
-	}
-
-	/**
-	 * Write a note to the xml writer.
-	 * 
-	 * @param note
-	 *            The note to write.
-	 * @param writer
-	 *            The xStream xml writer.
-	 * @param context
-	 *            The xStream xml writer context.
-	 */
-	private void writeNote(final Note note,
-			final HierarchicalStreamWriter writer,
-			final MarshallingContext context) {
-		writer.startNode("note");
-		writer.addAttribute("subject", note.getSubject());
-		if(note.isSetContent())
-			writer.setValue(note.getContent());
 		writer.endNode();
 	}
 }

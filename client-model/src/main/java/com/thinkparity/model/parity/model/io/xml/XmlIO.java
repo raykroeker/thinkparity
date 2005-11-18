@@ -517,10 +517,7 @@ public abstract class XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("readXmlFile(File)");
 		logger.debug(xmlFile);
-		final byte[] xmlBytes = FileUtil.readFile(xmlFile);
-		logger.debug(xmlBytes);
-		final String xml =
-			new String(xmlBytes, IXmlIOConstants.DEFAULT_CHARSET.getCharsetName());
+		final String xml = FileUtil.read(xmlFile);
 		logger.debug(xml);
 		return xml;
 	}

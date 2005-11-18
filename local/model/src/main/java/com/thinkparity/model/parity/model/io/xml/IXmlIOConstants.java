@@ -14,7 +14,7 @@ import com.thinkparity.model.parity.IParityModelConstants;
  * @version 1.1
  */
 public interface IXmlIOConstants {
-	public static final Charset DEFAULT_CHARSET = Charset.ISO_8859_1;
+	public static final Charset DEFAULT_CHARSET = Charset.UTF_8;
 	public static final Level DEFAULT_COMPRESSION = Level.Nine;
 	public static final String DIRECTORY_NAME_XML_DATA =
 		IParityModelConstants.DIRECTORY_NAME_XML_DATA;

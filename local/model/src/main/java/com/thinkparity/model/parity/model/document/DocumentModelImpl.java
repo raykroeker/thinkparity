@@ -140,14 +140,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The content of the note (Optional).
 	 * @throws ParityException
 	 */
-	Note addNote(final Document document, final String subject,
-			final String content) throws ParityException {
+	Note addNote(final Document document, final String note)
+			throws ParityException {
 		logger.debug(document);
-		logger.debug(subject);
-		logger.debug(content);
-		if(null == subject) { throw new NullPointerException(); }
+		logger.debug(note);
+		if(null == note) { throw new NullPointerException(); }
 		try {
-			final Note newNote = new Note(subject, content);
+			final Note newNote = new Note(note);
 			document.add(newNote);
 			documentXmlIO.update(document);
 			notifyUpdate_objectUpdated(document);

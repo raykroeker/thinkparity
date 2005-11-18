@@ -3,84 +3,47 @@
  */
 package com.thinkparity.model.parity.model.note;
 
-import com.thinkparity.codebase.log4j.Loggable;
-
 /**
- * Note
+ * A parity note. Is a wrapper around a simple text string.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.3
  */
-public class Note implements Loggable {
+public class Note {
 
 	/**
-	 * Content.
+	 * Note.
 	 */
-	private String content;
-
-	/**
-	 * Subject.
-	 */
-	private String subject;
+	private String note;
 
 	/**
 	 * Create a new Note.
 	 */
-	public Note() { this(null, null); }
+	public Note() { this(null); }
 
 	/**
 	 * Create a new Note.
 	 * 
-	 * @param subject
-	 *            The subject of the new note.
-	 * @param content
-	 *            The content of the new note.
+	 * @param note
+	 *            The note.
 	 */
-	public Note(final String subject, final String content) {
+	public Note(final String note) {
 		super();
-		this.subject = subject;
-		this.content = content;
+		this.note = note;
 	}
 
 	/**
-	 * Obtain the value of content.
-	 * @return <code>String</code>
-	 */
-	public String getContent() { return content; }
-
-	/**
-	 * Obtain the value of subject.
-	 * @return <code>String</code>
-	 */
-	public String getSubject() { return subject; }
-
-	/**
-	 * Determine if the content of the note is set.
+	 * Obtain the note.
 	 * 
-	 * @return True if it is set, false otherwise.
+	 * @return The note.
 	 */
-	public Boolean isSetContent() {
-		return (null != content && 0 < content.length());
-	}
+	public String getNote() { return note; }
 
 	/**
-	 * @see com.thinkparity.codebase.log4j.Loggable#logMe()
+	 * Set The note.
+	 * 
+	 * @param note
+	 *            The note.
 	 */
-	public StringBuffer logMe() {
-		return new StringBuffer("<note subject=\"")
-			.append(getSubject()).append("\">")
-			.append(getContent())
-			.append("</note>");
-	}
-
-	/**
-	 * Set a value for content.
-	 * @param content <code>String</code>
-	 */
-	public void setContent(String content) { this.content = content; }
-
-	/**
-	 * Set a value for subject.
-	 * @param subject <code>String</code>
-	 */
-	public void setSubject(String subject) { this.subject = subject; }
+	public void setNote(final String note) { this.note = note; }
 }

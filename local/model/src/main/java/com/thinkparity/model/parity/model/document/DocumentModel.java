@@ -84,11 +84,9 @@ public class DocumentModel {
 	 *            The content of the note (Optional).
 	 * @throws ParityException
 	 */
-	public Note addNote(final Document document, final String subject,
-			final String content) throws ParityException {
-		synchronized(implLock) {
-			return impl.addNote(document, subject, content);
-		}
+	public Note addNote(final Document document, final String note)
+			throws ParityException {
+		synchronized(implLock) { return impl.addNote(document, note); }
 	}
 
 	/**

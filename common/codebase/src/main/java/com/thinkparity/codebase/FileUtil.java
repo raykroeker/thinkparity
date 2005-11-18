@@ -228,13 +228,16 @@ public abstract class FileUtil {
 		final BufferedReader br =
 			new BufferedReader(new FileReader(file), READ_BUFFER_SIZE);
 
-		final StringBuffer sbuf = new StringBuffer();
-		char[] cbuf = new char[READ_BUFFER_SIZE];
-		int chars;
-		while((chars = br.read(cbuf)) > 0) {
-			sbuf.append(cbuf, 0, chars);
+		try {
+			final StringBuffer sbuf = new StringBuffer();
+			char[] cbuf = new char[READ_BUFFER_SIZE];
+			int chars;
+			while((chars = br.read(cbuf)) > 0) {
+				sbuf.append(cbuf, 0, chars);
+			}
+			return sbuf.toString();
 		}
-		return sbuf.toString();
+		finally { br.close(); }
 	}
 
 	/**

@@ -21,6 +21,7 @@ import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.xml.index.Index;
 import com.thinkparity.model.parity.model.io.xml.index.IndexXmlIO;
 import com.thinkparity.model.parity.model.project.Project;
@@ -123,8 +124,6 @@ public abstract class XmlIO {
 	protected File getXmlFile(final Document document,
 			final DocumentContent content) throws FileNotFoundException,
 			IOException {
-		logger.info("getXmlFile(Document,DocumentContent)");
-		logger.debug(content);
 		return new File(getXmlFileDirectory(document),
 				new StringBuffer(document.getName())
 					.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_CONTENT)
@@ -134,23 +133,45 @@ public abstract class XmlIO {
 	/**
 	 * Obtain the xml file for the given document version.
 	 * 
+	 * @param document
+	 *            The document.
 	 * @param version
-	 *            The document version to obtain the xml file for.
+	 *            The document version.
 	 * @return The xml file.
+	 * @throws FileNotFoundException
+	 * @throws IOException
 	 */
 	protected File getXmlFile(final Document document,
 			final DocumentVersion version) throws FileNotFoundException,
 			IOException {
-		logger.info("getXmlFile(Document,DocumentVersion)");
-		logger.debug(document);
-		logger.debug(version);
 		return new File(
 				getXmlFileDirectory(document),
 				new StringBuffer(document.getName())
 					.append(".")
-					.append(version.getVersion())
+					.append(version.getVersionId())
 					.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION)
 					.toString());
+	}
+
+	/**
+	 * Obtain the xml file for the given document version content.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @param versionContent
+	 *            The document version content.
+	 * @return the xml file.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected File getXmlFile(final Document document,
+			final DocumentVersionContent versionContent)
+			throws FileNotFoundException, IOException {
+		return new File(getXmlFileDirectory(document), new StringBuffer(document.getName())
+				.append(".")
+				.append(versionContent.getVersionId())
+				.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION_CONTENT)
+				.toString());
 	}
 
 	/**
@@ -164,8 +185,6 @@ public abstract class XmlIO {
 	 */
 	protected File getXmlFile(final Project project)
 			throws FileNotFoundException, IOException {
-		logger.info("getXmlFile(Project)");
-		logger.debug(project);
 		final File xmlFile = lookupXmlFile(project.getId());
 		if(null != xmlFile) { return xmlFile; }
 		else { return xmlPathBuilder.getXmlFile(project, fillInStack(project)); }
@@ -182,8 +201,6 @@ public abstract class XmlIO {
 	 */
 	protected File getXmlFileDirectory(final Document document)
 			throws FileNotFoundException, IOException {
-		logger.info("getXmlFileDirectory(Document)");
-		logger.debug(document);
 		return getXmlFile(document).getParentFile();
 	}
 
@@ -198,8 +215,6 @@ public abstract class XmlIO {
 	 */
 	protected File getXmlFileDirectory(final Project project)
 			throws FileNotFoundException, IOException {
-		logger.info("getXmlFileDirectory(Project)");
-		logger.debug(project);
 		return getXmlFile(project).getParentFile();
 	}
 
@@ -214,8 +229,6 @@ public abstract class XmlIO {
 	 */
 	protected File[] getXmlFiles(final Document document)
 			throws FileNotFoundException, IOException {
-		logger.info("getXmlFiles(Document)");
-		logger.debug(document);
 		return xmlPathBuilder.getXmlFiles(document, fillInStack(document));
 	}
 
@@ -289,7 +302,6 @@ public abstract class XmlIO {
 	 */
 	protected Document readDocument(final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("readDocument(File)");
 		return (Document) fromXml(readXmlFile(xmlFile));
 	}
 
@@ -302,7 +314,6 @@ public abstract class XmlIO {
 	 */
 	protected DocumentContent readDocumentContent(final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("readDocumentContent(File)");
 		return (DocumentContent) fromXml(readXmlFile(xmlFile));
 	}
 
@@ -317,8 +328,21 @@ public abstract class XmlIO {
 	 */
 	protected DocumentVersion readDocumentVersion(final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("readDocumentVersion(File)");
 		return (DocumentVersion) fromXml(readXmlFile(xmlFile));
+	}
+
+	/**
+	 * Read the version content from an xml file.
+	 * 
+	 * @param xmlFile
+	 *            The xml file for the version content.
+	 * @return The version content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected DocumentVersionContent readDocumentVersionContent(
+			final File xmlFile) throws FileNotFoundException, IOException {
+		return (DocumentVersionContent) fromXml(readXmlFile(xmlFile));
 	}
 
 	/**
@@ -332,7 +356,6 @@ public abstract class XmlIO {
 	 */
 	protected Index readIndex(final File xmlFile) throws FileNotFoundException,
 			IOException {
-		logger.info("readIndex(File)");
 		synchronized(indexLock) {
 			return (Index) fromXml(readXmlFile(xmlFile));
 		}
@@ -349,7 +372,6 @@ public abstract class XmlIO {
 	 */
 	protected Project readProject(final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("readProject(File)");
 		return (Project) fromXml(readXmlFile(xmlFile));
 	}
 
@@ -382,39 +404,53 @@ public abstract class XmlIO {
 	 */
 	protected void write(final Document document, final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("write(Document,File)");
 		writeXmlFile(toXml(document), xmlFile);
 		writeIndexXml(document);
 	}
 
 	/**
 	 * Write the document content to the xml file.
-	 * @param content The content to write.
-	 * @param xmlFile The xml file to write to.
+	 * 
+	 * @param content
+	 *            The content to write.
+	 * @param xmlFile
+	 *            The xml file to write to.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	protected void write(final DocumentContent content, final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("write(DocumentContent,File)");
 		writeXmlFile(toXml(content), xmlFile);
 	}
 
 	/**
 	 * Write the document version to the xml file.
 	 * 
-	 * @param documentVersion
-	 *            The document version to write.
+	 * @param version
+	 *            The version to write.
 	 * @param xmlFile
 	 *            The xml file to write to.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	protected void write(final DocumentVersion documentVersion,
+	protected void write(final DocumentVersion version, final File xmlFile)
+			throws FileNotFoundException, IOException {
+		writeXmlFile(toXml(version), xmlFile);
+	}
+
+	/**
+	 * Write the document version content to the xml file.
+	 * 
+	 * @param versionContent
+	 *            The version content.
+	 * @param xmlFile
+	 *            The xml file.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	protected void write(final DocumentVersionContent versionContent,
 			final File xmlFile) throws FileNotFoundException, IOException {
-		logger.info("write(DocumentVersion,File)");
-		logger.debug(documentVersion);
-		writeXmlFile(toXml(documentVersion), xmlFile);
+		writeXmlFile(toXml(versionContent), xmlFile);
 	}
 
 	/**
@@ -429,8 +465,6 @@ public abstract class XmlIO {
 	 */
 	protected void write(final Index index, final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("write(Index,File)");
-		logger.debug(index);
 		writeXmlFile(toXml(index), xmlFile);
 	}
 
@@ -446,7 +480,6 @@ public abstract class XmlIO {
 	 */
 	protected void write(final Project project, final File xmlFile)
 			throws FileNotFoundException, IOException {
-		logger.info("write(Project,File)");
 		writeXmlFile(toXml(project), xmlFile);
 		writeIndexXml(project);
 	}
@@ -517,7 +550,7 @@ public abstract class XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("readXmlFile(File)");
 		logger.debug(xmlFile);
-		final String xml = FileUtil.read(xmlFile);
+		final String xml = FileUtil.readString(xmlFile);
 		logger.debug(xml);
 		return xml;
 	}
@@ -583,6 +616,6 @@ public abstract class XmlIO {
 		if(xmlFile.exists()) {
 			Assert.assertTrue("writeXmlFile(String,File)", xmlFile.delete());
 		}
-		FileUtil.writeFile(xmlFile, xml.getBytes());
+		FileUtil.writeBytes(xmlFile, xml.getBytes());
 	}
 }

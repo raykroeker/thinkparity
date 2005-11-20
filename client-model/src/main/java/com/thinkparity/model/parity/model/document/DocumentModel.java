@@ -187,6 +187,19 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Obtain the content for a specific version.
+	 * 
+	 * @param version
+	 *            The version.
+	 * @return The content.
+	 * @throws ParityException
+	 */
+	public DocumentVersionContent getVersionContent(
+			final DocumentVersion version) throws ParityException {
+		synchronized(implLock) { return impl.getVersionContent(version); }
+	}
+
+	/**
 	 * Obtain a list of documents for a project.
 	 * 
 	 * @param project
@@ -234,6 +247,17 @@ public class DocumentModel {
 	 */
 	public void open(final Document document) throws ParityException {
 		synchronized(implLock) { impl.open(document); }
+	}
+
+	/**
+	 * Open a document version.
+	 * 
+	 * @param version
+	 *            The version to open.
+	 * @throws ParityException
+	 */
+	public void openVersion(final DocumentVersion version) throws ParityException {
+		synchronized(implLock) { impl.openVersion(version); }
 	}
 
 	/**

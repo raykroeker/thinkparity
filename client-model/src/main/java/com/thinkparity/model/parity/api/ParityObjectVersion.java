@@ -18,7 +18,7 @@ public abstract class ParityObjectVersion {
 
 	/**
 	 * Create a ParityObjectVersion
-	 * @param versionId <code>java.lang.String</code>
+	 * @param versionId The version id.
 	 */
 	protected ParityObjectVersion(final String versionId) {
 		super();
@@ -26,8 +26,9 @@ public abstract class ParityObjectVersion {
 	}
 
 	/**
-	 * Obtain versionId.
-	 * @return <code>String</code>
+	 * Obtain the version id.
+	 * 
+	 * @return The version id.
 	 */
-	public String getVersion() { return versionId; }
+	public String getVersionId() { return versionId; }
 }

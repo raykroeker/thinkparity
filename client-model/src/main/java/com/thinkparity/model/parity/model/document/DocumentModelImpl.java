@@ -193,12 +193,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Document document = new Document(preferences.getUsername(),
 					now, description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
 					project.getId(), preferences.getUsername(), now);
-			final byte[] contentBytes = FileUtil.readFile(file);
+			final byte[] contentBytes = FileUtil.readBytes(file);
 			final DocumentContent content = new DocumentContent(
 					MD5Util.md5Hex(contentBytes), contentBytes, document.getId());
 
 			// create the local file
-			final DocumentLocalFile localFile = getLocalFile(document);
+			final LocalFile localFile = getLocalFile(document);
 			localFile.write(contentBytes);
 
 			// create the document
@@ -246,20 +246,30 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(action);
 		logger.debug(actionData);
 		try {
-			final DocumentLocalFile localFile = getLocalFile(document);
-			localFile.read();
+			// read the document local file
+			final LocalFile documentLocalFile = getLocalFile(document);
+			documentLocalFile.read();
 
 			final DocumentContent content = getContent(document);
-			content.setContent(localFile.getFileBytes());
-			content.setChecksum(localFile.getFileChecksum());
+			content.setContent(documentLocalFile.getFileBytes());
+			content.setChecksum(documentLocalFile.getFileChecksum());
 			documentXmlIO.update(document, content);
 
 			document.setUpdatedBy(preferences.getUsername());
 			document.setUpdatedOn(getTimestamp());
-			final DocumentVersion version =
-				DocumentVersionBuilder.create(
-						document, content, action, actionData);
-			documentXmlIO.create(document, version);
+			final String versionId = nextVersionId(document);
+			final DocumentVersion version = new DocumentVersion(
+					document.getId(), versionId, document, action,
+					actionData);
+			final DocumentVersionContent versionContent = new DocumentVersionContent(
+					content, document.getId(), versionId);
+
+			// create the version local file
+			final LocalFile versionLocalFile = getLocalFile(document, version);
+			versionLocalFile.write(content.getContent());
+			versionLocalFile.lock();
+
+			documentXmlIO.create(document, version, versionContent);
 			notifyCreation_objectVersionCreated(version);
 			return version;
 		}
@@ -284,11 +294,24 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(Document)");
 		logger.debug(document);
 		try {
+			// flag the document as seen
 			flagAsSEEN(document);
-			// delete the local file
-			getLocalFile(document).delete();
-			// delete the xml files
+
+			// delete the content
+			final DocumentContent content = getContent(document);
+			documentXmlIO.deleteContent(document, content);
+
+			// delete the versions
+			final Collection<DocumentVersion> versions = listVersions(document);
+			for(DocumentVersion version : versions) { deleteVersion(document, version); }
+
+			// delete the document
+			final LocalFile localFile = getLocalFile(document);
+			localFile.delete();
+			localFile.deleteParent();
 			documentXmlIO.delete(document);
+
+			// notify
 			notifyUpdate_objectDeleted(document);
 		}
 		catch(IOException iox) {
@@ -372,6 +395,32 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("getContent(Document)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Obtain the content for a specific version.
+	 * 
+	 * @param version
+	 *            The version.
+	 * @return The content.
+	 * @throws ParityException
+	 */
+	DocumentVersionContent getVersionContent(final DocumentVersion version)
+			throws ParityException {
+		logger.info("getVersionContent(DocumentVersion)");
+		logger.debug(version);
+		try {
+			final Document document = get(version.getDocumentId());
+			return documentXmlIO.getVersionContent(document, version);
+		}
+		catch(IOException iox) {
+			logger.error("getVersionContent(DocumentVersion)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("getVersionContent(DocumentVersion)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -461,8 +510,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Open the document. First obtain the file from the cache, then open it
-	 * based upon underlying operating system constraints.
+	 * Open the document. Extract the content to a local file then open it.
 	 * 
 	 * @param document
 	 *            The document to open.
@@ -472,7 +520,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("open(Document)");
 		logger.debug(document);
 		try {
-			final DocumentLocalFile localFile = getLocalFile(document);
+			final LocalFile localFile = getLocalFile(document);
 			localFile.open();
 			flagAsSEEN(document);
 		}
@@ -482,6 +530,31 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("open(Document)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Open a document version. Extract the version's content and open it.
+	 * 
+	 * @param version
+	 *            The document version.
+	 * @throws ParityException
+	 */
+	void openVersion(final DocumentVersion version) throws ParityException {
+		logger.info("openVersion(DocumentVersion)");
+		logger.debug(version);
+		try {
+			final Document document = get(version.getDocumentId());
+			final LocalFile localFile = getLocalFile(document, version);
+			localFile.open();
+		}
+		catch(IOException iox) {
+			logger.error("openVersion(DocumentVersion)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("openVersion(DocumentVersion)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -599,14 +672,51 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Delete a version.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @param version
+	 *            The version.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws ParityException
+	 */
+	private void deleteVersion(final Document document,
+			final DocumentVersion version) throws FileNotFoundException,
+			IOException, ParityException {
+		// delete the version content
+		final DocumentVersionContent versionContent = getVersionContent(version);
+		documentXmlIO.deleteVersionContent(document, versionContent);
+
+		// delete the local file
+		getLocalFile(document, version).delete();
+
+		// delete the version
+		documentXmlIO.deleteVersion(document, version);
+	}
+
+	/**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
 	 *            The document.
 	 * @return The document local file reference.
 	 */
-	private DocumentLocalFile getLocalFile(final Document document) {
-		return new DocumentLocalFile(workspace, document);
+	private LocalFile getLocalFile(final Document document) {
+		return new LocalFile(workspace, document);
+	}
+
+	/**
+	 * Create a document local file reference for a given version.
+	 * 
+	 * @param version
+	 *            The version.
+	 * @return The document local file reference.
+	 */
+	private LocalFile getLocalFile(final Document document,
+			final DocumentVersion version) {
+		return new LocalFile(workspace, document, version);
 	}
 
 	/**
@@ -728,7 +838,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 				xmppDocument.getContent(), xmppDocument.getId());
 
 		// create the local file
-		final DocumentLocalFile localFile = getLocalFile(document);
+		final LocalFile localFile = getLocalFile(document);
 		localFile.write(content.getContent());
 
 		// create the document
@@ -806,6 +916,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private void writeDocumentContent(final Document document, final File file)
 			throws ParityException, IOException {
 		final DocumentContent content = getContent(document);
-		FileUtil.writeFile(file, content.getContent());
+		FileUtil.writeBytes(file, content.getContent());
+	}
+
+	/**
+	 * Obtain the next version in the sequence for a document.
+	 * 
+	 * @param document
+	 *            The document to obtain the version for.
+	 * @return The next version in the sequence.
+	 */
+	private String nextVersionId(final Document document)
+			throws ParityException {
+		final Integer numberOfVersions = listVersions(document).size();
+		return new StringBuffer("v").append(numberOfVersions + 1).toString();
 	}
 }

@@ -3,14 +3,10 @@
  */
 package com.thinkparity.model.parity.model.io.xml.document;
 
-import java.util.UUID;
-
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentAction;
 import com.thinkparity.model.parity.model.document.DocumentActionData;
-import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersionBuilder;
 import com.thinkparity.model.parity.model.io.xml.XmlIOConverter;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -41,21 +37,15 @@ public class DocumentVersionConverter extends XmlIOConverter {
 	}
 
 	/**
-	 * Handle to a document content converter.
-	 */
-	private DocumentContentConverter contentConverter;
-
-	/**
 	 * Handle to a document converter.
 	 */
-	private DocumentConverter converter;
+	private final DocumentConverter converter;
 
 	/**
 	 * Create a DocumentVersionConverter
 	 */
 	public DocumentVersionConverter() {
 		this.converter = new DocumentConverter();
-		this.contentConverter = new DocumentContentConverter();
 	}
 
 	/**
@@ -73,11 +63,9 @@ public class DocumentVersionConverter extends XmlIOConverter {
 		logger.info("marshal(Object,HierarchicalStreamWriter,MarshallingContext)");
 		final DocumentVersion version = (DocumentVersion) source;
 		logger.debug(version);
-		writeVersionId(version.getVersion(), writer, context);
-		writeDocumentId(version.getDocumentId(), writer, context);
+		writeVersionId(version.getVersionId(), writer, context);
 		writeAction(new ActionWrapper(version.getAction(), version.getActionData()), writer, context);
 		writeSnapshot(version.getSnapshot(), writer, context);
-		writeContentSnapshot(version.getContentSnapshot(), writer, context);
 	}
 
 	/**
@@ -85,15 +73,12 @@ public class DocumentVersionConverter extends XmlIOConverter {
 	 */
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
-		final String version = readVersionId(reader, context);
-		final UUID documentId = readDocumentId(reader, context);
+		logger.info("unmarshal(HierarchicalStreamReader,UnmarshallingContext)");
+		final String versionId = readVersionId(reader, context);
 		final ActionWrapper actionWrapper = readAction(reader, context);
-		final DocumentAction action = actionWrapper.action;
-		final DocumentActionData actionData = actionWrapper.actionData;
 		final Document snapshot = readSnapshot(reader, context);
-		final DocumentContent contentSnapshot = readContentSnapshot(reader, context);
-		return DocumentVersionBuilder.get(contentSnapshot, documentId, version,
-				snapshot, action, actionData);
+		return new DocumentVersion(snapshot.getId(), versionId, snapshot,
+				actionWrapper.action, actionWrapper.actionData);
 	}
 
 	/**
@@ -141,40 +126,6 @@ public class DocumentVersionConverter extends XmlIOConverter {
 		reader.moveDown();
 		actionData.setDataItem(reader.getAttribute("key"), reader.getValue());
 		reader.moveUp();
-	}
-
-	/**
-	 * Read the document content snapshot from the xStream xml reader.
-	 * 
-	 * @param reader
-	 *            The xStream xml reader.
-	 * @param context
-	 *            The xStream xml reader's context.
-	 * @return The document content.
-	 */
-	private DocumentContent readContentSnapshot(
-			final HierarchicalStreamReader reader,
-			final UnmarshallingContext context) {
-		reader.moveDown();
-		final DocumentContent content = (DocumentContent) contentConverter.unmarshal(
-				reader, context);
-		reader.moveUp();
-		return content;
-	}
-
-	/**
-	 * Read the document id from the xml reader.
-	 * 
-	 * @param reader
-	 *            The xStream xml reader.
-	 * @param context
-	 *            The xStream xml reader context.
-	 * @return The document id.
-	 */
-	private UUID readDocumentId(final HierarchicalStreamReader reader,
-			final UnmarshallingContext context) {
-		final String documentId = reader.getAttribute("documentId");
-		return UUID.fromString(documentId);
 	}
 
 	/**
@@ -252,40 +203,6 @@ public class DocumentVersionConverter extends XmlIOConverter {
 		writer.addAttribute("key", key);
 		writer.setValue(value);
 		writer.endNode();
-	}
-
-	/**
-	 * Write the document content to the xStream xml writer.
-	 * 
-	 * @param content
-	 *            The document content.
-	 * @param writer
-	 *            The xStream xml writer.
-	 * @param context
-	 *            The xStream xml writer's context.
-	 */
-	private void writeContentSnapshot(final DocumentContent content,
-			final HierarchicalStreamWriter writer,
-			final MarshallingContext context) {
-		writer.startNode("snapshotcontent");
-		contentConverter.marshal(content, writer, context);
-		writer.endNode();
-	}
-
-	/**
-	 * Write the document id to the xml writer.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @param writer
-	 *            The xStream xml writer.
-	 * @param context
-	 *            The xStream xml writer context.
-	 */
-	private void writeDocumentId(final UUID documentId,
-			final HierarchicalStreamWriter writer,
-			final MarshallingContext context) {
-		writer.addAttribute("documentId", documentId.toString());
 	}
 
 	/**

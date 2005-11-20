@@ -16,6 +16,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
 import com.thinkparity.model.parity.model.project.Project;
@@ -59,11 +60,13 @@ public class DocumentXmlIO extends XmlIO {
 	 *            The document version to serialize.
 	 * @throws IOException
 	 */
-	public void create(final Document document, final DocumentVersion version)
+	public void create(final Document document, final DocumentVersion version,
+			final DocumentVersionContent versionContent)
 			throws FileNotFoundException, IOException {
 		logger.info("create(DocumentVersion)");
 		logger.debug(version);
 		write(version, getXmlFile(document, version));
+		write(versionContent, getXmlFile(document, versionContent));
 	}
 
 	/**
@@ -71,19 +74,76 @@ public class DocumentXmlIO extends XmlIO {
 	 * 
 	 * @param document
 	 *            The document.
+	 * @throws FileNotFoundException
+	 * @throws IOException
 	 */
 	public void delete(final Document document) throws FileNotFoundException,
 			IOException {
 		logger.info("delete(Document)");
 		logger.debug(document);
-		final DocumentContent content = getContent(document);
-		final Collection<DocumentVersion> versions = listVersions(document);
-		Assert.assertTrue("delete(Document)", getXmlFile(document, content).delete());
-		for(DocumentVersion version : versions) {
-			Assert.assertTrue("delete(Document)", getXmlFile(document, version).delete());
-		}
 		removeXmlFileLookup(document);
 		Assert.assertTrue("delete(Document)", getXmlFile(document).delete());
+	}
+
+	/**
+	 * Delete the document content's xml.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @param content
+	 *            The document content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void deleteContent(final Document document,
+			final DocumentContent content) throws FileNotFoundException,
+			IOException {
+		logger.info("deleteContent(Document,DocumentContent)");
+		logger.debug(document);
+		logger.debug(content);
+		Assert.assertTrue(
+				"delete(Document,DocumentContent)",
+				getXmlFile(document, content).delete());
+	}
+
+	/**
+	 * Delete a document version.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @param version
+	 *            The document version.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void deleteVersion(final Document document,
+			final DocumentVersion version) throws FileNotFoundException,
+			IOException {
+		logger.info("deleteVersion(Document,DocumentVersion)");
+		Assert.assertTrue(
+				"deleteVersion(Document,DocumentVersion)",
+				getXmlFile(document, version).delete());
+	}
+
+	/**
+	 * Delete a document version's content.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @param versionContent
+	 *            The version content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void deleteVersionContent(final Document document,
+			final DocumentVersionContent versionContent)
+			throws FileNotFoundException, IOException {
+		logger.info("deleteVersionContent(Document,DocumentVersionContent)");
+		logger.debug(document);
+		logger.debug(versionContent);
+		Assert.assertTrue(
+				"deleteVersion(Document,DocumentVersion)",
+				getXmlFile(document, versionContent).delete());
 	}
 
 	/**
@@ -119,6 +179,29 @@ public class DocumentXmlIO extends XmlIO {
 		final DocumentContent content = readDocumentContent(
 				getContentXmlFile(document.getName(), xmlFileDirectory));
 		return content;
+	}
+
+	/**
+	 * Obtain the version content for a given version.
+	 * 
+	 * @param document
+	 *            The document
+	 * @param version
+	 *            The version.
+	 * @return The version content.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public DocumentVersionContent getVersionContent(final Document document,
+			final DocumentVersion version) throws FileNotFoundException,
+			IOException {
+		logger.info("getVersionContent(DocumentVersion)");
+		logger.debug(version);
+		final File xmlFile = getContentVersionXmlFile(
+				document.getName(),
+				version.getVersionId(),
+				getXmlFileDirectory(document));
+		return readDocumentVersionContent(xmlFile);
 	}
 
 	/**
@@ -215,6 +298,27 @@ public class DocumentXmlIO extends XmlIO {
 		logger.info("update(DocumentContent)");
 		logger.debug(content);
 		write(content, getXmlFile(document, content));
+	}
+
+	/**
+	 * Obtain the content version xml file.
+	 * 
+	 * @param documentName
+	 *            The document name.
+	 * @param versionId
+	 *            The version id.
+	 * @param xmlFileDirectory
+	 *            The xml file directory.
+	 * @return The xml file.
+	 */
+	private File getContentVersionXmlFile(final String documentName,
+			final String versionId, final File xmlFileDirectory) {
+		return new File(
+				xmlFileDirectory,
+				new StringBuffer(documentName)
+					.append(".").append(versionId)
+					.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION_CONTENT)
+					.toString());
 	}
 
 	/**

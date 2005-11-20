@@ -79,7 +79,7 @@ public class GetContentTest extends ModelTestCase {
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			content = FileUtil.readFile(testFile.getFile());
+			content = FileUtil.readBytes(testFile.getFile());
 			contentChecksum = MD5Util.md5Hex(content);
 			document = documentModel.create(testProject, name, description, testFile.getFile());
 

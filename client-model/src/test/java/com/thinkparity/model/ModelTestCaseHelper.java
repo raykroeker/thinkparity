@@ -147,140 +147,6 @@ public class ModelTestCaseHelper {
 		this.modelTestCase = modelTestCase;
 	}
 
-	void deleteWorkspace(final ModelTestUser modelTestUser) {
-		final File workspaceDirectory = getWorkspaceDirectory(modelTestUser);
-		deleteTree(workspaceDirectory);
-		ModelTestCase.assertFalse(
-				"Could not delete workspace directory.",
-				workspaceDirectory.exists());
-		workspaceDirectory.mkdir();
-	}
-
-	/**
-	 * Obtain a handle to the document model.
-	 * 
-	 * @return A handle to the document model.
-	 */
-	DocumentModel getDocumentModel() {
-		return DocumentModel.getModel();
-	}
-
-	/**
-	 * Get the junit session project. If the project does not exist it will be
-	 * created.
-	 * 
-	 * @return The junit session project.
-	 * @throws ParityException
-	 */
-	Project getJUnitProject() throws ParityException {
-		if(null == ModelTestCaseHelper.jUnitProject) {
-			final Project myProjects = getMyProjects();
-			final String name = jUnitSessionId;
-			final String description = name;
-			ModelTestCaseHelper.jUnitProject =
-				getProjectModel().create(myProjects, name, description);
-		}
-		return ModelTestCaseHelper.jUnitProject;
-	}
-
-	/**
-	 * Obtain a list of the test files available to the jUnit test framework.
-	 * 
-	 * @return A list of the test files available to the jUnit test framework.
-	 */
-	Collection<ModelTestFile> getJUnitTestFiles() { 
-		return Collections.unmodifiableCollection(
-				ModelTestCaseHelper.jUnitTestFiles);
-	}
-
-	/**
-	 * Obtain the number of jUnit test files.
-	 * 
-	 * @return The number of jUnit test files.
-	 */
-	Integer getJUnitTestFilesSize(){
-		return ModelTestCaseHelper.jUnitTestFiles.size();
-	}
-
-	/**
-	 * Obtain random test text to use with junit.
-	 * 
-	 * @param size
-	 *            The size of the text in characters.
-	 * @return The text.
-	 */
-	String getJUnitTestText(final Integer size) {
-		Assert.assertNotNull("getJUnitTestText(Integer)", size);
-		Assert.assertTrue("getJUnitTestText(Integer)", size > 0);
-		final StringBuffer textBuffer = new StringBuffer(size);
-		for(int i = 0; i < size; i++) {
-			textBuffer.append(jUnitTestTextSeed[jUnitRandom.nextInt(jUnitTestTextSeed.length)]);
-		}
-		return textBuffer.toString();
-	}
-
-	/**
-	 * Get the test user.
-	 * 
-	 * @return The model test user.
-	 */
-	ModelTestUser getJUnitTestUser() {
-		return ModelTestCaseHelper.jUnitTestUser;
-	}
-	
-	/**
-	 * Obtain a handle to the parity preferences.
-	 * 
-	 * @return A handle to the parity preferences.
-	 */
-	Preferences getPreferences() { return getWorkspace().getPreferences(); }
-	
-	/**
-	 * Obtain a handle to the project model.
-	 * 
-	 * @return A handle to the project model.
-	 */
-	ProjectModel getProjectModel() { return ProjectModel.getModel(); }
-
-	/**
-	 * Obtain a handle to the session model.
-	 * 
-	 * @return A handle to the session model.
-	 */
-	SessionModel getSessionModel() { return SessionModel.getModel(); }
-
-	/**
-	 * Obtain a handle to the workspace.
-	 * 
-	 * @return A handle to the workspace.
-	 */
-	Workspace getWorkspace() {
-		return WorkspaceModel.getModel().getWorkspace();
-	}
-
-	private void deleteTree(final File rootDirectory) {
-		FileUtil.deleteTree(rootDirectory);
-	}
-
-	/**
-	 * Obtain a handle to the root project.
-	 * 
-	 * @return A handle to the root project.
-	 */
-	private Project getMyProjects() throws ParityException {
-		return getProjectModel().getMyProjects();
-	}
-
-	private File getWorkspaceDirectory(final ModelTestUser modelTestUser) {
-		final URL rootURL = ResourceUtil.getURL("resources/workspace");
-		File rootDirectory = null;
-		try { rootDirectory = new File(rootURL.toURI()); }
-		catch(URISyntaxException usx) {
-			ModelTestCase.fail(modelTestCase.getFailMessage(usx));
-		}
-		return new File(rootDirectory, modelTestUser.getUsername());
-	}
-
 	/**
 	 * Assert that the document list provided contains the document.
 	 * 
@@ -325,5 +191,164 @@ public class ModelTestCaseHelper {
 			actualIds.append(actual.getId().toString());
 		}
 		ModelTestCase.assertFalse("expected:<" + document.getId() + "> but was:<" + actualIds.toString() + ">", didContain);
+	}
+
+	void deleteWorkspace(final ModelTestUser modelTestUser) {
+		final File workspaceDirectory = getWorkspaceDirectory(modelTestUser);
+		deleteTree(workspaceDirectory);
+		ModelTestCase.assertFalse(
+				"Could not delete workspace directory.",
+				workspaceDirectory.exists());
+		workspaceDirectory.mkdir();
+	}
+
+	/**
+	 * Obtain a handle to the document model.
+	 * 
+	 * @return A handle to the document model.
+	 */
+	DocumentModel getDocumentModel() {
+		return DocumentModel.getModel();
+	}
+
+	/**
+	 * Get the junit session project. If the project does not exist it will be
+	 * created.
+	 * 
+	 * @return The junit session project.
+	 * @throws ParityException
+	 */
+	Project getJUnitProject() throws ParityException {
+		if(null == ModelTestCaseHelper.jUnitProject) {
+			final Project myProjects = getMyProjects();
+			final String name = jUnitSessionId;
+			final String description = name;
+			ModelTestCaseHelper.jUnitProject =
+				getProjectModel().create(myProjects, name, description);
+		}
+		return ModelTestCaseHelper.jUnitProject;
+	}
+
+	/**
+	 * Obtain a single jUnit test file located a the specified index.
+	 * 
+	 * @param index
+	 *            The jUnit test file index.
+	 * @return The jUnit test file.
+	 */
+	ModelTestFile getJUnitTestFile(final Integer index) {
+		return jUnitTestFiles.elementAt(index);
+	}
+
+	/**
+	 * Obtain a single jUnit test file with the given name.
+	 * 
+	 * @param name
+	 *            The jUnit test file name.
+	 * @return The jUnit test file.
+	 */
+	ModelTestFile getJUnitTestFile(final String name) {
+		for(ModelTestFile testFile : jUnitTestFiles) {
+			if(testFile.getName().equals(name)) { return testFile; }
+		}
+		throw Assert.createUnreachable("getJUnitTestFile(String)");
+	}
+	
+	/**
+	 * Obtain a list of the test files available to the jUnit test framework.
+	 * 
+	 * @return A list of the test files available to the jUnit test framework.
+	 */
+	Collection<ModelTestFile> getJUnitTestFiles() { 
+		return Collections.unmodifiableCollection(
+				ModelTestCaseHelper.jUnitTestFiles);
+	}
+	
+	/**
+	 * Obtain the number of jUnit test files.
+	 * 
+	 * @return The number of jUnit test files.
+	 */
+	Integer getJUnitTestFilesSize(){
+		return ModelTestCaseHelper.jUnitTestFiles.size();
+	}
+
+	/**
+	 * Obtain random test text to use with junit.
+	 * 
+	 * @param size
+	 *            The size of the text in characters.
+	 * @return The text.
+	 */
+	String getJUnitTestText(final Integer size) {
+		Assert.assertNotNull("getJUnitTestText(Integer)", size);
+		Assert.assertTrue("getJUnitTestText(Integer)", size > 0);
+		final StringBuffer textBuffer = new StringBuffer(size);
+		for(int i = 0; i < size; i++) {
+			textBuffer.append(jUnitTestTextSeed[jUnitRandom.nextInt(jUnitTestTextSeed.length)]);
+		}
+		return textBuffer.toString();
+	}
+
+	/**
+	 * Get the test user.
+	 * 
+	 * @return The model test user.
+	 */
+	ModelTestUser getJUnitTestUser() {
+		return ModelTestCaseHelper.jUnitTestUser;
+	}
+
+	/**
+	 * Obtain a handle to the parity preferences.
+	 * 
+	 * @return A handle to the parity preferences.
+	 */
+	Preferences getPreferences() { return getWorkspace().getPreferences(); }
+
+	/**
+	 * Obtain a handle to the project model.
+	 * 
+	 * @return A handle to the project model.
+	 */
+	ProjectModel getProjectModel() { return ProjectModel.getModel(); }
+
+	/**
+	 * Obtain a handle to the session model.
+	 * 
+	 * @return A handle to the session model.
+	 */
+	SessionModel getSessionModel() { return SessionModel.getModel(); }
+
+	/**
+	 * Obtain a handle to the workspace.
+	 * 
+	 * @return A handle to the workspace.
+	 */
+	Workspace getWorkspace() {
+		return WorkspaceModel.getModel().getWorkspace();
+	}
+
+	private void deleteTree(final File rootDirectory) {
+		FileUtil.deleteTree(rootDirectory);
+	}
+
+	/**
+	 * Obtain a handle to the root project.
+	 * 
+	 * @return A handle to the root project.
+	 */
+	private Project getMyProjects() throws ParityException {
+		return getProjectModel().getMyProjects();
+	}
+
+	private File getWorkspaceDirectory(final ModelTestUser modelTestUser) {
+		final URL rootURL = ResourceUtil.getURL("resources/workspace");
+		File rootDirectory = null;
+		try { rootDirectory = new File(rootURL.toURI()); }
+		catch(URISyntaxException usx) {
+			ModelTestCase.fail(modelTestCase.getFailMessage(usx));
+		}
+		return new File(rootDirectory, modelTestUser.getUsername());
 	}
 }

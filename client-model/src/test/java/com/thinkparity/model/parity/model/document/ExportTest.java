@@ -63,7 +63,7 @@ public class ExportTest extends ModelTestCase {
 				
 				assertTrue(datum.file.exists());
 
-				fileContent = FileUtil.readFile(datum.file);
+				fileContent = FileUtil.readBytes(datum.file);
 				fileContentChecksum = MD5Util.md5Hex(fileContent);
 
 				assertEquals(fileContentChecksum, datum.contentChecksum);
@@ -87,7 +87,7 @@ public class ExportTest extends ModelTestCase {
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			content = FileUtil.readFile(testFile.getFile());
+			content = FileUtil.readBytes(testFile.getFile());
 			contentChecksum = MD5Util.md5Hex(content);
 			document = documentModel.create(
 					testProject, name, description, testFile.getFile());
@@ -103,7 +103,7 @@ public class ExportTest extends ModelTestCase {
 	 */
 	protected void tearDown() throws Exception {
 		// delete the exported files
-		for(Fixture datum : data) { FileUtil.delete(datum.file); }
+		for(Fixture datum : data) { datum.file.delete(); }
 		data.clear();
 		data = null;
 	}

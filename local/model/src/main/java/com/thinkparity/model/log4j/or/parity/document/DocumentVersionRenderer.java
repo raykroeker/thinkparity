@@ -39,7 +39,7 @@ public class DocumentVersionRenderer implements ObjectRenderer {
 			final DocumentVersion dv = (DocumentVersion) o;
 			return new StringBuffer(PREFIX)
 				.append(DOCUMENT_ID).append(dv.getDocumentId())
-				.append(VERSION).append(dv.getVersion())
+				.append(VERSION).append(dv.getVersionId())
 				.append(IRendererConstants.SUFFIX)
 				.toString();
 		}

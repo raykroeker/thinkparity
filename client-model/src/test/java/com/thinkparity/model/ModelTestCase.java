@@ -113,6 +113,26 @@ public abstract class ModelTestCase extends TestCase {
 	}
 
 	/**
+	 * Obtain a single jUnit test file.
+	 * 
+	 * @param ordinal
+	 * @return The jUnit test file.
+	 */
+	protected ModelTestFile getJUnitTestFile(final Integer ordinal) {
+		return helper.getJUnitTestFile(ordinal);
+	}
+
+	/**
+	 * Obtain a single jUnit test file.
+	 * 
+	 * @param name
+	 * @return The jUnit test file.
+	 */
+	protected ModelTestFile getJUnitTestFile(final String name) {
+		return helper.getJUnitTestFile(name);
+	}
+
+	/**
 	 * Obtain the files for use with the jUnit test framework.
 	 * 
 	 * @return The list of test files.
@@ -149,7 +169,7 @@ public abstract class ModelTestCase extends TestCase {
 	protected ModelTestUser getModelTestUser() {
 		return helper.getJUnitTestUser();
 	}
-
+	
 	/**
 	 * Obtain a handle to the parity preferences.
 	 * 
@@ -167,7 +187,7 @@ public abstract class ModelTestCase extends TestCase {
 	protected ProjectModel getProjectModel() {
 		return ProjectModel.getModel();
 	}
-	
+
 	/**
 	 * Obtain a handle to a session model.
 	 * 

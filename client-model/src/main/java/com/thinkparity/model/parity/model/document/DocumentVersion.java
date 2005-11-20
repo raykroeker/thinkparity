@@ -25,11 +25,6 @@ public class DocumentVersion extends ParityObjectVersion {
 	private final DocumentActionData actionData;
 
 	/**
-	 * Reference to the document content snapshot.
-	 */
-	private final DocumentContent contentSnapshot;
-
-	/**
 	 * Reference to the main document.
 	 */
 	private UUID documentId;
@@ -42,8 +37,6 @@ public class DocumentVersion extends ParityObjectVersion {
 	/**
 	 * Create a DocumentVersion
 	 * 
-	 * @param contentSnapshot
-	 *            The document content snapshot.
 	 * @param documentId
 	 *            The documentId.
 	 * @param versionId
@@ -55,12 +48,10 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * @param actionData
 	 *            The action data.
 	 */
-	public DocumentVersion(final DocumentContent contentSnapshot,
-			final UUID documentId, final String versionId,
+	public DocumentVersion(final UUID documentId, final String versionId,
 			final Document snapshot, final DocumentAction action,
 			final DocumentActionData actionData) {
 		super(versionId);
-		this.contentSnapshot = contentSnapshot;
 		this.action = action;
 		this.actionData = actionData;
 		this.documentId = documentId;
@@ -80,13 +71,6 @@ public class DocumentVersion extends ParityObjectVersion {
 	 * @return The action data for this version.
 	 */
 	public DocumentActionData getActionData() { return actionData; }
-
-	/**
-	 * Obtain the content snapshot.
-	 * 
-	 * @return The content snapshot.
-	 */
-	public DocumentContent getContentSnapshot() { return contentSnapshot; }
 
 	/**
 	 * Obtain the documentId.

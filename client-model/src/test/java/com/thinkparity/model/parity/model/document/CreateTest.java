@@ -66,8 +66,9 @@ public class CreateTest extends ModelTestCase {
 			Document document;
 			DocumentContent content;
 			DocumentVersion version;
-			Document snapshot;
-			DocumentContent contentSnapshot;
+			Document versionSnapshot;
+			DocumentVersionContent versionContent;
+			DocumentContent versionContentSnapshot;
 			for(Fixture datum : data) {
 				document = datum.documentModel.create(datum.parent, datum.name,
 						datum.description, datum.file);
@@ -78,11 +79,14 @@ public class CreateTest extends ModelTestCase {
 				assertEquals(content.getChecksum(), datum.documentContentChecksum);
 
 				version = datum.documentModel.listVersions(document).iterator().next();
-				snapshot = version.getSnapshot();
-				contentSnapshot = version.getContentSnapshot();
+				versionSnapshot = version.getSnapshot();
 				assertNotNull(version);
-				assertEquals(snapshot, document);
-				assertEquals(contentSnapshot, content);
+				assertEquals(versionSnapshot, document);
+
+				versionContent = datum.documentModel.getVersionContent(version);
+				versionContentSnapshot = versionContent.getSnapshot();
+				assertNotNull(versionContent);
+				assertEquals(versionContentSnapshot, content);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -103,7 +107,7 @@ public class CreateTest extends ModelTestCase {
 			name = testFile.getName();
 			description = name;
 			file = testFile.getFile();
-			documentContentChecksum = MD5Util.md5Hex(FileUtil.readFile(file));
+			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(file));
 			data.add(new Fixture(description, file,
 					documentContentChecksum, documentModel, name, testProject));
 		}

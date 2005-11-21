@@ -7,16 +7,15 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.SystemUtil.SystemProperty;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 /**
- * <b>Title:</b>  FileUtil
- * <br><b>Description:</b>  
+ * File util contains io utilities as well as commonly used file routines.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.0.0
+ * @version 1.2.2.9
  */
 public abstract class FileUtil {
 
@@ -35,17 +34,10 @@ public abstract class FileUtil {
 	 */
 	private static final int READ_BUFFER_SIZE;
 
-	/**
-	 * Synchronization lock for the writeFile api.
-	 * @see FileUtil#writeFile(File, byte[])
-	 */
-	private static final Object writeFileLock;
-
 	static {
 		fileUtilConfig = ConfigFactory.newInstance(FileUtil.class);
 		READ_BUFFER_SIZE = Integer.parseInt(fileUtilConfig.getProperty("read.buffer.size"));
 		BLOCK_SIZE = Integer.parseInt(fileUtilConfig.getProperty("block.size"));
-		writeFileLock = new Object();
 	}
 
 	/**
@@ -70,26 +62,6 @@ public abstract class FileUtil {
 			bos.flush();
 			bos.close();
 		}
-	}
-
-	/**
-	 * Create a new directory.
-	 * @param directory <code>java.io.File</code>
-	 * @return <code>java.lang.Boolean</code>
-	 * TRUE:  directory was created
-	 * FALSE: directory was not created
-	 */
-	public static synchronized Boolean createDirectory(final File directory) {
-		return directory.mkdir();
-	}
-	
-	/**
-	 * Delete a file.
-	 * @param file <code>java.io.File</code>
-	 * @return <code>java.lang.Boolean</code>
-	 */
-	public static synchronized Boolean delete(final File file) {
-		return file.delete();
 	}
 	
 	/**
@@ -125,93 +97,87 @@ public abstract class FileUtil {
 	}
 	
 	/**
-	 * Obtain the file name without its extension, of the File.  If there is not 
-	 * extension the entire name is returned.
-	 * @param file <code>java.io.File</code>
-	 * @return <code>java.lang.String</code>
+	 * Obtain the extension portion of a file name. If none exists; the full
+	 * name is returned.
+	 * 
+	 * @param file
+	 *            The file.
+	 * @return The file name's extension.
+	 * @see FileUtil#getExtension(String)
 	 */
-	public static synchronized String getFileName(File file) {
-		if(!file.exists())
-			throw new IllegalArgumentException(
-				"File " + file.getAbsolutePath() + " does not exist.");
-		if(!file.isFile())
-			throw new IllegalArgumentException(
-				"File " + file.getAbsolutePath() + " is not a file.");
-		final String fileName = file.getName();
+	public static String getExtension(final File file) {
+		if(null == file) { throw new NullPointerException(); }
+		return FileUtil.getExtension(file.getName());
+	}
+
+	/**
+	 * Obtain the extension portion of a file name. If none exists; the full
+	 * name is returned.
+	 * 
+	 * @param fileName
+	 *            The file name.
+	 * @return The file name's extension.
+	 */	
+	public static String getExtension(String fileName) {
 		if(-1 != fileName.indexOf(Separator.Period.toString()))
 			return fileName.substring(
-				0,
 				fileName.lastIndexOf(Separator.Period.toString()));
 		return fileName;
 	}
 
 	/**
-	 * Obtain the file extension of the File.  If none exists, null is returned.  Is the 
-	 * same as:
-	 * <code>
-	 * FileUtil.getFileNameExtension(file.getName());
-	 * </code>
-	 * @param file <code>java.io.File</code>
-	 * @return <code>java.lang.String</code> or null if no file extension exists
+	 * Obtain the file name without its extension, of the File. If there is not
+	 * extension the entire name is returned.
+	 * 
+	 * @param file
+	 *            The file.
+	 * @return The name portion of the file name.
 	 */
-	public static synchronized String getFileNameExtension(File file) {
-		if(!file.exists())
-			throw new IllegalArgumentException(
-				"File " + file.getAbsolutePath() + " does not exist.");
-		if(!file.isFile())
-			throw new IllegalArgumentException(
-				"File " + file.getAbsolutePath() + " is not a file.");
-		return FileUtil.getFileNameExtension(file.getName());
+	public static String getName(final File file) {
+		if(null == file) { throw new NullPointerException(); }
+		return getName(file.getName());
 	}
-	
+
 	/**
-	 * Obtain the file extension of a file name.  If none exists null is returned.
-	 * @param fileName <code>java.lang.String</code>
-	 * @return <code>java.lang.String</code>
-	 */	
-	public static synchronized String getFileNameExtension(String fileName) {
+	 * Obtain the name portion of the file name.
+	 * 
+	 * @param fileName
+	 *            The file name.
+	 * @return The name portion of the file name.
+	 */
+	public static String getName(final String fileName) {
 		if(-1 != fileName.indexOf(Separator.Period.toString()))
 			return fileName.substring(
-				fileName.lastIndexOf(Separator.Period.toString()));
-		return null;
+					0, fileName.lastIndexOf(Separator.Period.toString()));
+		return fileName;
 	}
 
 	/**
-	 * Obtain the path for the file.  If the file is a file, the path of the parent is 
-	 * returned; if it is a directory, return its absolute path.  If it is neither, return
-	 * null.
-	 * @param file <code>java.io.File</code>
-	 * @return <code>java.lang.String</code>
+	 * Read a file's contents into a byte array.
+	 * 
+	 * @param file
+	 *            The file to read.
+	 * @return The file's contents.
+	 * @throws FileNotFoundException
+	 * @throws IOException
 	 */
-	public static synchronized String getFilePath(File file) {
-		if(!file.exists())
-			throw new IllegalArgumentException(
-				"File " + file.getAbsolutePath() + " does not exist.");
-		if(file.isFile())
-			return file.getParent();
-		else if(file.isDirectory())
-			return file.getAbsolutePath();
-		else
-			return null;
-	}
-
-	public static synchronized File getTempDirectory(
-			final String applicationName) {
-		final String tempDirectoryPath =
-			FileUtil.getTempDirectoryPath(applicationName);
-		final File tempDirectory = new File(tempDirectoryPath);
-		if(!tempDirectory.exists())
-			tempDirectory.mkdir();
-		return tempDirectory;
-	}
-
-	public static synchronized String getTempDirectoryPath(
-			final String applicationName) {
-		return new StringBuffer()
-			.append(SystemUtil.getSystemProperty(SystemProperty.TempDirectory))
-			.append(File.separatorChar)
-			.append(".")
-			.append(applicationName).toString();
+	public static byte[] readBytes(final File file)
+			throws FileNotFoundException, IOException {
+		FileInputStream fis = null;
+		final ByteBuffer byteBuffer;
+		try {
+			fis = new FileInputStream(file);
+			byteBuffer = ByteBuffer.allocate(fis.available());
+			final byte[] fileContentBuffer = new byte[READ_BUFFER_SIZE];
+			int numBytesRead = fis.read(fileContentBuffer);
+			while(-1 != numBytesRead) {
+				byteBuffer.put(fileContentBuffer, 0, numBytesRead);
+				// re-read from the stream
+				numBytesRead = fis.read(fileContentBuffer);
+			}
+		}
+		finally { fis.close(); }
+		return byteBuffer.array();
 	}
 
 	/**
@@ -223,11 +189,10 @@ public abstract class FileUtil {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static String read(final File file) throws FileNotFoundException,
-			IOException {
+	public static String readString(final File file)
+			throws FileNotFoundException, IOException {
 		final BufferedReader br =
 			new BufferedReader(new FileReader(file), READ_BUFFER_SIZE);
-
 		try {
 			final StringBuffer sbuf = new StringBuffer();
 			char[] cbuf = new char[READ_BUFFER_SIZE];
@@ -241,68 +206,31 @@ public abstract class FileUtil {
 	}
 
 	/**
-	 * Read a file's contents into a byte array.
-	 * 
-	 * @param file
-	 *            The file to read.
-	 * @return The file's contents.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	public static byte[] readFile(final File file)
-			throws FileNotFoundException, IOException {
-		final FileInputStream fis = new FileInputStream(file);
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(fis.available());
-		final byte[] fileContentBuffer = new byte[1024];
-		int numBytesRead = fis.read(fileContentBuffer);
-		while(-1 != numBytesRead) {
-			byteBuffer.put(fileContentBuffer, 0, numBytesRead);
-			// re-read from the stream
-			numBytesRead = fis.read(fileContentBuffer);
-		}
-		fis.close();
-		return byteBuffer.array();
-	}
-
-	/**
 	 * Write the content of a byte[] to a File
 	 * @param file <code>java.io.File</code>
 	 * @param content <code>byte[]</code>
 	 * @throws IOException
 	 */
-	public static void writeFile(final File file, byte[] content)
+	public static void writeBytes(final File file, byte[] content)
 			throws FileNotFoundException, IOException {
-		synchronized(writeFileLock) {
-			FileOutputStream fileOutputStream = null;
-			try {
-				fileOutputStream = new FileOutputStream(file);
-				int amountWritten = 0;
-				final int contentLength = content.length;
-				int amountToWrite;
-				while(amountWritten < contentLength) {
-					amountToWrite = BLOCK_SIZE > contentLength - amountWritten
-						? contentLength - amountWritten
-						: BLOCK_SIZE;
-					fileOutputStream.write(content, amountWritten, amountToWrite);
-					amountWritten += amountToWrite;
-				}
-			}
-			finally {
-				fileOutputStream.flush();
-				fileOutputStream.close();
+		FileOutputStream fileOutputStream = null;
+		try {
+			fileOutputStream = new FileOutputStream(file);
+			int amountWritten = 0;
+			final int contentLength = content.length;
+			int amountToWrite;
+			while(amountWritten < contentLength) {
+				amountToWrite = BLOCK_SIZE > contentLength - amountWritten
+					? contentLength - amountWritten
+					: BLOCK_SIZE;
+				fileOutputStream.write(content, amountWritten, amountToWrite);
+				amountWritten += amountToWrite;
 			}
 		}
-	}
-
-	public static synchronized File writeTempFile(final String applicationName,
-			final String filename, final byte[] content) throws IOException {
-		final File tempFile =
-			new File(FileUtil.getTempDirectory(applicationName), filename);
-		if(tempFile.exists())
-			tempFile.delete();
-		FileUtil.writeFile(tempFile, content);
-		tempFile.deleteOnExit();
-		return tempFile;
+		finally {
+			fileOutputStream.flush();
+			fileOutputStream.close();
+		}
 	}
 
 	/**

@@ -78,10 +78,8 @@ public class DocumentModel {
 	 * 
 	 * @param document
 	 *            The document to add the note to.
-	 * @param subject
-	 *            The subject of the note.
-	 * @param content
-	 *            The content of the note (Optional).
+	 * @param note
+	 *            The note.
 	 * @throws ParityException
 	 */
 	public Note addNote(final Document document, final String note)

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -53,11 +54,18 @@ public class CreateVersionTest extends ModelTestCase {
 	 */
 	public void testCreateVersion() {
 		try {
+			Iterator<DocumentVersion> iVersions;
 			DocumentVersion version;
 			DocumentVersionContent versionContent;
 			for(Fixture datum : data) {
-				version = datum.documentModel.createVersion(
+				datum.documentModel.createVersion(
 						datum.document, datum.action, datum.actionData);
+				// the version we want to compare to will be the last one in
+				// the list
+				iVersions =
+					datum.documentModel.listVersions(datum.document).iterator();
+				version = null;
+				while(iVersions.hasNext()) { version = iVersions.next(); }
 
 				assertNotNull(version);
 				assertEquals(datum.action, version.getAction());

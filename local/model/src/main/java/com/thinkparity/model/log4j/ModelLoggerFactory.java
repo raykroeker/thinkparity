@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
  * A singleton factory for obtaining log4j logger instances.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1.2.2
- * @see ModelLog4JConfigurator#
+ * @version 1.1.2.3
+ * @see ModelLog4JConfigurator
  */
 public class ModelLoggerFactory {
 

@@ -36,6 +36,16 @@ public class DocumentActionData {
 	}
 
 	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object obj) {
+		if(obj instanceof DocumentActionData) {
+			return actionData.equals(((DocumentActionData) obj).actionData);
+		}
+		return false;
+	}
+
+	/**
 	 * Obtain the value of a data item.
 	 * 
 	 * @param key
@@ -59,6 +69,11 @@ public class DocumentActionData {
 	public String getDataItem(final String key, final String defaultValue) {
 		return actionData.getProperty(key, defaultValue);
 	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() { return actionData.hashCode(); }
 
 	/**
 	 * Obtain the keys for the action data.

@@ -97,12 +97,10 @@ public class DocumentVersionConverter extends XmlIOConverter {
 			DocumentAction.fromId(reader.getAttribute("id"));
 		final DocumentActionData actionData;
 		if(reader.hasMoreChildren()) {
-			reader.moveDown();
 			actionData = new DocumentActionData();
 			while(reader.hasMoreChildren()) {
 				readActionDataItem(actionData, reader, context);
 			}
-			reader.moveUp();
 		}
 		else { actionData = null; }
 		reader.moveUp();

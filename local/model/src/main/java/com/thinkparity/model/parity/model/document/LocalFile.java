@@ -145,11 +145,13 @@ class LocalFile {
 	}
 
 	/**
-	 * Read the document local file.
+	 * Read the document local file into the bytes parameter. This will also
+	 * calculate the content's checksum.
 	 * 
-	 * @return The bytes.
 	 * @throws FileNotFoundException
 	 * @throws IOException
+	 * @see LocalFile#getFileBytes()
+	 * @see LocalFile#getFileChecksum()
 	 */
 	void read() throws FileNotFoundException, IOException {
 		fileBytes = FileUtil.readBytes(file);

@@ -27,11 +27,14 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
+ * Configure the log4j framework for the parity model library. Since the model
+ * is a lower level library instead of an application; this configuration should
+ * consist mainly of object renderer registration.
  * 
  * @author raykroeker@gmail.com
- * @version 1.0
+ * @version 1.1.2.7
  */
-public class ModelLog4JConfigurator {
+class ModelLog4JConfigurator {
 
 	/**
 	 * Flag that keeps the configuration from being performed more than once.

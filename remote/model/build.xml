@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- thinkparity.com - messenger.plugin -->
+<project name="thinkparity.com - messenger.plugin" basedir="./" default="jar">
+	<!-- properties -->
+	<property name="name" value="com.thinkparity.messenger"/>
+	<property name="version" value="1.0-SNAPSHOT"/>
+
+	<property name="export.dir" value="${basedir}/../../../export/thinkparity.com - ${name}"/>
+	<property name="jar.application" value="${basedir}/target/lib/${name}.jar"/>
+	<property name="jar.plugin" value="${export.dir}/${name}.jar"/>
+
+	<!-- targets -->
+	<target name="jar" depends="" if="" unless="">
+		<mkdir dir="${export.dir}"/>
+
+		<delete file="${jar.application}"/>
+		<jar destfile="${jar.application}">
+			<fileset dir="target/classes"/>
+		</jar>
+
+		<delete file="${jar.plugin}"/>
+		<jar destfile="${jar.plugin}">
+			<fileset dir="src/main/resources"/>
+			<fileset dir="target">
+				<include name="lib/*"/>
+			</fileset>
+		</jar>
+	</target>
+</project>

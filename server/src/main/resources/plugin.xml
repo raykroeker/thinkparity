@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <class>com.thinkparity.messenger.plugin.GlobalDataPlugin</class>
+
+    <name>Parity Plugin:  Registry</name>
+    <description>Parity artifact registry.</description>
+    <author>Parity Software Inc.</author>
+    <version>1.0</version>
+    <date>11/25/2005</date>
+    <url>http://thinkparity.dydns.org/messenger/plugin/registry</url>
+    <minServerVersion>2.2.0</minServerVersion>
+
+</plugin>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.5.0_05"/>
+	<classpathentry sourcepath="src/main/lib/messenger-2.2.0.src.jar" kind="lib" path="src/main/lib/messenger.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

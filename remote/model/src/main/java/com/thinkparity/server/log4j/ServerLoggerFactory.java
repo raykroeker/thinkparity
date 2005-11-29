@@ -1,7 +1,7 @@
 /*
  * Nov 28, 2005
  */
-package com.thinkparity.server.logging;
+package com.thinkparity.server.log4j;
 
 import org.apache.log4j.Logger;
 

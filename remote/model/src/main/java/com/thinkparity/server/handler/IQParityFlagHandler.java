@@ -5,6 +5,7 @@ package com.thinkparity.server.handler;
 
 import java.util.UUID;
 
+import org.dom4j.Element;
 import org.jivesoftware.messenger.IQHandlerInfo;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
@@ -12,14 +13,26 @@ import org.xmpp.packet.PacketError;
 
 import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.ParityServerModelException;
-import com.thinkparity.server.model.flag.Flag;
-import com.thinkparity.server.model.flag.FlagModel;
+import com.thinkparity.server.model.artifact.Artifact;
+import com.thinkparity.server.model.artifact.ArtifactFlag;
+import com.thinkparity.server.model.artifact.ArtifactId;
+import com.thinkparity.server.model.artifact.ArtifactModel;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class IQParityFlagHandler extends IQParityAbstractHandler {
+
+	/**
+	 * ArtifactFlag xml element.
+	 */
+	private static final String ELEMENT_NAME_FLAG = "flag";
+
+	/**
+	 * Id xml element.
+	 */
+	private static final String ELEMENT_NAME_ID = "id";
 
 	/**
 	 * Name of the handler.
@@ -53,15 +66,15 @@ public class IQParityFlagHandler extends IQParityAbstractHandler {
 	/**
 	 * Handle to the flag model api.
 	 */
-	private final FlagModel flagModel;
+	private final ArtifactModel artifactModel;
 
 	/**
-	 * Create a IQParityFlagHandler.
-	 * @param name
+	 * Create an IQParityFlagHandler.
+	 * 
 	 */
 	public IQParityFlagHandler() {
 		super(HANDLER_NAME);
-		this.flagModel = getFlagModel();
+		this.artifactModel = getArtifactModel();
 	}
 
 	/**
@@ -77,7 +90,7 @@ public class IQParityFlagHandler extends IQParityAbstractHandler {
 		logger.debug(packet);
 		final IQ result = createResult(packet);
 		if(isTypeSet(packet)) {
-			try { flagModel.flag(getArtifactId(packet), getFlag(packet)); }
+			try { artifactModel.flag(getArtifact(packet), getFlag(packet)); }
 			catch(ParityServerModelException psmx) {
 				logger.error("handleIQ(IQ)", psmx);
 				result.setError(translate("handleIQ(IQ)", psmx));
@@ -102,7 +115,30 @@ public class IQParityFlagHandler extends IQParityAbstractHandler {
 		return result;
 	}
 
-	private UUID getArtifactId(final IQ iq) { return null; }
+	/**
+	 * Extract the artifact from the internet query.
+	 * 
+	 * @param iq
+	 *            The internet query.
+	 * @return The artifact.
+	 */
+	private Artifact getArtifact(final IQ iq) {
+		final Element child = iq.getChildElement();
+		final Element idElement = child.element(IQParityFlagHandler.ELEMENT_NAME_ID);
+		final ArtifactId id = new ArtifactId(UUID.fromString((String) idElement.getData()));
+		return new Artifact(id);
+	}
 
-	private Flag getFlag(final IQ iq) { return null; }
+	/**
+	 * Extract the flag from the internet query.
+	 * 
+	 * @param iq
+	 *            The internet query.
+	 * @return The unique id.
+	 */
+	private ArtifactFlag getFlag(final IQ iq) {
+		final Element child = iq.getChildElement();
+		final Element flagElement = child.element(IQParityFlagHandler.ELEMENT_NAME_FLAG);
+		return ArtifactFlag.valueOf((String) flagElement.getData());
+	}
 }

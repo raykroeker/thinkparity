@@ -18,8 +18,8 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.server.handler.IQParityFlagHandler;
 import com.thinkparity.server.handler.IQParitySubscriptionHandler;
-import com.thinkparity.server.logging.ServerLog4jConfigurator;
-import com.thinkparity.server.logging.ServerLoggerFactory;
+import com.thinkparity.server.log4j.ServerLog4jConfigurator;
+import com.thinkparity.server.log4j.ServerLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com

@@ -4,13 +4,14 @@
 package com.thinkparity.server.handler;
 
 import org.apache.log4j.Logger;
+import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.handler.IQHandler;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
 import org.xmpp.packet.IQ.Type;
 
-import com.thinkparity.server.logging.ServerLoggerFactory;
-import com.thinkparity.server.model.flag.FlagModel;
+import com.thinkparity.server.log4j.ServerLoggerFactory;
+import com.thinkparity.server.model.artifact.ArtifactModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,6 +33,14 @@ abstract class IQParityAbstractHandler extends IQHandler {
 	protected IQParityAbstractHandler(final String name) { super(name); }
 
 	/**
+	 * @see org.jivesoftware.messenger.handler.IQHandler#initialize(org.jivesoftware.messenger.XMPPServer)
+	 */
+	public void initialize(XMPPServer server) {
+		super.initialize(server);
+		logger.debug(getInfo());
+	}
+
+	/**
 	 * Create a resultant internet query; using iq as the basis.
 	 * 
 	 * @param iq
@@ -42,11 +51,11 @@ abstract class IQParityAbstractHandler extends IQHandler {
 	protected IQ createResult(final IQ iq) { return IQ.createResultIQ(iq); }
 
 	/**
-	 * Obtain a handle to the flag model.
+	 * Obtain a handle to the artifact model.
 	 * 
-	 * @return A handle to the flag model.
+	 * @return A handle to the artifact model.
 	 */
-	protected FlagModel getFlagModel() { return FlagModel.getModel(); }
+	protected ArtifactModel getArtifactModel() { return ArtifactModel.getModel(); }
 
 	/**
 	 * Determine whether or not iq is of type get.

@@ -16,10 +16,10 @@ public interface ParityServerConstants {
 		"com.thinkparity.server.IQParityFlagHandler";
 
 	static final String IQ_PARITY_FLAG_HANDLER_INFO_NAME =
-		"flag";
+		"query";
 
 	static final String IQ_PARITY_FLAG_HANDLER_INFO_NAMESPACE =
-		"jabber:iq:parity";
+		"jabber:iq:parity:flag";
 
 	static final String IQ_PARITY_SUBSCRIPTION_HANDER_NAME =
 		"com.thinkparity.server.IQParitySubscriptionHandler";

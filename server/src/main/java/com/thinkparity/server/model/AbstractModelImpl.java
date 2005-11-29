@@ -5,7 +5,7 @@ package com.thinkparity.server.model;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.server.logging.ServerLoggerFactory;
+import com.thinkparity.server.log4j.ServerLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com

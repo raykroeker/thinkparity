@@ -1,18 +1,30 @@
 /*
  * Nov 28, 2005
  */
-package com.thinkparity.server.logging;
+package com.thinkparity.server.log4j;
 
 import java.io.File;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.dom4j.Element;
+import org.jivesoftware.messenger.IQHandlerInfo;
+import org.xmpp.packet.Packet;
+
+import com.thinkparity.server.log4j.or.org.dom4j.ElementRenderer;
+import com.thinkparity.server.log4j.or.org.jivesoftware.messenger.IQHandlerInfoRenderer;
+import com.thinkparity.server.log4j.or.org.xmpp.packet.PacketRenderer;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class ServerLog4jConfigurator {
+
+	/**
+	 * Prefix for all renderer properties.
+	 */
+	private static final String RENDERER_PROPERTY_PREFIX = "log4j.renderer.";
 
 	/**
 	 * Singleton instance.
@@ -50,7 +62,7 @@ public class ServerLog4jConfigurator {
 	}
 
 	/**
-	 * Flag indicating whether or not the configuration has been set.
+	 * ArtifactFlag indicating whether or not the configuration has been set.
 	 * 
 	 * @see ServerLog4jConfigurator#configure()
 	 */
@@ -70,7 +82,7 @@ public class ServerLog4jConfigurator {
 			final Properties log4jProperties = new Properties();
 
 			configureGlobal(log4jProperties);
-
+			configureRenderers(log4jProperties);
 			configureServerHTMLAppender(log4jProperties, log4jDirectory);
 
 			PropertyConfigurator.configure(log4jProperties);
@@ -89,21 +101,50 @@ public class ServerLog4jConfigurator {
 	}
 
 	/**
+	 * Configure a renderer for a server class.
+	 * 
+	 * @param log4jProperties
+	 *            The configuration to set.
+	 * @param renderedClass
+	 *            The class that will be rendered.
+	 * @param renderingClass
+	 *            The class that will render.
+	 */
+	private void configureRenderer(final Properties log4jProperties,
+			final Class renderedClass, final Class renderingClass) {
+		log4jProperties.setProperty(
+				RENDERER_PROPERTY_PREFIX + renderedClass.getName(),
+				renderingClass.getName());
+	}
+
+	/**
+	 * Configure all parity model renderers.
+	 * 
+	 * @param log4jProperties
+	 *            The configuration to set.
+	 */
+	private void configureRenderers(final Properties log4jProperties) {
+		configureRenderer(log4jProperties, Element.class, ElementRenderer.class);
+		configureRenderer(log4jProperties, IQHandlerInfo.class, IQHandlerInfoRenderer.class);
+		configureRenderer(log4jProperties, Packet.class, PacketRenderer.class);
+	}
+
+	/**
 	 * Configure the server html log file.
 	 * 
-	 * @param serverHTMLProperties
+	 * @param log4jProperties
 	 *            The server html configuration.
 	 * @param log4jDirectory
 	 *            The log4j output directory.
 	 */
 	private void configureServerHTMLAppender(
-			final Properties serverHTMLProperties, final File log4jDirectory) {
-		serverHTMLProperties.setProperty("log4j.appender.serverHTML", "org.apache.log4j.RollingFileAppender");
-		serverHTMLProperties.setProperty("log4j.appender.serverHTML.layout", "org.apache.log4j.HTMLLayout");
-		serverHTMLProperties.setProperty("log4j.appender.serverHTML.layout.locationInfo", "true");
-		serverHTMLProperties.setProperty("log4j.appender.serverHTML.layout.title", "Parity Server");
+			final Properties log4jProperties, final File log4jDirectory) {
+		log4jProperties.setProperty("log4j.appender.serverHTML", "org.apache.log4j.RollingFileAppender");
+		log4jProperties.setProperty("log4j.appender.serverHTML.layout", "org.apache.log4j.HTMLLayout");
+		log4jProperties.setProperty("log4j.appender.serverHTML.layout.locationInfo", "true");
+		log4jProperties.setProperty("log4j.appender.serverHTML.layout.title", "Parity Server");
 		final File serverHTMLFile = new File(log4jDirectory, "parity.server.log4j.html");
-		serverHTMLProperties.setProperty("log4j.appender.serverHTML.File", serverHTMLFile.getAbsolutePath());
+		log4jProperties.setProperty("log4j.appender.serverHTML.File", serverHTMLFile.getAbsolutePath());
 	}
 
 	/**
@@ -113,4 +154,5 @@ public class ServerLog4jConfigurator {
 	 *         otherwise.
 	 */	
 	private Boolean isConfiguredImpl() { return isConfigured; }
+
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin>
-    <class>com.thinkparity.messenger.plugin.GlobalDataPlugin</class>
+    <class>com.thinkparity.server.ParityServer</class>
 
-    <name>Parity Plugin:  Registry</name>
-    <description>Parity artifact registry.</description>
+    <name>Parity Software Inc:  Parity Server</name>
+    <description>Parity Software Inc:  Parity Server</description>
     <author>Parity Software Inc.</author>
     <version>1.0</version>
     <date>11/25/2005</date>

@@ -3,5 +3,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.5.0_05"/>
 	<classpathentry sourcepath="src/main/lib/messenger-2.2.0.src.jar" kind="lib" path="src/main/lib/messenger.jar"/>
+	<classpathentry sourcepath="/MAVEN_REPO/log4j/src/log4j-1.2.9.src.jar" kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
+	<classpathentry sourcepath="/MAVEN_REPO/thinkparity.com/src/codebase-1.0-SNAPSHOT.src.zip" kind="var" path="MAVEN_REPO/thinkparity.com/jars/codebase-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

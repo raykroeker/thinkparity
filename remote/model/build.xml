@@ -1,29 +1,49 @@
 <?xml version="1.0"?>
 <!-- thinkparity.com - messenger.plugin -->
-<project name="thinkparity.com - messenger.plugin" basedir="./" default="jar">
+<project name="thinkparity.com - server" basedir="./">
 	<!-- properties -->
-	<property name="name" value="com.thinkparity.messenger"/>
+	<property name="artifactId" value="server"/>
+	<property name="groupId" value="thinkparity.com"/>
 	<property name="version" value="1.0-SNAPSHOT"/>
 
-	<property name="export.dir" value="${basedir}/../../../export/thinkparity.com - ${name}"/>
-	<property name="jar.application" value="${basedir}/target/lib/${name}.jar"/>
-	<property name="jar.plugin" value="${export.dir}/${name}.jar"/>
+	<!-- libs -->
+	<property environment="env"/>
+	<property name="maven.repo" value="${env.HOME}/.maven/repository"/>
+	<property name="lib.codebase" value="${maven.repo}/thinkparity.com/jars/codebase-1.0-SNAPSHOT.jar"/>
+	<property name="lib.log4j" value="${maven.repo}/log4j/jars/log4j-1.2.9.jar"/>
 
-	<!-- targets -->
-	<target name="jar" depends="" if="" unless="">
+	<property name="export.dir" value="${basedir}/../../../export/${groupId} - ${artifactId}"/>
+	<property name="jar.server" value="${basedir}/target/jars/${artifactId}-${version}.jar"/>
+	<property name="jar.plugin" value="${export.dir}/${artifactId}-${version}.jar"/>
+
+	<!-- jar the plugin -->
+	<target name="jar.plugin" depends="jar.server" if="" unless="">
 		<mkdir dir="${export.dir}"/>
+		<mkdir dir="${export.dir}/lib"/>
 
-		<delete file="${jar.application}"/>
-		<jar destfile="${jar.application}">
-			<fileset dir="target/classes"/>
-		</jar>
-
+		<!-- copy server jar and 3rd party libs to a local temp directory -->
+		<copy todir="${export.dir}/lib">
+			<fileset file="${jar.server}"/>
+			<fileset file="${lib.codebase}"/>
+			<fileset file="${lib.log4j}"/>
+		</copy>
 		<delete file="${jar.plugin}"/>
 		<jar destfile="${jar.plugin}">
 			<fileset dir="src/main/resources"/>
-			<fileset dir="target">
+			<fileset dir="${export.dir}">
 				<include name="lib/*"/>
 			</fileset>
+		</jar>
+		<delete dir="${export.dir}/lib"/>
+	</target>
+
+	<!-- jar the server classes\resources -->
+	<target name="jar.server" depends="" if="" unless="">
+		<mkdir dir="${basedir}/target/jars"/>
+
+		<delete file="${jar.server}"/>
+		<jar destfile="${jar.server}">
+			<fileset dir="target/classes"/>
 		</jar>
 	</target>
 </project>

@@ -3,6 +3,9 @@
  */
 package com.thinkparity.server.model.artifact;
 
+import java.util.Calendar;
+import java.util.UUID;
+
 
 /**
  * @author raykroeker@gmail.com
@@ -10,20 +13,51 @@ package com.thinkparity.server.model.artifact;
  */
 public class Artifact {
 
-	private final ArtifactId id;
+	private final Integer artifactId;
+
+	private final UUID artifactUUID;
+
+	private final Calendar createdOn;
+
+	private final Calendar updatedOn;
 
 	/**
 	 * Create an Artifact.
 	 */
-	public Artifact(final ArtifactId id) {
+	public Artifact(final Integer artifactId, final UUID artifactUUID,
+			final Calendar createdOn, final Calendar updatedOn) {
 		super();
-		this.id = id;
+		this.artifactId = artifactId;
+		this.artifactUUID = artifactUUID;
+		this.createdOn = createdOn;
+		this.updatedOn = updatedOn;
 	}
 
 	/**
 	 * Obtain the id.
 	 * 
-	 * @return The id.
+	 * @return The artifact id.
 	 */
-	public ArtifactId getId() { return id; }
+	public Integer getArtifactId() { return artifactId; }
+
+	/**
+	 * Obtain the unique id.
+	 * 
+	 * @return The unique id.
+	 */
+	public UUID getArtifactUUID() { return artifactUUID; }
+
+	/**
+	 * Obtain the creation date.
+	 * 
+	 * @return The created on date.
+	 */
+	public Calendar getCreatedOn() { return createdOn; }
+
+	/**
+	 * Obtain the last update date.
+	 * 
+	 * @return The updated on date.
+	 */
+	public Calendar getUpdatedOn() { return updatedOn; }
 }

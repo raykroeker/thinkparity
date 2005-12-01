@@ -16,8 +16,7 @@ import org.jivesoftware.messenger.handler.IQHandler;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.server.handler.IQParityFlagHandler;
-import com.thinkparity.server.handler.IQParitySubscriptionHandler;
+import com.thinkparity.server.handler.IQParityArtifactHandler;
 import com.thinkparity.server.log4j.ServerLog4jConfigurator;
 import com.thinkparity.server.log4j.ServerLoggerFactory;
 
@@ -92,8 +91,7 @@ public class ParityServer implements Plugin {
 	 * 
 	 */
 	private void initializeIQHandlers() {
-		parityHandlers.add(new IQParityFlagHandler());
-		parityHandlers.add(new IQParitySubscriptionHandler());
+		parityHandlers.add(new IQParityArtifactHandler());
 		for(IQHandler parityHandler : parityHandlers) {
 			logger.info(new StringBuffer("Adding:")
 					.append(parityHandler.getClass().getName())

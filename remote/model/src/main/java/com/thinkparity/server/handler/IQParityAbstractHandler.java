@@ -3,21 +3,34 @@
  */
 package com.thinkparity.server.handler;
 
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
+import org.dom4j.Element;
+import org.jivesoftware.messenger.ClientSession;
 import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.handler.IQHandler;
+import org.jivesoftware.messenger.user.UserNotFoundException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
 import org.xmpp.packet.IQ.Type;
 
 import com.thinkparity.server.log4j.ServerLoggerFactory;
+import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
+import com.thinkparity.server.model.user.User;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 abstract class IQParityAbstractHandler extends IQHandler {
+
+	/**
+	 * Id xml element.
+	 */
+	private static final String ELEMENT_NAME_UUID = "uuid";
 
 	/**
 	 * Handle to a parity server logger.
@@ -51,11 +64,51 @@ abstract class IQParityAbstractHandler extends IQHandler {
 	protected IQ createResult(final IQ iq) { return IQ.createResultIQ(iq); }
 
 	/**
+	 * Extract the artifact's unique id from the iq xml document; and build an
+	 * artifact reference via the model interface. The required child element
+	 * is: &lt;uuid&gt;&lt;/uuid&gt;
+	 * 
+	 * @param iq
+	 *            The iq xml document.
+	 * @return The artifact.
+	 */
+	protected Artifact getArtifact(final IQ iq) throws ParityServerModelException {
+		return getArtifactModel().get(getArtifactUUID(iq));
+	}
+
+	/**
+	 * Extract the artifact's unique id from the iq xml document. The required
+	 * child element is: &lt;uuid&gt;&lt;/uuid&gt;
+	 * 
+	 * @param iq
+	 *            The iq xml document.
+	 * @return The artifact's unique id.
+	 */
+	protected UUID getArtifactUUID(final IQ iq) {
+		final Element child = iq.getChildElement();
+		final Element uuidElement = child.element(IQParityAbstractHandler.ELEMENT_NAME_UUID);
+		return UUID.fromString((String) uuidElement.getData());
+	}
+
+	/**
 	 * Obtain a handle to the artifact model.
 	 * 
 	 * @return A handle to the artifact model.
 	 */
 	protected ArtifactModel getArtifactModel() { return ArtifactModel.getModel(); }
+
+	/**
+	 * Obtain the user representing the sender of the iq.
+	 * 
+	 * @param iq
+	 *            The iq.
+	 * @return The from user.
+	 * @throws UserNotFoundException
+	 */
+	protected User getFromUser(final IQ iq) throws UserNotFoundException {
+		final ClientSession session = sessionManager.getSession(iq.getFrom());
+		return new User(session.getUsername());
+	}
 
 	/**
 	 * Determine whether or not iq is of type get.

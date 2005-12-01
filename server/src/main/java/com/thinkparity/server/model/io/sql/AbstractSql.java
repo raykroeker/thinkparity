@@ -29,6 +29,11 @@ public abstract class AbstractSql {
 	 */
 	protected AbstractSql() { super(); }
 
+	protected void close(final Connection cx, final PreparedStatement ps)
+			throws SQLException {
+		close(cx, ps, null);
+	}
+
 	protected void close(final Connection cx, final PreparedStatement ps,
 			final ResultSet rs) throws SQLException {
 		if(null != rs) { rs.close(); }

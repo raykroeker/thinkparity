@@ -6,6 +6,8 @@ package com.thinkparity.server.model;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import org.jivesoftware.messenger.user.UserNotFoundException;
+
 /**
  * 
  * @author raykroeker@gmail.com
@@ -63,6 +65,11 @@ public class ParityErrorTranslator {
 		synchronized(singletonLock) { return singleton.translateImpl(sqlx); }
 	}
 
+	public static ParityServerModelException translate(
+			final UserNotFoundException unfx) {
+		synchronized(singletonLock) { return singleton.translateImpl(unfx); }
+	}
+
 	/**
 	 * Create a ParityErrorTranslator [Singleton]
 	 */
@@ -99,5 +106,9 @@ public class ParityErrorTranslator {
 	 */
 	private ParityServerModelException translateImpl(final SQLException sqlx) {
 		return new ParityServerModelException(sqlx);
+	}
+
+	private ParityServerModelException translateImpl(final UserNotFoundException unfx) {
+		return new ParityServerModelException(unfx);
 	}
 }

@@ -21,6 +21,6 @@ public class IQArtifactUnsubscribe extends IQArtifact {
 	 *            The artifact unique id.
 	 */
 	public IQArtifactUnsubscribe(final UUID artifactUUID) {
-		super(Action.UNSUBSCRIBE, artifactUUID);
+		super(Action.UNSUBSCRIBEUSER, artifactUUID);
 	}
 }

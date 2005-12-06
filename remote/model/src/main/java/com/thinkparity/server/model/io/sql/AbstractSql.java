@@ -10,6 +10,7 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.database.DbConnectionManager;
+import org.jivesoftware.database.SequenceManager;
 
 import com.thinkparity.server.log4j.ServerLoggerFactory;
 
@@ -45,5 +46,10 @@ public abstract class AbstractSql {
 
 	protected Connection getCx() throws SQLException {
 		return DbConnectionManager.getConnection();
+	}
+
+	protected Integer nextId(final AbstractSql abstractSql) {
+		final Long nextId = SequenceManager.nextID(abstractSql);
+		return nextId.intValue();
 	}
 }

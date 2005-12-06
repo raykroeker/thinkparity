@@ -18,7 +18,7 @@ public abstract class IQArtifact extends IQParity {
 	 * Artifact actions that are possible to perform.
 	 * 
 	 */
-	public enum Action { CREATE, FLAG, SUBSCRIBE, UNSUBSCRIBE }
+	protected enum Action { CREATEARTIFACT, FLAGARTIFACT, SUBSCRIBEUSER, UNSUBSCRIBEUSER }
 
 	/**
 	 * Finish xml tag for action. 
@@ -38,7 +38,7 @@ public abstract class IQArtifact extends IQParity {
 	/**
 	 * Start xml tag for the query.
 	 */
-	private static final String XML_QUERY_START = "<query xmlns=\"jabber:iq:parity:artifact\">";
+	private static final String XML_QUERY_START = "<query xmlns=\"jabber:iq:parity\">";
 
 	/**
 	 * Finish xml tag for actionUUID.

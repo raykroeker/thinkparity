@@ -13,14 +13,9 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
  * some common functionality.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.2
  */
 public abstract class IQParity extends IQ {
-
-	/**
-	 * IQ xml namepsace.
-	 */
-	private static final String ROOT_NAMESPACE = "jabber:iq:parity";
 
 	/**
 	 * Handle to an apache logger.
@@ -31,11 +26,4 @@ public abstract class IQParity extends IQ {
 	 * Create a IQParity.
 	 */
 	protected IQParity() { super(); }
-
-	/**
-	 * Obtain the xml namespace.
-	 * 
-	 * @return The xml namespace.
-	 */
-	protected String getRootNamespace() { return ROOT_NAMESPACE; }
 }

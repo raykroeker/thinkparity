@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.UUID;
 
+import org.jivesoftware.database.JiveID;
+
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -20,10 +22,11 @@ import com.thinkparity.server.model.io.sql.AbstractSql;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
+@JiveID(1000)
 public class ArtifactSql extends AbstractSql {
 
 	private static final String INSERT =
-		"insert into parityArtifact (artifactUUID) values (?)";
+		"insert into parityArtifact (artifactId,artifactUUID) values (?,?)";
 
 	private static final String SELECT = new StringBuffer()
 		.append("select artifactId,artifactUUID,createdOn,updatedOn ")
@@ -35,7 +38,7 @@ public class ArtifactSql extends AbstractSql {
 	 */
 	public ArtifactSql() { super(); }
 
-	public void insert(final UUID artifactUUID) throws SQLException {
+	public Integer insert(final UUID artifactUUID) throws SQLException {
 		logger.info("insert(UUID)");
 		logger.debug(artifactUUID);
 		Connection cx = null;
@@ -43,8 +46,11 @@ public class ArtifactSql extends AbstractSql {
 		try {
 			cx = getCx();
 			ps = cx.prepareStatement(INSERT);
-			ps.setString(1, artifactUUID.toString());
+			final Integer artifactId = nextId(this);
+			ps.setInt(1, artifactId);
+			ps.setString(2, artifactUUID.toString());
 			Assert.assertTrue("insert(UUID)", 1 == ps.executeUpdate());
+			return artifactId;
 		}
 		finally { close(cx, ps); }
 	}

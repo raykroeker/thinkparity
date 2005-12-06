@@ -28,7 +28,7 @@ public class IQArtifactFlag extends IQArtifact {
 	 */
 	public IQArtifactFlag(final UUID artifactUUID,
 			final ParityObjectFlag artifactFlag) {
-		super(Action.FLAG, artifactUUID);
+		super(Action.FLAGARTIFACT, artifactUUID);
 		this.artifactFlag = artifactFlag;
 	}
 

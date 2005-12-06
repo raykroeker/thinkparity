@@ -9,7 +9,7 @@ import java.util.Properties;
 import org.apache.log4j.PropertyConfigurator;
 import org.dom4j.Element;
 import org.jivesoftware.messenger.IQHandlerInfo;
-import org.xmpp.packet.Packet;
+import org.xmpp.packet.IQ;
 
 import com.thinkparity.server.log4j.or.com.thinkparity.server.model.artifact.ArtifactRenderer;
 import com.thinkparity.server.log4j.or.com.thinkparity.server.model.artifact.ArtifactSubscriptionRenderer;
@@ -17,7 +17,7 @@ import com.thinkparity.server.log4j.or.com.thinkparity.server.model.user.UserRen
 import com.thinkparity.server.log4j.or.com.thinkparity.server.packet.IQParityRenderer;
 import com.thinkparity.server.log4j.or.org.dom4j.ElementRenderer;
 import com.thinkparity.server.log4j.or.org.jivesoftware.messenger.IQHandlerInfoRenderer;
-import com.thinkparity.server.log4j.or.org.xmpp.packet.PacketRenderer;
+import com.thinkparity.server.log4j.or.org.xmpp.packet.IQRenderer;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactSubscription;
 import com.thinkparity.server.model.user.User;
@@ -135,9 +135,9 @@ public class ServerLog4jConfigurator {
 		configureRenderer(log4jProperties, Artifact.class, ArtifactRenderer.class);
 		configureRenderer(log4jProperties, ArtifactSubscription.class, ArtifactSubscriptionRenderer.class);
 		configureRenderer(log4jProperties, Element.class, ElementRenderer.class);
+		configureRenderer(log4jProperties, IQ.class, IQRenderer.class);
 		configureRenderer(log4jProperties, IQHandlerInfo.class, IQHandlerInfoRenderer.class);
 		configureRenderer(log4jProperties, IQParity.class, IQParityRenderer.class);
-		configureRenderer(log4jProperties, Packet.class, PacketRenderer.class);
 		configureRenderer(log4jProperties, User.class, UserRenderer.class);
 	}
 

@@ -4,19 +4,19 @@
 package com.thinkparity.server;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Vector;
 
-import org.apache.log4j.Logger;
+import org.apache.log4j.LogManager;
 import org.jivesoftware.messenger.IQRouter;
+import org.jivesoftware.messenger.Session;
 import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.container.Plugin;
 import org.jivesoftware.messenger.container.PluginManager;
-import org.jivesoftware.messenger.handler.IQHandler;
+import org.jivesoftware.messenger.event.SessionEventDispatcher;
+import org.jivesoftware.messenger.event.SessionEventListener;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.server.handler.IQParityArtifactHandler;
+import com.thinkparity.server.handler.IQDispatcher;
 import com.thinkparity.server.log4j.ServerLog4jConfigurator;
 import com.thinkparity.server.log4j.ServerLoggerFactory;
 
@@ -27,26 +27,14 @@ import com.thinkparity.server.log4j.ServerLoggerFactory;
 public class ParityServer implements Plugin {
 
 	/**
-	 * List of all of the iq handlers for the parity plugin.
-	 * 
-	 * @see ParityServer#initializeIQHandlers()
-	 * @see ParityServer#destroyIQHandlers()
+	 * IQ dispatcher for the parity server.
 	 */
-	private static final Collection<IQHandler> parityHandlers;
-
-	static { parityHandlers = new Vector<IQHandler>(2); }
+	private IQDispatcher iqDispatcher;
 
 	/**
 	 * Handle to the xmpp server's iq router.
 	 */
 	private final IQRouter iqRouter;
-
-	/**
-	 * Handle to an apache logger.
-	 * 
-	 * @see ParityServer#initializePluginLogging(File)
-	 */
-	private Logger logger;
 
 	/**
 	 * Create a ParityServer.
@@ -59,47 +47,45 @@ public class ParityServer implements Plugin {
 	/**
 	 * @see org.jivesoftware.messenger.container.Plugin#destroyPlugin()
 	 */
-	public void destroyPlugin() { destroyIQHandlers(); }
+	public void destroyPlugin() {
+		destroyPluginLogging();
+		destroyIQDispatcher();
+		destroyEventHandlers();
+	}
 
 	/**
 	 * @see org.jivesoftware.messenger.container.Plugin#initializePlugin(org.jivesoftware.messenger.container.PluginManager, java.io.File)
 	 */
 	public void initializePlugin(PluginManager manager, File pluginDirectory) {
 		initializePluginLogging(pluginDirectory);
-		initializeIQHandlers();
+		initializeIQDispatcher();
+		initializeEventHandlers();
+		ServerLoggerFactory.getLogger(getClass()).info(ParityServerConstants.SERVER_NAME + " initialized.");
 	}
 
 	/**
-	 * Remove all parity handlers from the router's list.
-	 * 
+	 * Destroy the iq dispatcher.s
 	 */
-	private void destroyIQHandlers() {
-		for(IQHandler parityHandler : parityHandlers) {
-			logger.info(new StringBuffer("Removing:")
-					.append(parityHandler.getClass().getName())
-					.append("..."));
-			iqRouter.removeHandler(parityHandler);
-			parityHandler.destroy();
-			logger.info(new StringBuffer(parityHandler.getClass().getName())
-					.append(" removed."));
-		}
-		parityHandlers.clear();
+	private void destroyIQDispatcher() {
+		// destroy the dispatcher
+		iqRouter.removeHandler(iqDispatcher);
+		iqDispatcher.destroy();
+		iqDispatcher = null;
 	}
 
 	/**
-	 * Add all parity handlers to the router's list.
-	 * 
+	 * Destroy the logging framework.
+	 *
 	 */
-	private void initializeIQHandlers() {
-		parityHandlers.add(new IQParityArtifactHandler());
-		for(IQHandler parityHandler : parityHandlers) {
-			logger.info(new StringBuffer("Adding:")
-					.append(parityHandler.getClass().getName())
-					.append("..."));
-			iqRouter.addHandler(parityHandler);
-			logger.info(new StringBuffer(parityHandler.getClass().getName())
-					.append(" added."));
-		}
+	private void destroyPluginLogging() { LogManager.shutdown(); }
+
+	/**
+	 * Initialize the iq dispatcher.
+	 */
+	private void initializeIQDispatcher() {
+		// create the dispatcher
+		iqDispatcher = new IQDispatcher();
+		iqRouter.addHandler(iqDispatcher);
 	}
 
 	/**
@@ -116,6 +102,18 @@ public class ParityServer implements Plugin {
 					"initializePluginLogging(File)", log4jDirectory.mkdir());
 		}
 		ServerLog4jConfigurator.configure(log4jDirectory);
-		logger = ServerLoggerFactory.getLogger(getClass());
 	}
+
+	private void initializeEventHandlers() {
+		SessionEventDispatcher.addListener(new SessionEventListener() {
+			public void anonymousSessionCreated(Session session) {}
+			public void anonymousSessionDestroyed(Session session) {}
+			public void sessionCreated(Session session) {
+				
+			}
+			public void sessionDestroyed(Session session) {}
+		});
+	}
+
+	private void destroyEventHandlers() {}
 }

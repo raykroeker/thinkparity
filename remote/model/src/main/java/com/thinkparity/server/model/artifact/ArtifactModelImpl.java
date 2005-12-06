@@ -7,17 +7,15 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
-import org.jivesoftware.messenger.PacketRouter;
-import org.jivesoftware.messenger.XMPPServer;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSql;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSubscriptionSql;
-import com.thinkparity.server.model.user.User;
+import com.thinkparity.server.model.queue.QueueModel;
+import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.packet.IQArtifact;
 import com.thinkparity.server.packet.IQArtifactFlag;
 
@@ -38,18 +36,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	private final ArtifactSubscriptionSql artifactSubscriptionSql;
 
 	/**
-	 * Handle to the xmpp server.
-	 */
-	private final XMPPServer xmppServer;
-
-	/**
 	 * Create a ArtifactModelImpl.
 	 */
-	ArtifactModelImpl(final XMPPServer xmppServer) {
-		super();
+	ArtifactModelImpl(final Session session) {
+		super(session);
 		this.artifactSql = new ArtifactSql();
 		this.artifactSubscriptionSql = new ArtifactSubscriptionSql();
-		this.xmppServer = xmppServer;
 	}
 
 	/**
@@ -97,13 +89,14 @@ class ArtifactModelImpl extends AbstractModelImpl {
 				artifactSubscriptionSql.select(artifactId);
 
 			// send an IQFlag packet to each subscribed user
-			final PacketRouter router = xmppServer.getPacketRouter();
 			final UUID artifactUUID = artifact.getArtifactUUID();
-			IQArtifact iqArtifact;
+			IQ iq;
 			for(ArtifactSubscription subscription : subscriptions) {
-				iqArtifact = createIQArtifactFlag(artifactUUID, artifactFlag, subscription);
-				logger.debug(iqArtifact);
-				router.route(iqArtifact);
+				iq = createFlag(artifactUUID, artifactFlag, subscription);
+				// if the user represented by the "to" is offline; 
+				// save to the database
+				if(isOnline(iq.getTo())) { route(iq); }
+				else { enqueue(iq); }
 			}
 		}
 		catch(SQLException sqlx) {
@@ -138,22 +131,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Subscribe a user to an artifact.
+	 * SubscribeUser a user to an artifact.
 	 * 
-	 * @param user
-	 *            The user to subscribe.
 	 * @param artifact
 	 *            The artifact to subscribe the user to.
 	 * @throws ParityServerModelException
 	 */
-	void subscribe(final User user, final Artifact artifact)
-			throws ParityServerModelException {
+	void subscribe(final Artifact artifact) throws ParityServerModelException {
 		logger.info("subscribe(User,Artifact)");
-		logger.debug(user);
 		logger.debug(artifact);
 		try {
 			final Integer artifactId = artifact.getArtifactId();
-			final String username = user.getUsername();
+			final String username = session.getJID().getNode();
 			final Integer rowCount =
 				artifactSubscriptionSql.selectCount(artifactId, username);
 			if(1 == rowCount) {
@@ -177,20 +166,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Unsubscribe a user from an artifact.
 	 * 
-	 * @param user
-	 *            The user to unsubscribe.
 	 * @param artifact
 	 *            The artifact to unsubscribe the user from.
 	 * @throws ParityServerModelException
 	 */
-	void unsubscribe(final User user, final Artifact artifact)
-			throws ParityServerModelException {
+	void unsubscribe(final Artifact artifact) throws ParityServerModelException {
 		logger.info("unsubscribe(User,Artifact)");
-		logger.debug(user);
 		logger.debug(artifact);
 		try {
 			final Integer artifactId = artifact.getArtifactId();
-			final String username = user.getUsername();
+			final String username = session.getJID().getNode();
 			final Integer rowCount =
 				artifactSubscriptionSql.selectCount(artifactId, username);
 			if(0 == rowCount) {
@@ -212,16 +197,33 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Create a flag packet to send to the subscribed users.
+	 * Create a flag iq packet to send to a subscription.
 	 * 
+	 * @param artifactUUID
+	 *            The artifact unique id.
+	 * @param artifactFlag
+	 *            The flag.
+	 * @param subscription
+	 *            The subscription.
 	 * @return The flag iq packet.
 	 */
-	private IQArtifact createIQArtifactFlag(final UUID artifactUUID,
+	private IQArtifact createFlag(final UUID artifactUUID,
 			final ParityObjectFlag artifactFlag,
 			final ArtifactSubscription subscription) {
-		final IQArtifact iqArtifact = new IQArtifactFlag(artifactUUID, artifactFlag);
-		iqArtifact.setTo(xmppServer.createJID(subscription.getUsername(), ParityServerConstants.CLIENT_RESOURCE));
-		iqArtifact.setType(IQ.Type.set);
-		return iqArtifact;
+		final IQArtifactFlag iqArtifactFlag = new IQArtifactFlag(artifactUUID, artifactFlag);
+		iqArtifactFlag.setTo(createJID(subscription.getUsername()));
+		iqArtifactFlag.setFrom(session.getJID());
+		return iqArtifactFlag;
+	}
+
+	/**
+	 * Save the iq in the parity offline queue.
+	 * 
+	 * @param iq
+	 *            The iq packet.
+	 */
+	private void enqueue(final IQ iq) throws ParityServerModelException {
+		final QueueModel queueModel = QueueModel.getModel(session);
+		queueModel.enqueue(iq.getTo(), iq.toXML());
 	}
 }

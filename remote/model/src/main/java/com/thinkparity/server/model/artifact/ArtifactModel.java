@@ -5,11 +5,9 @@ package com.thinkparity.server.model.artifact;
 
 import java.util.UUID;
 
-import org.jivesoftware.messenger.XMPPServer;
-
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
-import com.thinkparity.server.model.user.User;
+import com.thinkparity.server.model.session.Session;
 
 /**
  * @author raykroeker@gmail.com
@@ -22,9 +20,8 @@ public class ArtifactModel extends AbstractModel {
 	 * 
 	 * @return A handle to the artifact model.
 	 */
-	public static ArtifactModel getModel() {
-		final XMPPServer xmppServer = XMPPServer.getInstance();
-		final ArtifactModel artifactModel = new ArtifactModel(xmppServer);
+	public static ArtifactModel getModel(final Session session) {
+		final ArtifactModel artifactModel = new ArtifactModel(session);
 		return artifactModel;
 	}
 
@@ -41,9 +38,9 @@ public class ArtifactModel extends AbstractModel {
 	/**
 	 * Create a ArtifactModel.
 	 */
-	private ArtifactModel(final XMPPServer xmppServer) {
+	private ArtifactModel(final Session session) {
 		super();
-		this.impl = new ArtifactModelImpl(xmppServer);
+		this.impl = new ArtifactModelImpl(session);
 		this.implLock = new Object();
 	}
 
@@ -87,30 +84,26 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
-	 * Subscribe a user to an artifact.
+	 * SubscribeUser a user to an artifact.
 	 * 
-	 * @param user
-	 *            The user to subscribe.
 	 * @param artifact
 	 *            The artifact to subscribe the user to.
 	 * @throws ParityServerModelException
 	 */
-	public void subscribe(final User user, final Artifact artifact)
+	public void subscribe(final Artifact artifact)
 			throws ParityServerModelException {
-		synchronized(implLock) { impl.subscribe(user, artifact); }
+		synchronized(implLock) { impl.subscribe(artifact); }
 	}
 
 	/**
 	 * Unsubscribe a user from an artifact.
 	 * 
-	 * @param user
-	 *            The user to unsubscribe.
 	 * @param artifact
 	 *            The artifact to unsubscribe the user from.
 	 * @throws ParityServerModelException
 	 */
-	public void unsubscribe(final User user, final Artifact artifact)
+	public void unsubscribe(final Artifact artifact)
 			throws ParityServerModelException {
-		synchronized(implLock) { impl.unsubscribe(user, artifact); }
+		synchronized(implLock) { impl.unsubscribe(artifact); }
 	}
 }

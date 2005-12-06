@@ -5,6 +5,10 @@ package com.thinkparity.server.packet;
 
 import java.util.UUID;
 
+import org.dom4j.Element;
+import org.xmpp.packet.IQ;
+
+import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.artifact.ParityObjectFlag;
 
 /**
@@ -18,6 +22,10 @@ import com.thinkparity.server.model.artifact.ParityObjectFlag;
  */
 public class IQArtifactFlag extends IQArtifact {
 
+	private static final String ELEMENT_NAME_FLAG = "flag";
+
+	private static final String ELEMENT_NAME_UUID = "uuid";
+
 	/**
 	 * Flag to apply to the parity artifact.
 	 */
@@ -30,6 +38,14 @@ public class IQArtifactFlag extends IQArtifact {
 			final ParityObjectFlag artifactFlag) {
 		super(Action.FLAG, artifactUUID);
 		this.artifactFlag = artifactFlag;
+		setType(IQ.Type.set);
+		final Element queryElement = setChildElement(
+				ParityServerConstants.IQ_PARITY_INFO_NAME,
+				ParityServerConstants.IQ_PARITY_INFO_NAMESPACE);
+		final Element uuidElement = queryElement.addElement(ELEMENT_NAME_UUID);
+		uuidElement.setData(getArtifactUUID().toString());
+		final Element flagElement = queryElement.addElement(ELEMENT_NAME_FLAG);
+		flagElement.setData(getArtifactFlag().toString());
 	}
 
 	/**
@@ -38,23 +54,4 @@ public class IQArtifactFlag extends IQArtifact {
 	 * @return Returns the artifact flag.
 	 */
 	public ParityObjectFlag getArtifactFlag() { return artifactFlag; }
-
-	/**
-	 * @see com.thinkparity.model.smackx.packet.IQArtifact#getChildElementXML()
-	 */
-	public String getChildElementXML() {
-		final String xml = new StringBuffer(startQueryXML())
-			.append(getActionXML())
-			.append(getArtifactUUIDXML())
-			.append(getFlagXML())
-			.append(finishQueryXML()).toString();
-		logger.debug(xml);
-		return xml;
-	}
-
-	protected StringBuffer getFlagXML() {
-		return new StringBuffer("<flag>")
-			.append(getArtifactFlag().toString())
-			.append("</flag>");
-	}
 }

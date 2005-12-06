@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Vector;
 
+import org.jivesoftware.database.JiveID;
+
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -21,13 +23,16 @@ import com.thinkparity.server.model.io.sql.AbstractSql;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
+@JiveID(1001)
 public class ArtifactSubscriptionSql extends AbstractSql {
 
 	private static final String DELETE =
 		"delete from parityArtifactSubscription where artifactId = ? and username = ?";
 
-	private static final String INSERT =
-		"insert into parityArtifactSubscription (artifactId,username) values (?,?)";
+	private static final String INSERT = new StringBuffer()
+		.append("insert into parityArtifactSubscription ")
+		.append("(artifactSubscriptionId,artifactId,username) values (?,?,?)")
+		.toString();
 
 	private static final String SELECT = new StringBuffer()
 		.append("select artifactSubscriptionId,artifactId,username,createdOn,")
@@ -61,7 +66,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public void insert(final Integer artifactId, final String username)
+	public Integer insert(final Integer artifactId, final String username)
 			throws SQLException {
 		logger.info("insert(Integer,String)");
 		logger.debug(artifactId);
@@ -71,9 +76,12 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		try {
 			cx = getCx();
 			ps = cx.prepareStatement(INSERT);
-			ps.setInt(1, artifactId);
-			ps.setString(2, username);
+			final Integer artifactSubscriptionId = nextId(this);
+			ps.setInt(1, artifactSubscriptionId);
+			ps.setInt(2, artifactId);
+			ps.setString(3, username);
 			Assert.assertTrue("insert(Integer,String)", 1 == ps.executeUpdate());
+			return artifactSubscriptionId;
 		}
 		finally { close(cx, ps); }
 	}

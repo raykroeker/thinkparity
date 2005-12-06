@@ -8,6 +8,6 @@
     <version>1.0</version>
     <date>11/25/2005</date>
     <url>http://thinkparity.dydns.org/messenger/plugin/registry</url>
-    <minServerVersion>2.2.0</minServerVersion>
+    <minServerVersion>2.3.1</minServerVersion>
 
 </plugin>

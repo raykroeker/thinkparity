@@ -12,7 +12,10 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.filter.PacketIDFilter;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -287,16 +290,19 @@ public class XMPPSessionImpl implements XMPPSession {
 		logger.info("send(UUID,ParityObjectFlag)");
 		logger.debug(artifactUUID);
 		logger.debug(flag);
-		try {
-			final IQArtifact iq = new IQArtifactFlag(artifactUUID, flag);
-			iq.setType(IQ.Type.SET);
-			logger.debug(iq);
-			sendPacket(iq);
-		}
-		catch(InterruptedException ix) {
-			logger.error("send(UUID,ParityObjectflag)", ix);
-			throw XMPPErrorTranslator.translate(ix);
-		}
+		final IQArtifact iq = new IQArtifactFlag(artifactUUID, flag);
+		iq.setType(IQ.Type.SET);
+		logger.debug(iq);
+
+		final PacketFilter filter = new AndFilter(
+				new PacketIDFilter(iq.getPacketID()),
+				new PacketTypeFilter(IQArtifactFlag.class));
+        final PacketCollector collector = smackXMPPConnection.createPacketCollector(filter);
+        smackXMPPConnection.sendPacket(iq);
+        final IQ result = (IQ) collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
+        logger.debug(result);
+        // Stop queuing results
+        collector.cancel();
 	}
 
 	/**

@@ -23,6 +23,6 @@ public class IQArtifactSubscribe extends IQArtifact {
 	 *            The artifact unique id.
 	 */
 	public IQArtifactSubscribe(final UUID artifactUUID) {
-		super(Action.SUBSCRIBE, artifactUUID);
+		super(Action.SUBSCRIBEUSER, artifactUUID);
 	}
 }

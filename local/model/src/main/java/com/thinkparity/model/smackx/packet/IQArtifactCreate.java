@@ -22,6 +22,6 @@ public class IQArtifactCreate extends IQArtifact {
 	 *            The artifact unique id.
 	 */
 	public IQArtifactCreate(final UUID artifactUUID) {
-		super(Action.CREATE, artifactUUID);
+		super(Action.CREATEARTIFACT, artifactUUID);
 	}
 }

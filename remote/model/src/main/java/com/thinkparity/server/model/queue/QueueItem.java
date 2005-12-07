@@ -19,7 +19,6 @@ public class QueueItem {
 
 	private final Integer queueMessageSize;
 
-
 	private final Calendar updatedOn;
 
 	private final String username;

@@ -224,6 +224,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 */
 	private void enqueue(final IQ iq) throws ParityServerModelException {
 		final QueueModel queueModel = QueueModel.getModel(session);
-		queueModel.enqueue(iq.getTo(), iq.toXML());
+		queueModel.enqueue(iq.toXML());
 	}
 }

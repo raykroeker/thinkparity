@@ -3,9 +3,14 @@
  */
 package com.thinkparity.server.listener;
 
+import java.util.Collection;
+
 import org.jivesoftware.messenger.Session;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.queue.QueueItem;
+import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.SessionModel;
 
 /**
@@ -13,6 +18,16 @@ import com.thinkparity.server.model.session.SessionModel;
  * @version 1.1
  */
 public class SessionEventListener implements org.jivesoftware.messenger.event.SessionEventListener {
+
+	/**
+	 * Handle to the parity model session.
+	 */
+	private com.thinkparity.server.model.session.Session modelSession;
+
+	/**
+	 * Create a SessionEventListener.
+	 */
+	public SessionEventListener() { super(); }
 
 	/**
 	 * @see org.jivesoftware.messenger.event.SessionEventListener#anonymousSessionCreated(org.jivesoftware.messenger.Session)
@@ -28,11 +43,16 @@ public class SessionEventListener implements org.jivesoftware.messenger.event.Se
 	 * @see org.jivesoftware.messenger.event.SessionEventListener#sessionCreated(org.jivesoftware.messenger.Session)
 	 */
 	public void sessionCreated(final Session session) {
-		final SessionModel sessionModel = SessionModel.getModel(new com.thinkparity.server.model.session.Session() {
-			final JID jid = session.getAddress();
-			public JID getJID() { return jid; }
-		});
-		sessionModel.sendQueuedMessages();
+		final QueueModel queueModel = getQueueModel(session);
+		final SessionModel sessionModel = getSessionModel(session);
+		try {
+			final Collection<QueueItem> queueItems = queueModel.list();
+			for(QueueItem queueItem : queueItems) {
+				sessionModel.send(queueItem);
+				queueModel.dequeue(queueItem);
+			}
+		}
+		catch(ParityServerModelException psmx) {}
 	}
 
 	/**
@@ -41,7 +61,43 @@ public class SessionEventListener implements org.jivesoftware.messenger.event.Se
 	public void sessionDestroyed(Session session) {}
 
 	/**
-	 * Create a SessionEventListener.
+	 * Use the jive session to obtain a handle to the parity session.
+	 * 
+	 * @param session
+	 *            The jive session.
+	 * @return The parity session.
 	 */
-	public SessionEventListener() { super(); }
+	private com.thinkparity.server.model.session.Session getModelSession(final Session session) {
+		if(null == modelSession) {
+			modelSession = new com.thinkparity.server.model.session.Session() {
+				final JID jid = session.getAddress();
+				public JID getJID() { return jid; }
+			};
+		}
+		return modelSession;
+	}
+
+	/**
+	 * Obtain a handle to the queue model api.
+	 * 
+	 * @param session
+	 *            The jive session.
+	 * @return The queue model api.
+	 */
+	private QueueModel getQueueModel(final Session session) {
+		final QueueModel queueModel = QueueModel.getModel(getModelSession(session));
+		return queueModel;
+	}
+
+	/**
+	 * Obtain a handle to the session model api.
+	 * 
+	 * @param session
+	 *            The jive session.
+	 * @return The session model api.
+	 */
+	private SessionModel getSessionModel(final Session session) {
+		final SessionModel sessionModel = SessionModel.getModel(getModelSession(session));
+		return sessionModel;
+	}
 }

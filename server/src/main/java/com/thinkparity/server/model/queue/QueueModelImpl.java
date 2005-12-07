@@ -6,8 +6,6 @@ package com.thinkparity.server.model.queue;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import org.xmpp.packet.JID;
-
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -65,20 +63,16 @@ class QueueModelImpl extends AbstractModelImpl {
 	/**
 	 * Enqueue a message for a jabber id to persistant storage.
 	 * 
-	 * @param jid
-	 *            A jabber id.
 	 * @param message
 	 *            A message.
 	 * @return The enqueued item.
 	 * @throws ParityServerModelException
 	 */
-	QueueItem enqueue(final JID jid, final String message)
-			throws ParityServerModelException {
+	QueueItem enqueue(final String message) throws ParityServerModelException {
 		logger.info("enqueue(JID,String)");
-		logger.debug(jid);
 		logger.debug(message);
 		try {
-			final String username = jid.getNode();
+			final String username = session.getJID().getNode();
 			final Integer queueId = queueSql.insert(username, message);
 			return queueSql.select(queueId);
 		}
@@ -95,16 +89,13 @@ class QueueModelImpl extends AbstractModelImpl {
 	/**
 	 * Obtain a list of queued items for the jabber id.
 	 * 
-	 * @param jid
-	 *            The jabber id.
 	 * @return A list of queued items.
 	 * @throws ParityServerModelException
 	 */
-	Collection<QueueItem> list(final JID jid) throws ParityServerModelException {
+	Collection<QueueItem> list() throws ParityServerModelException {
 		logger.info("list(JID)");
-		logger.debug(jid);
 		try {
-			final String username = jid.getNode();
+			final String username = session.getJID().getNode();
 			return queueSql.select(username);
 		}
 		catch(SQLException sqlx) {

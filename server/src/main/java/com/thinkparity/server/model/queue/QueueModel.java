@@ -5,8 +5,6 @@ package com.thinkparity.server.model.queue;
 
 import java.util.Collection;
 
-import org.xmpp.packet.JID;
-
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;
@@ -66,28 +64,23 @@ public class QueueModel extends AbstractModel {
 	/**
 	 * Add a message to the parity queue for the given jabber id.
 	 * 
-	 * @param jid
-	 *            The jid to add the message for.
 	 * @param message
 	 *            The message to add.
 	 * @return The created queue item.
 	 * @throws ParityServerModelException
 	 */
-	public QueueItem enqueue(final JID jid, final String message)
+	public QueueItem enqueue(final String message)
 			throws ParityServerModelException {
-		synchronized(implLock) { return impl.enqueue(jid, message); }
+		synchronized(implLock) { return impl.enqueue(message); }
 	}
 
 	/**
 	 * Obtain a list of queued items for the jabber id.
 	 * 
-	 * @param jid
-	 *            The jabber id.
 	 * @return A list of queued items.
 	 * @throws ParityServerModelException
 	 */
-	public Collection<QueueItem> list(final JID jid)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.list(jid); }
+	public Collection<QueueItem> list() throws ParityServerModelException {
+		synchronized(implLock) { return impl.list(); }
 	}
 }

@@ -4,6 +4,8 @@
 package com.thinkparity.server.model;
 
 import org.apache.log4j.Logger;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.jivesoftware.messenger.PacketRouter;
 import org.jivesoftware.messenger.SessionManager;
 import org.jivesoftware.messenger.XMPPServer;
@@ -11,6 +13,7 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
 import com.thinkparity.server.ParityServerConstants;
+import com.thinkparity.server.dom4j.XmlReader;
 import com.thinkparity.server.log4j.ServerLoggerFactory;
 import com.thinkparity.server.model.session.Session;
 
@@ -64,6 +67,19 @@ public abstract class AbstractModelImpl {
 			return Boolean.TRUE;
 		}
 		else { return Boolean.FALSE; }
+	}
+
+	/**
+	 * Read the xml into a dom4j document.
+	 * 
+	 * @param xml
+	 *            The xml.
+	 * @return The dom4j document.
+	 * @throws DocumentException
+	 * @see XmlReader#read(String)
+	 */
+	protected Document read(final String xml) throws DocumentException {
+		return XmlReader.read(xml);
 	}
 
 	/**

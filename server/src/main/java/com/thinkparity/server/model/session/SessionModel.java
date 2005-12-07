@@ -5,6 +5,7 @@ package com.thinkparity.server.model.session;
 
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.queue.QueueItem;
 
 /**
  * @author raykroeker@gmail.com
@@ -45,12 +46,14 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send all queued messages for the user.
+	 * Send the queue item to the logged in user.
 	 * 
+	 * @param queueItem
+	 *            The queue item to send.
 	 * @throws ParityServerModelException
 	 */
-	public void sendQueuedMessages() throws ParityServerModelException {
-		synchronized(implLock) { impl.sendQueuedMessages(); }
+	public void send(final QueueItem queueItem)
+			throws ParityServerModelException {
+		synchronized(implLock) { impl.send(queueItem); }
 	}
-
 }

@@ -3,8 +3,15 @@
  */
 package com.thinkparity.server.model.session;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+import org.xmpp.packet.IQ;
+
 import com.thinkparity.server.model.AbstractModelImpl;
+import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.queue.QueueItem;
 
 /**
  * @author raykroeker@gmail.com
@@ -25,7 +32,17 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * 
 	 * @throws ParityServerModelException
 	 */
-	void sendQueuedMessages() throws ParityServerModelException {
-		
+	void send(final QueueItem queueItem) throws ParityServerModelException {
+		logger.info("send(QueueItem)");
+		logger.debug(queueItem);
+		try {
+			final Document messageDocument = read(queueItem.getQueueMessage());
+			final IQ iq = new IQ(messageDocument);
+			route(queueItem);
+		}
+		catch(RuntimeException rx) {
+			logger.error("send(QueueItem)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 }

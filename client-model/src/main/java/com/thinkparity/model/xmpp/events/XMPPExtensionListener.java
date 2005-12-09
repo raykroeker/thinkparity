@@ -3,7 +3,10 @@
  */
 package com.thinkparity.model.xmpp.events;
 
+import java.util.UUID;
+
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * XMPPExtensionListener
@@ -11,6 +14,6 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
  *
  */
 public interface XMPPExtensionListener {
-
 	public void documentReceived(final XMPPDocument xmppDocument);
+	public void keyRequested(final User user, final UUID artifactUUID);
 }

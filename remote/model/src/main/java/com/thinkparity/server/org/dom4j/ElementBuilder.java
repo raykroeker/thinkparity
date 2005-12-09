@@ -5,7 +5,6 @@ package com.thinkparity.server.org.dom4j;
 
 import org.dom4j.Element;
 
-import com.thinkparity.server.handler.ElementName;
 
 /**
  * @author raykroeker@gmail.com
@@ -20,11 +19,15 @@ public class ElementBuilder {
 	 *            The dom4j element.
 	 * @param elementName
 	 *            The element name.
+	 * @param elementText
+	 *            The element data.
 	 * @return The new element.
 	 */
 	public static Element addElement(final Element element,
-			final ElementName elementName) {
-		return element.addElement(elementName.getElementName());
+			final ElementName elementName, final String elementText) {
+		final Element newElement = element.addElement(elementName.getName());
+		newElement.setText(elementText);
+		return newElement;
 	}
 
 	/**

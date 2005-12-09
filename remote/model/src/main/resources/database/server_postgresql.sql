@@ -2,12 +2,14 @@
 create table parityArtifact (
   artifactId integer not null,
   artifactUUID varchar(50) not null,
+  artifactKeyHolder varchar(32) not null references jiveUser(username),
   createdOn timestamp not null default current_timestamp,
   updatedOn timestamp not null default current_timestamp,
   primary key (artifactId),
   unique (artifactUUID)
 );
-create index parityArtifactSubscription_artifactUUID_index on parityArtifact(artifactUUID);
+create index parityArtifact_artifactUUID_index on parityArtifact(artifactUUID);
+create index parityArtifact_artifactKeyHolder_index on parityArtifact(artifactKeyHolder);
 insert into jiveId (idType,id) values (1000, 1);
 
 create table parityArtifactSubscription (
@@ -35,3 +37,4 @@ create table parityQueue (
 create index parityQueue_username_index on parityQueue(username);
 create index parityQueue_createdOn_index on parityQueue(createdOn);
 insert into jiveId (idType,id) values (1002, 1);
+

@@ -18,7 +18,9 @@ public abstract class IQArtifact extends IQParity {
 	 * Artifact actions that are possible to perform.
 	 * 
 	 */
-	protected enum Action { CREATEARTIFACT, FLAGARTIFACT, SUBSCRIBEUSER, UNSUBSCRIBEUSER }
+	protected enum Action {
+		CREATEARTIFACT, FLAGARTIFACT, REQUESTKEY, SUBSCRIBEUSER, UNSUBSCRIBEUSER
+	}
 
 	/**
 	 * Finish xml tag for action. 
@@ -35,10 +37,12 @@ public abstract class IQArtifact extends IQParity {
 	 */
 	private static final String XML_QUERY_FINISH = "</query>";
 
+	private static final String XML_QUERY_NAMESPACE_ROOT = "jabber:iq:parity:";
+
 	/**
 	 * Start xml tag for the query.
 	 */
-	private static final String XML_QUERY_START = "<query xmlns=\"jabber:iq:parity\">";
+	private static final String XML_QUERY_START = "<query xmlns=\"";
 
 	/**
 	 * Finish xml tag for actionUUID.
@@ -58,7 +62,7 @@ public abstract class IQArtifact extends IQParity {
 	/**
 	 * Artifact unique id.
 	 */
-	private final UUID artifactUUID;
+	private UUID artifactUUID;
 
 	/**
 	 * Create a IQArtifact.
@@ -66,7 +70,7 @@ public abstract class IQArtifact extends IQParity {
 	protected IQArtifact(final Action action, final UUID artifactUUID) {
 		super();
 		this.action = action;
-		this.artifactUUID = artifactUUID;
+		setArtifactUUID(artifactUUID);
 	}
 
 	/**
@@ -88,11 +92,20 @@ public abstract class IQArtifact extends IQParity {
 	 */
 	public String getChildElementXML() {
 		final String xml = new StringBuffer(startQueryXML())
-			.append(getActionXML())
 			.append(getArtifactUUIDXML())
 			.append(finishQueryXML()).toString();
 		logger.debug(xml);
 		return xml;
+	}
+
+	/**
+	 * Set the artifact unique id.
+	 * 
+	 * @param artifactUUID
+	 *            The artifact unique id.
+	 */
+	public void setArtifactUUID(final UUID artifactUUID) {
+		this.artifactUUID = artifactUUID;
 	}
 
 	/**
@@ -129,5 +142,10 @@ public abstract class IQArtifact extends IQParity {
 	 * 
 	 * @return The start xml tag for the query.
 	 */
-	protected String startQueryXML() { return IQArtifact.XML_QUERY_START; }
+	protected String startQueryXML() {
+		return new StringBuffer(IQArtifact.XML_QUERY_START)
+			.append(IQArtifact.XML_QUERY_NAMESPACE_ROOT)
+			.append(action.toString().toLowerCase())
+			.append("\">").toString();
+	}
 }

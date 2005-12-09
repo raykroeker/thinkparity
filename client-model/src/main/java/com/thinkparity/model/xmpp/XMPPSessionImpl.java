@@ -12,9 +12,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
@@ -42,6 +40,7 @@ import com.thinkparity.model.smackx.packet.IQArtifactCreate;
 import com.thinkparity.model.smackx.packet.IQArtifactFlag;
 import com.thinkparity.model.smackx.packet.IQArtifactSubscribe;
 import com.thinkparity.model.smackx.packet.IQArtifactUnsubscribe;
+import com.thinkparity.model.smackx.packet.IQKeyRequest;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
@@ -290,19 +289,16 @@ public class XMPPSessionImpl implements XMPPSession {
 		logger.info("send(UUID,ParityObjectFlag)");
 		logger.debug(artifactUUID);
 		logger.debug(flag);
-		final IQArtifact iq = new IQArtifactFlag(artifactUUID, flag);
-		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
-
-		final PacketFilter filter = new AndFilter(
-				new PacketIDFilter(iq.getPacketID()),
-				new PacketTypeFilter(IQArtifactFlag.class));
-        final PacketCollector collector = smackXMPPConnection.createPacketCollector(filter);
-        smackXMPPConnection.sendPacket(iq);
-        final IQ result = (IQ) collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
-        logger.debug(result);
-        // Stop queuing results
-        collector.cancel();
+		try {
+			final IQArtifact iq = new IQArtifactFlag(artifactUUID, flag);
+			iq.setType(IQ.Type.SET);
+			logger.debug(iq);
+			sendPacket(iq);
+		}
+		catch(InterruptedException ix) {
+			logger.error("flag(UUID,ParityObjectFlag)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
 	}
 
 	/**
@@ -371,6 +367,15 @@ public class XMPPSessionImpl implements XMPPSession {
 					new PacketFilter() {
 						public boolean accept(Packet packet) { return true; }
 					});
+
+			// iq debugger
+			smackXMPPConnection.addPacketListener(
+					new PacketListener() {
+						public void processPacket(Packet packet) {
+							logger.debug(";aslkdjf;lkasjdf;lkasjdf;lkajsdf;lkjas;ldfj a;lskdjf ;lasjdf la;sjdf l;ajsdfl;ja sl;dkfj asl;kdjf ;alksjdf ;laksjdf ;lkajs fd;lkj as;ldjf ;lasjdf ;lasjd f;lkajsdf ;lajsdf l;kjas df;lkjasd lf;kjl;asj fd");
+						}
+					},
+					new PacketTypeFilter(IQKeyRequest.class));
 
 			// document extension handler
 			smackXMPPConnection.addPacketListener(
@@ -494,6 +499,60 @@ public class XMPPSessionImpl implements XMPPSession {
 		try { send(users, XFactory.createPacketX(xmppDocument)); }
 		catch(InterruptedException ix) {
 			logger.error("send(Collection<User>,XMPPDocument)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendCreate(java.util.UUID)
+	 */
+	public void sendCreate(UUID artifactUUID) throws SmackException {
+		logger.info("sendCreate(UUID)");
+		logger.debug(artifactUUID);
+		try {
+			final IQArtifact iq = new IQArtifactCreate(artifactUUID);
+			iq.setType(IQ.Type.SET);
+			logger.debug(iq);
+			sendPacket(iq);
+		}
+		catch(InterruptedException ix) {
+			logger.error("sendCreate(UUID)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendKeyRequest(java.util.UUID)
+	 */
+	public void sendKeyRequest(final UUID artifactUUID) throws SmackException {
+		logger.info("sendKeyRequest(UUID)");
+		logger.debug(artifactUUID);
+		try {
+			final IQArtifact iq = new IQKeyRequest(artifactUUID);
+			iq.setType(IQ.Type.GET);
+			logger.debug(iq);
+			sendPacket(iq);
+		}
+		catch(InterruptedException ix) {
+			logger.error("sendKeyRequest(UUID)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendSubscribe(java.util.UUID)
+	 */
+	public void sendSubscribe(final UUID artifactUUID) throws SmackException {
+		logger.info("sendSubscribe(UUID)");
+		logger.debug(artifactUUID);
+		try {
+			final IQArtifact iq = new IQArtifactSubscribe(artifactUUID);
+			iq.setType(IQ.Type.SET);
+			logger.debug(iq);
+			sendPacket(iq);
+		}
+		catch(InterruptedException ix) {
+			logger.error("sendSubscribe(UUID)", ix);
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}

@@ -1,10 +1,6 @@
 package com.thinkparity.server.handler;
 
-import com.thinkparity.server.handler.controller.IQController;
-import com.thinkparity.server.handler.controller.artifact.CreateArtifact;
-import com.thinkparity.server.handler.controller.artifact.FlagArtifact;
-import com.thinkparity.server.handler.controller.user.SubscribeUser;
-import com.thinkparity.server.handler.controller.user.UnsubscribeUser;
+import com.thinkparity.server.ParityServerConstants;
 
 /**
  * List of possible actions available within the parity artifact handler.
@@ -15,42 +11,41 @@ public enum IQAction {
 	/**
 	 * Create an artifact.
 	 */
-	CREATEARTIFACT(new CreateArtifact()),
+	CREATEARTIFACT,
 
 	/**
 	 * Flag an artifact.
 	 */
-	FLAGARTIFACT(new FlagArtifact()),
+	FLAGARTIFACT,
+
+	/**
+	 * Get an artifact's keyholder.
+	 */
+	GETKEYHOLDER,
+
+	/**
+	 * Request an artifact's key.
+	 */
+	REQUESTKEY,
+
+	/**
+	 * Set an artifact's keyholder.
+	 */
+	SETKEYHOLDER,
 
 	/**
 	 * Subscribe a user to an artifact.
 	 */
-	SUBSCRIBEUSER(new SubscribeUser()),
+	SUBSCRIBEUSER,
 
 	/**
 	 * Unsubscribe a user from an artifact.
 	 */
-	UNSUBSCRIBEUSER(new UnsubscribeUser());
+	UNSUBSCRIBEUSER;
 
-	/**
-	 * Handle to the controller for the action.
-	 */
-	private IQController controller;
-
-	/**
-	 * Create an IQAction.
-	 * 
-	 * @param controller
-	 *            Reference to the controller that can handle the action.
-	 */
-	private IQAction(final IQController controller) {
-		this.controller = controller;
+	public String getNamespace() {
+		return new StringBuffer(ParityServerConstants.IQ_PARITY_INFO_NAMESPACE)
+			.append(":")
+			.append(toString().toLowerCase()).toString();
 	}
-
-	/**
-	 * Obtain the controller for the action.
-	 * 
-	 * @return The controller for the action.
-	 */
-	public IQController getController() { return controller; }
 }

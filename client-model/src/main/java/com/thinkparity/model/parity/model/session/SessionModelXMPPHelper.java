@@ -4,7 +4,9 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
+import java.util.UUID;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.XMPPSession;
@@ -55,6 +57,9 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		this.xmppExtensionListener = new XMPPExtensionListener() {
 			public void documentReceived(final XMPPDocument xmppDocument) {
 				handleDocumentReceived(xmppDocument);
+			}
+			public void keyRequested(final User user, final UUID artifactUUID) {
+				handleKeyRequested(user, artifactUUID);
 			}
 		};
 		this.xmppPresenceListener = new XMPPPresenceListener() {
@@ -191,6 +196,39 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+	 * Send a create packet to the parity server.
+	 * 
+	 * @param parityObjectUUID
+	 *            The object unique id.
+	 * @throws SmackException
+	 */
+	void sendCreate(final UUID parityObjectUUID) throws SmackException {
+		xmppSession.sendCreate(parityObjectUUID);
+	}
+
+	/**
+	 * Send a reqest for a document key to the parity server.
+	 * 
+	 * @param parityObjectUUID
+	 *            The object unique id.
+	 * @throws ParityException
+	 */
+	void sendKeyRequest(final UUID parityObjectUUID) throws SmackException {
+		xmppSession.sendKeyRequest(parityObjectUUID);
+	}
+
+	/**
+	 * Send a subscribe packet to the parity server.
+	 * 
+	 * @param parityObjectUUID
+	 *            The object unique id.
+	 * @throws SmackException
+	 */
+	void sendSubscribe(final UUID parityObjectUUID) throws SmackException {
+		xmppSession.sendSubscribe(parityObjectUUID);
+	}
+
+	/**
 	 * Update the information in the roster for a user.
 	 * 
 	 * @param user
@@ -208,6 +246,18 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	private void handleDocumentReceived(final XMPPDocument xmppDocument) {
 		SessionModelImpl.notifyDocumentReceived(xmppDocument);
+	}
+
+	/**
+	 * Event handler for the extension listener's key requested event.
+	 * 
+	 * @param user
+	 *            The user requesting the key.
+	 * @param artifactUUID
+	 *            The artifact unique id being requested.
+	 */
+	private void handleKeyRequested(final User user, final UUID artifactUUID) {
+		SessionModelImpl.notifyKeyRequested(user, artifactUUID);
 	}
 
 	/**

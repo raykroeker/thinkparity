@@ -4,9 +4,7 @@
 package com.thinkparity.server.model.session;
 
 import org.dom4j.Document;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.xmpp.packet.IQ;
+import org.dom4j.DocumentException;
 
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
@@ -37,8 +35,13 @@ class SessionModelImpl extends AbstractModelImpl {
 		logger.debug(queueItem);
 		try {
 			final Document messageDocument = read(queueItem.getQueueMessage());
-			final IQ iq = new IQ(messageDocument);
-			route(queueItem);
+			// TODO:  Need to figure out how to reconstruct an IQ from xml.
+//			final IQ iq = new IQ(messageDocument);
+//			route(queueItem);
+		}
+		catch(DocumentException dx) {
+			logger.error("send(QueueItem)", dx);
+			throw ParityErrorTranslator.translate(dx);
 		}
 		catch(RuntimeException rx) {
 			logger.error("send(QueueItem)", rx);

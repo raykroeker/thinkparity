@@ -16,9 +16,15 @@ import org.jivesoftware.messenger.event.SessionEventListener;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.server.handler.IQDispatcher;
-import com.thinkparity.server.log4j.ServerLog4jConfigurator;
-import com.thinkparity.server.log4j.ServerLoggerFactory;
+import com.thinkparity.server.handler.artifact.CreateArtifact;
+import com.thinkparity.server.handler.artifact.FlagArtifact;
+import com.thinkparity.server.handler.artifact.GetKeyHolder;
+import com.thinkparity.server.handler.artifact.RequestArtifactKey;
+import com.thinkparity.server.handler.artifact.SetKeyHolder;
+import com.thinkparity.server.handler.user.SubscribeUser;
+import com.thinkparity.server.handler.user.UnsubscribeUser;
+import com.thinkparity.server.org.apache.log4j.ServerLog4jConfigurator;
+import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -26,15 +32,20 @@ import com.thinkparity.server.log4j.ServerLoggerFactory;
  */
 public class ParityServer implements Plugin {
 
-	/**
-	 * IQ dispatcher for the parity server.
-	 */
-	private IQDispatcher iqDispatcher;
+	private CreateArtifact createArtifact;
+	private FlagArtifact flagArtifact;
+	private GetKeyHolder getKeyHolder;
 
 	/**
 	 * Handle to the xmpp server's iq router.
 	 */
 	private final IQRouter iqRouter;
+
+	private RequestArtifactKey requestArtifactKey;
+	private SetKeyHolder setKeyHolder;
+	private SubscribeUser subscribeUser;
+
+	private UnsubscribeUser unsubscribeUser;
 
 	/**
 	 * Create a ParityServer.
@@ -49,7 +60,7 @@ public class ParityServer implements Plugin {
 	 */
 	public void destroyPlugin() {
 		destroyPluginLogging();
-		destroyIQDispatcher();
+		destroyIQHandlers();
 		destroyEventHandlers();
 	}
 
@@ -58,19 +69,44 @@ public class ParityServer implements Plugin {
 	 */
 	public void initializePlugin(PluginManager manager, File pluginDirectory) {
 		initializePluginLogging(pluginDirectory);
-		initializeIQDispatcher();
+		initializeIQHandlers();
 		initializeEventHandlers();
 		ServerLoggerFactory.getLogger(getClass()).info(ParityServerConstants.SERVER_NAME + " initialized.");
 	}
 
+	private void destroyEventHandlers() {}
+
 	/**
 	 * Destroy the iq dispatcher.s
 	 */
-	private void destroyIQDispatcher() {
-		// destroy the dispatcher
-		iqRouter.removeHandler(iqDispatcher);
-		iqDispatcher.destroy();
-		iqDispatcher = null;
+	private void destroyIQHandlers() {
+		iqRouter.removeHandler(createArtifact);
+		createArtifact.destroy();
+		createArtifact = null;
+
+		iqRouter.removeHandler(unsubscribeUser);
+		unsubscribeUser.destroy();
+		unsubscribeUser = null;
+
+		iqRouter.removeHandler(flagArtifact);
+		flagArtifact.destroy();
+		flagArtifact = null;
+
+		iqRouter.removeHandler(getKeyHolder);
+		getKeyHolder.destroy();
+		getKeyHolder = null;
+
+		iqRouter.removeHandler(requestArtifactKey);
+		requestArtifactKey.destroy();
+		requestArtifactKey = null;
+
+		iqRouter.removeHandler(setKeyHolder);
+		setKeyHolder.destroy();
+		setKeyHolder = null;
+
+		iqRouter.removeHandler(subscribeUser);
+		subscribeUser.destroy();
+		subscribeUser = null;
 	}
 
 	/**
@@ -79,13 +115,39 @@ public class ParityServer implements Plugin {
 	 */
 	private void destroyPluginLogging() { LogManager.shutdown(); }
 
+	private void initializeEventHandlers() {
+		SessionEventDispatcher.addListener(new SessionEventListener() {
+			public void anonymousSessionCreated(Session session) {}
+			public void anonymousSessionDestroyed(Session session) {}
+			public void sessionCreated(Session session) {}
+			public void sessionDestroyed(Session session) {}
+		});
+	}
+
 	/**
 	 * Initialize the iq dispatcher.
 	 */
-	private void initializeIQDispatcher() {
-		// create the dispatcher
-		iqDispatcher = new IQDispatcher();
-		iqRouter.addHandler(iqDispatcher);
+	private void initializeIQHandlers() {
+		createArtifact = new CreateArtifact();
+		iqRouter.addHandler(createArtifact);
+
+		unsubscribeUser = new UnsubscribeUser();
+		iqRouter.addHandler(unsubscribeUser);
+
+		flagArtifact = new FlagArtifact();
+		iqRouter.addHandler(flagArtifact);
+
+		getKeyHolder = new GetKeyHolder();
+		iqRouter.addHandler(getKeyHolder);
+
+		requestArtifactKey = new RequestArtifactKey();
+		iqRouter.addHandler(requestArtifactKey);
+		
+		setKeyHolder = new SetKeyHolder();
+		iqRouter.addHandler(setKeyHolder);
+
+		subscribeUser = new SubscribeUser();
+		iqRouter.addHandler(subscribeUser);
 	}
 
 	/**
@@ -103,17 +165,4 @@ public class ParityServer implements Plugin {
 		}
 		ServerLog4jConfigurator.configure(log4jDirectory);
 	}
-
-	private void initializeEventHandlers() {
-		SessionEventDispatcher.addListener(new SessionEventListener() {
-			public void anonymousSessionCreated(Session session) {}
-			public void anonymousSessionDestroyed(Session session) {}
-			public void sessionCreated(Session session) {
-				
-			}
-			public void sessionDestroyed(Session session) {}
-		});
-	}
-
-	private void destroyEventHandlers() {}
 }

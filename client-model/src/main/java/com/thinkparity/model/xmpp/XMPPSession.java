@@ -48,6 +48,9 @@ public interface XMPPSession {
 			throws SmackException;
 	public void send(final Collection<User> users,
 			final XMPPDocument xmppDocument) throws SmackException;
+	public void sendCreate(final UUID artifactUUID) throws SmackException;
+	public void sendSubscribe(final UUID artifactUUID) throws SmackException;
+	public void sendKeyRequest(final UUID artifactUUID) throws SmackException;
 	public void subscribe(final UUID artifactUUID) throws SmackException;
 	public void unsubscribe(final UUID artifactUUID) throws SmackException;
 	public void updateRosterEntry(final User user);

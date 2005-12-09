@@ -12,10 +12,12 @@ import org.jivesoftware.messenger.XMPPServer;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
-import com.thinkparity.server.ParityServerConstants;
-import com.thinkparity.server.dom4j.XmlReader;
-import com.thinkparity.server.log4j.ServerLoggerFactory;
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.server.model.session.Session;
+import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
+import com.thinkparity.server.org.dom4j.XmlReader;
+import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -48,9 +50,8 @@ public abstract class AbstractModelImpl {
 	 *            The user node (username).
 	 * @return The jabber id.
 	 */
-	protected JID createJID(final String username) {
-		return getXMPPServer().createJID(
-				username, ParityServerConstants.CLIENT_RESOURCE);
+	protected JID buildJID(final String username) {
+		return JIDBuilder.build(username);
 	}
 
 	/**
@@ -88,7 +89,14 @@ public abstract class AbstractModelImpl {
 	 * @param iq
 	 *            The iq.
 	 */
-	protected void route(final IQ iq) { getPacketRouter().route(iq); }
+	protected void route(final JID jid, final IQ iq) {
+		logger.info("route(JID,IQ)");
+		logger.debug(jid);
+		logger.debug(iq);
+		Assert.assertTrue("route(JID,IQ)", isOnline(jid));
+//		getSessionManager().getSession(jid).process(iq);
+		getPacketRouter().route(iq);
+	}
 
 	/**
 	 * Obtain a handle to the xmpp server's packet router.

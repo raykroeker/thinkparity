@@ -28,6 +28,7 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentXmlIO;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -848,6 +849,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 		// flag as not seen
 		flagAsNotSEEN(document);
+
+		// send the server a subscription request
+		final SessionModel sessionModel = getSessionModel();
+		sessionModel.sendSubscribe(document);
 
 		// fire a receive event
 		notifyCreation_objectReceived(document);

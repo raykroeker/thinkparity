@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
 
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
@@ -16,12 +17,13 @@ import com.thinkparity.server.model.io.sql.artifact.ArtifactSql;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSubscriptionSql;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
-import com.thinkparity.server.packet.IQArtifact;
-import com.thinkparity.server.packet.IQArtifactFlag;
+import com.thinkparity.server.org.xmpp.packet.IQArtifact;
+import com.thinkparity.server.org.xmpp.packet.IQArtifactFlag;
+import com.thinkparity.server.org.xmpp.packet.IQKeyRequest;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.5
  */
 class ArtifactModelImpl extends AbstractModelImpl {
 
@@ -56,8 +58,14 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.info("create(UUID)");
 		logger.debug(artifactUUID);
 		try {
-			artifactSql.insert(artifactUUID);
-			return artifactSql.select(artifactUUID);
+			final String artifactKeyHolder = session.getJID().getNode();
+			artifactSql.insert(artifactUUID, artifactKeyHolder);
+			final Artifact artifact = artifactSql.select(artifactUUID);
+			// also add a subscription for the creator
+			final Integer artifactId = artifact.getArtifactId();
+			final String username = session.getJID().getNode();
+			artifactSubscriptionSql.insert(artifactId, username);
+			return artifact;
 		}
 		catch(SQLException sqlx) {
 			logger.error("create(UUID)", sqlx);
@@ -90,12 +98,14 @@ class ArtifactModelImpl extends AbstractModelImpl {
 
 			// send an IQFlag packet to each subscribed user
 			final UUID artifactUUID = artifact.getArtifactUUID();
+			JID jid;
 			IQ iq;
 			for(ArtifactSubscription subscription : subscriptions) {
 				iq = createFlag(artifactUUID, artifactFlag, subscription);
 				// if the user represented by the "to" is offline; 
 				// save to the database
-				if(isOnline(iq.getTo())) { route(iq); }
+				jid = iq.getTo();
+				if(isOnline(jid)) { route(jid, iq); }
 				else { enqueue(iq); }
 			}
 		}
@@ -126,6 +136,83 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("get(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Set the keyholder for the given artifact.
+	 * 
+	 * @param artifact
+	 *            The artifact.
+	 * @param jid
+	 *            The new keyholder's jid.
+	 * @return The previous keyholder's JID.
+	 * @throws ParityServerModelException
+	 */
+	JID getKeyHolder(final Artifact artifact) throws ParityServerModelException {
+		logger.info("getKeyHolder(Artifact)");
+		logger.debug(artifact);
+		try {
+			final Integer artifactId = artifact.getArtifactId();
+			final String previousKeyHolder = artifactSql.selectKeyHolder(artifactId);
+			return buildJID(previousKeyHolder);
+		}
+		catch(SQLException sqlx) {
+			logger.error("getKeyHolder(Artifact)", sqlx);
+			throw ParityErrorTranslator.translate(sqlx);
+		}
+		catch(RuntimeException rx) {
+			logger.error("getKeyHolder(Artifact)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Request the key from the artifact's key holder. If the key holder is
+	 * currently online; the request will be routed to them; otherwise it will
+	 * be queued until the user comes online.
+	 * 
+	 * @param artifact
+	 *            The artifact.
+	 * @throws ParityServerModelException
+	 */
+	void requestKey(final Artifact artifact)
+			throws ParityServerModelException {
+		logger.info("requestKey(Artifact)");
+		logger.debug(artifact);
+		try {
+			final JID keyHolderJID = getKeyHolder(artifact);
+			final IQ iq = new IQKeyRequest(artifact.getArtifactUUID());
+			iq.setTo(keyHolderJID);
+			iq.setFrom(session.getJID());
+			if(isOnline(keyHolderJID)) { route(keyHolderJID, iq); }
+			else { enqueue(iq); }
+		}
+		catch(RuntimeException rx) {
+			logger.error("requestKey(Artifact)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	JID setKeyHolder(final Artifact artifact, final JID jid)
+			throws ParityServerModelException {
+		logger.info("setKeyHolder(Artifact,JID)");
+		logger.debug(artifact);
+		logger.debug(jid);
+		try {
+			final JID previousKeyHolder = getKeyHolder(artifact);
+			final Integer artifactId = artifact.getArtifactId();
+			final String username = jid.getNode();
+			artifactSql.updateKeyHolder(artifactId, username);
+			return previousKeyHolder;
+		}
+		catch(SQLException sqlx) {
+			logger.error("setKeyHolder(Artifact,JID)", sqlx);
+			throw ParityErrorTranslator.translate(sqlx);
+		}
+		catch(RuntimeException rx) {
+			logger.error("setKeyHolder(Artifact,JID)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -211,7 +298,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			final ParityObjectFlag artifactFlag,
 			final ArtifactSubscription subscription) {
 		final IQArtifactFlag iqArtifactFlag = new IQArtifactFlag(artifactUUID, artifactFlag);
-		iqArtifactFlag.setTo(createJID(subscription.getUsername()));
+		iqArtifactFlag.setTo(buildJID(subscription.getUsername()));
 		iqArtifactFlag.setFrom(session.getJID());
 		return iqArtifactFlag;
 	}

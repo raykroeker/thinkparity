@@ -3,9 +3,9 @@
  */
 package com.thinkparity.server.model;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
+import org.dom4j.DocumentException;
 import org.jivesoftware.messenger.user.UserNotFoundException;
 
 /**
@@ -33,14 +33,15 @@ public class ParityErrorTranslator {
 	}
 
 	/**
-	 * Create a parity error based upon an io error.
+	 * Create a parity error based upon a dom4j
 	 * 
-	 * @param iox
-	 *            The java io error.
+	 * @param dx
+	 *            The dom4j document exception.
 	 * @return The parity error.
 	 */
-	public static ParityServerModelException translate(final IOException iox) {
-		synchronized(singletonLock) { return singleton.translateImpl(iox); }
+	public static ParityServerModelException translate(
+			final DocumentException dx) {
+		synchronized(singletonLock) { return singleton.translateImpl(dx); }
 	}
 
 	/**
@@ -76,14 +77,14 @@ public class ParityErrorTranslator {
 	private ParityErrorTranslator() { super(); }
 
 	/**
-	 * Create a parity error based upon an io error.
+	 * Create a parity error based upon a dom4j document exception.
 	 * 
-	 * @param iox
-	 *            The java io error.
+	 * @param dx
+	 *            The dom4j document exception.
 	 * @return The parity error.
 	 */
-	private ParityServerModelException translateImpl(final IOException iox) {
-		return new ParityServerModelException(iox);
+	private ParityServerModelException translateImpl(final DocumentException dx) {
+		return new ParityServerModelException(dx);
 	}
 
 	/**

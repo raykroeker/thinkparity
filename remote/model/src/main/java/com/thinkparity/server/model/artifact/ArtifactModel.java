@@ -5,6 +5,8 @@ package com.thinkparity.server.model.artifact;
 
 import java.util.UUID;
 
+import org.xmpp.packet.JID;
+
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;
@@ -81,6 +83,48 @@ public class ArtifactModel extends AbstractModel {
 	 */
 	public Artifact get(final UUID artifactUUID) throws ParityServerModelException {
 		synchronized(implLock) { return impl.get(artifactUUID); }
+	}
+
+	/**
+	 * Obtain the keyholder for a given artifact.
+	 * 
+	 * @param artifact
+	 *            The artifact.
+	 * @return The JID of the key holder.
+	 * @throws ParityServerModelException
+	 */
+	public JID getKeyHolder(final Artifact artifact)
+			throws ParityServerModelException {
+		synchronized(implLock) { return impl.getKeyHolder(artifact); }
+	}
+
+	/**
+	 * Request the key from the artifact's key holder. If the key holder is
+	 * currently online; the request will be routed to them; otherwise it will
+	 * be queued until the user comes online.
+	 * 
+	 * @param artifact
+	 *            The artifact.
+	 * @throws ParityServerModelException
+	 */
+	public void requestKey(final Artifact artifact)
+			throws ParityServerModelException {
+		synchronized(implLock) { impl.requestKey(artifact); }
+	}
+
+	/**
+	 * Set the keyholder for the given artifact.
+	 * 
+	 * @param artifact
+	 *            The artifact.
+	 * @param jid
+	 *            The new keyholder's jid.
+	 * @return The previous keyholder's JID.
+	 * @throws ParityServerModelException
+	 */
+	public JID setKeyHolder(final Artifact artifact, final JID jid)
+			throws ParityServerModelException {
+		synchronized(implLock) { return impl.setKeyHolder(artifact, jid); }
 	}
 
 	/**

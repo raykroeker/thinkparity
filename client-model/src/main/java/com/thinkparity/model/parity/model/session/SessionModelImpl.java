@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -11,6 +12,8 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.events.KeyEvent;
+import com.thinkparity.model.parity.api.events.KeyListener;
 import com.thinkparity.model.parity.api.events.PresenceEvent;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
@@ -32,42 +35,65 @@ import com.thinkparity.model.xmpp.user.User;
 class SessionModelImpl extends AbstractModelImpl {
 
 	/**
+	 * List of all of the registered parity key listeners.
+	 * 
+	 * @see SessionModelImpl#keyListenersLock
+	 */
+	private static final Collection<KeyListener> keyListeners;
+
+	/**
+	 * Synchronization lock for the key listeners list.
+	 * 
+	 * @see SessionModelImpl#keyListeners
+	 */
+	private static final Object keyListenersLock;
+
+	/**
 	 * List of all of the registered parity presence listeners.
+	 * 
 	 * @see SessionModelImpl#presenceListenersLock
 	 */
 	private static final Collection<PresenceListener> presenceListeners;
 
 	/**
 	 * Lock used to synchronize the collection access.
+	 * 
 	 * @see SessionModelImpl#presenceListeners
 	 */
 	private static final Object presenceListenersLock;
 
 	/**
 	 * List of all of the registered parity session listeners.
+	 * 
 	 * @see SessionModelImpl#sessionListenersLock
 	 */
 	private static final Collection<SessionListener> sessionListeners;
 
 	/**
 	 * Lock used to synchronize the collection access.
+	 * 
 	 * @see SessionModelImpl#sessionListeners
 	 */
 	private static final Object sessionListenersLock;
 
 	/**
 	 * Helper wrapper class for xmpp calls.
+	 * 
 	 * @see SessionModelImpl#xmppHelperLock
 	 */
 	private static final SessionModelXMPPHelper xmppHelper;
 
 	/**
 	 * Helper wrapper's synchronization lock.
+	 * 
 	 * @see SessionModelImpl#xmppHelper
 	 */
 	private static final Object xmppHelperLock;
 
 	static {
+		// create the key listener list & sync lock
+		keyListeners = new Vector<KeyListener>(3);
+		keyListenersLock = new Object();
 		// create the presence listener list & sync lock
 		presenceListeners = new Vector<PresenceListener>(3);
 		presenceListenersLock = new Object();
@@ -90,6 +116,24 @@ class SessionModelImpl extends AbstractModelImpl {
 		final DocumentModel documentModel = DocumentModel.getModel();
 		try { documentModel.receive(xmppDocument); }
 		catch(ParityException px) {}
+	}
+
+	/**
+	 * Notify all of the registered key listeners that a user has requested the
+	 * key for a given artifact.
+	 * 
+	 * @param user
+	 *            The requesting user.
+	 * @param artifactUUID
+	 *            The artifact.
+	 */
+	static void notifyKeyRequested(final User user, final UUID artifactUUID) {
+		synchronized(SessionModelImpl.keyListenersLock) {
+			final KeyEvent keyEvent = new KeyEvent(artifactUUID, user);
+			for(KeyListener listener : SessionModelImpl.keyListeners) {
+				listener.keyRequested(keyEvent);
+			}
+		}
 	}
 
 	/**
@@ -172,6 +216,22 @@ class SessionModelImpl extends AbstractModelImpl {
 				logger.error("acceptPresence(User)", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
+		}
+	}
+
+	/**
+	 * Add a key listener to the session.
+	 * 
+	 * @param keyListener
+	 *            The key listener to add.
+	 */
+	void addListener(final KeyListener keyListener) {
+		Assert.assertNotNull("Cannot register a null key listener.", keyListener);
+		synchronized(SessionModelImpl.keyListenersLock) {
+			Assert.assertNotTrue(
+					"Cannot re-registry the same key listener.",
+					SessionModelImpl.keyListeners.contains(keyListener));
+			SessionModelImpl.keyListeners.add(keyListener);
 		}
 	}
 
@@ -327,15 +387,57 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Remove a key listener from the session.
+	 * 
+	 * @param keyListener
+	 *            The key listener to remove.
+	 */
+	void removeListener(final KeyListener keyListener) {
+		logger.info("removeListener(KeyListener)");
+		logger.debug(keyListener);
+		Assert.assertNotNull("Cannot remove a null key listener.", keyListener);
+		synchronized(SessionModelImpl.keyListenersLock) {
+			Assert.assertTrue(
+					"Cannot remove a non-registered listener.",
+					SessionModelImpl.keyListeners.contains(keyListener));
+			SessionModelImpl.keyListeners.remove(keyListener);
+		}
+	}
+
+	/**
+	 * Remove a presence listener from the session.
+	 * 
+	 * @param presenceListener
+	 *            The presence listener to remove.
+	 */
+	void removeListener(final PresenceListener presenceListener) {
+		logger.info("removeListener(PresenceListener)");
+		logger.debug(presenceListener);
+		Assert.assertNotNull("Cannot remove a null presence listener.", presenceListener);
+		synchronized(SessionModelImpl.presenceListenersLock) {
+			Assert.assertTrue(
+					"Cannot remove a non-registered listener.",
+					SessionModelImpl.presenceListeners.contains(presenceListener));
+			SessionModelImpl.presenceListeners.remove(presenceListener);
+		}
+	}
+
+	/**
 	 * Remove a session listener from the session.
 	 * 
 	 * @param sessionListener
+	 *            The session listener to remove.
 	 */
 	void removeListener(final SessionListener sessionListener) {
-		Assert.assertNotNull("Cannot remove a null session listener.",
-				sessionListener);
-		if(sessionListeners.contains(sessionListener))
-			sessionListeners.remove(sessionListener);
+		logger.info("removeListener(SessionListener)");
+		logger.debug(sessionListener);
+		Assert.assertNotNull("Cannot remove a null session listener.", sessionListener);
+		synchronized(SessionModelImpl.sessionListenersLock) {
+			Assert.assertTrue(
+					"Cannot remove a non-registered listener.",
+					SessionModelImpl.sessionListeners.contains(sessionListener));
+			SessionModelImpl.sessionListeners.remove(sessionListener);
+		}
 	}
 
 	/**
@@ -357,6 +459,10 @@ class SessionModelImpl extends AbstractModelImpl {
 				// create a new version (updating local content into the
 				// document content metadata) then send.
 				final DocumentModel documentModel = getDocumentModel();
+				if(isFirstSend(document)) {
+					// register the document on the server.
+					SessionModelImpl.xmppHelper.sendCreate(document.getId());
+				}
 				documentModel.createVersion(
 						document, DocumentAction.SEND,
 						createSendDocumentActionData(users));
@@ -395,6 +501,80 @@ class SessionModelImpl extends AbstractModelImpl {
 			}
 			catch(RuntimeException rx) {
 				logger.error("send(Collection<User>,String)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Send a creation registration to the parity server.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @throws ParityException
+	 */
+	void sendCreate(final Document document) throws ParityException {
+		logger.info("sendCreate(Document)");
+		logger.debug(document);
+		synchronized(SessionModelImpl.xmppHelperLock) {
+			assertIsLoggedIn("sendCreate(Document)", SessionModelImpl.xmppHelper);
+			try { SessionModelImpl.xmppHelper.sendCreate(document.getId()); }
+			catch(SmackException sx) {
+				logger.error("sendCreate(Document)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("sendCreate(Document)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Send a reqest for a document key to the parity server.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @throws ParityException
+	 * @see KeyListener#keyRequested(KeyEvent)
+	 */
+	void sendKeyRequest(final Document document) throws ParityException {
+		logger.info("sendKeyRequest(Document)");
+		logger.debug(document);
+		synchronized(SessionModelImpl.xmppHelperLock) {
+			assertIsLoggedIn("sendKeyRequest(Document)", SessionModelImpl.xmppHelper);
+			try { SessionModelImpl.xmppHelper.sendKeyRequest(document.getId()); }
+			catch(SmackException sx) {
+				logger.error("sendKeyRequest(Document)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("sendKeyRequest(Document)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Subscribe to a document. The parity server is notified and will create a
+	 * subscription entry for the logged in user.
+	 * 
+	 * @param document
+	 *            The document to subscribe to.
+	 * @throws ParityException
+	 */
+	void sendSubscribe(final Document document) throws ParityException {
+		logger.info("sendSubscribe(Document)");
+		logger.debug(document);
+		synchronized(SessionModelImpl.xmppHelperLock) {
+			assertIsLoggedIn("sendSubscribe(Document)", SessionModelImpl.xmppHelper);
+			try { SessionModelImpl.xmppHelper.sendSubscribe(document.getId()); }
+			catch(SmackException sx) {
+				logger.error("sendSubscribe(Document)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("sendSubscribe(Document)", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -445,5 +625,20 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 		actionData.setDataItem("users", userList.toString());
 		return actionData;
+	}
+
+	/**
+	 * Determine whether or not this is the first time the document's been sent.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @return True if this document has not yet been sent; false otherwise.
+	 * @throws ParityException
+	 */
+	private Boolean isFirstSend(final Document document)
+			throws ParityException {
+		final DocumentModel documentModel = getDocumentModel();
+		// HACK:  Use the server api to determine if it has been registered or not
+		return 1 == documentModel.listVersions(document).size();
 	}
 }

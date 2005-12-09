@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.database.SequenceManager;
 
-import com.thinkparity.server.log4j.ServerLoggerFactory;
+import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com

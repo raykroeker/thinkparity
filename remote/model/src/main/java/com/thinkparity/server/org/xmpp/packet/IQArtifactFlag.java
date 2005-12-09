@@ -8,8 +8,10 @@ import java.util.UUID;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.artifact.ParityObjectFlag;
+import com.thinkparity.server.org.dom4j.ElementBuilder;
+import com.thinkparity.server.org.dom4j.ElementName;
+import com.thinkparity.server.org.dom4j.NamespaceName;
 
 /**
  * A jabber iq extension for parity. This extension is used to flag artifacts
@@ -21,10 +23,6 @@ import com.thinkparity.server.model.artifact.ParityObjectFlag;
  * @see XMPPSessionImpl#flag(UUID, ParityObjectFlag)
  */
 public class IQArtifactFlag extends IQArtifact {
-
-	private static final String ELEMENT_NAME_FLAG = "flag";
-
-	private static final String ELEMENT_NAME_UUID = "uuid";
 
 	/**
 	 * Flag to apply to the parity artifact.
@@ -40,12 +38,16 @@ public class IQArtifactFlag extends IQArtifact {
 		this.artifactFlag = artifactFlag;
 		setType(IQ.Type.set);
 		final Element queryElement = setChildElement(
-				ParityServerConstants.IQ_PARITY_INFO_NAME,
-				ParityServerConstants.IQ_PARITY_INFO_NAMESPACE);
-		final Element uuidElement = queryElement.addElement(ELEMENT_NAME_UUID);
-		uuidElement.setData(getArtifactUUID().toString());
-		final Element flagElement = queryElement.addElement(ELEMENT_NAME_FLAG);
-		flagElement.setData(getArtifactFlag().toString());
+				ElementName.QUERY.getName(),
+				NamespaceName.IQ_ARTIFACT_FLAG.getName());
+
+		// add the artifact unique id.
+		final String uuidElementText = getArtifactUUID().toString();
+		ElementBuilder.addElement(queryElement, ElementName.UUID, uuidElementText);
+
+		// add the flag
+		final String flagElementText = getArtifactFlag().toString();
+		ElementBuilder.addElement(queryElement, ElementName.FLAG, flagElementText);
 	}
 
 	/**

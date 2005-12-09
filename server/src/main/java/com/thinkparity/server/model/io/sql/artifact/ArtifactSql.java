@@ -25,22 +25,35 @@ import com.thinkparity.server.model.io.sql.AbstractSql;
 @JiveID(1000)
 public class ArtifactSql extends AbstractSql {
 
-	private static final String INSERT =
-		"insert into parityArtifact (artifactId,artifactUUID) values (?,?)";
+	private static final String INSERT = new StringBuffer()
+		.append("insert into parityArtifact (artifactId,artifactUUID,")
+		.append("artifactKeyHolder) values (?,?,?)").toString();
 
 	private static final String SELECT = new StringBuffer()
-		.append("select artifactId,artifactUUID,createdOn,updatedOn ")
+		.append("select artifactId,artifactUUID,artifactKeyHolder,createdOn,")
+		.append("updatedOn ")
 		.append("from parityArtifact ")
 		.append("where artifactUUID = ?").toString();
+
+	private static final String SELECT_KEYHOLDER = new StringBuffer()
+		.append("select artifactKeyHolder ")
+		.append("from parityArtifact ")
+		.append("where artifactId = ?").toString();
+
+	private static final String UPDATE_KEYHOLDER = new StringBuffer()
+		.append("update parityArtifact set artifactKeyHolder = ?,")
+		.append("updatedOn = current_timestamp where artifactId = ?").toString();
 
 	/**
 	 * Create a ArtifactSql.
 	 */
 	public ArtifactSql() { super(); }
 
-	public Integer insert(final UUID artifactUUID) throws SQLException {
+	public Integer insert(final UUID artifactUUID,
+			final String artifactKeyHolder) throws SQLException {
 		logger.info("insert(UUID)");
 		logger.debug(artifactUUID);
+		logger.debug(artifactKeyHolder);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
@@ -49,6 +62,7 @@ public class ArtifactSql extends AbstractSql {
 			final Integer artifactId = nextId(this);
 			ps.setInt(1, artifactId);
 			ps.setString(2, artifactUUID.toString());
+			ps.setString(3, artifactKeyHolder);
 			Assert.assertTrue("insert(UUID)", 1 == ps.executeUpdate());
 			return artifactId;
 		}
@@ -72,11 +86,48 @@ public class ArtifactSql extends AbstractSql {
 		finally { close(cx, ps, rs); }
 	}
 
+	public String selectKeyHolder(final Integer artifactId) throws SQLException {
+		logger.info("selectKeyHolder(Integer)");
+		logger.debug(artifactId);
+		Connection cx = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			cx = getCx();
+			ps = cx.prepareStatement(SELECT_KEYHOLDER);
+			ps.setInt(1, artifactId);
+			rs = ps.executeQuery();
+			if(rs.next()) { return rs.getString(1); }
+			else { return null; }
+		}
+		finally { close(cx, ps, rs); }
+	}
+
+	public void updateKeyHolder(final Integer artifactId,
+			final String artifactKeyHolder) throws SQLException {
+		logger.info("updateKeyHolder(Integer,String)");
+		logger.debug(artifactId);
+		logger.debug(artifactKeyHolder);
+		Connection cx = null;
+		PreparedStatement ps = null;
+		try {
+			cx = getCx();
+			ps = cx.prepareStatement(UPDATE_KEYHOLDER);
+			ps.setInt(1, artifactId);
+			ps.setString(2, artifactKeyHolder);
+			Assert.assertTrue(
+					"updateKeyHolder(Integer,String)", 1 == ps.executeUpdate());
+		}
+		finally { close(cx, ps); }
+	}
+
 	private Artifact extract(final ResultSet rs) throws SQLException {
-		final Integer artifactId = rs.getInt(1);
-		final UUID artifactUUID = UUID.fromString(rs.getString(2));
-		final Calendar createdOn = DateUtil.getInstance(rs.getTimestamp(3));
-		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp(4));
-		return new Artifact(artifactId, artifactUUID, createdOn, updatedOn);
+		final Integer artifactId = rs.getInt("artifactId");
+		final UUID artifactUUID = UUID.fromString(rs.getString("artifactUUID"));
+		final String artifactKeyHolder = rs.getString("artifactKeyHolder");
+		final Calendar createdOn = DateUtil.getInstance(rs.getTimestamp("createdOn"));
+		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp("updatedOn"));
+		return new Artifact(artifactId, artifactUUID, artifactKeyHolder,
+				createdOn, updatedOn);
 	}
 }

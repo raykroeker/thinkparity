@@ -8,9 +8,9 @@ import java.util.UUID;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.ParityServerConstants;
-import com.thinkparity.server.handler.ElementName;
 import com.thinkparity.server.org.dom4j.ElementBuilder;
+import com.thinkparity.server.org.dom4j.ElementName;
+import com.thinkparity.server.org.dom4j.NamespaceName;
 
 
 /**
@@ -29,10 +29,11 @@ public class IQKeyRequest extends IQArtifact {
 		super(Action.REQUESTKEY, artifactUUID);
 		setType(IQ.Type.get);
 		final Element queryElement = setChildElement(
-				ParityServerConstants.IQ_PARITY_INFO_NAME,
-				ParityServerConstants.IQ_PARITY_INFO_NAMESPACE);
-		final Element uuidElement =
-			ElementBuilder.addElement(queryElement, ElementName.UUID);
-		uuidElement.setData(getArtifactUUID().toString());
+				ElementName.QUERY.getName(),
+				NamespaceName.IQ_KEY_REQUEST.getName());
+
+		// add the uuid
+		final String uuidElementText = getArtifactUUID().toString();
+		ElementBuilder.addElement(queryElement, ElementName.UUID, uuidElementText);
 	}
 }

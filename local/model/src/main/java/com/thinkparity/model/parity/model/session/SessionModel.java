@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Collection;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.events.KeyListener;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModel;
@@ -62,6 +63,16 @@ public class SessionModel extends AbstractModel {
 	 */
 	public void acceptPresence(final User user) throws ParityException {
 		synchronized(implLock) { impl.acceptPresence(user); }
+	}
+
+	/**
+	 * Add a key listener to the session.
+	 * 
+	 * @param keyListener
+	 *            The key listener to add.
+	 */
+	public void addListener(final KeyListener keyListener) {
+		synchronized(implLock) { impl.addListener(keyListener); }
 	}
 
 	/**
@@ -152,6 +163,26 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
+	 * Remove a key listener from the session.
+	 * 
+	 * @param keyListener
+	 *            The key listener to remove.
+	 */
+	public void removeListener(final KeyListener keyListener) {
+		synchronized(implLock) { impl.removeListener(keyListener); }
+	}
+
+	/**
+	 * Remove a presence listener from the session.
+	 * 
+	 * @param presenceListener
+	 *            The presence listener to remove.
+	 */
+	public void removeListener(final PresenceListener presenceListener) {
+		synchronized(implLock) { impl.removeListener(presenceListener); }
+	}
+
+	/**
 	 * Remove a session listener from the session.
 	 * 
 	 * @param sessionListener
@@ -187,6 +218,42 @@ public class SessionModel extends AbstractModel {
 	public void send(final Collection<User> users, final String message)
 		throws ParityException {
 		synchronized(implLock) { impl.send(users, message); }
+	}
+
+	/**
+	 * Send a creation registration to the parity server.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @throws ParityException
+	 */
+	public void sendCreate(final Document document) throws ParityException {
+		synchronized(implLock) { impl.sendCreate(document); }
+	}
+
+	/**
+	 * Subscribe to a document. The parity server is notified and will create a
+	 * subscription entry for the logged in user.
+	 * 
+	 * @param document
+	 *            The document to subscribe to.
+	 * @throws ParityException
+	 */
+	public void sendSubscribe(final Document document) throws ParityException {
+		synchronized(implLock) { impl.sendSubscribe(document); }
+	}
+
+	/**
+	 * Send a reqest for a document key to the parity server.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @throws ParityException
+	 * @see KeyListener#keyRequested(KeyEvent)
+	 */
+	public void sendKeyRequest(final Document document)
+			throws ParityException {
+		synchronized(implLock) { impl.sendKeyRequest(document); }
 	}
 
 	/**

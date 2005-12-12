@@ -3,9 +3,12 @@
  */
 package com.thinkparity.server.org.xmpp.packet;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.UUID;
 
 import org.dom4j.Element;
+import org.dom4j.Namespace;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.server.org.dom4j.ElementBuilder;
@@ -36,4 +39,26 @@ public class IQKeyRequest extends IQArtifact {
 		final String uuidElementText = getArtifactUUID().toString();
 		ElementBuilder.addElement(queryElement, ElementName.UUID, uuidElementText);
 	}
+
+	/**
+	 * @see org.xmpp.packet.Packet#getElement()
+	 */
+	public Element getElement() {
+		logger.info("getElement()");
+		final Throwable t = new Throwable();
+		try { throw t; }
+		catch(Throwable t2) {
+			final StringWriter sw = new StringWriter();
+			final PrintWriter pw = new PrintWriter(sw);
+			t2.printStackTrace(pw);
+			logger.debug(sw.toString());
+		}
+		final Element element = super.getElement();
+		logger.debug(element);
+		final Namespace ns = element.getNamespace();
+		logger.debug(ns.getURI());
+		return element;
+	}
+
+
 }

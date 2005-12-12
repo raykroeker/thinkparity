@@ -6,6 +6,7 @@ package com.thinkparity.server.model;
 import java.sql.SQLException;
 
 import org.dom4j.DocumentException;
+import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.messenger.user.UserNotFoundException;
 
 /**
@@ -17,12 +18,14 @@ public class ParityErrorTranslator {
 
 	/**
 	 * Singleton instance.
+	 * 
 	 * @see ParityErrorTranslator#singletonLock
 	 */
 	private static final ParityErrorTranslator singleton;
 
 	/**
 	 * Singleton synchronization lock.
+	 * 
 	 * @see ParityErrorTranslator#singleton
 	 */
 	private static final Object singletonLock;
@@ -66,6 +69,27 @@ public class ParityErrorTranslator {
 		synchronized(singletonLock) { return singleton.translateImpl(sqlx); }
 	}
 
+	/**
+	 * Translate a jive messenger authorization error into a parity server
+	 * error.
+	 * 
+	 * @param ux
+	 *            The jive messenger authorization error.
+	 * @return The parity server error.
+	 */
+	public static ParityServerModelException translate(
+			final UnauthorizedException ux) {
+		synchronized(singletonLock) { return singleton.translateImpl(ux); }
+	}
+
+	/**
+	 * Translate a jive messenger user not found error into a parity server
+	 * error.
+	 * 
+	 * @param unfx
+	 *            The jive messenger user not found error.
+	 * @return The parity server error.
+	 */
 	public static ParityServerModelException translate(
 			final UserNotFoundException unfx) {
 		synchronized(singletonLock) { return singleton.translateImpl(unfx); }
@@ -109,7 +133,29 @@ public class ParityErrorTranslator {
 		return new ParityServerModelException(sqlx);
 	}
 
-	private ParityServerModelException translateImpl(final UserNotFoundException unfx) {
+	/**
+	 * Translate a jive messenger authorization error into a parity server
+	 * error.
+	 * 
+	 * @param ux
+	 *            The jive messenger authorization error.
+	 * @return The parity server error.
+	 */
+	private ParityServerModelException translateImpl(
+			final UnauthorizedException ux) {
+		return new ParityServerModelException(ux);
+	}
+
+	/**
+	 * Translate a jive messenger user not found error into a parity server
+	 * error.
+	 * 
+	 * @param unfx
+	 *            The jive messenger user not found error.
+	 * @return The parity server error.
+	 */
+	private ParityServerModelException translateImpl(
+			final UserNotFoundException unfx) {
 		return new ParityServerModelException(unfx);
 	}
 }

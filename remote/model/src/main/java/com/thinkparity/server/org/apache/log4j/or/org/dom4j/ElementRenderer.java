@@ -14,10 +14,12 @@ import com.thinkparity.server.org.apache.log4j.or.IRendererConstants;
  */
 public class ElementRenderer implements ObjectRenderer {
 
+	private static final String NODECOUNT = "nodeCount:";
+
 	private static final String PREFIX =
 		Element.class.getName() + IRendererConstants.PREFIX_SUFFIX;
 
-	private static final String XML = "xml:";
+	private static final String XML = ",xml:";
 
 	/**
 	 * Create a ElementRenderer.
@@ -37,6 +39,7 @@ public class ElementRenderer implements ObjectRenderer {
 		else {
 			final Element e = (Element) o;
 			return new StringBuffer(PREFIX)
+				.append(ElementRenderer.NODECOUNT).append(e.nodeCount())
 				.append(ElementRenderer.XML).append(e.asXML())
 				.append(IRendererConstants.SUFFIX)
 				.toString();

@@ -6,9 +6,9 @@ package com.thinkparity.server.model;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.jivesoftware.messenger.PacketRouter;
-import org.jivesoftware.messenger.SessionManager;
-import org.jivesoftware.messenger.XMPPServer;
+import org.jivesoftware.messenger.*;
+import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.jivesoftware.util.Log;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
@@ -89,13 +89,48 @@ public abstract class AbstractModelImpl {
 	 * @param iq
 	 *            The iq.
 	 */
-	protected void route(final JID jid, final IQ iq) {
+	protected void route(final JID jid, final IQ iq)
+			throws UnauthorizedException {
 		logger.info("route(JID,IQ)");
 		logger.debug(jid);
 		logger.debug(iq);
 		Assert.assertTrue("route(JID,IQ)", isOnline(jid));
-//		getSessionManager().getSession(jid).process(iq);
-		getPacketRouter().route(iq);
+
+		final ClientSession cs = getSessionManager().getSession(jid);
+		logger.debug(cs.toString());
+		logger.debug(cs.getStatus());
+		logger.debug("[AUTHENTICATED:" + ClientSession.STATUS_AUTHENTICATED +
+				",CLOSED:" + ClientSession.STATUS_CLOSED +
+				",CONNECTED:" + ClientSession.STATUS_CONNECTED +
+				",STREAMING:" + ClientSession.STATUS_STREAMING + "]");
+		final Connection c = cs.getConnection();
+		logger.debug(c.toString());
+		logger.debug("c.isClosed:" + c.isClosed());
+		try { cs.process(iq); }
+		catch(Throwable t) {
+			logger.error("Session.process(Packet)", t);
+			Log.error("Session.process(Packet)", t);
+		}
+
+//		try { getPacketRouter().route(iq); }
+//		catch(Throwable t) {
+//			logger.error("PacketRouter.route(Packet)", t);
+//			Log.error("PacketRouter.route(Packet)", t);
+//		}
+//
+//		try { getPacketDeliverer().deliver(iq); }
+//		catch(Throwable t) {
+//			logger.error("PacketDeliverer.deliver(Packet)", t);
+//			Log.error("PacketDeliverer.deliver(Packet)", t);
+//		}
+	}
+
+	private ConnectionManager getConnectionManager() {
+		return getXMPPServer().getConnectionManager();
+	}
+
+	private PacketDeliverer getPacketDeliverer() {
+		return getXMPPServer().getPacketDeliverer();
 	}
 
 	/**

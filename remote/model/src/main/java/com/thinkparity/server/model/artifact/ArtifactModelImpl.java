@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
@@ -113,6 +114,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			logger.error("flag(Artifact,ArtifactFlag)", sqlx);
 			throw ParityErrorTranslator.translate(sqlx);
 		}
+		catch(UnauthorizedException ux) {
+			logger.error("flag(Artifact,ArtifactFlag)", ux);
+			throw ParityErrorTranslator.translate(ux);
+		}
 		catch(RuntimeException rx) {
 			logger.error("flag(Artifact,ArtifactFlag)", rx);
 			throw ParityErrorTranslator.translate(rx);
@@ -188,6 +193,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			iq.setFrom(session.getJID());
 			if(isOnline(keyHolderJID)) { route(keyHolderJID, iq); }
 			else { enqueue(iq); }
+		}
+		catch(UnauthorizedException ux) {
+			logger.error("requestKey(Artifact)", ux);
+			throw ParityErrorTranslator.translate(ux);
 		}
 		catch(RuntimeException rx) {
 			logger.error("requestKey(Artifact)", rx);

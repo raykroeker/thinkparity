@@ -38,6 +38,13 @@ import com.thinkparity.model.xmpp.user.User;
 class SessionModelImpl extends AbstractModelImpl {
 
 	/**
+	 * Assertion used to compare the username provided with the username in
+	 * the preferences.
+	 */
+	private static final String ASSERT_USERNAME_EQUALS_PREFS =
+		"The username supplied does not match the preferences.";
+
+	/**
 	 * List of all of the registered parity key listeners.
 	 * 
 	 * @see SessionModelImpl#keyListenersLock
@@ -409,12 +416,28 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void login(final String username, final String password) throws ParityException {
+		logger.info("login(String,String)");
+		logger.debug(username);
+		logger.debug(mask(password));
 		final String host = preferences.getServerHost();
 		final Integer port = preferences.getServerPort();
 		synchronized(xmppHelperLock) {
 			try {
+				final String usernameAtHost = new StringBuffer(username)
+					.append("@").append(host).toString();
+				// check that the preferences username@host matches the username
+				// supplied
+				if(preferences.isSetUsername()) {
+					Assert.assertTrue(
+							ASSERT_USERNAME_EQUALS_PREFS,
+							usernameAtHost.equals(preferences.getUsername()));
+				}
+				// login
 				xmppHelper.login(host, port, username, password);
-				preferences.setUsername(xmppHelper.getUser().getUsername());
+				// set the username@host in the preferences
+				if(!preferences.isSetUsername()) {
+					preferences.setUsername(usernameAtHost);
+				}
 			}
 			catch(SmackException sx) {
 				logger.error("login(String,String)", sx);
@@ -748,6 +771,15 @@ class SessionModelImpl extends AbstractModelImpl {
 		// HACK:  Use the server api to determine if it has been registered or not
 		return 1 == documentModel.listVersions(document).size();
 	}
+
+	/**
+	 * Mask the password for logging statements.
+	 * 
+	 * @param password
+	 *            The password.
+	 * @return The password mask.
+	 */
+	private String mask(final String password) { return "XXXXXXXXXX"; }
 
 	/**
 	 * Ease of use method for sending a document to a single user.

@@ -58,6 +58,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 			public void documentReceived(final XMPPDocument xmppDocument) {
 				handleDocumentReceived(xmppDocument);
 			}
+			public void keyRequestAccepted(final User user, final UUID artifactUUID) {
+				handleKeyRequestAccepted(user, artifactUUID);
+			}
+			public void keyRequestDenied(final User user, final UUID artifactUUID) {
+				handleKeyRequestDenied(user, artifactUUID);
+			}
 			public void keyRequested(final User user, final UUID artifactUUID) {
 				handleKeyRequested(user, artifactUUID);
 			}
@@ -218,6 +224,23 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+	 * Send the response to a document key request to the user (via the parity
+	 * server).
+	 * 
+	 * @param artifactUUID
+	 *            The document unique id.
+	 * @param keyResponse
+	 *            The response.
+	 * @param user
+	 *            The user.
+	 * @throws SmackException
+	 */
+	void sendKeyResponse(final UUID artifactUUID, final KeyResponse keyResponse,
+			final User user) throws SmackException {
+		xmppSession.sendKeyResponse(artifactUUID, keyResponse, user);
+	}
+
+	/**
 	 * Send a subscribe packet to the parity server.
 	 * 
 	 * @param parityObjectUUID
@@ -246,6 +269,30 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	private void handleDocumentReceived(final XMPPDocument xmppDocument) {
 		SessionModelImpl.notifyDocumentReceived(xmppDocument);
+	}
+
+	/**
+	 * Event handler for the extension listener's key request accepted event.
+	 * 
+	 * @param user
+	 *            The user who accepted the request.
+	 * @param artifactUUID
+	 *            The artifact unique id being requested.
+	 */
+	private void handleKeyRequestAccepted(final User user, final UUID artifactUUID) {
+		SessionModelImpl.notifyKeyRequestAccepted(artifactUUID, user);
+	}
+
+	/**
+	 * Event handler for the extension listener's key request accepted event.
+	 * 
+	 * @param user
+	 *            The user who accepted the request.
+	 * @param artifactUUID
+	 *            The artifact unique id being requested.
+	 */
+	private void handleKeyRequestDenied(final User user, final UUID artifactUUID) {
+		SessionModelImpl.notifyKeyRequestDenied(artifactUUID, user);
 	}
 
 	/**

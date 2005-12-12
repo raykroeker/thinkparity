@@ -9,7 +9,9 @@ import org.apache.log4j.PropertyConfigurator;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
+import org.xmlpull.v1.XmlPullParser;
 
+import com.thinkparity.model.log4j.or.org.xmlpull.v1.XmlPullParserRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentContentRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentVersionRenderer;
@@ -96,6 +98,7 @@ class ModelLog4JConfigurator {
 		configureRenderer(configuration, PacketExtension.class, PacketExtensionRenderer.class);
 		configureRenderer(configuration, Project.class, ProjectRenderer.class);
 		configureRenderer(configuration, XMPPDocument.class, XMPPDocumentRenderer.class);
+		configureRenderer(configuration, XmlPullParser.class, XmlPullParserRenderer.class);
 	}
 
 	/**

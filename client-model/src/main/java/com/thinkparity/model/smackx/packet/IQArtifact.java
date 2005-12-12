@@ -108,6 +108,8 @@ public abstract class IQArtifact extends IQParity {
 		this.artifactUUID = artifactUUID;
 	}
 
+	public void setUUID(final UUID uuid) { setArtifactUUID(uuid); }
+
 	/**
 	 * Finish xml for the query.
 	 * 

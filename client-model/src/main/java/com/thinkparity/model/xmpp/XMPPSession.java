@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
@@ -49,8 +50,11 @@ public interface XMPPSession {
 	public void send(final Collection<User> users,
 			final XMPPDocument xmppDocument) throws SmackException;
 	public void sendCreate(final UUID artifactUUID) throws SmackException;
-	public void sendSubscribe(final UUID artifactUUID) throws SmackException;
 	public void sendKeyRequest(final UUID artifactUUID) throws SmackException;
+	public void sendKeyResponse(final UUID artifactUUID,
+			final KeyResponse keyResponse, final User user)
+			throws SmackException;
+	public void sendSubscribe(final UUID artifactUUID) throws SmackException;
 	public void subscribe(final UUID artifactUUID) throws SmackException;
 	public void unsubscribe(final UUID artifactUUID) throws SmackException;
 	public void updateRosterEntry(final User user);

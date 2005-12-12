@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Collection;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.events.KeyEvent;
 import com.thinkparity.model.parity.api.events.KeyListener;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
@@ -232,18 +233,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Subscribe to a document. The parity server is notified and will create a
-	 * subscription entry for the logged in user.
-	 * 
-	 * @param document
-	 *            The document to subscribe to.
-	 * @throws ParityException
-	 */
-	public void sendSubscribe(final Document document) throws ParityException {
-		synchronized(implLock) { impl.sendSubscribe(document); }
-	}
-
-	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
 	 * @param document
@@ -254,6 +243,35 @@ public class SessionModel extends AbstractModel {
 	public void sendKeyRequest(final Document document)
 			throws ParityException {
 		synchronized(implLock) { impl.sendKeyRequest(document); }
+	}
+
+	/**
+	 * Send the response to a key request.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @param user
+	 *            The user.
+	 * @param keyResponse
+	 *            The response.
+	 */
+	public void sendKeyResponse(final Document document, final User user,
+			final KeyResponse keyResponse) throws ParityException {
+		synchronized(implLock) {
+			impl.sendKeyResponse(document, user, keyResponse);
+		}
+	}
+
+	/**
+	 * Subscribe to a document. The parity server is notified and will create a
+	 * subscription entry for the logged in user.
+	 * 
+	 * @param document
+	 *            The document to subscribe to.
+	 * @throws ParityException
+	 */
+	public void sendSubscribe(final Document document) throws ParityException {
+		synchronized(implLock) { impl.sendSubscribe(document); }
 	}
 
 	/**

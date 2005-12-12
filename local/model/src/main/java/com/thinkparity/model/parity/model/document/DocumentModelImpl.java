@@ -208,6 +208,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// flag the document as having been seen.
 			flagAsSEEN(document);
+			// flag the document with the key
+			flagKey(document);
 
 			// fire a creation event
 			notifyCreation_objectCreated(document);
@@ -471,6 +473,35 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Unlock a document.
+	 * 
+	 * @param document
+	 *            The document to unlock.
+	 * @throws ParityException
+	 */
+	void lock(final Document document) throws ParityException {
+		logger.info("lock(Document)");
+		logger.debug(document);
+		try {
+			// re-create the local file from the meta-data
+			final LocalFile localFile = getLocalFile(document);
+			localFile.delete();
+			localFile.write(getContent(document).getContent());
+			localFile.lock();
+			// flag the document without the key
+			flagNotKey(document);
+		}
+		catch(IOException iox) {
+			logger.error("lock(UUID)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("lock(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Move the document to an another project.
 	 * 
 	 * @param document
@@ -623,6 +654,34 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Unlock a document.
+	 * 
+	 * @param document
+	 *            The document to unlock.
+	 * @throws ParityException
+	 */
+	void unlock(final Document document) throws ParityException {
+		logger.info("importKey(Document)");
+		logger.debug(document);
+		try {
+			// re-create the local file from the meta-data
+			final LocalFile localFile = getLocalFile(document);
+			localFile.delete();
+			localFile.write(getContent(document).getContent());
+			// flag the document with the key
+			flagKey(document);
+		}
+		catch(IOException iox) {
+			logger.error("importKey(UUID)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("importKey(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Update a document.
 	 * 
 	 * @param document
@@ -696,6 +755,33 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Add the key flag to the document.
+	 * 
+	 * @param document
+	 *            The document.
+	 */
+	private void flagKey(final Document document) throws ParityException {
+		Assert.assertNotTrue(
+				"flagKey(Document)", document.contains(ParityObjectFlag.KEY));
+		document.add(ParityObjectFlag.SEEN);
+		update(document);
+	}
+
+	/**
+	 * Remove the key flag from the document.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @throws ParityException
+	 */
+	private void flagNotKey(final Document document) throws ParityException {
+		Assert.assertTrue(
+				"flagNotKey(Document)", document.contains(ParityObjectFlag.KEY));
+		document.remove(ParityObjectFlag.KEY);
+		update(document);
+	}
+
+	/**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
@@ -716,6 +802,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private LocalFile getLocalFile(final Document document,
 			final DocumentVersion version) {
 		return new LocalFile(workspace, document, version);
+	}
+
+	/**
+	 * Obtain the next version in the sequence for a document.
+	 * 
+	 * @param document
+	 *            The document to obtain the version for.
+	 * @return The next version in the sequence.
+	 */
+	private String nextVersionId(final Document document)
+			throws ParityException {
+		final Integer numberOfVersions = listVersions(document).size();
+		return new StringBuffer("v").append(numberOfVersions + 1).toString();
 	}
 
 	/**
@@ -850,6 +949,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// flag as not seen
 		flagAsNotSEEN(document);
 
+		// lock the file
+		lock(document);
+
 		// send the server a subscription request
 		final SessionModel sessionModel = getSessionModel();
 		sessionModel.sendSubscribe(document);
@@ -920,18 +1022,5 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throws ParityException, IOException {
 		final DocumentContent content = getContent(document);
 		FileUtil.writeBytes(file, content.getContent());
-	}
-
-	/**
-	 * Obtain the next version in the sequence for a document.
-	 * 
-	 * @param document
-	 *            The document to obtain the version for.
-	 * @return The next version in the sequence.
-	 */
-	private String nextVersionId(final Document document)
-			throws ParityException {
-		final Integer numberOfVersions = listVersions(document).size();
-		return new StringBuffer("v").append(numberOfVersions + 1).toString();
 	}
 }

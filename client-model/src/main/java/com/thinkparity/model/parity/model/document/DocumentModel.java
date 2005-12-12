@@ -224,6 +224,17 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Lock the document.
+	 * 
+	 * @param document
+	 *            The document to lock.
+	 * @throws ParityException
+	 */
+	public void lock(final Document document) throws ParityException {
+		synchronized(implLock) { impl.lock(document); }
+	}
+
+	/**
 	 * Move the document to an another project.
 	 * 
 	 * @param document
@@ -287,6 +298,17 @@ public class DocumentModel {
 	 */
 	public void removeListener(final UpdateListener listener) {
 		synchronized(implLock) { impl.removeListener(listener); }
+	}
+
+	/**
+	 * Unlock the document.
+	 * 
+	 * @param document
+	 *            The document to unlock.
+	 * @throws ParityException
+	 */
+	public void unlock(final Document document) throws ParityException {
+		synchronized(implLock) { impl.unlock(document); }
 	}
 
 	/**

@@ -21,12 +21,14 @@ import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.provider.ProviderManager;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smack.SmackRosterListener;
@@ -35,12 +37,7 @@ import com.thinkparity.model.smack.packet.SmackPresenceListener;
 import com.thinkparity.model.smackx.XFactory;
 import com.thinkparity.model.smackx.document.XMPPDocumentXFilter;
 import com.thinkparity.model.smackx.document.XMPPDocumentXListener;
-import com.thinkparity.model.smackx.packet.IQArtifact;
-import com.thinkparity.model.smackx.packet.IQArtifactCreate;
-import com.thinkparity.model.smackx.packet.IQArtifactFlag;
-import com.thinkparity.model.smackx.packet.IQArtifactSubscribe;
-import com.thinkparity.model.smackx.packet.IQArtifactUnsubscribe;
-import com.thinkparity.model.smackx.packet.IQKeyRequest;
+import com.thinkparity.model.smackx.packet.*;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
@@ -122,6 +119,9 @@ public class XMPPSessionImpl implements XMPPSession {
 	private static final Logger logger =
 		ModelLoggerFactory.getLogger(XMPPSessionImpl.class);
 
+	private static final String NO_SUCH_KEY_RESPONSE =
+		"The key response ${0} is invalid.";
+
 	/**
 	 * The number of milliseconds to sleep subsequent to each maual packet sent
 	 * via the smack connection. If this number is reduced or removed, the smack
@@ -133,6 +133,9 @@ public class XMPPSessionImpl implements XMPPSession {
 	static {
 		// set the subscription mode such that all requests are manual
 		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
+
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:keyrequest", new IQKeyRequestProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:keyresponse", new IQKeyResponseProvider());
 	}
 
 	private Map<String, User> pendingXMPPUsers;
@@ -142,6 +145,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	private SmackRosterListenerImpl smackRosterListenerImpl;
 	private XMPPConnection smackXMPPConnection;
 	private Vector<XMPPExtensionListener> xmppExtensionListeners;
+	private final Object xmppExtensionListenersLock = new Object();
 	private Vector<XMPPPresenceListener> xmppPresenceListeners;
 	private Vector<XMPPSessionListener> xmppSessionListeners;
 
@@ -368,21 +372,34 @@ public class XMPPSessionImpl implements XMPPSession {
 						public boolean accept(Packet packet) { return true; }
 					});
 
-			// iq debugger
+			// key request
 			smackXMPPConnection.addPacketListener(
 					new PacketListener() {
 						public void processPacket(Packet packet) {
-							logger.debug(";aslkdjf;lkasjdf;lkasjdf;lkajsdf;lkjas;ldfj a;lskdjf ;lasjdf la;sjdf l;ajsdfl;ja sl;dkfj asl;kdjf ;alksjdf ;laksjdf ;lkajs fd;lkj as;ldjf ;lasjdf ;lasjd f;lkajsdf ;lajsdf l;kjas df;lkjasd lf;kjl;asj fd");
+							notifyXMPPExtension_keyRequested((IQKeyRequest) packet);
 						}
 					},
 					new PacketTypeFilter(IQKeyRequest.class));
+			// key response
+			smackXMPPConnection.addPacketListener(
+					new PacketListener() {
+						public void processPacket(Packet packet) {
+							final IQKeyResponse iqKeyResponse = (IQKeyResponse) packet;
+							if(iqKeyResponse.getKeyResponse() == KeyResponse.ACCEPT)
+								notifyXMPPExtension_keyRequestAccepted(iqKeyResponse);
+							else if(iqKeyResponse.getKeyResponse() == KeyResponse.DENY)
+								notifyXMPPExtension_keyRequestDenied(iqKeyResponse);
+							else { logger.error(NO_SUCH_KEY_RESPONSE); }
+						}
+					},
+					new PacketTypeFilter(IQKeyResponse.class));
 
 			// document extension handler
 			smackXMPPConnection.addPacketListener(
 					new XMPPDocumentXListener() {
 						public void documentRecieved(
 								final XMPPDocument xmppDocument) {
-							handleDocumentRecieved(xmppDocument);
+							notifyXMPPExtension_documentReceived(xmppDocument);
 						}
 					},
 					new XMPPDocumentXFilter());
@@ -535,6 +552,30 @@ public class XMPPSessionImpl implements XMPPSession {
 		}
 		catch(InterruptedException ix) {
 			logger.error("sendKeyRequest(UUID)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendKeyResponse(java.util.UUID,
+	 *      com.thinkparity.model.parity.model.session.KeyResponse,
+	 *      com.thinkparity.model.xmpp.user.User)
+	 * 
+	 */
+	public void sendKeyResponse(final UUID artifactUUID,
+			final KeyResponse keyResponse, final User user)
+			throws SmackException {
+		logger.info("sendKeyResponse(UUID,User)");
+		logger.debug(artifactUUID);
+		logger.debug(user);
+		try {
+			final IQArtifact iq = new IQKeyResponse(artifactUUID, keyResponse);
+			iq.setType(IQ.Type.SET);
+			logger.debug(iq);
+			sendPacket(iq);
+		}
+		catch(InterruptedException ix) {
+			logger.error("sendKeyResponse(UUID,User)", ix);
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}
@@ -788,15 +829,66 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * Event handler that gets called when an xmpp document is recieved via the
-	 * smack connection.
+	 * Fire the documentReceived event for all of the XMPPExtension listeners.
 	 * 
 	 * @param xmppDocument
-	 *            The xmpp document.
+	 *            The xmpp document to use as the event source.
 	 */
-	private void handleDocumentRecieved(final XMPPDocument xmppDocument) {
-		for(XMPPExtensionListener listener : xmppExtensionListeners) {
-			listener.documentReceived(xmppDocument);
+	private void notifyXMPPExtension_documentReceived(final XMPPDocument xmppDocument) {
+		synchronized(xmppExtensionListenersLock) {
+			for(XMPPExtensionListener listener : xmppExtensionListeners) {
+				listener.documentReceived(xmppDocument);
+			}
+		}
+	}
+
+	/**
+	 * Fire the keyRequestAccepted event for all of the XMPPExtension listeners.
+	 * 
+	 * @param iqKeyResponse
+	 *            The IQKeyRequest to use to build the event source.
+	 */
+	private void notifyXMPPExtension_keyRequestAccepted(
+			final IQKeyResponse iqKeyResponse) {
+		synchronized(xmppExtensionListenersLock) {
+			final User user = getXMPPUser_From(iqKeyResponse);
+			final UUID artifactUUID = iqKeyResponse.getArtifactUUID();
+			for(XMPPExtensionListener listener : xmppExtensionListeners) {
+				listener.keyRequestAccepted(user, artifactUUID);
+			}
+		}
+	}
+
+	/**
+	 * Fire the keyRequestDenied event for all of the XMPPExtension listeners.
+	 * 
+	 * @param iqKeyResponse
+	 *            The IQKeyRequest to use to build the event source.
+	 */
+	private void notifyXMPPExtension_keyRequestDenied(
+			final IQKeyResponse iqKeyResponse) {
+		synchronized(xmppExtensionListenersLock) {
+			final User user = getXMPPUser_From(iqKeyResponse);
+			final UUID artifactUUID = iqKeyResponse.getArtifactUUID();
+			for(XMPPExtensionListener listener : xmppExtensionListeners) {
+				listener.keyRequestDenied(user, artifactUUID);
+			}
+		}
+	}
+
+	/**
+	 * Fire the keyRequested event for all of the XMPPExtension listeners.
+	 * 
+	 * @param iqKeyRequest
+	 *            The IQKeyRequest to use to build the event source.
+	 */
+	private void notifyXMPPExtension_keyRequested(final IQKeyRequest iqKeyRequest) {
+		synchronized(xmppExtensionListenersLock) {
+			final User user = getXMPPUser_From(iqKeyRequest);
+			final UUID artifactUUID = iqKeyRequest.getArtifactUUID();
+			for(XMPPExtensionListener listener : xmppExtensionListeners) {
+				listener.keyRequested(user, artifactUUID);
+			}
 		}
 	}
 
@@ -874,4 +966,6 @@ public class XMPPSessionImpl implements XMPPSession {
 		presence.setFrom(smackXMPPConnection.getUser());
 		sendPacket(presence);
 	}
+
+
 }

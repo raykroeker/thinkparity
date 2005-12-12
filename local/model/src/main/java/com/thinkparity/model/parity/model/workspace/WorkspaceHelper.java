@@ -24,6 +24,7 @@ class WorkspaceHelper {
 
 	/**
 	 * Create a WorkspaceHelper.
+	 * 
 	 */
 	WorkspaceHelper() { super(); }
 
@@ -36,6 +37,7 @@ class WorkspaceHelper {
 	Workspace openWorkspace() {
 		final URL workspaceRootURL = initRoot();
 		final File workspaceRoot = new File(workspaceRootURL.getFile());
+
 		return new Workspace() {
 			/**
 			 * URL to the data directory within the workspace.
@@ -46,6 +48,12 @@ class WorkspaceHelper {
 			 * URL to the log file directory within the workspace.
 			 */
 			final URL loggerURL = initChild(workspaceRootURL, "logs");
+
+			/**
+			 * Workspace preferences.
+			 */
+			final Preferences preferences =
+				new PreferencesHelper(workspaceRoot).getPreferences();
 
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataURL()
@@ -60,9 +68,7 @@ class WorkspaceHelper {
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getPreferences()
 			 */
-			public Preferences getPreferences() {
-				return new PreferencesHelper(workspaceRoot).getPreferences();
-			}
+			public Preferences getPreferences() { return preferences; }
 
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getWorkspaceURL()

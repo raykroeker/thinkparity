@@ -81,13 +81,27 @@ class PreferencesHelper {
 	}
 
 	/**
+	 * Initialize the preferences file by creating it if it does not already
+	 * exist.
+	 * 
+	 * @throws IOException
+	 */
+	private void initPreferences() throws IOException {
+		if(!preferencesFile.exists()) {
+			Assert.assertTrue("init", preferencesFile.createNewFile());
+			final Properties javaProperties = new Properties();
+			storePreferences(javaProperties);
+		}
+	}
+
+	/**
 	 * Load the java properties from the preferences file.
 	 * 
 	 * @return The java properties.
 	 */
 	private Properties loadPreferences() {
 		try {
-			initPreferencesFile();
+			initPreferences();
 			final Properties javaProperties = new Properties();
 			javaProperties.loadFromXML(new FileInputStream(preferencesFile));
 			return javaProperties;
@@ -100,17 +114,6 @@ class PreferencesHelper {
 			iox.printStackTrace(System.err);
 			return null;
 		}
-	}
-
-	/**
-	 * Initialize the preferences file by creating it if it does not already
-	 * exist.
-	 * 
-	 * @throws IOException
-	 */
-	private void initPreferencesFile() throws IOException {
-		if(!preferencesFile.exists())
-			Assert.assertTrue("init", preferencesFile.createNewFile());
 	}
 
 	/**

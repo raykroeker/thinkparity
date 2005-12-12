@@ -14,14 +14,15 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 class WorkspaceModelImpl extends AbstractModelImpl {
 
 	/**
-	 * Handle to the parity model workspace.
+	 * Singleton instance.
 	 */
 	private static final Workspace cachedWorkspace;
 
 	static { cachedWorkspace = new WorkspaceHelper().openWorkspace(); }
 
 	/**
-	 * Create a WorkspaceModelImpl
+	 * Create a WorkspaceModelImpl.
+	 * 
 	 */
 	WorkspaceModelImpl() { super(null); }
 

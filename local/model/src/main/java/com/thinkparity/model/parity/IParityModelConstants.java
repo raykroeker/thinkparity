@@ -22,10 +22,6 @@ public interface IParityModelConstants {
 	public static final String DIRECTORY_NAME_XML_DATA = "xml.io";
 	public static final Long FILE_SIZE_UPPER_BOUNDS = 1048576L;
 
-	public static final String PROJECT_CREATED_BY = "system";
-	public static final String PROJECT_CREATED_BY_INBOX = PROJECT_CREATED_BY;
-	public static final String PROJECT_CREATED_BY_MYPROJECTS = PROJECT_CREATED_BY;
-
 	public static final Calendar PROJECT_CREATED_ON = DateUtil.getInstance();
 	public static final Calendar PROJECT_CREATED_ON_INBOX = PROJECT_CREATED_ON;
 	public static final Calendar PROJECT_CREATED_ON_MYPROJECTS = PROJECT_CREATED_ON;
@@ -38,10 +34,6 @@ public interface IParityModelConstants {
 
 	public static final String PROJECT_NAME_INBOX = "Inbox";
 	public static final String PROJECT_NAME_MYPROJECTS = "My Projects";
-
-	public static final String PROJECT_UPDATED_BY = PROJECT_CREATED_BY;
-	public static final String PROJECT_UPDATED_BY_INBOX = PROJECT_UPDATED_BY;
-	public static final String PROJECT_UPDATED_BY_MYPROJECTS = PROJECT_UPDATED_BY;
 
 	public static final Calendar PROJECT_UPDATED_ON = PROJECT_CREATED_ON;
 	public static final Calendar PROJECT_UPDATED_ON_INBOX = PROJECT_UPDATED_ON;

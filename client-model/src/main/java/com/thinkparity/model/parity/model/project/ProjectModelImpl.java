@@ -391,15 +391,16 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private Project lazyCreateInbox() throws FileNotFoundException, IOException {
+		final String systemUsername = preferences.getSystemUsername();
 		final Project inbox = new Project(
-				IParityModelConstants.PROJECT_CREATED_BY_INBOX,
+				systemUsername,
 				IParityModelConstants.PROJECT_CREATED_ON_INBOX,
 				IParityModelConstants.PROJECT_DESCRIPTION_INBOX,
 				NO_FLAGS,
 				IParityModelConstants.PROJECT_ID_INBOX,
 				IParityModelConstants.PROJECT_NAME_INBOX,
 				null,
-				IParityModelConstants.PROJECT_UPDATED_BY_MYPROJECTS,
+				systemUsername,
 				IParityModelConstants.PROJECT_UPDATED_ON_MYPROJECTS);
 		inbox.add(ParityObjectFlag.SEEN);
 		projectXmlIO.create(inbox);
@@ -415,15 +416,16 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	private Project lazyCreateMyProjects() throws FileNotFoundException,
 			IOException {
+		final String systemUsername = preferences.getSystemUsername();
 		final Project myProjects = new Project(
-				IParityModelConstants.PROJECT_CREATED_BY_MYPROJECTS,
+				systemUsername,
 				IParityModelConstants.PROJECT_CREATED_ON_MYPROJECTS,
 				IParityModelConstants.PROJECT_DESCRIPTION_MYPROJECTS,
 				NO_FLAGS,
 				IParityModelConstants.PROJECT_ID_MYPROJECTS,
 				IParityModelConstants.PROJECT_NAME_MYPROJECTS,
 				null,
-				IParityModelConstants.PROJECT_UPDATED_BY_MYPROJECTS,
+				systemUsername,
 				IParityModelConstants.PROJECT_UPDATED_ON_MYPROJECTS);
 		myProjects.add(ParityObjectFlag.SEEN);
 		projectXmlIO.create(myProjects);

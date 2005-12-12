@@ -62,7 +62,10 @@ class PreferencesHelper {
 					else { return 5223; }
 				}
 			}
-			public String getSystemUsername() { return "system"; }
+			public String getSystemUsername() {
+				return new StringBuffer("system@")
+					.append(getServerHost()).toString();
+			}
 			public String getUsername() {
 				return javaProperties.getProperty("parity.username", null);
 			}

@@ -4,15 +4,12 @@
 package com.thinkparity.model;
 
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
@@ -97,6 +94,9 @@ public class ModelTestCaseHelper {
 				"jUnit");
 		if(jUnitWorkspace.exists())
 			FileUtil.deleteTree(jUnitWorkspace);
+		System.setProperty(
+				"parity.workspace",
+				jUnitWorkspace.getAbsolutePath());
 		// set the test files
 		final File jUnitResourcesFiles =
 			new File(resourcesDirectory, "junit.files");
@@ -118,11 +118,10 @@ public class ModelTestCaseHelper {
 						new File(jUnitResourcesFiles, "JUnit Test Framework 1MB.txt")));
 		// set the test user
 		jUnitTestUser = ModelTestUser.getJUnit();
+		// initialize the username in the workspace
+		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(jUnitTestUser.getUsername());
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
-		System.setProperty(
-				"parity.workspace",
-				jUnitWorkspace.getAbsolutePath());
 		// set the output directory
 		final File outputDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
 			.append(File.separatorChar).append("target")
@@ -135,16 +134,10 @@ public class ModelTestCaseHelper {
 	}
 
 	/**
-	 * Handle back to the test case.
-	 */
-	private final ModelTestCase modelTestCase;
-
-	/**
 	 * Create a ModelTestCaseHelper
 	 */
 	ModelTestCaseHelper(final ModelTestCase modelTestCase) {
 		super();
-		this.modelTestCase = modelTestCase;
 	}
 
 	/**
@@ -191,15 +184,6 @@ public class ModelTestCaseHelper {
 			actualIds.append(actual.getId().toString());
 		}
 		ModelTestCase.assertFalse("expected:<" + document.getId() + "> but was:<" + actualIds.toString() + ">", didContain);
-	}
-
-	void deleteWorkspace(final ModelTestUser modelTestUser) {
-		final File workspaceDirectory = getWorkspaceDirectory(modelTestUser);
-		deleteTree(workspaceDirectory);
-		ModelTestCase.assertFalse(
-				"Could not delete workspace directory.",
-				workspaceDirectory.exists());
-		workspaceDirectory.mkdir();
 	}
 
 	/**
@@ -329,10 +313,6 @@ public class ModelTestCaseHelper {
 		return WorkspaceModel.getModel().getWorkspace();
 	}
 
-	private void deleteTree(final File rootDirectory) {
-		FileUtil.deleteTree(rootDirectory);
-	}
-
 	/**
 	 * Obtain a handle to the root project.
 	 * 
@@ -340,15 +320,5 @@ public class ModelTestCaseHelper {
 	 */
 	private Project getMyProjects() throws ParityException {
 		return getProjectModel().getMyProjects();
-	}
-
-	private File getWorkspaceDirectory(final ModelTestUser modelTestUser) {
-		final URL rootURL = ResourceUtil.getURL("resources/workspace");
-		File rootDirectory = null;
-		try { rootDirectory = new File(rootURL.toURI()); }
-		catch(URISyntaxException usx) {
-			ModelTestCase.fail(modelTestCase.getFailMessage(usx));
-		}
-		return new File(rootDirectory, modelTestUser.getUsername());
 	}
 }

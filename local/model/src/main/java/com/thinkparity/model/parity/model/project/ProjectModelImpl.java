@@ -138,14 +138,21 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.debug(parent);
 		logger.debug(name);
 		logger.debug(description);
+		assertCanCreateArtifacts();
 		try {
 			// create the project
 			final Calendar now = DateUtil.getInstance();
 			final Project project = new Project(preferences.getUsername(), now,
-					description, NO_FLAGS, UUIDGenerator.nextUUID(), name, parent.getId(),
-					preferences.getUsername(), now);
-			project.add(ParityObjectFlag.SEEN);
+					description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
+					parent.getId(), preferences.getUsername(), now);
+
+			// create the project
 			projectXmlIO.create(project);
+
+			// flag the project as having been seen.
+			flagAsSEEN(project);
+
+			// fire a creation event
 			notifyCreation_objectCreated(project);
 			return project;
 		}

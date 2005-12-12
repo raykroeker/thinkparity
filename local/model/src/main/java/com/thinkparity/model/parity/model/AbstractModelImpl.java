@@ -41,6 +41,14 @@ public abstract class AbstractModelImpl {
 		Collections.unmodifiableCollection(new Vector<ParityObjectFlag>(0));
 
 	/**
+	 * Assertion message to be displayed if the username is not set in the
+	 * parity preferences.
+	 */
+	private static final String ASSERT_IS_SET_USERNAME = new StringBuffer()
+		.append("Before you can create the first parity artifact; you will ")
+		.append("need to establish a parity session.").toString();
+
+	/**
 	 * Handle to an apache logger.
 	 */
 	protected final Logger logger =
@@ -66,6 +74,18 @@ public abstract class AbstractModelImpl {
 		super();
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
+	}
+
+	/**
+	 * Assert that the model framework is initialized to a state where the user
+	 * can start to create artifacts. This requires:
+	 * <ol>
+	 * <li>The user has logged in at least once.</li>
+	 * </ol>
+	 * 
+	 */
+	protected void assertCanCreateArtifacts() {
+		Assert.assertTrue(ASSERT_IS_SET_USERNAME, preferences.isSetUsername());
 	}
 
 	/**

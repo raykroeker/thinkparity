@@ -21,6 +21,13 @@ import com.thinkparity.codebase.assertion.Assert;
 class PreferencesHelper {
 
 	/**
+	 * Assertion message for setting the username a second time.
+	 */
+	private static final String ASSERT_NOT_IS_SET_USERNAME = new StringBuffer()
+		.append("The parity username cannot be modified after it has ")
+		.append("initially been set.").toString();
+
+	/**
 	 * The java properties file to read\write.
 	 */
 	private final File preferencesFile;
@@ -78,6 +85,7 @@ class PreferencesHelper {
 				// TODO Auto-generated method stub
 			}
 			public void setUsername(final String username) {
+				Assert.assertNotTrue(ASSERT_NOT_IS_SET_USERNAME, isSetUsername());
 				javaProperties.setProperty("parity.username", username);
 			}
 		};

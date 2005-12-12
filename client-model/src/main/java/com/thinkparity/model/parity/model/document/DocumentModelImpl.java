@@ -184,6 +184,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(name);
 		logger.debug(description);
 		logger.debug(file);
+		assertCanCreateArtifacts();
 		Assert.assertTrue(
 				"create(Project,String,String,File)",
 				(file.length() <= IParityModelConstants.FILE_SIZE_UPPER_BOUNDS));

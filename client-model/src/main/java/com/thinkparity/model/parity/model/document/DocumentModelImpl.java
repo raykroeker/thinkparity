@@ -763,7 +763,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private void flagKey(final Document document) throws ParityException {
 		Assert.assertNotTrue(
 				"flagKey(Document)", document.contains(ParityObjectFlag.KEY));
-		document.add(ParityObjectFlag.SEEN);
+		document.add(ParityObjectFlag.KEY);
 		update(document);
 	}
 

@@ -48,19 +48,15 @@ public class ModelTestUser {
 	/**
 	 * @return The serverHost.
 	 */
-	public String getServerHost() {
-		return serverHost;
-	}
+	public String getServerHost() { return serverHost; }
 
 	/**
 	 * @return The serverPort.
 	 */
-	public Integer getServerPort() {
-		return serverPort;
-	}
+	public Integer getServerPort() { return serverPort; }
 
 	/**
 	 * @return The username.
 	 */
-	public String getUsername() { return username + "@" + serverHost; }
+	public String getUsername() { return username; }
 }

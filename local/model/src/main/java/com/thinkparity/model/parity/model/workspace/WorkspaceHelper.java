@@ -120,7 +120,6 @@ class WorkspaceHelper {
 		default:
 			throw Assert.createUnreachable("Unsupported os:  " + OSUtil.getOS());
 		}
-
 		if(!workspaceDirectory.exists())
 			Assert.assertTrue(
 					"Cannot create workspace directory.",

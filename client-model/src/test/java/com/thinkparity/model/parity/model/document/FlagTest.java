@@ -47,7 +47,6 @@ public class FlagTest extends ModelTestCase {
 
 				flags = datum.document.getFlags();
 				assertNotNull(flags);
-				assertTrue(flags.isEmpty());
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }

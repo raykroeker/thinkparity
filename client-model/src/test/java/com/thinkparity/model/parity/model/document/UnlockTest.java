@@ -15,6 +15,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * @version 1.1
  */
 public class UnlockTest extends ModelTestCase {
+
 		/**
 		 * Test data fixture.
 		 * 
@@ -38,7 +39,7 @@ public class UnlockTest extends ModelTestCase {
 
 
 		/**
-		 * Create a LockTest.
+		 * Create an UnlockTest.
 		 */
 		public UnlockTest() { super("testUnlock"); }
 
@@ -68,12 +69,16 @@ public class UnlockTest extends ModelTestCase {
 			final DocumentModel documentModel = getDocumentModel();
 
 			String description, name;
+			Document document;
 			for(ModelTestFile testFile : getJUnitTestFiles()) {
 				name = testFile.getName();
 				description = name;
-				data.add(new Fixture(
-						documentModel.create(testProject, name, description, testFile.getFile()),
-						documentModel));
+				document = documentModel.create(
+						testProject, name, description, testFile.getFile());
+				// in order to unlock the document it must first be locked
+				// since it's initial state is not locked after creation
+				documentModel.lock(document);
+				data.add(new Fixture(document, documentModel));
 			}
 		}
 

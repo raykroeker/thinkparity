@@ -3,7 +3,15 @@
  */
 package com.thinkparity.model.parity.model.workspace;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Locale;
+import java.util.Properties;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * 
@@ -13,9 +21,17 @@ import java.util.Locale;
 class PreferencesHelper {
 
 	/**
+	 * The java properties file to read\write.
+	 */
+	private final File preferencesFile;
+
+	/**
 	 * Create a PreferencesHelper.
 	 */
-	PreferencesHelper() { super(); }
+	PreferencesHelper(final File workspaceRoot) {
+		super();
+		this.preferencesFile = new File(workspaceRoot, "parity.xml");
+	}
 
 	/**
 	 * Obtain a preferences interface for the parity workspace. This interface
@@ -25,26 +41,19 @@ class PreferencesHelper {
 	 * @return The interface with which the client can interact.
 	 */
 	Preferences getPreferences() {
-		final java.util.prefs.Preferences javaPrefs = initJavaPrefs();
+		final Properties javaProperties = loadPreferences();
+		// save the preferences on shutdown
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() { storePreferences(javaProperties); }
+		});
 
 		return new Preferences() {
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getLocale()
-			 */
 			public Locale getLocale() { return Locale.getDefault(); }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getServerHost()
-			 */
 			public String getServerHost() {
 				final String override = System.getProperty("parity.serverhost");
 				if(null != override && 0 < override.length()) { return override; }
 				else { return "thinkparity.dyndns.org"; }
 			}
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getServerPort()
-			 */
 			public Integer getServerPort() {
 				final Integer override = Integer.getInteger("parity.serverport");
 				if(null != override) { return override; }
@@ -53,63 +62,72 @@ class PreferencesHelper {
 					else { return 5223; }
 				}
 			}
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getSystemUsername()
-			 */
 			public String getSystemUsername() { return "system"; }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#getUsername()
-			 */
 			public String getUsername() {
-				final String username = javaPrefs.get("parity.username", null);
-				if(null != username) { return username; }
-				else { return "system"; }
+				return javaProperties.getProperty("parity.username", null);
 			}
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#isSetLocale()
-			 */
 			public Boolean isSetLocale() { return Boolean.TRUE; }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#isSetUsername()
-			 */
 			public Boolean isSetUsername() {
 				final String username = getUsername();
 				return (null != username && 0 < username.length());
 			}
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#setLocale(java.util.Locale)
-			 */
 			public void setLocale(Locale locale) {
 				// TODO Auto-generated method stub
 			}
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Preferences#setUsername(java.lang.String)
-			 */
 			public void setUsername(final String username) {
-				javaPrefs.put("parity.username", username);
+				javaProperties.setProperty("parity.username", username);
 			}
 		};
 	}
 
 	/**
-	 * Initialize the java preferences object. This will initialize the
-	 * preferences file (creating it if it does not exist); then import those
-	 * preferences into the user root preferences object. The user root
-	 * preferences object is then returned.
+	 * Load the java properties from the preferences file.
 	 * 
-	 * @return The preferences for 
+	 * @return The java properties.
 	 */
-	private java.util.prefs.Preferences initJavaPrefs() {
-		try { return java.util.prefs.Preferences.userRoot().node("Parity Software/Parity"); }
-		catch(Throwable t) {
-			t.printStackTrace();
+	private Properties loadPreferences() {
+		try {
+			initPreferencesFile();
+			final Properties javaProperties = new Properties();
+			javaProperties.loadFromXML(new FileInputStream(preferencesFile));
+			return javaProperties;
+		}
+		catch(FileNotFoundException fnfx) {
+			fnfx.printStackTrace(System.err);
 			return null;
+		}
+		catch(IOException iox) {
+			iox.printStackTrace(System.err);
+			return null;
+		}
+	}
+
+	/**
+	 * Initialize the preferences file by creating it if it does not already
+	 * exist.
+	 * 
+	 * @throws IOException
+	 */
+	private void initPreferencesFile() throws IOException {
+		if(!preferencesFile.exists())
+			Assert.assertTrue("init", preferencesFile.createNewFile());
+	}
+
+	/**
+	 * Store the java properties to the preferences file.
+	 * 
+	 * @param javaProperties
+	 *            The java properties to store.
+	 */
+	private void storePreferences(final Properties javaProperties) {
+		try {
+			javaProperties.storeToXML(new FileOutputStream(preferencesFile), "");
+		}
+		catch(FileNotFoundException fnfx) {
+			fnfx.printStackTrace(System.err);
+		}
+		catch(IOException iox) {
+			iox.printStackTrace(System.err);
 		}
 	}
 }

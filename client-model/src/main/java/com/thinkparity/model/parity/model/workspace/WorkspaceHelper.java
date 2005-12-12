@@ -34,18 +34,18 @@ class WorkspaceHelper {
 	 *         workspace.
 	 */
 	Workspace openWorkspace() {
-		final URL workspaceRootURL = initWorkspaceRootURL();
-		final PreferencesHelper preferencesHelper = new PreferencesHelper();
+		final URL workspaceRootURL = initRoot();
+		final File workspaceRoot = new File(workspaceRootURL.getFile());
 		return new Workspace() {
 			/**
 			 * URL to the data directory within the workspace.
 			 */
-			final URL dataURL = initWorkspaceChild(workspaceRootURL, "data");
+			final URL dataURL = initChild(workspaceRootURL, "data");
 
 			/**
 			 * URL to the log file directory within the workspace.
 			 */
-			final URL loggerURL = initWorkspaceChild(workspaceRootURL, "logs");
+			final URL loggerURL = initChild(workspaceRootURL, "logs");
 
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataURL()
@@ -61,7 +61,7 @@ class WorkspaceHelper {
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getPreferences()
 			 */
 			public Preferences getPreferences() {
-				return preferencesHelper.getPreferences();
+				return new PreferencesHelper(workspaceRoot).getPreferences();
 			}
 
 			/**
@@ -81,7 +81,7 @@ class WorkspaceHelper {
 	 *            The name of a child directory of the workspace.
 	 * @return The url of the child directory of the workspace.
 	 */
-	private URL initWorkspaceChild(final URL workspaceURL, final String child) {
+	private URL initChild(final URL workspaceURL, final String child) {
 		final File childFile = new File(workspaceURL.getFile(), child);
 		if(!childFile.exists())
 			Assert.assertTrue(
@@ -95,47 +95,21 @@ class WorkspaceHelper {
 	}
 
 	/**
-	 * Obtain the workspace root directory for a linux environment.
-	 * 
-	 * @return The workspace root directory for a linux environment.
-	 */
-	private File initWorkspaceRoot_linux() {
-		final StringBuffer linuxPath = new StringBuffer()
-			.append(SystemUtil.getenv("HOME"))
-			.append(File.separatorChar).append("Parity Software")
-			.append(File.separatorChar).append("Parity");
-		return new File(linuxPath.toString());
-	}
-
-	/**
-	 * Obtain the workspace root directory for a win32 environment.
-	 * 
-	 * @return The workspace root directory for a win32 environment.
-	 */
-	private File initWorkspaceRoot_win32() {
-		final StringBuffer win32Path = new StringBuffer()
-			.append(SystemUtil.getenv("APPDATA"))
-			.append(File.separatorChar).append("Parity Software")
-			.append(File.separatorChar).append("Parity");
-		return new File(win32Path.toString());
-	}
-
-	/**
 	 * Initialize the workspace root. This will obtain a handle to the workspace
 	 * root directory, and create it if it does not already exist; then convert
 	 * it to a URL.
 	 * 
 	 * @return The workspace root url.
 	 */
-	private URL initWorkspaceRootURL() {
+	private URL initRoot() {
 		final File workspaceDirectory;
 		switch(OSUtil.getOS()) {
 		case WINDOWS_2000:
 		case WINDOWS_XP:
-			workspaceDirectory = initWorkspaceRoot_win32();
+			workspaceDirectory = initRootWin32();
 			break;
 		case LINUX:
-			workspaceDirectory = initWorkspaceRoot_linux();
+			workspaceDirectory = initRootLinux();
 			break;
 		default:
 			throw Assert.createUnreachable("Unsupported os:  " + OSUtil.getOS());
@@ -150,5 +124,31 @@ class WorkspaceHelper {
 			murlx.printStackTrace();
 			return null;
 		}
+	}
+
+	/**
+	 * Obtain the workspace root directory for a linux environment.
+	 * 
+	 * @return The workspace root directory for a linux environment.
+	 */
+	private File initRootLinux() {
+		final StringBuffer linuxPath = new StringBuffer()
+			.append(SystemUtil.getenv("HOME"))
+			.append(File.separatorChar).append("Parity Software")
+			.append(File.separatorChar).append("Parity");
+		return new File(linuxPath.toString());
+	}
+
+	/**
+	 * Obtain the workspace root directory for a win32 environment.
+	 * 
+	 * @return The workspace root directory for a win32 environment.
+	 */
+	private File initRootWin32() {
+		final StringBuffer win32Path = new StringBuffer()
+			.append(SystemUtil.getenv("APPDATA"))
+			.append(File.separatorChar).append("Parity Software")
+			.append(File.separatorChar).append("Parity");
+		return new File(win32Path.toString());
 	}
 }

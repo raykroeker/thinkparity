@@ -47,6 +47,20 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
+	 * Accept the key request for the artifact from the jid.
+	 * 
+	 * @param artifactUUID
+	 *            The artifact unique id.
+	 * @param jid
+	 *            The requestor's jive id.
+	 * @throws ParityServerModelException
+	 */
+	public void acceptKeyRequest(final UUID artifactUUID, final JID jid)
+			throws ParityServerModelException {
+		synchronized(implLock) { impl.acceptKeyRequest(artifactUUID, jid); }
+	}
+
+	/**
 	 * Create an artifact.
 	 * 
 	 * @param artifactUUID
@@ -57,6 +71,20 @@ public class ArtifactModel extends AbstractModel {
 	public Artifact create(final UUID artifactUUID)
 			throws ParityServerModelException {
 		synchronized(implLock) { return impl.create(artifactUUID); }
+	}
+
+	/**
+	 * Deny the key request for the artifact from the jid.
+	 * 
+	 * @param artifactUUID
+	 *            The artifact unique id.
+	 * @param jid
+	 *            The requestor's jive id.
+	 * @throws ParityServerModelException
+	 */
+	public void denyKeyRequest(final UUID artifactUUID, final JID jid)
+			throws ParityServerModelException {
+		synchronized(implLock) { impl.denyKeyRequest(artifactUUID, jid); }
 	}
 
 	/**
@@ -86,45 +114,17 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain the keyholder for a given artifact.
-	 * 
-	 * @param artifact
-	 *            The artifact.
-	 * @return The JID of the key holder.
-	 * @throws ParityServerModelException
-	 */
-	public JID getKeyHolder(final Artifact artifact)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.getKeyHolder(artifact); }
-	}
-
-	/**
 	 * Request the key from the artifact's key holder. If the key holder is
 	 * currently online; the request will be routed to them; otherwise it will
 	 * be queued until the user comes online.
 	 * 
-	 * @param artifact
-	 *            The artifact.
+	 * @param artifactUUID
+	 *            The artifact unique id.
 	 * @throws ParityServerModelException
 	 */
-	public void requestKey(final Artifact artifact)
+	public void requestKey(final UUID artifactUUID)
 			throws ParityServerModelException {
-		synchronized(implLock) { impl.requestKey(artifact); }
-	}
-
-	/**
-	 * Set the keyholder for the given artifact.
-	 * 
-	 * @param artifact
-	 *            The artifact.
-	 * @param jid
-	 *            The new keyholder's jid.
-	 * @return The previous keyholder's JID.
-	 * @throws ParityServerModelException
-	 */
-	public JID setKeyHolder(final Artifact artifact, final JID jid)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.setKeyHolder(artifact, jid); }
+		synchronized(implLock) { impl.requestKey(artifactUUID); }
 	}
 
 	/**

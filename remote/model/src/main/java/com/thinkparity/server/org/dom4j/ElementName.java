@@ -10,7 +10,8 @@ package com.thinkparity.server.org.dom4j;
 public enum ElementName {
 
 	ACTION("action"), FLAG("flag"), KEYHOLDER("keyholder"),
-	USERNAME("username"), QUERY("query"), UUID("uuid");
+	KEYRESPONSE("keyresponse"), QUERY("query"), USERNAME("username"),
+	UUID("uuid");
 
 	/**
 	 * The xml element name.

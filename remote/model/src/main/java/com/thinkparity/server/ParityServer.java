@@ -16,11 +16,11 @@ import org.jivesoftware.messenger.event.SessionEventListener;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.server.handler.artifact.AcceptKeyRequest;
 import com.thinkparity.server.handler.artifact.CreateArtifact;
+import com.thinkparity.server.handler.artifact.DenyKeyRequest;
 import com.thinkparity.server.handler.artifact.FlagArtifact;
-import com.thinkparity.server.handler.artifact.GetKeyHolder;
 import com.thinkparity.server.handler.artifact.RequestArtifactKey;
-import com.thinkparity.server.handler.artifact.SetKeyHolder;
 import com.thinkparity.server.handler.user.SubscribeUser;
 import com.thinkparity.server.handler.user.UnsubscribeUser;
 import com.thinkparity.server.org.apache.log4j.ServerLog4jConfigurator;
@@ -32,19 +32,18 @@ import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
  */
 public class ParityServer implements Plugin {
 
+	private AcceptKeyRequest acceptKeyRequest;
 	private CreateArtifact createArtifact;
-	private FlagArtifact flagArtifact;
-	private GetKeyHolder getKeyHolder;
 
+	private DenyKeyRequest denyKeyRequest;
+
+	private FlagArtifact flagArtifact;
 	/**
 	 * Handle to the xmpp server's iq router.
 	 */
 	private final IQRouter iqRouter;
-
 	private RequestArtifactKey requestArtifactKey;
-	private SetKeyHolder setKeyHolder;
 	private SubscribeUser subscribeUser;
-
 	private UnsubscribeUser unsubscribeUser;
 
 	/**
@@ -92,17 +91,17 @@ public class ParityServer implements Plugin {
 		flagArtifact.destroy();
 		flagArtifact = null;
 
-		iqRouter.removeHandler(getKeyHolder);
-		getKeyHolder.destroy();
-		getKeyHolder = null;
+		iqRouter.removeHandler(acceptKeyRequest);
+		acceptKeyRequest.destroy();
+		acceptKeyRequest = null;
 
 		iqRouter.removeHandler(requestArtifactKey);
 		requestArtifactKey.destroy();
 		requestArtifactKey = null;
 
-		iqRouter.removeHandler(setKeyHolder);
-		setKeyHolder.destroy();
-		setKeyHolder = null;
+		iqRouter.removeHandler(denyKeyRequest);
+		denyKeyRequest.destroy();
+		denyKeyRequest = null;
 
 		iqRouter.removeHandler(subscribeUser);
 		subscribeUser.destroy();
@@ -137,14 +136,14 @@ public class ParityServer implements Plugin {
 		flagArtifact = new FlagArtifact();
 		iqRouter.addHandler(flagArtifact);
 
-		getKeyHolder = new GetKeyHolder();
-		iqRouter.addHandler(getKeyHolder);
+		acceptKeyRequest = new AcceptKeyRequest();
+		iqRouter.addHandler(acceptKeyRequest);
 
 		requestArtifactKey = new RequestArtifactKey();
 		iqRouter.addHandler(requestArtifactKey);
 		
-		setKeyHolder = new SetKeyHolder();
-		iqRouter.addHandler(setKeyHolder);
+		denyKeyRequest = new DenyKeyRequest();
+		iqRouter.addHandler(denyKeyRequest);
 
 		subscribeUser = new SubscribeUser();
 		iqRouter.addHandler(subscribeUser);

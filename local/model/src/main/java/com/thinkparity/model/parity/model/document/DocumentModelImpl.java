@@ -1006,7 +1006,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private void update(final Document document, final DocumentContent content)
 			throws FileNotFoundException, IOException {
 		documentXmlIO.update(document, content);
-		getLocalFile(document).write(content.getContent());
+		final LocalFile localFile = getLocalFile(document);
+		localFile.delete();
+		localFile.write(content.getContent());
 	}
 
 	/**

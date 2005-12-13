@@ -8,10 +8,7 @@ import com.thinkparity.server.ParityServerConstants;
  */
 public enum IQAction {
 
-	/**
-	 * Create an artifact.
-	 */
-	CREATEARTIFACT,
+	ACCEPTKEYREQUEST, CREATEARTIFACT, DENYKEYREQUEST,
 
 	/**
 	 * Flag an artifact.
@@ -27,6 +24,11 @@ public enum IQAction {
 	 * Request an artifact's key.
 	 */
 	REQUESTKEY,
+
+	/**
+	 * Response to a request for an artifact's key.
+	 */
+	KEYRESPONSE,
 
 	/**
 	 * Set an artifact's keyholder.

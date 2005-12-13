@@ -1,5 +1,5 @@
 /*
- * Dec 11, 2005
+ * Dec 12, 2005
  */
 package com.thinkparity.model.smackx.packet;
 
@@ -13,31 +13,24 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.model.session.KeyResponse;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class IQKeyResponseProvider implements IQProvider {
+public class IQDenyKeyRequestProvider implements IQProvider {
 
 	/**
 	 * Assertion message for a null artifact unique id.
 	 */
 	private static final String ASSERT_ARTIFACT_UUID =
-		"The artifact unique id could not be extracted from the key response.";
+		"The artifact unique id could not be extracted from the key request.";
 
 	/**
-	 * Assertion message for a null key response.
+	 * Assertion message for a null username.
 	 */
-	private static final String ASSERT_KEY_RESPONSE =
-		"The key response could not be extracted from the key response.";
-
-	/**
-	 * Assertion message for a malformed response.
-	 */
-	private static final String ASSERT_UNREACHABLE =
-		"Malformed xml.  Could not parse response.";
+	private static final String ASSERT_USERNAME =
+		"The username could not be extracted from the key request.";
 
 	/**
 	 * Handle to an apache logger.
@@ -45,9 +38,9 @@ public class IQKeyResponseProvider implements IQProvider {
 	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
 
 	/**
-	 * Create a IQKeyRequestProvider.
+	 * Create a IQDenyKeyRequestProvider.
 	 */
-	public IQKeyResponseProvider() { super(); }
+	public IQDenyKeyRequestProvider() { super(); }
 
 	/**
 	 * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
@@ -56,7 +49,7 @@ public class IQKeyResponseProvider implements IQProvider {
 		logger.info("parseIQ(XmlPullParser)");
 		logger.debug(parser);
 		UUID artifactUUID = null;
-		KeyResponse keyResponse = null;
+		String username = null;
 
 		Integer attributeCount, depth, eventType;
 		String name, namespace, prefix, text;
@@ -78,30 +71,20 @@ public class IQKeyResponseProvider implements IQProvider {
 			logger.debug(prefix);
 			logger.debug(text);
 
-			// found the start of the uuid tag
 			if(XmlPullParser.START_TAG == eventType && "uuid".equals(name)) {
 				parser.next();
 				artifactUUID = UUID.fromString(parser.getText());
 				parser.next();
 			}
-			// found the start of the response tag
-			else if(XmlPullParser.START_TAG == eventType && "response".equals(name)) {
+			else if(XmlPullParser.START_TAG == eventType && "username".equals(name)) {
+				isComplete = Boolean.TRUE;
 				parser.next();
-				keyResponse = KeyResponse.valueOf(parser.getText().toUpperCase());
+				username = parser.getText();
 				parser.next();
 			}
-			// found the end of the response tag; we're done
-			else if(XmlPullParser.END_TAG == eventType) {
-				if("uuid".equals(name)) { logger.info("End uuid tag."); }
-				else if("response".equals(name)) {
-					isComplete = Boolean.TRUE;
-				}
-				else { Assert.assertUnreachable(ASSERT_UNREACHABLE); }
-			}
-			else { Assert.assertUnreachable(ASSERT_UNREACHABLE); }
 		}
 		Assert.assertNotNull(ASSERT_ARTIFACT_UUID, artifactUUID);
-		Assert.assertNotNull(ASSERT_KEY_RESPONSE, keyResponse);
-		return new IQKeyResponse(artifactUUID, keyResponse);
+		Assert.assertNotNull(ASSERT_USERNAME, username);
+		return new IQDenyKeyRequest(artifactUUID, username);
 	}
 }

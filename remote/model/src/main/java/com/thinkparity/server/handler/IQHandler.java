@@ -201,4 +201,17 @@ public abstract class IQHandler extends
 		errorResult.setError(new PacketError(PacketError.Condition.internal_server_error));
 		return errorResult;
 	}
+
+	/**
+	 * Extract the jive id from the iq.
+	 * 
+	 * @param iq
+	 *            The iq.
+	 * @return The jive id.
+	 */
+	protected JID extractJID(final IQ iq) {
+		final Element childElement = iq.getChildElement();
+		final Element jidElement = getElement(childElement, ElementName.USERNAME);
+		return buildJID((String) jidElement.getData());
+	}
 }

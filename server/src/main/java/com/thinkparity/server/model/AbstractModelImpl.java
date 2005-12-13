@@ -6,14 +6,15 @@ package com.thinkparity.server.model;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.jivesoftware.messenger.*;
+import org.jivesoftware.messenger.SessionManager;
+import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
-import org.jivesoftware.util.Log;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 import com.thinkparity.server.org.dom4j.XmlReader;
@@ -41,6 +42,21 @@ public abstract class AbstractModelImpl {
 	protected AbstractModelImpl(final Session session) {
 		super();
 		this.session = session;
+	}
+
+	/**
+	 * Assert that the actual and expected jive id's are equal.
+	 * 
+	 * @param message
+	 *            The message.
+	 * @param actualJID
+	 *            The actual jive id.
+	 * @param expectedJID
+	 *            The expected jive id.
+	 */
+	protected void assertEquals(final String message, final JID actualJID,
+			final JID expectedJID) {
+		Assert.assertTrue(message, actualJID.equals(expectedJID));
 	}
 
 	/**
@@ -84,62 +100,35 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
-	 * Route an IQ.
+	 * Route an IQ to a jive user. This will determine whether or not the user
+	 * is currently online; and if they are not; it will queue the request.
 	 * 
+	 * @param jid
+	 *            The jive user id.
 	 * @param iq
 	 *            The iq.
 	 */
-	protected void route(final JID jid, final IQ iq)
-			throws UnauthorizedException {
+	protected void send(final JID jid, final IQ iq)
+			throws ParityServerModelException, UnauthorizedException {
 		logger.info("route(JID,IQ)");
 		logger.debug(jid);
 		logger.debug(iq);
-		Assert.assertTrue("route(JID,IQ)", isOnline(jid));
-
-		final ClientSession cs = getSessionManager().getSession(jid);
-		logger.debug(cs.toString());
-		logger.debug(cs.getStatus());
-		logger.debug("[AUTHENTICATED:" + ClientSession.STATUS_AUTHENTICATED +
-				",CLOSED:" + ClientSession.STATUS_CLOSED +
-				",CONNECTED:" + ClientSession.STATUS_CONNECTED +
-				",STREAMING:" + ClientSession.STATUS_STREAMING + "]");
-		final Connection c = cs.getConnection();
-		logger.debug(c.toString());
-		logger.debug("c.isClosed:" + c.isClosed());
-		try { cs.process(iq); }
-		catch(Throwable t) {
-			logger.error("Session.process(Packet)", t);
-			Log.error("Session.process(Packet)", t);
+		if(isOnline(jid)) {
+			logger.info("isOnline(jid)");
+			getSessionManager().getSession(jid).process(iq);
 		}
-
-//		try { getPacketRouter().route(iq); }
-//		catch(Throwable t) {
-//			logger.error("PacketRouter.route(Packet)", t);
-//			Log.error("PacketRouter.route(Packet)", t);
-//		}
-//
-//		try { getPacketDeliverer().deliver(iq); }
-//		catch(Throwable t) {
-//			logger.error("PacketDeliverer.deliver(Packet)", t);
-//			Log.error("PacketDeliverer.deliver(Packet)", t);
-//		}
-	}
-
-	private ConnectionManager getConnectionManager() {
-		return getXMPPServer().getConnectionManager();
-	}
-
-	private PacketDeliverer getPacketDeliverer() {
-		return getXMPPServer().getPacketDeliverer();
+		else { enqueue(iq); }
 	}
 
 	/**
-	 * Obtain a handle to the xmpp server's packet router.
+	 * Save the iq in the parity offline queue.
 	 * 
-	 * @return The xmpp server's packet router.
+	 * @param iq
+	 *            The iq packet.
 	 */
-	private PacketRouter getPacketRouter() {
-		return getXMPPServer().getPacketRouter();
+	private void enqueue(final IQ iq) throws ParityServerModelException {
+		final QueueModel queueModel = QueueModel.getModel(session);
+		queueModel.enqueue(iq.toXML());
 	}
 
 	/**

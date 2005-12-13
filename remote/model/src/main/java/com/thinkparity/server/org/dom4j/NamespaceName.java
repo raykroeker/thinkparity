@@ -9,7 +9,8 @@ package com.thinkparity.server.org.dom4j;
  */
 public enum NamespaceName {
 
-	IQ_ARTIFACT_FLAG("artifactflag"), IQ_KEY_REQUEST("keyrequest");
+	IQ_ACCEPT_KEY_REQUEST("acceptkeyrequest"), IQ_ARTIFACT_FLAG("artifactflag"),
+	IQ_DENY_KEY_REQUEST("denykeyrequest"), IQ_KEY_REQUEST("keyrequest");
 
 	/**
 	 * The root parity xml namespace.

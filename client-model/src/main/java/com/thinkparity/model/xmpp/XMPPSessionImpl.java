@@ -119,9 +119,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	private static final Logger logger =
 		ModelLoggerFactory.getLogger(XMPPSessionImpl.class);
 
-	private static final String NO_SUCH_KEY_RESPONSE =
-		"The key response ${0} is invalid.";
-
 	/**
 	 * The number of milliseconds to sleep subsequent to each maual packet sent
 	 * via the smack connection. If this number is reduced or removed, the smack
@@ -135,7 +132,8 @@ public class XMPPSessionImpl implements XMPPSession {
 		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
 
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:keyrequest", new IQKeyRequestProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:keyresponse", new IQKeyResponseProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:acceptkeyrequest", new IQAcceptKeyRequestProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:denykeyrequest", new IQDenyKeyRequestProvider());
 	}
 
 	private Map<String, User> pendingXMPPUsers;
@@ -380,19 +378,22 @@ public class XMPPSessionImpl implements XMPPSession {
 						}
 					},
 					new PacketTypeFilter(IQKeyRequest.class));
-			// key response
+			// accept key request
 			smackXMPPConnection.addPacketListener(
 					new PacketListener() {
 						public void processPacket(Packet packet) {
-							final IQKeyResponse iqKeyResponse = (IQKeyResponse) packet;
-							if(iqKeyResponse.getKeyResponse() == KeyResponse.ACCEPT)
-								notifyXMPPExtension_keyRequestAccepted(iqKeyResponse);
-							else if(iqKeyResponse.getKeyResponse() == KeyResponse.DENY)
-								notifyXMPPExtension_keyRequestDenied(iqKeyResponse);
-							else { logger.error(NO_SUCH_KEY_RESPONSE); }
+							notifyXMPPExtension_keyRequestAccepted((IQAcceptKeyRequest) packet);
 						}
 					},
-					new PacketTypeFilter(IQKeyResponse.class));
+					new PacketTypeFilter(IQAcceptKeyRequest.class));
+			// deny key request
+			smackXMPPConnection.addPacketListener(
+					new PacketListener() {
+						public void processPacket(Packet packet) {
+							notifyXMPPExtension_keyRequestDenied((IQDenyKeyRequest) packet);
+						}
+					},
+					new PacketTypeFilter(IQDenyKeyRequest.class));
 
 			// document extension handler
 			smackXMPPConnection.addPacketListener(
@@ -569,7 +570,18 @@ public class XMPPSessionImpl implements XMPPSession {
 		logger.debug(artifactUUID);
 		logger.debug(user);
 		try {
-			final IQArtifact iq = new IQKeyResponse(artifactUUID, keyResponse);
+			final IQArtifact iq;
+			switch(keyResponse) {
+			case ACCEPT:
+				iq = new IQAcceptKeyRequest(artifactUUID, user.getUsername());
+				break;
+			case DENY:
+				iq = new IQDenyKeyRequest(artifactUUID, user.getUsername());
+				break;
+			default:
+				throw Assert.createUnreachable(
+						"sendKeyResponse(UUID,KeyResponse,User)");
+			}
 			iq.setType(IQ.Type.SET);
 			logger.debug(iq);
 			sendPacket(iq);
@@ -849,10 +861,10 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            The IQKeyRequest to use to build the event source.
 	 */
 	private void notifyXMPPExtension_keyRequestAccepted(
-			final IQKeyResponse iqKeyResponse) {
+			final IQAcceptKeyRequest iqKeyRequest) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = getXMPPUser_From(iqKeyResponse);
-			final UUID artifactUUID = iqKeyResponse.getArtifactUUID();
+			final User user = getXMPPUser_From(iqKeyRequest);
+			final UUID artifactUUID = iqKeyRequest.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
 				listener.keyRequestAccepted(user, artifactUUID);
 			}
@@ -866,10 +878,10 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            The IQKeyRequest to use to build the event source.
 	 */
 	private void notifyXMPPExtension_keyRequestDenied(
-			final IQKeyResponse iqKeyResponse) {
+			final IQDenyKeyRequest iqDenyKeyRequest) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = getXMPPUser_From(iqKeyResponse);
-			final UUID artifactUUID = iqKeyResponse.getArtifactUUID();
+			final User user = getXMPPUser_From(iqDenyKeyRequest);
+			final UUID artifactUUID = iqDenyKeyRequest.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
 				listener.keyRequestDenied(user, artifactUUID);
 			}

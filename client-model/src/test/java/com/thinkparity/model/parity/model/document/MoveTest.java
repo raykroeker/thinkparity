@@ -99,7 +99,7 @@ public class MoveTest extends ModelTestCase {
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(source, name, description, testFile.getFile());
+			document = documentModel.create(source.getId(), name, description, testFile.getFile());
 
 			data.add(new Fixture(destination, document, documentModel, source));
 		}

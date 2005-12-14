@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -23,11 +24,11 @@ public class LockTest extends ModelTestCase {
 	 * @see LockTest#tearDown()
 	 */
 	private class Fixture {
-		private final Document document;
+		private final UUID documentId;
 		private final DocumentModel documentModel;
-		private Fixture(final Document document, final DocumentModel documentModel) {
+		private Fixture(final UUID documentId, final DocumentModel documentModel) {
 			super();
-			this.document = document;
+			this.documentId = documentId;
 			this.documentModel = documentModel;
 		}
 	}
@@ -51,9 +52,9 @@ public class LockTest extends ModelTestCase {
 		try {
 			Document document;
 			for(Fixture datum : data) {
-				datum.documentModel.lock(datum.document);
+				datum.documentModel.lock(datum.documentId);
 
-				document = datum.documentModel.get(datum.document.getId());
+				document = datum.documentModel.get(datum.documentId);
 				LockTest.assertFalse(document.contains(ParityObjectFlag.KEY));
 			}
 		}
@@ -69,12 +70,12 @@ public class LockTest extends ModelTestCase {
 		final DocumentModel documentModel = getDocumentModel();
 
 		String description, name;
+		Document document;
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			data.add(new Fixture(
-					documentModel.create(testProject, name, description, testFile.getFile()),
-					documentModel));
+			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			data.add(new Fixture(document.getId(), documentModel));
 		}
 	}
 

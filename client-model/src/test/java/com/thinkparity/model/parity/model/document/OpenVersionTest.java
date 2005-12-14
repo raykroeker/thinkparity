@@ -65,19 +65,19 @@ public class OpenVersionTest extends ModelTestCase {
 		final String name = testFile.getName();
 		final String description = name;
 		final Document document =
-			documentModel.create(testProject, name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile.getFile());
 		DocumentVersion version;
 
 		version = documentModel.createVersion(
-				document, DocumentAction.SEND, new DocumentActionData());
+				document.getId(), DocumentAction.SEND, new DocumentActionData());
 		data.add(new Fixture(documentModel, version));
 
 		version = documentModel.createVersion(
-				document, DocumentAction.SEND, new DocumentActionData());
+				document.getId(), DocumentAction.SEND, new DocumentActionData());
 		data.add(new Fixture(documentModel, version));
 
 		version = documentModel.createVersion(
-				document, DocumentAction.SEND, new DocumentActionData());
+				document.getId(), DocumentAction.SEND, new DocumentActionData());
 		data.add(new Fixture(documentModel, version));
 	}
 

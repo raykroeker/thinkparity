@@ -85,7 +85,7 @@ public class ListTest extends ModelTestCase {
 				name = testFile.getName();
 				description = "Document:  " + name;
 				document =
-					documentModel.create(project, name, description, testFile.getFile());
+					documentModel.create(project.getId(), name, description, testFile.getFile());
 				documentList.add(document);
 			}
 			data.add(new Fixture(documentModel, documentList, project));

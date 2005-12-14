@@ -75,22 +75,22 @@ public class GetVersionContentTest extends ModelTestCase {
 		final String name = testFile.getName();
 		final String description = name;
 		final Document document =
-			documentModel.create(testProject, name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile.getFile());
 		DocumentVersion version;
 		DocumentVersionContent versionContent;
 
 		version = documentModel.createVersion(
-					document, DocumentAction.CREATE, new DocumentActionData());
+					document.getId(), DocumentAction.CREATE, new DocumentActionData());
 		versionContent = documentModel.getVersionContent(version);
 		data.add(new Fixture(documentModel, version, versionContent));
 
 		version = documentModel.createVersion(
-				document, DocumentAction.CREATE, new DocumentActionData());
+				document.getId(), DocumentAction.CREATE, new DocumentActionData());
 		versionContent = documentModel.getVersionContent(version);
 		data.add(new Fixture(documentModel, version, versionContent));
 
 		version = documentModel.createVersion(
-				document, DocumentAction.CREATE, new DocumentActionData());
+				document.getId(), DocumentAction.CREATE, new DocumentActionData());
 		versionContent = documentModel.getVersionContent(version);
 		data.add(new Fixture(documentModel, version, versionContent));
 	}

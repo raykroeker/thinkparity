@@ -53,7 +53,7 @@ public class ListVersionsTest extends ModelTestCase {
 			Collection<DocumentVersion> documentVersionsList;
 			for(Fixture datum : data) {
 				documentVersionsList =
-					datum.documentModel.listVersions(datum.document);
+					datum.documentModel.listVersions(datum.document.getId());
 
 				assertNotNull(documentVersionsList);
 				assertEquals(1, documentVersionsList.size());
@@ -75,7 +75,7 @@ public class ListVersionsTest extends ModelTestCase {
 			name = testFile.getName();
 			description = "Document:  " + name;
 			document =
-				documentModel.create(testProject, name, description, testFile.getFile());
+				documentModel.create(testProject.getId(), name, description, testFile.getFile());
 			data.add(new Fixture(document, documentModel));
 		}
 	}

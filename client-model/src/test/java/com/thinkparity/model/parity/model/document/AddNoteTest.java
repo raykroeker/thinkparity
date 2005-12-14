@@ -86,7 +86,7 @@ public class AddNoteTest extends ModelTestCase {
 		String name = testFile.getName();
 		String description = name;
 		Document testDocument =
-			documentModel.create(testProject, name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile.getFile());
 		data.add(new Fixture(testDocument, documentModel, note));
 
 		note = "More complex note.  Contains some windows line feed characters." +
@@ -97,7 +97,7 @@ public class AddNoteTest extends ModelTestCase {
 		name = testFile.getName();
 		description = name;
 		testDocument =
-			documentModel.create(testProject, name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile.getFile());
 		data.add(new Fixture(testDocument, documentModel, note));
 
 		note = new StringBuffer("I Am the Very Model of a Modern Major-General")
@@ -147,7 +147,7 @@ public class AddNoteTest extends ModelTestCase {
 		name = testFile.getName();
 		description = name;
 		testDocument =
-			documentModel.create(testProject, name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile.getFile());
 		data.add(new Fixture(testDocument, documentModel, note));
 	}
 

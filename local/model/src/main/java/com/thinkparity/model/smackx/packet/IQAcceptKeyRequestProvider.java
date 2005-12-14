@@ -76,7 +76,7 @@ public class IQAcceptKeyRequestProvider implements IQProvider {
 				artifactUUID = UUID.fromString(parser.getText());
 				parser.next();
 			}
-			else if(XmlPullParser.START_TAG == eventType && "username".equals(name)) {
+			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				isComplete = Boolean.TRUE;
 				parser.next();
 				username = parser.getText();

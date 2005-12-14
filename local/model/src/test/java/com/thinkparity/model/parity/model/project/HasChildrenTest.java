@@ -95,7 +95,7 @@ public class HasChildrenTest extends ModelTestCase {
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			documentModel.create(project, name, description, testFile.getFile());
+			documentModel.create(project.getId(), name, description, testFile.getFile());
 		}
 		data.add(new Fixture(Boolean.TRUE, project, projectModel));
 	}

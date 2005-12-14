@@ -59,11 +59,11 @@ public class CreateVersionTest extends ModelTestCase {
 			DocumentVersionContent versionContent;
 			for(Fixture datum : data) {
 				datum.documentModel.createVersion(
-						datum.document, datum.action, datum.actionData);
+						datum.document.getId(), datum.action, datum.actionData);
 				// the version we want to compare to will be the last one in
 				// the list
 				iVersions =
-					datum.documentModel.listVersions(datum.document).iterator();
+					datum.documentModel.listVersions(datum.document.getId()).iterator();
 				version = null;
 				while(iVersions.hasNext()) { version = iVersions.next(); }
 
@@ -101,8 +101,8 @@ public class CreateVersionTest extends ModelTestCase {
 
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(testProject, name, description, testFile.getFile());
-			content = documentModel.getContent(document);
+			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			content = documentModel.getContent(document.getId());
 			data.add(new Fixture(action, actionData, content, document, documentModel));
 		}
 	}

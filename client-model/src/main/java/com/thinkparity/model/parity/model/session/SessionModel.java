@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.KeyEvent;
@@ -198,13 +199,13 @@ public class SessionModel extends AbstractModel {
 	 * 
 	 * @param users
 	 *            The list of parity users to send to.
-	 * @param document
-	 *            The document to send.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	public void send(final Collection<User> users, final Document document)
+	public void send(final Collection<User> users, final UUID documentId)
 			throws ParityException {
-		synchronized(implLock) { impl.send(users, document); }
+		synchronized(implLock) { impl.send(users, documentId); }
 	}
 
 	/**
@@ -235,30 +236,30 @@ public class SessionModel extends AbstractModel {
 	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 * @see KeyListener#keyRequested(KeyEvent)
 	 */
-	public void sendKeyRequest(final Document document)
+	public void sendKeyRequest(final UUID documentId)
 			throws ParityException {
-		synchronized(implLock) { impl.sendKeyRequest(document); }
+		synchronized(implLock) { impl.sendKeyRequest(documentId); }
 	}
 
 	/**
 	 * Send the response to a key request.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentId
+	 *            The document unique id.
 	 * @param user
 	 *            The user.
 	 * @param keyResponse
 	 *            The response.
 	 */
-	public void sendKeyResponse(final Document document, final User user,
+	public void sendKeyResponse(final UUID documentId, final User user,
 			final KeyResponse keyResponse) throws ParityException {
 		synchronized(implLock) {
-			impl.sendKeyResponse(document, user, keyResponse);
+			impl.sendKeyResponse(documentId, user, keyResponse);
 		}
 	}
 

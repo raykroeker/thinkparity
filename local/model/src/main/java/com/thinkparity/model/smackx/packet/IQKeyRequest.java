@@ -14,7 +14,7 @@ public class IQKeyRequest extends IQArtifact {
 	/**
 	 * Create a IQKeyRequest.
 	 * 
-	 * @param parityArtifactUUID
+	 * @param artifactUUID
 	 *            The parity artifact unique id.
 	 */
 	public IQKeyRequest(final UUID artifactUUID) {

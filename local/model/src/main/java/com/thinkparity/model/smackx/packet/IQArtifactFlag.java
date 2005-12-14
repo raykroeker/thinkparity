@@ -6,6 +6,7 @@ package com.thinkparity.model.smackx.packet;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.xmpp.XMPPSession;
 
 /**
  * A jabber iq extension for parity. This extension is used to flag artifacts
@@ -14,7 +15,7 @@ import com.thinkparity.model.parity.api.ParityObjectFlag;
  * @author raykroeker@gmail.com
  * @version 1.1
  * @see IQArtifact
- * @see XMPPSessionImpl#flag(UUID, ParityObjectFlag)
+ * @see XMPPSession#flag(UUID, ParityObjectFlag)
  */
 public class IQArtifactFlag extends IQArtifact {
 

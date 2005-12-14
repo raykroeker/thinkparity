@@ -150,10 +150,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	static void notifyKeyRequestAccepted(final UUID artifactUUID,
 			final User user) {
 		final DocumentModel documentModel = DocumentModel.getModel();
-		try {
-			final Document document = documentModel.get(artifactUUID);
-			documentModel.unlock(document);
-		}
+		try { documentModel.unlock(artifactUUID); }
 		catch(ParityException px) {
 			sLogger.fatal("Could not accept key request.", px);
 			return;
@@ -524,47 +521,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send a document to a list of parity users. The document is converted from
-	 * a parity object into an xmpp document in order to send it, then each user
-	 * is sent the document.
-	 * 
-	 * @param users
-	 *            The list of parity users to send to.
-	 * @param document
-	 *            The document to send.
-	 * @throws ParityException
-	 */
-	void send(final Collection<User> users, final Document document)
-			throws ParityException {
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("send(Collection<User>,Document)", xmppHelper);
-			try {
-				// create a new version (updating local content into the
-				// document content metadata) then send.
-				final DocumentModel documentModel = getDocumentModel();
-				if(isFirstSend(document)) {
-					// register the document on the server.
-					SessionModelImpl.xmppHelper.sendCreate(document.getId());
-				}
-				documentModel.createVersion(
-						document, DocumentAction.SEND,
-						createSendDocumentActionData(users));
-				xmppHelper.send(
-						users, XMPPDocument.create(
-								document, documentModel.getContent(document)));
-			}
-			catch(SmackException sx) {
-				logger.error("send(Collection<User>,Document)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("send(Collection<User>,Document)", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
 	 * Send a message to a list of parity users.
 	 * 
 	 * @param users
@@ -584,6 +540,47 @@ class SessionModelImpl extends AbstractModelImpl {
 			}
 			catch(RuntimeException rx) {
 				logger.error("send(Collection<User>,String)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Send a document to a list of parity users. The document is converted from
+	 * a parity object into an xmpp document in order to send it, then each user
+	 * is sent the document.
+	 * 
+	 * @param users
+	 *            The list of parity users to send to.
+	 * @param document
+	 *            The document to send.
+	 * @throws ParityException
+	 */
+	void send(final Collection<User> users, final UUID documentId)
+			throws ParityException {
+		synchronized(xmppHelperLock) {
+			assertIsLoggedIn("send(Collection<User>,Document)", xmppHelper);
+			try {
+				// create a new version (updating local content into the
+				// document content metadata) then send.
+				if(isFirstSend(documentId)) {
+					// register the document on the server.
+					SessionModelImpl.xmppHelper.sendCreate(documentId);
+				}
+				final DocumentModel documentModel = getDocumentModel();
+				documentModel.createVersion(documentId, DocumentAction.SEND,
+						createSendDocumentActionData(users));
+				final Document document = documentModel.get(documentId);
+				xmppHelper.send(users,
+						XMPPDocument.create(document, 
+								documentModel.getContent(documentId)));
+			}
+			catch(SmackException sx) {
+				logger.error("send(Collection<User>,Document)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("send(Collection<User>,Document)", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -616,23 +613,23 @@ class SessionModelImpl extends AbstractModelImpl {
 	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 * @see KeyListener#keyRequested(KeyEvent)
 	 */
-	void sendKeyRequest(final Document document) throws ParityException {
-		logger.info("sendKeyRequest(Document)");
-		logger.debug(document);
+	void sendKeyRequest(final UUID documentId) throws ParityException {
+		logger.info("sendKeyRequest(UUID)");
+		logger.debug(documentId);
 		synchronized(SessionModelImpl.xmppHelperLock) {
-			assertIsLoggedIn("sendKeyRequest(Document)", SessionModelImpl.xmppHelper);
-			try { SessionModelImpl.xmppHelper.sendKeyRequest(document.getId()); }
+			assertIsLoggedIn("sendKeyRequest(UUID)", SessionModelImpl.xmppHelper);
+			try { SessionModelImpl.xmppHelper.sendKeyRequest(documentId); }
 			catch(SmackException sx) {
-				logger.error("sendKeyRequest(Document)", sx);
+				logger.error("sendKeyRequest(UUID)", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(RuntimeException rx) {
-				logger.error("sendKeyRequest(Document)", rx);
+				logger.error("sendKeyRequest(UUID)", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -648,10 +645,10 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param keyResponse
 	 *            The response.
 	 */
-	void sendKeyResponse(final Document document, final User user,
+	void sendKeyResponse(final UUID documentId, final User user,
 			final KeyResponse keyResponse) throws ParityException {
-		logger.info("sendKeyResponse(Document,User,KeyResponse)");
-		logger.debug(document);
+		logger.info("sendKeyResponse(UUID,User,KeyResponse)");
+		logger.debug(documentId);
 		logger.debug(user);
 		logger.debug(keyResponse);
 		final DocumentModel documentModel = getDocumentModel();
@@ -664,15 +661,15 @@ class SessionModelImpl extends AbstractModelImpl {
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
 				case ACCEPT:
-					send(user, document);
-					documentModel.lock(document);
+					send(user, documentId);
+					documentModel.lock(documentId);
 					break;
 				case DENY:
 					break;
 				default: throw Assert.createUnreachable("");
 				}
 				SessionModelImpl.xmppHelper.sendKeyResponse(
-						document.getId(), keyResponse, user);
+						documentId, keyResponse, user);
 			}
 			catch(SmackException sx) {
 				logger.error("sendKeyResponse(Document,User,KeyResponse)", sx);
@@ -760,16 +757,16 @@ class SessionModelImpl extends AbstractModelImpl {
 	/**
 	 * Determine whether or not this is the first time the document's been sent.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentID
+	 *            The document unique id.
 	 * @return True if this document has not yet been sent; false otherwise.
 	 * @throws ParityException
 	 */
-	private Boolean isFirstSend(final Document document)
+	private Boolean isFirstSend(final UUID documentId)
 			throws ParityException {
 		final DocumentModel documentModel = getDocumentModel();
 		// HACK:  Use the server api to determine if it has been registered or not
-		return 1 == documentModel.listVersions(document).size();
+		return 1 == documentModel.listVersions(documentId).size();
 	}
 
 	/**
@@ -786,14 +783,14 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param user
 	 *            The user to send the document to.
-	 * @param document
-	 *            The document to send.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	private void send(final User user, final Document document)
+	private void send(final User user, final UUID documentId)
 			throws ParityException {
 		final Collection<User> users = new Vector<User>(1);
 		users.add(user);
-		send(users, document);
+		send(users, documentId);
 	}
 }

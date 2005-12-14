@@ -59,7 +59,7 @@ public class SendTest extends ModelTestCase {
 	public void testSend() {
 		try {
 			for(Fixture datum : data) {
-				datum.sessionModel.send(datum.users, datum.document);
+				datum.sessionModel.send(datum.users, datum.document.getId());
 				datum.sessionModel.send(datum.users, datum.message);
 			}
 		}
@@ -86,7 +86,7 @@ public class SendTest extends ModelTestCase {
 			name = testFile.getName();
 			description = name;
 			document =
-				documentModel.create(testProject, name, description, testFile.getFile());
+				documentModel.create(testProject.getId(), name, description, testFile.getFile());
 			message = getJUnitTestText(250);
 
 			data.add(new Fixture(document, message, sessionModel, users));

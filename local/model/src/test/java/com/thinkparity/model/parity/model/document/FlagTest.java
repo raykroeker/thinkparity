@@ -65,7 +65,7 @@ public class FlagTest extends ModelTestCase {
 
 		name = testFile.getName();
 		description = name;
-		document = documentModel.create(testProject, name, description, testFile.getFile());
+		document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
 		data.add(new Fixture(document, documentModel));
 	}
 

@@ -92,8 +92,8 @@ public class DocumentModel {
 	 * location of a document and copy the document into an internal store for
 	 * the project, then returns the newly created document.
 	 * 
-	 * @param project
-	 *            Project within which the new document will reside.
+	 * @param projectId
+	 *            The parent project unique id.
 	 * @param name
 	 *            Name of the document you wish to import.
 	 * @param description
@@ -103,10 +103,10 @@ public class DocumentModel {
 	 * @return The newly created document.
 	 * @throws ParityException
 	 */
-	public Document create(final Project project, final String name,
+	public Document create(final UUID projectId, final String name,
 			final String description, final File file) throws ParityException {
 		synchronized(implLock) {
-			return impl.create(project, name, description, file);
+			return impl.create(projectId, name, description, file);
 		}
 	}
 
@@ -115,8 +115,8 @@ public class DocumentModel {
 	 * check the cache for updates to the document, write the updates to the
 	 * document, then create a new version based upon that document.
 	 * 
-	 * @param document
-	 *            The document to create the version for.
+	 * @param documentId
+	 *            The document unique id.
 	 * @param action
 	 *            The action causing the version creation.
 	 * @param actionData
@@ -124,11 +124,11 @@ public class DocumentModel {
 	 * @return The newly created version.
 	 * @throws ParityException
 	 */
-	public DocumentVersion createVersion(final Document document,
+	public DocumentVersion createVersion(final UUID documentId,
 			final DocumentAction action, final DocumentActionData actionData)
 			throws ParityException {
 		synchronized(implLock) {
-			return impl.createVersion(document, action, actionData);
+			return impl.createVersion(documentId, action, actionData);
 		}
 	}
 
@@ -174,14 +174,14 @@ public class DocumentModel {
 	/**
 	 * Obtain the document content for a given document.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentId
+	 *            The document unique id.
 	 * @return The document's content.
 	 * @throws ParityException
 	 */
-	public DocumentContent getContent(final Document document)
+	public DocumentContent getContent(final UUID documentId)
 			throws ParityException {
-		synchronized(implLock) { return impl.getContent(document); }
+		synchronized(implLock) { return impl.getContent(documentId); }
 	}
 
 	/**
@@ -218,20 +218,20 @@ public class DocumentModel {
 	 * @return The list of document versions.
 	 * @throws ParityException
 	 */
-	public Collection<DocumentVersion> listVersions(final Document document)
+	public Collection<DocumentVersion> listVersions(final UUID documentId)
 			throws ParityException {
-		synchronized(implLock) { return impl.listVersions(document); }
+		synchronized(implLock) { return impl.listVersions(documentId); }
 	}
 
 	/**
-	 * Lock the document.
+	 * Lock a document.
 	 * 
-	 * @param document
-	 *            The document to lock.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	public void lock(final Document document) throws ParityException {
-		synchronized(implLock) { impl.lock(document); }
+	public void lock(final UUID documentId) throws ParityException {
+		synchronized(implLock) { impl.lock(documentId); }
 	}
 
 	/**
@@ -250,12 +250,12 @@ public class DocumentModel {
 	/**
 	 * Open a document.
 	 * 
-	 * @param document
-	 *            The document to open.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	public void open(final Document document) throws ParityException {
-		synchronized(implLock) { impl.open(document); }
+	public void open(final UUID documentId) throws ParityException {
+		synchronized(implLock) { impl.open(documentId); }
 	}
 
 	/**
@@ -301,14 +301,14 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Unlock the document.
+	 * Unlock a document.
 	 * 
-	 * @param document
-	 *            The document to unlock.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	public void unlock(final Document document) throws ParityException {
-		synchronized(implLock) { impl.unlock(document); }
+	public void unlock(final UUID documentId) throws ParityException {
+		synchronized(implLock) { impl.unlock(documentId); }
 	}
 
 	/**

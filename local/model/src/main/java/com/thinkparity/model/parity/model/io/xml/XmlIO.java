@@ -258,33 +258,44 @@ public abstract class XmlIO {
 	 *            The document content.
 	 * @param versions
 	 *            The document versions.
+	 * @param versionsContent
+	 *            The document versions' content.
 	 * @param targetXmlFileDirectory
 	 *            The target directory to move the document to.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	protected void move(final Document document, final DocumentContent content, final Collection<DocumentVersion> versions,
+	protected void move(final Document document, final DocumentContent content,
+			final Collection<DocumentVersion> versions,
+			final Collection<DocumentVersionContent> versionsContent,
 			final File targetXmlFileDirectory) throws FileNotFoundException,
 			IOException {
 		final File documentXmlFile = getXmlFile(document);
 		final File contentXmlFile = getXmlFile(document, content);
-		final File[] versionXmlFiles = getXmlFiles(document, versions);
+		final File[] versionXmlFiles = getVersionXmlFiles(document, versions);
+		final File[] versionContentXmlFiles = getVersionContentXmlFiles(document, versionsContent);
 
 		final File targetDocumentXmlFile =
 			new File(targetXmlFileDirectory, documentXmlFile.getName());
 		FileUtil.copy(documentXmlFile, targetDocumentXmlFile);
 		Assert.assertTrue(
-				"move(Document,DocumentContent,DocumentVersion,File)",
+				"move(Document,DocumentContent,DocumentVersion,DocumentVersionContent,File)",
 				documentXmlFile.delete());
 		FileUtil.copy(contentXmlFile, new File(targetXmlFileDirectory, contentXmlFile.getName()));
 		Assert.assertTrue(
-				"move(Document,DocumentContent,DocumentVersion,File)",
+				"move(Document,DocumentContent,DocumentVersion,DocumentVersionContent,File)",
 				contentXmlFile.delete());
 		for(File versionXmlFile : versionXmlFiles) {
 			FileUtil.copy(versionXmlFile, new File(targetXmlFileDirectory, versionXmlFile.getName()));
 			Assert.assertTrue(
-					"move(Document,DocumentContent,DocumentVersion,File)",
+					"move(Document,DocumentContent,DocumentVersion,DocumentVersionContent,File)",
 					versionXmlFile.delete());
+		}
+		for(File versionContentXmlFile : versionContentXmlFiles) {
+			FileUtil.copy(versionContentXmlFile, new File(targetXmlFileDirectory, versionContentXmlFile.getName()));
+			Assert.assertTrue(
+					"move(Document,DocumentContent,DocumentVersion,DocumentVersionContent,File)",
+					versionContentXmlFile.delete());
 		}
 		final Index index = readIndex(getIndexXmlFile());
 		index.addXmlFileLookup(document.getId(), targetDocumentXmlFile);
@@ -527,12 +538,22 @@ public abstract class XmlIO {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private File[] getXmlFiles(final Document document,
+	private File[] getVersionXmlFiles(final Document document,
 			final Collection<DocumentVersion> versions)
 			throws FileNotFoundException, IOException {
 		final Collection<File> xmlFiles = new Vector<File>(7);
 		for(DocumentVersion version : versions) {
 			xmlFiles.add(getXmlFile(document, version));
+		}
+		return xmlFiles.toArray(new File[] {});
+	}
+
+	private File[] getVersionContentXmlFiles(final Document document,
+			final Collection<DocumentVersionContent> versionsContent)
+			throws IOException {
+		final Collection<File> xmlFiles = new Vector<File>(versionsContent.size());
+		for(DocumentVersionContent versionContent : versionsContent) {
+			xmlFiles.add(getXmlFile(document, versionContent));
 		}
 		return xmlFiles.toArray(new File[] {});
 	}

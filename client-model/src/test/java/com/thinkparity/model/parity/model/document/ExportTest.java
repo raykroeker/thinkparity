@@ -89,8 +89,7 @@ public class ExportTest extends ModelTestCase {
 			description = name;
 			content = FileUtil.readBytes(testFile.getFile());
 			contentChecksum = MD5Util.md5Hex(content);
-			document = documentModel.create(
-					testProject, name, description, testFile.getFile());
+			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
 			exportFile = new File(
 					System.getProperty("java.io.tmpdir"),
 					testFile.getName());

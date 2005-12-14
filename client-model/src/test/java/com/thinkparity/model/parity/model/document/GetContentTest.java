@@ -56,7 +56,7 @@ public class GetContentTest extends ModelTestCase {
 		try {
 			DocumentContent content;
 			for(Fixture datum : data) {
-				content = datum.documentModel.getContent(datum.document);
+				content = datum.documentModel.getContent(datum.document.getId());
 
 				assertNotNull(content);
 				assertEquals(datum.expectedContentChecksum, content.getChecksum());
@@ -81,7 +81,7 @@ public class GetContentTest extends ModelTestCase {
 			description = name;
 			content = FileUtil.readBytes(testFile.getFile());
 			contentChecksum = MD5Util.md5Hex(content);
-			document = documentModel.create(testProject, name, description, testFile.getFile());
+			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
 
 			data.add(new Fixture(document, documentModel, contentChecksum));
 		}

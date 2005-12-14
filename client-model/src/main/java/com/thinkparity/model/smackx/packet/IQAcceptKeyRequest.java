@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 public class IQAcceptKeyRequest extends IQArtifact {
 
-	private String username;
+	private String qualifiedJID;
 
 	/**
 	 * Create a IQAcceptKeyRequest.
@@ -20,9 +20,9 @@ public class IQAcceptKeyRequest extends IQArtifact {
 	 * @param artifactUUID
 	 *            The artifact unique id.
 	 */
-	public IQAcceptKeyRequest(final UUID artifactUUID, final String username) {
+	public IQAcceptKeyRequest(final UUID artifactUUID, final String qualifiedJID) {
 		super(Action.ACCEPTKEYREQUEST, artifactUUID);
-		setUsername(username);
+		setQualifiedJID(qualifiedJID);
 	}
 
 	/**
@@ -31,7 +31,7 @@ public class IQAcceptKeyRequest extends IQArtifact {
 	public String getChildElementXML() {
 		return new StringBuffer(startQueryXML())
 			.append(getArtifactUUIDXML())
-			.append(getUsernameXML())
+			.append(getJIDXML())
 			.append(finishQueryXML())
 			.toString();
 	}
@@ -39,17 +39,16 @@ public class IQAcceptKeyRequest extends IQArtifact {
 	/**
 	 * @return Returns the username.
 	 */
-	public String getUsername() { return username; }
+	public String getQualifiedJID() { return qualifiedJID; }
 
-	/**
-	 * @param username The username to set.
-	 */
-	public void setUsername(String username) { this.username = username; }
+	public void setQualifiedJID(final String qualifiedJID) {
+		this.qualifiedJID = qualifiedJID;
+	}
 
-	private String getUsernameXML() {
-		return new StringBuffer("<username>")
-			.append(getUsername())
-			.append("</username>")
+	private String getJIDXML() {
+		return new StringBuffer("<jid>")
+			.append(getQualifiedJID())
+			.append("</jid>")
 			.toString();
 	}
 }

@@ -76,7 +76,7 @@ public class GetTest extends ModelTestCase {
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(testProject, name, description, testFile.getFile());
+			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
 			id = document.getId();
 
 			data.add(new Fixture(document, documentModel, id));

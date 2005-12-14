@@ -70,15 +70,15 @@ public class CreateTest extends ModelTestCase {
 			DocumentVersionContent versionContent;
 			DocumentContent versionContentSnapshot;
 			for(Fixture datum : data) {
-				document = datum.documentModel.create(datum.parent, datum.name,
+				document = datum.documentModel.create(datum.parent.getId(), datum.name,
 						datum.description, datum.file);
 				assertNotNull(document);
 
-				content = datum.documentModel.getContent(document);
+				content = datum.documentModel.getContent(document.getId());
 				assertNotNull(content);
 				assertEquals(content.getChecksum(), datum.documentContentChecksum);
 
-				version = datum.documentModel.listVersions(document).iterator().next();
+				version = datum.documentModel.listVersions(document.getId()).iterator().next();
 				versionSnapshot = version.getSnapshot();
 				assertNotNull(version);
 				assertEquals(versionSnapshot, document);

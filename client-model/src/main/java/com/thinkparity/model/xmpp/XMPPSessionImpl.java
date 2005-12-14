@@ -691,7 +691,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            <code>org.jivesoftware.packet.Packet</code>
 	 */
 	private void doFirePresenceRequested(final Packet packet) {
-		final User fromXMPPUser = getXMPPUser_From(packet);
+		final User fromXMPPUser = getUserPacketFrom(packet);
 		for(XMPPPresenceListener listener : xmppPresenceListeners) {
 			listener.presenceRequested(fromXMPPUser);
 		}
@@ -835,7 +835,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @param packet <code>org.jivesoftware.smack.packet.Packet</code>
 	 * @return <code>org.kcs.projectmanager.xmpp.user.XMPPUser</code>
 	 */
-	private User getXMPPUser_From(final Packet packet) {
+	private User getUserPacketFrom(final Packet packet) {
 		// TODO:  Figure out a way to extract the name.
 		return new User(null, packet.getFrom(), User.Presence.OFFLINE);
 	}
@@ -857,14 +857,14 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * Fire the keyRequestAccepted event for all of the XMPPExtension listeners.
 	 * 
-	 * @param iqKeyResponse
-	 *            The IQKeyRequest to use to build the event source.
+	 * @param iq
+	 *            The IQAcceptKeyRequest send from the parity server.
 	 */
 	private void notifyXMPPExtension_keyRequestAccepted(
-			final IQAcceptKeyRequest iqKeyRequest) {
+			final IQAcceptKeyRequest iq) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = getXMPPUser_From(iqKeyRequest);
-			final UUID artifactUUID = iqKeyRequest.getArtifactUUID();
+			final User user = new User(null, iq.getQualifiedJID(), null);
+			final UUID artifactUUID = iq.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
 				listener.keyRequestAccepted(user, artifactUUID);
 			}
@@ -874,14 +874,13 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * Fire the keyRequestDenied event for all of the XMPPExtension listeners.
 	 * 
-	 * @param iqKeyResponse
-	 *            The IQKeyRequest to use to build the event source.
+	 * @param iq
+	 *            The IQDenyKeyRequest send from the parity server.
 	 */
-	private void notifyXMPPExtension_keyRequestDenied(
-			final IQDenyKeyRequest iqDenyKeyRequest) {
+	private void notifyXMPPExtension_keyRequestDenied(final IQDenyKeyRequest iq) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = getXMPPUser_From(iqDenyKeyRequest);
-			final UUID artifactUUID = iqDenyKeyRequest.getArtifactUUID();
+			final User user = new User(null, iq.getQualifiedJID(), null);
+			final UUID artifactUUID = iq.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
 				listener.keyRequestDenied(user, artifactUUID);
 			}
@@ -896,7 +895,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 */
 	private void notifyXMPPExtension_keyRequested(final IQKeyRequest iqKeyRequest) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = getXMPPUser_From(iqKeyRequest);
+			final User user = getUserPacketFrom(iqKeyRequest);
 			final UUID artifactUUID = iqKeyRequest.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
 				listener.keyRequested(user, artifactUUID);

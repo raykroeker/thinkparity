@@ -267,7 +267,13 @@ public class DocumentXmlIO extends XmlIO {
 		logger.info("move(Document,Project)");
 		logger.debug(document);
 		logger.debug(destination);
-		move(document, getContent(document), listVersions(document), getXmlFileDirectory(destination));
+		final Collection<DocumentVersion> versions = listVersions(document);
+		final Collection<DocumentVersionContent> versionsContent =
+			new Vector<DocumentVersionContent>(versions.size());
+		for(DocumentVersion version : versions) {
+			versionsContent.add(getVersionContent(document, version));
+		}
+		move(document, getContent(document), versions, versionsContent, getXmlFileDirectory(destination));
 	}
 
 	/**

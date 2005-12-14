@@ -76,7 +76,7 @@ public class DeleteTest extends ModelTestCase {
 			name = testFile.getName();
 			description = name;
 			file = testFile.getFile();
-			document = documentModel.create(testProject, name, description, file);
+			document = documentModel.create(testProject.getId(), name, description, file);
 			data.add(new Fixture(document, documentModel));
 		}
 	}

@@ -76,9 +76,13 @@ public abstract class IQHandler extends
 			};
 			return handleIQ(iq, session);
 		}
-		catch(ParityServerModelException psmx) {
-			logger.error("handleIQ(IQ)", psmx);
-			return translate(iq, "handleIQ(IQ)", psmx);
+		catch(UnauthorizedException ux) {
+			logger.error("handleIQ(IQ)", ux);
+			throw ux;
+		}
+		catch(Throwable t) {
+			logger.error("handleIQ(IQ)", t);
+			return translate(iq, "An un-expected error has occured.", t);
 		}
 	}
 
@@ -112,17 +116,6 @@ public abstract class IQHandler extends
 	}
 
 	/**
-	 * Build an xmpp jid for the given username.
-	 * 
-	 * @param username
-	 *            The username.
-	 * @return The xmpp jid.
-	 */
-	protected JID buildJID(final String username) {
-		return JIDBuilder.build(username);
-	}
-
-	/**
 	 * Create a resultant internet query; using iq as the basis.
 	 * 
 	 * @param iq
@@ -145,6 +138,19 @@ public abstract class IQHandler extends
 	protected Artifact extractArtifact(final ArtifactModel artifactModel,
 			final IQ iq) throws ParityServerModelException {
 		return artifactModel.get(extractUUID(iq));
+	}
+
+	/**
+	 * Extract the jive id from the iq.
+	 * 
+	 * @param iq
+	 *            The iq.
+	 * @return The jive id.
+	 */
+	protected JID extractJID(final IQ iq) {
+		final Element childElement = iq.getChildElement();
+		final Element jidElement = getElement(childElement, ElementName.JID);
+		return JIDBuilder.buildQualified((String) jidElement.getData());
 	}
 
 	/**
@@ -200,18 +206,5 @@ public abstract class IQHandler extends
 		final IQ errorResult = IQ.createResultIQ(iq);
 		errorResult.setError(new PacketError(PacketError.Condition.internal_server_error));
 		return errorResult;
-	}
-
-	/**
-	 * Extract the jive id from the iq.
-	 * 
-	 * @param iq
-	 *            The iq.
-	 * @return The jive id.
-	 */
-	protected JID extractJID(final IQ iq) {
-		final Element childElement = iq.getChildElement();
-		final Element jidElement = getElement(childElement, ElementName.USERNAME);
-		return buildJID((String) jidElement.getData());
 	}
 }

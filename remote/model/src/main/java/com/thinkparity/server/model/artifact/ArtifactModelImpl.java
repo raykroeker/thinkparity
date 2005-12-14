@@ -56,37 +56,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Deny the key request for the artifact from the jid.
-	 * 
-	 * @param artifactUUID
-	 *            The artifact unique id.
-	 * @param jid
-	 *            The requestor's jive id.
-	 * @throws ParityServerModelException
-	 */
-	void denyKeyRequest(final UUID artifactUUID, final JID jid)
-			throws ParityServerModelException {
-		logger.info("denyKeyRequest(UUID,JID)");
-		logger.debug(artifactUUID);
-		logger.debug(jid);
-		try {
-			// send the requestor a denial
-			final IQ iq = new IQDenyKeyRequest(artifactUUID);
-			iq.setTo(jid);
-			iq.setFrom(session.getJID());
-			send(jid, iq);
-		}
-		catch(UnauthorizedException ux) {
-			logger.error("denyKeyRequest(UUID,JID)", ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
-		catch(RuntimeException rx) {
-			logger.error("denyKeyRequest(UUID,JID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
 	 * Accept the key request.
 	 * 
 	 * @param artifactUUID
@@ -109,7 +78,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			final String username = jid.getNode();
 			artifactSql.updateKeyHolder(artifactId, username);
 			// send the requestor an acceptance packet
-			final IQ iq = new IQAcceptKeyRequest(artifactUUID);
+			final IQ iq = new IQAcceptKeyRequest(artifactUUID, session.getJID());
 			iq.setTo(jid);
 			iq.setFrom(session.getJID());
 			send(jid, iq);
@@ -155,6 +124,37 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("create(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Deny the key request for the artifact from the jid.
+	 * 
+	 * @param artifactUUID
+	 *            The artifact unique id.
+	 * @param jid
+	 *            The requestor's jive id.
+	 * @throws ParityServerModelException
+	 */
+	void denyKeyRequest(final UUID artifactUUID, final JID jid)
+			throws ParityServerModelException {
+		logger.info("denyKeyRequest(UUID,JID)");
+		logger.debug(artifactUUID);
+		logger.debug(jid);
+		try {
+			// send the requestor a denial
+			final IQ iq = new IQDenyKeyRequest(artifactUUID, session.getJID());
+			iq.setTo(jid);
+			iq.setFrom(session.getJID());
+			send(jid, iq);
+		}
+		catch(UnauthorizedException ux) {
+			logger.error("denyKeyRequest(UUID,JID)", ux);
+			throw ParityErrorTranslator.translate(ux);
+		}
+		catch(RuntimeException rx) {
+			logger.error("denyKeyRequest(UUID,JID)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

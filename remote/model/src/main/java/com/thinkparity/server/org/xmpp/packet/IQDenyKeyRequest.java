@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
 
 import com.thinkparity.server.org.dom4j.ElementBuilder;
 import com.thinkparity.server.org.dom4j.ElementName;
@@ -23,7 +24,7 @@ public class IQDenyKeyRequest extends IQArtifact {
 	 * Create a IQDenyKeyRequest.
 	 * @param artifactUUID
 	 */
-	public IQDenyKeyRequest(final UUID artifactUUID) {
+	public IQDenyKeyRequest(final UUID artifactUUID, final JID jid) {
 		super(null, artifactUUID);
 		setType(IQ.Type.set);
 
@@ -34,6 +35,10 @@ public class IQDenyKeyRequest extends IQArtifact {
 		// uuid
 		final String uuidElementText = getArtifactUUID().toString();
 		ElementBuilder.addElement(queryElement, ElementName.UUID, uuidElementText);
+
+		// jid
+		final String jidElementText = jid.toString();
+		ElementBuilder.addElement(queryElement, ElementName.JID, jidElementText);
 	}
 
 }

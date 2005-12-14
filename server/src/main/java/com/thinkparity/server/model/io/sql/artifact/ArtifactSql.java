@@ -42,8 +42,8 @@ public class ArtifactSql extends AbstractSql {
 
 	private static final String UPDATE_KEYHOLDER = new StringBuffer()
 		.append("update parityArtifact set artifactKeyHolder = ?,")
-		.append("updatedOn = current_timestamp where artifactId = ? and ")
-		.append("artifactKeyHolder = ?").toString();
+		.append("updatedOn = current_timestamp where artifactId = ?")
+		.toString();
 
 	/**
 	 * Create a ArtifactSql.
@@ -106,7 +106,7 @@ public class ArtifactSql extends AbstractSql {
 
 	public void updateKeyHolder(final Integer artifactId,
 			final String artifactKeyHolder) throws SQLException {
-		logger.info("updateKeyHolder(Integer,String,String)");
+		logger.info("updateKeyHolder(Integer,String)");
 		logger.debug(artifactId);
 		logger.debug(artifactKeyHolder);
 		Connection cx = null;
@@ -114,8 +114,8 @@ public class ArtifactSql extends AbstractSql {
 		try {
 			cx = getCx();
 			ps = cx.prepareStatement(UPDATE_KEYHOLDER);
-			ps.setInt(1, artifactId);
-			ps.setString(2, artifactKeyHolder);
+			ps.setString(1, artifactKeyHolder);
+			ps.setInt(2, artifactId);
 			Assert.assertTrue(
 					"updateKeyHolder(Integer,String)", 1 == ps.executeUpdate());
 		}

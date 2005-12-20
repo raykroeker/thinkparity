@@ -5,13 +5,15 @@ package com.thinkparity.model.smackx.packet;
 
 import java.util.UUID;
 
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class IQDenyKeyRequest extends IQArtifact {
 
+	/**
+	 * The fully qualified jid to deny the request of.
+	 */
 	private String qualifiedJID;
 
 	/**
@@ -27,6 +29,7 @@ public class IQDenyKeyRequest extends IQArtifact {
 
 	/**
 	 * @see com.thinkparity.model.smackx.packet.IQArtifact#getChildElementXML()
+	 * 
 	 */
 	public String getChildElementXML() {
 		return new StringBuffer(startQueryXML())
@@ -37,17 +40,28 @@ public class IQDenyKeyRequest extends IQArtifact {
 	}
 
 	/**
-	 * @return Returns the username.
+	 * Obtain the qualified jid.
+	 * 
+	 * @return The qualified jid.
 	 */
 	public String getQualifiedJID() { return qualifiedJID; }
 
 	/**
-	 * @param username The username to set.
+	 * Set the qualified jid.
+	 * 
+	 * @param qualifiedJID
+	 *            The fully qualified jid to set.
 	 */
 	public void setQualifiedJID(final String qualifiedJID) {
 		this.qualifiedJID = qualifiedJID;
 	}
 
+	/**
+	 * Obtain the jid xml.
+	 * 
+	 * @return The jid xml.
+	 * @see IQDenyKeyRequest#getQualifiedJID()
+	 */
 	private String getJIDXML() {
 		return new StringBuffer("<jid>")
 			.append(getQualifiedJID())

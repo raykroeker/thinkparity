@@ -217,7 +217,7 @@ public abstract class AbstractModelImpl {
 		final Project parent = getParent(parityObject);
 		final Collection<ParityObject> siblings = new Vector<ParityObject>(7);
 		if(null != parent) {
-			siblings.addAll(getDocumentModel().list(parent));
+			siblings.addAll(getDocumentModel().list(parent.getId()));
 			siblings.addAll(getProjectModel().list(parent));
 		}
 		return siblings;

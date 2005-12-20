@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -21,14 +22,17 @@ public class GetVersionContentTest extends ModelTestCase {
 	 * Test data fixture.
 	 */
 	private class Fixture {
+		private final UUID documentId;
 		private final DocumentModel documentModel;
-		private final DocumentVersion version;
 		private final DocumentVersionContent versionContent;
-		private Fixture(final DocumentModel documentModel,
-				final DocumentVersion version,
-				final DocumentVersionContent versionContent) {
+		private final String versionId;
+		private Fixture(final UUID documentId,
+				final DocumentModel documentModel,
+				final DocumentVersionContent versionContent,
+				final String versionId) {
+			this.documentId = documentId;
 			this.documentModel = documentModel;
-			this.version = version;
+			this.versionId = versionId;
 			this.versionContent = versionContent;
 		}
 	}
@@ -53,7 +57,7 @@ public class GetVersionContentTest extends ModelTestCase {
 			DocumentVersionContent versionContent;
 			for(Fixture datum : data) {
 				versionContent =
-					datum.documentModel.getVersionContent(datum.version);
+					datum.documentModel.getVersionContent(datum.documentId, datum.versionId);
 				assertNotNull(versionContent);
 				assertEquals(datum.versionContent.getDocumentId(), versionContent.getDocumentId());
 				assertEquals(datum.versionContent.getSnapshot(), versionContent.getSnapshot());
@@ -81,18 +85,18 @@ public class GetVersionContentTest extends ModelTestCase {
 
 		version = documentModel.createVersion(
 					document.getId(), DocumentAction.CREATE, new DocumentActionData());
-		versionContent = documentModel.getVersionContent(version);
-		data.add(new Fixture(documentModel, version, versionContent));
+		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
+		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
 
 		version = documentModel.createVersion(
 				document.getId(), DocumentAction.CREATE, new DocumentActionData());
-		versionContent = documentModel.getVersionContent(version);
-		data.add(new Fixture(documentModel, version, versionContent));
+		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
+		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
 
 		version = documentModel.createVersion(
 				document.getId(), DocumentAction.CREATE, new DocumentActionData());
-		versionContent = documentModel.getVersionContent(version);
-		data.add(new Fixture(documentModel, version, versionContent));
+		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
+		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
 	}
 
 	/**

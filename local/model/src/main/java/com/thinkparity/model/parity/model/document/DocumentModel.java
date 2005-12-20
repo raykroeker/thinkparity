@@ -11,7 +11,6 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.note.Note;
-import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
@@ -19,7 +18,7 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
 /**
  * DocumentModel
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.5.2.17
  */
 public class DocumentModel {
 
@@ -76,15 +75,15 @@ public class DocumentModel {
 	/**
 	 * Add a note to a document.
 	 * 
-	 * @param document
-	 *            The document to add the note to.
+	 * @param documentId
+	 *            The document unique id.
 	 * @param note
 	 *            The note.
 	 * @throws ParityException
 	 */
-	public Note addNote(final Document document, final String note)
+	public Note addNote(final UUID documentId, final String note)
 			throws ParityException {
-		synchronized(implLock) { return impl.addNote(document, note); }
+		synchronized(implLock) { return impl.addNote(documentId, note); }
 	}
 
 	/**
@@ -162,13 +161,13 @@ public class DocumentModel {
 	/**
 	 * Obtain a document with a specified id.
 	 * 
-	 * @param id
-	 *            The id of the document.
-	 * @return The document
+	 * @param documentId
+	 *            The document unique id.
+	 * @return The document.
 	 * @throws ParityException
 	 */
-	public Document get(final UUID id) throws ParityException {
-		synchronized(implLock) { return impl.get(id); }
+	public Document get(final UUID documentId) throws ParityException {
+		synchronized(implLock) { return impl.get(documentId); }
 	}
 
 	/**
@@ -185,37 +184,56 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Obtain a document version.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @param versionId
+	 *            The version id.
+	 * @return The document version.
+	 * @throws ParityException
+	 */
+	public DocumentVersion getVersion(final UUID documentId,
+			final String versionId) throws ParityException {
+		synchronized(implLock) { return impl.getVersion(documentId, versionId); }
+	}
+
+	/**
 	 * Obtain the content for a specific version.
 	 * 
-	 * @param version
-	 *            The version.
+	 * @param documentId
+	 *            The document unique id.
+	 * @param versionId
+	 *            The version id.
 	 * @return The content.
 	 * @throws ParityException
 	 */
-	public DocumentVersionContent getVersionContent(
-			final DocumentVersion version) throws ParityException {
-		synchronized(implLock) { return impl.getVersionContent(version); }
+	public DocumentVersionContent getVersionContent(final UUID documentId,
+			final String versionId) throws ParityException {
+		synchronized(implLock) {
+			return impl.getVersionContent(documentId, versionId);
+		}
 	}
 
 	/**
 	 * Obtain a list of documents for a project.
 	 * 
-	 * @param project
-	 *            The project which contains the documents.
+	 * @param projectId
+	 *            The project unique id.
 	 * @return A list of documents for a project.
 	 * @throws ParityException
 	 */
-	public Collection<Document> list(final Project project)
+	public Collection<Document> list(final UUID projectId)
 			throws ParityException {
-		synchronized(implLock) { return impl.list(project); }
+		synchronized(implLock) { return impl.list(projectId); }
 	}
 
 	/**
 	 * Obtain a list of document versions for a document.
 	 * 
-	 * @param document
-	 *            The document which contains the versions.
-	 * @return The list of document versions.
+	 * @param documentId
+	 *            The document unique id.
+	 * @return A list of document versions.
 	 * @throws ParityException
 	 */
 	public Collection<DocumentVersion> listVersions(final UUID documentId)
@@ -237,14 +255,15 @@ public class DocumentModel {
 	/**
 	 * Move the document to an another project.
 	 * 
-	 * @param document
-	 *            The document to move.
-	 * @param destination
-	 *            The project to move the document to.
+	 * @param documentId
+	 *            The document unique id.
+	 * @param destinationProjectId
+	 *            The project unique id.
 	 * @throws ParityException
 	 */
-	public void move(final Document document, final Project destination) throws ParityException {
-		synchronized(implLock) { impl.move(document, destination); }
+	public void move(final UUID documentId, final UUID destinationProjectId)
+			throws ParityException {
+		synchronized(implLock) { impl.move(documentId, destinationProjectId); }
 	}
 
 	/**
@@ -261,12 +280,14 @@ public class DocumentModel {
 	/**
 	 * Open a document version.
 	 * 
-	 * @param version
+	 * @param documentId
+	 *            The document unique id.
+	 * @param versionId
 	 *            The version to open.
 	 * @throws ParityException
 	 */
-	public void openVersion(final DocumentVersion version) throws ParityException {
-		synchronized(implLock) { impl.openVersion(version); }
+	public void openVersion(final UUID documentId, final String versionId) throws ParityException {
+		synchronized(implLock) { impl.openVersion(documentId, versionId); }
 	}
 
 	/**

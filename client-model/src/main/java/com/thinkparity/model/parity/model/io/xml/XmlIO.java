@@ -135,20 +135,20 @@ public abstract class XmlIO {
 	 * 
 	 * @param document
 	 *            The document.
-	 * @param version
-	 *            The document version.
+	 * @param versionId
+	 *            The version id.
 	 * @return The xml file.
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	protected File getXmlFile(final Document document,
-			final DocumentVersion version) throws FileNotFoundException,
+			final String versionId) throws FileNotFoundException,
 			IOException {
 		return new File(
 				getXmlFileDirectory(document),
 				new StringBuffer(document.getName())
 					.append(".")
-					.append(version.getVersionId())
+					.append(versionId)
 					.append(IXmlIOConstants.FILE_EXTENSION_DOCUMENT_VERSION)
 					.toString());
 	}
@@ -543,7 +543,7 @@ public abstract class XmlIO {
 			throws FileNotFoundException, IOException {
 		final Collection<File> xmlFiles = new Vector<File>(7);
 		for(DocumentVersion version : versions) {
-			xmlFiles.add(getXmlFile(document, version));
+			xmlFiles.add(getXmlFile(document, version.getVersionId()));
 		}
 		return xmlFiles.toArray(new File[] {});
 	}

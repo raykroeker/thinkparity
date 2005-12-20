@@ -198,10 +198,24 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
+	 * Rename a project.
+	 * 
+	 * @param projectId
+	 *            The project unique id.
+	 * @param name
+	 *            The new name.
+	 * @throws ParityException
+	 */
+	public void rename(final UUID projectId, final String name)
+			throws ParityException {
+		synchronized(implLock) { impl.rename(projectId, name); }
+	}
+
+	/**
 	 * Update a project.
 	 * 
 	 * @param project
-	 *            The project to update.
+	 *            The project.
 	 * @throws ParityException
 	 */
 	public void update(final Project project) throws ParityException {

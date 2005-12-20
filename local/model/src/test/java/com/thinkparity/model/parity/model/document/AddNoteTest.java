@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -28,12 +29,12 @@ public class AddNoteTest extends ModelTestCase {
 	 * @see AddNoteTest#tearDown()
 	 */
 	private class Fixture {
-		private final Document document;
+		private final UUID documentId;
 		private final DocumentModel documentModel;
 		private final String note;
-		private Fixture(final Document document,
+		private Fixture(final UUID documentId,
 				final DocumentModel documentModel, final String note) {
-			this.document = document;
+			this.documentId = documentId;
 			this.documentModel = documentModel;
 			this.note = note;
 		}
@@ -58,9 +59,9 @@ public class AddNoteTest extends ModelTestCase {
 			Document document;
 			Note note;
 			for(Fixture datum : data) {
-				datum.documentModel.addNote(datum.document, datum.note);
+				datum.documentModel.addNote(datum.documentId, datum.note);
 
-				document = datum.documentModel.get(datum.document.getId());
+				document = datum.documentModel.get(datum.documentId);
 				note = document.getNotes().iterator().next();
 				assertNotNull(note);
 				assertEquals(note.getNote(), datum.note);
@@ -87,7 +88,7 @@ public class AddNoteTest extends ModelTestCase {
 		String description = name;
 		Document testDocument =
 			documentModel.create(testProject.getId(), name, description, testFile.getFile());
-		data.add(new Fixture(testDocument, documentModel, note));
+		data.add(new Fixture(testDocument.getId(), documentModel, note));
 
 		note = "More complex note.  Contains some windows line feed characters." +
 			Separator.WindowsNewLine + " <-  Windows new line." +
@@ -98,7 +99,7 @@ public class AddNoteTest extends ModelTestCase {
 		description = name;
 		testDocument =
 			documentModel.create(testProject.getId(), name, description, testFile.getFile());
-		data.add(new Fixture(testDocument, documentModel, note));
+		data.add(new Fixture(testDocument.getId(), documentModel, note));
 
 		note = new StringBuffer("I Am the Very Model of a Modern Major-General")
 			.append(Separator.SystemNewLine)
@@ -148,7 +149,7 @@ public class AddNoteTest extends ModelTestCase {
 		description = name;
 		testDocument =
 			documentModel.create(testProject.getId(), name, description, testFile.getFile());
-		data.add(new Fixture(testDocument, documentModel, note));
+		data.add(new Fixture(testDocument.getId(), documentModel, note));
 	}
 
 	/**

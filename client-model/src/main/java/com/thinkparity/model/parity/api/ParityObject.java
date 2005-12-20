@@ -386,6 +386,14 @@ public abstract class ParityObject {
 	}
 
 	/**
+	 * Set the artifact name.
+	 * 
+	 * @param name
+	 *            The name.
+	 */
+	public void setName(final String name) { this.name = name; }
+
+	/**
 	 * Set the id of the parent.
 	 * 
 	 * @param parentId

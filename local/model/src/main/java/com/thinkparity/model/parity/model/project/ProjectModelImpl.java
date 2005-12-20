@@ -179,7 +179,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.debug(project);
 		try {
 			final DocumentModel documentModel = getDocumentModel();
-			for(Document subDocument : documentModel.list(project)) {
+			for(Document subDocument : documentModel.list(project.getId())) {
 				documentModel.delete(subDocument);
 			}
 			for(Project subProject : list(project)) { delete(subProject); }
@@ -363,6 +363,36 @@ class ProjectModelImpl extends AbstractModelImpl {
 					"removeUpdateListener(UpdateListener)",
 					ProjectModelImpl.updateListeners.contains(listener));
 			ProjectModelImpl.updateListeners.remove(listener);
+		}
+	}
+
+	/**
+	 * Rename a project.
+	 * 
+	 * @param projectId
+	 *            The project unique id.
+	 * @param name
+	 *            The new name.
+	 * @throws ParityException
+	 */
+	void rename(final UUID projectId, final String name) throws ParityException {
+		logger.info("rename(UUID,String)");
+		logger.debug(projectId);
+		logger.debug(name);
+		if(null == name) { throw new IllegalArgumentException(); }
+		try {
+			final Project project = get(projectId);
+			project.setName(name);
+
+			projectXmlIO.rename(project);
+		}
+		catch(IOException iox) {
+			logger.error("rename(UUID,String)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("rename(UUID,String)", rx);
+			throw ParityErrorTranslator.translate(rx);
 		}
 	}
 

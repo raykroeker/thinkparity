@@ -65,7 +65,7 @@ public class DocumentXmlIO extends XmlIO {
 			throws FileNotFoundException, IOException {
 		logger.info("create(DocumentVersion)");
 		logger.debug(version);
-		write(version, getXmlFile(document, version));
+		write(version, getXmlFile(document, version.getVersionId()));
 		write(versionContent, getXmlFile(document, versionContent));
 	}
 
@@ -122,7 +122,7 @@ public class DocumentXmlIO extends XmlIO {
 		logger.info("deleteVersion(Document,DocumentVersion)");
 		Assert.assertTrue(
 				"deleteVersion(Document,DocumentVersion)",
-				getXmlFile(document, version).delete());
+				getXmlFile(document, version.getVersionId()).delete());
 	}
 
 	/**
@@ -179,6 +179,26 @@ public class DocumentXmlIO extends XmlIO {
 		final DocumentContent content = readDocumentContent(
 				getContentXmlFile(document.getName(), xmlFileDirectory));
 		return content;
+	}
+
+	/**
+	 * Obtain a document version for a document.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @param versionId
+	 *            The version id.
+	 * @return The document version.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public DocumentVersion getVersion(final Document document,
+			final String versionId) throws FileNotFoundException,
+			IOException {
+		logger.info("getVersion(Document,String)");
+		logger.debug(document);
+		logger.debug(versionId);
+		return readDocumentVersion(getXmlFile(document, versionId));
 	}
 
 	/**

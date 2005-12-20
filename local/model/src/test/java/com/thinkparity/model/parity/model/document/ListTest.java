@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -28,11 +29,11 @@ public class ListTest extends ModelTestCase {
 	private class Fixture {
 		private final DocumentModel documentModel;
 		private final Collection<Document> expectedDocumentList;
-		private final Project project;
-		private Fixture(final DocumentModel documentModel, final Collection<Document> expectedDocumentList, final Project project) {
+		private final UUID projectId;
+		private Fixture(final DocumentModel documentModel, final Collection<Document> expectedDocumentList, final UUID projectId) {
 			this.documentModel = documentModel;
 			this.expectedDocumentList = expectedDocumentList;
-			this.project = project;
+			this.projectId = projectId;
 		}
 	}
 
@@ -53,7 +54,7 @@ public class ListTest extends ModelTestCase {
 		try {
 			Collection<Document> documentList;
 			for(Fixture datum : data) {
-				documentList = datum.documentModel.list(datum.project);
+				documentList = datum.documentModel.list(datum.projectId);
 				
 				assertNotNull(documentList);
 				assertEquals(documentList.size(), datum.expectedDocumentList.size());
@@ -88,7 +89,7 @@ public class ListTest extends ModelTestCase {
 					documentModel.create(project.getId(), name, description, testFile.getFile());
 				documentList.add(document);
 			}
-			data.add(new Fixture(documentModel, documentList, project));
+			data.add(new Fixture(documentModel, documentList, project.getId()));
 		}
 	}
 

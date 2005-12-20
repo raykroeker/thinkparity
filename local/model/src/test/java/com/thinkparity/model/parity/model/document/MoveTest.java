@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -26,15 +27,16 @@ public class MoveTest extends ModelTestCase {
 	 * @see MoveTest#tearDown()
 	 */
 	private class Fixture {
-		private final Project destination;
-		private final Document document;
+		private final UUID destinationId;
+		private final UUID documentId;
 		private final DocumentModel documentModel;
-		private final Project source;
-		private Fixture(final Project destination, final Document document, final DocumentModel documentModel, final Project source) {
-			this.destination = destination;
-			this.document = document;
+		private final UUID sourceId;
+		private Fixture(final UUID destinationId, final UUID documentId,
+				final DocumentModel documentModel, final UUID sourceId) {
+			this.destinationId = destinationId;
+			this.documentId = documentId;
 			this.documentModel = documentModel;
-			this.source = source;
+			this.sourceId = sourceId;
 		}
 	}
 
@@ -57,21 +59,20 @@ public class MoveTest extends ModelTestCase {
 			Collection<Document> destinationDocuments;
 			Document document;
 			for(Fixture datum : data) {
-				datum.documentModel.move(datum.document, datum.destination);
+				datum.documentModel.move(datum.documentId, datum.destinationId);
+				// ensure the moved document is correct
+				document = datum.documentModel.get(datum.documentId);
+				assertNotNull(document);
 
 				// ensure the document is missing from the source project
-				sourceDocuments = datum.documentModel.list(datum.source);
+				sourceDocuments = datum.documentModel.list(datum.sourceId);
 				assertNotNull(sourceDocuments);
-				assertNotContains(sourceDocuments, datum.document);
+				assertNotContains(sourceDocuments, document);
 
 				// ensure the document is listed in the destination project
-				destinationDocuments = datum.documentModel.list(datum.destination);
+				destinationDocuments = datum.documentModel.list(datum.destinationId);
 				assertNotNull(destinationDocuments);
-				assertContains(destinationDocuments, datum.document);
-
-				// ensure the moved document is correct
-				document = datum.documentModel.get(datum.document.getId());
-				assertNotNull(document);
+				assertContains(destinationDocuments, document);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -101,7 +102,7 @@ public class MoveTest extends ModelTestCase {
 			description = name;
 			document = documentModel.create(source.getId(), name, description, testFile.getFile());
 
-			data.add(new Fixture(destination, document, documentModel, source));
+			data.add(new Fixture(destination.getId(), document.getId(), documentModel, source.getId()));
 		}
 	}
 

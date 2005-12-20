@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -23,11 +24,14 @@ public class OpenVersionTest extends ModelTestCase {
 	 * @version 1.1
 	 */
 	private class Fixture {
+		private final UUID documentId;
 		private final DocumentModel documentModel;
-		private final DocumentVersion version;
-		private Fixture(final DocumentModel documentModel, final DocumentVersion version) {
+		private final String versionId;
+		private Fixture(final UUID documentId,
+				final DocumentModel documentModel, final String versionId) {
+			this.documentId = documentId;
 			this.documentModel = documentModel;
-			this.version = version;
+			this.versionId = versionId;
 		}
 	}
 
@@ -48,7 +52,7 @@ public class OpenVersionTest extends ModelTestCase {
 	public void testOpenVersion() {
 		try {
 			for(Fixture datum : data) {
-				datum.documentModel.openVersion(datum.version);
+				datum.documentModel.openVersion(datum.documentId, datum.versionId);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -70,15 +74,15 @@ public class OpenVersionTest extends ModelTestCase {
 
 		version = documentModel.createVersion(
 				document.getId(), DocumentAction.SEND, new DocumentActionData());
-		data.add(new Fixture(documentModel, version));
+		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
 
 		version = documentModel.createVersion(
 				document.getId(), DocumentAction.SEND, new DocumentActionData());
-		data.add(new Fixture(documentModel, version));
+		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
 
 		version = documentModel.createVersion(
 				document.getId(), DocumentAction.SEND, new DocumentActionData());
-		data.add(new Fixture(documentModel, version));
+		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
 	}
 
 	/**

@@ -73,7 +73,7 @@ public class CreateVersionTest extends ModelTestCase {
 				assertEquals(datum.document.getId(), version.getDocumentId());
 				assertEquals(datum.document, version.getSnapshot());
 
-				versionContent = datum.documentModel.getVersionContent(version);
+				versionContent = datum.documentModel.getVersionContent(datum.document.getId(), version.getVersionId());
 				assertNotNull(versionContent);
 				assertEquals(datum.document.getId(), versionContent.getDocumentId());
 				assertEquals(datum.content, versionContent.getSnapshot());

@@ -552,8 +552,8 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param users
 	 *            The list of parity users to send to.
-	 * @param document
-	 *            The document to send.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
 	void send(final Collection<User> users, final UUID documentId)
@@ -638,8 +638,8 @@ class SessionModelImpl extends AbstractModelImpl {
 	/**
 	 * Send the response to a key request.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentId
+	 *            The document unique id.
 	 * @param user
 	 *            The user.
 	 * @param keyResponse

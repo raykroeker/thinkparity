@@ -51,6 +51,30 @@ public class ProjectXmlIO extends XmlIO {
 		write(project, getXmlFile(project));
 	}
 
+	public void rename(final Project project) throws FileNotFoundException, IOException {
+		logger.info("rename(Project)");
+		logger.debug(project);
+		// grab the original xml file
+		final File originalXmlFile = getXmlFile(project);
+		// grab the original xml file directory
+		final File originalXmlFileDirectory = getXmlFileDirectory(project);
+		// remove the index entry
+		removeXmlFileLookup(project);
+		// rename the xml file
+		final File xmlFile = getXmlFile(project);
+		Assert.assertTrue(
+				"rename(Project)",
+				originalXmlFile.renameTo(
+						new File(originalXmlFileDirectory, xmlFile.getName())));
+		// rename the xml file directory
+		final File xmlFileDirectory = getXmlFileDirectory(project);
+		Assert.assertTrue(
+				"rename(Project)",
+				originalXmlFileDirectory.renameTo(xmlFileDirectory));
+		// update the xml
+		write(project, xmlFile);
+	}
+
 	/**
 	 * Delete the xml for a project. This will delete the project xml file; the
 	 * project xml file's directory; and the project directory. At this point

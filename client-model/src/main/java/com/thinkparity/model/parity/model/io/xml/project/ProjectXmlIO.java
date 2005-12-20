@@ -15,6 +15,7 @@ import java.util.Vector;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
 import com.thinkparity.model.parity.model.io.xml.XmlIO;
 import com.thinkparity.model.parity.model.project.Project;
@@ -51,7 +52,9 @@ public class ProjectXmlIO extends XmlIO {
 		write(project, getXmlFile(project));
 	}
 
-	public void rename(final Project project) throws FileNotFoundException, IOException {
+	public void rename(final Project project,
+			final Collection<Document> documents) throws FileNotFoundException,
+			IOException {
 		logger.info("rename(Project)");
 		logger.debug(project);
 		// grab the original xml file
@@ -60,6 +63,8 @@ public class ProjectXmlIO extends XmlIO {
 		final File originalXmlFileDirectory = getXmlFileDirectory(project);
 		// remove the index entry
 		removeXmlFileLookup(project);
+		// remove the document index entries
+		for(Document document : documents) { removeXmlFileLookup(document); }
 		// rename the xml file
 		final File xmlFile = getXmlFile(project);
 		Assert.assertTrue(
@@ -73,6 +78,10 @@ public class ProjectXmlIO extends XmlIO {
 				originalXmlFileDirectory.renameTo(xmlFileDirectory));
 		// update the xml
 		write(project, xmlFile);
+		// re-write the document xml files (recreates the indicies)
+		for(Document document : documents) {
+			write(document, getXmlFile(document));
+		}
 	}
 
 	/**

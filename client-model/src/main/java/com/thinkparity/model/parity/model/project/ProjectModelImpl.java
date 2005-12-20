@@ -382,9 +382,12 @@ class ProjectModelImpl extends AbstractModelImpl {
 		if(null == name) { throw new IllegalArgumentException(); }
 		try {
 			final Project project = get(projectId);
+			final DocumentModel documentModel = getDocumentModel();
+			final Collection<Document> documents =
+				documentModel.list(projectId);
+			// rename the project
 			project.setName(name);
-
-			projectXmlIO.rename(project);
+			projectXmlIO.rename(project, documents);
 		}
 		catch(IOException iox) {
 			logger.error("rename(UUID,String)", iox);

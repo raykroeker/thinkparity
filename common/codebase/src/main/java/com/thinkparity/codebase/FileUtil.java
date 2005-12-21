@@ -206,16 +206,19 @@ public abstract class FileUtil {
 	}
 
 	/**
-	 * Write the content of a byte[] to a File
-	 * @param file <code>java.io.File</code>
-	 * @param content <code>byte[]</code>
+	 * Write a byte[] to a file.
+	 * 
+	 * @param file
+	 *            The file to write to.
+	 * @param content
+	 *            The file content to write.
+	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	public static void writeBytes(final File file, byte[] content)
 			throws FileNotFoundException, IOException {
-		FileOutputStream fileOutputStream = null;
+		final FileOutputStream fileOutputStream = new FileOutputStream(file);
 		try {
-			fileOutputStream = new FileOutputStream(file);
 			int amountWritten = 0;
 			final int contentLength = content.length;
 			int amountToWrite;

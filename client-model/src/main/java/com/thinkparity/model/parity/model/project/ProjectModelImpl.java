@@ -388,6 +388,9 @@ class ProjectModelImpl extends AbstractModelImpl {
 			// rename the project
 			project.setName(name);
 			projectXmlIO.rename(project, documents);
+
+			// fire an update event
+			notifyUpdate_objectUpdated(project);
 		}
 		catch(IOException iox) {
 			logger.error("rename(UUID,String)", iox);

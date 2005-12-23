@@ -14,6 +14,7 @@ import org.jivesoftware.messenger.container.PluginManager;
 import org.jivesoftware.messenger.event.SessionEventDispatcher;
 import org.jivesoftware.messenger.event.SessionEventListener;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.server.handler.artifact.AcceptKeyRequest;
@@ -70,7 +71,11 @@ public class ParityServer implements Plugin {
 		initializePluginLogging(pluginDirectory);
 		initializeIQHandlers();
 		initializeEventHandlers();
-		ServerLoggerFactory.getLogger(getClass()).info(ParityServerConstants.SERVER_NAME + " initialized.");
+		final StringBuffer infoBuffer = new StringBuffer()
+			.append(Version.getName()).append(Separator.FullColon)
+			.append(Version.getVersion()).append(Separator.FullColon)
+			.append(Version.getBuildId());
+		ServerLoggerFactory.getLogger(getClass()).info(infoBuffer);
 	}
 
 	private void destroyEventHandlers() {}

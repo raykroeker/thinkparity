@@ -210,7 +210,7 @@ public class ModelTestCaseHelper {
 			final String name = jUnitSessionId;
 			final String description = name;
 			ModelTestCaseHelper.jUnitProject =
-				getProjectModel().create(myProjects, name, description);
+				getProjectModel().create(myProjects.getId(), name, description);
 		}
 		return ModelTestCaseHelper.jUnitProject;
 	}

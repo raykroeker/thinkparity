@@ -71,22 +71,22 @@ public class GetTest extends ModelTestCase {
 
 		name = "1";
 		description = name;
-		expectedProject = projectModel.create(testProject, name, description);
+		expectedProject = projectModel.create(testProject.getId(), name, description);
 		data.add(new Fixture(expectedProject, expectedProject.getId(), projectModel));
 
 		name = "2";
 		description = name;
-		expectedProject = projectModel.create(testProject, name, description);
+		expectedProject = projectModel.create(testProject.getId(), name, description);
 		data.add(new Fixture(expectedProject, expectedProject.getId(), projectModel));
 
 		name = "3";
 		description = name;
-		expectedProject = projectModel.create(testProject, name, description);
+		expectedProject = projectModel.create(testProject.getId(), name, description);
 		data.add(new Fixture(expectedProject, expectedProject.getId(), projectModel));
 
 		name = "4";
 		description = name;
-		expectedProject = projectModel.create(testProject, name, description);
+		expectedProject = projectModel.create(testProject.getId(), name, description);
 		data.add(new Fixture(expectedProject, expectedProject.getId(), projectModel));
 		// add a test where no project is found
 		data.add(new Fixture(null, UUIDGenerator.nextUUID(), projectModel));

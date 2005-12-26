@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.project;
 
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -24,11 +25,11 @@ public class DeleteTest extends ModelTestCase {
 	 * @see DeleteTest#tearDown()
 	 */
 	private class Fixture {
-		private final Project project;
+		private final UUID projectId;
 		private final ProjectModel projectModel;
-		private Fixture(final Project project,
+		private Fixture(final UUID projectId,
 				final ProjectModel projectModel) {
-			this.project = project;
+			this.projectId = projectId;
 			this.projectModel = projectModel;
 		}
 	}
@@ -50,9 +51,9 @@ public class DeleteTest extends ModelTestCase {
 		try {
 			Project project;
 			for(Fixture datum : data) {
-				datum.projectModel.delete(datum.project);
+				datum.projectModel.delete(datum.projectId);
 
-				project = datum.projectModel.get(datum.project.getId());
+				project = datum.projectModel.get(datum.projectId);
 				assertNull(project);
 			}
 		}
@@ -73,44 +74,44 @@ public class DeleteTest extends ModelTestCase {
 		// scenario 1:  simple project
 		name = "Prj.1";
 		description = name;
-		project = projectModel.create(testProject, name, description);
-		data.add(new Fixture(project, projectModel));
+		project = projectModel.create(testProject.getId(), name, description);
+		data.add(new Fixture(project.getId(), projectModel));
 
 		// scenario 2:  simple project with sub-projects
 		name = "Prj.2";
 		description = name;
-		project = projectModel.create(testProject, name, description);
-		projectModel.create(project, name + "Sub1", description + "Sub1");
-		projectModel.create(project, name + "Sub2", description + "Sub2");
-		projectModel.create(project, name + "Sub3", description + "Sub3");
-		projectModel.create(project, name + "Sub4", description + "Sub4");
-		data.add(new Fixture(project, projectModel));
+		project = projectModel.create(testProject.getId(), name, description);
+		projectModel.create(project.getId(), name + "Sub1", description + "Sub1");
+		projectModel.create(project.getId(), name + "Sub2", description + "Sub2");
+		projectModel.create(project.getId(), name + "Sub3", description + "Sub3");
+		projectModel.create(project.getId(), name + "Sub4", description + "Sub4");
+		data.add(new Fixture(project.getId(), projectModel));
 
 		// scenario 3:  simple project with sub-documents
 		name = "Prj.3";
 		description = name;
-		project = projectModel.create(testProject, name, description);
+		project = projectModel.create(testProject.getId(), name, description);
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			documentModel.create(project.getId(), name, description, testFile.getFile());
 		}
-		data.add(new Fixture(project, projectModel));
+		data.add(new Fixture(project.getId(), projectModel));
 
 		// scenario 4:  simple project with sub-documents & sub-projects
 		name = "Prj.4";
 		description = name;
-		project = projectModel.create(testProject, name, description);
-		projectModel.create(project, name + "Sub1", description + "Sub1");
-		projectModel.create(project, name + "Sub2", description + "Sub2");
-		projectModel.create(project, name + "Sub3", description + "Sub3");
-		projectModel.create(project, name + "Sub4", description + "Sub4");
+		project = projectModel.create(testProject.getId(), name, description);
+		projectModel.create(project.getId(), name + "Sub1", description + "Sub1");
+		projectModel.create(project.getId(), name + "Sub2", description + "Sub2");
+		projectModel.create(project.getId(), name + "Sub3", description + "Sub3");
+		projectModel.create(project.getId(), name + "Sub4", description + "Sub4");
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			documentModel.create(project.getId(), name, description, testFile.getFile());
 		}
-		data.add(new Fixture(project, projectModel));
+		data.add(new Fixture(project.getId(), projectModel));
 	}
 
 	/**

@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.project;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -24,12 +25,12 @@ public class ListTest extends ModelTestCase {
 	 */
 	private class Fixture {
 		private final Collection<Project> expectedProjects;
-		private final Project parent;
+		private final UUID parentId;
 		private final ProjectModel projectModel;
 		private Fixture(final Collection<Project> expectedProjects,
-				final Project parent, final ProjectModel projectModel) {
+				final UUID parentId, final ProjectModel projectModel) {
 			this.expectedProjects = expectedProjects;
-			this.parent = parent;
+			this.parentId = parentId;
 			this.projectModel = projectModel;
 		}
 	}
@@ -51,11 +52,11 @@ public class ListTest extends ModelTestCase {
 		try {
 			Collection<Project> projectList;
 			for(Fixture datum : data) {
-				if(null == datum.parent) {
+				if(null == datum.parentId) {
 					projectList = datum.projectModel.list();
 				}
 				else {
-					projectList = datum.projectModel.list(datum.parent);
+					projectList = datum.projectModel.list(datum.parentId);
 				}
 
 				assertNotNull(projectList);
@@ -83,14 +84,14 @@ public class ListTest extends ModelTestCase {
 		expectedProjectList = new Vector<Project>(3);
 		name = "p.0";
 		description = "Project:  " + name;
-		expectedProjectList.add(projectModel.create(testProject, name, description));
+		expectedProjectList.add(projectModel.create(testProject.getId(), name, description));
 		name = "p.1";
 		description = "Project:  " + name;
-		expectedProjectList.add(projectModel.create(testProject, name, description));
+		expectedProjectList.add(projectModel.create(testProject.getId(), name, description));
 		name = "p.2";
 		description = "Project:  " + name;
-		expectedProjectList.add(projectModel.create(testProject, name, description));
-		data.add(new Fixture(expectedProjectList, testProject, projectModel));
+		expectedProjectList.add(projectModel.create(testProject.getId(), name, description));
+		data.add(new Fixture(expectedProjectList, testProject.getId(), projectModel));
 	}
 
 	/**

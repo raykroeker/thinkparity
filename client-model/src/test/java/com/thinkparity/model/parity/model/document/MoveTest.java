@@ -92,11 +92,11 @@ public class MoveTest extends ModelTestCase {
 
 		name = "S";
 		description = name;
-		source = projectModel.create(testProject, name, description);
+		source = projectModel.create(testProject.getId(), name, description);
 
 		name = "D";
 		description = name;
-		destination = projectModel.create(testProject, name, description);
+		destination = projectModel.create(testProject.getId(), name, description);
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;

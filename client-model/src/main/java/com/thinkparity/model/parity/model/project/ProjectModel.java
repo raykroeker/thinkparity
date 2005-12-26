@@ -80,8 +80,8 @@ public class ProjectModel extends AbstractModel {
 	/**
 	 * Create a new project.
 	 * 
-	 * @param parent
-	 *            The parent project.
+	 * @param projectId
+	 *            The parent project unique id.
 	 * @param name
 	 *            The name.
 	 * @param description
@@ -89,10 +89,10 @@ public class ProjectModel extends AbstractModel {
 	 * @return The new project.
 	 * @throws ParityException
 	 */
-	public Project create(final Project parent, final String name,
+	public Project create(final UUID projectId, final String name,
 			final String description) throws ParityException {
 		synchronized(implLock) {
-			return impl.create(parent, name, description);
+			return impl.create(projectId, name, description);
 		}
 	}
 
@@ -100,12 +100,12 @@ public class ProjectModel extends AbstractModel {
 	 * Delete an existing project. Note that this will delete any sub-projects
 	 * and\or sub-documents in the project without warning.
 	 * 
-	 * @param project
-	 *            The project to delete.
+	 * @param projectId
+	 *            The project unique id.
 	 * @throws ParityException
 	 */
-	public void delete(final Project project) throws ParityException {
-		synchronized(implLock) { impl.delete(project); }
+	public void delete(final UUID projectId) throws ParityException {
+		synchronized(implLock) { impl.delete(projectId); }
 	}
 
 	/**
@@ -144,14 +144,14 @@ public class ProjectModel extends AbstractModel {
 	/**
 	 * Determine whether a project has children or not.
 	 * 
-	 * @param project
-	 *            The project to check.
+	 * @param projectId
+	 *            The project unique id.
 	 * @return True if the project contains any projects or documents; false
 	 *         otherwise.
 	 * @throws ParityException
 	 */
-	public Boolean hasChildren(final Project project) throws ParityException {
-		synchronized(implLock) { return impl.hasChildren(project); }
+	public Boolean hasChildren(final UUID projectId) throws ParityException {
+		synchronized(implLock) { return impl.hasChildren(projectId); }
 	}
 
 	/**
@@ -167,14 +167,14 @@ public class ProjectModel extends AbstractModel {
 	/**
 	 * Obtain a list of projects for a given parent project.
 	 * 
-	 * @param parent
-	 *            A parent project.
+	 * @param projectId
+	 *            The parent project unique id.
 	 * @return A list of the parent's child projects
 	 * @throws ParityException
 	 */
-	public Collection<Project> list(final Project parent)
+	public Collection<Project> list(final UUID projectId)
 			throws ParityException {
-		synchronized(implLock) { return impl.list(parent); }
+		synchronized(implLock) { return impl.list(projectId); }
 	}
 
 	/**

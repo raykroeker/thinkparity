@@ -83,12 +83,12 @@ public class RenameTest extends ModelTestCase {
 
 		name = "Project 1";
 		description = name + ":  " + getName();
-		project = projectModel.create(testProject, name, description);
+		project = projectModel.create(testProject.getId(), name, description);
 		data.add(new Fixture(new Vector<UUID>(0), documentModel, name + ".Rename", project.getId(), projectModel));
 
 		name = "Project 2";
 		description = name + ":  " + getName();
-		project = projectModel.create(testProject, name, description);
+		project = projectModel.create(testProject.getId(), name, description);
 		Vector<UUID> documentIds = new Vector<UUID>(getJUnitTestFilesSize());
 		Document document;
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
@@ -100,7 +100,7 @@ public class RenameTest extends ModelTestCase {
 
 		name = "Project 3";
 		description = name + ":  " + getName();
-		project = projectModel.create(testProject, name, description);
+		project = projectModel.create(testProject.getId(), name, description);
 		data.add(new Fixture(new Vector<UUID>(0), documentModel, name, project.getId(), projectModel));
 	}
 

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.project;
 
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -24,13 +25,13 @@ public class CreateTest extends ModelTestCase {
 	private class Fixture {
 		private final String description;
 		private final String name;
-		private final Project parent;
+		private final UUID parentId;
 		private final ProjectModel projectModel;
 		private Fixture(final String name, final String description,
-				final Project parent, final ProjectModel projectModel) {
+				final UUID parentId, final ProjectModel projectModel) {
 			this.name = name;
 			this.description = description;
-			this.parent = parent;
+			this.parentId = parentId;
 			this.projectModel = projectModel;
 		}
 	}
@@ -51,7 +52,7 @@ public class CreateTest extends ModelTestCase {
 	public void testCreate() {
 		try {
 			for(Fixture datum : data) {
-				datum.projectModel.create(datum.parent, datum.name, datum.description);
+				datum.projectModel.create(datum.parentId, datum.name, datum.description);
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -64,9 +65,9 @@ public class CreateTest extends ModelTestCase {
 		final Project testProject = createTestProject("testCreate");
 		final ProjectModel projectModel = getProjectModel();
 		data = new Vector<Fixture>(10);
-		data.add(new Fixture("Prj.1", "Project1", testProject, projectModel));
-		data.add(new Fixture("Prj.2", "", testProject, projectModel));
-		data.add(new Fixture("Prj.3", null, testProject, projectModel));
+		data.add(new Fixture("Prj.1", "Project1", testProject.getId(), projectModel));
+		data.add(new Fixture("Prj.2", "", testProject.getId(), projectModel));
+		data.add(new Fixture("Prj.3", null, testProject.getId(), projectModel));
 	}
 
 	/**

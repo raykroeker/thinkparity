@@ -80,7 +80,7 @@ public class ListTest extends ModelTestCase {
 		for(int i = 0; i < scenarioCount; i++) {
 			name = "p." + i;
 			description = "Project:  " + name;
-			project = projectModel.create(testProject, name, description);
+			project = projectModel.create(testProject.getId(), name, description);
 			documentList = new Vector<Document>(getJUnitTestFilesSize());
 			for(ModelTestFile testFile : getJUnitTestFiles()) {
 				name = testFile.getName();

@@ -123,8 +123,8 @@ class ProjectModelImpl extends AbstractModelImpl {
 	/**
 	 * Create a new project.
 	 * 
-	 * @param parent
-	 *            The parent.
+	 * @param projectId
+	 *            The project unique id.
 	 * @param name
 	 *            The project name.
 	 * @param description
@@ -132,10 +132,10 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * @return The project.
 	 * @throws ParityException
 	 */
-	Project create(final Project parent, final String name,
+	Project create(final UUID projectId, final String name,
 			final String description) throws ParityException {
-		logger.info("create(Project,String,String)");
-		logger.debug(parent);
+		logger.info("create(UUID,String,String)");
+		logger.debug(projectId);
 		logger.debug(name);
 		logger.debug(description);
 		assertCanCreateArtifacts();
@@ -144,7 +144,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 			final Calendar now = DateUtil.getInstance();
 			final Project project = new Project(preferences.getUsername(), now,
 					description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
-					parent.getId(), preferences.getUsername(), now);
+					projectId, preferences.getUsername(), now);
 
 			// create the project
 			projectXmlIO.create(project);
@@ -174,16 +174,25 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 *            The project to delete.
 	 * @throws ParityException
 	 */
-	void delete(final Project project) throws ParityException {
-		logger.info("delete(Project)");
-		logger.debug(project);
+	void delete(final UUID projectId) throws ParityException {
+		logger.info("delete(UUID)");
+		logger.debug(projectId);
 		try {
+			// delete sub documents
 			final DocumentModel documentModel = getDocumentModel();
-			for(Document subDocument : documentModel.list(project.getId())) {
+			for(Document subDocument : documentModel.list(projectId)) {
 				documentModel.delete(subDocument);
 			}
-			for(Project subProject : list(project)) { delete(subProject); }
+			// delete sub project
+			for(Project subProject : list(projectId)) {
+				delete(subProject.getId());
+			}
+
+			// delete the project
+			final Project project = get(projectId);
 			projectXmlIO.delete(project);
+
+			// fire an object deleted notification
 			notifyUpdate_objectDeleted(project);
 		}
 		catch(IOException iox) {
@@ -267,16 +276,19 @@ class ProjectModelImpl extends AbstractModelImpl {
 	/**
 	 * Determine whether a project has children or not.
 	 * 
-	 * @param project
-	 *            The project to check.
+	 * @param projectId
+	 *            The project unique id.
 	 * @return True if the project contains any projects or documents; false
 	 *         otherwise.
 	 * @throws ParityException
 	 */
-	Boolean hasChildren(final Project project) throws ParityException {
-		logger.info("hasChildren(Project)");
-		logger.debug(project);
-		try { return projectXmlIO.hasChildren(project); }
+	Boolean hasChildren(final UUID projectId) throws ParityException {
+		logger.info("hasChildren(UUID)");
+		logger.debug(projectId);
+		try {
+			final Project project = get(projectId);
+			return projectXmlIO.hasChildren(project);
+		}
 		catch(IOException iox) {
 			logger.error("hasChildren(Project)", iox);
 			throw ParityErrorTranslator.translate(iox);
@@ -310,15 +322,18 @@ class ProjectModelImpl extends AbstractModelImpl {
 	/**
 	 * Obtain a list of projects for a given parent project.
 	 * 
-	 * @param parent
-	 *            A parent project.
+	 * @param projectId
+	 *            The parent project unique id.
 	 * @return A list of the parent's child projects
 	 * @throws ParityException
 	 */
-	Collection<Project> list(final Project parent) throws ParityException {
+	Collection<Project> list(final UUID projectId) throws ParityException {
 		logger.info("list(Project)");
-		logger.debug(parent);
-		try { return projectXmlIO.list(parent); }
+		logger.debug(projectId);
+		try {
+			final Project project = get(projectId);
+			return projectXmlIO.list(project);
+		}
 		catch(IOException iox) {
 			logger.error("list(Project)", iox);
 			throw ParityErrorTranslator.translate(iox);

@@ -213,12 +213,13 @@ public abstract class AbstractModelImpl {
 	 * @return A list of parity object siblings.
 	 * @throws ParityException
 	 */
-	protected Collection<ParityObject> listSiblings(final ParityObject parityObject) throws ParityException {
+	protected Collection<ParityObject> listSiblings(
+			final ParityObject parityObject) throws ParityException {
 		final Project parent = getParent(parityObject);
 		final Collection<ParityObject> siblings = new Vector<ParityObject>(7);
 		if(null != parent) {
 			siblings.addAll(getDocumentModel().list(parent.getId()));
-			siblings.addAll(getProjectModel().list(parent));
+			siblings.addAll(getProjectModel().list(parent.getId()));
 		}
 		return siblings;
 	}

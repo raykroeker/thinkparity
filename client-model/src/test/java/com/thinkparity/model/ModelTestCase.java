@@ -93,7 +93,7 @@ public abstract class ModelTestCase extends TestCase {
 		final String name = String.valueOf(projectCount++);
 		final String description = "Automated test project for:  " +
 			getClass().getCanonicalName() + "." + test + "()";
-		return getProjectModel().create(helper.getJUnitProject(), name, description);
+		return getProjectModel().create(helper.getJUnitProject().getId(), name, description);
 	}
 
 	/**

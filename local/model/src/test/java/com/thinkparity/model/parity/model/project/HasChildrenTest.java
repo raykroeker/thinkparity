@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.project;
 
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
@@ -25,11 +26,11 @@ public class HasChildrenTest extends ModelTestCase {
 	 */
 	private class Fixture {
 		private final Boolean expectedHasChildren;
-		private final Project project;
+		private final UUID projectId;
 		private final ProjectModel projectModel;
-		private Fixture(final Boolean expectedHasChildren, final Project project, final ProjectModel projectModel) {
+		private Fixture(final Boolean expectedHasChildren, final UUID projectId, final ProjectModel projectModel) {
 			this.expectedHasChildren = expectedHasChildren;
-			this.project = project;
+			this.projectId = projectId;
 			this.projectModel = projectModel;
 		}
 	}
@@ -53,7 +54,7 @@ public class HasChildrenTest extends ModelTestCase {
 
 				assertEquals(
 						datum.expectedHasChildren,
-						datum.projectModel.hasChildren(datum.project));
+						datum.projectModel.hasChildren(datum.projectId));
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -72,32 +73,32 @@ public class HasChildrenTest extends ModelTestCase {
 		
 		name = "1";
 		description = name;
-		project = projectModel.create(testProject, name, description);
-		data.add(new Fixture(Boolean.FALSE, project, projectModel));
+		project = projectModel.create(testProject.getId(), name, description);
+		data.add(new Fixture(Boolean.FALSE, project.getId(), projectModel));
 
 		name = "2";
 		description = name;
-		project = projectModel.create(testProject, name, description);
+		project = projectModel.create(testProject.getId(), name, description);
 		name = "2.1";
 		description = name;
-		projectModel.create(project, name, description);
+		projectModel.create(project.getId(), name, description);
 		name = "2.2";
 		description = name;
-		projectModel.create(project, name, description);
+		projectModel.create(project.getId(), name, description);
 		name = "2.3";
 		description = name;
-		projectModel.create(project, name, description);
-		data.add(new Fixture(Boolean.TRUE, project, projectModel));
+		projectModel.create(project.getId(), name, description);
+		data.add(new Fixture(Boolean.TRUE, project.getId(), projectModel));
 
 		name = "3";
 		description = name;
-		project = projectModel.create(testProject, name, description);
+		project = projectModel.create(testProject.getId(), name, description);
 		for(ModelTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			documentModel.create(project.getId(), name, description, testFile.getFile());
 		}
-		data.add(new Fixture(Boolean.TRUE, project, projectModel));
+		data.add(new Fixture(Boolean.TRUE, project.getId(), projectModel));
 	}
 
 	/**

@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.document;
 
 import java.util.UUID;
 
+import com.thinkparity.model.parity.api.ParityObjectType;
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 
 /**
@@ -51,7 +52,7 @@ public class DocumentVersion extends ParityObjectVersion {
 	public DocumentVersion(final UUID documentId, final String versionId,
 			final Document snapshot, final DocumentAction action,
 			final DocumentActionData actionData) {
-		super(versionId);
+		super(documentId, ParityObjectType.DOCUMENT, versionId);
 		this.action = action;
 		this.actionData = actionData;
 		this.documentId = documentId;

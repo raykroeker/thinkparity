@@ -54,7 +54,7 @@ public class CodebaseTestHelper {
 				.toString());
 		// set the test files
 		final File jUnitResourcesFiles =
-			new File(resourcesDirectory, "junit.files");
+			new File(resourcesDirectory, "jUnitFiles");
 		jUnitTestFiles = new Vector<CodebaseTestFile>(4);
 		jUnitTestFiles.add(
 				new CodebaseTestFile(

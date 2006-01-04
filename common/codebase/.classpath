@@ -5,6 +5,5 @@
 	<classpathentry output="target/test-classes" kind="src" path="src/test/java"/>
 	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
 	<classpathentry sourcepath="/MAVEN_REPO/junit/src/junit-3.8.1.src.jar" kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
-	<classpathentry output="target/test-classes" kind="src" path="src/test/resources"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

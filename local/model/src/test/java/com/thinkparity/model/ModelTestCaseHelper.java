@@ -84,9 +84,6 @@ public class ModelTestCaseHelper {
 		final File resourcesDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
 				.append(File.separatorChar).append("target")
 				.append(File.separatorChar).append("test-classes")
-				.append(File.separatorChar).append("com")
-				.append(File.separatorChar).append("thinkparity")
-				.append(File.separatorChar).append("model")
 				.toString());
 		// set the workspace directory, then delete its contents
 		final File jUnitWorkspace = new File(
@@ -99,7 +96,7 @@ public class ModelTestCaseHelper {
 				jUnitWorkspace.getAbsolutePath());
 		// set the test files
 		final File jUnitResourcesFiles =
-			new File(resourcesDirectory, "junit.files");
+			new File(resourcesDirectory, "jUnitFiles");
 		jUnitTestFiles = new Vector<ModelTestFile>(7);
 		jUnitTestFiles.add(
 				new ModelTestFile(

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.javax.swing;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -31,12 +30,6 @@ public class BrowserJFrameState {
 	 * 
 	 */
 	private static final Point DEFAULT_LOCATION = new Point(100, 100);
-
-	/**
-	 * The default size of the browser.
-	 * 
-	 */
-	private static final Dimension DEFAULT_SIZE = new Dimension(375, 28);
 
 	/**
 	 * Handle to the jFrame.
@@ -85,7 +78,7 @@ public class BrowserJFrameState {
 	 */
 	private void setInitialState() {
 		jFrame.setSize(jFramePersistence.get(
-				PersistenceKey.SIZE.toString(), DEFAULT_SIZE));
+				PersistenceKey.SIZE.toString(), BrowserJFrame.getDefaultSize()));
 		jFrame.setLocation(jFramePersistence.get(
 				PersistenceKey.LOCATION.toString(), DEFAULT_LOCATION));
 	}

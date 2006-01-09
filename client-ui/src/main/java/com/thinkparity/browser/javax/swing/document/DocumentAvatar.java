@@ -5,12 +5,14 @@ package com.thinkparity.browser.javax.swing.document;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.javax.swing.BrowserColorUtil;
+import com.thinkparity.browser.javax.swing.BrowserFontUtil;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 
 /**
@@ -19,11 +21,29 @@ import com.thinkparity.browser.log4j.BrowserLoggerFactory;
  */
 public class DocumentAvatar {
 
-	private static final int nameIndentX = 10;
+	/**
+	 * The height of the document avatar.
+	 * 
+	 */
+	private static final int avatarHeight;
 
-	private static final int avatarHeight = 60;
+	/**
+	 * The x corrdinate to indent the avatar by.
+	 * 
+	 */
+	private static final int avatarIndentX;
 
-	private static final int avatarWidth = 216;
+	/**
+	 * The y coordinate to indent the avatar by.
+	 * 
+	 */
+	private static final int avatarOffsetY;
+
+	/**
+	 * The number of pixels to separate the avatars by.
+	 * 
+	 */
+	private static final int avatarSpacer;
 
 	/**
 	 * Font used to draw write the document's name.
@@ -37,49 +57,98 @@ public class DocumentAvatar {
 	 */
 	private static final Color nameFontColor;
 
-	private static final int offsetX = 12;
-
-	private static final int offsetY = offsetX;
-
 	/**
-	 * Color used to ouline the avatar.
+	 * The height of the font used to write the document name.
 	 * 
 	 */
-	private static final Color outlineColor;
+	private static final int nameFontHeight;
 
 	/**
-	 * Font of the state text.
-	 */
-	private static final Font stateFont;
-
-	/**
-	 * Color of the state text.
+	 * The maximum descent of the font used to write the document name.
 	 * 
 	 */
-	private static final Color stateFontColor;
+	private static final int nameFontMaxDescent;
+
+	/**
+	 * The x coordinate to indent the name text by.
+	 * 
+	 */
+	private static final int nameIndentX;
+
 	static {
-		nameFont = new Font("Tahoma", Font.PLAIN, 14);
-		nameFontColor = BrowserColorUtil.getWhite();
+		// grab the font info for the name
+		nameFont = new Font("Tahoma", Font.PLAIN, 12);
+		nameFontColor = BrowserColorUtil.getBlack();
+		final FontMetrics nameFontMetrics = BrowserFontUtil.getMetrics(nameFont);
+		nameFontHeight = nameFontMetrics.getHeight();
+		nameFontMaxDescent = nameFontMetrics.getMaxDescent();
 
-		stateFont = new Font("Tahoma", Font.PLAIN, 10);
-		stateFontColor = nameFontColor;
-
-		outlineColor = BrowserColorUtil.getParitySplashBlue();
+		// set the avatar dimensions\location
+		nameIndentX = 10;
+		avatarHeight = 25;
+		avatarIndentX = avatarOffsetY = 12;
+		avatarSpacer = 10;
 	}
+
 	/**
 	 * Handle to an apache logger
 	 * 
 	 */
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
-	private int index;
 
-	private String info;
+	/**
+	 * The avatarIndex of the avatar within the list.
+	 * 
+	 */
+	private int avatarIndex;
 
+	/**
+	 * The maximum width of the avatar.
+	 * 
+	 */
+	private int avatarMaxWidth;
+
+	/**
+	 * Color used to outline the avatar.
+	 * 
+	 */
+	private Color avatarOutlineColor;
+
+	/**
+	 * The y coordinate at which the avatar will be drawn.
+	 * 
+	 * @see #setAvatarIndex(int)
+	 * @see #setAvatarRelativeY(int)
+	 */
+	private int avatarRelativeY;
+
+	/**
+	 * The width of the avatar to be drawn.
+	 * 
+	 * @see #setAvatarMaxWidth(int)
+	 * @see #setAvatarWidth(int)
+	 */
+	private int avatarWidth;
+
+	/**
+	 * The document key holder.
+	 * 
+	 */
 	private String keyHolder;
 
+	/**
+	 * The document name.
+	 * 
+	 */
 	private String name;
 
-	private String state;
+	/**
+	 * Y coordinate of the name text.
+	 * 
+	 * @see #setNameY(int)
+	 * @see #setAvatarRelativeY(int)
+	 */
+	private int nameY;
 
 	/**
 	 * Create a DocumentAvatar.
@@ -87,56 +156,139 @@ public class DocumentAvatar {
 	public DocumentAvatar() { super(); }
 
 	/**
-	 * @return Returns the index.
+	 * Obtain the avatarIndex of the avatar in the list.
+	 * 
+	 * @return The avatarIndex of the avatar in the list.
 	 */
-	public int getIndex() {
-		return index;
-	}
+	public int getAvatarIndex() { return avatarIndex; }
 
 	/**
-	 * @return Returns the keyHolder.
+	 * Obtain the maximum width of the avatar.
+	 * 
+	 * @return The maximum width of the avatar.
+	 */
+	public int getAvatarMaxWidth() { return avatarMaxWidth; }
+
+	/**
+	 * Obtain the avatar outline color.
+	 * 
+	 * @return The avatar outline color.
+	 */
+	public Color getAvatarOutlineColor() { return avatarOutlineColor; }
+
+	/**
+	 * Obtain the relative y coordinate of the avatar.
+	 * 
+	 * @return The relative y coordinate.
+	 */
+	public int getAvatarRelativeY() { return avatarRelativeY; }
+
+	/**
+	 * Obtain the avatar width.
+	 * 
+	 * @return The avatar width.
+	 */
+	public int getAvatarWidth() { return avatarWidth; }
+
+	/**
+	 * Obtain the document key holder.
+	 * 
+	 * @return The document key holder.
 	 */
 	public String getKeyHolder() { return keyHolder; }
 
 	/**
-	 * @return Returns the name.
+	 * Obtain the document name.
+	 * 
+	 * @return The document name.
 	 */
 	public String getName() { return name; }
 
 	/**
-	 * @return Returns the state.
+	 * Obtain the name y coordinate.
+	 * 
+	 * @return The name y coordinate.
 	 */
-	public String getState() { return state; }
+	public int getNameY() { return nameY; }
 
 	/**
-	 * @param index The index to set.
+	 * Set the avatarIndex of the avatar.
+	 * 
+	 * @param avatarIndex
+	 *            The avatarIndex.
 	 */
-	public void setIndex(int index) {
-		this.index = index;
+	public void setAvatarIndex(int index) {
+		this.avatarIndex = index;
+		// NOTE Calulate the relative y position using the height and spacer
+		// constants in conjunction with the avatarIndex variable
+		setAvatarRelativeY(avatarOffsetY + index * (avatarHeight + avatarSpacer));
 	}
 
 	/**
-	 * @param keyHolder The keyHolder to set.
+	 * Set the maximum width of the avatar.
+	 * 
+	 * @param avatarMaxWidth
+	 *            The avatarMaxWidth to set.
 	 */
-	public void setKeyHolder(String keyHolder) {
-		this.keyHolder = keyHolder;
-		setInfo();
+	public void setAvatarMaxWidth(int maxWidth) {
+		this.avatarMaxWidth = maxWidth;
+		setAvatarWidth(maxWidth - 2 * avatarIndentX);
 	}
 
 	/**
-	 * @param name The name to set.
+	 * Set the avatar outline color.
+	 * 
+	 * @param avatarOutlineColor
+	 *            The avatar outline color.
+	 */
+	public void setAvatarOutlineColor(Color avatarOutlineColor) {
+		this.avatarOutlineColor = avatarOutlineColor;
+	}
+
+	/**
+	 * Set relative y coordinate.
+	 * 
+	 * @param avatarRelativeY
+	 *            The relative y coordinate.
+	 */
+	public void setAvatarRelativeY(int relativeY) {
+		this.avatarRelativeY = relativeY;
+		setNameY(relativeY + nameFontHeight - nameFontMaxDescent + (avatarHeight - nameFontHeight) / 2);
+	}
+
+	/**
+	 * Set the width of the avatar.
+	 * 
+	 * @param avatarWidth
+	 *            The avatar width.
+	 */
+	public void setAvatarWidth(int avatarWidth) {
+		this.avatarWidth = avatarWidth;
+	}
+
+	/**
+	 * Set the document key holder.
+	 * 
+	 * @param keyHolder
+	 *            The key holder.
+	 */
+	public void setKeyHolder(String keyHolder) { this.keyHolder = keyHolder; }
+
+	/**
+	 * Set the name.
+	 * 
+	 * @param name
+	 *            The name.
 	 */
 	public void setName(String name) { this.name = name; }
 
 	/**
-	 * @param state The state to set.
+	 * Set the y coordinate at which to start drawing the name text.
+	 * 
+	 * @param nameY
+	 *            The y coordinate.
 	 */
-	public void setState(String state) {
-		this.state = state;
-		setInfo();
-	}
-
-	private static final int avatarSpacer = 10;
+	public void setNameY(int nameY) { this.nameY = nameY; }
 
 	/**
 	 * Paint the document avatar. Note that we do not need to dispose of the
@@ -145,68 +297,12 @@ public class DocumentAvatar {
 	 * @see DocumentShuffler#paintComponent(Graphics)
 	 */
 	void paint(final Graphics2D g) {
-		logger.debug(name);
-		logger.debug(index);
-		logger.debug(offsetY + index * (avatarWidth + avatarSpacer));
-		final int relativeY = offsetY + index * (avatarHeight + avatarSpacer);
-
 		// outline
-		g.setColor(outlineColor);
-		g.drawRoundRect(offsetX, relativeY, avatarWidth, avatarHeight, 12, 12);
+		g.setColor(avatarOutlineColor);
+		g.drawRoundRect(avatarIndentX, avatarRelativeY, avatarWidth, avatarHeight, avatarHeight / 4, avatarHeight / 4);
 		// name
 		g.setFont(nameFont);
 		g.setColor(nameFontColor);
-		g.drawString(name, offsetX + nameIndentX, relativeY + 20);
-//		// info
-		final int nameFontHeight = g.getFontMetrics().getHeight();
-		g.setFont(stateFont);
-		g.setColor(stateFontColor);
-		g.drawString(info, offsetX + 17, relativeY + nameFontHeight + 20);
-	}
-
-	private void paintAvatar_v1(final Graphics2D g) {
-		// outline
-		final int scale = 12;
-		g.setColor(outlineColor);
-		g.drawRoundRect(1 * scale, 1 * scale, 18 * scale, 5 * scale, scale, scale);
-		// name
-		g.setFont(nameFont);
-		g.setColor(nameFontColor);
-		g.drawString(name, 1 * scale + offsetX, 1 * scale + offsetY);
-		// info
-		final int nameFontHeight = g.getFontMetrics().getHeight();
-		g.setFont(stateFont);
-		g.setColor(stateFontColor);
-		g.drawString(info, 1 * scale + offsetX + 7, 1 * scale + offsetY + nameFontHeight);
-	}
-
-	private void paintOutline_v2(final Graphics2D g) {
-		final int scale = 20;
-		g.setColor(outlineColor);
-		int[] outlineX = {1 * scale, 1 * scale, 12 * scale, 12 * scale, 3 * scale };
-		int[] outlineY = {3 * scale, 1 * scale, 1 * scale, 5 * scale, 5 * scale };
-		final int outlinePoints = outlineX.length;
-		g.drawPolyline(outlineX, outlineY, outlinePoints);
-//		g.drawOval(1 * scale, 3 * scale, 2 * scale, 2 * scale);
-		g.drawArc(1 * scale, 1 * scale, 4 * scale, 4 * scale, 180, 90);
-	}
-
-	private void paintOutline_v1(final Graphics2D g) {
-		// outline
-		final int scale = 20;
-		g.setColor(outlineColor);
-		int[] outlineX = {1 * scale, 1 * scale, 12 * scale, 12 * scale, 2 * scale };
-		int[] outlineY = {4 * scale, 1 * scale, 1 * scale, 5 * scale, 5 * scale };
-		final int outlinePoints = outlineX.length;
-		g.drawPolyline(outlineX, outlineY, outlinePoints);
-//		g.drawOval(1 * scale, 3 * scale, 2 * scale, 2 * scale);
-		g.drawArc(1 * scale, 3 * scale, 2 * scale, 2 * scale, 180, 90);
-	}
-
-	private void setInfo() {
-		this.info = new StringBuffer("- ")
-			.append(state)
-			.append(" - ")
-			.append(keyHolder).toString();
+		g.drawString(name, avatarIndentX + nameIndentX, nameY);
 	}
 }

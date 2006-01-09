@@ -10,10 +10,15 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.browser.RandomData;
+import com.thinkparity.browser.javax.swing.BrowserColorUtil;
+import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -34,6 +39,12 @@ public class DocumentShuffler extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
+
+	/**
+	 * Handle to an apache logger.
+	 * 
+	 */
+	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
 
 	/**
 	 * The document that has "focus".
@@ -87,6 +98,22 @@ public class DocumentShuffler extends JPanel {
 	}
 
 	/**
+	 * Here we draw the document avatars. Each avatar will know how to draw
+	 * itself; however the positioning is previously controlled in the shuffer.
+	 * 
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		final Graphics2D g2 = (Graphics2D) g.create();
+		for(DocumentAvatar da : documents) {
+			da.setAvatarMaxWidth(getWidth());
+			da.paint(g2);
+		}
+		g2.dispose();
+	}
+
+	/**
 	 * Refresh the document shuffler.
 	 *
 	 */
@@ -109,28 +136,23 @@ public class DocumentShuffler extends JPanel {
 	 */
 	private DocumentAvatar translate(final int index, final Document document) {
 		final DocumentAvatar avatar = new DocumentAvatar();
-		avatar.setIndex(index);
+		avatar.setAvatarIndex(index);
 		avatar.setName(document.getName());
 
 		// NOTE Random data.
 		final RandomData randomData = new RandomData();
 		avatar.setKeyHolder(randomData.getArtifactKeyHolder());
-		avatar.setState(randomData.getArtifactState());
+
+		if(document.contains(ParityObjectFlag.SEEN)) {
+			avatar.setAvatarOutlineColor(BrowserColorUtil.getOutlineHasBeenSeen());
+		}
+		else if(document.contains(ParityObjectFlag.CLOSED)) {
+			avatar.setAvatarOutlineColor(BrowserColorUtil.getOutlineClosed());
+		}
+		else {
+			avatar.setAvatarOutlineColor(BrowserColorUtil.getOutlineHasNotBeenSeen());
+		}
 
 		return avatar;
-	}
-
-	/**
-	 * Here we draw the document avatars. Each avatar will know how to draw
-	 * itself; however the positioning is previously controlled in the shuffer.
-	 * 
-	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	 */
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		final Graphics2D g2 = (Graphics2D) g.create();
-		documents.iterator().next().paint(g2);
-		for(DocumentAvatar da : documents) { da.paint(g2); }
-		g2.dispose();
 	}
 }

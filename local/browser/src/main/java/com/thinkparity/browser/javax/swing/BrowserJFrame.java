@@ -4,6 +4,7 @@
 package com.thinkparity.browser.javax.swing;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.awt.RenderingHints;
@@ -22,7 +23,7 @@ import com.thinkparity.browser.java.awt.StackLayout;
 import com.thinkparity.browser.java.awt.StackLayout.Orientation;
 import com.thinkparity.browser.javax.swing.document.DocumentProvider;
 import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
-import com.thinkparity.browser.javax.swing.misc.GradientJPanel;
+import com.thinkparity.browser.javax.swing.misc.ColorPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 import com.thinkparity.browser.model.CollectionListProxy;
 import com.thinkparity.browser.model.ModelProvider;
@@ -38,10 +39,26 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 public class BrowserJFrame extends JFrame {
 
 	/**
+	 * The default size of the browser.
+	 * 
+	 */
+	private static final Dimension defaultSize;
+
+	/**
 	 * @see java.io.Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
+
+	static {
+		defaultSize = new Dimension(267, 406);
+	}
+
+	/**
+	 * Obtain the default size of the browser.
+	 *
+	 */
+	public static Dimension getDefaultSize() { return defaultSize; }
 
 	/**
 	 * Open the main browser jFrame.
@@ -77,22 +94,25 @@ public class BrowserJFrame extends JFrame {
 	}
 
 	/**
-	 * The display component for documents.
-	 * 
-	 */
-	private final DocumentShuffler documentShuffler;
-
-	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+
+	private final Color backgroundColor =
+		BrowserColorUtil.getRGBColor(247, 248, 250, 255);
 
 	/**
 	 * Document model api.
 	 * 
 	 */
 	private final DocumentModel documentModel;
+
+	/**
+	 * The display component for documents.
+	 * 
+	 */
+	private final DocumentShuffler documentShuffler;
 
 	/**
 	 * Create a BrowserJFrame.
@@ -107,7 +127,7 @@ public class BrowserJFrame extends JFrame {
 		this.documentModel = ModelProvider.getDocumentModel(getClass());
 		// initialize the components
 		setLayout(new StackLayout());
-		add(new GradientJPanel(Color.BLACK, Color.GRAY), Orientation.BOTTOM);
+		add(new ColorPanel(backgroundColor), Orientation.BOTTOM);
 		// the document display
 		this.documentShuffler = new DocumentShuffler();
 		this.documentShuffler.setDocumentProvider(new DocumentProvider() {
@@ -129,15 +149,6 @@ public class BrowserJFrame extends JFrame {
 	}
 
 	/**
-	 * Register an un-expected error. At runtime this api will decide on how the
-	 * error should be handled.
-	 * 
-	 * @param t
-	 *            The error that has occured.
-	 */
-	private void registerError(final Throwable t) {}
-
-	/**
 	 * Add the required listeners to the jFrame.
 	 * 
 	 * @param browser
@@ -148,4 +159,13 @@ public class BrowserJFrame extends JFrame {
 			public void windowClosing(WindowEvent e) { browser.exit(0); }
 		});
 	}
+
+	/**
+	 * Register an un-expected error. At runtime this api will decide on how the
+	 * error should be handled.
+	 * 
+	 * @param t
+	 *            The error that has occured.
+	 */
+	private void registerError(final Throwable t) {}
 }

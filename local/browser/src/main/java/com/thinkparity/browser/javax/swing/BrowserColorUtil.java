@@ -26,23 +26,24 @@ public class BrowserColorUtil {
 		singletonLock = new Object();
 	}
 
-	public static Color getParityActiveBlue() {
-		synchronized(singletonLock) { return singleton.getParityActiveBlueImpl(); }
+	public static Color getBlack() {
+		synchronized(singletonLock) { return singleton.doGetBlack(); }
 	}
-	public static Color getParityHotBlue() {
-		synchronized(singletonLock) { return singleton.getParityHotBlueImpl(); }
+	public static Color getOutlineClosed() {
+		synchronized(singletonLock) { return singleton.doGetOutlineClosed(); }
 	}
-	public static Color getParitySplashBlue() {
-		synchronized(singletonLock) { return singleton.getParitySplashBlueImpl(); }
+	public static Color getOutlineHasBeenSeen() {
+		synchronized(singletonLock) { return singleton.doGetOutlineHasBeenSeen(); }
 	}
-	public static Color getRed() {
-		synchronized(singletonLock) { return singleton.getRedImpl(); }
+	public static Color getOutlineHasNotBeenSeen() {
+		synchronized(singletonLock) { return singleton.doGetOutlineHasNotBeenSeen(); }
 	}
-	public static Color getRGB(final Integer red, final Integer green, final Integer blue) {
-		synchronized(singletonLock) { return singleton.getRGBImpl(red, green, blue); }
+	public static Color getRGBColor(final int r, final int g, final int b,
+			final int a) {
+		synchronized(singletonLock) { return singleton.doGetRGB(r, g, b, a); }
 	}
 	public static Color getWhite() {
-		synchronized(singletonLock) { return singleton.getWhiteImpl(); }
+		synchronized(singletonLock) { return singleton.doGetWhite(); }
 	}
 
 	/**
@@ -50,10 +51,12 @@ public class BrowserColorUtil {
 	 */
 	private BrowserColorUtil() { super(); }
 
-	private Color getParityActiveBlueImpl() { return new Color(179, 177, 248); }
-	private Color getParityHotBlueImpl() { return new Color(0, 0, 204); }
-	private Color getParitySplashBlueImpl() { return new Color(114, 146, 195); }
-	private Color getRedImpl() { return Color.RED; }
-	private Color getRGBImpl(final Integer red, final Integer green, final Integer blue) { return new Color(red, green, blue); }
-	private Color getWhiteImpl() { return Color.WHITE; }
+	private Color doGetBlack() { return Color.BLACK; }
+	private Color doGetOutlineClosed() { return doGetRGB(214, 217, 229, 255); }
+	private Color doGetOutlineHasBeenSeen() { return doGetOutlineClosed(); }
+	private Color doGetOutlineHasNotBeenSeen() { return doGetRGB(137, 156, 229, 255); }
+	private Color doGetRGB(final int r, final int g, final int b, final int a) {
+		return new Color(r, g, b, a);
+	}
+	private Color doGetWhite() { return Color.WHITE; }
 }

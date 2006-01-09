@@ -6,7 +6,7 @@
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="var" path="M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/thinkparity/parity/model/1.0-SNAPSHOT/model-1.0-SNAPSHOT.jar"/>
+	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/model/1.0-SNAPSHOT/model-1.0-SNAPSHOT.jar" kind="var" path="M2_REPO/com/thinkparity/parity/model/1.0-SNAPSHOT/model-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/xpp3/xpp3/1.1.3.3/xpp3-1.1.3.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/xstream/xstream/1.1.2/xstream-1.1.2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jivesoftware/smack/2.0.0/smack-2.0.0.jar"/>

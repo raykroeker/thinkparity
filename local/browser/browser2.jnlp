@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.5+" codebase="http://thinkparity.dyndns.org/demo/parity/ws" href="browser2.jnlp">
+	<information>
+		<title>Browser 2 Demo</title>
+		<vendor>thinkParity</vendor>
+	</information>
+	<allowoffline/>
+	<security>
+		<all-permissions/>
+	</security>
+	<resources>
+		<j2se version="1.5.0+"/>
+		<jar href="browser2-1.0-SNAPSHOT.jar"/>
+		<jar href="codebase-1.0-SNAPSHOT.jar"/>
+		<jar href="log4j-1.2.12.jar"/>
+		<jar href="substance-2.2-SNAPSHOT.jar"/>
+	</resources>
+	<application-desc main-class="com.thinkparity.browser.Browser"/>
+</jnlp>

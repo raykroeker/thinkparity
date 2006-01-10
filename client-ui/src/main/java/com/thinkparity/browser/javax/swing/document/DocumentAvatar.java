@@ -3,11 +3,12 @@
  */
 package com.thinkparity.browser.javax.swing.document;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JPanel;
+import javax.swing.border.AbstractBorder;
 
 import org.apache.log4j.Logger;
 
@@ -19,31 +20,46 @@ import com.thinkparity.browser.log4j.BrowserLoggerFactory;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentAvatar {
+public class DocumentAvatar extends JPanel /*JComponent*/ {
 
 	/**
-	 * The height of the document avatar.
+	 * Used to paint the avatar border.
 	 * 
 	 */
-	private static final int avatarHeight;
+	private class DocumentAvatarBorder extends AbstractBorder {
 
-	/**
-	 * The x corrdinate to indent the avatar by.
-	 * 
-	 */
-	private static final int avatarIndentX;
+		/**
+		 * @see java.io.Serializable
+		 */
+		private static final long serialVersionUID = 1;
 
-	/**
-	 * The y coordinate to indent the avatar by.
-	 * 
-	 */
-	private static final int avatarOffsetY;
+		/**
+		 * Create a DocumentAvatarBorder.
+		 * 
+		 */
+		private DocumentAvatarBorder() { super(); }
 
-	/**
-	 * The number of pixels to separate the avatars by.
-	 * 
-	 */
-	private static final int avatarSpacer;
+		/**
+		 * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
+		 * 
+		 */
+		public Insets getBorderInsets(Component c) {
+			return new Insets(1, 1, 1, 1);
+		}
+
+		/**
+		 * @see javax.swing.border.LineBorder#paintBorder(java.awt.Component,
+		 *      java.awt.Graphics, int, int, int, int)
+		 * 
+		 */
+		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+			// outline
+			final Graphics g2 = (Graphics2D) g.create();
+			g2.setColor(avatarOutlineColor);
+			g2.drawRoundRect(x, y, width - 1, height - 1, height / 4, height / 4);
+			g2.dispose();
+		}
+	}
 
 	/**
 	 * Font used to draw write the document's name.
@@ -75,6 +91,11 @@ public class DocumentAvatar {
 	 */
 	private static final int nameIndentX;
 
+	/**
+	 * @see java.io.Serializable
+	 */
+	private static final long serialVersionUID = 1;
+
 	static {
 		// grab the font info for the name
 		nameFont = new Font("Tahoma", Font.PLAIN, 12);
@@ -85,9 +106,6 @@ public class DocumentAvatar {
 
 		// set the avatar dimensions\location
 		nameIndentX = 10;
-		avatarHeight = 25;
-		avatarIndentX = avatarOffsetY = 12;
-		avatarSpacer = 10;
 	}
 
 	/**
@@ -143,17 +161,18 @@ public class DocumentAvatar {
 	private String name;
 
 	/**
-	 * Y coordinate of the name text.
-	 * 
-	 * @see #setNameY(int)
-	 * @see #setAvatarRelativeY(int)
-	 */
-	private int nameY;
-
-	/**
 	 * Create a DocumentAvatar.
 	 */
-	public DocumentAvatar() { super(); }
+	public DocumentAvatar() {
+		super();
+
+		setBorder(new DocumentAvatarBorder());
+		addMouseListener(new MouseAdapter() {
+			public void mouseEntered(final MouseEvent e) {
+				logger.debug("component bounds:" + e.getComponent().getBounds().toString());
+			}
+		});
+	}
 
 	/**
 	 * Obtain the avatarIndex of the avatar in the list.
@@ -205,37 +224,6 @@ public class DocumentAvatar {
 	public String getName() { return name; }
 
 	/**
-	 * Obtain the name y coordinate.
-	 * 
-	 * @return The name y coordinate.
-	 */
-	public int getNameY() { return nameY; }
-
-	/**
-	 * Set the avatarIndex of the avatar.
-	 * 
-	 * @param avatarIndex
-	 *            The avatarIndex.
-	 */
-	public void setAvatarIndex(int index) {
-		this.avatarIndex = index;
-		// NOTE Calulate the relative y position using the height and spacer
-		// constants in conjunction with the avatarIndex variable
-		setAvatarRelativeY(avatarOffsetY + index * (avatarHeight + avatarSpacer));
-	}
-
-	/**
-	 * Set the maximum width of the avatar.
-	 * 
-	 * @param avatarMaxWidth
-	 *            The avatarMaxWidth to set.
-	 */
-	public void setAvatarMaxWidth(int maxWidth) {
-		this.avatarMaxWidth = maxWidth;
-		setAvatarWidth(maxWidth - 2 * avatarIndentX);
-	}
-
-	/**
 	 * Set the avatar outline color.
 	 * 
 	 * @param avatarOutlineColor
@@ -243,27 +231,6 @@ public class DocumentAvatar {
 	 */
 	public void setAvatarOutlineColor(Color avatarOutlineColor) {
 		this.avatarOutlineColor = avatarOutlineColor;
-	}
-
-	/**
-	 * Set relative y coordinate.
-	 * 
-	 * @param avatarRelativeY
-	 *            The relative y coordinate.
-	 */
-	public void setAvatarRelativeY(int relativeY) {
-		this.avatarRelativeY = relativeY;
-		setNameY(relativeY + nameFontHeight - nameFontMaxDescent + (avatarHeight - nameFontHeight) / 2);
-	}
-
-	/**
-	 * Set the width of the avatar.
-	 * 
-	 * @param avatarWidth
-	 *            The avatar width.
-	 */
-	public void setAvatarWidth(int avatarWidth) {
-		this.avatarWidth = avatarWidth;
 	}
 
 	/**
@@ -283,26 +250,16 @@ public class DocumentAvatar {
 	public void setName(String name) { this.name = name; }
 
 	/**
-	 * Set the y coordinate at which to start drawing the name text.
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
-	 * @param nameY
-	 *            The y coordinate.
 	 */
-	public void setNameY(int nameY) { this.nameY = nameY; }
-
-	/**
-	 * Paint the document avatar. Note that we do not need to dispose of the
-	 * graphics object; nor restore it to its previous state.
-	 * 
-	 * @see DocumentShuffler#paintComponent(Graphics)
-	 */
-	void paint(final Graphics2D g) {
-		// outline
-		g.setColor(avatarOutlineColor);
-		g.drawRoundRect(avatarIndentX, avatarRelativeY, avatarWidth, avatarHeight, avatarHeight / 4, avatarHeight / 4);
+	protected void paintComponent(Graphics g) {
+		final Graphics2D g2 = (Graphics2D) g.create();
 		// name
-		g.setFont(nameFont);
-		g.setColor(nameFontColor);
-		g.drawString(name, avatarIndentX + nameIndentX, nameY);
+		g2.setFont(nameFont);
+		g2.setColor(nameFontColor);
+		final int nameIndentY = nameFontHeight - nameFontMaxDescent + (getHeight() - nameFontHeight) / 2;
+		g2.drawString(name, nameIndentX, nameIndentY);
+		g2.dispose();
 	}
 }

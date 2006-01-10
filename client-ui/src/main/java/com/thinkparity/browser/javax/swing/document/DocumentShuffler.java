@@ -3,11 +3,12 @@
  */
 package com.thinkparity.browser.javax.swing.document;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.LinkedList;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.List;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
@@ -47,22 +48,10 @@ public class DocumentShuffler extends JPanel {
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
 
 	/**
-	 * The document that has "focus".
-	 * 
-	 */
-	private DocumentAvatar currentDocument;
-
-	/**
 	 * The provider is used to retreive documents from an external model.
 	 * 
 	 */
 	private DocumentProvider documentProvider;
-
-	/**
-	 * The list documents currently being displayed.
-	 * 
-	 */
-	private final List<DocumentAvatar> documents;
 
 	/**
 	 * Create a DocumentShuffler.
@@ -71,8 +60,8 @@ public class DocumentShuffler extends JPanel {
 	public DocumentShuffler() {
 		super();
 		setOpaque(false);
-		this.documents = new LinkedList<DocumentAvatar>();
-		this.currentDocument = null;
+
+		setLayout(new GridBagLayout());
 	}
 
 	/**
@@ -98,33 +87,35 @@ public class DocumentShuffler extends JPanel {
 	}
 
 	/**
-	 * Here we draw the document avatars. Each avatar will know how to draw
-	 * itself; however the positioning is previously controlled in the shuffer.
-	 * 
-	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	 */
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		final Graphics2D g2 = (Graphics2D) g.create();
-		for(DocumentAvatar da : documents) {
-			da.setAvatarMaxWidth(getWidth());
-			da.paint(g2);
-		}
-		g2.dispose();
-	}
-
-	/**
 	 * Refresh the document shuffler.
 	 *
 	 */
 	private void refresh() {
-		documents.clear();
 		final List<Document> documents = documentProvider.getDocuments();
 		int i = 0;
 		for(final Document document : documents) {
-			this.documents.add(translate(i++, document));
+			add(translate(document), getConstraints(i++, documents.size() + 1));
 		}
+		add(new JLabel(), getFillerConstraints());
 		invalidate();
+	}
+
+	private Object getFillerConstraints() {
+		return new GridBagConstraints(0, GridBagConstraints.RELATIVE,
+				1, 1,
+				1.0, 1.0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	private Object getConstraints(final int avatarIndex, final int numberOfAvatars) {
+		return new GridBagConstraints(0, avatarIndex,
+				1, 1,
+				1.0, 0,
+				GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+				new Insets(6, 12, 6, 12),
+				0, 12);
 	}
 
 	/**
@@ -134,9 +125,9 @@ public class DocumentShuffler extends JPanel {
 	 *            The parity document.
 	 * @return The display avatar.
 	 */
-	private DocumentAvatar translate(final int index, final Document document) {
+	private DocumentAvatar translate(final Document document) {
 		final DocumentAvatar avatar = new DocumentAvatar();
-		avatar.setAvatarIndex(index);
+
 		avatar.setName(document.getName());
 
 		// NOTE Random data.

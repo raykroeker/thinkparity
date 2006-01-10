@@ -8,6 +8,8 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 
+import com.thinkparity.browser.javax.swing.BrowserJFrame;
+
 /**
  * Create a simple animation that will increase the size of the browser to
  * pre-set maximum; then stop.
@@ -22,7 +24,7 @@ public class ShowJFrameAnimator extends AbstractJFrameAnimator {
 	private static final int MAX_BROWSER_HEIGHT;
 
 	static {
-		MAX_BROWSER_HEIGHT = 300;
+		MAX_BROWSER_HEIGHT = BrowserJFrame.getDefaultSize().height;
 		INCREMENT_STEP = 3;
 	}
 

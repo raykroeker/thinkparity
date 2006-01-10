@@ -18,7 +18,6 @@ import javax.swing.JRootPane;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.Browser;
-import com.thinkparity.browser.RandomData;
 import com.thinkparity.browser.java.awt.StackLayout;
 import com.thinkparity.browser.java.awt.StackLayout.Orientation;
 import com.thinkparity.browser.javax.swing.document.DocumentProvider;
@@ -31,6 +30,8 @@ import com.thinkparity.browser.model.ModelProvider;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -106,7 +107,15 @@ public class BrowserJFrame extends JFrame {
 	 * Document model api.
 	 * 
 	 */
-	private final DocumentModel documentModel;
+	protected final DocumentModel documentModel =
+		ModelProvider.getDocumentModel(getClass());
+
+	/**
+	 * Project model api.
+	 * 
+	 */
+	protected final ProjectModel projectModel =
+		ModelProvider.getProjectModel(getClass());
 
 	/**
 	 * The display component for documents.
@@ -123,8 +132,6 @@ public class BrowserJFrame extends JFrame {
 		super();
 		// initialize the state
 		new BrowserJFrameState(this);
-		// initialize the model
-		this.documentModel = ModelProvider.getDocumentModel(getClass());
 		// initialize the components
 		setLayout(new StackLayout());
 		add(new ColorPanel(backgroundColor), Orientation.BOTTOM);
@@ -133,9 +140,9 @@ public class BrowserJFrame extends JFrame {
 		this.documentShuffler.setDocumentProvider(new DocumentProvider() {
 			public List<Document> getDocuments() {
 				try {
-					final RandomData randomData = new RandomData();
+					final Project myProjects = projectModel.getMyProjects();
 					return CollectionListProxy.translate(
-							documentModel.list(randomData.getProjectId()));
+							documentModel.list(myProjects.getId()));
 				}
 				catch(ParityException px) {
 					registerError(px);

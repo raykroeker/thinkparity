@@ -11,7 +11,9 @@ import java.awt.event.MouseEvent;
 import java.util.UUID;
 
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
@@ -93,7 +95,6 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 		 * 
 		 */
 		public void mouseExited(final MouseEvent e) {
-			if(isToolTipVisible) { hideToolTip(); }
 			setHighlight(false);
 			isMouseWithinAvatar = false;
 		}
@@ -157,14 +158,6 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	private UUID id;
 
 	/**
-	 * Indicates whether or not the tool tip is currently visible.
-	 * 
-	 * @see DocumentAvatar#hideToolTip()
-	 * @see DocumentAvatar#showToolTip()
-	 */
-	private boolean isToolTipVisible;
-
-	/**
 	 * The document key holder.
 	 * 
 	 */
@@ -181,13 +174,6 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 * 
 	 */
 	private final JLabel nameJLabel;
-
-	/**
-	 * Handle to the parent container. Is stored because the avatar is
-	 * temporarily removed from the parent at one point.
-	 * 
-	 */
-	private final Container parent;
 
 	/**
 	 * Create a DocumentAvatar.
@@ -207,7 +193,6 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 		add(nameJLabel, createNameJLabelConstraints());
 
 		this.avatarToolTip = new DocumentAvatarToolTip(this);
-		this.parent = parent;
 	}
 
 	/**
@@ -302,11 +287,9 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 *
 	 */
 	void hideToolTip() {
-		isToolTipVisible = false;
-
-		parent.remove(avatarToolTip);
-		parent.add(this, getClientProperty("addConstraints"), (Integer) getClientProperty("addIndex"));
-		parent.validate();
+		final JLayeredPane jLayeredPane = getRootPane().getLayeredPane();
+		jLayeredPane.remove(avatarToolTip);
+		jLayeredPane.repaint();
 
 		setHighlight(false);
 	}
@@ -316,15 +299,16 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 *
 	 */
 	void showToolTip() {
-		isToolTipVisible = true;
-
+		final JLayeredPane jLayeredPane = getRootPane().getLayeredPane();
 		avatarToolTip.setKeyHolder(keyHolder);
 		avatarToolTip.setName(name);
 		avatarToolTip.transferToDisplay();
-		
-		parent.remove(this);
-		parent.add(avatarToolTip, getClientProperty("addConstraints"), (Integer) getClientProperty("addIndex"));
-		parent.validate();
+		avatarToolTip.setLocation(SwingUtilities.convertPoint(this, new Point(0, 0), jLayeredPane));
+		final Dimension avatarSize = getSize();
+		avatarSize.height = avatarSize.height * 2;
+		avatarToolTip.setSize(avatarSize);
+		avatarToolTip.setVisible(true);
+		jLayeredPane.add(avatarToolTip, JLayeredPane.POPUP_LAYER);
 	}
 
 	/**

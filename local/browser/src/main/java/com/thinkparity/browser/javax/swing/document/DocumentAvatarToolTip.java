@@ -8,9 +8,10 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -25,11 +26,11 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * Handle to the avatar.
-	 * 
-	 */
 	private final DocumentAvatar avatar;
+
+	private final JButton closeJButton;
+
+	private final JButton deleteJButton;
 
 	/**
 	 * Document key holder.
@@ -55,6 +56,16 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private final JLabel nameJLabel;
 
+	private final JButton requestKeyJButton;
+
+	/**
+	 * Send the document.
+	 * 
+	 */
+	private final JButton sendJButton;
+
+	private final JButton sendKeyJButton;
+
 	/**
 	 * Create a DocumentAvatarToolTip.
 	 * 
@@ -62,24 +73,40 @@ public class DocumentAvatarToolTip extends JPanel {
 	public DocumentAvatarToolTip(final DocumentAvatar avatar) {
 		super();
 		this.avatar = avatar;
-		this.name = avatar.getName() + ":  Tool tip";
 
 		setOpaque(true);
-		setBackground(avatar.getHighlightColor());
+		setBackground(DocumentAvatar.getHighlightColor());
 		setLayout(new GridBagLayout());
-		addMouseListener(new MouseAdapter() {
-			public void mouseExited(final MouseEvent e) { avatar.hideToolTip(); }
-		});
 
 		this.nameJLabel = new JLabel();
-		this.nameJLabel.setFont(avatar.getNameJLabel().getFont());
-		this.nameJLabel.setForeground(avatar.getNameJLabel().getForeground());
-		add(nameJLabel, avatar.createNameJLabelConstraints());
+		this.nameJLabel.setFont(DocumentAvatar.getNameFont());
+		this.nameJLabel.setForeground(DocumentAvatar.getNameForeground());
+		add(nameJLabel, createNameJLabelConstraints());
 
 		this.keyHolderJLabel = new JLabel();
-		this.keyHolderJLabel.setFont(avatar.getNameJLabel().getFont());
-		this.keyHolderJLabel.setForeground(avatar.getNameJLabel().getForeground());
+		this.keyHolderJLabel.setFont(DocumentAvatar.getNameFont());
+		this.keyHolderJLabel.setForeground(DocumentAvatar.getNameForeground());
 		add(keyHolderJLabel, createKeyHolderJLabelConstraints());
+
+		this.closeJButton = new JButton("Close");
+		this.closeJButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Action performed.");
+			}
+		});
+		add(closeJButton, createCloseJButtonConstraints());
+
+		this.deleteJButton = new JButton("Delete");
+//		add(deleteJButton, createDeleteJButtonConstraints());
+
+		this.sendJButton = new JButton("Send");
+		add(sendJButton, createSendJButtonConstraints());
+
+		this.sendKeyJButton = new JButton("Send Ownership");
+		add(sendKeyJButton, createSendKeyJButtonConstraints());
+		
+		this.requestKeyJButton = new JButton("Request Ownership");
+//		add(requestKeyJButton, createRequestKeyJButtonConstraints());
 	}
 
 	/**
@@ -88,7 +115,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	 * @return The document key holder.
 	 */
 	public String getKeyHolder() { return keyHolder; }
-	
+
 	/**
 	 * Obtain the document name.
 	 * @return The document name.
@@ -119,10 +146,12 @@ public class DocumentAvatarToolTip extends JPanel {
 		super.paintComponent(g);
 		final Graphics2D g2 = (Graphics2D) g.create();
 		// line separator
-		g2.setColor(avatar.getHighlightColor());
+		g2.setColor(DocumentAvatar.getHighlightColor());
 		g2.drawLine(0, getHeight() - 1, getWidth() - 1, getHeight() - 1);
 		g2.dispose();
 	}
+
+	void hideToolTip() { avatar.hideToolTip(); }
 
 	/**
 	 * Transfer the data from the members to the respective display controls.
@@ -132,6 +161,19 @@ public class DocumentAvatarToolTip extends JPanel {
 		this.nameJLabel.setText(name);
 		this.keyHolderJLabel.setText(keyHolder);
 	}
+	
+	private Object createCloseJButtonConstraints() {
+		return new GridBagConstraints(0, 2,
+				2, 1,
+				1.0, 0.0,
+				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	private Object createDeleteJButtonConstraints() {
+		return createSendJButtonConstraints();
+	}
 
 	/**
 	 * Create the document key holder label's constraints.
@@ -140,11 +182,51 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private Object createKeyHolderJLabelConstraints() {
 		return new GridBagConstraints(0, GridBagConstraints.RELATIVE,
-				1, 1,
+				4, 1,
 				1.0, 1.0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(0, 12, 2, 0),
 				0, 0);
 	}
 
+	/**
+	 * Create the grid bag constriants for the name label.
+	 * 
+	 * @return The grid bag constraints.
+	 */
+	private Object createNameJLabelConstraints() {
+		return new GridBagConstraints(0, 0,
+				4, 1,
+				1.0, 1.0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(2, 12, 2, 12),
+				0, 2);
+	}
+
+	private Object createRequestKeyJButtonConstraints() {
+		return new GridBagConstraints(3, 2,
+				1, 1,
+				1.0, 0.0,
+				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	private Object createSendJButtonConstraints() {
+		return new GridBagConstraints(3, 2,
+				1, 1,
+				0.0, 0.0,
+				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	private Object createSendKeyJButtonConstraints() {
+		return new GridBagConstraints(2, 2,
+				1, 1,
+				0.0, 0.0,
+				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
 }

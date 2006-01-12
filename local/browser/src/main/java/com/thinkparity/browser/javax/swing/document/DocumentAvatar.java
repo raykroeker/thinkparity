@@ -28,7 +28,7 @@ import com.thinkparity.browser.log4j.BrowserLoggerFactory;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentAvatar extends JPanel /*JComponent*/ {
+public class DocumentAvatar extends JPanel {
 
 	/**
 	 * Mouse listener for the document avatar. Used to display the tool tip on a
@@ -101,10 +101,24 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	}
 
 	/**
+	 * The tool tip displayed on mouse hover.
+	 * 
+	 */
+	private static DocumentAvatarToolTip avatarToolTip;
+
+	private static DocumentAvatarToolTipMouseTracker avatarToolTipMouseTracker;
+
+	/**
+	 * Default background color for the avatar.
+	 * 
+	 */
+	private static final Color defaultColor;
+
+	/**
 	 * Background color used when highlighing an avatar.
 	 * 
 	 */
-	private static final Color backgroundColorHighlight;
+	private static final Color highlightColor;
 
 	/**
 	 * Font used to draw write the document's name.
@@ -128,9 +142,28 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 		nameFont = new Font("Tahoma", Font.PLAIN, 12);
 		nameFontColor = BrowserColorUtil.getBlack();
 
-		// set a highlight color
-		backgroundColorHighlight = BrowserColorUtil.getRGBColor(214, 217, 229, 255);
+		defaultColor = Color.WHITE;
+		highlightColor =	// google highlight color
+			BrowserColorUtil.getRGBColor(214, 217, 229, 255);
 	}
+
+	/**
+	 * Obtain the default avatar background color.
+	 * 
+	 * @return The default avatar background color.
+	 */
+	static Color getDefaultColor() { return defaultColor; }
+
+	/**
+	 * Obtain the highlight color.
+	 * 
+	 * @return The color to highlight the avatar.
+	 */
+	static Color getHighlightColor() { return highlightColor; }
+
+	static Font getNameFont() { return nameFont; }
+
+	static Color getNameForeground() { return nameFontColor; }
 
 	/**
 	 * Handle to an apache logger
@@ -144,12 +177,6 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 */
 	protected final Open openDocument =
 		(Open) BrowserActionFactory.createAction(Open.class);
-
-	/**
-	 * The tool tip displayed on mouse hover.
-	 * 
-	 */
-	private final DocumentAvatarToolTip avatarToolTip;
 
 	/**
 	 * The document id.
@@ -181,8 +208,13 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 */
 	public DocumentAvatar(final Container parent) {
 		super();
-		setOpaque(false);
-		setBackground(backgroundColorHighlight);
+		// create the tool tip
+		avatarToolTip = new DocumentAvatarToolTip(this);
+		avatarToolTipMouseTracker =
+			new DocumentAvatarToolTipMouseTracker(avatarToolTip);
+
+		setOpaque(true);
+		setBackground(Color.WHITE);
 		setLayout(new GridBagLayout());
 		addMouseListener(new DocumentAvatarMouseListener());
 
@@ -191,16 +223,7 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 		this.nameJLabel.setFont(nameFont);
 		this.nameJLabel.setForeground(nameFontColor);
 		add(nameJLabel, createNameJLabelConstraints());
-
-		this.avatarToolTip = new DocumentAvatarToolTip(this);
 	}
-
-	/**
-	 * Obtain the highlight color.
-	 * 
-	 * @return The color to highlight the avatar.
-	 */
-	public Color getHighlightColor() { return backgroundColorHighlight; }
 
 	/**
 	 * Obtain the document id.
@@ -247,6 +270,7 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 */
 	public void setName(String name) { this.name = name; }
 
+
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
@@ -255,7 +279,7 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 		super.paintComponent(g);
 		final Graphics2D g2 = (Graphics2D) g.create();
 		// line separator
-		g2.setColor(backgroundColorHighlight);
+		g2.setColor(highlightColor);
 		g2.drawLine(0, getHeight() - 1, getWidth() - 1, getHeight() - 1);
 		g2.dispose();
 	}
@@ -274,7 +298,6 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 				0, 2);
 	}
 
-
 	/**
 	 * Obtain the JLabel for the document name.
 	 * 
@@ -287,6 +310,7 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 *
 	 */
 	void hideToolTip() {
+		avatarToolTipMouseTracker.uninstall();
 		final JLayeredPane jLayeredPane = getRootPane().getLayeredPane();
 		jLayeredPane.remove(avatarToolTip);
 		jLayeredPane.repaint();
@@ -299,16 +323,18 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 *
 	 */
 	void showToolTip() {
+hideToolTip();
 		final JLayeredPane jLayeredPane = getRootPane().getLayeredPane();
 		avatarToolTip.setKeyHolder(keyHolder);
 		avatarToolTip.setName(name);
 		avatarToolTip.transferToDisplay();
 		avatarToolTip.setLocation(SwingUtilities.convertPoint(this, new Point(0, 0), jLayeredPane));
 		final Dimension avatarSize = getSize();
-		avatarSize.height = avatarSize.height * 2;
+		avatarSize.height = avatarSize.height * 3;
 		avatarToolTip.setSize(avatarSize);
 		avatarToolTip.setVisible(true);
 		jLayeredPane.add(avatarToolTip, JLayeredPane.POPUP_LAYER);
+		avatarToolTipMouseTracker.install();
 	}
 
 	/**
@@ -337,7 +363,8 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 *            Whether or not to highlight the background.
 	 */
 	private void setHighlight(final boolean doHighlight) {
-		setOpaque(doHighlight);	// this is how the highlight of the document
-		repaint();				// is done.
+		if(doHighlight) { setBackground(DocumentAvatar.getHighlightColor()); }
+		else { setBackground(DocumentAvatar.getDefaultColor()); }
+		repaint();
 	}
 }

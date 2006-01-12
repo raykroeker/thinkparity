@@ -8,22 +8,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.*;
 
 import org.apache.log4j.Logger;
 import org.jvnet.substance.SubstanceImageCreator;
-import org.jvnet.substance.SubstanceLookAndFeel;
 import org.jvnet.substance.SubstanceButtonUI.ButtonTitleKind;
-import org.jvnet.substance.color.ColorScheme;
 import org.jvnet.substance.utils.ButtonBackgroundDelegate;
 import org.jvnet.substance.utils.SubstanceCoreUtilities;
 
+import com.thinkparity.browser.javax.swing.BrowserColorUtil;
 import com.thinkparity.browser.javax.swing.animation.HideJFrameAnimator;
 import com.thinkparity.browser.javax.swing.animation.ShowJFrameAnimator;
 import com.thinkparity.browser.javax.swing.plaf.parity.color.iTunesColorScheme;
@@ -303,59 +299,46 @@ public class ParityTitlePane extends JComponent {
 	}
 
 	/**
-	 * Renders the TitlePane.
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 * 
 	 */
-	public void paintComponent(Graphics g) {
-		final int width = getWidth();
-		final int height = getHeight();
+	protected void paintComponent(Graphics g) {
+		final Graphics2D g2 = (Graphics2D) g.create();
 
-		final ColorScheme colorScheme = window.isActive()
-			? SubstanceLookAndFeel.getColorScheme()
-			: SubstanceLookAndFeel.getMetallicColorScheme();
+		paintGradientBackground(g2, getWidth(), getHeight());
+		paintTitleText(g2, getHeight());
 
-		final Graphics2D graphics = (Graphics2D) g.create();
+		g2.dispose();
+	}
 
-		paintGradientBackground(
-				graphics, 0, 0, width, height + 1, colorScheme, false, false);
-
+	private void paintTitleText(final Graphics2D g, final int height) {
 		// draw the title
 		final Double maximumTitleWidth = toggleJButton.getBounds().getX() - 37;
-		final String title = getClippedTitle(graphics, maximumTitleWidth);
+		final String title = getClippedTitle(g, maximumTitleWidth);
 		if(null != title) {
-			graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-			switch(ParityLookAndFeel.getTheme().getKind()) {
-			case DARK:
-				graphics.setColor(colorScheme.getUltraDarkColor());
-				break;
-			case BRIGHT:
-				graphics.setColor(colorScheme.getUltraLightColor());
-				break;
-			case COLD:
-				graphics.setColor(colorScheme.getUltraLightColor());
-				break;
-			}
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+			g.setColor(BrowserColorUtil.getRGBColor(20, 49, 107, 255));
 
-			// center the text vertically
 			final FontMetrics fm = jRootPane.getFontMetrics(g.getFont());
 			final int yOffset = ((height - fm.getHeight()) / 2) + fm.getAscent();
-			graphics.drawString(title, 6, yOffset + 1);
-
-			// now draw the shadow text
-			switch(ParityLookAndFeel.getTheme().getKind()) {
-			case DARK:
-				graphics.setColor(colorScheme.getForegroundColor());
-				break;
-			case BRIGHT:
-				graphics.setColor(colorScheme.getUltraDarkColor());
-				break;
-			case COLD:
-				graphics.setColor(colorScheme.getForegroundColor());
-				break;
-			}
-			graphics.drawString(title, 5, yOffset);
+			g.drawString(title, 6, yOffset + 1);
 		}
+	}
 
-		graphics.dispose();
+	/**
+	 * @param pt1
+	 * @param pt2
+	 * @return
+	 */
+	private void paintGradientBackground(final Graphics2D g, final int width,
+			final int height) {
+		final Point pt1 = new Point(0, 0);
+		final Point pt2 = new Point(0, height - 1);
+		final Color color1 = BrowserColorUtil.getRGBColor(247, 247, 248, 255);
+		final Color color2 = BrowserColorUtil.getRGBColor(203, 210, 219, 255);
+		final Paint gradientPaint = new GradientPaint(pt1, color1, pt2, color2);
+		g.setPaint(gradientPaint);
+		g.fillRect(0, 0, width - 1, height - 1);
 	}
 
 	/**
@@ -506,69 +489,6 @@ public class ParityTitlePane extends JComponent {
 		createButtons();
 		add(closeJButton);
 		add(toggleJButton);
-	}
-
-	/**
-	 * Paints rectangular gradient background.
-	 * 
-	 * @param g
-	 *            Graphic context.
-	 * @param startX
-	 *            Background starting X coord.
-	 * @param startY
-	 *            Background starting Y coord.
-	 * @param width
-	 *            Background width.
-	 * @param height
-	 *            Background height.
-	 * @param colorScheme
-	 *            Color scheme for the background.
-	 * @param hasDarkBorder
-	 *            If <code>true</code>, the painted image will have dark
-	 *            border.
-	 * @param isVertical
-	 *            Indication whether the painted image is vertical.
-	 */
-	private void paintGradientBackground(final Graphics2D g,
-			final Integer startX, final Integer startY, final Integer width,
-			final Integer height, final ColorScheme colorScheme,
-			final Boolean hasDarkBorder, final Boolean isVertical) {
-		g.translate(startX, startY);
-
-		final Map<Integer, Color> gradColors = new HashMap<Integer, Color>(2, 1.0F);
-		if(Boolean.TRUE == isVertical) {
-			gradColors.put((int) (0.4 * width), colorScheme.getLightColor());
-			gradColors.put((int) (0.5 * width), colorScheme.getMidColor());
-
-			final BufferedImage horLine =
-				SubstanceImageCreator.getOneLineGradient(width,
-						colorScheme.getUltraLightColor(),
-						colorScheme.getUltraLightColor(), gradColors);
-			for(int row = 1; row < height; row++) {
-				g.drawImage(horLine, 0, row, null);
-			}
-		}
-		else {
-			gradColors.put((int) (0.4 * height), colorScheme.getLightColor());
-			gradColors.put((int) (0.5 * height), colorScheme.getMidColor());
-
-			final BufferedImage horLine =
-				SubstanceImageCreator.getOneLineGradient(height,
-						colorScheme.getUltraLightColor(),
-						colorScheme.getUltraLightColor(), gradColors);
-			BufferedImage verLine = SubstanceImageCreator.getRotated(horLine, 1);
-			for(int col = 0; col < width; col++) {
-				g.drawImage(verLine, col, 0, null);
-			}
-		}
-
-		if(Boolean.TRUE == hasDarkBorder) {
-			g.setColor(colorScheme.getMidColor());
-			g.drawLine(0, 0, width - 1, 0);
-			g.drawLine(0, 0, 0, height - 1);
-			g.drawLine(0, height - 1, width - 1, height - 1);
-			g.drawLine(width - 1, 0, width - 1, height - 1);
-		}
 	}
 
 	/**

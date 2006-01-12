@@ -51,9 +51,7 @@ public class BrowserJFrame extends JFrame {
 	 */
 	private static final long serialVersionUID = 1;
 
-	static {
-		defaultSize = new Dimension(267, 406);
-	}
+	static { defaultSize = new Dimension(550, 400); }
 
 	/**
 	 * Obtain the default size of the browser.
@@ -94,15 +92,6 @@ public class BrowserJFrame extends JFrame {
 	}
 
 	/**
-	 * Handle to an apache logger.
-	 * 
-	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
-
-	private final Color backgroundColor =
-		BrowserColorUtil.getRGBColor(247, 248, 250, 255);
-
-	/**
 	 * Document model api.
 	 * 
 	 */
@@ -110,11 +99,20 @@ public class BrowserJFrame extends JFrame {
 		ModelProvider.getDocumentModel(getClass());
 
 	/**
+	 * Handle to an apache logger.
+	 * 
+	 */
+	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+
+	/**
 	 * Project model api.
 	 * 
 	 */
 	protected final ProjectModel projectModel =
 		ModelProvider.getProjectModel(getClass());
+
+	private final Color backgroundColor =
+		BrowserColorUtil.getRGBColor(249, 249, 249, 255);
 
 	/**
 	 * The display component for documents.

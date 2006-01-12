@@ -4,16 +4,22 @@
 package com.thinkparity.browser.javax.swing.document;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.UUID;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.AbstractBorder;
+import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.javax.swing.BrowserColorUtil;
-import com.thinkparity.browser.javax.swing.BrowserFontUtil;
+import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
+import com.thinkparity.browser.javax.swing.action.Data;
+import com.thinkparity.browser.javax.swing.action.document.Open;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 
 /**
@@ -23,43 +29,81 @@ import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 public class DocumentAvatar extends JPanel /*JComponent*/ {
 
 	/**
-	 * Used to paint the avatar border.
+	 * Mouse listener for the document avatar. Used to display the tool tip on a
+	 * delay; as well as to highlight the avatars.
 	 * 
 	 */
-	private class DocumentAvatarBorder extends AbstractBorder {
+	private class DocumentAvatarMouseListener extends MouseAdapter {
 
 		/**
-		 * @see java.io.Serializable
+		 * @see java.io.Serialiable
 		 */
 		private static final long serialVersionUID = 1;
 
 		/**
-		 * Create a DocumentAvatarBorder.
+		 * Indicates whether or not the mouse is currently within the document
+		 * avatar.
 		 * 
+		 * @see DocumentAvatarMouseListener#mouseEntered(MouseEvent)
+		 * @see DocumentAvatarMouseListener#mouseExited(MouseEvent)
 		 */
-		private DocumentAvatarBorder() { super(); }
+		private boolean isMouseWithinAvatar;
 
 		/**
-		 * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
+		 * Timer used to display the tool tip on a delay.
 		 * 
 		 */
-		public Insets getBorderInsets(Component c) {
-			return new Insets(1, 1, 1, 1);
+		private final Timer toolTipTimer;
+
+		/**
+		 * Create a DocumentAvatarMouseListener.
+		 * 
+		 */
+		private DocumentAvatarMouseListener() {
+			super();
+			this.isMouseWithinAvatar = false;
+			this.toolTipTimer = new Timer(750, new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					if(isMouseWithinAvatar) { showToolTip(); }
+				}
+			});
+			this.toolTipTimer.setRepeats(false);
 		}
 
 		/**
-		 * @see javax.swing.border.LineBorder#paintBorder(java.awt.Component,
-		 *      java.awt.Graphics, int, int, int, int)
+		 * @see java.awt.event.MouseAdapter#mouseClicked(java.awt.event.MouseEvent)
 		 * 
 		 */
-		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-			// outline
-			final Graphics g2 = (Graphics2D) g.create();
-			g2.setColor(avatarOutlineColor);
-			g2.drawRoundRect(x, y, width - 1, height - 1, height / 4, height / 4);
-			g2.dispose();
+		public void mouseClicked(final MouseEvent e) {
+			if(2 == e.getClickCount()) { runOpenDocument(); }
+		}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 * 
+		 */
+		public void mouseEntered(final MouseEvent e) {
+			setHighlight(true);
+			isMouseWithinAvatar = true;
+			toolTipTimer.start();
+		}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 * 
+		 */
+		public void mouseExited(final MouseEvent e) {
+			if(isToolTipVisible) { hideToolTip(); }
+			setHighlight(false);
+			isMouseWithinAvatar = false;
 		}
 	}
+
+	/**
+	 * Background color used when highlighing an avatar.
+	 * 
+	 */
+	private static final Color backgroundColorHighlight;
 
 	/**
 	 * Font used to draw write the document's name.
@@ -74,24 +118,6 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	private static final Color nameFontColor;
 
 	/**
-	 * The height of the font used to write the document name.
-	 * 
-	 */
-	private static final int nameFontHeight;
-
-	/**
-	 * The maximum descent of the font used to write the document name.
-	 * 
-	 */
-	private static final int nameFontMaxDescent;
-
-	/**
-	 * The x coordinate to indent the name text by.
-	 * 
-	 */
-	private static final int nameIndentX;
-
-	/**
 	 * @see java.io.Serializable
 	 */
 	private static final long serialVersionUID = 1;
@@ -100,12 +126,9 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 		// grab the font info for the name
 		nameFont = new Font("Tahoma", Font.PLAIN, 12);
 		nameFontColor = BrowserColorUtil.getBlack();
-		final FontMetrics nameFontMetrics = BrowserFontUtil.getMetrics(nameFont);
-		nameFontHeight = nameFontMetrics.getHeight();
-		nameFontMaxDescent = nameFontMetrics.getMaxDescent();
 
-		// set the avatar dimensions\location
-		nameIndentX = 10;
+		// set a highlight color
+		backgroundColorHighlight = BrowserColorUtil.getRGBColor(214, 217, 229, 255);
 	}
 
 	/**
@@ -115,38 +138,31 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
 
 	/**
-	 * The avatarIndex of the avatar within the list.
+	 * Action used to open a document.
 	 * 
 	 */
-	private int avatarIndex;
+	protected final Open openDocument =
+		(Open) BrowserActionFactory.createAction(Open.class);
 
 	/**
-	 * The maximum width of the avatar.
+	 * The tool tip displayed on mouse hover.
 	 * 
 	 */
-	private int avatarMaxWidth;
+	private final DocumentAvatarToolTip avatarToolTip;
 
 	/**
-	 * Color used to outline the avatar.
+	 * The document id.
 	 * 
 	 */
-	private Color avatarOutlineColor;
+	private UUID id;
 
 	/**
-	 * The y coordinate at which the avatar will be drawn.
+	 * Indicates whether or not the tool tip is currently visible.
 	 * 
-	 * @see #setAvatarIndex(int)
-	 * @see #setAvatarRelativeY(int)
+	 * @see DocumentAvatar#hideToolTip()
+	 * @see DocumentAvatar#showToolTip()
 	 */
-	private int avatarRelativeY;
-
-	/**
-	 * The width of the avatar to be drawn.
-	 * 
-	 * @see #setAvatarMaxWidth(int)
-	 * @see #setAvatarWidth(int)
-	 */
-	private int avatarWidth;
+	private boolean isToolTipVisible;
 
 	/**
 	 * The document key holder.
@@ -161,53 +177,52 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	private String name;
 
 	/**
-	 * Create a DocumentAvatar.
+	 * Label used to display the document name.
+	 * 
 	 */
-	public DocumentAvatar() {
-		super();
+	private final JLabel nameJLabel;
 
-		setBorder(new DocumentAvatarBorder());
-		addMouseListener(new MouseAdapter() {
-			public void mouseEntered(final MouseEvent e) {
-				logger.debug("component bounds:" + e.getComponent().getBounds().toString());
-			}
-		});
+	/**
+	 * Handle to the parent container. Is stored because the avatar is
+	 * temporarily removed from the parent at one point.
+	 * 
+	 */
+	private final Container parent;
+
+	/**
+	 * Create a DocumentAvatar.
+	 * 
+	 */
+	public DocumentAvatar(final Container parent) {
+		super();
+		setOpaque(false);
+		setBackground(backgroundColorHighlight);
+		setLayout(new GridBagLayout());
+		addMouseListener(new DocumentAvatarMouseListener());
+
+		// components
+		this.nameJLabel = new JLabel();
+		this.nameJLabel.setFont(nameFont);
+		this.nameJLabel.setForeground(nameFontColor);
+		add(nameJLabel, createNameJLabelConstraints());
+
+		this.avatarToolTip = new DocumentAvatarToolTip(this);
+		this.parent = parent;
 	}
 
 	/**
-	 * Obtain the avatarIndex of the avatar in the list.
+	 * Obtain the highlight color.
 	 * 
-	 * @return The avatarIndex of the avatar in the list.
+	 * @return The color to highlight the avatar.
 	 */
-	public int getAvatarIndex() { return avatarIndex; }
+	public Color getHighlightColor() { return backgroundColorHighlight; }
 
 	/**
-	 * Obtain the maximum width of the avatar.
+	 * Obtain the document id.
 	 * 
-	 * @return The maximum width of the avatar.
+	 * @return The document id.
 	 */
-	public int getAvatarMaxWidth() { return avatarMaxWidth; }
-
-	/**
-	 * Obtain the avatar outline color.
-	 * 
-	 * @return The avatar outline color.
-	 */
-	public Color getAvatarOutlineColor() { return avatarOutlineColor; }
-
-	/**
-	 * Obtain the relative y coordinate of the avatar.
-	 * 
-	 * @return The relative y coordinate.
-	 */
-	public int getAvatarRelativeY() { return avatarRelativeY; }
-
-	/**
-	 * Obtain the avatar width.
-	 * 
-	 * @return The avatar width.
-	 */
-	public int getAvatarWidth() { return avatarWidth; }
+	public UUID getId() { return id; }
 
 	/**
 	 * Obtain the document key holder.
@@ -224,14 +239,12 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	public String getName() { return name; }
 
 	/**
-	 * Set the avatar outline color.
+	 * Set the document id.
 	 * 
-	 * @param avatarOutlineColor
-	 *            The avatar outline color.
+	 * @param id
+	 *            The document id.
 	 */
-	public void setAvatarOutlineColor(Color avatarOutlineColor) {
-		this.avatarOutlineColor = avatarOutlineColor;
-	}
+	public void setId(UUID id) { this.id = id; }
 
 	/**
 	 * Set the document key holder.
@@ -254,12 +267,93 @@ public class DocumentAvatar extends JPanel /*JComponent*/ {
 	 * 
 	 */
 	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		final Graphics2D g2 = (Graphics2D) g.create();
-		// name
-		g2.setFont(nameFont);
-		g2.setColor(nameFontColor);
-		final int nameIndentY = nameFontHeight - nameFontMaxDescent + (getHeight() - nameFontHeight) / 2;
-		g2.drawString(name, nameIndentX, nameIndentY);
+		// line separator
+		g2.setColor(backgroundColorHighlight);
+		g2.drawLine(0, getHeight() - 1, getWidth() - 1, getHeight() - 1);
 		g2.dispose();
+	}
+
+	/**
+	 * Create the grid bag constriants for the name label.
+	 * 
+	 * @return The grid bag constraints.
+	 */
+	Object createNameJLabelConstraints() {
+		return new GridBagConstraints(0, 0,
+				1, 1,
+				1.0, 1.0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(2, 12, 2, 12),
+				0, 2);
+	}
+
+
+	/**
+	 * Obtain the JLabel for the document name.
+	 * 
+	 * @return The name JLabel.
+	 */
+	JLabel getNameJLabel() { return nameJLabel; }
+
+	/**
+	 * Hide the tool tip.
+	 *
+	 */
+	void hideToolTip() {
+		isToolTipVisible = false;
+
+		parent.remove(avatarToolTip);
+		parent.add(this, getClientProperty("addConstraints"), (Integer) getClientProperty("addIndex"));
+		parent.validate();
+
+		setHighlight(false);
+	}
+
+	/**
+	 * Show the tool tip for the avatar.
+	 *
+	 */
+	void showToolTip() {
+		isToolTipVisible = true;
+
+		avatarToolTip.setKeyHolder(keyHolder);
+		avatarToolTip.setName(name);
+		avatarToolTip.transferToDisplay();
+		
+		parent.remove(this);
+		parent.add(avatarToolTip, getClientProperty("addConstraints"), (Integer) getClientProperty("addIndex"));
+		parent.validate();
+	}
+
+	/**
+	 * Transfer all information from the private data members to the display
+	 * components.
+	 * 
+	 */
+	void transferToDisplay() {
+		this.nameJLabel.setText(name);
+	}
+
+	/**
+	 * Run the open document action.
+	 *
+	 */
+	private void runOpenDocument() {
+		final Data data = new Data(1);
+		data.set(Open.DataKey.DOCUMENT_ID, getId());
+		openDocument.invoke(data);
+	}
+
+	/**
+	 * Set the background highlight of the panel.
+	 * 
+	 * @param doHighlight
+	 *            Whether or not to highlight the background.
+	 */
+	private void setHighlight(final boolean doHighlight) {
+		setOpaque(doHighlight);	// this is how the highlight of the document
+		repaint();				// is done.
 	}
 }

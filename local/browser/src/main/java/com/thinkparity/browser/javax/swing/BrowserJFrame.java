@@ -85,7 +85,6 @@ public class BrowserJFrame extends JFrame {
 	private static void doOpen(final Browser browser) {
 		BrowserUI.setParityLookAndFeel();
 		final BrowserJFrame browserJFrame = new BrowserJFrame(browser);
-		browserJFrame.setAlwaysOnTop(true);
 		browserJFrame.getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
 		browserJFrame.setTitle("Parity Browser");
 

@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Collection;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -82,7 +82,7 @@ public class SendTest extends ModelTestCase {
 		sessionModel.login(testUser.getUsername(), testUser.getPassword());
 		final Collection<User> users = sessionModel.getRosterEntries();
 
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			document =

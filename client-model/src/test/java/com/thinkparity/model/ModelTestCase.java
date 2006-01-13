@@ -118,7 +118,7 @@ public abstract class ModelTestCase extends TestCase {
 	 * @param ordinal
 	 * @return The jUnit test file.
 	 */
-	protected ModelTestFile getJUnitTestFile(final Integer ordinal) {
+	protected JUnitTestFile getJUnitTestFile(final Integer ordinal) {
 		return helper.getJUnitTestFile(ordinal);
 	}
 
@@ -128,7 +128,7 @@ public abstract class ModelTestCase extends TestCase {
 	 * @param name
 	 * @return The jUnit test file.
 	 */
-	protected ModelTestFile getJUnitTestFile(final String name) {
+	protected JUnitTestFile getJUnitTestFile(final String name) {
 		return helper.getJUnitTestFile(name);
 	}
 
@@ -137,7 +137,7 @@ public abstract class ModelTestCase extends TestCase {
 	 * 
 	 * @return The list of test files.
 	 */
-	protected Collection<ModelTestFile> getJUnitTestFiles() {
+	protected Collection<JUnitTestFile> getJUnitTestFiles() {
 		return helper.getJUnitTestFiles();
 	}
 

@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 
 /**
@@ -72,7 +72,7 @@ public class GetVersionTest extends ModelTestCase {
 		Document document;
 		DocumentVersion documentVersion;
 		String name, description;
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = getName() + ":  " + name;
 

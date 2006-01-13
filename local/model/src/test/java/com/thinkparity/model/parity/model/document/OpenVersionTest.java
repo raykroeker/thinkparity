@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 
 /**
@@ -65,7 +65,7 @@ public class OpenVersionTest extends ModelTestCase {
 		data = new Vector<Fixture>(3);
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final ModelTestFile testFile = getJUnitTestFile("JUnit Test Framework.txt");
+		final JUnitTestFile testFile = getJUnitTestFile("JUnitTestFramework.txt");
 		final String name = testFile.getName();
 		final String description = name;
 		final Document document =

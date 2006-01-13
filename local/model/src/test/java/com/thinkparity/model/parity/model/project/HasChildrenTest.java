@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.project;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
@@ -93,7 +93,7 @@ public class HasChildrenTest extends ModelTestCase {
 		name = "3";
 		description = name;
 		project = projectModel.create(testProject.getId(), name, description);
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			documentModel.create(project.getId(), name, description, testFile.getFile());

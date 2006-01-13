@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
@@ -91,7 +91,7 @@ public class RenameTest extends ModelTestCase {
 		project = projectModel.create(testProject.getId(), name, description);
 		Vector<UUID> documentIds = new Vector<UUID>(getJUnitTestFilesSize());
 		Document document;
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			document =documentModel.create(project.getId(), testFile.getName(),
 					testFile.getName(), testFile.getFile());
 			documentIds.add(document.getId());

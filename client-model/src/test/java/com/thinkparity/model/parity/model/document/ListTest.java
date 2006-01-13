@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 
@@ -82,7 +82,7 @@ public class ListTest extends ModelTestCase {
 			description = "Project:  " + name;
 			project = projectModel.create(testProject.getId(), name, description);
 			documentList = new Vector<Document>(getJUnitTestFilesSize());
-			for(ModelTestFile testFile : getJUnitTestFiles()) {
+			for(JUnitTestFile testFile : getJUnitTestFiles()) {
 				name = testFile.getName();
 				description = "Document:  " + name;
 				document =

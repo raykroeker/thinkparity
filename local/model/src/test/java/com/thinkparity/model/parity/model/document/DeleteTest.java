@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 
 /**
@@ -72,7 +72,7 @@ public class DeleteTest extends ModelTestCase {
 		File file;
 
 		data = new Vector<Fixture>(4);
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			file = testFile.getFile();

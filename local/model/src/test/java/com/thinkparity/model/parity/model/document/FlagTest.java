@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.util.Collection;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -59,7 +59,7 @@ public class FlagTest extends ModelTestCase {
 		data = new Vector<Fixture>(1);
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final ModelTestFile testFile = getJUnitTestFiles().iterator().next();
+		final JUnitTestFile testFile = getJUnitTestFiles().iterator().next();
 		String name, description;
 		Document document;
 

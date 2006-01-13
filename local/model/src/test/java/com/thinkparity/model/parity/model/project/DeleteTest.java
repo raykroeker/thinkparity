@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.project;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
@@ -91,7 +91,7 @@ public class DeleteTest extends ModelTestCase {
 		name = "Prj.3";
 		description = name;
 		project = projectModel.create(testProject.getId(), name, description);
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			documentModel.create(project.getId(), name, description, testFile.getFile());
@@ -106,7 +106,7 @@ public class DeleteTest extends ModelTestCase {
 		projectModel.create(project.getId(), name + "Sub2", description + "Sub2");
 		projectModel.create(project.getId(), name + "Sub3", description + "Sub3");
 		projectModel.create(project.getId(), name + "Sub4", description + "Sub4");
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			documentModel.create(project.getId(), name, description, testFile.getFile());

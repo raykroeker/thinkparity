@@ -9,8 +9,8 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -77,13 +77,13 @@ public class AddNoteTest extends ModelTestCase {
 		data = new Vector<Fixture>(5);
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final Iterator<ModelTestFile> testFileIterator =
+		final Iterator<JUnitTestFile> testFileIterator =
 			getJUnitTestFiles().iterator();
 
 		String note;
 		note = "Simple note.";
 
-		ModelTestFile testFile = testFileIterator.next();
+		JUnitTestFile testFile = testFileIterator.next();
 		String name = testFile.getName();
 		String description = name;
 		Document testDocument =

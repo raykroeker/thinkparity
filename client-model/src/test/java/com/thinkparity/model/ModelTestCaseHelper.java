@@ -56,7 +56,7 @@ public class ModelTestCaseHelper {
 	/**
 	 * Files to use when testing.
 	 */
-	private static final Vector<ModelTestFile> jUnitTestFiles;
+	private static final Vector<JUnitTestFile> jUnitTestFiles;
 
 	/**
 	 * Seed data for generating random test text.
@@ -80,39 +80,20 @@ public class ModelTestCaseHelper {
 		jUnitSessionStart = System.currentTimeMillis();
 		// record the session id.
 		jUnitSessionId = "jUnit." + jUnitSessionStart;
-		// set the resources directory
-		final File resourcesDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
-				.append(File.separatorChar).append("target")
-				.append(File.separatorChar).append("test-classes")
-				.toString());
 		// set the workspace directory, then delete its contents
 		final File jUnitWorkspace = new File(
 				"C:\\Documents and Settings\\raymond\\My Documents\\thinkparity.com",
 				"jUnit");
 		if(jUnitWorkspace.exists())
 			FileUtil.deleteTree(jUnitWorkspace);
-		System.setProperty(
-				"parity.workspace",
-				jUnitWorkspace.getAbsolutePath());
-		// set the test files
-		final File jUnitResourcesFiles =
-			new File(resourcesDirectory, "jUnitFiles");
-		jUnitTestFiles = new Vector<ModelTestFile>(7);
-		jUnitTestFiles.add(
-				new ModelTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.doc")));
-		jUnitTestFiles.add(
-				new ModelTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.odt")));
-		jUnitTestFiles.add(
-				new ModelTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.png")));
-		jUnitTestFiles.add(
-				new ModelTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.txt")));
-		jUnitTestFiles.add(
-				new ModelTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework 1MB.txt")));
+		System.setProperty("parity.workspace", jUnitWorkspace.getAbsolutePath());
+
+		jUnitTestFiles = new Vector<JUnitTestFile>(7);
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.doc"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.odt"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.png"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.txt"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework1MB.txt"));
 		// set the test user
 		jUnitTestUser = ModelTestUser.getJUnit();
 		// initialize the username in the workspace
@@ -123,8 +104,8 @@ public class ModelTestCaseHelper {
 		System.setProperty("parity.insecure", "true");
 		// set the output directory
 		final File outputDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
-			.append(File.separatorChar).append("target")
-			.append(File.separatorChar).append("test-reports")
+			.append(File.separatorChar).append("test-sessions")
+			.append(File.separatorChar).append(jUnitSessionId)
 			.toString());
 		if(!outputDirectory.exists())
 			Assert.assertTrue("jUnit<init>", outputDirectory.mkdir());
@@ -219,7 +200,7 @@ public class ModelTestCaseHelper {
 	 *            The jUnit test file index.
 	 * @return The jUnit test file.
 	 */
-	ModelTestFile getJUnitTestFile(final Integer index) {
+	JUnitTestFile getJUnitTestFile(final Integer index) {
 		return jUnitTestFiles.elementAt(index);
 	}
 
@@ -230,8 +211,8 @@ public class ModelTestCaseHelper {
 	 *            The jUnit test file name.
 	 * @return The jUnit test file.
 	 */
-	ModelTestFile getJUnitTestFile(final String name) {
-		for(ModelTestFile testFile : jUnitTestFiles) {
+	JUnitTestFile getJUnitTestFile(final String name) {
+		for(JUnitTestFile testFile : jUnitTestFiles) {
 			if(testFile.getName().equals(name)) { return testFile; }
 		}
 		throw Assert.createUnreachable("getJUnitTestFile(String)");
@@ -242,7 +223,7 @@ public class ModelTestCaseHelper {
 	 * 
 	 * @return A list of the test files available to the jUnit test framework.
 	 */
-	Collection<ModelTestFile> getJUnitTestFiles() { 
+	Collection<JUnitTestFile> getJUnitTestFiles() { 
 		return Collections.unmodifiableCollection(
 				ModelTestCaseHelper.jUnitTestFiles);
 	}

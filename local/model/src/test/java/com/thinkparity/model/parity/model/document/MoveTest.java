@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 
@@ -97,7 +97,7 @@ public class MoveTest extends ModelTestCase {
 		name = "D";
 		description = name;
 		destination = projectModel.create(testProject.getId(), name, description);
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			document = documentModel.create(source.getId(), name, description, testFile.getFile());

@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 
@@ -73,7 +73,7 @@ public class GetTest extends ModelTestCase {
 		Document document;
 		UUID id;
 		
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());

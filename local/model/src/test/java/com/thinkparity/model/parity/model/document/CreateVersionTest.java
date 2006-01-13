@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.util.Iterator;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 
 /**
@@ -95,7 +95,7 @@ public class CreateVersionTest extends ModelTestCase {
 		Document document;
 		DocumentContent content;
 
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			actionData = new DocumentActionData();
 			actionData.setDataItem("now", "" + System.currentTimeMillis());
 

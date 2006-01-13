@@ -8,8 +8,8 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
 
@@ -103,7 +103,7 @@ public class CreateTest extends ModelTestCase {
 		File file;
 		String documentContentChecksum;
 
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			file = testFile.getFile();

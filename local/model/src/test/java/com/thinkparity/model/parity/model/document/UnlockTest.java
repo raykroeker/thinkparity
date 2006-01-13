@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.util.UUID;
 import java.util.Vector;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -71,7 +71,7 @@ public class UnlockTest extends ModelTestCase {
 
 		String description, name;
 		Document document;
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());

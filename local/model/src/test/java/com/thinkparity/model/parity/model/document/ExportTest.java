@@ -8,8 +8,8 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 
+import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestFile;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
 
@@ -84,7 +84,7 @@ public class ExportTest extends ModelTestCase {
 		byte[] content;
 		File exportFile;
 
-		for(ModelTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			name = testFile.getName();
 			description = name;
 			content = FileUtil.readBytes(testFile.getFile());

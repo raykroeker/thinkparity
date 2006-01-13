@@ -81,7 +81,7 @@ public class FileUtilTest extends CodebaseTestCase {
 		copyData = new Vector<CopyData>(getJUnitTestFilesSize());
 		final File targetDirectory = createTestDirectory("setUpCopy");
 
-		for(CodebaseTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			copyData.add(
 					new CopyData(testFile.getFile(),
 							new File(targetDirectory, testFile.getName())));
@@ -92,7 +92,7 @@ public class FileUtilTest extends CodebaseTestCase {
 		readData = new Vector<ReadData>(getJUnitTestFilesSize());
 		Long size;
 
-		for(CodebaseTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			size = testFile.getSize();
 
 			readData.add(new ReadData(testFile.getFile(), size));

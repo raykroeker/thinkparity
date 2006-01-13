@@ -6,20 +6,32 @@ package com.thinkparity.codebase;
 import java.io.File;
 
 /**
+ * The JUnitTestFile is a convenience class for loading various resource files
+ * for testing via the classloader. The test files *must* be in the same package
+ * as this class and must Not contain a space in the file name. This is due to
+ * how the class loader uses URLs to load files.
  * 
  * @author raykroeker@gmail.com
  * @version 1.0
  */
-public class CodebaseTestFile {
+public class JUnitTestFile {
 
+	/**
+	 * The java file.
+	 * 
+	 */
 	private final File file;
 
 	/**
-	 * Create a CodebaseTestFile.
+	 * Create a JUnitTestFile.
+	 * 
+	 * @param jUnitFilename
+	 *            The test file name.
 	 */
-	CodebaseTestFile(final File file) {
+	JUnitTestFile(final String jUnitFilename) {
 		super();
-		this.file = file; 
+		this.file =
+			new File(JUnitTestFile.class.getResource(jUnitFilename).getFile());
 	}
 	
 	/**

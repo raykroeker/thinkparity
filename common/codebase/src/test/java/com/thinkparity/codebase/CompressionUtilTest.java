@@ -93,7 +93,7 @@ public class CompressionUtilTest extends CodebaseTestCase {
 		compressData = new Vector<CompressData>(getJUnitTestFilesSize());
 		byte[] bytes;
 		
-		for(CodebaseTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			bytes = FileUtil.readBytes(testFile.getFile());
 
 			compressData.add(new CompressData(bytes, Level.Nine));
@@ -105,7 +105,7 @@ public class CompressionUtilTest extends CodebaseTestCase {
 		byte[] bytes;
 		byte[] compressedBytes;
 		
-		for(CodebaseTestFile testFile : getJUnitTestFiles()) {
+		for(JUnitTestFile testFile : getJUnitTestFiles()) {
 			bytes = FileUtil.readBytes(testFile.getFile());
 			compressedBytes = CompressionUtil.compress(bytes, Level.Nine);
 			

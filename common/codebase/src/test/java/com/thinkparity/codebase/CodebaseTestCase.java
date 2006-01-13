@@ -76,7 +76,7 @@ public abstract class CodebaseTestCase extends TestCase {
 		return stringWriter.toString();
 	}
 
-	protected Collection<CodebaseTestFile> getJUnitTestFiles() {
+	protected Collection<JUnitTestFile> getJUnitTestFiles() {
 		return helper.getJUnitTestFiles();
 	}
 

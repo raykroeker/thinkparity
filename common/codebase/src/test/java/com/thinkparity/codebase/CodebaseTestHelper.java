@@ -37,54 +37,30 @@ public class CodebaseTestHelper {
 	/**
 	 * Files to use when testing.
 	 */
-	private static final Vector<CodebaseTestFile> jUnitTestFiles;
+	private static final Vector<JUnitTestFile> jUnitTestFiles;
 
 	static {
 		// record the session start time.
 		jUnitSessionStart = System.currentTimeMillis();
 		// record the session id.
 		jUnitSessionId = "jUnit." + jUnitSessionStart;
-		// set the resources directory
-		final File resourcesDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
-				.append(File.separatorChar).append("target")
-				.append(File.separatorChar).append("test-classes")
-				.append(File.separatorChar).append("com")
-				.append(File.separatorChar).append("thinkparity")
-				.append(File.separatorChar).append("codebase")
-				.toString());
-		// set the test files
-		final File jUnitResourcesFiles =
-			new File(resourcesDirectory, "jUnitFiles");
-		jUnitTestFiles = new Vector<CodebaseTestFile>(4);
-		jUnitTestFiles.add(
-				new CodebaseTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.doc")));
-		jUnitTestFiles.add(
-				new CodebaseTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.odt")));
-		jUnitTestFiles.add(
-				new CodebaseTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.png")));
-		jUnitTestFiles.add(
-				new CodebaseTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework.txt")));
-		jUnitTestFiles.add(
-				new CodebaseTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework 1MB.txt")));
-		jUnitTestFiles.add(
-				new CodebaseTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework 2MB.txt")));
-		jUnitTestFiles.add(
-				new CodebaseTestFile(
-						new File(jUnitResourcesFiles, "JUnit Test Framework 4MB.txt")));
-		// set the output directory
+		// load test files
+		jUnitTestFiles = new Vector<JUnitTestFile>(4);
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.doc"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.odt"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.png"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.txt"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework1MB.txt"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework2MB.txt"));
+		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework4MB.txt"));
+		// set session directory
 		jUnitSessionDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
-			.append(File.separatorChar).append("target")
+			.append(File.separatorChar).append("test-sessions")
 			.append(File.separatorChar).append(jUnitSessionId)
 			.toString());
 		if(jUnitSessionDirectory.exists())
 			FileUtil.deleteTree(jUnitSessionDirectory);
-		Assert.assertTrue("CodebaseTestHelper<init>", jUnitSessionDirectory.mkdir());
+		Assert.assertTrue("CodebaseTestHelper<init>", jUnitSessionDirectory.mkdirs());
 		// initialize the logger
 		CodebaseTestLoggerConfigurator.configure(jUnitSessionId, jUnitSessionDirectory);
 	}
@@ -137,7 +113,7 @@ public class CodebaseTestHelper {
 	 * 
 	 * @return A list of the test files available to the jUnit test framework.
 	 */
-	Collection<CodebaseTestFile> getJUnitTestFiles() { 
+	Collection<JUnitTestFile> getJUnitTestFiles() { 
 		return Collections.unmodifiableCollection(CodebaseTestHelper.jUnitTestFiles);
 	}
 

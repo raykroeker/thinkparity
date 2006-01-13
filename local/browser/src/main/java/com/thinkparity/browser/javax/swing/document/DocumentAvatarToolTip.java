@@ -136,16 +136,12 @@ public class DocumentAvatarToolTip extends JPanel {
 		super();
 		this.canClose = false;
 		this.canDelete = false;
+		this.isHistoryDisplayed = false;
 		this.isKeyHolder = false;
 
 		setOpaque(true);
 		setBackground(DocumentAvatar.getHighlightColor());
 		setLayout(new GridBagLayout());
-		addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				logger.info("Panel click.");
-			}
-		});
 
 		this.nameJLabel = new JLabel();
 		this.nameJLabel.setFont(DocumentAvatar.getNameFont());
@@ -177,7 +173,7 @@ public class DocumentAvatarToolTip extends JPanel {
 		this.historyJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
-				logger.info("History click.");
+				runToggleHistory();
 			}
 		});
 		add(historyJButton, createHistoryJButtonConstraints());
@@ -422,4 +418,21 @@ public class DocumentAvatarToolTip extends JPanel {
 				new Insets(0, 0, 0, 0),
 				0, 0);
 	}
+
+	/**
+	 * Flag indicating whether or not the document history is displayed.
+	 * 
+	 */
+	private boolean isHistoryDisplayed;
+
+	private void runToggleHistory() {
+		if(isHistoryDisplayed) { runHideHistory(); }
+		else { runShowHistory(); }
+	}
+
+	private void runHideHistory() {
+		
+	}
+
+	private void runShowHistory() {}
 }

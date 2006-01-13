@@ -13,7 +13,7 @@
 	<url>http://thinkparity.dyndns.org</url>
 
 	<artifactId>browser2</artifactId>
-	<name>thinkparity.com - browser2</name>
+	<name>Parity Browser2</name>
 	<packaging>jar</packaging>
 
 	<dependencies>

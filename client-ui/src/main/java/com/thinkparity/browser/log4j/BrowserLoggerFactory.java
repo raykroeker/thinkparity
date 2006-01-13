@@ -3,11 +3,16 @@
  */
 package com.thinkparity.browser.log4j;
 
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+
+import com.thinkparity.browser.log4j.or.java.awt.PointRenderer;
+import com.thinkparity.browser.log4j.or.java.awt.event.MouseEventRenderer;
 
 /**
  * BrowserLoggerFactory
@@ -29,6 +34,12 @@ public class BrowserLoggerFactory {
 	private static Boolean isConfigured = Boolean.FALSE;
 
 	/**
+	 * Prefix for all renderer properties.
+	 */
+	private static final String RENDERER_PROPERTY_PREFIX =
+		"log4j.renderer.";
+
+	/**
 	 * Obtain a handle to a logger for the browser.
 	 * 
 	 * @param clasz
@@ -48,15 +59,13 @@ public class BrowserLoggerFactory {
 	private static void configure() {
 		synchronized(configureLock) {
 			if(Boolean.FALSE == isConfigured) {
-				// TODO:  Figure out how to load the configuration file via
-				// an eclipse mechanism.  This will avoid this ugliness in
-				// the code.
 				final Properties log4jProperties = new Properties();
 
 				log4jProperties.setProperty("log4j.threshold", "debug");
 				log4jProperties.setProperty("log4j.rootLogger", "debug, broswerHTML, console");
 
 				configureGlobal(log4jProperties);
+				configureRenderers(log4jProperties);
 
 				configureBrowserHTMLAppender(log4jProperties);
 				configureConsoleAppender(log4jProperties);
@@ -104,6 +113,34 @@ public class BrowserLoggerFactory {
 		global.setProperty("log4j.logger.com.thinkparity.model.xmpp.XMPPSessionImpl", "DEBUG");
 		global.setProperty("log4j.logger.com.thinkparity.model", "INFO");
 		global.setProperty("log4j.logger.com.thinkparity.model.parity.model.io", "WARN");
+	}
+
+	/**
+	 * Configure a renderer for log4j.
+	 * 
+	 * @param log4jProperties
+	 *            The log4j configuration.
+	 * @param renderedClass
+	 *            The class to render.
+	 * @param renderingClass
+	 *            The class that renders.
+	 */
+	private static void configureRenderer(final Properties log4jProperties,
+			final Class renderedClass, final Class renderingClass) {
+		log4jProperties.setProperty(
+				RENDERER_PROPERTY_PREFIX + renderedClass.getName(),
+				renderingClass.getName());
+	}
+
+	/**
+	 * Configure all of the browser log4j renderers.
+	 * 
+	 * @param log4jProperties
+	 *            The log4j configuration.
+	 */
+	private static void configureRenderers(final Properties log4jProperties) {
+		configureRenderer(log4jProperties, MouseEvent.class, MouseEventRenderer.class);
+		configureRenderer(log4jProperties, Point.class, PointRenderer.class);
 	}
 
 	/**

@@ -51,6 +51,12 @@ public class BrowserJFrame extends JFrame {
 	 */
 	private static final long serialVersionUID = 1;
 
+	/**
+	 * Singleton instance of the JFrame.
+	 * 
+	 */
+	private static BrowserJFrame singleton;
+
 	static { defaultSize = new Dimension(550, 400); }
 
 	/**
@@ -58,6 +64,13 @@ public class BrowserJFrame extends JFrame {
 	 *
 	 */
 	public static Dimension getDefaultSize() { return defaultSize; }
+
+	/**
+	 * Obtain the singleton instance of the JFrame.
+	 * 
+	 * @return The singleton instance of the JFrame.
+	 */
+	public static BrowserJFrame getSingleton() { return singleton; }
 
 	/**
 	 * Open the main browser jFrame.
@@ -82,12 +95,12 @@ public class BrowserJFrame extends JFrame {
 	 */
 	private static void doOpen(final Browser browser) {
 		BrowserUI.setParityLookAndFeel();
-		final BrowserJFrame browserJFrame = new BrowserJFrame(browser);
-		browserJFrame.getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
-		browserJFrame.setTitle("Parity Browser");
+		singleton = new BrowserJFrame(browser);
+		singleton .getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
+		singleton .setTitle("Parity Browser");
 
-		browserJFrame.setVisible(true);
-		((Graphics2D) browserJFrame.getGraphics())
+		singleton .setVisible(true);
+		((Graphics2D) singleton .getGraphics())
 			.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 	}
 
@@ -131,6 +144,7 @@ public class BrowserJFrame extends JFrame {
 		new BrowserJFrameState(this);
 		// initialize the components
 		setLayout(new StackLayout());
+		setResizable(false);
 		add(new ColorPanel(backgroundColor), Orientation.BOTTOM);
 		// the document display
 		this.documentShuffler = new DocumentShuffler();

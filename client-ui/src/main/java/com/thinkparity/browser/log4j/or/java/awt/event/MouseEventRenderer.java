@@ -42,7 +42,7 @@ public class MouseEventRenderer implements ObjectRenderer {
 	private static final String PREFIX =
 		MouseEvent.class.getName() + IRendererConstants.PREFIX_SUFFIX;
 
-	private static final String SOURCE = ",source";
+	private static final String SOURCE = ",source:";
 
 	private static final String WHEN = ",when:";
 

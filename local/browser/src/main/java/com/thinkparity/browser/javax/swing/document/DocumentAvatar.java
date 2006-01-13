@@ -23,6 +23,10 @@ import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
 import com.thinkparity.browser.javax.swing.action.Data;
 import com.thinkparity.browser.javax.swing.action.document.Open;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.model.util.ParityObjectUtil;
+
+import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObjectType;
 
 /**
  * @author raykroeker@gmail.com
@@ -139,7 +143,7 @@ public class DocumentAvatar extends JPanel {
 
 	static {
 		// grab the font info for the name
-		nameFont = new Font("Tahoma", Font.PLAIN, 12);
+		nameFont = new Font("Tahoma", Font.BOLD, 12);
 		nameFontColor = BrowserColorUtil.getBlack();
 
 		defaultColor = Color.WHITE;
@@ -293,7 +297,7 @@ public class DocumentAvatar extends JPanel {
 		return new GridBagConstraints(0, 0,
 				1, 1,
 				1.0, 1.0,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 				new Insets(2, 12, 2, 12),
 				0, 2);
 	}
@@ -319,12 +323,56 @@ public class DocumentAvatar extends JPanel {
 	}
 
 	/**
+	 * Determine whether or not the document can be closed.
+	 * 
+	 * @return True if the document can be closed; false otherwise.
+	 * @see ParityObjectUtil#canClose(UUID, ParityObjectType)
+	 */
+	private boolean canClose() {
+		try { return ParityObjectUtil.canClose(id, ParityObjectType.DOCUMENT); }
+		catch(ParityException px) {
+			// NOTE  WTF???!?!?! Need err logger?
+			return false;
+		}
+	}
+
+	/**
+	 * Determine whether or not the document can be closed.
+	 * 
+	 * @return True if the document can be closed; false otherwise.
+	 * @see ParityObjectUtil#canClose(UUID, ParityObjectType)
+	 */
+	private boolean canDelete() {
+		try { return ParityObjectUtil.canDelete(id, ParityObjectType.DOCUMENT); }
+		catch(ParityException px) {
+			// NOTE  WTF???!?!?! Need err logger?
+			return false;
+		}
+	}
+
+	/**
+	 * Determine whether or not the document can be closed.
+	 * 
+	 * @return True if the document can be closed; false otherwise.
+	 * @see ParityObjectUtil#canClose(UUID, ParityObjectType)
+	 */
+	private boolean isKeyHolder() {
+		try { return ParityObjectUtil.isKeyHolder(id, ParityObjectType.DOCUMENT); }
+		catch(ParityException px) {
+			// NOTE  WTF???!?!?! Need err logger?
+			return false;
+		}
+	}
+
+	/**
 	 * Show the tool tip for the avatar.
 	 *
 	 */
 	void showToolTip() {
-hideToolTip();
 		final JLayeredPane jLayeredPane = getRootPane().getLayeredPane();
+		avatarToolTip.setCanClose(canClose());
+		avatarToolTip.setCanDelete(canDelete());
+		avatarToolTip.setKeyHolder(isKeyHolder());
 		avatarToolTip.setKeyHolder(keyHolder);
 		avatarToolTip.setName(name);
 		avatarToolTip.transferToDisplay();

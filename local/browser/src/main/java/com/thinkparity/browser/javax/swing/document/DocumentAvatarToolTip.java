@@ -3,17 +3,18 @@
  */
 package com.thinkparity.browser.javax.swing.document;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import org.apache.log4j.Logger;
+
+import com.thinkparity.browser.javax.swing.button.BrowserButtonFactory;
+import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -22,15 +23,68 @@ import javax.swing.JPanel;
 public class DocumentAvatarToolTip extends JPanel {
 
 	/**
+	 * Font used to display the key holder label.
+	 * 
+	 */
+	private static final Font keyHolderFont;
+
+	/**
+	 * Foreground color used to display the key holder label.
+	 * 
+	 */
+	private static final Color keyHolderForeground;
+
+	/**
 	 * @see java.io.Serialiable
 	 */
 	private static final long serialVersionUID = 1;
 
+	static {
+		keyHolderFont = new Font("Tahoma", Font.PLAIN, 12);
+		keyHolderForeground = Color.BLACK;
+	}
+
+	/**
+	 * Handle to an apache logger.
+	 * 
+	 */
+	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+
+	/**
+	 * Handle to the document avatar.
+	 * 
+	 */
 	private final DocumentAvatar avatar;
 
+	/**
+	 * Flag indicating whether the user can close.
+	 * 
+	 */
+	private boolean canClose;
+
+	/**
+	 * Flag indicating whether the user can delete.
+	 * 
+	 */
+	private boolean canDelete;
+
+	/**
+	 * The close button.
+	 * 
+	 */
 	private final JButton closeJButton;
 
+	/**
+	 * The delete button.
+	 * 
+	 */
 	private final JButton deleteJButton;
+
+	/**
+	 * Flag indicating whether or not the user is also the key holder.
+	 * 
+	 */
+	private boolean isKeyHolder;
 
 	/**
 	 * Document key holder.
@@ -56,14 +110,22 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private final JLabel nameJLabel;
 
+	/**
+	 * The request key button.
+	 * 
+	 */
 	private final JButton requestKeyJButton;
 
 	/**
-	 * Send the document.
+	 * The send button.
 	 * 
 	 */
 	private final JButton sendJButton;
 
+	/**
+	 * The send key button.
+	 * 
+	 */
 	private final JButton sendKeyJButton;
 
 	/**
@@ -73,10 +135,18 @@ public class DocumentAvatarToolTip extends JPanel {
 	public DocumentAvatarToolTip(final DocumentAvatar avatar) {
 		super();
 		this.avatar = avatar;
+		this.canClose = false;
+		this.canDelete = false;
+		this.isKeyHolder = false;
 
 		setOpaque(true);
 		setBackground(DocumentAvatar.getHighlightColor());
 		setLayout(new GridBagLayout());
+		addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				logger.info("Panel click.");
+			}
+		});
 
 		this.nameJLabel = new JLabel();
 		this.nameJLabel.setFont(DocumentAvatar.getNameFont());
@@ -84,30 +154,39 @@ public class DocumentAvatarToolTip extends JPanel {
 		add(nameJLabel, createNameJLabelConstraints());
 
 		this.keyHolderJLabel = new JLabel();
-		this.keyHolderJLabel.setFont(DocumentAvatar.getNameFont());
-		this.keyHolderJLabel.setForeground(DocumentAvatar.getNameForeground());
+		this.keyHolderJLabel.setFont(keyHolderFont);
+		this.keyHolderJLabel.setForeground(keyHolderForeground);
 		add(keyHolderJLabel, createKeyHolderJLabelConstraints());
 
-		this.closeJButton = new JButton("Close");
-		this.closeJButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("Action performed.");
+		this.closeJButton = BrowserButtonFactory.create("Close");
+		this.closeJButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				e.consume();
+				logger.info("Close click.");
 			}
 		});
-		add(closeJButton, createCloseJButtonConstraints());
 
-		this.deleteJButton = new JButton("Delete");
-//		add(deleteJButton, createDeleteJButtonConstraints());
+		this.deleteJButton = BrowserButtonFactory.create("Delete");
 
-		this.sendJButton = new JButton("Send");
-		add(sendJButton, createSendJButtonConstraints());
+		this.sendJButton = BrowserButtonFactory.create("Send");
 
-		this.sendKeyJButton = new JButton("Send Ownership");
-		add(sendKeyJButton, createSendKeyJButtonConstraints());
-		
-		this.requestKeyJButton = new JButton("Request Ownership");
-//		add(requestKeyJButton, createRequestKeyJButtonConstraints());
+		this.sendKeyJButton = BrowserButtonFactory.create("Send Ownership");
+
+		this.requestKeyJButton = BrowserButtonFactory.create("Request Ownership");
 	}
+
+	/**
+	 * Obtain the document can close flag.
+	 * 
+	 * @return The document can close flag.
+	 */
+	public boolean canClose() { return canClose; }
+
+	/**
+	 * Obtain the document can delete flag.
+	 * @return The document can delete flag.
+	 */
+	public boolean canDelete() { return canDelete; }
 
 	/**
 	 * Obtain the document key holder.
@@ -121,6 +200,41 @@ public class DocumentAvatarToolTip extends JPanel {
 	 * @return The document name.
 	 */
 	public String getName() { return name; }
+
+	/**
+	 * Determine if the document key holder flag is set.
+	 * 
+	 * @return The document key holder flag.
+	 */
+	public boolean isKeyHolder() { return isKeyHolder; }
+
+	/**
+	 * Set the document can close flag.
+	 * 
+	 * @param canClose
+	 *            The document can close flag.
+	 * @see DocumentAvatarToolTip#transferToDisplay()
+	 */
+	public void setCanClose(boolean canClose) { this.canClose = canClose; }
+
+	/**
+	 * Set the document can delete flag.
+	 * 
+	 * @param canDelete
+	 *            The document can delete flag.
+	 */
+	public void setCanDelete(boolean canDelete) { this.canDelete = canDelete; }
+
+	/**
+	 * Set the document key holder flag.
+	 * 
+	 * @param isKeyHolder
+	 *            The document key holder flag.
+	 */
+	public void setKeyHolder(boolean isKeyHolder) {
+		this.isKeyHolder = isKeyHolder;
+	}
+
 
 	/**
 	 * Set the document key holder.
@@ -151,6 +265,10 @@ public class DocumentAvatarToolTip extends JPanel {
 		g2.dispose();
 	}
 
+	/**
+	 * Hide the tool tip.
+	 *
+	 */
 	void hideToolTip() { avatar.hideToolTip(); }
 
 	/**
@@ -160,31 +278,51 @@ public class DocumentAvatarToolTip extends JPanel {
 	void transferToDisplay() {
 		this.nameJLabel.setText(name);
 		this.keyHolderJLabel.setText(keyHolder);
+		add(sendJButton, createSendJButtonConstraints());
+		if(canClose) { add(closeJButton, createCloseJButtonConstraints()); }
+		if(canDelete) { add(deleteJButton, createDeleteJButtonConstraints()); }
+		if(isKeyHolder) { add(sendKeyJButton, createSendKeyJButtonConstraints()); }
+		else { add(requestKeyJButton, createRequestJButtonConstraints()); }
 	}
-	
+
+	/**
+	 * Create the grid bag constraints for the close button.
+	 * 
+	 * @return The grid bag constraints for the close button.
+	 */
 	private Object createCloseJButtonConstraints() {
 		return new GridBagConstraints(0, 2,
 				2, 1,
-				1.0, 0.0,
-				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				1.0, 1.0,
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 0),
 				0, 0);
 	}
 
+	/**
+	 * Create the grid bag constraints for the delete button.
+	 * 
+	 * @return The grid bag constraints for the delete button.
+	 */
 	private Object createDeleteJButtonConstraints() {
-		return createSendJButtonConstraints();
+		return new GridBagConstraints(0, 2,
+				2, 1,
+				1.0, 1.0,
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
+				new Insets(0, 0, 0, 0),
+				0, 0);
 	}
 
 	/**
-	 * Create the document key holder label's constraints.
+	 * Create the grid bag constraints for the key holder label.
 	 * 
-	 * @return The constraints.
+	 * @return The grid bag constraints.
 	 */
 	private Object createKeyHolderJLabelConstraints() {
 		return new GridBagConstraints(0, GridBagConstraints.RELATIVE,
 				4, 1,
-				1.0, 1.0,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				1.0, 0.0,
+				GridBagConstraints.NORTH, GridBagConstraints.BOTH,
 				new Insets(0, 12, 2, 0),
 				0, 0);
 	}
@@ -197,35 +335,50 @@ public class DocumentAvatarToolTip extends JPanel {
 	private Object createNameJLabelConstraints() {
 		return new GridBagConstraints(0, 0,
 				4, 1,
-				1.0, 1.0,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				1.0, 0.0,
+				GridBagConstraints.NORTH, GridBagConstraints.BOTH,
 				new Insets(2, 12, 2, 12),
 				0, 2);
 	}
 
-	private Object createRequestKeyJButtonConstraints() {
-		return new GridBagConstraints(3, 2,
+	/**
+	 * Create the grid bag constraints for the request key button.
+	 * 
+	 * @return The grid bag constraints.
+	 */
+	private Object createRequestJButtonConstraints() {
+		return new GridBagConstraints(2, 2,
 				1, 1,
-				1.0, 0.0,
-				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				0.0, 1.0,
+				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 0),
 				0, 0);
 	}
 
+	/**
+	 * Create the grid bag constraints for the send button.
+	 * 
+	 * @return The grid bag constraints.
+	 */
 	private Object createSendJButtonConstraints() {
 		return new GridBagConstraints(3, 2,
 				1, 1,
-				0.0, 0.0,
-				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				0.0, 1.0,
+				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 0),
 				0, 0);
 	}
 
+	/**
+	 * Create the grid bag constraints for the send key button.
+	 * 
+	 * @return The grid bag constraints.
+	 */
 	private Object createSendKeyJButtonConstraints() {
 		return new GridBagConstraints(2, 2,
 				1, 1,
-				0.0, 0.0,
-				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				0.0, 1.0,
+				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
 				new Insets(0, 0, 0, 0),
 				0, 0);
 	}

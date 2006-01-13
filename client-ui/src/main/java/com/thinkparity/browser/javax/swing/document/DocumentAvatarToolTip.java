@@ -51,12 +51,6 @@ public class DocumentAvatarToolTip extends JPanel {
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
 
 	/**
-	 * Handle to the document avatar.
-	 * 
-	 */
-	private final DocumentAvatar avatar;
-
-	/**
 	 * Flag indicating whether the user can close.
 	 * 
 	 */
@@ -138,9 +132,8 @@ public class DocumentAvatarToolTip extends JPanel {
 	 * Create a DocumentAvatarToolTip.
 	 * 
 	 */
-	public DocumentAvatarToolTip(final DocumentAvatar avatar) {
+	public DocumentAvatarToolTip() {
 		super();
-		this.avatar = avatar;
 		this.canClose = false;
 		this.canDelete = false;
 		this.isKeyHolder = false;
@@ -303,12 +296,6 @@ public class DocumentAvatarToolTip extends JPanel {
 		g2.drawLine(0, getHeight() - 1, getWidth() - 1, getHeight() - 1);
 		g2.dispose();
 	}
-
-	/**
-	 * Hide the tool tip.
-	 *
-	 */
-	void hideToolTip() { avatar.hideToolTip(); }
 
 	/**
 	 * Transfer the data from the members to the respective display controls.

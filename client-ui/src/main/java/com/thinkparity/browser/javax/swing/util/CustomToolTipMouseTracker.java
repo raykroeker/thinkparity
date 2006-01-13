@@ -1,12 +1,13 @@
 /*
- * Jan 12, 2006
+ * Jan 13, 2006
  */
-package com.thinkparity.browser.javax.swing.document;
+package com.thinkparity.browser.javax.swing.util;
 
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
 
@@ -15,16 +16,26 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 
 /**
+ * The custom tool tip mouse tracker is used by the swing util class to track
+ * mouse events in the tool tip and dispatch them to the appropriate components.
+ * It takes care of hiding the tool tip when the mouse exits the tool tip.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
+class CustomToolTipMouseTracker implements MouseInputListener {
 
 	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+
+	/**
+	 * The custom tool tip being displayed.
+	 * 
+	 */
+	private final JPanel customToolTip;
 
 	/**
 	 * The glass pane.
@@ -40,17 +51,11 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	private Component previousC;
 
 	/**
-	 * The tool tip being displayed.
-	 * 
-	 */
-	private final DocumentAvatarToolTip toolTip;
-
-	/**
 	 * Create a DocumentAvatarToolTipMouseTracker.
 	 */
-	public DocumentAvatarToolTipMouseTracker(final DocumentAvatarToolTip toolTip) {
+	CustomToolTipMouseTracker(final JPanel customToolTip) {
 		super();
-		this.toolTip = toolTip;
+		this.customToolTip = customToolTip;
 	}
 
 	/**
@@ -60,8 +65,8 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	 * hidden.
 	 * 
 	 */
-	public void install() {
-		glassPane = toolTip.getRootPane().getGlassPane();
+	void install() {
+		glassPane = customToolTip.getRootPane().getGlassPane();
 		glassPane.addMouseListener(this);
 		glassPane.addMouseMotionListener(this);
 		glassPane.setVisible(true);
@@ -95,11 +100,11 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 		final MouseEvent jpe = convertMouseEvent(e);
 		if(jPanelContains(jpe)) { dispatchEvent(e); }
 		else {
-			final Component[] components = toolTip.getComponents();
+			final Component[] components = customToolTip.getComponents();
 			for(Component component : components) {
 				fireMouseExited(component, e);
 			}
-			toolTip.hideToolTip();
+			SwingUtil.hideCustomToolTip(customToolTip);
 		}
 	}
 
@@ -110,7 +115,7 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	public void mouseMoved(final MouseEvent e) {
 		final MouseEvent jpe = convertMouseEvent(e);
 		if(jPanelContains(jpe)) { dispatchMoveEvent(e); }
-		else { toolTip.hideToolTip(); }
+		else { SwingUtil.hideCustomToolTip(customToolTip); }
 	}
 
 	/**
@@ -129,7 +134,7 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	 * Uninstall the mouse tracker.
 	 *
 	 */
-	public void uninstall() {
+	void uninstall() {
 		if(null != glassPane) {
 			glassPane.removeMouseListener(this);
 			glassPane.removeMouseMotionListener(this);
@@ -149,7 +154,7 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	 * @see #glassPane
 	 */
 	private MouseEvent convertMouseEvent(final MouseEvent e) {
-		return SwingUtilities.convertMouseEvent(glassPane, e, toolTip); 
+		return SwingUtilities.convertMouseEvent(glassPane, e, customToolTip); 
 	}
 
 	/**
@@ -165,7 +170,7 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 			final Component c = getJPanelComponent(jpe);
 			if(null != c) {
 				if(!fireClick(c, e).isConsumed())
-					fireClick(toolTip, e);
+					fireClick(customToolTip, e);
 			}
 		}
 	}
@@ -223,8 +228,8 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	 */
 	private MouseEvent fire(final int id, final Component c, final MouseEvent e) {
 		final Point jpPoint =
-			SwingUtilities.convertPoint(glassPane, e.getPoint(), toolTip);
-		final Point cPoint = SwingUtilities.convertPoint(toolTip, jpPoint, c);
+			SwingUtilities.convertPoint(glassPane, e.getPoint(), customToolTip);
+		final Point cPoint = SwingUtilities.convertPoint(customToolTip, jpPoint, c);
 		final MouseEvent ce = new MouseEvent(c, id, e.getWhen(),
 				e.getModifiers(), cPoint.x, cPoint.y, e.getClickCount(),
 				e.isPopupTrigger());
@@ -285,7 +290,7 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	 * @see #convertMouseEvent(MouseEvent)
 	 */
 	private Component getJPanelComponent(final MouseEvent jpe) {
-		return toolTip.getComponentAt(jpe.getPoint());
+		return customToolTip.getComponentAt(jpe.getPoint());
 	}
 
 	/**
@@ -299,6 +304,6 @@ public class DocumentAvatarToolTipMouseTracker implements MouseInputListener {
 	 * @see #convertMouseEvent(MouseEvent)
 	 */
 	private boolean jPanelContains(final MouseEvent jpe) {
-		return toolTip.contains(jpe.getPoint());
+		return customToolTip.contains(jpe.getPoint());
 	}
 }

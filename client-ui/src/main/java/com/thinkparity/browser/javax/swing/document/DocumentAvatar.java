@@ -11,9 +11,7 @@ import java.awt.event.MouseEvent;
 import java.util.UUID;
 
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
@@ -22,6 +20,7 @@ import com.thinkparity.browser.javax.swing.BrowserColorUtil;
 import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
 import com.thinkparity.browser.javax.swing.action.Data;
 import com.thinkparity.browser.javax.swing.action.document.Open;
+import com.thinkparity.browser.javax.swing.util.SwingUtil;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 import com.thinkparity.browser.model.util.ParityObjectUtil;
 
@@ -108,9 +107,7 @@ public class DocumentAvatar extends JPanel {
 	 * The tool tip displayed on mouse hover.
 	 * 
 	 */
-	private static DocumentAvatarToolTip avatarToolTip;
-
-	private static DocumentAvatarToolTipMouseTracker avatarToolTipMouseTracker;
+	private static final DocumentAvatarToolTip avatarToolTip;
 
 	/**
 	 * Default background color for the avatar.
@@ -149,6 +146,9 @@ public class DocumentAvatar extends JPanel {
 		defaultColor = Color.WHITE;
 		highlightColor =	// google highlight color
 			BrowserColorUtil.getRGBColor(214, 217, 229, 255);
+
+		// create the tool tip
+		avatarToolTip = new DocumentAvatarToolTip();
 	}
 
 	/**
@@ -165,8 +165,18 @@ public class DocumentAvatar extends JPanel {
 	 */
 	static Color getHighlightColor() { return highlightColor; }
 
+	/**
+	 * Obtain the name font.
+	 * 
+	 * @return The name font.
+	 */
 	static Font getNameFont() { return nameFont; }
 
+	/**
+	 * Obtain the name foreground color.
+	 * 
+	 * @return The name foreground color.
+	 */
 	static Color getNameForeground() { return nameFontColor; }
 
 	/**
@@ -212,10 +222,6 @@ public class DocumentAvatar extends JPanel {
 	 */
 	public DocumentAvatar(final Container parent) {
 		super();
-		// create the tool tip
-		avatarToolTip = new DocumentAvatarToolTip(this);
-		avatarToolTipMouseTracker =
-			new DocumentAvatarToolTipMouseTracker(avatarToolTip);
 
 		setOpaque(true);
 		setBackground(Color.WHITE);
@@ -289,38 +295,11 @@ public class DocumentAvatar extends JPanel {
 	}
 
 	/**
-	 * Create the grid bag constriants for the name label.
+	 * Transfer all information from the private data members to the display
+	 * components.
 	 * 
-	 * @return The grid bag constraints.
 	 */
-	Object createNameJLabelConstraints() {
-		return new GridBagConstraints(0, 0,
-				1, 1,
-				1.0, 1.0,
-				GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 12, 2, 12),
-				0, 2);
-	}
-
-	/**
-	 * Obtain the JLabel for the document name.
-	 * 
-	 * @return The name JLabel.
-	 */
-	JLabel getNameJLabel() { return nameJLabel; }
-
-	/**
-	 * Hide the tool tip.
-	 *
-	 */
-	void hideToolTip() {
-		avatarToolTipMouseTracker.uninstall();
-		final JLayeredPane jLayeredPane = getRootPane().getLayeredPane();
-		jLayeredPane.remove(avatarToolTip);
-		jLayeredPane.repaint();
-
-		setHighlight(false);
-	}
+	void transferToDisplay() { this.nameJLabel.setText(name); }
 
 	/**
 	 * Determine whether or not the document can be closed.
@@ -351,6 +330,20 @@ public class DocumentAvatar extends JPanel {
 	}
 
 	/**
+	 * Create the grid bag constriants for the name label.
+	 * 
+	 * @return The grid bag constraints.
+	 */
+	private Object createNameJLabelConstraints() {
+		return new GridBagConstraints(0, 0,
+				1, 1,
+				1.0, 1.0,
+				GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+				new Insets(2, 12, 2, 12),
+				0, 2);
+	}
+
+	/**
 	 * Determine whether or not the document can be closed.
 	 * 
 	 * @return True if the document can be closed; false otherwise.
@@ -362,36 +355,6 @@ public class DocumentAvatar extends JPanel {
 			// NOTE  WTF???!?!?! Need err logger?
 			return false;
 		}
-	}
-
-	/**
-	 * Show the tool tip for the avatar.
-	 *
-	 */
-	void showToolTip() {
-		final JLayeredPane jLayeredPane = getRootPane().getLayeredPane();
-		avatarToolTip.setCanClose(canClose());
-		avatarToolTip.setCanDelete(canDelete());
-		avatarToolTip.setKeyHolder(isKeyHolder());
-		avatarToolTip.setKeyHolder(keyHolder);
-		avatarToolTip.setName(name);
-		avatarToolTip.transferToDisplay();
-		avatarToolTip.setLocation(SwingUtilities.convertPoint(this, new Point(0, 0), jLayeredPane));
-		final Dimension avatarSize = getSize();
-		avatarSize.height = avatarSize.height * 3;
-		avatarToolTip.setSize(avatarSize);
-		avatarToolTip.setVisible(true);
-		jLayeredPane.add(avatarToolTip, JLayeredPane.POPUP_LAYER);
-		avatarToolTipMouseTracker.install();
-	}
-
-	/**
-	 * Transfer all information from the private data members to the display
-	 * components.
-	 * 
-	 */
-	void transferToDisplay() {
-		this.nameJLabel.setText(name);
 	}
 
 	/**
@@ -414,5 +377,23 @@ public class DocumentAvatar extends JPanel {
 		if(doHighlight) { setBackground(DocumentAvatar.getHighlightColor()); }
 		else { setBackground(DocumentAvatar.getDefaultColor()); }
 		repaint();
+	}
+
+	/**
+	 * Show the tool tip for the avatar.
+	 *
+	 */
+	private void showToolTip() {
+		avatarToolTip.setCanClose(canClose());
+		avatarToolTip.setCanDelete(canDelete());
+		avatarToolTip.setKeyHolder(isKeyHolder());
+		avatarToolTip.setKeyHolder(keyHolder);
+		avatarToolTip.setName(name);
+		avatarToolTip.transferToDisplay();
+		final Dimension avatarSize = getSize();
+		avatarSize.height = avatarSize.height * 3;
+		avatarToolTip.setSize(avatarSize);
+
+		SwingUtil.showCustomToolTip(this, avatarToolTip, new Point(0, 0));
 	}
 }

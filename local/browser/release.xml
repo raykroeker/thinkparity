@@ -48,6 +48,8 @@
 				<include name="${name}-${version}/*"/>
 			</fileset>
 		</zip>
+		<checksum file="${file.zip}" algorithm="MD5"/>
+		<checksum file="${file.zip}" algorithm="SHA"/>
 		<delete dir="${releasedir}/${name}-${version}"/>
 	</target>
 </project>

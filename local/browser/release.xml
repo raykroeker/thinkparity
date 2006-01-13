@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!-- thinkparity.com - browser2 -->
+<project name="browser2" basedir="./">
+	<!-- properties -->
+	<property name="name" value="browser2"/>
+	<property name="version" value="1.0-SNAPSHOT"/>
+	<property name="releasedir" value="${basedir}/target"/>
+
+	<!-- libs -->
+	<property environment="env"/>
+	<property name="maven.repo" value="${env.HOME}/.m2/repository"/>
+	<property name="lib.browser2" value="${maven.repo}/com/thinkparity/parity/browser2/1.0-SNAPSHOT/browser2-1.0-SNAPSHOT.jar"/>
+	<property name="lib.codebase" value="${maven.repo}/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
+	<property name="lib.model" value="${maven.repo}/com/thinkparity/parity/model/1.0-SNAPSHOT/model-1.0-SNAPSHOT.jar"/>
+	<property name="lib.xpp3" value="${maven.repo}/xpp3/xpp3/1.1.3.3/xpp-1.1.3.3.jar"/>
+	<property name="lib.xstream" value="${maven.repo}/xstream/xstream/1.1.2/xstream-1.1.2.jar"/>
+	<property name="lib.smack" value="${maven.repo}/jivesoftware/smack/2.0.0/smack-2.0.0.jar"/>
+	<property name="lib.smackx" value="${maven.repo}/jivesoftware/smackx/2.0.0/smackx-2.0.0.jar"/>
+	<property name="lib.commons-codec" value="${maven.repo}/commons-codec/commons-codec/1.3/commons-codec-1.3.jar"/>
+	<property name="lib.substance" value="${maven.repo}/net/java/javadesktop/substance/2.2-SNAPSHOT/substance-2.2-SNAPSHOT.jar"/>
+	<property name="lib.log4j" value="${maven.repo}/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
+
+	<!-- files -->
+	<property name="file.jnlp" value="${basedir}/${name}.jnlp"/>
+	<property name="file.cmd" value="${basedir}/${name}.cmd"/>
+	<property name="file.zip" value="${releasedir}/${name}-${version}.zip"/>
+
+	<!-- targets -->
+	<target name="release" depends="" if="" unless="">
+		<mkdir dir="${releasedir}/${name}-${version}"/>
+		<copy todir="${releasedir}/${name}-${version}">
+			<fileset file="${lib.browser2}"/>
+			<fileset file="${lib.codebase}"/>
+			<fileset file="${lib.model}"/>
+			<fileset file="${lib.xpp3}"/>
+			<fileset file="${lib.xstream}"/>
+			<fileset file="${lib.smack}"/>
+			<fileset file="${lib.smackx}"/>
+			<fileset file="${lib.commons-codec}"/>
+			<fileset file="${lib.substance}"/>
+			<fileset file="${lib.log4j}"/>
+
+			<fileset file="${file.jnlp}"/>
+			<fileset file="${file.cmd}"/>
+		</copy>
+		<zip destfile="${file.zip}">
+			<fileset dir="${releasedir}">
+				<include name="${name}-${version}/*"/>
+			</fileset>
+		</zip>
+		<delete dir="${releasedir}/${name}-${version}"/>
+	</target>
+</project>

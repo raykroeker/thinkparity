@@ -4,7 +4,6 @@
 package com.thinkparity.browser;
 
 import java.util.Random;
-import java.util.UUID;
 
 import com.thinkparity.model.parity.api.ParityObjectFlag;
 
@@ -45,10 +44,6 @@ public class RandomData {
 	}
 	
 	public String getDate() { return getStringData(DATE_DATA); }
-
-	public UUID getProjectId() {
-		return UUID.fromString(System.getProperty("parity.projectId"));
-	}
 
 	private Object getData(final Object[] data) {
 		return data[random.nextInt(data.length)];

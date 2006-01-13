@@ -129,6 +129,12 @@ public class DocumentAvatarToolTip extends JPanel {
 	private final JButton sendKeyJButton;
 
 	/**
+	 * The history send button.
+	 * 
+	 */
+	private final JButton historyJButton;
+
+	/**
 	 * Create a DocumentAvatarToolTip.
 	 * 
 	 */
@@ -167,12 +173,45 @@ public class DocumentAvatarToolTip extends JPanel {
 		});
 
 		this.deleteJButton = BrowserButtonFactory.create("Delete");
+		this.deleteJButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				e.consume();
+				logger.info("Delete click.");
+			}
+		});
+
+		this.historyJButton = BrowserButtonFactory.create("History");
+		this.historyJButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				e.consume();
+				logger.info("History click.");
+			}
+		});
+		add(historyJButton, createHistoryJButtonConstraints());
 
 		this.sendJButton = BrowserButtonFactory.create("Send");
+		this.sendJButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				e.consume();
+				logger.info("Send click.");
+			}
+		});
 
 		this.sendKeyJButton = BrowserButtonFactory.create("Send Ownership");
+		this.sendKeyJButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				e.consume();
+				logger.info("Send key click.");
+			}
+		});
 
 		this.requestKeyJButton = BrowserButtonFactory.create("Request Ownership");
+		this.requestKeyJButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				e.consume();
+				logger.info("Request key click.");
+			}
+		});
 	}
 
 	/**
@@ -286,6 +325,20 @@ public class DocumentAvatarToolTip extends JPanel {
 	}
 
 	/**
+	 * Create the grid bag constraints for the history button.
+	 * 
+	 * @return The grid bag constraints for the history button.
+	 */
+	private Object createHistoryJButtonConstraints() {
+		return new GridBagConstraints(4, 2,
+				1, 1,
+				0.0, 1.0,
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
+				new Insets(0, 3, 0, 0),
+				0, 0);
+	}
+
+	/**
 	 * Create the grid bag constraints for the close button.
 	 * 
 	 * @return The grid bag constraints for the close button.
@@ -320,7 +373,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private Object createKeyHolderJLabelConstraints() {
 		return new GridBagConstraints(0, GridBagConstraints.RELATIVE,
-				4, 1,
+				5, 1,
 				1.0, 0.0,
 				GridBagConstraints.NORTH, GridBagConstraints.BOTH,
 				new Insets(0, 12, 2, 0),
@@ -334,7 +387,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private Object createNameJLabelConstraints() {
 		return new GridBagConstraints(0, 0,
-				4, 1,
+				5, 1,
 				1.0, 0.0,
 				GridBagConstraints.NORTH, GridBagConstraints.BOTH,
 				new Insets(2, 12, 2, 12),

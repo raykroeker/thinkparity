@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry output="target/classes" kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.5.0_05"/>
-	<classpathentry sourcepath="/MAVEN_REPO/log4j/src/log4j-1.2.9.src.jar" kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
-	<classpathentry sourcepath="/MAVEN_REPO/thinkparity.com/src/codebase-1.0-SNAPSHOT.src.zip" kind="var" path="MAVEN_REPO/thinkparity.com/jars/codebase-1.0-SNAPSHOT.jar"/>
-	<classpathentry sourcepath="src/main/lib/messenger-2.3.1.src.jar" kind="lib" path="src/main/lib/messenger-2.3.1.jar">
-		<attributes>
-			<attribute value="jar:file:/C:/Documents and Settings/raymond/My Documents/eclipse.org/workspaces/thinkparity.com/thinkparity.com - server/src/main/lib/messenger-2.3.1.src.jar!/documentation/javadoc" name="javadoc_location"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry output="target/classes" kind="src" path="src/main/resources"/>
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jivesoftware/messenger/2.3.1/messenger-2.3.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

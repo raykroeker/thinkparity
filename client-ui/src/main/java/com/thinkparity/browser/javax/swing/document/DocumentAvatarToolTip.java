@@ -4,12 +4,16 @@
 package com.thinkparity.browser.javax.swing.document;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 
@@ -134,6 +138,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	public DocumentAvatarToolTip() {
 		super();
+this.jPanel = this;
 		this.canClose = false;
 		this.canDelete = false;
 		this.isHistoryDisplayed = false;
@@ -316,8 +321,8 @@ public class DocumentAvatarToolTip extends JPanel {
 		return new GridBagConstraints(4, 2,
 				1, 1,
 				0.0, 1.0,
-				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 3, 0, 0),
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
+				new Insets(0, 2, 0, 0),
 				0, 0);
 	}
 
@@ -330,8 +335,8 @@ public class DocumentAvatarToolTip extends JPanel {
 		return new GridBagConstraints(0, 2,
 				2, 1,
 				1.0, 1.0,
-				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 0, 0, 0),
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
+				new Insets(0, 2, 0, 0),
 				0, 0);
 	}
 
@@ -344,8 +349,8 @@ public class DocumentAvatarToolTip extends JPanel {
 		return new GridBagConstraints(0, 2,
 				2, 1,
 				1.0, 1.0,
-				GridBagConstraints.SOUTHEAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 0, 0, 0),
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
+				new Insets(0, 2, 0, 0),
 				0, 0);
 	}
 
@@ -386,8 +391,8 @@ public class DocumentAvatarToolTip extends JPanel {
 		return new GridBagConstraints(2, 2,
 				1, 1,
 				0.0, 1.0,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 0, 0, 0),
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
+				new Insets(0, 2, 0, 0),
 				0, 0);
 	}
 
@@ -400,8 +405,8 @@ public class DocumentAvatarToolTip extends JPanel {
 		return new GridBagConstraints(3, 2,
 				1, 1,
 				0.0, 1.0,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 0, 0, 0),
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
+				new Insets(0, 2, 0, 0),
 				0, 0);
 	}
 
@@ -414,8 +419,8 @@ public class DocumentAvatarToolTip extends JPanel {
 		return new GridBagConstraints(2, 2,
 				1, 1,
 				0.0, 1.0,
-				GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-				new Insets(0, 0, 0, 0),
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
+				new Insets(0, 2, 0, 0),
 				0, 0);
 	}
 
@@ -434,5 +439,32 @@ public class DocumentAvatarToolTip extends JPanel {
 		
 	}
 
-	private void runShowHistory() {}
+
+	private final JPanel jPanel;
+
+	private void runShowHistory() {
+		final int shufflerSizeHeight = getParent().getParent().getSize().height;
+logger.debug(shufflerSizeHeight);
+		final int toolTipLocationY = getLocation().y;
+logger.debug(toolTipLocationY);
+		animateHistory = new Timer(10, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final Dimension size = getSize();
+				size.height += 3;
+				if(shufflerSizeHeight - toolTipLocationY - size.height <= 25) {
+					stopShowHistory();
+				}
+				else {
+					setSize(size);
+					dispatchEvent(new ComponentEvent(jPanel, ComponentEvent.COMPONENT_RESIZED));
+					doLayout();
+				}
+			}
+		});
+		animateHistory.start();
+	}
+	private Timer animateHistory;
+	private void stopShowHistory() {
+		animateHistory.stop();
+	}
 }

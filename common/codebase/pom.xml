@@ -22,6 +22,23 @@
 		<url>http://tpdev.thinkparity.com/viewcvs</url>
 	</scm>
 
+	<developers>
+		<developer>
+			<id>raymond</id>
+			<name>Raymond Kroeker</name>
+			<email>raykroeker@gmail.com</email>
+			<url>http://www.raykroeker.com</url>
+			<organization>thinkParity.com</organization>
+			<organizationUrl>http://thinkparity.dyndns.org</organizationUrl>
+			<roles>
+				<role>Architect</role>
+				<role>Engineer</role>
+			</roles>
+			<timezone>-8</timezone>
+			<properties/>
+		</developer>
+	</developers>
+
 	<dependencies>
 		<dependency>
 			<groupId>log4j</groupId>

@@ -108,7 +108,7 @@ public class ModelTestCaseHelper {
 			.append(File.separatorChar).append(jUnitSessionId)
 			.toString());
 		if(!outputDirectory.exists())
-			Assert.assertTrue("jUnit<init>", outputDirectory.mkdir());
+			Assert.assertTrue("jUnit<init>", outputDirectory.mkdirs());
 		// initialize the logger
 		ModelTestLoggerConfigurator.configure(jUnitSessionId, outputDirectory);
 	}

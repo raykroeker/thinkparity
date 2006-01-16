@@ -11,34 +11,6 @@ package com.thinkparity.codebase.assertion;
 public class Assert {
 
 	/**
-	 * Assert that the boolean expression provided is true. If it is not, throw
-	 * a <code>org.kcs.projectmanager.client.util.NotTrueAssertion</code>.
-	 * 
-	 * @param message
-	 *            <code>java.lang.String</code>
-	 * @param trueExpression
-	 *            <code>java.lang.Boolean</code>
-	 */
-	public static void assertTrue(final String message, final Boolean trueExpression) {
-		if(Boolean.TRUE != trueExpression)
-			throw new NotTrueAssertion(message);
-	}
-
-	/**
-	 * Assert that the boolean expression provided is false. If it is not, throw
-	 * a <code>org.kcs.projectmanager.client.util.TrueAssertion</code>.
-	 * 
-	 * @param message
-	 *            <code>java.lang.String</code>
-	 * @param falseExpression
-	 *            <code>java.lang.Boolean</code>
-	 */
-	public static void assertNotTrue(final String message, final Boolean falseExpression) {
-		if(Boolean.FALSE != falseExpression)
-			throw new TrueAssertion(message);
-	}
-
-	/**
 	 * Assert that the object reference provided is not null. If it is, throw a
 	 * <code>org.kcs.projectmanager.client.util.NullPointerAssertion</code>.
 	 * 
@@ -71,11 +43,69 @@ public class Assert {
 	}
 
 	/**
+	 * Assert that the boolean expression provided is false. If it is not, throw
+	 * a <code>org.kcs.projectmanager.client.util.TrueAssertion</code>.
+	 * 
+	 * @param message
+	 *            <code>java.lang.String</code>
+	 * @param falseExpression
+	 *            <code>java.lang.Boolean</code>
+	 */
+	public static void assertNotTrue(final String message, final Boolean falseExpression) {
+		if(Boolean.FALSE != falseExpression)
+			throw new TrueAssertion(message);
+	}
+
+	/**
 	 * Assert that the current api method has not yet been implemented.
 	 * @param message <code>java.lang.String</code>
 	 */
 	public static void assertNotYetImplemented(final String message) {
 		throw Assert.createNotYetImplemented(message);
+	}
+
+	/**
+	 * Assert that the expression provided is true.
+	 * 
+	 * @param message
+	 *            The assertion message.
+	 * @param expression
+	 *            A boolean expression.
+	 * @throws NotTrueAssertion
+	 *             If the expression does not evaluate to true.
+	 */
+	public static void assertTrue(final String message, final Boolean expression) {
+		if(Boolean.TRUE != expression)
+			throw new NotTrueAssertion(message);
+	}
+
+	/**
+	 * Assert that the instance of an object provided is of the type provided.
+	 * 
+	 * @param message
+	 *            The assertion message.
+	 * @param type
+	 *            The target type.
+	 * @param instance
+	 *            The questionable instance.
+	 * @throws NotOfTypeAssertion
+	 *             If the instance is not of the target type.
+	 */
+	public static void assertOfType(final String message, final Class<?> type,
+			final Object instance) {
+		if(!type.isAssignableFrom(instance.getClass()))
+			throw new NotOfTypeAssertion(message, type, instance);
+	}
+
+	/**
+	 * Assert that an area of code is unreachable. This is achived by throwing
+	 * an <code>UnreachableCodeAssertion</code>.
+	 * 
+	 * @param message
+	 *            <code>java.lang.String</code>
+	 */
+	public static void assertUnreachable(final String message) {
+		throw Assert.createUnreachable(message);
 	}
 
 	/**
@@ -96,17 +126,6 @@ public class Assert {
 	public static UnreachableCodeAssertion createUnreachable(
 			final String message) {
 		return new UnreachableCodeAssertion(message);
-	}
-
-	/**
-	 * Assert that an area of code is unreachable. This is achived by throwing
-	 * an <code>UnreachableCodeAssertion</code>.
-	 * 
-	 * @param message
-	 *            <code>java.lang.String</code>
-	 */
-	public static void assertUnreachable(final String message) {
-		throw Assert.createUnreachable(message);
 	}
 
 	/**

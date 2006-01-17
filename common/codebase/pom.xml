@@ -18,8 +18,6 @@
 
 	<scm>
 		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:codebase</connection>
-		<tag>v1_0</tag>
-		<url>http://tpdev.thinkparity.com/viewcvs</url>
 	</scm>
 
 	<developers>

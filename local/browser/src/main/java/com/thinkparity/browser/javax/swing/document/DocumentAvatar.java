@@ -24,8 +24,11 @@ import com.thinkparity.browser.javax.swing.util.SwingUtil;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 import com.thinkparity.browser.model.util.ParityObjectUtil;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.ParityObjectType;
+import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * @author raykroeker@gmail.com
@@ -156,28 +159,28 @@ public class DocumentAvatar extends JPanel {
 	 * 
 	 * @return The default avatar background color.
 	 */
-	static Color getDefaultColor() { return defaultColor; }
+	public static Color getDefaultColor() { return defaultColor; }
 
 	/**
 	 * Obtain the highlight color.
 	 * 
 	 * @return The color to highlight the avatar.
 	 */
-	static Color getHighlightColor() { return highlightColor; }
+	public static Color getHighlightColor() { return highlightColor; }
 
 	/**
 	 * Obtain the name font.
 	 * 
 	 * @return The name font.
 	 */
-	static Font getNameFont() { return nameFont; }
+	public static Font getNameFont() { return nameFont; }
 
 	/**
 	 * Obtain the name foreground color.
 	 * 
 	 * @return The name foreground color.
 	 */
-	static Color getNameForeground() { return nameFontColor; }
+	public static Color getNameForeground() { return nameFontColor; }
 
 	/**
 	 * Handle to an apache logger
@@ -193,22 +196,10 @@ public class DocumentAvatar extends JPanel {
 		(Open) BrowserActionFactory.createAction(Open.class);
 
 	/**
-	 * The document id.
+	 * Input for the document display avatar.
 	 * 
 	 */
-	private UUID id;
-
-	/**
-	 * The document key holder.
-	 * 
-	 */
-	private String keyHolder;
-
-	/**
-	 * The document name.
-	 * 
-	 */
-	private String name;
+	private Document input;
 
 	/**
 	 * Label used to display the document name.
@@ -220,9 +211,8 @@ public class DocumentAvatar extends JPanel {
 	 * Create a DocumentAvatar.
 	 * 
 	 */
-	public DocumentAvatar(final Container parent) {
+	public DocumentAvatar() {
 		super();
-
 		setOpaque(true);
 		setBackground(Color.WHITE);
 		setLayout(new GridBagLayout());
@@ -236,50 +226,17 @@ public class DocumentAvatar extends JPanel {
 	}
 
 	/**
-	 * Obtain the document id.
+	 * Set the input.
 	 * 
-	 * @return The document id.
+	 * @param input
+	 *            The input.
 	 */
-	public UUID getId() { return id; }
+	public void setInput(Object input) {
+		Assert.assertNotNull("", input);
+		Assert.assertOfType("", Document.class, input);
 
-	/**
-	 * Obtain the document key holder.
-	 * 
-	 * @return The document key holder.
-	 */
-	public String getKeyHolder() { return keyHolder; }
-
-	/**
-	 * Obtain the document name.
-	 * 
-	 * @return The document name.
-	 */
-	public String getName() { return name; }
-
-	/**
-	 * Set the document id.
-	 * 
-	 * @param id
-	 *            The document id.
-	 */
-	public void setId(UUID id) { this.id = id; }
-
-	/**
-	 * Set the document key holder.
-	 * 
-	 * @param keyHolder
-	 *            The key holder.
-	 */
-	public void setKeyHolder(String keyHolder) { this.keyHolder = keyHolder; }
-
-	/**
-	 * Set the name.
-	 * 
-	 * @param name
-	 *            The name.
-	 */
-	public void setName(String name) { this.name = name; }
-
+		this.input = (Document) input;
+	}
 
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
@@ -299,7 +256,7 @@ public class DocumentAvatar extends JPanel {
 	 * components.
 	 * 
 	 */
-	void transferToDisplay() { this.nameJLabel.setText(name); }
+	void transferToDisplay() { this.nameJLabel.setText(input.getName()); }
 
 	/**
 	 * Determine whether or not the document can be closed.
@@ -308,7 +265,7 @@ public class DocumentAvatar extends JPanel {
 	 * @see ParityObjectUtil#canClose(UUID, ParityObjectType)
 	 */
 	private boolean canClose() {
-		try { return ParityObjectUtil.canClose(id, ParityObjectType.DOCUMENT); }
+		try { return ParityObjectUtil.canClose(input.getId(), ParityObjectType.DOCUMENT); }
 		catch(ParityException px) {
 			// NOTE  WTF???!?!?! Need err logger?
 			return false;
@@ -322,7 +279,7 @@ public class DocumentAvatar extends JPanel {
 	 * @see ParityObjectUtil#canClose(UUID, ParityObjectType)
 	 */
 	private boolean canDelete() {
-		try { return ParityObjectUtil.canDelete(id, ParityObjectType.DOCUMENT); }
+		try { return ParityObjectUtil.canDelete(input.getId(), ParityObjectType.DOCUMENT); }
 		catch(ParityException px) {
 			// NOTE  WTF???!?!?! Need err logger?
 			return false;
@@ -350,7 +307,7 @@ public class DocumentAvatar extends JPanel {
 	 * @see ParityObjectUtil#canClose(UUID, ParityObjectType)
 	 */
 	private boolean isKeyHolder() {
-		try { return ParityObjectUtil.isKeyHolder(id, ParityObjectType.DOCUMENT); }
+		try { return ParityObjectUtil.isKeyHolder(input.getId(), ParityObjectType.DOCUMENT); }
 		catch(ParityException px) {
 			// NOTE  WTF???!?!?! Need err logger?
 			return false;
@@ -363,7 +320,7 @@ public class DocumentAvatar extends JPanel {
 	 */
 	private void runOpenDocument() {
 		final Data data = new Data(1);
-		data.set(Open.DataKey.DOCUMENT_ID, getId());
+		data.set(Open.DataKey.DOCUMENT_ID, input.getId());
 		openDocument.invoke(data);
 	}
 
@@ -386,14 +343,12 @@ public class DocumentAvatar extends JPanel {
 	private void showToolTip() {
 		avatarToolTip.setCanClose(canClose());
 		avatarToolTip.setCanDelete(canDelete());
+		avatarToolTip.setInput(input);
 		avatarToolTip.setKeyHolder(isKeyHolder());
-		avatarToolTip.setKeyHolder(keyHolder);
-		avatarToolTip.setName(name);
 		avatarToolTip.transferToDisplay();
 		final Dimension avatarSize = getSize();
 		avatarSize.height = avatarSize.height * 3;
 		avatarToolTip.setSize(avatarSize);
-
 		SwingUtil.showCustomToolTip(this, avatarToolTip, new Point(0, 0));
 	}
 }

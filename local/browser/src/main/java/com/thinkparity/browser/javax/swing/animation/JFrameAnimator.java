@@ -7,8 +7,4 @@ package com.thinkparity.browser.javax.swing.animation;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public interface JFrameAnimator {
-	public void start();
-	public void stop();
-	public void animate();
-}
+public interface JFrameAnimator extends Animator {}

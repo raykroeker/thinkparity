@@ -13,17 +13,38 @@ import com.thinkparity.model.parity.api.ParityObjectFlag;
  */
 public class RandomData {
 
-	private static final String[] ACTION_DATA =
-		{"Created", "Sent", "Received"};
+	private static final String[] ACTION_DATA;
 
-	private static final String[] ARTIFACT_KEY_HOLDER_DATA =
-		{"John Wayne", "Omid Ejtemai", "Raymond Kroeker", "Alan Turing"};
+	private static final String[] ACTION_DATE_DATA;
 
-	private static final ParityObjectFlag[] ARTIFACT_FLAG_DATA =
-		{ParityObjectFlag.CLOSED, ParityObjectFlag.SEEN, ParityObjectFlag.KEY};
+	private static final String[] ACTION_USER_DATA;
 
-	private static final String[] DATE_DATA =
-		{"Today", "Yesterday", "Last Monday", "Last Tuesday", "Last Wednesday", "Last Thursday", "Last Friday"};
+	private static final ParityObjectFlag[] ARTIFACT_FLAG_DATA;
+
+	private static final String[] ARTIFACT_KEY_HOLDER_DATA;
+
+	private static final String[] DATE_DATA;
+
+	private static final String[] USER_DATA;
+
+	static {
+		ACTION_DATA = new String[] {"Created by ", "Sent to ", "Received from "};
+		ACTION_DATE_DATA =
+			new String[] {" today", " yesterday", " last friday", " on Tuesday Dec 2, 2005"};
+		ACTION_USER_DATA =
+			new String[] {"John Wayne", "Omid Ejtemai", "Raymond Kroeker", "Alan Turing"};
+
+		ARTIFACT_FLAG_DATA =
+			new ParityObjectFlag[] {ParityObjectFlag.CLOSED, ParityObjectFlag.SEEN, ParityObjectFlag.KEY};
+		ARTIFACT_KEY_HOLDER_DATA =
+			new String[] {"John Wayne", "Omid Ejtemai", "Raymond Kroeker", "Alan Turing"};
+
+		DATE_DATA =
+			new String[] {"Today", "Yesterday", "Last Monday", "Last Tuesday", "Last Wednesday", "Last Thursday", "Last Friday"};
+
+		USER_DATA =
+			new String[] {"John Wayne", "Omid Ejtemai", "Raymond Kroeker", "Alan Turing"};
+	}
 
 	private final Random random;
 
@@ -37,13 +58,19 @@ public class RandomData {
 
 	public String getAction() { return getStringData(ACTION_DATA); }
 
-	public String getArtifactKeyHolder() { return getStringData(ARTIFACT_KEY_HOLDER_DATA); }
+	public String getActionDate() { return getStringData(ACTION_DATE_DATA); }
+
+	public String getActionUser() { return getStringData(ACTION_USER_DATA); }
 
 	public ParityObjectFlag getArtifactFlag() {
 		return (ParityObjectFlag) getData(ARTIFACT_FLAG_DATA);
 	}
-	
+
+	public String getArtifactKeyHolder() { return getStringData(ARTIFACT_KEY_HOLDER_DATA); }
+
 	public String getDate() { return getStringData(DATE_DATA); }
+	
+	public String getUser() { return getStringData(USER_DATA); }
 
 	private Object getData(final Object[] data) {
 		return data[random.nextInt(data.length)];

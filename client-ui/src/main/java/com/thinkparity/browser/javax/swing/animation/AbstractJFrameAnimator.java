@@ -12,10 +12,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.Collection;
+import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -84,6 +88,18 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 		}
 	}
 
+	/**
+	 * List of registered completion listeners.
+	 * 
+	 */
+	private static final Collection<CompletionListener> completionListeners;
+
+	/**
+	 * Synchronization lock for the completion listeners.
+	 * 
+	 */	
+	private static final Object completionListenersLock;
+
 	private static final String JFRAME_ANIMATOR_KEY;
 
 	private static final int TIMER_INTERVAL;
@@ -91,6 +107,8 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 	static {
 		TIMER_INTERVAL = 10;
 		JFRAME_ANIMATOR_KEY = "JFrameAnimator";
+		completionListeners = new Vector<CompletionListener>(7);
+		completionListenersLock = new Object();
 	}
 
 	/**
@@ -121,6 +139,12 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 			public void actionPerformed(final ActionEvent e) { animate(); }
 		});
 	}
+
+	/**
+	 * @see com.thinkparity.browser.javax.swing.animation.Animator#isRunning()
+	 * 
+	 */
+	public boolean isRunning() { return timer.isRunning(); }
 
 	/**
 	 * Start the jFrame animation. This will check to see if any animations are
@@ -202,5 +226,29 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 	 */
 	private void unsetCurrentAnimator() {
 		jFrame.getRootPane().putClientProperty(JFRAME_ANIMATOR_KEY, null);
+	}
+
+	public void addCompletionListener(final CompletionListener listener) {
+		Assert.assertNotNull("", listener);
+		synchronized(completionListenersLock) {
+			if(completionListeners.contains(listener)) { return; }
+			completionListeners.add(listener);
+		}
+	}
+
+	public void removeCompletionListener(final CompletionListener listener) {
+		Assert.assertNotNull("", listener);
+		synchronized(completionListenersLock) {
+			if(!completionListeners.contains(listener)) { return; }
+			completionListeners.remove(listener);
+		}
+	}
+
+	protected void fireComplete() {
+		synchronized(completionListenersLock) {
+			for(CompletionListener listener : completionListeners) {
+				listener.animationComplete();
+			}
+		}
 	}
 }

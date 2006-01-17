@@ -20,7 +20,7 @@ public class PointRenderer implements ObjectRenderer {
 
 	private static final String X = "x:";
 
-	private static final String Y = "y:";
+	private static final String Y = ",y:";
 
 	/**
 	 * Create a PointRenderer.

@@ -10,7 +10,6 @@ import java.awt.HeadlessException;
 import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JRootPane;
@@ -20,17 +19,14 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.Browser;
 import com.thinkparity.browser.java.awt.StackLayout;
 import com.thinkparity.browser.java.awt.StackLayout.Orientation;
-import com.thinkparity.browser.javax.swing.document.DocumentProvider;
 import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
 import com.thinkparity.browser.javax.swing.misc.ColorPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
-import com.thinkparity.browser.model.CollectionListProxy;
 import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.provider.ProviderFactory;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
@@ -124,8 +120,12 @@ public class BrowserJFrame extends JFrame {
 	protected final ProjectModel projectModel =
 		ModelProvider.getProjectModel(getClass());
 
-	private final Color backgroundColor =
+	private static final Color backgroundColor =
 		BrowserColorUtil.getRGBColor(249, 249, 249, 255);
+
+	public static Color getBackgroundColor() {
+		return backgroundColor;
+	}
 
 	/**
 	 * The display component for documents.
@@ -148,20 +148,13 @@ public class BrowserJFrame extends JFrame {
 		add(new ColorPanel(backgroundColor), Orientation.BOTTOM);
 		// the document display
 		this.documentShuffler = new DocumentShuffler();
-		this.documentShuffler.setDocumentProvider(new DocumentProvider() {
-			public List<Document> getDocuments() {
-				try {
-					final Project myProjects = projectModel.getMyProjects();
-					return CollectionListProxy.translate(
-							documentModel.list(myProjects.getId()));
-				}
-				catch(ParityException px) {
-					registerError(px);
-					// NOTE ??? Do i re-throw something?  Like BrowserRuntimeError?
-					return null;
-				}
-			}
-		});
+		this.documentShuffler.setContentProvider(ProviderFactory.getDocumentProvider());
+		try { this.documentShuffler.setInput(projectModel.getMyProjects()); }
+		catch(ParityException px) {
+			// NOTE Error Handler Code
+			logger.fatal("Could not initalize the browser.", px);
+			browser.exit(1);
+		}
 		add(documentShuffler, Orientation.TOP);
 		addListeners(browser);
 	}
@@ -177,13 +170,4 @@ public class BrowserJFrame extends JFrame {
 			public void windowClosing(WindowEvent e) { browser.exit(0); }
 		});
 	}
-
-	/**
-	 * Register an un-expected error. At runtime this api will decide on how the
-	 * error should be handled.
-	 * 
-	 * @param t
-	 *            The error that has occured.
-	 */
-	private void registerError(final Throwable t) {}
 }

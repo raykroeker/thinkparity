@@ -93,7 +93,6 @@ public class SwingUtil {
 		final JLayeredPane jLayeredPane =
 			SwingUtilities.getRootPane(customToolTip).getLayeredPane();
 		jLayeredPane.remove(customToolTip);
-		jLayeredPane.repaint();
 	}
 
 	/**
@@ -114,7 +113,7 @@ public class SwingUtil {
 			SwingUtilities.getRootPane(parent).getLayeredPane();
 		customToolTip.setLocation(SwingUtilities.convertPoint(parent, relLocation, jLayeredPane));
 		jLayeredPane.add(customToolTip, JLayeredPane.POPUP_LAYER);
-		// NOTE We have to install the mouse tracker afer we add the tool tip to
+		// NOTE We have to install the mouse tracker after we add the tool tip to
 		// the layered pane
 		final CustomToolTipMouseTracker mouseTracker = new CustomToolTipMouseTracker(customToolTip);
 		mouseTracker.install();

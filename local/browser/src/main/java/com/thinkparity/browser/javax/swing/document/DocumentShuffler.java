@@ -7,19 +7,20 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.RandomData;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.provider.ContentProvider;
+import com.thinkparity.browser.provider.FlatContentProvider;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Note that due to the custom display of the documents; we are manually
@@ -50,7 +51,13 @@ public class DocumentShuffler extends JPanel {
 	 * The provider is used to retreive documents from an external model.
 	 * 
 	 */
-	private DocumentProvider documentProvider;
+	private FlatContentProvider contentProvider;
+
+	/**
+	 * The input for the content provider.
+	 * 
+	 */
+	private Project input;
 
 	/**
 	 * Create a DocumentShuffler.
@@ -67,7 +74,14 @@ public class DocumentShuffler extends JPanel {
 	 * 
 	 * @return The content provider.
 	 */
-	public DocumentProvider getContentProvider() { return documentProvider; }
+	public ContentProvider getContentProvider() { return contentProvider; }
+
+	/**
+	 * Obtain the content provider's input.
+	 * 
+	 * @return The input.
+	 */
+	public Object getInput() { return input; }
 
 	/**
 	 * Set the current content provider.
@@ -75,16 +89,36 @@ public class DocumentShuffler extends JPanel {
 	 * @param documentProvider
 	 *            The new content provider.
 	 */
-	public void setDocumentProvider(final DocumentProvider documentProvider) {
-		Assert.assertNotNull("", documentProvider);
+	public void setContentProvider(final ContentProvider contentProvider) {
+		Assert.assertNotNull(
+				"The DocumentShuffler content provider must not be null.", contentProvider);
+		Assert.assertOfType(
+				"The DocumentShuffler content provider must be of type FlatContentProvider.",
+				FlatContentProvider.class, contentProvider);
 		// they're the same; do nothing
-		if(this.documentProvider == documentProvider) { return; }
+		if(this.contentProvider == contentProvider) { return; }
 
-		this.documentProvider = documentProvider;
+		this.contentProvider = (FlatContentProvider) contentProvider;
 		refresh();
 	}
 
-	private Object createDocumentConstraints() {
+	/**
+	 * Set the content provider's input.
+	 * 
+	 * @param input
+	 *            The content provider input.
+	 */
+	public void setInput(final Object input) {
+		Assert.assertNotNull("", input);
+		Assert.assertOfType("", Project.class, input);
+		// they're the same; do nothing
+		if(this.input == input || input.equals(this.input)) { return; }
+
+		this.input = (Project) input;
+		refresh();
+	}
+
+	private Object createAvatarConstraints() {
 		return new GridBagConstraints(0, GridBagConstraints.RELATIVE,
 				1, 1,
 				1.0, 0.0,
@@ -109,19 +143,18 @@ public class DocumentShuffler extends JPanel {
 	 *
 	 */
 	private void refresh() {
-		final List<Document> documents = documentProvider.getDocuments();
-		DocumentAvatar avatar;
-		int i = 0;
-		for(final Document document : documents) {
-			avatar = translate(document);
-			avatar.putClientProperty("addConstraints", createDocumentConstraints());
-			avatar.putClientProperty("addIndex", i);
-			avatar.transferToDisplay();
-			add(avatar, createDocumentConstraints(), i);
-
-			i++;
+		if(null != input) {
+			final Object[] elements = contentProvider.getElements(input);
+			DocumentAvatar avatar;
+			int i = 0;
+			for(final Object element : elements) {
+				avatar = translate((Document) element);
+				avatar.transferToDisplay();
+				add(avatar, createAvatarConstraints(), i);
+				i++;
+			}
+			add(createFiller(), createFillerConstraints());
 		}
-		add(createFiller(), createFillerConstraints());
 		invalidate();
 	}
 
@@ -133,14 +166,8 @@ public class DocumentShuffler extends JPanel {
 	 * @return The display avatar.
 	 */
 	private DocumentAvatar translate(final Document document) {
-		final DocumentAvatar avatar = new DocumentAvatar(this);
-		avatar.setId(document.getId());
-		avatar.setName(document.getName());
-
-		// NOTE Random data.
-		final RandomData randomData = new RandomData();
-		avatar.setKeyHolder(randomData.getArtifactKeyHolder());
-
+		final DocumentAvatar avatar = new DocumentAvatar();
+		avatar.setInput(document);
 		return avatar;
 	}
 }

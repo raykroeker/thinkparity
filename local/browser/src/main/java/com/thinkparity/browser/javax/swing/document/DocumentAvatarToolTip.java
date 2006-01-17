@@ -4,21 +4,30 @@
 package com.thinkparity.browser.javax.swing.document;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.UUID;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.RandomData;
+import com.thinkparity.browser.javax.swing.animation.Animator;
+import com.thinkparity.browser.javax.swing.animation.CompletionListener;
+import com.thinkparity.browser.javax.swing.animation.ExpandToolTipAnimation;
 import com.thinkparity.browser.javax.swing.button.BrowserButtonFactory;
+import com.thinkparity.browser.javax.swing.document.history.HistoryShuffler;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.provider.ProviderFactory;
+
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -79,6 +88,14 @@ public class DocumentAvatarToolTip extends JPanel {
 	private final JButton deleteJButton;
 
 	/**
+	 * The history send button.
+	 * 
+	 */
+	private final JButton historyJButton;
+
+	private final HistoryShuffler historyShuffler;
+
+	/**
 	 * Flag indicating whether or not the user is also the key holder.
 	 * 
 	 */
@@ -126,11 +143,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private final JButton sendKeyJButton;
 
-	/**
-	 * The history send button.
-	 * 
-	 */
-	private final JButton historyJButton;
+	private Animator toolTipAnimator;
 
 	/**
 	 * Create a DocumentAvatarToolTip.
@@ -138,10 +151,8 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	public DocumentAvatarToolTip() {
 		super();
-this.jPanel = this;
 		this.canClose = false;
 		this.canDelete = false;
-		this.isHistoryDisplayed = false;
 		this.isKeyHolder = false;
 
 		setOpaque(true);
@@ -182,6 +193,11 @@ this.jPanel = this;
 			}
 		});
 		add(historyJButton, createHistoryJButtonConstraints());
+
+		this.historyShuffler = new HistoryShuffler();
+		this.historyShuffler.setContentProvider(
+				ProviderFactory.getHistoryProvider());
+		add(historyShuffler, createHistoryShufflerConstraints());
 
 		this.sendJButton = BrowserButtonFactory.create("Send");
 		this.sendJButton.addMouseListener(new MouseAdapter() {
@@ -241,6 +257,7 @@ this.jPanel = this;
 	 */
 	public boolean isKeyHolder() { return isKeyHolder; }
 
+
 	/**
 	 * Set the document can close flag.
 	 * 
@@ -268,23 +285,6 @@ this.jPanel = this;
 		this.isKeyHolder = isKeyHolder;
 	}
 
-
-	/**
-	 * Set the document key holder.
-	 * 
-	 * @param keyHolder
-	 *            The document key holder.
-	 */
-	public void setKeyHolder(String keyHolder) { this.keyHolder = keyHolder; }
-
-	/**
-	 * Set the document name.
-	 * 
-	 * @param name
-	 *            The document name.
-	 */
-	public void setName(String name) { this.name = name; }
-
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
@@ -303,27 +303,16 @@ this.jPanel = this;
 	 * 
 	 */
 	void transferToDisplay() {
-		this.nameJLabel.setText(name);
-		this.keyHolderJLabel.setText(keyHolder);
+		// NOTE  Random data used
+		final RandomData randomData = new RandomData();
+
+		this.nameJLabel.setText(input.getName());
+		this.keyHolderJLabel.setText(randomData.getArtifactKeyHolder());
 		add(sendJButton, createSendJButtonConstraints());
 		if(canClose) { add(closeJButton, createCloseJButtonConstraints()); }
 		if(canDelete) { add(deleteJButton, createDeleteJButtonConstraints()); }
 		if(isKeyHolder) { add(sendKeyJButton, createSendKeyJButtonConstraints()); }
-		else { add(requestKeyJButton, createRequestJButtonConstraints()); }
-	}
-
-	/**
-	 * Create the grid bag constraints for the history button.
-	 * 
-	 * @return The grid bag constraints for the history button.
-	 */
-	private Object createHistoryJButtonConstraints() {
-		return new GridBagConstraints(4, 2,
-				1, 1,
-				0.0, 1.0,
-				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
-				new Insets(0, 2, 0, 0),
-				0, 0);
+		else { add(requestKeyJButton, createRequestKeyJButtonConstraints()); }
 	}
 
 	/**
@@ -332,11 +321,11 @@ this.jPanel = this;
 	 * @return The grid bag constraints for the close button.
 	 */
 	private Object createCloseJButtonConstraints() {
-		return new GridBagConstraints(0, 2,
+		return new GridBagConstraints(0, 3,
 				2, 1,
-				1.0, 1.0,
+				1.0, 0.0,
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
-				new Insets(0, 2, 0, 0),
+				new Insets(0, 2, 1, 0),
 				0, 0);
 	}
 
@@ -346,11 +335,34 @@ this.jPanel = this;
 	 * @return The grid bag constraints for the delete button.
 	 */
 	private Object createDeleteJButtonConstraints() {
-		return new GridBagConstraints(0, 2,
+		return new GridBagConstraints(0, 3,
 				2, 1,
-				1.0, 1.0,
+				1.0, 0.0,
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
-				new Insets(0, 2, 0, 0),
+				new Insets(0, 2, 1, 0),
+				0, 0);
+	}
+
+	/**
+	 * Create the grid bag constraints for the history button.
+	 * 
+	 * @return The grid bag constraints for the history button.
+	 */
+	private Object createHistoryJButtonConstraints() {
+		return new GridBagConstraints(4, 3,
+				1, 1,
+				0.0, 0.0,
+				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
+				new Insets(0, 2, 1, 0),
+				0, 0);
+	}
+
+	private Object createHistoryShufflerConstraints() {
+		return new GridBagConstraints(0, 2,
+				5, 1,
+				1.0, 1.0,
+				GridBagConstraints.NORTH, GridBagConstraints.BOTH,
+				new Insets(7, 12, 7, 12),
 				0, 0);
 	}
 
@@ -360,12 +372,24 @@ this.jPanel = this;
 	 * @return The grid bag constraints.
 	 */
 	private Object createKeyHolderJLabelConstraints() {
-		return new GridBagConstraints(0, GridBagConstraints.RELATIVE,
+		return new GridBagConstraints(0, 1,
 				5, 1,
-				1.0, 0.0,
-				GridBagConstraints.NORTH, GridBagConstraints.BOTH,
+				1.0, 0.01,
+				GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 				new Insets(0, 12, 2, 0),
 				0, 0);
+	}
+
+	private Document input;
+
+	public Object getInput() { return input; }
+
+	public void setInput(Object input) {
+		Assert.assertNotNull("", input);
+		Assert.assertOfType("", Document.class, input);
+		if(this.input == input || input.equals(this.input)) { return; }
+
+		this.input = (Document) input;
 	}
 
 	/**
@@ -377,7 +401,7 @@ this.jPanel = this;
 		return new GridBagConstraints(0, 0,
 				5, 1,
 				1.0, 0.0,
-				GridBagConstraints.NORTH, GridBagConstraints.BOTH,
+				GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
 				new Insets(2, 12, 2, 12),
 				0, 2);
 	}
@@ -387,12 +411,12 @@ this.jPanel = this;
 	 * 
 	 * @return The grid bag constraints.
 	 */
-	private Object createRequestJButtonConstraints() {
-		return new GridBagConstraints(2, 2,
+	private Object createRequestKeyJButtonConstraints() {
+		return new GridBagConstraints(2, 3,
 				1, 1,
-				0.0, 1.0,
+				0.0, 0.0,
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
-				new Insets(0, 2, 0, 0),
+				new Insets(0, 2, 1, 0),
 				0, 0);
 	}
 
@@ -402,11 +426,11 @@ this.jPanel = this;
 	 * @return The grid bag constraints.
 	 */
 	private Object createSendJButtonConstraints() {
-		return new GridBagConstraints(3, 2,
+		return new GridBagConstraints(3, 3,
 				1, 1,
-				0.0, 1.0,
+				0.0, 0.0,
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
-				new Insets(0, 2, 0, 0),
+				new Insets(0, 2, 1, 0),
 				0, 0);
 	}
 
@@ -416,55 +440,34 @@ this.jPanel = this;
 	 * @return The grid bag constraints.
 	 */
 	private Object createSendKeyJButtonConstraints() {
-		return new GridBagConstraints(2, 2,
+		return new GridBagConstraints(2, 3,
 				1, 1,
-				0.0, 1.0,
+				0.0, 0.0,
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
-				new Insets(0, 2, 0, 0),
+				new Insets(0, 2, 1, 0),
 				0, 0);
 	}
 
+	private Document getDocument() {
+		final DocumentModel documentModel = ModelProvider.getDocumentModel(getClass());
+		try { return documentModel.get(UUID.fromString("a8d688d3-2d2a-4965-87b5-2551183b2e5e")); }
+		catch(Exception x) {
+			x.printStackTrace();
+			return null;
+		}
+	}
+
 	/**
-	 * Flag indicating whether or not the document history is displayed.
+	 * Use an animation to display the history. This involved re-sizing this
+	 * panel until it consumes the entire browser.
 	 * 
 	 */
-	private boolean isHistoryDisplayed;
-
 	private void runToggleHistory() {
-		if(isHistoryDisplayed) { runHideHistory(); }
-		else { runShowHistory(); }
-	}
-
-	private void runHideHistory() {
-		
-	}
-
-
-	private final JPanel jPanel;
-
-	private void runShowHistory() {
-		final int shufflerSizeHeight = getParent().getParent().getSize().height;
-logger.debug(shufflerSizeHeight);
-		final int toolTipLocationY = getLocation().y;
-logger.debug(toolTipLocationY);
-		animateHistory = new Timer(10, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				final Dimension size = getSize();
-				size.height += 3;
-				if(shufflerSizeHeight - toolTipLocationY - size.height <= 25) {
-					stopShowHistory();
-				}
-				else {
-					setSize(size);
-					dispatchEvent(new ComponentEvent(jPanel, ComponentEvent.COMPONENT_RESIZED));
-					doLayout();
-				}
-			}
+		historyShuffler.setInput(input);
+		toolTipAnimator = new ExpandToolTipAnimation(this, 371, 23);
+		toolTipAnimator.addCompletionListener(new CompletionListener() {
+			public void animationComplete() { revalidate(); }
 		});
-		animateHistory.start();
-	}
-	private Timer animateHistory;
-	private void stopShowHistory() {
-		animateHistory.stop();
+		toolTipAnimator.start();
 	}
 }

@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -26,6 +27,9 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 
 /**
+ * The history shuffler is a list of history items for a given document. Each
+ * individual item is displayed as a HistoryAvatar.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
@@ -49,10 +53,10 @@ public class HistoryShuffler extends JPanel {
 	private Document input;
 
 	/**
-	 * Handle to the JPanel for use with annonymouse inner classes.
+	 * Track and re-dispatch mouse events.
 	 * 
 	 */
-	private final JPanel jPanel;
+	private final HistoryShufflerMouseTracker mouseTracker;
 
 	/**
 	 * Create a HistoryShuffler.
@@ -60,17 +64,9 @@ public class HistoryShuffler extends JPanel {
 	 */
 	public HistoryShuffler() {
 		super();
-		this.jPanel = this;
-		addMouseListener(new MouseInputAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				final Component c = getComponentAt(e.getPoint());
-				if(null != c) {
-					final MouseEvent ce =
-						SwingUtilities.convertMouseEvent(jPanel, e, c);
-					c.dispatchEvent(ce);
-				}
-			}
-		});
+		this.mouseTracker = new HistoryShufflerMouseTracker(this);
+		addMouseListener(mouseTracker);
+		addMouseMotionListener(mouseTracker);
 		setBackground(BrowserJFrame.getBackgroundColor());
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		setOpaque(true);
@@ -165,14 +161,14 @@ public class HistoryShuffler extends JPanel {
 	}
 
 	/**
-	 * Create a swing component to use as padding.
+	 * Create a swing com.thinkparity.browser.javax.swing.component to use as padding.
 	 * 
-	 * @return The swing component.
+	 * @return The swing com.thinkparity.browser.javax.swing.component.
 	 */
 	private Component createFillerComponent() { return new JLabel(""); }
 
 	/**
-	 * Create the layout constraints for the padding component.
+	 * Create the layout constraints for the padding com.thinkparity.browser.javax.swing.component.
 	 * 
 	 * @return The layout constraints.
 	 */

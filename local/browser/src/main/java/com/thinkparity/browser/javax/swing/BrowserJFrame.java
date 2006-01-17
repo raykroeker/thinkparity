@@ -19,13 +19,11 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.Browser;
 import com.thinkparity.browser.java.awt.StackLayout;
 import com.thinkparity.browser.java.awt.StackLayout.Orientation;
-import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
+import com.thinkparity.browser.javax.swing.browser.BrowserJPanel;
 import com.thinkparity.browser.javax.swing.misc.ColorPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 import com.thinkparity.browser.model.ModelProvider;
-import com.thinkparity.browser.provider.ProviderFactory;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.ProjectModel;
 
@@ -128,10 +126,10 @@ public class BrowserJFrame extends JFrame {
 	}
 
 	/**
-	 * The display component for documents.
+	 * The display com.thinkparity.browser.javax.swing.component for documents.
 	 * 
 	 */
-	private final DocumentShuffler documentShuffler;
+//	private final DocumentShuffler documentShuffler;
 
 	/**
 	 * Create a BrowserJFrame.
@@ -147,15 +145,16 @@ public class BrowserJFrame extends JFrame {
 		setResizable(false);
 		add(new ColorPanel(backgroundColor), Orientation.BOTTOM);
 		// the document display
-		this.documentShuffler = new DocumentShuffler();
-		this.documentShuffler.setContentProvider(ProviderFactory.getDocumentProvider());
-		try { this.documentShuffler.setInput(projectModel.getMyProjects()); }
-		catch(ParityException px) {
+//		this.documentShuffler = new DocumentShuffler();
+//		this.documentShuffler.setContentProvider(ProviderFactory.getDocumentProvider());
+//		try { this.documentShuffler.setInput(projectModel.getMyProjects()); }
+//		catch(ParityException px) {
 			// NOTE Error Handler Code
-			logger.fatal("Could not initalize the browser.", px);
-			browser.exit(1);
-		}
-		add(documentShuffler, Orientation.TOP);
+//			logger.fatal("Could not initalize the browser.", px);
+//			browser.exit(1);
+//		}
+//		add(documentShuffler, Orientation.TOP);
+		add(new BrowserJPanel(this), Orientation.TOP);
 		addListeners(browser);
 	}
 

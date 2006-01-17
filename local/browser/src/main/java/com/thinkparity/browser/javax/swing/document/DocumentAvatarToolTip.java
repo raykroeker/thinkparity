@@ -6,7 +6,6 @@ package com.thinkparity.browser.javax.swing.document;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.UUID;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -18,18 +17,21 @@ import com.thinkparity.browser.RandomData;
 import com.thinkparity.browser.javax.swing.animation.Animator;
 import com.thinkparity.browser.javax.swing.animation.CompletionListener;
 import com.thinkparity.browser.javax.swing.animation.ExpandToolTipAnimation;
-import com.thinkparity.browser.javax.swing.button.BrowserButtonFactory;
+import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.document.history.HistoryShuffler;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
-import com.thinkparity.browser.model.ModelProvider;
 import com.thinkparity.browser.provider.ProviderFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
+
 
 /**
+ * Display the "tool tip" for the document. The tool tip consists of the
+ * document name the document owner as well as the actions that can be
+ * performed.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
@@ -95,6 +97,8 @@ public class DocumentAvatarToolTip extends JPanel {
 
 	private final HistoryShuffler historyShuffler;
 
+	private Document input;
+
 	/**
 	 * Flag indicating whether or not the user is also the key holder.
 	 * 
@@ -108,7 +112,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	private String keyHolder;
 
 	/**
-	 * Document key holder ui component.
+	 * Document key holder ui com.thinkparity.browser.javax.swing.component.
 	 * 
 	 */
 	private final JLabel keyHolderJLabel;
@@ -120,7 +124,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	private String name;
 
 	/**
-	 * The document name display component.
+	 * The document name display com.thinkparity.browser.javax.swing.component.
 	 * 
 	 */
 	private final JLabel nameJLabel;
@@ -169,7 +173,7 @@ public class DocumentAvatarToolTip extends JPanel {
 		this.keyHolderJLabel.setForeground(keyHolderForeground);
 		add(keyHolderJLabel, createKeyHolderJLabelConstraints());
 
-		this.closeJButton = BrowserButtonFactory.create("Close");
+		this.closeJButton = BrowserButtonFactory.createBottom("Close");
 		this.closeJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
@@ -177,7 +181,7 @@ public class DocumentAvatarToolTip extends JPanel {
 			}
 		});
 
-		this.deleteJButton = BrowserButtonFactory.create("Delete");
+		this.deleteJButton = BrowserButtonFactory.createBottom("Delete");
 		this.deleteJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
@@ -185,7 +189,7 @@ public class DocumentAvatarToolTip extends JPanel {
 			}
 		});
 
-		this.historyJButton = BrowserButtonFactory.create("History");
+		this.historyJButton = BrowserButtonFactory.createBottom("History");
 		this.historyJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
@@ -199,7 +203,7 @@ public class DocumentAvatarToolTip extends JPanel {
 				ProviderFactory.getHistoryProvider());
 		add(historyShuffler, createHistoryShufflerConstraints());
 
-		this.sendJButton = BrowserButtonFactory.create("Send");
+		this.sendJButton = BrowserButtonFactory.createBottom("Send");
 		this.sendJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
@@ -207,7 +211,7 @@ public class DocumentAvatarToolTip extends JPanel {
 			}
 		});
 
-		this.sendKeyJButton = BrowserButtonFactory.create("Send Ownership");
+		this.sendKeyJButton = BrowserButtonFactory.createBottom("Send Ownership");
 		this.sendKeyJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
@@ -215,7 +219,7 @@ public class DocumentAvatarToolTip extends JPanel {
 			}
 		});
 
-		this.requestKeyJButton = BrowserButtonFactory.create("Request Ownership");
+		this.requestKeyJButton = BrowserButtonFactory.createBottom("Request Ownership");
 		this.requestKeyJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
@@ -237,12 +241,15 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	public boolean canDelete() { return canDelete; }
 
+	public Object getInput() { return input; }
+
 	/**
 	 * Obtain the document key holder.
 	 * 
 	 * @return The document key holder.
 	 */
 	public String getKeyHolder() { return keyHolder; }
+
 
 	/**
 	 * Obtain the document name.
@@ -256,7 +263,6 @@ public class DocumentAvatarToolTip extends JPanel {
 	 * @return The document key holder flag.
 	 */
 	public boolean isKeyHolder() { return isKeyHolder; }
-
 
 	/**
 	 * Set the document can close flag.
@@ -274,6 +280,14 @@ public class DocumentAvatarToolTip extends JPanel {
 	 *            The document can delete flag.
 	 */
 	public void setCanDelete(boolean canDelete) { this.canDelete = canDelete; }
+
+	public void setInput(Object input) {
+		Assert.assertNotNull("", input);
+		Assert.assertOfType("", Document.class, input);
+		if(this.input == input || input.equals(this.input)) { return; }
+
+		this.input = (Document) input;
+	}
 
 	/**
 	 * Set the document key holder flag.
@@ -380,18 +394,6 @@ public class DocumentAvatarToolTip extends JPanel {
 				0, 0);
 	}
 
-	private Document input;
-
-	public Object getInput() { return input; }
-
-	public void setInput(Object input) {
-		Assert.assertNotNull("", input);
-		Assert.assertOfType("", Document.class, input);
-		if(this.input == input || input.equals(this.input)) { return; }
-
-		this.input = (Document) input;
-	}
-
 	/**
 	 * Create the grid bag constriants for the name label.
 	 * 
@@ -446,15 +448,6 @@ public class DocumentAvatarToolTip extends JPanel {
 				GridBagConstraints.SOUTHEAST, GridBagConstraints.NONE,
 				new Insets(0, 2, 1, 0),
 				0, 0);
-	}
-
-	private Document getDocument() {
-		final DocumentModel documentModel = ModelProvider.getDocumentModel(getClass());
-		try { return documentModel.get(UUID.fromString("a8d688d3-2d2a-4965-87b5-2551183b2e5e")); }
-		catch(Exception x) {
-			x.printStackTrace();
-			return null;
-		}
 	}
 
 	/**

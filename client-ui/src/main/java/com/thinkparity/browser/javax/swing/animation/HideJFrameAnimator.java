@@ -53,7 +53,7 @@ public class HideJFrameAnimator extends AbstractJFrameAnimator {
 	 * 
 	 * @param size
 	 *            The size of the jFrame.
-	 * @return The jFrame's size with the height component decremented.
+	 * @return The jFrame's size with the height com.thinkparity.browser.javax.swing.component decremented.
 	 */
 	private Dimension decrementHeight(final Dimension size) {
 		final double newHeight = size.getHeight() - DECREMENT_STEP;

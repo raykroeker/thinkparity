@@ -159,7 +159,7 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 
 	/**
 	 * Dispatch any click events. Here we need fire a click on the underlying
-	 * tool tip JPanel if the component does not consume the event.
+	 * tool tip JPanel if the com.thinkparity.browser.javax.swing.component does not consume the event.
 	 * 
 	 * @param e
 	 *            The glass pane click event.
@@ -176,7 +176,7 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 	}
 
 	/**
-	 * Dispatch the mouse event to the underlying component.
+	 * Dispatch the mouse event to the underlying com.thinkparity.browser.javax.swing.component.
 	 * 
 	 * @param e
 	 *            The mouse event.
@@ -193,10 +193,10 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 	}
 
 	/**
-	 * Dispatch any move events. Here we need to examine the component beneath
-	 * the event and if the component is the same as the last event; simply
+	 * Dispatch any move events. Here we need to examine the com.thinkparity.browser.javax.swing.component beneath
+	 * the event and if the com.thinkparity.browser.javax.swing.component is the same as the last event; simply
 	 * re-create the event. If it is not a MOUSE_ENTERED\MOUSE_EXITED event is
-	 * dispatched to the component and previous component respectively.
+	 * dispatched to the com.thinkparity.browser.javax.swing.component and previous com.thinkparity.browser.javax.swing.component respectively.
 	 * 
 	 * @param e
 	 *            The mouse move event.
@@ -217,11 +217,11 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 	}
 
 	/**
-	 * Fire a mouse event for the component given the original glass pane event.
+	 * Fire a mouse event for the com.thinkparity.browser.javax.swing.component given the original glass pane event.
 	 * 
 	 * 
 	 * @param c
-	 *            The component.
+	 *            The com.thinkparity.browser.javax.swing.component.
 	 * @param e
 	 *            The glass pane mouse event.s
 	 * @return The generated mouse event.
@@ -238,11 +238,11 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 	}
 
 	/**
-	 * Fire a mouse click event for the component; given the original glass pane
+	 * Fire a mouse click event for the com.thinkparity.browser.javax.swing.component; given the original glass pane
 	 * event.
 	 * 
 	 * @param c
-	 *            The component.
+	 *            The com.thinkparity.browser.javax.swing.component.
 	 * @param e
 	 *            The glass pane mouse event.
 	 * @return The generated mouse event.
@@ -252,11 +252,11 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 	}
 
 	/**
-	 * Fire a mouse entered event for the component given the original glass
+	 * Fire a mouse entered event for the com.thinkparity.browser.javax.swing.component given the original glass
 	 * pane event.
 	 * 
 	 * @param c
-	 *            The component.
+	 *            The com.thinkparity.browser.javax.swing.component.
 	 * @param e
 	 *            The glass pane mouse event.
 	 * @return The generated mouse event.
@@ -266,11 +266,11 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 	}
 
 	/**
-	 * Fire a mouse exited event for the component given the original glass pane
+	 * Fire a mouse exited event for the com.thinkparity.browser.javax.swing.component given the original glass pane
 	 * event.
 	 * 
 	 * @param c
-	 *            The component.
+	 *            The com.thinkparity.browser.javax.swing.component.
 	 * @param e
 	 *            The glass pane mouse event.
 	 * @return The generated mouse event.
@@ -280,12 +280,12 @@ class CustomToolTipMouseTracker implements MouseInputListener {
 	}
 
 	/**
-	 * Obtain the component that exists beneath the mouse event from the jPanel.
+	 * Obtain the com.thinkparity.browser.javax.swing.component that exists beneath the mouse event from the jPanel.
 	 * 
 	 * @param jpe
 	 *            The jPanel mouse event.
-	 * @return The underlying component at the location of the event; or null if
-	 *         no component exists.
+	 * @return The underlying com.thinkparity.browser.javax.swing.component at the location of the event; or null if
+	 *         no com.thinkparity.browser.javax.swing.component exists.
 	 * 
 	 * @see #convertMouseEvent(MouseEvent)
 	 */

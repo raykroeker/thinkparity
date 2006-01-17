@@ -55,10 +55,10 @@ public class SwingUtil {
 
 	/**
 	 * Show a custom tool tip. The tool tip to display is a JPanel, and can be
-	 * rendered on top of any component.
+	 * rendered on top of any com.thinkparity.browser.javax.swing.component.
 	 * 
 	 * @param parent
-	 *            The parent component.
+	 *            The parent com.thinkparity.browser.javax.swing.component.
 	 * @param customToolTip
 	 *            The custom tool tip.
 	 * @param relLocation
@@ -97,10 +97,10 @@ public class SwingUtil {
 
 	/**
 	 * Show a custom tool tip. The tool tip to display is a JPanel, and can be
-	 * rendered on top of any component.
+	 * rendered on top of any com.thinkparity.browser.javax.swing.component.
 	 * 
 	 * @param parent
-	 *            The parent component.
+	 *            The parent com.thinkparity.browser.javax.swing.component.
 	 * @param customToolTip
 	 *            The custom tool tip.
 	 * @param relLocation

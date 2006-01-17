@@ -13,6 +13,10 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.thinkparity.browser.log4j.or.java.awt.PointRenderer;
 import com.thinkparity.browser.log4j.or.java.awt.event.MouseEventRenderer;
+import com.thinkparity.browser.model.ModelProvider;
+
+import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
  * BrowserLoggerFactory
@@ -67,7 +71,9 @@ public class BrowserLoggerFactory {
 				configureGlobal(log4jProperties);
 				configureRenderers(log4jProperties);
 
-				configureBrowserHTMLAppender(log4jProperties);
+				final WorkspaceModel workspaceModel =
+					ModelProvider.getWorkspaceModel(BrowserLoggerFactory.class);
+				configureBrowserHTMLAppender(log4jProperties, workspaceModel.getWorkspace());
 				configureConsoleAppender(log4jProperties);
 
 				PropertyConfigurator.configure(log4jProperties);
@@ -80,15 +86,15 @@ public class BrowserLoggerFactory {
 	/**
 	 * Configure the browser html appender.
 	 * 
-	 * @param browserHTML
+	 * @param log4jProperties
 	 *            The configuration to write the appender properties to.
 	 */
-	private static void configureBrowserHTMLAppender(final Properties browserHTML) {
-		browserHTML.setProperty("log4j.appender.broswerHTML", "org.apache.log4j.RollingFileAppender");
-		browserHTML.setProperty("log4j.appender.broswerHTML.layout", "org.apache.log4j.HTMLLayout");
+	private static void configureBrowserHTMLAppender(final Properties log4jProperties, final Workspace workspace) {
+		log4jProperties.setProperty("log4j.appender.broswerHTML", "org.apache.log4j.RollingFileAppender");
+		log4jProperties.setProperty("log4j.appender.broswerHTML.layout", "org.apache.log4j.HTMLLayout");
 		final File browserHTMLOutputFile =
-			new File(System.getProperty("user.dir"), "parity.log4j.html");
-		browserHTML.setProperty("log4j.appender.broswerHTML.File", browserHTMLOutputFile.getAbsolutePath());
+			new File(workspace.getLoggerURL().getFile(), "parity.log4j.html");
+		log4jProperties.setProperty("log4j.appender.broswerHTML.File", browserHTMLOutputFile.getAbsolutePath());
 	}
 
 	/**

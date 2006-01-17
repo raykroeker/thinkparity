@@ -19,7 +19,7 @@ public class MouseEventRenderer implements ObjectRenderer {
 
 	private static final String CLICKCOUNT = ",clickCount:";
 
-	private static final String COMPONENT = ",component:";
+	private static final String COMPONENT = ",com.thinkparity.browser.javax.swing.component:";
 
 	private static final String ID = "id:";
 

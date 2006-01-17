@@ -94,7 +94,7 @@ public class HistoryAvatar extends JPanel {
 	private DocumentVersion historyItem;
 
 	/**
-	 * The display component for the history item.
+	 * The display com.thinkparity.browser.javax.swing.component for the history item.
 	 * 
 	 */
 	private final JLabel historyItemJLabel;

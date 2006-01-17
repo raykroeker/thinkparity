@@ -53,7 +53,7 @@ public class ShowJFrameAnimator extends AbstractJFrameAnimator {
 	}
 
 	/**
-	 * Increment the height component of the dimension by a discrete value.
+	 * Increment the height com.thinkparity.browser.javax.swing.component of the dimension by a discrete value.
 	 * 
 	 * @param size
 	 *            The size of the jFrame.

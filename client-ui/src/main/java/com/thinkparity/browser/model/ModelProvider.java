@@ -5,6 +5,7 @@ package com.thinkparity.browser.model;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -20,9 +21,13 @@ public class ModelProvider {
 		return ProjectModel.getModel();
 	}
 
+	public static WorkspaceModel getWorkspaceModel(final Class clasz) {
+		return WorkspaceModel.getModel();
+	}
+
 	/**
-	 * Create a ModelProvider.
+	 * Create a ModelProvider [Singleton]
+	 * 
 	 */
 	private ModelProvider() { super(); }
-
 }

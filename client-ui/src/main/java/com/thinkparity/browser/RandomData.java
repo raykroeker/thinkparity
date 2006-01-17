@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser;
 
+import java.awt.Color;
 import java.util.Random;
 
 import com.thinkparity.model.parity.api.ParityObjectFlag;
@@ -12,6 +13,8 @@ import com.thinkparity.model.parity.api.ParityObjectFlag;
  * @version 1.1
  */
 public class RandomData {
+
+	private static final Color[] COLOR_DATA;
 
 	private static final String[] ACTION_DATA;
 
@@ -39,6 +42,9 @@ public class RandomData {
 		ARTIFACT_KEY_HOLDER_DATA =
 			new String[] {"John Wayne", "Omid Ejtemai", "Raymond Kroeker", "Alan Turing"};
 
+		COLOR_DATA =
+			new Color[] {Color.BLACK, Color.BLUE, Color.CYAN, Color.DARK_GRAY, Color.GRAY, Color.GREEN, Color.LIGHT_GRAY, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED, Color.WHITE, Color.YELLOW};
+
 		DATE_DATA =
 			new String[] {"Today", "Yesterday", "Last Monday", "Last Tuesday", "Last Wednesday", "Last Thursday", "Last Friday"};
 
@@ -55,6 +61,8 @@ public class RandomData {
 		super();
 		this.random = new Random();
 	}
+
+	public Color getColor() { return (Color) getData(COLOR_DATA); }
 
 	public String getAction() { return getStringData(ACTION_DATA); }
 

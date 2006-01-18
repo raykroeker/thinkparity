@@ -192,6 +192,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(file);
 		assertCanCreateArtifacts();
 		Assert.assertTrue(
+				// TODO Centralize
+				"File \"" + file.getAbsolutePath() + "\" does not exist.",
+				file.exists());
+		Assert.assertTrue(
 				"create(Project,String,String,File)",
 				(file.length() <= IParityModelConstants.FILE_SIZE_UPPER_BOUNDS));
 		try {

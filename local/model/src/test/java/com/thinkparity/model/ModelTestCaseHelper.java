@@ -100,9 +100,7 @@ public class ModelTestCaseHelper {
 		// set the test user
 		jUnitTestUser = ModelTestUser.getJUnit();
 		// initialize the username in the workspace
-		final String jUnitUsername = jUnitTestUser.getUsername() + "@" +
-			jUnitTestUser.getServerHost();
-		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(jUnitUsername);
+		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(jUnitTestUser.getUsername());
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
 		// set the output directory

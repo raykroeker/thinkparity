@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
@@ -42,7 +43,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * the preferences.
 	 */
 	private static final String ASSERT_USERNAME_EQUALS_PREFS =
-		"The username supplied does not match the preferences.";
+		"The username supplied \"{0}\" does not match the preferences \"{1}\".";
 
 	/**
 	 * List of all of the registered parity key listeners.
@@ -424,7 +425,7 @@ class SessionModelImpl extends AbstractModelImpl {
 				// supplied
 				if(preferences.isSetUsername()) {
 					Assert.assertTrue(
-							ASSERT_USERNAME_EQUALS_PREFS,
+							formatAssertUsernameEqualsPreferences(username),
 							username.equals(preferences.getUsername()));
 				}
 				// login
@@ -750,6 +751,18 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 		actionData.setDataItem("users", userList.toString());
 		return actionData;
+	}
+
+	/**
+	 * Create an asssertion message.
+	 * 
+	 * @param username
+	 *            The username.
+	 * @return The assertion message.
+	 */
+	private String formatAssertUsernameEqualsPreferences(final String username) {
+		final MessageFormat f = new MessageFormat(ASSERT_USERNAME_EQUALS_PREFS);
+		return f.format(new Object[] {username, preferences.getUsername()});
 	}
 
 	/**

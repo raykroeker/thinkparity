@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.javax.swing.BrowserJFrame;
 import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
+import com.thinkparity.browser.javax.swing.document.NewDocumentJPanel;
 import com.thinkparity.browser.javax.swing.session.LoginJPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 import com.thinkparity.browser.model.ModelFactory;
@@ -39,7 +40,7 @@ public class BrowserJPanel extends JPanel {
 	 */
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
 
-	private Component documentShuffler;
+	private Component documentList;
 
 	/**
 	 * Handle to the main JFrame.
@@ -47,7 +48,12 @@ public class BrowserJPanel extends JPanel {
 	 */
 	private final BrowserJFrame jFrame;
 
-	private Component loginJPanel;
+	private Component loginForm;
+
+	private Component newDocumentForm;
+
+	private static BrowserJPanel instance;
+	static BrowserJPanel getInstance() { return instance; }
 
 	/**
 	 * Create a BrowserJPanel.
@@ -55,29 +61,56 @@ public class BrowserJPanel extends JPanel {
 	 */
 	public BrowserJPanel(final BrowserJFrame jFrame) {
 		super();
+		instance = this;
 		this.jFrame = jFrame;
 
 		setLayout(new GridBagLayout());
 		add(createButtonJPanel(), createButtonJPanelConstraints());
-//		add(createDocumentShuffler(), createDocumentShufflerConstraints());
-		addDocumentShuffler();
 	}
 
-	public void addDocumentShuffler() {
-		if(null == documentShuffler) {
-			documentShuffler = createDocumentShuffler();
+	void addDocumentList() {
+		if(null == documentList) {
+			documentList = createDocumentList();
 		}
-		add(documentShuffler, createDocumentShufflerConstraints());
+		add(documentList, createDocumentListConstraints());
 	}
 
-	public void addLoginJPanel() {
-		if(null == loginJPanel) { loginJPanel = createLoginJPanel(); }
-		add(loginJPanel, createLoginJPanelConstraints());
+	void addLoginForm() {
+		if(null == loginForm) { loginForm = createLoginForm(); }
+		add(loginForm, createLoginFormConstraints());
 	}
 
-	public void removeLoginJPanel() { remove(loginJPanel); }
+	void addNewDocumentForm() {
+		if(null == newDocumentForm) {
+			newDocumentForm = createNewDocumentForm();
+		}
+		add(newDocumentForm, createNewDocumentFormConstraints());
+	}
 
-	public void removeDocumentShuffler() { remove(documentShuffler); }
+	private Object createNewDocumentFormConstraints() {
+		return new GridBagConstraints(0, 1,
+				1, 1,
+				1.0, 1.0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	void removeNewDocumentForm() { removeForm(newDocumentForm); }
+
+	void removeDocumentList() { removeList(documentList); }
+
+	void removeLoginForm() { removeForm(loginForm); }
+
+	private void removeList(final Component list) {
+		if(null == list) { return; }
+		remove(list);
+	}
+
+	private void removeForm(final Component form) {
+		if(null == form) { return; }
+		remove(form);
+	}
 
 	/**
 	 * Create the browser button JPanel.
@@ -108,7 +141,7 @@ public class BrowserJPanel extends JPanel {
 	 * 
 	 * @return The document shuffler com.thinkparity.browser.javax.swing.component.
 	 */
-	private Component createDocumentShuffler() {
+	private Component createDocumentList() {
 		final DocumentShuffler documentShuffler = new DocumentShuffler();
 		documentShuffler.setContentProvider(
 				ProviderFactory.getDocumentProvider());
@@ -121,7 +154,7 @@ public class BrowserJPanel extends JPanel {
 	 * 
 	 * @return The constraints.
 	 */
-	private Object createDocumentShufflerConstraints() {
+	private Object createDocumentListConstraints() {
 		return new GridBagConstraints(0, 1,
 				1, 1,
 				1.0, 1.0,
@@ -145,14 +178,18 @@ public class BrowserJPanel extends JPanel {
 		}
 	}
 
-	private Component createLoginJPanel() { return new LoginJPanel(this); }
+	private Component createLoginForm() { return new LoginJPanel(this); }
 
-	private Object createLoginJPanelConstraints() {
+	private Object createLoginFormConstraints() {
 		return new GridBagConstraints(0, 1,
 				1, 1,
 				1.0, 1.0,
 				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
 				new Insets(0, 0, 0, 0),
 				0, 0);
+	}
+
+	private Component createNewDocumentForm() {
+		return new NewDocumentJPanel(this);
 	}
 }

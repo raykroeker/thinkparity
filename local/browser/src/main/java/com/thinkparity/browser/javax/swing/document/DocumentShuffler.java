@@ -9,10 +9,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.javax.swing.AbstractBrowserJPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
 import com.thinkparity.browser.provider.ContentProvider;
 import com.thinkparity.browser.provider.FlatContentProvider;
@@ -33,7 +33,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentShuffler extends JPanel {
+public class DocumentShuffler extends AbstractBrowserJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -65,7 +65,6 @@ public class DocumentShuffler extends JPanel {
 	 */
 	public DocumentShuffler() {
 		super();
-		setOpaque(false);
 		setLayout(new GridBagLayout());
 	}
 

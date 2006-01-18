@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
@@ -29,13 +30,24 @@ public class BrowserButtonJPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 1;
 
+	protected final BrowserController controller =
+		BrowserController.getInstance();
+
+	private Component documentsJButton;
+
+	private Component fillerJLabel;
+
+	private final JFrame jFrame;
+
 	/**
 	 * Handle to the main browser JPanel.
 	 * 
 	 */
 	private final BrowserJPanel jPanel;
 
-	private final JFrame jFrame;
+	private Component loginJButton;
+
+	private Component newDocumentJButton;
 
 	/**
 	 * Create a BrowserButtonJPanel.
@@ -50,7 +62,64 @@ public class BrowserButtonJPanel extends JPanel {
 		setLayout(new GridBagLayout());
 		setOpaque(true);
 
-		add(createLoginJButton(), createLoginJButtonConstraints());
+		addFillerJLabel();
+		addDocumentsJButton();
+		addNewDocumentJButton();
+		addLoginJButton();
+	}
+
+	private void addDocumentsJButton() {
+		if(null == documentsJButton) {
+			documentsJButton = createDocumentsJButton();
+		}
+		add(documentsJButton, createDocumentsJButtonConstraints());
+	}
+
+	private void addFillerJLabel() {
+		if(null == fillerJLabel) { fillerJLabel = createFillerJLabel(); }
+		add(fillerJLabel, createFillerJLabelConstraints());
+	}
+
+	private void addLoginJButton() {
+		if(null == loginJButton) { loginJButton = createLoginJButton(); }
+		add(loginJButton, createLoginJButtonConstraints());
+	}
+
+	private void addNewDocumentJButton() {
+		if(null == newDocumentJButton) {
+			newDocumentJButton = createNewDocumentJButton();
+		}
+		add(newDocumentJButton, createNewDocumentJButtonConstraints());
+	}
+
+	private JButton createDocumentsJButton() {
+		final JButton jButton = BrowserButtonFactory.createTop("Documents");
+		jButton.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				controller.showDocumentList();
+			}
+		});
+		return jButton;
+	}
+
+	private Object createDocumentsJButtonConstraints() {
+		return new GridBagConstraints(1, 0,
+				1, 1,
+				0.0, 0.0,
+				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	private Component createFillerJLabel() { return new JLabel(); }
+
+	private Object createFillerJLabelConstraints() {
+		return new GridBagConstraints(0, 0,
+				1, 1,
+				1.0, 0.0,
+				GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+				new Insets(0, 0, 0, 0),
+				0, 0);
 	}
 
 	/**
@@ -67,18 +136,32 @@ public class BrowserButtonJPanel extends JPanel {
 	}
 
 	private Object createLoginJButtonConstraints() {
-		return new GridBagConstraints(0, 1,
+		return new GridBagConstraints(3, 0,
 				1, 1,
-				1.0, 0.0,
+				0.0, 0.0,
 				GridBagConstraints.EAST, GridBagConstraints.NONE,
 				new Insets(0, 0, 0, 0),
 				0, 0);
 	}
 
-	private void runShowLoginPanel() {
-		jPanel.addLoginJPanel();
-		jPanel.removeDocumentShuffler();
-		jPanel.revalidate();
-		jPanel.repaint();
+	private Component createNewDocumentJButton() {
+		final JButton jButton = BrowserButtonFactory.createTop("Add Document...");
+		jButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { runShowNewDocumentPanel(); }
+		});
+		return jButton;
 	}
+
+	private Object createNewDocumentJButtonConstraints() {
+		return new GridBagConstraints(2, 0,
+				1, 1,
+				0.0, 0.0,
+				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	private void runShowLoginPanel() { controller.showLoginForm(); }
+
+	private void runShowNewDocumentPanel() { controller.showNewDocumentForm(); }
 }

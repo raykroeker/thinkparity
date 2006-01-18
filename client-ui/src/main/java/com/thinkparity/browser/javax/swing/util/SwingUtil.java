@@ -43,7 +43,6 @@ public class SwingUtil {
 	public static String extract(final JTextField jTextField) {
 		synchronized(singletonLock) { return singleton.doExtract(jTextField); }
 	}
-
 	/**
 	 * Hide a custom tool tip. This tool tip must previously have been
 	 * displayed.
@@ -56,6 +55,13 @@ public class SwingUtil {
 		synchronized(singletonLock) {
 			singleton.doHideCustomToolTip(customToolTip);
 		}
+	}
+
+	public static void set(final JTextField jTextField, final String text) {
+		synchronized(singletonLock) { singleton.doSet(jTextField, text); }
+	}
+	public static void setToolTip(final JTextField jTextField, final String text) {
+		synchronized(singletonLock) { singleton.doSetToolTip(jTextField, text); }
 	}
 
 	/**
@@ -84,6 +90,16 @@ public class SwingUtil {
 	 */
 	private SwingUtil() { super(); }
 
+	private String doExtract(final JTextField jTextField) {
+		return doExtract(jTextField.getText());
+	}
+
+	private String doExtract(final String string) {
+		if(null == string) { return null; }
+		if(0 == string.length()) { return null; }
+		return string;
+	}
+
 	/**
 	 * Hide a custom tool tip. This tool tip must previously have been
 	 * displayed.
@@ -98,6 +114,18 @@ public class SwingUtil {
 		final JLayeredPane jLayeredPane =
 			SwingUtilities.getRootPane(customToolTip).getLayeredPane();
 		jLayeredPane.remove(customToolTip);
+	}
+
+	private void doSet(final JTextField jTextField, final String string) {
+		if(null == string) { return; }
+		if(0 == string.length()) { return; }
+		jTextField.setText(string);
+	}
+
+	private void doSetToolTip(final JTextField jTextField, final String string) {
+		if(null == string) { return; }
+		if(0 == string.length()) { return; }
+		jTextField.setToolTipText(string);
 	}
 
 	/**
@@ -123,15 +151,5 @@ public class SwingUtil {
 		final CustomToolTipMouseTracker mouseTracker = new CustomToolTipMouseTracker(customToolTip);
 		mouseTracker.install();
 		customToolTip.putClientProperty(CUSTOM_MOUSE_TRACKER, mouseTracker);
-	}
-
-	private String doExtract(final JTextField jTextField) {
-		return doExtract(jTextField.getText());
-	}
-
-	private String doExtract(final String string) {
-		if(null == string) { return null; }
-		if(0 == string.length()) { return null; }
-		return string;
 	}
 }

@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.Browser;
 import com.thinkparity.browser.java.awt.StackLayout;
 import com.thinkparity.browser.java.awt.StackLayout.Orientation;
+import com.thinkparity.browser.javax.swing.browser.BrowserController;
 import com.thinkparity.browser.javax.swing.browser.BrowserJPanel;
 import com.thinkparity.browser.javax.swing.misc.ColorPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
@@ -96,6 +97,7 @@ public class BrowserJFrame extends JFrame {
 		singleton .setVisible(true);
 		((Graphics2D) singleton .getGraphics())
 			.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		BrowserController.getInstance().showDocumentList();
 	}
 
 	/**

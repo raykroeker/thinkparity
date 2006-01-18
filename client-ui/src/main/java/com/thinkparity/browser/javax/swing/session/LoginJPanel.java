@@ -8,10 +8,10 @@ package com.thinkparity.browser.javax.swing.session;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JPanel;
-
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.javax.swing.AbstractBrowserJPanel;
+import com.thinkparity.browser.javax.swing.browser.BrowserController;
 import com.thinkparity.browser.javax.swing.browser.BrowserJPanel;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.util.SwingUtil;
@@ -21,6 +21,7 @@ import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.codebase.PropertiesUtil;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 
@@ -30,7 +31,7 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class LoginJPanel extends JPanel {
+public class LoginJPanel extends AbstractBrowserJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -216,23 +217,33 @@ public class LoginJPanel extends JPanel {
 
     // Variables declaration - do not modify
     // End of variables declaration
-    
-    private void runCancel() {
-    	browserJPanel.removeLoginJPanel();
-    	browserJPanel.addDocumentShuffler();
-    	browserJPanel.revalidate();
-    	browserJPanel.repaint();
-    }
+
+    private void runCancel() { controller.showDocumentList(); }
+   
+    protected final BrowserController controller =
+    	BrowserController.getInstance();
 
     private void runLogin() {
     	final StringBuffer buffer = new StringBuffer();
     	PropertiesUtil.print(buffer, System.getProperties());
     	logger.debug(buffer);
+    	final SessionListener sessionListener = new SessionListener() {
+			public void sessionEstablished() {
+				// should display an inline success message to user
+				// and wait for 3 s.
+				runCancel();
+			}
+			public void sessionTerminated() {}
+			public void sessionTerminated(Throwable cause) {}
+    	};
+    	sessionModel.addListener(sessionListener);
     	try { sessionModel.login(extractUsername(), extractPassword()); }
     	catch(ParityException px) {
     		// NOTE Error Handler Code
+    		// Should display an inline error label to user
     		logger.error(px);
     	}
+    	sessionModel.removeListener(sessionListener);
     }
     
     

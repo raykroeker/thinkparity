@@ -98,6 +98,9 @@ public class BrowserButtonFactory {
 
 	private JButton doCreate(final String text) {
 		final JButton jButton = new JButton(text);
+		jButton.putClientProperty(
+				SubstanceLookAndFeel.BUTTON_SHAPER_PROPERTY,
+				"org.jvnet.substance.button.ClassicButtonShaper");
 		return jButton;
 	}
 }

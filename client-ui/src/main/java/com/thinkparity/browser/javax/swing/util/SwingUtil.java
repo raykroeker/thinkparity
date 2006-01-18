@@ -8,6 +8,7 @@ import java.awt.Point;
 
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 /**
@@ -37,6 +38,10 @@ public class SwingUtil {
 	static {
 		singleton = new SwingUtil();
 		singletonLock = new Object();
+	}
+
+	public static String extract(final JTextField jTextField) {
+		synchronized(singletonLock) { return singleton.doExtract(jTextField); }
 	}
 
 	/**
@@ -118,5 +123,15 @@ public class SwingUtil {
 		final CustomToolTipMouseTracker mouseTracker = new CustomToolTipMouseTracker(customToolTip);
 		mouseTracker.install();
 		customToolTip.putClientProperty(CUSTOM_MOUSE_TRACKER, mouseTracker);
+	}
+
+	private String doExtract(final JTextField jTextField) {
+		return doExtract(jTextField.getText());
+	}
+
+	private String doExtract(final String string) {
+		if(null == string) { return null; }
+		if(0 == string.length()) { return null; }
+		return string;
 	}
 }

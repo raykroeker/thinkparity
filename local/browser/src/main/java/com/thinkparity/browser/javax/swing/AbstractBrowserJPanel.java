@@ -5,7 +5,7 @@ package com.thinkparity.browser.javax.swing;
 
 import javax.swing.JPanel;
 
-import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -32,6 +32,6 @@ public class AbstractBrowserJPanel extends JPanel {
 	}
 
 	private WorkspaceModel getWorkspaceModel() {
-		return ModelProvider.getWorkspaceModel(getClass());	
+		return ModelFactory.getWorkspaceModel(getClass());	
 	}
 }

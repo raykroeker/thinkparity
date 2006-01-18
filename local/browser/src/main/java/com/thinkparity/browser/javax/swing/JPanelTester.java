@@ -3,18 +3,12 @@
  */
 package com.thinkparity.browser.javax.swing;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import com.thinkparity.browser.javax.swing.session.LoginJPanel;
 
 /**
  * Used as a quick-launch for testing.
@@ -79,15 +73,16 @@ public class JPanelTester extends JFrame {
 	}
 
 	private Component createTestJPanel() {
-		final JPanel jPanel = new LoginJPanel();
-		jPanel.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
-		final Component[] components = jPanel.getComponents();
-		final Color color = new Color(64, 192, 18, 255);
-		for(Component c : components) {
-			if(c instanceof JLabel) { ((JLabel) c).setOpaque(true); }
-			c.setBackground(color);
-		}
-		return jPanel;
+//		final JPanel jPanel = new LoginJPanel();
+//		jPanel.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
+//		final Component[] components = jPanel.getComponents();
+//		final Color color = new Color(64, 192, 18, 255);
+//		for(Component c : components) {
+//			if(c instanceof JLabel) { ((JLabel) c).setOpaque(true); }
+//			c.setBackground(color);
+//		}
+//		return jPanel;
+		return null;
 	}
 
 	private Object createTestJPanelConstraints() {

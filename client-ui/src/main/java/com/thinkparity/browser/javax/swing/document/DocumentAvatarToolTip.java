@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.RandomData;
-import com.thinkparity.browser.javax.swing.animation.Animator;
+import com.thinkparity.browser.javax.swing.animation.IAnimator;
 import com.thinkparity.browser.javax.swing.animation.CompletionListener;
 import com.thinkparity.browser.javax.swing.animation.ExpandToolTipAnimation;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
@@ -147,7 +147,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	 */
 	private final JButton sendKeyJButton;
 
-	private Animator toolTipAnimator;
+	private IAnimator toolTipAnimator;
 
 	/**
 	 * Create a DocumentAvatarToolTip.

@@ -22,7 +22,7 @@ import com.thinkparity.browser.java.awt.StackLayout.Orientation;
 import com.thinkparity.browser.javax.swing.browser.BrowserJPanel;
 import com.thinkparity.browser.javax.swing.misc.ColorPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
-import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.ProjectModel;
@@ -103,7 +103,7 @@ public class BrowserJFrame extends JFrame {
 	 * 
 	 */
 	protected final DocumentModel documentModel =
-		ModelProvider.getDocumentModel(getClass());
+		ModelFactory.getDocumentModel(getClass());
 
 	/**
 	 * Handle to an apache logger.
@@ -116,7 +116,7 @@ public class BrowserJFrame extends JFrame {
 	 * 
 	 */
 	protected final ProjectModel projectModel =
-		ModelProvider.getProjectModel(getClass());
+		ModelFactory.getProjectModel(getClass());
 
 	private static final Color backgroundColor =
 		BrowserColorUtil.getRGBColor(249, 249, 249, 255);
@@ -144,16 +144,6 @@ public class BrowserJFrame extends JFrame {
 		setLayout(new StackLayout());
 		setResizable(false);
 		add(new ColorPanel(backgroundColor), Orientation.BOTTOM);
-		// the document display
-//		this.documentShuffler = new DocumentShuffler();
-//		this.documentShuffler.setContentProvider(ProviderFactory.getDocumentProvider());
-//		try { this.documentShuffler.setInput(projectModel.getMyProjects()); }
-//		catch(ParityException px) {
-			// NOTE Error Handler Code
-//			logger.fatal("Could not initalize the browser.", px);
-//			browser.exit(1);
-//		}
-//		add(documentShuffler, Orientation.TOP);
 		add(new BrowserJPanel(this), Orientation.TOP);
 		addListeners(browser);
 	}

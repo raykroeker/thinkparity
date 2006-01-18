@@ -13,7 +13,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.thinkparity.browser.log4j.or.java.awt.PointRenderer;
 import com.thinkparity.browser.log4j.or.java.awt.event.MouseEventRenderer;
-import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -72,7 +72,7 @@ public class BrowserLoggerFactory {
 				configureRenderers(log4jProperties);
 
 				final WorkspaceModel workspaceModel =
-					ModelProvider.getWorkspaceModel(BrowserLoggerFactory.class);
+					ModelFactory.getWorkspaceModel(BrowserLoggerFactory.class);
 				configureBrowserHTMLAppender(log4jProperties, workspaceModel.getWorkspace());
 				configureConsoleAppender(log4jProperties);
 

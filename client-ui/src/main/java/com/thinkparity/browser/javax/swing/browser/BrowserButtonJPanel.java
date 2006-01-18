@@ -5,9 +5,14 @@ package com.thinkparity.browser.javax.swing.browser;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.ComponentOrientation;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
@@ -30,20 +35,22 @@ public class BrowserButtonJPanel extends JPanel {
 	 */
 	private final BrowserJPanel jPanel;
 
+	private final JFrame jFrame;
+
 	/**
 	 * Create a BrowserButtonJPanel.
 	 * 
 	 */
-	public BrowserButtonJPanel(final BrowserJPanel jPanel) {
+	public BrowserButtonJPanel(final JFrame jFrame, final BrowserJPanel jPanel) {
 		super();
+		this.jFrame = jFrame;
 		this.jPanel = jPanel;
 
 		setBackground(Color.WHITE);
-		setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+		setLayout(new GridBagLayout());
 		setOpaque(true);
 
-		add(createLoginJButton());
+		add(createLoginJButton(), createLoginJButtonConstraints());
 	}
 
 	/**
@@ -52,6 +59,26 @@ public class BrowserButtonJPanel extends JPanel {
 	 * @return The login JButton.
 	 */
 	private Component createLoginJButton() {
-		return BrowserButtonFactory.createTop("Login...");
+		final JButton jButton = BrowserButtonFactory.createTop("Login...");
+		jButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { runShowLoginPanel(); }
+		});
+		return jButton;
+	}
+
+	private Object createLoginJButtonConstraints() {
+		return new GridBagConstraints(0, 1,
+				1, 1,
+				1.0, 0.0,
+				GridBagConstraints.EAST, GridBagConstraints.NONE,
+				new Insets(0, 0, 0, 0),
+				0, 0);
+	}
+
+	private void runShowLoginPanel() {
+		jPanel.addLoginJPanel();
+		jPanel.removeDocumentShuffler();
+		jPanel.revalidate();
+		jPanel.repaint();
 	}
 }

@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
-import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -180,8 +180,8 @@ public class ParityObjectUtil {
 	 */
 	private ParityObjectUtil() {
 		super();
-		this.documentModel = ModelProvider.getDocumentModel(getClass());
-		this.projectModel = ModelProvider.getProjectModel(getClass());
+		this.documentModel = ModelFactory.getDocumentModel(getClass());
+		this.projectModel = ModelFactory.getProjectModel(getClass());
 	}
 
 	/**

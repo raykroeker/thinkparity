@@ -6,7 +6,7 @@ package com.thinkparity.browser.provider;
 import java.util.Collection;
 import java.util.Vector;
 
-import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
@@ -39,7 +39,7 @@ public class ProviderFactory {
 	private static final Object singletonLock;
 
 	static {
-		documentModel = ModelProvider.getDocumentModel(ProviderFactory.class);
+		documentModel = ModelFactory.getDocumentModel(ProviderFactory.class);
 		singleton = new ProviderFactory();
 		singletonLock = new Object();
 	}

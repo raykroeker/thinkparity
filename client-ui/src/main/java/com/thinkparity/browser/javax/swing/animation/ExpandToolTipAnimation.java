@@ -86,7 +86,7 @@ public class ExpandToolTipAnimation extends AbstractJPanelAnimation {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.animation.Animator#isRunning()
+	 * @see com.thinkparity.browser.javax.swing.animation.IAnimator#isRunning()
 	 * 
 	 */
 	public boolean isRunning() { return timer.isRunning(); }

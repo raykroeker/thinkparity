@@ -9,7 +9,10 @@ package com.thinkparity.browser;
  */
 public class BrowserBootstrap {
 
-	static void bootstrap() { System.setProperty("smack.debugEnabled", "true"); }
+	static void bootstrap() {
+		System.setProperty("parity.insecure", "true");
+		System.setProperty("smack.debugEnabled", "true");
+	}
 
 	/**
 	 * Create a BrowserBootstrap.

@@ -9,7 +9,7 @@ import javax.swing.Icon;
 
 import com.thinkparity.browser.javax.swing.action.BrowserAction;
 import com.thinkparity.browser.javax.swing.action.Data;
-import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -54,7 +54,7 @@ public class OpenVersion extends BrowserAction {
 	 * 
 	 */
 	protected final DocumentModel documentModel =
-		ModelProvider.getDocumentModel(getClass());
+		ModelFactory.getDocumentModel(getClass());
 
 	/**
 	 * Create an OpenVersion.

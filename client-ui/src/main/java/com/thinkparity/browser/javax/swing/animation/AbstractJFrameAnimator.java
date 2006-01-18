@@ -3,19 +3,12 @@
  */
 package com.thinkparity.browser.javax.swing.animation;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.util.Collection;
 import java.util.Vector;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
@@ -25,68 +18,7 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractJFrameAnimator implements JFrameAnimator {
-
-	/**
-	 * The glass pane interceptor is added\removed to the jFrame during the
-	 * subsequent start\stop calls. This is so that during the animation no
-	 * mouse events can be captured by the underlying components.
-	 * 
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class GlassPaneInterceptor extends JComponent implements
-			MouseMotionListener {
-
-		/**
-		 * @see java.io.Serializable
-		 * 
-		 */
-		private static final long serialVersionUID = 1;
-
-		/**
-		 * Hints used to render the transulcent background.
-		 * 
-		 */
-		private final RenderingHints renderingHints;
-
-		/**
-		 * Create a GlassPaneInterceptor.
-		 * 
-		 */
-		private GlassPaneInterceptor() {
-			super();
-			addMouseMotionListener(this);
-	        
-			this.renderingHints = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-	        this.renderingHints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        this.renderingHints.put(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		}
-
-		/**
-		 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-		 */
-		public void mouseDragged(final MouseEvent e) {}
-
-		/**
-		 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-		 */
-		public void mouseMoved(final MouseEvent e) {}
-
-		/**
-		 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-		 * 
-		 */
-		public void paintComponent(Graphics g) {
-			final Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHints(renderingHints);
-            
-            g2.setColor(new Color(255, 255, 255, (int) (255 * 0.70f)));
-            g2.fillRect(0, 0, getWidth(), getHeight());
-
-            g2.dispose();
-		}
-	}
+public abstract class AbstractJFrameAnimator extends AbstractAnimator {
 
 	/**
 	 * List of registered completion listeners.
@@ -126,7 +58,7 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 	/**
 	 * The glass pane of the jframe.
 	 */
-	private Component jFrameOriginalGlassPane;
+	Component jFrameOriginalGlassPane;
 
 	/**
 	 * Create a AbstractJFrameAnimator.
@@ -140,11 +72,27 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 		});
 	}
 
+	public void addCompletionListener(final CompletionListener listener) {
+		Assert.assertNotNull("", listener);
+		synchronized(completionListenersLock) {
+			if(completionListeners.contains(listener)) { return; }
+			completionListeners.add(listener);
+		}
+	}
+
 	/**
-	 * @see com.thinkparity.browser.javax.swing.animation.Animator#isRunning()
+	 * @see com.thinkparity.browser.javax.swing.animation.IAnimator#isRunning()
 	 * 
 	 */
 	public boolean isRunning() { return timer.isRunning(); }
+
+	public void removeCompletionListener(final CompletionListener listener) {
+		Assert.assertNotNull("", listener);
+		synchronized(completionListenersLock) {
+			if(!completionListeners.contains(listener)) { return; }
+			completionListeners.remove(listener);
+		}
+	}
 
 	/**
 	 * Start the jFrame animation. This will check to see if any animations are
@@ -156,7 +104,7 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 	 */
 	public void start() {
 		if(null != getCurrentAnimator()) { getCurrentAnimator().stop(); }
-		installInterceptor();
+		installInterceptor(jFrame);
 		setCurrentAnimator();
 		startTimer();
 	}
@@ -169,8 +117,16 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 	 */
 	public void stop() {
 		stopTimer();
-		uninstallInterceptor();
+		uninstallInterceptor(jFrame);
 		unsetCurrentAnimator();
+	}
+
+	protected void fireComplete() {
+		synchronized(completionListenersLock) {
+			for(CompletionListener listener : completionListeners) {
+				listener.animationComplete();
+			}
+		}
 	}
 
 	/**
@@ -178,22 +134,8 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 	 * 
 	 * @return The current animator; or null if no animator is running.
 	 */
-	private JFrameAnimator getCurrentAnimator() {
-		return (JFrameAnimator) jFrame.getRootPane().getClientProperty(JFRAME_ANIMATOR_KEY);
-	}
-
-	/**
-	 * Install a glass pane interceptor that will capture all mouse input.
-	 *
-	 */
-	private void installInterceptor() {
-		jFrameOriginalGlassPane = jFrame.getGlassPane();
-
-		final GlassPaneInterceptor glassPaneInterceptor =
-			new GlassPaneInterceptor();
-		jFrame.setGlassPane(glassPaneInterceptor);
-		glassPaneInterceptor.setVisible(true);
-		
+	private IAnimator getCurrentAnimator() {
+		return (IAnimator) jFrame.getRootPane().getClientProperty(JFRAME_ANIMATOR_KEY);
 	}
 
 	/**
@@ -216,39 +158,11 @@ public abstract class AbstractJFrameAnimator implements JFrameAnimator {
 	 */
 	private void stopTimer() { timer.stop(); }
 
-	private void uninstallInterceptor() {
-		jFrame.setGlassPane(jFrameOriginalGlassPane);
-	}
-
 	/**
 	 * Unset the current animator.
 	 *
 	 */
 	private void unsetCurrentAnimator() {
 		jFrame.getRootPane().putClientProperty(JFRAME_ANIMATOR_KEY, null);
-	}
-
-	public void addCompletionListener(final CompletionListener listener) {
-		Assert.assertNotNull("", listener);
-		synchronized(completionListenersLock) {
-			if(completionListeners.contains(listener)) { return; }
-			completionListeners.add(listener);
-		}
-	}
-
-	public void removeCompletionListener(final CompletionListener listener) {
-		Assert.assertNotNull("", listener);
-		synchronized(completionListenersLock) {
-			if(!completionListeners.contains(listener)) { return; }
-			completionListeners.remove(listener);
-		}
-	}
-
-	protected void fireComplete() {
-		synchronized(completionListenersLock) {
-			for(CompletionListener listener : completionListeners) {
-				listener.animationComplete();
-			}
-		}
 	}
 }

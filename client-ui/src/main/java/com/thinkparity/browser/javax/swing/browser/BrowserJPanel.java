@@ -14,8 +14,9 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.javax.swing.BrowserJFrame;
 import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
+import com.thinkparity.browser.javax.swing.session.LoginJPanel;
 import com.thinkparity.browser.log4j.BrowserLoggerFactory;
-import com.thinkparity.browser.model.ModelProvider;
+import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.provider.ProviderFactory;
 
 import com.thinkparity.model.parity.ParityException;
@@ -38,11 +39,15 @@ public class BrowserJPanel extends JPanel {
 	 */
 	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
 
+	private Component documentShuffler;
+
 	/**
 	 * Handle to the main JFrame.
 	 * 
 	 */
 	private final BrowserJFrame jFrame;
+
+	private Component loginJPanel;
 
 	/**
 	 * Create a BrowserJPanel.
@@ -54,8 +59,25 @@ public class BrowserJPanel extends JPanel {
 
 		setLayout(new GridBagLayout());
 		add(createButtonJPanel(), createButtonJPanelConstraints());
-		add(createDocumentShuffler(), createDocumentShufflerConstraints());
+//		add(createDocumentShuffler(), createDocumentShufflerConstraints());
+		addDocumentShuffler();
 	}
+
+	public void addDocumentShuffler() {
+		if(null == documentShuffler) {
+			documentShuffler = createDocumentShuffler();
+		}
+		add(documentShuffler, createDocumentShufflerConstraints());
+	}
+
+	public void addLoginJPanel() {
+		if(null == loginJPanel) { loginJPanel = createLoginJPanel(); }
+		add(loginJPanel, createLoginJPanelConstraints());
+	}
+
+	public void removeLoginJPanel() { remove(loginJPanel); }
+
+	public void removeDocumentShuffler() { remove(documentShuffler); }
 
 	/**
 	 * Create the browser button JPanel.
@@ -63,7 +85,7 @@ public class BrowserJPanel extends JPanel {
 	 * @return The browser button JPanel.
 	 */
 	private Component createButtonJPanel() {
-		final BrowserButtonJPanel buttonJPanel = new BrowserButtonJPanel(this);
+		final BrowserButtonJPanel buttonJPanel = new BrowserButtonJPanel(jFrame, this);
 		return buttonJPanel;
 	}
 
@@ -114,12 +136,23 @@ public class BrowserJPanel extends JPanel {
 	 * @return The input for the document shuffler.
 	 */
 	private Object createDocumentShufflerInput() {
-		final ProjectModel projectModel = ModelProvider.getProjectModel(getClass());
+		final ProjectModel projectModel = ModelFactory.getProjectModel(getClass());
 		try { return projectModel.getMyProjects(); }
 		catch(ParityException px) {
 			// NOTE Error Handler Code
 			logger.fatal("Could not initialize browser.", px);
 			return null;
 		}
+	}
+
+	private Component createLoginJPanel() { return new LoginJPanel(this); }
+
+	private Object createLoginJPanelConstraints() {
+		return new GridBagConstraints(0, 1,
+				1, 1,
+				1.0, 1.0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+				new Insets(0, 0, 0, 0),
+				0, 0);
 	}
 }

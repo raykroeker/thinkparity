@@ -420,20 +420,18 @@ class SessionModelImpl extends AbstractModelImpl {
 		final Integer port = preferences.getServerPort();
 		synchronized(xmppHelperLock) {
 			try {
-				final String usernameAtHost = new StringBuffer(username)
-					.append("@").append(host).toString();
-				// check that the preferences username@host matches the username
+				// check that the preferences username matches the username
 				// supplied
 				if(preferences.isSetUsername()) {
 					Assert.assertTrue(
 							ASSERT_USERNAME_EQUALS_PREFS,
-							usernameAtHost.equals(preferences.getUsername()));
+							username.equals(preferences.getUsername()));
 				}
 				// login
 				xmppHelper.login(host, port, username, password);
 				// set the username@host in the preferences
 				if(!preferences.isSetUsername()) {
-					preferences.setUsername(usernameAtHost);
+					preferences.setUsername(username);
 				}
 			}
 			catch(SmackException sx) {

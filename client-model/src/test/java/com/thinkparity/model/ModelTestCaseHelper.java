@@ -9,7 +9,10 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.PropertiesUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
@@ -113,11 +116,16 @@ public class ModelTestCaseHelper {
 		ModelTestLoggerConfigurator.configure(jUnitSessionId, outputDirectory);
 	}
 
+	protected final Logger logger = Logger.getLogger(getClass());
+
 	/**
 	 * Create a ModelTestCaseHelper
 	 */
 	ModelTestCaseHelper(final ModelTestCase modelTestCase) {
 		super();
+		final StringBuffer properties = new StringBuffer("---Model Test Framework---");
+		PropertiesUtil.print(properties, System.getProperties());
+		logger.debug(properties);
 	}
 
 	/**

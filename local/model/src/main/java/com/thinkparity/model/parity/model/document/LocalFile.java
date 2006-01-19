@@ -147,7 +147,6 @@ class LocalFile {
 			openWin32();
 			break;
 		case LINUX:
-			logger.warn("Unsupported operating system.");
 		default:
 			Assert.assertNotYetImplemented("launchFile(File)");
 			break;

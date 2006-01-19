@@ -23,7 +23,7 @@ import com.thinkparity.browser.javax.swing.BrowserColorUtil;
 import com.thinkparity.browser.javax.swing.animation.HideJFrameAnimator;
 import com.thinkparity.browser.javax.swing.animation.ShowJFrameAnimator;
 import com.thinkparity.browser.javax.swing.plaf.parity.color.iTunesColorScheme;
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -227,7 +227,7 @@ public class ParityTitlePane extends JComponent {
 	/**
 	 * Handle to an apache logger.
 	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * JRootPane rendering for.

@@ -5,7 +5,7 @@ package com.thinkparity.browser.error;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -51,5 +51,5 @@ public class ErrorHandler {
 		}
 	}
 
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 }

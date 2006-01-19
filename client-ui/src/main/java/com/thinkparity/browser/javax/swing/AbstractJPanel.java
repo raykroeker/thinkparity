@@ -10,12 +10,14 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.l10n.JPanelLocalisation;
+import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -23,7 +25,7 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class AbstractBrowserJPanel extends JPanel {
+public class AbstractJPanel extends JPanel {
 
 	/**
 	 * Default background color.
@@ -42,18 +44,31 @@ public class AbstractBrowserJPanel extends JPanel {
 	}
 
 	/**
+	 * Localisation helper utility.
+	 * 
+	 */
+	protected final JPanelLocalisation localisation;
+
+	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
 	protected final Logger logger =
-		BrowserLoggerFactory.getLogger(getClass());
+		LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Create an AbstractBrowserJPanel.
+	 * Handle to the parity model factory.
 	 * 
 	 */
-	protected AbstractBrowserJPanel() {
+	protected final ModelFactory modelFactory = ModelFactory.getInstance();
+
+	/**
+	 * Create an AbstractJPanel.
+	 * 
+	 */
+	protected AbstractJPanel(final String l18nContext) {
 		super();
+		this.localisation = new JPanelLocalisation(l18nContext);
 		setOpaque(true);
 		setDefaultBackground();
 	}
@@ -64,7 +79,7 @@ public class AbstractBrowserJPanel extends JPanel {
 	 * @return The document api.
 	 */
 	protected DocumentModel getDocumentModel() {
-		return ModelFactory.getDocumentModel(getClass());
+		return modelFactory.getDocumentModel(getClass());
 	}
 
 	/**
@@ -73,7 +88,7 @@ public class AbstractBrowserJPanel extends JPanel {
 	 * @return The parity preferences.
 	 */
 	protected Preferences getPreferences() {
-		return ModelFactory.getPreferences(getClass());
+		return modelFactory.getPreferences(getClass());
 	}
 
 	/**
@@ -83,8 +98,34 @@ public class AbstractBrowserJPanel extends JPanel {
 	 * @throws ParityException
 	 */
 	protected UUID getProjectId() throws ParityException {
-		final ProjectModel projectModel = ModelFactory.getProjectModel(getClass());
+		final ProjectModel projectModel = modelFactory.getProjectModel(getClass());
 		return projectModel.getMyProjects().getId();
+	}
+
+	/**
+	 * Obtain a handle to the project model api.
+	 * 
+	 * @return The project model api.
+	 */
+	protected ProjectModel getProjectModel() {
+		return modelFactory.getProjectModel(getClass());
+	}
+
+	/**
+	 * Obtain a handle to the session api.
+	 * 
+	 * @return The session api.
+	 */
+	protected SessionModel getSessionModel() {
+		return modelFactory.getSessionModel(getClass());
+	}
+
+	/**
+	 * @see JPanelLocalisation#getString(String)
+	 * 
+	 */
+	protected String getString(final String localKey) {
+		return localisation.getString(localKey);
 	}
 
 	/**
@@ -93,7 +134,7 @@ public class AbstractBrowserJPanel extends JPanel {
 	 * @return The parity workspace.
 	 */
 	protected Workspace getWorkspace() {
-		return ModelFactory.getWorkspace(getClass());
+		return modelFactory.getWorkspace(getClass());
 	}
 
 	/**

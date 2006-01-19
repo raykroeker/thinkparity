@@ -8,7 +8,7 @@ import java.awt.Color;
 import org.apache.log4j.Logger;
 import org.jvnet.substance.color.ColorScheme;
 
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -44,7 +44,7 @@ public class iTunesColorScheme implements ColorScheme {
 	/**
 	 * Handle to an apache logger.
 	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Create a ParityColorScheme.

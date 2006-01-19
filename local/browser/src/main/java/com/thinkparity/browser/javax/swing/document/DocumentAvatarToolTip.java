@@ -19,7 +19,7 @@ import com.thinkparity.browser.javax.swing.animation.CompletionListener;
 import com.thinkparity.browser.javax.swing.animation.ExpandToolTipAnimation;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.document.history.HistoryShuffler;
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.provider.ProviderFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -63,7 +63,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	 * Handle to an apache logger.
 	 * 
 	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Flag indicating whether the user can close.

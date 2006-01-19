@@ -12,8 +12,8 @@ import javax.swing.JLabel;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.javax.swing.AbstractBrowserJPanel;
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.provider.ContentProvider;
 import com.thinkparity.browser.provider.FlatContentProvider;
 
@@ -33,7 +33,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentShuffler extends AbstractBrowserJPanel {
+public class DocumentShuffler extends AbstractJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -45,7 +45,7 @@ public class DocumentShuffler extends AbstractBrowserJPanel {
 	 * Handle to an apache logger.
 	 * 
 	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * The provider is used to retreive documents from an external model.
@@ -64,7 +64,7 @@ public class DocumentShuffler extends AbstractBrowserJPanel {
 	 * 
 	 */
 	public DocumentShuffler() {
-		super();
+		super("DocumentShuffler");
 		setLayout(new GridBagLayout());
 	}
 

@@ -23,15 +23,15 @@ import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class BrowserButtonJPanel extends JPanel {
+public class ButtonJPanel extends JPanel {
 
 	/**
 	 * @see java.io.Serializable
 	 */
 	private static final long serialVersionUID = 1;
 
-	protected final BrowserController controller =
-		BrowserController.getInstance();
+	protected final Controller controller =
+		Controller.getInstance();
 
 	private Component documentsJButton;
 
@@ -43,17 +43,17 @@ public class BrowserButtonJPanel extends JPanel {
 	 * Handle to the main browser JPanel.
 	 * 
 	 */
-	private final BrowserJPanel jPanel;
+	private final MainJPanel jPanel;
 
 	private Component loginJButton;
 
 	private Component newDocumentJButton;
 
 	/**
-	 * Create a BrowserButtonJPanel.
+	 * Create a ButtonJPanel.
 	 * 
 	 */
-	public BrowserButtonJPanel(final JFrame jFrame, final BrowserJPanel jPanel) {
+	public ButtonJPanel(final JFrame jFrame, final MainJPanel jPanel) {
 		super();
 		this.jFrame = jFrame;
 		this.jPanel = jPanel;

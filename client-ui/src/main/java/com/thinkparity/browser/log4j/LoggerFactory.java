@@ -16,15 +16,14 @@ import com.thinkparity.browser.log4j.or.java.awt.event.MouseEventRenderer;
 import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
- * BrowserLoggerFactory
+ * LoggerFactory
  * 
  * @author raykroeker@gmail.com
  * @version 1.0
  */
-public class BrowserLoggerFactory {
+public class LoggerFactory {
 
 	/**
 	 * Synchronization lock for the framework configuration.
@@ -51,7 +50,7 @@ public class BrowserLoggerFactory {
 	 * @return A handle to a logger.
 	 */
 	public static Logger getLogger(final Class clasz) {
-		BrowserLoggerFactory.configure();
+		LoggerFactory.configure();
 		return getBrowserLogger(clasz);
 	}
 
@@ -71,9 +70,8 @@ public class BrowserLoggerFactory {
 				configureGlobal(log4jProperties);
 				configureRenderers(log4jProperties);
 
-				final WorkspaceModel workspaceModel =
-					ModelFactory.getWorkspaceModel(BrowserLoggerFactory.class);
-				configureBrowserHTMLAppender(log4jProperties, workspaceModel.getWorkspace());
+				final ModelFactory modelFactory = ModelFactory.getInstance();
+				configureBrowserHTMLAppender(log4jProperties, modelFactory.getWorkspace(LoggerFactory.class));
 				configureConsoleAppender(log4jProperties);
 
 				PropertyConfigurator.configure(log4jProperties);
@@ -162,7 +160,7 @@ public class BrowserLoggerFactory {
 	}
 
 	/**
-	 * Create a new BrowserLoggerFactory [Singleton, Factory]
+	 * Create a new LoggerFactory [Singleton, Factory]
 	 */
-	private BrowserLoggerFactory() { super(); }
+	private LoggerFactory() { super(); }
 }

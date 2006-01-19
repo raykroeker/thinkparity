@@ -28,6 +28,9 @@ public class BrowserLabelFactory {
 		singletonLock = new Object();
 	}
 
+	public static JLabel create() {
+		synchronized(singletonLock) { return singleton.doCreate(); }
+	}
 	public static JLabel create(final String text) {
 		synchronized(singletonLock) { return singleton.doCreate(text); }
 	}
@@ -36,6 +39,8 @@ public class BrowserLabelFactory {
 	 * Create a BrowserButtonFactory.
 	 */
 	private BrowserLabelFactory() { super(); }
+
+	private JLabel doCreate() { return doCreate(""); }
 
 	private JLabel doCreate(final String text) {
 		// draw the button as a bottom button.

@@ -16,33 +16,70 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public class ModelFactory {
 
-	public static SessionModel getSessionModel(final Class clasz) {
-		return SessionModel.getModel();
-	}
+	private static final ModelFactory INSTANCE;
 
-	public static Preferences getPreferences(final Class clasz) {
-		return getWorkspace(clasz).getPreferences();
-	}
+	static { INSTANCE = new ModelFactory(); }
 
-	public static Workspace getWorkspace(final Class clasz) {
-		return getWorkspaceModel(clasz).getWorkspace();
-	}
+	public static ModelFactory getInstance() { return INSTANCE; }
 
-	public static DocumentModel getDocumentModel(final Class clasz) {
-		return DocumentModel.getModel();
-	}
-
-	public static ProjectModel getProjectModel(final Class clasz) {
-		return ProjectModel.getModel();
-	}
-
-	public static WorkspaceModel getWorkspaceModel(final Class clasz) {
-		return WorkspaceModel.getModel();
-	}
+	private DocumentModel documentModel;
+	private boolean isInitialized;
+	private Preferences preferences;
+	private ProjectModel projectModel;
+	private SessionModel sessionModel;
+	private Workspace workspace;
+	private WorkspaceModel workspaceModel;
 
 	/**
 	 * Create a ModelFactory [Singleton]
 	 * 
 	 */
-	private ModelFactory() { super(); }
+	private ModelFactory() {
+		super();
+		this.isInitialized = false;
+	}
+
+	public DocumentModel getDocumentModel(final Class clasz) {
+		return documentModel;
+	}
+
+	public Preferences getPreferences(final Class clasz) {
+		return preferences;
+	}
+
+	public ProjectModel getProjectModel(final Class clasz) {
+		return projectModel;
+	}
+
+	public SessionModel getSessionModel(final Class clasz) {
+		return sessionModel;
+	}
+
+	public Workspace getWorkspace(final Class clasz) {
+		return getWorkspaceModel(clasz).getWorkspace();
+	}
+
+	public WorkspaceModel getWorkspaceModel(final Class clasz) {
+		if(null == workspaceModel) {
+			// NOTE We do this because of a circular dependency
+			workspaceModel = WorkspaceModel.getModel();
+		}
+		return workspaceModel;
+	}
+
+	/**
+	 * Initialize the model factory.
+	 * 
+	 */
+	public void initialize() {
+		if(!isInitialized) {
+			documentModel = DocumentModel.getModel();
+			projectModel = ProjectModel.getModel();
+			sessionModel = SessionModel.getModel();
+			workspaceModel = WorkspaceModel.getModel();
+			workspace = workspaceModel.getWorkspace();
+			preferences = workspace.getPreferences();
+			isInitialized = true;
+		}
+	}
 }

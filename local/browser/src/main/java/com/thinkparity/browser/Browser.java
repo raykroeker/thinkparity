@@ -14,7 +14,7 @@ import com.thinkparity.codebase.PropertiesUtil;
 public class Browser {
 
 	static {
-		BrowserBootstrap.bootstrap();
+		Initializer.getInstance().initialize();
 		final StringBuffer buffer = new StringBuffer();
 		PropertiesUtil.print(
 				buffer, "--- Parity Browser ---", System.getProperties());

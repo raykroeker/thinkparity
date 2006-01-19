@@ -13,7 +13,7 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import com.thinkparity.browser.javax.swing.action.BrowserAction;
+import com.thinkparity.browser.javax.swing.action.AbstractAction;
 import com.thinkparity.browser.javax.swing.action.Data;
 import com.thinkparity.browser.javax.swing.animation.AbstractJPanelAnimation;
 
@@ -21,7 +21,7 @@ import com.thinkparity.browser.javax.swing.animation.AbstractJPanelAnimation;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ShowLogin extends BrowserAction {
+public class ShowLogin extends AbstractAction {
 
 	public enum DataKey { LOGIN_JPANEL, MAX_SIZE_HEIGHT, MIN_LOCATION_Y }
 
@@ -112,7 +112,7 @@ public class ShowLogin extends BrowserAction {
 	public ShowLogin() { super(name, icon); }
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.action.BrowserAction#invoke(com.thinkparity.browser.javax.swing.action.Data)
+	 * @see com.thinkparity.browser.javax.swing.action.AbstractAction#invoke(com.thinkparity.browser.javax.swing.action.Data)
 	 * 
 	 */
 	public void invoke(Data data) {

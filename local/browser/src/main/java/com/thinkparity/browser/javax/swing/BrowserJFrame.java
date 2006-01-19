@@ -19,14 +19,10 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.Browser;
 import com.thinkparity.browser.java.awt.StackLayout;
 import com.thinkparity.browser.java.awt.StackLayout.Orientation;
-import com.thinkparity.browser.javax.swing.browser.BrowserController;
-import com.thinkparity.browser.javax.swing.browser.BrowserJPanel;
+import com.thinkparity.browser.javax.swing.browser.Controller;
+import com.thinkparity.browser.javax.swing.browser.MainJPanel;
 import com.thinkparity.browser.javax.swing.misc.ColorPanel;
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
-import com.thinkparity.browser.model.ModelFactory;
-
-import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.browser.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -97,28 +93,14 @@ public class BrowserJFrame extends JFrame {
 		singleton .setVisible(true);
 		((Graphics2D) singleton .getGraphics())
 			.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		BrowserController.getInstance().showDocumentList();
+		Controller.getInstance().showDocumentList();
 	}
-
-	/**
-	 * Document model api.
-	 * 
-	 */
-	protected final DocumentModel documentModel =
-		ModelFactory.getDocumentModel(getClass());
 
 	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
-
-	/**
-	 * Project model api.
-	 * 
-	 */
-	protected final ProjectModel projectModel =
-		ModelFactory.getProjectModel(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private static final Color backgroundColor =
 		BrowserColorUtil.getRGBColor(249, 249, 249, 255);
@@ -146,7 +128,7 @@ public class BrowserJFrame extends JFrame {
 		setLayout(new StackLayout());
 		setResizable(false);
 		add(new ColorPanel(backgroundColor), Orientation.BOTTOM);
-		add(new BrowserJPanel(this), Orientation.TOP);
+		add(new MainJPanel(this), Orientation.TOP);
 		addListeners(browser);
 	}
 

@@ -7,22 +7,31 @@ import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class BrowserAction {
+public abstract class AbstractAction {
 
 	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
 	protected final Logger logger =
-		BrowserLoggerFactory.getLogger(getClass());
+		LoggerFactory.getLogger(getClass());
+
+	/**
+	 * Parity model factory.
+	 * 
+	 */
+	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
 	 * The action icon.
@@ -37,14 +46,14 @@ public abstract class BrowserAction {
 	private String name;
 
 	/**
-	 * Create a BrowserAction.
+	 * Create a AbstractAction.
 	 * 
 	 * @param name
 	 *            The action name.
 	 * @param icon
 	 *            The action small icon.
 	 */
-	protected BrowserAction(final String name, final Icon icon) {
+	protected AbstractAction(final String name, final Icon icon) {
 		super();
 		this.icon = icon;
 		this.name = name;
@@ -105,5 +114,23 @@ public abstract class BrowserAction {
 	 */
 	private void registerError(final Throwable t) {
 		logger.error("", t);
+	}
+
+	/**
+	 * Obtain the document model api.
+	 * 
+	 * @return The document model api.
+	 */
+	protected DocumentModel getDocumentModel() {
+		return modelFactory.getDocumentModel(getClass());
+	}
+
+	/**
+	 * Obtain the project model api.
+	 * 
+	 * @return The project model api.
+	 */
+	protected ProjectModel getProjectModel() {
+		return modelFactory.getProjectModel(getClass());
 	}
 }

@@ -39,7 +39,7 @@ public class ProviderFactory {
 	private static final Object singletonLock;
 
 	static {
-		documentModel = ModelFactory.getDocumentModel(ProviderFactory.class);
+		documentModel = ModelFactory.getInstance().getDocumentModel(ProviderFactory.class);
 		singleton = new ProviderFactory();
 		singletonLock = new Object();
 	}

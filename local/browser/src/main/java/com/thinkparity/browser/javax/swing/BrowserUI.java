@@ -13,7 +13,7 @@ import org.jvnet.substance.theme.SubstanceTheme;
 
 import com.thinkparity.browser.javax.swing.plaf.parity.ParityLookAndFeel;
 import com.thinkparity.browser.javax.swing.plaf.parity.theme.ParityTheme;
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 
 /**
  * A wrapper around the UIManager as well as the substance l & f plugin.
@@ -34,7 +34,7 @@ public class BrowserUI {
 	private static LookAndFeel parityLookAndFeel;
 
 	static {
-		slogger = BrowserLoggerFactory.getLogger(BrowserUI.class);
+		slogger = LoggerFactory.getLogger(BrowserUI.class);
 
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		System.setProperty("sun.awt.noerasebackground", "true");

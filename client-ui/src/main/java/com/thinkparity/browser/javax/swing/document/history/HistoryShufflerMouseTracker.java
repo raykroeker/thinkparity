@@ -12,7 +12,7 @@ import javax.swing.event.MouseInputListener;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -24,7 +24,7 @@ public class HistoryShufflerMouseTracker implements MouseInputListener {
 	 * Handle to an apache logger.
 	 * 
 	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Handle to the history shuffler.

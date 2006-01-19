@@ -8,9 +8,9 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 
-import com.thinkparity.browser.javax.swing.AbstractBrowserJPanel;
-import com.thinkparity.browser.javax.swing.browser.BrowserController;
-import com.thinkparity.browser.javax.swing.browser.BrowserJPanel;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.javax.swing.browser.Controller;
+import com.thinkparity.browser.javax.swing.browser.MainJPanel;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.util.SwingUtil;
 
@@ -21,7 +21,7 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class NewDocumentJPanel extends AbstractBrowserJPanel {
+public class NewDocumentJPanel extends AbstractJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -32,8 +32,8 @@ public class NewDocumentJPanel extends AbstractBrowserJPanel {
 	 * Handle to the browser controller.
 	 * 
 	 */
-	protected final BrowserController controller =
-		BrowserController.getInstance();
+	protected final Controller controller =
+		Controller.getInstance();
 
 	protected final DocumentModel documentModel = getDocumentModel();
 	// Variables declaration - do not modify
@@ -57,8 +57,8 @@ public class NewDocumentJPanel extends AbstractBrowserJPanel {
     /**
 	 * Create a NewDocumentJPanel.
 	 */
-	public NewDocumentJPanel(final BrowserJPanel jPanel) {
-		super();
+	public NewDocumentJPanel(final MainJPanel jPanel) {
+		super("NewDocumentJPanel");
 		initComponents();
 	}
 

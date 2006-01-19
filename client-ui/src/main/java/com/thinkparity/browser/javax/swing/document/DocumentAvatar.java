@@ -21,7 +21,7 @@ import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
 import com.thinkparity.browser.javax.swing.action.Data;
 import com.thinkparity.browser.javax.swing.action.document.Open;
 import com.thinkparity.browser.javax.swing.util.SwingUtil;
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.model.util.ParityObjectUtil;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -186,7 +186,7 @@ public class DocumentAvatar extends JPanel {
 	 * Handle to an apache logger
 	 * 
 	 */
-	protected final Logger logger = BrowserLoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Action used to open a document.

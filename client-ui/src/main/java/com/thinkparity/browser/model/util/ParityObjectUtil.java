@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.log4j.BrowserLoggerFactory;
+import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.codebase.FileUtil;
@@ -163,12 +163,18 @@ public class ParityObjectUtil {
 	 * Handle to an apache logger.
 	 */
 	protected final Logger logger =
-		BrowserLoggerFactory.getLogger(getClass());
+		LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Parity document api.
 	 */
 	private final DocumentModel documentModel;
+
+	/**
+	 * Handle to the model factory.
+	 * 
+	 */
+	private final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
 	 * Parity project api.
@@ -177,11 +183,12 @@ public class ParityObjectUtil {
 
 	/**
 	 * Create a ParityObjectUtil.
+	 * 
 	 */
 	private ParityObjectUtil() {
 		super();
-		this.documentModel = ModelFactory.getDocumentModel(getClass());
-		this.projectModel = ModelFactory.getProjectModel(getClass());
+		this.documentModel = modelFactory.getDocumentModel(getClass());
+		this.projectModel = modelFactory.getProjectModel(getClass());
 	}
 
 	/**

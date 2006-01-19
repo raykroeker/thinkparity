@@ -7,18 +7,16 @@ import java.util.UUID;
 
 import javax.swing.Icon;
 
-import com.thinkparity.browser.javax.swing.action.BrowserAction;
+import com.thinkparity.browser.javax.swing.action.AbstractAction;
 import com.thinkparity.browser.javax.swing.action.Data;
-import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class OpenVersion extends BrowserAction {
+public class OpenVersion extends AbstractAction {
 
 	/**
 	 * The keys used to get\set the action data.
@@ -50,25 +48,18 @@ public class OpenVersion extends BrowserAction {
 	}
 
 	/**
-	 * Document model api.
-	 * 
-	 */
-	protected final DocumentModel documentModel =
-		ModelFactory.getDocumentModel(getClass());
-
-	/**
 	 * Create an OpenVersion.
 	 */
 	public OpenVersion() { super(name, icon); }
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.action.BrowserAction#invoke(com.thinkparity.browser.javax.swing.action.Data)
+	 * @see com.thinkparity.browser.javax.swing.action.AbstractAction#invoke(com.thinkparity.browser.javax.swing.action.Data)
 	 * 
 	 */
 	public void invoke(Data data) {
 		final UUID id = (UUID) data.get(DataKey.DOCUMENT_ID);
 		final String versionId = (String) data.get(DataKey.VERSION_ID);
-		try { documentModel.openVersion(id, versionId); }
+		try { getDocumentModel().openVersion(id, versionId); }
 		catch(ParityException px) { registerError(px); }
 	}
 }

@@ -28,7 +28,7 @@ public class BrowserActionFactory {
 	 *            The action name.
 	 * @return The action.
 	 */
-	public static BrowserAction createAction(final Class clasz) {
+	public static AbstractAction createAction(final Class clasz) {
 		synchronized(singletonLock) { return singleton.doCreateAction(clasz); }
 	}
 
@@ -36,7 +36,7 @@ public class BrowserActionFactory {
 	 * Cache of actions already created.
 	 * 
 	 */
-	private final Map<Class,BrowserAction> cache;
+	private final Map<Class,AbstractAction> cache;
 
 	/**
 	 * Create a BrowserActionFactory [Singleton, Factory]
@@ -44,7 +44,7 @@ public class BrowserActionFactory {
 	 */
 	private BrowserActionFactory() {
 		super();
-		this.cache = new Hashtable<Class,BrowserAction>(1, 1.0F);
+		this.cache = new Hashtable<Class,AbstractAction>(1, 1.0F);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class BrowserActionFactory {
 	 * @param browserAction
 	 *            The action to cache.
 	 */
-	private BrowserAction cache(final BrowserAction browserAction) {
+	private AbstractAction cache(final AbstractAction browserAction) {
 		cache.put(browserAction.getClass(), browserAction);
 		return browserAction;
 	}
@@ -65,11 +65,11 @@ public class BrowserActionFactory {
 	 *            The action to create.
 	 * @return A new instance of the action.
 	 */
-	private BrowserAction doCreateAction(final Class clasz) {
-		BrowserAction action = cache.get(clasz);
+	private AbstractAction doCreateAction(final Class clasz) {
+		AbstractAction action = cache.get(clasz);
 		if(null != action) { return action; }
 		else {
-			try { action = (BrowserAction) clasz.newInstance(); }
+			try { action = (AbstractAction) clasz.newInstance(); }
 			catch(Exception x) { action = null; }
 			return cache(action);
 		}

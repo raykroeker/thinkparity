@@ -84,13 +84,11 @@ public class ModelTestCaseHelper {
 		// record the session id.
 		jUnitSessionId = "jUnit." + jUnitSessionStart;
 		// set the workspace directory, then delete its contents
-		final File jUnitWorkspace = new File(
-				"C:\\Documents and Settings\\raymond\\My Documents\\thinkparity.com",
-				"jUnit");
+		final File jUnitWorkspace =
+			new File(System.getProperty("user.dir"), "test-workspace");
 		if(jUnitWorkspace.exists())
 			FileUtil.deleteTree(jUnitWorkspace);
 		System.setProperty("parity.workspace", jUnitWorkspace.getAbsolutePath());
-
 		jUnitTestFiles = new Vector<JUnitTestFile>(7);
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.doc"));
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.odt"));
@@ -103,15 +101,8 @@ public class ModelTestCaseHelper {
 		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(jUnitTestUser.getUsername());
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
-		// set the output directory
-		final File outputDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
-			.append(File.separatorChar).append("test-sessions")
-			.append(File.separatorChar).append(jUnitSessionId)
-			.toString());
-		if(!outputDirectory.exists())
-			Assert.assertTrue("jUnit<init>", outputDirectory.mkdirs());
 		// initialize the logger
-		ModelTestLoggerConfigurator.configure(jUnitSessionId, outputDirectory);
+		ModelTestLoggerConfigurator.configure(jUnitSessionId);
 	}
 
 	protected final Logger logger = Logger.getLogger(getClass());

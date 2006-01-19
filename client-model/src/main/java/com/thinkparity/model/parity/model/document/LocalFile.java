@@ -8,11 +8,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
@@ -46,6 +49,12 @@ class LocalFile {
 	static {
 		myRuntime = Runtime.getRuntime();
 	}
+
+	/**
+	 * Apache logger.
+	 * 
+	 */
+	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
 
 	/**
 	 * The file representing the document's content.
@@ -138,6 +147,7 @@ class LocalFile {
 			openWin32();
 			break;
 		case LINUX:
+			logger.warn("Unsupported operating system.");
 		default:
 			Assert.assertNotYetImplemented("launchFile(File)");
 			break;

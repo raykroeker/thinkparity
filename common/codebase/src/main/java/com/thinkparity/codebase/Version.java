@@ -29,6 +29,7 @@ public abstract class Version {
 	static {
 		config = ConfigFactory.newInstance(Version.class);
 		configLock = new Object();
+		not build
 	}
 
 	/**

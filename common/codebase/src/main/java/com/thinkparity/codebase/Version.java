@@ -19,7 +19,7 @@ public abstract class Version {
 	 * @see Version#configLock
 	 */
 	private static final Config config;
-die
+
 	/**
 	 * Synchronization lock for config.
 	 * @see Version#config

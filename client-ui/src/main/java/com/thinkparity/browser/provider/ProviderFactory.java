@@ -4,6 +4,7 @@
 package com.thinkparity.browser.provider;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.browser.model.ModelFactory;
@@ -13,18 +14,14 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class ProviderFactory {
-
-	/**
-	 * Document model api.
-	 * 
-	 */
-	private static final DocumentModel documentModel;
 
 	/**
 	 * Singleton instance.
@@ -39,7 +36,6 @@ public class ProviderFactory {
 	private static final Object singletonLock;
 
 	static {
-		documentModel = ModelFactory.getInstance().getDocumentModel(ProviderFactory.class);
 		singleton = new ProviderFactory();
 		singletonLock = new Object();
 	}
@@ -64,6 +60,22 @@ public class ProviderFactory {
 		synchronized(singletonLock) { return singleton.doGetHistoryProvider(); }
 	}
 
+	public static FlatContentProvider getUserProvider() {
+		synchronized(singletonLock) { return singleton.doGetUserProvider(); }
+	}
+
+	/**
+	 * Document model api.
+	 * 
+	 */
+	protected final DocumentModel documentModel;
+
+	/**
+	 * Session model api.
+	 * 
+	 */
+	protected final SessionModel sessionModel;
+
 	/**
 	 * The document provider.
 	 * 
@@ -77,10 +89,19 @@ public class ProviderFactory {
 	private final FlatContentProvider historyProvider;
 
 	/**
+	 * User provider.
+	 * 
+	 */
+	private final FlatContentProvider userProvider;
+
+	/**
 	 * Create a ProviderFactory.
+	 * 
 	 */
 	private ProviderFactory() {
 		super();
+		documentModel = ModelFactory.getInstance().getDocumentModel(getClass());
+		sessionModel = ModelFactory.getInstance().getSessionModel(getClass());
 		this.documentProvider = new FlatContentProvider() {
 			public Object[] getElements(Object input) {
 				final Project p = (Project) input;
@@ -105,6 +126,22 @@ public class ProviderFactory {
 				return versionList.toArray(new DocumentVersion[] {});
 			}
 		};
+		this.userProvider = new FlatContentProvider() {
+			public Object[] getElements(Object input) {
+				final UUID documentId = (UUID) input;
+				Collection<User> userList;
+				try {
+					userList = sessionModel.getRosterEntries();
+//					TODO Implement model method here
+//					userList.add(sessionModel.getTeamEntries(documentId));
+				}
+				catch(ParityException px) {
+					// NOTE Error Handler Code
+					userList = new Vector<User>(0);
+				}
+				return userList.toArray(new User[] {});
+			}
+		};
 	}
 
 	/**
@@ -124,4 +161,11 @@ public class ProviderFactory {
 	private FlatContentProvider doGetHistoryProvider() {
 		return historyProvider;
 	}
+
+	/**
+	 * Obtain the user provider.
+	 * 
+	 * @return The user provider.
+	 */
+	private FlatContentProvider doGetUserProvider() { return userProvider; }
 }

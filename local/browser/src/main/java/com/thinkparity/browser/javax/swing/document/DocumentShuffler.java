@@ -141,11 +141,12 @@ public class DocumentShuffler extends AbstractJPanel {
 	 * Refresh the document shuffler.
 	 *
 	 */
-	private void refresh() {
+	public void refresh() {
 		if(null != input) {
 			final Object[] elements = contentProvider.getElements(input);
 			DocumentAvatar avatar;
 			int i = 0;
+			removeAll();
 			for(final Object element : elements) {
 				avatar = translate((Document) element);
 				avatar.transferToDisplay();

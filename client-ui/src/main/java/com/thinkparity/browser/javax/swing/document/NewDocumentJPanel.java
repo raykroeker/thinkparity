@@ -4,17 +4,23 @@
 package com.thinkparity.browser.javax.swing.document;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JFileChooser;
+import javax.swing.Timer;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.javax.swing.action.AbstractAction;
+import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
+import com.thinkparity.browser.javax.swing.action.Data;
+import com.thinkparity.browser.javax.swing.action.document.Create;
 import com.thinkparity.browser.javax.swing.browser.Controller;
 import com.thinkparity.browser.javax.swing.browser.MainJPanel;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
+import com.thinkparity.browser.javax.swing.component.BrowserLabelFactory;
 import com.thinkparity.browser.javax.swing.util.SwingUtil;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
@@ -35,13 +41,20 @@ public class NewDocumentJPanel extends AbstractJPanel {
 	protected final Controller controller =
 		Controller.getInstance();
 
+	/**
+	 * Action used to create a document.
+	 * 
+	 */
+    protected final AbstractAction createAction =
+    	BrowserActionFactory.createAction(Create.class);
+
 	protected final DocumentModel documentModel = getDocumentModel();
 	// Variables declaration - do not modify
     private javax.swing.JButton browseJButton;
 	private javax.swing.JButton cancelJButton;
-	private javax.swing.JLabel documentJLabel;
+    private javax.swing.JLabel documentJLabel;
     private javax.swing.JTextField documentPathJTextField;
-    private javax.swing.JLabel errorJLabel;
+    private javax.swing.JLabel statusJLabel;
     private javax.swing.JLabel fillJLabel0;
     private javax.swing.JLabel fillJLabel1;
     private javax.swing.JLabel fillJLabel2;
@@ -54,6 +67,7 @@ public class NewDocumentJPanel extends AbstractJPanel {
     private javax.swing.JButton okJButton;
     // End of variables declaration
 
+
     /**
 	 * Create a NewDocumentJPanel.
 	 */
@@ -61,7 +75,6 @@ public class NewDocumentJPanel extends AbstractJPanel {
 		super("NewDocumentJPanel");
 		initComponents();
 	}
-
 
     private void browseJButtonActionPerformed(final ActionEvent e) {
     	if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
@@ -71,14 +84,14 @@ public class NewDocumentJPanel extends AbstractJPanel {
     		setDocumentToolTipText(jFileChooser.getSelectedFile().getAbsolutePath());
     	}
     }
-
     private void cancelJButtonActionPerformed(final ActionEvent e) {
 		controller.showDocumentList();
 	}
+
+
     private String extractDocumentPath() {
     	return SwingUtil.extract(documentPathJTextField);
     }
-
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -98,9 +111,9 @@ public class NewDocumentJPanel extends AbstractJPanel {
         documentJLabel = new javax.swing.JLabel();
         documentPathJTextField = new javax.swing.JTextField();
         browseJButton = BrowserButtonFactory.create("");
-        errorJLabel = new javax.swing.JLabel();
         cancelJButton = BrowserButtonFactory.create("");
         okJButton = BrowserButtonFactory.create("");
+        statusJLabel = BrowserLabelFactory.create();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -175,7 +188,7 @@ public class NewDocumentJPanel extends AbstractJPanel {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        add(errorJLabel, gridBagConstraints);
+        add(statusJLabel, gridBagConstraints);
 
         cancelJButton.setText("Cancel");
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -208,15 +221,30 @@ public class NewDocumentJPanel extends AbstractJPanel {
     }// </editor-fold>
 
     private void okJButtonActionPerformed(final ActionEvent e) {
+    	final Data data = new Data(1);
+    	data.set(Create.DataKey.FILE, new File(extractDocumentPath()));
+    	statusJLabel.setText("Creating document...");
+    	revalidate();
+    	repaint();
+    	Timer timer = null;
     	try {
-    		final File file = new File(extractDocumentPath());
-    		documentModel.create(getProjectId(),
-    				file.getName(), file.getName(), file);
+    		createAction.invoke(data);
+    		statusJLabel.setText("Document created.");
+    		timer = new Timer(3 * 1000, new ActionListener() {
+    			public void actionPerformed(ActionEvent e) {
+    				controller.showDocumentList();
+    			}
+        	});
+        	timer.setRepeats(false);
     	}
-    	catch(ParityException px) {
+    	catch(Exception x) {
     		// NOTE Error Handler Code
-    		logger.error("Could not create document.", px);
+    		logger.error("Could not create document.", x);
+    		statusJLabel.setText("Could not create document.");
     	}
+    	revalidate();
+    	repaint();
+    	if(null != timer) { timer.start(); }
     }
 
     private void setDocumentPathText(final String documentPath) {

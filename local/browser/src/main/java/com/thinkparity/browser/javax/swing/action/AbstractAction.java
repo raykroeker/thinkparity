@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.javax.swing.action;
 
+import java.util.UUID;
+
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -13,6 +15,7 @@ import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -78,7 +81,7 @@ public abstract class AbstractAction {
 	 * @param data
 	 *            The action data.
 	 */
-	public abstract void invoke(final Data data);
+	public abstract void invoke(final Data data) throws Exception;
 
 	/**
 	 * Set the action icon.
@@ -95,6 +98,38 @@ public abstract class AbstractAction {
 	 *            The action name.
 	 */
 	public void setName(String name) { this.name = name; }
+
+	/**
+	 * Obtain the document model api.
+	 * 
+	 * @return The document model api.
+	 */
+	protected DocumentModel getDocumentModel() {
+		return modelFactory.getDocumentModel(getClass());
+	}
+
+	protected SessionModel getSessionModel() {
+		return modelFactory.getSessionModel(getClass());
+	}
+
+	/**
+	 * Obtain the project id.
+	 * 
+	 * @return The project id.
+	 * @throws ParityException
+	 */
+	protected UUID getProjectId() throws ParityException {
+		return getProjectModel().getMyProjects().getId();
+	}
+
+	/**
+	 * Obtain the project model api.
+	 * 
+	 * @return The project model api.
+	 */
+	protected ProjectModel getProjectModel() {
+		return modelFactory.getProjectModel(getClass());
+	}
 
 	/**
 	 * Register a parity error.
@@ -114,23 +149,5 @@ public abstract class AbstractAction {
 	 */
 	private void registerError(final Throwable t) {
 		logger.error("", t);
-	}
-
-	/**
-	 * Obtain the document model api.
-	 * 
-	 * @return The document model api.
-	 */
-	protected DocumentModel getDocumentModel() {
-		return modelFactory.getDocumentModel(getClass());
-	}
-
-	/**
-	 * Obtain the project model api.
-	 * 
-	 * @return The project model api.
-	 */
-	protected ProjectModel getProjectModel() {
-		return modelFactory.getProjectModel(getClass());
 	}
 }

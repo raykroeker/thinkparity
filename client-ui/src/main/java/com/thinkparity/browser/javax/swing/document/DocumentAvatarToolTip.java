@@ -14,9 +14,10 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.RandomData;
-import com.thinkparity.browser.javax.swing.animation.IAnimator;
 import com.thinkparity.browser.javax.swing.animation.CompletionListener;
 import com.thinkparity.browser.javax.swing.animation.ExpandToolTipAnimation;
+import com.thinkparity.browser.javax.swing.animation.IAnimator;
+import com.thinkparity.browser.javax.swing.browser.Controller;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.document.history.HistoryShuffler;
 import com.thinkparity.browser.log4j.LoggerFactory;
@@ -207,7 +208,7 @@ public class DocumentAvatarToolTip extends JPanel {
 		this.sendJButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				e.consume();
-				logger.info("Send click.");
+				runSendDocument();
 			}
 		});
 
@@ -463,4 +464,12 @@ public class DocumentAvatarToolTip extends JPanel {
 		});
 		toolTipAnimator.start();
 	}
+
+	/**
+	 * Handle to the controller.
+	 * 
+	 */
+	protected final Controller controller = Controller.getInstance();
+
+	private void runSendDocument() { controller.showSendForm(input.getId()); }
 }

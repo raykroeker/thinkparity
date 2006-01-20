@@ -101,18 +101,32 @@ public class EventDispatcher {
 
 	private CreationListener createDocumentModelCreationListener() {
 		return new CreationListener() {
-			public void objectCreated(final CreationEvent e) {}
-			public void objectReceived(final CreationEvent e) {}
-			public void objectVersionCreated(final VersionCreationEvent e) {}
-			public void objectVersionReceived(VersionCreationEvent e) {}
+			public void objectCreated(final CreationEvent e) {
+				controller.refreshDocumentList(false);
+			}
+			public void objectReceived(final CreationEvent e) {
+				controller.refreshDocumentList(false);
+			}
+			public void objectVersionCreated(final VersionCreationEvent e) {
+				controller.refreshDocumentList(false);
+			}
+			public void objectVersionReceived(VersionCreationEvent e) {
+				controller.refreshDocumentList(false);
+			}
 		};
 	}
 
 	private UpdateListener createDocumentModelUpdateListener() {
 		return new UpdateListener() {
-			public void objectDeleted(final DeleteEvent e) {}
-			public void objectReceived(final UpdateEvent e) {}
-			public void objectUpdated(final UpdateEvent e) {}
+			public void objectDeleted(final DeleteEvent e) {
+				controller.refreshDocumentList(false);
+			}
+			public void objectReceived(final UpdateEvent e) {
+				controller.refreshDocumentList(false);
+			}
+			public void objectUpdated(final UpdateEvent e) {
+				controller.refreshDocumentList(false);
+			}
 		};
 	}
 

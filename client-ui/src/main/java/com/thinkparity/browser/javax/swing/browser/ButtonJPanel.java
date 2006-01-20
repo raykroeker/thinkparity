@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.javax.swing.browser;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -14,8 +13,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 
 
@@ -23,7 +22,7 @@ import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ButtonJPanel extends JPanel {
+public class ButtonJPanel extends AbstractJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -54,13 +53,11 @@ public class ButtonJPanel extends JPanel {
 	 * 
 	 */
 	public ButtonJPanel(final JFrame jFrame, final MainJPanel jPanel) {
-		super();
+		super("ButtonJPanel");
 		this.jFrame = jFrame;
 		this.jPanel = jPanel;
 
-		setBackground(Color.WHITE);
 		setLayout(new GridBagLayout());
-		setOpaque(true);
 
 		addFillerJLabel();
 		addDocumentsJButton();

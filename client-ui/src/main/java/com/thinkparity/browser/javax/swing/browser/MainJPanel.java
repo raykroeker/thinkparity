@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -15,6 +16,7 @@ import com.thinkparity.browser.javax.swing.BrowserJFrame;
 import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
 import com.thinkparity.browser.javax.swing.document.NewDocumentJPanel;
 import com.thinkparity.browser.javax.swing.session.LoginJPanel;
+import com.thinkparity.browser.javax.swing.session.SendJPanel;
 import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.provider.ProviderFactory;
 
@@ -43,6 +45,7 @@ public class MainJPanel extends AbstractJPanel {
 	private final BrowserJFrame jFrame;
 	private Component loginForm;
 	private Component newDocumentForm;
+	private Component sendForm;
 	private Component statusJPanel;
 
 	/**
@@ -78,6 +81,14 @@ public class MainJPanel extends AbstractJPanel {
 		add(newDocumentForm, createContentAreaConstraints());
 	}
 
+	void addSendForm(final UUID documentId) {
+		if(null == sendForm) { sendForm = createSendForm(); }
+		((SendJPanel) sendForm).setInput(documentId);
+		add(sendForm, createContentAreaConstraints());
+	}
+
+	DocumentShuffler getDocumentList() { return (DocumentShuffler) documentList; }
+
 	StatusJPanel getStatusPanel() { return (StatusJPanel) statusJPanel; }
 
 	void removeDocumentList() { removeList(documentList); }
@@ -85,6 +96,8 @@ public class MainJPanel extends AbstractJPanel {
 	void removeLoginForm() { removeForm(loginForm); }
 
 	void removeNewDocumentForm() { removeForm(newDocumentForm); }
+
+	void removeSendForm() { removeForm(sendForm); }
 
 	private void addStatusJPanel() {
 		if(null == statusJPanel) {
@@ -144,6 +157,8 @@ public class MainJPanel extends AbstractJPanel {
 	private Component createNewDocumentForm() {
 		return new NewDocumentJPanel(this);
 	}
+
+	private Component createSendForm() { return new SendJPanel(this); }
 
 	private Object createStatusAreaConstraints() {
 		return new GridBagConstraints(0, 2,

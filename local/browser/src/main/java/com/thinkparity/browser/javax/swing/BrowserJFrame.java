@@ -110,12 +110,6 @@ public class BrowserJFrame extends JFrame {
 	}
 
 	/**
-	 * The display com.thinkparity.browser.javax.swing.component for documents.
-	 * 
-	 */
-//	private final DocumentShuffler documentShuffler;
-
-	/**
 	 * Create a BrowserJFrame.
 	 * 
 	 * @throws HeadlessException

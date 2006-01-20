@@ -1,12 +1,13 @@
 /*
  * Jan 5, 2006
  */
-package com.thinkparity.browser.javax.swing.document;
+package com.thinkparity.browser.javax.swing.user;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.UUID;
 
 import javax.swing.JLabel;
 
@@ -19,8 +20,7 @@ import com.thinkparity.browser.provider.FlatContentProvider;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Note that due to the custom display of the documents; we are manually
@@ -33,7 +33,7 @@ import com.thinkparity.model.parity.model.project.Project;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DocumentShuffler extends AbstractJPanel {
+public class UserList extends AbstractJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -57,14 +57,14 @@ public class DocumentShuffler extends AbstractJPanel {
 	 * The input for the content provider.
 	 * 
 	 */
-	private Project input;
+	private UUID input;
 
 	/**
-	 * Create a DocumentShuffler.
+	 * Create a UserList.
 	 * 
 	 */
-	public DocumentShuffler() {
-		super("DocumentShuffler");
+	public UserList() {
+		super("UserList");
 		setLayout(new GridBagLayout());
 	}
 
@@ -90,9 +90,9 @@ public class DocumentShuffler extends AbstractJPanel {
 	 */
 	public void setContentProvider(final ContentProvider contentProvider) {
 		Assert.assertNotNull(
-				"The DocumentShuffler content provider must not be null.", contentProvider);
+				"The UserList content provider must not be null.", contentProvider);
 		Assert.assertOfType(
-				"The DocumentShuffler content provider must be of type FlatContentProvider.",
+				"The UserList content provider must be of type FlatContentProvider.",
 				FlatContentProvider.class, contentProvider);
 		// they're the same; do nothing
 		if(this.contentProvider == contentProvider) { return; }
@@ -109,11 +109,11 @@ public class DocumentShuffler extends AbstractJPanel {
 	 */
 	public void setInput(final Object input) {
 		Assert.assertNotNull("", input);
-		Assert.assertOfType("", Project.class, input);
+		Assert.assertOfType("", UUID.class, input);
 		// they're the same; do nothing
 		if(this.input == input || input.equals(this.input)) { return; }
 
-		this.input = (Project) input;
+		this.input = (UUID) input;
 		refresh();
 	}
 
@@ -144,11 +144,11 @@ public class DocumentShuffler extends AbstractJPanel {
 	public void refresh() {
 		if(null != input) {
 			final Object[] elements = contentProvider.getElements(input);
-			DocumentAvatar avatar;
+			UserAvatar avatar;
 			int i = 0;
 			removeAll();
 			for(final Object element : elements) {
-				avatar = translate((Document) element);
+				avatar = translate((User) element);
 				avatar.transferToDisplay();
 				add(avatar, createAvatarConstraints(), i);
 				i++;
@@ -159,15 +159,15 @@ public class DocumentShuffler extends AbstractJPanel {
 	}
 
 	/**
-	 * Translate a parity document into a display avatar.
+	 * Translate a user into a display avatar.
 	 * 
-	 * @param document
-	 *            The parity document.
+	 * @param user
+	 *            The parity user.
 	 * @return The display avatar.
 	 */
-	private DocumentAvatar translate(final Document document) {
-		final DocumentAvatar avatar = new DocumentAvatar();
-		avatar.setInput(document);
+	private UserAvatar translate(final User user) {
+		final UserAvatar avatar = new UserAvatar();
+		avatar.setInput(user);
 		return avatar;
 	}
 }

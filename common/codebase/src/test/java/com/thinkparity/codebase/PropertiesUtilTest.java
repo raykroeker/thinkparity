@@ -41,7 +41,7 @@ public class PropertiesUtilTest extends CodebaseTestCase {
 			final String bufferString = datum.buffer.toString();
 			PropertiesUtilTest.assertNotNull(bufferString);
 			PropertiesUtilTest.assertTrue(bufferString.length() > 0);
-			PropertiesUtilTest.assertTrue(bufferString.startsWith(datum.comments));
+			PropertiesUtilTest.assertTrue(bufferString.startsWith("# " + datum.comments));
 			final Set<Object> keys = datum.properties.keySet();
 			String keyColonValue;
 			for(Object key : keys) {

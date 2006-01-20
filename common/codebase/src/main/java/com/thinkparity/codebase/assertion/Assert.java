@@ -11,6 +11,21 @@ package com.thinkparity.codebase.assertion;
 public class Assert {
 
 	/**
+	 * Assert that the object reference provided is null. If it is not, throw a
+	 * NotNullPointerAssertion.
+	 * 
+	 * @param message
+	 *            The assertion message.
+	 * @param objectReference
+	 *            The object reference to test.
+	 */
+	public static void assertIsNull(final String message,
+			final Object objectReference) {
+		if(null != objectReference)
+			throw new NotNullPointerAssertion(message);
+	}
+
+	/**
 	 * Assert that the object reference provided is not null. If it is, throw a
 	 * <code>org.kcs.projectmanager.client.util.NullPointerAssertion</code>.
 	 * 
@@ -65,21 +80,6 @@ public class Assert {
 	}
 
 	/**
-	 * Assert that the expression provided is true.
-	 * 
-	 * @param message
-	 *            The assertion message.
-	 * @param expression
-	 *            A boolean expression.
-	 * @throws NotTrueAssertion
-	 *             If the expression does not evaluate to true.
-	 */
-	public static void assertTrue(final String message, final Boolean expression) {
-		if(Boolean.TRUE != expression)
-			throw new NotTrueAssertion(message);
-	}
-
-	/**
 	 * Assert that the instance of an object provided is of the type provided.
 	 * 
 	 * @param message
@@ -95,6 +95,21 @@ public class Assert {
 			final Object instance) {
 		if(!type.isAssignableFrom(instance.getClass()))
 			throw new NotOfTypeAssertion(message, type, instance);
+	}
+
+	/**
+	 * Assert that the expression provided is true.
+	 * 
+	 * @param message
+	 *            The assertion message.
+	 * @param expression
+	 *            A boolean expression.
+	 * @throws NotTrueAssertion
+	 *             If the expression does not evaluate to true.
+	 */
+	public static void assertTrue(final String message, final Boolean expression) {
+		if(Boolean.TRUE != expression)
+			throw new NotTrueAssertion(message);
 	}
 
 	/**

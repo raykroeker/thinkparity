@@ -7,11 +7,9 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
-
 import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
@@ -65,14 +63,7 @@ public class RenameTest extends ModelTestCase {
 
 				for(UUID documentId : datum.documentIds) {
 					try { datum.documentModel.open(documentId); }
-					catch(NotYetImplementedAssertion nyia) {
-						switch(OSUtil.getOS()) {
-						case LINUX:
-							logger.warn("[PARITY] Running test on un-supported platform.");
-							break;
-						default: throw nyia;
-						}
-					}
+					catch(ParityException px) { if(!isNYIAOnLinux(px)) { throw px; } }
 				}
 			}
 		}

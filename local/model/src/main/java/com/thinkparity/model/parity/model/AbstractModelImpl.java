@@ -49,10 +49,11 @@ public abstract class AbstractModelImpl {
 		.append("need to establish a parity session.").toString();
 
 	/**
-	 * Handle to an apache logger.
+	 * Apache logger.
+	 * 
 	 */
 	protected final Logger logger =
-		ModelLoggerFactory.getLogger(AbstractModelImpl.class);
+		ModelLoggerFactory.getLogger(getClass());
 
 	/**
 	 * Handle to the parity model preferences.

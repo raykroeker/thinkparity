@@ -66,9 +66,11 @@ public class PropertiesUtil {
 		if(null == buffer) throw new NullPointerException();
 		if(null == properties) throw new NullPointerException();
 		if(null != comments)
-			buffer.append(comments)
+			buffer.append("# ")
+				.append(comments)
 				.append(Separator.SystemNewLine);
-		buffer.append(formatCurrentDateTime())
+		buffer.append("# ")
+			.append(formatCurrentDateTime())
 			.append(Separator.SystemNewLine);
 		final Collection<String> keys = sortedKeys(properties);
 		for(String key : keys) {
@@ -87,8 +89,7 @@ public class PropertiesUtil {
 	private static String formatCurrentDateTime() {
 		final Calendar now = DateUtil.getInstance();
 		synchronized(simpleDateFormatLock) {
-			return new StringBuffer("# ")
-				.append(simpleDateFormat.format(now.getTime())).toString();
+			return simpleDateFormat.format(now.getTime());
 		}
 	}
 

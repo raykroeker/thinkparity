@@ -15,7 +15,7 @@ import com.thinkparity.browser.javax.swing.browser.Controller;
 import com.thinkparity.browser.javax.swing.browser.MainJPanel;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.util.SwingUtil;
-import com.thinkparity.browser.log4j.LoggerFactory;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.PropertiesUtil;
 

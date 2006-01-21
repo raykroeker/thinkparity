@@ -11,7 +11,7 @@ set B2_CP=%B2_CP%;smackx-2.0.0.jar
 set B2_CP=%B2_CP%;commons-codec-1.3.jar
 set B2_CP=%B2_CP%;substance-2.2-SNAPSHOT.jar
 set B2_CP=%B2_CP%;log4j-1.2.13.jar
-set B2_MAIN=com.thinkparity.browser.Browser
+set B2_MAIN=com.thinkparity.browser.Browser2
 
 java -cp %B2_CP% %B2_MAIN%
 

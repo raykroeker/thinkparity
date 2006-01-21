@@ -13,7 +13,7 @@ import javax.swing.event.MouseInputListener;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.log4j.LoggerFactory;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 /**
  * The custom tool tip mouse tracker is used by the swing util class to track

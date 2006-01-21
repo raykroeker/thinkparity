@@ -11,15 +11,15 @@ import javax.swing.JFileChooser;
 import javax.swing.Timer;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.javax.swing.action.AbstractAction;
-import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
-import com.thinkparity.browser.javax.swing.action.Data;
-import com.thinkparity.browser.javax.swing.action.document.Create;
 import com.thinkparity.browser.javax.swing.browser.Controller;
 import com.thinkparity.browser.javax.swing.browser.MainJPanel;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.component.BrowserLabelFactory;
 import com.thinkparity.browser.javax.swing.util.SwingUtil;
+import com.thinkparity.browser.ui.action.AbstractAction;
+import com.thinkparity.browser.ui.action.ActionFactory;
+import com.thinkparity.browser.ui.action.Data;
+import com.thinkparity.browser.ui.action.document.Create;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
@@ -46,7 +46,7 @@ public class NewDocumentJPanel extends AbstractJPanel {
 	 * 
 	 */
     protected final AbstractAction createAction =
-    	BrowserActionFactory.createAction(Create.class);
+    	ActionFactory.createAction(Create.class);
 
 	protected final DocumentModel documentModel = getDocumentModel();
 	// Variables declaration - do not modify

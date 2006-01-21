@@ -10,9 +10,9 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.l10n.JPanelLocalisation;
-import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.util.l10n.JPanelLocalisation;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -63,15 +63,27 @@ public class AbstractJPanel extends JPanel {
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
-	 * Create an AbstractJPanel.
+	 * Create a AbstractJPanel.
 	 * 
+	 * @param l18nContext
+	 *            The localization context.
+	 * @param background
+	 *            The background.
 	 */
-	protected AbstractJPanel(final String l18nContext) {
+	protected AbstractJPanel(final String l18nContext, final Color background) {
 		super();
 		this.localisation = new JPanelLocalisation(l18nContext);
 		setOpaque(true);
-		setDefaultBackground();
+		setBackground(background);
 	}
+
+	/**
+	 * Create a AbstractJPanel.
+	 * 
+	 * @param l18nContext
+	 *            The localization context.
+	 */
+	protected AbstractJPanel(final String l18nContext) { this(l18nContext, null); }
 
 	/**
 	 * Obtain a handle to the document api.

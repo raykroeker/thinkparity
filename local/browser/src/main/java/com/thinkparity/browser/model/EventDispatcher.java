@@ -3,7 +3,7 @@
  */
 package com.thinkparity.browser.model;
 
-import com.thinkparity.browser.javax.swing.browser.Controller;
+import com.thinkparity.browser.Controller;
 
 import com.thinkparity.model.parity.api.events.*;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -20,22 +20,31 @@ public class EventDispatcher {
 	 * Singleton instance of the event dispatcher.
 	 * 
 	 */
-	private static final EventDispatcher singleton;
-
-	static { singleton = new EventDispatcher(); }
+	private static EventDispatcher singleton;
 
 	/**
 	 * Obtain the singleton instance of the event dispatcher.
 	 * 
+	 * @param The
+	 *            main controller.
 	 * @return The event dispatcher.
 	 */
-	public static EventDispatcher getInstance() { return singleton; }
+	public static EventDispatcher getInstance(final Controller controller) {
+		if(null == singleton) { singleton = new EventDispatcher(controller); }
+		return singleton;
+	}
 
 	/**
 	 * Handle to the model factory.
 	 * 
 	 */
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
+
+	/**
+	 * Main controller.
+	 * 
+	 */
+	private final Controller controller;
 
 	/**
 	 * Handle to the document model api.
@@ -62,17 +71,12 @@ public class EventDispatcher {
 	private SessionModel sessionModel;
 
 	/**
-	 * Main ui controller.
-	 * 
-	 */
-	private Controller controller;
-
-	/**
 	 * Create an EventDispatcher.
 	 * 
 	 */
-	private EventDispatcher() {
+	private EventDispatcher(final Controller controller) {
 		super();
+		this.controller = controller;
 		this.isInitialized = false;
 	}
 
@@ -82,8 +86,6 @@ public class EventDispatcher {
 	 */
 	public void initialize() {
 		if(!isInitialized) {
-			controller = Controller.getInstance();
-
 			documentModel = modelFactory.getDocumentModel(getClass());
 			projectModel = modelFactory.getProjectModel(getClass());
 			sessionModel = modelFactory.getSessionModel(getClass());
@@ -101,32 +103,18 @@ public class EventDispatcher {
 
 	private CreationListener createDocumentModelCreationListener() {
 		return new CreationListener() {
-			public void objectCreated(final CreationEvent e) {
-				controller.refreshDocumentList(false);
-			}
-			public void objectReceived(final CreationEvent e) {
-				controller.refreshDocumentList(false);
-			}
-			public void objectVersionCreated(final VersionCreationEvent e) {
-				controller.refreshDocumentList(false);
-			}
-			public void objectVersionReceived(VersionCreationEvent e) {
-				controller.refreshDocumentList(false);
-			}
+			public void objectCreated(final CreationEvent e) {}
+			public void objectReceived(final CreationEvent e) {}
+			public void objectVersionCreated(final VersionCreationEvent e) {}
+			public void objectVersionReceived(VersionCreationEvent e) {}
 		};
 	}
 
 	private UpdateListener createDocumentModelUpdateListener() {
 		return new UpdateListener() {
-			public void objectDeleted(final DeleteEvent e) {
-				controller.refreshDocumentList(false);
-			}
-			public void objectReceived(final UpdateEvent e) {
-				controller.refreshDocumentList(false);
-			}
-			public void objectUpdated(final UpdateEvent e) {
-				controller.refreshDocumentList(false);
-			}
+			public void objectDeleted(final DeleteEvent e) {}
+			public void objectReceived(final UpdateEvent e) {}
+			public void objectUpdated(final UpdateEvent e) {}
 		};
 	}
 
@@ -163,12 +151,8 @@ public class EventDispatcher {
 
 	private SessionListener createSessionModelSessionListener() {
 		return new SessionListener() {
-			public void sessionEstablished() {
-				controller.set(NetworkStatus.ONLINE);
-			}
-			public void sessionTerminated() {
-				controller.set(NetworkStatus.OFFLINE);
-			}
+			public void sessionEstablished() {}
+			public void sessionTerminated() {}
 			public void sessionTerminated(final Throwable cause) {
 				sessionTerminated();
 			}

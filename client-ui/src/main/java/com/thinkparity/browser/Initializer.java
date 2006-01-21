@@ -3,10 +3,9 @@
  */
 package com.thinkparity.browser;
 
-import com.thinkparity.browser.javax.swing.browser.Controller;
-import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.model.EventDispatcher;
 import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -34,7 +33,6 @@ public class Initializer {
 
 		LoggerFactory.getLogger(Initializer.class);
 		ModelFactory.getInstance().initialize();
-		EventDispatcher.getInstance().initialize();
-		Controller.getInstance().initialize();
+		EventDispatcher.getInstance(null).initialize();
 	}
 }

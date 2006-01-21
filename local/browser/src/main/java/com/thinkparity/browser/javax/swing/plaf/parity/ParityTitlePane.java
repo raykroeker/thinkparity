@@ -23,7 +23,7 @@ import com.thinkparity.browser.javax.swing.BrowserColorUtil;
 import com.thinkparity.browser.javax.swing.animation.HideJFrameAnimator;
 import com.thinkparity.browser.javax.swing.animation.ShowJFrameAnimator;
 import com.thinkparity.browser.javax.swing.plaf.parity.color.iTunesColorScheme;
-import com.thinkparity.browser.log4j.LoggerFactory;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -195,14 +195,15 @@ public class ParityTitlePane extends JComponent {
 		 * @return The height of the title pane.
 		 */
 		private int computeHeight() {
+			return 30;
 			// grab the height of the font
-			final FontMetrics fm = jRootPane.getFontMetrics(getFont());
-			final int fontHeight = fm.getHeight() + 7;
-
-			// grab the height of the icon
-			final int iconHeight = ParityConstants.DEFAULT_IMAGE_DIMENSION + 7;
-
-			return Math.max(fontHeight, iconHeight);
+//			final FontMetrics fm = jRootPane.getFontMetrics(getFont());
+//			final int fontHeight = fm.getHeight() + 7;
+//
+//			// grab the height of the icon
+//			final int iconHeight = ParityConstants.DEFAULT_IMAGE_DIMENSION + 7;
+//
+//			return Math.max(fontHeight, iconHeight);
 		}
 	}
 
@@ -380,7 +381,7 @@ public class ParityTitlePane extends JComponent {
 		toggleJButton.setText(null);
 		toggleJButton.putClientProperty("paintActive", Boolean.TRUE);
 		toggleJButton.setBorder(null);
-		toggleJButton.setToolTipText("Show Browser");
+		toggleJButton.setToolTipText("Show Browser2");
 		toggleJButton.setIcon(ParityImageCreator.getExpandIcon(new iTunesColorScheme()));
 		ButtonBackgroundDelegate.trackTitleButton(
 				toggleJButton, ButtonTitleKind.REGULAR);

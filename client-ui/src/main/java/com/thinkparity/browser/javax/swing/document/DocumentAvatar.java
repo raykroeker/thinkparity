@@ -17,12 +17,12 @@ import javax.swing.Timer;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.javax.swing.BrowserColorUtil;
-import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
-import com.thinkparity.browser.javax.swing.action.Data;
-import com.thinkparity.browser.javax.swing.action.document.Open;
 import com.thinkparity.browser.javax.swing.util.SwingUtil;
-import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.model.util.ParityObjectUtil;
+import com.thinkparity.browser.ui.action.ActionFactory;
+import com.thinkparity.browser.ui.action.Data;
+import com.thinkparity.browser.ui.action.document.Open;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -193,7 +193,7 @@ public class DocumentAvatar extends JPanel {
 	 * 
 	 */
 	protected final Open openDocument =
-		(Open) BrowserActionFactory.createAction(Open.class);
+		(Open) ActionFactory.createAction(Open.class);
 
 	/**
 	 * Input for the document display avatar.

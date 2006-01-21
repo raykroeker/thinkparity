@@ -12,13 +12,13 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.javax.swing.BrowserJFrame;
 import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
 import com.thinkparity.browser.javax.swing.document.NewDocumentJPanel;
 import com.thinkparity.browser.javax.swing.session.LoginJPanel;
 import com.thinkparity.browser.javax.swing.session.SendJPanel;
-import com.thinkparity.browser.log4j.LoggerFactory;
-import com.thinkparity.browser.provider.ProviderFactory;
+import com.thinkparity.browser.ui.MainWindow;
+import com.thinkparity.browser.ui.display.provider.ProviderFactory;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
 
@@ -42,7 +42,7 @@ public class MainJPanel extends AbstractJPanel {
 	static MainJPanel getInstance() { return instance; }
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	private Component documentList;
-	private final BrowserJFrame jFrame;
+	private final MainWindow jFrame;
 	private Component loginForm;
 	private Component newDocumentForm;
 	private Component sendForm;
@@ -52,7 +52,7 @@ public class MainJPanel extends AbstractJPanel {
 	 * Create a MainJPanel.
 	 *  
 	 */
-	public MainJPanel(final BrowserJFrame jFrame) {
+	public MainJPanel(final MainWindow jFrame) {
 		super("Main");
 		instance = this;
 		this.jFrame = jFrame;

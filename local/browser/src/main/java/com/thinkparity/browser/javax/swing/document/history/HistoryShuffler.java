@@ -17,9 +17,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
-import com.thinkparity.browser.javax.swing.BrowserJFrame;
-import com.thinkparity.browser.provider.ContentProvider;
-import com.thinkparity.browser.provider.FlatContentProvider;
+import com.thinkparity.browser.ui.MainWindow;
+import com.thinkparity.browser.ui.display.provider.ContentProvider;
+import com.thinkparity.browser.ui.display.provider.FlatContentProvider;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -67,7 +67,7 @@ public class HistoryShuffler extends JPanel {
 		this.mouseTracker = new HistoryShufflerMouseTracker(this);
 		addMouseListener(mouseTracker);
 		addMouseMotionListener(mouseTracker);
-		setBackground(BrowserJFrame.getBackgroundColor());
+		setBackground(MainWindow.getBackgroundColor());
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		setOpaque(true);
 		setLayout(new GridBagLayout());

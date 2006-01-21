@@ -10,6 +10,8 @@ import java.awt.Insets;
 
 import javax.swing.JFrame;
 
+import com.thinkparity.browser.ui.MainWindow;
+
 /**
  * Used as a quick-launch for testing.
  * 
@@ -64,7 +66,7 @@ public class JPanelTester extends JFrame {
 	private JPanelTester() {
 		super();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(BrowserJFrame.getDefaultSize());
+		setSize(MainWindow.getDefaultSize());
 		setTitle("Test Runner:  Login JPanel");
 		setLayout(new GridBagLayout());
 		setLocation(100, 100);

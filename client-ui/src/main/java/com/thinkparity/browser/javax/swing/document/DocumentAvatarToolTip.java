@@ -13,15 +13,15 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.RandomData;
 import com.thinkparity.browser.javax.swing.animation.CompletionListener;
 import com.thinkparity.browser.javax.swing.animation.ExpandToolTipAnimation;
 import com.thinkparity.browser.javax.swing.animation.IAnimator;
 import com.thinkparity.browser.javax.swing.browser.Controller;
 import com.thinkparity.browser.javax.swing.component.BrowserButtonFactory;
 import com.thinkparity.browser.javax.swing.document.history.HistoryShuffler;
-import com.thinkparity.browser.log4j.LoggerFactory;
-import com.thinkparity.browser.provider.ProviderFactory;
+import com.thinkparity.browser.ui.display.provider.ProviderFactory;
+import com.thinkparity.browser.util.RandomData;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 

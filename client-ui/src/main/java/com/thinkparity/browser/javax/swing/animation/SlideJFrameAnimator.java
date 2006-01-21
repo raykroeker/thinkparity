@@ -8,7 +8,7 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 
-import com.thinkparity.browser.javax.swing.BrowserJFrame;
+import com.thinkparity.browser.ui.MainWindow;
 
 /**
  * Create a simple animation that will increase the size of the browser to
@@ -32,7 +32,7 @@ public class SlideJFrameAnimator extends AbstractJFrameAnimator {
 	private static final int MAX_BROWSER_WIDTH;
 
 	static {
-		MAX_BROWSER_WIDTH = BrowserJFrame.getDefaultSize().width * 2;
+		MAX_BROWSER_WIDTH = MainWindow.getDefaultSize().width * 2;
 		INCREMENT_STEP = 3;
 	}
 

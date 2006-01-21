@@ -8,7 +8,7 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 
-import com.thinkparity.browser.javax.swing.BrowserJFrame;
+import com.thinkparity.browser.ui.MainWindow;
 
 /**
  * Create a simple animation that will increase the size of the browser to
@@ -24,7 +24,7 @@ public class ShowJFrameAnimator extends AbstractJFrameAnimator {
 	private static final int MAX_BROWSER_HEIGHT;
 
 	static {
-		MAX_BROWSER_HEIGHT = BrowserJFrame.getDefaultSize().height;
+		MAX_BROWSER_HEIGHT = MainWindow.getDefaultSize().height;
 		INCREMENT_STEP = 3;
 	}
 

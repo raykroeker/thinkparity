@@ -8,7 +8,7 @@ import java.awt.Color;
 import org.apache.log4j.Logger;
 import org.jvnet.substance.color.ColorScheme;
 
-import com.thinkparity.browser.log4j.LoggerFactory;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com

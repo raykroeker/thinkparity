@@ -10,11 +10,11 @@ import java.awt.event.MouseEvent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.thinkparity.browser.RandomData;
-import com.thinkparity.browser.javax.swing.action.BrowserActionFactory;
-import com.thinkparity.browser.javax.swing.action.Data;
-import com.thinkparity.browser.javax.swing.action.document.OpenVersion;
 import com.thinkparity.browser.javax.swing.document.DocumentAvatar;
+import com.thinkparity.browser.ui.action.ActionFactory;
+import com.thinkparity.browser.ui.action.Data;
+import com.thinkparity.browser.ui.action.document.OpenVersion;
+import com.thinkparity.browser.util.RandomData;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -85,7 +85,7 @@ public class HistoryAvatar extends JPanel {
 	 * 
 	 */
 	protected final OpenVersion openVersion =
-		(OpenVersion) BrowserActionFactory.createAction(OpenVersion.class);
+		(OpenVersion) ActionFactory.createAction(OpenVersion.class);
 
 	/**
 	 * The history item data.

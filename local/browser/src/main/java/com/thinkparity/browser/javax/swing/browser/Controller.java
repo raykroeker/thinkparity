@@ -8,8 +8,8 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.javax.swing.document.DocumentShuffler;
-import com.thinkparity.browser.log4j.LoggerFactory;
 import com.thinkparity.browser.model.NetworkStatus;
+import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com

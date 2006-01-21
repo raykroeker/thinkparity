@@ -13,7 +13,7 @@ import java.util.UUID;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.browser.MainJPanel;
 import com.thinkparity.browser.javax.swing.user.UserList;
-import com.thinkparity.browser.provider.ProviderFactory;
+import com.thinkparity.browser.ui.display.provider.ProviderFactory;
 
 /**
  * @author raykroeker@gmail.com

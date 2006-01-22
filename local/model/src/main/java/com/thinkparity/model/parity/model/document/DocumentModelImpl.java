@@ -493,7 +493,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final ProjectModel projectModel = getProjectModel();
 			final Project project = projectModel.get(projectId);
 			final Collection<Document> documents = documentXmlIO.list(project);
-			ArtifactSorter.sortByName(documents);
+			ArtifactSorter.sortDocumentsByName(documents);
 			return documents;
 		}
 		catch(IOException iox) {
@@ -522,7 +522,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Document document = get(documentId);
 			final Collection<DocumentVersion> versions =
 				documentXmlIO.listVersions(document);
-			ArtifactSorter.sortByVersionId(versions);
+			ArtifactSorter.sortDocumentVersionsByVersionId(versions);
 			return versions;
 		}
 		catch(IOException iox) {

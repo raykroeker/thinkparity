@@ -23,6 +23,7 @@ import com.thinkparity.model.parity.api.events.DeleteEvent;
 import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.artifact.ArtifactSorter;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.io.xml.project.ProjectXmlIO;
@@ -332,7 +333,9 @@ class ProjectModelImpl extends AbstractModelImpl {
 		logger.debug(projectId);
 		try {
 			final Project project = get(projectId);
-			return projectXmlIO.list(project);
+			final Collection<Project> projects = projectXmlIO.list(project);
+			ArtifactSorter.sortProjectsByName(projects);
+			return projects;
 		}
 		catch(IOException iox) {
 			logger.error("list(Project)", iox);

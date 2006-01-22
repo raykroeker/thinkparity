@@ -13,6 +13,7 @@ import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * @author raykroeker@gmail.com
@@ -21,21 +22,12 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
 public class ArtifactSorter {
 
 	/**
-	 * Synchronization lock for the sort method.
-	 * 
-	 * @see ArtifactSorter#sort(Collection, Comparator)
-	 */
-	private static final Object LOCK;
-
-	static { LOCK = new Object(); }
-
-	/**
 	 * Sort the list of documents by name.
 	 * 
 	 * @param documents
 	 *            The list of documents.
 	 */
-	public static void sortByName(final Collection<Document> documents) {
+	public static void sortDocumentsByName(final Collection<Document> documents) {
 		sortDocuments(documents, new NameComparator(Boolean.TRUE));
 	}
 
@@ -45,9 +37,19 @@ public class ArtifactSorter {
 	 * @param versions
 	 *            The list of document versions.
 	 */
-	public static void sortByVersionId(
+	public static void sortDocumentVersionsByVersionId(
 			final Collection<DocumentVersion> versions) {
 		sortVersions(versions, new VersionIdComparator(Boolean.TRUE));
+	}
+
+	/**
+	 * Sort the list of projects by name.
+	 * 
+	 * @param projects
+	 *            The list of projects.
+	 */
+	public static void sortProjectsByName(final Collection<Project> projects) {
+		sortProjects(projects, new NameComparator(Boolean.TRUE));
 	}
 
 	/**
@@ -60,13 +62,28 @@ public class ArtifactSorter {
 	 */
 	private static void sortDocuments(final Collection<Document> documents,
 			final Comparator<ParityObject> comparator) {
-		synchronized(LOCK) {
-			final List<Document> l = new LinkedList<Document>();
-			l.addAll(documents);
-			Collections.sort(l, comparator);
-			documents.clear();
-			documents.addAll(l);
-		}
+		final List<Document> l = new LinkedList<Document>();
+		l.addAll(documents);
+		Collections.sort(l, comparator);
+		documents.clear();
+		documents.addAll(l);
+	}
+
+	/**
+	 * Sort the collection of projects.
+	 * 
+	 * @param projects
+	 *            A collection of projects.
+	 * @param comparator
+	 *            The artifact comparator.
+	 */
+	private static void sortProjects(final Collection<Project> projects,
+			final Comparator<ParityObject> comparator) {
+		final List<Project> l = new LinkedList<Project>();
+		l.addAll(projects);
+		Collections.sort(l, comparator);
+		projects.clear();
+		projects.addAll(l);
 	}
 
 	/**
@@ -75,17 +92,15 @@ public class ArtifactSorter {
 	 * @param documents
 	 *            A collection of documents.
 	 * @param comparator
-	 *            The artifact comparator.
+	 *            The artifact version comparator.
 	 */
 	private static void sortVersions(final Collection<DocumentVersion> versions,
 			final Comparator<ParityObjectVersion> comparator) {
-		synchronized(LOCK) {
-			final List<DocumentVersion> l = new LinkedList<DocumentVersion>();
-			l.addAll(versions);
-			Collections.sort(l, comparator);
-			versions.clear();
-			versions.addAll(l);
-		}
+		final List<DocumentVersion> l = new LinkedList<DocumentVersion>();
+		l.addAll(versions);
+		Collections.sort(l, comparator);
+		versions.clear();
+		versions.addAll(l);
 	}
 
 	/**

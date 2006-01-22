@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.ui.display;
 
+import java.awt.Dimension;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
@@ -57,7 +59,13 @@ public class DisplayFactory {
 	 * @return The content display.
 	 */
 	private Display createContent() {
-		if(null == content) { content = new ContentDisplay(); }
+		if(null == content) {
+			content = new ContentDisplay();
+			final Dimension s = new Dimension(350, 275);
+			content.setPreferredSize(s);
+			content.setMinimumSize(s);
+			content.setMaximumSize(s);
+		}
 		return content;
 	}
 
@@ -67,7 +75,13 @@ public class DisplayFactory {
 	 * @return The info display.
 	 */
 	private Display createInfo() {
-		if(null == info) { info = new InfoDisplay(); }
+		if(null == info) {
+			info = new InfoDisplay();
+			final Dimension s = new Dimension(350, 160);
+			info.setPreferredSize(s);
+			info.setMinimumSize(s);
+			info.setMaximumSize(s);
+		}
 		return info;
 	}
 
@@ -77,7 +91,13 @@ public class DisplayFactory {
 	 * @return The logo display.
 	 */
 	private Display createLogo() {
-		if(null == logo) { logo = new LogoDisplay(); }
+		if(null == logo) {
+			logo = new LogoDisplay();
+			final Dimension s = new Dimension(350, 85);
+			logo.setPreferredSize(s);
+			logo.setMinimumSize(s);
+			logo.setMaximumSize(s);
+		}
 		return logo;
 	}
 }

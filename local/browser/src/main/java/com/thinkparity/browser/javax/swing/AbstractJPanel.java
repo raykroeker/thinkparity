@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
-import com.thinkparity.browser.util.l10n.JPanelLocalisation;
+import com.thinkparity.browser.util.l10n.JPanelLocalization;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
@@ -31,7 +31,7 @@ public class AbstractJPanel extends JPanel {
 	 * Default background color.
 	 * 
 	 */
-	private static final Color defaultBackground;
+	private static final Color DEFAULT_BACKGROUND;
 
 	/**
 	 * @see java.io.Serializable
@@ -39,7 +39,7 @@ public class AbstractJPanel extends JPanel {
 	private static final long serialVersionUID = 1;
 
 	static {
-		defaultBackground =	// Google Talk:  List BG Color
+		DEFAULT_BACKGROUND =	// Google Talk:  List BG Color
 			BrowserColorUtil.getRGBColor(249, 249, 249, 255);
 	}
 
@@ -47,14 +47,13 @@ public class AbstractJPanel extends JPanel {
 	 * Localisation helper utility.
 	 * 
 	 */
-	protected final JPanelLocalisation localisation;
+	protected final JPanelLocalization localization;
 
 	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
-	protected final Logger logger =
-		LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Handle to the parity model factory.
@@ -67,23 +66,35 @@ public class AbstractJPanel extends JPanel {
 	 * 
 	 * @param l18nContext
 	 *            The localization context.
-	 * @param background
-	 *            The background.
 	 */
-	protected AbstractJPanel(final String l18nContext, final Color background) {
-		super();
-		this.localisation = new JPanelLocalisation(l18nContext);
-		setOpaque(true);
-		setBackground(background);
-	}
+	protected AbstractJPanel(final String l18nContext) { this(l18nContext, null); }
 
 	/**
 	 * Create a AbstractJPanel.
 	 * 
 	 * @param l18nContext
 	 *            The localization context.
+	 * @param background
+	 *            The background.
 	 */
-	protected AbstractJPanel(final String l18nContext) { this(l18nContext, null); }
+	protected AbstractJPanel(final String l18nContext, final Color background) {
+		super();
+		this.localization = new JPanelLocalization(l18nContext);
+		setOpaque(true);
+		setBackground(background);
+	}
+
+	/**
+	 * Debug the geometry of the JPanel. This includes the location; bounds and
+	 * insets.
+	 * 
+	 */
+	public void debugGeometry() {
+		logger.debug(getClass().getSimpleName());
+		logger.debug("l:" + getLocation());
+		logger.debug("b:" + getBounds());
+		logger.debug("i:" + getInsets());
+	}
 
 	/**
 	 * Obtain a handle to the document api.
@@ -133,11 +144,11 @@ public class AbstractJPanel extends JPanel {
 	}
 
 	/**
-	 * @see JPanelLocalisation#getString(String)
+	 * @see JPanelLocalization#getString(String)
 	 * 
 	 */
 	protected String getString(final String localKey) {
-		return localisation.getString(localKey);
+		return localization.getString(localKey);
 	}
 
 	/**
@@ -154,6 +165,6 @@ public class AbstractJPanel extends JPanel {
 	 *
 	 */
 	protected void setDefaultBackground() {
-		setBackground(defaultBackground);
+		setBackground(DEFAULT_BACKGROUND);
 	}
 }

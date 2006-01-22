@@ -7,8 +7,11 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import com.thinkparity.browser.ui.MainWindow;
 
@@ -75,6 +78,9 @@ public class JPanelTester extends JFrame {
 	}
 
 	private Component createTestJPanel() {
+		final File imageFile = new File("C:\\Documents and Settings\\raymond\\My Documents\\eclipse.org\\workspaces\\thinkparity.com\\com.thinkparity.parity-browser2\\target\\classes\\images\\historyHeading.png");
+		System.out.println(imageFile.exists());
+		return new JLabel(new ImageIcon(imageFile.getAbsolutePath()));
 //		final JPanel jPanel = new LoginJPanel();
 //		jPanel.setBorder(BorderFactory.createLineBorder(Color.RED, 2));
 //		final Component[] components = jPanel.getComponents();
@@ -84,7 +90,6 @@ public class JPanelTester extends JFrame {
 //			c.setBackground(color);
 //		}
 //		return jPanel;
-		return null;
 	}
 
 	private Object createTestJPanelConstraints() {

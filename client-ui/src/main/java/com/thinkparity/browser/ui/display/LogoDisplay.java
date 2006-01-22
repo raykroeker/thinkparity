@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 /**
+ * Logo display section.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
@@ -14,16 +16,9 @@ class LogoDisplay extends Display {
 
 	/**
 	 * @see java.io.Serialiable
-	 */
-	private static final long serialVersionUID = 1;
-
-	/**
-	 * Header line color.
 	 * 
 	 */
-	private static final Color HEADER_COLOR;
-
-	static { HEADER_COLOR = new Color(105, 105, 105, 255); }
+	private static final long serialVersionUID = 1;
 
 	/**
 	 * Create a LogoDisplay.
@@ -31,14 +26,7 @@ class LogoDisplay extends Display {
 	 */
 	LogoDisplay() {
 		super("LogoDisplay", new Color(255, 255, 255,255));
-	}
-
-	/**
-	 * @see com.thinkparity.browser.ui.display.Display#displayAvatar()
-	 * 
-	 */
-	public void displayAvatar() {
-		// TODO Auto-generated method stub
+		setBorder(new DefaultBorder(new Color(180, 180, 180, 255)));
 	}
 
 	/**
@@ -47,11 +35,8 @@ class LogoDisplay extends Display {
 	public DisplayId getId() { return DisplayId.LOGO; }
 
 	/**
-	 * @see com.thinkparity.browser.ui.display.Display#paintDisplayHeader(java.awt.Graphics2D)
+	 * @see com.thinkparity.browser.ui.display.Display#paintHeading(java.awt.Graphics2D)
 	 * 
 	 */
-	public void paintDisplayHeader(Graphics2D g2) {
-		g2.setColor(HEADER_COLOR);
-		g2.drawLine(0, 0, getWidth() - 1, 0);
-	}
+	public void paintHeading(Graphics2D g2) {}
 }

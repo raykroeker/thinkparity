@@ -5,13 +5,17 @@ package com.thinkparity.browser.javax.swing.plaf.parity;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JRootPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 import org.jvnet.substance.SubstanceImageCreator;
@@ -19,9 +23,7 @@ import org.jvnet.substance.SubstanceButtonUI.ButtonTitleKind;
 import org.jvnet.substance.utils.ButtonBackgroundDelegate;
 import org.jvnet.substance.utils.SubstanceCoreUtilities;
 
-import com.thinkparity.browser.javax.swing.BrowserColorUtil;
-import com.thinkparity.browser.javax.swing.animation.HideJFrameAnimator;
-import com.thinkparity.browser.javax.swing.animation.ShowJFrameAnimator;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.plaf.parity.color.iTunesColorScheme;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
 
@@ -29,112 +31,7 @@ import com.thinkparity.browser.util.log4j.LoggerFactory;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ParityTitlePane extends JComponent {
-
-	/**
-	 * Action used to close the window.
-	 * 
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class CloseAction extends AbstractAction {
-
-		/**
-		 * @see java.io.Serailizable
-		 */
-		private static final long serialVersionUID = 1;
-
-		/**
-		 * Create a CloseAction.
-		 * 
-		 */
-		public CloseAction() {
-			super(UIManager.getString("MetalTitlePane.closeTitle", getLocale()));
-		}
-
-		/**
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 * 
-		 */
-		public void actionPerformed(ActionEvent e) {
-			final Window window = getWindow();
-			if(null != window) {
-				window.dispatchEvent(new WindowEvent(window,
-						WindowEvent.WINDOW_CLOSING));
-			}
-		}
-	}
-
-	/**
-	 * The collapse action will call the animation used to hide the main browser
-	 * display.
-	 * 
-	 */
-	private class CollapseAction extends AbstractAction {
-		private static final long serialVersionUID = 1;
-		public void actionPerformed(ActionEvent e) {
-			logger.info("Pre-animation \"launch\"");
-			new HideJFrameAnimator((JFrame) window).start();
-			jFrameState = JFrameState.COLLAPSED;
-			logger.info("Post-animation \"launch\"");
-		}
-	}
-
-	/**
-	 * The expand action will call the animation used to show the main browser
-	 * display.
-	 * 
-	 */
-	private class ExpandAction extends AbstractAction {
-		private static final long serialVersionUID = 1;
-		public void actionPerformed(final ActionEvent e) {
-			logger.info("Pre-animation \"launch\"");
-			new ShowJFrameAnimator((JFrame) window).start();
-			jFrameState = JFrameState.EXPANDED;
-			logger.info("Post-animation \"launch\"");
-		}
-	}
-
-	/**
-	 * Toggle the state of the jframe.
-	 * 
-	 */
-	private class ToggleAction extends AbstractAction {
-		private static final long serialVersionUID = 1;
-		public void actionPerformed(final ActionEvent e) {
-			if(jFrameState == JFrameState.COLLAPSED) {
-				new ExpandAction().actionPerformed(e);
-			}
-			else if(jFrameState == JFrameState.EXPANDED) {
-				new CollapseAction().actionPerformed(e);
-			}
-		}
-	}
-
-	/**
-	 * Possible states of the JFrame.
-	 * 
-	 */
-	private enum JFrameState{ COLLAPSED, EXPANDED }
-
-	/**
-	 * PropertyChangeListener installed on the Window. Updates the necessary
-	 * state as the state of the Window changes.
-	 */
-	private class PropertyChangeHandler implements PropertyChangeListener {
-		public void propertyChange(PropertyChangeEvent pce) {
-			String name = pce.getPropertyName();
-
-			if("title".equals(name)) {
-				repaint();
-				setToolTipText((String) pce.getNewValue());
-			}
-			else if("componentOrientation".equals(name) || "iconImage".equals(name)) {
-				revalidate();
-				repaint();
-			}
-		}
-	}
+public class ParityTitlePane extends AbstractJPanel {
 
 	/**
 	 * Provides layout management for the title pane.
@@ -156,14 +53,14 @@ public class ParityTitlePane extends JComponent {
 		 * 
 		 */
 		public void layoutContainer(Container c) {
+			final int titlePaneHeight = getHeight();
 			final int titlePaneWidth = getWidth();
 
-			final int height = toggleJButton.getIcon().getIconHeight();
-			final int width = toggleJButton.getIcon().getIconWidth();
+			final int height = closeJButton.getIcon().getIconHeight();
+			final int width = closeJButton.getIcon().getIconWidth();
 			final int x = titlePaneWidth - (4 + width);
-			final int y = 3;
+			final int y = (titlePaneHeight - height) / 2;
 			closeJButton.setBounds(x, y, height, width);
-			toggleJButton.setBounds(x - (width + 2), y, height, width);
 		}
 
 		/**
@@ -194,29 +91,7 @@ public class ParityTitlePane extends JComponent {
 		 * 
 		 * @return The height of the title pane.
 		 */
-		private int computeHeight() {
-			return 30;
-			// grab the height of the font
-//			final FontMetrics fm = jRootPane.getFontMetrics(getFont());
-//			final int fontHeight = fm.getHeight() + 7;
-//
-//			// grab the height of the icon
-//			final int iconHeight = ParityConstants.DEFAULT_IMAGE_DIMENSION + 7;
-//
-//			return Math.max(fontHeight, iconHeight);
-		}
-	}
-
-	/**
-	 * Window adapter used to capture whether or not the window is currently
-	 * active.
-	 * 
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class WindowHandler extends WindowAdapter {
-		public void windowActivated(final WindowEvent ev) { setActive(true); }
-		public void windowDeactivated(WindowEvent ev) { setActive(false); }
+		private int computeHeight() { return 30; }
 	}
 
 	/**
@@ -226,59 +101,41 @@ public class ParityTitlePane extends JComponent {
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * Handle to an apache logger.
+	 * Apache logger.
+	 * 
 	 */
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * JRootPane rendering for.
-	 */
-	private final JRootPane jRootPane;
-
-	/**
-	 * PropertyChangeListener added to the JRootPane.
-	 */
-	private PropertyChangeListener propertyChangeListener;
-
-	/**
-	 * Toggle button for animating the JFrame.
-	 */
-	private JButton toggleJButton;
-
-	/**
 	 * Close button.
+	 * 
 	 */
 	private JButton closeJButton;
 
 	/**
-	 * Current window; or null if this title pane is not being drawn on top of a
-	 * window (not sure that's possible).
+	 * Property change listener added to the window.
+	 * 
 	 */
-	private Window window;
+	private PropertyChangeListener propertyChangeListener;
 
 	/**
 	 * Listens for changes in the state of the Window listener to update the
 	 * state of the widgets.
+	 * 
 	 */
 	private WindowListener windowListener;
 
 	/**
-	 * Current state of the jframe.
-	 */
-	private JFrameState jFrameState;
-
-	/**
-	 * Simple constructor.
+	 * Create a ParityTitlePane.
 	 * 
 	 * @param jRootPane
 	 *            Root pane.
 	 */
-	public ParityTitlePane(final JRootPane jRootPane) {
-		this.jRootPane = jRootPane;
-		this.jFrameState = JFrameState.COLLAPSED;
+	public ParityTitlePane() {
+		super("ParityTitlePane");
 		installSubcomponents();
 		installDefaults();
-		setLayout(createLayout());
+		setLayout(createLayoutManager());
 		setToolTipText(getFullTitle());
 	}
 
@@ -289,14 +146,33 @@ public class ParityTitlePane extends JComponent {
 	public void addNotify() {
 		super.addNotify();
 
-		uninstallListeners();
-
-		window = SwingUtilities.getWindowAncestor(this);
+		final Window window = SwingUtilities.getWindowAncestor(this);
+		uninstallListeners(window);
 		if(null != window) {
-			setActive(window.isActive());
-			installListeners();
+			setActiveState(window.isActive());
+			installListeners(window);
 		}
 		setToolTipText(getFullTitle());
+	}
+
+	/**
+	 * @see java.awt.Component#removeNotify()
+	 * 
+	 */
+	public void removeNotify() {
+		super.removeNotify();
+
+		final Window window = SwingUtilities.getWindowAncestor(this);
+		uninstallListeners(window);
+	}
+
+	/**
+	 * Uninstalls the necessary state.
+	 */
+	public void uninstall() {
+		final Window window = SwingUtilities.getWindowAncestor(this);
+		uninstallListeners(window);
+		removeAll();
 	}
 
 	/**
@@ -312,62 +188,20 @@ public class ParityTitlePane extends JComponent {
 		g2.dispose();
 	}
 
-	private void paintTitleText(final Graphics2D g, final int height) {
-		// draw the title
-		final Double maximumTitleWidth = toggleJButton.getBounds().getX() - 37;
-		final String title = getClippedTitle(g, maximumTitleWidth);
-		if(null != title) {
-			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-			g.setColor(BrowserColorUtil.getRGBColor(20, 49, 107, 255));
-
-			final FontMetrics fm = jRootPane.getFontMetrics(g.getFont());
-			final int yOffset = ((height - fm.getHeight()) / 2) + fm.getAscent();
-			g.drawString(title, 6, yOffset + 1);
-		}
-	}
-
-	/**
-	 * @param pt1
-	 * @param pt2
-	 * @return
-	 */
-	private void paintGradientBackground(final Graphics2D g, final int width,
-			final int height) {
-		final Point pt1 = new Point(0, 0);
-		final Point pt2 = new Point(0, height - 1);
-		final Color color1 = BrowserColorUtil.getRGBColor(247, 247, 248, 255);
-		final Color color2 = BrowserColorUtil.getRGBColor(203, 210, 219, 255);
-		final Paint gradientPaint = new GradientPaint(pt1, color1, pt2, color2);
-		g.setPaint(gradientPaint);
-		g.fillRect(0, 0, width - 1, height - 1);
-	}
-
-	/**
-	 * @see java.awt.Component#removeNotify()
-	 * 
-	 */
-	public void removeNotify() {
-		super.removeNotify();
-
-		uninstallListeners();
-		window = null;
-	}
-
-	/**
-	 * Uninstalls the necessary state.
-	 */
-	public void uninstall() {
-		uninstallListeners();
-		window = null;
-		removeAll();
-	}
-
 	/**
 	 * Creates the Buttons that will be placed on the TitlePane.
 	 */
 	private void createButtons() {
-		closeJButton = createTitleButton();
-		closeJButton.setAction(new CloseAction());
+		closeJButton = createTitleJButton();
+		closeJButton.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				final Window window = SwingUtilities.getWindowAncestor(ParityTitlePane.this);
+				if(null != window) {
+					window.dispatchEvent(
+							new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+				}
+			}
+		});
 		closeJButton.setText(null);
 		closeJButton.putClientProperty("paintActive", Boolean.TRUE);
 		closeJButton.setBorder(null);
@@ -375,37 +209,27 @@ public class ParityTitlePane extends JComponent {
 		closeJButton.setIcon(SubstanceImageCreator.getCloseIcon(new iTunesColorScheme()));
 		ButtonBackgroundDelegate.trackTitleButton(
 				closeJButton, ButtonTitleKind.CLOSE);
-
-		toggleJButton = createTitleButton();
-		toggleJButton.setAction(new ToggleAction());
-		toggleJButton.setText(null);
-		toggleJButton.putClientProperty("paintActive", Boolean.TRUE);
-		toggleJButton.setBorder(null);
-		toggleJButton.setToolTipText("Show Browser2");
-		toggleJButton.setIcon(ParityImageCreator.getExpandIcon(new iTunesColorScheme()));
-		ButtonBackgroundDelegate.trackTitleButton(
-				toggleJButton, ButtonTitleKind.REGULAR);
 	}
 
 	/**
-	 * Returns the <code>LayoutManager</code> that should be installed on the
-	 * <code>SubstanceTitlePane</code>.
+	 * Create the layout manager for the title pane.
+	 * 
+	 * @return The layout manager for the title pane.
 	 */
-	private LayoutManager createLayout() {
+	private LayoutManager createLayoutManager() {
 		return new TitlePaneLayoutManager();
 	}
-
+	
 	/**
-	 * Returns a <code>JButton</code> appropriate for placement on the
-	 * TitlePane.
+	 * Create a JButton for the title pane.
+	 * 
+	 * @return The JButton for the title pane.
 	 */
-	private JButton createTitleButton() {
-		JButton button = new JButton();
-
-		button.setFocusPainted(false);
-		button.setFocusable(false);
-		button.setOpaque(true);
-		return button;
+	private JButton createTitleJButton() {
+		final JButton jButton = new JButton();
+		jButton.setFocusPainted(false);
+		jButton.setFocusable(false);
+		return jButton;
 	}
 
 	/**
@@ -419,7 +243,7 @@ public class ParityTitlePane extends JComponent {
 		final String fullTitle = getFullTitle();
 		// clip the title
 		if(null != fullTitle) {
-			final FontMetrics fm = jRootPane.getFontMetrics(graphics2D.getFont());			
+			final FontMetrics fm = graphics2D.getFontMetrics();
 			final String clippedTitle =
 				SubstanceCoreUtilities.clipString(fm, maximumTitleWidth.intValue(), fullTitle);
 
@@ -439,6 +263,8 @@ public class ParityTitlePane extends JComponent {
 	 */
 	private String getFullTitle() {
 		final String fullTitle;
+
+		final Window window = SwingUtilities.getWindowAncestor(this);
 		if(window instanceof Frame) {
 			fullTitle = ((Frame) window).getTitle();
 		}
@@ -454,7 +280,7 @@ public class ParityTitlePane extends JComponent {
 	 * contained in. This will return null if there is no parent ancestor of the
 	 * <code>JRootPane</code>.
 	 */
-	private Window getWindow() { return window; }
+//	private Window getWindow() { return window; }
 
 	/**
 	 * Returns the decoration style of the <code>JRootPane</code>.
@@ -473,12 +299,32 @@ public class ParityTitlePane extends JComponent {
 	/**
 	 * Installs the necessary listeners.
 	 */
-	private void installListeners() {
+	private void installListeners(final Window window) {
 		if(null != window) {
-			windowListener = new WindowHandler();
+			windowListener = new WindowAdapter() {
+				public void windowActivated(final WindowEvent ev) {
+					setActiveState(true);
+				}
+				public void windowDeactivated(WindowEvent ev) {
+					setActiveState(false);
+				}
+			};
 			window.addWindowListener(windowListener);
 
-			propertyChangeListener = new PropertyChangeHandler();
+			propertyChangeListener = new PropertyChangeListener() {
+				public void propertyChange(final PropertyChangeEvent evt) {
+					final String propertyName = evt.getPropertyName();
+					if("title".equals(propertyName)) {
+						repaint();
+						setToolTipText((String) evt.getNewValue());
+					}
+					else if("componentOrientation".equals(propertyName)
+							|| "iconImage".equals(propertyName)) {
+						revalidate();
+						repaint();
+					}
+				}
+			};
 			window.addPropertyChangeListener(propertyChangeListener);
 		}
 	}
@@ -489,27 +335,74 @@ public class ParityTitlePane extends JComponent {
 	private void installSubcomponents() {
 		createButtons();
 		add(closeJButton);
-		add(toggleJButton);
 	}
 
 	/**
-	 * Updates state dependant upon the Window's active state.
+	 * Paint a gradient background on the title pane.
+	 * 
+	 * @param g
+	 *            The graphics context.
+	 * @param width
+	 *            The title pane width.
+	 * @param height
+	 *            The title pane height.
 	 */
-	private void setActive(boolean isActive) {
-		Boolean activeB = isActive ? Boolean.TRUE : Boolean.FALSE;
+	private void paintGradientBackground(final Graphics2D g, final int width,
+			final int height) {
+		final Point pt1 = new Point(0, 0);
+		final Point pt2 = new Point(0, height);
+		final Color color1 = new Color(236, 243, 239, 255);
+		final Color color2 = new Color(194, 208, 219, 255);
+		final Paint gradientPaint = new GradientPaint(pt1, color1, pt2, color2);
+		g.setPaint(gradientPaint);
+		g.fillRect(0, 0, width, height);
+	}
 
-		if (getWindowDecorationStyle() == JRootPane.FRAME) {
-			closeJButton.putClientProperty("paintActive", activeB);
-			toggleJButton.putClientProperty("paintActive", activeB);
+	/**
+	 * Paint the title on the title pane.
+	 * 
+	 * @param g
+	 *            The graphics context.
+	 * @param height
+	 *            The title pane height.
+	 */
+	private void paintTitleText(final Graphics2D g, final int height) {
+		final double maxTitleWidth = closeJButton.getBounds().getX() - 37;
+		final String title = getClippedTitle(g, maxTitleWidth);
+		if(null != title) {
+			g.setRenderingHint(
+					RenderingHints.KEY_TEXT_ANTIALIASING,
+					RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+			g.setColor(new Color(116, 120, 131, 255));
+
+			final FontMetrics fm = g.getFontMetrics();
+			final int yOffset = ((height - fm.getHeight()) / 2) + fm.getAscent();
+			g.drawString(title, 19, yOffset + 1);
+		}
+	}
+
+	/**
+	 * Set the active state of the window.
+	 * 
+	 * @param isWindowActive
+	 *            The active state of the window.
+	 */
+	private void setActiveState(final Boolean isWindowActive) {
+		if(getWindowDecorationStyle() == JRootPane.FRAME) {
+			closeJButton.putClientProperty("paintActive", isWindowActive);
 		}
 		getRootPane().repaint();
 	}
 
 	/**
-	 * Uninstalls the necessary listeners.
+	 * Remove the window listener; and the proeprty change listener from the
+	 * window.
+	 * 
+	 * @param window
+	 *            The window.
 	 */
-	private void uninstallListeners() {
-		if(null != this.window) {
+	private void uninstallListeners(final Window window) {
+		if(null != window) {
 			window.removeWindowListener(windowListener);
 			windowListener = null;
 			

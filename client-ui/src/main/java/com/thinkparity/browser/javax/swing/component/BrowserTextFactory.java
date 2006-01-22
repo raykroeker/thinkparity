@@ -34,7 +34,7 @@ public class BrowserTextFactory {
 	}
 
 	/**
-	 * Create a BrowserButtonFactory.
+	 * Create a ButtonFactory.
 	 */
 	private BrowserTextFactory() { super(); }
 

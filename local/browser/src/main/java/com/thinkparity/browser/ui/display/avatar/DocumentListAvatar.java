@@ -5,11 +5,14 @@ package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.UUID;
 
 import javax.swing.JLabel;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.ui.display.provider.ContentProvider;
 import com.thinkparity.browser.ui.display.provider.FlatContentProvider;
 import com.thinkparity.browser.util.State;
 
@@ -17,14 +20,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.Document;
 
-
 /**
- * Note that due to the custom display of the documents; we are manually
- * painting them in the overriden paintComponent api. The key to which documents
- * are displayed is the list of document avatars. Also of note is the document
- * provider (reads from the model to get a list of documents) and the current
- * document.
- * 
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -55,9 +51,19 @@ class DocumentListAvatar extends Avatar {
 		 *            The document.
 		 */
 		private ListItem(final Document document) {
-			super("DocumentListAvatar$ListItem");
+			super("DocumentListAvatar$ListItem", new Color(237, 241, 244, 255));
 			this.document = document;
-			add(new JLabel(document.getName()));
+			setLayout(new GridBagLayout());
+
+			// h:  20 px
+			// x indent:  40 px
+			final GridBagConstraints nameConstraints = new GridBagConstraints();
+			nameConstraints.anchor = GridBagConstraints.WEST;
+			nameConstraints.fill = GridBagConstraints.BOTH;
+			nameConstraints.weightx = 1.0;
+			nameConstraints.weighty = 1.0;
+			nameConstraints.insets = new Insets(3, 40, 3, 0);
+			add(new JLabel(document.getName()), nameConstraints);
 		}
 	}
 
@@ -72,6 +78,7 @@ class DocumentListAvatar extends Avatar {
 	 */
 	DocumentListAvatar() {
 		super("DocumentListAvatar", new Color(255, 255, 255, 255));
+		setLayout(new GridBagLayout());
 	}
 
 	/**
@@ -96,9 +103,6 @@ class DocumentListAvatar extends Avatar {
 	public void reload() {
 		removeAll();
 		if(null != input) {
-			Assert.assertOfType(
-					"Input:  " + input.getClass() + " unsupported:  " + getId(),
-					UUID.class, input);
 			final Object[] elements =
 				((FlatContentProvider) contentProvider).getElements(input);
 			ListItem listItem;
@@ -106,13 +110,41 @@ class DocumentListAvatar extends Avatar {
 			for(final Object element : elements) {
 				listItem = new ListItem((Document) element);
 				listItemConstraints = new GridBagConstraints();
+				listItemConstraints.fill = GridBagConstraints.HORIZONTAL;
+				listItemConstraints.gridx = 0;
+				listItemConstraints.weightx = 1.0;
+				listItemConstraints.insets = new Insets(0, 0, 1, 0);
 
 				add(listItem, listItemConstraints);
 			}
-			final GridBagConstraints fillerConstraints = new GridBagConstraints();
-			add(new JLabel(), fillerConstraints);
 		}
-		invalidate();
+		final GridBagConstraints fillerConstraints = new GridBagConstraints();
+		fillerConstraints.fill = GridBagConstraints.BOTH;
+		fillerConstraints.gridx = 0;
+		fillerConstraints.weightx = 1.0;
+		fillerConstraints.weighty = 1.0;
+		add(new JLabel(), fillerConstraints);
+		revalidate();
+		repaint();
+	}
+
+	/**
+	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setContentProvider(com.thinkparity.browser.ui.display.provider.ContentProvider)
+	 * 
+	 */
+	public void setContentProvider(ContentProvider contentProvider) {
+		Assert.assertOfType("Content provider must be a flat content provider.",
+				FlatContentProvider.class, contentProvider);
+		super.setContentProvider(contentProvider);
+	}
+
+	/**
+	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setInput(java.lang.Object)
+	 * 
+	 */
+	public void setInput(Object input) {
+		Assert.assertOfType("Input must be a UUID.", UUID.class, input);
+		super.setInput(input);
 	}
 
 	/**

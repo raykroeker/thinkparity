@@ -19,11 +19,33 @@ public class AvatarFactory {
 
 	public static Avatar create(final AvatarId id) {
 		switch(id) {
+		case BROWSER_LOGO:
+			return SINGLETON.createBrowserLogo();
 		case DOCUMENT_LIST:
 			return SINGLETON.createDocumentList();
+		case DOCUMENT_HISTORY_LIST:
+			return SINGLETON.createDocumentHistoryList();
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}
 	}
+
+	/**
+	 * Browser logo avatar.
+	 * 
+	 */
+	private Avatar browserLogo;
+
+	/**
+	 * The document history list avatar.
+	 * 
+	 */
+	private Avatar documentHistoryList;
+
+	/**
+	 * The document list avatar.
+	 * 
+	 */
+	private Avatar documentList;
 
 	/**
 	 * Create a AvatarFactory [Singleton, Factory]
@@ -32,10 +54,28 @@ public class AvatarFactory {
 	private AvatarFactory() { super(); }
 
 	/**
-	 * The document list avatar.
-	 * 
+	 * Create the browser logo avatar.
+	 * @return The browser logo avatar.
 	 */
-	private Avatar documentList;
+	private Avatar createBrowserLogo() {
+		if(null == browserLogo) {
+			browserLogo = new BrowserLogoAvatar();
+		}
+		return browserLogo;
+	}
+
+	/**
+	 * Create the document history list avatar.
+	 * 
+	 * @return the document history list avatar.
+	 */
+	private Avatar createDocumentHistoryList() {
+		if(null == documentHistoryList) {
+			documentHistoryList = new DocumentHistoryListAvatar();
+			documentHistoryList.setContentProvider(ProviderFactory.getHistoryProvider());
+		}
+		return documentHistoryList;
+	}
 
 	/**
 	 * Create the document list avatar.

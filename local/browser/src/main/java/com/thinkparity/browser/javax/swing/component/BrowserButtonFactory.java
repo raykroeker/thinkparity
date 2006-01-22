@@ -60,7 +60,7 @@ public class BrowserButtonFactory {
 	}
 
 	/**
-	 * Create a BrowserButtonFactory.
+	 * Create a ButtonFactory.
 	 */
 	private BrowserButtonFactory() { super(); }
 

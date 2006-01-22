@@ -6,6 +6,7 @@ package com.thinkparity.browser.ui.display.avatar;
 import java.awt.Color;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.ui.display.Display;
 import com.thinkparity.browser.ui.display.provider.ContentProvider;
 import com.thinkparity.browser.util.State;
 
@@ -22,6 +23,12 @@ public abstract class Avatar extends AbstractJPanel {
 	 * 
 	 */
 	protected ContentProvider contentProvider;
+
+	/**
+	 * The current display.
+	 * 
+	 */
+	protected Display display;
 
 	/**
 	 * The avatar input.
@@ -59,6 +66,13 @@ public abstract class Avatar extends AbstractJPanel {
 	public ContentProvider getContentProvider() { return contentProvider; }
 
 	/**
+	 * Obtain the current display.
+	 * 
+	 * @return The current display.
+	 */
+	public Display getDisplay() { return display; }
+
+	/**
 	 * Obtain the avatar id.
 	 * 
 	 * @return The avatar id.
@@ -80,6 +94,13 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract State getState();
 
 	/**
+	 * Reload the avatar. This event is called when either the content provider
+	 * or the input has changed; or as a manual reload of the avatar.
+	 * 
+	 */
+	public void reload() {}
+
+	/**
 	 * Set the content provider.
 	 * 
 	 * @param contentProvider
@@ -94,6 +115,14 @@ public abstract class Avatar extends AbstractJPanel {
 		this.contentProvider = contentProvider;
 		reload();
 	}
+
+	/**
+	 * Set the current display.
+	 * 
+	 * @param display
+	 *            The display.
+	 */
+	public void setDisplay(Display display) { this.display = display; }
 
 	/**
 	 * Set the avatar's input.
@@ -116,11 +145,4 @@ public abstract class Avatar extends AbstractJPanel {
 	 *            The avatar's state information.
 	 */
 	public abstract void setState(final State state);
-
-	/**
-	 * Reload the avatar. This event is called when either the content provider
-	 * or the input has changed; or as a manual reload of the avatar.
-	 * 
-	 */
-	public void reload() {}
 }

@@ -14,84 +14,69 @@ import java.util.ResourceBundle;
 public class ResourceBundleManager {
 
 	/**
-	 * Singleton instance of the resource manager.
+	 * Singleton instance.
+	 * 
 	 */
-	private static final ResourceBundleManager singleton =
-		new ResourceBundleManager();
+	private static final ResourceBundleManager INSTANCE;
 
 	/**
-	 * Synchronization lock for access to the singleton.
+	 * The package name is used to locate the localization resources.
+	 * 
 	 */
-	private static final Object singletonLock = new Object();
+	private static final String PACKAGE_NAME;
+
+	static {
+		INSTANCE = new ResourceBundleManager();
+
+		PACKAGE_NAME = ResourceBundleManager.class.getPackage().getName();
+	}
 
 	/**
 	 * Obtain a resource bundle for a given resource bundle type.
 	 * 
-	 * @param resourceBundleType
+	 * @param bundleType
 	 *            Type of resource bundle to obtain.
 	 * @return The resource bundle.
 	 */
-	public static ResourceBundle getBundle(
-			final ResourceBundleType resourceBundleType) {
-		synchronized(singletonLock) {
-			return singleton.doGetBundle(resourceBundleType);
-		}
+	public static ResourceBundle getBundle(final ResourceBundleType bundleType) {
+		return INSTANCE.doGetBundle(bundleType);
 	}
 
 	/**
-	 * Prefix of each of the bundle names.
+	 * Create a ResourceBundleManager [Singleton]
+	 * 
 	 */
-	private final String baseNamePrefix;
+	private ResourceBundleManager() { super(); }
 
 	/**
-	 * Create a ResourceBundleManager [Singleton]
+	 * Obtain a resource bundle for a given resource bundle type.
+	 * 
+	 * @param bundleType
+	 *            The type of bundle to obtain.
+	 * @return The resource bundle.
 	 */
-	private ResourceBundleManager() {
-		super();
-		this.baseNamePrefix = getClass().getPackage().getName();
+	private ResourceBundle doGetBundle(final ResourceBundleType bundleType) {
+		return ResourceBundle.getBundle(getBaseName(bundleType), getLocale());
 	}
 
 	/**
 	 * Build the base name for the given resource bundle type.
 	 * 
-	 * @param resourceBundleType
+	 * @param bundleType
 	 *            The type of resource bundle to name.
 	 * @return The base name used to obtain the resource bundle.
 	 */
-	private String buildBaseName(final ResourceBundleType resourceBundleType) {
-		switch (resourceBundleType) {
-		case ACTION:
-			return baseNamePrefix + ".Action_Messages";
-		case DIALOG:
-			return baseNamePrefix + ".Dialog_Messages";
-		case JPANEL:
-			return baseNamePrefix + ".JPanel_Messages";
-		case TRAY:
-			return baseNamePrefix + ".Tray_Messages";
-		case VIEW:
-			return baseNamePrefix + ".View_Messages";
-		default:
-			return baseNamePrefix + ".Messages";
-		}
-	}
-
-	/**
-	 * Obtain a resource bundle for a given resource bundle type.
-	 * 
-	 * @param type
-	 *            The type of bundle to obtain.
-	 * @return The resource bundle.
-	 */
-	private ResourceBundle doGetBundle(final ResourceBundleType type) {
-		final ResourceBundle resourceBundle =
-			ResourceBundle.getBundle(buildBaseName(type), getLocale());
-		return resourceBundle;
+	private String getBaseName(final ResourceBundleType bundleType) {
+		return new StringBuffer(PACKAGE_NAME)
+			.append(".")
+			.append(bundleType.getBaseName())
+			.append("_Messages").toString();
 	}
 
 	/**
 	 * Obtain the locale for the browser.
+	 * 
 	 * @return The locale for the browser.
 	 */
 	private Locale getLocale() { return LocaleManager.getLocale(); }
-
 }

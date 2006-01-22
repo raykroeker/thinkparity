@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
@@ -120,6 +119,7 @@ public class Controller {
 
 		final Avatar currentAvatar = display.getAvatar();
 		state.saveAvatarState(currentAvatar);
+		if(null != currentAvatar) { currentAvatar.setDisplay(null); }
 
 		final Avatar nextAvatar = AvatarFactory.create(avatarId);
 		state.loadAvatarState(nextAvatar);
@@ -127,9 +127,16 @@ public class Controller {
 		final Object input = getAvatarInput(avatarId);
 		if(null == input) { logger.info("Null input:  " + avatarId); }
 		else { nextAvatar.setInput(getAvatarInput(avatarId)); }
+		nextAvatar.setDisplay(display);
 
 		display.setAvatar(nextAvatar);
 		display.displayAvatar();
+
+		final Display[] displays = getDisplays();
+		for(Display d : displays) {
+			d.revalidate();
+			d.repaint();
+		}
 	}
 
 	/**
@@ -143,7 +150,9 @@ public class Controller {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
             	mainWindow = MainWindow.open(Controller.this);
+            	displayAvatar(DisplayId.LOGO, AvatarId.BROWSER_LOGO);
             	displayAvatar(DisplayId.CONTENT, AvatarId.DOCUMENT_LIST);
+            	displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY_LIST);
         		setProjectId();
             }
         });
@@ -163,14 +172,7 @@ public class Controller {
 	 * 
 	 * @return A list of all of the displays.
 	 */
-	private Display[] getDisplays() {
-		final DisplayId[] ids = DisplayId.values();
-		final ArrayList<Display> displays = new ArrayList<Display>(ids.length);
-		for(DisplayId id : ids) {
-			displays.add(mainWindow.getDisplay(id));
-		}
-		return displays.toArray(new Display[] {});
-	}
+	private Display[] getDisplays() { return mainWindow.getDisplays(); }
 
 	/**
 	 * Set the input for an avatar. If the avatar is currently being displayed;

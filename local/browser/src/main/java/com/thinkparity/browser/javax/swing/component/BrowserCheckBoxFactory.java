@@ -34,7 +34,7 @@ public class BrowserCheckBoxFactory {
 	}
 
 	/**
-	 * Create a BrowserButtonFactory.
+	 * Create a ButtonFactory.
 	 */
 	private BrowserCheckBoxFactory() { super(); }
 

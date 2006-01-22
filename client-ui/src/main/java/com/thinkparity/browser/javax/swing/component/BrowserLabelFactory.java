@@ -36,7 +36,7 @@ public class BrowserLabelFactory {
 	}
 
 	/**
-	 * Create a BrowserButtonFactory.
+	 * Create a ButtonFactory.
 	 */
 	private BrowserLabelFactory() { super(); }
 

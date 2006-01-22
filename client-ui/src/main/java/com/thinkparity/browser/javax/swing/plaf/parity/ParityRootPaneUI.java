@@ -839,17 +839,18 @@ public class ParityRootPaneUI extends BasicRootPaneUI {
 	}
 
 	/**
-	 * Installs the appropriate <code>Border</code> onto the
-	 * <code>JRootPane</code>.
+	 * Install the border on the JRootPane. If the window decoration style is
+	 * <code>JRootPane.NONE</code>; the border is removed. Otherwise the
+	 * <code>LookAndFeel.installBorder(Component, "RootPane.border")</code>
+	 * api is called.
+	 * 
+	 * @param jRootPane
+	 *            The root pane.
 	 */
-	void installBorder(JRootPane root) {
-		int style = root.getWindowDecorationStyle();
-
-		if (style == JRootPane.NONE) {
-			LookAndFeel.uninstallBorder(root);
-		} else {
-			LookAndFeel.installBorder(root, "RootPane.border");
-		}
+	void installBorder(final JRootPane jRootPane) {
+		final int style = jRootPane.getWindowDecorationStyle();
+		if(style == JRootPane.NONE) { LookAndFeel.uninstallBorder(jRootPane); }
+		else { LookAndFeel.installBorder(jRootPane, "RootPane.border"); }
 	}
 
 	/**
@@ -892,8 +893,7 @@ public class ParityRootPaneUI extends BasicRootPaneUI {
 	 */
 	private void installClientDecorations(final JRootPane jPaneRoot) {
 		installBorder(jPaneRoot);
-		final JComponent titlePane = new ParityTitlePane(jPaneRoot);
-		setTitlePane(jPaneRoot, titlePane);
+		setTitlePane(jPaneRoot, new ParityTitlePane());
 		installWindowListeners(jPaneRoot, jPaneRoot.getParent());
 		installLayout(jPaneRoot);
 		if (window != null) {

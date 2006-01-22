@@ -11,7 +11,7 @@ import com.thinkparity.model.parity.api.ParityObjectType;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class JPanelLocalisation {
+public class JPanelLocalization {
 
 	/**
 	 * Resource bundle.
@@ -28,17 +28,17 @@ public class JPanelLocalisation {
 	 * Resource bundler helper.
 	 * 
 	 */
-	private final ResourceBundleHelper bundleHelper;
+	protected final ResourceBundleHelper bundleHelper;
 
 	/**
-	 * Create a JPanelLocalisation.
+	 * Create a JPanelLocalization.
 	 * 
 	 * @param context
 	 *            The named context for the JPanel.
 	 */
-	public JPanelLocalisation(final String context) {
+	public JPanelLocalization(final String l18nContext) {
 		super();
-		this.bundleHelper = new ResourceBundleHelper(RESOURCE_BUNDLE, context);
+		this.bundleHelper = new ResourceBundleHelper(RESOURCE_BUNDLE, l18nContext);
 	}
 
 	/**

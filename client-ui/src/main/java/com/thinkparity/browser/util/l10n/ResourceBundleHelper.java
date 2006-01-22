@@ -8,52 +8,55 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * ResourceBundleHelper
- * This helper class is used to obtain sets of resources from a bundle within
- * a set context.  This is useful when the eventual user of a resource string is
- * a ui class that maps key names to variable names.
+ * ResourceBundleHelper This helper class is used to obtain sets of resources
+ * from a bundle within a set l18Context. This is useful when the eventual user
+ * of a resource string is a ui class that maps key names to variable names.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.0
  */
 public class ResourceBundleHelper {
 
 	/**
-	 * Used to separate the context from the local key.
+	 * Used to separate the localization context from the local key.
+	 * 
 	 */
 	private static final String DOT = ".";
 
 	/**
-	 * Handle to the bunde from which to extract text.
+	 * The resource bundle.
+	 * 
 	 */
 	private final ResourceBundle bundle;
 
 	/**
-	 * Context within which to obtain keys in the resource bundle.
+	 * The localization context for the user.
+	 * 
 	 */
-	private final String context;
+	private final String l18Context;
 
 	/**
 	 * Create a ResourceBundleHelper
 	 * 
 	 * @param bundle
 	 *            The bundle to use.
-	 * @param context
-	 *            The context to use.
+	 * @param l18Context
+	 *            The l18Context to use.
 	 */
 	public ResourceBundleHelper(final ResourceBundle bundle,
-			final String context) {
+			final String l18Context) {
 		super();
 		this.bundle = bundle;
-		this.context = context;
+		this.l18Context = l18Context;
 	}
 
 	/**
 	 * Obtain the string for the given local key. This will attempt to locate
-	 * the resource within the context for the key.
+	 * the resource within the l18Context for the key.
 	 * 
 	 * @param localKey
 	 *            The local key.
-	 * @return The string referenced by the local key within the context.
+	 * @return The string referenced by the local key within the l18Context.
 	 */
 	public String getString(final String localKey) {
 		final String qualifiedKey = getQualifiedKey(localKey);
@@ -63,7 +66,7 @@ public class ResourceBundleHelper {
 
 	/**
 	 * Obtain the formatted string for the given local key. This will attempt to
-	 * locate the resource within the context for the key, then format the
+	 * locate the resource within the l18Context for the key, then format the
 	 * message.
 	 * 
 	 * @param localKey
@@ -81,7 +84,7 @@ public class ResourceBundleHelper {
 
 	/**
 	 * Get the qualified key. This will simply prefix the local key with a the
-	 * context.
+	 * l18Context.
 	 * 
 	 * @param localKey
 	 *            The key for which to find the text.
@@ -89,7 +92,7 @@ public class ResourceBundleHelper {
 	 */
 	private String getQualifiedKey(final String localKey) {
 		if(isSetContext()) {
-			return new StringBuffer(context)
+			return new StringBuffer(l18Context)
 				.append(DOT)
 				.append(localKey).toString();
 		}
@@ -97,12 +100,12 @@ public class ResourceBundleHelper {
 	}
 
 	/**
-	 * Determine whether or not the context has been set.
+	 * Determine whether or not the l18Context has been set.
 	 * 
 	 * @return True if it has, false otherwise.
 	 */
 	private Boolean isSetContext() {
-		if(null != context && 0 < context.length()) { return Boolean.TRUE; }
+		if(null != l18Context && 0 < l18Context.length()) { return Boolean.TRUE; }
 		else { return Boolean.FALSE; }
 	}
 }

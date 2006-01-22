@@ -4,8 +4,8 @@
 package com.thinkparity.browser.ui.display;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.ui.display.avatar.Avatar;
@@ -30,18 +30,27 @@ public abstract class Display extends AbstractJPanel {
 	 */
 	protected Display(final String l18nContext, final Color background) {
 		super(l18nContext, background);
+		setLayout(new GridBagLayout());
 	}
 
 	/**
-	 * Display the avatar.
+	 * @see com.thinkparity.browser.ui.display.Display#displayAvatar()
 	 * 
 	 */
-	public abstract void displayAvatar();
+	public void displayAvatar() {
+		if(null != avatar) { remove(avatar); }
+		final GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		add(avatar, c.clone());
+	}
 
 	/**
 	 * Obtain the avatar currently being displayed.
 	 * 
 	 * @return The avatar currently being displayed.
+	 * 
 	 * @see #setAvatar()
 	 * @see #displayAvatar()
 	 */
@@ -55,14 +64,6 @@ public abstract class Display extends AbstractJPanel {
 	public abstract DisplayId getId();
 
 	/**
-	 * Paint the display header.
-	 * 
-	 * @param g2
-	 *            The graphics.
-	 */
-	public abstract void paintDisplayHeader(final Graphics2D g2);
-
-	/**
 	 * Set the avatar to display.
 	 * 
 	 * @param avatar
@@ -71,14 +72,4 @@ public abstract class Display extends AbstractJPanel {
 	 * @see #displayAvatar()
 	 */
 	public void setAvatar(final Avatar avatar) { this.avatar = avatar; }
-
-	/**
-	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	 */
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		final Graphics2D g2 = (Graphics2D) g.create();
-		try { paintDisplayHeader(g2); }
-		finally { g2.dispose(); }
-	}
 }

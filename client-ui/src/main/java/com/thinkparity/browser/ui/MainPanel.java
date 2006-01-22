@@ -4,10 +4,11 @@
 package com.thinkparity.browser.ui;
 
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Component;
 import java.util.Hashtable;
 import java.util.Map;
+
+import javax.swing.BoxLayout;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.ui.display.Display;
@@ -24,6 +25,7 @@ public class MainPanel extends AbstractJPanel {
 
 	/**
 	 * @see java.io.Serializable
+	 * 
 	 */
 	private static final long serialVersionUID = 1;
 
@@ -40,10 +42,17 @@ public class MainPanel extends AbstractJPanel {
 	public MainPanel() {
 		super("MainPanel", Color.RED);
 		this.displayMap = new Hashtable<DisplayId, Display>(3, 1.0F);
-		setLayout(new GridBagLayout());
-		addLogoDisplay();
-		addContentDisplay();
-		addInfoDisplay();
+
+		initMainPanelComponents();
+	}
+
+	/**
+	 * @see com.thinkparity.browser.javax.swing.AbstractJPanel#debugGeometry()
+	 * 
+	 */
+	public void debugGeometry() {
+		super.debugGeometry();
+		for(Display d : displayMap.values()) { d.debugGeometry(); }
 	}
 
 	/**
@@ -61,50 +70,35 @@ public class MainPanel extends AbstractJPanel {
 	}
 
 	/**
-	 * Add the display to the main panel.
-	 *
+	 * Obtain all of the displays on the main panel.
+	 * 
+	 * @return The displays on the main panel.
 	 */
-	private void add(final Display display, final Object displayConstraints) {
+	Display[] getDisplays() {
+		return displayMap.values().toArray(new Display[] {});
+	}
+
+	/**
+	 * Add a display to the main panel.
+	 * 
+	 * @param display
+	 *            The display to add.
+	 */
+	private void add(final Display display) {
 		displayMap.put(display.getId(), display);
-		super.add(display, displayConstraints);
+		add((Component) display);
 	}
 
 	/**
-	 * Add the content display to the main panel.
-	 *
+	 * Initialize the main panel components. This consists of adding all of the
+	 * displays to the main panel.
+	 * 
 	 */
-	private void addContentDisplay() {
-		final GridBagConstraints contentDisplayConstraints = new GridBagConstraints();
-		contentDisplayConstraints.gridy = 1;
-		contentDisplayConstraints.weightx = 1.0;
-		contentDisplayConstraints.weighty = 0.53;
-		contentDisplayConstraints.fill = GridBagConstraints.BOTH;
-		add(DisplayFactory.create(DisplayId.CONTENT), contentDisplayConstraints);
-	}
+	private void initMainPanelComponents() {
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-	/**
-	 * Add the info display to the main panel.
-	 *
-	 */
-	private void addInfoDisplay() {
-		final GridBagConstraints infoDisplayConstraints = new GridBagConstraints();
-		infoDisplayConstraints.gridy = 2;
-		infoDisplayConstraints.weightx = 1.0;
-		infoDisplayConstraints.weighty = 0.31;
-		infoDisplayConstraints.fill = GridBagConstraints.BOTH;
-		add(DisplayFactory.create(DisplayId.INFO), infoDisplayConstraints);
-	}
-
-	/**
-	 * Add the logo display to the main panel.
-	 *
-	 */
-	private void addLogoDisplay() {
-		final GridBagConstraints logoDisplayConstraints = new GridBagConstraints();
-		logoDisplayConstraints.gridy = 0;
-		logoDisplayConstraints.weightx = 1.0;
-		logoDisplayConstraints.weighty = 0.16;
-		logoDisplayConstraints.fill = GridBagConstraints.BOTH;
-		add(DisplayFactory.create(DisplayId.LOGO), logoDisplayConstraints);
+		add(DisplayFactory.create(DisplayId.LOGO));
+		add(DisplayFactory.create(DisplayId.CONTENT));
+		add(DisplayFactory.create(DisplayId.INFO));
 	}
 }

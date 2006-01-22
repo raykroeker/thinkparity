@@ -25,6 +25,7 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.artifact.ArtifactSorter;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentXmlIO;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
@@ -491,7 +492,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final ProjectModel projectModel = getProjectModel();
 			final Project project = projectModel.get(projectId);
-			return documentXmlIO.list(project);
+			final Collection<Document> documents = documentXmlIO.list(project);
+			ArtifactSorter.sortByName(documents);
+			return documents;
 		}
 		catch(IOException iox) {
 			logger.error("list(Project)", iox);
@@ -517,7 +520,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		try {
 			final Document document = get(documentId);
-			return documentXmlIO.listVersions(document);
+			final Collection<DocumentVersion> versions =
+				documentXmlIO.listVersions(document);
+			ArtifactSorter.sortByVersionId(versions);
+			return versions;
 		}
 		catch(IOException iox) {
 			logger.error("listVersions(Document)", iox);

@@ -1,12 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<parent>
-		<groupId>com.thinkparity.parity</groupId>
-		<artifactId>parity</artifactId>
-		<version>1.0-SNAPSHOT</version>
-	</parent>
-
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.thinkparity.parity</groupId>
 	<version>1.0-SNAPSHOT</version>
@@ -15,6 +9,10 @@
 	<artifactId>server</artifactId>
 	<name>Parity Server</name>
 	<packaging>jar</packaging>
+
+	<scm>
+		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:server</connection>
+	</scm>
 
 	<dependencies>
 		<dependency>

@@ -25,20 +25,6 @@
 			<name>Raymond Kroeker</name>
 			<email>raykroeker@gmail.com</email>
 			<url>http://www.raykroeker.com</url>
-			<organization>thinkParity.com Solutions</organization>
-			<organizationUrl>http://thinkparity.dyndns.org</organizationUrl>
-			<roles/>
-			<timezone>-8</timezone>
-			<properties/>
-		</developer>
-	</developers>
-
-	<developers>
-		<developer>
-			<id>raymond</id>
-			<name>Raymond Kroeker</name>
-			<email>raykroeker@gmail.com</email>
-			<url>http://www.raykroeker.com</url>
 			<organization>thinkParity.com</organization>
 			<organizationUrl>http://thinkparity.dyndns.org</organizationUrl>
 			<roles>

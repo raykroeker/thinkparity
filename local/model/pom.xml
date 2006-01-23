@@ -11,7 +11,7 @@
 	<packaging>jar</packaging>
 
 	<scm>
-		<connection>scm:cvs:pserver:@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:model</connection>
+		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:model</connection>
 	</scm>
 
 	<ciManagement>

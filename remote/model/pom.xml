@@ -11,35 +11,25 @@
 	<packaging>jar</packaging>
 
 	<scm>
-		<connection>scm:cvs:pserver:@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:server</connection>
+		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:server</connection>
 	</scm>
 
 	<ciManagement>
 		<system>continuum</system>
-		<notifiers>
-			<notifier>
-				<type>jabber</type>
-				<configuration>
-					<host>talk.google.com</host>
-					<port>5222</port>
-					<login>thinkparity.com</login>
-					<password>h@l0g3n</password>
-					<domain>gmail.com</domain>
-					<recipient>raykroeker@gmail.com</recipient>
-				</configuration>
-			</notifier>
-		</notifiers>
+		<notifiers/>
 	</ciManagement>
 
 	<developers>
 		<developer>
 			<id>raymond</id>
-			<name>Raymond Kroeker</id>
+			<name>Raymond Kroeker</name>
 			<email>raykroeker@gmail.com</email>
 			<url>http://www.raykroeker.com</url>
 			<organization>thinkParity.com Solutions</organization>
 			<organizationUrl>http://thinkparity.dyndns.org</organizationUrl>
+			<roles/>
 			<timezone>-8</timezone>
+			<properties/>
 		</developer>
 	</developers>
 

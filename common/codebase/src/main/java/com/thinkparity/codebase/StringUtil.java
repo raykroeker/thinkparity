@@ -11,9 +11,8 @@ import java.util.Vector;
 import com.thinkparity.codebase.SystemUtil.SystemProperty;
 
 /**
- * <b>Title:</b>  StringUtil
- * <br><b>Description:</b>  Contains utilities and constants commonly used in
- * String and StringBuffer manipulation.
+ * String utility functions.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.2
  */

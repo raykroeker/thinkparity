@@ -10,10 +10,10 @@ import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 /**
- * <b>Title:</b>  StreamUtil
- * <br><b>Description:</b>  
+ * Stream utility functions.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.0.0
+ * @version 1.1
  */
 public abstract class StreamUtil {
 

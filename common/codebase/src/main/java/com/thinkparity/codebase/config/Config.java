@@ -10,12 +10,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.Properties;
 
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.log4j.Loggable;
 
 
  /**
@@ -28,7 +26,11 @@ import com.thinkparity.codebase.log4j.Loggable;
   * @author raykroeker@gmail.com
   * @version 1.0.0
   */
-public class Config extends Properties implements Loggable, Serializable {
+public class Config extends Properties implements Serializable {
+
+	/**
+	 * @see java.io.Serializable
+	 */
 	private static final long serialVersionUID = 1;
 
 	/**
@@ -291,26 +293,5 @@ public class Config extends Properties implements Loggable, Serializable {
 				ConfigError.ErrorType.CouldNotStore,
 				iox);
 		}
-	}
-
-	/**
-	 * @see com.thinkparity.codebase.log4j.Loggable#logMe()
-	 */
-	public StringBuffer logMe() {
-		StringBuffer toSysLog = new StringBuffer()
-			.append("Config[");
-		if( null != configURL )
-			toSysLog.append(configURL.toExternalForm()).append(":");
-		String name;
-		int nameIndex = 0;
-		for(Enumeration<?> names = propertyNames();
-			names.hasMoreElements();
-			nameIndex++) {
-			name = (String) names.nextElement();
-			if(0 != nameIndex)
-				toSysLog.append(",");
-			toSysLog.append(name).append(":").append(getProperty(name));
-		}
-		return toSysLog.append("]");
 	}
 }

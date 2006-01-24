@@ -7,17 +7,26 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.UUID;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.model.util.ParityObjectUtil;
+import com.thinkparity.browser.ui.UIConstants;
+import com.thinkparity.browser.ui.component.LabelFactory;
 import com.thinkparity.browser.ui.display.provider.ContentProvider;
 import com.thinkparity.browser.ui.display.provider.FlatContentProvider;
 import com.thinkparity.browser.util.State;
 
+import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObjectType;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -31,7 +40,7 @@ class DocumentListAvatar extends Avatar {
 	 * Represents an individual list item in the document list avatar.
 	 * 
 	 */
-	private class ListItem extends AbstractJPanel {
+	private class ListItem extends AbstractJPanel implements MouseListener {
 
 		/**
 		 * @see java.io.Serializable
@@ -55,15 +64,66 @@ class DocumentListAvatar extends Avatar {
 			this.document = document;
 			setLayout(new GridBagLayout());
 
+			final GridBagConstraints c = new GridBagConstraints();
+			final String iconPath;
+			if(hasBeenSeen()) {
+				iconPath = "images/documentIconGray.png";
+			}
+			else { iconPath = "images/documentIconBlue.png"; }
+			final JLabel documentIcon = LabelFactory.create();
+			documentIcon.setIcon(new ImageIcon(ResourceUtil.getURL(iconPath)));
+			c.insets = new Insets(0, 16, 0, 0);
+			add(documentIcon, c.clone());
+
 			// h:  20 px
 			// x indent:  40 px
-			final GridBagConstraints nameConstraints = new GridBagConstraints();
-			nameConstraints.anchor = GridBagConstraints.WEST;
-			nameConstraints.fill = GridBagConstraints.BOTH;
-			nameConstraints.weightx = 1.0;
-			nameConstraints.weighty = 1.0;
-			nameConstraints.insets = new Insets(3, 40, 3, 0);
-			add(new JLabel(document.getName()), nameConstraints);
+			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.BOTH;
+			c.weightx = 1.0;
+			c.weighty = 1.0;
+			c.insets = new Insets(3, 16, 3, 0);
+			add(LabelFactory.create(UIConstants.DefaultFontBold, document.getName()), c.clone());
+		}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
+		public void mouseClicked(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
+		public void mouseEntered(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
+		public void mouseExited(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
+		public void mousePressed(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
+		public void mouseReleased(final MouseEvent e) {}
+
+		/**
+		 * Determine whether or not the document has been seen.
+		 * 
+		 * @return True if the document has been seen; false otherwise.
+		 */
+		private Boolean hasBeenSeen() {
+			try {
+				return ParityObjectUtil.hasBeenSeen(
+							document.getId(), ParityObjectType.DOCUMENT);
+			}
+			catch(ParityException px) {
+				// NOTE Error Handler Code
+				return Boolean.FALSE;
+			}
 		}
 	}
 

@@ -15,5 +15,6 @@
 	<classpathentry sourcepath="/M2_REPO/net/java/javadesktop/substance/2.2-SNAPSHOT/substance-2.2-SNAPSHOT.src.jar" kind="var" path="M2_REPO/net/java/javadesktop/substance/2.2-SNAPSHOT/substance-2.2-SNAPSHOT.jar"/>
 	<classpathentry sourcepath="/M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.src.jar" kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
 	<classpathentry kind="var" path="M2_REPO/net/java/javadesktop/swing-layout/1.0/swing-layout-1.0.jar"/>
+	<classpathentry sourcepath="/M2_REPO/com/l2fprod/skinlf-1.2.12-source.jar" kind="var" path="M2_REPO/com/l2fprod/nativeskin/1.2.12/nativeskin-1.2.12.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

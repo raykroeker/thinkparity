@@ -23,6 +23,11 @@ import com.thinkparity.browser.ui.display.Display;
 import com.thinkparity.browser.ui.display.DisplayId;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
 
+import com.l2fprod.gui.nativeskin.NativeConstants;
+import com.l2fprod.gui.nativeskin.NativeSkin;
+import com.l2fprod.gui.region.Region;
+import com.l2fprod.gui.region.RegionBuilder;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -102,6 +107,7 @@ public class MainWindow extends AbstractJFrame {
 		getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setRegion();
 		setResizable(false);
 		setTitle(getString("Title"));
 
@@ -146,5 +152,24 @@ public class MainWindow extends AbstractJFrame {
 	private void initMainWindowComponents() {
 		mainPanel = new MainPanel();
 		add(mainPanel);
+	}
+
+	/**
+	 * Set the region of the main window. We set the region to be a default
+	 * window shape with rounded corners at the top.
+	 * 
+	 */
+	private void setRegion() {
+		final RegionBuilder regionBuilder = new RegionBuilder();
+		final Region region =
+			regionBuilder.createRoundRectangleRegion(
+					0, 0, getWidth() + 1, UIConstants.TitlePaneHeight * 2,
+					UIConstants.TitlePaneCurvature,
+					UIConstants.TitlePaneCurvature);
+		final Region region2 = regionBuilder.createRectangleRegion(0,
+				UIConstants.TitlePaneHeight, getWidth(), getHeight());
+		final Region region3 = regionBuilder.combineRegions(region, region2,
+				NativeConstants.REGION_OR);
+		NativeSkin.getInstance().setWindowRegion(this, region3, true);
 	}
 }

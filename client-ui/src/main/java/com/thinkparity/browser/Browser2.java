@@ -13,11 +13,10 @@ import com.thinkparity.codebase.PropertiesUtil;
 public class Browser2 {
 
 	static {
-		Initializer.getInstance().initialize();
 		final StringBuffer buffer = new StringBuffer();
 		PropertiesUtil.print(
 				buffer, "--- Parity Browser2 ---", System.getProperties());
-		System.out.println(buffer);
+		Initializer.getInstance().initialize();
 	}
 
 	/**

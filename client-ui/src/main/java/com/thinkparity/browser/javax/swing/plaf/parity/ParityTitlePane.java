@@ -25,6 +25,7 @@ import org.jvnet.substance.utils.SubstanceCoreUtilities;
 
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.plaf.parity.color.iTunesColorScheme;
+import com.thinkparity.browser.ui.UIConstants;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 /**
@@ -58,7 +59,7 @@ public class ParityTitlePane extends AbstractJPanel {
 
 			final int height = closeJButton.getIcon().getIconHeight();
 			final int width = closeJButton.getIcon().getIconWidth();
-			final int x = titlePaneWidth - (4 + width);
+			final int x = titlePaneWidth - (8 + width);
 			final int y = (titlePaneHeight - height) / 2;
 			closeJButton.setBounds(x, y, height, width);
 		}
@@ -91,7 +92,7 @@ public class ParityTitlePane extends AbstractJPanel {
 		 * 
 		 * @return The height of the title pane.
 		 */
-		private int computeHeight() { return 30; }
+		private int computeHeight() { return UIConstants.TitlePaneHeight; }
 	}
 
 	/**
@@ -185,6 +186,11 @@ public class ParityTitlePane extends AbstractJPanel {
 		paintGradientBackground(g2, getWidth(), getHeight());
 		paintTitleText(g2, getHeight());
 
+		// overlay the border so that the cornered edges get a border as well
+		g2.setColor(Color.BLACK);
+		g2.drawRoundRect(-1, -1, getWidth() + 1, getHeight() * 2,
+				UIConstants.TitlePaneCurvature, UIConstants.TitlePaneCurvature);
+
 		g2.dispose();
 	}
 
@@ -274,13 +280,6 @@ public class ParityTitlePane extends AbstractJPanel {
 		else { fullTitle = null; }
 		return fullTitle;
 	}
-
-	/**
-	 * Returns the <code>Window</code> the <code>JRootPane</code> is
-	 * contained in. This will return null if there is no parent ancestor of the
-	 * <code>JRootPane</code>.
-	 */
-//	private Window getWindow() { return window; }
 
 	/**
 	 * Returns the decoration style of the <code>JRootPane</code>.
@@ -405,7 +404,7 @@ public class ParityTitlePane extends AbstractJPanel {
 		if(null != window) {
 			window.removeWindowListener(windowListener);
 			windowListener = null;
-			
+
 			window.removePropertyChangeListener(propertyChangeListener);
 			propertyChangeListener = null;
 		}

@@ -97,14 +97,14 @@ class BrowserLogoAvatar extends Avatar {
 		c.insets = new Insets(33, 28, 0, 0);
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		add(LabelFactory.create(UIConstants.SmallFontBold, "LOGO"), c.clone());
+		add(LabelFactory.create(UIConstants.SmallFont, "LOGO"), c.clone());
 
 		c.anchor = GridBagConstraints.NORTH;
 		c.weightx = 0.0;
 		c.insets = new Insets(11, 0, 0, 0);
 
 		c.gridx = 1;
-		add(LabelFactory.create(UIConstants.SmallFontBold, getString("Add")), c.clone());
+		add(LabelFactory.create(UIConstants.SmallFont, getString("Add")), c.clone());
 
 		c.gridx = 2;
 		c.insets.left = 7;
@@ -114,7 +114,7 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 3;
 		c.insets.left = 0;
 		c.insets.right = 0;
-		add(LabelFactory.create(UIConstants.SmallFontBold, getString("Settings")), c.clone());
+		add(LabelFactory.create(UIConstants.SmallFont, getString("Settings")), c.clone());
 
 		c.gridx = 4;
 		c.insets.left = 7;
@@ -124,7 +124,7 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 5;
 		c.insets.left = 0;
 		c.insets.right = 0;
-		add(LabelFactory.create(UIConstants.SmallFontBold, getString("Login")), c.clone());
+		add(LabelFactory.create(UIConstants.SmallFont, getString("Login")), c.clone());
 
 		c.gridx = 6;
 		c.insets.left = 7;
@@ -134,6 +134,6 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 7;
 		c.insets.left = 0;
 		c.insets.right = 6;
-		add(LabelFactory.create(UIConstants.SmallFontBold, getString("Help")), c.clone());
+		add(LabelFactory.create(UIConstants.SmallFont, getString("Help")), c.clone());
 	}
 }

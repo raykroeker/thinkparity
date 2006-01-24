@@ -30,6 +30,10 @@ public class LabelFactory {
 		singletonLock = new Object();
 	}
 
+	public static JLabel create() {
+		synchronized(singletonLock) { return singleton.doCreate(); }
+	}
+
 	public static JLabel create(final Font font) {
 		synchronized(singletonLock) { return singleton.doCreate(font); }
 	}
@@ -43,11 +47,13 @@ public class LabelFactory {
 	 */
 	private LabelFactory() { super(); }
 
+	private JLabel doCreate() { return new JLabel(); }
+
 	private JLabel doCreate(final Font font) { return doCreate(font, ""); }
 
 	private JLabel doCreate(final Font font, final String text) {
 		// draw the button as a bottom button.
-		final JLabel jLabel = new JLabel(text);
+		final JLabel jLabel = new JLabel(null == text ? "" : text);
 		jLabel.setFont(font);
 		return jLabel;		
 	}

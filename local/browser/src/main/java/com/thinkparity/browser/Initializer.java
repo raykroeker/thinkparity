@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser;
 
+import java.io.File;
+
 import com.thinkparity.browser.model.EventDispatcher;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
@@ -30,6 +32,10 @@ public class Initializer {
 	 */
 	public void initialize() {
 		System.setProperty("parity.insecure", "true");
+
+		System.loadLibrary("jawt");
+//		System.loadLibrary("nativeskin-1.2.12.win32");
+//		System.loadLibrary("nativeskin-1.2.12.win32JAWT");
 
 		LoggerFactory.getLogger(Initializer.class);
 		ModelFactory.getInstance().initialize();

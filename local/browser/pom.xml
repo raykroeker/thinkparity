@@ -64,6 +64,12 @@
 			<version>1.0</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.l2fprod</groupId>
+			<artifactId>nativeskin</artifactId>
+			<version>1.2.12</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -7,10 +7,11 @@ import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 /**
- * <b>Title:</b>  Version
- * <br><b>Description:</b>  
+ * The version class is used to obtain name\version info from the codebase
+ * library.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.0.0
+ * @version 1.2.2.4
  */
 public abstract class Version {
 

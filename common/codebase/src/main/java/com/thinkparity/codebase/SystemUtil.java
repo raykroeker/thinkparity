@@ -6,12 +6,11 @@ package com.thinkparity.codebase;
 import java.io.IOException;
 import java.io.OutputStream;
 
-
 /**
- * <b>Title:</b>  SystemUtil
- * <br><b>Description:</b>  
+ * System utility functions.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.0.0
+ * @version 1.3.2.1
  */
 public final class SystemUtil {
 

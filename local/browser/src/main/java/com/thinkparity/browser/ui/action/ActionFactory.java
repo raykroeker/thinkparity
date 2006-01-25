@@ -46,6 +46,8 @@ public class ActionFactory {
 	 */
 	private AbstractAction doCreateAction(final ActionId actionId) {
 		switch(actionId) {
+		case DOCUMENT_OPEN:
+			return new com.thinkparity.browser.ui.action.document.Open();
 		case DOCUMENT_OPEN_VERSION:
 			return new com.thinkparity.browser.ui.action.document.OpenVersion();
 		default: throw Assert.createUnreachable("Unable to create action [" + actionId + "].");

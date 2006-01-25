@@ -37,6 +37,12 @@ public class AvatarFactory {
 	private Avatar browserLogo;
 
 	/**
+	 * Main controller.
+	 * 
+	 */
+	private final Controller controller;
+
+	/**
 	 * The document history list avatar.
 	 * 
 	 */
@@ -47,12 +53,6 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar documentList;
-
-	/**
-	 * Main controller.
-	 * 
-	 */
-	private final Controller controller;
 
 	/**
 	 * Create a AvatarFactory [Singleton, Factory]

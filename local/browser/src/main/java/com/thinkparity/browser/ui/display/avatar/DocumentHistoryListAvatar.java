@@ -75,7 +75,11 @@ class DocumentHistoryListAvatar extends Avatar {
 		/**
 		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
-		public void mouseClicked(final MouseEvent e) {}
+		public void mouseClicked(final MouseEvent e) {
+			if(2 == e.getClickCount()) {
+				runOpenVersion(version.getDocumentId(), version.getVersionId());
+			}
+		}
 
 		/**
 		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)

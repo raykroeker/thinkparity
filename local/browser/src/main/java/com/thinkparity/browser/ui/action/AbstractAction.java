@@ -164,6 +164,7 @@ public abstract class AbstractAction {
 	 *            The error.
 	 */
 	private void registerError(final Throwable t) {
+		// NOTE Error Handler Code
 		logger.error("", t);
 	}
 }

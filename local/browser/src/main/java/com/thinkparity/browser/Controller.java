@@ -15,6 +15,7 @@ import com.thinkparity.browser.ui.action.AbstractAction;
 import com.thinkparity.browser.ui.action.ActionFactory;
 import com.thinkparity.browser.ui.action.ActionId;
 import com.thinkparity.browser.ui.action.Data;
+import com.thinkparity.browser.ui.action.document.Open;
 import com.thinkparity.browser.ui.action.document.OpenVersion;
 import com.thinkparity.browser.ui.display.Display;
 import com.thinkparity.browser.ui.display.DisplayId;
@@ -174,7 +175,7 @@ public class Controller {
 	 * Run the open document version action.
 	 * 
 	 * @param documentId
-	 *            The document id.
+	 *            The document unique id.
 	 * @param versionId
 	 *            The document's version id.
 	 */
@@ -184,6 +185,18 @@ public class Controller {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
+	}
+
+	/**
+	 * Run the open document action.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	public void runOpenDocument(final UUID documentId) {
+		final Data data = new Data(1);
+		data.set(Open.DataKey.DOCUMENT_ID, documentId);
+		invoke(ActionId.DOCUMENT_OPEN, data);
 	}
 
 	/**
@@ -236,6 +249,7 @@ public class Controller {
 		}
 		catch(Exception x) {
 			// NOTE Error Handler Code
+			logger.error("", x);
 		}
 	}
 

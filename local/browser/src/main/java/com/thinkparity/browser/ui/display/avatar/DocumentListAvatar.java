@@ -5,6 +5,7 @@ package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -106,18 +107,23 @@ class DocumentListAvatar extends Avatar {
 		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
 		public void mouseClicked(final MouseEvent e) {
+			if(2 == e.getClickCount()) { runOpenDocument(document.getId()); }
 			selectDocument(document.getId());
 		}
 
 		/**
 		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 		 */
-		public void mouseEntered(final MouseEvent e) {}
+		public void mouseEntered(final MouseEvent e) {
+			setCursor(new Cursor(Cursor.HAND_CURSOR));
+		}
 
 		/**
 		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
-		public void mouseExited(final MouseEvent e) {}
+		public void mouseExited(final MouseEvent e) {
+			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		}
 
 		/**
 		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
@@ -309,6 +315,16 @@ class DocumentListAvatar extends Avatar {
 	private void add(final ListItem listItem, final Object constraints) {
 		documentItemMap.put(listItem.getDocumentId(), listItem);
 		super.add(listItem, constraints);
+	}
+
+	/**
+	 * Run the open document action.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	private void runOpenDocument(final UUID documentId) {
+		controller.runOpenDocument(documentId);
 	}
 
 	/**

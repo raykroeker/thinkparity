@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
+import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.ui.display.provider.ProviderFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -48,10 +49,19 @@ public class AvatarFactory {
 	private Avatar documentList;
 
 	/**
+	 * Main controller.
+	 * 
+	 */
+	private final Controller controller;
+
+	/**
 	 * Create a AvatarFactory [Singleton, Factory]
 	 * 
 	 */
-	private AvatarFactory() { super(); }
+	private AvatarFactory() {
+		super();
+		this.controller = Controller.getInstance();
+	}
 
 	/**
 	 * Create the browser logo avatar.
@@ -71,7 +81,7 @@ public class AvatarFactory {
 	 */
 	private Avatar createDocumentHistoryList() {
 		if(null == documentHistoryList) {
-			documentHistoryList = new DocumentHistoryListAvatar();
+			documentHistoryList = new DocumentHistoryListAvatar(controller);
 			documentHistoryList.setContentProvider(ProviderFactory.getHistoryProvider());
 		}
 		return documentHistoryList;
@@ -84,7 +94,7 @@ public class AvatarFactory {
 	 */
 	private Avatar createDocumentList() {
 		if(null == documentList) {
-			documentList = new DocumentListAvatar();
+			documentList = new DocumentListAvatar(controller);
 			documentList.setContentProvider(ProviderFactory.getDocumentProvider());
 		}
 		return documentList;

@@ -3,8 +3,7 @@
  */
 package com.thinkparity.browser.ui.action;
 
-import java.util.Hashtable;
-import java.util.Map;
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -24,54 +23,32 @@ public class ActionFactory {
 	/**
 	 * Create a new named action.
 	 * 
-	 * @param name
-	 *            The action name.
+	 * @param NAME
+	 *            The action NAME.
 	 * @return The action.
 	 */
-	public static AbstractAction createAction(final Class clasz) {
-		synchronized(singletonLock) { return singleton.doCreateAction(clasz); }
+	public static AbstractAction createAction(final ActionId actionId) {
+		synchronized(singletonLock) { return singleton.doCreateAction(actionId); }
 	}
-
-	/**
-	 * Cache of actions already created.
-	 * 
-	 */
-	private final Map<Class,AbstractAction> cache;
 
 	/**
 	 * Create a ActionFactory [Singleton, Factory]
 	 * 
 	 */
-	private ActionFactory() {
-		super();
-		this.cache = new Hashtable<Class,AbstractAction>(1, 1.0F);
-	}
-
-	/**
-	 * Cache an action.
-	 * 
-	 * @param browserAction
-	 *            The action to cache.
-	 */
-	private AbstractAction cache(final AbstractAction browserAction) {
-		cache.put(browserAction.getClass(), browserAction);
-		return browserAction;
-	}
+	private ActionFactory() { super(); }
 
 	/**
 	 * Create a new instance of a named action.
 	 * 
-	 * @param name
+	 * @param NAME
 	 *            The action to create.
 	 * @return A new instance of the action.
 	 */
-	private AbstractAction doCreateAction(final Class clasz) {
-		AbstractAction action = cache.get(clasz);
-		if(null != action) { return action; }
-		else {
-			try { action = (AbstractAction) clasz.newInstance(); }
-			catch(Exception x) { action = null; }
-			return cache(action);
+	private AbstractAction doCreateAction(final ActionId actionId) {
+		switch(actionId) {
+		case DOCUMENT_OPEN_VERSION:
+			return new com.thinkparity.browser.ui.action.document.OpenVersion();
+		default: throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
 		}
 	}
 }

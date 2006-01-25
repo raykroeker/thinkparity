@@ -38,11 +38,11 @@ public class Version {
 	public static String getBuildId() { return config.getProperty("buildId"); }
 
 	/**
-	 * Obtain the name of the codebase.
+	 * Obtain the NAME of the codebase.
 	 * 
-	 * @return The name.
+	 * @return The NAME.
 	 */
-	public static String getName() { return config.getProperty("name"); }
+	public static String getName() { return config.getProperty("NAME"); }
 
 	/**
 	 * Obtain the version of the codebase.

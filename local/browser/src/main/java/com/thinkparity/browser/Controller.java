@@ -11,6 +11,11 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.ui.MainWindow;
+import com.thinkparity.browser.ui.action.AbstractAction;
+import com.thinkparity.browser.ui.action.ActionFactory;
+import com.thinkparity.browser.ui.action.ActionId;
+import com.thinkparity.browser.ui.action.Data;
+import com.thinkparity.browser.ui.action.document.OpenVersion;
 import com.thinkparity.browser.ui.display.Display;
 import com.thinkparity.browser.ui.display.DisplayId;
 import com.thinkparity.browser.ui.display.avatar.Avatar;
@@ -46,7 +51,7 @@ public class Controller {
 	 * 
 	 * @return The instance of the controller.
 	 */
-	static Controller getInstance() { return singleton; }
+	public static Controller getInstance() { return singleton; }
 
 	/**
 	 * Apache logger.
@@ -59,6 +64,12 @@ public class Controller {
 	 * 
 	 */
 	protected final ProjectModel projectModel;
+
+	/**
+	 * Cache of all of the actions.
+	 * 
+	 */
+	private final Map<ActionId, Object> actionCache;
 
 	/**
 	 * Provides a map of all avatar input.
@@ -90,6 +101,7 @@ public class Controller {
 	 */
 	private Controller() {
 		super();
+		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
 		this.projectModel = ModelFactory.getInstance().getProjectModel(getClass());
 		this.state = new ControllerState(this);
@@ -159,6 +171,49 @@ public class Controller {
 	}
 
 	/**
+	 * Run the open document version action.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @param versionId
+	 *            The document's version id.
+	 */
+	public void runOpenDocumentVersion(final UUID documentId,
+			final String versionId) {
+		final Data data = new Data(2);
+		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
+		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
+		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
+	}
+
+	/**
+	 * Select a document.
+	 * 
+	 * @param documentId
+	 *            The document to select.
+	 */
+	public void selectDocument(final UUID documentId) {
+		setInput(AvatarId.DOCUMENT_HISTORY_LIST, documentId);
+	}
+
+	/**
+	 * Obtain the action from the controller's cache. If the action does not
+	 * exist in the cache it is created and stored.
+	 * 
+	 * @param actionId
+	 *            The action id.
+	 * @return The action.
+	 * 
+	 * @see ActionId
+	 */
+	private AbstractAction getActionFromCache(final ActionId actionId) {
+		AbstractAction action = (AbstractAction) actionCache.get(actionId);
+		if(null == action) { action = ActionFactory.createAction(actionId); }
+		actionCache.put(actionId, action);
+		return action;
+	}
+
+	/**
 	 * Obtain the input for an avatar.
 	 * @param avatarId The avatar id.
 	 * @return The avatar input.
@@ -173,6 +228,16 @@ public class Controller {
 	 * @return A list of all of the displays.
 	 */
 	private Display[] getDisplays() { return mainWindow.getDisplays(); }
+
+	private void invoke(final ActionId actionId, final Data data) {
+		try {
+			final AbstractAction action = getActionFromCache(actionId);
+			action.invoke(data);
+		}
+		catch(Exception x) {
+			// NOTE Error Handler Code
+		}
+	}
 
 	/**
 	 * Set the input for an avatar. If the avatar is currently being displayed;

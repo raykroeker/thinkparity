@@ -32,13 +32,13 @@ public class ProjectUtil {
 	}
 
 	/**
-	 * Determine whether or not a child project with the given name exists.
+	 * Determine whether or not a child project with the given NAME exists.
 	 * 
-	 * @param name
-	 *            The child name.
+	 * @param NAME
+	 *            The child NAME.
 	 * @param projectId
 	 *            The project.
-	 * @return True if a child with the same name exists; false otherwise.
+	 * @return True if a child with the same NAME exists; false otherwise.
 	 */
 	public static Boolean doesChildProjectExist(final String name,
 			final UUID projectId) throws ParityException {
@@ -61,13 +61,13 @@ public class ProjectUtil {
 	}
 
 	/**
-	 * Determine whether or not a child project with the given name exists.
+	 * Determine whether or not a child project with the given NAME exists.
 	 * 
-	 * @param name
-	 *            The child name.
+	 * @param NAME
+	 *            The child NAME.
 	 * @param projectId
 	 *            The project.
-	 * @return True if a child with the same name exists; false otherwise.
+	 * @return True if a child with the same NAME exists; false otherwise.
 	 */
 	public Boolean doesChildProjectExistImpl(final String name,
 			final UUID projectId) throws ParityException {

@@ -1,26 +1,37 @@
 /*
  * Jan 20, 2006
+ * 
+ * NOTE The history should highlight updates\new versions as well as the document
+ * list.
+ * 
+ * NOTE Document list sorting:  New\Updates, By Name
  */
 package com.thinkparity.browser.ui.display.avatar;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.ui.UIConstants;
+import com.thinkparity.browser.ui.component.LabelFactory;
 import com.thinkparity.browser.ui.display.provider.ContentProvider;
 import com.thinkparity.browser.ui.display.provider.FlatContentProvider;
+import com.thinkparity.browser.util.RandomData;
 import com.thinkparity.browser.util.State;
 
-import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -35,7 +46,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * History list item that is displayed in the document history list.
 	 * 
 	 */
-	private class ListItem extends AbstractJPanel {
+	private class ListItem extends AbstractJPanel implements MouseListener {
 
 		/**
 		 * @see java.io.Serializable
@@ -57,6 +68,77 @@ class DocumentHistoryListAvatar extends Avatar {
 			super("DocumentHistoryListAvatar$ListItem");
 			this.version = version;
 			setLayout(new GridBagLayout());
+			addMouseListener(this);
+			initListItemComponents();
+		}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
+		public void mouseClicked(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
+		public void mouseEntered(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
+		public void mouseExited(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
+		public void mousePressed(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
+		public void mouseReleased(final MouseEvent e) {}
+
+		/**
+		 * Initialize the list item components.
+		 *
+		 */
+		private void initListItemComponents() {
+			final GridBagConstraints c = new GridBagConstraints();
+
+			// NOTE Random Data
+			final RandomData randomData = new RandomData();
+			final String mainText = new StringBuffer(randomData.getAction())
+				.append(randomData.getUser())
+				.append(" ")
+				.append(randomData.getDate())
+				.toString();
+			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 0.9;
+			c.insets = new Insets(2, 8, 2, 0);
+			add(LabelFactory.create(
+					UIConstants.DefaultFont, mainText), c.clone());
+
+			final String versionText = new StringBuffer(version.getVersionId())
+				.toString();
+			final JLabel versionJLabel = LabelFactory.create(
+					UIConstants.DefaultFont, versionText);
+			versionJLabel.setForeground(Color.BLUE);
+			versionJLabel.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(final MouseEvent e) {
+					runOpenVersion(version.getDocumentId(), version.getVersionId());
+				}
+				public void mouseEntered(final MouseEvent e) {
+					setCursor(new Cursor(Cursor.HAND_CURSOR));
+				}
+				public void mouseExited(final MouseEvent e) {
+					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				}
+			});
+			c.anchor = GridBagConstraints.EAST;
+			c.fill = GridBagConstraints.NONE;
+			c.insets = new Insets(2, 0, 2, 8);
+			c.weightx = 0.1;
+			add(versionJLabel, c.clone());
 		}
 	}
 
@@ -65,6 +147,18 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
+
+	/**
+	 * The main controller.
+	 * 
+	 */
+	private final Controller controller;
+
+	/**
+	 * Helper for info avatars.
+	 * 
+	 */
+	private final InfoAvatarHelper helper;
 
 	/**
 	 * All list items currently on the avatar.
@@ -76,11 +170,13 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * Create a DocumentHistoryListAvatar.
 	 * 
 	 */
-	DocumentHistoryListAvatar() {
+	DocumentHistoryListAvatar(final Controller controller) {
 		super("DocumentHistoryListAvatar");
+		this.controller = controller;
+		this.helper = new InfoAvatarHelper(this);
 		setLayout(new GridBagLayout());
 
-		addHeading();
+		helper.addHeading(getString("History"));
 	}
 
 	/**
@@ -118,30 +214,20 @@ class DocumentHistoryListAvatar extends Avatar {
 			final Object[] elements =
 				((FlatContentProvider) contentProvider).getElements(input);
 			ListItem listItem;
-			GridBagConstraints listItemConstraints;
+			final GridBagConstraints c = new GridBagConstraints();
 			for(final Object element : elements) {
 				listItem = new ListItem((DocumentVersion) element);
-				listItemConstraints = new GridBagConstraints();
-				listItemConstraints.fill = GridBagConstraints.HORIZONTAL;
-				listItemConstraints.gridx = 0;
-				listItemConstraints.weightx = 1.0;
-				listItemConstraints.insets = new Insets(0, 0, 1, 0);
+				c.fill = GridBagConstraints.HORIZONTAL;
+				c.gridwidth = GridBagConstraints.REMAINDER;
+				c.gridx = 0;
+				c.weightx = 1.0;
+				c.insets = new Insets(0, 0, 1, 0);
 
-				addListItem(listItem, listItemConstraints);
+				addListItem(listItem, c.clone());
 			}
-			final GridBagConstraints fillerConstraints = new GridBagConstraints();
-			fillerConstraints.fill = GridBagConstraints.BOTH;
-			fillerConstraints.gridx = 0;
-			fillerConstraints.weightx = 1.0;
-			fillerConstraints.weighty = 1.0;
-			add(new JLabel(), fillerConstraints);
+			helper.addFiller();
 		}
-		final GridBagConstraints fillerConstraints = new GridBagConstraints();
-		fillerConstraints.fill = GridBagConstraints.BOTH;
-		fillerConstraints.gridx = 0;
-		fillerConstraints.weightx = 1.0;
-		fillerConstraints.weighty = 1.0;
-		add(new JLabel(), fillerConstraints);
+		helper.addFiller();
 		revalidate();
 		repaint();
 	}
@@ -174,31 +260,6 @@ class DocumentHistoryListAvatar extends Avatar {
 	}
 
 	/**
-	 * Add the heading to the avatar.
-	 *
-	 */
-	private void addHeading() {
-		// h:  24 px
-		// x indent:  29 px
-		final GridBagConstraints headingConstraints = new GridBagConstraints();
-		headingConstraints.gridx = 0;
-		headingConstraints.anchor = GridBagConstraints.WEST;
-		headingConstraints.fill = GridBagConstraints.HORIZONTAL;
-		headingConstraints.weightx = 1.0;
-
-		add(new JLabel(getHeadingIcon()), headingConstraints);
-	}
-
-	/**
-	 * Obtain the history heading icon.
-	 * 
-	 * @return The history heading icon.
-	 */
-	private Icon getHeadingIcon() {
-		return new ImageIcon(ResourceUtil.getURL("images/historyHeading.png"));
-	}
-
-	/**
 	 * Obtain a list of all of the list items on the avatar.
 	 * 
 	 * @return A list of all of the list items.
@@ -216,5 +277,17 @@ class DocumentHistoryListAvatar extends Avatar {
 	private void removeAllListItems() {
 		final Component[] listItems = getListItems();
 		for(Component listItem : listItems) { remove(listItem); }
+	}
+
+	/**
+	 * Open the document version.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @param versionId
+	 *            The version id.
+	 */
+	private void runOpenVersion(final UUID documentId, final String versionId) {
+		controller.runOpenDocumentVersion(documentId, versionId);
 	}
 }

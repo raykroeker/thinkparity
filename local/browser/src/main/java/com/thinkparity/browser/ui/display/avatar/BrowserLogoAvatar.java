@@ -64,9 +64,9 @@ class BrowserLogoAvatar extends Avatar {
 	}
 
 	/**
-	 * Obtain the icon used to separate the add and settings labels.
+	 * Obtain the ICON used to separate the add and settings labels.
 	 * 
-	 * @return The icon.
+	 * @return The ICON.
 	 */
 	private Icon getSeparatorIcon() {
 		return new ImageIcon(ResourceUtil.getURL("images/logoSeparator.png"));

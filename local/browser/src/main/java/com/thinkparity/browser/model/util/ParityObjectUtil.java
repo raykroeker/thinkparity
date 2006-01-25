@@ -100,11 +100,11 @@ public class ParityObjectUtil {
 	}
 
 	/**
-	 * Obtain the document's file name extension.
+	 * Obtain the document's file NAME extension.
 	 * 
 	 * @param document
 	 *            The document.
-	 * @return The document's file name extension (doc)
+	 * @return The document's file NAME extension (doc)
 	 */
 	public static String getNameExtension(final Document document) {
 		synchronized(singletonLock) {
@@ -275,11 +275,11 @@ public class ParityObjectUtil {
 	}
 
 	/**
-	 * Obtain the document's file name extension.
+	 * Obtain the document's file NAME extension.
 	 * 
 	 * @param document
 	 *            The document.
-	 * @return The document's file name extension:  .doc
+	 * @return The document's file NAME extension:  .doc
 	 */
 	private String doGetNameExtension(final Document document) {
 		final String name = document.getName();

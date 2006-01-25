@@ -4,16 +4,21 @@
 package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.model.util.ParityObjectUtil;
 import com.thinkparity.browser.ui.UIConstants;
@@ -33,6 +38,17 @@ import com.thinkparity.model.parity.model.document.Document;
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
+ * 
+ * NOTE Updates\new documents are BOLD - Includes receive of history items as 
+ * well as ownership request; send ownership.
+ * 
+ * NOTE  The system messages will be displayed in the document list.
+ * 
+ * NOTE Icon colours:  Orange; system message: Green; Key Holder: Blue; Active
+ * Gray; Closed, Bold Update documents.
+ * 
+ * NOTE The RFO should display the document's history info.
+ *   * The details of the System messages should be displayed in the info panel.
  */
 class DocumentListAvatar extends Avatar {
 
@@ -60,9 +76,10 @@ class DocumentListAvatar extends Avatar {
 		 *            The document.
 		 */
 		private ListItem(final Document document) {
-			super("DocumentListAvatar$ListItem", new Color(237, 241, 244, 255));
+			super("DocumentListAvatar$ListItem", listItemBackground);
 			this.document = document;
 			setLayout(new GridBagLayout());
+			addMouseListener(this);
 
 			final GridBagConstraints c = new GridBagConstraints();
 			final String iconPath;
@@ -88,7 +105,9 @@ class DocumentListAvatar extends Avatar {
 		/**
 		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
-		public void mouseClicked(final MouseEvent e) {}
+		public void mouseClicked(final MouseEvent e) {
+			selectDocument(document.getId());
+		}
 
 		/**
 		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
@@ -111,6 +130,13 @@ class DocumentListAvatar extends Avatar {
 		public void mouseReleased(final MouseEvent e) {}
 
 		/**
+		 * Obtain the unique id of the document this list item represents.
+		 * 
+		 * @return The document unique id.
+		 */
+		private UUID getDocumentId() { return document.getId(); }
+
+		/**
 		 * Determine whether or not the document has been seen.
 		 * 
 		 * @return True if the document has been seen; false otherwise.
@@ -125,19 +151,76 @@ class DocumentListAvatar extends Avatar {
 				return Boolean.FALSE;
 			}
 		}
+
+		/**
+		 * Select this list item.
+		 *
+		 */
+		private void select() {
+			setBackground(listItemBackgroundSelect);
+			repaint();
+			
+		}
+
+		/**
+		 * Unselect this list item.
+		 *
+		 */
+		private void unselect() {
+			setBackground(listItemBackground);
+			repaint();
+		}
 	}
+
+	/**
+	 * Background color of the list item.
+	 * 
+	 */
+	private static final Color listItemBackground;
+
+	/**
+	 * Background color of the selected list item.
+	 * 
+	 */
+	private static final Color listItemBackgroundSelect;
 
 	/**
 	 * @see java.io.Serializable
 	 */
 	private static final long serialVersionUID = 1;
 
+	static {
+		listItemBackground = new Color(237, 241, 244, 255);
+		listItemBackgroundSelect = new Color(215, 231, 244, 255);
+	}
+
+	/**
+	 * Main controller.
+	 * 
+	 */
+	private final Controller controller;
+
+	/**
+	 * Current document selection.
+	 * 
+	 * @see #selectDocument(UUID)
+	 */
+	private UUID currentSelection;
+
+	/**
+	 * Map of document ids to the list items.
+	 * 
+	 */
+	private final Map<UUID, Component> documentItemMap;
+
 	/**
 	 * Create a DocumentListAvatar.
 	 * 
 	 */
-	DocumentListAvatar() {
+	DocumentListAvatar(final Controller controller) {
 		super("DocumentListAvatar", new Color(255, 255, 255, 255));
+		this.controller = controller;
+		this.documentItemMap = new Hashtable<UUID, Component>(20, 0.75F);
 		setLayout(new GridBagLayout());
 	}
 
@@ -213,5 +296,38 @@ class DocumentListAvatar extends Avatar {
 	 */
 	public void setState(State state) {
 		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * Add a list item to the document list.
+	 * 
+	 * @param listItem
+	 *            The list item.
+	 * @param constraints
+	 *            The list item constraints.
+	 */
+	private void add(final ListItem listItem, final Object constraints) {
+		documentItemMap.put(listItem.getDocumentId(), listItem);
+		super.add(listItem, constraints);
+	}
+
+	/**
+	 * Select the document in the list.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	private void selectDocument(final UUID documentId) {
+		Assert.assertNotNull("Cannot select null document.", documentId);
+		// if it's the same do nothing
+		if(this.currentSelection == documentId
+				|| documentId.equals(currentSelection)) { return; }
+
+		final Collection<Component> listItems = documentItemMap.values();
+		for(Component c : listItems) { ((ListItem) c).unselect(); }
+
+		final ListItem listItem = (ListItem) documentItemMap.get(documentId);
+		listItem.select();
+		controller.selectDocument(documentId);
 	}
 }

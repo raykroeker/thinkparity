@@ -84,8 +84,8 @@ public class HistoryAvatar extends JPanel {
 	 * Action used to open a document version.
 	 * 
 	 */
-	protected final OpenVersion openVersion =
-		(OpenVersion) ActionFactory.createAction(OpenVersion.class);
+	protected final OpenVersion openVersion = null;
+//		(OpenVersion) ActionFactory.createAction(OpenVersion.class);
 
 	/**
 	 * The history item data.

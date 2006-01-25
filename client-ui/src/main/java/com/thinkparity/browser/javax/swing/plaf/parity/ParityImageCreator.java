@@ -34,14 +34,14 @@ public class ParityImageCreator {
 	}
 
 	/**
-	 * Create the icon for the expand action. The icon is an inverted triangle
+	 * Create the ICON for the expand action. The ICON is an inverted triangle
 	 * with an "echo" overlay.
 	 * 
 	 * @param colorScheme
 	 *            The color scheme to use.
 	 * @param imageDimension
-	 *            The size of icon to create.
-	 * @return The icon.
+	 *            The size of ICON to create.
+	 * @return The ICON.
 	 */
 	public static Icon getExpandIcon(final ColorScheme colorScheme,
 			final int imageDimension) {

@@ -30,7 +30,7 @@ import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * Display the "tool tip" for the document. The tool tip consists of the
- * document name the document owner as well as the actions that can be
+ * document NAME the document owner as well as the actions that can be
  * performed.
  * 
  * @author raykroeker@gmail.com
@@ -119,13 +119,13 @@ public class DocumentAvatarToolTip extends JPanel {
 	private final JLabel keyHolderJLabel;
 
 	/**
-	 * The document name.
+	 * The document NAME.
 	 * 
 	 */
 	private String name;
 
 	/**
-	 * The document name display com.thinkparity.browser.javax.swing.component.
+	 * The document NAME display com.thinkparity.browser.javax.swing.component.
 	 * 
 	 */
 	private final JLabel nameJLabel;
@@ -253,8 +253,8 @@ public class DocumentAvatarToolTip extends JPanel {
 
 
 	/**
-	 * Obtain the document name.
-	 * @return The document name.
+	 * Obtain the document NAME.
+	 * @return The document NAME.
 	 */
 	public String getName() { return name; }
 
@@ -396,7 +396,7 @@ public class DocumentAvatarToolTip extends JPanel {
 	}
 
 	/**
-	 * Create the grid bag constriants for the name label.
+	 * Create the grid bag constriants for the NAME label.
 	 * 
 	 * @return The grid bag constraints.
 	 */

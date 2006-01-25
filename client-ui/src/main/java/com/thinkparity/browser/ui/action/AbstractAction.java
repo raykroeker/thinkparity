@@ -37,13 +37,19 @@ public abstract class AbstractAction {
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
-	 * The action icon.
+	 * The action id.
+	 * 
+	 */
+	private ActionId id;
+
+	/**
+	 * The action ICON.
 	 * 
 	 */
 	private Icon icon;
 
 	/**
-	 * The action name.
+	 * The action NAME.
 	 * 
 	 */
 	private String name;
@@ -51,27 +57,37 @@ public abstract class AbstractAction {
 	/**
 	 * Create a AbstractAction.
 	 * 
-	 * @param name
-	 *            The action name.
-	 * @param icon
-	 *            The action small icon.
+	 * @param NAME
+	 *            The action NAME.
+	 * @param ICON
+	 *            The action small ICON.
 	 */
-	protected AbstractAction(final String name, final Icon icon) {
+	protected AbstractAction(final ActionId id, final String name,
+			final Icon icon) {
 		super();
+		this.id = id;
 		this.icon = icon;
 		this.name = name;
 	}
 
 	/**
-	 * Obtain the action icon.
+	 * Obtain the action id.
 	 * 
-	 * @return The action icon.
+	 * @return The action id.
+	 */
+	public ActionId getId() { return id; }
+
+	/**
+	 * Obtain the action ICON.
+	 * 
+	 * @return The action ICON.
 	 */
 	public Icon getIcon() { return icon; }
 
 	/**
-	 * Obtain the action name.
-	 * @return The action name.
+	 * Obtain the action NAME.
+	 * 
+	 * @return The action NAME.
 	 */
 	public String getName() { return name; }
 
@@ -84,18 +100,18 @@ public abstract class AbstractAction {
 	public abstract void invoke(final Data data) throws Exception;
 
 	/**
-	 * Set the action icon.
+	 * Set the action ICON.
 	 * 
-	 * @param icon
-	 *            The action icon.
+	 * @param ICON
+	 *            The action ICON.
 	 */
 	public void setIcon(Icon icon) { this.icon = icon; }
 
 	/**
-	 * Set the action name.
+	 * Set the action NAME.
 	 * 
-	 * @param name
-	 *            The action name.
+	 * @param NAME
+	 *            The action NAME.
 	 */
 	public void setName(String name) { this.name = name; }
 

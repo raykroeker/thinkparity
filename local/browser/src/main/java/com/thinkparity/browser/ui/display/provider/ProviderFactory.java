@@ -4,6 +4,7 @@
 package com.thinkparity.browser.ui.display.provider;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -12,6 +13,8 @@ import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObjectVersion;
+import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -117,10 +120,16 @@ public class ProviderFactory {
 			}
 		};
 		this.historyProvider = new FlatContentProvider() {
+			final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
+			final Comparator<ParityObjectVersion> versionIdDescending =
+				comparatorBuilder.createVersionById(Boolean.FALSE);
 			public Object[] getElements(Object input) {
-				final Document d = (Document) input;
+				final UUID documentId = (UUID) input;
 				Collection<DocumentVersion> versionList;
-				try { versionList = documentModel.listVersions(d.getId()); }
+				try {
+					versionList = documentModel.listVersions(documentId,
+							versionIdDescending);
+				}
 				catch(ParityException px) {
 					// NOTE Error Handler Code
 					versionList = new Vector<DocumentVersion>(0);

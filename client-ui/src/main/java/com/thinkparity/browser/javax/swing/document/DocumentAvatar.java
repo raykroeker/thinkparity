@@ -125,13 +125,13 @@ public class DocumentAvatar extends JPanel {
 	private static final Color highlightColor;
 
 	/**
-	 * Font used to draw write the document's name.
+	 * Font used to draw write the document's NAME.
 	 * 
 	 */
 	private static final Font nameFont;
 
 	/**
-	 * Color of the nameFont use to write the document's name.
+	 * Color of the nameFont use to write the document's NAME.
 	 * 
 	 */
 	private static final Color nameFontColor;
@@ -142,7 +142,7 @@ public class DocumentAvatar extends JPanel {
 	private static final long serialVersionUID = 1;
 
 	static {
-		// grab the font info for the name
+		// grab the font info for the NAME
 		nameFont = new Font("Tahoma", Font.BOLD, 12);
 		nameFontColor = BrowserColorUtil.getBlack();
 
@@ -169,16 +169,16 @@ public class DocumentAvatar extends JPanel {
 	public static Color getHighlightColor() { return highlightColor; }
 
 	/**
-	 * Obtain the name font.
+	 * Obtain the NAME font.
 	 * 
-	 * @return The name font.
+	 * @return The NAME font.
 	 */
 	public static Font getNameFont() { return nameFont; }
 
 	/**
-	 * Obtain the name foreground color.
+	 * Obtain the NAME foreground color.
 	 * 
-	 * @return The name foreground color.
+	 * @return The NAME foreground color.
 	 */
 	public static Color getNameForeground() { return nameFontColor; }
 
@@ -192,8 +192,8 @@ public class DocumentAvatar extends JPanel {
 	 * Action used to open a document.
 	 * 
 	 */
-	protected final Open openDocument =
-		(Open) ActionFactory.createAction(Open.class);
+	protected final Open openDocument = null;
+			//(Open) ActionFactory.createAction(Open.class);
 
 	/**
 	 * Input for the document display avatar.
@@ -202,7 +202,7 @@ public class DocumentAvatar extends JPanel {
 	private Document input;
 
 	/**
-	 * Label used to display the document name.
+	 * Label used to display the document NAME.
 	 * 
 	 */
 	private final JLabel nameJLabel;
@@ -267,7 +267,7 @@ public class DocumentAvatar extends JPanel {
 	private boolean canClose() {
 		try { return ParityObjectUtil.canClose(input.getId(), ParityObjectType.DOCUMENT); }
 		catch(ParityException px) {
-			// NOTE  WTF???!?!?! Need err logger?
+			// NOTE Error Handler Code
 			return false;
 		}
 	}
@@ -281,13 +281,13 @@ public class DocumentAvatar extends JPanel {
 	private boolean canDelete() {
 		try { return ParityObjectUtil.canDelete(input.getId(), ParityObjectType.DOCUMENT); }
 		catch(ParityException px) {
-			// NOTE  WTF???!?!?! Need err logger?
+			// NOTE Error Handler Code
 			return false;
 		}
 	}
 
 	/**
-	 * Create the grid bag constriants for the name label.
+	 * Create the grid bag constriants for the NAME label.
 	 * 
 	 * @return The grid bag constraints.
 	 */
@@ -309,7 +309,7 @@ public class DocumentAvatar extends JPanel {
 	private boolean isKeyHolder() {
 		try { return ParityObjectUtil.isKeyHolder(input.getId(), ParityObjectType.DOCUMENT); }
 		catch(ParityException px) {
-			// NOTE  WTF???!?!?! Need err logger?
+			// NOTE Error Handler Code
 			return false;
 		}
 	}

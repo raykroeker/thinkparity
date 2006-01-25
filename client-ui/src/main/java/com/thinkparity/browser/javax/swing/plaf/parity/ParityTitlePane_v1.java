@@ -151,7 +151,7 @@ public class ParityTitlePane_v1 extends AbstractJPanel {
 //			final FontMetrics fm = jRootPane.getFontMetrics(getFont());
 //			final int fontHeight = fm.getHeight() + 7;
 //
-//			// grab the height of the icon
+//			// grab the height of the ICON
 //			final int iconHeight = ParityConstants.DEFAULT_IMAGE_DIMENSION + 7;
 //
 //			return Math.max(fontHeight, iconHeight);

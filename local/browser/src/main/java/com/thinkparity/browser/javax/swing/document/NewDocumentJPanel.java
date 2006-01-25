@@ -45,8 +45,8 @@ public class NewDocumentJPanel extends AbstractJPanel {
 	 * Action used to create a document.
 	 * 
 	 */
-    protected final AbstractAction createAction =
-    	ActionFactory.createAction(Create.class);
+    protected final AbstractAction createAction = null;
+    	//ActionFactory.createAction(Create.class);
 
 	protected final DocumentModel documentModel = getDocumentModel();
 	// Variables declaration - do not modify

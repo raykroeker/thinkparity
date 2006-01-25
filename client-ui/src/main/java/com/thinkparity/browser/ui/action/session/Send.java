@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.swing.Icon;
 
 import com.thinkparity.browser.ui.action.AbstractAction;
+import com.thinkparity.browser.ui.action.ActionId;
 import com.thinkparity.browser.ui.action.Data;
 
 import com.thinkparity.model.xmpp.user.User;
@@ -23,18 +24,21 @@ public class Send extends AbstractAction {
 
 	private static final Icon ICON;
 
+	private static final ActionId ID;
+
 	private static final String NAME;
 
 	static {
-		NAME = "Send";
 		ICON = null;
+		ID = ActionId.SESSION_SEND;
+		NAME = "Send";
 	}
 
 	/**
 	 * Create a Send.
 	 * 
 	 */
-	public Send() { super(NAME, ICON); }
+	public Send() { super(ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.ui.action.AbstractAction#invoke(com.thinkparity.browser.ui.action.Data)

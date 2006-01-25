@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.swing.Icon;
 
 import com.thinkparity.browser.ui.action.AbstractAction;
+import com.thinkparity.browser.ui.action.ActionId;
 import com.thinkparity.browser.ui.action.Data;
 
 import com.thinkparity.model.parity.ParityException;
@@ -26,16 +27,22 @@ public class Open extends AbstractAction {
 	public enum DataKey { DOCUMENT_ID }
 
 	/**
-	 * The action name.
+	 * The action small ICON.
 	 * 
 	 */
-	public static final String name;
+	private static final Icon ICON;
 
 	/**
-	 * The action small icon.
+	 * The action id.
 	 * 
 	 */
-	private static final Icon icon;
+	private static final ActionId ID;
+
+	/**
+	 * The action NAME.
+	 * 
+	 */
+	private static final String NAME;
 
 	/**
 	 * @see java.io.Serializable
@@ -44,15 +51,16 @@ public class Open extends AbstractAction {
 	private static final long serialVersionUID = 1;
 
 	static {
-		name = "Open Document";
-		icon = null;
+		ICON = null;
+		ID = ActionId.DOCUMENT_OPEN;
+		NAME = "Open Document";
 	}
 
 	/**
 	 * Create an Open.
 	 * 
 	 */
-	public Open() { super(name, icon); }
+	public Open() { super(ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.ui.action.AbstractAction#invoke(com.thinkparity.browser.ui.action.Data)

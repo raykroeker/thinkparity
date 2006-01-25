@@ -20,7 +20,7 @@ public class ResourceBundleManager {
 	private static final ResourceBundleManager INSTANCE;
 
 	/**
-	 * The package name is used to locate the localization resources.
+	 * The package NAME is used to locate the localization resources.
 	 * 
 	 */
 	private static final String PACKAGE_NAME;
@@ -60,11 +60,11 @@ public class ResourceBundleManager {
 	}
 
 	/**
-	 * Build the base name for the given resource bundle type.
+	 * Build the base NAME for the given resource bundle type.
 	 * 
 	 * @param bundleType
-	 *            The type of resource bundle to name.
-	 * @return The base name used to obtain the resource bundle.
+	 *            The type of resource bundle to NAME.
+	 * @return The base NAME used to obtain the resource bundle.
 	 */
 	private String getBaseName(final ResourceBundleType bundleType) {
 		return new StringBuffer(PACKAGE_NAME)

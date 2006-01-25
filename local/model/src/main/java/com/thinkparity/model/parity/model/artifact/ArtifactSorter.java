@@ -22,45 +22,16 @@ import com.thinkparity.model.parity.model.project.Project;
 public class ArtifactSorter {
 
 	/**
-	 * Sort the list of documents by name.
-	 * 
-	 * @param documents
-	 *            The list of documents.
-	 */
-	public static void sortDocumentsByName(final Collection<Document> documents) {
-		sortDocuments(documents, new NameComparator(Boolean.TRUE));
-	}
-
-	/**
-	 * Sort the list of artifact versions by the version id.
-	 * 
-	 * @param versions
-	 *            The list of document versions.
-	 */
-	public static void sortDocumentVersionsByVersionId(
-			final Collection<DocumentVersion> versions) {
-		sortVersions(versions, new VersionIdComparator(Boolean.TRUE));
-	}
-
-	/**
-	 * Sort the list of projects by name.
-	 * 
-	 * @param projects
-	 *            The list of projects.
-	 */
-	public static void sortProjectsByName(final Collection<Project> projects) {
-		sortProjects(projects, new NameComparator(Boolean.TRUE));
-	}
-
-	/**
 	 * Sort the collection of artifacts.
 	 * 
 	 * @param documents
 	 *            A collection of documents.
 	 * @param comparator
 	 *            The artifact comparator.
+	 * 
+	 * @see ComparatorBuilder
 	 */
-	private static void sortDocuments(final Collection<Document> documents,
+	public static void sortDocuments(final Collection<Document> documents,
 			final Comparator<ParityObject> comparator) {
 		final List<Document> l = new LinkedList<Document>();
 		l.addAll(documents);
@@ -76,8 +47,10 @@ public class ArtifactSorter {
 	 *            A collection of projects.
 	 * @param comparator
 	 *            The artifact comparator.
+	 * 
+	 * @see ComparatorBuilder
 	 */
-	private static void sortProjects(final Collection<Project> projects,
+	public static void sortProjects(final Collection<Project> projects,
 			final Comparator<ParityObject> comparator) {
 		final List<Project> l = new LinkedList<Project>();
 		l.addAll(projects);
@@ -93,8 +66,10 @@ public class ArtifactSorter {
 	 *            A collection of documents.
 	 * @param comparator
 	 *            The artifact version comparator.
+	 * 
+	 * @see ComparatorBuilder
 	 */
-	private static void sortVersions(final Collection<DocumentVersion> versions,
+	public static void sortVersions(final Collection<DocumentVersion> versions,
 			final Comparator<ParityObjectVersion> comparator) {
 		final List<DocumentVersion> l = new LinkedList<DocumentVersion>();
 		l.addAll(versions);

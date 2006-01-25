@@ -158,10 +158,13 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain a list of the root projects.
+	 * Obtain a list of the root projects sorted by name.
 	 * 
 	 * @return A list of the root projects.
 	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 * @see #list(Comparator)
 	 */
 	public Collection<Project> list() throws ParityException {
 		synchronized(implLock) { return impl.list(); }
@@ -183,6 +186,21 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
+	 * Obtain a list of projects sorted by name ascending.
+	 * 
+	 * @param projectId
+	 *            The project unique id.
+	 * @return A list of sorted projects
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 * @see #list(UUID, Comparator)
+	 */
+	public Collection<Project> list(final UUID projectId) throws ParityException {
+		synchronized(implLock) { return impl.list(projectId); }
+	}
+
+	/**
 	 * Obtain a list of projects for a given parent project.
 	 * 
 	 * @param projectId
@@ -197,11 +215,6 @@ public class ProjectModel extends AbstractModel {
 	public Collection<Project> list(final UUID projectId,
 			final Comparator<ParityObject> comparator) throws ParityException {
 		synchronized(implLock) { return impl.list(projectId, comparator); }
-	}
-
-	
-	public Collection<Project> list(final UUID projectId) throws ParityException {
-		synchronized(implLock) { return impl.list(projectId); }
 	}
 
 	/**

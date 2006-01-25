@@ -5,11 +5,15 @@ package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
+import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -220,8 +224,11 @@ public class DocumentModel {
 	 * 
 	 * @param projectId
 	 *            The project unique id.
-	 * @return A list of documents for a project.
+	 * @return A list of documents for a project sorted by name.
 	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 * @see #list(UUID, Comparator)
 	 */
 	public Collection<Document> list(final UUID projectId)
 			throws ParityException {
@@ -229,16 +236,58 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Obtain a list of sorted documents for a project.
+	 * 
+	 * @param projectId
+	 *            The project unique id.
+	 * @param comparator
+	 *            The comparator.
+	 * @return A sorted list of documents.
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	public Collection<Document> list(final UUID projectId,
+			final Comparator<ParityObject> comparator) throws ParityException {
+		synchronized(implLock) { return impl.list(projectId, comparator); }
+	}
+
+	/**
 	 * Obtain a list of document versions for a document.
 	 * 
 	 * @param documentId
 	 *            The document unique id.
-	 * @return A list of document versions.
+	 * @return The list of document versions; ordered by the version id
+	 *         ascending.
 	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 * @see #listVersions(UUID, Comparator)
 	 */
 	public Collection<DocumentVersion> listVersions(final UUID documentId)
 			throws ParityException {
 		synchronized(implLock) { return impl.listVersions(documentId); }
+	}
+
+	/**
+	 * Obtain a list of document versions for a document; ordered by the
+	 * specified comparator.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @param comparator
+	 *            The document version sorter.
+	 * @return The list of document versions.
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	public Collection<DocumentVersion> listVersions(final UUID documentId,
+			final Comparator<ParityObjectVersion> comparator)
+			throws ParityException {
+		synchronized(implLock) {
+			return impl.listVersions(documentId, comparator);
+		}
 	}
 
 	/**

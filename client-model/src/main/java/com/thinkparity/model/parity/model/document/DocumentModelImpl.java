@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -17,7 +18,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.DeleteEvent;
@@ -26,6 +29,7 @@ import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.ArtifactSorter;
+import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.io.xml.document.DocumentXmlIO;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
@@ -83,6 +87,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Default sort comparator for documents.
+	 * 
+	 */
+	private final Comparator<ParityObject> defaultComparator;
+
+	/**
+	 * Default sort comparator for document versions.
+	 * 
+	 */
+	private final Comparator<ParityObjectVersion> defaultVersionComparator;
+
+	/**
 	 * Document xml input\output.
 	 */
 	private final DocumentXmlIO documentXmlIO;
@@ -95,6 +111,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	DocumentModelImpl(final Workspace workspace) {
 		super(workspace);
+		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
+		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);
+		this.defaultVersionComparator =
+			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentXmlIO = new DocumentXmlIO(workspace);
 	}
 
@@ -250,6 +270,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @param actionData
 	 *            The data associated with the version creation action.
 	 * @return The newly created version.
+	 * 
+	 * NOTE  If the user has ownership of the document; the local copy should *NEVER* be overwritten.
+	 * 
+	 * NOTE The document version numbers must be tracked in the serialization
+	 * meta-data such that versions can be inserted in the history.  Only the
+	 * owner of the document can "create" new versions.
+	 * 
+	 * NOTE Have the ability to send individual versions to a contact.
+	 * 
 	 * @throws ParityException
 	 */
 	DocumentVersion createVersion(final UUID documentId,
@@ -478,30 +507,52 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a list of documents for a project.
+	 * Obtain a list of documents sorted by name.
+	 * 
+	 * @param projectId
+	 *            The project unqiue id.
+	 * @return A list of sorted documents
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 * @see #list(UUID, Comparator)
+	 */
+	Collection<Document> list(final UUID projectId) throws ParityException {
+		logger.info("list(UUID)");
+		logger.debug(projectId);
+		return list(projectId, defaultComparator);
+	}
+
+	/**
+	 * Obtain a sorted list of documents for a project.
 	 * 
 	 * @param projectId
 	 *            The project unique id.
-	 * @return A list of documents for a project.
+	 * @param comparator
+	 *            The comparator.
+	 * @return A sorted list of documents for a project.
 	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
 	 */
-	Collection<Document> list(final UUID projectId)
-			throws ParityException {
-		logger.info("list(UUID)");
+	Collection<Document> list(final UUID projectId,
+			final Comparator<ParityObject> comparator) throws ParityException {
+		logger.info("list(UUID,Comparator<ParityObject>)");
 		logger.debug(projectId);
+		logger.debug(comparator);
 		try {
 			final ProjectModel projectModel = getProjectModel();
 			final Project project = projectModel.get(projectId);
 			final Collection<Document> documents = documentXmlIO.list(project);
-			ArtifactSorter.sortDocumentsByName(documents);
+			ArtifactSorter.sortDocuments(documents, comparator);
 			return documents;
 		}
 		catch(IOException iox) {
-			logger.error("list(Project)", iox);
+			logger.error("list(UUID,Comparator<ParityObject>)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("list(Project)", rx);
+			logger.error("list(UUID,Comparator<ParityObject>)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -511,18 +562,43 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param documentId
 	 *            The document unique id.
-	 * @return The list of document versions.
+	 * @return The list of document versions; ordered by the version id
+	 *         ascending.
 	 * @throws ParityException
+	 * 
+	 * @see #listVersions(UUID, Comparator)
 	 */
 	Collection<DocumentVersion> listVersions(final UUID documentId)
 			throws ParityException {
+		logger.info("listVersions(UUID)");
+		logger.debug(documentId);
+		return listVersions(documentId, defaultVersionComparator);
+	}
+
+	/**
+	 * Obtain a list of document versions for a document; ordered by the
+	 * specified comparator.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @param comparator
+	 *            The document version sorter.
+	 * @return The list of document versions.
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	Collection<DocumentVersion> listVersions(final UUID documentId,
+			final Comparator<ParityObjectVersion> comparator)
+			throws ParityException {
 		logger.info("listVersions(Document)");
 		logger.debug(documentId);
+		logger.debug(comparator);
 		try {
 			final Document document = get(documentId);
 			final Collection<DocumentVersion> versions =
 				documentXmlIO.listVersions(document);
-			ArtifactSorter.sortDocumentVersionsByVersionId(versions);
+			ArtifactSorter.sortVersions(versions, comparator);
 			return versions;
 		}
 		catch(IOException iox) {

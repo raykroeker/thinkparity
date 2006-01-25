@@ -34,6 +34,8 @@ public class VersionIdComparator implements Comparator<ParityObjectVersion> {
 	 * @see java.util.Comparator#compare(T, T)
 	 */
 	public int compare(ParityObjectVersion o1, ParityObjectVersion o2) {
-		return o1.getVersionId().compareTo(o2.getVersionId()) * resultMultiplier;
+		final Integer v1 = new Integer(o1.getVersionId().substring(1));
+		final Integer v2 = new Integer(o2.getVersionId().substring(1));
+		return v1.compareTo(v2) * resultMultiplier;
 	}
 }

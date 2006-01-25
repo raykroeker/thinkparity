@@ -4,12 +4,15 @@
 package com.thinkparity.model.parity.model.project;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.AbstractModel;
+import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -165,15 +168,39 @@ public class ProjectModel extends AbstractModel {
 	}
 
 	/**
+	 * Obtain a list of the root projects sorted according to the comparator.
+	 * 
+	 * @param comparator
+	 *            The comparator.
+	 * @return A list of the root projects.
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	public Collection<Project> list(final Comparator<ParityObject> comparator)
+			throws ParityException {
+		synchronized(implLock) { return impl.list(comparator); }
+	}
+
+	/**
 	 * Obtain a list of projects for a given parent project.
 	 * 
 	 * @param projectId
 	 *            The parent project unique id.
+	 * @param comparator
+	 *            The sort to use.
 	 * @return A list of the parent's child projects
 	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
 	 */
-	public Collection<Project> list(final UUID projectId)
-			throws ParityException {
+	public Collection<Project> list(final UUID projectId,
+			final Comparator<ParityObject> comparator) throws ParityException {
+		synchronized(implLock) { return impl.list(projectId, comparator); }
+	}
+
+	
+	public Collection<Project> list(final UUID projectId) throws ParityException {
 		synchronized(implLock) { return impl.list(projectId); }
 	}
 

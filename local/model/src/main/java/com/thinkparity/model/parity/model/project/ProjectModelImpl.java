@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -16,6 +17,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
@@ -24,6 +26,7 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.ArtifactSorter;
+import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.io.xml.project.ProjectXmlIO;
@@ -71,6 +74,14 @@ class ProjectModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Default project comparator.
+	 * 
+	 * @see #list()
+	 * @see #list(UUID)
+	 */
+	private final Comparator<ParityObject> defaultProjectComparator;
+
+	/**
 	 * Project xml input\output;
 	 */
 	private final ProjectXmlIO projectXmlIO;
@@ -83,6 +94,9 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	ProjectModelImpl(final Workspace workspace) {
 		super(workspace);
+		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
+		this.defaultProjectComparator =
+			comparatorBuilder.createByName(Boolean.TRUE);
 		this.projectXmlIO = new ProjectXmlIO(workspace);
 	}
 
@@ -301,21 +315,41 @@ class ProjectModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a list of the root projects.
+	 * Obtain a list of the root projects sorted by name.
 	 * 
 	 * @return A list of the root projects.
 	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
 	 */
 	Collection<Project> list() throws ParityException {
 		logger.info("list()");
+		return list(defaultProjectComparator);
+	}
+
+	/**
+	 * Obtain a list of the root projects sorted according to the comparator.
+	 * 
+	 * @param comparator
+	 *            The comparator.
+	 * @return A list of the root projects.
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	Collection<Project> list(final Comparator<ParityObject> comparator)
+			throws ParityException {
+		logger.info("list(Comparator<ParityObject>)");
+		logger.debug(comparator);
 		try {
 			final Collection<Project> list = new Vector<Project>(2);
 			list.add(getInbox());
 			list.add(getMyProjects());
-			return list; 
+			ArtifactSorter.sortProjects(list, comparator);
+			return list;
 		}
 		catch(RuntimeException rx) {
-			logger.error("list()", rx);
+			logger.error("list(Comparator<ParityObject>)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -325,24 +359,48 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param projectId
 	 *            The parent project unique id.
+	 * @param comparator
+	 *            The sort to use.
 	 * @return A list of the parent's child projects
 	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
 	 */
 	Collection<Project> list(final UUID projectId) throws ParityException {
-		logger.info("list(Project)");
+		logger.info("list(UUID)");
 		logger.debug(projectId);
+		return list(projectId, defaultProjectComparator);
+	}
+
+	/**
+	 * Obtain a list of projects for a given parent project.
+	 * 
+	 * @param projectId
+	 *            The parent project unique id.
+	 * @param comparator
+	 *            The sort to use.
+	 * @return A list of the parent's child projects
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	Collection<Project> list(final UUID projectId,
+			final Comparator<ParityObject> comparator) throws ParityException {
+		logger.info("list(UUID,Comparator<ParityObject>)");
+		logger.debug(projectId);
+		logger.debug(comparator);
 		try {
 			final Project project = get(projectId);
 			final Collection<Project> projects = projectXmlIO.list(project);
-			ArtifactSorter.sortProjectsByName(projects);
+			ArtifactSorter.sortProjects(projects, comparator);
 			return projects;
 		}
 		catch(IOException iox) {
-			logger.error("list(Project)", iox);
+			logger.error("list(UUID,Comparator<ParityObject>)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("list(Project)", rx);
+			logger.error("list(UUID,Comparator<ParityObject>)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

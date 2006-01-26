@@ -17,6 +17,7 @@ import java.util.UUID;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.Timer;
+import javax.swing.event.MouseInputListener;
 
 import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
@@ -56,7 +57,8 @@ class DocumentListAvatar extends Avatar {
 	 * Represents an individual list item in the document list avatar.
 	 * 
 	 */
-	private class ListItem extends AbstractJPanel implements MouseListener {
+	private class ListItem extends AbstractJPanel implements
+			MouseInputListener, MouseListener {
 
 		/**
 		 * @see java.io.Serializable
@@ -79,6 +81,7 @@ class DocumentListAvatar extends Avatar {
 			super("DocumentListAvatar$ListItem", listItemBackground);
 			this.document = document;
 			setLayout(new GridBagLayout());
+			addMouseMotionListener(this);
 			addMouseListener(this);
 
 			final GridBagConstraints c = new GridBagConstraints();
@@ -127,7 +130,14 @@ class DocumentListAvatar extends Avatar {
 		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
 		public void mouseExited(final MouseEvent e) {
-			unselectDocument(document.getId());
+			if(!isWithinListItem(e)) { unselectDocument(document.getId()); }
+		}
+
+		private Boolean isWithinListItem(final MouseEvent e) {
+			if(e.getPoint().x >= 0 && e.getPoint().x <= getBounds().width - 1)
+				if(e.getPoint().y >= 0 && e.getPoint().y <= getBounds().height - 1)
+					return Boolean.TRUE;
+			return Boolean.FALSE;
 		}
 	
 		/**
@@ -195,6 +205,18 @@ class DocumentListAvatar extends Avatar {
 		private void unselect() {
 			setBackground(listItemBackground);
 			repaint();
+		}
+
+		/**
+		 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+		 */
+		public void mouseDragged(final MouseEvent e) {}
+
+		/**
+		 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+		 */
+		public void mouseMoved(final MouseEvent e) {
+			logger.debug(e.getPoint());
 		}
 	}
 

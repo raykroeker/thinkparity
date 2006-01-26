@@ -24,7 +24,7 @@ class InfoDisplay extends Display {
 		super("InfoDisplay", new Color(235, 240, 246, 255));
 		setBorder(new MultiLineBorder(new Color[] {
 				new Color(180, 180, 180, 255),
-				new Color(187, 197, 206, 255) }));
+				/*new Color(187, 197, 206, 255), */Color.WHITE }));
 	}
 
 	/**

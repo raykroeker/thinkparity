@@ -4,6 +4,9 @@
 package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
@@ -13,6 +16,7 @@ import java.util.UUID;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.Timer;
 
 import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
@@ -66,6 +70,12 @@ class DocumentListAvatar extends Avatar {
 		private final Document document;
 
 		/**
+		 * Timer used to control the hover selection.
+		 * 
+		 */
+		private final Timer selectionTimer;
+
+		/**
 		 * Create a ListItem.
 		 * 
 		 * @param document
@@ -74,6 +84,11 @@ class DocumentListAvatar extends Avatar {
 		private ListItem(final Document document) {
 			super("DocumentListAvatar$ListItem", listItemBackground);
 			this.document = document;
+			this.selectionTimer = new Timer(500, new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					selectDocument(document.getId());
+				}
+			});
 			setLayout(new GridBagLayout());
 			addMouseListener(this);
 
@@ -82,6 +97,14 @@ class DocumentListAvatar extends Avatar {
 					"images/documentIconGray.png" : "images/documentIconBlue.png";
 			final JLabel documentIcon = LabelFactory.create();
 			documentIcon.setIcon(new ImageIcon(ResourceUtil.getURL(iconPath)));
+			documentIcon.addMouseListener(new MouseAdapter() {
+				public void mouseEntered(final MouseEvent e) {
+					setCursor(new Cursor(Cursor.HAND_CURSOR));
+				}
+				public void mouseExited(final MouseEvent e) {
+					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				}
+			});
 			c.insets = new Insets(0, 16, 0, 0);
 			add(documentIcon, c.clone());
 
@@ -102,23 +125,21 @@ class DocumentListAvatar extends Avatar {
 		 */
 		public void mouseClicked(final MouseEvent e) {
 			if(2 == e.getClickCount()) { runOpenDocument(document.getId()); }
-			selectDocument(document.getId());
 		}
 
 		/**
 		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 		 */
-		public void mouseEntered(final MouseEvent e) {
-			setCursor(new Cursor(Cursor.HAND_CURSOR));
-		}
-
+		public void mouseEntered(final MouseEvent e) { startSelectionTimer(); }
+	
 		/**
 		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
 		public void mouseExited(final MouseEvent e) {
-			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			stopSelectionTimer();
+			unselect();
 		}
-
+	
 		/**
 		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
@@ -173,10 +194,25 @@ class DocumentListAvatar extends Avatar {
 		 *
 		 */
 		private void select() {
+			selectionTimer.stop();
 			setBackground(listItemBackgroundSelect);
 			repaint();
 			
 		}
+
+		/**
+		 * Start the selection timer.
+		 *
+		 */
+		private void startSelectionTimer() {
+			selectionTimer.start();
+		}
+
+		/**
+		 * Stop the selection timer for the hot mouse selection.
+		 *
+		 */
+		private void stopSelectionTimer() { selectionTimer.stop(); }
 
 		/**
 		 * Unselect this list item.

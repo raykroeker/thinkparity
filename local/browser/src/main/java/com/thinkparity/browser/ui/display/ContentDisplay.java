@@ -23,7 +23,7 @@ class ContentDisplay extends Display {
 	 */
 	ContentDisplay() {
 		super("ContentDisplay", new Color(255, 255, 255, 255));
-		setBorder(new DefaultBorder(new Color(180, 180, 180, 255)));
+		setBorder(new MultiLineBorder(new Color[] { new Color(180, 180, 180, 255), Color.WHITE}));
 	}
 
 	/**

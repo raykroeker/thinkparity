@@ -143,6 +143,23 @@ public class ParityObjectUtil {
 	}
 
 	/**
+	 * Determine whether or not the parity artifact has been closed.
+	 * 
+	 * @param artifactId
+	 *            the artifact id.
+	 * @param artifactType
+	 *            The artifact type.
+	 * @return True if the artifact has been closed; false otherwise.
+	 * @throws ParityException
+	 */
+	public static Boolean isClosed(final UUID artifactId,
+			final ParityObjectType artifactType) throws ParityException {
+		synchronized(singletonLock) {
+			return singleton.determineIsClosed(artifactId, artifactType);
+		}
+	}
+
+	/**
 	 * Determine whether or not the current user is the artifact key holder.
 	 * 
 	 * @param artifactId
@@ -217,6 +234,22 @@ public class ParityObjectUtil {
 	 * @throws ParityException
 	 */
 	private Boolean determineCanDelete(final UUID artifactId,
+			final ParityObjectType artifactType) throws ParityException {
+		return doesArtifactContainFlag(
+				doGetArtifact(artifactId, artifactType), ParityObjectFlag.CLOSED);
+	}
+
+	/**
+	 * Determine whether or not the parity artifact has been closed.
+	 * 
+	 * @param artifactId
+	 *            the artifact id.
+	 * @param artifactType
+	 *            The artifact type.
+	 * @return True if the artifact has been closed; false otherwise.
+	 * @throws ParityException
+	 */
+	private Boolean determineIsClosed(final UUID artifactId,
 			final ParityObjectType artifactType) throws ParityException {
 		return doesArtifactContainFlag(
 				doGetArtifact(artifactId, artifactType), ParityObjectFlag.CLOSED);

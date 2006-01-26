@@ -5,6 +5,7 @@ package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.GridBagLayout;
 
+import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.util.State;
 
 /**
@@ -13,7 +14,7 @@ import com.thinkparity.browser.util.State;
  * 
  * NOTE System Messages [Add contact request, request for ownership, response to ownership request, support response]
  */
-public class BrowserMessageListAvatar extends Avatar {
+public class MessageListAvatar extends Avatar {
 
 	/**
 	 * @see java.io.Serializable
@@ -22,17 +23,24 @@ public class BrowserMessageListAvatar extends Avatar {
 	private static final long serialVersionUID = 1;
 
 	/**
+	 * The main controller.
+	 * 
+	 */
+	private final Controller controller;
+
+	/**
 	 * Info avatar helper.
 	 * 
 	 */
 	private final InfoAvatarHelper helper;
 
 	/**
-	 * Create a BrowserMessageListAvatar.
+	 * Create a MessageListAvatar.
 	 * @param l18nContext
 	 */
-	public BrowserMessageListAvatar() {
-		super("BrowserMessageListAvatar");
+	public MessageListAvatar(final Controller controller) {
+		super("MessageListAvatar");
+		this.controller = controller;
 		this.helper = new InfoAvatarHelper(this);
 		setLayout(new GridBagLayout());
 		helper.addHeading(getString("Messages"));
@@ -42,7 +50,7 @@ public class BrowserMessageListAvatar extends Avatar {
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#getId()
 	 * 
 	 */
-	public AvatarId getId() { return AvatarId.BROWSER_MESSAGE_LIST; }
+	public AvatarId getId() { return AvatarId.MESSAGE_LIST; }
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#getState()

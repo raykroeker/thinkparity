@@ -16,6 +16,7 @@ public class Browser2 {
 		final StringBuffer buffer = new StringBuffer();
 		PropertiesUtil.print(
 				buffer, "--- Parity Browser2 ---", System.getProperties());
+		System.out.println(buffer);
 		Initializer.getInstance().initialize();
 	}
 

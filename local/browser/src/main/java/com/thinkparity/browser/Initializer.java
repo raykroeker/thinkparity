@@ -3,11 +3,11 @@
  */
 package com.thinkparity.browser;
 
-import java.io.File;
-
 import com.thinkparity.browser.model.EventDispatcher;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
+
+import com.thinkparity.codebase.PropertiesUtil;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,10 +32,14 @@ public class Initializer {
 	 */
 	public void initialize() {
 		System.setProperty("parity.insecure", "true");
-
-		System.loadLibrary("jawt");
-//		System.loadLibrary("nativeskin-1.2.12.win32");
-//		System.loadLibrary("nativeskin-1.2.12.win32JAWT");
+		
+		final String javaLibraryPath = new StringBuffer(System.getProperty("java.library.path"))
+			.append(System.getProperty("user.dir"))
+			.toString();
+		System.setProperty("java.library.path", javaLibraryPath);
+		final StringBuffer buffer = new StringBuffer();
+		PropertiesUtil.print(buffer, System.getProperties());
+		System.out.println(buffer);
 
 		LoggerFactory.getLogger(Initializer.class);
 		ModelFactory.getInstance().initialize();

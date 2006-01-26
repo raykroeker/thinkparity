@@ -26,6 +26,8 @@ public class AvatarFactory {
 			return SINGLETON.createDocumentList();
 		case DOCUMENT_HISTORY_LIST:
 			return SINGLETON.createDocumentHistoryList();
+		case MESSAGE_LIST:
+			return SINGLETON.createMessageList();
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}
 	}
@@ -53,6 +55,12 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar documentList;
+
+	/**
+	 * The message list avatar.
+	 * 
+	 */
+	private Avatar messageList;
 
 	/**
 	 * Create a AvatarFactory [Singleton, Factory]
@@ -98,5 +106,18 @@ public class AvatarFactory {
 			documentList.setContentProvider(ProviderFactory.getDocumentProvider());
 		}
 		return documentList;
+	}
+
+	/**
+	 * Create the message list avatar.
+	 * 
+	 * @return The message list avatar.
+	 */
+	private Avatar createMessageList() {
+		if(null == messageList) {
+			messageList = new MessageListAvatar(controller);
+			messageList.setContentProvider(ProviderFactory.getMessageListProvider());
+		}
+		return messageList;
 	}
 }

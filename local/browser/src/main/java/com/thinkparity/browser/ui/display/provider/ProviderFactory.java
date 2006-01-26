@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.util.RandomData;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -64,6 +65,10 @@ public class ProviderFactory {
 		synchronized(singletonLock) { return singleton.doGetHistoryProvider(); }
 	}
 
+	public static FlatContentProvider getMessageListProvider() {
+		synchronized(singletonLock) { return singleton.doGetMessageProvider(); }
+	}
+
 	public static FlatContentProvider getUserProvider() {
 		synchronized(singletonLock) { return singleton.doGetUserProvider(); }
 	}
@@ -97,6 +102,10 @@ public class ProviderFactory {
 	 * 
 	 */
 	private final FlatContentProvider userProvider;
+
+	private final ContentProvider messageProvider;
+
+	private final FlatContentProvider messageListProvider;
 
 	/**
 	 * Create a ProviderFactory.
@@ -135,6 +144,20 @@ public class ProviderFactory {
 					versionList = new Vector<DocumentVersion>(0);
 				}
 				return versionList.toArray(new DocumentVersion[] {});
+			}
+		};
+		this.messageProvider = new SingleContentProvider() {
+			// NOTE Random Data
+			final RandomData randomData = new RandomData();
+			public Object getElement(Object input) {
+				return randomData.getMessage();
+			}
+		};
+		this.messageListProvider = new FlatContentProvider() {
+			// NOTE Random Data.
+			final RandomData randomData = new RandomData();
+			public Object[] getElements(Object input) {
+				return randomData.getMessageHeaders();
 			}
 		};
 		this.userProvider = new FlatContentProvider() {
@@ -179,4 +202,6 @@ public class ProviderFactory {
 	 * @return The user provider.
 	 */
 	private FlatContentProvider doGetUserProvider() { return userProvider; }
+
+	private FlatContentProvider doGetMessageProvider() { return messageListProvider; }
 }

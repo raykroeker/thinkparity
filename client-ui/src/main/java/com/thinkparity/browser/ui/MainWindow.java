@@ -160,16 +160,16 @@ public class MainWindow extends AbstractJFrame {
 	 * 
 	 */
 	private void setRegion() {
-		final RegionBuilder regionBuilder = new RegionBuilder();
-		final Region region =
-			regionBuilder.createRoundRectangleRegion(
-					0, 0, getWidth() + 1, UIConstants.TitlePaneHeight * 2,
-					UIConstants.TitlePaneCurvature,
-					UIConstants.TitlePaneCurvature);
-		final Region region2 = regionBuilder.createRectangleRegion(0,
-				UIConstants.TitlePaneHeight, getWidth(), getHeight());
-		final Region region3 = regionBuilder.combineRegions(region, region2,
-				NativeConstants.REGION_OR);
-		NativeSkin.getInstance().setWindowRegion(this, region3, true);
+//		final RegionBuilder regionBuilder = new RegionBuilder();
+//		final Region region =
+//			regionBuilder.createRoundRectangleRegion(
+//					0, 0, getWidth() + 1, UIConstants.TitlePaneHeight * 2,
+//					UIConstants.TitlePaneCurvature,
+//					UIConstants.TitlePaneCurvature);
+//		final Region region2 = regionBuilder.createRectangleRegion(0,
+//				UIConstants.TitlePaneHeight, getWidth(), getHeight());
+//		final Region region3 = regionBuilder.combineRegions(region, region2,
+//				NativeConstants.REGION_OR);
+//		NativeSkin.getInstance().setWindowRegion(this, region3, true);
 	}
 }

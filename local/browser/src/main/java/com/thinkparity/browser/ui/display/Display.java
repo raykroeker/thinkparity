@@ -34,7 +34,7 @@ public abstract class Display extends AbstractJPanel {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.ui.display.Display#displayAvatar()
+	 * Display the avatar.
 	 * 
 	 */
 	public void displayAvatar() {

@@ -3,12 +3,7 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
@@ -83,11 +78,8 @@ class DocumentListAvatar extends Avatar {
 			addMouseListener(this);
 
 			final GridBagConstraints c = new GridBagConstraints();
-			final String iconPath;
-			if(hasBeenSeen()) {
-				iconPath = "images/documentIconGray.png";
-			}
-			else { iconPath = "images/documentIconBlue.png"; }
+			final String iconPath = isClosed() ?
+					"images/documentIconGray.png" : "images/documentIconBlue.png";
 			final JLabel documentIcon = LabelFactory.create();
 			documentIcon.setIcon(new ImageIcon(ResourceUtil.getURL(iconPath)));
 			c.insets = new Insets(0, 16, 0, 0);
@@ -100,7 +92,9 @@ class DocumentListAvatar extends Avatar {
 			c.weightx = 1.0;
 			c.weighty = 1.0;
 			c.insets = new Insets(3, 16, 3, 0);
-			add(LabelFactory.create(UIConstants.DefaultFontBold, document.getName()), c.clone());
+			final Font labelFont = hasBeenSeen() ?
+					UIConstants.DefaultFont : UIConstants.DefaultFontBold;
+			add(LabelFactory.create(labelFont, document.getName()), c.clone());
 		}
 
 		/**
@@ -151,6 +145,22 @@ class DocumentListAvatar extends Avatar {
 			try {
 				return ParityObjectUtil.hasBeenSeen(
 							document.getId(), ParityObjectType.DOCUMENT);
+			}
+			catch(ParityException px) {
+				// NOTE Error Handler Code
+				return Boolean.FALSE;
+			}
+		}
+
+		/**
+		 * Determine whether or not the document has been closed.
+		 * 
+		 * @return True if the document has been closed; false otherwise.
+		 */
+		private Boolean isClosed() {
+			try {
+				return ParityObjectUtil.isClosed(
+						document.getId(), ParityObjectType.DOCUMENT);
 			}
 			catch(ParityException px) {
 				// NOTE Error Handler Code

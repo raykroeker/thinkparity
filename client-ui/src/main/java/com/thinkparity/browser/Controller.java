@@ -203,11 +203,19 @@ public class Controller {
 	 * Select a document.
 	 * 
 	 * @param documentId
-	 *            The document to select.
+	 *            The document unique id.
 	 */
 	public void selectDocument(final UUID documentId) {
 		setInput(AvatarId.DOCUMENT_HISTORY_LIST, documentId);
 	}
+
+	/**
+	 * Unselect a document.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	public void unselectDocument(final UUID documentId) { /* NOTE Huh? */ }
 
 	/**
 	 * Obtain the action from the controller's cache. If the action does not

@@ -70,12 +70,6 @@ class DocumentListAvatar extends Avatar {
 		private final Document document;
 
 		/**
-		 * Timer used to control the hover selection.
-		 * 
-		 */
-		private final Timer selectionTimer;
-
-		/**
 		 * Create a ListItem.
 		 * 
 		 * @param document
@@ -84,11 +78,6 @@ class DocumentListAvatar extends Avatar {
 		private ListItem(final Document document) {
 			super("DocumentListAvatar$ListItem", listItemBackground);
 			this.document = document;
-			this.selectionTimer = new Timer(500, new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					selectDocument(document.getId());
-				}
-			});
 			setLayout(new GridBagLayout());
 			addMouseListener(this);
 
@@ -130,14 +119,15 @@ class DocumentListAvatar extends Avatar {
 		/**
 		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 		 */
-		public void mouseEntered(final MouseEvent e) { startSelectionTimer(); }
+		public void mouseEntered(final MouseEvent e) {
+			selectDocument(document.getId());
+		}
 	
 		/**
 		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
 		public void mouseExited(final MouseEvent e) {
-			stopSelectionTimer();
-			unselect();
+			unselectDocument(document.getId());
 		}
 	
 		/**
@@ -194,25 +184,9 @@ class DocumentListAvatar extends Avatar {
 		 *
 		 */
 		private void select() {
-			selectionTimer.stop();
 			setBackground(listItemBackgroundSelect);
 			repaint();
-			
 		}
-
-		/**
-		 * Start the selection timer.
-		 *
-		 */
-		private void startSelectionTimer() {
-			selectionTimer.start();
-		}
-
-		/**
-		 * Stop the selection timer for the hot mouse selection.
-		 *
-		 */
-		private void stopSelectionTimer() { selectionTimer.stop(); }
 
 		/**
 		 * Unselect this list item.
@@ -266,6 +240,13 @@ class DocumentListAvatar extends Avatar {
 	private final Map<UUID, Component> documentItemMap;
 
 	/**
+	 * Timer used to control the selection of the document within the main
+	 * controller.
+	 * 
+	 */
+	private final Timer selectionTimer;
+
+	/**
 	 * Create a DocumentListAvatar.
 	 * 
 	 */
@@ -273,6 +254,12 @@ class DocumentListAvatar extends Avatar {
 		super("DocumentListAvatar", new Color(255, 255, 255, 255));
 		this.controller = controller;
 		this.documentItemMap = new Hashtable<UUID, Component>(20, 0.75F);
+		this.selectionTimer = new Timer(500, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.selectDocument(currentSelection);
+			}
+		});
+		this.selectionTimer.setRepeats(false);
 		setLayout(new GridBagLayout());
 	}
 
@@ -390,6 +377,21 @@ class DocumentListAvatar extends Avatar {
 
 		final ListItem listItem = (ListItem) documentItemMap.get(documentId);
 		listItem.select();
-		controller.selectDocument(documentId);
+
+		currentSelection = documentId;
+
+		selectionTimer.start();
+	}
+
+	private void unselectDocument(final UUID documentId) {
+		Assert.assertNotNull("Cannot unselect null document.", documentId);
+
+		selectionTimer.stop();
+
+		currentSelection = null;
+
+		final ListItem listItem = (ListItem) documentItemMap.get(documentId);
+		listItem.unselect();
+		controller.unselectDocument(documentId);
 	}
 }

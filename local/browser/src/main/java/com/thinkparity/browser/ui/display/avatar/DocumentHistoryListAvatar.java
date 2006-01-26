@@ -179,7 +179,6 @@ class DocumentHistoryListAvatar extends Avatar {
 		this.controller = controller;
 		this.helper = new InfoAvatarHelper(this);
 		setLayout(new GridBagLayout());
-
 		helper.addHeading(getString("History"));
 	}
 
@@ -213,7 +212,9 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * 
 	 */
 	public void reload() {
+		helper.removeFiller();
 		removeAllListItems();
+
 		if(null != input) {
 			final Object[] elements =
 				((FlatContentProvider) contentProvider).getElements(input);
@@ -226,11 +227,10 @@ class DocumentHistoryListAvatar extends Avatar {
 				c.gridx = 0;
 				c.weightx = 1.0;
 				c.insets = new Insets(0, 0, 1, 0);
-
 				addListItem(listItem, c.clone());
 			}
-			helper.addFiller();
 		}
+
 		helper.addFiller();
 		revalidate();
 		repaint();

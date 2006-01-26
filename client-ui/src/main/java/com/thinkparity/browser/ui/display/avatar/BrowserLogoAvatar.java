@@ -3,10 +3,15 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -27,6 +32,12 @@ class BrowserLogoAvatar extends Avatar {
 	 * @see java.io.Serializable
 	 */
 	private static final long serialVersionUID = 1;
+
+	/**
+	 * The logo icon.
+	 * 
+	 */
+	private Image logoImage;
 
 	/**
 	 * Create a BrowserLogoAvatar.
@@ -64,9 +75,41 @@ class BrowserLogoAvatar extends Avatar {
 	}
 
 	/**
-	 * Obtain the ICON used to separate the add and settings labels.
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
-	 * @return The ICON.
+	 */
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		final Graphics2D g2 = (Graphics2D) g.create();
+		// TODO Center the image vertically based upon its dimensions; and the
+		// dimensions of the avatar.
+		try { g2.drawImage(getLogoImage(), 0, 10, this); }
+		finally { g2.dispose(); }
+	}
+
+	/**
+	 * Obtain the logo image. After the first read; it will remain in memory.
+	 * 
+	 * @return The logo image.
+	 */
+	private Image getLogoImage() {
+		if(null == logoImage) {
+			try {
+				logoImage =
+					ImageIO.read(ResourceUtil.getURL("images/parityLogo.png"));
+			}
+			catch(IOException iox) {
+				// NOTE Error Handler Code
+				logoImage = null;
+			}
+		}
+		return logoImage;
+	}
+
+	/**
+	 * Obtain the icon used to separate the add and settings labels.
+	 * 
+	 * @return The icon.
 	 */
 	private Icon getSeparatorIcon() {
 		return new ImageIcon(ResourceUtil.getURL("images/logoSeparator.png"));
@@ -97,7 +140,7 @@ class BrowserLogoAvatar extends Avatar {
 		c.insets = new Insets(33, 28, 0, 0);
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		add(LabelFactory.create(UIConstants.SmallFont, "LOGO"), c.clone());
+		add(LabelFactory.create(), c.clone());
 
 		c.anchor = GridBagConstraints.NORTH;
 		c.weightx = 0.0;

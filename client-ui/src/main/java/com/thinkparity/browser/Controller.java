@@ -144,13 +144,16 @@ public class Controller {
 
 		display.setAvatar(nextAvatar);
 		display.displayAvatar();
-
-		final Display[] displays = getDisplays();
-		for(Display d : displays) {
-			d.revalidate();
-			d.repaint();
-		}
+		display.revalidate();
+		display.repaint();
 	}
+
+	/**
+	 * Obtain the selected system message.
+	 * 
+	 * @return The selected system message id.
+	 */
+	public Object getSelectedSystemMessage() { return null; }
 
 	/**
 	 * Open the main window.
@@ -164,11 +167,23 @@ public class Controller {
             public void run() {
             	mainWindow = MainWindow.open(Controller.this);
             	displayAvatar(DisplayId.LOGO, AvatarId.BROWSER_LOGO);
-            	displayAvatar(DisplayId.CONTENT, AvatarId.DOCUMENT_LIST);
+            	displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
             	displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY_LIST);
         		setProjectId();
             }
         });
+	}
+
+	/**
+	 * Run the open document action.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	public void runOpenDocument(final UUID documentId) {
+		final Data data = new Data(1);
+		data.set(Open.DataKey.DOCUMENT_ID, documentId);
+		invoke(ActionId.DOCUMENT_OPEN, data);
 	}
 
 	/**
@@ -188,18 +203,6 @@ public class Controller {
 	}
 
 	/**
-	 * Run the open document action.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 */
-	public void runOpenDocument(final UUID documentId) {
-		final Data data = new Data(1);
-		data.set(Open.DataKey.DOCUMENT_ID, documentId);
-		invoke(ActionId.DOCUMENT_OPEN, data);
-	}
-
-	/**
 	 * Select a document.
 	 * 
 	 * @param documentId
@@ -210,12 +213,28 @@ public class Controller {
 	}
 
 	/**
+	 * Select the system message.
+	 * 
+	 * @param messageId
+	 *            The message id.
+	 */
+	public void selectSystemMessage(final Object messageId) {
+		setInput(AvatarId.SYSTEM_MESSAGE, messageId);
+	}
+
+	/**
 	 * Unselect a document.
 	 * 
 	 * @param documentId
 	 *            The document unique id.
 	 */
 	public void unselectDocument(final UUID documentId) { /* NOTE Huh? */ }
+
+	/**
+	 * Unselect the system message.
+	 *
+	 */
+	public void unselectSystemMessage() {}
 
 	/**
 	 * Obtain the action from the controller's cache. If the action does not
@@ -236,7 +255,9 @@ public class Controller {
 
 	/**
 	 * Obtain the input for an avatar.
-	 * @param avatarId The avatar id.
+	 * 
+	 * @param avatarId
+	 *            The avatar id.
 	 * @return The avatar input.
 	 */
 	private Object getAvatarInput(final AvatarId avatarId) {
@@ -282,7 +303,10 @@ public class Controller {
 			}
 			else {
 				if(avatarId == avatar.getId()) { avatar.setInput(input); }
-				else { logger.debug(avatarInputMap.put(avatarId, input)); }
+				else {
+					if(null == input) { logger.warn("Null input being set."); }
+					else { logger.debug(avatarInputMap.put(avatarId, input)); }
+				}
 			}
 		}
 	}
@@ -297,6 +321,7 @@ public class Controller {
 			// NOTE Error Handler Code
 			logger.fatal("Could not retreive main project.", px);
 		}
-		setInput(AvatarId.DOCUMENT_LIST, projectId);
+		setInput(
+				AvatarId.BROWSER_MAIN, new Object[] {null, projectId});
 	}
 }

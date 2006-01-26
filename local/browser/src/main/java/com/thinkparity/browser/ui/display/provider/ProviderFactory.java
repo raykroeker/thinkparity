@@ -50,10 +50,8 @@ public class ProviderFactory {
 	 * 
 	 * @return The document content provider.
 	 */
-	public static FlatContentProvider getDocumentProvider() {
-		synchronized(singletonLock) {
-			return singleton.doGetDocumentProvider();
-		}
+	public static ContentProvider getDocumentProvider() {
+		synchronized(singletonLock) { return singleton.doGetDocumentProvider(); }
 	}
 
 	/**
@@ -61,15 +59,23 @@ public class ProviderFactory {
 	 * 
 	 * @return The history content provider.
 	 */
-	public static FlatContentProvider getHistoryProvider() {
+	public static ContentProvider getHistoryProvider() {
 		synchronized(singletonLock) { return singleton.doGetHistoryProvider(); }
 	}
 
-	public static FlatContentProvider getMessageListProvider() {
-		synchronized(singletonLock) { return singleton.doGetMessageProvider(); }
+	public static ContentProvider getMainProvider() {
+		synchronized(singletonLock) { return singleton.doGetMainProvider(); }
 	}
 
-	public static FlatContentProvider getUserProvider() {
+	public static ContentProvider getSystemMessageProvider() {
+		synchronized(singletonLock) { return singleton.doGetSystemMessageProvider(); }
+	}
+
+	public static ContentProvider getSystemMessageHeaderProvider() {
+		synchronized(singletonLock) { return singleton.doGetSystemMessageHeaderProvider(); }
+	}
+
+	public static ContentProvider getUserProvider() {
 		synchronized(singletonLock) { return singleton.doGetUserProvider(); }
 	}
 
@@ -89,23 +95,34 @@ public class ProviderFactory {
 	 * The document provider.
 	 * 
 	 */
-	private final FlatContentProvider documentProvider;
+	private final ContentProvider documentProvider;
 
 	/**
 	 * The document history provider.
 	 * 
 	 */
-	private final FlatContentProvider historyProvider;
+	private final ContentProvider historyProvider;
+
+	/**
+	 * The main provider. Is a composite provider consisting of a document
+	 * list provider as well as a message list provider.
+	 * 
+	 */
+	private final ContentProvider mainProvider;
+
+	/**
+	 * The system message provider.
+	 * 
+	 */
+	private final ContentProvider systemMessageHeaderProvider;
 
 	/**
 	 * User provider.
 	 * 
 	 */
-	private final FlatContentProvider userProvider;
+	private final ContentProvider userProvider;
 
-	private final ContentProvider messageProvider;
-
-	private final FlatContentProvider messageListProvider;
+	private final ContentProvider systemMessageProvider;
 
 	/**
 	 * Create a ProviderFactory.
@@ -146,18 +163,32 @@ public class ProviderFactory {
 				return versionList.toArray(new DocumentVersion[] {});
 			}
 		};
-		this.messageProvider = new SingleContentProvider() {
+		this.mainProvider = new CompositeFlatContentProvider() {
+			public Object[] getElements(final Integer index, final Object input) {
+				Assert.assertNotNull("Index cannot be null.", index);
+				Assert.assertTrue(
+						"Index must lie within [0," + 1 + "]",
+						index >= 0 && index <= 1);
+				return ((FlatContentProvider) getProvider(index)).getElements(input);
+			}
+			private ContentProvider getProvider(final Integer index) {
+				if(0 == index) { return systemMessageHeaderProvider; }
+				else if(1 == index) { return documentProvider; }
+				else { throw Assert.createUnreachable(""); }
+			}
+		};
+		this.systemMessageProvider = new SingleContentProvider() {
 			// NOTE Random Data
 			final RandomData randomData = new RandomData();
 			public Object getElement(Object input) {
-				return randomData.getMessage();
+				return randomData.getSystemMessage();
 			}
 		};
-		this.messageListProvider = new FlatContentProvider() {
-			// NOTE Random Data.
+		this.systemMessageHeaderProvider = new FlatContentProvider() {
+			// NOTE Random Data
 			final RandomData randomData = new RandomData();
 			public Object[] getElements(Object input) {
-				return randomData.getMessageHeaders();
+				return randomData.getSystemMessageHeaders();
 			}
 		};
 		this.userProvider = new FlatContentProvider() {
@@ -183,17 +214,33 @@ public class ProviderFactory {
 	 * 
 	 * @return The document content provider.
 	 */
-	private FlatContentProvider doGetDocumentProvider() {
-		return documentProvider;
-	}
+	private ContentProvider doGetDocumentProvider() { return documentProvider; }
 
 	/**
 	 * Obtain the history content provider.
 	 * 
 	 * @return The history content provider.
 	 */
-	private FlatContentProvider doGetHistoryProvider() {
-		return historyProvider;
+	private ContentProvider doGetHistoryProvider() { return historyProvider; }
+
+	/**
+	 * Obtain the main provider.
+	 * 
+	 * @return The main provider.
+	 */
+	private ContentProvider doGetMainProvider() { return mainProvider; }
+
+	/**
+	 * Obtain the system message provider.
+	 * 
+	 * @return The system message provider.
+	 */
+	private ContentProvider doGetSystemMessageHeaderProvider() {
+		return systemMessageHeaderProvider;
+	}
+
+	private ContentProvider doGetSystemMessageProvider() {
+		return systemMessageProvider;
 	}
 
 	/**
@@ -201,7 +248,5 @@ public class ProviderFactory {
 	 * 
 	 * @return The user provider.
 	 */
-	private FlatContentProvider doGetUserProvider() { return userProvider; }
-
-	private FlatContentProvider doGetMessageProvider() { return messageListProvider; }
+	private ContentProvider doGetUserProvider() { return userProvider; }
 }

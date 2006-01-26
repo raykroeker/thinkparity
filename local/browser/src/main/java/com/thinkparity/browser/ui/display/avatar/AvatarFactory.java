@@ -22,12 +22,14 @@ public class AvatarFactory {
 		switch(id) {
 		case BROWSER_LOGO:
 			return SINGLETON.createBrowserLogo();
+		case BROWSER_MAIN:
+			return SINGLETON.createBrowserMain();
 		case DOCUMENT_LIST:
 			return SINGLETON.createDocumentList();
 		case DOCUMENT_HISTORY_LIST:
 			return SINGLETON.createDocumentHistoryList();
-		case MESSAGE_LIST:
-			return SINGLETON.createMessageList();
+		case SYSTEM_MESSAGE:
+			return SINGLETON.createSystemMessage();
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}
 	}
@@ -37,6 +39,12 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar browserLogo;
+
+	/**
+	 * The message list avatar.
+	 * 
+	 */
+	private Avatar browserMain;
 
 	/**
 	 * Main controller.
@@ -57,10 +65,10 @@ public class AvatarFactory {
 	private Avatar documentList;
 
 	/**
-	 * The message list avatar.
+	 * The system message avatar.
 	 * 
 	 */
-	private Avatar messageList;
+	private Avatar systemMessage;
 
 	/**
 	 * Create a AvatarFactory [Singleton, Factory]
@@ -80,6 +88,19 @@ public class AvatarFactory {
 			browserLogo = new BrowserLogoAvatar();
 		}
 		return browserLogo;
+	}
+
+	/**
+	 * Create the message list avatar.
+	 * 
+	 * @return The message list avatar.
+	 */
+	private Avatar createBrowserMain() {
+		if(null == browserMain) {
+			browserMain = new BrowserMainAvatar(controller);
+			browserMain.setContentProvider(ProviderFactory.getMainProvider());
+		}
+		return browserMain;
 	}
 
 	/**
@@ -109,15 +130,15 @@ public class AvatarFactory {
 	}
 
 	/**
-	 * Create the message list avatar.
+	 * Create the system message avatar.
 	 * 
-	 * @return The message list avatar.
+	 * @return The system message avatar.
 	 */
-	private Avatar createMessageList() {
-		if(null == messageList) {
-			messageList = new MessageListAvatar(controller);
-			messageList.setContentProvider(ProviderFactory.getMessageListProvider());
+	private Avatar createSystemMessage() {
+		if(null == systemMessage) {
+			systemMessage = new SystemMessageAvatar();
+			systemMessage.setContentProvider(ProviderFactory.getSystemMessageProvider());
 		}
-		return messageList;
+		return systemMessage;
 	}
 }

@@ -38,7 +38,7 @@ public abstract class Display extends AbstractJPanel {
 	 * 
 	 */
 	public void displayAvatar() {
-		if(null != avatar) { remove(avatar); }
+		removeAll();
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1.0;

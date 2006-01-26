@@ -4,6 +4,7 @@
 package com.thinkparity.browser.javax.swing;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.util.UUID;
 
 import javax.swing.JPanel;
@@ -13,6 +14,8 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.util.l10n.JPanelLocalization;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
+
+import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -94,6 +97,37 @@ public class AbstractJPanel extends JPanel {
 		logger.debug("l:" + getLocation());
 		logger.debug("b:" + getBounds());
 		logger.debug("i:" + getInsets());
+	}
+
+	/**
+	 * Debug the list of components attached to this JPanel. This api is
+	 * recursive if the component is an AbstractJPanel implementation.
+	 * 
+	 */
+	public void debugComponents() { logger.debug(internalDebugComponents()); }
+
+	/**
+	 * Generate a debug message which will illustrate the component hierarchy
+	 * that exists on this JPanel.
+	 * 
+	 * @return The debug message.
+	 */
+	private StringBuffer internalDebugComponents() {
+		final Component[] components = getComponents();
+		final StringBuffer debugMessage = new StringBuffer(getClass().getSimpleName())
+			.append("(");
+		boolean isFirstComponent = true;
+		for(Component c : components) {
+			if(isFirstComponent) { isFirstComponent = false; }
+			else { debugMessage.append(Separator.Comma); }
+			if(c instanceof AbstractJPanel) {
+				debugMessage.append(((AbstractJPanel) c).internalDebugComponents());
+			}
+			else {
+				debugMessage.append(c.getClass().getSimpleName());
+			}
+		}
+		return debugMessage.append(")");
 	}
 
 	/**

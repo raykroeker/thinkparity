@@ -23,18 +23,22 @@ import com.thinkparity.codebase.ResourceUtil;
 class InfoAvatarHelper {
 
 	/**
-	 * Component used as a filler.
-	 * 
-	 */
-	private static final Component FILLER;
-
-	static { FILLER = LabelFactory.create(); }
-
-	/**
 	 * The avatar.
 	 * 
 	 */
 	private Avatar avatar;
+
+	/**
+	 * Component used as a filler.
+	 * 
+	 */
+	private Component fillerJLabel;
+
+	/**
+	 * Heading label.
+	 * 
+	 */
+	private JLabel headingJLabel;
 
 	/**
 	 * Create a InfoAvatarHelper.
@@ -50,6 +54,10 @@ class InfoAvatarHelper {
 	 *
 	 */
 	void addFiller() {
+		if(null == fillerJLabel) {
+			fillerJLabel = LabelFactory.create();
+			fillerJLabel.setName("InfoAvatarHelper - Filler Label");
+		}
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.gridheight = GridBagConstraints.REMAINDER;
@@ -57,7 +65,8 @@ class InfoAvatarHelper {
 		c.gridx = 0;
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		avatar.add(FILLER, c.clone());
+
+		avatar.add(fillerJLabel, c.clone());
 	}
 
 	/**
@@ -67,6 +76,14 @@ class InfoAvatarHelper {
 	 *            The heading text.
 	 */
 	void addHeading(final String headingText) {
+		if(null == headingJLabel) {
+			headingJLabel =
+				LabelFactory.create(UIConstants.DefaultFontBold, headingText);
+			headingJLabel.setBackground(new Color(117, 138, 155));
+			headingJLabel.setForeground(Color.WHITE);
+			headingJLabel.setIcon(getHeadingIcon());
+			headingJLabel.setOpaque(true);
+		}
 		// h:  24 px
 		// x indent:  29 px
 		final GridBagConstraints c = new GridBagConstraints();
@@ -75,14 +92,16 @@ class InfoAvatarHelper {
 		c.gridx = 0;
 		c.weightx = 1.0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		final JLabel jLabel =
-			LabelFactory.create(UIConstants.DefaultFontBold, headingText);
-		jLabel.setBackground(new Color(117, 138, 155));
-		jLabel.setForeground(Color.WHITE);
-		jLabel.setIcon(getHeadingIcon());
-        jLabel.setOpaque(true);
 
-		avatar.add(jLabel, c.clone());
+		avatar.add(headingJLabel, c.clone());
+	}
+
+	/**
+	 * Remove the filler component.
+	 *
+	 */
+	void removeFiller() {
+		if(null != fillerJLabel) { avatar.remove(fillerJLabel); }
 	}
 
 	/**

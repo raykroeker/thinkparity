@@ -24,10 +24,12 @@ public class AvatarFactory {
 			return SINGLETON.createBrowserLogo();
 		case BROWSER_MAIN:
 			return SINGLETON.createBrowserMain();
-		case DOCUMENT_LIST:
-			return SINGLETON.createDocumentList();
+		case BROWSER_TITLE:
+			return SINGLETON.createBrowserTitle();
 		case DOCUMENT_HISTORY_LIST:
 			return SINGLETON.createDocumentHistoryList();
+		case SESSION_LOGIN:
+			return SINGLETON.createSessionLogin();
 		case SYSTEM_MESSAGE:
 			return SINGLETON.createSystemMessage();
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
@@ -47,6 +49,12 @@ public class AvatarFactory {
 	private Avatar browserMain;
 
 	/**
+	 * The browser title avatar.
+	 * 
+	 */
+	private Avatar browserTitle;
+
+	/**
 	 * Main controller.
 	 * 
 	 */
@@ -59,10 +67,10 @@ public class AvatarFactory {
 	private Avatar documentHistoryList;
 
 	/**
-	 * The document list avatar.
+	 * The session login avatar.
 	 * 
 	 */
-	private Avatar documentList;
+	private Avatar sessionLogin;
 
 	/**
 	 * The system message avatar.
@@ -104,6 +112,18 @@ public class AvatarFactory {
 	}
 
 	/**
+	 * Create the browser title avatar.
+	 * 
+	 * @return The browser title avatar.
+	 */
+	private Avatar createBrowserTitle() {
+		if(null == browserTitle) {
+			browserTitle = new BrowserTitleAvatar();
+		}
+		return browserTitle;
+	}
+
+	/**
 	 * Create the document history list avatar.
 	 * 
 	 * @return the document history list avatar.
@@ -117,16 +137,15 @@ public class AvatarFactory {
 	}
 
 	/**
-	 * Create the document list avatar.
+	 * Create the session login avatar.
 	 * 
-	 * @return The document list avatar.
+	 * @return The session login avatar.
 	 */
-	private Avatar createDocumentList() {
-		if(null == documentList) {
-			documentList = new DocumentListAvatar(controller);
-			documentList.setContentProvider(ProviderFactory.getDocumentProvider());
+	private Avatar createSessionLogin() {
+		if(null == sessionLogin) {
+			sessionLogin = new SessionLoginAvatar();
 		}
-		return documentList;
+		return sessionLogin;
 	}
 
 	/**

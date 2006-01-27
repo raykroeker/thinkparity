@@ -13,6 +13,7 @@ class InfoDisplay extends Display {
 
 	/**
 	 * @see java.io.Serializable
+	 * 
 	 */
 	private static final long serialVersionUID = 1;
 
@@ -23,8 +24,7 @@ class InfoDisplay extends Display {
 	InfoDisplay() {
 		super("InfoDisplay", new Color(235, 240, 246, 255));
 		setBorder(new MultiLineBorder(new Color[] {
-				new Color(180, 180, 180, 255),
-				/*new Color(187, 197, 206, 255), */Color.WHITE }));
+				new Color(180, 180, 180, 255), Color.WHITE }));
 	}
 
 	/**

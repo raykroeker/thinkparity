@@ -22,8 +22,6 @@ import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicRootPaneUI;
 
-import org.jvnet.substance.SubstanceTitlePane;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -965,10 +963,6 @@ public class ParityRootPaneUI extends BasicRootPaneUI {
 		JComponent oldTitlePane = getTitlePane();
 
 		if (oldTitlePane != null) {
-			// fix for defect 109 - memory leak on theme change
-			if (oldTitlePane instanceof SubstanceTitlePane)
-				((SubstanceTitlePane)oldTitlePane).uninstall();
-//			oldTitlePane.setVisible(false);
 			layeredPane.remove(oldTitlePane);
 		}
 		if (titlePane != null) {

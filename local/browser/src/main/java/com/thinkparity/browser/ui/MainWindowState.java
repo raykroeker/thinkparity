@@ -7,8 +7,8 @@ import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import com.thinkparity.browser.javax.swing.persistence.BrowserPersistenceFactory;
-import com.thinkparity.browser.javax.swing.persistence.Persistence;
+import com.thinkparity.browser.util.persistence.BrowserPersistenceFactory;
+import com.thinkparity.browser.util.persistence.Persistence;
 
 /**
  * This class is responsible for maintaining the browser's state between

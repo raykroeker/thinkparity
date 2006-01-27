@@ -42,8 +42,8 @@ public class AbstractJPanel extends JPanel {
 	private static final long serialVersionUID = 1;
 
 	static {
-		DEFAULT_BACKGROUND =	// Google Talk:  List BG Color
-			BrowserColorUtil.getRGBColor(249, 249, 249, 255);
+		// NOTE Color
+		DEFAULT_BACKGROUND = new Color(249, 249, 249, 255);
 	}
 
 	/**

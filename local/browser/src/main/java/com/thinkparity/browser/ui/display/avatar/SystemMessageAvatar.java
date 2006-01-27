@@ -10,6 +10,10 @@ import java.awt.Insets;
 
 import javax.swing.JLabel;
 
+import com.thinkparity.browser.model.tmp.system.message.Message;
+import com.thinkparity.browser.model.tmp.system.message.MessageId;
+import com.thinkparity.browser.ui.UIConstants;
+import com.thinkparity.browser.ui.component.LabelFactory;
 import com.thinkparity.browser.ui.display.provider.ContentProvider;
 import com.thinkparity.browser.ui.display.provider.SingleContentProvider;
 import com.thinkparity.browser.util.State;
@@ -77,7 +81,8 @@ class SystemMessageAvatar extends Avatar {
 		final GridBagConstraints c = new GridBagConstraints();
 
 		final Object element = ((SingleContentProvider) contentProvider).getElement(null);
-		final JLabel systemMessage  = new JLabel((String) element);
+		final JLabel systemMessage  = LabelFactory.create(UIConstants.DefaultFont);
+		systemMessage.setText(((Message) element).getBody());
 		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
@@ -107,7 +112,12 @@ class SystemMessageAvatar extends Avatar {
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setInput(java.lang.Object)
 	 * 
 	 */
-	public void setInput(Object input) {}
+	public void setInput(Object input) {
+		final Class type = MessageId.class;
+		Assert.assertOfType("System message input must be of type:  " + type,
+				type, input);
+		super.setInput(input);
+	}
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setState(com.thinkparity.browser.util.State)

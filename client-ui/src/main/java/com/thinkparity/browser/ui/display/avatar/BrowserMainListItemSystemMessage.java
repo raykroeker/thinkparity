@@ -11,8 +11,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.Timer;
 
+import com.thinkparity.browser.model.tmp.system.message.Message;
 import com.thinkparity.browser.ui.UIConstants;
-import com.thinkparity.browser.ui.display.DisplayId;
 
 import com.thinkparity.codebase.ResourceUtil;
 
@@ -21,12 +21,6 @@ import com.thinkparity.codebase.ResourceUtil;
  * @version 1.1
  */
 public class BrowserMainListItemSystemMessage extends BrowserMainListItem {
-
-	/**
-	 * @see java.io.Serializable
-	 * 
-	 */
-	private static final long serialVersionUID = 1;
 
 	/**
 	 * The list item font.
@@ -39,6 +33,12 @@ public class BrowserMainListItemSystemMessage extends BrowserMainListItem {
 	 * 
 	 */
 	private static final ImageIcon ICON;
+
+	/**
+	 * @see java.io.Serializable
+	 * 
+	 */
+	private static final long serialVersionUID = 1;
 
 	static {
 		ICON = new ImageIcon(ResourceUtil.getURL("images/systemMessageIconOrange.png"));
@@ -57,13 +57,12 @@ public class BrowserMainListItemSystemMessage extends BrowserMainListItem {
 	 * @param systemMessageHeader
 	 *            The system message header.
 	 */
-	public BrowserMainListItemSystemMessage(final String systemMessageHeader) {
-		super(ICON, systemMessageHeader, FONT);
+	public BrowserMainListItemSystemMessage(final Message systemMessage) {
+		super(ICON, systemMessage.getHeader(), FONT);
 		this.selectionTimer = new Timer(500, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// NOTE Random Data
-				getController().selectSystemMessage(null);
-				getController().displayAvatar(DisplayId.INFO, AvatarId.SYSTEM_MESSAGE);
+				getController().selectSystemMessage(systemMessage.getId());
+				getController().displaySystemMessageAvatar();
 			}
 		});
 		this.selectionTimer.setRepeats(false);

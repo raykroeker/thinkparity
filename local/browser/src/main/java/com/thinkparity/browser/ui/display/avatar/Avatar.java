@@ -5,6 +5,7 @@ package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.Color;
 
+import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.ui.display.Display;
 import com.thinkparity.browser.ui.display.provider.ContentProvider;
@@ -37,14 +38,18 @@ public abstract class Avatar extends AbstractJPanel {
 	protected Object input;
 
 	/**
+	 * The main controller.
+	 * 
+	 */
+	private Controller controller;
+
+	/**
 	 * Create a Avatar.
 	 * 
 	 * @param l18nContext
 	 *            The localization context.
 	 */
-	protected Avatar(final String l18nContext) {
-		super(l18nContext);
-	}
+	protected Avatar(final String l18nContext) { super(l18nContext); }
 
 	/**
 	 * Create an Avatar.
@@ -145,4 +150,13 @@ public abstract class Avatar extends AbstractJPanel {
 	 *            The avatar's state information.
 	 */
 	public abstract void setState(final State state);
+
+	/**
+	 * Obtain the main controller.
+	 *
+	 */
+	protected Controller getController() {
+		if(null == controller) { controller = Controller.getInstance(); }
+		return controller;
+	}
 }

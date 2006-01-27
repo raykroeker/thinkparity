@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -13,7 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.Timer;
 
 import com.thinkparity.browser.ui.UIConstants;
-import com.thinkparity.browser.ui.display.DisplayId;
+import com.thinkparity.browser.util.RandomData;
 
 import com.thinkparity.codebase.ResourceUtil;
 
@@ -24,11 +23,6 @@ import com.thinkparity.model.parity.model.document.Document;
  * @version 1.1
  */
 public class BrowserMainListItemDocument extends BrowserMainListItem {
-
-	/**
-	 * List item font.
-	 */
-	private static final Font FONT;
 
 	/**
 	 * List item icon.
@@ -43,7 +37,6 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	private static final long serialVersionUID = 1;
 
 	static {
-		FONT = UIConstants.DefaultFont;
 		ICON = new ImageIcon(ResourceUtil.getURL("images/documentIconBlue.png"));
 	}
 
@@ -64,15 +57,37 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	 * 
 	 */
 	BrowserMainListItemDocument(final Document document) {
-		super(ICON, document.getName(), FONT);
+		super(ICON, document.getName());
 		this.documentId = document.getId();
 		this.selectionTimer = new Timer(500, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				getController().selectDocument(documentId);
-				getController().displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY_LIST);
+				getController().displayDocumentHistoryListAvatar();
 			}
 		});
 		this.selectionTimer.setRepeats(false);
+		if(hasBeenSeen()) { setListItemFont(UIConstants.DefaultFont); }
+		else { setListItemFont(UIConstants.DefaultFontBold); }
+	}
+
+	/**
+	 * Determine whether or not this document has been seen.
+	 * 
+	 * @return True if it has been seen; false otherwise.
+	 */
+	private Boolean hasBeenSeen() {
+		// NOTE Random Data
+		final RandomData randomData = new RandomData();
+		return randomData.hasBeenSeen();
+//		try {
+//			return ParityObjectUtil.hasBeenSeen(
+//					documentId, ParityObjectType.DOCUMENT);
+//		}
+//		catch(ParityException px) {
+//			// NOTE Error Handler Code
+//			logger.error("", px);
+//			return Boolean.FALSE;
+//		}
 	}
 
 	/**

@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.Timer;
 
 import com.thinkparity.browser.Controller;
+import com.thinkparity.browser.model.tmp.system.message.Message;
 import com.thinkparity.browser.ui.display.provider.CompositeFlatContentProvider;
 import com.thinkparity.browser.ui.display.provider.ContentProvider;
 import com.thinkparity.browser.util.State;
@@ -44,6 +45,8 @@ import com.thinkparity.model.parity.model.document.Document;
  * 
  * NOTE The RFO should display the document's history info.
  *   * The details of the System messages should be displayed in the info panel.
+ *   
+ * NOTE Document list sorting:  New\Updates, By Name
  */
 class BrowserMainAvatar extends Avatar {
 	
@@ -198,7 +201,7 @@ class BrowserMainAvatar extends Avatar {
 		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, ((Object[]) input)[0]);
 		BrowserMainListItem mainListItem;
 		for(Object element : elements) {
-			mainListItem = new BrowserMainListItemSystemMessage((String) element);
+			mainListItem = new BrowserMainListItemSystemMessage((Message) element);
 			add(mainListItem, c.clone());
 		}
 	}

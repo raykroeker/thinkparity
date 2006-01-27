@@ -71,8 +71,8 @@ public class ProviderFactory {
 		synchronized(singletonLock) { return singleton.doGetSystemMessageProvider(); }
 	}
 
-	public static ContentProvider getSystemMessageHeaderProvider() {
-		synchronized(singletonLock) { return singleton.doGetSystemMessageHeaderProvider(); }
+	public static ContentProvider getSystemMessagesProvider() {
+		synchronized(singletonLock) { return singleton.doGetSystemMessagesProvider(); }
 	}
 
 	public static ContentProvider getUserProvider() {
@@ -110,19 +110,19 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider mainProvider;
 
+	private final ContentProvider systemMessageProvider;
+
 	/**
 	 * The system message provider.
 	 * 
 	 */
-	private final ContentProvider systemMessageHeaderProvider;
+	private final ContentProvider systemMessagesProvider;
 
 	/**
 	 * User provider.
 	 * 
 	 */
 	private final ContentProvider userProvider;
-
-	private final ContentProvider systemMessageProvider;
 
 	/**
 	 * Create a ProviderFactory.
@@ -172,7 +172,7 @@ public class ProviderFactory {
 				return ((FlatContentProvider) getProvider(index)).getElements(input);
 			}
 			private ContentProvider getProvider(final Integer index) {
-				if(0 == index) { return systemMessageHeaderProvider; }
+				if(0 == index) { return systemMessagesProvider; }
 				else if(1 == index) { return documentProvider; }
 				else { throw Assert.createUnreachable(""); }
 			}
@@ -184,11 +184,11 @@ public class ProviderFactory {
 				return randomData.getSystemMessage();
 			}
 		};
-		this.systemMessageHeaderProvider = new FlatContentProvider() {
+		this.systemMessagesProvider = new FlatContentProvider() {
 			// NOTE Random Data
 			final RandomData randomData = new RandomData();
 			public Object[] getElements(Object input) {
-				return randomData.getSystemMessageHeaders();
+				return randomData.getSystemMessages();
 			}
 		};
 		this.userProvider = new FlatContentProvider() {
@@ -230,17 +230,17 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetMainProvider() { return mainProvider; }
 
+	private ContentProvider doGetSystemMessageProvider() {
+		return systemMessageProvider;
+	}
+
 	/**
 	 * Obtain the system message provider.
 	 * 
 	 * @return The system message provider.
 	 */
-	private ContentProvider doGetSystemMessageHeaderProvider() {
-		return systemMessageHeaderProvider;
-	}
-
-	private ContentProvider doGetSystemMessageProvider() {
-		return systemMessageProvider;
+	private ContentProvider doGetSystemMessagesProvider() {
+		return systemMessagesProvider;
 	}
 
 	/**

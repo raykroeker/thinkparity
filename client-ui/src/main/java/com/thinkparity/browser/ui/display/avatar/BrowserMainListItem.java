@@ -65,6 +65,12 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	private final JVMUniqueId listItemId;
 
 	/**
+	 * The list item label.
+	 * 
+	 */
+	private JLabel listItemJLabel;
+
+	/**
 	 * Create a BrowserMainListItem.
 	 * 
 	 * @param listItemIcon
@@ -103,7 +109,13 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 		c.weightx = 1.0;
 		c.weighty = 1.0;
 		c.insets = new Insets(3, 16, 3, 0);
-		add(LabelFactory.create(listItemFont, listItemText), c.clone());
+		listItemJLabel = LabelFactory.create(listItemText, listItemFont);
+		add(listItemJLabel, c.clone());
+	}
+
+	protected BrowserMainListItem(final ImageIcon listItemIcon,
+			final String listItemText) {
+		this(listItemIcon, listItemText, null);
 	}
 
 	/**
@@ -190,6 +202,14 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 		if(doHighlight) { setBackground(listItemBackgroundSelect); }
 		else { setBackground(listItemBackground); }
 		repaint();
+	}
+
+	/**
+	 * Set the font of the list item
+	 * 
+	 */
+	protected void setListItemFont(final Font font) {
+		listItemJLabel.setFont(font);
 	}
 
 	/**

@@ -3,13 +3,19 @@
  */
 package com.thinkparity.browser;
 
+import java.awt.Point;
+import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.model.tmp.system.message.MessageId;
 import com.thinkparity.browser.ui.MainWindow;
 import com.thinkparity.browser.ui.action.AbstractAction;
 import com.thinkparity.browser.ui.action.ActionFactory;
@@ -28,6 +34,8 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.project.ProjectModel;
+
+import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -115,37 +123,40 @@ public class Controller {
 	public void closeMainWindow() {
 		Assert.assertNotNull(
 				"Cannot close main window before it is open.", mainWindow);
+		mainWindow.dispatchEvent(
+				new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
 	}
 
 	/**
-	 * Display an avatar.
-	 * 
-	 * @param displayId
-	 *            The display to use.
-	 * @param avatarId
-	 *            The avatar to display.
+	 * Display the document history list.
+	 *
 	 */
-	public void displayAvatar(final DisplayId displayId, final AvatarId avatarId) {
-		Assert.assertNotNull("Cannot display on a null display.", displayId);
-		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
-		final Display display = mainWindow.getDisplay(displayId);
+	public void displayDocumentHistoryListAvatar() {
+		displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY_LIST);
+	}
 
-		final Avatar currentAvatar = display.getAvatar();
-		state.saveAvatarState(currentAvatar);
-		if(null != currentAvatar) { currentAvatar.setDisplay(null); }
+	/**
+	 * Display the login avatar.
+	 *
+	 */
+	public void displayLoginAvatar() {
+		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_LOGIN);
+	}
 
-		final Avatar nextAvatar = AvatarFactory.create(avatarId);
-		state.loadAvatarState(nextAvatar);
+	/**
+	 * Display the main browser avatar.
+	 *
+	 */
+	public void displayMainBrowserAvatar() {
+		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
+	}
 
-		final Object input = getAvatarInput(avatarId);
-		if(null == input) { logger.info("Null input:  " + avatarId); }
-		else { nextAvatar.setInput(getAvatarInput(avatarId)); }
-		nextAvatar.setDisplay(display);
-
-		display.setAvatar(nextAvatar);
-		display.displayAvatar();
-		display.revalidate();
-		display.repaint();
+	/**
+	 * Display the system message avatar.
+	 *
+	 */
+	public void displaySystemMessageAvatar() {
+		displayAvatar(DisplayId.INFO, AvatarId.SYSTEM_MESSAGE);
 	}
 
 	/**
@@ -156,19 +167,39 @@ public class Controller {
 	public Object getSelectedSystemMessage() { return null; }
 
 	/**
+	 * Move the main window.
+	 * 
+	 * @param relativeLocation
+	 *            The new relative location of the window.
+	 */
+	public void moveMainWindow(final Point relativeLocation) {
+		logger.info("moveMainWindow(Point)");
+		logger.debug(relativeLocation);
+		final Point l = mainWindow.getLocation();
+		l.x += relativeLocation.x;
+		l.y += relativeLocation.y;
+		mainWindow.setLocation(l);
+	}
+
+	/**
 	 * Open the main window.
 	 *
 	 */
 	public void openMainWindow() {
 		Assert.assertIsNull("Cannot reopen main window.", mainWindow);
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
+		// Set the application lnf
+		try { UIManager.setLookAndFeel(new WindowsLookAndFeel()); }
+		catch(UnsupportedLookAndFeelException ulafx) { /* NOTE Error Handler Code */ }
+
+		// Schedule a job for the event-dispatching thread:  creating and
+		// showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	mainWindow = MainWindow.open(Controller.this);
-            	displayAvatar(DisplayId.LOGO, AvatarId.BROWSER_LOGO);
-            	displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
-            	displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY_LIST);
+            	mainWindow = MainWindow.open();
+            	displayTitleAvatar();
+            	displayLogoAvatar();
+            	displayMainBrowserAvatar();
+            	displayDocumentHistoryListAvatar();
         		setProjectId();
             }
         });
@@ -218,7 +249,7 @@ public class Controller {
 	 * @param messageId
 	 *            The message id.
 	 */
-	public void selectSystemMessage(final Object messageId) {
+	public void selectSystemMessage(final MessageId messageId) {
 		setInput(AvatarId.SYSTEM_MESSAGE, messageId);
 	}
 
@@ -235,6 +266,53 @@ public class Controller {
 	 *
 	 */
 	public void unselectSystemMessage() {}
+
+	/**
+	 * Display an avatar.
+	 * 
+	 * @param displayId
+	 *            The display to use.
+	 * @param avatarId
+	 *            The avatar to display.
+	 */
+	private void displayAvatar(final DisplayId displayId, final AvatarId avatarId) {
+		Assert.assertNotNull("Cannot display on a null display.", displayId);
+		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
+		final Display display = mainWindow.getDisplay(displayId);
+
+		final Avatar currentAvatar = display.getAvatar();
+		state.saveAvatarState(currentAvatar);
+		if(null != currentAvatar) { currentAvatar.setDisplay(null); }
+
+		final Avatar nextAvatar = AvatarFactory.create(avatarId);
+		state.loadAvatarState(nextAvatar);
+
+		final Object input = getAvatarInput(avatarId);
+		if(null == input) { logger.info("Null input:  " + avatarId); }
+		else { nextAvatar.setInput(getAvatarInput(avatarId)); }
+		nextAvatar.setDisplay(display);
+
+		display.setAvatar(nextAvatar);
+		display.displayAvatar();
+		display.revalidate();
+		display.repaint();
+	}
+
+	/**
+	 * Display the browser's logo avatar.
+	 *
+	 */
+	private void displayLogoAvatar() {
+    	displayAvatar(DisplayId.LOGO, AvatarId.BROWSER_LOGO);
+	}
+
+	/**
+	 * Display the browser's title avatar.
+	 *
+	 */
+	private void displayTitleAvatar() {
+    	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
+	}
 
 	/**
 	 * Obtain the action from the controller's cache. If the action does not

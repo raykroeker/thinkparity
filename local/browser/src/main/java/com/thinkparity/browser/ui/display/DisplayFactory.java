@@ -13,18 +13,22 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public class DisplayFactory {
 
+	private static final Integer DISPLAY_WIDTH = 350;
+
 	private static final DisplayFactory SINGLETON;
 
 	static { SINGLETON = new DisplayFactory(); }
 
 	public static Display create(final DisplayId id) {
 		switch(id) {
-		case LOGO:
-			return SINGLETON.createLogo();
 		case CONTENT:
 			return SINGLETON.createContent();
 		case INFO:
 			return SINGLETON.createInfo();
+		case LOGO:
+			return SINGLETON.createLogo();
+		case TITLE:
+			return SINGLETON.createTitle();
 		default: throw Assert.createUnreachable("Unknown display id:  " + id);
 		}
 	}
@@ -48,10 +52,31 @@ public class DisplayFactory {
 	private Display logo;
 
 	/**
+	 * Title display.
+	 * 
+	 */
+	private Display title;
+
+	/**
 	 * Create a DisplayFactory [Singleton, Factory]
 	 * 
 	 */
 	private DisplayFactory() { super(); }
+
+	/**
+	 * Apply the preferred, minimum and maximum size to the display.
+	 * 
+	 * @param display
+	 *            The display.
+	 * @param height
+	 *            The height.
+	 */
+	private void applySize(final Display display, final Integer height) {
+		final Dimension s = new Dimension(DISPLAY_WIDTH, height);
+		display.setPreferredSize(s);
+		display.setMinimumSize(s);
+		display.setMaximumSize(s);
+	}
 
 	/**
 	 * Create the content display.
@@ -61,10 +86,7 @@ public class DisplayFactory {
 	private Display createContent() {
 		if(null == content) {
 			content = new ContentDisplay();
-			final Dimension s = new Dimension(350, 275);
-			content.setPreferredSize(s);
-			content.setMinimumSize(s);
-			content.setMaximumSize(s);
+			applySize(content, 275);
 		}
 		return content;
 	}
@@ -77,10 +99,7 @@ public class DisplayFactory {
 	private Display createInfo() {
 		if(null == info) {
 			info = new InfoDisplay();
-			final Dimension s = new Dimension(350, 160);
-			info.setPreferredSize(s);
-			info.setMinimumSize(s);
-			info.setMaximumSize(s);
+			applySize(info, 160);
 		}
 		return info;
 	}
@@ -93,11 +112,21 @@ public class DisplayFactory {
 	private Display createLogo() {
 		if(null == logo) {
 			logo = new LogoDisplay();
-			final Dimension s = new Dimension(350, 85);
-			logo.setPreferredSize(s);
-			logo.setMinimumSize(s);
-			logo.setMaximumSize(s);
+			applySize(logo, 85);
 		}
 		return logo;
+	}
+
+	/**
+	 * Create the title display.
+	 * 
+	 * @return The title display.
+	 */
+	private Display createTitle() {
+		if(null == title) {
+			title = new TitleDisplay();
+			applySize(title, 30);
+		}
+		return title;
 	}
 }

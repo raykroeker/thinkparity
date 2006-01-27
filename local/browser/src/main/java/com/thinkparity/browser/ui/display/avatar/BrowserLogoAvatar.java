@@ -3,12 +3,9 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -147,7 +144,7 @@ class BrowserLogoAvatar extends Avatar {
 		c.insets = new Insets(11, 0, 0, 0);
 
 		c.gridx = 1;
-		add(LabelFactory.create(UIConstants.SmallFont, getString("Add")), c.clone());
+		add(LabelFactory.create(getString("Add"), UIConstants.SmallFont), c.clone());
 
 		c.gridx = 2;
 		c.insets.left = 7;
@@ -157,7 +154,7 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 3;
 		c.insets.left = 0;
 		c.insets.right = 0;
-		add(LabelFactory.create(UIConstants.SmallFont, getString("Settings")), c.clone());
+		add(LabelFactory.create(getString("Settings"), UIConstants.SmallFont), c.clone());
 
 		c.gridx = 4;
 		c.insets.left = 7;
@@ -167,7 +164,22 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 5;
 		c.insets.left = 0;
 		c.insets.right = 0;
-		add(LabelFactory.create(UIConstants.SmallFont, getString("Login")), c.clone());
+		final JLabel loginJLabel =
+			LabelFactory.create(getString("Login"), UIConstants.SmallFont);
+		loginJLabel.setForeground(Color.BLUE);
+		loginJLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				displayLoginAvatar();
+			}
+			public void mouseEntered(final MouseEvent e) {
+				setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+			public void mouseExited(final MouseEvent e) {
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+			
+		});
+		add(loginJLabel, c.clone());
 
 		c.gridx = 6;
 		c.insets.left = 7;
@@ -177,6 +189,14 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 7;
 		c.insets.left = 0;
 		c.insets.right = 6;
-		add(LabelFactory.create(UIConstants.SmallFont, getString("Help")), c.clone());
+		add(LabelFactory.create(getString("Help"), UIConstants.SmallFont), c.clone());
+	}
+
+	/**
+	 * Display the login avatar.
+	 *
+	 */
+	private void displayLoginAvatar() {
+		getController().displayLoginAvatar();
 	}
 }

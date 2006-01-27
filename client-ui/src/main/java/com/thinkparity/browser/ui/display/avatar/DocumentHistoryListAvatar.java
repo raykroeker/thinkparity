@@ -4,7 +4,6 @@
  * NOTE The history should highlight updates\new versions as well as the document
  * list.
  * 
- * NOTE Document list sorting:  New\Updates, By Name
  */
 package com.thinkparity.browser.ui.display.avatar;
 
@@ -111,7 +110,7 @@ class DocumentHistoryListAvatar extends Avatar {
 			// NOTE Random Data
 			final RandomData randomData = new RandomData();
 			final String mainText = new StringBuffer(randomData.getAction())
-				.append(randomData.getUser())
+				.append(randomData.getUser().getName())
 				.append(" ")
 				.append(randomData.getDate())
 				.toString();
@@ -119,13 +118,10 @@ class DocumentHistoryListAvatar extends Avatar {
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.weightx = 0.9;
 			c.insets = new Insets(2, 8, 2, 0);
-			add(LabelFactory.create(
-					UIConstants.DefaultFont, mainText), c.clone());
+			add(LabelFactory.create(mainText, UIConstants.DefaultFont), c.clone());
 
-			final String versionText = new StringBuffer(version.getVersionId())
-				.toString();
 			final JLabel versionJLabel = LabelFactory.create(
-					UIConstants.DefaultFont, versionText);
+					version.getVersionId(), UIConstants.DefaultFont);
 			versionJLabel.setForeground(Color.BLUE);
 			versionJLabel.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(final MouseEvent e) {

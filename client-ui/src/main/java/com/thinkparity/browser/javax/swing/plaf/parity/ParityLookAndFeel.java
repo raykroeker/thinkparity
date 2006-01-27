@@ -4,11 +4,9 @@
 package com.thinkparity.browser.javax.swing.plaf.parity;
 
 import javax.swing.UIDefaults;
+import javax.swing.plaf.metal.MetalLookAndFeel;
 
-import org.jvnet.substance.SubstanceLookAndFeel;
-import org.jvnet.substance.painter.SpecularGradientPainter;
-import org.jvnet.substance.theme.SubstanceTheme;
-import org.jvnet.substance.watermark.SubstanceNullWatermark;
+import com.thinkparity.browser.ui.UIConstants;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.OSUtil;
@@ -17,7 +15,7 @@ import com.thinkparity.codebase.OSUtil;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ParityLookAndFeel extends SubstanceLookAndFeel {
+public class ParityLookAndFeel extends MetalLookAndFeel {
 
 	private static final long serialVersionUID = 1;
 
@@ -31,14 +29,28 @@ public class ParityLookAndFeel extends SubstanceLookAndFeel {
 	/**
 	 * Create a ParityLookAndFeel.
 	 */
-	public ParityLookAndFeel(final SubstanceTheme substanceTheme) {
+	public ParityLookAndFeel() {
 		super();
 		this.os = OSUtil.getOS();
-
-		setCurrentGradientPainter(new SpecularGradientPainter());
-		setCurrentTheme(substanceTheme);
-		setCurrentWatermark(new SubstanceNullWatermark());
 	}
+
+	/**
+	 * @see javax.swing.LookAndFeel#getDescription()
+	 * 
+	 */
+	public String getDescription() { return UIConstants.LookAndFeelDescription; }
+
+	/**
+	 * @see javax.swing.LookAndFeel#getID()
+	 * 
+	 */
+	public String getID() { return UIConstants.LookAndFeelId; }
+
+	/**
+	 * @see javax.swing.LookAndFeel#getName()
+	 * 
+	 */
+	public String getName() { return UIConstants.LookAndFeelName; }
 
 	/**
 	 * @see javax.swing.LookAndFeel#isNativeLookAndFeel()
@@ -61,10 +73,10 @@ public class ParityLookAndFeel extends SubstanceLookAndFeel {
 	protected void initClassDefaults(UIDefaults table) {
 		super.initClassDefaults(table);
 
-		final String browserSubstancePackageName =
+		final String plafPackageName =
 			"com.thinkparity.browser.javax.swing.plaf.parity.";
 		final Object[] browserSubstanceDefaults = {
-			"RootPaneUI", browserSubstancePackageName + "ParityRootPaneUI"
+			"RootPaneUI", plafPackageName + "ParityRootPaneUI"
 		};
 
 		table.putDefaults(browserSubstanceDefaults);

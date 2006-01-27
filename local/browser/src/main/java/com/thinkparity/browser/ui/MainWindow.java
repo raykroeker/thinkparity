@@ -11,22 +11,16 @@ import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JRootPane;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
-import com.thinkparity.browser.javax.swing.BrowserColorUtil;
-import com.thinkparity.browser.javax.swing.BrowserUI;
 import com.thinkparity.browser.ui.display.Display;
 import com.thinkparity.browser.ui.display.DisplayId;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
-
-import com.l2fprod.gui.nativeskin.NativeConstants;
-import com.l2fprod.gui.nativeskin.NativeSkin;
-import com.l2fprod.gui.region.Region;
-import com.l2fprod.gui.region.RegionBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -35,7 +29,7 @@ import com.l2fprod.gui.region.RegionBuilder;
 public class MainWindow extends AbstractJFrame {
 
 	private static final Color backgroundColor =
-		BrowserColorUtil.getRGBColor(249, 249, 249, 255);
+		new Color(249, 249, 249, 255);
 
 	/**
 	 * The default size of the browser.
@@ -65,19 +59,33 @@ public class MainWindow extends AbstractJFrame {
 	 * Set the parity look and feel; create an instance of the main window and
 	 * display it.
 	 * 
-	 * @param controller
-	 *            A handle to the browser main class.
 	 * @return The main window.
 	 */
-	public static MainWindow open(final Controller controller) {
-		BrowserUI.setParityLookAndFeel();
-		final MainWindow mainWindow = new MainWindow(controller);
-
+	public static MainWindow open() {
+		final MainWindow mainWindow = new MainWindow();
 		mainWindow.setVisible(true);
 		((Graphics2D) mainWindow.getGraphics())
 			.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		mainWindow.debugGeometry();
+		mainWindow.debugLookAndFeel();
 		return mainWindow;
+	}
+
+	/**
+	 * The main controller.
+	 * 
+	 * @see #getController()
+	 */
+	private Controller controller;
+
+	/**
+	 * Obtain the main controller.
+	 * 
+	 * @return The main controller.
+	 */
+	private Controller getController() {
+		if(null == controller) { controller = Controller.getInstance(); }
+		return controller;
 	}
 
 	/**
@@ -95,17 +103,15 @@ public class MainWindow extends AbstractJFrame {
 	/**
 	 * Create a MainWindow.
 	 * 
-	 * @param controller
-	 *            The main controller.
 	 * @throws HeadlessException
 	 */
-	private MainWindow(final Controller controller) throws HeadlessException {
+	private MainWindow() throws HeadlessException {
 		super("MainWindow");
 		// initialize the state
 		new MainWindowState(this);
 
 		getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-		getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
+		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setRegion();
 		setResizable(false);
@@ -138,11 +144,29 @@ public class MainWindow extends AbstractJFrame {
 	 * 
 	 */
 	private void debugGeometry() {
-		logger.info("MainWindow");
+		logger.debug("MainWindow");
 		logger.debug("l:" + getLocation());
 		logger.debug("b:" + getBounds());
 		logger.debug("i:" + getInsets());
 		mainPanel.debugGeometry();
+	}
+
+	/**
+	 * Debug the look and feel.
+	 *
+	 */
+	private void debugLookAndFeel() {
+		logger.debug("MainWindow");
+		logger.debug("lnf:" + UIManager.getLookAndFeel().getClass().getName());
+		final StringBuffer buffer = new StringBuffer("installed lnf:[");
+		boolean isFirst = true;
+		for(LookAndFeelInfo lnfi : UIManager.getInstalledLookAndFeels()) {
+			if(isFirst) { isFirst = false; }
+			else { buffer.append(","); }
+			buffer.append(lnfi.getClassName());
+		}
+		buffer.append("]");
+		logger.debug(buffer);
 	}
 
 	/**

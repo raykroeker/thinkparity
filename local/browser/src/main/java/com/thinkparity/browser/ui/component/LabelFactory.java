@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.ui.component;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 
@@ -59,14 +60,21 @@ public class LabelFactory {
 		synchronized(singletonLock) { return singleton.doCreate(font); }
 	}
 
-	public static JLabel create(final Font font, final String text) {
-		synchronized(singletonLock) { return singleton.doCreate(font, text); }
+	public static JLabel create(final String text, final Font font) {
+		synchronized(singletonLock) { return singleton.doCreate(text, font); }
 	}
 
-	public static JLabel create(final Font font, final String text,
-			final Icon icon, final TextAlignment textAlignment) {
+	public static JLabel create(final String text, final Font font,
+			final Color foreground) {
 		synchronized(singletonLock) {
-			return singleton.doCreate(font, text, icon, textAlignment);
+			return singleton.doCreate(text, font, foreground);
+		}
+	}
+
+	public static JLabel create(final String text, final Icon icon,
+			final TextAlignment textAlignment, final Font font) {
+		synchronized(singletonLock) {
+			return singleton.doCreate(text, icon, textAlignment, font);
 		}
 	}
 
@@ -87,20 +95,100 @@ public class LabelFactory {
 		if(null != font) { component.setFont(font); }
 	}
 
+	/**
+	 * Apply a foreground color to a component.
+	 * 
+	 * @param component
+	 *            The component.
+	 * @param foreground
+	 *            The foreground color.
+	 */
+	private void applyForeground(final Component component,
+			final Color foreground) {
+		component.setForeground(foreground);
+	}
+
+	/**
+	 * Create a JLabel.
+	 * 
+	 * @return The JLabel
+	 */
 	private JLabel doCreate() { return new JLabel(); }
 
-	private JLabel doCreate(final Font font) { return doCreate(font, ""); }
+	/**
+	 * Create a JLabel with a Font applied.
+	 * 
+	 * @param font
+	 *            The font to apply.
+	 * @return The JLabel.
+	 */
+	private JLabel doCreate(final Font font) {
+		final JLabel jLabel = doCreate();
+		applyFont(jLabel, font);
+		return jLabel;
+	}
 
-	private JLabel doCreate(final Font font, final String text) {
-		// draw the button as a bottom button.
-		final JLabel jLabel = new JLabel(null == text ? "" : text);
-		jLabel.setFont(font);
+	/**
+	 * Create a JLabel containing text.
+	 * 
+	 * @param text
+	 *            The label text.
+	 * @return The JLabel.
+	 */
+	private JLabel doCreate(final String text) { return new JLabel(text); }
+
+	/**
+	 * Create a JLabel containing text, with a font applied.
+	 * 
+	 * @param text
+	 *            The label text.
+	 * @param font
+	 *            The font.
+	 * @return The JLabel.
+	 */
+	private JLabel doCreate(final String text, final Font font) {
+		final JLabel jLabel = doCreate(text);
+		applyFont(jLabel, font);
 		return jLabel;		
 	}
 
-	private JLabel doCreate(final Font font, final String text,
-			final Icon icon, final TextAlignment textAlignment) {
-		final JLabel jLabel = new JLabel(text, icon, textAlignment.getSwingConstant());
+	/**
+	 * Create a JLabel containing text, with a font applied; with a foreground
+	 * color applied.
+	 * 
+	 * @param text
+	 *            The label text.
+	 * @param font
+	 *            The font.
+	 * @param foreground
+	 *            The foreground color.
+	 * @return The JLabel.
+	 */
+	private JLabel doCreate(final String text, final Font font,
+			final Color foreground) {
+		final JLabel jLabel = doCreate(text);
+		applyFont(jLabel, font);
+		applyForeground(jLabel, foreground);
+		return jLabel;
+	}
+
+	/**
+	 * Create a JLabel containing text and an icon, with a font applied.
+	 * 
+	 * @param text
+	 *            The label text.
+	 * @param icon
+	 *            The label icon.
+	 * @param textAlignment
+	 *            The text alignment
+	 * @param font
+	 *            The font.
+	 * @return The JLabel.
+	 */
+	private JLabel doCreate(final String text, final Icon icon,
+			final TextAlignment textAlignment, final Font font) {
+		final JLabel jLabel =
+			new JLabel(text, icon, textAlignment.getSwingConstant());
 		applyFont(jLabel, font);
 		return jLabel;
 	}

@@ -1102,11 +1102,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 		 * transferred across and if it has, remove it; then notify all
 		 * listeners about the new document.
 		 */
-		final Project inbox = getProjectModel().getInbox();
+		final Project myProjects = getProjectModel().getMyProjects();
 		final Document document = new Document(xmppDocument.getCreatedBy(),
 				xmppDocument.getCreatedOn(), xmppDocument.getDescription(),
 				xmppDocument.getFlags(), xmppDocument.getId(),
-				xmppDocument.getName(), inbox.getId(),
+				xmppDocument.getName(), myProjects.getId(),
 				xmppDocument.getUpdatedBy(), xmppDocument.getUpdatedOn());
 		final DocumentContent content = new DocumentContent(
 				MD5Util.md5Hex(xmppDocument.getContent()),

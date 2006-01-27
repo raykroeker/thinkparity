@@ -9,6 +9,7 @@ import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public abstract class AbstractAction {
 	 */
 	protected final Logger logger =
 		LoggerFactory.getLogger(getClass());
-
+	
 	/**
 	 * Parity model factory.
 	 * 
@@ -37,16 +38,22 @@ public abstract class AbstractAction {
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
-	 * The action id.
+	 * The main controller.
 	 * 
 	 */
-	private ActionId id;
+	private Controller controller;
 
 	/**
 	 * The action ICON.
 	 * 
 	 */
 	private Icon icon;
+
+	/**
+	 * The action id.
+	 * 
+	 */
+	private ActionId id;
 
 	/**
 	 * The action NAME.
@@ -71,18 +78,18 @@ public abstract class AbstractAction {
 	}
 
 	/**
-	 * Obtain the action id.
-	 * 
-	 * @return The action id.
-	 */
-	public ActionId getId() { return id; }
-
-	/**
 	 * Obtain the action ICON.
 	 * 
 	 * @return The action ICON.
 	 */
 	public Icon getIcon() { return icon; }
+
+	/**
+	 * Obtain the action id.
+	 * 
+	 * @return The action id.
+	 */
+	public ActionId getId() { return id; }
 
 	/**
 	 * Obtain the action NAME.
@@ -116,16 +123,22 @@ public abstract class AbstractAction {
 	public void setName(String name) { this.name = name; }
 
 	/**
+	 * Obtain the main controller.
+	 * 
+	 * @return The main controller.
+	 */
+	protected Controller getController() {
+		if(null == controller) { controller = Controller.getInstance(); }
+		return controller;
+	}
+
+	/**
 	 * Obtain the document model api.
 	 * 
 	 * @return The document model api.
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}
-
-	protected SessionModel getSessionModel() {
-		return modelFactory.getSessionModel(getClass());
 	}
 
 	/**
@@ -145,6 +158,10 @@ public abstract class AbstractAction {
 	 */
 	protected ProjectModel getProjectModel() {
 		return modelFactory.getProjectModel(getClass());
+	}
+
+	protected SessionModel getSessionModel() {
+		return modelFactory.getSessionModel(getClass());
 	}
 
 	/**

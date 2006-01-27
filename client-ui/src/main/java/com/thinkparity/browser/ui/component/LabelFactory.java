@@ -5,7 +5,10 @@ package com.thinkparity.browser.ui.component;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -75,6 +78,13 @@ public class LabelFactory {
 			final TextAlignment textAlignment, final Font font) {
 		synchronized(singletonLock) {
 			return singleton.doCreate(text, icon, textAlignment, font);
+		}
+	}
+
+	public static JLabel createLink(final Component parent, final String text,
+			final Font font) {
+		synchronized(singletonLock) {
+			return singleton.doCreateLink(parent, text, font);
 		}
 	}
 
@@ -190,6 +200,35 @@ public class LabelFactory {
 		final JLabel jLabel =
 			new JLabel(text, icon, textAlignment.getSwingConstant());
 		applyFont(jLabel, font);
+		return jLabel;
+	}
+
+	/**
+	 * Create a JLabel containing text that appears as a hyperlink; with a font
+	 * applied.
+	 * 
+	 * @param parent
+	 *            The parent component on which the link will be placed.
+	 * @param text
+	 *            The link text.
+	 * @param font
+	 *            The font.
+	 * 
+	 * @return The JLabel.
+	 */
+	private JLabel doCreateLink(final Component parent, final String text,
+			final Font font) {
+		final JLabel jLabel = doCreate(text, font, Color.BLUE);
+		jLabel.addMouseListener(new MouseAdapter() {
+			final Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
+			final Cursor DEFAULT = new Cursor(Cursor.DEFAULT_CURSOR);
+			public void mouseEntered(final MouseEvent e) {
+				parent.setCursor(HAND);
+			}
+			public void mouseExited(final MouseEvent e) {
+				parent.setCursor(DEFAULT);
+			}
+		});
 		return jLabel;
 	}
 }

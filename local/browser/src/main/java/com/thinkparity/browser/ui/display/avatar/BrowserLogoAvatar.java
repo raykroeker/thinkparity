@@ -3,7 +3,12 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -85,6 +90,14 @@ class BrowserLogoAvatar extends Avatar {
 	}
 
 	/**
+	 * Display the login avatar.
+	 *
+	 */
+	private void displayLoginAvatar() {
+		getController().displayLoginAvatar();
+	}
+
+	/**
 	 * Obtain the logo image. After the first read; it will remain in memory.
 	 * 
 	 * @return The logo image.
@@ -144,7 +157,13 @@ class BrowserLogoAvatar extends Avatar {
 		c.insets = new Insets(11, 0, 0, 0);
 
 		c.gridx = 1;
-		add(LabelFactory.create(getString("Add"), UIConstants.SmallFont), c.clone());
+		final JLabel addJLabel =
+			LabelFactory.createLink(
+					this, getString("Add"), UIConstants.SmallFont);
+		addJLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) { runAddDocument(); }
+		});
+		add(addJLabel, c.clone());
 
 		c.gridx = 2;
 		c.insets.left = 7;
@@ -154,7 +173,7 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 3;
 		c.insets.left = 0;
 		c.insets.right = 0;
-		add(LabelFactory.create(getString("Settings"), UIConstants.SmallFont), c.clone());
+		add(LabelFactory.createLink(this, getString("Settings"), UIConstants.SmallFont), c.clone());
 
 		c.gridx = 4;
 		c.insets.left = 7;
@@ -165,19 +184,11 @@ class BrowserLogoAvatar extends Avatar {
 		c.insets.left = 0;
 		c.insets.right = 0;
 		final JLabel loginJLabel =
-			LabelFactory.create(getString("Login"), UIConstants.SmallFont);
-		loginJLabel.setForeground(Color.BLUE);
+			LabelFactory.createLink(this, getString("Login"), UIConstants.SmallFont);
 		loginJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				displayLoginAvatar();
 			}
-			public void mouseEntered(final MouseEvent e) {
-				setCursor(new Cursor(Cursor.HAND_CURSOR));
-			}
-			public void mouseExited(final MouseEvent e) {
-				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			}
-			
 		});
 		add(loginJLabel, c.clone());
 
@@ -189,14 +200,12 @@ class BrowserLogoAvatar extends Avatar {
 		c.gridx = 7;
 		c.insets.left = 0;
 		c.insets.right = 6;
-		add(LabelFactory.create(getString("Help"), UIConstants.SmallFont), c.clone());
+		add(LabelFactory.createLink(this, getString("Help"), UIConstants.SmallFont), c.clone());
 	}
 
 	/**
-	 * Display the login avatar.
+	 * Run the add document action.
 	 *
 	 */
-	private void displayLoginAvatar() {
-		getController().displayLoginAvatar();
-	}
+	private void runAddDocument() { getController().runCreateDocument(); }
 }

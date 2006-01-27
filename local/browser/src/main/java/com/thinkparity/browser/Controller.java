@@ -21,6 +21,7 @@ import com.thinkparity.browser.ui.action.AbstractAction;
 import com.thinkparity.browser.ui.action.ActionFactory;
 import com.thinkparity.browser.ui.action.ActionId;
 import com.thinkparity.browser.ui.action.Data;
+import com.thinkparity.browser.ui.action.document.Create;
 import com.thinkparity.browser.ui.action.document.Open;
 import com.thinkparity.browser.ui.action.document.OpenVersion;
 import com.thinkparity.browser.ui.display.Display;
@@ -206,6 +207,17 @@ public class Controller {
 	}
 
 	/**
+	 * Run the create document action.
+	 *
+	 */
+	public void runCreateDocument() {
+		final Data data = new Data(1);
+		data.set(Create.DataKey.PROJECT_ID, projectId);
+		invoke(ActionId.DOCUMENT_CREATE, data);
+		reloadMainBrowserAvatar();
+	}
+
+	/**
 	 * Run the open document action.
 	 * 
 	 * @param documentId
@@ -361,6 +373,15 @@ public class Controller {
 	}
 
 	/**
+	 * Reload the main browser avatar.
+	 *
+	 */
+	private void reloadMainBrowserAvatar() {
+		// NOTE Wierd
+		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
+	}
+
+	/**
 	 * Set the input for an avatar. If the avatar is currently being displayed;
 	 * it will be set immediately; otherwise it will be stored in the local
 	 * hash; and set when the avatar is displayed.
@@ -399,7 +420,6 @@ public class Controller {
 			// NOTE Error Handler Code
 			logger.fatal("Could not retreive main project.", px);
 		}
-		setInput(
-				AvatarId.BROWSER_MAIN, new Object[] {null, projectId});
+		setInput(AvatarId.BROWSER_MAIN, new Object[] {null, projectId});
 	}
 }

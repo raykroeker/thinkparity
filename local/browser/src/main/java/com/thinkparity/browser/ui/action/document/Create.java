@@ -4,8 +4,10 @@
 package com.thinkparity.browser.ui.action.document;
 
 import java.io.File;
+import java.util.UUID;
 
 import javax.swing.Icon;
+import javax.swing.JFileChooser;
 
 import com.thinkparity.browser.ui.action.AbstractAction;
 import com.thinkparity.browser.ui.action.ActionId;
@@ -17,7 +19,7 @@ import com.thinkparity.browser.ui.action.Data;
  */
 public class Create extends AbstractAction {
 
-	public enum DataKey { FILE }
+	public enum DataKey { PROJECT_ID }
 
 	private static final Icon ICON;
 
@@ -32,6 +34,13 @@ public class Create extends AbstractAction {
 	}
 
 	/**
+	 * The file chooser.
+	 * 
+	 * @see #getJFileChooser()
+	 */
+	private JFileChooser jFileChooser;
+
+	/**
 	 * Create a Create.
 	 * 
 	 */
@@ -42,9 +51,20 @@ public class Create extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-		final File file = (File) data.get(DataKey.FILE);
-		final String name = file.getName();
-		final String description = name;
-    	getDocumentModel().create(getProjectId(), name, description, file);
+		if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(null)) {
+			final File file = jFileChooser.getSelectedFile();
+			final UUID projectId = (UUID) data.get(DataKey.PROJECT_ID);
+			getDocumentModel().create(projectId, file.getName(), file.getName(), file);
+		}
+	}
+
+	/**
+	 * Obtain the file chooser.
+	 * 
+	 * @return The file chooser.
+	 */
+	private JFileChooser getJFileChooser() {
+		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
+		return jFileChooser;
 	}
 }

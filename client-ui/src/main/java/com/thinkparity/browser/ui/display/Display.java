@@ -7,8 +7,14 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.ui.display.avatar.Avatar;
+import com.thinkparity.browser.ui.display.avatar.Avatar.ScrollPolicy;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -43,7 +49,34 @@ public abstract class Display extends AbstractJPanel {
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		add(avatar, c.clone());
+		if(avatar.getScrollPolicy() == ScrollPolicy.NONE) {
+			add(avatar, c.clone());
+		}
+		else {
+			final JScrollPane jScrollPane;
+			switch(avatar.getScrollPolicy()) {
+			case HORIZONTAL:
+				jScrollPane = new JScrollPane(avatar,
+						ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				break;
+			case VERTICAL:
+				jScrollPane = new JScrollPane(avatar,
+						ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+				break;
+			case BOTH:
+				jScrollPane = new JScrollPane(avatar,
+						ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				break;
+			default:
+				throw Assert.createUnreachable(
+						"Cannot determine scroll policy for avatar.");
+			}
+			jScrollPane.setBorder(null);
+			add(jScrollPane, c.clone());
+		}
 	}
 
 	/**

@@ -20,6 +20,12 @@ import com.thinkparity.codebase.assertion.Assert;
 public abstract class Avatar extends AbstractJPanel {
 
 	/**
+	 * The scrolling policy for the avatar.
+	 * 
+	 */
+	public enum ScrollPolicy { BOTH, HORIZONTAL, NONE, VERTICAL }
+
+	/**
 	 * The avatar's content provider.
 	 * 
 	 */
@@ -44,23 +50,48 @@ public abstract class Avatar extends AbstractJPanel {
 	private Controller controller;
 
 	/**
+	 * The avatar's scrolling policy.
+	 * 
+	 */
+	private final ScrollPolicy scrollPolicy;
+
+	/**
 	 * Create a Avatar.
 	 * 
 	 * @param l18nContext
 	 *            The localization context.
 	 */
-	protected Avatar(final String l18nContext) { super(l18nContext); }
+	protected Avatar(final String l18nContext) {
+		this(l18nContext, ScrollPolicy.NONE);
+	}
 
 	/**
 	 * Create an Avatar.
 	 * 
 	 * @param l18nContext
 	 *            The localization context.
-	 * @param background
-	 *            The background.
+	 * @param scrollPolicy
+	 *            The scrolling policy.
 	 */
-	protected Avatar(final String l18nContext, final Color background) {
+	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy) {
+		super(l18nContext);
+		this.scrollPolicy = scrollPolicy;
+	}
+
+	/**
+	 * Create an Avatar.
+	 * 
+	 * @param l18nContext
+	 *            The localization context.
+	 * @param scrollPolicy
+	 *            The scrolling policy.
+	 * @param background
+	 *            The background color.
+	 */
+	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy,
+			final Color background) {
 		super(l18nContext, background);
+		this.scrollPolicy = scrollPolicy;
 	}
 
 	/**
@@ -90,6 +121,13 @@ public abstract class Avatar extends AbstractJPanel {
 	 * @return The input.
 	 */
 	public Object getInput() { return input; }
+
+	/**
+	 * Obtain the scroll policy for the avatar.
+	 * 
+	 * @return The scroll policy for the avatar.
+	 */
+	public ScrollPolicy getScrollPolicy() { return scrollPolicy; }
 
 	/**
 	 * Obtain the avatar's state information.

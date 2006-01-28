@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -49,7 +48,7 @@ import com.thinkparity.model.parity.model.document.Document;
  * NOTE Document list sorting:  New\Updates, By Name
  */
 class BrowserMainAvatar extends Avatar {
-	
+
 	/**
 	 * @see java.io.Serializable
 	 * 
@@ -81,7 +80,7 @@ class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	BrowserMainAvatar(final Controller controller) {
-		super("DocumentListAvatar", new Color(255, 255, 255, 255));
+		super("DocumentListAvatar", ScrollPolicy.VERTICAL);
 		this.listItemMap = new Hashtable<JVMUniqueId, Component>(20, 0.75F);
 		this.selectionTimer = new Timer(500, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -90,6 +89,7 @@ class BrowserMainAvatar extends Avatar {
 		});
 		this.selectionTimer.setRepeats(false);
 		setLayout(new GridBagLayout());
+		initBrowserMainComponents();
 	}
 
 	/**
@@ -166,6 +166,17 @@ class BrowserMainAvatar extends Avatar {
 	private void add(final BrowserMainListItem listItem, final Object constraints) {
 		listItemMap.put(listItem.getId(), listItem);
 		super.add(listItem, constraints);
+	}
+
+	/**
+	 * Initialze the browser main's components.
+	 *
+	 */
+	private void initBrowserMainComponents() {
+//		final GridBagConstraints c = new GridBagConstraints();
+//
+//		final JScrollPane jScrollPane = new JScrollPane();
+//		add(jScrollPane, c.clone());
 	}
 
 	/**

@@ -52,7 +52,7 @@ public class DeleteTest extends ModelTestCase {
 		try {
 			Document document;
 			for(Fixture datum : data) {
-				datum.documentModel.delete(datum.document);
+				datum.documentModel.delete(datum.document.getId());
 
 				document = datum.documentModel.get(datum.document.getId());
 				assertNull(document);

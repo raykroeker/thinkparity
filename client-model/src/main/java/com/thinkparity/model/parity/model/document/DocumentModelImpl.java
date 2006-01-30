@@ -189,6 +189,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Close a document.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @throws ParityException
+	 */
+	void close(final UUID documentId) throws ParityException {
+		Assert.assertNotYetImplemented("Close document has not yet been implemented.");
+	}
+
+	/**
 	 * Import a document into a project. This will take a name, description and
 	 * location of a document and copy the document into an internal store for
 	 * the project, then returns the newly created document.
@@ -334,23 +345,25 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/**
 	 * Delete a document.
 	 * 
-	 * @param document
-	 *            The document to delete.
+	 * @param documentId
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	void delete(final Document document) throws ParityException {
-		logger.info("delete(Document)");
-		logger.debug(document);
+	void delete(final UUID documentId) throws ParityException {
+		logger.info("delete(UUID)");
+		logger.debug(documentId);
 		try {
+			final Document document = get(documentId);
+
 			// flag the document as seen
 			flagAsSEEN(document);
 
 			// delete the content
-			final DocumentContent content = getContent(document.getId());
+			final DocumentContent content = getContent(documentId);
 			documentXmlIO.deleteContent(document, content);
 
 			// delete the versions
-			final Collection<DocumentVersion> versions = listVersions(document.getId());
+			final Collection<DocumentVersion> versions = listVersions(documentId);
 			for(DocumentVersion version : versions) { deleteVersion(document, version); }
 
 			// delete the document
@@ -363,11 +376,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 			notifyUpdate_objectDeleted(document);
 		}
 		catch(IOException iox) {
-			logger.error("delete(Document)", iox);
+			logger.error("delete(UUID)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("delete(Document)", rx);
+			logger.error("delete(UUID)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

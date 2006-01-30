@@ -196,7 +196,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 			// delete sub documents
 			final DocumentModel documentModel = getDocumentModel();
 			for(Document subDocument : documentModel.list(projectId)) {
-				documentModel.delete(subDocument);
+				documentModel.delete(subDocument.getId());
 			}
 			// delete sub project
 			for(Project subProject : list(projectId)) {

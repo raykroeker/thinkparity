@@ -91,6 +91,17 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Close a document.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 * @throws ParityException
+	 */
+	public void close(final UUID documentId) throws ParityException {
+		synchronized(implLock) { impl.close(documentId); }
+	}
+
+	/**
 	 * Import a document into a project. This will take a name, description and
 	 * location of a document and copy the document into an internal store for
 	 * the project, then returns the newly created document.
@@ -139,11 +150,11 @@ public class DocumentModel {
 	 * Delete a document.
 	 * 
 	 * @param document
-	 *            The document to delete.
+	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	public void delete(final Document document) throws ParityException {
-		synchronized(implLock) { impl.delete(document); }
+	public void delete(final UUID documentId) throws ParityException {
+		synchronized(implLock) { impl.delete(documentId); }
 	}
 
 	/**

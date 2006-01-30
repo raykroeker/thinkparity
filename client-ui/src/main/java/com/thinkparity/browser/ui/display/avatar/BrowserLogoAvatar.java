@@ -212,7 +212,7 @@ class BrowserLogoAvatar extends Avatar {
 		final GridBagConstraints c2 = new GridBagConstraints();
 
 		final JLabel addJLabelLink =
-			createJLabelLink(getString("Add"), new ActionListener() {
+			createJLabelLink(getString("New"), new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					runAddDocument();
 				}
@@ -227,6 +227,17 @@ class BrowserLogoAvatar extends Avatar {
 		c.insets.left = c.insets.right = 7;
 		c.weightx = 0;
 		add(separatorJLabel, c.clone());
+
+		final JLabel inviteJLabelLink =
+			createJLabelLink(getString("Invite"), new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {}
+			});
+		c.insets.left = c.insets.right = 0;
+		add(inviteJLabelLink, c.clone());
+
+		final JLabel separatorJLabel2 = createJLabelSeparator();
+		c.insets.left = c.insets.right = 7;
+		add(separatorJLabel2, c.clone());
 
 		final JLabel helpJLabelLink =
 			createJLabelLink(getString("Help"), new ActionListener() {
@@ -260,7 +271,7 @@ class BrowserLogoAvatar extends Avatar {
 		searchJPanel.add(rightSearchJLabel, c2.clone());
 
 		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 3;
+		c.gridwidth = 5;
 		c.gridy = 1;
 		c.insets.top = c.insets.left = c.insets.bottom = c.insets.right = 0;
 		c.weighty = 1;

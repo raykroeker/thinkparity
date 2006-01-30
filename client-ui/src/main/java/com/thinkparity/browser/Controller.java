@@ -179,6 +179,7 @@ public class Controller {
 		final Point l = mainWindow.getLocation();
 		l.x += relativeLocation.x;
 		l.y += relativeLocation.y;
+		logger.debug(l);
 		mainWindow.setLocation(l);
 	}
 

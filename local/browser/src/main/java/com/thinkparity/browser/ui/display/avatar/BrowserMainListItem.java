@@ -9,12 +9,17 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
@@ -59,6 +64,12 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	private Controller controller;
 
 	/**
+	 * The main list.
+	 * 
+	 */
+	private BrowserMainAvatar list;
+
+	/**
 	 * The list item id.
 	 * 
 	 */
@@ -71,6 +82,18 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	private JLabel listItemJLabel;
 
 	/**
+	 * The list item menu.
+	 * 
+	 * @see #getListItemMenu()
+	 */
+	private JPopupMenu listItemMenu;
+
+	protected BrowserMainListItem(final BrowserMainAvatar list,
+			final ImageIcon listItemIcon, final String listItemText) {
+		this(list, listItemIcon, listItemText, null);
+	}
+
+	/**
 	 * Create a BrowserMainListItem.
 	 * 
 	 * @param listItemIcon
@@ -80,9 +103,11 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	 * @param listItemFont
 	 *            The list item font.
 	 */
-	BrowserMainListItem(final ImageIcon listItemIcon, final String listItemText,
+	BrowserMainListItem(final BrowserMainAvatar list,
+			final ImageIcon listItemIcon, final String listItemText,
 			final Font listItemFont) {
 		super("BrowserMainListItem", listItemBackground);
+		this.list = list;
 		this.listItemId = JVMUniqueId.nextId();
 		setLayout(new GridBagLayout());
 		addMouseMotionListener(this);
@@ -92,6 +117,21 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 		final JLabel listItemIconJLabel = LabelFactory.create();
 		listItemIconJLabel.setIcon(listItemIcon);
 		listItemIconJLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				pinSelection();
+				final JPopupMenu jPopupMenu = getListItemMenu();
+				jPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+					public void popupMenuCanceled(final PopupMenuEvent e) {
+						unpinSelection();
+					}
+					public void popupMenuWillBecomeInvisible(
+							final PopupMenuEvent e) {}
+					public void popupMenuWillBecomeVisible(
+							final PopupMenuEvent e) {}
+				});
+				createListItemJMenuItems(jPopupMenu);
+				jPopupMenu.show(listItemIconJLabel, listItemIconJLabel.getWidth(), 0);
+			}
 			public void mouseEntered(final MouseEvent e) {
 				setCursor(new Cursor(Cursor.HAND_CURSOR));
 			}
@@ -106,17 +146,18 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 		// x indent:  40 px
 		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.BOTH;
-		c.weightx = 1.0;
-		c.weighty = 1.0;
+		c.weightx = 1;
+		c.weighty = 1;
 		c.insets = new Insets(4, 16, 4, 0);
 		listItemJLabel = LabelFactory.create(listItemText, listItemFont);
 		add(listItemJLabel, c.clone());
 	}
 
-	protected BrowserMainListItem(final ImageIcon listItemIcon,
-			final String listItemText) {
-		this(listItemIcon, listItemText, null);
-	}
+	/**
+	 * Build the menu for the list item.
+	 * 
+	 */
+	public abstract void createListItemJMenuItems(final JPopupMenu jPopupMenu);
 
 	/**
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
@@ -136,14 +177,20 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 	 * 
 	 */
-	public void mouseEntered(final MouseEvent e) { fireSelect(); }
+	public void mouseEntered(final MouseEvent e) {
+		logger.debug("MOUSE_ENTERED");
+		logger.debug("isPinned:  " + isSelectionPinned());
+		if(!isSelectionPinned()) { fireSelect(); }
+	}
 
 	/**
 	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 	 * 
 	 */
 	public void mouseExited(final MouseEvent e) {
-		if(!isWithinListItem(e)) { fireUnselect(); }
+		if(!isWithinListItem(e)) {
+			if(!isSelectionPinned()) { fireUnselect(); }
+		}
 	}
 
 	/**
@@ -165,6 +212,24 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	public void mouseReleased(final MouseEvent e) {}
 
 	/**
+	 * Create a list item menu item. This will retreive the localized text; the
+	 * localized mnemonic and attach the action listener.
+	 * 
+	 * @param localKey
+	 *            The localization local key.
+	 * @param actionListener
+	 *            The action to perform when the menu item is clicked.
+	 * @return The JMenuItem.
+	 */
+	protected JMenuItem createListItemJMenuItem(final String localKey,
+			final ActionListener actionListener) {
+		final JMenuItem jMenuItem = new JMenuItem(
+				getString(localKey), getJMenuItemMnemonic(localKey));
+		jMenuItem.addActionListener(actionListener);
+		return jMenuItem;
+	}
+
+	/**
 	 * The user has double clicked on the main list item.
 	 * 
 	 * @param e
@@ -176,13 +241,17 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	 * The main list item has been selected.
 	 *
 	 */
-	protected abstract void fireSelect();
+	protected void fireSelect() {
+		highlightListItem(Boolean.TRUE);
+	}
 
 	/**
 	 * The main list item has been unselected.
 	 * 
 	 */
-	protected abstract void fireUnselect();
+	protected void fireUnselect() {
+		highlightListItem(Boolean.FALSE);
+	}
 
 	/**
 	 * Obtain the main controller.
@@ -192,6 +261,22 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	protected Controller getController() {
 		if(null == controller) { controller = Controller.getInstance(); }
 		return controller;
+	}
+
+	/**
+	 * Obtain a menu item mnemonic from the l18n resources. This will simply
+	 * look for the item with Mnemonic tacked on the end of the key, and convert
+	 * the first character in that string to an acsii integer.
+	 * 
+	 * @param localKey
+	 *            The local key.
+	 * @return The menu item mnemonic.
+	 * 
+	 * @see AbstractJPanel#getString(String)
+	 */
+	protected Integer getJMenuItemMnemonic(final String localKey) {
+		final String mnemonicString = getString(localKey + "Mnemonic");
+		return new Integer(mnemonicString.charAt(0));
 	}
 
 	/**
@@ -220,6 +305,26 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	JVMUniqueId getId() { return listItemId; }
 
 	/**
+	 * Obtain the list item menu.
+	 * 
+	 * @return The list item menu.
+	 */
+	private JPopupMenu getListItemMenu() {
+		if(null == listItemMenu) {
+			listItemMenu = new JPopupMenu();
+		}
+		listItemMenu.removeAll();
+		return listItemMenu;
+	}
+
+	/**
+	 * Determine whether or not a selection is currently pinned.
+	 * 
+	 * @return True if a selection is pinned false otherwise.
+	 */
+	private Boolean isSelectionPinned() { return list.isSelectionPinned(); }
+
+	/**
 	 * Determine whether the mouse event lies within the main list item.
 	 * 
 	 * @param e
@@ -233,4 +338,16 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 				return Boolean.TRUE;
 		return Boolean.FALSE;
 	}
+
+	/**
+	 * Pin this list item's selection.
+	 *
+	 */
+	private void pinSelection() { list.pinSelection(getId()); }
+
+	/**
+	 * Unpin any list selection.
+	 *
+	 */
+	private void unpinSelection() { list.unpinSelection(); }
 }

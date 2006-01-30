@@ -8,13 +8,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.UUID;
-
-import javax.swing.Timer;
 
 import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.model.tmp.system.message.Message;
@@ -57,38 +52,27 @@ class BrowserMainAvatar extends Avatar {
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * Current document selection.
-	 * 
-	 * @see #selectDocument(UUID)
-	 */
-	private UUID currentSelection;
-
-	/**
 	 * Map of document ids to the list items.
 	 * 
 	 */
 	private final Map<JVMUniqueId, Component> listItemMap;
 
 	/**
-	 * Timer used to control the selection of the document within the main
-	 * controller.
+	 * The pinned selection's list item id.
 	 * 
+	 * @see #isSelectionPinned()
+	 * @see #pinSelection(JVMUniqueId)
+	 * @see #unpinSelection()
 	 */
-	private final Timer selectionTimer;
+	private JVMUniqueId pinnedListItemId;
 
 	/**
 	 * Create a DocumentListAvatar.
 	 * 
 	 */
 	BrowserMainAvatar(final Controller controller) {
-		super("DocumentListAvatar", ScrollPolicy.VERTICAL, new Color(255, 255, 255, 0));
+		super("MainListAvatar", ScrollPolicy.VERTICAL, new Color(255, 255, 255, 0));
 		this.listItemMap = new Hashtable<JVMUniqueId, Component>(20, 0.75F);
-		this.selectionTimer = new Timer(500, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.selectDocument(currentSelection);
-			}
-		});
-		this.selectionTimer.setRepeats(false);
 		setLayout(new GridBagLayout());
 	}
 
@@ -156,6 +140,30 @@ class BrowserMainAvatar extends Avatar {
 	}
 
 	/**
+	 * Determine whether or not the list item selection is currently pinned.
+	 * 
+	 * @return True if the selection of a list item is pinned; false otherwise.
+	 */
+	Boolean isSelectionPinned() { return null != pinnedListItemId; }
+
+	/**
+	 * Pin the selection of a list item.
+	 * 
+	 * @param listItemId
+	 *            The list item id.
+	 */
+	void pinSelection(final JVMUniqueId listItemId) {
+		Assert.assertNotNull("Cannot pin selection on a null id.", listItemId);
+		this.pinnedListItemId = listItemId;
+	}
+
+	/**
+	 * Unpin the selection of a list item.
+	 *
+	 */
+	void unpinSelection() { this.pinnedListItemId = null; }
+
+	/**
 	 * Add a list item to the document list.
 	 * 
 	 * @param listItem
@@ -182,7 +190,7 @@ class BrowserMainAvatar extends Avatar {
 		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(1, ((Object[]) input)[1]);
 		BrowserMainListItem mainListItem;
 		for(final Object element : elements) {
-			mainListItem = new BrowserMainListItemDocument((Document) element);
+			mainListItem = new BrowserMainListItemDocument(this, (Document) element);
 			add(mainListItem, c.clone());
 		}
 	}
@@ -201,7 +209,7 @@ class BrowserMainAvatar extends Avatar {
 		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, ((Object[]) input)[0]);
 		BrowserMainListItem mainListItem;
 		for(Object element : elements) {
-			mainListItem = new BrowserMainListItemSystemMessage((Message) element);
+			mainListItem = new BrowserMainListItemSystemMessage(this, (Message) element);
 			add(mainListItem, c.clone());
 		}
 	}

@@ -4,11 +4,13 @@
 package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
 import com.thinkparity.browser.model.tmp.system.message.Message;
@@ -57,8 +59,9 @@ public class BrowserMainListItemSystemMessage extends BrowserMainListItem {
 	 * @param systemMessageHeader
 	 *            The system message header.
 	 */
-	public BrowserMainListItemSystemMessage(final Message systemMessage) {
-		super(ICON, systemMessage.getHeader(), FONT);
+	public BrowserMainListItemSystemMessage(final BrowserMainAvatar list,
+			final Message systemMessage) {
+		super(list, ICON, systemMessage.getHeader(), FONT);
 		this.selectionTimer = new Timer(500, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getController().selectSystemMessage(systemMessage.getId());
@@ -67,6 +70,18 @@ public class BrowserMainListItemSystemMessage extends BrowserMainListItem {
 		});
 		this.selectionTimer.setRepeats(false);
 	}
+
+	/**
+	 * @see com.thinkparity.browser.ui.display.avatar.BrowserMainListItem#createListItemJMenuItems(javax.swing.JPopupMenu)
+	 * 
+	 */
+	public void createListItemJMenuItems(final JPopupMenu jPopupMenu) {}
+
+	/**
+	 * @see com.thinkparity.browser.ui.display.avatar.BrowserMainListItem#displayIconMenu(java.awt.Point)
+	 * 
+	 */
+	public void displayIconMenu(final Point iconLocation) {}
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.BrowserMainListItem#fireDoubleClick(java.awt.event.MouseEvent)

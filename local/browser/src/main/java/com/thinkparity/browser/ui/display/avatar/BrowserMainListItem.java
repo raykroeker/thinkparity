@@ -34,6 +34,13 @@ import com.thinkparity.codebase.JVMUniqueId;
 abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputListener {
 
 	/**
+	 * Maximum character count for each list item.
+	 * 
+	 * @see BrowserMainListItem#getListItemText(String)
+	 */
+	private static final int LIST_ITEM_TEXT_MAX_LENGTH = 37;
+
+	/**
 	 * Background color of the list item.
 	 * 
 	 */
@@ -54,6 +61,19 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	static {
 		listItemBackground = new Color(237, 241, 244, 255);
 		listItemBackgroundSelect = new Color(215, 231, 244, 255);
+	}
+
+	/**
+	 * Limit the size of the list item text to a pre-determined number of
+	 * characters.
+	 * 
+	 * @param text
+	 *            The list item text.
+	 * @return The truncated text (if applicable).
+	 */
+	private static String getListItemText(final String text) {
+		if(text.length() < LIST_ITEM_TEXT_MAX_LENGTH) { return text; }
+		else { return text.substring(0, LIST_ITEM_TEXT_MAX_LENGTH - 4) + "..."; }
 	}
 
 	/**
@@ -149,7 +169,8 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 		c.weightx = 1;
 		c.weighty = 1;
 		c.insets = new Insets(4, 16, 4, 0);
-		listItemJLabel = LabelFactory.create(listItemText, listItemFont);
+		listItemJLabel = LabelFactory.create(
+				getListItemText(listItemText), listItemFont);
 		add(listItemJLabel, c.clone());
 	}
 

@@ -67,7 +67,7 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	 */
 	BrowserMainListItemDocument(final BrowserMainAvatar list,
 			final Document document) {
-		super(list, ICON, getListItemText(document));
+		super(list, ICON, document.getName());
 		this.documentId = document.getId();
 		this.selectionTimer = new Timer(500, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
@@ -89,14 +89,6 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 			c.insets.right = 18;
 			add(jLabel, c.clone());
 		}
-	}
-
-	private static final int LIST_ITEM_TEXT_MAX_LENGTH = 37;
-
-	private static String getListItemText(final Document document) {
-		final String name = document.getName();
-		if(name.length() < LIST_ITEM_TEXT_MAX_LENGTH) { return name; }
-		else { return name.substring(0, LIST_ITEM_TEXT_MAX_LENGTH - 4) + "..."; }
 	}
 
 	/**

@@ -6,6 +6,8 @@ package com.thinkparity.browser.ui.display;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -64,6 +66,13 @@ public abstract class Display extends AbstractJPanel {
 				jScrollPane = new JScrollPane(avatar,
 						ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+				jScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+					public void adjustmentValueChanged(AdjustmentEvent e) {
+						logger.info("ADJUSTMENT VALUE CHANGED");
+						avatar.revalidate();
+						avatar.repaint();
+					}
+				});
 				break;
 			case BOTH:
 				jScrollPane = new JScrollPane(avatar,
@@ -74,6 +83,7 @@ public abstract class Display extends AbstractJPanel {
 				throw Assert.createUnreachable(
 						"Cannot determine scroll policy for avatar.");
 			}
+			jScrollPane.setBackground(avatar.getBackground());
 			jScrollPane.setBorder(null);
 			add(jScrollPane, c.clone());
 		}

@@ -13,7 +13,7 @@ set B2_CP=%B2_CP%;substance-2.2-SNAPSHOT.jar
 set B2_CP=%B2_CP%;log4j-1.2.13.jar
 set B2_CP=%B2_CP%;nativeskin-1.2.12.jar
 set B2_MAIN=com.thinkparity.browser.Browser2
-set B2_OPTS=-Djava.library.path=.\
+set PATH=
 
 java %B2_OPTS% -cp %B2_CP% %B2_MAIN%
 

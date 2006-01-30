@@ -143,6 +143,16 @@ class BrowserTitleAvatar extends Avatar {
 			g2.fillRect(0, 0, getWidth(), getHeight());
 		}
 		finally { g2.dispose(); }
+		g2 = (Graphics2D) g.create();
+		try {
+
+			// overlay the border so that the cornered edges get a border as well
+			// NOTE Color
+			g2.setColor(Color.BLACK);
+			g2.drawRoundRect(-1, -1, getWidth() + 1, getHeight() * 2,
+					UIConstants.TitlePaneCurvature, UIConstants.TitlePaneCurvature);
+		}
+		finally { g2.dispose(); }
 	}
 
 	/**

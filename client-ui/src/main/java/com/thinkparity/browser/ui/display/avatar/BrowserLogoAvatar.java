@@ -3,23 +3,22 @@
  */
 package com.thinkparity.browser.ui.display.avatar;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import com.thinkparity.browser.ui.UIConstants;
 import com.thinkparity.browser.ui.component.LabelFactory;
+import com.thinkparity.browser.ui.component.TextFactory;
 import com.thinkparity.browser.util.State;
 
 import com.thinkparity.codebase.ResourceUtil;
@@ -49,7 +48,7 @@ class BrowserLogoAvatar extends Avatar {
 		super("BrowserLogoAvatar");
 		setLayout(new GridBagLayout());
 
-		initAvatarComponents();
+		initBrowserLogoComponents();
 	}
 
 	/**
@@ -85,16 +84,104 @@ class BrowserLogoAvatar extends Avatar {
 		final Graphics2D g2 = (Graphics2D) g.create();
 		// TODO Center the image vertically based upon its dimensions; and the
 		// dimensions of the avatar.
-		try { g2.drawImage(getLogoImage(), 0, 10, this); }
+		try {
+			final int y = (getSize().height - getLogoImageSize().height) / 2;
+			g2.drawImage(getLogoImage(), 13, y, this);
+		}
 		finally { g2.dispose(); }
 	}
 
 	/**
-	 * Display the login avatar.
-	 *
+	 * Obtain the size of the logo.
+	 * 
+	 * @return The logo size.
 	 */
-	private void displayLoginAvatar() {
-		getController().displayLoginAvatar();
+	private Dimension getLogoImageSize() {
+		if(null == logoImageSize) {
+			final Image logoImage = getLogoImage();
+			logoImageSize = new Dimension(
+					logoImage.getWidth(this), logoImage.getHeight(this));
+		}
+		return logoImageSize;
+	}
+
+	/**
+	 * The size of the logo image.
+	 * 
+	 * @see #getLogoImageSize()
+	 */
+	private Dimension logoImageSize;
+
+	/**
+	 * Create a JLabel component that behaves as a link. It is clickable and
+	 * colored blue.
+	 * 
+	 * @param text
+	 *            The link text.
+	 * @param actionListener
+	 *            The action to perform when the link is clicked.
+	 * @return The JLabel.
+	 */
+	private JLabel createJLabelLink(final String text,
+			final ActionListener actionListener) {
+		final JLabel jLabelLink =
+			LabelFactory.createLink(this, text, UIConstants.LogoLinkFont);
+		jLabelLink.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				actionListener.actionPerformed(
+						new ActionEvent(e.getSource(),
+								ActionEvent.ACTION_PERFORMED, ""));
+			}
+		});
+		jLabelLink.setForeground(Color.BLACK);
+		return jLabelLink;
+	}
+
+	/**
+	 * Create a JLabel component that acts as a separator between the labels.
+	 * 
+	 * @return The JLabel.
+	 */
+	private JLabel createJLabelSeparator() {
+		final JLabel jLabelSeparator = LabelFactory.create(
+				new ImageIcon(ResourceUtil.getURL("images/logoSeparator.png")));
+		return jLabelSeparator;
+	}
+
+	/**
+	 * Create the JLabel used to border the search field on the left.
+	 * 
+	 * @return The JLabel.
+	 */
+	private JLabel createLeftSearchJLabel() {
+		final JLabel jLabel = LabelFactory.create(
+				new ImageIcon(ResourceUtil.getURL("images/searchLeft.png")));
+		return jLabel;
+	}
+
+	/**
+	 * Create the JLabel used to border the search field on the right.
+	 * 
+	 * @return The JLabel.
+	 */
+	private JLabel createRightSearchJLabel() {
+		final JLabel jLabel = LabelFactory.create(
+				new ImageIcon(ResourceUtil.getURL("images/searchRight.png")));
+		return jLabel;
+	}
+
+	/**
+	 * Create the JTextField used for search.
+	 * 
+	 * @return The JTextField.
+	 */
+	private JTextField createSearchTextField() {
+		final JTextField jTextField = TextFactory.create();
+		// NOTE Color
+		jTextField.setBackground(new Color(237, 241, 244, 255));
+		// NOTE Color
+		jTextField.setBorder(new TopBottomBorder(new Color(195, 209, 220, 255)));
+		return jTextField;
 	}
 
 	/**
@@ -117,90 +204,67 @@ class BrowserLogoAvatar extends Avatar {
 	}
 
 	/**
-	 * Obtain the icon used to separate the add and settings labels.
-	 * 
-	 * @return The icon.
-	 */
-	private Icon getSeparatorIcon() {
-		return new ImageIcon(ResourceUtil.getURL("images/logoSeparator.png"));
-	}
-
-	/**
 	 * Initialize the avatar components.
 	 *
 	 */
-	private void initAvatarComponents() {
-		// : - 3px
-		// Add------:------Settings------:------Login------:------Help------|
-		//      11px    8px            9x    9px       10px   10px       7px
-		//		
-		//		
-		//		
-		//		
-		//		
-		//		
-		//		
-		//		
-		//		
-		//
+	private void initBrowserLogoComponents() {
 		final GridBagConstraints c = new GridBagConstraints();
+		final GridBagConstraints c2 = new GridBagConstraints();
 
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.gridheight = 2;
-		c.insets = new Insets(33, 28, 0, 0);
-		c.weightx = 1.0;
-		c.weighty = 1.0;
-		add(LabelFactory.create(), c.clone());
+		final JLabel addJLabelLink =
+			createJLabelLink(getString("Add"), new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					runAddDocument();
+				}
+			});
+		c.anchor = GridBagConstraints.EAST;
+		c.insets.top = 9;
+		c.weightx = 1;
+		add(addJLabelLink, c.clone());
 
-		c.anchor = GridBagConstraints.NORTH;
-		c.weightx = 0.0;
-		c.insets = new Insets(11, 0, 0, 0);
+		final JLabel separatorJLabel = createJLabelSeparator();
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets.left = c.insets.right = 7;
+		c.weightx = 0;
+		add(separatorJLabel, c.clone());
 
-		c.gridx = 1;
-		final JLabel addJLabel =
-			LabelFactory.createLink(
-					this, getString("Add"), UIConstants.SmallFont);
-		addJLabel.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent e) { runAddDocument(); }
-		});
-		add(addJLabel, c.clone());
-
-		c.gridx = 2;
-		c.insets.left = 7;
-		c.insets.right = 7;
-		add(new JLabel(getSeparatorIcon()), c.clone());
-
-		c.gridx = 3;
-		c.insets.left = 0;
-		c.insets.right = 0;
-		add(LabelFactory.createLink(this, getString("Settings"), UIConstants.SmallFont), c.clone());
-
-		c.gridx = 4;
-		c.insets.left = 7;
-		c.insets.right = 7;
-		add(new JLabel(getSeparatorIcon()), c.clone());
-
-		c.gridx = 5;
-		c.insets.left = 0;
-		c.insets.right = 0;
-		final JLabel loginJLabel =
-			LabelFactory.createLink(this, getString("Login"), UIConstants.SmallFont);
-		loginJLabel.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent e) {
-				displayLoginAvatar();
-			}
-		});
-		add(loginJLabel, c.clone());
-
-		c.gridx = 6;
-		c.insets.left = 7;
-		c.insets.right = 7;
-		add(new JLabel(getSeparatorIcon()), c.clone());
-
-		c.gridx = 7;
+		final JLabel helpJLabelLink =
+			createJLabelLink(getString("Help"), new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {}
+			});
 		c.insets.left = 0;
 		c.insets.right = 6;
-		add(LabelFactory.createLink(this, getString("Help"), UIConstants.SmallFont), c.clone());
+		add(helpJLabelLink, c.clone());
+
+		final JPanel searchJPanel = new JPanel();
+		searchJPanel.setLayout(new GridBagLayout());
+		searchJPanel.setOpaque(false);
+
+		final JLabel leftSearchJLabel = createLeftSearchJLabel();
+		c2.anchor = GridBagConstraints.EAST;
+		c2.insets.left = 168;
+		searchJPanel.add(leftSearchJLabel, c2.clone());
+
+		final JTextField searchJTextField = createSearchTextField();
+		c2.fill = GridBagConstraints.BOTH;
+		c2.insets.top = c2.insets.bottom = 1;
+		c2.insets.left = 0;
+		c2.weightx = 1;
+		searchJPanel.add(searchJTextField, c2.clone());
+
+		final JLabel rightSearchJLabel = createRightSearchJLabel();
+		c2.fill = GridBagConstraints.NONE;
+		c2.insets.top = c2.insets.bottom = 0;
+		c2.insets.right = 13;
+		c2.weightx = 0;
+		searchJPanel.add(rightSearchJLabel, c2.clone());
+
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 3;
+		c.gridy = 1;
+		c.insets.top = c.insets.left = c.insets.bottom = c.insets.right = 0;
+		c.weighty = 1;
+		add(searchJPanel, c.clone());
 	}
 
 	/**

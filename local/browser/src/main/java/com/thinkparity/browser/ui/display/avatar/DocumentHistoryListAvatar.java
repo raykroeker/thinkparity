@@ -171,7 +171,8 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * 
 	 */
 	DocumentHistoryListAvatar(final Controller controller) {
-		super("DocumentHistoryListAvatar");
+		// NOTE Color
+		super("DocumentHistoryListAvatar", ScrollPolicy.VERTICAL, new Color(235, 240, 246, 255));
 		this.controller = controller;
 		this.helper = new InfoAvatarHelper(this);
 		setLayout(new GridBagLayout());

@@ -8,6 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.thinkparity.browser.ui.component.ButtonFactory;
+import com.thinkparity.browser.ui.component.CheckBoxFactory;
+import com.thinkparity.browser.ui.component.LabelFactory;
+import com.thinkparity.browser.ui.component.TextFactory;
 import com.thinkparity.browser.util.State;
 import com.thinkparity.browser.util.SwingUtil;
 
@@ -109,18 +112,18 @@ class SessionLoginAvatar extends Avatar {
         javax.swing.JCheckBox rememberPasswordJCheckBox;
         javax.swing.JLabel usernameJLabel;
 
-        fillJLabel_0 = new javax.swing.JLabel();
-        fillJLabel_1 = new javax.swing.JLabel();
-        fillJLabel_2 = new javax.swing.JLabel();
-        fillJLabel_3 = new javax.swing.JLabel();
-        fillJLabel_4 = new javax.swing.JLabel();
-        usernameJLabel = new javax.swing.JLabel();
-        usernameJTextField = new javax.swing.JTextField();
-        passwordJLabel = new javax.swing.JLabel();
-        passwordJPasswordField = new javax.swing.JPasswordField();
-        rememberPasswordJCheckBox = new javax.swing.JCheckBox();
-        cancelJButton = ButtonFactory.create("");
-        loginJButton = ButtonFactory.create("");
+        fillJLabel_0 = LabelFactory.create();
+        fillJLabel_1 = LabelFactory.create();
+        fillJLabel_2 = LabelFactory.create();
+        fillJLabel_3 = LabelFactory.create();
+        fillJLabel_4 = LabelFactory.create();
+        usernameJLabel = LabelFactory.create();
+        usernameJTextField = TextFactory.create();
+        passwordJLabel = LabelFactory.create();
+        passwordJPasswordField = TextFactory.createPassword();
+        rememberPasswordJCheckBox = CheckBoxFactory.create();
+        cancelJButton = ButtonFactory.create();
+        loginJButton = ButtonFactory.create();
 
         setLayout(new java.awt.GridBagLayout());
 

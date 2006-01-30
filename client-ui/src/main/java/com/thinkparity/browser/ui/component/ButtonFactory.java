@@ -9,7 +9,7 @@ import javax.swing.JButton;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ButtonFactory {
+public class ButtonFactory extends ComponentFactory {
 
 	/**
 	 * Singleton instance.
@@ -28,6 +28,22 @@ public class ButtonFactory {
 		singletonLock = new Object();
 	}
 
+	/**
+	 * Create a JButton.
+	 * 
+	 * @return The JButton.
+	 */
+	public static JButton create() {
+		synchronized(singletonLock) { return singleton.doCreate(); }
+	}
+
+	/**
+	 * Create a JButton with the specified text.
+	 * 
+	 * @param text
+	 *            The button text.
+	 * @return The JButton.
+	 */
 	public static JButton create(final String text) { 
 		synchronized(singletonLock) { return singleton.doCreate(text); }
 	}
@@ -37,8 +53,27 @@ public class ButtonFactory {
 	 */
 	private ButtonFactory() { super(); }
 
+	/**
+	 * Create a JButton.
+	 * 
+	 * @return The JButton.
+	 */
+	private JButton doCreate() {
+		final JButton jButton = new JButton();
+		applyDefaultFont(jButton);
+		return jButton;
+	}
+
+	/**
+	 * Create a JButton with the specified text.
+	 * 
+	 * @param text
+	 *            The button text.
+	 * @return The JButton.
+	 */
 	private JButton doCreate(final String text) {
-		final JButton jButton = new JButton(text);
-		return jButton;		
+		final JButton jButton = doCreate();
+		jButton.setText(text);
+		return jButton;
 	}
 }

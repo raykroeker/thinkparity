@@ -12,6 +12,8 @@ import java.awt.Font;
  */
 public interface UIConstants {
 
+	public static final Font LogoLinkFont = new Font("Verdana", Font.BOLD, 10);
+
 	public static final Font DefaultFont = new Font("Verdana", Font.PLAIN, 11);
 
 	public static final Font DefaultFontBold = new Font("Verdana", Font.BOLD, 11);

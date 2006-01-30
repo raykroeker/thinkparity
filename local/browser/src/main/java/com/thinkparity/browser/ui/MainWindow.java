@@ -72,27 +72,17 @@ public class MainWindow extends AbstractJFrame {
 	}
 
 	/**
+	 * Handle to an apache logger.
+	 * 
+	 */
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+	/**
 	 * The main controller.
 	 * 
 	 * @see #getController()
 	 */
 	private Controller controller;
-
-	/**
-	 * Obtain the main controller.
-	 * 
-	 * @return The main controller.
-	 */
-	private Controller getController() {
-		if(null == controller) { controller = Controller.getInstance(); }
-		return controller;
-	}
-
-	/**
-	 * Handle to an apache logger.
-	 * 
-	 */
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Main panel.
@@ -167,6 +157,16 @@ public class MainWindow extends AbstractJFrame {
 		}
 		buffer.append("]");
 		logger.debug(buffer);
+	}
+
+	/**
+	 * Obtain the main controller.
+	 * 
+	 * @return The main controller.
+	 */
+	private Controller getController() {
+		if(null == controller) { controller = Controller.getInstance(); }
+		return controller;
 	}
 
 	/**

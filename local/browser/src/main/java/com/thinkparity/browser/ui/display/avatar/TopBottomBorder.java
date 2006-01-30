@@ -1,4 +1,7 @@
-package com.thinkparity.browser.ui.display;
+/*
+ * Jan 28, 2006
+ */
+package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -9,12 +12,10 @@ import java.awt.Rectangle;
 import javax.swing.border.AbstractBorder;
 
 /**
- * The default border for a display is a single line at the top of the display.
- * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DefaultBorder extends AbstractBorder {
+public class TopBottomBorder extends AbstractBorder {
 
 	/**
 	 * @see java.io.Serializable
@@ -23,28 +24,18 @@ public class DefaultBorder extends AbstractBorder {
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * The border color.
+	 * The color of the border.
 	 * 
 	 */
 	private final Color color;
 
 	/**
-	 * Create a DefaultBorder.
+	 * Create a TopBottomBorder.
 	 * 
-	 * @param color
-	 *            The border color.
 	 */
-	DefaultBorder(final Color color) {
+	public TopBottomBorder(final Color color) {
 		super();
 		this.color = color;
-	}
-
-	/**
-	 * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
-	 * 
-	 */
-	public Insets getBorderInsets(Component c) {
-		return new Insets(1, 0, 0, 0);
 	}
 
 	/**
@@ -53,9 +44,17 @@ public class DefaultBorder extends AbstractBorder {
 	 * 
 	 */
 	public Insets getBorderInsets(Component c, Insets insets) {
-		insets.top = 1;
-		insets.left = insets.bottom = insets.right = 0;
+		insets.top = insets.bottom = 1;
+		insets.left = insets.right = 0;
 		return insets;
+	}
+
+	/**
+	 * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
+	 * 
+	 */
+	public Insets getBorderInsets(Component c) {
+		return new Insets(1, 0, 1, 0);
 	}
 
 	/**
@@ -83,6 +82,7 @@ public class DefaultBorder extends AbstractBorder {
 		final Color oColor = g.getColor();
 		g.setColor(color);
 		g.drawLine(x, y, x + width - 1, y);
+		g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
 		g.setColor(oColor);
 	}
 }

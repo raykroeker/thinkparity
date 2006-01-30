@@ -18,24 +18,43 @@ import javax.swing.SwingConstants;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class LabelFactory {
+public class LabelFactory extends ComponentFactory {
 
+	/**
+	 * Text alignment when using an image and text in a label.
+	 * 
+	 */
 	public enum TextAlignment {
 
-		CENTER(SwingConstants.CENTER),
-		LEADING(SwingConstants.LEADING),
-		LEFT(SwingConstants.LEFT),
-		RIGHT(SwingConstants.RIGHT),
+		CENTER(SwingConstants.CENTER), LEADING(SwingConstants.LEADING),
+		LEFT(SwingConstants.LEFT), RIGHT(SwingConstants.RIGHT),
 		TRAILING(SwingConstants.TRAILING);
 
+		/**
+		 * The swing constant that the enum wraps.
+		 * 
+		 * @see SwingConstants
+		 */
 		private final Integer swingConstant;
 
+		/**
+		 * Create a TextAlignment.
+		 * 
+		 * @param swingConstant
+		 *            The wrapped swing constant.
+		 * 
+		 * @see SwingConstants           
+		 */
 		private TextAlignment(final Integer swingConstant) {
 			this.swingConstant = swingConstant;
 		}
 
+		/**
+		 * Obtain the swing constant this type wraps.
+		 * 
+		 * @return The swing constant.
+		 */
 		public Integer getSwingConstant() { return swingConstant; }
-
 	}
 
 	/**
@@ -55,12 +74,21 @@ public class LabelFactory {
 		singletonLock = new Object();
 	}
 
+	/**
+	 * Create a JLabel.
+	 * 
+	 * @return The JLabel.
+	 */
 	public static JLabel create() {
 		synchronized(singletonLock) { return singleton.doCreate(); }
 	}
 
 	public static JLabel create(final Font font) {
 		synchronized(singletonLock) { return singleton.doCreate(font); }
+	}
+
+	public static JLabel create(final Icon icon) {
+		synchronized(singletonLock) { return singleton.doCreate(icon); }
 	}
 
 	public static JLabel create(final String text, final Font font) {
@@ -94,36 +122,39 @@ public class LabelFactory {
 	private LabelFactory() { super(); }
 
 	/**
-	 * Apply a font to a component.
+	 * Apply an icon to a JLabel.
 	 * 
-	 * @param component
-	 *            The component.
-	 * @param font
-	 *            The font.
+	 * @param jLabel
+	 *            The JLabel.
+	 * @param icon
+	 *            The icon.
 	 */
-	private void applyFont(final Component component, final Font font) {
-		if(null != font) { component.setFont(font); }
+	private void applyIcon(final JLabel jLabel, final Icon icon) {
+		jLabel.setIcon(icon);
 	}
 
 	/**
-	 * Apply a foreground color to a component.
+	 * Apply the text to the JLabel.
 	 * 
-	 * @param component
-	 *            The component.
-	 * @param foreground
-	 *            The foreground color.
+	 * @param jLabel
+	 *            The JLabel.
+	 * @param text
+	 *            The text.
 	 */
-	private void applyForeground(final Component component,
-			final Color foreground) {
-		component.setForeground(foreground);
+	private void applyText(final JLabel jLabel, final String text) {
+		jLabel.setText(text);
 	}
 
 	/**
 	 * Create a JLabel.
 	 * 
-	 * @return The JLabel
+	 * @return The JLabel.
 	 */
-	private JLabel doCreate() { return new JLabel(); }
+	private JLabel doCreate() {
+		final JLabel jLabel = new JLabel();
+		applyDefaultFont(jLabel);
+		return jLabel;
+	}
 
 	/**
 	 * Create a JLabel with a Font applied.
@@ -138,6 +169,12 @@ public class LabelFactory {
 		return jLabel;
 	}
 
+	private JLabel doCreate(final Icon icon) {
+		final JLabel jLabel = doCreate();
+		applyIcon(jLabel, icon);
+		return jLabel;
+	}
+
 	/**
 	 * Create a JLabel containing text.
 	 * 
@@ -145,7 +182,11 @@ public class LabelFactory {
 	 *            The label text.
 	 * @return The JLabel.
 	 */
-	private JLabel doCreate(final String text) { return new JLabel(text); }
+	private JLabel doCreate(final String text) {
+		final JLabel jLabel = doCreate();
+		applyText(jLabel, text);
+		return jLabel;
+	}
 
 	/**
 	 * Create a JLabel containing text, with a font applied.
@@ -220,8 +261,8 @@ public class LabelFactory {
 			final Font font) {
 		final JLabel jLabel = doCreate(text, font, Color.BLUE);
 		jLabel.addMouseListener(new MouseAdapter() {
-			final Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
 			final Cursor DEFAULT = new Cursor(Cursor.DEFAULT_CURSOR);
+			final Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
 			public void mouseEntered(final MouseEvent e) {
 				parent.setCursor(HAND);
 			}

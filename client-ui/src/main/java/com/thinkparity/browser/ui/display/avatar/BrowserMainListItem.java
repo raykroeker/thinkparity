@@ -108,7 +108,7 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		c.insets = new Insets(3, 16, 3, 0);
+		c.insets = new Insets(4, 16, 4, 0);
 		listItemJLabel = LabelFactory.create(listItemText, listItemFont);
 		add(listItemJLabel, c.clone());
 	}

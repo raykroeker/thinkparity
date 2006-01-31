@@ -69,4 +69,16 @@ public class User {
 	 * @return The username of the user.
 	 */
 	public String getUsername() { return username; }
+
+	/**
+	 * Obtain the simple username of the user.
+	 * 
+	 * @return The simple username.
+	 */
+	public String getSimpleUsername() {
+		if(username.contains("@")) {
+			return username.substring(0, username.indexOf("@"));
+		}
+		else { return username; }
+	}
 }

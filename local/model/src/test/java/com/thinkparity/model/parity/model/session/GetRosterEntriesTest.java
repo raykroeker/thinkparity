@@ -27,13 +27,16 @@ public class GetRosterEntriesTest extends ModelTestCase {
 	 */
 	private class Fixture {
 		private final int rosterEntriesSize;
-		private final Collection<String> rosterEntryUsernames;
+		private final Collection<String> rosterSimpleUsernames;
+		private final Collection<String> rosterUsernames;
 		private final SessionModel sessionModel;
 		private Fixture(final int rosterEntriesSize,
-				final Collection<String> rosterEntryUsernames,
+				final Collection<String> rosterSimpleUsernames,
+				final Collection<String> rosterUsernames,
 				final SessionModel sessionModel) {
 			this.rosterEntriesSize = rosterEntriesSize;
-			this.rosterEntryUsernames = rosterEntryUsernames;
+			this.rosterSimpleUsernames = rosterSimpleUsernames;
+			this.rosterUsernames = rosterUsernames;
 			this.sessionModel = sessionModel;
 		}
 	}
@@ -61,10 +64,13 @@ public class GetRosterEntriesTest extends ModelTestCase {
 				assertEquals(datum.rosterEntriesSize, rosterEntries.size());
 				for(User rosterEntry : rosterEntries) {
 					assertNotNull(rosterEntry);
-					assertTrue(datum.rosterEntryUsernames.contains(rosterEntry.getUsername()));
-					datum.rosterEntryUsernames.remove(rosterEntry.getUsername());
+					assertTrue(datum.rosterUsernames.contains(rosterEntry.getUsername()));
+					assertTrue(datum.rosterSimpleUsernames.contains(rosterEntry.getSimpleUsername()));
+
+					datum.rosterUsernames.remove(rosterEntry.getUsername());
+					datum.rosterSimpleUsernames.remove(rosterEntry.getSimpleUsername());
 				}
-				assertEquals(0, datum.rosterEntryUsernames.size());
+				assertEquals(0, datum.rosterUsernames.size());
 			}
 		}
 		catch(Throwable t) { fail(getFailMessage(t)); }
@@ -79,13 +85,20 @@ public class GetRosterEntriesTest extends ModelTestCase {
 		final Preferences preferences = getPreferences();
 		data = new Vector<Fixture>(1);
 		Collection<String> usernames;
+		Collection<String> simpleUsernames;
 
 		sessionModel.login(
 				modelTestUser.getUsername(), modelTestUser.getPassword());
+
+		simpleUsernames = new Vector<String>(2);
+		simpleUsernames.add("junit.buddy.0");
+		simpleUsernames.add("junit.buddy.1");
+
 		usernames = new Vector<String>(2);
 		usernames.add("junit.buddy.0@" + preferences.getServerHost());
 		usernames.add("junit.buddy.1@" + preferences.getServerHost());
-		data.add(new Fixture(2, usernames, sessionModel));
+
+		data.add(new Fixture(2, simpleUsernames, usernames, sessionModel));
 	}
 
 	/**

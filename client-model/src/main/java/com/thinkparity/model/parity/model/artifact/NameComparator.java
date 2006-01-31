@@ -3,30 +3,20 @@
  */
 package com.thinkparity.model.parity.model.artifact;
 
-import java.util.Comparator;
-
 import com.thinkparity.model.parity.api.ParityObject;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class NameComparator implements Comparator<ParityObject> {
-
-	/**
-	 * If we are doing an ascending sort, this value is one; otherwise it is
-	 * negative one.
-	 * 
-	 */
-	private final int resultMultiplier;
+class NameComparator extends AbstractArtifactComparator {
 
 	/**
 	 * Create a NameComparator.
 	 * 
 	 */
 	NameComparator(final Boolean doCompareAscending) {
-		super();
-		this.resultMultiplier = doCompareAscending ? 1 : -1;
+		super(doCompareAscending);
 	}
 
 	/**
@@ -34,6 +24,8 @@ class NameComparator implements Comparator<ParityObject> {
 	 * 
 	 */
 	public int compare(ParityObject o1, ParityObject o2) {
-		return o1.getName().compareTo(o2.getName()) * resultMultiplier;
+		final int compareResult = o1.getName().compareTo(o2.getName());
+		if(0 == compareResult) { return subCompare(o1, o2); }
+		else { return compareResult * resultMultiplier; }
 	}
 }

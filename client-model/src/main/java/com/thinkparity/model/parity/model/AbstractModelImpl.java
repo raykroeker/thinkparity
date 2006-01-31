@@ -191,17 +191,19 @@ public abstract class AbstractModelImpl {
 	 * returned; otherwise null will be returned. This api assumes that the
 	 * user's session is established.
 	 * 
-	 * @param username
-	 *            The target username to find.
+	 * @param simpleUsername
+	 *            The simple username to find.
 	 * @return The user reference.
 	 * @throws ParityException
+	 * 
+	 * @see User#getSimpleUsername()
 	 */
-	protected User getUser(final String username) throws ParityException {
+	protected User getUser(final String simpleUsername) throws ParityException {
 		final SessionModel sessionModel = getSessionModel();
 		Assert.assertTrue("getUser(String)", sessionModel.isLoggedIn());
 		final Collection<User> rosterEntries = sessionModel.getRosterEntries();
 		for(User user : rosterEntries) {
-			if(user.getUsername().equals(username)) { return user; }
+			if(user.getSimpleUsername().equals(simpleUsername)) { return user; }
 		}
 		return null;
 	}

@@ -12,32 +12,39 @@ package com.thinkparity.model.xmpp.user;
 public class User {
 
 	/**
-	 * User presence.
+	 * The user's presence types.
+	 * 
 	 */
 	public enum Presence { AVAILABLE, OFFLINE, UNAVAILABLE }
 
 	/**
-	 * The name of the user.
+	 * The user's name.
+	 * 
 	 */
 	private final String name;
 
 	/**
-	 * The presence of the user.
+	 * The user's presence info.
+	 * 
 	 */
 	private final Presence presence;
 
 	/**
-	 * The username of the user.
+	 * The fully qualified username. This contains the username; the domain
+	 * information as well as the resource information.
+	 * 
+	 * @see #getUsername()
+	 * @see #getSimpleUsername()
 	 */
 	private final String username;
 
 	/**
-	 * Create a UserRenderer
+	 * Create a User.
 	 * 
 	 * @param name
 	 *            The name of the user.
 	 * @param username
-	 *            The username of the user.
+	 *            The fully qualified username.
 	 * @param presence
 	 *            The presence of the user.
 	 */
@@ -64,16 +71,9 @@ public class User {
 	public Presence getPresence() { return presence; }
 
 	/**
-	 * Obtain the username of the user.
-	 * 
-	 * @return The username of the user.
-	 */
-	public String getUsername() { return username; }
-
-	/**
 	 * Obtain the simple username of the user.
 	 * 
-	 * @return The simple username.
+	 * @return The simple username; without the domain\resource suffix.
 	 */
 	public String getSimpleUsername() {
 		if(username.contains("@")) {
@@ -81,4 +81,11 @@ public class User {
 		}
 		else { return username; }
 	}
+
+	/**
+	 * Obtain the username of the user.
+	 * 
+	 * @return The username of the user.
+	 */
+	public String getUsername() { return username; }
 }

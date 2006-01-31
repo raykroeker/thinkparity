@@ -11,8 +11,6 @@ import com.thinkparity.browser.ui.action.AbstractAction;
 import com.thinkparity.browser.ui.action.ActionId;
 import com.thinkparity.browser.ui.action.Data;
 
-import com.thinkparity.model.parity.ParityException;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -60,15 +58,14 @@ public class Open extends AbstractAction {
 	 * Create an Open.
 	 * 
 	 */
-	public Open() { super(ID, NAME, ICON); }
+	public Open() { super("Document.Open", ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.ui.action.AbstractAction#invoke(com.thinkparity.browser.ui.action.Data)
 	 * 
 	 */
-	public void invoke(final Data data) {
+	public void invoke(final Data data) throws Exception {
 		final UUID id = (UUID) data.get(DataKey.DOCUMENT_ID);
-		try { getDocumentModel().open(id); }
-		catch(ParityException px) { registerError(px); }
+		getDocumentModel().open(id);
 	}
 }

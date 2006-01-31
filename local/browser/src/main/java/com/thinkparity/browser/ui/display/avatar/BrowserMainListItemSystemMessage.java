@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
@@ -75,7 +76,20 @@ public class BrowserMainListItemSystemMessage extends BrowserMainListItem {
 	 * @see com.thinkparity.browser.ui.display.avatar.BrowserMainListItem#createListItemJMenuItems(javax.swing.JPopupMenu)
 	 * 
 	 */
-	public void createListItemJMenuItems(final JPopupMenu jPopupMenu) {}
+	public void createListItemJMenuItems(final JPopupMenu jPopupMenu) {
+		final JMenuItem acceptJMenuItem =
+			createListItemJMenuItem("Accept", new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+				}
+			});
+		jPopupMenu.add(acceptJMenuItem);
+		final JMenuItem declineJMenuItem =
+			createListItemJMenuItem("Decline", new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+				}
+			});
+		jPopupMenu.add(declineJMenuItem);
+	}
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.BrowserMainListItem#displayIconMenu(java.awt.Point)

@@ -29,8 +29,8 @@ public class EventDispatcher {
 	 *            main controller.
 	 * @return The event dispatcher.
 	 */
-	public static EventDispatcher getInstance(final Controller controller) {
-		if(null == singleton) { singleton = new EventDispatcher(controller); }
+	public static EventDispatcher getInstance() {
+		if(null == singleton) { singleton = new EventDispatcher(); }
 		return singleton;
 	}
 
@@ -44,7 +44,7 @@ public class EventDispatcher {
 	 * Main controller.
 	 * 
 	 */
-	private final Controller controller;
+	protected Controller controller;
 
 	/**
 	 * Handle to the document model api.
@@ -74,9 +74,8 @@ public class EventDispatcher {
 	 * Create an EventDispatcher.
 	 * 
 	 */
-	private EventDispatcher(final Controller controller) {
+	private EventDispatcher() {
 		super();
-		this.controller = controller;
 		this.isInitialized = false;
 	}
 
@@ -86,6 +85,8 @@ public class EventDispatcher {
 	 */
 	public void initialize() {
 		if(!isInitialized) {
+			controller = Controller.getInstance();
+
 			documentModel = modelFactory.getDocumentModel(getClass());
 			projectModel = modelFactory.getProjectModel(getClass());
 			sessionModel = modelFactory.getSessionModel(getClass());
@@ -104,7 +105,9 @@ public class EventDispatcher {
 	private CreationListener createDocumentModelCreationListener() {
 		return new CreationListener() {
 			public void objectCreated(final CreationEvent e) {}
-			public void objectReceived(final CreationEvent e) {}
+			public void objectReceived(final CreationEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 			public void objectVersionCreated(final VersionCreationEvent e) {}
 			public void objectVersionReceived(VersionCreationEvent e) {}
 		};
@@ -114,7 +117,9 @@ public class EventDispatcher {
 		return new UpdateListener() {
 			public void objectDeleted(final DeleteEvent e) {}
 			public void objectReceived(final UpdateEvent e) {}
-			public void objectUpdated(final UpdateEvent e) {}
+			public void objectUpdated(final UpdateEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 		};
 	}
 

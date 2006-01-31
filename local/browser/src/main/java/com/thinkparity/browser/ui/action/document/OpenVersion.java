@@ -58,7 +58,7 @@ public class OpenVersion extends AbstractAction {
 	/**
 	 * Create an OpenVersion.
 	 */
-	public OpenVersion() { super(ID, NAME, ICON); }
+	public OpenVersion() { super("Document.OpenVersion", ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.ui.action.AbstractAction#invoke(com.thinkparity.browser.ui.action.Data)

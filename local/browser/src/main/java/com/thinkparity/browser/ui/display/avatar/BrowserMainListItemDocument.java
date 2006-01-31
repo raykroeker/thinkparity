@@ -7,8 +7,6 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 import javax.swing.ImageIcon;
@@ -17,12 +15,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import com.thinkparity.browser.model.util.ParityObjectUtil;
 import com.thinkparity.browser.ui.UIConstants;
 import com.thinkparity.browser.ui.component.LabelFactory;
-import com.thinkparity.browser.util.RandomData;
 
 import com.thinkparity.codebase.ResourceUtil;
 
+import com.thinkparity.model.parity.api.ParityObjectType;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -52,8 +51,6 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	 * 
 	 */
 	private final UUID documentId;
-
-	private List<JMenuItem> listItemMenuItems;
 
 	/**
 	 * The selection timer.
@@ -96,8 +93,46 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	 * 
 	 */
 	public void createListItemJMenuItems(final JPopupMenu jPopupMenu) {
-		final List<JMenuItem> jMenuItems = getListItemMenuItems();
-		for(JMenuItem jMenuItem : jMenuItems) { jPopupMenu.add(jMenuItem); }
+		final JMenuItem sendJMenuItem =
+			createListItemJMenuItem("Send", new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					getController().displaySessionSendFormAvatar();
+				}});
+		jPopupMenu.add(sendJMenuItem);
+		if(isKeyHolder()) {
+			final JMenuItem sendKeyJMenuItem =
+				createListItemJMenuItem("SendKey", new ActionListener() {
+					public void actionPerformed(final ActionEvent e) {
+						getController().displaySessionSendKeyFormAvatar();
+					}});
+			jPopupMenu.add(sendKeyJMenuItem);
+		}
+		else {
+			final JMenuItem requestKeyJMenuItem =
+				createListItemJMenuItem("RequestKey", new ActionListener() {
+					public void actionPerformed(final ActionEvent e) {
+						getController().runRequestArtifactKey(documentId);
+					}});
+			jPopupMenu.add(requestKeyJMenuItem);
+		}
+		if(canClose()) {
+			final JMenuItem closeJMenuItem =
+				createListItemJMenuItem("Close", new ActionListener() {
+					public void actionPerformed(final ActionEvent e) {
+						getController().runCloseDocument(documentId);
+					}});
+			jPopupMenu.addSeparator();
+			jPopupMenu.add(closeJMenuItem);
+		}
+		if(canDelete()) {
+			final JMenuItem deleteJMenuItem =
+				createListItemJMenuItem("Delete", new ActionListener() {
+						public void actionPerformed(final ActionEvent e) {
+							getController().runDeleteDocument(documentId);
+						}});
+			jPopupMenu.addSeparator();
+			jPopupMenu.add(deleteJMenuItem);
+		}
 	}
 
 	/**
@@ -129,54 +164,17 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	 * 
 	 * @return True if the user can close the document; false otherwise.
 	 */
-	private Boolean canClose() { return Boolean.TRUE; }
+	private Boolean canClose() {
+		return ParityObjectUtil.canClose(documentId, ParityObjectType.DOCUMENT);
+	}
 
 	/**
 	 * Determine whether or not the user can send the document.
 	 * 
 	 * @return True if the user can send the document; false otherwise.
 	 */
-	private Boolean canDelete() { return Boolean.TRUE; }
-
-	/**
-	 * Obtain the list of menu items for the list item. The menu items are built
-	 * upon request; and will not be updated unless the list item is rebuilt.
-	 * 
-	 * @return The list of menu items for this list item.
-	 */
-	private List<JMenuItem> getListItemMenuItems() {
-		if(null == listItemMenuItems) {
-			listItemMenuItems = new LinkedList<JMenuItem>();
-			listItemMenuItems.add(
-					createListItemJMenuItem("Send", new ActionListener() {
-						public void actionPerformed(final ActionEvent e) {
-						}}));
-			if(canClose()) {
-				listItemMenuItems.add(
-						createListItemJMenuItem("Close", new ActionListener() {
-							public void actionPerformed(final ActionEvent e) {
-							}}));
-			}
-			if(canDelete()) {
-				listItemMenuItems.add(
-						createListItemJMenuItem("Delete", new ActionListener() {
-							public void actionPerformed(final ActionEvent e) {
-							}}));
-			}
-			if(isKeyHolder()) {
-				listItemMenuItems.add(
-						createListItemJMenuItem("SendKey", new ActionListener() {
-							public void actionPerformed(final ActionEvent e) {
-							}}));
-			}
-			else {
-				listItemMenuItems.add(
-						createListItemJMenuItem("RequestKey", new ActionListener() {
-							public void actionPerformed(final ActionEvent e) {
-							}}));
-			}
-		}
-		return listItemMenuItems;
+	private Boolean canDelete() {
+		return ParityObjectUtil.canDelete(documentId, ParityObjectType.DOCUMENT);
 	}
 
 	/**
@@ -185,18 +183,7 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	 * @return True if it has been seen; false otherwise.
 	 */
 	private Boolean hasBeenSeen() {
-		// NOTE Random Data
-		final RandomData randomData = new RandomData();
-		return randomData.hasBeenSeen();
-//		try {
-//			return ParityObjectUtil.hasBeenSeen(
-//					documentId, ParityObjectType.DOCUMENT);
-//		}
-//		catch(ParityException px) {
-//			// NOTE Error Handler Code
-//			logger.error("", px);
-//			return Boolean.FALSE;
-//		}
+		return ParityObjectUtil.hasBeenSeen(documentId, ParityObjectType.DOCUMENT);
 	}
 
 	/**
@@ -206,7 +193,7 @@ public class BrowserMainListItemDocument extends BrowserMainListItem {
 	 * @return True if the user is the key holder; false otherwise.
 	 */
 	private Boolean isKeyHolder() {
-		return Boolean.TRUE;
+		return ParityObjectUtil.isKeyHolder(documentId, ParityObjectType.DOCUMENT);
 	}
 
 	/**

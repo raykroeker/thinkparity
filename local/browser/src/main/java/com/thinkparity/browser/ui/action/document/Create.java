@@ -44,7 +44,7 @@ public class Create extends AbstractAction {
 	 * Create a Create.
 	 * 
 	 */
-	public Create() { super(ID, NAME, ICON); }
+	public Create() { super("Document.Create", ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.ui.action.AbstractAction#invoke(com.thinkparity.browser.ui.action.Data)

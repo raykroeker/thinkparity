@@ -14,8 +14,6 @@ import com.thinkparity.browser.ui.component.TextFactory;
 import com.thinkparity.browser.util.State;
 import com.thinkparity.browser.util.SwingUtil;
 
-import com.thinkparity.codebase.PropertiesUtil;
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -241,9 +239,6 @@ class SessionLoginAvatar extends Avatar {
     private void runCancel() { getController().displayMainBrowserAvatar(); }
 
     private void runLogin() {
-    	final StringBuffer buffer = new StringBuffer();
-    	PropertiesUtil.print(buffer, System.getProperties());
-    	logger.debug(buffer);
     	final SessionListener sessionListener = new SessionListener() {
 			public void sessionEstablished() {
 				// should display an inline success message to user
@@ -255,9 +250,9 @@ class SessionLoginAvatar extends Avatar {
     	};
     	sessionModel.addListener(sessionListener);
     	try { sessionModel.login(extractUsername(), extractPassword()); }
-    	catch(ParityException px) {
-    		// NOTE Error Handler Code
-    		logger.error("", px);
+    	catch(final ParityException px) {
+    		// NOTE Must handle elegantly; ie allow re-try.
+    		logger.error("Cannot establish session.", px);
     	}
     	sessionModel.removeListener(sessionListener);
     }

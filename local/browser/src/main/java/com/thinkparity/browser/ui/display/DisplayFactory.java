@@ -23,6 +23,8 @@ public class DisplayFactory {
 		switch(id) {
 		case CONTENT:
 			return SINGLETON.createContent();
+		case FORM:
+			return SINGLETON.createForm();
 		case INFO:
 			return SINGLETON.createInfo();
 		case LOGO:
@@ -38,6 +40,12 @@ public class DisplayFactory {
 	 * 
 	 */
 	private Display content;
+
+	/**
+	 * The form display.
+	 * 
+	 */
+	private Display form;
 
 	/**
 	 * Info display.
@@ -89,6 +97,19 @@ public class DisplayFactory {
 			applySize(content, 275);
 		}
 		return content;
+	}
+
+	/**
+	 * Create the form display.
+	 * 
+	 * @return The form display.
+	 */
+	private Display createForm() {
+		if(null == form) {
+			form = new FormDisplay();
+			applySize(form, 435);
+		}
+		return form;
 	}
 
 	/**

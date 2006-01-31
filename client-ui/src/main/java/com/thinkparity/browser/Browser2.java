@@ -28,7 +28,7 @@ public class Browser2 {
 	 */
 	public static void main(String[] args) {
 		try { new Browser2().run(); }
-		catch(Exception x) {
+		catch(final Exception x) {
 			x.printStackTrace(System.err);
 			System.exit(1);
 		}

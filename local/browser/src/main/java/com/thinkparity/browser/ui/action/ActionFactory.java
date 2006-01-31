@@ -46,8 +46,12 @@ public class ActionFactory {
 	 */
 	private AbstractAction doCreateAction(final ActionId actionId) {
 		switch(actionId) {
+		case DOCUMENT_CLOSE:
+			return new com.thinkparity.browser.ui.action.document.Close();
 		case DOCUMENT_CREATE:
 			return new com.thinkparity.browser.ui.action.document.Create();
+		case DOCUMENT_DELETE:
+			return new com.thinkparity.browser.ui.action.document.Delete();
 		case DOCUMENT_OPEN:
 			return new com.thinkparity.browser.ui.action.document.Open();
 		case DOCUMENT_OPEN_VERSION:

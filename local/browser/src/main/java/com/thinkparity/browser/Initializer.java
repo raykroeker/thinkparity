@@ -7,6 +7,9 @@ import com.thinkparity.browser.model.EventDispatcher;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
 
+import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.session.SessionModel;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -34,6 +37,13 @@ public class Initializer {
 
 		LoggerFactory.getLogger(Initializer.class);
 		ModelFactory.getInstance().initialize();
-		EventDispatcher.getInstance(null).initialize();
+		EventDispatcher.getInstance().initialize();
+
+		try {
+			final String username = "raymond";
+			final String password = "parity";
+			SessionModel.getModel().login(username, password);
+		}
+		catch(final ParityException px) { throw new RuntimeException(px); }
 	}
 }

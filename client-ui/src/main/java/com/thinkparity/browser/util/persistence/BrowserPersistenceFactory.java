@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -100,9 +99,7 @@ public class BrowserPersistenceFactory {
 			}
 			public int get(final String key, final int defaultValue) {
 				try { return Integer.parseInt(javaProperties.getProperty(key, String.valueOf(defaultValue))); }
-				catch(NumberFormatException nfx) {
-					return defaultValue;
-				}
+				catch(final NumberFormatException nfx) { return defaultValue; }
 			}
 			public Point get(String key, Point defaultValue) {
 				return new Point(
@@ -161,20 +158,12 @@ public class BrowserPersistenceFactory {
 	 * @return The java properties.
 	 */
 	private Properties load(final File persistenceFile) {
-		try {
-			init(persistenceFile);
-			final Properties javaProperties = new Properties();
-			javaProperties.loadFromXML(new FileInputStream(persistenceFile));
-			return javaProperties;
-		}
-		catch(FileNotFoundException fnfx) {
-			fnfx.printStackTrace(System.err);
-			return null;
-		}
-		catch(IOException iox) {
-			iox.printStackTrace(System.err);
-			return null;
-		}
+		try { init(persistenceFile); }
+		catch(final IOException iox) { throw new RuntimeException(iox); }
+		final Properties javaProperties = new Properties();
+		try { javaProperties.loadFromXML(new FileInputStream(persistenceFile)); }
+		catch(final IOException iox) { throw new RuntimeException(iox); }
+		return javaProperties;
 	}
 
 	/**
@@ -188,11 +177,6 @@ public class BrowserPersistenceFactory {
 		try {
 			javaProperties.storeToXML(new FileOutputStream(persistenceFile), "");
 		}
-		catch(FileNotFoundException fnfx) {
-			fnfx.printStackTrace(System.err);
-		}
-		catch(IOException iox) {
-			iox.printStackTrace(System.err);
-		}
+		catch(final IOException iox) { throw new RuntimeException(iox); }
 	}
 }

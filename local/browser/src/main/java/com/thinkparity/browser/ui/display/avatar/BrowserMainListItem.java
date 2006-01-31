@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,6 +25,7 @@ import javax.swing.event.PopupMenuListener;
 import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.ui.component.LabelFactory;
+import com.thinkparity.browser.ui.component.MenuItemFactory;
 
 import com.thinkparity.codebase.JVMUniqueId;
 
@@ -199,8 +201,6 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	 * 
 	 */
 	public void mouseEntered(final MouseEvent e) {
-		logger.debug("MOUSE_ENTERED");
-		logger.debug("isPinned:  " + isSelectionPinned());
 		if(!isSelectionPinned()) { fireSelect(); }
 	}
 
@@ -244,9 +244,12 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	 */
 	protected JMenuItem createListItemJMenuItem(final String localKey,
 			final ActionListener actionListener) {
-		final JMenuItem jMenuItem = new JMenuItem(
+		final JMenuItem jMenuItem = MenuItemFactory.create(
 				getString(localKey), getJMenuItemMnemonic(localKey));
 		jMenuItem.addActionListener(actionListener);
+		jMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) { unpinSelection(); }
+		});
 		return jMenuItem;
 	}
 

@@ -21,7 +21,9 @@ import com.thinkparity.browser.ui.action.AbstractAction;
 import com.thinkparity.browser.ui.action.ActionFactory;
 import com.thinkparity.browser.ui.action.ActionId;
 import com.thinkparity.browser.ui.action.Data;
+import com.thinkparity.browser.ui.action.document.Close;
 import com.thinkparity.browser.ui.action.document.Create;
+import com.thinkparity.browser.ui.action.document.Delete;
 import com.thinkparity.browser.ui.action.document.Open;
 import com.thinkparity.browser.ui.action.document.OpenVersion;
 import com.thinkparity.browser.ui.display.Display;
@@ -153,6 +155,23 @@ public class Controller {
 	}
 
 	/**
+	 * Display the send form.
+	 *
+	 */
+	public void displaySessionSendFormAvatar() {
+		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_FORM);
+	}
+
+	/**
+	 * Display the send key form.
+	 *
+	 */
+	public void displaySessionSendKeyFormAvatar() {
+		Assert.assertNotYetImplemented(getClass().getSimpleName() +
+				"#displaySessionSendKeyFormAvatar()");
+	}
+
+	/**
 	 * Display the system message avatar.
 	 *
 	 */
@@ -191,7 +210,10 @@ public class Controller {
 		Assert.assertIsNull("Cannot reopen main window.", mainWindow);
 		// Set the application lnf
 		try { UIManager.setLookAndFeel(new WindowsLookAndFeel()); }
-		catch(UnsupportedLookAndFeelException ulafx) { /* NOTE Error Handler Code */ }
+		catch(final UnsupportedLookAndFeelException ulafx) {
+			logger.fatal("Cannot set windows look and feel.", ulafx);
+			throw new RuntimeException(ulafx);
+		}
 
 		// Schedule a job for the event-dispatching thread:  creating and
 		// showing this application's GUI.
@@ -202,9 +224,26 @@ public class Controller {
             	displayLogoAvatar();
             	displayMainBrowserAvatar();
             	displayDocumentHistoryListAvatar();
-        		setProjectId();
+        		try { setProjectId(); }
+        		catch(ParityException px) {
+        			logger.fatal("Cannot set root parity folder.", px);
+        			throw new RuntimeException(px);
+        		}
             }
         });
+	}
+
+	/**
+	 * Run the close document action.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	public void runCloseDocument(final UUID documentId) { 
+		final Data data = new Data(1);
+		data.set(Close.DataKey.DOCUMENT_ID, documentId);
+		invoke(ActionId.DOCUMENT_CLOSE, data);
+		reloadMainBrowserAvatar();
 	}
 
 	/**
@@ -215,6 +254,19 @@ public class Controller {
 		final Data data = new Data(1);
 		data.set(Create.DataKey.PROJECT_ID, projectId);
 		invoke(ActionId.DOCUMENT_CREATE, data);
+		reloadMainBrowserAvatar();
+	}
+
+	/**
+	 * Run the delete document action.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	public void runDeleteDocument(final UUID documentId) {
+		final Data data = new Data(1);
+		data.set(Delete.DataKey.DOCUMENT_ID, documentId);
+		invoke(ActionId.DOCUMENT_DELETE, data);
 		reloadMainBrowserAvatar();
 	}
 
@@ -244,6 +296,11 @@ public class Controller {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
+	}
+
+	public void runRequestArtifactKey(final UUID artifactId) {
+		final Data data = new Data();
+		invoke(ActionId.SESSION_REQUEST_KEY, data);
 	}
 
 	/**
@@ -367,9 +424,9 @@ public class Controller {
 			final AbstractAction action = getActionFromCache(actionId);
 			action.invoke(data);
 		}
-		catch(Exception x) {
-			// NOTE Error Handler Code
-			logger.error("", x);
+		catch(final Exception x) {
+			logger.error("Cannot invoke action:  " + actionId, x);
+			// NOTE Display Error
 		}
 	}
 
@@ -377,9 +434,11 @@ public class Controller {
 	 * Reload the main browser avatar.
 	 *
 	 */
-	private void reloadMainBrowserAvatar() {
+	public void reloadMainBrowserAvatar() {
 		// NOTE Wierd
 		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
+		// NOTE Super wierd
+		AvatarFactory.create(AvatarId.DOCUMENT_HISTORY_LIST).reload();
 	}
 
 	/**
@@ -415,12 +474,8 @@ public class Controller {
 	 * Set the project id.
 	 *
 	 */
-	private void setProjectId() {
-		try { projectId = projectModel.getMyProjects().getId(); }
-		catch(ParityException px) {
-			// NOTE Error Handler Code
-			logger.fatal("Could not retreive main project.", px);
-		}
+	private void setProjectId() throws ParityException {
+		projectId = projectModel.getMyProjects().getId();
 		setInput(AvatarId.BROWSER_MAIN, new Object[] {null, projectId});
 	}
 }

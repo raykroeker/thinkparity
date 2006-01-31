@@ -1,9 +1,8 @@
 /*
- * Jan 19, 2006
+ * Jan 30, 2006
  */
 package com.thinkparity.browser.ui.action.session;
 
-import java.util.Collection;
 import java.util.UUID;
 
 import javax.swing.Icon;
@@ -12,15 +11,13 @@ import com.thinkparity.browser.ui.action.AbstractAction;
 import com.thinkparity.browser.ui.action.ActionId;
 import com.thinkparity.browser.ui.action.Data;
 
-import com.thinkparity.model.xmpp.user.User;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Send extends AbstractAction {
+public class RequestKey extends AbstractAction {
 
-	public enum DataKey { DOCUMENT_ID, USERS }
+	public enum DataKey { ARTIFACT_ID }
 
 	private static final Icon ICON;
 
@@ -30,22 +27,22 @@ public class Send extends AbstractAction {
 
 	static {
 		ICON = null;
-		ID = ActionId.SESSION_SEND;
-		NAME = "Send";
+		ID = ActionId.SESSION_REQUEST_KEY;
+		NAME = "Request Key";
 	}
 
 	/**
-	 * Create a Send.
+	 * Create a RequestKey.
 	 * 
 	 */
-	public Send() { super("Session.Send", ID, NAME, ICON); }
+	public RequestKey() { super("Session.RequestKey", ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.ui.action.AbstractAction#invoke(com.thinkparity.browser.ui.action.Data)
+	 * 
 	 */
 	public void invoke(Data data) throws Exception {
-		final UUID documentId = (UUID) data.get(DataKey.DOCUMENT_ID);
-		final Collection<User> users = (Collection<User>) data.get(DataKey.USERS);
-		getSessionModel().send(users, documentId);
+		final UUID artifactId = (UUID) data.get(DataKey.ARTIFACT_ID);
+		getSessionModel().sendKeyRequest(artifactId);
 	}
 }

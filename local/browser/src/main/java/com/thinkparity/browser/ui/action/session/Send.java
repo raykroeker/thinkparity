@@ -38,7 +38,7 @@ public class Send extends AbstractAction {
 	 * Create a Send.
 	 * 
 	 */
-	public Send() { super(ID, NAME, ICON); }
+	public Send() { super("Session.Send", ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.ui.action.AbstractAction#invoke(com.thinkparity.browser.ui.action.Data)

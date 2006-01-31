@@ -101,5 +101,6 @@ public class MainPanel extends AbstractJPanel {
 		add(DisplayFactory.create(DisplayId.LOGO));
 		add(DisplayFactory.create(DisplayId.CONTENT));
 		add(DisplayFactory.create(DisplayId.INFO));
+		add(DisplayFactory.create(DisplayId.FORM));
 	}
 }

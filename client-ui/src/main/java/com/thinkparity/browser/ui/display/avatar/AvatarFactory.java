@@ -30,6 +30,8 @@ public class AvatarFactory {
 			return SINGLETON.createDocumentHistoryList();
 		case SESSION_LOGIN:
 			return SINGLETON.createSessionLogin();
+		case SESSION_SEND_FORM:
+			return SINGLETON.createSessionSendForm();
 		case SYSTEM_MESSAGE:
 			return SINGLETON.createSystemMessage();
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
@@ -71,6 +73,12 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar sessionLogin;
+
+	/**
+	 * The session send form avatar.
+	 * 
+	 */
+	private Avatar sessionSendForm;
 
 	/**
 	 * The system message avatar.
@@ -146,6 +154,18 @@ public class AvatarFactory {
 			sessionLogin = new SessionLoginAvatar();
 		}
 		return sessionLogin;
+	}
+
+	/**
+	 * Create the session send form avatar.
+	 * 
+	 * @return The session send form avatar.
+	 */
+	private Avatar createSessionSendForm() {
+		if(null == sessionSendForm) {
+			sessionSendForm = new SessionSendFormAvatar();
+		}
+		return sessionSendForm;
 	}
 
 	/**

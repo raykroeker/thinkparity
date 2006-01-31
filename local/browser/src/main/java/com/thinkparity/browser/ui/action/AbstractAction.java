@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.Controller;
 import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.util.l10n.ActionLocalization;
 import com.thinkparity.browser.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
@@ -25,12 +26,18 @@ import com.thinkparity.model.parity.model.session.SessionModel;
 public abstract class AbstractAction {
 
 	/**
+	 * Action localization.
+	 * 
+	 */
+	protected final ActionLocalization localization;
+	
+	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
 	protected final Logger logger =
 		LoggerFactory.getLogger(getClass());
-	
+
 	/**
 	 * Parity model factory.
 	 * 
@@ -64,16 +71,21 @@ public abstract class AbstractAction {
 	/**
 	 * Create a AbstractAction.
 	 * 
-	 * @param NAME
-	 *            The action NAME.
-	 * @param ICON
-	 *            The action small ICON.
+	 * @param l18nContext
+	 *            The localization context.
+	 * @param id
+	 *            The action id.
+	 * @param name
+	 *            The action name.
+	 * @param icon
+	 *            The action icon.
 	 */
-	protected AbstractAction(final ActionId id, final String name,
-			final Icon icon) {
+	protected AbstractAction(final String l18nContext, final ActionId id,
+			final String name, final Icon icon) {
 		super();
 		this.id = id;
 		this.icon = icon;
+		this.localization = new ActionLocalization(l18nContext);
 		this.name = name;
 	}
 
@@ -162,6 +174,30 @@ public abstract class AbstractAction {
 
 	protected SessionModel getSessionModel() {
 		return modelFactory.getSessionModel(getClass());
+	}
+
+	/**
+	 * Obtain localized text.
+	 * 
+	 * @param localKey
+	 *            The local key.
+	 * @return The localized text.
+	 */
+	protected String getString(final String localKey) {
+		return localization.getString(localKey);
+	}
+
+	/**
+	 * Obtain localized text.
+	 * 
+	 * @param localKey
+	 *            The local key.
+	 * @param arguments
+	 *            The text arguments.
+	 * @return The localized text.
+	 */
+	protected String getString(final String localKey, final Object[] arguments) {
+		return localization.getString(localKey, arguments);
 	}
 
 	/**

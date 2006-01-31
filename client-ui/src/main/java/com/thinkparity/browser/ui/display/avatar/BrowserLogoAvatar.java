@@ -8,9 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +17,7 @@ import javax.swing.JTextField;
 import com.thinkparity.browser.ui.UIConstants;
 import com.thinkparity.browser.ui.component.LabelFactory;
 import com.thinkparity.browser.ui.component.TextFactory;
+import com.thinkparity.browser.util.ImageIOUtil;
 import com.thinkparity.browser.util.State;
 
 import com.thinkparity.codebase.ResourceUtil;
@@ -190,16 +189,7 @@ class BrowserLogoAvatar extends Avatar {
 	 * @return The logo image.
 	 */
 	private Image getLogoImage() {
-		if(null == logoImage) {
-			try {
-				logoImage =
-					ImageIO.read(ResourceUtil.getURL("images/parityLogo.png"));
-			}
-			catch(IOException iox) {
-				// NOTE Error Handler Code
-				logoImage = null;
-			}
-		}
+		if(null == logoImage) { logoImage = ImageIOUtil.read("parityLogo.png"); }
 		return logoImage;
 	}
 

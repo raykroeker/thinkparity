@@ -1,36 +1,38 @@
 /*
- * Jan 20, 2006
+ * Jan 30, 2006
  */
 package com.thinkparity.browser.ui.display;
 
 import java.awt.Color;
 
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class ContentDisplay extends Display {
+class FormDisplay extends Display {
 
 	/**
-	 * @see java.io.Serialiable
+	 * @see java.io.Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * Create a ContentDisplay.
+	 * Create a FormDisplay.
 	 * 
 	 */
-	ContentDisplay() {
+	FormDisplay() {
 		// NOTE Color
-		super("ContentDisplay", Color.WHITE);
+		super("FormDisplay", Color.WHITE);
 		// NOTE Color
-		setBorder(new MultiLineBorder(new Color[] { new Color(180, 180, 180, 255), Color.WHITE}));
+		setBorder(new MultiLineBorder(new Color[] {
+				new Color(180, 180, 180, 255), Color.WHITE }));
 	}
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.Display#getId()
 	 * 
 	 */
-	public DisplayId getId() { return DisplayId.CONTENT; }
+	public DisplayId getId() { return DisplayId.FORM; }
 }

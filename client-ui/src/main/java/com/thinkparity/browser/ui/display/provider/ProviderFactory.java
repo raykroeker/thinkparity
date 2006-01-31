@@ -15,7 +15,10 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.ParityObjectVersion;
+import com.thinkparity.model.parity.model.artifact.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
+import com.thinkparity.model.parity.model.artifact.HasBeenSeenComparator;
+import com.thinkparity.model.parity.model.artifact.UpdatedOnComparator;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -137,7 +140,17 @@ public class ProviderFactory {
 				Assert.assertOfType("", UUID.class, input);
 				final UUID projectId = (UUID) input;
 				Collection<Document> documentList;
-				try { documentList = documentModel.list(projectId); }
+				try {
+					// sort by:
+					// 	+> hasBeenSeen ? true b4 false
+					//	+> last update ? earlier b4 later
+					//  +> name ? alpha order
+					final AbstractArtifactComparator sort =
+						new HasBeenSeenComparator(Boolean.FALSE);
+					sort.add(new UpdatedOnComparator(Boolean.FALSE));
+					sort.add(new ComparatorBuilder().createByName(Boolean.TRUE));
+					documentList = documentModel.list(projectId, sort);
+				}
 				catch(ParityException px) {
 					// NOTE Error Handler Code
 					documentList = new Vector<Document>(0);

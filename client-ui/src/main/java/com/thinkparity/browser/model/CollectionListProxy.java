@@ -16,6 +16,13 @@ import com.thinkparity.model.parity.model.document.Document;
  */
 public class CollectionListProxy {
 
+	/**
+	 * Translate a collection of documents into a list of documents.
+	 * 
+	 * @param c
+	 *            The collection of documents.
+	 * @return The list of documents.
+	 */
 	public static List<Document> translate(final Collection<Document> c) {
 		if(null == c) { return null; }
 		if(c.isEmpty()) { return Collections.emptyList(); }
@@ -25,11 +32,8 @@ public class CollectionListProxy {
 	}
 
 	/**
-	 * Create a CollectionListProxy.
+	 * Create a CollectionListProxy [Singleton]
+	 * 
 	 */
-	public CollectionListProxy() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
+	private CollectionListProxy() { super(); }
 }

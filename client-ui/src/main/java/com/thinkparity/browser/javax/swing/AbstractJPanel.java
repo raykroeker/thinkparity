@@ -42,7 +42,7 @@ public class AbstractJPanel extends JPanel {
 	private static final long serialVersionUID = 1;
 
 	static {
-		// NOTE Color
+		// COLOR 249, 249, 249, 255
 		DEFAULT_BACKGROUND = new Color(249, 249, 249, 255);
 	}
 

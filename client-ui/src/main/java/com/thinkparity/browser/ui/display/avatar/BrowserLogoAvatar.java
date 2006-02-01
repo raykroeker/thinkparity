@@ -40,6 +40,13 @@ class BrowserLogoAvatar extends Avatar {
 	private Image logoImage;
 
 	/**
+	 * The size of the logo image.
+	 * 
+	 * @see #getLogoImageSize()
+	 */
+	private Dimension logoImageSize;
+
+	/**
 	 * Create a BrowserLogoAvatar.
 	 * 
 	 */
@@ -60,56 +67,27 @@ class BrowserLogoAvatar extends Avatar {
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#getState()
 	 * 
 	 */
-	public State getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public State getState() { return null; }
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setState(com.thinkparity.browser.util.State)
 	 * 
 	 */
-	public void setState(State state) {
-		// TODO Auto-generated method stub
-
-	}
+	public void setState(State state) {}
 
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
 	 */
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		final Graphics2D g2 = (Graphics2D) g.create();
-		// TODO Center the image vertically based upon its dimensions; and the
-		// dimensions of the avatar.
 		try {
 			final int y = (getSize().height - getLogoImageSize().height) / 2;
 			g2.drawImage(getLogoImage(), 13, y, this);
 		}
 		finally { g2.dispose(); }
 	}
-
-	/**
-	 * Obtain the size of the logo.
-	 * 
-	 * @return The logo size.
-	 */
-	private Dimension getLogoImageSize() {
-		if(null == logoImageSize) {
-			final Image logoImage = getLogoImage();
-			logoImageSize = new Dimension(
-					logoImage.getWidth(this), logoImage.getHeight(this));
-		}
-		return logoImageSize;
-	}
-
-	/**
-	 * The size of the logo image.
-	 * 
-	 * @see #getLogoImageSize()
-	 */
-	private Dimension logoImageSize;
 
 	/**
 	 * Create a JLabel component that behaves as a link. It is clickable and
@@ -176,9 +154,9 @@ class BrowserLogoAvatar extends Avatar {
 	 */
 	private JTextField createSearchTextField() {
 		final JTextField jTextField = TextFactory.create();
-		// NOTE Color
+		// COLOR 237, 241, 244, 255
 		jTextField.setBackground(new Color(237, 241, 244, 255));
-		// NOTE Color
+		// COLOR 195, 209, 220, 255
 		jTextField.setBorder(new TopBottomBorder(new Color(195, 209, 220, 255)));
 		return jTextField;
 	}
@@ -191,6 +169,20 @@ class BrowserLogoAvatar extends Avatar {
 	private Image getLogoImage() {
 		if(null == logoImage) { logoImage = ImageIOUtil.read("parityLogo.png"); }
 		return logoImage;
+	}
+
+	/**
+	 * Obtain the size of the logo.
+	 * 
+	 * @return The logo size.
+	 */
+	private Dimension getLogoImageSize() {
+		if(null == logoImageSize) {
+			final Image logoImage = getLogoImage();
+			logoImageSize = new Dimension(
+					logoImage.getWidth(this), logoImage.getHeight(this));
+		}
+		return logoImageSize;
 	}
 
 	/**

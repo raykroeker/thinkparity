@@ -67,18 +67,13 @@ class SessionLoginAvatar extends Avatar {
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#getState()
 	 * 
 	 */
-	public State getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public State getState() { return null; }
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setState(com.thinkparity.browser.util.State)
 	 * 
 	 */
-	public void setState(State state) {
-		// TODO Auto-generated method stub
-	}
+	public void setState(final State state) {}
 
 	private String extractPassword() {
 		return SwingUtil.extract(passwordJPasswordField);

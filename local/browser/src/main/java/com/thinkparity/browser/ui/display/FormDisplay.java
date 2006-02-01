@@ -23,11 +23,11 @@ class FormDisplay extends Display {
 	 * 
 	 */
 	FormDisplay() {
-		// NOTE Color
+		// COLOR WHITE
 		super("FormDisplay", Color.WHITE);
-		// NOTE Color
+		// COLOR 180, 180, 180, 255, WHITE
 		setBorder(new MultiLineBorder(new Color[] {
-				new Color(180, 180, 180, 255), Color.WHITE }));
+				new Color(180, 180, 180, 255), Color.WHITE}));
 	}
 
 	/**

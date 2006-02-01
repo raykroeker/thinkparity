@@ -25,9 +25,9 @@ class LogoDisplay extends Display {
 	 * 
 	 */
 	LogoDisplay() {
-		// NOTE Color
-		super("LogoDisplay", new Color(255, 255, 255,255));
-		// NOTE Color
+		// COLOR WHITE
+		super("LogoDisplay", Color.WHITE);
+		// COLOR 180, 180, 180, 255
 		setBorder(new DefaultBorder(new Color(180, 180, 180, 255)));
 	}
 

@@ -1,9 +1,5 @@
 /*
  * Jan 20, 2006
- * 
- * NOTE The history should highlight updates\new versions as well as the document
- * list.
- * 
  */
 package com.thinkparity.browser.ui.display.avatar;
 
@@ -107,7 +103,6 @@ class DocumentHistoryListAvatar extends Avatar {
 		private void initListItemComponents() {
 			final GridBagConstraints c = new GridBagConstraints();
 
-			// NOTE Random Data
 			final RandomData randomData = new RandomData();
 			final String mainText = new StringBuffer(randomData.getAction())
 				.append(randomData.getUser().getName())
@@ -171,7 +166,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * 
 	 */
 	DocumentHistoryListAvatar(final Controller controller) {
-		// NOTE Color
+		// COLOR 235, 240, 246, 255
 		super("DocumentHistoryListAvatar", ScrollPolicy.VERTICAL, new Color(235, 240, 246, 255));
 		this.controller = controller;
 		this.helper = new InfoAvatarHelper(this);
@@ -199,10 +194,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#getState()
 	 * 
 	 */
-	public State getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public State getState() { return null; }
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#reload()
@@ -256,9 +248,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setState(com.thinkparity.browser.util.State)
 	 * 
 	 */
-	public void setState(State state) {
-		// TODO Auto-generated method stub
-	}
+	public void setState(final State state) {}
 
 	/**
 	 * Obtain a list of all of the list items on the avatar.

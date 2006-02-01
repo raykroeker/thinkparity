@@ -118,24 +118,19 @@ class BrowserTitleAvatar extends Avatar {
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#getState()
 	 * 
 	 */
-	public State getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public State getState() { return null; }
 
 	/**
 	 * @see com.thinkparity.browser.ui.display.avatar.Avatar#setState(com.thinkparity.browser.util.State)
 	 * 
 	 */
-	public void setState(State state) {
-		// TODO Auto-generated method stub
-	}
+	public void setState(final State state) {}
 
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
 	 */
-	protected void paintComponent(Graphics g) {
+	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g.create();
 		try {
@@ -145,9 +140,8 @@ class BrowserTitleAvatar extends Avatar {
 		finally { g2.dispose(); }
 		g2 = (Graphics2D) g.create();
 		try {
-
 			// overlay the border so that the cornered edges get a border as well
-			// NOTE Color
+			// COLOR BLACK
 			g2.setColor(Color.BLACK);
 			g2.drawRoundRect(-1, -1, getWidth() + 1, getHeight() * 2,
 					UIConstants.TitlePaneCurvature, UIConstants.TitlePaneCurvature);
@@ -162,7 +156,9 @@ class BrowserTitleAvatar extends Avatar {
 	 */
 	private Paint getGradientPaint() {
 		if(null == gradientPaint) {
-			this.gradientPaint = new GradientPaint(new Point(0, 0),
+			// COLOR 236, 243, 239, 255
+			// COLOR 194, 208, 219, 255
+			gradientPaint = new GradientPaint(new Point(0, 0),
 					new Color(236, 243, 239, 255),
 					new Point(0, getHeight()), new Color(194, 208, 219, 255));
 		}

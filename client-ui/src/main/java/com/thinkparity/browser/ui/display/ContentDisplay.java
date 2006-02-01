@@ -22,9 +22,9 @@ class ContentDisplay extends Display {
 	 * 
 	 */
 	ContentDisplay() {
-		// NOTE Color
+		// COLOR WHITE
 		super("ContentDisplay", Color.WHITE);
-		// NOTE Color
+		// COLOR 180, 180, 180, 255, WHITE
 		setBorder(new MultiLineBorder(new Color[] { new Color(180, 180, 180, 255), Color.WHITE}));
 	}
 

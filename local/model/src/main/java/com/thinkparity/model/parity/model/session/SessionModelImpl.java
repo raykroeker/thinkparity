@@ -35,6 +35,10 @@ import com.thinkparity.model.xmpp.user.User;
  * SessionModelImpl
  * @author raykroeker@gmail.com
  * @version 1.1
+ * 
+ * TODO Updates\new documents are BOLD - Includes receive of history items as 
+ * well as ownership request; send ownership.  This means the SEEN flag must be
+ * removed once a request\request response has been processed.
  */
 class SessionModelImpl extends AbstractModelImpl {
 
@@ -518,6 +522,14 @@ class SessionModelImpl extends AbstractModelImpl {
 			SessionModelImpl.sessionListeners.remove(sessionListener);
 		}
 	}
+
+	/**
+	 * Send the parity log file. To be used in order to troubleshoot remote
+	 * problems.
+	 * 
+	 * @throws ParityException
+	 */
+	void sendLogFile() throws ParityException {}
 
 	/**
 	 * Send a message to a list of parity users.

@@ -81,9 +81,7 @@ class PreferencesHelper {
 				final String username = getUsername();
 				return (null != username && 0 < username.length());
 			}
-			public void setLocale(Locale locale) {
-				// TODO Auto-generated method stub
-			}
+			public void setLocale(final Locale locale) {}
 			public void setUsername(final String username) {
 				Assert.assertNotTrue(ASSERT_NOT_IS_SET_USERNAME, isSetUsername());
 				javaProperties.setProperty("parity.username", username);

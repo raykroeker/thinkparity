@@ -7,6 +7,7 @@ import java.util.Comparator;
 
 import com.thinkparity.model.parity.api.ParityObject;
 import com.thinkparity.model.parity.api.ParityObjectVersion;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * @author raykroeker@gmail.com
@@ -18,6 +19,15 @@ public class ComparatorBuilder {
 	 * Create a ComparatorBuilder.
 	 */
 	public ComparatorBuilder() { super(); }
+
+	private Comparator<SystemMessage> systemMessageDefault;
+
+	public Comparator<SystemMessage> createSystemMessageDefault() {
+		if(null == systemMessageDefault) {
+			systemMessageDefault = new SystemMessageIdComparator(Boolean.TRUE);
+		}
+		return systemMessageDefault;
+	}
 
 	/**
 	 * Create a name comparator.

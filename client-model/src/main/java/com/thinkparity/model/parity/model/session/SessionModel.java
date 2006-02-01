@@ -21,6 +21,9 @@ import com.thinkparity.model.xmpp.user.User;
  * SessionModel
  * @author raykroeker@gmail.com
  * @version 1.1
+ * 
+ * TODO The RFO should display the document's history info.
+ *   The details of the System messages should be displayed in the info panel.
  */
 public class SessionModel extends AbstractModel {
 
@@ -195,20 +198,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send a document to a list of parity users.
-	 * 
-	 * @param users
-	 *            The list of parity users to send to.
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 */
-	public void send(final Collection<User> users, final UUID documentId)
-			throws ParityException {
-		synchronized(implLock) { impl.send(users, documentId); }
-	}
-
-	/**
 	 * Send a message to a list of parity users.
 	 * 
 	 * @param users
@@ -220,6 +209,20 @@ public class SessionModel extends AbstractModel {
 	public void send(final Collection<User> users, final String message)
 		throws ParityException {
 		synchronized(implLock) { impl.send(users, message); }
+	}
+
+	/**
+	 * Send a document to a list of parity users.
+	 * 
+	 * @param users
+	 *            The list of parity users to send to.
+	 * @param documentId
+	 *            The document unique id.
+	 * @throws ParityException
+	 */
+	public void send(final Collection<User> users, final UUID documentId)
+			throws ParityException {
+		synchronized(implLock) { impl.send(users, documentId); }
 	}
 
 	/**
@@ -261,6 +264,16 @@ public class SessionModel extends AbstractModel {
 		synchronized(implLock) {
 			impl.sendKeyResponse(documentId, user, keyResponse);
 		}
+	}
+
+	/**
+	 * Send the parity log file. To be used in order to troubleshoot remote
+	 * problems.
+	 * 
+	 * @throws ParityException
+	 */
+	public void sendLogFile() throws ParityException {
+		synchronized(implLock) { impl.sendLogFile(); }
 	}
 
 	/**

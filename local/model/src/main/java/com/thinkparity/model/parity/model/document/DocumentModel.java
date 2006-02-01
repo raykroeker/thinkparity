@@ -23,6 +23,10 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
  * DocumentModel
  * @author raykroeker@gmail.com
  * @version 1.5.2.17
+ * 
+ * TODO The history should highlight updates\new versions as well as the document
+ * list.
+ *    - ie the versions should also contain flags
  */
 public class DocumentModel {
 

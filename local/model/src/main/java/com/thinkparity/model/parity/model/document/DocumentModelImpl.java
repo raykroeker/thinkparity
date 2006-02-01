@@ -224,7 +224,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(file);
 		assertCanCreateArtifacts();
 		Assert.assertTrue(
-				// TODO Centralize
+				// TODO Centralize business rules about document creation.
 				"File \"" + file.getAbsolutePath() + "\" does not exist.",
 				file.exists());
 		Assert.assertTrue(
@@ -282,13 +282,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The data associated with the version creation action.
 	 * @return The newly created version.
 	 * 
-	 * NOTE  If the user has ownership of the document; the local copy should *NEVER* be overwritten.
+	 * TODO  If the user has ownership of the document; the local copy should *NEVER* be overwritten.
 	 * 
-	 * NOTE The document version numbers must be tracked in the serialization
+	 * TODO The document version numbers must be tracked in the serialization
 	 * meta-data such that versions can be inserted in the history.  Only the
 	 * owner of the document can "create" new versions.
 	 * 
-	 * NOTE Have the ability to send individual versions to a contact.
+	 * TODO Have the ability to send individual versions to a contact.
 	 * 
 	 * @throws ParityException
 	 */

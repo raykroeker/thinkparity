@@ -9,29 +9,29 @@ package com.thinkparity.model.xmpp;
  */
 public class XMPPConverterException extends RuntimeException {
 
+	/**
+	 * @see java.io.Serializable
+	 * 
+	 */
 	private static final long serialVersionUID = 1;
 
 	/**
 	 * Create a XMPPConverterException.
 	 */
-	public XMPPConverterException() {
-		super();
-	}
+	public XMPPConverterException() { super(); }
 
 	/**
 	 * Create a XMPPConverterException.
 	 * @param message
 	 */
-	public XMPPConverterException(String message) {
-		super(message);
-	}
+	public XMPPConverterException(final String message) { super(message); }
 
 	/**
 	 * Create a XMPPConverterException.
 	 * @param message
 	 * @param cause
 	 */
-	public XMPPConverterException(String message, Throwable cause) {
+	public XMPPConverterException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
@@ -39,9 +39,5 @@ public class XMPPConverterException extends RuntimeException {
 	 * Create a XMPPConverterException.
 	 * @param cause
 	 */
-	public XMPPConverterException(Throwable cause) {
-		super(cause);
-		// TODO Auto-generated constructor stub
-	}
-
+	public XMPPConverterException(final Throwable cause) { super(cause); }
 }

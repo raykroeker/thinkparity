@@ -5,7 +5,6 @@ package com.thinkparity.browser.ui.display.avatar;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -106,33 +105,25 @@ class DocumentHistoryListAvatar extends Avatar {
 			final RandomData randomData = new RandomData();
 			final String mainText = new StringBuffer(randomData.getAction())
 				.append(randomData.getUser().getName())
-				.append(" ")
 				.append(randomData.getDate())
+				.append(".")
 				.toString();
-			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.HORIZONTAL;
-			c.weightx = 0.9;
+			c.weightx = 1;
 			c.insets = new Insets(2, 8, 2, 0);
 			add(LabelFactory.create(mainText, UIConstants.DefaultFont), c.clone());
 
-			final JLabel versionJLabel = LabelFactory.create(
-					version.getVersionId(), UIConstants.DefaultFont);
-			versionJLabel.setForeground(Color.BLUE);
+			final JLabel versionJLabel =
+				LabelFactory.createLink(this, version.getVersionId(),
+						UIConstants.DefaultFontBold);
 			versionJLabel.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(final MouseEvent e) {
 					runOpenVersion(version.getDocumentId(), version.getVersionId());
-				}
-				public void mouseEntered(final MouseEvent e) {
-					setCursor(new Cursor(Cursor.HAND_CURSOR));
-				}
-				public void mouseExited(final MouseEvent e) {
-					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				}
 			});
 			c.anchor = GridBagConstraints.EAST;
 			c.fill = GridBagConstraints.NONE;
 			c.insets = new Insets(2, 0, 2, 8);
-			c.weightx = 0.1;
 			add(versionJLabel, c.clone());
 		}
 	}

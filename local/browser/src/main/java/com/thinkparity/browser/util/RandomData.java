@@ -116,7 +116,7 @@ public class RandomData {
 			new Color[] {Color.BLACK, Color.BLUE, Color.CYAN, Color.DARK_GRAY, Color.GRAY, Color.GREEN, Color.LIGHT_GRAY, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED, Color.WHITE, Color.YELLOW};
 
 		DATE_DATA =
-			new String[] {"Today", "Yesterday", "Last Monday", "Last Tuesday", "Last Wednesday", "Last Thursday", "Last Friday"};
+			new String[] {" today", " yesterday", " last monday", " last tuesday", " last wednesday", " last thursday", " last friday", " on Jan 2", " on Jan 23", " on Dec 26, 2005", " on Sep 4, 2004"};
 
 		SYSTEM_MESSAGE_COUNT_DATA =
 			new Integer[] {0, 1, 2, 3, 4, 5, 2, 2, 2, 3, 4, 5, 1, 3, 0};

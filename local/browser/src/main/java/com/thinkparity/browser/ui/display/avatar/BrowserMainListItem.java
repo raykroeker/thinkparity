@@ -40,7 +40,7 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	 * 
 	 * @see BrowserMainListItem#getListItemText(String)
 	 */
-	private static final int LIST_ITEM_TEXT_MAX_LENGTH = 37;
+	private static final int LIST_ITEM_TEXT_MAX_LENGTH = 55;
 
 	/**
 	 * Background color of the list item.
@@ -61,7 +61,9 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	private static final long serialVersionUID = 1;
 
 	static {
+		// COLOR 237, 241, 244, 255
 		listItemBackground = new Color(237, 241, 244, 255);
+		// COLOR 215, 231, 244, 255
 		listItemBackgroundSelect = new Color(215, 231, 244, 255);
 	}
 
@@ -248,7 +250,9 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 				getString(localKey), getJMenuItemMnemonic(localKey));
 		jMenuItem.addActionListener(actionListener);
 		jMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) { unpinSelection(); }
+			public void actionPerformed(final ActionEvent e) {
+				unpinSelection();
+			}
 		});
 		return jMenuItem;
 	}
@@ -336,6 +340,7 @@ abstract class BrowserMainListItem extends AbstractJPanel implements MouseInputL
 	private JPopupMenu getListItemMenu() {
 		if(null == listItemMenu) {
 			listItemMenu = new JPopupMenu();
+			listItemMenu.setForeground(Color.RED);
 		}
 		listItemMenu.removeAll();
 		return listItemMenu;

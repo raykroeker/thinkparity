@@ -28,14 +28,12 @@ import com.thinkparity.browser.util.log4j.LoggerFactory;
  */
 public class MainWindow extends AbstractJFrame {
 
-	private static final Color backgroundColor =
-		new Color(249, 249, 249, 255);
-
 	/**
-	 * The default size of the browser.
+	 * The size of the main window.
 	 * 
+	 * @see #getMainWindowSize()
 	 */
-	private static final Dimension defaultSize;
+	private static Dimension mainWindowSize;
 
 	/**
 	 * @see java.io.Serializable
@@ -43,17 +41,17 @@ public class MainWindow extends AbstractJFrame {
 	 */
 	private static final long serialVersionUID = 1;
 
-	static { defaultSize = new Dimension(352, 552); }
-
-	public static Color getBackgroundColor() {
-		return backgroundColor;
-	}
-
 	/**
-	 * Obtain the default size of the browser.
-	 *
+	 * Obtain the size of the main window.
+	 * 
+	 * @return The size of the main window.
 	 */
-	public static Dimension getDefaultSize() { return defaultSize; }
+	public static Dimension getMainWindowSize() {
+		if(null == mainWindowSize) {
+			mainWindowSize = new Dimension(402, 552);
+		}
+		return mainWindowSize;
+	}
 
 	/**
 	 * Set the parity look and feel; create an instance of the main window and
@@ -105,7 +103,7 @@ public class MainWindow extends AbstractJFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setRegion();
 		setResizable(false);
-		setTitle(getString("Title"));
+		setSize(MainWindow.getMainWindowSize());
 
 		initMainWindowComponents();
 	}

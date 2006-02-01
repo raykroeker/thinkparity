@@ -23,7 +23,7 @@ public class MainWindowState {
 	 * Type-safe keys to use when persisting the browser's state.
 	 * 
 	 */
-	private enum PersistenceKey { LOCATION, SIZE }
+	private enum PersistenceKey { LOCATION }
 
 	/**
 	 * The default location of the browser.
@@ -65,8 +65,6 @@ public class MainWindowState {
 		jFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				jFramePersistence.set(
-						PersistenceKey.SIZE.toString(), jFrame.getSize());
-				jFramePersistence.set(
 						PersistenceKey.LOCATION.toString(), jFrame.getLocation());
 			}
 		});
@@ -77,8 +75,6 @@ public class MainWindowState {
 	 *
 	 */
 	private void setInitialState() {
-		jFrame.setSize(jFramePersistence.get(
-				PersistenceKey.SIZE.toString(), MainWindow.getDefaultSize()));
 		jFrame.setLocation(jFramePersistence.get(
 				PersistenceKey.LOCATION.toString(), DEFAULT_LOCATION));
 	}

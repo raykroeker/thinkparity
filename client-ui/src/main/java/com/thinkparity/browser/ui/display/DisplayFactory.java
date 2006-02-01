@@ -5,6 +5,8 @@ package com.thinkparity.browser.ui.display;
 
 import java.awt.Dimension;
 
+import com.thinkparity.browser.ui.MainWindow;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
@@ -12,8 +14,6 @@ import com.thinkparity.codebase.assertion.Assert;
  * @version 1.1
  */
 public class DisplayFactory {
-
-	private static final Integer DISPLAY_WIDTH = 350;
 
 	private static final DisplayFactory SINGLETON;
 
@@ -40,6 +40,13 @@ public class DisplayFactory {
 	 * 
 	 */
 	private Display content;
+
+	/**
+	 * The width to apply to each display.
+	 * 
+	 * @see #applySize(Display, Integer)
+	 */
+	private final Integer displayWidth;
 
 	/**
 	 * The form display.
@@ -69,7 +76,10 @@ public class DisplayFactory {
 	 * Create a DisplayFactory [Singleton, Factory]
 	 * 
 	 */
-	private DisplayFactory() { super(); }
+	private DisplayFactory() {
+		super();
+		this.displayWidth = MainWindow.getMainWindowSize().width;
+	}
 
 	/**
 	 * Apply the preferred, minimum and maximum size to the display.
@@ -80,7 +90,7 @@ public class DisplayFactory {
 	 *            The height.
 	 */
 	private void applySize(final Display display, final Integer height) {
-		final Dimension s = new Dimension(DISPLAY_WIDTH, height);
+		final Dimension s = new Dimension(displayWidth, height);
 		display.setPreferredSize(s);
 		display.setMinimumSize(s);
 		display.setMaximumSize(s);

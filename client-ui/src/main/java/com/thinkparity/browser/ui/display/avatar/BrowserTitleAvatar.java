@@ -14,7 +14,6 @@ import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.ui.UIConstants;
 import com.thinkparity.browser.ui.component.ButtonFactory;
-import com.thinkparity.browser.ui.component.LabelFactory;
 import com.thinkparity.browser.util.State;
 
 import com.thinkparity.codebase.ResourceUtil;
@@ -76,18 +75,11 @@ class BrowserTitleAvatar extends Avatar {
 	private void initBrowserTitleComponents() {
 		//	 _______________________________________
 		//	/										\
-		//	|	thinkParity                      X  |
+		//	|	                                 X  |
 		//	|										|
 		//	-----------------------------------------
-		//  |-20px-|
 		
 		final GridBagConstraints c = new GridBagConstraints();
-
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 20, 0, 0);
-		c.weightx = 1.0;
-		add(LabelFactory.create(getString("Title"), UIConstants.DefaultFontBold,
-				new Color(116, 120, 131, 255)), c.clone());
 
 		final ImageIcon closeJButtonIcon =
 			new ImageIcon(ResourceUtil.getURL("images/closeButton.png"));
@@ -103,8 +95,8 @@ class BrowserTitleAvatar extends Avatar {
 		closeJButton.setPreferredSize(iconSize);
 
 		c.anchor = GridBagConstraints.EAST;
-		c.insets = new Insets(0, 0, 0, 20);
-		c.weightx = 0.0;
+		c.insets.right = 7;
+		c.weightx = 1;
 		add(closeJButton, c.clone());
 	}
 

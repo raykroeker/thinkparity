@@ -5,10 +5,7 @@ package com.thinkparity.browser.ui.component;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -58,6 +55,12 @@ public class LabelFactory extends ComponentFactory {
 	}
 
 	/**
+	 * Foreground color of the link.
+	 * 
+	 */
+	private static final Color LINK_FOREGROUND;
+
+	/**
 	 * Singleton instance.
 	 * 
 	 */
@@ -72,6 +75,9 @@ public class LabelFactory extends ComponentFactory {
 	static {
 		singleton = new LabelFactory();
 		singletonLock = new Object();
+
+		// COLOR 49, 102, 148, 255
+		LINK_FOREGROUND = new Color(49, 102, 148, 255);
 	}
 
 	/**
@@ -259,17 +265,8 @@ public class LabelFactory extends ComponentFactory {
 	 */
 	private JLabel doCreateLink(final Component parent, final String text,
 			final Font font) {
-		final JLabel jLabel = doCreate(text, font, Color.BLUE);
-		jLabel.addMouseListener(new MouseAdapter() {
-			final Cursor DEFAULT = new Cursor(Cursor.DEFAULT_CURSOR);
-			final Cursor HAND = new Cursor(Cursor.HAND_CURSOR);
-			public void mouseEntered(final MouseEvent e) {
-				parent.setCursor(HAND);
-			}
-			public void mouseExited(final MouseEvent e) {
-				parent.setCursor(DEFAULT);
-			}
-		});
+		final JLabel jLabel = doCreate(text, font, LINK_FOREGROUND);
+		applyHandCursor(jLabel);
 		return jLabel;
 	}
 }

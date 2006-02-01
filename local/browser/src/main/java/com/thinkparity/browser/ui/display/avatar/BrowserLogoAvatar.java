@@ -11,11 +11,14 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
 import com.thinkparity.browser.ui.UIConstants;
 import com.thinkparity.browser.ui.component.LabelFactory;
+import com.thinkparity.browser.ui.component.MenuItemFactory;
 import com.thinkparity.browser.ui.component.TextFactory;
 import com.thinkparity.browser.util.ImageIOUtil;
 import com.thinkparity.browser.util.State;
@@ -102,7 +105,7 @@ class BrowserLogoAvatar extends Avatar {
 	private JLabel createJLabelLink(final String text,
 			final ActionListener actionListener) {
 		final JLabel jLabelLink =
-			LabelFactory.createLink(this, text, UIConstants.LogoLinkFont);
+			LabelFactory.createLink(this, text, UIConstants.DefaultFontBold);
 		jLabelLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				actionListener.actionPerformed(
@@ -110,7 +113,26 @@ class BrowserLogoAvatar extends Avatar {
 								ActionEvent.ACTION_PERFORMED, ""));
 			}
 		});
-		jLabelLink.setForeground(Color.BLACK);
+		return jLabelLink;
+	}
+
+	/**
+	 * Create a JLabel component that behaves as a link. It is clickable and
+	 * colored blue.
+	 * 
+	 * @param text
+	 *            The link text.
+	 * @return The JLabel.
+	 */
+	private JLabel createJLabelLink(final String text,
+			final JPopupMenu jPopupMenu) {
+		final JLabel jLabelLink =
+			LabelFactory.createLink(this, text, UIConstants.DefaultFontBold);
+		jLabelLink.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				jPopupMenu.show(jLabelLink, 0, jLabelLink.getHeight());
+			}
+		});
 		return jLabelLink;
 	}
 
@@ -193,12 +215,20 @@ class BrowserLogoAvatar extends Avatar {
 		final GridBagConstraints c = new GridBagConstraints();
 		final GridBagConstraints c2 = new GridBagConstraints();
 
+		final JPopupMenu jPopupMenu = new JPopupMenu();
+		final JMenuItem newContactMenuItem =
+			MenuItemFactory.create(getString("Contact"), 0);
+		final JMenuItem newDocumentMenuItem =
+			MenuItemFactory.create(getString("Document"), 0);
+		newDocumentMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				runAddDocument();
+			}
+		});
+		jPopupMenu.add(newContactMenuItem);
+		jPopupMenu.add(newDocumentMenuItem);
 		final JLabel addJLabelLink =
-			createJLabelLink(getString("New"), new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					runAddDocument();
-				}
-			});
+			createJLabelLink(getString("New"), jPopupMenu);
 		c.anchor = GridBagConstraints.EAST;
 		c.insets.top = 9;
 		c.weightx = 1;

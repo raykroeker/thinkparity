@@ -3,7 +3,11 @@
  */
 package com.thinkparity.browser.ui.component;
 
+import java.awt.Color;
+
 import javax.swing.JMenuItem;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,9 +34,18 @@ public class MenuItemFactory extends ComponentFactory {
 	 */
 	private MenuItemFactory() { super(); }
 
+	static {
+		final UIDefaults defaults = UIManager.getDefaults();
+		// COLOR 215, 231, 244, 255
+		defaults.put("MenuItem.selectionBackground", new Color(215, 231, 244, 255));
+		// COLOR BLACK
+		defaults.put("MenuItem.selectionForeground", Color.BLACK);
+	}
+
 	private JMenuItem doCreate(final String text) {
 		final JMenuItem jMenuItem = new JMenuItem(text);
 		applyDefaultFont(jMenuItem);
+		applyHandCursor(jMenuItem);
 		return jMenuItem;
 	}
 

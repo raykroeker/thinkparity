@@ -5,7 +5,10 @@ package com.thinkparity.browser.ui.component;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import com.thinkparity.browser.ui.UIConstants;
 
@@ -53,5 +56,24 @@ abstract class ComponentFactory {
 	 */
 	protected void applyForeground(final Component component, final Color foreground) {
 		component.setForeground(foreground);
+	}
+
+	/**
+	 * Add a mouse listener to adjust the cursor to a hand with the component.
+	 * 
+	 * @param comopnent
+	 *            The component.
+	 */
+	protected void applyHandCursor(final Component component) {
+		component.addMouseListener(new MouseAdapter() {
+			final Cursor originalCursor = component.getCursor();
+			final Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+			public void mouseEntered(final MouseEvent e) {
+				component.setCursor(handCursor);
+			}
+			public void mouseExited(final MouseEvent e) {
+				component.setCursor(originalCursor);
+			}
+		});
 	}
 }

@@ -4,7 +4,12 @@
 package com.thinkparity.codebase;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Vector;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -45,13 +50,24 @@ public class ZipUtilTest extends CodebaseTestCase {
 	 */
 	protected void setUp() throws Exception {
 		data = new Vector<Fixture>(1);
-		File inputDirectory, zipFile;
+		File inputDirectory, outputDirectory, zipFile;
 
-		inputDirectory = new File(
-				System.getProperty("user.dir"),
-				"target" + File.separator + "test-classes" + File.separator +
-				"com" + File.separator + "thinkparity" + File.separator + "codebase");
-		zipFile = new File(getJUnitSessionDirectory(), System.currentTimeMillis() + ".zip");
+		// copy the resources to a test directory
+		inputDirectory = createTestDirectory(getName() + ".Input");
+		File inputFile;
+		InputStream inputStream;
+		OutputStream outputStream;
+		for(JUnitTestFile jUnitTestFile : getJUnitTestFiles()) {
+			inputFile = new File(inputDirectory, jUnitTestFile.getName());
+			Assert.assertTrue("", inputFile.createNewFile());
+			inputStream = JUnitTestFile.class.getResourceAsStream(jUnitTestFile.getName());
+			outputStream = new FileOutputStream(inputFile);
+			StreamUtil.copy(inputStream, outputStream, 512);
+			outputStream.flush();
+			outputStream.close();
+		}
+		outputDirectory = createTestDirectory(getName() + ".Output");
+		zipFile = new File(outputDirectory, getName() + ".zip");
 		data.add(new Fixture(inputDirectory, zipFile));
 	}
 

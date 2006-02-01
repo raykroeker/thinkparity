@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.workspace;
 
 import java.util.Locale;
 
+import com.thinkparity.model.xmpp.user.User;
+
 /**
  * @author raykroeker@gmail.com
  */
@@ -16,7 +18,7 @@ public interface Preferences {
 
 	public Integer getServerPort();
 
-	public String getSystemUsername();
+	public User getSystemUser();
 
 	public String getUsername();
 

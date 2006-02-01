@@ -4,10 +4,12 @@
 package com.thinkparity.model.parity.model.workspace;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.util.SystemUtil;
@@ -74,6 +76,22 @@ class WorkspaceHelper {
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getWorkspaceURL()
 			 */
 			public URL getWorkspaceURL() { return workspaceRootURL; }
+
+			/**
+			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getLogArchive()
+			 */
+			public File getLogArchive() {
+				final File logFileDirectory = new File(loggerURL.getFile());
+				final File logFileArchive = new File(workspaceRootURL.getFile(), "Logs.zip");
+				if(logFileArchive.exists()) {
+					Assert.assertTrue(
+							"Cannot delete log file archive.",
+							logFileArchive.delete());
+				}
+				try { ZipUtil.createZipFile(logFileArchive, logFileDirectory); }
+				catch(final IOException iox) { throw new RuntimeException(iox); }
+				return logFileArchive;
+			}
 		};
 	}
 

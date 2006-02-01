@@ -529,7 +529,23 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * 
 	 * @throws ParityException
 	 */
-	void sendLogFile() throws ParityException {}
+	void sendLogFileArchive() throws ParityException {
+		synchronized(xmppHelperLock) {
+			assertIsLoggedIn("sendLogFile()", xmppHelper);
+			try {
+				xmppHelper.sendLogFileArchive(
+						workspace.getLogArchive(), preferences.getSystemUser());
+			}
+			catch(final SmackException sx) {
+				logger.error("sendLogFile()", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(final RuntimeException rx) {
+				logger.error("sendLogFile()", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
 
 	/**
 	 * Send a message to a list of parity users.

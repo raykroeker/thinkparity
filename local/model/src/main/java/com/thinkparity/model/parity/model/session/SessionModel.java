@@ -272,8 +272,8 @@ public class SessionModel extends AbstractModel {
 	 * 
 	 * @throws ParityException
 	 */
-	public void sendLogFile() throws ParityException {
-		synchronized(implLock) { impl.sendLogFile(); }
+	public void sendLogFileArchive() throws ParityException {
+		synchronized(implLock) { impl.sendLogFileArchive(); }
 	}
 
 	/**

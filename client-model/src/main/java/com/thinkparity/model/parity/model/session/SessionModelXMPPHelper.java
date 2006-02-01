@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -238,6 +239,20 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	void sendKeyResponse(final UUID artifactUUID, final KeyResponse keyResponse,
 			final User user) throws SmackException {
 		xmppSession.sendKeyResponse(artifactUUID, keyResponse, user);
+	}
+
+	/**
+	 * Send the log file archive to the parity server.
+	 * 
+	 * @param logFileArchive
+	 *            The log file archive.
+	 * @param The
+	 *            user to send the file to.
+	 * @throws SmackException
+	 */
+	void sendLogFileArchive(final File logFileArchive, final User user)
+			throws SmackException {
+		xmppSession.sendLogFileArchive(logFileArchive, user);
 	}
 
 	/**

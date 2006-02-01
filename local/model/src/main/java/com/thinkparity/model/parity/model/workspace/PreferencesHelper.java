@@ -13,6 +13,9 @@ import java.util.Properties;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.user.User.Presence;
+
 /**
  * 
  * @author raykroeker@gmail.com
@@ -69,9 +72,10 @@ class PreferencesHelper {
 					else { return 5223; }
 				}
 			}
-			public String getSystemUsername() {
-				return new StringBuffer("system@")
-					.append(getServerHost()).toString();
+			public User getSystemUser() {
+				return new User(
+						"thinkParity.com Solutions",
+						"thinkparity.com", Presence.UNAVAILABLE);
 			}
 			public String getUsername() {
 				return javaProperties.getProperty("parity.username", null);

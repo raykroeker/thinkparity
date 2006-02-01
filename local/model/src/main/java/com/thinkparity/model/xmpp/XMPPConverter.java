@@ -152,8 +152,7 @@ public abstract class XMPPConverter implements Converter {
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		reader.moveDown();
-		final Collection<ParityObjectFlag> flags =
-			new Vector<ParityObjectFlag>(1);
+		final Collection<ParityObjectFlag> flags = new Vector<ParityObjectFlag>(1);
 		while(reader.hasMoreChildren()) {
 			readFlag(flags, reader, context);
 		}

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -53,6 +54,8 @@ public interface XMPPSession {
 	public void sendKeyRequest(final UUID artifactUUID) throws SmackException;
 	public void sendKeyResponse(final UUID artifactUUID,
 			final KeyResponse keyResponse, final User user)
+			throws SmackException;
+	public void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException;
 	public void sendSubscribe(final UUID artifactUUID) throws SmackException;
 	public void subscribe(final UUID artifactUUID) throws SmackException;

@@ -510,7 +510,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 */
 	private Project lazyCreateInbox() throws FileNotFoundException, IOException {
-		final String systemUsername = preferences.getSystemUsername();
+		final String systemUsername = preferences.getSystemUser().getUsername();
 		final Project inbox = new Project(
 				systemUsername,
 				IParityModelConstants.PROJECT_CREATED_ON_INBOX,
@@ -535,7 +535,7 @@ class ProjectModelImpl extends AbstractModelImpl {
 	 */
 	private Project lazyCreateMyProjects() throws FileNotFoundException,
 			IOException {
-		final String systemUsername = preferences.getSystemUsername();
+		final String systemUsername = preferences.getSystemUser().getUsername();
 		final Project myProjects = new Project(
 				systemUsername,
 				IParityModelConstants.PROJECT_CREATED_ON_MYPROJECTS,

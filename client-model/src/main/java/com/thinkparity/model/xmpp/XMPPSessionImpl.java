@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -593,6 +594,15 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendLogFileArchive(java.io.File)
+	 */
+	public void sendLogFileArchive(final File logFileArchive, final User user)
+			throws SmackException {
+		logger.info("sendLogFileArchive(File)");
+		logger.debug(logFileArchive);
+	}
+
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendSubscribe(java.util.UUID)
 	 */
 	public void sendSubscribe(final UUID artifactUUID) throws SmackException {
@@ -977,6 +987,4 @@ public class XMPPSessionImpl implements XMPPSession {
 		presence.setFrom(smackXMPPConnection.getUser());
 		sendPacket(presence);
 	}
-
-
 }

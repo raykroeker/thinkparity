@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.workspace;
 
+import java.io.File;
 import java.net.URL;
 
 /**
@@ -25,6 +26,13 @@ public interface Workspace {
 	 * @return URL
 	 */
 	public URL getLoggerURL();
+
+	/**
+	 * Obtain a Zip archive of the workspace logs.
+	 * 
+	 * @return A zip archive of the workspace logs.
+	 */
+	public File getLogArchive();
 
 	/**
 	 * Obtain the preferences for the workspace.

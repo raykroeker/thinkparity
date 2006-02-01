@@ -36,16 +36,33 @@ public class CodebaseTestHelper {
 
 	/**
 	 * Files to use when testing.
+	 * 
 	 */
 	private static final Vector<JUnitTestFile> jUnitTestFiles;
 
 	static {
-		// record the session start time.
+		// output directory structure
+		// $> (user.dir)
+		// 	+> target
+		//		+> test-session
+		//			+> ${sessionId}	(currentTimeMillis)
+		// session start time
 		jUnitSessionStart = System.currentTimeMillis();
-		// record the session id.
-		jUnitSessionId = "jUnit." + jUnitSessionStart;
-		// load test files
-		jUnitTestFiles = new Vector<JUnitTestFile>(4);
+		// session id
+		jUnitSessionId = String.valueOf(jUnitSessionStart);
+		// session directory
+		jUnitSessionDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
+			.append(File.separatorChar).append("target")
+			.append(File.separatorChar).append("test-sessions")
+			.append(File.separatorChar).append(jUnitSessionId)
+			.toString());
+		if(jUnitSessionDirectory.exists())
+			FileUtil.deleteTree(jUnitSessionDirectory);
+		Assert.assertTrue(
+				"Could not create jUnit session directory.",
+				jUnitSessionDirectory.mkdirs());
+		// copy the test files into the session directory
+		jUnitTestFiles = new Vector<JUnitTestFile>(7);
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.doc"));
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.odt"));
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework.png"));
@@ -53,14 +70,6 @@ public class CodebaseTestHelper {
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework1MB.txt"));
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework2MB.txt"));
 		jUnitTestFiles.add(new JUnitTestFile("JUnitTestFramework4MB.txt"));
-		// set session directory
-		jUnitSessionDirectory = new File(new StringBuffer(System.getProperty("user.dir"))
-			.append(File.separatorChar).append("test-sessions")
-			.append(File.separatorChar).append(jUnitSessionId)
-			.toString());
-		if(jUnitSessionDirectory.exists())
-			FileUtil.deleteTree(jUnitSessionDirectory);
-		Assert.assertTrue("CodebaseTestHelper<init>", jUnitSessionDirectory.mkdirs());
 		// initialize the logger
 		CodebaseTestLoggerConfigurator.configure(jUnitSessionId, jUnitSessionDirectory);
 	}
@@ -116,6 +125,8 @@ public class CodebaseTestHelper {
 	Collection<JUnitTestFile> getJUnitTestFiles() { 
 		return Collections.unmodifiableCollection(CodebaseTestHelper.jUnitTestFiles);
 	}
+
+	File getJUnitSessionDirectory() { return jUnitSessionDirectory; }
 
 	/**
 	 * Obtain the number of jUnit test files.

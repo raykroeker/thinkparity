@@ -5,6 +5,7 @@ package com.thinkparity.codebase;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
@@ -18,27 +19,63 @@ import com.thinkparity.codebase.config.ConfigFactory;
 public abstract class StreamUtil {
 
 	/**
-	 * Handle to config.
+	 * Block size.
+	 * 
 	 */
-	private static final Config STREAM_UTIL_CONFIG =
-		ConfigFactory.newInstance(StreamUtil.class);
+	private static final int BLOCK_SIZE;
 	
 	/**
-	 * Block size.
-	 */
-	private static final int BLOCK_SIZE =
-		Integer.parseInt(STREAM_UTIL_CONFIG.getProperty("block.size"));
-
-	/**
 	 * Default characterset name.
+	 * 
 	 */
-	private static final String DEFAULT_CHARSET_NAME =
-		STREAM_UTIL_CONFIG.getProperty("default.charset.name");
+	private static final String DEFAULT_CHARSET_NAME;
 
 	/**
-	 * Create a new StreamUtil [Singleton]
+	 * Handle to config.
+	 * 
 	 */
-	private StreamUtil() {super();}
+	private static final Config STREAM_UTIL_CONFIG;
+
+	static {
+		STREAM_UTIL_CONFIG = ConfigFactory.newInstance(StreamUtil.class);
+
+		BLOCK_SIZE = Integer.parseInt(STREAM_UTIL_CONFIG.getProperty("block.size"));		
+		DEFAULT_CHARSET_NAME = STREAM_UTIL_CONFIG.getProperty("default.charset.name");
+	}
+
+	/**
+	 * Copy the input stream to the output stream using a default buffer size of
+	 * 512 bytes. The streams are note closed upon completion.
+	 * 
+	 * @param is
+	 *            The input stream.
+	 * @param os
+	 *            The output stream.
+	 */
+	public static void copy(final InputStream is, final OutputStream os)
+			throws IOException {
+		copy(is, os, 512);
+	}
+
+	/**
+	 * Copy bytes from an input stream to an output stream.
+	 * 
+	 * @param is
+	 *            The input to copy from.
+	 * @param os
+	 *            The output to copy to.
+	 * @param bufferSize
+	 *            The size of the buffer to use when transferring.
+	 * @throws IOException
+	 */
+	public static void copy(final InputStream is, final OutputStream os,
+			final Integer bufferSize) throws IOException {
+		int len;
+		byte[] b = new byte[bufferSize];
+		while((len = is.read(b)) > 0) {
+			os.write(b, 0, len);
+		}
+	}
 
 	/**
 	 * Read the stream into a byte array using the default character set.
@@ -83,5 +120,10 @@ public abstract class StreamUtil {
 		}
 		return stream;
 	}
+
+	/**
+	 * Create a new StreamUtil [Singleton]
+	 */
+	private StreamUtil() {super();}
 
 }

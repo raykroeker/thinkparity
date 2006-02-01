@@ -51,11 +51,11 @@ public abstract class FileUtil {
 	public static void copy(final File file, final File target)
 			throws FileNotFoundException, IOException {
 		final BufferedInputStream bis = new BufferedInputStream(
-				new FileInputStream(file));
+				new FileInputStream(file), 512);
 		Assert.assertTrue("copy(File,File)", target.createNewFile());
 		final BufferedOutputStream bos = new BufferedOutputStream(
-				new FileOutputStream(target), 256);
-		try { copy(bis, bos); }
+				new FileOutputStream(target), 512);
+		try { StreamUtil.copy(bis, bos); }
 		finally {
 			bis.close();
 
@@ -233,24 +233,6 @@ public abstract class FileUtil {
 		finally {
 			fileOutputStream.flush();
 			fileOutputStream.close();
-		}
-	}
-
-	/**
-	 * Copy bytes from an input stream to an output stream.
-	 * 
-	 * @param is
-	 *            The input to copy from.
-	 * @param os
-	 *            The output to copy to.
-	 * @throws IOException
-	 */
-	private static void copy(final InputStream is, final OutputStream os)
-			throws IOException {
-		int byteRead = is.read();
-		while(byteRead != -1) {
-			os.write(byteRead);
-			byteRead = is.read();
 		}
 	}
 

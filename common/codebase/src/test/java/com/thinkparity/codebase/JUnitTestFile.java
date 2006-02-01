@@ -33,14 +33,14 @@ public class JUnitTestFile {
 		this.file =
 			new File(JUnitTestFile.class.getResource(jUnitFilename).getFile());
 	}
-	
+
 	/**
 	 * Obtain the test file absolute path.
 	 * 
 	 * @return The test file's absolute path.
 	 */
 	public String getAbsolutePath() { return file.getAbsolutePath(); }
-
+	
 	/**
 	 * Obtain the test file.
 	 * 
@@ -54,6 +54,13 @@ public class JUnitTestFile {
 	 * @return The test file name.
 	 */
 	public String getName() { return file.getName(); }
+
+	/**
+	 * Obtain the parent file.
+	 * 
+	 * @return The parent file.
+	 */
+	public File getParentFile() { return file.getParentFile(); }
 
 	/**
 	 * Obtain the test file size.

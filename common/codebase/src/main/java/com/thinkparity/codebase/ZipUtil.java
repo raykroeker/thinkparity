@@ -82,11 +82,9 @@ public class ZipUtil {
 
 				zipOutputStream.closeEntry();
 			}
-		}
-		finally {
 			zipOutputStream.flush();
-			zipOutputStream.close();
 		}
+		finally { zipOutputStream.close(); }
 	}
 
 	/**

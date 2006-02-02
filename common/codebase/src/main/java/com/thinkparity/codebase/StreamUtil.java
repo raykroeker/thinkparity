@@ -45,12 +45,13 @@ public abstract class StreamUtil {
 
 	/**
 	 * Copy the input stream to the output stream using a default buffer size of
-	 * 512 bytes. The streams are note closed upon completion.
+	 * 512 bytes. Note that the streams are note closed upon completion.
 	 * 
 	 * @param is
 	 *            The input stream.
 	 * @param os
 	 *            The output stream.
+	 * @throws IOException
 	 */
 	public static void copy(final InputStream is, final OutputStream os)
 			throws IOException {
@@ -58,7 +59,8 @@ public abstract class StreamUtil {
 	}
 
 	/**
-	 * Copy bytes from an input stream to an output stream.
+	 * Copy bytes from an input stream to an output stream. Note that the
+	 * streams are not closed upon completion.
 	 * 
 	 * @param is
 	 *            The input to copy from.
@@ -71,10 +73,11 @@ public abstract class StreamUtil {
 	public static void copy(final InputStream is, final OutputStream os,
 			final Integer bufferSize) throws IOException {
 		int len;
-		byte[] b = new byte[bufferSize];
+		final byte[] b = new byte[bufferSize];
 		while((len = is.read(b)) > 0) {
 			os.write(b, 0, len);
 		}
+		os.flush();
 	}
 
 	/**

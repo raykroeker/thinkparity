@@ -62,9 +62,14 @@ public class ZipUtilTest extends CodebaseTestCase {
 			Assert.assertTrue("", inputFile.createNewFile());
 			inputStream = JUnitTestFile.class.getResourceAsStream(jUnitTestFile.getName());
 			outputStream = new FileOutputStream(inputFile);
-			StreamUtil.copy(inputStream, outputStream, 512);
-			outputStream.flush();
-			outputStream.close();
+			try {
+				StreamUtil.copy(inputStream, outputStream, 512);
+				outputStream.flush();
+			}
+			finally {
+				try { outputStream.close(); }
+				finally { inputStream.close(); }
+			}
 		}
 		outputDirectory = createTestDirectory(getName() + ".Output");
 		zipFile = new File(outputDirectory, getName() + ".zip");

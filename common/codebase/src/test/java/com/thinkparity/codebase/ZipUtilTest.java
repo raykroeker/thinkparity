@@ -4,12 +4,7 @@
 package com.thinkparity.codebase;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Vector;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -33,7 +28,7 @@ public class ZipUtilTest extends CodebaseTestCase {
 	 * Create a ZipUtilTest.
 	 * 
 	 */
-	public ZipUtilTest() { super("Zip Util Test"); }
+	public ZipUtilTest() { super("ZipUtilTest"); }
 
 	public void testCreateZipFile() {
 		try {
@@ -41,7 +36,7 @@ public class ZipUtilTest extends CodebaseTestCase {
 				ZipUtil.createZipFile(datum.zipFile, datum.inputDirectory);
 			}
 		}
-		catch(final Throwable t) { fail(getFailMessage(t)); }
+		catch(final Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -50,30 +45,9 @@ public class ZipUtilTest extends CodebaseTestCase {
 	 */
 	protected void setUp() throws Exception {
 		data = new Vector<Fixture>(1);
-		File inputDirectory, outputDirectory, zipFile;
+		final File zipFile = new File(createDirectory("Output"), getName() + ".zip");
 
-		// copy the resources to a test directory
-		inputDirectory = createTestDirectory(getName() + ".Input");
-		File inputFile;
-		InputStream inputStream;
-		OutputStream outputStream;
-		for(JUnitTestFile jUnitTestFile : getJUnitTestFiles()) {
-			inputFile = new File(inputDirectory, jUnitTestFile.getName());
-			Assert.assertTrue("", inputFile.createNewFile());
-			inputStream = JUnitTestFile.class.getResourceAsStream(jUnitTestFile.getName());
-			outputStream = new FileOutputStream(inputFile);
-			try {
-				StreamUtil.copy(inputStream, outputStream, 512);
-				outputStream.flush();
-			}
-			finally {
-				try { outputStream.close(); }
-				finally { inputStream.close(); }
-			}
-		}
-		outputDirectory = createTestDirectory(getName() + ".Output");
-		zipFile = new File(outputDirectory, getName() + ".zip");
-		data.add(new Fixture(inputDirectory, zipFile));
+		data.add(new Fixture(getInputFilesDirectory(), zipFile));
 	}
 
 	/**

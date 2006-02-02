@@ -37,7 +37,7 @@ public class FileUtilTest extends CodebaseTestCase {
 	/**
 	 * Create a FileUtilTest.
 	 */
-	public FileUtilTest() { super("File util test"); }
+	public FileUtilTest() { super("FileUtilTest"); }
 
 	public void testCopy() {
 		try {
@@ -47,7 +47,7 @@ public class FileUtilTest extends CodebaseTestCase {
 				assertContentEquals(data.file, data.target);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	public void testRead() {
@@ -64,44 +64,42 @@ public class FileUtilTest extends CodebaseTestCase {
 				assertNotNull(fileString);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
+	 * 
 	 */
-	@Override
 	protected void setUp() throws Exception {
-		super.setUp();
 		setUpCopy();
 		setUpRead();
 	}
 
+	/**
+	 * Setup for the testCopy.
+	 * 
+	 * @throws Exception
+	 */
 	protected void setUpCopy() throws Exception {
-		copyData = new Vector<CopyData>(getJUnitTestFilesSize());
-		final File targetDirectory = createTestDirectory("setUpCopy");
+		copyData = new Vector<CopyData>(getInputFilesLength());
+		final File targetDirectory = createDirectory("targetDirectory");
 
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File inputFile : getInputFiles()) {
 			copyData.add(
-					new CopyData(testFile.getFile(),
-							new File(targetDirectory, testFile.getName())));
+					new CopyData(inputFile, new File(targetDirectory, inputFile.getName())));
 		}
 	}
 
 	protected void setUpRead() throws Exception {
-		readData = new Vector<ReadData>(getJUnitTestFilesSize());
+		readData = new Vector<ReadData>(getInputFilesLength());
 		Long size;
 
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
-			size = testFile.getSize();
+		for(File inputFile : getInputFiles()) {
+			size = inputFile.length();
 
-			readData.add(new ReadData(testFile.getFile(), size));
-
-			readData.add(new ReadData(testFile.getFile(), size));
-
-			readData.add(new ReadData(testFile.getFile(), size));
-
-			readData.add(new ReadData(testFile.getFile(), size));
+			readData.add(new ReadData(inputFile, size));
+			readData.add(new ReadData(inputFile, size));
 		}
 	}
 

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.codebase;
 
+import java.io.File;
 import java.util.Vector;
 
 import com.thinkparity.codebase.CompressionUtil.Level;
@@ -60,7 +61,7 @@ public class CompressionUtilTest extends CodebaseTestCase {
 				}
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	public void testDecompress() {
@@ -76,7 +77,7 @@ public class CompressionUtilTest extends CodebaseTestCase {
 				}
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 	
 	/**
@@ -90,23 +91,23 @@ public class CompressionUtilTest extends CodebaseTestCase {
 	}
 
 	protected void setUpCompress() throws Exception {
-		compressData = new Vector<CompressData>(getJUnitTestFilesSize());
+		compressData = new Vector<CompressData>(getInputFilesLength());
 		byte[] bytes;
 		
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
-			bytes = FileUtil.readBytes(testFile.getFile());
+		for(File inputFile : getInputFiles()) {
+			bytes = FileUtil.readBytes(inputFile);
 
 			compressData.add(new CompressData(bytes, Level.Nine));
 		}
 	}
 
 	protected void setUpDecompress() throws Exception {
-		decompressData = new Vector<DecompressData>(getJUnitTestFilesSize());
+		decompressData = new Vector<DecompressData>(getInputFilesLength());
 		byte[] bytes;
 		byte[] compressedBytes;
 		
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
-			bytes = FileUtil.readBytes(testFile.getFile());
+		for(File inputFile : getInputFiles()) {
+			bytes = FileUtil.readBytes(inputFile);
 			compressedBytes = CompressionUtil.compress(bytes, Level.Nine);
 			
 			decompressData.add(new DecompressData(bytes, compressedBytes));

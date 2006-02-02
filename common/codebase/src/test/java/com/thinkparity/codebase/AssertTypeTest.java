@@ -48,7 +48,7 @@ public class AssertTypeTest extends CodebaseTestCase {
 				}
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

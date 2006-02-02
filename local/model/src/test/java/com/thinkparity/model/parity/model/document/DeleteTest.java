@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -58,7 +57,7 @@ public class DeleteTest extends ModelTestCase {
 				assertNull(document);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -69,14 +68,12 @@ public class DeleteTest extends ModelTestCase {
 		final DocumentModel documentModel = getDocumentModel();
 		Document document;
 		String name, description;
-		File file;
 
 		data = new Vector<Fixture>(4);
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
-			file = testFile.getFile();
-			document = documentModel.create(testProject.getId(), name, description, file);
+			document = documentModel.create(testProject.getId(), name, description, testFile);
 			data.add(new Fixture(document, documentModel));
 		}
 	}

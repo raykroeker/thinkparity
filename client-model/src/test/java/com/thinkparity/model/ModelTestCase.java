@@ -3,18 +3,14 @@
  */
 package com.thinkparity.model;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
+import java.util.UUID;
 
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -24,6 +20,9 @@ import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+
+import com.raykroeker.junitx.TestCase;
+import com.raykroeker.junitx.TestSession;
 
 /**
  * ModelTestCase
@@ -39,23 +38,21 @@ public abstract class ModelTestCase extends TestCase {
 	private static Integer projectCount = 0;
 
 	/**
-	 * Handle to an apache logger.
+	 * The JUnit eXtension test session.
+	 * 
 	 */
-	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
+	private static final TestSession testSession;
 
-	/**
-	 * Helper class for the parity test cases.  Used to offload the
-	 * implementation of the data retreival functionality.
-	 */
-	private final ModelTestCaseHelper helper;
-
-	/**
-	 * Create a ModelTestCase
-	 * @param name
-	 */
-	protected ModelTestCase(String name) {
-		super(name);
-		this.helper = new ModelTestCaseHelper(this);
+	static {
+		testSession = TestCase.getTestSession();
+		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
+		testSession.setData("modelTestUser", modelTestUser);
+		// set non ssl mode
+		System.setProperty("parity.insecure", "true");
+		System.setProperty("parity.workspace",
+				new File(testSession.getSessionDirectory(), "workspace")
+				.getAbsolutePath());
+		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(modelTestUser.getUsername());
 	}
 
 	/**
@@ -66,9 +63,9 @@ public abstract class ModelTestCase extends TestCase {
 	 * @param document
 	 *            The document to validate.
 	 */
-	protected void assertContains(final Collection<Document> documentList,
+	protected static void assertContains(final Collection<Document> documentList,
 			Document document) {
-		helper.assertContains(documentList, document);
+		ModelTestCaseHelper.assertContains(documentList, document);
 	}
 
 	/**
@@ -79,10 +76,60 @@ public abstract class ModelTestCase extends TestCase {
 	 * @param document
 	 *            The document to validate.
 	 */
-	protected void assertNotContains(final Collection<Document> documentList,
+	protected static void assertNotContains(final Collection<Document> documentList,
 			Document document) {
-		helper.assertNotContains(documentList, document);
+		ModelTestCaseHelper.assertNotContains(documentList, document);
 	}
+
+	/**
+	 * The document model.
+	 * 
+	 */
+	private DocumentModel documentModel;
+
+	/**
+	 * The parity preferences.
+	 * 
+	 */
+	private Preferences preferences;
+
+	/**
+	 * The main project id.
+	 * 
+	 */
+	private UUID projectId;
+
+	/**
+	 * The project model.
+	 * 
+	 */
+	private ProjectModel projectModel;
+
+	/**
+	 * The session model.
+	 * 
+	 */
+	private SessionModel sessionModel;
+
+	/**
+	 * The parity workspace.
+	 * 
+	 */
+	private Workspace workspace;
+
+	/**
+	 * The workspace model.
+	 * 
+	 */
+	private WorkspaceModel workspaceModel;
+
+	/**
+	 * Create a ModelTestCase
+	 * 
+	 * @param name
+	 *            The test name.
+	 */
+	protected ModelTestCase(final String name) { super(name); }
 
 	/**
 	 * Create a project for the given test. This method does not check for
@@ -96,72 +143,43 @@ public abstract class ModelTestCase extends TestCase {
 		final String name = String.valueOf(projectCount++);
 		final String description = "Automated test project for:  " +
 			getClass().getCanonicalName() + "." + test + "()";
-		return getProjectModel().create(helper.getJUnitProject().getId(), name, description);
+		return getProjectModel().create(getProjectId(), name, description);
 	}
 
 	/**
-	 * Obtain a handle to the document model.
+	 * Obtain the document model.
 	 * 
-	 * @return A handle to the document model.
+	 * @return The document model.
 	 */
 	protected DocumentModel getDocumentModel() {
-		return helper.getDocumentModel();
+		if(null == documentModel) {
+			documentModel = DocumentModel.getModel();
+		}
+		return documentModel;
 	}
-
-	protected String getFailMessage(final Throwable t) {
-		final StringWriter stringWriter = new StringWriter();
-		final PrintWriter printWriter = new PrintWriter(stringWriter, true);
-		t.printStackTrace(printWriter);
-		return stringWriter.toString();
-	}
-
+	
 	/**
-	 * Obtain a single jUnit test file.
-	 * 
-	 * @param ordinal
-	 * @return The jUnit test file.
-	 */
-	protected JUnitTestFile getJUnitTestFile(final Integer ordinal) {
-		return helper.getJUnitTestFile(ordinal);
-	}
-
-	/**
-	 * Obtain a single jUnit test file.
+	 * Obtain a single test file.
 	 * 
 	 * @param name
-	 * @return The jUnit test file.
+	 *            The file name.
+	 * @return The test file.
 	 */
-	protected JUnitTestFile getJUnitTestFile(final String name) {
-		return helper.getJUnitTestFile(name);
+	protected File getInputFile(final String name) throws IOException {
+		for(File file : getInputFiles()) {
+			if(file.getName().equals(name)) { return file; }
+		}
+		return null;
 	}
 
 	/**
-	 * Obtain the files for use with the jUnit test framework.
+	 * @see com.raykroeker.junitx.TestCase#getInputFiles()
 	 * 
-	 * @return The list of test files.
 	 */
-	protected Collection<JUnitTestFile> getJUnitTestFiles() {
-		return helper.getJUnitTestFiles();
-	}
-
-	/**
-	 * Obtain the number of jUnit test files.
-	 * 
-	 * @return The number of jUnit test files.
-	 */
-	protected Integer getJUnitTestFilesSize() {
-		return helper.getJUnitTestFilesSize();
-	}
-
-	/**
-	 * Obtain random test text to use with junit.
-	 * 
-	 * @param size
-	 *            The size of the text in characters.
-	 * @return The text.
-	 */
-	protected String getJUnitTestText(final Integer size) {
-		return helper.getJUnitTestText(size);
+	protected File[] getInputFiles() throws IOException {
+		final File[] inputFiles = new File[5];
+		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, 5);
+		return inputFiles;
 	}
 
 	/**
@@ -170,43 +188,54 @@ public abstract class ModelTestCase extends TestCase {
 	 * @return The junit test user.
 	 */
 	protected ModelTestUser getModelTestUser() {
-		return helper.getJUnitTestUser();
+		return (ModelTestUser) testSession.getData("modelTestUser");
 	}
-	
+
 	/**
-	 * Obtain a handle to the parity preferences.
+	 * Obtain the parity preferences.
 	 * 
-	 * @return A handle to the parity preferences.
+	 * @return The parity preferences.
 	 */
 	protected Preferences getPreferences() {
-		return helper.getPreferences();
+		if(null == preferences) {
+			preferences = getWorkspace().getPreferences();
+		}
+		return preferences;
 	}
 
 	/**
-	 * Obtain a handle to the project model.
-	 * 
-	 * @return A handle to the project model.
+	 * Obtain the project model.
+	 * @return The project model.
 	 */
 	protected ProjectModel getProjectModel() {
-		return ProjectModel.getModel();
+		if(null == projectModel) {
+			projectModel = ProjectModel.getModel();
+		}
+		return projectModel;
 	}
 
 	/**
-	 * Obtain a handle to a session model.
+	 * Obtain the session model.
 	 * 
-	 * @return A handle to a session model.
+	 * @return The session model.
 	 */
 	protected SessionModel getSessionModel() {
-		return helper.getSessionModel();
+		if(null == sessionModel) {
+			sessionModel = SessionModel.getModel();
+		}
+		return sessionModel;
 	}
 
 	/**
-	 * Obtain a handle to the parity workspace.
+	 * Obtain the parity workspace.
 	 * 
-	 * @return A handle to the parity workspace.
+	 * @return The parity workspace.
 	 */
 	protected Workspace getWorkspace() {
-		return getWorkspaceModel().getWorkspace();
+		if(null == workspace) {
+			workspace = getWorkspaceModel().getWorkspace();
+		}
+		return workspace;
 	}
 
 	/**
@@ -215,18 +244,11 @@ public abstract class ModelTestCase extends TestCase {
 	 * @return A handle to the parity workspace model.
 	 */
 	protected WorkspaceModel getWorkspaceModel() {
-		return WorkspaceModel.getModel();
+		if(null == workspaceModel) {
+			workspaceModel = WorkspaceModel.getModel();
+		}
+		return workspaceModel;
 	}
-
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception { super.setUp(); }
-
-	/**
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception { super.tearDown(); }
 
 	/**
 	 * Determine if the parity error is generated by the model due to operating
@@ -243,12 +265,35 @@ public abstract class ModelTestCase extends TestCase {
 			if(NotYetImplementedAssertion.class.isAssignableFrom(cause.getClass())) {
 				switch(OSUtil.getOS()) {
 				case LINUX:
-					logger.warn("[PARITY] Running test on un-supported platform.");
+					testLogger.warn("[PARITY] Running test on un-supported platform.");
 					return true;
 				}
 			}
 			cause = cause.getCause();
 		}
 		return false;
+	}
+
+	/**
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void setUp() throws Exception { super.setUp(); }
+
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown() throws Exception { super.tearDown(); }
+
+	/**
+	 * Obtain the main project id.
+	 * 
+	 * @return The main project id.
+	 */
+	private UUID getProjectId() {
+		if(null == projectId) {
+			try { projectId = getProjectModel().getMyProjects().getId(); }
+			catch(final ParityException px) { throw new RuntimeException(px); }
+		}
+		return projectId;
 	}
 }

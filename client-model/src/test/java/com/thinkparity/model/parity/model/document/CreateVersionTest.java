@@ -3,10 +3,10 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -79,14 +79,14 @@ public class CreateVersionTest extends ModelTestCase {
 				assertEquals(datum.content, versionContent.getSnapshot());
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		data = new Vector<Fixture>(getJUnitTestFilesSize());
+		data = new Vector<Fixture>(getInputFilesLength());
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
 		final DocumentAction action = DocumentAction.CREATE;
@@ -95,13 +95,13 @@ public class CreateVersionTest extends ModelTestCase {
 		Document document;
 		DocumentContent content;
 
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			actionData = new DocumentActionData();
 			actionData.setDataItem("now", "" + System.currentTimeMillis());
 
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			document = documentModel.create(testProject.getId(), name, description, testFile);
 			content = documentModel.getContent(document.getId());
 			data.add(new Fixture(action, actionData, content, document, documentModel));
 		}

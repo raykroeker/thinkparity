@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
@@ -91,23 +91,23 @@ public class ListVersionsTest extends ModelTestCase {
 				}
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		data = new Vector<Fixture>(getJUnitTestFilesSize());
+		data = new Vector<Fixture>(getInputFilesLength());
 		final Project testProject = createTestProject("testListVersions");
 		final DocumentModel documentModel = getDocumentModel();
 		String name, description;
 		Document document;
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = "Document:  " + name;
 			document =
-				documentModel.create(testProject.getId(), name, description, testFile.getFile());
+				documentModel.create(testProject.getId(), name, description, testFile);
 			documentModel.createVersion(document.getId(),
 					DocumentAction.SEND, new DocumentActionData());
 			documentModel.createVersion(document.getId(),

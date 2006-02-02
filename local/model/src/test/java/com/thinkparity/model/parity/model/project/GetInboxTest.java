@@ -26,6 +26,6 @@ public class GetInboxTest extends ModelTestCase {
 			final Project inbox = getProjectModel().getInbox();
 			assertNotNull(inbox);
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 }

@@ -55,7 +55,7 @@ public class CreateTest extends ModelTestCase {
 				datum.projectModel.create(datum.parentId, datum.name, datum.description);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

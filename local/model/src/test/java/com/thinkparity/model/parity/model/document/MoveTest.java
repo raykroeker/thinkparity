@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
@@ -75,14 +75,14 @@ public class MoveTest extends ModelTestCase {
 				assertContains(destinationDocuments, document);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		data = new Vector<Fixture>(getJUnitTestFilesSize());
+		data = new Vector<Fixture>(getInputFilesLength());
 		final Project testProject = createTestProject("testMove");
 		final ProjectModel projectModel = getProjectModel();
 		final DocumentModel documentModel = getDocumentModel();
@@ -97,10 +97,10 @@ public class MoveTest extends ModelTestCase {
 		name = "D";
 		description = name;
 		destination = projectModel.create(testProject.getId(), name, description);
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(source.getId(), name, description, testFile.getFile());
+			document = documentModel.create(source.getId(), name, description, testFile);
 
 			data.add(new Fixture(destination.getId(), document.getId(), documentModel, source.getId()));
 		}

@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
@@ -89,7 +88,7 @@ public class CreateTest extends ModelTestCase {
 				assertEquals(versionContentSnapshot, content);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -100,15 +99,13 @@ public class CreateTest extends ModelTestCase {
 		final DocumentModel documentModel = getDocumentModel();
 		data = new Vector<Fixture>(4);
 		String name, description;
-		File file;
 		String documentContentChecksum;
 
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
-			file = testFile.getFile();
-			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(file));
-			data.add(new Fixture(description, file,
+			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(testFile));
+			data.add(new Fixture(description, testFile,
 					documentContentChecksum, documentModel, name, testProject));
 		}
 	}

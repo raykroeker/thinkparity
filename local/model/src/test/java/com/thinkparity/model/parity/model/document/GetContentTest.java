@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
@@ -62,26 +62,26 @@ public class GetContentTest extends ModelTestCase {
 				assertEquals(datum.expectedContentChecksum, content.getChecksum());
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		data = new Vector<Fixture>(getJUnitTestFilesSize());
+		data = new Vector<Fixture>(getInputFilesLength());
 		final Project testProject = createTestProject("testGetContent");
 		final DocumentModel documentModel = getDocumentModel();
 		Document document;
 		String name, description, contentChecksum;
 		byte[] content;
 
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
-			content = FileUtil.readBytes(testFile.getFile());
+			content = FileUtil.readBytes(testFile);
 			contentChecksum = MD5Util.md5Hex(content);
-			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			document = documentModel.create(testProject.getId(), name, description, testFile);
 
 			data.add(new Fixture(document, documentModel, contentChecksum));
 		}

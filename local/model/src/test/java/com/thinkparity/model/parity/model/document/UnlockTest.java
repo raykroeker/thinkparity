@@ -3,10 +3,10 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.project.Project;
@@ -58,23 +58,23 @@ public class UnlockTest extends ModelTestCase {
 				LockTest.assertTrue(document.contains(ParityObjectFlag.KEY));
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		data = new Vector<Fixture>(getJUnitTestFilesSize());
+		data = new Vector<Fixture>(getInputFilesLength());
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
 
 		String description, name;
 		Document document;
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			document = documentModel.create(testProject.getId(), name, description, testFile);
 			// in order to unlock the document it must first be locked
 			// since it's initial state is not locked after creation
 			documentModel.lock(document.getId());

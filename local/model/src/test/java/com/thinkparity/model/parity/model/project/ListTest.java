@@ -63,7 +63,7 @@ public class ListTest extends ModelTestCase {
 				assertEquals(datum.expectedProjects.size(), projectList.size());
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

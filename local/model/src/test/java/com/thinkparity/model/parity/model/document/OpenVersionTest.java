@@ -3,10 +3,10 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.project.Project;
@@ -59,7 +59,7 @@ public class OpenVersionTest extends ModelTestCase {
 				catch(ParityException px) { if(!isNYIAOnLinux(px)) { throw px; } }
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -69,11 +69,11 @@ public class OpenVersionTest extends ModelTestCase {
 		data = new Vector<Fixture>(3);
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final JUnitTestFile testFile = getJUnitTestFile("JUnitTestFramework.txt");
+		final File testFile = getInputFile("JUnitTestFramework.txt");
 		final String name = testFile.getName();
 		final String description = name;
 		final Document document =
-			documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile);
 		DocumentVersion version;
 
 		version = documentModel.createVersion(

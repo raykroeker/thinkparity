@@ -3,10 +3,10 @@
  */
 package com.thinkparity.model.parity.model.project;
 
+import java.io.File;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
@@ -57,7 +57,7 @@ public class HasChildrenTest extends ModelTestCase {
 						datum.projectModel.hasChildren(datum.projectId));
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -93,10 +93,10 @@ public class HasChildrenTest extends ModelTestCase {
 		name = "3";
 		description = name;
 		project = projectModel.create(testProject.getId(), name, description);
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
-			documentModel.create(project.getId(), name, description, testFile.getFile());
+			documentModel.create(project.getId(), name, description, testFile);
 		}
 		data.add(new Fixture(Boolean.TRUE, project.getId(), projectModel));
 	}

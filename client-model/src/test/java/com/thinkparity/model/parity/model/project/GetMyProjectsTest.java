@@ -26,6 +26,6 @@ public class GetMyProjectsTest extends ModelTestCase {
 			final Project myProjects = getProjectModel().getMyProjects();
 			assertNotNull(myProjects);
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 }

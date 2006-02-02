@@ -56,7 +56,7 @@ public class GetTest extends ModelTestCase {
 				assertEquals(datum.expectedProject, project);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

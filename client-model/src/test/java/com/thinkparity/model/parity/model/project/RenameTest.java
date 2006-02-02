@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.parity.model.project;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
@@ -67,7 +67,7 @@ public class RenameTest extends ModelTestCase {
 				}
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -91,11 +91,11 @@ public class RenameTest extends ModelTestCase {
 		name = "Project 2";
 		description = name + ":  " + getName();
 		project = projectModel.create(testProject.getId(), name, description);
-		Vector<UUID> documentIds = new Vector<UUID>(getJUnitTestFilesSize());
+		Vector<UUID> documentIds = new Vector<UUID>(getInputFilesLength());
 		Document document;
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			document =documentModel.create(project.getId(), testFile.getName(),
-					testFile.getName(), testFile.getFile());
+					testFile.getName(), testFile);
 			documentIds.add(document.getId());
 		}
 		data.add(new Fixture(documentIds, documentModel, "Project 1", project.getId(), projectModel));

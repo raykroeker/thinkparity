@@ -56,7 +56,7 @@ public class LoginTest extends ModelTestCase {
 				datum.sessionModel.logout();
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

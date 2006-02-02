@@ -3,10 +3,10 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.api.ParityObjectFlag;
 import com.thinkparity.model.parity.model.project.Project;
@@ -49,7 +49,7 @@ public class FlagTest extends ModelTestCase {
 				assertNotNull(flags);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -59,13 +59,13 @@ public class FlagTest extends ModelTestCase {
 		data = new Vector<Fixture>(1);
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final JUnitTestFile testFile = getJUnitTestFiles().iterator().next();
+		final File testFile = getInputFile("JUnitTestFramework.txt");
 		String name, description;
 		Document document;
 
 		name = testFile.getName();
 		description = name;
-		document = documentModel.create(testProject.getId(), name, description, testFile.getFile());
+		document = documentModel.create(testProject.getId(), name, description, testFile);
 		data.add(new Fixture(document, documentModel));
 	}
 

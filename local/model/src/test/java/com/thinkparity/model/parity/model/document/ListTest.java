@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.model.project.ProjectModel;
@@ -60,7 +60,7 @@ public class ListTest extends ModelTestCase {
 				assertEquals(documentList.size(), datum.expectedDocumentList.size());
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -81,12 +81,12 @@ public class ListTest extends ModelTestCase {
 			name = "p." + i;
 			description = "Project:  " + name;
 			project = projectModel.create(testProject.getId(), name, description);
-			documentList = new Vector<Document>(getJUnitTestFilesSize());
-			for(JUnitTestFile testFile : getJUnitTestFiles()) {
+			documentList = new Vector<Document>(getInputFilesLength());
+			for(File testFile : getInputFiles()) {
 				name = testFile.getName();
 				description = "Document:  " + name;
 				document =
-					documentModel.create(project.getId(), name, description, testFile.getFile());
+					documentModel.create(project.getId(), name, description, testFile);
 				documentList.add(document);
 			}
 			data.add(new Fixture(documentModel, documentList, project.getId()));

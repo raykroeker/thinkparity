@@ -3,13 +3,12 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.note.Note;
 import com.thinkparity.model.parity.model.project.Project;
@@ -67,7 +66,7 @@ public class AddNoteTest extends ModelTestCase {
 				assertEquals(note.getNote(), datum.note);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -77,28 +76,26 @@ public class AddNoteTest extends ModelTestCase {
 		data = new Vector<Fixture>(5);
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final Iterator<JUnitTestFile> testFileIterator =
-			getJUnitTestFiles().iterator();
 
 		String note;
 		note = "Simple note.";
 
-		JUnitTestFile testFile = testFileIterator.next();
+		File testFile = getInputFile("JUnitTestFramework.txt");
 		String name = testFile.getName();
 		String description = name;
 		Document testDocument =
-			documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile);
 		data.add(new Fixture(testDocument.getId(), documentModel, note));
 
 		note = "More complex note.  Contains some windows line feed characters." +
 			Separator.WindowsNewLine + " <-  Windows new line." +
 			Separator.NixNewLine + " <- Unix new line." +
 			Separator.SystemNewLine + " <- System new line.";
-		testFile = testFileIterator.next();
+		testFile = getInputFile("JUnitTestFramework.doc");
 		name = testFile.getName();
 		description = name;
 		testDocument =
-			documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile);
 		data.add(new Fixture(testDocument.getId(), documentModel, note));
 
 		note = new StringBuffer("I Am the Very Model of a Modern Major-General")
@@ -144,11 +141,12 @@ public class AddNoteTest extends ModelTestCase {
 			.append(Separator.SystemNewLine).append("Has only been brought down to the beginning of the century;")
 			.append(Separator.SystemNewLine).append("But still in matters vegetable, animal, and mineral,")
 			.append(Separator.SystemNewLine).append("I am the very model of a modern Major-General.").toString();
-		testFile = testFileIterator.next();
+
+		testFile = getInputFile("JUnitTestFramework.odt");
 		name = testFile.getName();
 		description = name;
 		testDocument =
-			documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile);
 		data.add(new Fixture(testDocument.getId(), documentModel, note));
 	}
 

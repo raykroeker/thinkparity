@@ -3,10 +3,10 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.File;
 import java.util.UUID;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.project.Project;
 
@@ -64,7 +64,7 @@ public class GetVersionContentTest extends ModelTestCase {
 				assertEquals(datum.versionContent.getVersionId(), versionContent.getVersionId());
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -74,12 +74,11 @@ public class GetVersionContentTest extends ModelTestCase {
 		data = new Vector<Fixture>(4);
 		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final JUnitTestFile testFile =
-			getJUnitTestFile("JUnitTestFramework.txt");
+		final File testFile = getInputFile("JUnitTestFramework.txt");
 		final String name = testFile.getName();
 		final String description = name;
 		final Document document =
-			documentModel.create(testProject.getId(), name, description, testFile.getFile());
+			documentModel.create(testProject.getId(), name, description, testFile);
 		DocumentVersion version;
 		DocumentVersionContent versionContent;
 

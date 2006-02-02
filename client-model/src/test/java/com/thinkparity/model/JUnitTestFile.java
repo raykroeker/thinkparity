@@ -28,10 +28,9 @@ public class JUnitTestFile {
 	 * @param jUnitFilename
 	 *            The test file name.
 	 */
-	JUnitTestFile(final String jUnitFilename) {
+	JUnitTestFile(final File file) {
 		super();
-		this.file =
-			new File(JUnitTestFile.class.getResource(jUnitFilename).getFile());
+		this.file = file;
 	}
 	
 	/**

@@ -3,10 +3,10 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Vector;
 
-import com.thinkparity.model.JUnitTestFile;
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.document.Document;
@@ -63,7 +63,7 @@ public class SendTest extends ModelTestCase {
 				datum.sessionModel.send(datum.users, datum.message);
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -82,12 +82,12 @@ public class SendTest extends ModelTestCase {
 		sessionModel.login(testUser.getUsername(), testUser.getPassword());
 		final Collection<User> users = sessionModel.getRosterEntries();
 
-		for(JUnitTestFile testFile : getJUnitTestFiles()) {
+		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
 			document =
-				documentModel.create(testProject.getId(), name, description, testFile.getFile());
-			message = getJUnitTestText(250);
+				documentModel.create(testProject.getId(), name, description, testFile);
+			message = getTestText(250);
 
 			data.add(new Fixture(document, message, sessionModel, users));
 		}

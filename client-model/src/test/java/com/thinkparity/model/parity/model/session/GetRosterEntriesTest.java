@@ -73,7 +73,7 @@ public class GetRosterEntriesTest extends ModelTestCase {
 				assertEquals(0, datum.rosterUsernames.size());
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

@@ -54,7 +54,7 @@ public class GetWorkspaceTest extends ModelTestCase {
 				assertNotNull(workspace.getWorkspaceURL());
 			}
 		}
-		catch(Throwable t) { fail(getFailMessage(t)); }
+		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

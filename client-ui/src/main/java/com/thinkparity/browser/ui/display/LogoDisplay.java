@@ -6,6 +6,8 @@ package com.thinkparity.browser.ui.display;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import com.thinkparity.browser.javax.swing.border.TopBorder;
+
 /**
  * Logo display section.
  * 
@@ -28,7 +30,7 @@ class LogoDisplay extends Display {
 		// COLOR WHITE
 		super("LogoDisplay", Color.WHITE);
 		// COLOR 180, 180, 180, 255
-		setBorder(new DefaultBorder(new Color(180, 180, 180, 255)));
+		setBorder(new TopBorder(new Color(180, 180, 180, 255)));
 	}
 
 	/**

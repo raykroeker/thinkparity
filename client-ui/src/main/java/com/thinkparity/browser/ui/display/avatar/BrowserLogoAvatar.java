@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
+import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
 import com.thinkparity.browser.ui.UIConstants;
 import com.thinkparity.browser.ui.component.LabelFactory;
 import com.thinkparity.browser.ui.component.MenuItemFactory;

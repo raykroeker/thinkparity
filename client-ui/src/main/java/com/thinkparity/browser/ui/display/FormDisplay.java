@@ -5,6 +5,8 @@ package com.thinkparity.browser.ui.display;
 
 import java.awt.Color;
 
+import com.thinkparity.browser.javax.swing.border.MultiLineBorder;
+
 
 /**
  * @author raykroeker@gmail.com

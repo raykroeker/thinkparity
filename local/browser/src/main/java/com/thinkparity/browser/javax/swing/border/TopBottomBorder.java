@@ -1,7 +1,7 @@
 /*
  * Jan 28, 2006
  */
-package com.thinkparity.browser.ui.display.avatar;
+package com.thinkparity.browser.javax.swing.border;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -12,6 +12,9 @@ import java.awt.Rectangle;
 import javax.swing.border.AbstractBorder;
 
 /**
+ * This border draws a single pixel line at the top and the bottom of the
+ * component.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */

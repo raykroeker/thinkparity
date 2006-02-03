@@ -113,7 +113,7 @@ public class AvatarFactory {
 	 */
 	private Avatar createBrowserMain() {
 		if(null == browserMain) {
-			browserMain = new BrowserMainAvatar(controller);
+			browserMain = new BrowserMainAvatar();
 			browserMain.setContentProvider(ProviderFactory.getMainProvider());
 		}
 		return browserMain;

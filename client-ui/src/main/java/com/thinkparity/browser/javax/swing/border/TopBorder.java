@@ -1,4 +1,4 @@
-package com.thinkparity.browser.ui.display;
+package com.thinkparity.browser.javax.swing.border;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -9,12 +9,12 @@ import java.awt.Rectangle;
 import javax.swing.border.AbstractBorder;
 
 /**
- * The default border for a display is a single line at the top of the display.
+ * The default border for a display is a single pixel line at the top of the display.
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DefaultBorder extends AbstractBorder {
+public class TopBorder extends AbstractBorder {
 
 	/**
 	 * @see java.io.Serializable
@@ -29,12 +29,18 @@ public class DefaultBorder extends AbstractBorder {
 	private final Color color;
 
 	/**
-	 * Create a DefaultBorder.
+	 * Create a black TopBorder.
+	 * 
+	 */
+	public TopBorder() { this(Color.BLACK); }
+
+	/**
+	 * Create a TopBorder.
 	 * 
 	 * @param color
 	 *            The border color.
 	 */
-	DefaultBorder(final Color color) {
+	public TopBorder(final Color color) {
 		super();
 		this.color = color;
 	}

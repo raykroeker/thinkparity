@@ -1,7 +1,7 @@
 /*
  * Jan 21, 2006
  */
-package com.thinkparity.browser.ui.display;
+package com.thinkparity.browser.javax.swing.border;
 
 import java.awt.Color;
 import java.awt.Component;

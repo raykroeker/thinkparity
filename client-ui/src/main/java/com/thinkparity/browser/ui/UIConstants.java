@@ -4,6 +4,7 @@
 package com.thinkparity.browser.ui;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 
 /**
@@ -28,4 +29,8 @@ public interface UIConstants {
 	public static final Integer TitlePaneCurvature = 15;
 	
 	public static final Integer TitlePaneHeight = 30;
+
+	public static final Cursor HandCursor = new Cursor(Cursor.HAND_CURSOR);
+
+	public static final Cursor DefaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 }

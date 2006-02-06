@@ -12,7 +12,7 @@ import java.awt.event.AdjustmentListener;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-import com.thinkparity.browser.applications.browser.display.DisplayId;
+import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar.ScrollPolicy;

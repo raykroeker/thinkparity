@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
-import com.thinkparity.browser.util.log4j.LoggerFactory;
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;

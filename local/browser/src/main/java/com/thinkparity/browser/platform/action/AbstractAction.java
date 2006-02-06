@@ -9,7 +9,7 @@ import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.applications.browser.Controller;
+import com.thinkparity.browser.application.browser.Controller;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.ActionLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;

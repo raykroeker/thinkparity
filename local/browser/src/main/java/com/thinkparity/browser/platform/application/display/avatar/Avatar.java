@@ -8,9 +8,9 @@ import java.awt.Component;
 
 import javax.swing.JButton;
 
-import com.thinkparity.browser.applications.browser.Controller;
-import com.thinkparity.browser.applications.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.applications.browser.display.provider.ContentProvider;
+import com.thinkparity.browser.application.browser.Controller;
+import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.util.State;

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.browser.model;
 
-import com.thinkparity.browser.Controller;
+import com.thinkparity.browser.applications.browser.Controller;
 
 import com.thinkparity.model.parity.api.events.*;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -98,6 +98,7 @@ public class EventDispatcher {
 			sessionModel.addListener(createSessionModelPresenceListener());
 			sessionModel.addListener(createSessionModelKeyListener());
 			sessionModel.addListener(createSessionModelSessionListener());
+
 			isInitialized = true;
 		}
 	}

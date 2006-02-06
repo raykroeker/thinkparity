@@ -4,7 +4,7 @@
 package com.thinkparity.browser;
 
 
-import com.thinkparity.codebase.PropertiesUtil;
+import com.thinkparity.browser.platform.Platform;
 
 /**
  * @author raykroeker@gmail.com
@@ -12,13 +12,18 @@ import com.thinkparity.codebase.PropertiesUtil;
  */
 public class Browser2 {
 
-	static {
-		final StringBuffer buffer = new StringBuffer();
-		PropertiesUtil.print(
-				buffer, "--- Parity Browser2 ---", System.getProperties());
-		System.out.println(buffer);
-		Initializer.getInstance().initialize();
-	}
+	/**
+	 * The browser platform.
+	 * 
+	 */
+	private static Platform platform;
+
+	/**
+	 * Obtain the browser platform.
+	 * 
+	 * @return The browser platform.
+	 */
+	public static Platform getPlatform() { return platform; }
 
 	/**
 	 * Run Browser2
@@ -27,39 +32,13 @@ public class Browser2 {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-		try { new Browser2().run(); }
-		catch(final Exception x) {
-			x.printStackTrace(System.err);
-			System.exit(1);
-		}
+		platform = new Browser2Platform();
+		platform.start();
 	}
-
-	/**
-	 * Handle to the parity browser controller.
-	 * 
-	 */
-	private final Controller controller;
 
 	/**
 	 * Create a Browser2.
 	 * 
 	 */
-	private Browser2() {
-		super();
-		this.controller = Controller.getInstance();
-	}
-
-	/**
-	 * Exit the browser.
-	 * 
-	 * @param status
-	 *            exit status.
-	 */
-	public void exit(int status) { System.exit(status); }
-
-	/**
-	 * Run the browser.
-	 *
-	 */
-	private void run() { controller.openMainWindow(); }
+	private Browser2() { super(); }
 }

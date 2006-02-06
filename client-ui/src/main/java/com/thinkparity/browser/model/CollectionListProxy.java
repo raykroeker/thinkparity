@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import com.thinkparity.model.parity.model.document.Document;
 
@@ -29,6 +30,14 @@ public class CollectionListProxy {
 		final List<Document> l = new LinkedList<Document>();
 		for(Document d : c) { l.add(d); }
 		return l;
+	}
+
+	static <T> void fromArrayToCollection(T[] a, Collection<T> c) {
+		for (T o : a) { c.add(o); /* correct*/ }
+	}
+
+	static {
+		fromArrayToCollection(new Document[] {}, new Vector<Object>());
 	}
 
 	/**

@@ -14,8 +14,8 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
-import com.thinkparity.browser.util.l10n.JPanelLocalization;
-import com.thinkparity.browser.util.log4j.LoggerFactory;
+import com.thinkparity.browser.platform.util.l10n.JPanelLocalization;
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
@@ -190,6 +190,13 @@ public class AbstractJPanel extends JPanel {
 	}
 
 	/**
+	 * Determine whether the user input for the frame is valid.
+	 * 
+	 * @return True if the input is valid; false otherwise.
+	 */
+	public Boolean isInputValid() { return Boolean.TRUE; }
+
+	/**
 	 * Set a default background color. 
 	 *
 	 */
@@ -219,5 +226,5 @@ public class AbstractJPanel extends JPanel {
 			}
 		}
 		return debugMessage.append(")");
-	}
+	} 
 }

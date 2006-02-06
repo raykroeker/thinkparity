@@ -3,9 +3,16 @@
  */
 package com.thinkparity.browser;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
+import com.thinkparity.browser.application.session.ModelSession;
+import com.thinkparity.browser.application.session.Status;
 import com.thinkparity.browser.model.EventDispatcher;
 import com.thinkparity.browser.model.ModelFactory;
-import com.thinkparity.browser.util.log4j.LoggerFactory;
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+
+import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 
 /**
  * @author raykroeker@gmail.com
@@ -36,11 +43,19 @@ public class Initializer {
 		ModelFactory.getInstance().initialize();
 		EventDispatcher.getInstance().initialize();
 
-//		try {
-//			final String username = "raymond";
-//			final String password = "parity";
-//			SessionModel.getModel().login(username, password);
+		// Set the application lnf
+		try { UIManager.setLookAndFeel(new WindowsLookAndFeel()); }
+		catch(final UnsupportedLookAndFeelException ulafx) {
+			throw new RuntimeException(ulafx);
+		}
+		
+		// ensure a session is established
+//		if(Status.ONLINE != ModelSession.getStatus()) {
+//			ModelSession.establishSession();
 //		}
-//		catch(final ParityException px) { throw new RuntimeException(px); }
+//		if(Status.ONLINE != ModelSession.getStatus()) {
+//			System.out.println("Must be logged in to use the parity browser.");
+//			System.exit(1);
+//		}
 	}
 }

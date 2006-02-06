@@ -58,6 +58,12 @@
 			<version>1.2.12</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>net.java.javadesktop</groupId>
+			<artifactId>swing-layout</artifactId>
+			<version>1.0</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

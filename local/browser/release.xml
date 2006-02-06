@@ -22,6 +22,7 @@
 	<property name="lib.navtiveskin" value="${maven.repo}/com/l2fprod/nativeskin/1.2.12/nativeskin-1.2.12.jar"/>
 	<property name="lib.navtiveskin.win32" value="${maven.repo}/com/l2fprod/nativeskin/1.2.12/nativeskinwin32.dll"/>
 	<property name="lib.navtiveskin.win32JAWT" value="${maven.repo}/com/l2fprod/nativeskin/1.2.12/nativeskinwin32JAWT.dll"/>
+	<property name="lib.swing-layout" value="${maven.repo}/net/java/javadesktop/swing-layout/1.0/swing-layout-1.0.jar"/>
 
 	<!-- files -->
 	<property name="file.jnlp" value="${basedir}/${name}.jnlp"/>
@@ -45,6 +46,7 @@
 			<fileset file="${lib.navtiveskin}"/>
 			<fileset file="${lib.navtiveskin.win32}"/>
 			<fileset file="${lib.navtiveskin.win32JAWT}"/>
+			<fileset file="${lib.swing-layout}"/>
 
 			<fileset file="${file.jnlp}"/>
 			<fileset file="${file.cmd}"/>

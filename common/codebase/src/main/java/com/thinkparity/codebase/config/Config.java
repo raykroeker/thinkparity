@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Properties;
 
 import com.thinkparity.codebase.ResourceUtil;
@@ -237,6 +238,16 @@ public class Config extends Properties implements Serializable {
 		return getProperty(
 			null == configKey ? null : configKey.toString(),
 			defaultValue);
+	}
+
+	public String getFormattedProperty(final String key,
+			final Object[] arguments) {
+		return getFormattedProperty(key, null, arguments);
+	}
+
+	public String getFormattedProperty(final String key,
+			final String defaultValue, final Object[] arguments) {
+		return MessageFormat.format(getProperty(key, defaultValue), arguments);
 	}
 
 	/**

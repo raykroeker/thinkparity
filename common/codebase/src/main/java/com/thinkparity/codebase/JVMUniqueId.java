@@ -86,4 +86,12 @@ public class JVMUniqueId {
 	 * 
 	 */
 	public int hashCode() { return uniqueId.hashCode(); }
+
+	/**
+	 * @see java.lang.Object#toString()
+	 * 
+	 */
+	public String toString() {
+		return new StringBuffer("JVMUniqueId/").append(uniqueId).toString();
+	}
 }

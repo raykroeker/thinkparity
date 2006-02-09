@@ -50,7 +50,7 @@ public class JVMUniqueId {
 	 * The unique id.
 	 * 
 	 */
-	private final long uniqueId;
+	private final Long uniqueId;
 
 	/**
 	 * Create a JVMUniqueId.
@@ -58,9 +58,20 @@ public class JVMUniqueId {
 	 * @param uniqueId
 	 *            The unique id.
 	 */
-	private JVMUniqueId(final long uniqueId) {
+	private JVMUniqueId(final Long uniqueId) {
 		super();
 		this.uniqueId = uniqueId;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * 
+	 */
+	public boolean equals(Object obj) {
+		if(null != obj && obj instanceof JVMUniqueId) {
+			return uniqueId.equals(((JVMUniqueId) obj).uniqueId);
+		}
+		else { return false; }
 	}
 
 	/**
@@ -69,4 +80,10 @@ public class JVMUniqueId {
 	 * @return The unique id.
 	 */
 	public String getId() { return String.valueOf(uniqueId); }
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 * 
+	 */
+	public int hashCode() { return uniqueId.hashCode(); }
 }

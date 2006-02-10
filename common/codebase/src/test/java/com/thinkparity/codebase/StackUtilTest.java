@@ -43,5 +43,7 @@ public class StackUtilTest extends CodebaseTestCase {
 	private void doTestGetCallerMethod(){ 
 		final String methodName = StackUtil.getCallerMethodName();
 		assertEquals("testGetCallerMethod", methodName);
+		final String classAndMethodName = StackUtil.getCallerClassAndMethodName();
+		assertEquals("com.thinkparity.codebase.StackUtilTest.testGetCallerMethod", classAndMethodName);
 	}
 }

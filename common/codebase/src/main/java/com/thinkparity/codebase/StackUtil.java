@@ -20,6 +20,36 @@ public class StackUtil {
 	}
 
 	/**
+	 * Obtain the class name "." the method name.
+	 * 
+	 * @return The class name "." the method name.
+	 */
+	public static String getCallerClassAndMethodName() {
+		return getCallerClassAndMethodName(3);
+	}
+
+	/**
+	 * Obtain the class name "." the method name at the given level.
+	 * 
+	 * @param level
+	 *            The level.
+	 * @return The class name "." the method name.
+	 */
+	public static String getCallerClassAndMethodName(final Integer level) {
+		final StackTraceElement[] stack = new Throwable().getStackTrace();
+		if(null == stack) { return null; }
+		else {
+			if(stack.length > level) {
+				return new StringBuffer(stack[level].getClassName())
+					.append(".")
+					.append(stack[level].getMethodName())
+					.toString();
+			}
+			else { return null; }
+		}
+	}
+
+	/**
 	 * Obtain the caller method name at the given level.
 	 * 
 	 * @param level

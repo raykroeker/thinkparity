@@ -16,7 +16,7 @@ public class StackUtil {
 	 * @return The name of the immediate caller.
 	 */
 	public static String getCallerMethodName() {
-		return getCallerMethodName(2);
+		return getCallerMethodName(3);
 	}
 
 	/**

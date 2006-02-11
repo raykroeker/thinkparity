@@ -220,7 +220,7 @@ public class SessionModel extends AbstractModel {
 	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	public void send(final Collection<User> users, final UUID documentId)
+	public void send(final Collection<User> users, final Long documentId)
 			throws ParityException {
 		synchronized(implLock) { impl.send(users, documentId); }
 	}
@@ -259,7 +259,7 @@ public class SessionModel extends AbstractModel {
 	 * @param keyResponse
 	 *            The response.
 	 */
-	public void sendKeyResponse(final UUID documentId, final User user,
+	public void sendKeyResponse(final Long documentId, final User user,
 			final KeyResponse keyResponse) throws ParityException {
 		synchronized(implLock) {
 			impl.sendKeyResponse(documentId, user, keyResponse);

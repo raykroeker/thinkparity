@@ -28,7 +28,7 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
@@ -285,11 +285,11 @@ public class XMPPSessionImpl implements XMPPSession {
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#flag(java.util.UUID,
-	 *      com.thinkparity.model.parity.api.ParityObjectFlag)
+	 *      com.thinkparity.model.parity.model.artifact.ArtifactFlag)
 	 */
-	public void flag(final UUID artifactUUID, final ParityObjectFlag flag)
+	public void flag(final UUID artifactUUID, final ArtifactFlag flag)
 			throws SmackException {
-		logger.info("send(UUID,ParityObjectFlag)");
+		logger.info("send(UUID,ArtifactFlag)");
 		logger.debug(artifactUUID);
 		logger.debug(flag);
 		try {
@@ -299,7 +299,7 @@ public class XMPPSessionImpl implements XMPPSession {
 			sendPacket(iq);
 		}
 		catch(InterruptedException ix) {
-			logger.error("flag(UUID,ParityObjectFlag)", ix);
+			logger.error("flag(UUID,ArtifactFlag)", ix);
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}

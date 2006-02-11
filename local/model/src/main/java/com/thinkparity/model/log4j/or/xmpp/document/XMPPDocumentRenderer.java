@@ -18,6 +18,7 @@ public class XMPPDocumentRenderer implements ObjectRenderer {
 	private static final String NAME = ",name:";
 	private static final String PREFIX =
 		XMPPDocument.class.getName() + IRendererConstants.PREFIX_SUFFIX;
+	private static final String UNIQUE_ID = "uniqueId:";
 
 	/**
 	 * Create a XMPPDocumentRenderer.
@@ -37,7 +38,7 @@ public class XMPPDocumentRenderer implements ObjectRenderer {
 		else {
 			final XMPPDocument xmppd = (XMPPDocument) o;
 			return new StringBuffer(PREFIX)
-				.append(IRendererConstants.ID).append(xmppd.getId())
+				.append(UNIQUE_ID).append(xmppd.getUniqueId())
 				.append(NAME).append(xmppd.getName())
 				.append(IRendererConstants.SUFFIX)
 				.toString();

@@ -9,7 +9,6 @@ import java.util.Vector;
 import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
 
 /**
@@ -20,32 +19,6 @@ import com.thinkparity.model.parity.util.MD5Util;
  */
 public class CreateTest extends ModelTestCase {
 	
-	/**
-	 * Test data fixture.
-	 * 
-	 * @see CreateTest#setUp()
-	 * @see CreateTest#tearDown()
-	 */
-	private class Fixture {
-		private final String description;
-		private final String documentContentChecksum;
-		private final DocumentModel documentModel;
-		private final File file;
-		private final String name;
-		private final Project parent;
-		private Fixture(final String description,
-				final File file, final String documentContentChecksum,
-				final DocumentModel documentModel, final String name,
-				final Project parent) {
-			this.description = description;
-			this.file = file;
-			this.documentContentChecksum = documentContentChecksum;
-			this.documentModel = documentModel;
-			this.name = name;
-			this.parent = parent;
-		}
-	}
-
 	/**
 	 * Test data.
 	 */
@@ -65,11 +38,10 @@ public class CreateTest extends ModelTestCase {
 			Document document;
 			DocumentContent content;
 			DocumentVersion version;
-			Document versionSnapshot;
 			DocumentVersionContent versionContent;
 			DocumentContent versionContentSnapshot;
 			for(Fixture datum : data) {
-				document = datum.documentModel.create(datum.parent.getId(), datum.name,
+				document = datum.documentModel.create(datum.name,
 						datum.description, datum.file);
 				assertNotNull(document);
 
@@ -78,24 +50,24 @@ public class CreateTest extends ModelTestCase {
 				assertEquals(content.getChecksum(), datum.documentContentChecksum);
 
 				version = datum.documentModel.listVersions(document.getId()).iterator().next();
-				versionSnapshot = version.getSnapshot();
 				assertNotNull(version);
-				assertEquals(versionSnapshot, document);
+				assertEquals(version.getArtifactId(), document.getId());
+				assertEquals(version.getArtifactUniqueId(), document.getUniqueId());
 
 				versionContent = datum.documentModel.getVersionContent(document.getId(), version.getVersionId());
-				versionContentSnapshot = versionContent.getSnapshot();
+				versionContentSnapshot = versionContent.getDocumentContent();
 				assertNotNull(versionContent);
 				assertEquals(versionContentSnapshot, content);
 			}
 		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
+		catch(final Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		final Project testProject = createTestProject(getName());
+		super.setUp();
 		final DocumentModel documentModel = getDocumentModel();
 		data = new Vector<Fixture>(4);
 		String name, description;
@@ -106,7 +78,7 @@ public class CreateTest extends ModelTestCase {
 			description = name;
 			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(testFile));
 			data.add(new Fixture(description, testFile,
-					documentContentChecksum, documentModel, name, testProject));
+					documentContentChecksum, documentModel, name));
 		}
 	}
 
@@ -116,5 +88,28 @@ public class CreateTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+	}
+
+	/**
+	 * Test data fixture.
+	 * 
+	 * @see CreateTest#setUp()
+	 * @see CreateTest#tearDown()
+	 */
+	private class Fixture {
+		private final String description;
+		private final String documentContentChecksum;
+		private final DocumentModel documentModel;
+		private final File file;
+		private final String name;
+		private Fixture(final String description,
+				final File file, final String documentContentChecksum,
+				final DocumentModel documentModel, final String name) {
+			this.description = description;
+			this.file = file;
+			this.documentContentChecksum = documentContentChecksum;
+			this.documentModel = documentModel;
+			this.name = name;
+		}
 	}
 }

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.api.events;
 
-import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 
 /**
  * The deletion event is fired whenever a parity object is deleted.
@@ -15,12 +15,12 @@ public class DeleteEvent {
 	/**
 	 * Source of the deletion event.
 	 */
-	private final ParityObject source;
+	private final Artifact source;
 
 	/**
 	 * Create a DeleteEvent.
 	 */
-	public DeleteEvent(final ParityObject source) {
+	public DeleteEvent(final Artifact source) {
 		super();
 		this.source = source;
 	}
@@ -30,5 +30,5 @@ public class DeleteEvent {
 	 * 
 	 * @return The event source.
 	 */
-	public ParityObject getSource() { return source; }
+	public Artifact getSource() { return source; }
 }

@@ -11,9 +11,9 @@ import java.util.zip.DataFormatException;
 
 import com.thinkparity.codebase.CompressionUtil;
 
-import com.thinkparity.model.parity.api.ParityObjectFlag;
-import com.thinkparity.model.parity.model.io.xml.IXmlIOConstants;
-import com.thinkparity.model.parity.model.io.xml.XmlIOConverterErrorTranslator;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.xml.XMLConstants;
+import com.thinkparity.model.parity.model.xml.converter.XmlIOConverterErrorTranslator;
 import com.thinkparity.model.parity.util.Base64;
 import com.thinkparity.model.xmpp.XMPPConverter;
 import com.thinkparity.model.xmpp.XMPPConverterErrorTranslator;
@@ -49,7 +49,7 @@ public class XMPPDocumentConverter extends XMPPConverter {
 		logger.info("marshal(Object,HierarchicalStreamWriter,MarshallingContext)");
 		final XMPPDocument xmppDocument = (XMPPDocument) source;
 		logger.debug(xmppDocument);
-		writeId(xmppDocument.getId(), writer, context);
+		writeUniqueId(xmppDocument.getUniqueId(), writer, context);
 		writeName(xmppDocument.getName(), writer, context);
 		writeCreatedBy(xmppDocument.getCreatedBy(), writer, context);
 		writeCreatedOn(xmppDocument.getCreatedOn(), writer, context);
@@ -69,13 +69,13 @@ public class XMPPDocumentConverter extends XMPPConverter {
 	 */
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
-		final UUID id = readId(reader, context);
+		final UUID uniqueId = readUniqueId(reader, context);
 		final String name = readName(reader, context);
 		final String createdBy = readCreatedBy(reader, context);
 		final Calendar createdOn = readCreatedOn(reader, context);
 		final String updatedBy = readUpdatedBy(reader, context);
 		final Calendar updatedOn = readUpdatedOn(reader, context);
-		final Collection<ParityObjectFlag> flags = readFlags(reader, context);
+		final Collection<ArtifactFlag> flags = readFlags(reader, context);
 		final String description = readDescription(reader, context);
 		final byte[] content;
 		try { content = readContent(reader, context); }
@@ -88,7 +88,7 @@ public class XMPPDocumentConverter extends XMPPConverter {
 			throw XmlIOConverterErrorTranslator.translate(iox);
 		}
 		return XMPPDocument.create(content, createdBy, createdOn, description,
-				flags, id, name, updatedBy, updatedOn);
+				flags, name, uniqueId, updatedBy, updatedOn);
 	}
 
 	/**
@@ -107,9 +107,9 @@ public class XMPPDocumentConverter extends XMPPConverter {
 			final MarshallingContext context) throws IOException {
 		writer.startNode("content");
 		writer.addAttribute("encoding", Base64.getEncoder());
-		writer.addAttribute("compressionlevel", IXmlIOConstants.DEFAULT_COMPRESSION.toString());
+		writer.addAttribute("compressionlevel", XMLConstants.DEFAULT_COMPRESSION.toString());
 		final byte[] compressedContent =
-			CompressionUtil.compress(content, IXmlIOConstants.DEFAULT_COMPRESSION);
+			CompressionUtil.compress(content, XMLConstants.DEFAULT_COMPRESSION);
 		final String encodedContent = Base64.encodeBytes(compressedContent);
 		writer.setValue(encodedContent);
 		writer.endNode();		

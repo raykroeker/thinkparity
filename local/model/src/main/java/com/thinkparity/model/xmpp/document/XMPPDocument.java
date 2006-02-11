@@ -11,7 +11,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.xmpp.XMPPSerializable;
@@ -39,10 +39,10 @@ public class XMPPDocument implements XMPPSerializable {
 	 *            The document description.
 	 * @param flags
 	 *            The document flags.
-	 * @param id
-	 *            The document id.
 	 * @param name
 	 *            The document name.
+	 * @param uniqueId
+	 *            The document unique id.
 	 * @param updatedBy
 	 *            The document updator.
 	 * @param updatedOn
@@ -51,10 +51,11 @@ public class XMPPDocument implements XMPPSerializable {
 	 */
 	public static XMPPDocument create(final byte[] content,
 			final String createdBy, final Calendar createdOn,
-			final String description, final Collection<ParityObjectFlag> flags,
-			final UUID id, final String name, final String updatedBy,
+			final String description, final Collection<ArtifactFlag> flags,
+			final String name, final UUID uniqueId, final String updatedBy,
 			final Calendar updatedOn) {
-		return new XMPPDocument(content, createdBy, createdOn, description, flags, id, name, updatedBy, updatedOn);
+		return new XMPPDocument(content, createdBy, createdOn, description,
+				flags, name, uniqueId, updatedBy, updatedOn);
 	}
 
 	/**
@@ -68,7 +69,7 @@ public class XMPPDocument implements XMPPSerializable {
 			final DocumentContent content) {
 		return XMPPDocument.create(content.getContent(), document.getCreatedBy(),
 				document.getCreatedOn(), document.getDescription(),
-				document.getFlags(), document.getId(), document.getName(),
+				document.getFlags(), document.getName(), document.getUniqueId(),
 				document.getUpdatedBy(), document.getUpdatedOn());
 	}
 
@@ -76,9 +77,9 @@ public class XMPPDocument implements XMPPSerializable {
 	private final String createdBy;
 	private final Calendar createdOn;
 	private final String description;
-	private final Collection<ParityObjectFlag> flags;
-	private final UUID id;
+	private final Collection<ArtifactFlag> flags;
 	private final String name;
+	private final UUID uniqueId;
 	private final String updatedBy;
 	private final Calendar updatedOn;
 
@@ -93,25 +94,30 @@ public class XMPPDocument implements XMPPSerializable {
 	 *            The xmpp document's creation date.
 	 * @param description
 	 *            The xmpp document's description.
-	 * @param id
-	 *            The xmpp document's id.
 	 * @param name
 	 *            The xmpp document's name.
+	 * @param uniqueId
+	 *            The xmpp document's unique id.
+	 * @param updatedBy
+	 *            The xmpp document's updator.
+	 * @param updatedOn
+	 *            The xmpp document's update date.
 	 */
 	private XMPPDocument(final byte[] content, final String createdBy,
 			final Calendar createdOn, final String description,
-			final Collection<ParityObjectFlag> flags, final UUID id,
-			final String name, final String updatedBy, final Calendar updatedOn) {
+			final Collection<ArtifactFlag> flags, final String name,
+			final UUID uniqueId, final String updatedBy,
+			final Calendar updatedOn) {
 		super();
 		this.content = new byte[content.length];
 		System.arraycopy(content, 0, this.content, 0, content.length);
 		this.createdBy = createdBy;
 		this.createdOn = createdOn;
 		this.description = description;
-		this.flags = new Vector<ParityObjectFlag>(flags.size());
+		this.flags = new Vector<ArtifactFlag>(flags.size());
 		add(flags);
-		this.id = id;
 		this.name = name;
+		this.uniqueId = uniqueId;
 		this.updatedBy = updatedBy;
 		this.updatedOn = updatedOn;
 	}
@@ -148,16 +154,9 @@ public class XMPPDocument implements XMPPSerializable {
 	 * 
 	 * @return The flags.
 	 */
-	public Collection<ParityObjectFlag> getFlags() {
+	public Collection<ArtifactFlag> getFlags() {
 		return Collections.unmodifiableCollection(flags);
 	}
-
-	/**
-	 * Obtain the unique id of the xmpp document.
-	 * 
-	 * @return The unique id.
-	 */
-	public UUID getId() { return id; }
 
 	/**
 	 * Obtain the name of the xmpp document.
@@ -165,6 +164,13 @@ public class XMPPDocument implements XMPPSerializable {
 	 * @return The name.
 	 */
 	public String getName() { return name; }
+
+	/**
+	 * Obtain the xmpp document unique id.
+	 * 
+	 * @return The xmpp document unique id.
+	 */
+	public UUID getUniqueId() { return uniqueId; }
 
 	/**
 	 * Obtain the updator.
@@ -181,23 +187,23 @@ public class XMPPDocument implements XMPPSerializable {
 	public Calendar getUpdatedOn() { return updatedOn; }
 
 	/**
-	 * Add a list of flags.
-	 * 
-	 * @param flags
-	 *            The flags to add.
-	 */
-	private void add(final Collection<ParityObjectFlag> flags) {
-		for(ParityObjectFlag flag : flags) { add(flag); }
-	}
-
-	/**
 	 * Add a flag to the xmpp document.
 	 * 
 	 * @param flag
 	 *            The flag to add.
 	 */
-	private void add(final ParityObjectFlag flag) {
-		Assert.assertNotTrue("add(ParityObjectFlag)", flags.contains(flag));
+	private void add(final ArtifactFlag flag) {
+		Assert.assertNotTrue("add(ArtifactFlag)", flags.contains(flag));
 		flags.add(flag);
+	}
+
+	/**
+	 * Add a list of flags.
+	 * 
+	 * @param flags
+	 *            The flags to add.
+	 */
+	private void add(final Collection<ArtifactFlag> flags) {
+		for(ArtifactFlag flag : flags) { add(flag); }
 	}
 }

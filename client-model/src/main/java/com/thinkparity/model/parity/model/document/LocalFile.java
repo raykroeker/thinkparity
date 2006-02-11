@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -189,7 +188,7 @@ class LocalFile {
 	 * @return The file.
 	 */
 	private File getFile(final Workspace workspace, final Document document) {
-		return new File(getFileParent(workspace, document.getId()), document.getCustomName());
+		return new File(getFileParent(workspace, document.getId()), document.getName());
 	}
 
 	/**
@@ -206,11 +205,12 @@ class LocalFile {
 	private File getFile(final Workspace workspace, final Document document,
 			final DocumentVersion version) {
 		// MyDocument.v1.doc
-		final String name = new StringBuffer(FileUtil.getName(document.getCustomName()))
+		final String name = new StringBuffer(FileUtil.getName(document.getName()))
 			.append(Separator.Period)
+			.append("v")
 			.append(version.getVersionId())
-			.append(FileUtil.getExtension(document.getCustomName())).toString();
-		return new File(getFileParent(workspace, version.getDocumentId()), name);
+			.append(FileUtil.getExtension(document.getName())).toString();
+		return new File(getFileParent(workspace, version.getArtifactId()), name);
 	}
 
 	/**
@@ -220,7 +220,7 @@ class LocalFile {
 	 *            The document.
 	 * @return The parent file.
 	 */
-	private File getFileParent(final Workspace workspace, final UUID documentId) {
+	private File getFileParent(final Workspace workspace, final Long documentId) {
 		final File cache = new File(
 				workspace.getDataURL().getFile(),
 				IParityModelConstants.DIRECTORY_NAME_LOCAL_DATA);

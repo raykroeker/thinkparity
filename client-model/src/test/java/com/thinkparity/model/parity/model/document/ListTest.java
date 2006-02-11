@@ -5,12 +5,10 @@ package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.UUID;
+import java.util.Iterator;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * Test the document model list api.
@@ -29,11 +27,10 @@ public class ListTest extends ModelTestCase {
 	private class Fixture {
 		private final DocumentModel documentModel;
 		private final Collection<Document> expectedDocumentList;
-		private final UUID projectId;
-		private Fixture(final DocumentModel documentModel, final Collection<Document> expectedDocumentList, final UUID projectId) {
+		private Fixture(final DocumentModel documentModel,
+				final Collection<Document> expectedDocumentList) {
 			this.documentModel = documentModel;
 			this.expectedDocumentList = expectedDocumentList;
-			this.projectId = projectId;
 		}
 	}
 
@@ -54,43 +51,52 @@ public class ListTest extends ModelTestCase {
 		try {
 			Collection<Document> documentList;
 			for(Fixture datum : data) {
-				documentList = datum.documentModel.list(datum.projectId);
+				documentList = datum.documentModel.list();
 				
 				assertNotNull(documentList);
-				assertEquals(documentList.size(), datum.expectedDocumentList.size());
+
+				final Document actual = getLastInCollection(documentList);
+				final Document expected = getLastInCollection(datum.expectedDocumentList);
+				assertEquals(actual, expected);
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
+	 * Obtain the last document in the collection.
+	 * 
+	 * @param documents
+	 *            The document collection.
+	 * @return The last document in the collection.
+	 */
+	private Document getLastInCollection(final Collection<Document> documents) {
+		final Iterator<Document> iDocuments = documents.iterator();
+		Document last = null;
+		while(iDocuments.hasNext()) { last = iDocuments.next(); }
+		return last;
+	}
+
+	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		final Integer scenarioCount = 4;
 		data = new Vector<Fixture>(scenarioCount);
-		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final ProjectModel projectModel = getProjectModel();
 		Collection<Document> documentList;
-		Project project;
 		String name, description;
 		Document document;
 
-		for(int i = 0; i < scenarioCount; i++) {
-			name = "p." + i;
-			description = "Project:  " + name;
-			project = projectModel.create(testProject.getId(), name, description);
-			documentList = new Vector<Document>(getInputFilesLength());
-			for(File testFile : getInputFiles()) {
-				name = testFile.getName();
-				description = "Document:  " + name;
-				document =
-					documentModel.create(project.getId(), name, description, testFile);
-				documentList.add(document);
-			}
-			data.add(new Fixture(documentModel, documentList, project.getId()));
+		documentList = new Vector<Document>(getInputFilesLength());
+		for(final File testFile : getInputFiles()) {
+			name = testFile.getName();
+			description = "Document:  " + name;
+			document = documentModel.create(name, description, testFile);
+			documentList.add(document);
 		}
+		data.add(new Fixture(documentModel, documentList));
 	}
 
 	/**

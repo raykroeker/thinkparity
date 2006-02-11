@@ -3,8 +3,6 @@
  */
 package com.thinkparity.model.parity.model.artifact;
 
-import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.ParityObjectFlag;
 
 /**
  * @author raykroeker@gmail.com
@@ -16,7 +14,7 @@ public class HasBeenSeenComparator extends AbstractArtifactComparator {
 	 * Flag to compare.
 	 * 
 	 */
-	private final ParityObjectFlag flagToCompare = ParityObjectFlag.SEEN;
+	private final ArtifactFlag flagToCompare = ArtifactFlag.SEEN;
 
 
 	/**
@@ -33,7 +31,7 @@ public class HasBeenSeenComparator extends AbstractArtifactComparator {
 	 * @see java.util.Comparator#compare(T, T)
 	 * 
 	 */
-	public int compare(final ParityObject o1, final ParityObject o2) {
+	public int compare(final Artifact o1, final Artifact o2) {
 		if(o1.contains(flagToCompare)) {
 			if(o2.contains(flagToCompare)) { return subCompare(o1, o2); }
 			else { return -1 * resultMultiplier; }

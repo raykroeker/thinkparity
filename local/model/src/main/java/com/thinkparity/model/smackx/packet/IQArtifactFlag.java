@@ -5,7 +5,7 @@ package com.thinkparity.model.smackx.packet;
 
 import java.util.UUID;
 
-import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.xmpp.XMPPSession;
 
 /**
@@ -15,20 +15,20 @@ import com.thinkparity.model.xmpp.XMPPSession;
  * @author raykroeker@gmail.com
  * @version 1.1
  * @see IQArtifact
- * @see XMPPSession#flag(UUID, ParityObjectFlag)
+ * @see XMPPSession#flag(UUID, ArtifactFlag)
  */
 public class IQArtifactFlag extends IQArtifact {
 
 	/**
 	 * Flag to apply to the parity artifact.
 	 */
-	private final ParityObjectFlag artifactFlag;
+	private final ArtifactFlag artifactFlag;
 
 	/**
 	 * Create a IQArtifactFlag.
 	 */
 	public IQArtifactFlag(final UUID artifactUUID,
-			final ParityObjectFlag artifactFlag) {
+			final ArtifactFlag artifactFlag) {
 		super(Action.FLAGARTIFACT, artifactUUID);
 		this.artifactFlag = artifactFlag;
 	}
@@ -38,7 +38,7 @@ public class IQArtifactFlag extends IQArtifact {
 	 * 
 	 * @return Returns the artifact flag.
 	 */
-	public ParityObjectFlag getArtifactFlag() { return artifactFlag; }
+	public ArtifactFlag getArtifactFlag() { return artifactFlag; }
 
 	/**
 	 * @see com.thinkparity.model.smackx.packet.IQArtifact#getChildElementXML()

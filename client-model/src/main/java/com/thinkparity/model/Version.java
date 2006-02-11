@@ -31,23 +31,23 @@ public class Version {
 	}
 
 	/**
-	 * Obtain the build id of the codebase.
+	 * Obtain the build id of the parity model.
 	 * 
-	 * @return The build id.
+	 * @return The build id of the parity model.
 	 */
 	public static String getBuildId() { return config.getProperty("buildId"); }
 
 	/**
-	 * Obtain the name of the codebase.
+	 * Obtain the name of the parity model.
 	 * 
-	 * @return The name.
+	 * @return The name of the parity model.
 	 */
 	public static String getName() { return config.getProperty("name"); }
 
 	/**
-	 * Obtain the version of the codebase.
+	 * Obtain the version of the parity model.
 	 * 
-	 * @return The version
+	 * @return The version of the parity model.
 	 */
 	public static String getVersion() {return config.getProperty("version"); }
 }

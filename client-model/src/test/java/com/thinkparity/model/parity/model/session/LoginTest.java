@@ -63,6 +63,7 @@ public class LoginTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		final SessionModel sessionModel = getSessionModel();
 		final ModelTestUser testUser = getModelTestUser();
 		data = new Vector<Fixture>(1);

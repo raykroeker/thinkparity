@@ -11,7 +11,6 @@ import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -70,8 +69,8 @@ public class SendTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(4);
-		final Project testProject = createTestProject("testSend");
 		final DocumentModel documentModel = getDocumentModel();
 		final SessionModel sessionModel = getSessionModel();
 		Document document;
@@ -86,7 +85,7 @@ public class SendTest extends ModelTestCase {
 			name = testFile.getName();
 			description = name;
 			document =
-				documentModel.create(testProject.getId(), name, description, testFile);
+				documentModel.create(name, description, testFile);
 			message = getTestText(250);
 
 			data.add(new Fixture(document, message, sessionModel, users));

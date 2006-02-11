@@ -4,15 +4,20 @@
 package com.thinkparity.model.xmpp;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -110,7 +115,7 @@ public abstract class XMPPConverter implements Converter {
 	 * @param context
 	 *            The xStream xml reader context.
 	 */
-	protected void readCustomProperties(final ParityObject parityObject,
+	protected void readCustomProperties(final Artifact parityObject,
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		if(reader.hasMoreChildren()) {
@@ -148,31 +153,16 @@ public abstract class XMPPConverter implements Converter {
 	 *            The xStream xml reader's context.
 	 * @return The list of flags read from the xml reader.
 	 */
-	protected Collection<ParityObjectFlag> readFlags(
+	protected Collection<ArtifactFlag> readFlags(
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		reader.moveDown();
-		final Collection<ParityObjectFlag> flags = new Vector<ParityObjectFlag>(1);
+		final Collection<ArtifactFlag> flags = new Vector<ArtifactFlag>(1);
 		while(reader.hasMoreChildren()) {
 			readFlag(flags, reader, context);
 		}
 		reader.moveUp();
 		return flags;
-	}
-
-	/**
-	 * Read the unique id for the parity object.
-	 * 
-	 * @param reader
-	 *            The xStream xml reader
-	 * @param context
-	 *            The xStream xml reader context.
-	 * @return The unique id for a parity object.
-	 */
-	protected UUID readId(final HierarchicalStreamReader reader,
-			final UnmarshallingContext context) {
-		final String id = reader.getAttribute("id");
-		return UUID.fromString(id);
 	}
 
 	/**
@@ -187,6 +177,21 @@ public abstract class XMPPConverter implements Converter {
 	protected String readName(final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		return reader.getAttribute("name");
+	}
+
+	/**
+	 * Read the unique id for the parity object.
+	 * 
+	 * @param reader
+	 *            The xStream xml reader
+	 * @param context
+	 *            The xStream xml reader context.
+	 * @return The unique id for a parity object.
+	 */
+	protected UUID readUniqueId(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		final String id = reader.getAttribute("uniqueId");
+		return UUID.fromString(id);
 	}
 
 	/**
@@ -266,27 +271,10 @@ public abstract class XMPPConverter implements Converter {
 	 * @param context
 	 *            The xStream xml writer context.
 	 */
-	protected void writeCustomProperties(final ParityObject parityObject,
+	protected void writeCustomProperties(final Artifact parityObject,
 			final HierarchicalStreamWriter writer,
 			final MarshallingContext context) {
-		final Properties customProperties = parityObject.getCustomProperties();
-		if(0 < customProperties.size()) {
-			final String username = preferences.getUsername();
-			writer.startNode(username);
-			final Enumeration<?> customPropertyKeys = customProperties.propertyNames();
-			while(customPropertyKeys.hasMoreElements()) {
-				final String customPropertyKey = (String) customPropertyKeys
-						.nextElement();
-				final String customPropertyValue =
-					customProperties.getProperty(customPropertyKey);
-				writer.startNode(customPropertyKey);
-				if(null != customPropertyValue &&
-						0 < customPropertyValue.length())
-					writer.setValue(customPropertyValue);
-				writer.endNode();
-			}
-			writer.endNode();
-		}
+		logger.warn("NO CUSTOM PROPERTY SERIALIZATION");
 	}
 
 	/**
@@ -318,32 +306,16 @@ public abstract class XMPPConverter implements Converter {
 	 * @param context
 	 *            The xStream xml writer's context.
 	 */
-	protected void writeFlags(final Collection<ParityObjectFlag> flags,
+	protected void writeFlags(final Collection<ArtifactFlag> flags,
 			final HierarchicalStreamWriter writer,
 			final MarshallingContext context) {
 		writer.startNode("flags");
-		for(ParityObjectFlag flag : flags) {
+		for(ArtifactFlag flag : flags) {
 			writer.startNode("flag");
 			writer.setValue(flag.toString());
 			writer.endNode();
 		}
 		writer.endNode();
-	}
-
-	/**
-	 * Write the id for the parity object.
-	 * 
-	 * @param uuid
-	 *            The parity object's unique id.
-	 * @param writer
-	 *            The xStream xml writer.
-	 * @param context
-	 *            The xStream xml writer context.
-	 */
-	protected void writeId(final UUID uuid,
-			final HierarchicalStreamWriter writer,
-			final MarshallingContext context) {
-		writer.addAttribute("id", uuid.toString());
 	}
 
 	/**
@@ -361,6 +333,22 @@ public abstract class XMPPConverter implements Converter {
 			final HierarchicalStreamWriter writer,
 			final MarshallingContext context) {
 		writer.addAttribute("name", name);
+	}
+
+	/**
+	 * Write a unique id to the xstream writer.
+	 * 
+	 * @param uniqueId
+	 *            The unique id.
+	 * @param writer
+	 *            The xstream writer.
+	 * @param context
+	 *            The xstream unmarshalling context.
+	 */
+	protected void writeUniqueId(final UUID uniqueId,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.addAttribute("uniqueId", uniqueId.toString());
 	}
 
 	/**
@@ -440,7 +428,7 @@ public abstract class XMPPConverter implements Converter {
 	 * @param context
 	 *            The xStream xml reader context.
 	 */
-	private void readCustomProperty(final ParityObject parityObject,
+	private void readCustomProperty(final Artifact parityObject,
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		reader.moveDown();
@@ -460,11 +448,11 @@ public abstract class XMPPConverter implements Converter {
 	 * @param context
 	 *            The xStream xml reader's context.
 	 */
-	private void readFlag(final Collection<ParityObjectFlag> flags,
+	private void readFlag(final Collection<ArtifactFlag> flags,
 			final HierarchicalStreamReader reader,
 			final UnmarshallingContext context) {
 		reader.moveDown();
-		flags.add(ParityObjectFlag.valueOf(reader.getValue()));
+		flags.add(ArtifactFlag.valueOf(reader.getValue()));
 		reader.moveUp();
 	}
 

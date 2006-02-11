@@ -3,18 +3,6 @@
  */
 package com.thinkparity.model.xstream;
 
-import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentContent;
-import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersionContent;
-import com.thinkparity.model.parity.model.io.xml.document.DocumentContentConverter;
-import com.thinkparity.model.parity.model.io.xml.document.DocumentConverter;
-import com.thinkparity.model.parity.model.io.xml.document.DocumentVersionContentConverter;
-import com.thinkparity.model.parity.model.io.xml.document.DocumentVersionConverter;
-import com.thinkparity.model.parity.model.io.xml.index.Index;
-import com.thinkparity.model.parity.model.io.xml.index.IndexConverter;
-import com.thinkparity.model.parity.model.io.xml.project.ProjectConverter;
-import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.document.XMPPDocumentConverter;
 
@@ -63,7 +51,6 @@ public class XStreamRegistry {
 	 * Register the list of converters required for the parity model library.
 	 * <ol>
 	 * <li>EncodedByteArrayConverter
-	 * <li>ProjectConverter
 	 * <li>DocumentConverter
 	 * <li>DocumentVersionConverter
 	 * 
@@ -72,24 +59,6 @@ public class XStreamRegistry {
 	 */
 	private void registerConverters(final XStream xStream) {
 		xStream.registerConverter(new EncodedByteArrayConverter());
-
-		xStream.registerConverter(new ProjectConverter());
-		xStream.alias("project", Project.class);
-
-		xStream.registerConverter(new DocumentConverter());
-		xStream.alias("document", Document.class);
-
-		xStream.registerConverter(new DocumentContentConverter());
-		xStream.alias("documentcontent", DocumentContent.class);
-
-		xStream.registerConverter(new DocumentVersionConverter());
-		xStream.alias("documentversion", DocumentVersion.class);
-
-		xStream.registerConverter(new DocumentVersionContentConverter());
-		xStream.alias("documentversioncontent", DocumentVersionContent.class);
-
-		xStream.registerConverter(new IndexConverter());
-		xStream.alias("index", Index.class);
 
 		xStream.registerConverter(new XMPPDocumentConverter());
 		xStream.alias("xmppdocument", XMPPDocument.class);

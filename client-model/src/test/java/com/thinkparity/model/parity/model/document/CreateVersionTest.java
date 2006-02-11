@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Test the document model create version api.
@@ -22,17 +21,11 @@ public class CreateVersionTest extends ModelTestCase {
 	 * Test data fixture.
 	 */
 	private class Fixture {
-		private final DocumentAction action;
-		private final DocumentActionData actionData;
 		private final DocumentContent content;
 		private final Document document;
 		private final DocumentModel documentModel;
-		private Fixture(final DocumentAction action,
-				final DocumentActionData actionData,
-				final DocumentContent content, final Document document,
+		private Fixture(final DocumentContent content, final Document document,
 				final DocumentModel documentModel) {
-			this.action = action;
-			this.actionData = actionData;
 			this.content = content;
 			this.document = document;
 			this.documentModel = documentModel;
@@ -58,8 +51,7 @@ public class CreateVersionTest extends ModelTestCase {
 			DocumentVersion version;
 			DocumentVersionContent versionContent;
 			for(Fixture datum : data) {
-				datum.documentModel.createVersion(
-						datum.document.getId(), datum.action, datum.actionData);
+				datum.documentModel.createVersion(datum.document.getId());
 				// the version we want to compare to will be the last one in
 				// the list
 				iVersions =
@@ -68,42 +60,41 @@ public class CreateVersionTest extends ModelTestCase {
 				while(iVersions.hasNext()) { version = iVersions.next(); }
 
 				assertNotNull(version);
-				assertEquals(datum.action, version.getAction());
-				assertEquals(datum.actionData, version.getActionData());
-				assertEquals(datum.document.getId(), version.getDocumentId());
-				assertEquals(datum.document, version.getSnapshot());
+				assertEquals(datum.document.getId(), version.getArtifactId());
+				assertEquals(datum.document.getType(), version.getArtifactType());
+				assertEquals(datum.document.getUniqueId(), version.getArtifactUniqueId());
+				assertEquals(datum.document.getCreatedBy(), version.getCreatedBy());
+				assertEquals(datum.document.getCreatedOn(), version.getCreatedOn());
+				assertEquals(datum.document.getName(), version.getName());
+				assertEquals(datum.document.getUpdatedBy(), version.getUpdatedBy());
+				assertEquals(datum.document.getUpdatedOn(), version.getUpdatedOn());
 
 				versionContent = datum.documentModel.getVersionContent(datum.document.getId(), version.getVersionId());
 				assertNotNull(versionContent);
 				assertEquals(datum.document.getId(), versionContent.getDocumentId());
-				assertEquals(datum.content, versionContent.getSnapshot());
+				assertEquals(datum.content, versionContent.getDocumentContent());
 			}
 		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
+		catch(final Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(getInputFilesLength());
-		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
-		final DocumentAction action = DocumentAction.CREATE;
-		DocumentActionData actionData;
 		String name, description;
 		Document document;
 		DocumentContent content;
 
 		for(File testFile : getInputFiles()) {
-			actionData = new DocumentActionData();
-			actionData.setDataItem("now", "" + System.currentTimeMillis());
-
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(testProject.getId(), name, description, testFile);
+			document = documentModel.create(name, description, testFile);
 			content = documentModel.getContent(document.getId());
-			data.add(new Fixture(action, actionData, content, document, documentModel));
+			data.add(new Fixture(content, document, documentModel));
 		}
 	}
 

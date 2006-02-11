@@ -53,7 +53,7 @@ class PreferencesHelper {
 	Preferences getPreferences() {
 		final Properties javaProperties = loadPreferences();
 		// save the preferences on shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime().addShutdownHook(new Thread("thinkParity - Save Preferences") {
 			public void run() { storePreferences(javaProperties); }
 		});
 

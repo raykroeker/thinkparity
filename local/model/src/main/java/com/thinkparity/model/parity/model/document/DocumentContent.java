@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.util.UUID;
+
 
 /**
  * @author raykroeker@gmail.com
@@ -22,34 +22,23 @@ public class DocumentContent {
 	private byte[] content;
 
 	/**
-	 * The document this content belongs to.
+	 * The document id.
+	 * 
 	 */
-	private UUID documentId;
+	private Long documentId;
 
 	/**
 	 * Create a DocumentContent.
 	 * 
-	 * @param checksum
-	 *            The content checksum.
-	 * @param content
-	 *            The content.
-	 * @param documentId
-	 *            The document this content belongs to.
 	 */
-	public DocumentContent(final String checksum, final byte[] content,
-			final UUID documentId) {
-		super();
-		this.checksum = checksum;
-		this.content = new byte[content.length];
-		System.arraycopy(content, 0, this.content, 0, content.length);
-		this.documentId = documentId;
-	}
+	public DocumentContent() { super(); }
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
+	 * 
 	 */
 	public boolean equals(Object obj) {
-		if(obj instanceof DocumentContent) {
+		if(null != obj && obj instanceof DocumentContent) {
 			final DocumentContent dc = (DocumentContent) obj;
 			return documentId.equals(dc.documentId)
 					&& checksum.equals(dc.checksum);
@@ -72,14 +61,15 @@ public class DocumentContent {
 	public byte[] getContent() { return content; }
 
 	/**
-	 * Obtain the document this content belongs to.
+	 * Obtain the document id.
 	 * 
-	 * @return The document.
+	 * @return The document id.
 	 */
-	public UUID getDocumentId() { return documentId; }
+	public Long getDocumentId() { return documentId; }
 
 	/**
 	 * @see java.lang.Object#hashCode()
+	 * 
 	 */
 	public int hashCode() { return documentId.hashCode(); }
 
@@ -105,10 +95,8 @@ public class DocumentContent {
 	/**
 	 * Set the document reference for this content.
 	 * 
-	 * @param documentId
-	 *            The documentId.
+	 * @param document id
+	 *            The document id.
 	 */
-	public void setDocumentId(UUID documentId) { this.documentId = documentId; }
-
-
+	public void setDocumentId(final Long documentId) { this.documentId = documentId; }
 }

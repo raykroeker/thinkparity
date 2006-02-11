@@ -58,24 +58,17 @@ class WorkspaceHelper {
 				new PreferencesHelper(workspaceRoot).getPreferences();
 
 			/**
+			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataDirectory()
+			 * 
+			 */
+			public File getDataDirectory() {
+				return new File(dataURL.getFile());
+			}
+
+			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataURL()
 			 */
 			public URL getDataURL() { return dataURL; }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getLoggerURL()
-			 */
-			public URL getLoggerURL() { return loggerURL; }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getPreferences()
-			 */
-			public Preferences getPreferences() { return preferences; }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getWorkspaceURL()
-			 */
-			public URL getWorkspaceURL() { return workspaceRootURL; }
 
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getLogArchive()
@@ -92,6 +85,21 @@ class WorkspaceHelper {
 				catch(final IOException iox) { throw new RuntimeException(iox); }
 				return logFileArchive;
 			}
+
+			/**
+			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getLoggerURL()
+			 */
+			public URL getLoggerURL() { return loggerURL; }
+
+			/**
+			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getPreferences()
+			 */
+			public Preferences getPreferences() { return preferences; }
+
+			/**
+			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getWorkspaceURL()
+			 */
+			public URL getWorkspaceURL() { return workspaceRootURL; }
 		};
 	}
 

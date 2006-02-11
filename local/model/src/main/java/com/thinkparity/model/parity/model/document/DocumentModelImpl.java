@@ -18,9 +18,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.ParityObjectFlag;
-import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.api.events.CreationEvent;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.DeleteEvent;
@@ -28,18 +25,18 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactSorter;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
-import com.thinkparity.model.parity.model.io.xml.document.DocumentXmlIO;
-import com.thinkparity.model.parity.model.note.Note;
-import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
+import com.thinkparity.model.parity.model.io.IOFactory;
+import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Implementation of the document model interface.
@@ -90,18 +87,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * Default sort comparator for documents.
 	 * 
 	 */
-	private final Comparator<ParityObject> defaultComparator;
+	private final Comparator<Artifact> defaultComparator;
 
 	/**
 	 * Default sort comparator for document versions.
 	 * 
 	 */
-	private final Comparator<ParityObjectVersion> defaultVersionComparator;
+	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
 	/**
 	 * Document xml input\output.
 	 */
-	private final DocumentXmlIO documentXmlIO;
+	private final DocumentIOHandler documentIO;
 
 	/**
 	 * Create a DocumentModelImpl
@@ -115,7 +112,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
-		this.documentXmlIO = new DocumentXmlIO(workspace);
+		this.documentIO = IOFactory.getDefault().createDocumentHandler();
 	}
 
 	/**
@@ -153,72 +150,33 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Add a note to a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param note
-	 *            The note.
-	 * @throws ParityException
-	 */
-	Note addNote(final UUID documentId, final String note)
-			throws ParityException {
-		logger.debug(documentId);
-		logger.debug(note);
-		if(null == note) { throw new NullPointerException(); }
-		if(0 == note.trim().length()) { throw new IllegalArgumentException(); }
-		try {
-			// add a note and update
-			final Document document = get(documentId);
-			final Note newNote = new Note(note.trim());	// remove leading\trailing
-			document.add(newNote);						// whitespace
-			documentXmlIO.update(document);
-
-			// fire an update notification
-			notifyUpdate_objectUpdated(document);
-			return newNote;
-		}
-		catch(IOException iox) {
-			logger.error("addNote(Document,Note)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
-			logger.error("addNote(Document,Note)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
 	 * Close a document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @throws ParityException
 	 */
-	void close(final UUID documentId) throws ParityException {
+	void close(final Long documentId) throws ParityException {
 		Assert.assertNotYetImplemented("Close document has not yet been implemented.");
 	}
 
 	/**
-	 * Import a document into a project. This will take a name, description and
-	 * location of a document and copy the document into an internal store for
-	 * the project, then returns the newly created document.
+	 * Import a document. This will take a name, description and location of a
+	 * document and copy the document into an internal store, then returns the
+	 * newly created document.
 	 * 
-	 * @param projectId
-	 *            The parent project unique id.
 	 * @param name
-	 *            The name of the document.
+	 *            Name of the document you wish to import.
 	 * @param description
-	 *            The description of the document.
+	 *            Description of the document you wish to import.
 	 * @param file
-	 *            The file for the document.
-	 * @return The created document.
+	 *            File content of the document
+	 * @return The newly created document.
 	 * @throws ParityException
 	 */
-	Document create(final UUID projectId, final String name,
-			final String description, final File file) throws ParityException {
+	Document create(final String name, final String description, final File file)
+			throws ParityException {
 		logger.info("create(Project,String,String,File)");
-		logger.debug(projectId);
 		logger.debug(name);
 		logger.debug(description);
 		logger.debug(file);
@@ -234,21 +192,22 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Calendar now = getTimestamp();
 			final Document document = new Document(preferences.getUsername(),
 					now, description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
-					projectId, preferences.getUsername(), now);
+					preferences.getUsername(), now);
 			final byte[] contentBytes = FileUtil.readBytes(file);
-			final DocumentContent content = new DocumentContent(
-					MD5Util.md5Hex(contentBytes), contentBytes, document.getId());
+			final DocumentContent content = new DocumentContent();
+			content.setContent(contentBytes);
+			content.setChecksum(MD5Util.md5Hex(contentBytes));
+			content.setDocumentId(document.getId());
+
+			// create the document
+			documentIO.create(document, content);
 
 			// create the local file
 			final LocalFile localFile = getLocalFile(document);
 			localFile.write(contentBytes);
 
-			// create the document
-			documentXmlIO.create(document, content);
-
 			// create a version
-			createVersion(
-					document.getId(), DocumentAction.CREATE, createActionData(document));
+			createVersion(document.getId());
 
 			// flag the document as having been seen.
 			flagAsSEEN(document);
@@ -292,41 +251,48 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @throws ParityException
 	 */
-	DocumentVersion createVersion(final UUID documentId,
-			final DocumentAction action, final DocumentActionData actionData)
-			throws ParityException {
-		logger.info("createVersion(UUID,DocumentAction,DocumentActionData)");
+	DocumentVersion createVersion(final Long documentId) throws ParityException {
+		logger.info("createVersion(Long)");
 		logger.debug(documentId);
-		logger.debug(action);
-		logger.debug(actionData);
 		try {
 			final Document document = get(documentId);
-			// update the document updated by\on
-			document.setUpdatedBy(preferences.getUsername());
-			document.setUpdatedOn(getTimestamp());
-			documentXmlIO.update(document);
+			final DocumentContent content = getContent(documentId);
 
 			// read the document local file
 			final LocalFile documentLocalFile = getLocalFile(document);
 			documentLocalFile.read();
 
-			final DocumentContent content = getContent(documentId);
-			// update the content bytes\checksum
-			content.setContent(documentLocalFile.getFileBytes());
-			content.setChecksum(documentLocalFile.getFileChecksum());
-			documentXmlIO.update(document, content);
-
 			// create a new version\version content
-			final DocumentVersion version = new DocumentVersion(documentId,
-					nextVersionId(documentId), document, action, actionData);
-			final DocumentVersionContent versionContent =
-				new DocumentVersionContent(content, documentId, version.getVersionId());
-			documentXmlIO.create(document, version, versionContent);
+			final DocumentVersion version = new DocumentVersion();
+			version.setArtifactId(documentId);
+			version.setArtifactType(document.getType());
+			version.setArtifactUniqueId(document.getUniqueId());
+			version.setCreatedBy(document.getCreatedBy());
+			version.setCreatedOn(document.getCreatedOn());
+			version.setName(document.getName());
+			version.setUpdatedBy(document.getUpdatedBy());
+			version.setUpdatedOn(document.getUpdatedOn());
+
+			final DocumentVersionContent versionContent = new DocumentVersionContent();
+			versionContent.setDocumentContent(content);
+			versionContent.setDocumentId(documentId);
+			versionContent.setVersionId(version.getVersionId());
+			documentIO.createVersion(version, versionContent);
 
 			// create the version local file
 			final LocalFile versionLocalFile = getLocalFile(document, version);
 			versionLocalFile.write(content.getContent());
 			versionLocalFile.lock();
+
+			// update the document updated by\on
+			document.setUpdatedBy(preferences.getUsername());
+			document.setUpdatedOn(getTimestamp());
+			documentIO.update(document);
+
+			// update the content bytes\checksum
+			content.setContent(documentLocalFile.getFileBytes());
+			content.setChecksum(documentLocalFile.getFileChecksum());
+			documentIO.updateContent(content);
 
 			// fire the object version event notification
 			notifyCreation_objectVersionCreated(version);
@@ -349,8 +315,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	void delete(final UUID documentId) throws ParityException {
-		logger.info("delete(UUID)");
+	void delete(final Long documentId) throws ParityException {
+		logger.info("delete(Long)");
 		logger.debug(documentId);
 		try {
 			final Document document = get(documentId);
@@ -358,26 +324,21 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// flag the document as seen
 			flagAsSEEN(document);
 
-			// delete the content
-			final DocumentContent content = getContent(documentId);
-			documentXmlIO.deleteContent(document, content);
-
 			// delete the versions
 			final Collection<DocumentVersion> versions = listVersions(documentId);
-			for(DocumentVersion version : versions) { deleteVersion(document, version); }
+			for(final DocumentVersion version : versions) {
+				getLocalFile(document, version).delete();
+				documentIO.deleteVersion(documentId, version.getVersionId());
+			}
 
 			// delete the document
 			final LocalFile localFile = getLocalFile(document);
 			localFile.delete();
 			localFile.deleteParent();
-			documentXmlIO.delete(document);
+			documentIO.delete(documentId);
 
 			// notify
 			notifyUpdate_objectDeleted(document);
-		}
-		catch(IOException iox) {
-			logger.error("delete(UUID)", iox);
-			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
 			logger.error("delete(UUID)", rx);
@@ -424,15 +385,28 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @return The document
 	 * @throws ParityException
 	 */
-	Document get(final UUID id) throws ParityException {
-		logger.info("get(UUID)");
+	Document get(final Long id) throws ParityException {
+		logger.info("get(Long)");
 		logger.debug(id);
-		try { return documentXmlIO.get(id); }
-		catch(IOException iox) {
-			logger.error("get(UUID)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+		try { return documentIO.get(id); }
 		catch(RuntimeException rx) {
+			logger.error("get(Long)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Obtain a document with the specified unique id.
+	 * 
+	 * @param documentUniqueId
+	 *            The document unique id.
+	 * @return The document.
+	 */
+	Document get(final UUID documentUniqueId) throws ParityException {
+		logger.info("get(UUID)");
+		logger.debug(documentUniqueId);
+		try { return documentIO.get(documentUniqueId); }
+		catch(final RuntimeException rx) {
 			logger.error("get(UUID)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
@@ -442,23 +416,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * Obtain the document content for a given document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @return The document's content.
 	 * @throws ParityException
 	 */
-	DocumentContent getContent(final UUID documentId) throws ParityException {
+	DocumentContent getContent(final Long documentId) throws ParityException {
 		logger.info("getContent(UUID)");
 		logger.debug(documentId);
-		try {
-			final Document document = get(documentId);
-			return documentXmlIO.getContent(document);
-		}
-		catch(IOException iox) {
-			logger.error("getContent(Document)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+		try { return documentIO.getContent(documentId); }
 		catch(RuntimeException rx) {
-			logger.error("getContent(Document)", rx);
+			logger.error("getContent(UUID)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -473,16 +440,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @return The document version.
 	 * @throws ParityException
 	 */
-	DocumentVersion getVersion(final UUID documentId, final String versionId)
+	DocumentVersion getVersion(final Long documentId, final Long versionId)
 			throws ParityException {
-		logger.info("getVersion(UUID,String)");
+		logger.info("getVersion(Long,Long)");
 		logger.debug(documentId);
 		logger.debug(versionId);
-		try { return documentXmlIO.getVersion(get(documentId), versionId); }
-		catch(IOException iox) {
-			logger.error("getVersion(UUID,String)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+		try { return documentIO.getVersion(documentId, versionId); }
 		catch(RuntimeException rx) {
 			logger.error("getVersion(UUID,String)", rx);
 			throw ParityErrorTranslator.translate(rx);
@@ -493,26 +456,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * Obtain the content for a specific version.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @param versionId
 	 *            The version id.
 	 * @return The content.
 	 * @throws ParityException
 	 */
-	DocumentVersionContent getVersionContent(final UUID documentId,
-			final String versionId) throws ParityException {
-		logger.info("getVersionContent(UUID,String)");
+	DocumentVersionContent getVersionContent(final Long documentId,
+			final Long versionId) throws ParityException {
+		logger.info("getVersionContent(Long,Long)");
 		logger.debug(documentId);
 		logger.debug(versionId);
-		try {
-			final Document document = get(documentId);
-			final DocumentVersion version = getVersion(documentId, versionId);
-			return documentXmlIO.getVersionContent(document, version);
-		}
-		catch(IOException iox) {
-			logger.error("getVersionContent(DocumentVersion)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+		try { return documentIO.getVersionContent(documentId, versionId); }
 		catch(RuntimeException rx) {
 			logger.error("getVersionContent(DocumentVersion)", rx);
 			throw ParityErrorTranslator.translate(rx);
@@ -520,52 +475,40 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a list of documents sorted by name.
+	 * Obtain a list of documents.
 	 * 
-	 * @param projectId
-	 *            The project unqiue id.
-	 * @return A list of sorted documents
+	 * @return A list of documents sorted by name.
 	 * @throws ParityException
 	 * 
 	 * @see ComparatorBuilder
 	 * @see #list(UUID, Comparator)
 	 */
-	Collection<Document> list(final UUID projectId) throws ParityException {
-		logger.info("list(UUID)");
-		logger.debug(projectId);
-		return list(projectId, defaultComparator);
+	Collection<Document> list() throws ParityException {
+		logger.info("list()");
+		return list(defaultComparator);
 	}
 
 	/**
-	 * Obtain a sorted list of documents for a project.
+	 * Obtain a list of sorted documents.
 	 * 
-	 * @param projectId
-	 *            The project unique id.
 	 * @param comparator
 	 *            The comparator.
-	 * @return A sorted list of documents for a project.
+	 * @return A sorted list of documents.
 	 * @throws ParityException
 	 * 
 	 * @see ComparatorBuilder
 	 */
-	Collection<Document> list(final UUID projectId,
-			final Comparator<ParityObject> comparator) throws ParityException {
-		logger.info("list(UUID,Comparator<ParityObject>)");
-		logger.debug(projectId);
+	Collection<Document> list(final Comparator<Artifact> comparator)
+			throws ParityException {
+		logger.info("list(Comparator<Artifact>)");
 		logger.debug(comparator);
 		try {
-			final ProjectModel projectModel = getProjectModel();
-			final Project project = projectModel.get(projectId);
-			final Collection<Document> documents = documentXmlIO.list(project);
+			final Collection<Document> documents = documentIO.list();
 			ArtifactSorter.sortDocuments(documents, comparator);
 			return documents;
 		}
-		catch(IOException iox) {
-			logger.error("list(UUID,Comparator<ParityObject>)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
 		catch(RuntimeException rx) {
-			logger.error("list(UUID,Comparator<ParityObject>)", rx);
+			logger.error("list(UUID,Comparator<Artifact>)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -581,9 +524,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @see #listVersions(UUID, Comparator)
 	 */
-	Collection<DocumentVersion> listVersions(final UUID documentId)
+	Collection<DocumentVersion> listVersions(final Long documentId)
 			throws ParityException {
-		logger.info("listVersions(UUID)");
+		logger.info("listVersions(Long)");
 		logger.debug(documentId);
 		return listVersions(documentId, defaultVersionComparator);
 	}
@@ -593,7 +536,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * specified comparator.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @param comparator
 	 *            The document version sorter.
 	 * @return The list of document versions.
@@ -601,22 +544,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @see ComparatorBuilder
 	 */
-	Collection<DocumentVersion> listVersions(final UUID documentId,
-			final Comparator<ParityObjectVersion> comparator)
+	Collection<DocumentVersion> listVersions(final Long documentId,
+			final Comparator<ArtifactVersion> comparator)
 			throws ParityException {
 		logger.info("listVersions(Document)");
 		logger.debug(documentId);
 		logger.debug(comparator);
 		try {
-			final Document document = get(documentId);
 			final Collection<DocumentVersion> versions =
-				documentXmlIO.listVersions(document);
+				documentIO.listVersions(documentId);
 			ArtifactSorter.sortVersions(versions, comparator);
 			return versions;
-		}
-		catch(IOException iox) {
-			logger.error("listVersions(Document)", iox);
-			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
 			logger.error("listVersions(Document)", rx);
@@ -628,11 +566,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * Lock a document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @throws ParityException
 	 */
-	void lock(final UUID documentId) throws ParityException {
-		logger.info("lock(UUID)");
+	void lock(final Long documentId) throws ParityException {
+		logger.info("lock(Long)");
 		logger.debug(documentId);
 		try {
 			// re-create the local file from the meta-data
@@ -655,58 +593,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Move the document to an another project.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param destinationProjectId
-	 *            The destination project unique id.
-	 * @throws ParityException
-	 */
-	void move(final UUID documentId, final UUID destinationProjectId)
-			throws ParityException {
-		logger.info("move(UUID,UUID)");
-		logger.debug(documentId);
-		logger.debug(destinationProjectId);
-		try {
-			// if the document was unseen, flag it as unseen
-			final Document document = get(documentId);
-			final Boolean hadBeenSeen = document.contains(ParityObjectFlag.SEEN);
-			if(Boolean.FALSE == hadBeenSeen) { flagAsSEEN(document); }
-
-			// update the document references
-			final ProjectModel projectModel = getProjectModel();
-			final Project destinationProject =
-				projectModel.get(destinationProjectId);
-			document.setParentId(destinationProjectId);
-			documentXmlIO.update(document);
-			documentXmlIO.move(document, destinationProject);
-
-			// flag as not seen
-			if(Boolean.FALSE == hadBeenSeen) { flagAsNotSEEN(document); }
-
-			// fire an update notification
-			notifyUpdate_objectUpdated(document);
-		}
-		catch(IOException iox) {
-			logger.error("move(Document,Project)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
-			logger.error("move(Document,Project)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
 	 * Open a document.
 	 * 
 	 * @param documentId
 	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	void open(final UUID documentId) throws ParityException {
-		logger.info("open(UUID)");
+	void open(final Long documentId) throws ParityException {
+		logger.info("open(Long)");
 		logger.debug(documentId);
 		try {
 			final Document document = get(documentId);
@@ -737,7 +631,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The version id.
 	 * @throws ParityException
 	 */
-	void openVersion(final UUID documentId, final String versionId)
+	void openVersion(final Long documentId, final Long versionId)
 			throws ParityException {
 		logger.info("openVersion(UUID,String)");
 		logger.debug(documentId);
@@ -771,7 +665,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("receiveDocument(XMPPDocument)");
 		logger.debug(xmppDocument);
 		try {
-			final Document existingDocument = get(xmppDocument.getId());
+			final Document existingDocument = get(xmppDocument.getUniqueId());
 			logger.debug(existingDocument);
 			if(null == existingDocument) { receiveCreate(xmppDocument); }
 			else { receiveUpdate(xmppDocument, existingDocument); }
@@ -827,11 +721,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * Unlock a document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @throws ParityException
 	 */
-	void unlock(final UUID documentId) throws ParityException {
-		logger.info("importKey(UUID)");
+	void unlock(final Long documentId) throws ParityException {
+		logger.info("importKey(Long)");
 		logger.debug(documentId);
 		try {
 			// re-create the local file from the meta-data
@@ -853,109 +747,47 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
-	 * Update a document.
-	 * 
-	 * @param document
-	 *            The document to update.
-	 * @throws ParityException
-	 */
+	// USED BY THE ABSTRACT MODEL
 	void update(final Document document) throws ParityException {
 		logger.info("update(Document)");
 		logger.debug(document);
 		try {
-			documentXmlIO.update(document);
+			documentIO.update(document);
 			notifyUpdate_objectUpdated(document);
 		}
-		catch(IOException iox) {
-			logger.error("update(Document)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
+		catch(final RuntimeException rx) {
 			logger.error("update(Document)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
 
 	/**
-	 * Create the action data for the receive api.
-	 * 
-	 * @param document
-	 *            The document that was received.
-	 * @return The action data for the receive api.
-	 */
-	private DocumentActionData createActionData(final Document document) {
-		return new DocumentActionData();
-	}
-
-	/**
-	 * Create the action data for the version created by receiving a document.
-	 * 
-	 * @param user
-	 *            The user who sent the document.
-	 * @return The receive version action data.
-	 */
-	private DocumentActionData createReceiveActionData(final User user) {
-		final DocumentActionData actionData = new DocumentActionData();
-		actionData.setDataItem("user", user.getUsername());
-		return actionData;
-	}
-
-	/**
-	 * Delete a version.
-	 * 
-	 * @param document
-	 *            The document.
-	 * @param version
-	 *            The version.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws ParityException
-	 */
-	private void deleteVersion(final Document document,
-			final DocumentVersion version) throws FileNotFoundException,
-			IOException, ParityException {
-		// delete the version content
-		final DocumentVersionContent versionContent =
-			getVersionContent(document.getId(), version.getVersionId());
-		documentXmlIO.deleteVersionContent(document, versionContent);
-
-		// delete the local file
-		getLocalFile(document, version).delete();
-
-		// delete the version
-		documentXmlIO.deleteVersion(document, version);
-	}
-
-	/**
 	 * Add the key flag to the document.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentId
+	 *            The document id.
 	 */
-	private void flagKey(final UUID documentId) throws FileNotFoundException,
-			IOException, ParityException {
+	private void flagKey(final Long documentId) throws ParityException {
 		final Document document = get(documentId);
 		Assert.assertNotTrue(
-				"flagKey(Document)", document.contains(ParityObjectFlag.KEY));
-		document.add(ParityObjectFlag.KEY);
-		documentXmlIO.update(document);
+				"flagKey(Document)", document.contains(ArtifactFlag.KEY));
+		document.add(ArtifactFlag.KEY);
+		documentIO.update(document);
 	}
 
 	/**
 	 * Remove the key flag from the document.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param documentId
+	 *            The document id.
 	 * @throws ParityException
 	 */
-	private void flagNotKey(final UUID documentId)
-			throws FileNotFoundException, IOException, ParityException {
+	private void flagNotKey(final Long documentId) throws ParityException {
 		final Document document = get(documentId);
 		Assert.assertTrue(
-				"flagNotKey(Document)", document.contains(ParityObjectFlag.KEY));
-		document.remove(ParityObjectFlag.KEY);
-		documentXmlIO.update(document);
+				"flagNotKey(Document)", document.contains(ArtifactFlag.KEY));
+		document.remove(ArtifactFlag.KEY);
+		documentIO.update(document);
 	}
 
 	/**
@@ -989,22 +821,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @return True if the user has the key; false otherwise.
 	 * @throws ParityException
 	 */
-	private Boolean hasKey(final UUID documentId) throws ParityException {
+	private Boolean hasKey(final Long documentId) throws ParityException {
 		final Document document = get(documentId);
-		return document.contains(ParityObjectFlag.KEY);
-	}
-
-	/**
-	 * Obtain the next version in the sequence for a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @return The next version in the sequence.
-	 */
-	private String nextVersionId(final UUID documentId)
-			throws ParityException {
-		final Integer numberOfVersions = listVersions(documentId).size();
-		return new StringBuffer("v").append(numberOfVersions + 1).toString();
+		return document.contains(ArtifactFlag.KEY);
 	}
 
 	/**
@@ -1110,31 +929,27 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private void receiveCreate(final XMPPDocument xmppDocument)
 			throws ParityException, FileNotFoundException, IOException {
 		/*
-		 * Obtain the inbox parity project within the workspace, and place the
-		 * received document within it, check if the SEEN flag has been
-		 * transferred across and if it has, remove it; then notify all
-		 * listeners about the new document.
+		 * Check if the SEEN flag has been transferred across and if it has,
+		 * remove it; then notify all listeners about the new document.
 		 */
-		final Project myProjects = getProjectModel().getMyProjects();
 		final Document document = new Document(xmppDocument.getCreatedBy(),
 				xmppDocument.getCreatedOn(), xmppDocument.getDescription(),
-				xmppDocument.getFlags(), xmppDocument.getId(),
-				xmppDocument.getName(), myProjects.getId(),
-				xmppDocument.getUpdatedBy(), xmppDocument.getUpdatedOn());
-		final DocumentContent content = new DocumentContent(
-				MD5Util.md5Hex(xmppDocument.getContent()),
-				xmppDocument.getContent(), xmppDocument.getId());
+				xmppDocument.getFlags(), xmppDocument.getUniqueId(),
+				xmppDocument.getName(), xmppDocument.getUpdatedBy(),
+				xmppDocument.getUpdatedOn());
+		final DocumentContent content = new DocumentContent();
+		content.setChecksum(MD5Util.md5Hex(xmppDocument.getContent()));
+		content.setContent(xmppDocument.getContent());
+		content.setDocumentId(document.getId());
+
+		documentIO.create(document, content);
 
 		// create the local file
 		final LocalFile localFile = getLocalFile(document);
 		localFile.write(content.getContent());
 
-		// create the document
-		documentXmlIO.create(document, content);
-
 		// create a version
-		createVersion(document.getId(), DocumentAction.RECEIVE,
-				createReceiveActionData(getUser(xmppDocument.getUpdatedBy())));
+		createVersion(document.getId());
 
 		// flag as not seen
 		flagAsNotSEEN(document);
@@ -1170,15 +985,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 				hasKey(document.getId()));
 
 		// create a new version of the existing document
-		createVersion(
-				document.getId(), DocumentAction.RECEIVE,
-				createReceiveActionData(getUser(xmppDocument.getUpdatedBy())));
+		createVersion(document.getId());
 
 		// update the content
-		final DocumentContent content = new DocumentContent(
-				MD5Util.md5Hex(xmppDocument.getContent()),
-				xmppDocument.getContent(), document.getId());
-		documentXmlIO.update(document, content);
+		final DocumentContent content = new DocumentContent();
+		content.setChecksum(MD5Util.md5Hex(xmppDocument.getContent()));
+		content.setContent(xmppDocument.getContent());
+		content.setDocumentId(document.getId());
+
+		documentIO.update(document);
+		documentIO.updateContent(content);
 
 		// update the content local file
 		final LocalFile localFile = getLocalFile(document);
@@ -1202,9 +1018,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The target file.
 	 * @throws IOException
 	 */
-	private void writeDocumentContent(final UUID documentId, final File file)
+	private void writeDocumentContent(final Long documentId, final File file)
 			throws ParityException, IOException {
 		final DocumentContent content = getContent(documentId);
 		FileUtil.writeBytes(file, content.getContent());
 	}
+
 }

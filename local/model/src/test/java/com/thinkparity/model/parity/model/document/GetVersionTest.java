@@ -4,11 +4,9 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Test the document model getVersion api.
@@ -18,13 +16,13 @@ import com.thinkparity.model.parity.model.project.Project;
 public class GetVersionTest extends ModelTestCase {
 
 	private class Fixture {
-		private final UUID documentId;
+		private final Long documentId;
 		private final DocumentModel documentModel;
 		private final DocumentVersion documentVersion;
-		private final String versionId;
-		private Fixture(final UUID documentId,
+		private final Long versionId;
+		private Fixture(final Long documentId,
 				final DocumentModel documentModel,
-				final DocumentVersion documentVersion, final String versionId) {
+				final DocumentVersion documentVersion, final Long versionId) {
 			super();
 			this.documentId = documentId;
 			this.documentModel = documentModel;
@@ -52,9 +50,16 @@ public class GetVersionTest extends ModelTestCase {
 					datum.documentModel.getVersion(datum.documentId, datum.versionId);
 
 				assertNotNull(documentVersion);
-				assertEquals(datum.documentVersion.getDocumentId(), documentVersion.getDocumentId());
+				assertEquals(datum.documentVersion.getArtifactId(), documentVersion.getArtifactId());
+				assertEquals(datum.documentVersion.getArtifactType(), documentVersion.getArtifactType());
+				assertEquals(datum.documentVersion.getArtifactUniqueId(), documentVersion.getArtifactUniqueId());
+				assertEquals(datum.documentVersion.getCreatedBy(), documentVersion.getCreatedBy());
+				assertEquals(datum.documentVersion.getCreatedOn(), documentVersion.getCreatedOn());
+				assertEquals(datum.documentVersion.getMetaData(), documentVersion.getMetaData());
+				assertEquals(datum.documentVersion.getName(), documentVersion.getName());
+				assertEquals(datum.documentVersion.getUpdatedBy(), documentVersion.getUpdatedBy());
+				assertEquals(datum.documentVersion.getUpdatedOn(), documentVersion.getUpdatedOn());
 				assertEquals(datum.documentVersion.getVersionId(), documentVersion.getVersionId());
-				assertEquals(datum.documentVersion.getSnapshot(), documentVersion.getSnapshot());
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }
@@ -66,7 +71,6 @@ public class GetVersionTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		final DocumentModel documentModel = getDocumentModel();
-		final Project testProject = createTestProject(getName());
 		data = new Vector<Fixture>(getInputFilesLength());
 
 		Document document;
@@ -76,7 +80,7 @@ public class GetVersionTest extends ModelTestCase {
 			name = testFile.getName();
 			description = getName() + ":  " + name;
 
-			document = documentModel.create(testProject.getId(), name, description, testFile);
+			document = documentModel.create(name, description, testFile);
 			documentVersion = documentModel.listVersions(document.getId()).iterator().next();
 			data.add(new Fixture(document.getId(), documentModel, documentVersion, documentVersion.getVersionId()));
 		}

@@ -15,12 +15,10 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.ParityObjectFlag;
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -37,8 +35,8 @@ public abstract class AbstractModelImpl {
 	/**
 	 * Empty list of parity object flags.
 	 */
-	protected static final Collection<ParityObjectFlag> NO_FLAGS =
-		Collections.unmodifiableCollection(new Vector<ParityObjectFlag>(0));
+	protected static final Collection<ArtifactFlag> NO_FLAGS =
+		Collections.unmodifiableCollection(new Vector<ArtifactFlag>(0));
 
 	/**
 	 * Assertion message to be displayed if the username is not set in the
@@ -106,18 +104,15 @@ public abstract class AbstractModelImpl {
 	 *            The object to flag.
 	 * @throws ParityException
 	 */
-	protected void flagAsNotSEEN(final ParityObject parityObject)
+	protected void flagAsNotSEEN(final Artifact parityObject)
 			throws ParityException {
 		switch(parityObject.getType()) {
 		case DOCUMENT:
 			flagAsNotSEEN((Document) parityObject);
 			break;
-		case PROJECT:
-			flagAsNotSEEN((Project) parityObject);
-			break;
 		default:
 			throw Assert.createUnreachable(
-					"removeFlag(ParityObject,ParityObjectFlag)");
+					"removeFlag(Artifact,ArtifactFlag)");
 		}
 	}
 
@@ -131,16 +126,13 @@ public abstract class AbstractModelImpl {
 	 *            The object to flag.
 	 * @throws ParityException
 	 */
-	protected void flagAsSEEN(final ParityObject parityObject) throws ParityException {
+	protected void flagAsSEEN(final Artifact parityObject) throws ParityException {
 		switch(parityObject.getType()) {
 		case DOCUMENT:
 			flagAsSEEN((Document) parityObject);
 			break;
-		case PROJECT:
-			flagAsSEEN((Project) parityObject);
-			break;
 		default:
-			throw Assert.createUnreachable("flagAsSEEN(ParityObject)");
+			throw Assert.createUnreachable("flagAsSEEN(Artifact)");
 		}
 	}
 
@@ -150,25 +142,6 @@ public abstract class AbstractModelImpl {
 	 * @return A handle to the project model.
 	 */
 	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
-
-	/**
-	 * Obtain the parent project for the document.
-	 * 
-	 * @param parityObject
-	 *            The object.
-	 * @return The parent project.
-	 * @throws ParityException
-	 */
-	protected Project getParent(final ParityObject parityObject) throws ParityException {
-		return getProjectModel().get(parityObject.getParentId());
-	}
-
-	/**
-	 * Obtain a handle to the project model.
-	 * 
-	 * @return A handle to the project model.
-	 */
-	protected ProjectModel getProjectModel() { return ProjectModel.getModel(); }
 
 	/**
 	 * Obtain a handle to the session model.
@@ -209,25 +182,6 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain the siblings of a parity object.
-	 * 
-	 * @param parityObject
-	 *            The object.
-	 * @return A list of parity object siblings.
-	 * @throws ParityException
-	 */
-	protected Collection<ParityObject> listSiblings(
-			final ParityObject parityObject) throws ParityException {
-		final Project parent = getParent(parityObject);
-		final Collection<ParityObject> siblings = new Vector<ParityObject>(7);
-		if(null != parent) {
-			siblings.addAll(getDocumentModel().list(parent.getId()));
-			siblings.addAll(getProjectModel().list(parent.getId()));
-		}
-		return siblings;
-	}
-
-	/**
 	 * Remove the seen flag from the document. This will also update the parent
 	 * so that its seen flag is removed.
 	 * 
@@ -236,36 +190,10 @@ public abstract class AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	private void flagAsNotSEEN(final Document document) throws ParityException {
-		if(document.contains(ParityObjectFlag.SEEN)) {
+		if(document.contains(ArtifactFlag.SEEN)) {
 			// remove the seen flag
-			document.remove(ParityObjectFlag.SEEN);
+			document.remove(ArtifactFlag.SEEN);
 			getDocumentModel().update(document);
-
-			// remove the parent's seen flag
-			final Project parent = getProjectModel().get(document.getParentId());
-			if(null != parent) { flagAsNotSEEN(parent); }
-		}
-	}
-
-	/**
-	 * Remove the seen flag from the project. This will also update the parent
-	 * so that its seen flag is removed.
-	 * 
-	 * @param project
-	 *            The project flag.
-	 * @throws ParityException
-	 */
-	private void flagAsNotSEEN(final Project project) throws ParityException {
-		if(project.contains(ParityObjectFlag.SEEN)) {
-			final ProjectModel projectModel = getProjectModel();
-
-			// remove the seen flag
-			project.remove(ParityObjectFlag.SEEN);
-			projectModel.update(project);
-
-			// remove the parent's seen flag
-			final Project parent = projectModel.get(project.getParentId());
-			if(null != parent) { flagAsNotSEEN(parent); }
 		}
 	}
 
@@ -278,42 +206,9 @@ public abstract class AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	private void flagAsSEEN(final Document document) throws ParityException {
-		if(!document.contains(ParityObjectFlag.SEEN)) {
-			document.add(ParityObjectFlag.SEEN);
+		if(!document.contains(ArtifactFlag.SEEN)) {
+			document.add(ArtifactFlag.SEEN);
 			getDocumentModel().update(document);
-
-			// if all of the siblings have the SEEN flag; flag the parent as
-			// well
-			final Collection<ParityObject> siblings = listSiblings(document);
-			for(ParityObject sibling : siblings) {
-				if(!sibling.contains(ParityObjectFlag.SEEN)) { return; }
-			}
-			final Project parent = getParent(document);
-			if(null != parent) { flagAsSEEN(parent); }
-		}
-	}
-
-	/**
-	 * Flag a project as having been seen. If the project's sibling objects have
-	 * all been seen as well, the parent will be updated.
-	 * 
-	 * @param project
-	 *            The project to flag.
-	 * @throws ParityException
-	 */
-	private void flagAsSEEN(final Project project) throws ParityException {
-		if(!project.contains(ParityObjectFlag.SEEN)) {
-			project.add(ParityObjectFlag.SEEN);
-			getProjectModel().update(project);
-
-			// if all of the siblings have the SEEN flag; flag the parent as
-			// well
-			final Collection<ParityObject> siblings = listSiblings(project);
-			for(ParityObject sibling : siblings) {
-				if(!sibling.contains(ParityObjectFlag.SEEN)) { return; }
-			}
-			final Project parent = getParent(project);
-			if(null != parent) { flagAsSEEN(parent); }
 		}
 	}
 }

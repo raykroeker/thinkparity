@@ -9,7 +9,6 @@ import java.util.Vector;
 import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.parity.util.MD5Util;
 
 /**
@@ -75,8 +74,8 @@ public class ExportTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(getInputFilesLength());
-		final Project testProject = createTestProject("testExport");
 		final DocumentModel documentModel = getDocumentModel();
 		Document document;
 		String name, description, contentChecksum;
@@ -88,7 +87,7 @@ public class ExportTest extends ModelTestCase {
 			description = name;
 			content = FileUtil.readBytes(testFile);
 			contentChecksum = MD5Util.md5Hex(content);
-			document = documentModel.create(testProject.getId(), name, description, testFile);
+			document = documentModel.create(name, description, testFile);
 			exportFile = new File(
 					System.getProperty("java.io.tmpdir"),
 					testFile.getName());

@@ -15,7 +15,6 @@ import com.thinkparity.model.log4j.or.org.xmlpull.v1.XmlPullParserRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentContentRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentVersionRenderer;
-import com.thinkparity.model.log4j.or.parity.project.ProjectRenderer;
 import com.thinkparity.model.log4j.or.smack.packet.MessageRenderer;
 import com.thinkparity.model.log4j.or.smack.packet.PacketExtensionRenderer;
 import com.thinkparity.model.log4j.or.smack.packet.PacketRenderer;
@@ -24,7 +23,6 @@ import com.thinkparity.model.log4j.or.xmpp.user.UserRenderer;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.project.Project;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -89,6 +87,8 @@ class ModelLog4JConfigurator {
 	 *            The configuration to set.
 	 */
 	private static void configureRenderers(final Properties configuration) {
+		// TODO Change the class\renderer class reference to be absolute instead
+		// of an import.
 		configureRenderer(configuration, User.class, UserRenderer.class);
 		configureRenderer(configuration, Document.class, DocumentRenderer.class);
 		configureRenderer(configuration, DocumentContent.class, DocumentContentRenderer.class);
@@ -96,7 +96,6 @@ class ModelLog4JConfigurator {
 		configureRenderer(configuration, Message.class, MessageRenderer.class);
 		configureRenderer(configuration, Packet.class, PacketRenderer.class);
 		configureRenderer(configuration, PacketExtension.class, PacketExtensionRenderer.class);
-		configureRenderer(configuration, Project.class, ProjectRenderer.class);
 		configureRenderer(configuration, XMPPDocument.class, XMPPDocumentRenderer.class);
 		configureRenderer(configuration, XmlPullParser.class, XmlPullParserRenderer.class);
 	}

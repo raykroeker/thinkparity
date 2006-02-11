@@ -80,6 +80,7 @@ public class GetRosterEntriesTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		final ModelTestUser modelTestUser = getModelTestUser();
 		final SessionModel sessionModel = getSessionModel();
 		final Preferences preferences = getPreferences();

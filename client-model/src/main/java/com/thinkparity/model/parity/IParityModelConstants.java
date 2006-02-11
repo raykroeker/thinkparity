@@ -20,6 +20,8 @@ public interface IParityModelConstants {
 	public static final String DIRECTORY_NAME_LOCAL_DATA = "local";
 
 	public static final String DIRECTORY_NAME_XML_DATA = "xml.io";
+	public static final String DIRECTORY_NAME_DB_DATA = "db.io";
+	public static final String FILE_NAME_DB_DATA = "db";
 	public static final Long FILE_SIZE_UPPER_BOUNDS = 1048576L;
 
 	public static final Calendar PROJECT_CREATED_ON = DateUtil.getInstance();

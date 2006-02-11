@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.api.events;
 
-import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 
 /**
  * CreationEvent
@@ -15,13 +15,13 @@ public class CreationEvent {
 	/**
 	 * Cause of the creation event.
 	 */
-	private ParityObject source;
+	private Artifact source;
 
 	/**
 	 * Create a new CreationEvent
 	 * @param source <code>java.lang.Object</code>
 	 */
-	public CreationEvent(final ParityObject source) {
+	public CreationEvent(final Artifact source) {
 		super();
 		this.source = source;
 	}
@@ -30,5 +30,5 @@ public class CreationEvent {
 	 * Obtain the value of the object causing the creation event.
 	 * @return <code>java.lang.Object</code>
 	 */
-	public ParityObject getSource() { return source; }
+	public Artifact getSource() { return source; }
 }

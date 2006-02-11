@@ -9,9 +9,8 @@ import java.util.Comparator;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.api.ParityObjectVersion;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Test the document model listVersions api.
@@ -68,12 +67,12 @@ public class ListVersionsTest extends ModelTestCase {
 				int previousVersion = 0;
 				int currentVersion;
 				for(DocumentVersion v : versions) {
-					currentVersion = Integer.parseInt(v.getVersionId().substring(1));
+					currentVersion = v.getVersionId().intValue();
 					assertEquals(previousVersion + 1, currentVersion);
-					previousVersion = Integer.parseInt(v.getVersionId().substring(1));
+					previousVersion = v.getVersionId().intValue();
 				}
 
-				final Comparator<ParityObjectVersion> descendingVersionId =
+				final Comparator<ArtifactVersion> descendingVersionId =
 					new ComparatorBuilder().createVersionById(Boolean.FALSE);
 				versions =
 					datum.documentModel.listVersions(datum.document.getId(), descendingVersionId);
@@ -85,9 +84,9 @@ public class ListVersionsTest extends ModelTestCase {
 				// ensure the versions are sorted in an descending order
 				previousVersion = datum.numberOfVersions + 1;
 				for(DocumentVersion v : versions) {
-					currentVersion = Integer.parseInt(v.getVersionId().substring(1));
+					currentVersion = v.getVersionId().intValue();
 					assertEquals(previousVersion - 1, currentVersion);
-					previousVersion = Integer.parseInt(v.getVersionId().substring(1));
+					previousVersion = v.getVersionId().intValue();
 				}
 			}
 		}
@@ -98,8 +97,8 @@ public class ListVersionsTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(getInputFilesLength());
-		final Project testProject = createTestProject("testListVersions");
 		final DocumentModel documentModel = getDocumentModel();
 		String name, description;
 		Document document;
@@ -107,13 +106,10 @@ public class ListVersionsTest extends ModelTestCase {
 			name = testFile.getName();
 			description = "Document:  " + name;
 			document =
-				documentModel.create(testProject.getId(), name, description, testFile);
-			documentModel.createVersion(document.getId(),
-					DocumentAction.SEND, new DocumentActionData());
-			documentModel.createVersion(document.getId(),
-					DocumentAction.SEND, new DocumentActionData());
-			documentModel.createVersion(document.getId(),
-					DocumentAction.SEND, new DocumentActionData());
+				documentModel.create(name, description, testFile);
+			documentModel.createVersion(document.getId());
+			documentModel.createVersion(document.getId());
+			documentModel.createVersion(document.getId());
 			data.add(new Fixture(document, documentModel, 4));
 		}
 	}

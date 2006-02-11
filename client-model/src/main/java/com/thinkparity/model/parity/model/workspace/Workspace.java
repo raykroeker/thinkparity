@@ -21,6 +21,13 @@ public interface Workspace {
 	public URL getDataURL();
 
 	/**
+	 * Obtain the data directory.
+	 * 
+	 * @return The data directory.
+	 */
+	public File getDataDirectory();
+
+	/**
 	 * Obtain the URL representing the log directory for the parity workspace.
 	 * 
 	 * @return URL

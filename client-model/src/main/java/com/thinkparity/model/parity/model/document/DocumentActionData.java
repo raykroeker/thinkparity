@@ -101,4 +101,12 @@ public class DocumentActionData {
 	public String setDataItem(final String key, final String value) {
 		return (String) actionData.setProperty(key, value);
 	}
+
+	/**
+	 * Obtain all of the action data properties.
+	 * @return
+	 */
+	public Properties getAll() {
+		return new Properties(actionData);
+	}
 }

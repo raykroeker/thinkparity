@@ -6,7 +6,6 @@ package com.thinkparity.model;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.UUID;
 
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
@@ -14,8 +13,6 @@ import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -31,11 +28,6 @@ import com.raykroeker.junitx.TestSession;
  * @version 1.1
  */
 public abstract class ModelTestCase extends TestCase {
-
-	/**
-	 * Counter of the number of projects created.
-	 */
-	private static Integer projectCount = 0;
 
 	/**
 	 * The JUnit eXtension test session.
@@ -94,18 +86,6 @@ public abstract class ModelTestCase extends TestCase {
 	private Preferences preferences;
 
 	/**
-	 * The main project id.
-	 * 
-	 */
-	private UUID projectId;
-
-	/**
-	 * The project model.
-	 * 
-	 */
-	private ProjectModel projectModel;
-
-	/**
 	 * The session model.
 	 * 
 	 */
@@ -132,20 +112,14 @@ public abstract class ModelTestCase extends TestCase {
 	protected ModelTestCase(final String name) { super(name); }
 
 	/**
-	 * Create a project for the given test. This method does not check for
-	 * project existance.  It will attempt to create a project every time.
-	 *
-	 * @param testName
-	 *            The name of the test currently being setup\run; ie
-	 *            testCreateDocument
+	 * @see com.raykroeker.junitx.TestCase#createFailMessage(java.lang.Throwable)
+	 * 
 	 */
-	protected Project createTestProject(final String test) throws ParityException {
-		final String name = String.valueOf(projectCount++);
-		final String description = "Automated test project for:  " +
-			getClass().getCanonicalName() + "." + test + "()";
-		return getProjectModel().create(getProjectId(), name, description);
+	protected String createFailMessage(Throwable t) {
+		testLogger.error("Failure", t);
+		return super.createFailMessage(t);
 	}
-
+	
 	/**
 	 * Obtain the document model.
 	 * 
@@ -157,7 +131,7 @@ public abstract class ModelTestCase extends TestCase {
 		}
 		return documentModel;
 	}
-	
+
 	/**
 	 * Obtain a single test file.
 	 * 
@@ -201,17 +175,6 @@ public abstract class ModelTestCase extends TestCase {
 			preferences = getWorkspace().getPreferences();
 		}
 		return preferences;
-	}
-
-	/**
-	 * Obtain the project model.
-	 * @return The project model.
-	 */
-	protected ProjectModel getProjectModel() {
-		if(null == projectModel) {
-			projectModel = ProjectModel.getModel();
-		}
-		return projectModel;
 	}
 
 	/**
@@ -276,6 +239,7 @@ public abstract class ModelTestCase extends TestCase {
 
 	/**
 	 * @see junit.framework.TestCase#setUp()
+	 * 
 	 */
 	protected void setUp() throws Exception { super.setUp(); }
 
@@ -284,16 +248,23 @@ public abstract class ModelTestCase extends TestCase {
 	 */
 	protected void tearDown() throws Exception { super.tearDown(); }
 
-	/**
-	 * Obtain the main project id.
-	 * 
-	 * @return The main project id.
-	 */
-	private UUID getProjectId() {
-		if(null == projectId) {
-			try { projectId = getProjectModel().getMyProjects().getId(); }
-			catch(final ParityException px) { throw new RuntimeException(px); }
-		}
-		return projectId;
-	}
+//	/**
+//	 * Open the hypersonic database manager.
+//	 *
+//	 */
+//	protected void openHypersonicManager() {
+//		final String url = new StringBuffer("jdbc:hsqldb:file:")
+//			.append(getWorkspace().getDataDirectory())
+//			.append(File.separator)
+//			.append(IParityModelConstants.DIRECTORY_NAME_DB_DATA)
+//			.append(File.separator)
+//			.append(IParityModelConstants.FILE_NAME_DB_DATA)
+//			.toString();
+//		final String[] args = {
+//				"-url", url,
+//				"-user", "sa",
+//				"-noexit"
+//		};
+//		org.hsqldb.util.DatabaseManagerSwing.main(args);
+//	}
 }

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.util.UUID;
 
 /**
  * Represents the content snapshot of a document version.
@@ -15,47 +14,72 @@ public class DocumentVersionContent {
 
 	/**
 	 * Snapshot of the document content.
+	 * 
 	 */
-	private DocumentContent snapshot;
+	private DocumentContent documentContent;
 
 	/**
-	 * Document id.
+	 * The document id.
+	 * 
 	 */
-	private UUID documentId;
+	private Long documentId;
 
 	/**
-	 * Version id.
+	 * The version id.
+	 * 
 	 */
-	private String versionId;
+	private Long versionId;
 
 	/**
 	 * Create a DocumentVersionContent.
 	 */
-	public DocumentVersionContent(final DocumentContent contentSnapshot,
-			final UUID documentId, final String versionId) {
-		super();
-		this.documentId = documentId;
-		this.snapshot = contentSnapshot;
-		this.versionId = versionId;
-	}
+	public DocumentVersionContent() { super(); }
 
 	/**
-	 * Obtain the content snapshot.
+	 * Obtain the document content.
 	 * 
-	 * @return The content snapshot.
+	 * @return The document content.
 	 */
-	public DocumentContent getSnapshot() { return snapshot; }
+	public DocumentContent getDocumentContent() { return documentContent; }
 
 	/**
 	 * Obtain the document id.
 	 * 
 	 * @return The document id.
 	 */
-	public UUID getDocumentId() { return documentId; }
+	public Long getDocumentId() { return documentId; }
 
 	/**
 	 * Obtain the version id.
+	 * 
 	 * @return The version id.
 	 */
-	public String getVersionId() { return versionId; }
+	public Long getVersionId() { return versionId; }
+
+	/**
+	 * Set the document content.
+	 * 
+	 * @param documentContent
+	 *            The document content.
+	 */
+	public void setDocumentContent(final DocumentContent documentContent) {
+		this.documentContent = documentContent;
+	}
+
+	/**
+	 * @param documentId The documentId to set.
+	 */
+	public void setDocumentId(Long documentId) {
+		this.documentId = documentId;
+	}
+
+	/**
+	 * Set the version id.
+	 * 
+	 * @param versionId
+	 *            The version id.
+	 */
+	public void setVersionId(final Long versionId) {
+		this.versionId = versionId;
+	}
 }

@@ -8,8 +8,7 @@ import java.util.Collection;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.api.ParityObjectFlag;
-import com.thinkparity.model.parity.model.project.Project;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
 /**
  * @author raykroeker@gmail.com
@@ -35,14 +34,14 @@ public class FlagTest extends ModelTestCase {
 
 	public void testFlags() {
 		try {
-			Collection<ParityObjectFlag> flags;
+			Collection<ArtifactFlag> flags;
 			for(Fixture datum : data) {
 				flags = datum.document.getFlags();
 
 				assertNotNull(flags);
-				assertTrue(flags.contains(ParityObjectFlag.SEEN));
+				assertTrue(flags.contains(ArtifactFlag.SEEN));
 
-				datum.document.remove(ParityObjectFlag.SEEN);
+				datum.document.remove(ArtifactFlag.SEEN);
 				datum.documentModel.update(datum.document);
 
 				flags = datum.document.getFlags();
@@ -56,8 +55,8 @@ public class FlagTest extends ModelTestCase {
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(1);
-		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
 		final File testFile = getInputFile("JUnitTestFramework.txt");
 		String name, description;
@@ -65,7 +64,7 @@ public class FlagTest extends ModelTestCase {
 
 		name = testFile.getName();
 		description = name;
-		document = documentModel.create(testProject.getId(), name, description, testFile);
+		document = documentModel.create(name, description, testFile);
 		data.add(new Fixture(document, documentModel));
 	}
 

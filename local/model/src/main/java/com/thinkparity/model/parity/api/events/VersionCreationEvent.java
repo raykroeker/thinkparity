@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.api.events;
 
-import com.thinkparity.model.parity.api.ParityObjectVersion;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 
 /**
  * VersionCreationEvent
@@ -15,19 +15,19 @@ public class VersionCreationEvent {
 	/**
 	 * Source parity object version.
 	 */
-	private ParityObjectVersion source;
+	private ArtifactVersion source;
 
 	/**
 	 * Create a VersionCreationEvent
 	 */
-	public VersionCreationEvent(final ParityObjectVersion source) {
+	public VersionCreationEvent(final ArtifactVersion source) {
 		super();
 		this.source = source;
 	}
 
 	/**
 	 * Obtain source.
-	 * @return <code>ParityObjectVersion</code>
+	 * @return <code>ArtifactVersion</code>
 	 */
-	public ParityObjectVersion getSource() { return source; }	
+	public ArtifactVersion getSource() { return source; }	
 }

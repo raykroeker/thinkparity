@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Test the document model delete api.
@@ -64,7 +63,7 @@ public class DeleteTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
-		final Project testProject = createTestProject(getName());
+		super.setUp();
 		final DocumentModel documentModel = getDocumentModel();
 		Document document;
 		String name, description;
@@ -73,7 +72,7 @@ public class DeleteTest extends ModelTestCase {
 		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
-			document = documentModel.create(testProject.getId(), name, description, testFile);
+			document = documentModel.create(name, description, testFile);
 			data.add(new Fixture(document, documentModel));
 		}
 	}

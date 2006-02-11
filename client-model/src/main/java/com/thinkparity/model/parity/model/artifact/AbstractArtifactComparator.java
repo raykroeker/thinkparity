@@ -9,13 +9,12 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.api.ParityObject;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractArtifactComparator implements Comparator<ParityObject> {
+public abstract class AbstractArtifactComparator implements Comparator<Artifact> {
 
 	/**
 	 * List of comparators to use if the compare objects are equal.
@@ -23,7 +22,7 @@ public abstract class AbstractArtifactComparator implements Comparator<ParityObj
 	 * @see #add(Comparator)
 	 * @see #remove(Comparator)
 	 */
-	protected final List<Comparator<ParityObject>> comparators;
+	protected final List<Comparator<Artifact>> comparators;
 
 	/**
 	 * Multiplier to use when returning the compare result. Controls the
@@ -38,7 +37,7 @@ public abstract class AbstractArtifactComparator implements Comparator<ParityObj
 	public AbstractArtifactComparator(final Boolean doCompareAscending) {
 		super();
 		this.resultMultiplier = doCompareAscending ? 1 : -1;
-		this.comparators = new LinkedList<Comparator<ParityObject>>();
+		this.comparators = new LinkedList<Comparator<Artifact>>();
 	}
 
 	/**
@@ -47,7 +46,7 @@ public abstract class AbstractArtifactComparator implements Comparator<ParityObj
 	 * @param comparator
 	 *            The comparator to add.
 	 */
-	public boolean add(final Comparator<ParityObject> comparator) {
+	public boolean add(final Comparator<Artifact> comparator) {
 		Assert.assertNotNull("Cannot add a null comparator.", comparator);
 		return comparators.add(comparator);
 	}
@@ -58,7 +57,7 @@ public abstract class AbstractArtifactComparator implements Comparator<ParityObj
 	 * @param comparator
 	 *            The comparator to remove.
 	 */
-	public boolean remove(final Comparator<ParityObject> comparator) {
+	public boolean remove(final Comparator<Artifact> comparator) {
 		Assert.assertNotNull("Cannot remove a null comparator.", comparator);
 		return comparators.remove(comparator);
 	}
@@ -74,10 +73,10 @@ public abstract class AbstractArtifactComparator implements Comparator<ParityObj
 	 * @return 0 if none of the comparators finds a difference; -1 if o1 is less
 	 *         than o2 and 1 if o2 is less than o1.
 	 */
-	protected int subCompare(final ParityObject o1, final ParityObject o2) {
+	protected int subCompare(final Artifact o1, final Artifact o2) {
 		if(!comparators.isEmpty()) {
 			int compareResult;
-			for(Comparator<ParityObject> c : comparators) {
+			for(Comparator<Artifact> c : comparators) {
 				compareResult = c.compare(o1, o2);
 				if(0 != compareResult) { return compareResult; }
 			}

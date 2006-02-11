@@ -5,8 +5,6 @@ package com.thinkparity.model.parity.model.artifact;
 
 import java.util.Comparator;
 
-import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
@@ -37,7 +35,7 @@ public class ComparatorBuilder {
 	 *            descending.
 	 * @return The name comparator.
 	 */
-	public Comparator<ParityObject> createByName(final Boolean isAscending) {
+	public Comparator<Artifact> createByName(final Boolean isAscending) {
 		return new NameComparator(isAscending);
 	}
 
@@ -49,7 +47,7 @@ public class ComparatorBuilder {
 	 *            descending.
 	 * @return The version id comparator.
 	 */
-	public Comparator<ParityObjectVersion> createVersionById(
+	public Comparator<ArtifactVersion> createVersionById(
 			final Boolean isAscending) {
 		return new VersionIdComparator(isAscending);
 	}

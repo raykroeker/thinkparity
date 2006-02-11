@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.artifact;
 
-import com.thinkparity.model.parity.api.ParityObject;
 
 /**
  * @author raykroeker@gmail.com
@@ -23,7 +22,7 @@ class NameComparator extends AbstractArtifactComparator {
 	 * @see java.util.Comparator#compare(T, T)
 	 * 
 	 */
-	public int compare(ParityObject o1, ParityObject o2) {
+	public int compare(Artifact o1, Artifact o2) {
 		final int compareResult = o1.getName().compareTo(o2.getName());
 		if(0 == compareResult) { return subCompare(o1, o2); }
 		else { return compareResult * resultMultiplier; }

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.api.events;
 
-import com.thinkparity.model.parity.api.ParityObject;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 
 /**
  * UpdateEvent
@@ -15,12 +15,12 @@ public class UpdateEvent {
 	/**
 	 * Source of the update event.
 	 */
-	private final ParityObject source;
+	private final Artifact source;
 
 	/**
 	 * Create a new UpdateEvent
 	 */
-	public UpdateEvent(final ParityObject source) {
+	public UpdateEvent(final Artifact source) {
 		super();
 		this.source = source;
 	}
@@ -30,5 +30,5 @@ public class UpdateEvent {
 	 * 
 	 * @return The event source.
 	 */
-	public ParityObject getSource() { return source; }
+	public Artifact getSource() { return source; }
 }

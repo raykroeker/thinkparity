@@ -4,11 +4,9 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Test the document model get version content api.
@@ -22,14 +20,14 @@ public class GetVersionContentTest extends ModelTestCase {
 	 * Test data fixture.
 	 */
 	private class Fixture {
-		private final UUID documentId;
+		private final Long documentId;
 		private final DocumentModel documentModel;
 		private final DocumentVersionContent versionContent;
-		private final String versionId;
-		private Fixture(final UUID documentId,
+		private final Long versionId;
+		private Fixture(final Long documentId,
 				final DocumentModel documentModel,
 				final DocumentVersionContent versionContent,
-				final String versionId) {
+				final Long versionId) {
 			this.documentId = documentId;
 			this.documentModel = documentModel;
 			this.versionId = versionId;
@@ -60,7 +58,7 @@ public class GetVersionContentTest extends ModelTestCase {
 					datum.documentModel.getVersionContent(datum.documentId, datum.versionId);
 				assertNotNull(versionContent);
 				assertEquals(datum.versionContent.getDocumentId(), versionContent.getDocumentId());
-				assertEquals(datum.versionContent.getSnapshot(), versionContent.getSnapshot());
+				assertEquals(datum.versionContent.getDocumentContent(), versionContent.getDocumentContent());
 				assertEquals(datum.versionContent.getVersionId(), versionContent.getVersionId());
 			}
 		}
@@ -71,29 +69,26 @@ public class GetVersionContentTest extends ModelTestCase {
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(4);
-		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
 		final File testFile = getInputFile("JUnitTestFramework.txt");
 		final String name = testFile.getName();
 		final String description = name;
 		final Document document =
-			documentModel.create(testProject.getId(), name, description, testFile);
+			documentModel.create(name, description, testFile);
 		DocumentVersion version;
 		DocumentVersionContent versionContent;
 
-		version = documentModel.createVersion(
-					document.getId(), DocumentAction.CREATE, new DocumentActionData());
+		version = documentModel.createVersion(document.getId());
 		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
 		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
 
-		version = documentModel.createVersion(
-				document.getId(), DocumentAction.CREATE, new DocumentActionData());
+		version = documentModel.createVersion(document.getId());
 		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
 		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
 
-		version = documentModel.createVersion(
-				document.getId(), DocumentAction.CREATE, new DocumentActionData());
+		version = documentModel.createVersion(document.getId());
 		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
 		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
 	}

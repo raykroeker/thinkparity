@@ -61,6 +61,7 @@ public class GetWorkspaceTest extends ModelTestCase {
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(1);
 		data.add(new Fixture(getWorkspaceModel()));
 	}

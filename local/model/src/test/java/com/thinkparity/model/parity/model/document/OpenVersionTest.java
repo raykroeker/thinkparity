@@ -4,12 +4,10 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.project.Project;
 
 /**
  * Test the document model open version api.
@@ -25,11 +23,11 @@ public class OpenVersionTest extends ModelTestCase {
 	 * @version 1.1
 	 */
 	private class Fixture {
-		private final UUID documentId;
+		private final Long documentId;
 		private final DocumentModel documentModel;
-		private final String versionId;
-		private Fixture(final UUID documentId,
-				final DocumentModel documentModel, final String versionId) {
+		private final Long versionId;
+		private Fixture(final Long documentId,
+				final DocumentModel documentModel, final Long versionId) {
 			this.documentId = documentId;
 			this.documentModel = documentModel;
 			this.versionId = versionId;
@@ -66,26 +64,23 @@ public class OpenVersionTest extends ModelTestCase {
 	 * @see com.thinkparity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+		super.setUp();
 		data = new Vector<Fixture>(3);
-		final Project testProject = createTestProject(getName());
 		final DocumentModel documentModel = getDocumentModel();
 		final File testFile = getInputFile("JUnitTestFramework.txt");
 		final String name = testFile.getName();
 		final String description = name;
 		final Document document =
-			documentModel.create(testProject.getId(), name, description, testFile);
+			documentModel.create(name, description, testFile);
 		DocumentVersion version;
 
-		version = documentModel.createVersion(
-				document.getId(), DocumentAction.SEND, new DocumentActionData());
+		version = documentModel.createVersion(document.getId());
 		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
 
-		version = documentModel.createVersion(
-				document.getId(), DocumentAction.SEND, new DocumentActionData());
+		version = documentModel.createVersion(document.getId());
 		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
 
-		version = documentModel.createVersion(
-				document.getId(), DocumentAction.SEND, new DocumentActionData());
+		version = documentModel.createVersion(document.getId());
 		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
 	}
 

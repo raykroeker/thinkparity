@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.model.util;
 
-import java.util.UUID;
-
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
@@ -14,13 +12,11 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.ParityObject;
-import com.thinkparity.model.parity.api.ParityObjectFlag;
-import com.thinkparity.model.parity.api.ParityObjectType;
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.Project;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * The parity object helper provides common utility functionality for the user
@@ -29,13 +25,13 @@ import com.thinkparity.model.parity.model.project.ProjectModel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ParityObjectUtil {
+public class ArtifactUtil {
 
 	/**
 	 * Singleton instance.
 	 * 
 	 */
-	private static final ParityObjectUtil singleton;
+	private static final ArtifactUtil singleton;
 
 	/**
 	 * Singleton synchronization lock.
@@ -44,7 +40,7 @@ public class ParityObjectUtil {
 	private static final Object singletonLock;
 
 	static {
-		singleton = new ParityObjectUtil();
+		singleton = new ArtifactUtil();
 		singletonLock = new Object();
 	}
 
@@ -57,8 +53,8 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return True if the artifact can be closed; false otherwise.
 	 */
-	public static Boolean canClose(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	public static Boolean canClose(final Long artifactId,
+			final ArtifactType artifactType) {
 		synchronized(singletonLock) {
 			return singleton.determineCanClose(artifactId, artifactType);
 		}
@@ -73,8 +69,8 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return True if the user can be deleted; false otherwise.
 	 */
-	public static Boolean canDelete(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	public static Boolean canDelete(final Long artifactId,
+			final ArtifactType artifactType) {
 		synchronized(singletonLock) {
 			return singleton.determineCanDelete(artifactId, artifactType);
 		}
@@ -89,8 +85,8 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return The parity artifact.
 	 */
-	public static ParityObject getArtifact(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	public static Artifact getArtifact(final Long artifactId,
+			final ArtifactType artifactType) {
 		synchronized(singletonLock) {
 			return singleton.doGetArtifact(artifactId, artifactType);
 		}
@@ -110,19 +106,6 @@ public class ParityObjectUtil {
 	}
 
 	/**
-	 * Obtain the path for the parity object.
-	 * 
-	 * @param parityObject
-	 *            The parity object.
-	 * @return A path for display in the user interface.
-	 */
-	public static String getPath(final ParityObject parityObject) {
-		synchronized(singletonLock) {
-			return singleton.doGetPath(parityObject);
-		}
-	}
-
-	/**
 	 * Determine whether or not the parity object has been seen.
 	 * 
 	 * @param artifactId
@@ -131,8 +114,8 @@ public class ParityObjectUtil {
 	 *            The artifact type
 	 * @return True if it has been seen; false otherwise.
 	 */
-	public static Boolean hasBeenSeen(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	public static Boolean hasBeenSeen(final Long artifactId,
+			final ArtifactType artifactType) {
 		synchronized(singletonLock) {
 			return singleton.hasBeenSeenImpl(artifactId, artifactType);
 		}
@@ -147,8 +130,8 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return True if the artifact has been closed; false otherwise.
 	 */
-	public static Boolean isClosed(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	public static Boolean isClosed(final Long artifactId,
+			final ArtifactType artifactType) {
 		synchronized(singletonLock) {
 			return singleton.determineIsClosed(artifactId, artifactType);
 		}
@@ -163,8 +146,8 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return True if the current user is the key holder; false otherwise.
 	 */
-	public static Boolean isKeyHolder(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	public static Boolean isKeyHolder(final Long artifactId,
+			final ArtifactType artifactType) {
 		synchronized(singletonLock) {
 			return singleton.determineIsKeyHolder(artifactId, artifactType);
 		}
@@ -188,18 +171,12 @@ public class ParityObjectUtil {
 	private final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
-	 * Parity project api.
-	 */
-	private final ProjectModel projectModel;
-
-	/**
-	 * Create a ParityObjectUtil.
+	 * Create a ArtifactUtil.
 	 * 
 	 */
-	private ParityObjectUtil() {
+	private ArtifactUtil() {
 		super();
 		this.documentModel = modelFactory.getDocumentModel(getClass());
-		this.projectModel = modelFactory.getProjectModel(getClass());
 	}
 
 	/**
@@ -211,10 +188,10 @@ public class ParityObjectUtil {
 	 *            The parity artifact type.
 	 * @return True if the artifact can be closed by this user; false otherwise.
 	 */
-	private Boolean determineCanClose(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	private Boolean determineCanClose(final Long artifactId,
+			final ArtifactType artifactType) {
 		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ParityObjectFlag.KEY);
+				doGetArtifact(artifactId, artifactType), ArtifactFlag.KEY);
 	}
 
 	/**
@@ -226,10 +203,10 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return True if the user can be deleted; false otherwise.
 	 */
-	private Boolean determineCanDelete(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	private Boolean determineCanDelete(final Long artifactId,
+			final ArtifactType artifactType) {
 		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ParityObjectFlag.CLOSED);
+				doGetArtifact(artifactId, artifactType), ArtifactFlag.CLOSED);
 	}
 
 	/**
@@ -241,10 +218,10 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return True if the artifact has been closed; false otherwise.
 	 */
-	private Boolean determineIsClosed(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	private Boolean determineIsClosed(final Long artifactId,
+			final ArtifactType artifactType) {
 		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ParityObjectFlag.CLOSED);
+				doGetArtifact(artifactId, artifactType), ArtifactFlag.CLOSED);
 	}
 
 	/**
@@ -256,10 +233,10 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return True if the current user is the key holder; false otherwise.
 	 */
-	private Boolean determineIsKeyHolder(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	private Boolean determineIsKeyHolder(final Long artifactId,
+			final ArtifactType artifactType) {
 		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ParityObjectFlag.KEY);
+				doGetArtifact(artifactId, artifactType), ArtifactFlag.KEY);
 	}
 
 	/**
@@ -271,8 +248,8 @@ public class ParityObjectUtil {
 	 *            The flag.
 	 * @return True; if the artifact contains the flag; false otherwise.
 	 */
-	private Boolean doesArtifactContainFlag(final ParityObject artifact,
-			final ParityObjectFlag flag) {
+	private Boolean doesArtifactContainFlag(final Artifact artifact,
+			final ArtifactFlag flag) {
 		return artifact.contains(flag);
 	}
 
@@ -285,15 +262,13 @@ public class ParityObjectUtil {
 	 *            The artifact type.
 	 * @return The artifact.
 	 */
-	private ParityObject doGetArtifact(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	private Artifact doGetArtifact(final Long artifactId,
+			final ArtifactType artifactType) {
 		switch(artifactType) {
 		case DOCUMENT:
 			return getDocument(artifactId);
-		case PROJECT:
-			return getProject(artifactId);
 		default:
-			throw Assert.createUnreachable("getArtifact(UUID,ParityObjectType)");
+			throw Assert.createUnreachable("getArtifact(UUID,ArtifactType)");
 		}	
 	}
 
@@ -310,43 +285,14 @@ public class ParityObjectUtil {
 	}
 
 	/**
-	 * Obtain the path for the parity object.
-	 * 
-	 * @param parityObject
-	 *            The parity object.
-	 * @return A path for display in the user interface.
-	 */
-	private String doGetPath(final ParityObject p) {
-		if(p.isSetParentId()) {
-			final StringBuffer path = new StringBuffer();
-			return path.append(doGetPath(getProject(p.getParentId())))
-				.append("/")
-				.append(p.getCustomName()).toString();
-		}
-		else { return p.getCustomName(); }
-	}
-
-	/**
 	 * Obtain a document.
 	 * 
 	 * @param documentId
 	 *            The document unique id.
 	 * @return The document.
 	 */
-	private Document getDocument(final UUID documentId) {
+	private Document getDocument(final Long documentId) {
 		try { return documentModel.get(documentId); }
-		catch(final ParityException px) { throw new RuntimeException(px); }
-	}
-
-	/**
-	 * Obtain a project for a given id.
-	 * 
-	 * @param projectId
-	 *            The project id.
-	 * @return The project.
-	 */
-	private Project getProject(final UUID projectId) {
-		try { return projectModel.get(projectId); }
 		catch(final ParityException px) { throw new RuntimeException(px); }
 	}
 
@@ -357,9 +303,9 @@ public class ParityObjectUtil {
 	 *            The parity artifact.
 	 * @return True if it has been seen by this user; false otherwise.
 	 */
-	private Boolean hasBeenSeenImpl(final UUID artifactId,
-			final ParityObjectType artifactType) {
+	private Boolean hasBeenSeenImpl(final Long artifactId,
+			final ArtifactType artifactType) {
 		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ParityObjectFlag.SEEN);
+				doGetArtifact(artifactId, artifactType), ArtifactFlag.SEEN);
 	}
 }

@@ -5,7 +5,6 @@ package com.thinkparity.browser.application.browser.display.provider;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.UUID;
 import java.util.Vector;
 
 import com.thinkparity.browser.model.ModelFactory;
@@ -14,8 +13,8 @@ import com.thinkparity.browser.platform.util.RandomData;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.ParityObjectVersion;
 import com.thinkparity.model.parity.model.artifact.AbstractArtifactComparator;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.artifact.HasBeenSeenComparator;
 import com.thinkparity.model.parity.model.artifact.UpdatedOnComparator;
@@ -136,10 +135,7 @@ public class ProviderFactory {
 		documentModel = ModelFactory.getInstance().getDocumentModel(getClass());
 		sessionModel = ModelFactory.getInstance().getSessionModel(getClass());
 		this.documentProvider = new FlatContentProvider() {
-			public Object[] getElements(Object input) {
-				Assert.assertOfType("", UUID.class, input);
-				final UUID projectId = (UUID) input;
-				Collection<Document> documentList;
+			public Object[] getElements(final Object input) {
 				try {
 					// sort by:
 					// 	+> hasBeenSeen ? true b4 false
@@ -149,25 +145,22 @@ public class ProviderFactory {
 						new HasBeenSeenComparator(Boolean.FALSE);
 					sort.add(new UpdatedOnComparator(Boolean.FALSE));
 					sort.add(new ComparatorBuilder().createByName(Boolean.TRUE));
-					documentList = documentModel.list(projectId, sort);
+					return documentModel.list(sort).toArray(new Document[] {});
 				}
-				catch(ParityException px) {
-					// NOTE Error Handler Code
-					documentList = new Vector<Document>(0);
-				}
-				return documentList.toArray(new Document[] {});
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
 		this.historyProvider = new FlatContentProvider() {
 			final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
-			final Comparator<ParityObjectVersion> versionIdDescending =
+			final Comparator<ArtifactVersion> versionIdDescending =
 				comparatorBuilder.createVersionById(Boolean.FALSE);
 			public Object[] getElements(Object input) {
-				final UUID documentId = (UUID) input;
+				final Long documentId = (Long) input;
 				Collection<DocumentVersion> versionList;
 				try {
-					versionList = documentModel.listVersions(documentId,
-							versionIdDescending);
+					versionList =
+						documentModel.listVersions(
+								documentId, versionIdDescending);
 				}
 				catch(ParityException px) {
 					// NOTE Error Handler Code
@@ -206,7 +199,6 @@ public class ProviderFactory {
 		};
 		this.userProvider = new FlatContentProvider() {
 			public Object[] getElements(Object input) {
-				final UUID documentId = (UUID) input;
 				Collection<User> userList;
 				try {
 					userList = sessionModel.getRosterEntries();

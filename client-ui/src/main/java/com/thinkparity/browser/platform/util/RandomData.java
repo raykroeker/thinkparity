@@ -15,8 +15,8 @@ import com.thinkparity.browser.model.tmp.system.message.Message;
 import com.thinkparity.browser.model.tmp.system.message.Sender;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
-import com.thinkparity.model.parity.api.ParityObjectFlag;
-import com.thinkparity.model.parity.api.ParityObjectType;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.xmpp.user.User;
 import com.thinkparity.model.xmpp.user.User.Presence;
 
@@ -30,7 +30,7 @@ public class RandomData {
 
 	private static final String[] ACTION_DATE_DATA;
 
-	private static final ParityObjectFlag[] ARTIFACT_FLAG_DATA;
+	private static final ArtifactFlag[] ARTIFACT_FLAG_DATA;
 
 	private static final Boolean[] ARTIFACT_HAS_BEEN_SEEN;
 
@@ -38,7 +38,7 @@ public class RandomData {
 
 	private static final String[] ARTIFACT_NAME_DATA;
 
-	private static final ParityObjectType[] ARTIFACT_TYPE_DATA;
+	private static final ArtifactType[] ARTIFACT_TYPE_DATA;
 
 	private static final Color[] COLOR_DATA;
 
@@ -59,7 +59,7 @@ public class RandomData {
 			new String[] {" today", " yesterday", " last friday", " on Tuesday Dec 2, 2005"};
 
 		ARTIFACT_FLAG_DATA =
-			new ParityObjectFlag[] {ParityObjectFlag.CLOSED, ParityObjectFlag.SEEN, ParityObjectFlag.KEY};
+			new ArtifactFlag[] {ArtifactFlag.CLOSED, ArtifactFlag.SEEN, ArtifactFlag.KEY};
 
 		ARTIFACT_KEY_HOLDER_DATA =
 			new String[] {"John Wayne", "Omid Ejtemai", "Raymond Kroeker", "Alan Turing"};
@@ -96,21 +96,21 @@ public class RandomData {
 				"Corporate Structure.doc",
 				"Target Share Vision Plan.doc"};
 
-		ARTIFACT_TYPE_DATA = new ParityObjectType[] {
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT,
-				ParityObjectType.DOCUMENT};
+		ARTIFACT_TYPE_DATA = new ArtifactType[] {
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT,
+				ArtifactType.DOCUMENT};
 
 		COLOR_DATA =
 			new Color[] {Color.BLACK, Color.BLUE, Color.CYAN, Color.DARK_GRAY, Color.GRAY, Color.GREEN, Color.LIGHT_GRAY, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.RED, Color.WHITE, Color.YELLOW};
@@ -168,8 +168,6 @@ public class RandomData {
 		this.random = new Random();
 	}
 
-	public Boolean hasBeenSeen() { return (Boolean) getData(ARTIFACT_HAS_BEEN_SEEN); }
-
 	/**
 	 * Obtain a random action.
 	 * 
@@ -196,8 +194,8 @@ public class RandomData {
 	 * 
 	 * @return A random artifact flag.
 	 */
-	public ParityObjectFlag getArtifactFlag() {
-		return (ParityObjectFlag) getData(ARTIFACT_FLAG_DATA);
+	public ArtifactFlag getArtifactFlag() {
+		return (ArtifactFlag) getData(ARTIFACT_FLAG_DATA);
 	}
 
 	/**
@@ -211,6 +209,10 @@ public class RandomData {
 
 	public String getArtifactName(final Integer index) {
 		return ARTIFACT_NAME_DATA[index];
+	}
+
+	public ArtifactType getArtifactType(final Integer index) {
+		return ARTIFACT_TYPE_DATA[index];
 	}
 
 	/**
@@ -261,6 +263,8 @@ public class RandomData {
 	 * @return A random user.
 	 */
 	public User getUser() { return (User) getData(USER_DATA); }
+
+	public Boolean hasBeenSeen() { return (Boolean) getData(ARTIFACT_HAS_BEEN_SEEN); }
 
 	private String format(final String pattern, final Object[] arguments) {
 		return MessageFormat.format(pattern, arguments);
@@ -330,9 +334,5 @@ public class RandomData {
 					SYSTEM_MESSAGE_HEADER_DATA[index],
 					new String[] {getArtifactName()});
 		}
-	}
-
-	public ParityObjectType getArtifactType(final Integer index) {
-		return ARTIFACT_TYPE_DATA[index];
 	}
 }

@@ -13,6 +13,7 @@ set B2_CP=%B2_CP%;substance-2.2-SNAPSHOT.jar
 set B2_CP=%B2_CP%;log4j-1.2.13.jar
 set B2_CP=%B2_CP%;nativeskin-1.2.12.jar
 set B2_CP=%B2_CP%;swing-layout-1.0.jar
+set B2_CP=%B2_CP%;hsqldb-1.8.0.2.jar
 set B2_MAIN=com.thinkparity.browser.Browser2
 
 java -cp %B2_CP% %B2_MAIN%

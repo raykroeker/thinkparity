@@ -23,6 +23,7 @@
 	<property name="lib.navtiveskin.win32" value="${maven.repo}/com/l2fprod/nativeskin/1.2.12/nativeskinwin32.dll"/>
 	<property name="lib.navtiveskin.win32JAWT" value="${maven.repo}/com/l2fprod/nativeskin/1.2.12/nativeskinwin32JAWT.dll"/>
 	<property name="lib.swing-layout" value="${maven.repo}/net/java/javadesktop/swing-layout/1.0/swing-layout-1.0.jar"/>
+	<property name="lib.hsqldb" value="${maven.repo}/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2.jar"/>
 
 	<!-- files -->
 	<property name="file.jnlp" value="${basedir}/${name}.jnlp"/>
@@ -47,6 +48,7 @@
 			<fileset file="${lib.navtiveskin.win32}"/>
 			<fileset file="${lib.navtiveskin.win32JAWT}"/>
 			<fileset file="${lib.swing-layout}"/>
+			<fileset file="${lib.hsqldb}"/>
 
 			<fileset file="${file.jnlp}"/>
 			<fileset file="${file.cmd}"/>

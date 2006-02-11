@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.platform.action.document;
 
-import java.util.UUID;
-
 import javax.swing.Icon;
 
 import com.thinkparity.browser.javax.swing.JOptionPaneUtil;
@@ -49,7 +47,7 @@ public class Close extends AbstractAction {
 	 * 
 	 */
 	public void invoke(Data data) throws Exception {
-		final UUID documentId = (UUID) data.get(DataKey.DOCUMENT_ID);
+		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Document document = getDocumentModel().get(documentId);
 		if(JOptionPaneUtil.showConfirmationDialog(
 				getString("ConfirmClosureMessage", new String[] {document.getName()}),

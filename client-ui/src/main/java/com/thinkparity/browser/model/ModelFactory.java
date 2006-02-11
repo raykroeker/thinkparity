@@ -4,7 +4,6 @@
 package com.thinkparity.browser.model;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -25,7 +24,6 @@ public class ModelFactory {
 	private DocumentModel documentModel;
 	private boolean isInitialized;
 	private Preferences preferences;
-	private ProjectModel projectModel;
 	private SessionModel sessionModel;
 	private Workspace workspace;
 	private WorkspaceModel workspaceModel;
@@ -45,10 +43,6 @@ public class ModelFactory {
 
 	public Preferences getPreferences(final Class clasz) {
 		return preferences;
-	}
-
-	public ProjectModel getProjectModel(final Class clasz) {
-		return projectModel;
 	}
 
 	public SessionModel getSessionModel(final Class clasz) {
@@ -74,7 +68,6 @@ public class ModelFactory {
 	public void initialize() {
 		if(!isInitialized) {
 			documentModel = DocumentModel.getModel();
-			projectModel = ProjectModel.getModel();
 			sessionModel = SessionModel.getModel();
 			workspaceModel = WorkspaceModel.getModel();
 			workspace = workspaceModel.getWorkspace();

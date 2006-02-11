@@ -7,7 +7,6 @@ import com.thinkparity.browser.application.browser.Controller;
 
 import com.thinkparity.model.parity.api.events.*;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
@@ -59,12 +58,6 @@ public class EventDispatcher {
 	private boolean isInitialized;
 
 	/**
-	 * Handle to the project model api.
-	 * 
-	 */
-	private ProjectModel projectModel;
-
-	/**
 	 * Handle to the session model api.
 	 * 
 	 */
@@ -88,13 +81,10 @@ public class EventDispatcher {
 			controller = Controller.getInstance();
 
 			documentModel = modelFactory.getDocumentModel(getClass());
-			projectModel = modelFactory.getProjectModel(getClass());
 			sessionModel = modelFactory.getSessionModel(getClass());
 	
 			documentModel.addListener(createDocumentModelCreationListener());
 			documentModel.addListener(createDocumentModelUpdateListener());
-			projectModel.addListener(createProjectModelCreationListener());
-			projectModel.addListener(createProjectModelUpdateListener());
 			sessionModel.addListener(createSessionModelPresenceListener());
 			sessionModel.addListener(createSessionModelKeyListener());
 			sessionModel.addListener(createSessionModelSessionListener());
@@ -121,23 +111,6 @@ public class EventDispatcher {
 			public void objectUpdated(final UpdateEvent e) {
 				controller.reloadMainBrowserAvatar();
 			}
-		};
-	}
-
-	private CreationListener createProjectModelCreationListener() {
-		return new CreationListener() {
-			public void objectCreated(final CreationEvent e) {}
-			public void objectReceived(final CreationEvent e) {}
-			public void objectVersionCreated(final VersionCreationEvent e) {}
-			public void objectVersionReceived(final VersionCreationEvent e) {}
-		};
-	}
-
-	private UpdateListener createProjectModelUpdateListener() {
-		return new UpdateListener() {
-			public void objectDeleted(final DeleteEvent e) {}
-			public void objectReceived(final UpdateEvent e) {}
-			public void objectUpdated(final UpdateEvent e) {}
 		};
 	}
 

@@ -7,21 +7,18 @@ import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.model.tmp.system.message.MessageId;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.document.Close;
-import com.thinkparity.browser.platform.action.document.Create;
 import com.thinkparity.browser.platform.action.document.Delete;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
@@ -33,9 +30,6 @@ import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -69,12 +63,6 @@ public class Controller implements Application {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * The project api.
-	 * 
-	 */
-	protected final ProjectModel projectModel;
-
-	/**
 	 * Cache of all of the actions.
 	 * 
 	 */
@@ -93,12 +81,6 @@ public class Controller implements Application {
 	private MainWindow mainWindow;
 
 	/**
-	 * The main project id.
-	 * 
-	 */
-	private UUID projectId;
-
-	/**
 	 * The state information for the controller.
 	 * 
 	 */
@@ -112,7 +94,6 @@ public class Controller implements Application {
 		super();
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
-		this.projectModel = ModelFactory.getInstance().getProjectModel(getClass());
 		this.state = new ControllerState(this);
 	}
 
@@ -222,11 +203,6 @@ public class Controller implements Application {
             	displayLogoAvatar();
             	displayMainBrowserAvatar();
             	displayDocumentHistoryListAvatar();
-        		try { setProjectId(); }
-        		catch(ParityException px) {
-        			logger.fatal("Cannot set root parity folder.", px);
-        			throw new RuntimeException(px);
-        		}
             }
         });
 	}
@@ -254,7 +230,7 @@ public class Controller implements Application {
 	 * @param documentId
 	 *            The document unique id.
 	 */
-	public void runCloseDocument(final UUID documentId) { 
+	public void runCloseDocument(final Long documentId) { 
 		final Data data = new Data(1);
 		data.set(Close.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_CLOSE, data);
@@ -265,18 +241,16 @@ public class Controller implements Application {
 	 *
 	 */
 	public void runCreateDocument() {
-		final Data data = new Data(1);
-		data.set(Create.DataKey.PROJECT_ID, projectId);
-		invoke(ActionId.DOCUMENT_CREATE, data);
+		invoke(ActionId.DOCUMENT_CREATE);
 	}
 
 	/**
 	 * Run the delete document action.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 */
-	public void runDeleteDocument(final UUID documentId) {
+	public void runDeleteDocument(final Long documentId) {
 		final Data data = new Data(1);
 		data.set(Delete.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_DELETE, data);
@@ -286,9 +260,9 @@ public class Controller implements Application {
 	 * Run the open document action.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 */
-	public void runOpenDocument(final UUID documentId) {
+	public void runOpenDocument(final Long documentId) {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
@@ -298,19 +272,19 @@ public class Controller implements Application {
 	 * Run the open document version action.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @param versionId
 	 *            The document's version id.
 	 */
-	public void runOpenDocumentVersion(final UUID documentId,
-			final String versionId) {
+	public void runOpenDocumentVersion(final Long documentId,
+			final Long versionId) {
 		final Data data = new Data(2);
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
 
-	public void runRequestArtifactKey(final UUID artifactId) {
+	public void runRequestArtifactKey(final Long artifactId) {
 		final Data data = new Data();
 		invoke(ActionId.SESSION_REQUEST_KEY, data);
 	}
@@ -325,9 +299,9 @@ public class Controller implements Application {
 	 * Select a document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 */
-	public void selectDocument(final UUID documentId) {
+	public void selectDocument(final Long documentId) {
 		setInput(AvatarId.DOCUMENT_HISTORY_LIST, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 	}
@@ -352,9 +326,9 @@ public class Controller implements Application {
 	 * Unselect a document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 */
-	public void unselectDocument(final UUID documentId) { /* NOTE Huh? */ }
+	public void unselectDocument(final Long documentId) { /* NOTE Huh? */ }
 
 	/**
 	 * Unselect the system message.
@@ -455,6 +429,10 @@ public class Controller implements Application {
 	 */
 	private Display[] getDisplays() { return mainWindow.getDisplays(); }
 
+	private void invoke(final ActionId actionId) {
+		invoke(actionId, new Data(0));
+	}
+
 	private void invoke(final ActionId actionId, final Data data) {
 		try {
 			final AbstractAction action = getActionFromCache(actionId);
@@ -493,14 +471,5 @@ public class Controller implements Application {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Set the project id.
-	 *
-	 */
-	private void setProjectId() throws ParityException {
-		projectId = projectModel.getMyProjects().getId();
-		setInput(AvatarId.BROWSER_MAIN, new Object[] {null, projectId});
 	}
 }

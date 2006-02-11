@@ -72,7 +72,7 @@ class DocumentHistoryListAvatar extends Avatar {
 		 */
 		public void mouseClicked(final MouseEvent e) {
 			if(2 == e.getClickCount()) {
-				runOpenVersion(version.getDocumentId(), version.getVersionId());
+				runOpenVersion(version.getArtifactId(), version.getVersionId());
 			}
 		}
 
@@ -115,11 +115,11 @@ class DocumentHistoryListAvatar extends Avatar {
 			add(LabelFactory.create(mainText, UIConstants.DefaultFont), c.clone());
 
 			final JLabel versionJLabel =
-				LabelFactory.createLink(this, version.getVersionId(),
+				LabelFactory.createLink(this, "v" + version.getVersionId(),
 						UIConstants.DefaultFontBold);
 			versionJLabel.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(final MouseEvent e) {
-					runOpenVersion(version.getDocumentId(), version.getVersionId());
+					runOpenVersion(version.getArtifactId(), version.getVersionId());
 				}
 			});
 			c.anchor = GridBagConstraints.EAST;
@@ -232,7 +232,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * 
 	 */
 	public void setInput(Object input) {
-		Assert.assertOfType("Input must be a UUID.", UUID.class, input);
+		Assert.assertOfType("Input must be a Long.", Long.class, input);
 		super.setInput(input);
 	}
 
@@ -270,7 +270,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * @param versionId
 	 *            The version id.
 	 */
-	private void runOpenVersion(final UUID documentId, final String versionId) {
+	private void runOpenVersion(final Long documentId, final Long versionId) {
 		controller.runOpenDocumentVersion(documentId, versionId);
 	}
 }

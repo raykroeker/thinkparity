@@ -86,10 +86,8 @@ class BrowserMainAvatar extends Avatar {
 	 */
 	public void reload() {
 		jListModel.clear();
-		if(null != input && 2 == ((Object[]) input).length) {
-			reloadSystemMessages();
-			reloadDocuments();
-		}
+		reloadSystemMessages();
+		reloadDocuments();
 	}
 
 	/**
@@ -144,7 +142,7 @@ class BrowserMainAvatar extends Avatar {
 	 *
 	 */
 	private void reloadDocuments() {
-		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(1, ((Object[]) input)[1]);
+		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
 		for(final Object element : elements) {
 			jListModel.addElement(DocumentListItem.create((Document) element));
 		}
@@ -155,7 +153,7 @@ class BrowserMainAvatar extends Avatar {
 	 *
 	 */
 	private void reloadSystemMessages() {
-		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, ((Object[]) input)[0]);
+		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, null);
 		for(Object element : elements) {
 			jListModel.addElement(ListItem.create((Message) element));
 		}

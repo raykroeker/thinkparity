@@ -11,11 +11,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.browser.model.util.ParityObjectUtil;
+import com.thinkparity.browser.model.util.ArtifactUtil;
 
 import com.thinkparity.codebase.ResourceUtil;
 
-import com.thinkparity.model.parity.api.ParityObjectType;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -42,30 +42,30 @@ public class DocumentListItem extends ListItem {
 	}
 
 	/**
-	 * @see ParityObjectUtil#canClose(UUID, ParityObjectType)
+	 * @see ArtifactUtil#canClose(Long, ArtifactType)
 	 * 
 	 */
-	private static Boolean canClose(final UUID documentId) {
-		return ParityObjectUtil.canClose(
-				documentId, ParityObjectType.DOCUMENT);
+	private static Boolean canClose(final Long documentId) {
+		return ArtifactUtil.canClose(
+				documentId, ArtifactType.DOCUMENT);
 	}
 
 	/**
-	 * @see ParityObjectUtil#canDelete(UUID, ParityObjectType)
+	 * @see ArtifactUtil#canDelete(UUID, ArtifactType)
 	 * 
 	 */
-	private static Boolean canDelete(final UUID documentId) {
-		return ParityObjectUtil.canDelete(
-				documentId, ParityObjectType.DOCUMENT);
+	private static Boolean canDelete(final Long documentId) {
+		return ArtifactUtil.canDelete(
+				documentId, ArtifactType.DOCUMENT);
 	}
 
 	/**
-	 * @see ParityObjectUtil#isKeyHolder(UUID, ParityObjectType)
+	 * @see ArtifactUtil#isKeyHolder(UUID, ArtifactType)
 	 * 
 	 */
-	private static Boolean isKeyHolder(final UUID documentId) {
-		return ParityObjectUtil.isKeyHolder(
-				documentId, ParityObjectType.DOCUMENT);
+	private static Boolean isKeyHolder(final Long documentId) {
+		return ArtifactUtil.isKeyHolder(
+				documentId, ArtifactType.DOCUMENT);
 	}
 
 	/**
@@ -237,7 +237,7 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 * @return The document unique id.
 	 */
-	private UUID getDocumentId() { return (UUID) getProperty("documentId"); }
+	private Long getDocumentId() { return (Long) getProperty("documentId"); }
 
 	/**
 	 * Obtain the request key menu item.
@@ -335,7 +335,7 @@ public class DocumentListItem extends ListItem {
 	 * @param documentId
 	 *            The document unique id.
 	 */
-	private void setDocumentId(final UUID documentId) {
+	private void setDocumentId(final Long documentId) {
 		setProperty("documentId", documentId);
 	}
 }

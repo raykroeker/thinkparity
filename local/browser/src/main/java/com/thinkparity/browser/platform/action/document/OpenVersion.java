@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.platform.action.document;
 
-import java.util.UUID;
-
 import javax.swing.Icon;
 
 import com.thinkparity.browser.platform.action.AbstractAction;
@@ -65,9 +63,9 @@ public class OpenVersion extends AbstractAction {
 	 * 
 	 */
 	public void invoke(Data data) {
-		final UUID id = (UUID) data.get(DataKey.DOCUMENT_ID);
-		final String versionId = (String) data.get(DataKey.VERSION_ID);
-		try { getDocumentModel().openVersion(id, versionId); }
+		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
+		final Long versionId = (Long) data.get(DataKey.VERSION_ID);
+		try { getDocumentModel().openVersion(documentId, versionId); }
 		catch(ParityException px) { registerError(px); }
 	}
 }

@@ -6,8 +6,6 @@ package com.thinkparity.browser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.thinkparity.browser.application.session.ModelSession;
-import com.thinkparity.browser.application.session.Status;
 import com.thinkparity.browser.model.EventDispatcher;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;

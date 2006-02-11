@@ -5,7 +5,7 @@ package com.thinkparity.browser.platform.util.l10n;
 
 import java.util.ResourceBundle;
 
-import com.thinkparity.model.parity.api.ParityObjectType;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 
 /**
  * @author raykroeker@gmail.com
@@ -48,7 +48,7 @@ public class JPanelLocalization {
 	 *            The parity artifact type.
 	 * @return The localised text.
 	 */
-	public String getString(final ParityObjectType artifactType) {
+	public String getString(final ArtifactType artifactType) {
 		return getString(artifactType.toString());
 	}
 

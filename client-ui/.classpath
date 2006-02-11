@@ -15,5 +15,6 @@
 	<classpathentry sourcepath="/M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.src.jar" kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/l2fprod/skinlf-1.2.12-source.jar" kind="var" path="M2_REPO/com/l2fprod/nativeskin/1.2.12/nativeskin-1.2.12.jar"/>
 	<classpathentry kind="var" path="M2_REPO/net/java/javadesktop/swing-layout/1.0/swing-layout-1.0.jar"/>
+	<classpathentry sourcepath="/M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2-sources.jar" kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

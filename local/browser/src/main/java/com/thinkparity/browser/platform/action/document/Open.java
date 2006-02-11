@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.platform.action.document;
 
-import java.util.UUID;
-
 import javax.swing.Icon;
 
 import com.thinkparity.browser.platform.action.AbstractAction;
@@ -16,13 +14,6 @@ import com.thinkparity.browser.platform.action.Data;
  * @version 1.1
  */
 public class Open extends AbstractAction {
-
-	/**
-	 * The key used to set\get the data.
-	 * 
-	 * @see Data
-	 */
-	public enum DataKey { DOCUMENT_ID }
 
 	/**
 	 * The action small ICON.
@@ -65,7 +56,14 @@ public class Open extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-		final UUID id = (UUID) data.get(DataKey.DOCUMENT_ID);
-		getDocumentModel().open(id);
+		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
+		getDocumentModel().open(documentId);
 	}
+
+	/**
+	 * The key used to set\get the data.
+	 * 
+	 * @see Data
+	 */
+	public enum DataKey { DOCUMENT_ID }
 }

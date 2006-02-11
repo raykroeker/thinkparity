@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.UUID;
 
 import javax.swing.JPanel;
 
@@ -19,9 +18,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -141,26 +138,6 @@ public class AbstractJPanel extends JPanel {
 	 */
 	protected Preferences getPreferences() {
 		return modelFactory.getPreferences(getClass());
-	}
-
-	/**
-	 * Obtain a handle to the single project id.
-	 * 
-	 * @return The project id.
-	 * @throws ParityException
-	 */
-	protected UUID getProjectId() throws ParityException {
-		final ProjectModel projectModel = modelFactory.getProjectModel(getClass());
-		return projectModel.getMyProjects().getId();
-	}
-
-	/**
-	 * Obtain a handle to the project model api.
-	 * 
-	 * @return The project model api.
-	 */
-	protected ProjectModel getProjectModel() {
-		return modelFactory.getProjectModel(getClass());
 	}
 
 	/**

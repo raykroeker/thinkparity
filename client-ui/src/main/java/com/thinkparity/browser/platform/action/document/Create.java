@@ -4,7 +4,6 @@
 package com.thinkparity.browser.platform.action.document;
 
 import java.io.File;
-import java.util.UUID;
 
 import javax.swing.Icon;
 import javax.swing.JFileChooser;
@@ -18,8 +17,6 @@ import com.thinkparity.browser.platform.action.Data;
  * @version 1.1
  */
 public class Create extends AbstractAction {
-
-	public enum DataKey { PROJECT_ID }
 
 	private static final Icon ICON;
 
@@ -53,8 +50,7 @@ public class Create extends AbstractAction {
 	public void invoke(final Data data) throws Exception {
 		if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(null)) {
 			final File file = jFileChooser.getSelectedFile();
-			final UUID projectId = (UUID) data.get(DataKey.PROJECT_ID);
-			getDocumentModel().create(projectId, file.getName(), file.getName(), file);
+			getDocumentModel().create(file.getName(), file.getName(), file);
 		}
 	}
 

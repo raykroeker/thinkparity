@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.platform.action;
 
-import java.util.UUID;
-
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -16,7 +14,6 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.project.ProjectModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
@@ -151,25 +148,6 @@ public abstract class AbstractAction {
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}
-
-	/**
-	 * Obtain the project id.
-	 * 
-	 * @return The project id.
-	 * @throws ParityException
-	 */
-	protected UUID getProjectId() throws ParityException {
-		return getProjectModel().getMyProjects().getId();
-	}
-
-	/**
-	 * Obtain the project model api.
-	 * 
-	 * @return The project model api.
-	 */
-	protected ProjectModel getProjectModel() {
-		return modelFactory.getProjectModel(getClass());
 	}
 
 	protected SessionModel getSessionModel() {

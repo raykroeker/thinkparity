@@ -4,7 +4,6 @@
 package com.thinkparity.browser.platform.action.session;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import javax.swing.Icon;
 
@@ -44,7 +43,7 @@ public class Send extends AbstractAction {
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 */
 	public void invoke(Data data) throws Exception {
-		final UUID documentId = (UUID) data.get(DataKey.DOCUMENT_ID);
+		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Collection<User> users = (Collection<User>) data.get(DataKey.USERS);
 		getSessionModel().send(users, documentId);
 	}

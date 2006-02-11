@@ -5,7 +5,6 @@ package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
 import java.util.Collection;
-import java.util.UUID;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
@@ -125,8 +124,8 @@ public class SessionSendFormAvatar extends Avatar {
 		return SwingUtil.extract(contactsJList);
 	}
 
-	private UUID extractDocumentId() {
-		return (UUID) input;
+	private Long extractDocumentId() {
+		return (Long) input;
 	}
 
 	private Collection<User> extractTeam() {
@@ -348,7 +347,7 @@ public class SessionSendFormAvatar extends Avatar {
 	// End of variables declaration
 
 	public Boolean isInputValid() {
-		UUID documentId;
+		Long documentId;
 		try { documentId = extractDocumentId(); }
 		catch(final Throwable t) { return Boolean.FALSE; }
 
@@ -383,7 +382,7 @@ public class SessionSendFormAvatar extends Avatar {
 		if (null != input) {
 			try {
 				final Collection<DocumentVersion> versions = getDocumentModel()
-						.listVersions((UUID) input);
+						.listVersions((Long) input);
 				versionModel.addElement(getString("WorkingVersion"));
 				for (final DocumentVersion version : versions) {
 					versionModel.addElement(version.getVersionId());
@@ -399,7 +398,7 @@ public class SessionSendFormAvatar extends Avatar {
 		if(isInputValid()) {
 			final Collection<User> users = extractTeam();
 			users.addAll(extractContacts());
-			final UUID documentId = extractDocumentId();
+			final Long documentId = extractDocumentId();
 			toggleVisualFeedback(Boolean.TRUE);
 			try { getSessionModel().send(users, documentId); }
 			catch(final ParityException px) { throw new RuntimeException(px); }

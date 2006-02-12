@@ -51,7 +51,7 @@ public class ArtifactVersionUtil {
 	 * @return True if it contains action data; false otherwise.
 	 */
 	private Boolean containsActionDataImpl(final ArtifactVersion version) {
-		// TODO:  Not sure how to model this correctly
+		// TODO Not sure how to model this correctly
 		if(version instanceof DocumentVersion) {
 			return Boolean.FALSE;
 		}

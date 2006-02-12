@@ -57,7 +57,7 @@ public class SessionWindow extends AbstractJFrame implements SessionUI {
 	 */
 	public static Dimension getSessionWindowSize() {
 		if(null == sessionWindowSize) {
-			// DIMENSION 402, 552
+			// DIMENSION 402x552
 			sessionWindowSize = new Dimension(402, 162);
 		}
 		return sessionWindowSize;

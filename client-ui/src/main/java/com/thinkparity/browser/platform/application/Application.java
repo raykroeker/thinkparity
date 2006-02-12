@@ -14,4 +14,5 @@ public interface Application extends Saveable {
 	public ApplicationId getId();
 	public void hibernate();
 	public void start();
+	public void launch();
 }

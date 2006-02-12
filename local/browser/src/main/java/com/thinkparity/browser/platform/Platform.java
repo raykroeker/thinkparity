@@ -18,5 +18,6 @@ public interface Platform {
 	public void end();
 	public Application getApplication(final ApplicationId applicationId);
 	public Session getSession();
+	public void launchApplication(final ApplicationId applicationId);
 	public void start();
 }

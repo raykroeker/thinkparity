@@ -74,8 +74,7 @@ public class ApplicationFactory {
 	 * @return The gadget application.
 	 */
 	private Application createGadget() {
-//		return new com.thinkparity.browser.applications.gadget.Gadget();
-		return null;
+		return com.thinkparity.browser.application.gadget.Gadget.createInstance(platform);
 	}
 
 	/**

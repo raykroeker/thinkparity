@@ -151,10 +151,7 @@ public class Session extends AbstractApplication {
 	 * @see com.thinkparity.browser.platform.application.Application#start()
 	 * 
 	 */
-	public void start() {
-		if(doAutoLogin()) { autoLogin(); }
-		else { login(); }
-	}
+	public void start() { launch(); }
 
 	/**
 	 * Grab the username\password from the preferences; and login.
@@ -231,5 +228,14 @@ public class Session extends AbstractApplication {
 			if(sessionModel.isLoggedIn()) { status = Status.ONLINE; }
 			else { status = Status.OFFLINE; }
 		}
+	}
+
+	/**
+	 * @see com.thinkparity.browser.platform.application.Application#launch()
+	 * 
+	 */
+	public void launch() {
+		if(doAutoLogin()) { autoLogin(); }
+		else { login(); }
 	}
 }

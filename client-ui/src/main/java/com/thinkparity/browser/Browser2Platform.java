@@ -7,7 +7,6 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import com.thinkparity.browser.application.ApplicationFactory;
-import com.thinkparity.browser.application.session.Status;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.Session;
 import com.thinkparity.browser.platform.application.Application;
@@ -82,17 +81,30 @@ public class Browser2Platform implements Platform {
 	public Session getSession() { return session; }
 
 	/**
+	 * @see com.thinkparity.browser.platform.Platform#launchApplication(com.thinkparity.browser.platform.application.ApplicationId)
+	 * 
+	 */
+	public void launchApplication(final ApplicationId applicationId) {
+		Application application = getApplication(applicationId);
+		if(null == application) {
+			startApplication(applicationId);
+			application = getApplication(applicationId);
+		}
+		application.launch();
+	}
+
+	/**
 	 * @see com.thinkparity.browser.platform.Platform#start()
 	 * 
 	 */
 	public void start() {
-		startApplication(ApplicationId.SESSION);
-		{
-			final com.thinkparity.browser.application.session.Session session =
-				(com.thinkparity.browser.application.session.Session) getApplication(ApplicationId.SESSION);
-			while(Status.OFFLINE == session.getStatus()) { session.login(); }
-		}
-		startApplication(ApplicationId.BROWSER);
+//		startApplication(ApplicationId.SESSION);
+//		{
+//			final com.thinkparity.browser.application.session.Session session =
+//				(com.thinkparity.browser.application.session.Session) getApplication(ApplicationId.SESSION);
+//			while(Status.OFFLINE == session.getStatus()) { session.login(); }
+//		}
+		startApplication(ApplicationId.GADGET);
 	}
 
 	/**

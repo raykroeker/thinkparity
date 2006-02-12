@@ -472,4 +472,10 @@ public class Controller implements Application {
 			}
 		}
 	}
+
+	/**
+	 * @see com.thinkparity.browser.platform.application.Application#launch()
+	 * 
+	 */
+	public void launch() {}
 }

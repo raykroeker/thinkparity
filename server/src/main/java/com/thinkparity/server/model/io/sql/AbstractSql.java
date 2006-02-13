@@ -52,4 +52,17 @@ public abstract class AbstractSql {
 		final Long nextId = SequenceManager.nextID(abstractSql);
 		return nextId.intValue();
 	}
+
+	protected void debugSql(final String sql) {
+		final StringBuffer message = new StringBuffer("[SQL] ")
+			.append(sql);
+		logger.debug(message);
+	}
+
+	protected void debugSql(final Integer index, final Object value) {
+		debugSql(new StringBuffer("[")
+				.append(index)
+				.append("] ")
+				.append(value).toString());
+	}
 }

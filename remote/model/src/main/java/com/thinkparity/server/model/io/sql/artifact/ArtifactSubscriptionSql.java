@@ -27,22 +27,23 @@ import com.thinkparity.server.model.io.sql.AbstractSql;
 public class ArtifactSubscriptionSql extends AbstractSql {
 
 	private static final String DELETE =
-		"delete from parityArtifactSubscription where artifactId = ? and username = ?";
+		"delete from parityArtifactSubscription where artifactId=? and username=?";
 
-	private static final String INSERT = new StringBuffer()
-		.append("insert into parityArtifactSubscription ")
-		.append("(artifactSubscriptionId,artifactId,username) values (?,?,?)")
+	private static final String INSERT =
+		new StringBuffer("insert into parityArtifactSubscription ")
+		.append("(artifactSubscriptionId,artifactId,updatedOn,username) ")
+		.append("values (?,?,CURRENT_TIMESTAMP,?)")
 		.toString();
 
 	private static final String SELECT = new StringBuffer()
 		.append("select artifactSubscriptionId,artifactId,username,createdOn,")
 		.append("updatedOn from parityArtifactSubscription ")
-		.append("where artifactId = ?").toString();
+		.append("where artifactId=?").toString();
 
 	private static final String SELECT_COUNT = new StringBuffer()
 		.append("select count(artifactSubscriptionId) ")
 		.append("from parityArtifactSubscription ")
-		.append("where artifactId = ? and username = ?").toString();
+		.append("where artifactId=? and username=?").toString();
 
 	/**
 	 * Create a ArtifactSubscriptionSql.
@@ -58,8 +59,11 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
+			debugSql(DELETE);
 			ps = cx.prepareStatement(DELETE);
+			debugSql(1, artifactId);
 			ps.setInt(1, artifactId);
+			debugSql(2, username);
 			ps.setString(2, username);
 			Assert.assertTrue("delete(Integer,String)", 1 == ps.executeUpdate());
 		}
@@ -75,10 +79,14 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
+			debugSql(INSERT);
 			ps = cx.prepareStatement(INSERT);
 			final Integer artifactSubscriptionId = nextId(this);
+			debugSql(1, artifactSubscriptionId);
 			ps.setInt(1, artifactSubscriptionId);
+			debugSql(2, artifactId);
 			ps.setInt(2, artifactId);
+			debugSql(3, username);
 			ps.setString(3, username);
 			Assert.assertTrue("insert(Integer,String)", 1 == ps.executeUpdate());
 			return artifactSubscriptionId;
@@ -95,7 +103,9 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		ResultSet rs = null;
 		try {
 			cx = getCx();
+			debugSql(SELECT);
 			ps = cx.prepareStatement(SELECT);
+			debugSql(1, artifactId);
 			ps.setInt(1, artifactId);
 			rs = ps.executeQuery();
 			final Collection<ArtifactSubscription> subscriptions =
@@ -118,8 +128,11 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		ResultSet rs = null;
 		try {
 			cx = getCx();
+			debugSql(SELECT_COUNT);
 			ps = cx.prepareStatement(SELECT_COUNT);
+			debugSql(1, artifactId);
 			ps.setInt(1, artifactId);
+			debugSql(2, username);
 			ps.setString(2, username);
 			rs = ps.executeQuery();
 			rs.next();

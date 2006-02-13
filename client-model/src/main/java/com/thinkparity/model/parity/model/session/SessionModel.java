@@ -12,6 +12,7 @@ import com.thinkparity.model.parity.api.events.KeyListener;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModel;
+import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -26,6 +27,19 @@ import com.thinkparity.model.xmpp.user.User;
  *   The details of the System messages should be displayed in the info panel.
  */
 public class SessionModel extends AbstractModel {
+
+	/**
+	 * Obtain an internal interface to the session model.
+	 * 
+	 * @param context
+	 *            The model context.
+	 * @return The internal interface.
+	 */
+	public static InternalSessionModel getInternalModel(final Context context) {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		final InternalSessionModel internalModel = new InternalSessionModel(workspace, context);
+		return internalModel;
+	}
 
 	/**
 	 * Obtain a handle to a session model interface.
@@ -50,7 +64,7 @@ public class SessionModel extends AbstractModel {
 	/**
 	 * Create a SessionModel
 	 */
-	private SessionModel(final Workspace workspace) {
+	protected SessionModel(final Workspace workspace) {
 		super();
 		this.impl = new SessionModelImpl(workspace);
 		this.implLock = new Object();
@@ -198,20 +212,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send a message to a list of parity users.
-	 * 
-	 * @param users
-	 *            The list of parity users to send to.
-	 * @param message
-	 *            The message to send.
-	 * @throws ParityException
-	 */
-	public void send(final Collection<User> users, final String message)
-		throws ParityException {
-		synchronized(implLock) { impl.send(users, message); }
-	}
-
-	/**
 	 * Send a document to a list of parity users.
 	 * 
 	 * @param users
@@ -226,14 +226,17 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send a creation registration to the parity server.
+	 * Send a message to a list of parity users.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param users
+	 *            The list of parity users to send to.
+	 * @param message
+	 *            The message to send.
 	 * @throws ParityException
 	 */
-	public void sendCreate(final Document document) throws ParityException {
-		synchronized(implLock) { impl.sendCreate(document); }
+	public void send(final Collection<User> users, final String message)
+		throws ParityException {
+		synchronized(implLock) { impl.send(users, message); }
 	}
 
 	/**
@@ -296,4 +299,18 @@ public class SessionModel extends AbstractModel {
 	public void updateRosterEntry(final User user) throws ParityException {
 		synchronized(implLock) { impl.updateRosterEntry(user); }
 	}
+
+	/**
+	 * Obtain the session model implementation.
+	 * 
+	 * @return The session model implementation.
+	 */
+	protected SessionModelImpl getImpl() { return impl; }
+
+	/**
+	 * Obtain the session model implementation lock.
+	 * 
+	 * @return The session model implemenation synchronization lock.
+	 */
+	protected Object getImplLock() { return implLock; }
 }

@@ -21,6 +21,7 @@ import com.thinkparity.model.parity.api.events.PresenceEvent;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -524,55 +525,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send the parity log file. To be used in order to troubleshoot remote
-	 * problems.
-	 * 
-	 * @throws ParityException
-	 */
-	void sendLogFileArchive() throws ParityException {
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("sendLogFile()", xmppHelper);
-			try {
-				xmppHelper.sendLogFileArchive(
-						workspace.getLogArchive(), preferences.getSystemUser());
-			}
-			catch(final SmackException sx) {
-				logger.error("sendLogFile()", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("sendLogFile()", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
-	 * Send a message to a list of parity users.
-	 * 
-	 * @param users
-	 *            The list of parity users to send to.
-	 * @param message
-	 *            The message to send.
-	 * @throws ParityException
-	 */
-	void send(final Collection<User> users, final String message)
-			throws ParityException {
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("send(Collection<User>,String)", xmppHelper);
-			try { xmppHelper.send(users, message); }
-			catch(SmackException sx) {
-				logger.error("send(Collection<User>,String)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("send(Collection<User>,String)", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
 	 * Send a document to a list of parity users. The document is converted from
 	 * a parity object into an xmpp document in order to send it, then each user
 	 * is sent the document.
@@ -616,24 +568,49 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send a creation registration to the parity server.
+	 * Send a message to a list of parity users.
 	 * 
-	 * @param document
-	 *            The document.
+	 * @param users
+	 *            The list of parity users to send to.
+	 * @param message
+	 *            The message to send.
 	 * @throws ParityException
 	 */
-	void sendCreate(final Document document) throws ParityException {
-		logger.info("sendCreate(Document)");
-		logger.debug(document);
-		synchronized(SessionModelImpl.xmppHelperLock) {
-			assertIsLoggedIn("sendCreate(Document)", SessionModelImpl.xmppHelper);
-			try { SessionModelImpl.xmppHelper.sendCreate(document.getUniqueId()); }
+	void send(final Collection<User> users, final String message)
+			throws ParityException {
+		synchronized(xmppHelperLock) {
+			assertIsLoggedIn("send(Collection<User>,String)", xmppHelper);
+			try { xmppHelper.send(users, message); }
 			catch(SmackException sx) {
-				logger.error("sendCreate(Document)", sx);
+				logger.error("send(Collection<User>,String)", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(RuntimeException rx) {
-				logger.error("sendCreate(Document)", rx);
+				logger.error("send(Collection<User>,String)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Send an artifact creation packet to the parity server.
+	 * 
+	 * @param artifact
+	 *            The document.
+	 * @throws ParityException
+	 */
+	void sendCreate(final Artifact artifact) throws ParityException {
+		logger.info("sendCreate(Artifact)");
+		logger.debug(artifact);
+		synchronized(SessionModelImpl.xmppHelperLock) {
+			assertIsLoggedIn("sendCreate(Artifact)", SessionModelImpl.xmppHelper);
+			try { SessionModelImpl.xmppHelper.sendCreate(artifact.getUniqueId()); }
+			catch(SmackException sx) {
+				logger.error("sendCreate(Artifact)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("sendCreate(Artifact)", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -706,6 +683,30 @@ class SessionModelImpl extends AbstractModelImpl {
 			}
 			catch(RuntimeException rx) {
 				logger.error("sendKeyResponse(Document,User,KeyResponse)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Send the parity log file. To be used in order to troubleshoot remote
+	 * problems.
+	 * 
+	 * @throws ParityException
+	 */
+	void sendLogFileArchive() throws ParityException {
+		synchronized(xmppHelperLock) {
+			assertIsLoggedIn("sendLogFile()", xmppHelper);
+			try {
+				xmppHelper.sendLogFileArchive(
+						workspace.getLogArchive(), preferences.getSystemUser());
+			}
+			catch(final SmackException sx) {
+				logger.error("sendLogFile()", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(final RuntimeException rx) {
+				logger.error("sendLogFile()", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}

@@ -49,42 +49,42 @@ public class ArtifactModel extends AbstractModel {
 	/**
 	 * Accept the key request for the artifact from the jid.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @param jid
 	 *            The requestor's jive id.
 	 * @throws ParityServerModelException
 	 */
-	public void acceptKeyRequest(final UUID artifactUUID, final JID jid)
+	public void acceptKeyRequest(final UUID artifactUniqueId, final JID jid)
 			throws ParityServerModelException {
-		synchronized(implLock) { impl.acceptKeyRequest(artifactUUID, jid); }
+		synchronized(implLock) { impl.acceptKeyRequest(artifactUniqueId, jid); }
 	}
 
 	/**
 	 * Create an artifact.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact id.
 	 * @return The new artifact.
 	 * @throws ParityServerModelException
 	 */
-	public Artifact create(final UUID artifactUUID)
+	public Artifact create(final UUID artifactUniqueId)
 			throws ParityServerModelException {
-		synchronized(implLock) { return impl.create(artifactUUID); }
+		synchronized(implLock) { return impl.create(artifactUniqueId); }
 	}
 
 	/**
 	 * Deny the key request for the artifact from the jid.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @param jid
 	 *            The requestor's jive id.
 	 * @throws ParityServerModelException
 	 */
-	public void denyKeyRequest(final UUID artifactUUID, final JID jid)
+	public void denyKeyRequest(final UUID artifactUniqueId, final JID jid)
 			throws ParityServerModelException {
-		synchronized(implLock) { impl.denyKeyRequest(artifactUUID, jid); }
+		synchronized(implLock) { impl.denyKeyRequest(artifactUniqueId, jid); }
 	}
 
 	/**
@@ -105,12 +105,12 @@ public class ArtifactModel extends AbstractModel {
 	/**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            An artifact unique id.
 	 * @throws ParityServerModelException
 	 */
-	public Artifact get(final UUID artifactUUID) throws ParityServerModelException {
-		synchronized(implLock) { return impl.get(artifactUUID); }
+	public Artifact get(final UUID artifactUniqueId) throws ParityServerModelException {
+		synchronized(implLock) { return impl.get(artifactUniqueId); }
 	}
 
 	/**
@@ -118,13 +118,13 @@ public class ArtifactModel extends AbstractModel {
 	 * currently online; the request will be routed to them; otherwise it will
 	 * be queued until the user comes online.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @throws ParityServerModelException
 	 */
-	public void requestKey(final UUID artifactUUID)
+	public void requestKey(final UUID artifactUniqueId)
 			throws ParityServerModelException {
-		synchronized(implLock) { impl.requestKey(artifactUUID); }
+		synchronized(implLock) { impl.requestKey(artifactUniqueId); }
 	}
 
 	/**

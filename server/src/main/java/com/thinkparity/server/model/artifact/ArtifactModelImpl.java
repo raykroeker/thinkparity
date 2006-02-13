@@ -58,27 +58,27 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Accept the key request.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @param jid
 	 *            The requestor jive id.
 	 * @throws ParityServerModelException
 	 */
-	void acceptKeyRequest(final UUID artifactUUID, final JID jid)
+	void acceptKeyRequest(final UUID artifactUniqueId, final JID jid)
 			throws ParityServerModelException {
 		logger.info("acceptKeyRequest(UUID,JID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		logger.debug(jid);
 		try {
 			assertEquals(
 					ASSERT_KEYHOLDER_SESSION,
-					getKeyHolder(artifactUUID), session.getJID());
-			final Artifact artifact = get(artifactUUID);
+					getKeyHolder(artifactUniqueId), session.getJID());
+			final Artifact artifact = get(artifactUniqueId);
 			final Integer artifactId = artifact.getArtifactId();
 			final String username = jid.getNode();
 			artifactSql.updateKeyHolder(artifactId, username);
 			// send the requestor an acceptance packet
-			final IQ iq = new IQAcceptKeyRequest(artifactUUID, session.getJID());
+			final IQ iq = new IQAcceptKeyRequest(artifactUniqueId, session.getJID());
 			iq.setTo(jid);
 			iq.setFrom(session.getJID());
 			send(jid, iq);
@@ -100,18 +100,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Create an artifact.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact id.
 	 * @return The new artifact.
 	 * @throws ParityServerModelException
 	 */
-	Artifact create(final UUID artifactUUID) throws ParityServerModelException {
+	Artifact create(final UUID artifactUniqueId) throws ParityServerModelException {
 		logger.info("create(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
 			final String artifactKeyHolder = session.getJID().getNode();
-			artifactSql.insert(artifactUUID, artifactKeyHolder);
-			final Artifact artifact = artifactSql.select(artifactUUID);
+			artifactSql.insert(artifactUniqueId, artifactKeyHolder);
+			final Artifact artifact = artifactSql.select(artifactUniqueId);
 			// also add a subscription for the creator
 			final Integer artifactId = artifact.getArtifactId();
 			final String username = session.getJID().getNode();
@@ -131,20 +131,20 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Deny the key request for the artifact from the jid.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @param jid
 	 *            The requestor's jive id.
 	 * @throws ParityServerModelException
 	 */
-	void denyKeyRequest(final UUID artifactUUID, final JID jid)
+	void denyKeyRequest(final UUID artifactUniqueId, final JID jid)
 			throws ParityServerModelException {
 		logger.info("denyKeyRequest(UUID,JID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		logger.debug(jid);
 		try {
 			// send the requestor a denial
-			final IQ iq = new IQDenyKeyRequest(artifactUUID, session.getJID());
+			final IQ iq = new IQDenyKeyRequest(artifactUniqueId, session.getJID());
 			iq.setTo(jid);
 			iq.setFrom(session.getJID());
 			send(jid, iq);
@@ -179,10 +179,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
 				artifactSubscriptionSql.select(artifactId);
 
 			// send an IQFlag packet to each subscribed user
-			final UUID artifactUUID = artifact.getArtifactUUID();
+			final UUID artifactUniqueId = artifact.getArtifactUUID();
 			IQ iq;
 			for(ArtifactSubscription subscription : subscriptions) {
-				iq = createFlag(artifactUUID, artifactFlag, subscription);
+				iq = createFlag(artifactUniqueId, artifactFlag, subscription);
 				// send the parity iq
 				send(iq.getTo(), iq);
 			}
@@ -204,14 +204,14 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            An artifact unique id.
 	 * @throws ParityServerModelException
 	 */
-	Artifact get(final UUID artifactUUID) throws ParityServerModelException {
+	Artifact get(final UUID artifactUniqueId) throws ParityServerModelException {
 		logger.info("get(UUID)");
-		logger.debug(artifactUUID);
-		try { return artifactSql.select(artifactUUID); }
+		logger.debug(artifactUniqueId);
+		try { return artifactSql.select(artifactUniqueId); }
 		catch(SQLException sqlx) {
 			logger.error("get(UUID)", sqlx);
 			throw ParityErrorTranslator.translate(sqlx);
@@ -225,18 +225,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Set the keyholder for the given artifact.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @param jid
 	 *            The new keyholder's jid.
 	 * @return The previous keyholder's JID.
 	 * @throws ParityServerModelException
 	 */
-	JID getKeyHolder(final UUID artifactUUID) throws ParityServerModelException {
+	JID getKeyHolder(final UUID artifactUniqueId) throws ParityServerModelException {
 		logger.info("getKeyHolder(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final Artifact artifact = artifactSql.select(artifactUUID);
+			final Artifact artifact = artifactSql.select(artifactUniqueId);
 			final Integer artifactId = artifact.getArtifactId();
 			final String previousKeyHolder = artifactSql.selectKeyHolder(artifactId);
 			return buildJID(previousKeyHolder);
@@ -256,16 +256,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * currently online; the request will be routed to them; otherwise it will
 	 * be queued until the user comes online.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @throws ParityServerModelException
 	 */
-	void requestKey(final UUID artifactUUID) throws ParityServerModelException {
+	void requestKey(final UUID artifactUniqueId) throws ParityServerModelException {
 		logger.info("requestKey(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final JID keyHolderJID = getKeyHolder(artifactUUID);
-			final IQ iq = new IQKeyRequest(artifactUUID);
+			final JID keyHolderJID = getKeyHolder(artifactUniqueId);
+			final IQ iq = new IQKeyRequest(artifactUniqueId);
 			iq.setTo(keyHolderJID);
 			iq.setFrom(session.getJID());
 			send(keyHolderJID, iq);
@@ -349,7 +349,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	/**
 	 * Create a flag iq packet to send to a subscription.
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 * @param artifactFlag
 	 *            The flag.
@@ -357,10 +357,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *            The subscription.
 	 * @return The flag iq packet.
 	 */
-	private IQArtifact createFlag(final UUID artifactUUID,
+	private IQArtifact createFlag(final UUID artifactUniqueId,
 			final ParityObjectFlag artifactFlag,
 			final ArtifactSubscription subscription) {
-		final IQArtifactFlag iqArtifactFlag = new IQArtifactFlag(artifactUUID, artifactFlag);
+		final IQArtifactFlag iqArtifactFlag = new IQArtifactFlag(artifactUniqueId, artifactFlag);
 		iqArtifactFlag.setTo(buildJID(subscription.getUsername()));
 		iqArtifactFlag.setFrom(session.getJID());
 		return iqArtifactFlag;

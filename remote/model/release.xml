@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- thinkparity.com - parity -->
+<project name="parity" basedir="./">
+	<!-- properties -->
+	<property name="name" value="parity"/>
+	<property name="version" value="1.0-SNAPSHOT"/>
+	<property name="releasedir" value="${basedir}/target"/>
+
+	<!-- libs -->
+	<property environment="env"/>
+	<property name="maven.repo" value="${env.HOME}/.m2/repository"/>
+	<property name="lib.codebase" value="${maven.repo}/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
+	<property name="lib.log4j" value="${maven.repo}/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
+	<property name="lib.messenger" value="${maven.repo}/jivesoftware/messenger/2.3.1/messenger-2.3.1.jar"/>
+	<property name="lib.server" value="${maven.repo}/com/thinkparity/parity/server/1.0-SNAPSHOT/server-1.0-SNAPSHOT.jar"/>
+
+	<!-- targets -->
+	<target name="release.server" depends="" if="" unless="">
+		<property name="module.name" value="server"/>
+		<property name="module.home" value="../com.thinkparity.parity-server"/>
+		<property name="file.jar" value="${releasedir}/${module.name}-${version}.jar"/>
+		<mkdir dir="${releasedir}/${module.name}-${version}"/>
+		<copy todir="${releasedir}/${module.name}-${version}">
+			<fileset file="${module.home}/src/main/resources/changelog.html"/>
+			<fileset file="${module.home}/src/main/resources/icon_large.gif"/>
+			<fileset file="${module.home}/src/main/resources/icon_small.gif"/>
+			<fileset file="${module.home}/src/main/resources/plugin.xml"/>
+			<fileset file="${module.home}/src/main/resources/readme.html"/>
+		</copy>
+		<mkdir dir="${releasedir}/${module.name}-${version}/lib"/>
+		<copy todir="${releasedir}/${module.name}-${version}/lib">
+			<fileset file="${lib.codebase}"/>
+			<fileset file="${lib.log4j}"/>
+			<fileset file="${lib.server}"/>
+		</copy>
+		<jar destfile="${file.jar}">
+			<fileset dir="${releasedir}/${module.name}-${version}"/>
+		</jar>
+		<checksum file="${file.jar}" algorithm="MD5"/>
+		<checksum file="${file.jar}" algorithm="SHA"/>
+		<delete dir="${releasedir}/${module.name}-${version}"/>
+	</target>
+</project>

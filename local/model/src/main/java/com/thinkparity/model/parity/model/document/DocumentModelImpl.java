@@ -32,6 +32,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
+import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
@@ -113,6 +114,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentIO = IOFactory.getDefault().createDocumentHandler();
+		this.iSessionModel = SessionModel.getInternalModel(getContext());
 	}
 
 	/**
@@ -181,6 +183,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(description);
 		logger.debug(file);
 		assertCanCreateArtifacts();
+		assertIsSessionValid();
 		Assert.assertTrue(
 				// TODO Centralize business rules about document creation.
 				"File \"" + file.getAbsolutePath() + "\" does not exist.",
@@ -198,6 +201,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			content.setContent(contentBytes);
 			content.setChecksum(MD5Util.md5Hex(contentBytes));
 			content.setDocumentId(document.getId());
+
+			// send a creation packet
+			iSessionModel.sendCreate(document);
 
 			// create the document
 			documentIO.create(document, content);
@@ -958,12 +964,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 		lock(document.getId());
 
 		// send the server a subscription request
-		final SessionModel sessionModel = getSessionModel();
-		sessionModel.sendSubscribe(document);
+		iSessionModel.sendSubscribe(document);
 
 		// fire a receive event
 		notifyCreation_objectReceived(document);
 	}
+
+	/**
+	 * The internal model interface for the session model.
+	 * 
+	 */
+	private final InternalSessionModel iSessionModel;
 
 	/**
 	 * Receive the xmpp document and update the existing local document.

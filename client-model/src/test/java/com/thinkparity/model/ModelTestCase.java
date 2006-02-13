@@ -237,16 +237,19 @@ public abstract class ModelTestCase extends TestCase {
 		return false;
 	}
 
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 * 
-	 */
-	protected void setUp() throws Exception { super.setUp(); }
+	protected void login() {
+		final ModelTestUser modelTestUser = getModelTestUser();
+		try {
+			getSessionModel().login(
+					modelTestUser.getUsername(), modelTestUser.getPassword());
+		}
+		catch(final ParityException px) { throw new RuntimeException(px); }
+	}
 
-	/**
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception { super.tearDown(); }
+	protected void logout() {
+		try { getSessionModel().logout(); }
+		catch(final ParityException px) { throw new RuntimeException(px); }
+	}
 
 //	/**
 //	 * Open the hypersonic database manager.
@@ -267,4 +270,15 @@ public abstract class ModelTestCase extends TestCase {
 //		};
 //		org.hsqldb.util.DatabaseManagerSwing.main(args);
 //	}
+
+	/**
+	 * @see junit.framework.TestCase#setUp()
+	 * 
+	 */
+	protected void setUp() throws Exception { super.setUp(); }
+
+	/**
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown() throws Exception { super.tearDown(); }
 }

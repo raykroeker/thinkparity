@@ -525,11 +525,11 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendCreate(java.util.UUID)
 	 */
-	public void sendCreate(UUID artifactUUID) throws SmackException {
+	public void sendCreate(final UUID artifactUniqueId) throws SmackException {
 		logger.info("sendCreate(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final IQArtifact iq = new IQArtifactCreate(artifactUUID);
+			final IQArtifact iq = new IQArtifactCreate(artifactUniqueId);
 			iq.setType(IQ.Type.SET);
 			logger.debug(iq);
 			sendPacket(iq);

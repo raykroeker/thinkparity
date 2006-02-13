@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -81,15 +80,13 @@ public class GetRosterEntriesTest extends ModelTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final ModelTestUser modelTestUser = getModelTestUser();
 		final SessionModel sessionModel = getSessionModel();
 		final Preferences preferences = getPreferences();
 		data = new Vector<Fixture>(1);
 		Collection<String> usernames;
 		Collection<String> simpleUsernames;
 
-		sessionModel.login(
-				modelTestUser.getUsername(), modelTestUser.getPassword());
+		login();
 
 		simpleUsernames = new Vector<String>(2);
 		simpleUsernames.add("junit.buddy.0");
@@ -108,7 +105,8 @@ public class GetRosterEntriesTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
-	}
 
+		logout();
+	}
 	
 }

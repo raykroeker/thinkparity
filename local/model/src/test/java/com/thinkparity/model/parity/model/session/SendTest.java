@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Vector;
 
 import com.thinkparity.model.ModelTestCase;
-import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.xmpp.user.User;
@@ -77,8 +76,7 @@ public class SendTest extends ModelTestCase {
 		String name, description;
 		String message;
 
-		final ModelTestUser testUser = getModelTestUser();
-		sessionModel.login(testUser.getUsername(), testUser.getPassword());
+		login();
 		final Collection<User> users = sessionModel.getRosterEntries();
 
 		for(File testFile : getInputFiles()) {
@@ -98,5 +96,7 @@ public class SendTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+
+		logout();
 	}
 }

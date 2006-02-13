@@ -25,9 +25,11 @@ import com.thinkparity.server.model.io.sql.AbstractSql;
 @JiveID(1000)
 public class ArtifactSql extends AbstractSql {
 
-	private static final String INSERT = new StringBuffer()
-		.append("insert into parityArtifact (artifactId,artifactUUID,")
-		.append("artifactKeyHolder) values (?,?,?)").toString();
+	private static final String INSERT =
+		new StringBuffer("insert into parityArtifact ")
+		.append("(artifactId,artifactUUID,artifactKeyHolder,updatedOn) ")
+		.append("values (?,?,?,CURRENT_TIMESTAMP)")
+		.toString();
 
 	private static final String SELECT = new StringBuffer()
 		.append("select artifactId,artifactUUID,artifactKeyHolder,createdOn,")
@@ -59,10 +61,14 @@ public class ArtifactSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
+			debugSql(INSERT);
 			ps = cx.prepareStatement(INSERT);
 			final Integer artifactId = nextId(this);
+			debugSql(1, artifactId);
 			ps.setInt(1, artifactId);
+			debugSql(2, artifactUUID.toString());
 			ps.setString(2, artifactUUID.toString());
+			debugSql(3, artifactKeyHolder);
 			ps.setString(3, artifactKeyHolder);
 			Assert.assertTrue("insert(UUID)", 1 == ps.executeUpdate());
 			return artifactId;
@@ -78,7 +84,9 @@ public class ArtifactSql extends AbstractSql {
 		ResultSet rs = null;
 		try {
 			cx = getCx();
+			debugSql(SELECT);
 			ps = cx.prepareStatement(SELECT);
+			debugSql(1, artifactUUID.toString());
 			ps.setString(1, artifactUUID.toString());
 			rs = ps.executeQuery();
 			if(rs.next()) { return extract(rs); }
@@ -95,7 +103,9 @@ public class ArtifactSql extends AbstractSql {
 		ResultSet rs = null;
 		try {
 			cx = getCx();
+			debugSql(SELECT_KEYHOLDER);
 			ps = cx.prepareStatement(SELECT_KEYHOLDER);
+			debugSql(1, artifactId);
 			ps.setInt(1, artifactId);
 			rs = ps.executeQuery();
 			if(rs.next()) { return rs.getString(1); }
@@ -113,8 +123,11 @@ public class ArtifactSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
+			debugSql(UPDATE_KEYHOLDER);
 			ps = cx.prepareStatement(UPDATE_KEYHOLDER);
+			debugSql(1, artifactKeyHolder);
 			ps.setString(1, artifactKeyHolder);
+			debugSql(2, artifactId);
 			ps.setInt(2, artifactId);
 			Assert.assertTrue(
 					"updateKeyHolder(Integer,String)", 1 == ps.executeUpdate());

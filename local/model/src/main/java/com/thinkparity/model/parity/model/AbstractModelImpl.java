@@ -11,6 +11,7 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
@@ -47,6 +48,12 @@ public abstract class AbstractModelImpl {
 		.append("need to establish a parity session.").toString();
 
 	/**
+	 * The parity model context.
+	 * 
+	 */
+	protected final Context context;
+
+	/**
 	 * Apache logger.
 	 * 
 	 */
@@ -71,6 +78,7 @@ public abstract class AbstractModelImpl {
 	 */
 	protected AbstractModelImpl(final Workspace workspace) {
 		super();
+		this.context = new Context(getClass());
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
@@ -85,6 +93,18 @@ public abstract class AbstractModelImpl {
 	 */
 	protected void assertCanCreateArtifacts() {
 		Assert.assertTrue(ASSERT_IS_SET_USERNAME, preferences.isSetUsername());
+	}
+
+	/**
+	 * Ensure that the user's parity session is valid.
+	 *
+	 */
+	protected void assertIsSessionValid() {
+		final SessionModel sessionModel = getSessionModel();
+		Assert.assertTrue(
+				"Current session is not valid:  " +
+					StackUtil.getCallerClassAndMethodName(),
+				sessionModel.isLoggedIn());
 	}
 
 	/**
@@ -135,6 +155,13 @@ public abstract class AbstractModelImpl {
 			throw Assert.createUnreachable("flagAsSEEN(Artifact)");
 		}
 	}
+
+	/**
+	 * Obtain the model's context.
+	 * 
+	 * @return The model's context.
+	 */
+	protected Context getContext() { return context; }
 
 	/**
 	 * Obtain a handle to the project model.

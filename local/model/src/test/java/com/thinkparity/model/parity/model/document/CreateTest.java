@@ -80,6 +80,7 @@ public class CreateTest extends ModelTestCase {
 			data.add(new Fixture(description, testFile,
 					documentContentChecksum, documentModel, name));
 		}
+		login();
 	}
 
 	/**
@@ -88,6 +89,7 @@ public class CreateTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+		logout();
 	}
 
 	/**

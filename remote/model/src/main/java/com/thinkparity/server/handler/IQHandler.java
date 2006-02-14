@@ -74,13 +74,16 @@ public abstract class IQHandler extends
 				final JID jid = iq.getFrom();
 				public JID getJID() { return jid; }
 			};
-			return handleIQ(iq, session);
+			final IQ resultIQ = handleIQ(iq, session);
+			logger.debug("resultIQ");
+			logger.debug(resultIQ);
+			return resultIQ;
 		}
-		catch(UnauthorizedException ux) {
+		catch(final UnauthorizedException ux) {
 			logger.error("handleIQ(IQ)", ux);
 			throw ux;
 		}
-		catch(Throwable t) {
+		catch(final Throwable t) {
 			logger.error("handleIQ(IQ)", t);
 			return translate(iq, "An un-expected error has occured.", t);
 		}
@@ -196,15 +199,18 @@ public abstract class IQHandler extends
 	 * 
 	 * @param iq
 	 *            The original iq.
-	 * @param errorMesage
+	 * @param errorMessage
 	 *            The error message.
 	 * @param error
 	 *            The error.
 	 * @return The error result iq.
 	 */
-	protected IQ translate(final IQ iq, final String errorMesage, final Throwable error) {
+	protected IQ translate(final IQ iq, final String errorMessage,
+			final Throwable error) {
 		final IQ errorResult = IQ.createResultIQ(iq);
-		errorResult.setError(new PacketError(PacketError.Condition.internal_server_error));
+		errorResult.setError(new PacketError(
+				PacketError.Condition.internal_server_error,
+				PacketError.Type.cancel, errorMessage));
 		return errorResult;
 	}
 }

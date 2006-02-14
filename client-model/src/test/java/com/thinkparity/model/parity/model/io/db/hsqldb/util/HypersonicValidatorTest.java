@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.util;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,7 +32,7 @@ public class HypersonicValidatorTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#setUp()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -42,7 +42,7 @@ public class HypersonicValidatorTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#tearDown()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		data.clear();

@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * Test the document model delete api.

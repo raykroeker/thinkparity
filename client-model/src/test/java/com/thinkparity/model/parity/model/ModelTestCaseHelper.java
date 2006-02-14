@@ -1,7 +1,7 @@
 /*
  * Jul 1, 2005
  */
-package com.thinkparity.model;
+package com.thinkparity.model.parity.model;
 
 import java.util.Collection;
 

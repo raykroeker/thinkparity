@@ -8,7 +8,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.util.MD5Util;
 
 /**

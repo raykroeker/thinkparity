@@ -114,7 +114,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentIO = IOFactory.getDefault().createDocumentHandler();
-		this.iSessionModel = SessionModel.getInternalModel(getContext());
 	}
 
 	/**
@@ -203,6 +202,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 			content.setDocumentId(document.getId());
 
 			// send a creation packet
+			final InternalSessionModel iSessionModel =
+				SessionModel.getInternalModel(getContext());
 			iSessionModel.sendCreate(document);
 
 			// create the document
@@ -964,17 +965,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 		lock(document.getId());
 
 		// send the server a subscription request
+		final InternalSessionModel iSessionModel =
+			SessionModel.getInternalModel(getContext());
 		iSessionModel.sendSubscribe(document);
 
 		// fire a receive event
 		notifyCreation_objectReceived(document);
 	}
-
-	/**
-	 * The internal model interface for the session model.
-	 * 
-	 */
-	private final InternalSessionModel iSessionModel;
 
 	/**
 	 * Receive the xmpp document and update the existing local document.

@@ -6,8 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * Test the document model open version api.
@@ -61,7 +61,7 @@ public class OpenVersionTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#setUp()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -85,7 +85,7 @@ public class OpenVersionTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#tearDown()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 	}

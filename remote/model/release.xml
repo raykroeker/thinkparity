@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!-- thinkparity.com - parity -->
-<project name="parity" basedir="./">
+<project name="server" basedir="./">
 	<!-- properties -->
-	<property name="name" value="parity"/>
+	<property name="name" value="server"/>
 	<property name="version" value="1.0-SNAPSHOT"/>
 	<property name="releasedir" value="${basedir}/target"/>
 
@@ -14,27 +14,26 @@
 	<property name="lib.messenger" value="${maven.repo}/jivesoftware/messenger/2.3.1/messenger-2.3.1.jar"/>
 	<property name="lib.server" value="${maven.repo}/com/thinkparity/parity/server/1.0-SNAPSHOT/server-1.0-SNAPSHOT.jar"/>
 
+	<property name="file.jar" value="${releasedir}/${name}.plugin-${version}.jar"/>
+
 	<!-- targets -->
-	<target name="release.server" depends="" if="" unless="">
-		<property name="module.name" value="server"/>
-		<property name="module.home" value="../com.thinkparity.parity-server"/>
-		<property name="file.jar" value="${releasedir}/${module.name}-${version}.jar"/>
-		<mkdir dir="${releasedir}/${module.name}-${version}"/>
-		<copy todir="${releasedir}/${module.name}-${version}">
-			<fileset file="${module.home}/src/main/resources/changelog.html"/>
-			<fileset file="${module.home}/src/main/resources/icon_large.gif"/>
-			<fileset file="${module.home}/src/main/resources/icon_small.gif"/>
-			<fileset file="${module.home}/src/main/resources/plugin.xml"/>
-			<fileset file="${module.home}/src/main/resources/readme.html"/>
+	<target name="release" depends="" if="" unless="">
+		<mkdir dir="${releasedir}/${name}-${version}"/>
+		<copy todir="${releasedir}/${name}-${version}">
+			<fileset file="${basedir}/src/main/resources/changelog.html"/>
+			<fileset file="${basedir}/src/main/resources/icon_large.gif"/>
+			<fileset file="${basedir}/src/main/resources/icon_small.gif"/>
+			<fileset file="${basedir}/src/main/resources/plugin.xml"/>
+			<fileset file="${basedir}/src/main/resources/readme.html"/>
 		</copy>
-		<mkdir dir="${releasedir}/${module.name}-${version}/lib"/>
-		<copy todir="${releasedir}/${module.name}-${version}/lib">
+		<mkdir dir="${releasedir}/${name}-${version}/lib"/>
+		<copy todir="${releasedir}/${name}-${version}/lib">
 			<fileset file="${lib.codebase}"/>
 			<fileset file="${lib.log4j}"/>
 			<fileset file="${lib.server}"/>
 		</copy>
 		<jar destfile="${file.jar}">
-			<fileset dir="${releasedir}/${module.name}-${version}"/>
+			<fileset dir="${releasedir}/${name}-${version}"/>
 		</jar>
 		<checksum file="${file.jar}" algorithm="MD5"/>
 		<checksum file="${file.jar}" algorithm="SHA"/>

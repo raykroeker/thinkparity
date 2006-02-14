@@ -5,6 +5,7 @@ package com.thinkparity.server.listener;
 
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.jivesoftware.messenger.Session;
 import org.xmpp.packet.JID;
 
@@ -12,6 +13,7 @@ import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.queue.QueueItem;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.SessionModel;
+import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -27,7 +29,10 @@ public class SessionEventListener implements org.jivesoftware.messenger.event.Se
 	/**
 	 * Create a SessionEventListener.
 	 */
-	public SessionEventListener() { super(); }
+	public SessionEventListener() {
+		super();
+		this.logger = ServerLoggerFactory.getLogger(getClass());
+	}
 
 	/**
 	 * @see org.jivesoftware.messenger.event.SessionEventListener#anonymousSessionCreated(org.jivesoftware.messenger.Session)
@@ -52,8 +57,16 @@ public class SessionEventListener implements org.jivesoftware.messenger.event.Se
 				queueModel.dequeue(queueItem);
 			}
 		}
-		catch(ParityServerModelException psmx) {}
+		catch(final ParityServerModelException psmx) {
+			logger.error("Could not process session created event.", psmx);
+		}
 	}
+
+	/**
+	 * An apache logger.
+	 * 
+	 */
+	protected final Logger logger;
 
 	/**
 	 * @see org.jivesoftware.messenger.event.SessionEventListener#sessionDestroyed(org.jivesoftware.messenger.Session)

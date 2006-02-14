@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * Test the document model list api.

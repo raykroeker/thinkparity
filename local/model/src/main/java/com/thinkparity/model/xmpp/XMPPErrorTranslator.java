@@ -4,6 +4,7 @@
 package com.thinkparity.model.xmpp;
 
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.XMPPError;
 
 import com.thinkparity.model.smack.SmackException;
 
@@ -31,6 +32,10 @@ public class XMPPErrorTranslator {
 	static {
 		singleton = new XMPPErrorTranslator();
 		singletonLock = new Object();
+	}
+
+	static SmackException translate(final XMPPError xmppError) {
+		synchronized(singletonLock) { return singleton.doTranslate(xmppError); }
 	}
 
 	/**
@@ -80,5 +85,9 @@ public class XMPPErrorTranslator {
 	 */
 	private SmackException translateImpl(final XMPPException xmppx) {
 		return new SmackException(xmppx);
+	}
+
+	private SmackException doTranslate(final XMPPError xmppError) {
+		return new SmackException(xmppError);
 	}
 }

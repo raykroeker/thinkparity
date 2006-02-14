@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
 /**
@@ -52,7 +52,7 @@ public class FlagTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#setUp()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -69,7 +69,7 @@ public class FlagTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#tearDown()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		data.clear();

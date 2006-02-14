@@ -5,8 +5,8 @@ package com.thinkparity.model.parity.model.session;
 
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
 import com.thinkparity.model.ModelTestUser;
+import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * Test the session model login api.

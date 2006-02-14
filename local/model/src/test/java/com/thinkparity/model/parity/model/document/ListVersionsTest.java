@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 

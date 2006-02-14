@@ -21,9 +21,11 @@ import com.thinkparity.model.parity.api.events.PresenceEvent;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
@@ -76,6 +78,12 @@ class SessionModelImpl extends AbstractModelImpl {
 	private static final Object presenceListenersLock;
 
 	/**
+	 * The static session model context.
+	 * 
+	 */
+	private static final Context sContext;
+
+	/**
 	 * List of all of the registered parity session listeners.
 	 * 
 	 * @see SessionModelImpl#sessionListenersLock
@@ -120,6 +128,8 @@ class SessionModelImpl extends AbstractModelImpl {
 		// create the session listener list & sync lock
 		sessionListeners = new Vector<SessionListener>(3);
 		sessionListenersLock = new Object();
+		// session context
+		sContext = getSessionModelContext();
 		// create the xmpp helper
 		xmppHelper = new SessionModelXMPPHelper();
 		xmppHelperLock = new Object();
@@ -133,8 +143,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The xmpp document that has been received.
 	 */
 	static void notifyDocumentReceived(final XMPPDocument xmppDocument) {
-		final DocumentModel documentModel = DocumentModel.getModel();
-		try { documentModel.receive(xmppDocument); }
+		try { DocumentModel.getInternalModel(sContext).receive(xmppDocument); }
 		catch(ParityException px) {
 			sLogger.fatal("Could not receive document.", px);
 			return;
@@ -152,10 +161,11 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	static void notifyKeyRequestAccepted(final UUID artifactUniqueId,
 			final User user) {
-		final DocumentModel documentModel = DocumentModel.getModel();
+		final InternalDocumentModel iDocumentModel =
+			DocumentModel.getInternalModel(sContext);
 		try {
-			final Document document = documentModel.get(artifactUniqueId);
-			documentModel.unlock(document.getId());
+			final Document document = iDocumentModel.get(artifactUniqueId);
+			iDocumentModel.unlock(document.getId());
 		}
 		catch(ParityException px) {
 			sLogger.fatal("Could not accept key request.", px);
@@ -264,9 +274,13 @@ class SessionModelImpl extends AbstractModelImpl {
 
 	/**
 	 * Create a SessionModelImpl
+	 * 
 	 * @param workspace
+	 *            The parity workspace.
 	 */
-	SessionModelImpl(final Workspace workspace) { super(workspace); }
+	SessionModelImpl(final Workspace workspace) {
+		super(workspace);
+	}
 
 	/**
 	 * Accept a presence request from user.
@@ -657,25 +671,26 @@ class SessionModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(user);
 		logger.debug(keyResponse);
-		final DocumentModel documentModel = getDocumentModel();
 		synchronized(SessionModelImpl.xmppHelperLock) {
 			assertIsLoggedIn(
 					"sendKeyResponse(Document,User,KeyResponse)",
 					SessionModelImpl.xmppHelper);
 			try {
+				final InternalDocumentModel iDocumentModel =
+					DocumentModel.getInternalModel(getContext());
 				// if the user sends an acceptance of the key request; we
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
 				case ACCEPT:
 					send(user, documentId);
-					documentModel.lock(documentId);
+					iDocumentModel.lock(documentId);
 					break;
 				case DENY:
 					break;
 				default: throw Assert.createUnreachable("");
 				}
 				SessionModelImpl.xmppHelper.sendKeyResponse(
-						documentModel.get(documentId).getUniqueId(), keyResponse, user);
+						iDocumentModel.get(documentId).getUniqueId(), keyResponse, user);
 			}
 			catch(SmackException sx) {
 				logger.error("sendKeyResponse(Document,User,KeyResponse)", sx);

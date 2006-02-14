@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.xmpp.user.User;

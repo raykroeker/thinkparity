@@ -48,6 +48,25 @@ public abstract class AbstractModelImpl {
 		.append("need to establish a parity session.").toString();
 
 	/**
+	 * The session model context
+	 * 
+	 * @see #getSessionModelContext()
+	 */
+	private static Context sessionModelContext;
+
+	/**
+	 * Obtain the session model context.
+	 * 
+	 * @return The session model context.
+	 */
+	protected static Context getSessionModelContext() {
+		if(null == sessionModelContext) {
+			sessionModelContext = new Context(SessionModel.class);
+		}
+		return sessionModelContext;
+	}
+
+	/**
 	 * The parity model context.
 	 * 
 	 */

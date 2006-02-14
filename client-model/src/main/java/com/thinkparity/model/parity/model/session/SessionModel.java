@@ -242,30 +242,30 @@ public class SessionModel extends AbstractModel {
 	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
-	 * @param documentId
+	 * @param artifactId
 	 *            The document unique id.
 	 * @throws ParityException
 	 * @see KeyListener#keyRequested(KeyEvent)
 	 */
-	public void sendKeyRequest(final UUID documentId)
+	public void sendKeyRequest(final UUID artifactId)
 			throws ParityException {
-		synchronized(implLock) { impl.sendKeyRequest(documentId); }
+		synchronized(implLock) { impl.sendKeyRequest(artifactId); }
 	}
 
 	/**
 	 * Send the response to a key request.
 	 * 
-	 * @param documentId
+	 * @param artifactId
 	 *            The document unique id.
 	 * @param user
 	 *            The user.
 	 * @param keyResponse
 	 *            The response.
 	 */
-	public void sendKeyResponse(final Long documentId, final User user,
+	public void sendKeyResponse(final Long artifactId, final User user,
 			final KeyResponse keyResponse) throws ParityException {
 		synchronized(implLock) {
-			impl.sendKeyResponse(documentId, user, keyResponse);
+			impl.sendKeyResponse(artifactId, user, keyResponse);
 		}
 	}
 

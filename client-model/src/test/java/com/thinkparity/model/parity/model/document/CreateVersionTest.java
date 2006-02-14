@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * Test the document model create version api.
@@ -79,7 +79,7 @@ public class CreateVersionTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#setUp()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -99,7 +99,7 @@ public class CreateVersionTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#tearDown()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		data.clear();

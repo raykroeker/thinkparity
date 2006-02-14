@@ -6,11 +6,11 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
+import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
@@ -41,6 +41,19 @@ public class DocumentModel {
 	}
 
 	/**
+	 * Obtain a handle to an internal document model.
+	 * 
+	 * @param context
+	 *            The parity context.
+	 * @return The internal document model.
+	 */
+	public static InternalDocumentModel getInternalModel(final Context context) {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		final InternalDocumentModel internalModel = new InternalDocumentModel(workspace, context);
+		return internalModel;
+	}
+
+	/**
 	 * Internal implementation class.
 	 */
 	private final DocumentModelImpl impl;
@@ -53,7 +66,7 @@ public class DocumentModel {
 	/**
 	 * Create a DocumentModel [Singleton]
 	 */
-	private DocumentModel(final Workspace workspace) {
+	protected DocumentModel(final Workspace workspace) {
 		super();
 		this.impl = new DocumentModelImpl(workspace);
 		this.implLock = new Object();
@@ -163,18 +176,6 @@ public class DocumentModel {
 	 */
 	public Document get(final Long documentId) throws ParityException {
 		synchronized(implLock) { return impl.get(documentId); }
-	}
-
-	/**
-	 * Obtain a document with a specified id.
-	 * 
-	 * @param documentUniqueId
-	 *            The document unique id.
-	 * @return The document.
-	 * @throws ParityException
-	 */
-	public Document get(final UUID documentUniqueId) throws ParityException {
-		synchronized(implLock) { return impl.get(documentUniqueId); }
 	}
 
 	/**
@@ -289,17 +290,6 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Lock a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 */
-	public void lock(final Long documentId) throws ParityException {
-		synchronized(implLock) { impl.lock(documentId); }
-	}
-
-	/**
 	 * Open a document.
 	 * 
 	 * @param documentId
@@ -355,19 +345,22 @@ public class DocumentModel {
 		synchronized(implLock) { impl.removeListener(listener); }
 	}
 
-	/**
-	 * Unlock a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 */
-	public void unlock(final Long documentId) throws ParityException {
-		synchronized(implLock) { impl.unlock(documentId); }
-	}
-
 	// USED BY THE ABSTRACT MODEL
 	public void update(final Document document) throws ParityException {
 		synchronized(implLock) { impl.update(document); }
 	}
+
+	/**
+	 * Obtain the implementation.
+	 * 
+	 * @return The implementation.
+	 */
+	protected DocumentModelImpl getImpl() { return impl; }
+
+	/**
+	 * Obtain the implementation synchronization lock.
+	 * 
+	 * @return The implementation synchrnoization lock.
+	 */
+	protected Object getImplLock() { return implLock; }
 }

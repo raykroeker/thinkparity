@@ -33,9 +33,9 @@ public interface XMPPSession {
 	public void addListener(final XMPPPresenceListener xmppPresenceListener);
 	public void addListener(final XMPPSessionListener xmppSessionListener);
 	public void addRosterEntry(final User user) throws SmackException;
-	public void create(final UUID artifactUUID) throws SmackException;
+	public void create(final UUID artifactUniqueId) throws SmackException;
 	public void denyPresence(final User user) throws SmackException;
-	public void flag(final UUID artifactUUID, final ArtifactFlag flag)
+	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
 			throws SmackException;
 	public Collection<User> getRosterEntries() throws SmackException;
 	public User getUser() throws SmackException;
@@ -50,15 +50,15 @@ public interface XMPPSession {
 			throws SmackException;
 	public void send(final Collection<User> users,
 			final XMPPDocument xmppDocument) throws SmackException;
-	public void sendCreate(final UUID artifactUUID) throws SmackException;
-	public void sendKeyRequest(final UUID artifactUUID) throws SmackException;
-	public void sendKeyResponse(final UUID artifactUUID,
+	public void sendCreate(final UUID artifactUniqueId) throws SmackException;
+	public void sendKeyRequest(final UUID artifactUniqueId) throws SmackException;
+	public void sendKeyResponse(final UUID artifactUniqueId,
 			final KeyResponse keyResponse, final User user)
 			throws SmackException;
 	public void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException;
-	public void sendSubscribe(final UUID artifactUUID) throws SmackException;
-	public void subscribe(final UUID artifactUUID) throws SmackException;
-	public void unsubscribe(final UUID artifactUUID) throws SmackException;
+	public void sendSubscribe(final UUID artifactUniqueId) throws SmackException;
+	public void subscribe(final UUID artifactUniqueId) throws SmackException;
+	public void unsubscribe(final UUID artifactUniqueId) throws SmackException;
 	public void updateRosterEntry(final User user);
 }

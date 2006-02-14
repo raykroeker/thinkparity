@@ -14,6 +14,7 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
@@ -251,11 +252,11 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#create(java.util.UUID)
 	 */
-	public void create(final UUID artifactUUID) throws SmackException {
+	public void create(final UUID artifactUniqueId) throws SmackException {
 		logger.info("create(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final IQArtifact iq = new IQArtifactCreate(artifactUUID);
+			final IQArtifact iq = new IQArtifactCreate(artifactUniqueId);
 			iq.setType(IQ.Type.SET);
 			logger.debug(iq);
 			sendPacket(iq);
@@ -287,13 +288,13 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#flag(java.util.UUID,
 	 *      com.thinkparity.model.parity.model.artifact.ArtifactFlag)
 	 */
-	public void flag(final UUID artifactUUID, final ArtifactFlag flag)
+	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
 			throws SmackException {
 		logger.info("send(UUID,ArtifactFlag)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		logger.debug(flag);
 		try {
-			final IQArtifact iq = new IQArtifactFlag(artifactUUID, flag);
+			final IQArtifact iq = new IQArtifactFlag(artifactUniqueId, flag);
 			iq.setType(IQ.Type.SET);
 			logger.debug(iq);
 			sendPacket(iq);
@@ -524,6 +525,7 @@ public class XMPPSessionImpl implements XMPPSession {
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendCreate(java.util.UUID)
+	 * 
 	 */
 	public void sendCreate(final UUID artifactUniqueId) throws SmackException {
 		logger.info("sendCreate(UUID)");
@@ -532,7 +534,7 @@ public class XMPPSessionImpl implements XMPPSession {
 			final IQArtifact iq = new IQArtifactCreate(artifactUniqueId);
 			iq.setType(IQ.Type.SET);
 			logger.debug(iq);
-			sendPacket(iq);
+			sendAndConfirmPacket(iq);
 		}
 		catch(InterruptedException ix) {
 			logger.error("sendCreate(UUID)", ix);
@@ -543,11 +545,11 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendKeyRequest(java.util.UUID)
 	 */
-	public void sendKeyRequest(final UUID artifactUUID) throws SmackException {
+	public void sendKeyRequest(final UUID artifactUniqueId) throws SmackException {
 		logger.info("sendKeyRequest(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final IQArtifact iq = new IQKeyRequest(artifactUUID);
+			final IQArtifact iq = new IQKeyRequest(artifactUniqueId);
 			iq.setType(IQ.Type.GET);
 			logger.debug(iq);
 			sendPacket(iq);
@@ -564,31 +566,30 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *      com.thinkparity.model.xmpp.user.User)
 	 * 
 	 */
-	public void sendKeyResponse(final UUID artifactUUID,
+	public void sendKeyResponse(final UUID artifactUniqueId,
 			final KeyResponse keyResponse, final User user)
 			throws SmackException {
-		logger.info("sendKeyResponse(UUID,User)");
-		logger.debug(artifactUUID);
+		logger.info("sendKeyResponse(UUID,KeyResponse,User)");
+		logger.debug(artifactUniqueId);
 		logger.debug(user);
 		try {
 			final IQArtifact iq;
 			switch(keyResponse) {
 			case ACCEPT:
-				iq = new IQAcceptKeyRequest(artifactUUID, user.getUsername());
+				iq = new IQAcceptKeyRequest(artifactUniqueId, user.getUsername());
 				break;
 			case DENY:
-				iq = new IQDenyKeyRequest(artifactUUID, user.getUsername());
+				iq = new IQDenyKeyRequest(artifactUniqueId, user.getUsername());
 				break;
 			default:
 				throw Assert.createUnreachable(
 						"sendKeyResponse(UUID,KeyResponse,User)");
 			}
 			iq.setType(IQ.Type.SET);
-			logger.debug(iq);
-			sendPacket(iq);
+			sendAndConfirmPacket(iq);
 		}
-		catch(InterruptedException ix) {
-			logger.error("sendKeyResponse(UUID,User)", ix);
+		catch(final InterruptedException ix) {
+			logger.error("sendKeyResponse(UUID,KeyResponse,User)", ix);
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}
@@ -605,14 +606,14 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendSubscribe(java.util.UUID)
 	 */
-	public void sendSubscribe(final UUID artifactUUID) throws SmackException {
+	public void sendSubscribe(final UUID artifactUniqueId) throws SmackException {
 		logger.info("sendSubscribe(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final IQArtifact iq = new IQArtifactSubscribe(artifactUUID);
+			final IQArtifact iq = new IQArtifactSubscribe(artifactUniqueId);
 			iq.setType(IQ.Type.SET);
 			logger.debug(iq);
-			sendPacket(iq);
+			sendAndConfirmPacket(iq);
 		}
 		catch(InterruptedException ix) {
 			logger.error("sendSubscribe(UUID)", ix);
@@ -623,11 +624,11 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#subscribe(java.util.UUID)
 	 */
-	public void subscribe(final UUID artifactUUID) throws SmackException {
+	public void subscribe(final UUID artifactUniqueId) throws SmackException {
 		logger.info("subscribe(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final IQArtifact iq = new IQArtifactSubscribe(artifactUUID);
+			final IQArtifact iq = new IQArtifactSubscribe(artifactUniqueId);
 			iq.setType(IQ.Type.SET);
 			sendPacket(iq);
 		}
@@ -640,11 +641,11 @@ public class XMPPSessionImpl implements XMPPSession {
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#unsubscribe(java.util.UUID)
 	 */
-	public void unsubscribe(final UUID artifactUUID) throws SmackException {
+	public void unsubscribe(final UUID artifactUniqueId) throws SmackException {
 		logger.info("unsubscribe(UUID)");
-		logger.debug(artifactUUID);
+		logger.debug(artifactUniqueId);
 		try {
-			final IQArtifact iq = new IQArtifactUnsubscribe(artifactUUID);
+			final IQArtifact iq = new IQArtifactUnsubscribe(artifactUniqueId);
 			iq.setType(IQ.Type.SET);
 			sendPacket(iq);
 		}
@@ -874,9 +875,9 @@ public class XMPPSessionImpl implements XMPPSession {
 			final IQAcceptKeyRequest iq) {
 		synchronized(xmppExtensionListenersLock) {
 			final User user = new User(null, iq.getQualifiedJID(), null);
-			final UUID artifactUUID = iq.getArtifactUUID();
+			final UUID artifactUniqueId = iq.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
-				listener.keyRequestAccepted(user, artifactUUID);
+				listener.keyRequestAccepted(user, artifactUniqueId);
 			}
 		}
 	}
@@ -890,9 +891,9 @@ public class XMPPSessionImpl implements XMPPSession {
 	private void notifyXMPPExtension_keyRequestDenied(final IQDenyKeyRequest iq) {
 		synchronized(xmppExtensionListenersLock) {
 			final User user = new User(null, iq.getQualifiedJID(), null);
-			final UUID artifactUUID = iq.getArtifactUUID();
+			final UUID artifactUniqueId = iq.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
-				listener.keyRequestDenied(user, artifactUUID);
+				listener.keyRequestDenied(user, artifactUniqueId);
 			}
 		}
 	}
@@ -906,9 +907,9 @@ public class XMPPSessionImpl implements XMPPSession {
 	private void notifyXMPPExtension_keyRequested(final IQKeyRequest iqKeyRequest) {
 		synchronized(xmppExtensionListenersLock) {
 			final User user = getUserPacketFrom(iqKeyRequest);
-			final UUID artifactUUID = iqKeyRequest.getArtifactUUID();
+			final UUID artifactUniqueId = iqKeyRequest.getArtifactUUID();
 			for(XMPPExtensionListener listener : xmppExtensionListeners) {
-				listener.keyRequested(user, artifactUUID);
+				listener.keyRequested(user, artifactUniqueId);
 			}
 		}
 	}
@@ -938,11 +939,40 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            The packet to send.
 	 */
 	private void sendPacket(final Packet packet) throws InterruptedException {
+		logger.debug("packet");
+		logger.debug(packet);
 		smackXMPPConnection.sendPacket(packet);
 		// this sleep has been inserted because when packets are sent within
 		// x milliseconds of each other, they tend to get swallowed by the
 		// smack library
 		Thread.sleep(SEND_PACKET_SLEEP_DURATION);
+	}
+
+	/**
+	 * Send the packet and wait for a response. If the response conains an
+	 * error; a SmackException will be thrown.
+	 * 
+	 * @param packet
+	 *            The packet.
+	 * @throws InterruptedException
+	 * @throws SmackException
+	 *             If the response contains an error.
+	 */
+	private void sendAndConfirmPacket(final Packet packet)
+			throws InterruptedException, SmackException {
+		final String packetId = packet.getPacketID();
+        final PacketCollector collector =
+            smackXMPPConnection.createPacketCollector(new PacketIDFilter(packetId));
+        sendPacket(packet);
+        final Packet confirmationPacket = collector.nextResult();
+        logger.debug("confirmationPacket");
+        logger.debug(confirmationPacket);
+        if(null == confirmationPacket) {
+        	throw new SmackException("Send and confirm packet timeout.");
+        }
+        else if(null != confirmationPacket.getError()) {
+            throw XMPPErrorTranslator.translate(confirmationPacket.getError());
+        }
 	}
 
 	/**

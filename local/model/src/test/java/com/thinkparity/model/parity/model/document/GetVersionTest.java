@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * Test the document model getVersion api.
@@ -66,7 +66,7 @@ public class GetVersionTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#setUp()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -87,7 +87,7 @@ public class GetVersionTest extends ModelTestCase {
 	}
 
 	/**
-	 * @see com.thinkparity.model.ModelTestCase#tearDown()
+	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();

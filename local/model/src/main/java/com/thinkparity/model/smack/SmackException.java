@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.smack;
 
+import org.jivesoftware.smack.packet.XMPPError;
+
 /**
  * SmackException
  * This class is used as a wrapper class for any exceptions that are thrown by
@@ -39,4 +41,16 @@ public class SmackException extends Exception {
 	 * @param throwable <code>Throwable</code>
 	 */
 	public SmackException(Throwable throwable) { super(throwable); }
+
+	/**
+	 * Create a SmackException.
+	 * 
+	 * @param xmppError
+	 *            The network xmpp error causing the exception.
+	 */
+	public SmackException(final XMPPError xmppError) {
+		this(new StringBuffer(xmppError.getCode())
+				.append(":  ")
+				.append(xmppError.getMessage()).toString());
+	}
 }

@@ -14,7 +14,7 @@ import com.raykroeker.junitx.TestCase;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ModelTestCase extends TestCase {
+public abstract class ModelTestCase extends TestCase {
 
 	static {
 		// set non ssl mode

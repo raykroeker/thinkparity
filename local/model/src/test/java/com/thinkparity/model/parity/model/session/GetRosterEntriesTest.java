@@ -59,9 +59,9 @@ public class GetRosterEntriesTest extends ModelTestCase {
 			for(Fixture datum : data) {
 				rosterEntries = datum.sessionModel.getRosterEntries();
 				
-				assertNotNull(rosterEntries);
-				assertEquals(datum.rosterEntriesSize, rosterEntries.size());
-				for(User rosterEntry : rosterEntries) {
+				assertNotNull("Roster entries from session model are null.", rosterEntries);
+				assertEquals("Number of roster entries from session model; don't match fixture data.", datum.rosterEntriesSize, rosterEntries.size());
+				for(final User rosterEntry : rosterEntries) {
 					assertNotNull(rosterEntry);
 					assertTrue(datum.rosterUsernames.contains(rosterEntry.getUsername()));
 					assertTrue(datum.rosterSimpleUsernames.contains(rosterEntry.getSimpleUsername()));
@@ -88,15 +88,13 @@ public class GetRosterEntriesTest extends ModelTestCase {
 
 		login();
 
-		simpleUsernames = new Vector<String>(2);
+		simpleUsernames = new Vector<String>(1);
 		simpleUsernames.add("junit.buddy.0");
-		simpleUsernames.add("junit.buddy.1");
 
-		usernames = new Vector<String>(2);
+		usernames = new Vector<String>(1);
 		usernames.add("junit.buddy.0@" + preferences.getServerHost());
-		usernames.add("junit.buddy.1@" + preferences.getServerHost());
 
-		data.add(new Fixture(2, simpleUsernames, usernames, sessionModel));
+		data.add(new Fixture(usernames.size(), simpleUsernames, usernames, sessionModel));
 	}
 
 	/**

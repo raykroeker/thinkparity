@@ -13,6 +13,7 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -85,6 +86,6 @@ public class IQDenyKeyRequestProvider implements IQProvider {
 		}
 		Assert.assertNotNull(ASSERT_ARTIFACT_UUID, artifactUUID);
 		Assert.assertNotNull(ASSERT_USERNAME, username);
-		return new IQDenyKeyRequest(artifactUUID, username);
+		return new IQDenyKeyRequest(artifactUUID, new User(null, username, null));
 	}
 }

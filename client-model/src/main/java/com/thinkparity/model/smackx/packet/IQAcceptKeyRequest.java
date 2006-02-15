@@ -5,6 +5,9 @@ package com.thinkparity.model.smackx.packet;
 
 import java.util.UUID;
 
+import com.thinkparity.model.xmpp.JIDBuilder;
+import com.thinkparity.model.xmpp.user.User;
+
 
 /**
  * @author raykroeker@gmail.com
@@ -20,9 +23,9 @@ public class IQAcceptKeyRequest extends IQArtifact {
 	 * @param artifactUUID
 	 *            The artifact unique id.
 	 */
-	public IQAcceptKeyRequest(final UUID artifactUUID, final String qualifiedJID) {
+	public IQAcceptKeyRequest(final UUID artifactUUID, final User user) {
 		super(Action.ACCEPTKEYREQUEST, artifactUUID);
-		setQualifiedJID(qualifiedJID);
+		setQualifiedJID(new JIDBuilder(user).getQualifiedJID());
 	}
 
 	/**

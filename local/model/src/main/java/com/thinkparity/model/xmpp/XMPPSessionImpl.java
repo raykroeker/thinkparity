@@ -576,10 +576,10 @@ public class XMPPSessionImpl implements XMPPSession {
 			final IQArtifact iq;
 			switch(keyResponse) {
 			case ACCEPT:
-				iq = new IQAcceptKeyRequest(artifactUniqueId, user.getUsername());
+				iq = new IQAcceptKeyRequest(artifactUniqueId, user);
 				break;
 			case DENY:
-				iq = new IQDenyKeyRequest(artifactUniqueId, user.getUsername());
+				iq = new IQDenyKeyRequest(artifactUniqueId, user);
 				break;
 			default:
 				throw Assert.createUnreachable(

@@ -182,6 +182,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(description);
 		logger.debug(file);
 		assertCanCreateArtifacts();
+		assertIsSessionValid();
 		Assert.assertTrue(
 				// TODO Centralize business rules about document creation.
 				"File \"" + file.getAbsolutePath() + "\" does not exist.",
@@ -199,6 +200,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 			content.setContent(contentBytes);
 			content.setChecksum(MD5Util.md5Hex(contentBytes));
 			content.setDocumentId(document.getId());
+
+			// send a creation packet
+			final InternalSessionModel iSessionModel =
+				SessionModel.getInternalModel(getContext());
+			iSessionModel.sendCreate(document);
 
 			// create the document
 			documentIO.create(document, content);

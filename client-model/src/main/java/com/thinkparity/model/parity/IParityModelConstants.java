@@ -42,4 +42,6 @@ public interface IParityModelConstants {
 	public static final Calendar PROJECT_UPDATED_ON_MYPROJECTS = PROJECT_UPDATED_ON;
 
 	public static final Integer XMPP_CONFIRM_TIMEOUT = 1000 * 1;	// 1s
+
+	public static final String PARITY_CONNECTION_RESOURCE = "parity";
 }

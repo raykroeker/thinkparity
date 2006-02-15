@@ -556,14 +556,6 @@ class SessionModelImpl extends AbstractModelImpl {
 			try {
 				final DocumentModel documentModel = getDocumentModel();
 
-				// create a new version (updating local content into the
-				// document content metadata) then send.
-				if(isFirstSend(documentId)) {
-					// register the document on the server.
-					final Document document = documentModel.get(documentId);
-					SessionModelImpl.xmppHelper.sendCreate(document.getUniqueId());
-				}
-
 				documentModel.createVersion(documentId);
 				final Document document = documentModel.get(documentId);
 				xmppHelper.send(users,
@@ -790,21 +782,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	private String formatAssertUsernameEqualsPreferences(final String username) {
 		final MessageFormat f = new MessageFormat(ASSERT_USERNAME_EQUALS_PREFS);
 		return f.format(new Object[] {username, preferences.getUsername()});
-	}
-
-	/**
-	 * Determine whether or not this is the first time the document's been sent.
-	 * 
-	 * @param documentID
-	 *            The document unique id.
-	 * @return True if this document has not yet been sent; false otherwise.
-	 * @throws ParityException
-	 */
-	private Boolean isFirstSend(final Long documentId)
-			throws ParityException {
-		final DocumentModel documentModel = getDocumentModel();
-		// HACK:  Use the server api to determine if it has been registered or not
-		return 1 == documentModel.listVersions(documentId).size();
 	}
 
 	/**

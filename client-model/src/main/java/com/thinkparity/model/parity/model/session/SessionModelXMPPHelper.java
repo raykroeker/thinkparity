@@ -135,6 +135,11 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.getRosterEntries();
 	}
 
+	Collection<User> getSubscriptions(final UUID artifactUniqueId)
+			throws SmackException {
+		return xmppSession.getArtifactSubscription(artifactUniqueId);
+	}
+
 	/**
 	 * Obtain the user for the current session.
 	 * 

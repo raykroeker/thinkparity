@@ -94,6 +94,11 @@ public class SessionModel extends AbstractModel {
 		synchronized(implLock) { impl.addListener(keyListener); }
 	}
 
+	public Collection<User> getSubscriptions(final UUID artifactUniqueId)
+			throws ParityException {
+		synchronized(implLock) { return impl.getSubscriptions(artifactUniqueId); }
+	}
+
 	/**
 	 * Add a presence listener to the session.
 	 * 

@@ -415,6 +415,25 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	Collection<User> getSubscriptions(final UUID artifactUniqueId)
+			throws ParityException {
+		logger.info("getSubscriptions(UUID)");
+		logger.debug(artifactUniqueId);
+		synchronized(xmppHelperLock) {
+			assertIsLoggedIn("getSubscriptions(UUID)", xmppHelper);
+			try { return xmppHelper.getSubscriptions(artifactUniqueId); }
+			catch(final SmackException sx) {
+				logger.error("getSubscriptions(UUID)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(final RuntimeException rx) {
+				logger.error("getSubscriptions(UUID)", rx);
+				throw ParityErrorTranslator.translate(rx);
+
+			}
+		}
+	}
+
 	/**
 	 * Determine whether or not a user is logged in.
 	 * 

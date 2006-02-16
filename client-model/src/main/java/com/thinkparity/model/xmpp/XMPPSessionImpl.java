@@ -4,12 +4,7 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.*;
@@ -56,67 +51,6 @@ import com.thinkparity.model.xmpp.user.User;
 public class XMPPSessionImpl implements XMPPSession {
 
 	/**
-	 * SmackConnectionListenerImpl Is used to translate smack connection events
-	 * to local xmpp session events. Note that the same class is used to listen
-	 * for both connection established events and connection termination events.
-	 * 
-	 * @author raykroeker@gmail.com
-	 */
-	private class SmackConnectionListenerImpl extends SmackConnectionListener {
-		/**
-		 * @see org.jivesoftware.smack.ConnectionListener#connectionClosed()
-		 */
-		public void connectionClosed() { doNotifyConnectionClosed(); }
-		/**
-		 * @see org.jivesoftware.smack.ConnectionListener#connectionClosedOnError(java.lang.Exception)
-		 */
-		public void connectionClosedOnError(Exception x) {
-			doNotifyConnectionClosedOnError(x);
-		}
-		/**
-		 * @see org.jivesoftware.smack.ConnectionEstablishedListener#connectionEstablished(org.jivesoftware.smack.XMPPConnection)
-		 */
-		public void connectionEstablished(final XMPPConnection xmppConnection) {
-			doNotifyConnectionEstablished(xmppConnection);
-		}
-	}
-
-	/**
-	 * SmackPresenceListenerImpl
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class SmackPresenceListenerImpl extends SmackPresenceListener {
-		/**
-		 * @see org.jivesoftware.smack.PacketListener#processPacket(org.jivesoftware.smack.packet.Packet)
-		 */
-		public void processPacket(final Packet packet) {
-			try { doNotifyProcessPresence((Presence) packet); }
-			catch(InterruptedException ix) {
-				logger.error("processPacket(Packet)", ix);
-			}
-		}
-	}
-
-	/**
-	 * SmackRosterListenerImpl
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class SmackRosterListenerImpl extends SmackRosterListener {
-		/**
-		 * @see com.thinkparity.model.smack.SmackRosterListener#presenceChanged(String)
-		 */
-		public void presenceChanged(final String xmppAddress) {
-			doNotifyPresenceChanged(xmppAddress);
-		}
-		/**
-		 * @see com.thinkparity.model.smack.SmackRosterListener#rosterModified()
-		 */
-		public void rosterModified() {}
-	}
-
-	/**
 	 * Interal logger implemenation.
 	 */
 	private static final Logger logger =
@@ -137,11 +71,16 @@ public class XMPPSessionImpl implements XMPPSession {
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:keyrequest", new IQKeyRequestProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:acceptkeyrequest", new IQAcceptKeyRequestProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:denykeyrequest", new IQDenyKeyRequestProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:getkeyholder", new IQGetKeyHolderProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:getsubscriptions", new IQGetSubscriptionProvider());
 	}
 
 	private Map<String, User> pendingXMPPUsers;
+
 	private SmackConnectionListenerImpl smackConnectionListenerImpl;
+
 	private SmackPresenceFilter smackPresenceFilter;
+
 	private SmackPresenceListenerImpl smackPresenceListenerImpl;
 	private SmackRosterListenerImpl smackRosterListenerImpl;
 	private XMPPConnection smackXMPPConnection;
@@ -149,7 +88,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	private final Object xmppExtensionListenersLock = new Object();
 	private Vector<XMPPPresenceListener> xmppPresenceListeners;
 	private Vector<XMPPSessionListener> xmppSessionListeners;
-
 	/**
 	 * Create a XMPPSessionImpl
 	 */
@@ -169,7 +107,6 @@ public class XMPPSessionImpl implements XMPPSession {
 		smackPresenceFilter = new SmackPresenceFilter();
 		smackPresenceListenerImpl = new SmackPresenceListenerImpl();
 	}
-
 	/**
 	 * Accept the presence request of user.  This will send a presence packet
 	 * indicating that the user is subscribed and available.
@@ -188,7 +125,6 @@ public class XMPPSessionImpl implements XMPPSession {
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}
-
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 */
@@ -302,6 +238,52 @@ public class XMPPSessionImpl implements XMPPSession {
 		}
 		catch(InterruptedException ix) {
 			logger.error("flag(UUID,ArtifactFlag)", ix);
+			throw XMPPErrorTranslator.translate(ix);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#getArtifactKeyHolder(java.util.UUID)
+	 * 
+	 */
+	public User getArtifactKeyHolder(final UUID artifactUniqueId)
+			throws SmackException {
+		logger.info("getArtifactKeyHolder(UUID)");
+		logger.debug(artifactUniqueId);
+		try {
+			final IQArtifact iq = new IQGetKeyHolder(artifactUniqueId);
+			iq.setType(IQ.Type.GET);
+			logger.debug(iq);
+			final IQGetKeyHolderResponse response =
+				(IQGetKeyHolderResponse) sendAndConfirmPacket(iq);
+			return new User(null, response.getUsername(), User.Presence.OFFLINE);
+		}
+		catch(final InterruptedException ix) {
+			throw XMPPErrorTranslator.translate(ix);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#getArtifactSubscription(java.util.UUID)
+	 * 
+	 */
+	public List<User> getArtifactSubscription(final UUID artifactUniqueId)
+			throws SmackException {
+		logger.info("getArtifactSubscription(UUID)");
+		logger.debug(artifactUniqueId);
+		try {
+			final IQArtifact iq = new IQGetSubscription(artifactUniqueId);
+			iq.setType(IQ.Type.GET);
+			logger.debug(iq);
+			final IQGetSubscriptionResponse response =
+				(IQGetSubscriptionResponse) sendAndConfirmPacket(iq);
+			final List<User> subscription = new LinkedList<User>();
+			for(final String s : response.getJids()) {
+				subscription.add(new User(null, s, User.Presence.OFFLINE));
+			}
+			return subscription;
+		}
+		catch(final InterruptedException ix) {
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}
@@ -937,32 +919,17 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * Send a packet through the smack xmpp connection.
-	 * 
-	 * @param packet
-	 *            The packet to send.
-	 */
-	private void sendPacket(final Packet packet) throws InterruptedException {
-		logger.debug("packet");
-		logger.debug(packet);
-		smackXMPPConnection.sendPacket(packet);
-		// this sleep has been inserted because when packets are sent within
-		// x milliseconds of each other, they tend to get swallowed by the
-		// smack library
-		Thread.sleep(SEND_PACKET_SLEEP_DURATION);
-	}
-
-	/**
 	 * Send the packet and wait for a response. If the response conains an
 	 * error; a SmackException will be thrown.
 	 * 
 	 * @param packet
 	 *            The packet.
+	 * @return The confirmation packet.
 	 * @throws InterruptedException
 	 * @throws SmackException
 	 *             If the response contains an error.
 	 */
-	private void sendAndConfirmPacket(final Packet packet)
+	private Packet sendAndConfirmPacket(final Packet packet)
 			throws InterruptedException, SmackException {
 		final String packetId = packet.getPacketID();
         final PacketCollector collector =
@@ -977,6 +944,23 @@ public class XMPPSessionImpl implements XMPPSession {
         else if(null != confirmationPacket.getError()) {
             throw XMPPErrorTranslator.translate(confirmationPacket.getError());
         }
+        return confirmationPacket;
+	}
+
+	/**
+	 * Send a packet through the smack xmpp connection.
+	 * 
+	 * @param packet
+	 *            The packet to send.
+	 */
+	private void sendPacket(final Packet packet) throws InterruptedException {
+		logger.debug("packet");
+		logger.debug(packet);
+		smackXMPPConnection.sendPacket(packet);
+		// this sleep has been inserted because when packets are sent within
+		// x milliseconds of each other, they tend to get swallowed by the
+		// smack library
+		Thread.sleep(SEND_PACKET_SLEEP_DURATION);
 	}
 
 	/**
@@ -1021,4 +1005,67 @@ public class XMPPSessionImpl implements XMPPSession {
 		presence.setFrom(smackXMPPConnection.getUser());
 		sendPacket(presence);
 	}
+
+	/**
+	 * SmackConnectionListenerImpl Is used to translate smack connection events
+	 * to local xmpp session events. Note that the same class is used to listen
+	 * for both connection established events and connection termination events.
+	 * 
+	 * @author raykroeker@gmail.com
+	 */
+	private class SmackConnectionListenerImpl extends SmackConnectionListener {
+		/**
+		 * @see org.jivesoftware.smack.ConnectionListener#connectionClosed()
+		 */
+		public void connectionClosed() { doNotifyConnectionClosed(); }
+		/**
+		 * @see org.jivesoftware.smack.ConnectionListener#connectionClosedOnError(java.lang.Exception)
+		 */
+		public void connectionClosedOnError(Exception x) {
+			doNotifyConnectionClosedOnError(x);
+		}
+		/**
+		 * @see org.jivesoftware.smack.ConnectionEstablishedListener#connectionEstablished(org.jivesoftware.smack.XMPPConnection)
+		 */
+		public void connectionEstablished(final XMPPConnection xmppConnection) {
+			doNotifyConnectionEstablished(xmppConnection);
+		}
+	}
+
+	/**
+	 * SmackPresenceListenerImpl
+	 * @author raykroeker@gmail.com
+	 * @version 1.1
+	 */
+	private class SmackPresenceListenerImpl extends SmackPresenceListener {
+		/**
+		 * @see org.jivesoftware.smack.PacketListener#processPacket(org.jivesoftware.smack.packet.Packet)
+		 */
+		public void processPacket(final Packet packet) {
+			try { doNotifyProcessPresence((Presence) packet); }
+			catch(InterruptedException ix) {
+				logger.error("processPacket(Packet)", ix);
+			}
+		}
+	}
+
+	/**
+	 * SmackRosterListenerImpl
+	 * @author raykroeker@gmail.com
+	 * @version 1.1
+	 */
+	private class SmackRosterListenerImpl extends SmackRosterListener {
+		/**
+		 * @see com.thinkparity.model.smack.SmackRosterListener#presenceChanged(String)
+		 */
+		public void presenceChanged(final String xmppAddress) {
+			doNotifyPresenceChanged(xmppAddress);
+		}
+		/**
+		 * @see com.thinkparity.model.smack.SmackRosterListener#rosterModified()
+		 */
+		public void rosterModified() {}
+	}
+
+
 }

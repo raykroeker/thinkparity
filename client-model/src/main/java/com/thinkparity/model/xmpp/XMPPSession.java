@@ -5,6 +5,7 @@ package com.thinkparity.model.xmpp;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
@@ -37,7 +38,11 @@ public interface XMPPSession {
 	public void denyPresence(final User user) throws SmackException;
 	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
 			throws SmackException;
+	public User getArtifactKeyHolder(final UUID artifactUniqueId)
+			throws SmackException;
 	public Collection<User> getRosterEntries() throws SmackException;
+	public List<User> getArtifactSubscription(final UUID artifactUniqueId)
+			throws SmackException;
 	public User getUser() throws SmackException;
 	public Boolean isLoggedIn();
 	public void login(final String host, final Integer port,

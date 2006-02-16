@@ -5,9 +5,13 @@ package com.thinkparity.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.user.User;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
@@ -75,4 +79,9 @@ public abstract class ModelTestCase extends TestCase {
 		return (ModelTestUser) testSession.getData("modelTestUser");
 	}
 
+	protected List<User> proxy(final Collection<User> c) {
+		final List<User> l = new LinkedList<User>();
+		for(final User u : c) { l.add(u); }
+		return l;
+	}
 }

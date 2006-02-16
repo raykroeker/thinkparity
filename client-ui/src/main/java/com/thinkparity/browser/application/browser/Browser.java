@@ -39,22 +39,22 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Controller implements Application {
+public class Browser implements Application {
 
 	/**
 	 * Singleton instance of the controller.
 	 * 
 	 */
-	private static final Controller singleton;
+	private static final Browser singleton;
 
-	static { singleton = new Controller(); }
+	static { singleton = new Browser(); }
 
 	/**
 	 * Obtain the instance of the controller.
 	 * 
 	 * @return The instance of the controller.
 	 */
-	public static Controller getInstance() { return singleton; }
+	public static Browser getInstance() { return singleton; }
 
 	/**
 	 * Apache logger.
@@ -78,23 +78,23 @@ public class Controller implements Application {
 	 * Main window.
 	 * 
 	 */
-	private MainWindow mainWindow;
+	private BrowserWindow mainWindow;
 
 	/**
 	 * The state information for the controller.
 	 * 
 	 */
-	private final ControllerState state;
+	private final BrowserState state;
 
 	/**
-	 * Create a Controller [Singleton]
+	 * Create a Browser [Singleton]
 	 * 
 	 */
-	private Controller() {
+	private Browser() {
 		super();
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
-		this.state = new ControllerState(this);
+		this.state = new BrowserState(this);
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class Controller implements Application {
 		// showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	mainWindow = MainWindow.open();
+            	mainWindow = BrowserWindow.open();
             	displayTitleAvatar();
             	displayLogoAvatar();
             	displayMainBrowserAvatar();

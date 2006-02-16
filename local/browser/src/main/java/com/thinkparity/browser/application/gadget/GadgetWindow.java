@@ -24,10 +24,25 @@ import com.thinkparity.browser.util.NativeSkinUtil;
 public class GadgetWindow extends AbstractJFrame {
 
 	/**
-	 * The gadget window size.
+	 * The bright background image.
 	 * 
+	 * @see #getBrightImage()
 	 */
-	private static Dimension gadgetWindowSize;
+	private static Image brightImage;
+
+	/**
+	 * The dim background image.
+	 * 
+	 * @see #getDimImage()
+	 */
+	private static Image dimImage;
+
+	/**
+	 * The size of the image.
+	 * 
+	 * @see #getImageSize()
+	 */
+	private static Dimension imageSize;
 
 	/**
 	 * @see java.io.Serializable
@@ -40,13 +55,7 @@ public class GadgetWindow extends AbstractJFrame {
 	 * 
 	 * @return The gadget windo size.
 	 */
-	public static Dimension getGadgetWindowSize() {
-		if(null == gadgetWindowSize) {
-			// DIMENSION 100x100
-			gadgetWindowSize = new Dimension(100, 100);
-		}
-		return gadgetWindowSize;
-	}
+	public static Dimension getGadgetWindowSize() { return getImageSize(); }
 
 	/**
 	 * Open the gadget window.
@@ -66,22 +75,58 @@ public class GadgetWindow extends AbstractJFrame {
 	}
 
 	/**
-	 * The bright background image.
+	 * Obtain the bright image.
 	 * 
+	 * @return The bright image.
 	 */
-	private Image brightImage;
+	private static Image getBrightImage() {
+		if(null == brightImage) {
+			brightImage = ImageIOUtil.read("gadgetBackgroundBright.png");
+		}
+		return brightImage;
+	}
+
+	/**
+	 * Obtain the dim image.
+	 * 
+	 * @return The dim image.
+	 */
+	private static Image getDimImage() {
+		if(null == dimImage) {
+			dimImage = ImageIOUtil.read("gadgetBackgroundDim.png");
+		}
+		return dimImage;
+	}
+
+	/**
+	 * Obtain the image for painting. Which image to use (dim\bright) is
+	 * determined by the number of new system messages\documents.
+	 * 
+	 * @return The image for painting.
+	 */
+	private static Image getImage() {
+		if(false) { return getBrightImage(); }
+		else { return getDimImage(); }
+	}
+
+	/**
+	 * Obtain the size of the image.
+	 * 
+	 * @return The image size.
+	 */
+	private static Dimension getImageSize() {
+		if(null == imageSize) {
+			final Image image = getImage();
+			imageSize = new Dimension(image.getWidth(null), image.getHeight(null));
+		}
+		return imageSize;
+	}
 
 	/**
 	 * The gadget controller.
 	 * 
 	 */
 	private Gadget controller;
-
-	/**
-	 * The dim background image.
-	 * 
-	 */
-	private Image dimImage;
 
 	/**
 	 * Mouse input adapter to track drag'n'drop movement.
@@ -119,7 +164,7 @@ public class GadgetWindow extends AbstractJFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		applyNativeSkin();
 		setResizable(false);
-		setSize(GadgetWindow.getGadgetWindowSize());
+		setSize(getImageSize());
 		initComponents();
 	}
 
@@ -142,18 +187,6 @@ public class GadgetWindow extends AbstractJFrame {
 	private void applyNativeSkin() { NativeSkinUtil.applyNativeSkin(this); }
 
 	/**
-	 * Obtain the bright image.
-	 * 
-	 * @return The bright image.
-	 */
-	private Image getBrightImage() {
-		if(null == brightImage) {
-			brightImage = ImageIOUtil.read("gadgetBackgroundBright.png");
-		}
-		return brightImage;
-	}
-
-	/**
 	 * Obtain the gadget controller.
 	 * 
 	 * @return The gadget controller.
@@ -161,29 +194,6 @@ public class GadgetWindow extends AbstractJFrame {
 	private Gadget getController() {
 		if(null == controller) { controller = Gadget.getInstance(); }
 		return controller;
-	}
-
-	/**
-	 * Obtain the dim image.
-	 * 
-	 * @return The dim image.
-	 */
-	private Image getDimImage() {
-		if(null == dimImage) {
-			dimImage = ImageIOUtil.read("gadgetBackgroundDim.png");
-		}
-		return dimImage;
-	}
-
-	/**
-	 * Obtain the image for painting. Which image to use (dim\bright) is
-	 * determined by the number of new system messages\documents.
-	 * 
-	 * @return The image for painting.
-	 */
-	private Image getImage() {
-		if(false) { return getBrightImage(); }
-		else { return getDimImage(); }
 	}
 
 	private void initComponents() {

@@ -11,7 +11,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.browser.application.browser.Controller;
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.model.tmp.system.message.Message;
@@ -194,7 +194,7 @@ public abstract class ListItem {
 	 * 
 	 * @return The main controller.
 	 */
-	protected Controller getController() { return Controller.getInstance(); }
+	protected Browser getController() { return Browser.getInstance(); }
 
 	/**
 	 * Obtain a menu item mnemonic from the l18n resources. This will simply

@@ -5,7 +5,7 @@ package com.thinkparity.browser.application.browser.display;
 
 import java.awt.Dimension;
 
-import com.thinkparity.browser.application.browser.MainWindow;
+import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.platform.application.display.Display;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -79,7 +79,7 @@ public class DisplayFactory {
 	 */
 	private DisplayFactory() {
 		super();
-		this.displayWidth = MainWindow.getMainWindowSize().width;
+		this.displayWidth = BrowserWindow.getMainWindowSize().width;
 	}
 
 	/**

@@ -24,7 +24,7 @@ import com.thinkparity.browser.util.NativeSkinUtil;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class MainWindow extends AbstractJFrame {
+public class BrowserWindow extends AbstractJFrame {
 
 	/**
 	 * The size of the main window.
@@ -56,8 +56,8 @@ public class MainWindow extends AbstractJFrame {
 	 * 
 	 * @return The main window.
 	 */
-	public static MainWindow open() {
-		final MainWindow mainWindow = new MainWindow();
+	public static BrowserWindow open() {
+		final BrowserWindow mainWindow = new BrowserWindow();
 		mainWindow.setVisible(true);
 		((Graphics2D) mainWindow.getGraphics())
 			.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -83,24 +83,24 @@ public class MainWindow extends AbstractJFrame {
 	 * 
 	 * @see #getController()
 	 */
-	private Controller controller;
+	private Browser controller;
 
 	/**
-	 * Create a MainWindow.
+	 * Create a BrowserWindow.
 	 * 
 	 * @throws HeadlessException
 	 */
-	private MainWindow() throws HeadlessException {
-		super("MainWindow");
+	private BrowserWindow() throws HeadlessException {
+		super("BrowserWindow");
 		// initialize the state
-		new MainWindowState(this);
+		new BrowserWindowState(this);
 		// COLOR BLACK
 		getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
-		setSize(MainWindow.getMainWindowSize());
-//		applyNativeSkin();
+		setSize(BrowserWindow.getMainWindowSize());
+		applyNativeSkin();
 		initComponents();
 	}
 
@@ -133,8 +133,8 @@ public class MainWindow extends AbstractJFrame {
 	 * 
 	 * @return The main controller.
 	 */
-	private Controller getController() {
-		if(null == controller) { controller = Controller.getInstance(); }
+	private Browser getController() {
+		if(null == controller) { controller = Browser.getInstance(); }
 		return controller;
 	}
 

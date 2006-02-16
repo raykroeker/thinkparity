@@ -8,7 +8,7 @@ import java.awt.Component;
 
 import javax.swing.JButton;
 
-import com.thinkparity.browser.application.browser.Controller;
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
@@ -45,7 +45,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 * The main controller.
 	 * 
 	 */
-	private Controller controller;
+	private Browser controller;
 
 	/**
 	 * The avatar's scrolling policy.
@@ -191,8 +191,8 @@ public abstract class Avatar extends AbstractJPanel {
 	 * Obtain the main controller.
 	 *
 	 */
-	protected Controller getController() {
-		if(null == controller) { controller = Controller.getInstance(); }
+	protected Browser getController() {
+		if(null == controller) { controller = Browser.getInstance(); }
 		return controller;
 	}
 

@@ -7,7 +7,7 @@ import java.awt.Dimension;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.application.browser.MainWindow;
+import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.application.gadget.GadgetWindow;
 
@@ -49,7 +49,7 @@ public class NativeSkinUtil {
 	 * @param browserWindow
 	 *            The browser window.
 	 */
-	public static void applyNativeSkin(final MainWindow browserWindow) {
+	public static void applyNativeSkin(final BrowserWindow browserWindow) {
 		singleton.doApplyNativeSkin(browserWindow);
 	}
 
@@ -96,8 +96,8 @@ public class NativeSkinUtil {
 	 * @param browserWindow
 	 *            The browser window.
 	 */
-	private void doApplyNativeSkin(final MainWindow browserWindow) {
-		final Dimension browserWindowSize = MainWindow.getMainWindowSize();
+	private void doApplyNativeSkin(final BrowserWindow browserWindow) {
+		final Dimension browserWindowSize = BrowserWindow.getMainWindowSize();
 		final RegionBuilder regionBuilder = new RegionBuilder();
 		final Region region =
 			regionBuilder.createRoundRectangleRegion(

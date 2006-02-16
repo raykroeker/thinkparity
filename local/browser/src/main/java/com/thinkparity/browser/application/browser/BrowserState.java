@@ -11,13 +11,13 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ControllerState {
+public class BrowserState {
 
 	/**
-	 * Create a ControllerState.
+	 * Create a BrowserState.
 	 * 
 	 */
-	ControllerState(final Controller controller) {
+	BrowserState(final Browser controller) {
 		super();
 	}
 

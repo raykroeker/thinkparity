@@ -17,7 +17,7 @@ import com.thinkparity.browser.platform.util.persistence.Persistence;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class MainWindowState {
+public class BrowserWindowState {
 
 	/**
 	 * Type-safe keys to use when persisting the browser's state.
@@ -35,7 +35,7 @@ public class MainWindowState {
 	 * Handle to the jFrame.
 	 * 
 	 */
-	private final MainWindow jFrame;
+	private final BrowserWindow jFrame;
 
 	/**
 	 * Persistence utility.
@@ -43,12 +43,12 @@ public class MainWindowState {
 	private final Persistence jFramePersistence;
 
 	/**
-	 * Create a MainWindowState.
+	 * Create a BrowserWindowState.
 	 * 
 	 * @param jFrame
 	 *            The browser jFrame.
 	 */
-	MainWindowState(final MainWindow jFrame) {
+	BrowserWindowState(final BrowserWindow jFrame) {
 		super();
 		this.jFrame = jFrame;
 		this.jFramePersistence =

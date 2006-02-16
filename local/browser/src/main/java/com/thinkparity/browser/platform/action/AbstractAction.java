@@ -7,7 +7,7 @@ import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.application.browser.Controller;
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.ActionLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
@@ -45,7 +45,7 @@ public abstract class AbstractAction {
 	 * The main controller.
 	 * 
 	 */
-	private Controller controller;
+	private Browser controller;
 
 	/**
 	 * The action ICON.
@@ -136,8 +136,8 @@ public abstract class AbstractAction {
 	 * 
 	 * @return The main controller.
 	 */
-	protected Controller getController() {
-		if(null == controller) { controller = Controller.getInstance(); }
+	protected Browser getController() {
+		if(null == controller) { controller = Browser.getInstance(); }
 		return controller;
 	}
 

@@ -12,12 +12,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.Vector;
 
 import javax.swing.JLabel;
 
-import com.thinkparity.browser.application.browser.Controller;
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
@@ -139,7 +138,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * The main controller.
 	 * 
 	 */
-	private final Controller controller;
+	private final Browser controller;
 
 	/**
 	 * Helper for info avatars.
@@ -157,7 +156,7 @@ class DocumentHistoryListAvatar extends Avatar {
 	 * Create a DocumentHistoryListAvatar.
 	 * 
 	 */
-	DocumentHistoryListAvatar(final Controller controller) {
+	DocumentHistoryListAvatar(final Browser controller) {
 		// COLOR 235, 240, 246, 255
 		super("DocumentHistoryListAvatar", ScrollPolicy.VERTICAL, new Color(235, 240, 246, 255));
 		this.controller = controller;

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.browser.model;
 
-import com.thinkparity.browser.application.browser.Controller;
+import com.thinkparity.browser.application.browser.Browser;
 
 import com.thinkparity.model.parity.api.events.*;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -43,7 +43,7 @@ public class EventDispatcher {
 	 * Main controller.
 	 * 
 	 */
-	protected Controller controller;
+	protected Browser controller;
 
 	/**
 	 * Handle to the document model api.
@@ -78,7 +78,7 @@ public class EventDispatcher {
 	 */
 	public void initialize() {
 		if(!isInitialized) {
-			controller = Controller.getInstance();
+			controller = Browser.getInstance();
 
 			documentModel = modelFactory.getDocumentModel(getClass());
 			sessionModel = modelFactory.getSessionModel(getClass());

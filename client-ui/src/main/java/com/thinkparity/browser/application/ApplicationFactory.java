@@ -65,7 +65,7 @@ public class ApplicationFactory {
 	 * @return The browser application.
 	 */
 	private Application createBrowser() {
-		return com.thinkparity.browser.application.browser.Controller.getInstance();
+		return com.thinkparity.browser.application.browser.Browser.getInstance();
 	}
 
 	/**

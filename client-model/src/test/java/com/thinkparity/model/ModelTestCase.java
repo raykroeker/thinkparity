@@ -7,8 +7,10 @@ import java.io.File;
 import java.io.IOException;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 import com.raykroeker.junitx.TestCase;
+import com.raykroeker.junitx.TestSession;
 
 /**
  * @author raykroeker@gmail.com
@@ -16,9 +18,22 @@ import com.raykroeker.junitx.TestCase;
  */
 public abstract class ModelTestCase extends TestCase {
 
+	/**
+	 * The JUnit eXtension test session.
+	 * 
+	 */
+	private static final TestSession testSession;
+
 	static {
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
+		testSession = TestCase.getTestSession();
+		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
+		testSession.setData("modelTestUser", modelTestUser);
+		System.setProperty("parity.workspace",
+				new File(testSession.getSessionDirectory(), "workspace")
+				.getAbsolutePath());
+		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(modelTestUser.getUsername());
 	}
 
 	private DocumentModel documentModel;
@@ -49,6 +64,15 @@ public abstract class ModelTestCase extends TestCase {
 		System.arraycopy(super.getInputFiles(), 0, inputFiles, 0, 5);
 		return inputFiles;
 	
+	}
+
+	/**
+	 * Obtain the junit test user.
+	 * 
+	 * @return The junit test user.
+	 */
+	protected ModelTestUser getModelTestUser() {
+		return (ModelTestUser) testSession.getData("modelTestUser");
 	}
 
 }

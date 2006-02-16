@@ -29,6 +29,7 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackConnectionListener;
@@ -409,7 +410,8 @@ public class XMPPSessionImpl implements XMPPSession {
 
 			smackXMPPConnection.addPacketListener(smackPresenceListenerImpl, smackPresenceFilter);
 
-			smackXMPPConnection.login(username, password, "parity");
+			smackXMPPConnection.login(username, password,
+					IParityModelConstants.PARITY_CONNECTION_RESOURCE);
 			smackXMPPConnection.getRoster().addRosterListener(smackRosterListenerImpl);
 		}
 		catch(XMPPException xmppx) {
@@ -923,11 +925,13 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            The packet extension to send.
 	 */
 	private void send(final Collection<User> users,
-			final PacketExtension packetExtension) throws InterruptedException {
-		for(User user : users) {
+			final PacketExtension packetExtension) throws InterruptedException,
+			SmackException {
+		for(final User user : users) {
 			final Message message = smackXMPPConnection.createChat(
 					user.getUsername()).createMessage();
 			message.addExtension(packetExtension);
+			logger.info("messageSize:" + message.toXML().length());
 			sendPacket(message);
 		}
 	}

@@ -54,7 +54,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	SessionModelXMPPHelper() {
 		super();
-		this.xmppSession = XMPPSessionFactory.getSession();
+		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppExtensionListener = new XMPPExtensionListener() {
 			public void documentReceived(final XMPPDocument xmppDocument) {
 				handleDocumentReceived(xmppDocument);

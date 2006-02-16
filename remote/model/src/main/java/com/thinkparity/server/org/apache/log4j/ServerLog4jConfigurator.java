@@ -155,6 +155,7 @@ public class ServerLog4jConfigurator {
 	private void configureServerHTMLAppender(
 			final Properties log4jProperties, final File log4jDirectory) {
 		log4jProperties.setProperty("log4j.appender.serverHTML", "org.apache.log4j.RollingFileAppender");
+		log4jProperties.setProperty("log4j.appender.serverHTML.MaxFileSize", "3MB");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout", "org.apache.log4j.HTMLLayout");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout.locationInfo", "true");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout.title", "Parity Server");

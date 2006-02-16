@@ -6,14 +6,13 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class LockTest extends ModelTestCase {
+public class LockTest extends DocumentTestCase {
 
 	/**
 	 * Test data.
@@ -67,6 +66,7 @@ public class LockTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+		super.tearDown();
 	}
 
 	/**

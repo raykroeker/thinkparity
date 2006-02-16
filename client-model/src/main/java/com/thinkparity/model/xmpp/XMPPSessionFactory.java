@@ -16,37 +16,47 @@ import com.thinkparity.model.smackx.provider.XManager;
  */
 public final class XMPPSessionFactory {
 
-	/**
-	 * Handle to the session.
-	 */
-	private static XMPPSessionImpl xmppSessionImpl;
+	private static final XMPPSessionFactory singleton;
+
+	private static final Object singletonLock;
 
 	/**
 	 * Register all of the packet extensions.
+	 * 
 	 */
-	static { XManager.register(); }
+	static {
+		singleton = new XMPPSessionFactory();
+		singletonLock = new Object();
+		XManager.register();
+	}
 
 	/**
 	 * Obtain a handle to the session.
 	 * @return <code>org.kcs.projectmanager.smack.SmackSession</code>
 	 */
-	public static XMPPSession getSession() {
-		createSession();
-		return xmppSessionImpl;
+	public static XMPPSession createSession() {
+		synchronized(singletonLock) { return singleton.doCreateSession(); }
 	}
 
 	/**
-	 * Determine whether or not a session has been created, and if not create
-	 * one and set the local variable.
-	 */
-	private static void createSession() {
-		// create a session
-		if(null == xmppSessionImpl)
-			xmppSessionImpl = new XMPPSessionImpl();
-	}
-
-	/**
-	 * Create a XMPPSessionFactory [Singleton]
+	 * Create a XMPPSessionFactory [Singleton, Factory]
+	 * 
 	 */
 	private XMPPSessionFactory() { super(); }
+
+	/**
+	 * The session.
+	 * 
+	 */
+	private XMPPSession session;
+
+	/**
+	 * Create an xmpp session interface.
+	 * 
+	 * @return The xmpp session interface.
+	 */
+	private XMPPSession doCreateSession() {
+		if(null == session) { session = new XMPPSessionImpl(); }
+		return session;
+	}
 }

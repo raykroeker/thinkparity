@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.util.MD5Util;
 
 /**
@@ -17,7 +16,7 @@ import com.thinkparity.model.parity.util.MD5Util;
  * @author raykroeker@gmail.com
  * @version 1.1.2.2
  */
-public class ExportTest extends ModelTestCase {
+public class ExportTest extends DocumentTestCase {
 
 	/**
 	 * Test data fixture.
@@ -100,8 +99,9 @@ public class ExportTest extends ModelTestCase {
 	 */
 	protected void tearDown() throws Exception {
 		// delete the exported files
-		for(Fixture datum : data) { datum.file.delete(); }
+		for(final Fixture datum : data) { datum.file.delete(); }
 		data.clear();
 		data = null;
+		super.tearDown();
 	}
 }

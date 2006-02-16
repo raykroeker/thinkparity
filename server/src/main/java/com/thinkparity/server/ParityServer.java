@@ -17,10 +17,12 @@ import org.jivesoftware.messenger.event.SessionEventListener;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.server.handler.IQHandler;
 import com.thinkparity.server.handler.artifact.AcceptKeyRequest;
 import com.thinkparity.server.handler.artifact.CreateArtifact;
 import com.thinkparity.server.handler.artifact.DenyKeyRequest;
 import com.thinkparity.server.handler.artifact.FlagArtifact;
+import com.thinkparity.server.handler.artifact.GetKeyHolder;
 import com.thinkparity.server.handler.artifact.RequestArtifactKey;
 import com.thinkparity.server.handler.user.SubscribeUser;
 import com.thinkparity.server.handler.user.UnsubscribeUser;
@@ -33,15 +35,11 @@ import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
  */
 public class ParityServer implements Plugin {
 
+	private IQHandler getKeyHolder;
 	private AcceptKeyRequest acceptKeyRequest;
 	private CreateArtifact createArtifact;
-
 	private DenyKeyRequest denyKeyRequest;
-
 	private FlagArtifact flagArtifact;
-	/**
-	 * Handle to the xmpp server's iq router.
-	 */
 	private final IQRouter iqRouter;
 	private RequestArtifactKey requestArtifactKey;
 	private SubscribeUser subscribeUser;
@@ -87,6 +85,10 @@ public class ParityServer implements Plugin {
 		iqRouter.removeHandler(createArtifact);
 		createArtifact.destroy();
 		createArtifact = null;
+
+		iqRouter.removeHandler(getKeyHolder);
+		getKeyHolder.destroy();
+		getKeyHolder = null;
 
 		iqRouter.removeHandler(unsubscribeUser);
 		unsubscribeUser.destroy();
@@ -134,6 +136,9 @@ public class ParityServer implements Plugin {
 	private void initializeIQHandlers() {
 		createArtifact = new CreateArtifact();
 		iqRouter.addHandler(createArtifact);
+
+		getKeyHolder = new GetKeyHolder();
+		iqRouter.addHandler(getKeyHolder);
 
 		unsubscribeUser = new UnsubscribeUser();
 		iqRouter.addHandler(unsubscribeUser);

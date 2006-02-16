@@ -24,6 +24,7 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -674,21 +675,36 @@ class SessionModelImpl extends AbstractModelImpl {
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
 				case ACCEPT:
-					send(user, documentId);
+					Document document = iDocumentModel.get(documentId);
+					final DocumentContent content =
+						iDocumentModel.getContent(documentId);
+
+					// send the key change to the server
+					xmppHelper.sendKeyResponse(
+							document.getUniqueId(), keyResponse, user);
+
+					/// send the document w/ the key to the recipient
+					iDocumentModel.createVersion(documentId);
+					document = iDocumentModel.get(documentId);
+					final XMPPDocument xmppDocument =
+						XMPPDocument.create(document, content);
+					final Collection<User> users = new Vector<User>(1);
+					users.add(user);
+					xmppHelper.send(users, xmppDocument);
+
+					// lock the local document
 					iDocumentModel.lock(documentId);
 					break;
 				case DENY:
 					break;
 				default: throw Assert.createUnreachable("");
 				}
-				SessionModelImpl.xmppHelper.sendKeyResponse(
-						iDocumentModel.get(documentId).getUniqueId(), keyResponse, user);
 			}
-			catch(SmackException sx) {
+			catch(final SmackException sx) {
 				logger.error("sendKeyResponse(Document,User,KeyResponse)", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
-			catch(RuntimeException rx) {
+			catch(final RuntimeException rx) {
 				logger.error("sendKeyResponse(Document,User,KeyResponse)", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
@@ -792,20 +808,4 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @return The password mask.
 	 */
 	private String mask(final String password) { return "XXXXXXXXXX"; }
-
-	/**
-	 * Ease of use method for sending a document to a single user.
-	 * 
-	 * @param user
-	 *            The user to send the document to.
-	 * @param documentId
-	 *            The document id.
-	 * @throws ParityException
-	 */
-	private void send(final User user, final Long documentId)
-			throws ParityException {
-		final Collection<User> users = new Vector<User>(1);
-		users.add(user);
-		send(users, documentId);
-	}
 }

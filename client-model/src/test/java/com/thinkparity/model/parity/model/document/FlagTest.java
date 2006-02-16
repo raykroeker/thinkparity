@@ -7,14 +7,13 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class FlagTest extends ModelTestCase {
+public class FlagTest extends DocumentTestCase {
 
 	private class Fixture {
 		private Document document;
@@ -74,5 +73,6 @@ public class FlagTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+		super.tearDown();
 	}
 }

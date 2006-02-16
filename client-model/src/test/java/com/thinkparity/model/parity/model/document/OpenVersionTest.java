@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.Vector;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
  * Test the document model open version api.
@@ -15,7 +14,7 @@ import com.thinkparity.model.parity.model.ModelTestCase;
  * @author raykroeker@gmail.com
  * @version 1.1.2.1
  */
-public class OpenVersionTest extends ModelTestCase {
+public class OpenVersionTest extends DocumentTestCase {
 
 	/**
 	 * Test data fixture.
@@ -88,5 +87,8 @@ public class OpenVersionTest extends ModelTestCase {
 	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
+		data.clear();
+		data = null;
+		super.tearDown();
 	}
 }

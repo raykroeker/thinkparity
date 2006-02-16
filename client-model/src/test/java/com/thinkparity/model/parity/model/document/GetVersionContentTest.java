@@ -6,15 +6,13 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
-
 /**
  * Test the document model get version content api.
  * 
  * @author raykroeker@gmail.com
  * @version 1.1.2.1
  */
-public class GetVersionContentTest extends ModelTestCase {
+public class GetVersionContentTest extends DocumentTestCase {
 
 	/**
 	 * Test data fixture.
@@ -99,5 +97,6 @@ public class GetVersionContentTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+		super.tearDown();
 	}
 }

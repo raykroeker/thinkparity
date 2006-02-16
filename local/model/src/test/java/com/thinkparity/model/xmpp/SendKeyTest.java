@@ -3,15 +3,13 @@
  */
 package com.thinkparity.model.xmpp;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.model.ModelTestUser;
-import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.KeyResponse;
+import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -43,15 +41,29 @@ public class SendKeyTest extends XMPPTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		final DocumentModel documentModel = getDocumentModel();
+		final XMPPSession session = getSession();
 		final User user = ModelTestUser.getJUnitBuddy0().getUser();
 		data = new LinkedList<Fixture>();
 
-		Document d;
-		for(final File file : getInputFiles()) {
-			d = documentModel.create(file.getName(), file.getName(), file);
-			data.add(new Fixture(d.getUniqueId(), KeyResponse.ACCEPT, getSession(), user));
-		}
+		UUID artifactUniqueId = UUIDGenerator.nextUUID();
+		session.sendCreate(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+
+		artifactUniqueId = UUIDGenerator.nextUUID();
+		session.sendCreate(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+
+		artifactUniqueId = UUIDGenerator.nextUUID();
+		session.sendCreate(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+
+		artifactUniqueId = UUIDGenerator.nextUUID();
+		session.sendCreate(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+
+		artifactUniqueId = UUIDGenerator.nextUUID();
+		session.sendCreate(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
 	}
 
 	/**

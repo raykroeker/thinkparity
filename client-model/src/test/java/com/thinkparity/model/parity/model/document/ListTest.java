@@ -8,15 +8,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
-
 /**
  * Test the document model list api.
  * 
  * @author raykroeker@gmail.com
  * @version 1.1.2.2
  */
-public class ListTest extends ModelTestCase {
+public class ListTest extends DocumentTestCase {
 
 	/**
 	 * Test data fixture.
@@ -105,5 +103,6 @@ public class ListTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+		super.tearDown();
 	}
 }

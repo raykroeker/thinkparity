@@ -7,15 +7,13 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
-
 /**
  * Test the document model create version api.
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class CreateVersionTest extends ModelTestCase {
+public class CreateVersionTest extends DocumentTestCase {
 
 	/**
 	 * Test data fixture.
@@ -104,5 +102,6 @@ public class CreateVersionTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+		super.tearDown();
 	}
 }

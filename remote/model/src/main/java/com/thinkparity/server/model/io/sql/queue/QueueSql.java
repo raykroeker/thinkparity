@@ -31,7 +31,7 @@ public class QueueSql extends AbstractSql {
 
 	private static final String INSERT = new StringBuffer()
 		.append("insert into parityQueue (queueId,username,queueMessageSize,")
-		.append("queueMessage) values (?,?,?,?)").toString();
+		.append("queueMessage,updatedOn) values (?,?,?,?,CURRENT_TIMESTAMP)").toString();
 
 	private static final String SELECT = new StringBuffer()
 		.append("select queueId,username,queueMessageSize,queueMessage,")

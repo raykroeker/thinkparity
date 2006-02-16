@@ -21,9 +21,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.user.User;
 
-import com.raykroeker.junitx.TestCase;
-import com.raykroeker.junitx.TestSession;
-
 /**
  * ModelTestCase
  * Abstract root for all of the parity test cases.
@@ -31,22 +28,6 @@ import com.raykroeker.junitx.TestSession;
  * @version 1.1
  */
 public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase {
-
-	/**
-	 * The JUnit eXtension test session.
-	 * 
-	 */
-	private static final TestSession testSession;
-
-	static {
-		testSession = TestCase.getTestSession();
-		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
-		testSession.setData("modelTestUser", modelTestUser);
-		System.setProperty("parity.workspace",
-				new File(testSession.getSessionDirectory(), "workspace")
-				.getAbsolutePath());
-		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(modelTestUser.getUsername());
-	}
 
 	/**
 	 * Assert that the document list provided contains the document.
@@ -157,15 +138,6 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 			return DocumentModel.getInternalModel(new Context(getClass()));
 		}
 		return iDocumentModel;
-	}
-
-	/**
-	 * Obtain the junit test user.
-	 * 
-	 * @return The junit test user.
-	 */
-	protected ModelTestUser getModelTestUser() {
-		return (ModelTestUser) testSession.getData("modelTestUser");
 	}
 
 	/**

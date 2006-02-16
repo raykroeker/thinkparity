@@ -5,6 +5,7 @@ package com.thinkparity.model.log4j;
 
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -56,6 +57,7 @@ class ModelLog4JConfigurator {
 		if(Boolean.FALSE == isConfigured) {
 			final Properties configuration = new Properties();
 
+			configureVerbosity(configuration);
 			configureRenderers(configuration);
 
 			PropertyConfigurator.configure(configuration);
@@ -98,6 +100,21 @@ class ModelLog4JConfigurator {
 		configureRenderer(configuration, PacketExtension.class, PacketExtensionRenderer.class);
 		configureRenderer(configuration, XMPPDocument.class, XMPPDocumentRenderer.class);
 		configureRenderer(configuration, XmlPullParser.class, XmlPullParserRenderer.class);
+	}
+
+	private static void configureVerbosity(final Properties log4jProperties) {
+		configureVerbosity(log4jProperties, com.thinkparity.model.Version.class.getPackage(), Level.ERROR);
+		configureVerbosity(log4jProperties, com.thinkparity.model.xmpp.XMPPSessionImpl.class, Level.INFO);
+	}
+
+	private static void configureVerbosity(final Properties log4jProperties,
+			final Class c, final Level level) {
+		log4jProperties.setProperty("log4j.logger." + c.getName(), level.toString());
+	}
+
+	private static void configureVerbosity(final Properties log4jProperties,
+			final Package p, final Level level) {
+		log4jProperties.setProperty("log4j.logger." + p.getName(), level.toString());
 	}
 
 	/**

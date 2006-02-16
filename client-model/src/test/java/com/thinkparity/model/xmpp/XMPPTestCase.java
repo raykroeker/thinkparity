@@ -31,7 +31,7 @@ public abstract class XMPPTestCase extends ModelTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		session = XMPPSessionFactory.getSession();
+		session = XMPPSessionFactory.createSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		session.login(modelTestUser.getServerHost(),
 				modelTestUser.getServerPort(), modelTestUser.getUsername(),

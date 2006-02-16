@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 
@@ -18,7 +17,7 @@ import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
  * @author raykroeker@gmail.com
  * @version 1.1.2.2
  */
-public class ListVersionsTest extends ModelTestCase {
+public class ListVersionsTest extends DocumentTestCase {
 	
 	/**
 	 * Test data fixture.
@@ -120,5 +119,6 @@ public class ListVersionsTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+		super.tearDown();
 	}
 }

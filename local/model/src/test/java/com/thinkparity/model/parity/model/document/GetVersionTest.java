@@ -6,14 +6,12 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.ModelTestCase;
-
 /**
  * Test the document model getVersion api.
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class GetVersionTest extends ModelTestCase {
+public class GetVersionTest extends DocumentTestCase {
 
 	private class Fixture {
 		private final Long documentId;

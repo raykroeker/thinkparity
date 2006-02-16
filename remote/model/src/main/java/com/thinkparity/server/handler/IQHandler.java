@@ -3,6 +3,8 @@
  */
 package com.thinkparity.server.handler;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -13,6 +15,8 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
+
+import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -206,11 +210,22 @@ public abstract class IQHandler extends
 	 * @return The error result iq.
 	 */
 	protected IQ translate(final IQ iq, final String errorMessage,
-			final Throwable error) {
+			final Throwable t) {
 		final IQ errorResult = IQ.createResultIQ(iq);
+		final String text = new StringBuffer(errorMessage)
+			.append(Separator.SystemNewLine)
+			.append(createTrace(t))
+			.toString();
 		errorResult.setError(new PacketError(
 				PacketError.Condition.internal_server_error,
-				PacketError.Type.cancel, errorMessage));
+				PacketError.Type.cancel, text));
 		return errorResult;
+	}
+
+	private String createTrace(final Throwable t) {
+		final StringWriter stringWriter = new StringWriter();
+		t.fillInStackTrace();
+		t.printStackTrace(new PrintWriter(stringWriter));
+		return stringWriter.toString();
 	}
 }

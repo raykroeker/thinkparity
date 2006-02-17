@@ -63,7 +63,7 @@ public class NativeSkinUtil {
 	 * The native skin.
 	 * 
 	 */
-	private final NativeSkin nativeSkin;
+//	private final NativeSkin nativeSkin;
 
 	/**
 	 * Create a NativeSkinUtil [Singleton]
@@ -72,7 +72,7 @@ public class NativeSkinUtil {
 	private NativeSkinUtil() {
 		super();
 		this.logger = ModelLoggerFactory.getLogger(getClass());
-		this.nativeSkin = NativeSkin.getInstance();
+//		this.nativeSkin = NativeSkin.getInstance();
 		logger.info("[VERSION] " + NativeConstants.VERSION);
 	}
 
@@ -83,11 +83,11 @@ public class NativeSkinUtil {
 	 *            The gadget window.
 	 */
 	private void doApplyNativeSkin(final GadgetWindow gadgetWindow) {
-		final Dimension gadgetWindowSize = GadgetWindow.getGadgetWindowSize();
-		final Region region =
-			new RegionBuilder().createEllipticRegion(
-					0, 0, gadgetWindowSize.width, gadgetWindowSize.height);
-		nativeSkin.setWindowRegion(gadgetWindow, region, true);
+//		final Dimension gadgetWindowSize = GadgetWindow.getGadgetWindowSize();
+//		final Region region =
+//			new RegionBuilder().createEllipticRegion(
+//					0, 0, gadgetWindowSize.width, gadgetWindowSize.height);
+//		nativeSkin.setWindowRegion(gadgetWindow, region, true);
 	}
 
 	/**
@@ -97,17 +97,17 @@ public class NativeSkinUtil {
 	 *            The browser window.
 	 */
 	private void doApplyNativeSkin(final BrowserWindow browserWindow) {
-		final Dimension browserWindowSize = BrowserWindow.getMainWindowSize();
-		final RegionBuilder regionBuilder = new RegionBuilder();
-		final Region region =
-			regionBuilder.createRoundRectangleRegion(
-					0, 0, browserWindowSize.width + 1, UIConstants.TitlePaneHeight * 2,
-					UIConstants.TitlePaneCurvature,
-					UIConstants.TitlePaneCurvature);
-		final Region region2 = regionBuilder.createRectangleRegion(0,
-				UIConstants.TitlePaneHeight, browserWindowSize.width, browserWindowSize.height);
-		final Region region3 = regionBuilder.combineRegions(region, region2,
-				NativeConstants.REGION_OR);
-		NativeSkin.getInstance().setWindowRegion(browserWindow, region3, true);
+//		final Dimension browserWindowSize = BrowserWindow.getMainWindowSize();
+//		final RegionBuilder regionBuilder = new RegionBuilder();
+//		final Region region =
+//			regionBuilder.createRoundRectangleRegion(
+//					0, 0, browserWindowSize.width + 1, UIConstants.TitlePaneHeight * 2,
+//					UIConstants.TitlePaneCurvature,
+//					UIConstants.TitlePaneCurvature);
+//		final Region region2 = regionBuilder.createRectangleRegion(0,
+//				UIConstants.TitlePaneHeight, browserWindowSize.width, browserWindowSize.height);
+//		final Region region3 = regionBuilder.combineRegions(region, region2,
+//				NativeConstants.REGION_OR);
+//		NativeSkin.getInstance().setWindowRegion(browserWindow, region3, true);
 	}
 }

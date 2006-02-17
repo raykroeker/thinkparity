@@ -117,18 +117,21 @@ public abstract class AbstractModelImpl {
 			logger.info("isOnline(jid)");
 			getSessionManager().getSession(jid).process(iq);
 		}
-		else { enqueue(iq); }
+		else { enqueue(jid, iq); }
 	}
 
 	/**
 	 * Save the iq in the parity offline queue.
 	 * 
+	 * @param jid
+	 *            The jid.
 	 * @param iq
 	 *            The iq packet.
 	 */
-	private void enqueue(final IQ iq) throws ParityServerModelException {
+	private void enqueue(final JID jid, final IQ iq)
+			throws ParityServerModelException {
 		final QueueModel queueModel = QueueModel.getModel(session);
-		queueModel.enqueue(iq.toXML());
+		queueModel.enqueue(jid, iq);
 	}
 
 	/**

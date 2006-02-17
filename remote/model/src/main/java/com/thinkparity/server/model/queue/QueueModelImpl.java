@@ -6,6 +6,9 @@ package com.thinkparity.server.model.queue;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.xmpp.packet.IQ;
+import org.xmpp.packet.JID;
+
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -60,19 +63,25 @@ class QueueModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
+
 	/**
 	 * Enqueue a message for a jabber id to persistant storage.
 	 * 
-	 * @param message
-	 *            A message.
+	 * @param jid
+	 *            The message recipient.
+	 * @param iq
+	 *            The iq message.
 	 * @return The enqueued item.
 	 * @throws ParityServerModelException
 	 */
-	QueueItem enqueue(final String message) throws ParityServerModelException {
+	QueueItem enqueue(final JID jid, final IQ iq)
+			throws ParityServerModelException {
 		logger.info("enqueue(JID,String)");
-		logger.debug(message);
+		logger.debug(jid);
+		logger.debug(iq);
 		try {
-			final String username = session.getJID().getNode();
+			final String username = jid.getNode();
+			final String message = iq.toXML();
 			final Integer queueId = queueSql.insert(username, message);
 			return queueSql.select(queueId);
 		}

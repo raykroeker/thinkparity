@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -18,8 +19,10 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -175,6 +178,17 @@ public abstract class AbstractModelImpl {
 		}
 	}
 
+	protected UUID getArtifactUniqueId(final Long artifactId,
+			final ArtifactType artifactType) throws ParityException {
+		switch(artifactType) {
+		case DOCUMENT:
+			final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
+			return iDocumentModel.get(artifactId).getUniqueId();
+		default:
+			throw Assert.createUnreachable("");
+		}
+	}
+
 	/**
 	 * Obtain the model's context.
 	 * 
@@ -188,6 +202,12 @@ public abstract class AbstractModelImpl {
 	 * @return A handle to the project model.
 	 */
 	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
+
+	protected InternalDocumentModel getInternalDocumentModel() {
+		final InternalDocumentModel iDocumentModel =
+			DocumentModel.getInternalModel(getContext());
+		return iDocumentModel;
+	}
 
 	/**
 	 * Obtain a handle to the session model.
@@ -256,5 +276,12 @@ public abstract class AbstractModelImpl {
 			document.add(ArtifactFlag.SEEN);
 			getDocumentModel().update(document);
 		}
+	}
+
+	protected UUID getArtifactUniqueId(final Long artifactId)
+			throws ParityException {
+		// NOTE I'm assuming document :)
+		final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
+		return iDocumentModel.get(artifactId).getUniqueId();
 	}
 }

@@ -25,8 +25,14 @@ public class ElementBuilder {
 	 */
 	public static Element addElement(final Element element,
 			final ElementName elementName, final String elementText) {
-		final Element newElement = element.addElement(elementName.getName());
+		final Element newElement = addElement(element, elementName);
 		newElement.setText(elementText);
+		return newElement;
+	}
+
+	public static Element addElement(final Element element,
+			final ElementName elementName) {
+		final Element newElement = element.addElement(elementName.getName());
 		return newElement;
 	}
 

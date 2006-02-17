@@ -5,13 +5,17 @@ package com.thinkparity.browser.application.browser.display.provider;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Vector;
+
+import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.RandomData;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
@@ -22,6 +26,9 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.workspace.Preferences;
+import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -29,6 +36,12 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1
  */
 public class ProviderFactory {
+
+	/**
+	 * The parity preferences.
+	 * 
+	 */
+	private static final Preferences preferences;
 
 	/**
 	 * Singleton instance.
@@ -43,6 +56,9 @@ public class ProviderFactory {
 	private static final Object singletonLock;
 
 	static {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		preferences = workspace.getPreferences();
+
 		singleton = new ProviderFactory();
 		singletonLock = new Object();
 	}
@@ -69,6 +85,10 @@ public class ProviderFactory {
 		synchronized(singletonLock) { return singleton.doGetMainProvider(); }
 	}
 
+	public static ContentProvider getSendArtifactProvider() {
+		synchronized(singletonLock) { return singleton.doGetSendArtifactProvider(); }
+	}
+
 	public static ContentProvider getSystemMessageProvider() {
 		synchronized(singletonLock) { return singleton.doGetSystemMessageProvider(); }
 	}
@@ -77,15 +97,17 @@ public class ProviderFactory {
 		synchronized(singletonLock) { return singleton.doGetSystemMessagesProvider(); }
 	}
 
-	public static ContentProvider getUserProvider() {
-		synchronized(singletonLock) { return singleton.doGetUserProvider(); }
-	}
-
 	/**
 	 * Document model api.
 	 * 
 	 */
 	protected final DocumentModel documentModel;
+
+	/**
+	 * An apache logger.
+	 * 
+	 */
+	protected final Logger logger;
 
 	/**
 	 * Session model api.
@@ -112,6 +134,14 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider mainProvider;
 
+	private final ContentProvider rosterProvider;
+
+	/**
+	 * Send artifact provider.
+	 * 
+	 */
+	private final ContentProvider sendArtifactProvider;
+
 	private final ContentProvider systemMessageProvider;
 
 	/**
@@ -120,11 +150,7 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider systemMessagesProvider;
 
-	/**
-	 * User provider.
-	 * 
-	 */
-	private final ContentProvider userProvider;
+	private final ContentProvider teamProvider;
 
 	/**
 	 * Create a ProviderFactory.
@@ -162,13 +188,14 @@ public class ProviderFactory {
 						documentModel.listVersions(
 								documentId, versionIdDescending);
 				}
-				catch(ParityException px) {
-					// NOTE Error Handler Code
+				catch(final ParityException px) {
+					logger.error("Could not obtain the document version list.", px);
 					versionList = new Vector<DocumentVersion>(0);
 				}
 				return versionList.toArray(new DocumentVersion[] {});
 			}
 		};
+		this.logger = ModelLoggerFactory.getLogger(getClass());
 		this.mainProvider = new CompositeFlatContentProvider() {
 			public Object[] getElements(final Integer index, final Object input) {
 				Assert.assertNotNull("Index cannot be null.", index);
@@ -181,6 +208,17 @@ public class ProviderFactory {
 				if(0 == index) { return systemMessagesProvider; }
 				else if(1 == index) { return documentProvider; }
 				else { throw Assert.createUnreachable(""); }
+			}
+		};
+		this.rosterProvider = new FlatContentProvider() {
+			public Object[] getElements(final Object input) {
+				Collection<User> roster;
+				try { roster = sessionModel.getRosterEntries(); }
+				catch(final ParityException px) {
+					logger.error("Cannot obtain the user's roster.", px);
+					roster = new Vector<User>(0);
+				}
+				return roster.toArray(new User[] {});
 			}
 		};
 		this.systemMessageProvider = new SingleContentProvider() {
@@ -197,19 +235,59 @@ public class ProviderFactory {
 				return randomData.getSystemMessages();
 			}
 		};
-		this.userProvider = new FlatContentProvider() {
-			public Object[] getElements(Object input) {
-				Collection<User> userList;
+		this.teamProvider = new FlatContentProvider() {
+			public Object[] getElements(final Object input) {
+				Assert.assertNotNull(
+						"The team provider requires an artifact id:  java.lang.Long.",
+						input);
+				Assert.assertOfType(
+						"The team provider requires an artifact id:  java.lang.Long.",
+						Long.class, input);
+				final Long artifactId = (Long) input;
+				Collection<User> team;
 				try {
-					userList = sessionModel.getRosterEntries();
-//					TODO Implement model method here
-//					userList.add(sessionModel.getTeamEntries(documentId));
+					final User[] roster =
+						(User[]) ((FlatContentProvider) rosterProvider).getElements(null);
+					team = sessionModel.getSubscriptions(artifactId);
+					// remove all roster members from the team
+					for(final User rosterUser : roster) {
+						team.remove(rosterUser);
+					}
+					final Iterator<User> iTeam = team.iterator();
+					User user;
+					final String loggedInUsername = new StringBuffer(preferences.getUsername())
+						.append("@")
+						.append(preferences.getServerHost())
+						.toString();
+					while(iTeam.hasNext()) {
+						user = iTeam.next();
+						if(user.getUsername().equals(loggedInUsername)) {
+							iTeam.remove();
+						}
+					}
 				}
-				catch(ParityException px) {
-					// NOTE Error Handler Code
-					userList = new Vector<User>(0);
+				catch(final ParityException px) {
+					logger.error("Could not obtain the team for the artifact:  "
+							+ artifactId, px);
+					team = new Vector<User>(0);
 				}
-				return userList.toArray(new User[] {});
+				return team.toArray(new User[] {});
+			}
+		};
+		this.sendArtifactProvider = new CompositeFlatContentProvider() {
+			private final ContentProvider[] contentProviders = new
+				ContentProvider[] {teamProvider, rosterProvider};
+			public Object[] getElements(final Integer index, final Object input) {
+				Assert.assertNotNull(
+						"Index for composite content provider cannot be null.",
+						index);
+				Assert.assertTrue(
+						"Index for the send artifact content provider mus lie within [0," + 1 + "]",
+						index >= 0 && index <= 1);
+				return ((FlatContentProvider) getProvider(index)).getElements(input);
+			}
+			private ContentProvider getProvider(final Integer index) {
+				return contentProviders[index];
 			}
 		};
 	}
@@ -235,6 +313,15 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetMainProvider() { return mainProvider; }
 
+	/**
+	 * Obtain the user provider.
+	 * 
+	 * @return The user provider.
+	 */
+	private ContentProvider doGetSendArtifactProvider() {
+		return sendArtifactProvider;
+	}
+
 	private ContentProvider doGetSystemMessageProvider() {
 		return systemMessageProvider;
 	}
@@ -247,11 +334,4 @@ public class ProviderFactory {
 	private ContentProvider doGetSystemMessagesProvider() {
 		return systemMessagesProvider;
 	}
-
-	/**
-	 * Obtain the user provider.
-	 * 
-	 * @return The user provider.
-	 */
-	private ContentProvider doGetUserProvider() { return userProvider; }
 }

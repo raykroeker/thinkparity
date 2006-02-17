@@ -43,7 +43,7 @@ public class IQParityRenderer implements ObjectRenderer {
 				.append(IRendererConstants.ID).append(iq.getID())
 				.append(FROM).append(iq.getFrom())
 				.append(TO).append(iq.getTo())
-				.append(XML).append(iq.getChildElement())
+				.append(XML).append(iq.toXML())
 				.append(IRendererConstants.SUFFIX).toString();
 		}
 	}

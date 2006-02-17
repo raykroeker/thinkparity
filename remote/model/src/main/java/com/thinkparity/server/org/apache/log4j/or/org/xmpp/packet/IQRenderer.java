@@ -45,7 +45,7 @@ public class IQRenderer implements ObjectRenderer {
 				.append(ID).append(iq.getID())
 				.append(FROM).append(iq.getFrom())
 				.append(TO).append(iq.getTo())
-				.append(XML).append(iq.toXML())
+				.append(XML).append(iq.toString())
 				.append(IRendererConstants.SUFFIX).toString();
 		}
 	}

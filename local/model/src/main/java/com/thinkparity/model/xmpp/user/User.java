@@ -12,12 +12,6 @@ package com.thinkparity.model.xmpp.user;
 public class User {
 
 	/**
-	 * The user's presence types.
-	 * 
-	 */
-	public enum Presence { AVAILABLE, OFFLINE, UNAVAILABLE }
-
-	/**
 	 * The user's name.
 	 * 
 	 */
@@ -57,6 +51,17 @@ public class User {
 	}
 
 	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * 
+	 */
+	public boolean equals(Object obj) {
+		if(null != obj && obj instanceof User) {
+			return username.equals(((User) obj).username);
+		}
+		return false;
+	}
+
+	/**
 	 * Obtain the name of the user.
 	 * 
 	 * @return The name of the user.
@@ -88,4 +93,16 @@ public class User {
 	 * @return The username of the user.
 	 */
 	public String getUsername() { return username; }
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 * 
+	 */
+	public int hashCode() { return username.hashCode(); }
+
+	/**
+	 * The user's presence types.
+	 * 
+	 */
+	public enum Presence { AVAILABLE, OFFLINE, UNAVAILABLE }
 }

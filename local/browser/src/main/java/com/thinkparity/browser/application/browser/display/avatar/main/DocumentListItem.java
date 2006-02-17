@@ -137,7 +137,7 @@ public class DocumentListItem extends ListItem {
 		super("DocumentListItem");
 		setDocumentId(document.getId());
 		setMenuIcon(MENU_ICON);
-		setName(document.getName());
+		setName(new StringBuffer(document.getName()).append(" - ").append(document.getUniqueId()).toString());
 		if(isKeyHolder(document.getId())) { setInfoIcon(KEY_ICON); }
 	}
 

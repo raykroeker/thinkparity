@@ -269,6 +269,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 */
 	public List<User> getArtifactSubscription(final UUID artifactUniqueId)
 			throws SmackException {
+		assertLoggedIn("Cannot obtain artifact subscription without being online.");
 		logger.info("getArtifactSubscription(UUID)");
 		logger.debug(artifactUniqueId);
 		try {
@@ -278,8 +279,14 @@ public class XMPPSessionImpl implements XMPPSession {
 			final IQGetSubscriptionResponse response =
 				(IQGetSubscriptionResponse) sendAndConfirmPacket(iq);
 			final List<User> subscription = new LinkedList<User>();
-			for(final String s : response.getJids()) {
-				subscription.add(new User(null, s, User.Presence.OFFLINE));
+			final Roster roster = getRoster();
+			JIDBuilder jidBuilder;
+			for(final String jid : response.getJids()) {
+				jidBuilder = new JIDBuilder(jid);
+				if(isLoggedInUser(jidBuilder))
+					subscription.add(getLoggedInUser());
+				else
+					subscription.add(buildRosterUser(roster, jidBuilder));
 			}
 			return subscription;
 		}
@@ -307,9 +314,10 @@ public class XMPPSessionImpl implements XMPPSession {
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getUser()
+	 * 
 	 */
 	public User getUser() {
-		assertLoggedIn("getUser()");
+		assertLoggedIn("Cannot obtain the user if not logged in.");
 		final String user = smackXMPPConnection.getUser();
 		return new User(
 				null, user.substring(0, user.indexOf("/")), User.Presence.AVAILABLE);
@@ -662,6 +670,21 @@ public class XMPPSessionImpl implements XMPPSession {
 				smackXMPPConnection.isAuthenticated());
 	}
 
+	private User buildRosterUser(final Roster roster, final JIDBuilder jidBuilder) {
+		assertLoggedIn("Cannot construct a user when offline.");
+		final Iterator iRoster = roster.getEntries();
+		RosterEntry entry;
+		while(iRoster.hasNext()) {
+			entry = (RosterEntry) iRoster.next();
+			if(entry.getUser().equals(jidBuilder.getQualifiedUsername())) {
+				return createUser(roster, entry);
+			}
+		}
+		throw Assert.createUnreachable(
+				"Cannot build user that is not a part of the roster:  " +
+					jidBuilder.getQualifiedJID());
+	}
+
 	private User createUser(final Roster roster, final RosterEntry rosterEntry) {
 		final Presence presence = roster.getPresence(rosterEntry.getUser());
 
@@ -779,6 +802,15 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
+	 * Obtain the logged in user.
+	 * 
+	 * @return The logged in user.
+	 */
+	private User getLoggedInUser() {
+		return getUser();
+	}
+
+	/**
 	 * Obtain the roster from the underlying connection.  The roster is not
 	 * automatically reloaded.
 	 * 
@@ -833,6 +865,17 @@ public class XMPPSessionImpl implements XMPPSession {
 	private User getUserPacketFrom(final Packet packet) {
 		// TODO:  Figure out a way to extract the name.
 		return new User(null, packet.getFrom(), User.Presence.OFFLINE);
+	}
+
+	/**
+	 * Determine if the jabber id belongs to the logged in user.
+	 * 
+	 * @param jidBuilder
+	 *            The jabber id.
+	 * @return The jabber id.
+	 */
+	private Boolean isLoggedInUser(final JIDBuilder jidBuilder) {
+		return smackXMPPConnection.getUser().equals(jidBuilder.getQualifiedJID());
 	}
 
 	/**
@@ -1066,6 +1109,4 @@ public class XMPPSessionImpl implements XMPPSession {
 		 */
 		public void rosterModified() {}
 	}
-
-
 }

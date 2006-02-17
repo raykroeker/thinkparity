@@ -415,19 +415,22 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	Collection<User> getSubscriptions(final UUID artifactUniqueId)
+	Collection<User> getSubscriptions(final Long artifactId)
 			throws ParityException {
-		logger.info("getSubscriptions(UUID)");
-		logger.debug(artifactUniqueId);
+		logger.info("getSubscriptions(Long)");
+		logger.debug(artifactId);
 		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("getSubscriptions(UUID)", xmppHelper);
-			try { return xmppHelper.getSubscriptions(artifactUniqueId); }
+			assertIsLoggedIn("getSubscriptions(Long)", xmppHelper);
+			try {
+				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+				return xmppHelper.getSubscriptions(artifactUniqueId);
+			}
 			catch(final SmackException sx) {
-				logger.error("getSubscriptions(UUID)", sx);
+				logger.error("getSubscriptions(Long)", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(final RuntimeException rx) {
-				logger.error("getSubscriptions(UUID)", rx);
+				logger.error("getSubscriptions(Long)", rx);
 				throw ParityErrorTranslator.translate(rx);
 
 			}

@@ -18,12 +18,7 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.server.handler.IQHandler;
-import com.thinkparity.server.handler.artifact.AcceptKeyRequest;
-import com.thinkparity.server.handler.artifact.CreateArtifact;
-import com.thinkparity.server.handler.artifact.DenyKeyRequest;
-import com.thinkparity.server.handler.artifact.FlagArtifact;
-import com.thinkparity.server.handler.artifact.GetKeyHolder;
-import com.thinkparity.server.handler.artifact.RequestArtifactKey;
+import com.thinkparity.server.handler.artifact.*;
 import com.thinkparity.server.handler.user.SubscribeUser;
 import com.thinkparity.server.handler.user.UnsubscribeUser;
 import com.thinkparity.server.org.apache.log4j.ServerLog4jConfigurator;
@@ -35,14 +30,16 @@ import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
  */
 public class ParityServer implements Plugin {
 
-	private IQHandler getKeyHolder;
 	private AcceptKeyRequest acceptKeyRequest;
 	private CreateArtifact createArtifact;
 	private DenyKeyRequest denyKeyRequest;
 	private FlagArtifact flagArtifact;
+	private IQHandler getKeyHolder;
+	private IQHandler getSubscription;
 	private final IQRouter iqRouter;
 	private RequestArtifactKey requestArtifactKey;
 	private SubscribeUser subscribeUser;
+
 	private UnsubscribeUser unsubscribeUser;
 
 	/**
@@ -89,6 +86,10 @@ public class ParityServer implements Plugin {
 		iqRouter.removeHandler(getKeyHolder);
 		getKeyHolder.destroy();
 		getKeyHolder = null;
+
+		iqRouter.removeHandler(getSubscription);
+		getSubscription.destroy();
+		getSubscription = null;
 
 		iqRouter.removeHandler(unsubscribeUser);
 		unsubscribeUser.destroy();
@@ -139,6 +140,9 @@ public class ParityServer implements Plugin {
 
 		getKeyHolder = new GetKeyHolder();
 		iqRouter.addHandler(getKeyHolder);
+
+		getSubscription = new GetSubscription();
+		iqRouter.addHandler(getSubscription);
 
 		unsubscribeUser = new UnsubscribeUser();
 		iqRouter.addHandler(unsubscribeUser);

@@ -33,6 +33,8 @@ public class AvatarFactory {
 			return SINGLETON.createSessionLogin();
 		case SESSION_SEND_FORM:
 			return SINGLETON.createSessionSendForm();
+		case SESSION_SEND_KEY_FORM:
+			return SINGLETON.createSessionSendKeyForm();
 		case SYSTEM_MESSAGE:
 			return SINGLETON.createSystemMessage();
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
@@ -80,6 +82,12 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar sessionSendForm;
+
+	/**
+	 * The sesssion send key form.
+	 * 
+	 */
+	private Avatar sessionSendKeyForm;
 
 	/**
 	 * The system message avatar.
@@ -165,8 +173,23 @@ public class AvatarFactory {
 	private Avatar createSessionSendForm() {
 		if(null == sessionSendForm) {
 			sessionSendForm = new SessionSendFormAvatar();
+			sessionSendForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
 		}
 		return sessionSendForm;
+	}
+
+	/**
+	 * Create the session send key form avatar.  Note that we are using the
+	 * same form as send.
+	 * 
+	 * @return The session send key form avatar.
+	 */
+	private Avatar createSessionSendKeyForm() {
+		if(null == sessionSendKeyForm) {
+			sessionSendKeyForm = new SessionSendFormAvatar();
+			sessionSendForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
+		}
+		return sessionSendKeyForm;
 	}
 
 	/**

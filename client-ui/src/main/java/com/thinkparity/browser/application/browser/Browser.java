@@ -134,8 +134,8 @@ public class Browser implements Application {
 	 *
 	 */
 	public void displaySessionSendKeyFormAvatar() {
-		Assert.assertNotYetImplemented(getClass().getSimpleName() +
-				"#displaySessionSendKeyFormAvatar()");
+		putClientProperty(AvatarId.SESSION_SEND_FORM, "doIncludeKey", Boolean.TRUE);
+		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_FORM);
 	}
 
 	/**
@@ -170,6 +170,12 @@ public class Browser implements Application {
 	 * 
 	 */
 	public void hibernate() {}
+
+	/**
+	 * @see com.thinkparity.browser.platform.application.Application#launch()
+	 * 
+	 */
+	public void launch() {}
 
 	/**
 	 * Move the main window.
@@ -445,6 +451,23 @@ public class Browser implements Application {
 	}
 
 	/**
+	 * Use the putClientProperty api of the swing component to add a key\value
+	 * pair to the avatar.
+	 * 
+	 * @param avatarId
+	 *            The avatar.
+	 * @param key
+	 *            The key.
+	 * @param value
+	 *            The value.
+	 */
+	private void putClientProperty(final AvatarId avatarId, final String key,
+			final Object value) {
+		final Avatar avatar = AvatarFactory.create(avatarId);
+		avatar.putClientProperty(key, value);
+	}
+
+	/**
 	 * Set the input for an avatar. If the avatar is currently being displayed;
 	 * it will be set immediately; otherwise it will be stored in the local
 	 * hash; and set when the avatar is displayed.
@@ -461,7 +484,7 @@ public class Browser implements Application {
 		for(Display display : displays) {
 			avatar = display.getAvatar();
 			if(null == avatar) {
-				logger.warn("No avatar displayed:  " + display.getId());
+				logger.warn("No avatar available on display:  " + display.getId());
 			}
 			else {
 				if(avatarId == avatar.getId()) { avatar.setInput(input); }
@@ -472,10 +495,4 @@ public class Browser implements Application {
 			}
 		}
 	}
-
-	/**
-	 * @see com.thinkparity.browser.platform.application.Application#launch()
-	 * 
-	 */
-	public void launch() {}
 }

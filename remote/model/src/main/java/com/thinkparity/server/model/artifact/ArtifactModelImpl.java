@@ -5,6 +5,8 @@ package com.thinkparity.server.model.artifact;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
@@ -251,6 +253,24 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	List<ArtifactSubscription> getSubscription(
+			final UUID artifactUniqueId) throws ParityServerModelException {
+		logger.info("getArtifactSubscription(UUID)");
+		logger.debug(artifactUniqueId);
+		try {
+			final Artifact artifact = get(artifactUniqueId);
+			return proxy(artifactSubscriptionSql.select(artifact.getArtifactId()));
+		}
+		catch(final SQLException sqlx) {
+			logger.error("getArtifactSubscription(UUID)", sqlx);
+			throw ParityErrorTranslator.translate(sqlx);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("getArtifactSubscription(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
 	/**
 	 * Request the key from the artifact's key holder. If the key holder is
 	 * currently online; the request will be routed to them; otherwise it will
@@ -364,5 +384,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		iqArtifactFlag.setTo(buildJID(subscription.getUsername()));
 		iqArtifactFlag.setFrom(session.getJID());
 		return iqArtifactFlag;
+	}
+
+	private List<ArtifactSubscription> proxy(
+			final Collection<ArtifactSubscription> c) {
+		final List<ArtifactSubscription> l = new LinkedList<ArtifactSubscription>();
+		for(final ArtifactSubscription as : c) { l.add(as); }
+		return l;
 	}
 }

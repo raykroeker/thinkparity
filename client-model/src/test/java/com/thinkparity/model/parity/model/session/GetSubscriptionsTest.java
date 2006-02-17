@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.session;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.ModelTestCase;
@@ -32,7 +31,7 @@ public class GetSubscriptionsTest extends ModelTestCase {
 			List<User> subscriptions;
 			for(final Fixture datum : data) {
 				subscriptions =
-					proxy(datum.sessionModel.getSubscriptions(datum.artifactUniqueId));
+					proxy(datum.sessionModel.getSubscriptions(datum.artifactId));
 
 				assertNotNull("Artifact subscription is null.", subscriptions);
 				assertEquals(
@@ -69,7 +68,7 @@ public class GetSubscriptionsTest extends ModelTestCase {
 			d = documentModel.create(file.getName(), file.getName(), file);
 			subscriptions = new LinkedList<User>();
 			subscriptions.add(jUnitUser);
-			data.add(new Fixture(d.getUniqueId(), subscriptions, sessionModel));
+			data.add(new Fixture(d.getId(), subscriptions, sessionModel));
 		}
 	}
 
@@ -82,12 +81,14 @@ public class GetSubscriptionsTest extends ModelTestCase {
 	}
 
 	private class Fixture {
-		private final UUID artifactUniqueId;
+		private final Long artifactId;
 		private final List<User> expectedSubscriptions;
 		private final SessionModel sessionModel;
-		private Fixture(final UUID artifactUniqueId, final List<User> expectedSubscriptions, final SessionModel sessionModel) {
+		private Fixture(final Long artifactId,
+				final List<User> expectedSubscriptions,
+				final SessionModel sessionModel) {
 			super();
-			this.artifactUniqueId = artifactUniqueId;
+			this.artifactId = artifactId;
 			this.expectedSubscriptions = expectedSubscriptions;
 			this.sessionModel = sessionModel;
 		}

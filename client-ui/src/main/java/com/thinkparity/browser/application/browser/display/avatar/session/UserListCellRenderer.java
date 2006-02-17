@@ -58,7 +58,7 @@ public class UserListCellRenderer implements ListCellRenderer {
 		if(isSelected) { jLabel.setBackground(listItemBackgroundSelect); }
 		else { jLabel.setBackground(listItemBackground); }
 		
-		jLabel.setText(((User) value).getName());
+		jLabel.setText(((User) value).getName() + " - " + ((User) value).getSimpleUsername());
 		return jLabel;
 	}
 

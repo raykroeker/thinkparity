@@ -4,12 +4,16 @@
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.CheckBoxFactory;
@@ -18,6 +22,7 @@ import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.ListFactory;
 import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
 import com.thinkparity.browser.application.browser.display.avatar.session.UserListCellRenderer;
+import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -51,7 +56,7 @@ public class SessionSendFormAvatar extends Avatar {
 
 	private DefaultListSelectionModel contactsSelectionModel;
 
-	private javax.swing.JCheckBox ownershipJCheckBox;
+	private javax.swing.JCheckBox includeKeyJCheckBox;
 
 	private javax.swing.JButton sendJButton;
 
@@ -98,6 +103,22 @@ public class SessionSendFormAvatar extends Avatar {
 		return null;
 	}
 
+	public Boolean isInputValid() {
+		Long documentId;
+		try { documentId = extractDocumentId(); }
+		catch(final Throwable t) { return Boolean.FALSE; }
+
+		Collection<User> users = null;
+		try { users = extractTeam(); }
+		catch(final Throwable t) { return Boolean.FALSE; }
+
+		try { users.addAll(extractContacts()); }
+		catch(final Throwable t) { return Boolean.FALSE; }
+
+		if (null != documentId && 0 < users.size()) { return Boolean.TRUE; }
+		else { return Boolean.FALSE; }
+	}
+
 	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
 	 * 
@@ -105,6 +126,7 @@ public class SessionSendFormAvatar extends Avatar {
 	public void reload() {
 		cancelJButton.setEnabled(true);
 		sendJButton.setEnabled(true);
+//		reloadIncludeKey();
 		reloadVersions();
 		reloadTeamMembers();
 		reloadContacts();
@@ -132,6 +154,16 @@ public class SessionSendFormAvatar extends Avatar {
 		return SwingUtil.extract(teamJList);
 	}
 
+	// End of variables declaration
+
+	private User[] getContacts() {
+		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
+	}
+
+	private User[] getTeam() {
+		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(0, (Long) input);
+	}
+
 	/**
 	 * This method is called from within the constructor to initialize the form.
 	 * WARNING: Do NOT modify this code. The content of this method is always
@@ -145,9 +177,21 @@ public class SessionSendFormAvatar extends Avatar {
 		versionJComboBox.setModel(versionModel);
 		teamJLabel = LabelFactory.create();
 		contactJLabel = LabelFactory.create();
+
 		teamModel = new DefaultListModel();
 		teamSelectionModel = new DefaultListSelectionModel();
+		teamSelectionModel.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(final ListSelectionEvent e) {
+//				if(!e.getValueIsAdjusting()) {
+//					if(ListSelectionModel.SINGLE_SELECTION ==
+//						teamSelectionModel.getSelectionMode()) {
+//						contactsSelectionModel.clearSelection();
+//					}
+//				}
+			}
+		});
 		teamJScrollPane = ScrollPaneFactory.create();
+
 		teamJList = ListFactory.create();
 		teamJList.setSelectionMode(
 				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -155,9 +199,22 @@ public class SessionSendFormAvatar extends Avatar {
 		teamJList.setSelectionModel(teamSelectionModel);
 		teamJList.setCellRenderer(new UserListCellRenderer());
 		teamJList.setBackground(getBackground());
+
 		contactsModel = new DefaultListModel();
 		contactsSelectionModel = new DefaultListSelectionModel();
+		contactsSelectionModel.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(final ListSelectionEvent e) {
+//				if(!e.getValueIsAdjusting()) {
+//					if(ListSelectionModel.SINGLE_SELECTION ==
+//						contactsSelectionModel.getSelectionMode()) {
+//						teamSelectionModel.clearSelection();
+//					}
+//				}
+			}
+
+		});
 		contactsJScrollPane = ScrollPaneFactory.create();
+		
 		contactsJList = ListFactory.create();
 		contactsJList.setSelectionMode(
 				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -165,40 +222,61 @@ public class SessionSendFormAvatar extends Avatar {
 		contactsJList.setSelectionModel(contactsSelectionModel);
 		contactsJList.setCellRenderer(new UserListCellRenderer());
 		contactsJList.setBackground(getBackground());
-		ownershipJCheckBox = CheckBoxFactory.create();
+		
+		includeKeyJCheckBox = CheckBoxFactory.create();
+		includeKeyJCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+//				if(includeKeyJCheckBox.isSelected()) {
+//					contactsSelectionModel.setSelectionMode(
+//							ListSelectionModel.SINGLE_SELECTION);
+//					teamSelectionModel.setSelectionMode(
+//							ListSelectionModel.SINGLE_SELECTION);
+//
+//					// since include key is selected; only 1 user can be used
+//					// as the "destination"  remove *all* but the first selected
+//					// user
+//					int[] indices = teamJList.getSelectedIndices();
+//					if(1 < indices.length) {
+//						for(int i = 1; i < indices.length; i++) {
+//							teamSelectionModel.removeSelectionInterval(i, i);
+//						}
+//						contactsSelectionModel.clearSelection();
+//					}
+//					else {
+//						indices = contactsJList.getSelectedIndices();
+//						if(1 < indices.length) {
+//							for(int i = 1; i < indices.length; i++) {
+//								contactsSelectionModel.removeSelectionInterval(i, i);
+//							}
+//						}
+//					}
+//				}
+//				else {
+//					contactsSelectionModel.setSelectionMode(
+//							ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+//					teamSelectionModel.setSelectionMode(
+//							ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+//				}
+			}
+		});
 		cancelJButton = ButtonFactory.create();
 		sendJButton = ButtonFactory.create();
 
 		versionJLabel.setText("Version:");
 
-		// versionJComboBox.setModel(new javax.swing.DefaultComboBoxModel(new
-		// String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
 		teamJLabel.setText("Team Members:");
 
 		contactJLabel.setText("Contacts:");
 
-		// teamJList.setModel(new javax.swing.AbstractListModel() {
-		// String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5"
-		// };
-		// public int getSize() { return strings.length; }
-		// public Object getElementAt(int i) { return strings[i]; }
-		// });
 		teamJScrollPane.setViewportView(teamJList);
 
-		// contactsJList.setModel(new javax.swing.AbstractListModel() {
-		// String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5"
-		// };
-		// public int getSize() { return strings.length; }
-		// public Object getElementAt(int i) { return strings[i]; }
-		// });
 		contactsJScrollPane.setViewportView(contactsJList);
 
-		ownershipJCheckBox.setText("Include Ownership");
-		ownershipJCheckBox.setBorder(javax.swing.BorderFactory
+		includeKeyJCheckBox.setText("Include Ownership");
+		includeKeyJCheckBox.setBorder(javax.swing.BorderFactory
 				.createEmptyBorder(0, 0, 0, 0));
-		ownershipJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-		ownershipJCheckBox.setOpaque(false);
+		includeKeyJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		includeKeyJCheckBox.setOpaque(false);
 
 		cancelJButton.setText("Cancel");
 		cancelJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -268,7 +346,7 @@ public class SessionSendFormAvatar extends Avatar {
 																								Short.MAX_VALUE)
 																						.add(
 																								org.jdesktop.layout.GroupLayout.LEADING,
-																								ownershipJCheckBox)))
+																								includeKeyJCheckBox)))
 														.add(
 																org.jdesktop.layout.GroupLayout.TRAILING,
 																layout
@@ -327,7 +405,7 @@ public class SessionSendFormAvatar extends Avatar {
 																		.addPreferredGap(
 																				org.jdesktop.layout.LayoutStyle.RELATED)
 																		.add(
-																				ownershipJCheckBox)
+																				includeKeyJCheckBox)
 																		.addPreferredGap(
 																				org.jdesktop.layout.LayoutStyle.RELATED)
 																		.add(
@@ -344,38 +422,34 @@ public class SessionSendFormAvatar extends Avatar {
 												Short.MAX_VALUE)));
 	}// </editor-fold>
 
-	// End of variables declaration
-
-	public Boolean isInputValid() {
-		Long documentId;
-		try { documentId = extractDocumentId(); }
-		catch(final Throwable t) { return Boolean.FALSE; }
-
-		Collection<User> users = null;
-		try { users = extractTeam(); }
-		catch(final Throwable t) { return Boolean.FALSE; }
-
-		try { users.addAll(extractContacts()); }
-		catch(final Throwable t) { return Boolean.FALSE; }
-
-		if (null != documentId && 0 < users.size()) { return Boolean.TRUE; }
-		else { return Boolean.FALSE; }
+	private void loadUserList(final DefaultListModel listModel,
+			final User[] users) {
+		for(final User user : users) {
+			logger.debug("Adding user:  " + user.getSimpleUsername());
+			listModel.addElement(user);
+		}
 	}
 
 	private void reloadContacts() {
 		contactsModel.clear();
-		try {
-			loadUserList(contactsModel, getSessionModel().getRosterEntries());
-		}
-		catch(final ParityException px) { throw new RuntimeException(px); }
+		loadUserList(contactsModel, getContacts());
 	}
 
-	private void loadUserList(final DefaultListModel listModel,
-			final Collection<User> users) {
-		for(final User user : users) { listModel.addElement(user); }
+	/**
+	 * Reload the include key checkbox.
+	 *
+	 */
+	private void reloadIncludeKey() {
+		Boolean doIncludeKey = (Boolean) getClientProperty("doIncludeKey");
+		if(null == doIncludeKey) { doIncludeKey = Boolean.FALSE; }
+		includeKeyJCheckBox.setSelected(doIncludeKey);
 	}
 
-	private void reloadTeamMembers() { teamModel.clear(); }
+	private void reloadTeamMembers() {
+		teamModel.clear();
+		if(null != input)
+			loadUserList(teamModel, getTeam());
+	}
 
 	private void reloadVersions() {
 		versionModel.removeAllElements();

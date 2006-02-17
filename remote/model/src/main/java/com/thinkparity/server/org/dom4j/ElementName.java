@@ -9,7 +9,7 @@ package com.thinkparity.server.org.dom4j;
  */
 public enum ElementName {
 
-	ACTION("action"), FLAG("flag"), JID("jid"), KEYHOLDER("keyholder"),
+	ACTION("action"), FLAG("flag"), JID("jid"), JIDS("jids"), KEYHOLDER("keyholder"),
 	KEYRESPONSE("keyresponse"), QUERY("query"), USERNAME("username"),
 	UUID("uuid");
 

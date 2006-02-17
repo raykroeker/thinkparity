@@ -3,6 +3,7 @@
  */
 package com.thinkparity.server.model.artifact;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.xmpp.packet.JID;
@@ -111,6 +112,11 @@ public class ArtifactModel extends AbstractModel {
 	 */
 	public Artifact get(final UUID artifactUniqueId) throws ParityServerModelException {
 		synchronized(implLock) { return impl.get(artifactUniqueId); }
+	}
+
+	public List<ArtifactSubscription> getSubscription(final UUID artifactUniqueId)
+			throws ParityServerModelException {
+		synchronized(implLock) { return impl.getSubscription(artifactUniqueId); }
 	}
 
 	/**

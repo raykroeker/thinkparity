@@ -13,7 +13,7 @@ import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
+import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.document.XMPPDocument;

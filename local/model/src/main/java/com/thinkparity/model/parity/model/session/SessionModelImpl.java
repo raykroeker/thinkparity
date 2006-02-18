@@ -5,12 +5,15 @@ package com.thinkparity.model.parity.model.session;
 
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityErrorTranslator;
@@ -24,8 +27,9 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
@@ -395,6 +399,88 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Obtain the artifact key holder.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return The artifact key holder.
+	 * @throws ParityException
+	 */
+	User getArtifactKeyHolder(final Long artifactId) throws ParityException {
+		logger.info("getArtifactKeyHolder(Long)");
+		logger.debug(artifactId);
+		synchronized(xmppHelper) {
+			assertIsLoggedIn("Cannot obtain artifact key holder while offline.", xmppHelper);
+			try {
+				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+				return xmppHelper.getArtifactKeyHolder(artifactUniqueId);
+			}
+			catch(final SmackException sx) {
+				logger.error("Cannot obtain artifact key holder.", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(final RuntimeException rx) {
+				logger.error("Cannot obtain artifact key holder.", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Obtain a list of artifacts for which the logged in user has the key.
+	 * 
+	 * @return A list of artifact ids.
+	 * @throws ParityException
+	 * @throws NotTrueAssertion If the user is offline.
+	 */
+	List<Long> getArtifactKeys() throws ParityException {
+		logger.info("getArtifactKeys()");
+		synchronized(xmppHelper) {
+			assertIsLoggedIn(
+					"Cannot obtain artifact keys if the user is offline.",
+					xmppHelper);
+			try {
+				final List<UUID> keys = xmppHelper.getArtifactKeys();
+				final List<Long> localKeys = new LinkedList<Long>();
+				for(final UUID key : keys) {
+					localKeys.add(getArtifactId(key));
+				}
+				return localKeys;
+			}
+			catch(final SmackException sx) {
+				logger.error("Cannot obtain artifact keys.", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(final RuntimeException rx) {
+				logger.error("Cannot obtain artifact keys.", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
+	 * Obtain the currently logged in user.
+	 * 
+	 * @return The currently logged in user.
+	 * @throws ParityException
+	 */
+	User getLoggedInUser() throws ParityException {
+		logger.info("getLoggedInUser()");
+		synchronized(xmppHelper) {
+			assertIsLoggedIn("Cannot obtain logged in user while offline.", xmppHelper);
+			try { return xmppHelper.getUser(); }
+			catch(final SmackException sx) {
+				logger.error("Cannot obtain logged in user.", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(final RuntimeException rx) {
+				logger.error("Cannot obtain logged in user.", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+	/**
 	 * Obtain a list of roster entries.
 	 * 
 	 * @return The list of roster entries.
@@ -444,6 +530,42 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	Boolean isLoggedIn() {
 		synchronized(xmppHelperLock) { return xmppHelper.isLoggedIn(); }
+	}
+
+	/**
+	 * Determine whether or not the logged in user is the artifact key holder.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return True if the logged in user is the artifact key holder; false
+	 *         otherwise.
+	 * @throws ParityException
+	 * @throws NotTrueAssertion
+	 *             If the user is offline.
+	 */
+	Boolean isLoggedInUserKeyHolder(final Long artifactId) throws ParityException {
+		logger.info("isLoggedInUserKeyHolder(Long)");
+		logger.debug(artifactId);
+		final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+		synchronized(xmppHelper) {
+			assertIsLoggedIn(
+					"Cannot determine whether the logged in user is the key holder while offline.",
+					xmppHelper);
+			final User loggedInUser = getLoggedInUser();
+			try {
+				final User keyHolder =
+					xmppHelper.getArtifactKeyHolder(artifactUniqueId);
+				return keyHolder.getSimpleUsername().equals(loggedInUser.getSimpleUsername());
+			}
+			catch(final SmackException sx) {
+				logger.error("Cannot determine whether the logged in user is the key holder.", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(final RuntimeException rx) {
+				logger.error("Cannot determine whether the logged in user is the key holder.", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
 	}
 
 	/**
@@ -562,35 +684,72 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send a document to a list of parity users. The document is converted from
-	 * a parity object into an xmpp document in order to send it, then each user
-	 * is sent the document.
+	 * Send the working copy of a document to a list of users. Here we create a
+	 * new version; and send that version to the list of users.
 	 * 
 	 * @param users
 	 *            The list of parity users to send to.
 	 * @param documentId
 	 *            The document unique id.
 	 * @throws ParityException
+	 * @throws NotTrueAssertion
+	 *             If the logged in user is not the artifact key holder.
 	 */
 	void send(final Collection<User> users, final Long documentId)
 			throws ParityException {
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("send(Collection<User>,Document)", xmppHelper);
-			try {
-				final DocumentModel documentModel = getDocumentModel();
+		assertLoggedInUserIsKeyHolder(documentId);
 
-				documentModel.createVersion(documentId);
-				final Document document = documentModel.get(documentId);
-				xmppHelper.send(users,
-						XMPPDocument.create(document, 
-								documentModel.getContent(documentId)));
+		final DocumentVersion version =
+			getInternalDocumentModel().createVersion(documentId);
+		send(users, documentId, version.getVersionId());
+	}
+
+	/**
+	 * Send a particular revision to a list of users. The version is obtained
+	 * from the document model; and streamed to the list of users.
+	 * 
+	 * @param users
+	 *            The list of users to send the document version to.
+	 * @param documentId
+	 *            The document id.
+	 * @param versionId
+	 *            The version id.
+	 * @throws ParityException
+	 */
+	void send(final Collection<User> users, final Long documentId,
+			final Long versionId) throws ParityException {
+		logger.info("send(Collection<User>,Long,Long)");
+		logger.debug(users);
+		logger.debug(documentId);
+		logger.debug(versionId);
+		synchronized(xmppHelper) {
+			try {
+				final InternalDocumentModel iDocumentModel =
+					getInternalDocumentModel();
+				final DocumentVersion version =
+					iDocumentModel.getVersion(documentId, versionId);
+				final DocumentVersionContent versionContent =
+					iDocumentModel.getVersionContent(documentId, versionId);
+
+				final XMPPDocument xmppDocument = new XMPPDocument();
+				xmppDocument.setContent(versionContent.getDocumentContent().getContent());
+				xmppDocument.setCreatedBy(version.getCreatedBy());
+				xmppDocument.setCreatedOn(version.getCreatedOn());
+				xmppDocument.setName(version.getName());
+				xmppDocument.setUniqueId(version.getArtifactUniqueId());
+				xmppDocument.setUpdatedBy(version.getUpdatedBy());
+				xmppDocument.setUpdatedOn(version.getUpdatedOn());
+				xmppDocument.setVersionId(version.getVersionId());
+
+				// send the document version
+				xmppHelper.send(users, xmppDocument);
 			}
-			catch(SmackException sx) {
-				logger.error("send(Collection<User>,Document)", sx);
+			catch(final SmackException sx) {
+				logger.error("Could not send document version.", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
-			catch(RuntimeException rx) {
-				logger.error("send(Collection<User>,Document)", rx);
+			catch(final RuntimeException rx) {
+				logger.error("Could not send document version.", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -671,10 +830,13 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send the response to a key request.
+	 * Send the response to a key request. It is assumed that the logged in user
+	 * is the key holder. It is assumed that all key information is stored on
+	 * the parity server and never locally. It is assumed that they key will be
+	 * accompanied by the working document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
 	 * @param user
 	 *            The user.
 	 * @param keyResponse
@@ -686,10 +848,8 @@ class SessionModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(user);
 		logger.debug(keyResponse);
+		assertLoggedInUserIsKeyHolder(documentId);
 		synchronized(SessionModelImpl.xmppHelperLock) {
-			assertIsLoggedIn(
-					"sendKeyResponse(Document,User,KeyResponse)",
-					SessionModelImpl.xmppHelper);
 			try {
 				final InternalDocumentModel iDocumentModel =
 					DocumentModel.getInternalModel(getContext());
@@ -697,22 +857,19 @@ class SessionModelImpl extends AbstractModelImpl {
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
 				case ACCEPT:
-					Document document = iDocumentModel.get(documentId);
-					final DocumentContent content =
-						iDocumentModel.getContent(documentId);
+					// create the new version
+					final DocumentVersion version =
+						getInternalDocumentModel().createVersion(documentId);
 
 					// send the key change to the server
+					final Document document = iDocumentModel.get(documentId);
 					xmppHelper.sendKeyResponse(
 							document.getUniqueId(), keyResponse, user);
 
-					/// send the document w/ the key to the recipient
-					iDocumentModel.createVersion(documentId);
-					document = iDocumentModel.get(documentId);
-					final XMPPDocument xmppDocument =
-						XMPPDocument.create(document, content);
+					// send new version
 					final Collection<User> users = new Vector<User>(1);
 					users.add(user);
-					xmppHelper.send(users, xmppDocument);
+					send(users, documentId, version.getVersionId());
 
 					// lock the local document
 					iDocumentModel.lock(documentId);

@@ -56,6 +56,12 @@ class ArtifactIOHandler extends AbstractIOHandler {
 		.append("where ARTIFACT_ID = ? and ARTIFACT_VERSION_ID = ?")
 		.toString();
 
+	private static final String GET_LATEST_VERSION_ID =
+		new StringBuffer("select MAX(ARTIFACT_VERSION_ID) LATEST_VERSION_ID ")
+		.append("from ARTIFACT_VERSION ")
+		.append("where ARTIFACT_ID = ?")
+		.toString();
+
 	/**
 	 * Sql to create the artifact.
 	 * 
@@ -127,6 +133,24 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	ArtifactIOHandler() { super(); }
 
 	/**
+	 * Obtain the latest version id for the given artifact.
+	 * 
+	 * @param session
+	 *            The database session.
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return The latest version id.
+	 */
+	protected Long getLatestVersionId(final Session session,
+			final Long artifactId) {
+		session.prepareStatement(GET_LATEST_VERSION_ID);
+		session.setLong(1, artifactId);
+		session.executeQuery();
+		if(session.nextResult()) { return session.getLong("LATEST_VERSION_ID"); }
+		else { return null; }
+	}
+
+	/**
 	 * Create the artifact.
 	 * 
 	 * @param session
@@ -155,12 +179,10 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	}
 
 	/**
-	 * Create an artifact version.
+	 * Create a new artifact version.
 	 * 
 	 * @param session
 	 *            The database session.
-	 * @param artifact
-	 *            The artifact.
 	 * @param version
 	 *            The artifact version.
 	 * @throws HypersonicException
@@ -168,7 +190,22 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	void createVersion(final Session session, final ArtifactVersion version)
 			throws HypersonicException {
 		final Long versionId = getNextVersionId(session, version.getArtifactId());
-		
+		createVersion(session, versionId, version);
+	}
+
+	/**
+	 * Create a specific artifact version.
+	 * 
+	 * @param session
+	 *            The database session.
+	 * @param versionId
+	 *            The artifact version id.
+	 * @param version
+	 *            The artifact version.
+	 * @throws HypersonicException
+	 */
+	void createVersion(final Session session, final Long versionId,
+			final ArtifactVersion version) throws HypersonicException {
 		session.prepareStatement(INSERT_ARTIFACT_VERSION);
 		session.setLong(1, version.getArtifactId());
 		session.setLong(2, versionId);

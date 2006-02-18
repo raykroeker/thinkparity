@@ -20,7 +20,30 @@ public interface DocumentIOHandler extends IOHandler {
 
 	public void create(final Document document, final DocumentContent content);
 
-	public void createVersion(final DocumentVersion version, final DocumentVersionContent versionContent);
+	/**
+	 * Create a new document version.
+	 * 
+	 * @param version
+	 *            The version.
+	 * @param versionContent
+	 *            The version content.
+	 */
+	public void createVersion(final DocumentVersion version,
+			final DocumentVersionContent versionContent);
+
+	/**
+	 * Create a specific artifact version.
+	 * 
+	 * @param versionId
+	 *            The artifact version id.
+	 * @param version
+	 *            The version.
+	 * @param versionContent
+	 *            The version content.
+	 */
+	public void createVersion(final Long versionId,
+			final DocumentVersion version,
+			final DocumentVersionContent versionContent);
 
 	public void delete(final Long documentId);
 
@@ -31,7 +54,9 @@ public interface DocumentIOHandler extends IOHandler {
 	public Document get(final UUID documentUniqueId);
 	
 	public DocumentContent getContent(final Long documentId);
-	
+
+	public DocumentVersion getLatestVersion(final Long documentId);
+
 	public DocumentVersion getVersion(final Long documentId,
 			final Long versionId);
 	

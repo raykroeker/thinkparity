@@ -72,6 +72,7 @@ public class XMPPSessionImpl implements XMPPSession {
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:acceptkeyrequest", new IQAcceptKeyRequestProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:denykeyrequest", new IQDenyKeyRequestProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:getkeyholder", new IQGetKeyHolderProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:getkeys", new IQGetKeysProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:getsubscriptions", new IQGetSubscriptionProvider());
 	}
 
@@ -260,6 +261,28 @@ public class XMPPSessionImpl implements XMPPSession {
 		}
 		catch(final InterruptedException ix) {
 			throw XMPPErrorTranslator.translate(ix);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#getArtifactKeys()
+	 * 
+	 */
+	public List<UUID> getArtifactKeys() throws SmackException {
+		assertLoggedIn("Cannot obtain artifact keys while offline.");
+		logger.info("getArtifactKeys()");
+		try {
+			final IQParity iq = new IQGetKeys();
+			iq.setType(IQ.Type.GET);
+			logger.debug(iq);
+			final IQGetKeysResponse response =
+				(IQGetKeysResponse) sendAndConfirmPacket(iq);
+			final List<UUID> keys = new LinkedList<UUID>();
+			for(final UUID key : response.getKeys()) { keys.add(key); }
+			return keys;
+		}
+		catch(final InterruptedException ix) {
+          throw XMPPErrorTranslator.translate(ix);
 		}
 	}
 

@@ -271,6 +271,19 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	List<Artifact> listForKeyHolder() throws ParityServerModelException {
+		logger.info("listForKeyHolder()");
+		try { return artifactSql.listForKeyHolder(session.getJID()); }
+		catch(final SQLException sqlx) {
+			logger.error("Could not obtain artifacts for key holder.", sqlx);
+			throw ParityErrorTranslator.translate(sqlx);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Could not obtain artifacts for key holder.", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
 	/**
 	 * Request the key from the artifact's key holder. If the key holder is
 	 * currently online; the request will be routed to them; otherwise it will

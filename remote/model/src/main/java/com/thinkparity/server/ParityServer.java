@@ -33,9 +33,10 @@ public class ParityServer implements Plugin {
 	private AcceptKeyRequest acceptKeyRequest;
 	private CreateArtifact createArtifact;
 	private DenyKeyRequest denyKeyRequest;
-	private FlagArtifact flagArtifact;
+	private IQHandler flagArtifact;
 	private IQHandler getKeyHolder;
 	private IQHandler getSubscription;
+	private IQHandler getArtifactKeys;
 	private final IQRouter iqRouter;
 	private RequestArtifactKey requestArtifactKey;
 	private SubscribeUser subscribeUser;
@@ -86,6 +87,10 @@ public class ParityServer implements Plugin {
 		iqRouter.removeHandler(getKeyHolder);
 		getKeyHolder.destroy();
 		getKeyHolder = null;
+
+		iqRouter.removeHandler(getArtifactKeys);
+		getArtifactKeys.destroy();
+		getArtifactKeys = null;
 
 		iqRouter.removeHandler(getSubscription);
 		getSubscription.destroy();
@@ -140,6 +145,9 @@ public class ParityServer implements Plugin {
 
 		getKeyHolder = new GetKeyHolder();
 		iqRouter.addHandler(getKeyHolder);
+
+		getArtifactKeys = new GetArtifactKeys();
+		iqRouter.addHandler(getArtifactKeys);
 
 		getSubscription = new GetSubscription();
 		iqRouter.addHandler(getSubscription);

@@ -38,11 +38,12 @@ public interface XMPPSession {
 	public void denyPresence(final User user) throws SmackException;
 	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
 			throws SmackException;
+	public List<UUID> getArtifactKeys() throws SmackException;
 	public User getArtifactKeyHolder(final UUID artifactUniqueId)
 			throws SmackException;
-	public Collection<User> getRosterEntries() throws SmackException;
 	public List<User> getArtifactSubscription(final UUID artifactUniqueId)
 			throws SmackException;
+	public Collection<User> getRosterEntries() throws SmackException;
 	public User getUser() throws SmackException;
 	public Boolean isLoggedIn();
 	public void login(final String host, final Integer port,

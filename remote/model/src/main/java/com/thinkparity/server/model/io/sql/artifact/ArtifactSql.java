@@ -8,9 +8,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import org.jivesoftware.database.JiveID;
+import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -32,10 +35,16 @@ public class ArtifactSql extends AbstractSql {
 		.toString();
 
 	private static final String SELECT = new StringBuffer()
-		.append("select artifactId,artifactUUID,artifactKeyHolder,createdOn,")
-		.append("updatedOn ")
+	.append("select artifactId,artifactUUID,artifactKeyHolder,createdOn,")
+	.append("updatedOn ")
+	.append("from parityArtifact ")
+	.append("where artifactUUID = ?").toString();
+
+	private static final String SQL_LIST_FOR_KEY_HOLDER =
+		new StringBuffer("select artifactId,artifactUUID,artifactKeyHolder,")
+		.append("createdOn,updatedOn ")
 		.append("from parityArtifact ")
-		.append("where artifactUUID = ?").toString();
+		.append("where artifactKeyHolder= ?").toString();
 
 	private static final String SELECT_KEYHOLDER = new StringBuffer()
 		.append("select artifactKeyHolder ")
@@ -74,6 +83,27 @@ public class ArtifactSql extends AbstractSql {
 			return artifactId;
 		}
 		finally { close(cx, ps); }
+	}
+
+	public List<Artifact> listForKeyHolder(final JID keyHolderJID)
+			throws SQLException {
+		logger.info("listForKeyHolder(JID)");
+		logger.debug(keyHolderJID);
+		Connection cx = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			cx = getCx();
+			debugSql(SQL_LIST_FOR_KEY_HOLDER);
+			ps = cx.prepareStatement(SQL_LIST_FOR_KEY_HOLDER);
+			ps.setString(1, keyHolderJID.getNode());
+			rs = ps.executeQuery();
+
+			final List<Artifact> artifacts = new LinkedList<Artifact>();
+			while(rs.next()) { artifacts.add(extract(rs)); }
+			return artifacts;
+		}
+		finally { close(cx, ps, rs); }
 	}
 
 	public Artifact select(final UUID artifactUUID) throws SQLException {

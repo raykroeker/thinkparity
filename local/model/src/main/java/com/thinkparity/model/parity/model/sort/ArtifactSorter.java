@@ -1,7 +1,7 @@
 /*
  * Jan 22, 2006
  */
-package com.thinkparity.model.parity.model.artifact;
+package com.thinkparity.model.parity.model.sort;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 

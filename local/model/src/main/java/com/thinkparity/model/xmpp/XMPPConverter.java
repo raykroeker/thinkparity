@@ -225,6 +225,12 @@ public abstract class XMPPConverter implements Converter {
 		return readCalendar(reader, context);
 	}
 
+	protected Long readVersionId(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		final String versionId = reader.getAttribute("versionId");
+		return Long.valueOf(versionId);
+	}
+
 	/**
 	 * Write the creation username of a parity object. The creation username is
 	 * required for all parity objects, and this cannot be overridden.
@@ -350,7 +356,6 @@ public abstract class XMPPConverter implements Converter {
 			final MarshallingContext context) {
 		writer.addAttribute("uniqueId", uniqueId.toString());
 	}
-
 	/**
 	 * Write the updated by to the xStream xml writer.
 	 * 
@@ -368,6 +373,7 @@ public abstract class XMPPConverter implements Converter {
 		writer.setValue(updatedBy);
 		writer.endNode();
 	}
+
 	/**
 	 * Write the update date to the xStream xml writer.
 	 * 
@@ -383,6 +389,12 @@ public abstract class XMPPConverter implements Converter {
 			final MarshallingContext context) {
 		context.put("attribute", "updatedOn");
 		writeCalendar(updatedOn, writer, context);
+	}
+
+	protected void writeVersionId(final Long versionId,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.addAttribute("versionId", versionId.toString());
 	}
 
 	/**
@@ -492,4 +504,3 @@ public abstract class XMPPConverter implements Converter {
 		writer.endNode();
 	}
 }
-

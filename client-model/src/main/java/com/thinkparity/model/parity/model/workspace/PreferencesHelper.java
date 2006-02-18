@@ -24,6 +24,13 @@ import com.thinkparity.model.xmpp.user.User.Presence;
 class PreferencesHelper {
 
 	/**
+	 * Assertion message for setting the password a second time.
+	 */
+	private static final String ASSERT_NOT_IS_SET_PASSWORD = new StringBuffer()
+		.append("The parity password cannot be modified after it has ")
+		.append("initially been set.").toString();
+
+	/**
 	 * Assertion message for setting the username a second time.
 	 */
 	private static final String ASSERT_NOT_IS_SET_USERNAME = new StringBuffer()
@@ -58,7 +65,13 @@ class PreferencesHelper {
 		});
 
 		return new Preferences() {
+			public void clearPassword() {
+				javaProperties.remove("parity.password");
+			}
 			public Locale getLocale() { return Locale.getDefault(); }
+			public String getPassword() {
+				return javaProperties.getProperty("parity.password");
+			}
 			public String getServerHost() {
 				final String override = System.getProperty("parity.serverhost");
 				if(null != override && 0 < override.length()) { return override; }
@@ -86,9 +99,17 @@ class PreferencesHelper {
 				return (null != username && 0 < username.length());
 			}
 			public void setLocale(final Locale locale) {}
+			public void setPassword(final String password) {
+				Assert.assertNotTrue(ASSERT_NOT_IS_SET_PASSWORD, isSetPassword());
+				javaProperties.setProperty("parity.password", password);
+			}
 			public void setUsername(final String username) {
 				Assert.assertNotTrue(ASSERT_NOT_IS_SET_USERNAME, isSetUsername());
 				javaProperties.setProperty("parity.username", username);
+			}
+			private Boolean isSetPassword() {
+				final String password = getPassword();
+				return (null != password && 0 < password.length());
 			}
 		};
 	}

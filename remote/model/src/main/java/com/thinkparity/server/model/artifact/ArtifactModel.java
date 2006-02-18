@@ -156,4 +156,14 @@ public class ArtifactModel extends AbstractModel {
 			throws ParityServerModelException {
 		synchronized(implLock) { impl.unsubscribe(artifact); }
 	}
+
+	/**
+	 * Obtain a list of artifacts the user has keys for.
+	 * 
+	 * @return A list of artifacts the user has keys for.
+	 * @throws ParityServerModelException
+	 */
+	public List<Artifact> listForKeyHolder() throws ParityServerModelException {
+		synchronized(implLock) { return impl.listForKeyHolder(); }
+	}
 }

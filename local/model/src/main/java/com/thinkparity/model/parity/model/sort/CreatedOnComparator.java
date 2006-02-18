@@ -1,22 +1,24 @@
 /*
  * Jan 31, 2006
  */
-package com.thinkparity.model.parity.model.artifact;
+package com.thinkparity.model.parity.model.sort;
+
+import com.thinkparity.model.parity.model.artifact.Artifact;
 
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class UpdatedOnComparator extends AbstractArtifactComparator {
+public class CreatedOnComparator extends AbstractArtifactComparator {
 
 	/**
-	 * Create a UpdatedOnComparator.
+	 * Create a CreatedOnComparator.
 	 * 
 	 * @param doCompareAscending
 	 *            Flag indicating whether or not to sort in ascending order.
 	 */
-	public UpdatedOnComparator(final Boolean doCompareAscending) {
+	public CreatedOnComparator(Boolean doCompareAscending) {
 		super(doCompareAscending);
 	}
 
@@ -24,7 +26,7 @@ public class UpdatedOnComparator extends AbstractArtifactComparator {
 	 * @see java.util.Comparator#compare(T, T)
 	 */
 	public int compare(Artifact o1, Artifact o2) {
-		final int compareResult = o1.getUpdatedOn().compareTo(o2.getUpdatedOn());
+		final int compareResult = o1.getCreatedOn().compareTo(o2.getCreatedOn());
 		if(0 == compareResult) { return subCompare(o1, o2); }
 		else { return compareResult * resultMultiplier; }
 	}

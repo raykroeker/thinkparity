@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
@@ -23,6 +24,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
+import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -130,6 +132,22 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+	 * Assert that the logged in user is the key holder for the artifact id.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @throws NotTrueAssertion
+	 *             If the logged in user is not the key holder.
+	 * @throws ParityException
+	 */
+	protected void assertLoggedInUserIsKeyHolder(final Long artifactId)
+			throws ParityException {
+		final InternalSessionModel iSModel = getInternalSessionModel();
+		Assert.assertTrue("Logged in user is not the key holder.",
+				iSModel.isLoggedInUserKeyHolder(artifactId));
+	}
+
+	/**
 	 * Assert that the calling method has not yet been implemented.
 	 *
 	 */
@@ -178,6 +196,20 @@ public abstract class AbstractModelImpl {
 		}
 	}
 
+	protected Long getArtifactId(final UUID artifactUniqueId)
+			throws ParityException {
+		// NOTE I'm assuming document
+		final InternalDocumentModel iDModel = getInternalDocumentModel();
+		return iDModel.get(artifactUniqueId).getId();
+	}
+
+	protected UUID getArtifactUniqueId(final Long artifactId)
+			throws ParityException {
+		// NOTE I'm assuming document :)
+		final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
+		return iDocumentModel.get(artifactId).getUniqueId();
+	}
+
 	protected UUID getArtifactUniqueId(final Long artifactId,
 			final ArtifactType artifactType) throws ParityException {
 		switch(artifactType) {
@@ -207,6 +239,17 @@ public abstract class AbstractModelImpl {
 		final InternalDocumentModel iDocumentModel =
 			DocumentModel.getInternalModel(getContext());
 		return iDocumentModel;
+	}
+
+	/**
+	 * Obtain an internal session model.
+	 * 
+	 * @return The internal session model.
+	 */
+	protected InternalSessionModel getInternalSessionModel() {
+		final InternalSessionModel iSessionModel =
+			SessionModel.getInternalModel(getContext());
+		return iSessionModel;
 	}
 
 	/**
@@ -276,12 +319,5 @@ public abstract class AbstractModelImpl {
 			document.add(ArtifactFlag.SEEN);
 			getDocumentModel().update(document);
 		}
-	}
-
-	protected UUID getArtifactUniqueId(final Long artifactId)
-			throws ParityException {
-		// NOTE I'm assuming document :)
-		final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
-		return iDocumentModel.get(artifactId).getUniqueId();
 	}
 }

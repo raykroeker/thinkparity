@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
@@ -123,6 +124,28 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	void denyPresence(final User user) throws SmackException {
 		xmppSession.denyPresence(user);
+	}
+
+	/**
+	 * Obtain the artifact key holder.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
+	 * @return The artifact key holder.
+	 */
+	User getArtifactKeyHolder(final UUID artifactUniqueId)
+			throws SmackException {
+		return xmppSession.getArtifactKeyHolder(artifactUniqueId);
+	}
+
+	/**
+	 * Obtain a list of artifact keys.
+	 * 
+	 * @return A list of artifact keys.
+	 * @throws SmackException
+	 */
+	List<UUID> getArtifactKeys() throws SmackException {
+		return xmppSession.getArtifactKeys();
 	}
 
 	/**

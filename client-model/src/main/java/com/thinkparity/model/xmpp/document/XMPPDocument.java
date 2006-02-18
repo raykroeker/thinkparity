@@ -4,16 +4,11 @@
 package com.thinkparity.model.xmpp.document;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.UUID;
-import java.util.Vector;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.xmpp.XMPPSerializable;
 
 /**
@@ -37,8 +32,6 @@ public class XMPPDocument implements XMPPSerializable {
 	 *            The document creation date.
 	 * @param description
 	 *            The document description.
-	 * @param flags
-	 *            The document flags.
 	 * @param name
 	 *            The document name.
 	 * @param uniqueId
@@ -51,11 +44,11 @@ public class XMPPDocument implements XMPPSerializable {
 	 */
 	public static XMPPDocument create(final byte[] content,
 			final String createdBy, final Calendar createdOn,
-			final String description, final Collection<ArtifactFlag> flags,
-			final String name, final UUID uniqueId, final String updatedBy,
-			final Calendar updatedOn) {
+			final String description, final String name, final UUID uniqueId,
+			final String updatedBy, final Calendar updatedOn,
+			final Long versionId) {
 		return new XMPPDocument(content, createdBy, createdOn, description,
-				flags, name, uniqueId, updatedBy, updatedOn);
+				name, uniqueId, updatedBy, updatedOn, versionId);
 	}
 
 	/**
@@ -66,22 +59,23 @@ public class XMPPDocument implements XMPPSerializable {
 	 * @return The new xmpp document.
 	 */
 	public static XMPPDocument create(final Document document,
-			final DocumentContent content) {
+			final DocumentContent content, final DocumentVersion version) {
 		return XMPPDocument.create(content.getContent(), document.getCreatedBy(),
 				document.getCreatedOn(), document.getDescription(),
-				document.getFlags(), document.getName(), document.getUniqueId(),
-				document.getUpdatedBy(), document.getUpdatedOn());
+				document.getName(), document.getUniqueId(),
+				document.getUpdatedBy(), document.getUpdatedOn(),
+				version.getVersionId());
 	}
 
-	private final byte[] content;
-	private final String createdBy;
-	private final Calendar createdOn;
-	private final String description;
-	private final Collection<ArtifactFlag> flags;
-	private final String name;
-	private final UUID uniqueId;
-	private final String updatedBy;
-	private final Calendar updatedOn;
+	private byte[] content;
+	private String createdBy;
+	private Calendar createdOn;
+	private String description;
+	private String name;
+	private UUID uniqueId;
+	private String updatedBy;
+	private Calendar updatedOn;
+	private Long versionId;
 
 	/**
 	 * Create an XMPPDocument.
@@ -102,25 +96,27 @@ public class XMPPDocument implements XMPPSerializable {
 	 *            The xmpp document's updator.
 	 * @param updatedOn
 	 *            The xmpp document's update date.
+	 * @param versionId
+	 *            The artifact's version id.
 	 */
 	private XMPPDocument(final byte[] content, final String createdBy,
 			final Calendar createdOn, final String description,
-			final Collection<ArtifactFlag> flags, final String name,
-			final UUID uniqueId, final String updatedBy,
-			final Calendar updatedOn) {
+			final String name, final UUID uniqueId, final String updatedBy,
+			final Calendar updatedOn, final Long versionId) {
 		super();
 		this.content = new byte[content.length];
 		System.arraycopy(content, 0, this.content, 0, content.length);
 		this.createdBy = createdBy;
 		this.createdOn = createdOn;
 		this.description = description;
-		this.flags = new Vector<ArtifactFlag>(flags.size());
-		add(flags);
 		this.name = name;
 		this.uniqueId = uniqueId;
 		this.updatedBy = updatedBy;
 		this.updatedOn = updatedOn;
+		this.versionId = versionId;
 	}
+
+	public XMPPDocument() { super(); }
 
 	/**
 	 * Obtain the content of the xmpp document.
@@ -148,15 +144,6 @@ public class XMPPDocument implements XMPPSerializable {
 	 * @return The description.
 	 */
 	public String getDescription() { return description; }
-
-	/**
-	 * Obtain the flags.
-	 * 
-	 * @return The flags.
-	 */
-	public Collection<ArtifactFlag> getFlags() {
-		return Collections.unmodifiableCollection(flags);
-	}
 
 	/**
 	 * Obtain the name of the xmpp document.
@@ -187,23 +174,73 @@ public class XMPPDocument implements XMPPSerializable {
 	public Calendar getUpdatedOn() { return updatedOn; }
 
 	/**
-	 * Add a flag to the xmpp document.
+	 * Obtain the document's version.
 	 * 
-	 * @param flag
-	 *            The flag to add.
+	 * @return The document's version.
 	 */
-	private void add(final ArtifactFlag flag) {
-		Assert.assertNotTrue("add(ArtifactFlag)", flags.contains(flag));
-		flags.add(flag);
+	public Long getVersionId() { return versionId; }
+
+	/**
+	 * @param content The content to set.
+	 */
+	public void setContent(byte[] content) {
+		this.content = content;
 	}
 
 	/**
-	 * Add a list of flags.
-	 * 
-	 * @param flags
-	 *            The flags to add.
+	 * @param createdBy The createdBy to set.
 	 */
-	private void add(final Collection<ArtifactFlag> flags) {
-		for(ArtifactFlag flag : flags) { add(flag); }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
+
+	/**
+	 * @param createdOn The createdOn to set.
+	 */
+	public void setCreatedOn(Calendar createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	/**
+	 * @param description The description to set.
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * @param name The name to set.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @param uniqueId The uniqueId to set.
+	 */
+	public void setUniqueId(UUID uniqueId) {
+		this.uniqueId = uniqueId;
+	}
+
+	/**
+	 * @param updatedBy The updatedBy to set.
+	 */
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	/**
+	 * @param updatedOn The updatedOn to set.
+	 */
+	public void setUpdatedOn(Calendar updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	/**
+	 * @param versionId The versionId to set.
+	 */
+	public void setVersionId(Long versionId) {
+		this.versionId = versionId;
+	}
+
 }

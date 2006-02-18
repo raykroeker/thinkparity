@@ -14,6 +14,7 @@ import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
@@ -27,13 +28,13 @@ import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.artifact.ArtifactSorter;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.sort.ArtifactSorter;
+import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -248,19 +249,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The data associated with the version creation action.
 	 * @return The newly created version.
 	 * 
-	 * TODO  If the user has ownership of the document; the local copy should *NEVER* be overwritten.
-	 * 
-	 * TODO The document version numbers must be tracked in the serialization
-	 * meta-data such that versions can be inserted in the history.  Only the
-	 * owner of the document can "create" new versions.
+	 * TODO If the user has ownership of the document; the local copy should
+	 * *NEVER* be overwritten.
 	 * 
 	 * TODO Have the ability to send individual versions to a contact.
 	 * 
 	 * @throws ParityException
+	 * @throws NotTrueAssertion
+	 *             If the logged in user is not the key holder.
 	 */
 	DocumentVersion createVersion(final Long documentId) throws ParityException {
 		logger.info("createVersion(Long)");
 		logger.debug(documentId);
+		assertLoggedInUserIsKeyHolder(documentId);
 		try {
 			final Document document = get(documentId);
 			final DocumentContent content = getContent(documentId);
@@ -661,14 +662,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Use the document model to receive a document from another parity user.
+	 * Receive an xmpp document. If no local document exists; create it; then
+	 * insert the xmpp document as a version of the local document.
 	 * 
 	 * @param xmppDocument
-	 *            The xmpp document received from another parity user.
+	 *            The xmpp document.
 	 * @throws ParityException
 	 */
-	void receive(final XMPPDocument xmppDocument)
-			throws ParityException {
+	void receive(final XMPPDocument xmppDocument) throws ParityException {
 		logger.info("receiveDocument(XMPPDocument)");
 		logger.debug(xmppDocument);
 		try {
@@ -821,19 +822,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Determine whether or not the user has the key for a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @return True if the user has the key; false otherwise.
-	 * @throws ParityException
-	 */
-	private Boolean hasKey(final Long documentId) throws ParityException {
-		final Document document = get(documentId);
-		return document.contains(ArtifactFlag.KEY);
-	}
-
-	/**
 	 * Fire the objectCreated event for all of the creation listeners.
 	 * 
 	 * @param document
@@ -844,21 +832,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		synchronized(DocumentModelImpl.creationListenersLock) {
 			for(CreationListener listener : DocumentModelImpl.creationListeners) {
 				listener.objectCreated(new CreationEvent(document));
-			}
-		}
-	}
-
-	/**
-	 * Fire the objectReceived event for all creation listeners.
-	 * 
-	 * @param document
-	 *            The document to use as the event source.
-	 * @see CreationListener#objectReceived(CreationEvent)
-	 */
-	private void notifyCreation_objectReceived(final Document document) {
-		synchronized (DocumentModelImpl.creationListenersLock) {
-			for (CreationListener listener : DocumentModelImpl.creationListeners) {
-				listener.objectReceived(new CreationEvent(document));
 			}
 		}
 	}
@@ -925,96 +898,144 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Receive the xmpp document and create a new local document.
+	 * This is the first time this particular document has been recieved. We
+	 * need to create the document; send a subscription request; then receive
+	 * update.
 	 * 
 	 * @param xmppDocument
-	 *            The xmpp document received.
+	 *            The xmpp document.
 	 * @throws ParityException
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	private void receiveCreate(final XMPPDocument xmppDocument)
 			throws ParityException, FileNotFoundException, IOException {
-		/*
-		 * Check if the SEEN flag has been transferred across and if it has,
-		 * remove it; then notify all listeners about the new document.
-		 */
-		final Document document = new Document(xmppDocument.getCreatedBy(),
-				xmppDocument.getCreatedOn(), xmppDocument.getDescription(),
-				xmppDocument.getFlags(), xmppDocument.getUniqueId(),
-				xmppDocument.getName(), xmppDocument.getUpdatedBy(),
-				xmppDocument.getUpdatedOn());
+		// create the document
+		final Document document = new Document();
+		document.setCreatedBy(xmppDocument.getCreatedBy());
+		document.setCreatedOn(xmppDocument.getCreatedOn());
+		document.setName(xmppDocument.getName());
+		document.setUniqueId(xmppDocument.getUniqueId());
+		document.setUpdatedBy(xmppDocument.getUpdatedBy());
+		document.setUpdatedOn(xmppDocument.getUpdatedOn());
+
 		final DocumentContent content = new DocumentContent();
 		content.setChecksum(MD5Util.md5Hex(xmppDocument.getContent()));
 		content.setContent(xmppDocument.getContent());
-		content.setDocumentId(document.getId());
-
 		documentIO.create(document, content);
 
-		// create the local file
-		final LocalFile localFile = getLocalFile(document);
-		localFile.write(content.getContent());
+		// create the document file
+		final LocalFile file = getLocalFile(document);
+		file.write(content.getContent());
 
-		// create a version
-		createVersion(document.getId());
+		// send a subscription request
+		getInternalSessionModel().sendSubscribe(document);
 
-		// flag as not seen
-		flagAsNotSEEN(document);
-
-		// lock the file
-		lock(document.getId());
-
-		// send the server a subscription request
-		final InternalSessionModel iSessionModel =
-			SessionModel.getInternalModel(getContext());
-		iSessionModel.sendSubscribe(document);
-
-		// fire a receive event
-		notifyCreation_objectReceived(document);
+		receiveUpdate(xmppDocument, document);
 	}
 
 	/**
-	 * Receive the xmpp document and update the existing local document.
+	 * Insert a version for a document.
+	 * @param documentId The document.
+	 * @param version The version to insert.
+	 */
+	private void insertVersion(final Long documentId,
+			final DocumentVersion version,
+			final DocumentVersionContent versionContent) throws ParityException {
+		logger.info("insertVersion(Long,DocumentVersion,DocumentVersionContent)");
+		logger.debug(documentId);
+		logger.debug(version);
+		logger.debug(versionContent);
+		try {
+			final Document document = get(documentId);
+
+			// insert version info into db
+			documentIO.createVersion(version.getVersionId(), version, versionContent);
+
+			// create version local file
+			final LocalFile versionFile = getLocalFile(document, version);
+			versionFile.write(versionContent.getDocumentContent().getContent());
+			versionFile.lock();
+
+			// fire the object version event notification
+			notifyCreation_objectVersionCreated(version);
+		}
+		catch(IOException iox) {
+			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Insert the corresponding version for the xmpp document received. Check to
+	 * see if this is the latest version locally; and if it is; update the
+	 * document\document content. Notify that a version has been received.
 	 * 
 	 * @param xmppDocument
 	 *            The xmpp document received.
 	 * @param document
 	 *            The existing local document.
+	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws ParityException
-	 * @throws FileNotFoundException
 	 */
 	private void receiveUpdate(final XMPPDocument xmppDocument,
-			final Document document) throws IOException, ParityException,
-			FileNotFoundException {
-		// there is a potential for wierdness here
-		Assert.assertNotTrue(
-				"User with the key is receiving a document update?",
-				hasKey(document.getId()));
+			final Document document) throws FileNotFoundException, IOException,
+			ParityException {
+		final DocumentVersion version = new DocumentVersion();
+		version.setArtifactId(document.getId());
+		version.setArtifactType(document.getType());
+		version.setArtifactUniqueId(document.getUniqueId());
+		version.setCreatedBy(xmppDocument.getCreatedBy());
+		version.setCreatedOn(xmppDocument.getCreatedOn());
+		version.setName(document.getName());
+		version.setUpdatedBy(xmppDocument.getUpdatedBy());
+		version.setUpdatedOn(xmppDocument.getUpdatedOn());
+		version.setVersionId(xmppDocument.getVersionId());
 
-		// create a new version of the existing document
-		createVersion(document.getId());
-
-		// update the content
 		final DocumentContent content = new DocumentContent();
 		content.setChecksum(MD5Util.md5Hex(xmppDocument.getContent()));
 		content.setContent(xmppDocument.getContent());
-		content.setDocumentId(document.getId());
+		content.setDocumentId(version.getArtifactId());
 
-		documentIO.update(document);
-		documentIO.updateContent(content);
+		final DocumentVersionContent versionContent = new DocumentVersionContent();
+		versionContent.setDocumentContent(content);
+		versionContent.setDocumentId(version.getArtifactId());
+		versionContent.setVersionId(version.getVersionId());
 
-		// update the content local file
-		final LocalFile localFile = getLocalFile(document);
-		localFile.delete();
-		localFile.write(content.getContent());
-		localFile.lock();
+		insertVersion(version.getArtifactId(), version, versionContent);
+
+		if(isLatestLocalVersion(version)) {
+			document.setUpdatedBy(xmppDocument.getUpdatedBy());
+			document.setUpdatedOn(xmppDocument.getUpdatedOn());
+
+			documentIO.update(document);
+
+			documentIO.updateContent(content);
+		}
 
 		// flag the document
 		flagAsNotSEEN(document);
 
 		// notify
 		notifyUpdate_objectReceived(document);
+	}
+
+	/**
+	 * Check and see if this version is the latest version.
+	 * 
+	 * @param version
+	 *            A document version.
+	 * @return True if this is the latest local version of the document.
+	 */
+	private Boolean isLatestLocalVersion(final DocumentVersion version) {
+		final DocumentVersion latestLocalVersion =
+			documentIO.getLatestVersion(version.getArtifactId());
+		return latestLocalVersion.getVersionId().equals(version.getVersionId());
 	}
 
 	/**

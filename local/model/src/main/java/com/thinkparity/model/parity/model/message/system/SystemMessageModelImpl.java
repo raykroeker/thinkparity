@@ -14,7 +14,7 @@ import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.SystemMessageListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
+import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**

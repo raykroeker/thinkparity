@@ -19,7 +19,8 @@ public abstract class IQArtifact extends IQParity {
 	 * Artifact actions that are possible to perform.
 	 * 
 	 */
-	public enum Action { CREATE, FLAG, GETKEYHOLDER, GETSUBSCRIPTION, REQUESTKEY, SUBSCRIBE, UNSUBSCRIBE }
+	public enum Action { CREATE, FLAG, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION,
+		REQUESTKEY, SUBSCRIBE, UNSUBSCRIBE }
 
 	/**
 	 * IQAction to perform.

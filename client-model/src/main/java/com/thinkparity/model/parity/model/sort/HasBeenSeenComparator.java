@@ -1,7 +1,10 @@
 /*
  * Jan 31, 2006
  */
-package com.thinkparity.model.parity.model.artifact;
+package com.thinkparity.model.parity.model.sort;
+
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
 
 /**

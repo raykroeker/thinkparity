@@ -5,13 +5,11 @@ package com.thinkparity.model.xmpp.document;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
 import com.thinkparity.codebase.CompressionUtil;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.xml.XMLConstants;
 import com.thinkparity.model.parity.model.xml.converter.XmlIOConverterErrorTranslator;
 import com.thinkparity.model.parity.util.Base64;
@@ -50,12 +48,12 @@ public class XMPPDocumentConverter extends XMPPConverter {
 		final XMPPDocument xmppDocument = (XMPPDocument) source;
 		logger.debug(xmppDocument);
 		writeUniqueId(xmppDocument.getUniqueId(), writer, context);
+		writeVersionId(xmppDocument.getVersionId(), writer, context);
 		writeName(xmppDocument.getName(), writer, context);
 		writeCreatedBy(xmppDocument.getCreatedBy(), writer, context);
 		writeCreatedOn(xmppDocument.getCreatedOn(), writer, context);
 		writeUpdatedBy(xmppDocument.getUpdatedBy(), writer, context);
 		writeUpdatedOn(xmppDocument.getUpdatedOn(), writer, context);
-		writeFlags(xmppDocument.getFlags(), writer, context);
 		writeDescription(xmppDocument.getDescription(), writer, context);
 		try { writeContent(xmppDocument.getContent(), writer, context); }
 		catch(IOException iox) {
@@ -70,12 +68,12 @@ public class XMPPDocumentConverter extends XMPPConverter {
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
 		final UUID uniqueId = readUniqueId(reader, context);
+		final Long versionId = readVersionId(reader, context);
 		final String name = readName(reader, context);
 		final String createdBy = readCreatedBy(reader, context);
 		final Calendar createdOn = readCreatedOn(reader, context);
 		final String updatedBy = readUpdatedBy(reader, context);
 		final Calendar updatedOn = readUpdatedOn(reader, context);
-		final Collection<ArtifactFlag> flags = readFlags(reader, context);
 		final String description = readDescription(reader, context);
 		final byte[] content;
 		try { content = readContent(reader, context); }
@@ -88,7 +86,7 @@ public class XMPPDocumentConverter extends XMPPConverter {
 			throw XmlIOConverterErrorTranslator.translate(iox);
 		}
 		return XMPPDocument.create(content, createdBy, createdOn, description,
-				flags, name, uniqueId, updatedBy, updatedOn);
+				name, uniqueId, updatedBy, updatedOn, versionId);
 	}
 
 	/**

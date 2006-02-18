@@ -1,10 +1,12 @@
 /*
  * Jan 25, 2006
  */
-package com.thinkparity.model.parity.model.artifact;
+package com.thinkparity.model.parity.model.sort;
 
 import java.util.Comparator;
 
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**

@@ -53,6 +53,13 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
+	private static final String SQL_GET_BY_UNIQUE_ID =
+		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_TYPE_ID,")
+		.append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+		.append("from ARTIFACT ")
+		.append("where ARTIFACT_UNIQUE_ID=?")
+		.toString();
+
 	private static final String SQL_GET_CONTENT =
 		new StringBuffer("select ARTIFACT_ID,CONTENT,CONTENT_ENCODING,")
 		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION ")
@@ -176,6 +183,42 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#createVersion(java.lang.Long,
+	 *      com.thinkparity.model.parity.model.document.DocumentVersion,
+	 *      com.thinkparity.model.parity.model.document.DocumentVersionContent)
+	 * 
+	 */
+	public void createVersion(final Long versionId,
+			final DocumentVersion version,
+			final DocumentVersionContent versionContent) {
+		final Session session = openSession();
+		try {
+			artifactIO.createVersion(session, versionId, version);
+
+			final DocumentContent documentContent =
+				versionContent.getDocumentContent();
+			session.prepareStatement(SQL_CREATE_VERSION);
+			session.setLong(1, version.getArtifactId());
+			session.setLong(2, version.getVersionId());
+			session.setBytes(3, documentContent.getContent());
+			session.setString(4, "???");
+			session.setString(5, documentContent.getChecksum());
+			session.setInt(6, -1);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException("Could not create version.");
+
+			versionContent.setVersionId(version.getVersionId());
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#delete(java.lang.Long)
 	 * 
 	 */
@@ -247,8 +290,21 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#get(java.util.UUID)
 	 */
 	public Document get(final UUID documentUniqueId) {
-		// TODO Auto-generated method stub
-		return null;
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_GET_BY_UNIQUE_ID);
+			session.setUniqueId(1, documentUniqueId);
+			session.executeQuery();
+
+			if(session.nextResult()) { return extractDocument(session); }
+			else { return null; }
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+			
 	}
 
 	/**
@@ -273,7 +329,28 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getVersion(java.lang.Long, java.lang.Long)
+	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getLatestVersion(java.lang.Long)
+	 * 
+	 */
+	public DocumentVersion getLatestVersion(final Long documentId) {
+		final Session session = openSession();
+		Long latestVersionId = null;
+		try {
+			latestVersionId =
+				artifactIO.getLatestVersionId(session, documentId);
+		}
+		catch(final RuntimeException rx) {
+			session.rollback();
+			throw rx;
+		}
+		finally { session.close(); }
+		return getVersion(documentId, latestVersionId);
+	}
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getVersion(java.lang.Long,
+	 *      java.lang.Long)
+	 * 
 	 */
 	public DocumentVersion getVersion(Long documentId, Long versionId) {
 		final Session session = openSession();

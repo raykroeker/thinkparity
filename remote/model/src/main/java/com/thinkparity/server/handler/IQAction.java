@@ -19,6 +19,7 @@ public enum IQAction {
 	 * Get an artifact's keyholder.
 	 */
 	GETKEYHOLDER,
+	GETKEYS,
 	GETSUBSCRIPTION,
 
 	/**

@@ -4,7 +4,10 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
+
+import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.KeyEvent;
@@ -141,6 +144,16 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
+	 * Obtain a list of artifact ids for which the logged in user has the key.
+	 * 
+	 * @return A list of artifact ids.
+	 * @throws ParityException
+	 */
+	public List<Long> getArtifactKeys() throws ParityException {
+		synchronized(implLock) { return impl.getArtifactKeys(); }
+	}
+
+	/**
 	 * Obtain a list of roster entries.
 	 * 
 	 * @return The list of roster entries.
@@ -163,6 +176,24 @@ public class SessionModel extends AbstractModel {
 	 */
 	public Boolean isLoggedIn() {
 		synchronized(implLock) { return impl.isLoggedIn(); }
+	}
+
+	/**
+	 * Determine whether or not the logged in user is the artifact key holder.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return True if the logged in user is the artifact key holder; false
+	 *         otherwise.
+	 * @throws ParityException
+	 * @throws NotTrueAssertion
+	 *             If the user is currently offline.
+	 */
+	public Boolean isLoggedInUserKeyHolder(final Long artifactId)
+			throws ParityException {
+		synchronized(implLock) {
+			return impl.isLoggedInUserKeyHolder(artifactId);
+		}
 	}
 
 	/**
@@ -219,17 +250,36 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send a document to a list of parity users.
+	 * Send the working document to the list of users. A new version is created;
+	 * which is then sent to each of the users in the list.
 	 * 
 	 * @param users
 	 *            The list of parity users to send to.
 	 * @param documentId
 	 *            The document unique id.
 	 * @throws ParityException
+	 * @throws NotTrueAssertion
+	 *             If the logged in user is not the key holder.
 	 */
 	public void send(final Collection<User> users, final Long documentId)
 			throws ParityException {
 		synchronized(implLock) { impl.send(users, documentId); }
+	}
+
+	/**
+	 * Send a specific document version to the list of users.
+	 * 
+	 * @param users
+	 *            The list of users.
+	 * @param documentId
+	 *            The document id.
+	 * @param versionId
+	 *            The version id.
+	 * @throws ParityException
+	 */
+	public void send(final Collection<User> users, final Long documentId,
+			final Long versionId) throws ParityException {
+		synchronized(implLock) { impl.send(users, documentId, versionId); }
 	}
 
 	/**
@@ -268,6 +318,10 @@ public class SessionModel extends AbstractModel {
 	 *            The user.
 	 * @param keyResponse
 	 *            The response.
+	 * 
+	 * @throws ParityException
+	 * @throws NotTrueAssertion
+	 *             If the logged in user is not the key holder.
 	 */
 	public void sendKeyResponse(final Long artifactId, final User user,
 			final KeyResponse keyResponse) throws ParityException {

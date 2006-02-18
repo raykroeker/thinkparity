@@ -8,6 +8,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -24,6 +25,30 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	InternalSessionModel(final Workspace workspace, final Context context) {
 		super(workspace);
 		context.assertContextIsValid();
+	}
+
+	/**
+	 * Obtain the artifact key holder.
+	 * 
+	 * @param artifactId
+	 *            The artifact key holder.
+	 * @return The artifact key holder.
+	 * @throws ParityException
+	 */
+	public User getArtifactKeyHolder(final Long artifactId) throws ParityException {
+		synchronized(getImplLock()) {
+			return getImpl().getArtifactKeyHolder(artifactId);
+		}
+	}
+
+	/**
+	 * Obtain the currently logged in user.
+	 * 
+	 * @return The logged in user.
+	 * @throws ParityException
+	 */
+	public User getLoggedInUser() throws ParityException {
+		synchronized(getImplLock()) { return getImpl().getLoggedInUser(); }
 	}
 
 	/**

@@ -14,6 +14,8 @@ public interface Preferences {
 
 	public Locale getLocale();
 
+	public String getPassword();
+
 	public String getServerHost();
 
 	public Integer getServerPort();
@@ -27,6 +29,10 @@ public interface Preferences {
 	public Boolean isSetUsername();
 
 	public void setLocale(final Locale locale);
+
+	public void setPassword(final String password);
+
+	public void clearPassword();
 
 	public void setUsername(final String username);
 }

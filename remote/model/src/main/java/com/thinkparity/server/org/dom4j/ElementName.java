@@ -11,7 +11,7 @@ public enum ElementName {
 
 	ACTION("action"), FLAG("flag"), JID("jid"), JIDS("jids"), KEYHOLDER("keyholder"),
 	KEYRESPONSE("keyresponse"), QUERY("query"), USERNAME("username"),
-	UUID("uuid");
+	UUID("uuid"), UUIDS("uuids");
 
 	/**
 	 * The xml element name.

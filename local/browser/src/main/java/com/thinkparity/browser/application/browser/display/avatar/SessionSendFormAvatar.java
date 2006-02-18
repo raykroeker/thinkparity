@@ -4,14 +4,16 @@
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -22,13 +24,16 @@ import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.ListFactory;
 import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
 import com.thinkparity.browser.application.browser.display.avatar.session.UserListCellRenderer;
+import com.thinkparity.browser.application.browser.display.avatar.session.VersionListCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
+import com.thinkparity.browser.model.document.WorkingVersion;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -115,6 +120,23 @@ public class SessionSendFormAvatar extends Avatar {
 		try { users.addAll(extractContacts()); }
 		catch(final Throwable t) { return Boolean.FALSE; }
 
+		final Boolean doIncludeKey = extractDoIncludeKey();
+		if(doIncludeKey) {
+			// only 1 user if the key is to be included
+			if(1 != users.size()) { return Boolean.FALSE; }
+		}
+		else {
+			// at least 1 user if the key is not included
+			if(1 > users.size()) { return Boolean.FALSE; }
+		}
+
+		final DocumentVersion version = extractDocumentVersion();
+		if(null == version) { return Boolean.FALSE; }
+		if(doIncludeKey) {
+			// if including the key; the working version must be selected
+			if(version != WorkingVersion.getWorkingVersion()) { return Boolean.FALSE; }
+		}
+
 		if (null != documentId && 0 < users.size()) { return Boolean.TRUE; }
 		else { return Boolean.FALSE; }
 	}
@@ -126,10 +148,10 @@ public class SessionSendFormAvatar extends Avatar {
 	public void reload() {
 		cancelJButton.setEnabled(true);
 		sendJButton.setEnabled(true);
-//		reloadIncludeKey();
-		reloadVersions();
+		reloadIncludeKey();
 		reloadTeamMembers();
 		reloadContacts();
+		reloadVersions();
 	}
 
 	/**
@@ -150,18 +172,28 @@ public class SessionSendFormAvatar extends Avatar {
 		return (Long) input;
 	}
 
-	private Collection<User> extractTeam() {
-		return SwingUtil.extract(teamJList);
+	private DocumentVersion extractDocumentVersion() {
+		return (DocumentVersion) versionJComboBox.getSelectedItem();
 	}
 
 	// End of variables declaration
 
+	private Boolean extractDoIncludeKey() { return includeKeyJCheckBox.isSelected(); }
+
+	private List<User> extractTeam() {
+		return SwingUtil.extract(teamJList);
+	}
+
 	private User[] getContacts() {
-		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
+		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(0, (Long) input);
 	}
 
 	private User[] getTeam() {
-		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(0, (Long) input);
+		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(1, (Long) input);
+	}
+
+	private DocumentVersion[] getVersions() {
+		return (DocumentVersion[]) ((CompositeFlatContentProvider) contentProvider).getElements(2, (Long) input);
 	}
 
 	/**
@@ -171,10 +203,11 @@ public class SessionSendFormAvatar extends Avatar {
 	 */
 	// <editor-fold defaultstate="collapsed" desc=" Generated Code ">
 	private void initComponents() {
-		versionModel = new DefaultComboBoxModel();
+		versionModel = new DefaultComboBoxModel(new Vector(0));
 		versionJLabel = LabelFactory.create();
 		versionJComboBox = ComboBoxFactory.create();
 		versionJComboBox.setModel(versionModel);
+		versionJComboBox.setRenderer(new VersionListCellRenderer());
 		teamJLabel = LabelFactory.create();
 		contactJLabel = LabelFactory.create();
 
@@ -182,12 +215,12 @@ public class SessionSendFormAvatar extends Avatar {
 		teamSelectionModel = new DefaultListSelectionModel();
 		teamSelectionModel.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(final ListSelectionEvent e) {
-//				if(!e.getValueIsAdjusting()) {
-//					if(ListSelectionModel.SINGLE_SELECTION ==
-//						teamSelectionModel.getSelectionMode()) {
-//						contactsSelectionModel.clearSelection();
-//					}
-//				}
+				if(!e.getValueIsAdjusting()) {
+					if(ListSelectionModel.SINGLE_SELECTION ==
+						teamSelectionModel.getSelectionMode()) {
+						contactsSelectionModel.clearSelection();
+					}
+				}
 			}
 		});
 		teamJScrollPane = ScrollPaneFactory.create();
@@ -204,12 +237,12 @@ public class SessionSendFormAvatar extends Avatar {
 		contactsSelectionModel = new DefaultListSelectionModel();
 		contactsSelectionModel.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(final ListSelectionEvent e) {
-//				if(!e.getValueIsAdjusting()) {
-//					if(ListSelectionModel.SINGLE_SELECTION ==
-//						contactsSelectionModel.getSelectionMode()) {
-//						teamSelectionModel.clearSelection();
-//					}
-//				}
+				if(!e.getValueIsAdjusting()) {
+					if(ListSelectionModel.SINGLE_SELECTION ==
+						contactsSelectionModel.getSelectionMode()) {
+						teamSelectionModel.clearSelection();
+					}
+				}
 			}
 
 		});
@@ -224,40 +257,47 @@ public class SessionSendFormAvatar extends Avatar {
 		contactsJList.setBackground(getBackground());
 		
 		includeKeyJCheckBox = CheckBoxFactory.create();
-		includeKeyJCheckBox.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-//				if(includeKeyJCheckBox.isSelected()) {
-//					contactsSelectionModel.setSelectionMode(
-//							ListSelectionModel.SINGLE_SELECTION);
-//					teamSelectionModel.setSelectionMode(
-//							ListSelectionModel.SINGLE_SELECTION);
-//
-//					// since include key is selected; only 1 user can be used
-//					// as the "destination"  remove *all* but the first selected
-//					// user
-//					int[] indices = teamJList.getSelectedIndices();
-//					if(1 < indices.length) {
-//						for(int i = 1; i < indices.length; i++) {
-//							teamSelectionModel.removeSelectionInterval(i, i);
-//						}
-//						contactsSelectionModel.clearSelection();
-//					}
-//					else {
-//						indices = contactsJList.getSelectedIndices();
-//						if(1 < indices.length) {
-//							for(int i = 1; i < indices.length; i++) {
-//								contactsSelectionModel.removeSelectionInterval(i, i);
-//							}
-//						}
-//					}
-//				}
-//				else {
-//					contactsSelectionModel.setSelectionMode(
-//							ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-//					teamSelectionModel.setSelectionMode(
-//							ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-//				}
+		includeKeyJCheckBox.addChangeListener(new ChangeListener() {
+			Boolean previousIsSelected = includeKeyJCheckBox.isSelected();
+			public void stateChanged(final ChangeEvent e) {
+				if(previousIsSelected != includeKeyJCheckBox.isSelected()) {
+					if(includeKeyJCheckBox.isSelected()) {
+						contactsSelectionModel.setSelectionMode(
+								ListSelectionModel.SINGLE_SELECTION);
+						teamSelectionModel.setSelectionMode(
+								ListSelectionModel.SINGLE_SELECTION);
+
+						// since include key is selected; only 1 user can be used
+						// as the "destination"  remove *all* but the first selected
+						// user
+						int[] indices = teamJList.getSelectedIndices();
+						if(1 < indices.length) {
+							for(int i = 1; i < indices.length; i++) {
+								teamSelectionModel.removeSelectionInterval(i, i);
+							}
+							contactsSelectionModel.clearSelection();
+						}
+						else {
+							indices = contactsJList.getSelectedIndices();
+							if(1 < indices.length) {
+								for(int i = 1; i < indices.length; i++) {
+									contactsSelectionModel.removeSelectionInterval(i, i);
+								}
+							}
+						}
+					}
+					else {
+						contactsSelectionModel.setSelectionMode(
+								ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+						teamSelectionModel.setSelectionMode(
+								ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+					}
+					// if the state changes we reload the versions
+					reloadVersions();
+				}
+				previousIsSelected = includeKeyJCheckBox.isSelected();
 			}
+			
 		});
 		cancelJButton = ButtonFactory.create();
 		sendJButton = ButtonFactory.create();
@@ -432,7 +472,8 @@ public class SessionSendFormAvatar extends Avatar {
 
 	private void reloadContacts() {
 		contactsModel.clear();
-		loadUserList(contactsModel, getContacts());
+		if(null != input)
+			loadUserList(contactsModel, getContacts());
 	}
 
 	/**
@@ -453,28 +494,49 @@ public class SessionSendFormAvatar extends Avatar {
 
 	private void reloadVersions() {
 		versionModel.removeAllElements();
-		if (null != input) {
-			try {
-				final Collection<DocumentVersion> versions = getDocumentModel()
-						.listVersions((Long) input);
-				versionModel.addElement(getString("WorkingVersion"));
-				for (final DocumentVersion version : versions) {
-					versionModel.addElement(version.getVersionId());
-				}
+		if(null != input) {
+			// only include the working version if we are to send the key
+			if(extractDoIncludeKey()) {
+				versionModel.addElement(WorkingVersion.getWorkingVersion());
+				versionJComboBox.setEnabled(false);
 			}
-			catch(final ParityException px) {
-				throw new RuntimeException(px);
+			else {
+				final DocumentVersion[] versions = getVersions();
+				for(final DocumentVersion version : versions) {
+					versionModel.addElement(version);
+					versionJComboBox.setEnabled(true);
+				}				
 			}
 		}
 	}
 
 	private void sendJButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		if(isInputValid()) {
-			final Collection<User> users = extractTeam();
-			users.addAll(extractContacts());
 			final Long documentId = extractDocumentId();
+			final List<User> users = extractTeam();
+			users.addAll(extractContacts());
+			final Boolean doIncludeKey = extractDoIncludeKey();
 			toggleVisualFeedback(Boolean.TRUE);
-			try { getSessionModel().send(users, documentId); }
+			try {
+				if(doIncludeKey) {
+					// create a version and send it
+					// update the server key holder
+					final User user = users.get(0);
+					getSessionModel().sendKeyResponse(documentId, user, KeyResponse.ACCEPT);
+				}
+				else {
+					final DocumentVersion version = extractDocumentVersion();
+					if(version == WorkingVersion.getWorkingVersion()) {
+						// create a version and send it
+						getSessionModel().send(users, documentId);
+					}
+					else {
+						// send a specific version
+						getSessionModel().send(
+								users, documentId, version.getVersionId());
+					}
+				}
+			}
 			catch(final ParityException px) { throw new RuntimeException(px); }
 			finally { toggleVisualFeedback(Boolean.FALSE); }
 		}

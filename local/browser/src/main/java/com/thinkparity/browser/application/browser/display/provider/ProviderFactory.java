@@ -6,11 +6,14 @@ package com.thinkparity.browser.application.browser.display.provider;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.model.document.WorkingVersion;
 import com.thinkparity.browser.platform.util.RandomData;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -134,13 +137,17 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider mainProvider;
 
-	private final ContentProvider rosterProvider;
-
 	/**
 	 * Send artifact provider.
 	 * 
 	 */
 	private final ContentProvider sendArtifactProvider;
+
+	private final ContentProvider sendArtifactRosterProvider;
+
+	private final ContentProvider sendArtifactTeamProvider;
+
+	private final ContentProvider sendArtifactVersionProvider;
 
 	private final ContentProvider systemMessageProvider;
 
@@ -149,8 +156,6 @@ public class ProviderFactory {
 	 * 
 	 */
 	private final ContentProvider systemMessagesProvider;
-
-	private final ContentProvider teamProvider;
 
 	/**
 	 * Create a ProviderFactory.
@@ -210,17 +215,6 @@ public class ProviderFactory {
 				else { throw Assert.createUnreachable(""); }
 			}
 		};
-		this.rosterProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				Collection<User> roster;
-				try { roster = sessionModel.getRosterEntries(); }
-				catch(final ParityException px) {
-					logger.error("Cannot obtain the user's roster.", px);
-					roster = new Vector<User>(0);
-				}
-				return roster.toArray(new User[] {});
-			}
-		};
 		this.systemMessageProvider = new SingleContentProvider() {
 			// RANDOMDATA System Message
 			final RandomData randomData = new RandomData();
@@ -235,7 +229,32 @@ public class ProviderFactory {
 				return randomData.getSystemMessages();
 			}
 		};
-		this.teamProvider = new FlatContentProvider() {
+		this.sendArtifactRosterProvider = new FlatContentProvider() {
+			public Object[] getElements(final Object input) {
+				Assert.assertNotNull(
+						"The send artifact roster provider requires an artifact id:  java.lang.Long",
+						input);
+				Assert.assertOfType(
+						"The send artifact roster provider requires an artifact id:  java.lang.Long",
+						Long.class,
+						input);
+				Collection<User> roster;
+				try {
+					final User[] team =
+						(User[]) ((FlatContentProvider) sendArtifactTeamProvider).getElements(input);
+					roster = sessionModel.getRosterEntries();
+					// remove all team members from the roster list
+					for(final User user : team)
+						roster.remove(user);
+				}
+				catch(final ParityException px) {
+					logger.error("Cannot obtain the user's roster.", px);
+					roster = new Vector<User>(0);
+				}
+				return roster.toArray(new User[] {});
+			}
+		};
+		this.sendArtifactTeamProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				Assert.assertNotNull(
 						"The team provider requires an artifact id:  java.lang.Long.",
@@ -246,19 +265,13 @@ public class ProviderFactory {
 				final Long artifactId = (Long) input;
 				Collection<User> team;
 				try {
-					final User[] roster =
-						(User[]) ((FlatContentProvider) rosterProvider).getElements(null);
 					team = sessionModel.getSubscriptions(artifactId);
-					// remove all roster members from the team
-					for(final User rosterUser : roster) {
-						team.remove(rosterUser);
-					}
 					final Iterator<User> iTeam = team.iterator();
 					User user;
 					final String loggedInUsername = new StringBuffer(preferences.getUsername())
-						.append("@")
-						.append(preferences.getServerHost())
-						.toString();
+					.append("@")
+					.append(preferences.getServerHost())
+					.toString();
 					while(iTeam.hasNext()) {
 						user = iTeam.next();
 						if(user.getUsername().equals(loggedInUsername)) {
@@ -274,22 +287,44 @@ public class ProviderFactory {
 				return team.toArray(new User[] {});
 			}
 		};
+		this.sendArtifactVersionProvider = new FlatContentProvider() {
+			public Object[] getElements(final Object input) {
+				Assert.assertNotNull(
+						"The send artifact version provider requires an artifact id:  java.lang.Long.",
+						input);
+				Assert.assertOfType(
+						"The send artifact version provider requires an artifact id:  java.lang.Long.",
+						Long.class, input);
+				final Long artifactId = (Long) input;
+				final List<DocumentVersion> versions = new LinkedList<DocumentVersion>();
+				try {
+					versions.addAll(documentModel.listVersions(artifactId));
+					if(sessionModel.isLoggedInUserKeyHolder(artifactId)) {
+						versions.add(0, WorkingVersion.getWorkingVersion());
+					}
+				}
+				catch(final ParityException px) {
+					logger.error("Could not obtain send artifact version list:  " + input, px);
+				}
+				return versions.toArray(new DocumentVersion[] {});
+			}
+		};
 		this.sendArtifactProvider = new CompositeFlatContentProvider() {
-			private final ContentProvider[] contentProviders = new
-				ContentProvider[] {teamProvider, rosterProvider};
+			private final ContentProvider[] contentProviders = new ContentProvider[] {sendArtifactRosterProvider, sendArtifactTeamProvider, sendArtifactVersionProvider};
 			public Object[] getElements(final Integer index, final Object input) {
 				Assert.assertNotNull(
 						"Index for composite content provider cannot be null.",
 						index);
 				Assert.assertTrue(
-						"Index for the send artifact content provider mus lie within [0," + 1 + "]",
-						index >= 0 && index <= 1);
-				return ((FlatContentProvider) getProvider(index)).getElements(input);
+						"Index for the send artifact content provider mus lie within [0," + 2 + "]",
+						index >= 0 && index <= 2);
+				return getProvider(index).getElements(input);
 			}
-			private ContentProvider getProvider(final Integer index) {
-				return contentProviders[index];
+			private FlatContentProvider getProvider(final Integer index) {
+				return (FlatContentProvider) contentProviders[index];
 			}
 		};
+
 	}
 
 	/**

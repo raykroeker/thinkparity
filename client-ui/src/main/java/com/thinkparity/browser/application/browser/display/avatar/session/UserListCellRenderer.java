@@ -57,8 +57,8 @@ public class UserListCellRenderer implements ListCellRenderer {
 			final boolean cellHasFocus) {
 		if(isSelected) { jLabel.setBackground(listItemBackgroundSelect); }
 		else { jLabel.setBackground(listItemBackground); }
-		
-		jLabel.setText(((User) value).getName() + " - " + ((User) value).getSimpleUsername());
+
+		jLabel.setText(((User) value).getName());
 		return jLabel;
 	}
 

@@ -187,7 +187,7 @@ public class AvatarFactory {
 	private Avatar createSessionSendKeyForm() {
 		if(null == sessionSendKeyForm) {
 			sessionSendKeyForm = new SessionSendFormAvatar();
-			sessionSendForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
+			sessionSendKeyForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
 		}
 		return sessionSendKeyForm;
 	}

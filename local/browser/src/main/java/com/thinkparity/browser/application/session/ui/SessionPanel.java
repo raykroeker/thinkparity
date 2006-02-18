@@ -4,6 +4,8 @@
 package com.thinkparity.browser.application.session.ui;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.SwingUtilities;
 
@@ -136,7 +138,17 @@ public class SessionPanel extends AbstractJPanel {
         usernameJLabel = new javax.swing.JLabel();
         passwordJLabel = new javax.swing.JLabel();
         usernameJTextField = new javax.swing.JTextField();
+        usernameJTextField.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				loginJButtonActionPerformed(e);
+			}
+        });
         passwordJPasswordField = new javax.swing.JPasswordField();
+        passwordJPasswordField.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				loginJButtonActionPerformed(e);
+			}
+        });
         rememberPasswordJCheckBox = new javax.swing.JCheckBox();
         serverJLabel = new javax.swing.JLabel();
         cancelJButton = new javax.swing.JButton();

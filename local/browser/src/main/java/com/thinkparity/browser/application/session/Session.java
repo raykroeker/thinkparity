@@ -17,6 +17,9 @@ import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.workspace.Preferences;
+import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
  * The session application.
@@ -33,12 +36,21 @@ public class Session extends AbstractApplication {
 	private static final Object lock;
 
 	/**
+	 * The parity preferences.
+	 * 
+	 */
+	private static final Preferences preferences;
+
+	/**
 	 * The singleton instance of the session application.
 	 * 
 	 */
 	private static final Application singleton;
 
 	static {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		preferences = workspace.getPreferences();
+
 		singleton = new Session();
 		lock = new Object();
 	}
@@ -113,6 +125,15 @@ public class Session extends AbstractApplication {
 	public void hibernate() {}
 
 	/**
+	 * @see com.thinkparity.browser.platform.application.Application#launch()
+	 * 
+	 */
+	public void launch() {
+		if(doAutoLogin()) { autoLogin(); }
+		else { login(); }
+	}
+
+	/**
 	 * Login.  Display the login UI; and login.
 	 *
 	 */
@@ -174,18 +195,14 @@ public class Session extends AbstractApplication {
 	 * 
 	 * @return The password preference.
 	 */
-	private String getPrefPassword() {
-		return getPref("Password", (String) null);
-	}
+	private String getPrefPassword() { return preferences.getPassword(); }
 
 	/**
 	 * Get the username preference.
 	 * 
 	 * @return The username preference.
 	 */
-	private String getPrefUsername() {
-		return getPref("Username", (String) null);
-	}
+	private String getPrefUsername() { return preferences.getUsername(); }
 
 	/**
 	 * Login to the parity session. If successful; set the username preference.
@@ -202,7 +219,7 @@ public class Session extends AbstractApplication {
 			final Boolean doRememberPassword) {
 		try {
 			sessionModel.login(username, password);
-			setAutoLogin(doRememberPassword);
+			setAutoLogin(doRememberPassword, password);
 			updateStatus();
 		}
 		catch(final ParityException px) { throw new RuntimeException(px); }
@@ -214,8 +231,13 @@ public class Session extends AbstractApplication {
 	 * @param doAutoLogin
 	 *            The auto login preference.
 	 */
-	private void setAutoLogin(final Boolean doAutoLogin) {
+	private void setAutoLogin(final Boolean doAutoLogin, final String password) {
 		setPref("AutoLogin", doAutoLogin);
+		if(doAutoLogin) {
+			preferences.clearPassword();
+			preferences.setPassword(password);
+		}
+		else { preferences.clearPassword(); }
 	}
 
 	/**
@@ -228,14 +250,5 @@ public class Session extends AbstractApplication {
 			if(sessionModel.isLoggedIn()) { status = Status.ONLINE; }
 			else { status = Status.OFFLINE; }
 		}
-	}
-
-	/**
-	 * @see com.thinkparity.browser.platform.application.Application#launch()
-	 * 
-	 */
-	public void launch() {
-		if(doAutoLogin()) { autoLogin(); }
-		else { login(); }
 	}
 }

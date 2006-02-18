@@ -134,8 +134,8 @@ public class Browser implements Application {
 	 *
 	 */
 	public void displaySessionSendKeyFormAvatar() {
-		putClientProperty(AvatarId.SESSION_SEND_FORM, "doIncludeKey", Boolean.TRUE);
-		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_FORM);
+		putClientProperty(AvatarId.SESSION_SEND_KEY_FORM, "doIncludeKey", Boolean.TRUE);
+		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_KEY_FORM);
 	}
 
 	/**
@@ -310,6 +310,7 @@ public class Browser implements Application {
 	public void selectDocument(final Long documentId) {
 		setInput(AvatarId.DOCUMENT_HISTORY_LIST, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
+		setInput(AvatarId.SESSION_SEND_KEY_FORM, documentId);
 	}
 
 	/**

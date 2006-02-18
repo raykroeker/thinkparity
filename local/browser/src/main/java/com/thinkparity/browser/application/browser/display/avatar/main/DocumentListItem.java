@@ -75,6 +75,18 @@ public class DocumentListItem extends ListItem {
 	private JMenuItem closeMenuItem;
 
 	/**
+	 * Open menu item.
+	 * 
+	 */
+	private JMenuItem openMenuItem;
+
+	/**
+	 * The action listener for the open menu item.
+	 * 
+	 */
+	private ActionListener openMenuItemActionListener;
+
+	/**
 	 * The action listener for the close menu item.
 	 * 
 	 */
@@ -155,6 +167,7 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 */
 	public void populateMenu(final JPopupMenu jPopupMenu) {
+		jPopupMenu.add(getOpenMenuItem());
 		jPopupMenu.add(getSendMenuItem());
 		if(isKeyHolder(getDocumentId())) {
 			jPopupMenu.add(getSendKeyMenuItem());
@@ -170,6 +183,36 @@ public class DocumentListItem extends ListItem {
 			jPopupMenu.addSeparator();
 			jPopupMenu.add(getDeleteMenuItem());
 		}
+	}
+
+	/**
+	 * Obtain the open menu item.
+	 * 
+	 * @return The open menu item.
+	 */
+	private JMenuItem getOpenMenuItem() {
+		if(null == openMenuItem) {
+			openMenuItem = createJMenuItem(getString("Open"),
+					getMnemonic("OpenMnemonic"),
+					getOpenMenuItemActionListener());
+		}
+		return openMenuItem;
+	}
+
+	/**
+	 * Obtain the open menu item action listener.
+	 * 
+	 * @return The open menu item action listener.
+	 */
+	private ActionListener getOpenMenuItemActionListener() {
+		if(null == openMenuItemActionListener) {
+			openMenuItemActionListener = new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					getController().runOpenDocument(getDocumentId());
+				}
+			};
+		}
+		return openMenuItemActionListener;
 	}
 
 	/**

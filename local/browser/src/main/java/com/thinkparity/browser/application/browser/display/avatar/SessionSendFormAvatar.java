@@ -530,22 +530,29 @@ public class SessionSendFormAvatar extends Avatar {
 					// update the server key holder
 					final User user = users.get(0);
 					getSessionModel().sendKeyResponse(documentId, user, KeyResponse.ACCEPT);
+					displayMainBrowserAvatar();
 				}
 				else {
 					final DocumentVersion version = extractDocumentVersion();
 					if(version == WorkingVersion.getWorkingVersion()) {
 						// create a version and send it
 						getSessionModel().send(users, documentId);
+						displayMainBrowserAvatar();
 					}
 					else {
 						// send a specific version
 						getSessionModel().send(
 								users, documentId, version.getVersionId());
+						displayMainBrowserAvatar();
 					}
 				}
 			}
 			catch(final ParityException px) { throw new RuntimeException(px); }
 			finally { toggleVisualFeedback(Boolean.FALSE); }
 		}
+	}
+
+	private void displayMainBrowserAvatar() {
+		getController().displayMainBrowserAvatar();
 	}
 }

@@ -321,7 +321,8 @@ public class RandomData {
 	 * @return The number of system messages to retreive.
 	 */
 	private Integer getSystemMessageCount() {
-		return (Integer) getData(SYSTEM_MESSAGE_COUNT_DATA);
+		return 0;
+//		return (Integer) getData(SYSTEM_MESSAGE_COUNT_DATA);
 	}
 
 	private String getSystemMessageHeader(final Integer index) {

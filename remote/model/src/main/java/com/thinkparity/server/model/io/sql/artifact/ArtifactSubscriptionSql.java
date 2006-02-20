@@ -45,6 +45,11 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		.append("from parityArtifactSubscription ")
 		.append("where artifactId=? and username=?").toString();
 
+	private static final String SQL_EXIST_SUBSCRIPTIONS =
+		new StringBuffer("select count(artifactSubscriptionId) SUBSCRIPTION_COUNT ")
+		.append("from parityArtifactSubscription ")
+		.append("where artifactId=?").toString();
+
 	/**
 	 * Create a ArtifactSubscriptionSql.
 	 */
@@ -150,5 +155,26 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp(5));
 		return new ArtifactSubscription(artifactId, artifactSubscriptionId,
 				createdOn, updatedOn, username);
+	}
+
+	public Boolean existSubscriptions(final Integer artifactId)
+			throws SQLException {
+		logger.info("existSubscriptions(Integer)");
+		logger.debug(artifactId);
+		Connection cx = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			cx = getCx();
+			debugSql(SQL_EXIST_SUBSCRIPTIONS);
+			ps = cx.prepareStatement(SQL_EXIST_SUBSCRIPTIONS);
+			debugSql(1, artifactId);
+			ps.setInt(1, artifactId);
+			rs = ps.executeQuery();
+			rs.next();
+			if(0 < rs.getInt("SUBSCRIPTION_COUNT")) { return Boolean.TRUE; }
+			else { return Boolean.FALSE; }
+		}
+		finally { close(cx, ps, rs); }
 	}
 }

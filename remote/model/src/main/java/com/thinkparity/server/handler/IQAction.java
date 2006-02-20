@@ -8,44 +8,9 @@ import com.thinkparity.server.ParityServerConstants;
  */
 public enum IQAction {
 
-	ACCEPTKEYREQUEST, CLOSEARTIFACT, CREATEARTIFACT, DENYKEYREQUEST,
-
-	/**
-	 * Flag an artifact.
-	 */
-	FLAGARTIFACT,
-
-	/**
-	 * Get an artifact's keyholder.
-	 */
-	GETKEYHOLDER,
-	GETKEYS,
-	GETSUBSCRIPTION,
-	PROCESSOFFLINEQUEUE,
-
-	/**
-	 * Request an artifact's key.
-	 */
-	REQUESTKEY,
-
-	/**
-	 * Response to a request for an artifact's key.
-	 */
-	KEYRESPONSE,
-
-	/**
-	 * Set an artifact's keyholder.
-	 */
-	SETKEYHOLDER,
-
-	/**
-	 * Subscribe a user to an artifact.
-	 */
-	SUBSCRIBEUSER,
-
-	/**
-	 * Unsubscribe a user from an artifact.
-	 */
+	ACCEPTKEYREQUEST, CLOSEARTIFACT, CREATEARTIFACT, DELETEARTIFACT,
+	DENYKEYREQUEST, FLAGARTIFACT, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION,
+	PROCESSOFFLINEQUEUE, REQUESTKEY, KEYRESPONSE, SETKEYHOLDER, SUBSCRIBEUSER,
 	UNSUBSCRIBEUSER;
 
 	public String getNamespace() {

@@ -178,4 +178,9 @@ public class ArtifactModel extends AbstractModel {
 	public List<Artifact> listForKeyHolder() throws ParityServerModelException {
 		synchronized(implLock) { return impl.listForKeyHolder(); }
 	}
+
+	public void delete(final UUID artifactUniqueId)
+			throws ParityServerModelException {
+		synchronized(implLock) { impl.delete(artifactUniqueId); }
+	}
 }

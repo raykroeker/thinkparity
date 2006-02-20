@@ -63,6 +63,11 @@ public class ArtifactSql extends AbstractSql {
 		.append("and artifactStateId=?")
 		.toString();
 
+	private static final String SQL_DELETE =
+		new StringBuffer("delete from parityArtifact ")
+		.append("where artifactId=?")
+		.toString();
+
 	/**
 	 * Create a ArtifactSql.
 	 */
@@ -209,5 +214,21 @@ public class ArtifactSql extends AbstractSql {
 		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp("updatedOn"));
 		return new Artifact(artifactId, artifactUUID, artifactKeyHolder,
 				artifactState, createdOn, updatedOn);
+	}
+
+	public void delete(final Integer artifactId) throws SQLException {
+		logger.info("delete(Integer)");
+		logger.debug(artifactId);
+		Connection cx = null;
+		PreparedStatement ps = null;
+		try {
+			cx = getCx();
+			debugSql(SQL_DELETE);
+			ps = cx.prepareStatement(SQL_DELETE);
+			debugSql(1, artifactId);
+			ps.setInt(1, artifactId);
+			Assert.assertTrue("Unable to delete.", 1 == ps.executeUpdate());
+		}
+		finally { close(cx, ps); }
 	}
 }

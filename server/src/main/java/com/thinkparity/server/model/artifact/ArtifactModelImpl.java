@@ -63,6 +63,36 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Assert that the state transition from currentState to newState can be
+	 * made safely.
+	 * 
+	 * @param currentState The artifact's current state.
+	 * @param intentedState
+	 *            The artifact's intended state.
+	 * 
+	 * @throws NotTrueAssertion
+	 *             If the state cannot be moved.
+	 */
+	protected void assertStateTransition(final Artifact.State currentState,
+			final Artifact.State intendedState) {
+		switch(currentState) {
+		case ACTIVE:
+			// i can close it or delete it
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState, new Artifact.State[] {Artifact.State.CLOSED, Artifact.State.DELETED}),
+					Artifact.State.CLOSED == intendedState || Artifact.State.DELETED == intendedState);
+			break;
+		case CLOSED:
+			// i can delete it
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState, new Artifact.State[] {Artifact.State.DELETED}),
+					Artifact.State.DELETED == intendedState);
+			break;
+		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
+		}
+	}
+
+	/**
 	 * Accept the key request.
 	 * 
 	 * @param artifactUniqueId
@@ -173,6 +203,31 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("create(UUID)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	void delete(final UUID artifactUniqueId) throws ParityServerModelException {
+		logger.info("delete(UUID)");
+		logger.debug(artifactUniqueId);
+		try {
+			final Artifact artifact = get(artifactUniqueId);
+			final JID jid = session.getJID();
+
+			artifactSubscriptionSql.delete(
+					artifact.getArtifactId(), jid.getNode());
+
+			// if the user is the key holder; flag the document for deletion
+			if(isSessionUserKeyHolder(artifactUniqueId)) {
+				updateState(artifact, Artifact.State.DELETED);
+			}
+		}
+		catch(final SQLException sqlx) {
+			logger.error("Could not delete artifact:  " + artifactUniqueId, sqlx);
+			throw ParityErrorTranslator.translate(sqlx);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Could not delete artifact:  " + artifactUniqueId, rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -446,20 +501,24 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return iqArtifactFlag;
 	}
 
-	private String formatAssertion(final Artifact artifact,
-			final Artifact.State allowedState,
-			final Artifact.State attemptedState) {
-		return formatAssertion(artifact,
-				new Artifact.State[] {allowedState}, attemptedState);
-	}
-
-	private String formatAssertion(final Artifact artifact,
-			final Artifact.State[] allowedStates,
-			final Artifact.State attemptedState) {
+	/**
+	 * Format an assertion statement for the state transition assertion.
+	 * 
+	 * @param currentState
+	 *            The artifact's current state.
+	 * @param intendedState
+	 *            The indented state to move to.
+	 * @param allowedStates
+	 *            The allowable states.
+	 * @return A formatted assertion message.
+	 */
+	private String formatAssertion(final Artifact.State currentState,
+			final Artifact.State intendedState,
+			final Artifact.State[] allowedStates) {
 		final StringBuffer assertion =
 			new StringBuffer("Cannot move artifact state.  ")
-			.append("Current State:  ").append(artifact.getArtifactState().toString())
-			.append("  Attempted State:  ").append(attemptedState.toString())
+			.append("Current State:  ").append(currentState)
+			.append("  Attempted State:  ").append(intendedState)
 			.append("  Allowed State(s):  ");
 		int index = 0;
 		for(final Artifact.State allowedState: allowedStates) {
@@ -488,32 +547,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 */
 	private void updateState(final Artifact artifact,
 			final Artifact.State newState) throws SQLException {
-		switch(artifact.getArtifactState()) {
-		case ACTIVE:
-			// i can close it
-			Assert.assertTrue(
-					formatAssertion(artifact, Artifact.State.CLOSED, newState),
-					Artifact.State.CLOSED == newState);
-			break;
-		case ARCHIVED:
-			// i can delete it
-			Assert.assertTrue(
-					formatAssertion(artifact, Artifact.State.DELETED, newState),
-					Artifact.State.DELETED == newState);
-			break;
-		case CLOSED:
-			// i can archive it or delete id
-			Assert.assertTrue(
-					formatAssertion(artifact,
-							new Artifact.State[] {Artifact.State.ARCHIVED, Artifact.State.DELETED}, newState),
-					Artifact.State.ARCHIVED == newState ||
-						Artifact.State.DELETED == newState);
-			break;
-		case DELETED:
-			Assert.assertTrue("Cannot update state once deleted.", false);
-			break;
-		default: Assert.assertUnreachable("Unknown artifact state:  " + artifact.getArtifactState());
-		}
+		assertStateTransition(artifact.getArtifactState(), newState);
 		artifactSql.updateState(artifact.getArtifactId(),
 				artifact.getArtifactState(), newState);
 	}

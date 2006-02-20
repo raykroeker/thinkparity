@@ -3,6 +3,8 @@
  */
 package com.thinkparity.server.model;
 
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
 import org.jivesoftware.messenger.SessionManager;
 import org.jivesoftware.messenger.XMPPServer;
@@ -14,6 +16,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.server.model.artifact.Artifact;
+import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.session.SessionModel;
@@ -84,6 +87,11 @@ public abstract class AbstractModelImpl {
 		return JIDBuilder.build(username);
 	}
 
+	protected ArtifactModel getArtifactModel() {
+		final ArtifactModel artifactModel = ArtifactModel.getModel(session);
+		return artifactModel;
+	}
+
 	/**
 	 * Obtain the session model for this session.
 	 * 
@@ -108,6 +116,13 @@ public abstract class AbstractModelImpl {
 			return Boolean.TRUE;
 		}
 		else { return Boolean.FALSE; }
+	}
+
+	protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
+			throws ParityServerModelException {
+		final ArtifactModel aModel = getArtifactModel();
+		return aModel.get(artifactUniqueId).getArtifactKeyHolder().equals(
+				session.getJID().getNode());
 	}
 
 	/**

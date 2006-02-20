@@ -174,30 +174,16 @@ public abstract class AbstractModelImpl {
 			final ArtifactState intendedState) {
 		switch(currentState) {
 		case ACTIVE:
-			// i can close it
+			// i can close it or delete it
 			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, ArtifactState.CLOSED),
-					ArtifactState.CLOSED == intendedState);
-			break;
-		case ARCHIVED:
-			// i can delete it
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, ArtifactState.DELETED),
-					ArtifactState.DELETED == intendedState);
+					formatAssertion(currentState, intendedState, new ArtifactState[] {ArtifactState.CLOSED, ArtifactState.DELETED}),
+						ArtifactState.CLOSED == intendedState || ArtifactState.DELETED == intendedState);
 			break;
 		case CLOSED:
-			// i can archive it or delete id
+			// i can delete it
 			Assert.assertTrue(
-					formatAssertion(currentState, intendedState,
-							new ArtifactState[] {
-								ArtifactState.ARCHIVED, ArtifactState.DELETED}),
-					ArtifactState.ARCHIVED == intendedState ||
+					formatAssertion(currentState, intendedState, new ArtifactState[] {ArtifactState.DELETED}),
 						ArtifactState.DELETED == intendedState);
-			break;
-		case DELETED:
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState,
-							new ArtifactState[] {}), false);
 			break;
 		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
 		}
@@ -374,12 +360,6 @@ public abstract class AbstractModelImpl {
 		}
 	}
 
-	private String formatAssertion(final ArtifactState currentState,
-			final ArtifactState intendedState, final ArtifactState allowedState) {
-		return formatAssertion(
-				currentState, intendedState, new ArtifactState[] {allowedState});
-	}
-	
 	private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {

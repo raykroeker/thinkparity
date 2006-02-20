@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.xmpp;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +41,7 @@ public class SendDeleteTest extends XMPPTestCase {
 
 		UUID artifactUniqueId;
 		final XMPPSession session = getSession();
-		for(final File file : getInputFiles()) {
+		for(int i = 0, count = getInputFiles().length; i < count; i++) {
 			artifactUniqueId = UUIDGenerator.nextUUID();
 			session.sendCreate(artifactUniqueId);
 			session.sendClose(artifactUniqueId);

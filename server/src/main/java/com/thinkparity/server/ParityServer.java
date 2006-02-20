@@ -31,6 +31,7 @@ public class ParityServer implements Plugin {
 	private AcceptKeyRequest acceptKeyRequest;
 	private IQHandler closeArtifact;
 	private CreateArtifact createArtifact;
+	private IQHandler deleteArtifact;
 	private DenyKeyRequest denyKeyRequest;
 	private IQHandler flagArtifact;
 	private IQHandler getArtifactKeys;
@@ -91,6 +92,10 @@ public class ParityServer implements Plugin {
 		createArtifact.destroy();
 		createArtifact = null;
 
+		iqRouter.removeHandler(deleteArtifact);
+		deleteArtifact.destroy();
+		deleteArtifact = null;
+
 		iqRouter.removeHandler(denyKeyRequest);
 		denyKeyRequest.destroy();
 		denyKeyRequest = null;
@@ -147,6 +152,9 @@ public class ParityServer implements Plugin {
 
 		createArtifact = new CreateArtifact();
 		iqRouter.addHandler(createArtifact);
+
+		deleteArtifact = new DeleteArtifact();
+		iqRouter.addHandler(deleteArtifact);
 
 		denyKeyRequest = new DenyKeyRequest();
 		iqRouter.addHandler(denyKeyRequest);

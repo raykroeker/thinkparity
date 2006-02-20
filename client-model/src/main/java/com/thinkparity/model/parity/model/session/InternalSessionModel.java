@@ -52,17 +52,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	}
 
 	/**
-	 * Send a creation packet to the parity server.
-	 * 
-	 * @param document
-	 *            The document.
-	 * @throws ParityException
-	 */
-	public void sendCreate(final Artifact artifact) throws ParityException {
-		synchronized(getImplLock()) { getImpl().sendCreate(artifact); }
-	}
-
-	/**
 	 * Send a close packet to the parity server.
 	 * 
 	 * @param artifactId
@@ -76,5 +65,31 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	 */
 	public void sendClose(final Long artifactId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().sendClose(artifactId); }
+	}
+
+	/**
+	 * Send a creation packet to the parity server.
+	 * 
+	 * @param document
+	 *            The document.
+	 * @throws ParityException
+	 */
+	public void sendCreate(final Artifact artifact) throws ParityException {
+		synchronized(getImplLock()) { getImpl().sendCreate(artifact); }
+	}
+
+	/**
+	 * Send a delete packet to the parity server.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @throws ParityException
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user if offline.
+	 *             </ul>
+	 */
+	public void sendDelete(final Long artifactId) throws ParityException {
+		synchronized(getImplLock()) { getImpl().sendDelete(artifactId); }
 	}
 }

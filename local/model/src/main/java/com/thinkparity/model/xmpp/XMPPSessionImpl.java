@@ -79,8 +79,6 @@ public class XMPPSessionImpl implements XMPPSession {
 
 	private Map<String, User> pendingXMPPUsers;
 
-	private SmackConnectionListenerImpl smackConnectionListenerImpl;
-
 	private SmackPresenceFilter smackPresenceFilter;
 
 	private SmackPresenceListenerImpl smackPresenceListenerImpl;
@@ -99,17 +97,15 @@ public class XMPPSessionImpl implements XMPPSession {
 		this.xmppPresenceListeners = new Vector<XMPPPresenceListener>(10);
 		this.xmppSessionListeners = new Vector<XMPPSessionListener>(10);
 
-		smackConnectionListenerImpl = new SmackConnectionListenerImpl();
-
 		XMPPConnection.addConnectionListener((ConnectionEstablishedListener) new SmackConnectionListener() {
-			public void connectionEstablished(final XMPPConnection connection) {
-				doNotifyConnectionEstablished(connection);
-			}
 			public void connectionClosed() {
 				doNotifyConnectionClosed();
 			}
 			public void connectionClosedOnError(final Exception e) {
 				doNotifyConnectionClosedOnError(e);
+			}
+			public void connectionEstablished(final XMPPConnection connection) {
+				doNotifyConnectionEstablished(connection);
 			}
 		});
 
@@ -424,6 +420,16 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#processOfflineQueue()
+	 * 
+	 */
+	public void processOfflineQueue() throws SmackException {
+		logger.info("processOfflineQueue()");
+		final IQParity processOfflineQueue = new IQProcessOfflineQueue();
+		sendAndConfirmPacket(processOfflineQueue);
+	}
+
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 */
 	public void removeListener(XMPPExtensionListener xmppExtensionListener) {
@@ -537,6 +543,18 @@ public class XMPPSessionImpl implements XMPPSession {
 		iq.setType(IQ.Type.SET);
 		logger.debug(iq);
 		sendAndConfirmPacket(iq);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendDelete(java.util.UUID)
+	 * 
+	 */
+	public void sendDelete(final UUID artifactUniqueId) throws SmackException {
+		logger.info("sendDelete(UUID)");
+		logger.debug(artifactUniqueId);
+		final IQArtifact delete = new IQDeleteArtifact(artifactUniqueId);
+		delete.setType(IQ.Type.SET);
+		sendAndConfirmPacket(delete);
 	}
 
 	/**
@@ -1046,37 +1064,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * SmackConnectionListenerImpl Is used to translate smack connection events
-	 * to local xmpp session events. Note that the same class is used to listen
-	 * for both connection established events and connection termination events.
-	 * 
-	 * @author raykroeker@gmail.com
-	 */
-	private class SmackConnectionListenerImpl extends SmackConnectionListener {
-		/**
-		 * @see org.jivesoftware.smack.ConnectionListener#connectionClosed()
-		 */
-		public void connectionClosed() { doNotifyConnectionClosed(); }
-
-		/**
-		 * @see org.jivesoftware.smack.ConnectionListener#connectionClosedOnError(java.lang.Exception)
-		 * 
-		 */
-		public void connectionClosedOnError(final Exception x) {
-			doNotifyConnectionClosedOnError(x);
-		}
-
-		/**
-		 * @see org.jivesoftware.smack.ConnectionEstablishedListener#connectionEstablished(org.jivesoftware.smack.XMPPConnection)
-		 * 
-		 */
-		public void connectionEstablished(final XMPPConnection xmppConnection) {
-			
-			doNotifyConnectionEstablished(xmppConnection);
-		}
-	}
-
-	/**
 	 * SmackPresenceListenerImpl
 	 * @author raykroeker@gmail.com
 	 * @version 1.1
@@ -1111,13 +1098,5 @@ public class XMPPSessionImpl implements XMPPSession {
 		public void rosterModified() {}
 	}
 
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#processOfflineQueue()
-	 * 
-	 */
-	public void processOfflineQueue() throws SmackException {
-		logger.info("processOfflineQueue()");
-		final IQParity processOfflineQueue = new IQProcessOfflineQueue();
-		sendAndConfirmPacket(processOfflineQueue);
-	}
+
 }

@@ -59,6 +59,7 @@ public interface XMPPSession {
 			final XMPPDocument xmppDocument) throws SmackException;
 	public void sendClose(final UUID artifactUniqueId) throws SmackException;
 	public void sendCreate(final UUID artifactUniqueId) throws SmackException;
+	public void sendDelete(final UUID artifactUniqueId) throws SmackException;
 	public void sendKeyRequest(final UUID artifactUniqueId) throws SmackException;
 	public void sendKeyResponse(final UUID artifactUniqueId,
 			final KeyResponse keyResponse, final User user)

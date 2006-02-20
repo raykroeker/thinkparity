@@ -362,11 +362,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("delete(Long)");
 		logger.debug(documentId);
 		try {
+			// delete the document remotely
+			final InternalSessionModel iSModel = getInternalSessionModel();
+			iSModel.sendDelete(documentId);
+
+			// delete the document locally
 			final Document document = get(documentId);
-
-			// flag the document as seen
-			flagAsSEEN(document);
-
 			// delete the versions
 			final Collection<DocumentVersion> versions = listVersions(documentId);
 			for(final DocumentVersion version : versions) {

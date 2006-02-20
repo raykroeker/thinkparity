@@ -160,6 +160,50 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+	 * Assert that the state transition from currentState to newState can be
+	 * made safely.
+	 * 
+	 * @param currentState The artifact's current state.
+	 * @param intentedState
+	 *            The artifact's intended state.
+	 * 
+	 * @throws NotTrueAssertion
+	 *             If the state cannot be moved.
+	 */
+	protected void assertStateTransition(final ArtifactState currentState,
+			final ArtifactState intendedState) {
+		switch(currentState) {
+		case ACTIVE:
+			// i can close it
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState, ArtifactState.CLOSED),
+					ArtifactState.CLOSED == intendedState);
+			break;
+		case ARCHIVED:
+			// i can delete it
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState, ArtifactState.DELETED),
+					ArtifactState.DELETED == intendedState);
+			break;
+		case CLOSED:
+			// i can archive it or delete id
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState,
+							new ArtifactState[] {
+								ArtifactState.ARCHIVED, ArtifactState.DELETED}),
+					ArtifactState.ARCHIVED == intendedState ||
+						ArtifactState.DELETED == intendedState);
+			break;
+		case DELETED:
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState,
+							new ArtifactState[] {}), false);
+			break;
+		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
+		}
+	}
+
+	/**
 	 * Flag the object as not having been seen. This will remove the seen flag
 	 * from the object, and remove the seen flag from the parent objects all the
 	 * way up the tree.
@@ -327,50 +371,6 @@ public abstract class AbstractModelImpl {
 		if(!document.contains(ArtifactFlag.SEEN)) {
 			document.add(ArtifactFlag.SEEN);
 			getDocumentModel().update(document);
-		}
-	}
-
-	/**
-	 * Assert that the state transition from currentState to newState can be
-	 * made safely.
-	 * 
-	 * @param currentState The artifact's current state.
-	 * @param intentedState
-	 *            The artifact's intended state.
-	 * 
-	 * @throws NotTrueAssertion
-	 *             If the state cannot be moved.
-	 */
-	protected void assertStateTransition(final ArtifactState currentState,
-			final ArtifactState intendedState) {
-		switch(currentState) {
-		case ACTIVE:
-			// i can close it
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, ArtifactState.CLOSED),
-					ArtifactState.CLOSED == intendedState);
-			break;
-		case ARCHIVED:
-			// i can delete it
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, ArtifactState.DELETED),
-					ArtifactState.DELETED == intendedState);
-			break;
-		case CLOSED:
-			// i can archive it or delete id
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState,
-							new ArtifactState[] {
-								ArtifactState.ARCHIVED, ArtifactState.DELETED}),
-					ArtifactState.ARCHIVED == intendedState ||
-						ArtifactState.DELETED == intendedState);
-			break;
-		case DELETED:
-			Assert.assertTrue(
-					formatAssertion(currentState, intendedState,
-							new ArtifactState[] {}), false);
-			break;
-		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
 		}
 	}
 

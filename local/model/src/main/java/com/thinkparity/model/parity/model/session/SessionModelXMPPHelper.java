@@ -265,6 +265,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+	 * Send a deletion packet to the parity server.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
+	 * @throws SmackException
+	 */
+	void sendDelete(final UUID artifactUniqueId) throws SmackException {
+		xmppSession.sendDelete(artifactUniqueId);
+	}
+
+	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
 	 * @param parityObjectUUID

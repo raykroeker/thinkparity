@@ -3,8 +3,6 @@
  */
 package com.thinkparity.server.model.queue;
 
-import java.util.Collection;
-
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
@@ -53,18 +51,6 @@ public class QueueModel extends AbstractModel {
 	}
 
 	/**
-	 * Dequeue a previously enqueued item from the persistant store.
-	 * 
-	 * @param queueItem
-	 *            The queue item to remove.
-	 * @throws ParityServerModelException
-	 */
-	public void dequeue(final QueueItem queueItem)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.dequeue(queueItem); }
-	}
-
-	/**
 	 * Add a message to the parity queue for the given jabber id.
 	 * 
 	 * @param jid
@@ -80,12 +66,11 @@ public class QueueModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain a list of queued items for the jabber id.
+	 * Process all pending queue items for the given session.
 	 * 
-	 * @return A list of queued items.
 	 * @throws ParityServerModelException
 	 */
-	public Collection<QueueItem> list() throws ParityServerModelException {
-		synchronized(implLock) { return impl.list(); }
+	public void processOfflineQueue() throws ParityServerModelException {
+		synchronized(implLock) { impl.processOfflineQueue(); }
 	}
 }

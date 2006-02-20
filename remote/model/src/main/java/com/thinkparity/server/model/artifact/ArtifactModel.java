@@ -75,6 +75,18 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
+	 * Close an artifact.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
+	 * @throws ParityServerModelException
+	 */
+	public void close(final UUID artifactUniqueId)
+			throws ParityServerModelException {
+		synchronized(implLock) { impl.close(artifactUniqueId); }
+	}
+
+	/**
 	 * Deny the key request for the artifact from the jid.
 	 * 
 	 * @param artifactUniqueId

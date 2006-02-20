@@ -43,7 +43,7 @@ public class QueueSql extends AbstractSql {
 		.append("select queueId,username,queueMessageSize,queueMessage,")
 		.append("createdOn,updatedOn ")
 		.append("from parityQueue ")
-		.append("where username = ? order by createdOn asc").toString();
+		.append("where username = ? order by createdOn desc").toString();
 
 	/**
 	 * Create a QueueSql.
@@ -58,6 +58,7 @@ public class QueueSql extends AbstractSql {
 		try {
 			cx = getCx();
 			ps = cx.prepareStatement(DELETE);
+			ps.setInt(1, queueId);
 			Assert.assertTrue("delete(Integer)", 1 == ps.executeUpdate());
 		}
 		finally { close(cx, ps); }

@@ -13,15 +13,20 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.NotTrueAssertion;
+
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSql;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSubscriptionSql;
 import com.thinkparity.server.model.session.Session;
+import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 import com.thinkparity.server.org.xmpp.packet.IQAcceptKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.IQArtifact;
 import com.thinkparity.server.org.xmpp.packet.IQArtifactFlag;
+import com.thinkparity.server.org.xmpp.packet.IQCloseArtifact;
 import com.thinkparity.server.org.xmpp.packet.IQDenyKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.IQKeyRequest;
 
@@ -100,6 +105,48 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Close an artifact.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
+	 * @throws ParityServerModelException
+	 */
+	void close(final UUID artifactUniqueId) throws ParityServerModelException {
+		logger.info("close(UUID)");
+		logger.debug(artifactUniqueId);
+		final Artifact artifact = get(artifactUniqueId);
+		assertIsKeyHolder(artifact);
+		try {
+			updateState(artifact, Artifact.State.CLOSED);
+			final IQ close = new IQCloseArtifact(artifactUniqueId);
+			final List<ArtifactSubscription> subscription =
+				getSubscription(artifactUniqueId);
+			JID jid;
+			for(final ArtifactSubscription s : subscription) {
+				jid = JIDBuilder.build(s.getUsername());
+				// we don't want to notify ourselves
+				if(!jid.equals(session.getJID())) {
+					close.setTo(jid);
+					close.setFrom(session.getJID());
+					send(jid, close);
+				}
+			}
+		}
+		catch(final SQLException sqlx) {
+			logger.error("Cannot close artifact.", sqlx);
+			throw ParityErrorTranslator.translate(sqlx);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Cannot close artifact.", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+		catch(final UnauthorizedException ux) {
+			logger.error("Cannot close artifact.", ux);
+			throw ParityErrorTranslator.translate(ux);
+		}
+	}
+
+	/**
 	 * Create an artifact.
 	 * 
 	 * @param artifactUniqueId
@@ -112,7 +159,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.debug(artifactUniqueId);
 		try {
 			final String artifactKeyHolder = session.getJID().getNode();
-			artifactSql.insert(artifactUniqueId, artifactKeyHolder);
+			artifactSql.insert(artifactUniqueId, artifactKeyHolder, Artifact.State.ACTIVE);
 			final Artifact artifact = artifactSql.select(artifactUniqueId);
 			// also add a subscription for the creator
 			final Integer artifactId = artifact.getArtifactId();
@@ -399,10 +446,75 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return iqArtifactFlag;
 	}
 
+	private String formatAssertion(final Artifact artifact,
+			final Artifact.State allowedState,
+			final Artifact.State attemptedState) {
+		return formatAssertion(artifact,
+				new Artifact.State[] {allowedState}, attemptedState);
+	}
+
+	private String formatAssertion(final Artifact artifact,
+			final Artifact.State[] allowedStates,
+			final Artifact.State attemptedState) {
+		final StringBuffer assertion =
+			new StringBuffer("Cannot move artifact state.  ")
+			.append("Current State:  ").append(artifact.getArtifactState().toString())
+			.append("  Attempted State:  ").append(attemptedState.toString())
+			.append("  Allowed State(s):  ");
+		int index = 0;
+		for(final Artifact.State allowedState: allowedStates) {
+			if(0 != index++) { assertion.append(","); }
+			assertion.append(allowedState.toString());
+		}
+		return assertion.toString();
+	}
+
 	private List<ArtifactSubscription> proxy(
 			final Collection<ArtifactSubscription> c) {
 		final List<ArtifactSubscription> l = new LinkedList<ArtifactSubscription>();
 		for(final ArtifactSubscription as : c) { l.add(as); }
 		return l;
+	}
+
+	/**
+	 * Update the artifact's state.
+	 * 
+	 * @param artifact
+	 *            The artifact.
+	 * @param newState
+	 *            The new state.
+	 * @throws NotTrueAssertion
+	 *             If the state movement is illegal.
+	 */
+	private void updateState(final Artifact artifact,
+			final Artifact.State newState) throws SQLException {
+		switch(artifact.getArtifactState()) {
+		case ACTIVE:
+			// i can close it
+			Assert.assertTrue(
+					formatAssertion(artifact, Artifact.State.CLOSED, newState),
+					Artifact.State.CLOSED == newState);
+			break;
+		case ARCHIVED:
+			// i can delete it
+			Assert.assertTrue(
+					formatAssertion(artifact, Artifact.State.DELETED, newState),
+					Artifact.State.DELETED == newState);
+			break;
+		case CLOSED:
+			// i can archive it or delete id
+			Assert.assertTrue(
+					formatAssertion(artifact,
+							new Artifact.State[] {Artifact.State.ARCHIVED, Artifact.State.DELETED}, newState),
+					Artifact.State.ARCHIVED == newState ||
+						Artifact.State.DELETED == newState);
+			break;
+		case DELETED:
+			Assert.assertTrue("Cannot update state once deleted.", false);
+			break;
+		default: Assert.assertUnreachable("Unknown artifact state:  " + artifact.getArtifactState());
+		}
+		artifactSql.updateState(artifact.getArtifactId(),
+				artifact.getArtifactState(), newState);
 	}
 }

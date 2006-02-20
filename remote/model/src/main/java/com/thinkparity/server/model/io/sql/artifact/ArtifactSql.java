@@ -19,6 +19,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.server.model.artifact.Artifact;
+import com.thinkparity.server.model.artifact.Artifact.State;
 import com.thinkparity.server.model.io.sql.AbstractSql;
 
 /**
@@ -30,30 +31,36 @@ public class ArtifactSql extends AbstractSql {
 
 	private static final String INSERT =
 		new StringBuffer("insert into parityArtifact ")
-		.append("(artifactId,artifactUUID,artifactKeyHolder,updatedOn) ")
-		.append("values (?,?,?,CURRENT_TIMESTAMP)")
+		.append("(artifactId,artifactUUID,artifactKeyHolder,artifactStateId,updatedOn) ")
+		.append("values (?,?,?,?,CURRENT_TIMESTAMP)")
 		.toString();
 
 	private static final String SELECT = new StringBuffer()
-	.append("select artifactId,artifactUUID,artifactKeyHolder,createdOn,")
+	.append("select artifactId,artifactUUID,artifactKeyHolder,artifactStateId,createdOn,")
 	.append("updatedOn ")
 	.append("from parityArtifact ")
 	.append("where artifactUUID = ?").toString();
-
-	private static final String SQL_LIST_FOR_KEY_HOLDER =
-		new StringBuffer("select artifactId,artifactUUID,artifactKeyHolder,")
-		.append("createdOn,updatedOn ")
-		.append("from parityArtifact ")
-		.append("where artifactKeyHolder= ?").toString();
 
 	private static final String SELECT_KEYHOLDER = new StringBuffer()
 		.append("select artifactKeyHolder ")
 		.append("from parityArtifact ")
 		.append("where artifactId = ?").toString();
 
-	private static final String UPDATE_KEYHOLDER = new StringBuffer()
-		.append("update parityArtifact set artifactKeyHolder = ?,")
+	private static final String SQL_LIST_FOR_KEY_HOLDER =
+		new StringBuffer("select artifactId,artifactUUID,artifactKeyHolder,")
+		.append("artifactStateId,createdOn,updatedOn ")
+		.append("from parityArtifact ")
+		.append("where artifactKeyHolder= ?").toString();
+
+	private static final String UPDATE_KEYHOLDER =
+		new StringBuffer("update parityArtifact set artifactKeyHolder = ?,")
 		.append("updatedOn = current_timestamp where artifactId = ?")
+		.toString();
+
+	private static final String SQL_UPDATE_STATE =
+		new StringBuffer("update parityArtifact set artifactStateId=?,")
+		.append("updatedOn = current_timestamp where artifactId=? ")
+		.append("and artifactStateId=?")
 		.toString();
 
 	/**
@@ -62,7 +69,8 @@ public class ArtifactSql extends AbstractSql {
 	public ArtifactSql() { super(); }
 
 	public Integer insert(final UUID artifactUUID,
-			final String artifactKeyHolder) throws SQLException {
+			final String artifactKeyHolder, final Artifact.State state)
+			throws SQLException {
 		logger.info("insert(UUID)");
 		logger.debug(artifactUUID);
 		logger.debug(artifactKeyHolder);
@@ -79,6 +87,8 @@ public class ArtifactSql extends AbstractSql {
 			ps.setString(2, artifactUUID.toString());
 			debugSql(3, artifactKeyHolder);
 			ps.setString(3, artifactKeyHolder);
+			debugSql(4, state);
+			ps.setInt(4, state.getId());
 			Assert.assertTrue("insert(UUID)", 1 == ps.executeUpdate());
 			return artifactId;
 		}
@@ -165,13 +175,39 @@ public class ArtifactSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
+	public void updateState(final Integer artifactId, final State currentState,
+			final State newState) throws SQLException {
+		logger.info("updateState(Long,State,State)");
+		logger.debug(artifactId);
+		logger.debug(currentState);
+		logger.debug(newState);
+		Connection cx = null;
+		PreparedStatement ps = null;
+		try {
+			cx = getCx();
+			debugSql(SQL_UPDATE_STATE);
+			ps = cx.prepareStatement(SQL_UPDATE_STATE);
+			debugSql(1, newState);
+			ps.setInt(1, newState.getId());
+			debugSql(2, artifactId);
+			ps.setInt(2, artifactId);
+			debugSql(3, currentState);
+			ps.setInt(3, currentState.getId());
+			Assert.assertTrue("Unable to update state.",
+					1 == ps.executeUpdate());
+				
+		}
+		finally { close(cx, ps); }
+	}
+
 	private Artifact extract(final ResultSet rs) throws SQLException {
 		final Integer artifactId = rs.getInt("artifactId");
 		final UUID artifactUUID = UUID.fromString(rs.getString("artifactUUID"));
 		final String artifactKeyHolder = rs.getString("artifactKeyHolder");
+		final State artifactState = State.fromId(rs.getInt("artifactStateId"));
 		final Calendar createdOn = DateUtil.getInstance(rs.getTimestamp("createdOn"));
 		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp("updatedOn"));
 		return new Artifact(artifactId, artifactUUID, artifactKeyHolder,
-				createdOn, updatedOn);
+				artifactState, createdOn, updatedOn);
 	}
 }

@@ -39,7 +39,7 @@ public class GetKeyHolder extends IQHandler {
 		logger.debug(iq);
 		logger.debug(session);
 		final ArtifactModel artifactModel = getArtifactModel(session);
-		final Artifact artifact = artifactModel.get(extractUUID(iq));
+		final Artifact artifact = artifactModel.get(extractUniqueId(iq));
 		return createResult(iq, session, artifact);
 	}
 

@@ -9,7 +9,8 @@ package com.thinkparity.server.org.dom4j;
  */
 public enum NamespaceName {
 
-	IQ_ACCEPT_KEY_REQUEST("acceptkeyrequest"), IQ_ARTIFACT_FLAG("artifactflag"),
+	IQ_ACCEPT_KEY_REQUEST("acceptkeyrequest"),
+	IQ_CLOSE_ARTIFACT("closeartifact"), IQ_ARTIFACT_FLAG("artifactflag"),
 	IQ_DENY_KEY_REQUEST("denykeyrequest"), IQ_GET_KEYHOLDER("getkeyholder"),
 	IQ_GET_KEYS("getkeys"), IQ_GET_SUBSCRIPTION("getsubscriptions"),
 	IQ_KEY_REQUEST("keyrequest");

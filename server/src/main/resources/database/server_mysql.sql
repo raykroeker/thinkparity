@@ -1,8 +1,20 @@
+create table parityArtifactState (
+  artifactStateId tinyint unsigned not null,
+  artifactState varchar(12) not null,
+  primary key (artifactStateId),
+  unique(artifactState)
+);
+create index parityArtifactState_artifactState on parityArtifactState(artifactState);
+insert into parityArtifactState (artifactStateId, artifactState) values (0, 'ACTIVE');
+insert into parityArtifactState (artifactStateId, artifactState) values (1, 'ARCHIVED');
+insert into parityArtifactState (artifactStateId, artifactState) values (2, 'CLOSED');
+insert into parityArtifactState (artifactStateId, artifactState) values (3, 'DELETED');
 
 create table parityArtifact (
   artifactId integer not null,
   artifactUUID varchar(255) not null,
   artifactKeyHolder varchar(32) not null references jiveUser(username),
+  artifactStateId tinyint not null references parityArtifactState(artifactStateId),
   createdOn timestamp not null default current_timestamp,
   updatedOn timestamp not null,
   primary key (artifactId),

@@ -1,5 +1,5 @@
 /*
- * Dec 12, 2005
+ * Feb 18, 2006
  */
 package com.thinkparity.server.handler.artifact;
 
@@ -16,24 +16,24 @@ import com.thinkparity.server.model.session.Session;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DenyKeyRequest extends IQHandler {
+public class CloseArtifact extends IQHandler {
 
 	/**
-	 * Create a DenyKeyRequest.
+	 * Create a CloseArtifact.
+	 * 
 	 */
-	public DenyKeyRequest() { super(IQAction.DENYKEYREQUEST); }
+	public CloseArtifact() { super(IQAction.CLOSEARTIFACT); }
 
 	/**
-	 * @see com.thinkparity.server.handler.IQHandler#handleIQ(org.xmpp.packet.IQ, com.thinkparity.server.model.session.Session)
+	 * @see com.thinkparity.server.handler.IQHandler#handleIQ(org.xmpp.packet.IQ,
+	 *      com.thinkparity.server.model.session.Session)
+	 * 
 	 */
 	public IQ handleIQ(IQ iq, Session session)
 			throws ParityServerModelException, UnauthorizedException {
 		logger.info("handleIQ(IQ,Session)");
-		logger.debug(iq);
-		logger.debug(session);
 		final ArtifactModel artifactModel = getArtifactModel(session);
-		artifactModel.denyKeyRequest(extractUniqueId(iq), extractJID(iq));
+		artifactModel.close(extractUniqueId(iq));
 		return createResult(iq);
 	}
-
 }

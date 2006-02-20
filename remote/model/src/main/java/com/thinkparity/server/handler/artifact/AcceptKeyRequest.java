@@ -33,7 +33,7 @@ public class AcceptKeyRequest extends IQHandler {
 		logger.debug(iq);
 		logger.debug(session);
 		final ArtifactModel artifactModel = getArtifactModel(session);
-		artifactModel.acceptKeyRequest(extractUUID(iq), extractJID(iq));
+		artifactModel.acceptKeyRequest(extractUniqueId(iq), extractJID(iq));
 		return createResult(iq);
 	}
 }

@@ -22,6 +22,7 @@ import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
+import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 import com.thinkparity.server.org.dom4j.ElementName;
@@ -144,7 +145,7 @@ public abstract class IQHandler extends
 	 */
 	protected Artifact extractArtifact(final ArtifactModel artifactModel,
 			final IQ iq) throws ParityServerModelException {
-		return artifactModel.get(extractUUID(iq));
+		return artifactModel.get(extractUniqueId(iq));
 	}
 
 	/**
@@ -168,7 +169,7 @@ public abstract class IQHandler extends
 	 *            The iq xml document.
 	 * @return The artifact's unique id.
 	 */
-	protected UUID extractUUID(final IQ iq) {
+	protected UUID extractUniqueId(final IQ iq) {
 		final Element child = iq.getChildElement();
 		final Element uuidElement = child.element(ElementName.UUID.getName());
 		return UUID.fromString((String) uuidElement.getData());
@@ -181,6 +182,10 @@ public abstract class IQHandler extends
 	 */
 	protected ArtifactModel getArtifactModel(final Session session) {
 		return ArtifactModel.getModel(session);
+	}
+
+	protected QueueModel getQueueModel(final Session session) {
+		return QueueModel.getModel(session);
 	}
 
 	/**

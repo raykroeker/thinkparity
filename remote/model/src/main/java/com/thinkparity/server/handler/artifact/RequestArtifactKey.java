@@ -32,7 +32,7 @@ public class RequestArtifactKey extends IQHandler {
 		logger.debug(iq);
 		logger.debug(session);
 		final ArtifactModel artifactModel = getArtifactModel(session);
-		artifactModel.requestKey(extractUUID(iq));
+		artifactModel.requestKey(extractUniqueId(iq));
 		return createResult(iq);
 	}
 }

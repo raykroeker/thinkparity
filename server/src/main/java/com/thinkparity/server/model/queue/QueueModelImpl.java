@@ -14,6 +14,7 @@ import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.queue.QueueSql;
 import com.thinkparity.server.model.session.Session;
+import com.thinkparity.server.model.session.SessionModel;
 
 /**
  * The queue model is used to persistantly store text for jabber ids. The text
@@ -38,30 +39,6 @@ class QueueModelImpl extends AbstractModelImpl {
 	QueueModelImpl(final Session session) {
 		super(session);
 		this.queueSql = new QueueSql();
-	}
-
-	/**
-	 * Dequeue a previously enqueued item from the persistant store.
-	 * 
-	 * @param queueItem
-	 *            The queue item to remove.
-	 * @throws ParityServerModelException
-	 */
-	void dequeue(final QueueItem queueItem) throws ParityServerModelException {
-		logger.info("dequeue(QueueItem)");
-		logger.debug(queueItem);
-		try {
-			final Integer queueId = queueItem.getQueueId();
-			queueSql.delete(queueId);
-		}
-		catch(SQLException sqlx) {
-			logger.error("dequeue(QueueItem)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(RuntimeException rx) {
-			logger.error("dequeue(QueueItem)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
 	}
 
 	/**
@@ -96,24 +73,48 @@ class QueueModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Process all pending queue items for the given session.
+	 * 
+	 * @throws ParityServerModelException
+	 */
+	void processOfflineQueue() throws ParityServerModelException {
+		logger.info("processQueue()");
+		try {
+			final Collection<QueueItem> queueItems = list();
+			final SessionModel sessionModel = getSessionModel();
+			for(final QueueItem queueItem : queueItems) {
+				sessionModel.send(queueItem);
+				dequeue(queueItem);
+			}
+		}
+		catch(final SQLException sqlx) {
+			logger.error("Could not process offline queue.", sqlx);
+			throw ParityErrorTranslator.translate(sqlx);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Could not process offline queue.", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Dequeue a previously enqueued item from the persistant store.
+	 * 
+	 * @param queueItem
+	 *            The queue item to remove.
+	 * @throws ParityServerModelException
+	 */
+	private void dequeue(final QueueItem queueItem) throws SQLException {
+		final Integer queueId = queueItem.getQueueId();
+		queueSql.delete(queueId);
+	}
+
+	/**
 	 * Obtain a list of queued items for the jabber id.
 	 * 
 	 * @return A list of queued items.
-	 * @throws ParityServerModelException
 	 */
-	Collection<QueueItem> list() throws ParityServerModelException {
-		logger.info("list(JID)");
-		try {
-			final String username = session.getJID().getNode();
-			return queueSql.select(username);
-		}
-		catch(SQLException sqlx) {
-			logger.error("list(JID)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(RuntimeException rx) {
-			logger.error("list(JID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+	private Collection<QueueItem> list() throws SQLException {
+		return queueSql.select(session.getJID().getNode());
 	}
 }

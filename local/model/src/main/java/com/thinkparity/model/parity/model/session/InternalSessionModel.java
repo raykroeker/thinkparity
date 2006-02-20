@@ -61,4 +61,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	public void sendCreate(final Artifact artifact) throws ParityException {
 		synchronized(getImplLock()) { getImpl().sendCreate(artifact); }
 	}
+
+	/**
+	 * Send a close packet to the parity server.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             <li>If the logged in user is not the key holder.
+	 *             </ul>
+	 * @throws ParityException
+	 */
+	public void sendClose(final Long artifactId) throws ParityException {
+		synchronized(getImplLock()) { getImpl().sendClose(artifactId); }
+	}
 }

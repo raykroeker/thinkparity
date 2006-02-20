@@ -96,7 +96,12 @@ public class DocumentModel {
 	 * Close a document.
 	 * 
 	 * @param documentId
-	 *            The document unique id.
+	 *            The document id.
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             <li>If the logged in user is not the key holder.
+	 *             </ul>
 	 * @throws ParityException
 	 */
 	public void close(final Long documentId) throws ParityException {

@@ -66,6 +66,12 @@ public abstract class Artifact {
 	private Collection<Note> notes;
 
 	/**
+	 * The artifact state.
+	 * 
+	 */
+	private ArtifactState state;
+
+	/**
 	 * Unique id of the object.
 	 */
 	private UUID uniqueId;
@@ -238,6 +244,13 @@ public abstract class Artifact {
 	}
 
 	/**
+	 * Obtain the artifact state.
+	 * 
+	 * @return The artifact state.
+	 */
+	public ArtifactState getState() { return state; }
+
+	/**
 	 * Obtain the type of object.
 	 * 
 	 * @return The type of object.
@@ -347,7 +360,7 @@ public abstract class Artifact {
 			final String customPropertyValue) {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
 	}
-
+	
 	/**
 	 * Set the artifact flags.
 	 * 
@@ -358,7 +371,6 @@ public abstract class Artifact {
 		this.flags.clear();
 		this.flags.addAll(flags);
 	}
-	
 	/**
 	 * Set the artifact id.
 	 * 
@@ -366,6 +378,7 @@ public abstract class Artifact {
 	 *            The artifact id.
 	 */
 	public void setId(final Long id) { this.id = id; }
+
 	/**
 	 * Set the artifact name.
 	 * 
@@ -373,6 +386,14 @@ public abstract class Artifact {
 	 *            The name.
 	 */
 	public void setName(final String name) { this.name = name; }
+
+	/**
+	 * Set the artifact state.
+	 * 
+	 * @param state
+	 *            The artifact state.
+	 */
+	public void setState(final ArtifactState state) { this.state = state; }
 
 	/**
 	 * Set the artifact type.

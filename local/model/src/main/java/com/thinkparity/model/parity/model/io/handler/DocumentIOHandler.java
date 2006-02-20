@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.io.handler;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -50,16 +51,16 @@ public interface DocumentIOHandler extends IOHandler {
 	public void deleteVersion(final Long documentId, final Long versionId);
 
 	public Document get(final Long documentId);
-	
+
 	public Document get(final UUID documentUniqueId);
 	
 	public DocumentContent getContent(final Long documentId);
-
+	
 	public DocumentVersion getLatestVersion(final Long documentId);
 
 	public DocumentVersion getVersion(final Long documentId,
 			final Long versionId);
-	
+
 	public DocumentVersionContent getVersionContent(final Long documentId,
 			final Long versionId);
 	
@@ -70,4 +71,6 @@ public interface DocumentIOHandler extends IOHandler {
 	public void update(final Document document);
 	
 	public void updateContent(final DocumentContent content);
+	
+	public void updateState(final Long documentId, final ArtifactState state);
 }

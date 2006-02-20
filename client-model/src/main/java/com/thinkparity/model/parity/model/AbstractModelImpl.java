@@ -20,6 +20,7 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -137,7 +138,10 @@ public abstract class AbstractModelImpl {
 	 * @param artifactId
 	 *            The artifact id.
 	 * @throws NotTrueAssertion
-	 *             If the logged in user is not the key holder.
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             <li>If the logged in user is not the key holder.
+	 *             </ul>
 	 * @throws ParityException
 	 */
 	protected void assertLoggedInUserIsKeyHolder(final Long artifactId)
@@ -200,7 +204,12 @@ public abstract class AbstractModelImpl {
 			throws ParityException {
 		// NOTE I'm assuming document
 		final InternalDocumentModel iDModel = getInternalDocumentModel();
-		return iDModel.get(artifactUniqueId).getId();
+		final Document d = iDModel.get(artifactUniqueId);
+		if(null == d) {
+			logger.warn("Local document:  " + artifactUniqueId + " does not exist.");
+			return null;
+		}
+		else { return d.getId(); }
 	}
 
 	protected UUID getArtifactUniqueId(final Long artifactId)
@@ -319,5 +328,71 @@ public abstract class AbstractModelImpl {
 			document.add(ArtifactFlag.SEEN);
 			getDocumentModel().update(document);
 		}
+	}
+
+	/**
+	 * Assert that the state transition from currentState to newState can be
+	 * made safely.
+	 * 
+	 * @param currentState The artifact's current state.
+	 * @param intentedState
+	 *            The artifact's intended state.
+	 * 
+	 * @throws NotTrueAssertion
+	 *             If the state cannot be moved.
+	 */
+	protected void assertStateTransition(final ArtifactState currentState,
+			final ArtifactState intendedState) {
+		switch(currentState) {
+		case ACTIVE:
+			// i can close it
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState, ArtifactState.CLOSED),
+					ArtifactState.CLOSED == intendedState);
+			break;
+		case ARCHIVED:
+			// i can delete it
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState, ArtifactState.DELETED),
+					ArtifactState.DELETED == intendedState);
+			break;
+		case CLOSED:
+			// i can archive it or delete id
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState,
+							new ArtifactState[] {
+								ArtifactState.ARCHIVED, ArtifactState.DELETED}),
+					ArtifactState.ARCHIVED == intendedState ||
+						ArtifactState.DELETED == intendedState);
+			break;
+		case DELETED:
+			Assert.assertTrue(
+					formatAssertion(currentState, intendedState,
+							new ArtifactState[] {}), false);
+			break;
+		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
+		}
+	}
+
+	private String formatAssertion(final ArtifactState currentState,
+			final ArtifactState intendedState, final ArtifactState allowedState) {
+		return formatAssertion(
+				currentState, intendedState, new ArtifactState[] {allowedState});
+	}
+	
+	private String formatAssertion(final ArtifactState currentState,
+			final ArtifactState intendedState,
+			final ArtifactState[] allowedStates) {
+		final StringBuffer assertion =
+			new StringBuffer("Cannot move artifact state.  ")
+			.append("Current State:  ").append(currentState)
+			.append("  Attempted State:  ").append(intendedState)
+			.append("  Allowed State(s):  ");
+		int index = 0;
+		for(final ArtifactState allowedState: allowedStates) {
+			if(0 != index++) { assertion.append(","); }
+			assertion.append(allowedState.toString());
+		}
+		return assertion.toString();
 	}
 }

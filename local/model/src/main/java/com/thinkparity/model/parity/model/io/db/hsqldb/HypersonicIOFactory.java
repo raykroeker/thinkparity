@@ -1,7 +1,7 @@
 /*
  * Feb 6, 2006
  */
-package com.thinkparity.model.parity.model.io.db;
+package com.thinkparity.model.parity.model.io.db.hsqldb;
 
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.db.hsqldb.util.HypersonicValidator;

@@ -14,6 +14,7 @@ import com.thinkparity.model.xmpp.user.User;
  *
  */
 public interface XMPPExtensionListener {
+	public void artifactClosed(final UUID artifactUniqueId);
 	public void documentReceived(final XMPPDocument xmppDocument);
 	public void keyRequestAccepted(final User user, final UUID artifactUUID);
 	public void keyRequestDenied(final User user, final UUID artifactUUID);

@@ -6,8 +6,6 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -31,12 +29,8 @@ public class LockTest extends DocumentTestCase {
 	 */
 	public void testLock() {
 		try {
-			Document document;
-			for(Fixture datum : data) {
+			for(final Fixture datum : data) {
 				datum.iDocumentModel.lock(datum.documentId);
-
-				document = datum.iDocumentModel.get(datum.documentId);
-				LockTest.assertFalse(document.contains(ArtifactFlag.KEY));
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }

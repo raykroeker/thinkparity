@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.IParityModelConstants;
-import com.thinkparity.model.parity.model.io.db.HypersonicException;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -48,6 +47,13 @@ public class HypersonicUtil {
 		connectionInfo.setProperty("user", "sa");
 		connectionInfo.setProperty("password", "");
 		connectionInfo.setProperty("hsqldb.default_table_type", "cached");
+
+		if(Boolean.getBoolean("parity.dbmanager")) {
+			new Thread() {
+				public void run() {
+				}
+			}.start();
+		}
 	}
 
 	/**

@@ -12,7 +12,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.model.io.db.HypersonicException;
 
 /**
  * @author raykroeker@gmail.com

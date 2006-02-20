@@ -27,7 +27,7 @@ import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
@@ -156,10 +156,46 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param documentId
 	 *            The document id.
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             <li>If the logged in user is not the key holder.
+	 *             </ul>
 	 * @throws ParityException
 	 */
 	void close(final Long documentId) throws ParityException {
-		Assert.assertNotYetImplemented("Close document has not yet been implemented.");
+		logger.info("close(Long)");
+		logger.debug(documentId);
+		assertLoggedInUserIsKeyHolder(documentId);
+		try {
+			final Document document = get(documentId);
+			assertStateTransition(document.getState(), ArtifactState.CLOSED);
+			documentIO.updateState(document.getId(), ArtifactState.CLOSED);
+
+			final InternalSessionModel iSModel = getInternalSessionModel();
+			iSModel.sendClose(documentId);
+			lock(documentId);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Cannot close document:  " + documentId, rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	void close(final UUID documentUniqueId) throws ParityException {
+		logger.info("close(UUID)");
+		logger.debug(documentUniqueId);
+		try {
+			final Document document = get(documentUniqueId);
+			assertStateTransition(document.getState(), ArtifactState.CLOSED);
+			documentIO.updateState(document.getId(), ArtifactState.CLOSED);
+
+			lock(document.getId());
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Cannot close document:  " + documentUniqueId, rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
 	/**
@@ -196,6 +232,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final Document document = new Document(preferences.getUsername(),
 					now, description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
 					preferences.getUsername(), now);
+			document.setState(ArtifactState.ACTIVE);
 			final byte[] contentBytes = FileUtil.readBytes(file);
 			final DocumentContent content = new DocumentContent();
 			content.setContent(contentBytes);
@@ -219,8 +256,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// flag the document as having been seen.
 			flagAsSEEN(document);
-			// flag the document with the key
-			flagKey(document.getId());
 
 			// fire a creation event
 			notifyCreation_objectCreated(document);
@@ -587,15 +622,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 			localFile.delete();
 			localFile.write(getContent(documentId).getContent());
 			localFile.lock();
-			// flag the document without the key
-			flagNotKey(documentId);
 		}
 		catch(IOException iox) {
-			logger.error("lock(UUID)", iox);
+			logger.error("lock(Long)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("lock(UUID)", rx);
+			logger.error("lock(Long)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -733,7 +766,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void unlock(final Long documentId) throws ParityException {
-		logger.info("importKey(Long)");
+		logger.info("unlock(Long)");
 		logger.debug(documentId);
 		try {
 			// re-create the local file from the meta-data
@@ -741,16 +774,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final LocalFile localFile = getLocalFile(d);
 			localFile.delete();
 			localFile.write(getContent(documentId).getContent());
-
-			// flag the document with the key
-			flagKey(documentId);
 		}
 		catch(IOException iox) {
-			logger.error("importKey(UUID)", iox);
+			logger.error("unlock(UUID)", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(RuntimeException rx) {
-			logger.error("importKey(UUID)", rx);
+			logger.error("unlock(UUID)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -767,35 +797,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			logger.error("update(Document)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
-	}
-
-	/**
-	 * Add the key flag to the document.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 */
-	private void flagKey(final Long documentId) throws ParityException {
-		final Document document = get(documentId);
-		Assert.assertNotTrue(
-				"flagKey(Document)", document.contains(ArtifactFlag.KEY));
-		document.add(ArtifactFlag.KEY);
-		documentIO.update(document);
-	}
-
-	/**
-	 * Remove the key flag from the document.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @throws ParityException
-	 */
-	private void flagNotKey(final Long documentId) throws ParityException {
-		final Document document = get(documentId);
-		Assert.assertTrue(
-				"flagNotKey(Document)", document.contains(ArtifactFlag.KEY));
-		document.remove(ArtifactFlag.KEY);
-		documentIO.update(document);
 	}
 
 	/**
@@ -915,6 +916,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		document.setCreatedBy(xmppDocument.getCreatedBy());
 		document.setCreatedOn(xmppDocument.getCreatedOn());
 		document.setName(xmppDocument.getName());
+		document.setState(ArtifactState.ACTIVE);
 		document.setUniqueId(xmppDocument.getUniqueId());
 		document.setUpdatedBy(xmppDocument.getUpdatedBy());
 		document.setUpdatedOn(xmppDocument.getUpdatedOn());

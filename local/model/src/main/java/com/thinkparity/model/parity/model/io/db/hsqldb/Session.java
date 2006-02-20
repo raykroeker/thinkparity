@@ -15,14 +15,20 @@ import com.thinkparity.codebase.DateUtil.DateImage;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.io.db.HypersonicException;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class Session {
+
+	/**
+	 * An apache logger.
+	 * 
+	 */
+	protected final Logger logger;
 
 	/**
 	 * The sql connection.
@@ -35,12 +41,6 @@ public class Session {
 	 * 
 	 */
 	private final JVMUniqueId id;
-
-	/**
-	 * An apache logger.
-	 * 
-	 */
-	protected final Logger logger;
 
 	/**
 	 * A prepared statement.
@@ -197,6 +197,22 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+	public ArtifactState getStateFromInteger(final String columnName) {
+		assertOpen("getStateFromInteger(String)");
+		assertOpenResult("getStateFromInteger(String)");
+		debugSql(columnName);
+		try { return ArtifactState.fromId(resultSet.getInt(columnName)); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
+	public ArtifactState getStateFromString(final String columnName) {
+		assertOpen("getStateFromString(String)");
+		assertOpenResult("getStateFromString(String)");
+		debugSql(columnName);
+		try { return ArtifactState.valueOf(resultSet.getString(columnName)); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
 	public String getString(final String columnName) {
 		assertOpen("getString(String)");
 		assertOpenResult("getString(String)");
@@ -305,6 +321,22 @@ public class Session {
 		assertPreparedStatement("setLong(Integer,Long)");
 		debugSql(longInteger, index);
 		try { preparedStatement.setLong(index, longInteger); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
+	public void setStateAsInteger(final Integer index, final ArtifactState state) {
+		assertOpen("setStateAsInteger(Integer,ArtifactState)");
+		assertPreparedStatement("setStateAsInteger(Integer,ArtifactState)");
+		debugSql(null == state ? null : state.toString(), index);
+		try { preparedStatement.setInt(index, state.getId()); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
+	public void setStateAsString(final Integer index, final ArtifactState state) {
+		assertOpen("setStateAsString(Integer,ArtifactState)");
+		assertPreparedStatement("setStateAsString(Integer,ArtifactState)");
+		debugSql(null == state ? null : state.toString(), index);
+		try { preparedStatement.setString(index, state.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 

@@ -13,7 +13,7 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum ArtifactFlag {
 
-	CLOSED(0), KEY(1), SEEN(2);
+	SEEN(0);
 
 	/**
 	 * Obtain an artifact type from its id.
@@ -24,9 +24,7 @@ public enum ArtifactFlag {
 	 */
 	public static ArtifactFlag fromId(final Integer id) {
 		switch(id) {
-		case 0: return CLOSED;
-		case 1: return KEY;
-		case 2: return SEEN;
+		case 0: return SEEN;
 		default:
 			throw Assert.createUnreachable("Unknown artifact flag id:  " + id);
 		}

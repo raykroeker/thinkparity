@@ -49,6 +49,7 @@ public interface XMPPSession {
 	public void login(final String host, final Integer port,
 			final String username, final String password) throws SmackException;
 	public void logout() throws SmackException;
+	public void processOfflineQueue() throws SmackException;
 	public void removeListener(final XMPPExtensionListener xmppExtensionListener);
 	public void removeListener(final XMPPPresenceListener xmppPresenceListener);
 	public void removeListener(final XMPPSessionListener xmppSessionListener);
@@ -56,6 +57,7 @@ public interface XMPPSession {
 			throws SmackException;
 	public void send(final Collection<User> users,
 			final XMPPDocument xmppDocument) throws SmackException;
+	public void sendClose(final UUID artifactUniqueId) throws SmackException;
 	public void sendCreate(final UUID artifactUniqueId) throws SmackException;
 	public void sendKeyRequest(final UUID artifactUniqueId) throws SmackException;
 	public void sendKeyResponse(final UUID artifactUniqueId,

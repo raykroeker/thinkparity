@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.util;
 import java.io.File;
 
 import com.thinkparity.model.parity.IParityModelConstants;
-import com.thinkparity.model.parity.model.io.db.HypersonicException;
+import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.workspace.Workspace;

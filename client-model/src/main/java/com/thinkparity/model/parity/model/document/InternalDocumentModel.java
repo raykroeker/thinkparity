@@ -64,4 +64,8 @@ public class InternalDocumentModel extends DocumentModel implements
 	public void unlock(final Long documentId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().unlock(documentId); }
 	}
+
+	public void close(final UUID documentUniqueId) throws ParityException {
+		synchronized(getImplLock()) { getImpl().close(documentUniqueId); }
+	}
 }

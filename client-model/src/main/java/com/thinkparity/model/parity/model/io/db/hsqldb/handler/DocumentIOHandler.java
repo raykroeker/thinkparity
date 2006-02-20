@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
-import com.thinkparity.model.parity.model.io.db.HypersonicException;
+import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 
 /**
@@ -47,15 +48,17 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	private static final String SQL_GET =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_TYPE_ID,")
-		.append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_STATE_ID,")
+		.append("ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,")
+		.append("UPDATED_BY,UPDATED_ON ")
 		.append("from ARTIFACT ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
 	private static final String SQL_GET_BY_UNIQUE_ID =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_TYPE_ID,")
-		.append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_STATE_ID,")
+		.append("ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,")
+		.append("UPDATED_BY,UPDATED_ON ")
 		.append("from ARTIFACT ")
 		.append("where ARTIFACT_UNIQUE_ID=?")
 		.toString();
@@ -83,8 +86,9 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	private static final String SQL_LIST =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_TYPE_ID,")
-		.append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_STATE_ID,")
+		.append("ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,")
+		.append("UPDATED_BY,UPDATED_ON ")
 		.append("from ARTIFACT ")
 		.append("order by ARTIFACT_ID asc")
 		.toString();
@@ -470,12 +474,32 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#updateState(java.lang.Long,
+	 *      com.thinkparity.model.parity.model.artifact.ArtifactState)
+	 * 
+	 */
+	public void updateState(final Long documentId, final ArtifactState state)
+			throws HypersonicException {
+		final Session session = openSession();
+		try {
+			artifactIO.updateState(session, documentId, state);
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
 	private Document extractDocument(final Session session) {
 		final Document d = new Document();
 		d.setCreatedBy(session.getString("CREATED_BY"));
 		d.setCreatedOn(session.getCalendar("CREATED_ON"));
 		d.setId(session.getLong("ARTIFACT_ID"));
 		d.setName(session.getString("ARTIFACT_NAME"));
+		d.setState(session.getStateFromInteger("ARTIFACT_STATE_ID"));
 		d.setType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
 		d.setUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
 		d.setUpdatedBy(session.getString("UPDATED_BY"));
@@ -547,4 +571,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
+
+
 }

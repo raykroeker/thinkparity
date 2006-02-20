@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model.io;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.io.db.HypersonicIOFactory;
+import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicIOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;

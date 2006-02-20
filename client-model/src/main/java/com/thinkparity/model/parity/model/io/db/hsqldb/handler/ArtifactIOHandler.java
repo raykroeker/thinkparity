@@ -10,8 +10,9 @@ import java.util.Properties;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.io.db.HypersonicException;
+import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 
 /**
@@ -26,7 +27,7 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	 */
 	private static final String DELETE_FROM_ARTIFACT =
 		new StringBuffer("delete from ARTIFACT ")
-		.append("where ARTIFACT_ID = ?")
+		.append("where ARTIFACT_ID=?")
 		.toString();
 
 	/**
@@ -35,7 +36,7 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	 */
 	private static final String DELETE_FROM_ARTIFACT_FLAG_REL =
 		new StringBuffer("delete from ARTIFACT_FLAG_REL ")
-		.append("where ARTIFACT_ID = ?")
+		.append("where ARTIFACT_ID=?")
 		.toString();
 
 	/**
@@ -44,7 +45,7 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	 */
 	private static final String DELETE_FROM_ARTIFACT_VERSION = 
 		new StringBuffer("delete from ARTIFACT_VERSION ")
-		.append("where ARTIFACT_ID = ? and ARTIFACT_VERSION_ID = ?")
+		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
 	/**
@@ -53,13 +54,13 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	 */
 	private static final String DELETE_FROM_ARTIFACT_VERSION_META_DATA =
 		new StringBuffer("delete from ARTIFACT_VERSION_META_DATA ")
-		.append("where ARTIFACT_ID = ? and ARTIFACT_VERSION_ID = ?")
+		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
 	private static final String GET_LATEST_VERSION_ID =
 		new StringBuffer("select MAX(ARTIFACT_VERSION_ID) LATEST_VERSION_ID ")
 		.append("from ARTIFACT_VERSION ")
-		.append("where ARTIFACT_ID = ?")
+		.append("where ARTIFACT_ID=?")
 		.toString();
 
 	/**
@@ -68,9 +69,10 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	 */
 	private static final String INSERT_ARTIFACT =
 		new StringBuffer("insert into ARTIFACT ")
-		.append("(ARTIFACT_NAME,ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,CREATED_BY,")
-		.append("CREATED_ON,UPDATED_BY,UPDATED_ON) ")
-		.append("values (?,?,?,?,?,?,?)")
+		.append("(ARTIFACT_NAME,ARTIFACT_STATE_ID,ARTIFACT_TYPE_ID,")
+		.append("ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
+		.append("UPDATED_ON) ")
+		.append("values (?,?,?,?,?,?,?,?)")
 		.toString();
 
 	/**
@@ -108,13 +110,13 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	private static final String SELECT_ARTIFACT_FLAG_REL_BY_ARTIFACT_ID =
 		new StringBuffer("select ARTIFACT_ID,ARTIFACT_FLAG_ID ")
 		.append("from ARTIFACT_FLAG_REL ")
-		.append("where ARTIFACT_ID = ?")
+		.append("where ARTIFACT_ID=?")
 		.toString();
 
 	private static final String SELECT_PREVIOUS_ARTIFACT_VERSION_ID =
 		new StringBuffer("select MAX(ARTIFACT_VERSION_ID) PREVIOUS_VERSION_ID ")
 		.append("from ARTIFACT_VERSION ")
-		.append("where ARTIFACT_ID = ?")
+		.append("where ARTIFACT_ID=?")
 		.toString();
 
 	/**
@@ -124,9 +126,14 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	private static final String SELECT_VERSION_META_DATA_BY_ARTIFACT_ID_BY_VERSION_ID =
 		new StringBuffer("select KEY,VALUE ")
 		.append("from ARTIFACT_VERSION_META_DATA ")
-		.append("where ARTIFACT_ID = ? and ARTIFACT_VERSION_ID = ?")
+		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
+	private static final String SQL_UPDATE_STATE =
+		new StringBuffer("update ARTIFACT set ARTIFACT_STATE_ID=? ")
+		.append("where ARTIFACT_ID=?")
+		.toString();
+	
 	/**
 	 * Create a ArtifactIOHandler.
 	 */
@@ -163,12 +170,13 @@ class ArtifactIOHandler extends AbstractIOHandler {
 			throws HypersonicException {
 		session.prepareStatement(INSERT_ARTIFACT);
 		session.setString(1, artifact.getName());
-		session.setTypeAsInteger(2, artifact.getType());
-		session.setUniqueId(3, artifact.getUniqueId());
-		session.setString(4, artifact.getCreatedBy());
-		session.setCalendar(5, artifact.getCreatedOn());
-		session.setString(6, artifact.getUpdatedBy());
-		session.setCalendar(7, artifact.getUpdatedOn());
+		session.setStateAsInteger(2, artifact.getState());
+		session.setTypeAsInteger(3, artifact.getType());
+		session.setUniqueId(4, artifact.getUniqueId());
+		session.setString(5, artifact.getCreatedBy());
+		session.setCalendar(6, artifact.getCreatedOn());
+		session.setString(7, artifact.getUpdatedBy());
+		session.setCalendar(8, artifact.getUpdatedOn());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create.");
 
@@ -325,6 +333,24 @@ class ArtifactIOHandler extends AbstractIOHandler {
 			final Collection<ArtifactFlag> flags) throws HypersonicException {
 		deleteFlags(session, artifactId);
 		insertFlags(session, artifactId, flags);
+	}
+
+	/**
+	 * Close an artifact.
+	 * 
+	 * @param session
+	 *            The database session.
+	 * @param artifactId
+	 *            The artifact id.
+	 * @throws HypersonicException
+	 */
+	void updateState(final Session session, final Long artifactId,
+			final ArtifactState state) throws HypersonicException {
+		session.prepareStatement(SQL_UPDATE_STATE);
+		session.setStateAsInteger(1, state);
+		session.setLong(2, artifactId);
+		if(1 != session.executeUpdate())
+			throw new HypersonicException("Could not update state.");
 	}
 
 	/**

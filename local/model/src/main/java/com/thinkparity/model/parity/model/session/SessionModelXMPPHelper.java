@@ -57,6 +57,9 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppExtensionListener = new XMPPExtensionListener() {
+			public void artifactClosed(final UUID artifactUniqueId) {
+				handleArtifactClosed(artifactUniqueId);
+			}
 			public void documentReceived(final XMPPDocument xmppDocument) {
 				handleDocumentReceived(xmppDocument);
 			}
@@ -203,6 +206,15 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	void logout() throws SmackException { xmppSession.logout(); }
 
 	/**
+	 * Process the remote offline queue.
+	 * 
+	 * @throws SmackException
+	 */
+	void processOfflineQueue() throws SmackException {
+		xmppSession.processOfflineQueue();
+	}
+
+	/**
 	 * Send a message to a list of users.
 	 * 
 	 * @param users
@@ -231,14 +243,25 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
-	 * Send a create packet to the parity server.
+	 * Send a close packet to the parity server.
 	 * 
-	 * @param parityObjectUUID
-	 *            The object unique id.
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
 	 * @throws SmackException
 	 */
-	void sendCreate(final UUID parityObjectUUID) throws SmackException {
-		xmppSession.sendCreate(parityObjectUUID);
+	void sendClose(final UUID artifactUniqueId) throws SmackException {
+		xmppSession.sendClose(artifactUniqueId);
+	}
+
+	/**
+	 * Send a create packet to the parity server.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
+	 * @throws SmackException
+	 */
+	void sendCreate(final UUID artifactUniqueId) throws SmackException {
+		xmppSession.sendCreate(artifactUniqueId);
 	}
 
 	/**
@@ -302,6 +325,16 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	void updateRosterEntry(final User user) {
 		xmppSession.updateRosterEntry(user);
+	}
+
+	/**
+	 * Event handler for the extension listener's artifact close event.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
+	 */
+	private void handleArtifactClosed(final UUID artifactUniqueId) {
+		SessionModelImpl.notifyArtifactClosed(artifactUniqueId);
 	}
 
 	/**

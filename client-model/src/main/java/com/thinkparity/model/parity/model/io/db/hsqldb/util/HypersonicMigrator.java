@@ -13,8 +13,9 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.model.Version;
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.io.db.HypersonicException;
+import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Table;
@@ -32,6 +33,8 @@ class HypersonicMigrator {
 
 	private static final String INSERT_SEED_ARTIFACT_FLAG;
 
+	private static final String INSERT_SEED_ARTIFACT_STATE;
+
 	private static final String INSERT_SEED_ARTIFACT_TYPE;
 
 	static {
@@ -39,8 +42,9 @@ class HypersonicMigrator {
 		CONFIG = ConfigFactory.newInstance(HypersonicMigrator.class);
 
 		CREATE_SCHEMA_SQL = new String[] {
-				CONFIG.getProperty("CreateArtifactType"),
+				CONFIG.getProperty("CreateArtifactState"),
 				CONFIG.getProperty("CreateArtifactFlag"),
+				CONFIG.getProperty("CreateArtifactType"),
 				CONFIG.getProperty("CreateArtifact"),
 				CONFIG.getProperty("CreateArtifactFlagRel"),
 				CONFIG.getProperty("CreateArtifactVersion"),
@@ -51,6 +55,8 @@ class HypersonicMigrator {
 		};
 		
 		INSERT_SEED_ARTIFACT_FLAG = CONFIG.getProperty("InsertSeedArtifactFlag");
+
+		INSERT_SEED_ARTIFACT_STATE = CONFIG.getProperty("InsertSeedArtifactState");
 
 		INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
 	}
@@ -123,6 +129,15 @@ class HypersonicMigrator {
 			if(1 != session.executeUpdate())
 				throw new HypersonicException(
 						"Could not insert artifact flag seed data:  " + af);
+		}
+
+		session.prepareStatement(INSERT_SEED_ARTIFACT_STATE);
+		for(final ArtifactState as : ArtifactState.values()) {
+			session.setInt(1, as.getId());
+			session.setString(2, as.toString());
+			if(1 != session.executeUpdate())
+				throw new HypersonicException(
+						"Could not insert artifact state seed data:  " + as);
 		}
 
 		session.prepareStatement(INSERT_SEED_ARTIFACT_TYPE);

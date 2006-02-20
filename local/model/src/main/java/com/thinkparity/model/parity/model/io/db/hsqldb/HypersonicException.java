@@ -1,7 +1,7 @@
 /*
  * Feb 8, 2006
  */
-package com.thinkparity.model.parity.model.io.db;
+package com.thinkparity.model.parity.model.io.db.hsqldb;
 
 /**
  * @author raykroeker@gmail.com

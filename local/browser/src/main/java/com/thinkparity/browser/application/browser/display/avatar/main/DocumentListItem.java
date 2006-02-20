@@ -6,7 +6,6 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.UUID;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
@@ -63,14 +62,6 @@ public class DocumentListItem extends ListItem {
 	 */
 	private static Boolean canClose(final Long documentId) {
 		return ArtifactUtil.canClose(documentId);
-	}
-
-	/**
-	 * @see ArtifactUtil#canDelete(UUID, ArtifactType)
-	 * 
-	 */
-	private static Boolean canDelete(final Long documentId) {
-		return ArtifactUtil.canDelete(documentId, ArtifactType.DOCUMENT);
 	}
 
 	/**
@@ -198,17 +189,21 @@ public class DocumentListItem extends ListItem {
 	 */
 	public void populateMenu(final JPopupMenu jPopupMenu) {
 		jPopupMenu.add(getOpenMenuItem());
-		jPopupMenu.add(getSendMenuItem());
-		if(isKeyHolder) { jPopupMenu.add(getSendKeyMenuItem()); }
+		if(isClosed(getDocumentId())) {
+			jPopupMenu.addSeparator();
+			jPopupMenu.add(getDeleteMenuItem());
+		}
 		else {
-			jPopupMenu.add(getRequestKeyMenuItem());
-		}
-		if(canClose(getDocumentId())) {
-			jPopupMenu.addSeparator();
-			jPopupMenu.add(getCloseMenuItem());
-		}
-		if(canDelete(getDocumentId())) {
-			jPopupMenu.addSeparator();
+			jPopupMenu.add(getSendMenuItem());
+			if(isKeyHolder) { jPopupMenu.add(getSendKeyMenuItem()); }
+			else {
+				jPopupMenu.add(getRequestKeyMenuItem());
+			}
+			if(canClose(getDocumentId())) {
+				jPopupMenu.addSeparator();
+				jPopupMenu.add(getCloseMenuItem());
+			}
+			else { jPopupMenu.addSeparator(); }
 			jPopupMenu.add(getDeleteMenuItem());
 		}
 	}

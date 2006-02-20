@@ -99,14 +99,18 @@ public class EventDispatcher {
 			public void objectReceived(final CreationEvent e) {
 				controller.reloadMainBrowserAvatar();
 			}
-			public void objectVersionCreated(final VersionCreationEvent e) {}
+			public void objectVersionCreated(final VersionCreationEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 			public void objectVersionReceived(VersionCreationEvent e) {}
 		};
 	}
 
 	private UpdateListener createDocumentModelUpdateListener() {
 		return new UpdateListener() {
-			public void objectDeleted(final DeleteEvent e) {}
+			public void objectDeleted(final DeleteEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 			public void objectReceived(final UpdateEvent e) {}
 			public void objectUpdated(final UpdateEvent e) {
 				controller.reloadMainBrowserAvatar();

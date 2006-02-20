@@ -60,22 +60,6 @@ public class ArtifactUtil {
 	}
 
 	/**
-	 * Determine whether or not the user can delete this artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param artifactType
-	 *            The artifact type.
-	 * @return True if the user can be deleted; false otherwise.
-	 */
-	public static Boolean canDelete(final Long artifactId,
-			final ArtifactType artifactType) {
-		synchronized(singletonLock) {
-			return singleton.determineCanDelete(artifactId, artifactType);
-		}
-	}
-
-	/**
 	 * Obtain a parity artifact for a given id and type.
 	 * 
 	 * @param artifactId
@@ -191,20 +175,6 @@ public class ArtifactUtil {
 	 */
 	private Boolean determineCanClose(final Long artifactId) {
 		return determineIsKeyHolder(artifactId);
-	}
-
-	/**
-	 * Determine whether or not the user can delete this artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param artifactType
-	 *            The artifact type.
-	 * @return True if the user can be deleted; false otherwise.
-	 */
-	private Boolean determineCanDelete(final Long artifactId,
-			final ArtifactType artifactType) {
-		return determineIsClosed(artifactId, artifactType);
 	}
 
 	/**

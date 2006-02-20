@@ -251,6 +251,10 @@ public class Browser implements Application {
 		invoke(ActionId.DOCUMENT_CREATE);
 	}
 
+	public void runAddContact() {
+		invoke(ActionId.SESSION_ADD_CONTACT);
+	}
+
 	/**
 	 * Run the delete document action.
 	 * 

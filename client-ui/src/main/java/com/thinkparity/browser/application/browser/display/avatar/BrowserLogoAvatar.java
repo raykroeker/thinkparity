@@ -59,7 +59,7 @@ class BrowserLogoAvatar extends Avatar {
 		super("BrowserLogoAvatar");
 		setLayout(new GridBagLayout());
 
-		initBrowserLogoComponents();
+		initComponents();
 	}
 
 	/**
@@ -213,13 +213,18 @@ class BrowserLogoAvatar extends Avatar {
 	 * Initialize the avatar components.
 	 *
 	 */
-	private void initBrowserLogoComponents() {
+	private void initComponents() {
 		final GridBagConstraints c = new GridBagConstraints();
 		final GridBagConstraints c2 = new GridBagConstraints();
 
 		final JPopupMenu jPopupMenu = new JPopupMenu();
 		final JMenuItem newContactMenuItem =
 			MenuItemFactory.create(getString("Contact"), 0);
+		newContactMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				runAddContact();
+			}
+		});
 		final JMenuItem newDocumentMenuItem =
 			MenuItemFactory.create(getString("Document"), 0);
 		newDocumentMenuItem.addActionListener(new ActionListener() {
@@ -291,6 +296,8 @@ class BrowserLogoAvatar extends Avatar {
 		c.weighty = 1;
 		add(searchJPanel, c.clone());
 	}
+
+	private void runAddContact() { getController().runAddContact(); }
 
 	/**
 	 * Run the add document action.

@@ -217,8 +217,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			artifactSubscriptionSql.delete(
 					artifact.getArtifactId(), jid.getNode());
 
-			// if the user is the key holder; flag the document for deletion
-			if(isSessionUserKeyHolder(artifactUniqueId)) {
+			// if there are no more subscriptions; flag the document for deletion
+			if(!artifactSubscriptionSql.existSubscriptions(artifact.getArtifactId())) {
 				updateState(artifact, Artifact.State.DELETED);
 			}
 		}

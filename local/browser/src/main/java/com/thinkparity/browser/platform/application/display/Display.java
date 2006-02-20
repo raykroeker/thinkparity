@@ -69,7 +69,6 @@ public abstract class Display extends AbstractJPanel {
 						ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 				jScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 					public void adjustmentValueChanged(AdjustmentEvent e) {
-						logger.info("ADJUSTMENT VALUE CHANGED");
 						avatar.revalidate();
 						avatar.repaint();
 					}

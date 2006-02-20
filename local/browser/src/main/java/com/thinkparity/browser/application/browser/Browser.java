@@ -126,6 +126,7 @@ public class Browser implements Application {
 	 *
 	 */
 	public void displaySessionSendFormAvatar() {
+		putClientProperty(AvatarId.SESSION_SEND_FORM, "doIncludeKey", Boolean.FALSE);
 		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_FORM);
 	}
 
@@ -491,7 +492,7 @@ public class Browser implements Application {
 				if(avatarId == avatar.getId()) { avatar.setInput(input); }
 				else {
 					if(null == input) { logger.warn("Null input being set."); }
-					else { logger.debug(avatarInputMap.put(avatarId, input)); }
+					else { avatarInputMap.put(avatarId, input); }
 				}
 			}
 		}

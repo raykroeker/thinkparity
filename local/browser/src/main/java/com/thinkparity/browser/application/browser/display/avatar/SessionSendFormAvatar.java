@@ -27,6 +27,7 @@ import com.thinkparity.browser.application.browser.display.avatar.session.UserLi
 import com.thinkparity.browser.application.browser.display.avatar.session.VersionListCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
 import com.thinkparity.browser.model.document.WorkingVersion;
+import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -481,9 +482,15 @@ public class SessionSendFormAvatar extends Avatar {
 	 *
 	 */
 	private void reloadIncludeKey() {
-		Boolean doIncludeKey = (Boolean) getClientProperty("doIncludeKey");
-		if(null == doIncludeKey) { doIncludeKey = Boolean.FALSE; }
-		includeKeyJCheckBox.setSelected(doIncludeKey);
+		includeKeyJCheckBox.setVisible(false);
+		if(null != input) {
+			final Boolean isKeyHolder = ArtifactUtil.isKeyHolder(extractDocumentId());
+			includeKeyJCheckBox.setVisible(isKeyHolder);
+			if(isKeyHolder) {
+				final Boolean doIncludeKey = (Boolean) getClientProperty("doIncludeKey");
+				includeKeyJCheckBox.setSelected(doIncludeKey);
+			}
+		}
 	}
 
 	private void reloadTeamMembers() {

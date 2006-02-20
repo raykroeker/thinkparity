@@ -14,9 +14,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
  * The parity object helper provides common utility functionality for the user
@@ -49,14 +51,11 @@ public class ArtifactUtil {
 	 * 
 	 * @param artifactId
 	 *            The artifact id.
-	 * @param artifactType
-	 *            The artifact type.
 	 * @return True if the artifact can be closed; false otherwise.
 	 */
-	public static Boolean canClose(final Long artifactId,
-			final ArtifactType artifactType) {
+	public static Boolean canClose(final Long artifactId) {
 		synchronized(singletonLock) {
-			return singleton.determineCanClose(artifactId, artifactType);
+			return singleton.determineCanClose(artifactId);
 		}
 	}
 
@@ -142,14 +141,11 @@ public class ArtifactUtil {
 	 * 
 	 * @param artifactId
 	 *            The artifact id.
-	 * @param artifactType
-	 *            The artifact type.
 	 * @return True if the current user is the key holder; false otherwise.
 	 */
-	public static Boolean isKeyHolder(final Long artifactId,
-			final ArtifactType artifactType) {
+	public static Boolean isKeyHolder(final Long artifactId) {
 		synchronized(singletonLock) {
-			return singleton.determineIsKeyHolder(artifactId, artifactType);
+			return singleton.determineIsKeyHolder(artifactId);
 		}
 	}
 
@@ -171,12 +167,19 @@ public class ArtifactUtil {
 	private final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
+	 * The parity session api.
+	 * 
+	 */
+	private final SessionModel sessionModel;
+
+	/**
 	 * Create a ArtifactUtil.
 	 * 
 	 */
 	private ArtifactUtil() {
 		super();
 		this.documentModel = modelFactory.getDocumentModel(getClass());
+		this.sessionModel = modelFactory.getSessionModel(getClass());
 	}
 
 	/**
@@ -184,14 +187,10 @@ public class ArtifactUtil {
 	 * 
 	 * @param artifactId
 	 *            The parity artifact id.
-	 * @param artifactType
-	 *            The parity artifact type.
 	 * @return True if the artifact can be closed by this user; false otherwise.
 	 */
-	private Boolean determineCanClose(final Long artifactId,
-			final ArtifactType artifactType) {
-		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ArtifactFlag.KEY);
+	private Boolean determineCanClose(final Long artifactId) {
+		return determineIsKeyHolder(artifactId);
 	}
 
 	/**
@@ -205,8 +204,7 @@ public class ArtifactUtil {
 	 */
 	private Boolean determineCanDelete(final Long artifactId,
 			final ArtifactType artifactType) {
-		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ArtifactFlag.CLOSED);
+		return determineIsClosed(artifactId, artifactType);
 	}
 
 	/**
@@ -220,8 +218,7 @@ public class ArtifactUtil {
 	 */
 	private Boolean determineIsClosed(final Long artifactId,
 			final ArtifactType artifactType) {
-		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ArtifactFlag.CLOSED);
+		return getArtifact(artifactId, artifactType).getState() == ArtifactState.CLOSED;
 	}
 
 	/**
@@ -229,14 +226,11 @@ public class ArtifactUtil {
 	 * 
 	 * @param artifactId
 	 *            The artifact id.
-	 * @param artifactType
-	 *            The artifact type.
 	 * @return True if the current user is the key holder; false otherwise.
 	 */
-	private Boolean determineIsKeyHolder(final Long artifactId,
-			final ArtifactType artifactType) {
-		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ArtifactFlag.KEY);
+	private Boolean determineIsKeyHolder(final Long artifactId) {
+		try { return sessionModel.isLoggedInUserKeyHolder(artifactId); }
+		catch(final ParityException px) { throw new RuntimeException(px); }
 	}
 
 	/**

@@ -58,6 +58,17 @@ public class GadgetWindow extends AbstractJFrame {
 	public static Dimension getGadgetWindowSize() { return getImageSize(); }
 
 	/**
+	 * Obtain the image for painting. Which image to use (dim\bright) is
+	 * determined by the number of new system messages\documents.
+	 * 
+	 * @return The image for painting.
+	 */
+	public static Image getImage() {
+		if(false) { return getBrightImage(); }
+		else { return getDimImage(); }
+	}
+
+	/**
 	 * Open the gadget window.
 	 * 
 	 * @return The gadget window.
@@ -65,10 +76,7 @@ public class GadgetWindow extends AbstractJFrame {
 	static GadgetWindow open() {
 		final GadgetWindow gadgetWindow = new GadgetWindow();
 		gadgetWindow.setVisible(true);
-		((Graphics2D) gadgetWindow.getGraphics())
-			.setRenderingHint(
-					RenderingHints.KEY_RENDERING,
-					RenderingHints.VALUE_RENDER_QUALITY);
+		gadgetWindow.applyRenderingHints();
 		gadgetWindow.debugGeometry();
 		gadgetWindow.debugLookAndFeel();
 		return gadgetWindow;
@@ -96,17 +104,6 @@ public class GadgetWindow extends AbstractJFrame {
 			dimImage = ImageIOUtil.read("gadgetBackgroundDim.png");
 		}
 		return dimImage;
-	}
-
-	/**
-	 * Obtain the image for painting. Which image to use (dim\bright) is
-	 * determined by the number of new system messages\documents.
-	 * 
-	 * @return The image for painting.
-	 */
-	private static Image getImage() {
-		if(false) { return getBrightImage(); }
-		else { return getDimImage(); }
 	}
 
 	/**

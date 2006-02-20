@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.main;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.UUID;
@@ -36,8 +37,23 @@ public class DocumentListItem extends ListItem {
 	 */
 	private static final ImageIcon MENU_ICON;
 
+	/**
+	 * Menu icon for closed documents.
+	 * 
+	 */
+	private static final ImageIcon MENU_ICON_CLOSED;
+
+	private static final Color NAME_FOREGROUND;
+
+	private static final Color NAME_FOREGROUND_CLOSED;
+
 	static {
 		MENU_ICON = new ImageIcon(ResourceUtil.getURL("images/documentIconBlue.png"));
+		MENU_ICON_CLOSED = new ImageIcon(ResourceUtil.getURL("images/documentIconGray.png"));
+		// COLOR BLACK
+		NAME_FOREGROUND = Color.BLACK;
+		// COLOR 127,131,134,255
+		NAME_FOREGROUND_CLOSED = new Color(127,131,134,255);
 		KEY_ICON = new ImageIcon(ResourceUtil.getURL("images/keyHolder.png"));
 	}
 
@@ -46,8 +62,7 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 */
 	private static Boolean canClose(final Long documentId) {
-		return ArtifactUtil.canClose(
-				documentId, ArtifactType.DOCUMENT);
+		return ArtifactUtil.canClose(documentId);
 	}
 
 	/**
@@ -55,18 +70,16 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 */
 	private static Boolean canDelete(final Long documentId) {
-		return ArtifactUtil.canDelete(
-				documentId, ArtifactType.DOCUMENT);
+		return ArtifactUtil.canDelete(documentId, ArtifactType.DOCUMENT);
 	}
 
 	/**
-	 * @see ArtifactUtil#isKeyHolder(UUID, ArtifactType)
+	 * Flag indicating whether or not the user is this document list item's key
+	 * holder.
 	 * 
+	 * @see #DocumentListItem(Document, Boolean)
 	 */
-	private static Boolean isKeyHolder(final Long documentId) {
-		return ArtifactUtil.isKeyHolder(
-				documentId, ArtifactType.DOCUMENT);
-	}
+	private final Boolean isKeyHolder;
 
 	/**
 	 * Close menu item.
@@ -144,13 +157,30 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 * @param document
 	 *            The document.
+	 * @param isKeyHolder
+	 *            A flag indicating whether or not the user is the document's
+	 *            key holder.
 	 */
-	DocumentListItem(final Document document) {
+	DocumentListItem(final Document document, final Boolean isKeyHolder) {
 		super("DocumentListItem");
+		this.isKeyHolder = isKeyHolder;
 		setDocumentId(document.getId());
-		setMenuIcon(MENU_ICON);
-		setName(new StringBuffer(document.getName()).append(" - ").append(document.getUniqueId()).toString());
-		if(isKeyHolder(document.getId())) { setInfoIcon(KEY_ICON); }
+
+		if(isClosed(document.getId())) {
+			setMenuIcon(MENU_ICON_CLOSED);
+			setNameForeground(NAME_FOREGROUND_CLOSED);
+		}
+		else {
+			setMenuIcon(MENU_ICON);
+			setNameForeground(NAME_FOREGROUND);
+		}
+
+		setName(new StringBuffer(document.getName()).append(" - ").append(document.getId()).toString());
+		if(isKeyHolder) { setInfoIcon(KEY_ICON); }
+	}
+
+	private static Boolean isClosed(final Long documentId) {
+		return ArtifactUtil.isClosed(documentId, ArtifactType.DOCUMENT);
 	}
 
 	/**
@@ -169,9 +199,7 @@ public class DocumentListItem extends ListItem {
 	public void populateMenu(final JPopupMenu jPopupMenu) {
 		jPopupMenu.add(getOpenMenuItem());
 		jPopupMenu.add(getSendMenuItem());
-		if(isKeyHolder(getDocumentId())) {
-			jPopupMenu.add(getSendKeyMenuItem());
-		}
+		if(isKeyHolder) { jPopupMenu.add(getSendKeyMenuItem()); }
 		else {
 			jPopupMenu.add(getRequestKeyMenuItem());
 		}

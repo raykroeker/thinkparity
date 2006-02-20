@@ -3,12 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.display.provider;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -20,15 +15,15 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.artifact.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.artifact.ComparatorBuilder;
-import com.thinkparity.model.parity.model.artifact.HasBeenSeenComparator;
-import com.thinkparity.model.parity.model.artifact.UpdatedOnComparator;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
+import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
+import com.thinkparity.model.parity.model.sort.HasBeenSeenComparator;
+import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -67,21 +62,25 @@ public class ProviderFactory {
 	}
 
 	/**
-	 * Obtain the document content provider.
-	 * 
-	 * @return The document content provider.
-	 */
-	public static ContentProvider getDocumentProvider() {
-		synchronized(singletonLock) { return singleton.doGetDocumentProvider(); }
-	}
-
-	/**
 	 * Obtain the history content provider.
 	 * 
 	 * @return The history content provider.
 	 */
 	public static ContentProvider getHistoryProvider() {
 		synchronized(singletonLock) { return singleton.doGetHistoryProvider(); }
+	}
+
+	/**
+	 * Obtain the document content provider.
+	 * 
+	 * @return The document content provider.
+	 */
+	public static ContentProvider getMainDocumentProvider() {
+		synchronized(singletonLock) { return singleton.doGetDocumentProvider(); }
+	}
+
+	public static ContentProvider getMainMessageProvider() {
+		synchronized(singletonLock) { return singleton.doGetSystemMessagesProvider(); }
 	}
 
 	public static ContentProvider getMainProvider() {
@@ -94,10 +93,6 @@ public class ProviderFactory {
 
 	public static ContentProvider getSystemMessageProvider() {
 		synchronized(singletonLock) { return singleton.doGetSystemMessageProvider(); }
-	}
-
-	public static ContentProvider getSystemMessagesProvider() {
-		synchronized(singletonLock) { return singleton.doGetSystemMessagesProvider(); }
 	}
 
 	/**
@@ -119,16 +114,24 @@ public class ProviderFactory {
 	protected final SessionModel sessionModel;
 
 	/**
-	 * The document provider.
-	 * 
-	 */
-	private final ContentProvider documentProvider;
-
-	/**
 	 * The document history provider.
 	 * 
 	 */
 	private final ContentProvider historyProvider;
+
+	/**
+	 * The document provider.
+	 * 
+	 */
+	private final ContentProvider mainDocumentProvider;
+
+	private final ContentProvider mainKeyProvider;
+
+	/**
+	 * The system message provider.
+	 * 
+	 */
+	private final ContentProvider mainMessageProvider;
 
 	/**
 	 * The main provider. Is a composite provider consisting of a document
@@ -152,12 +155,6 @@ public class ProviderFactory {
 	private final ContentProvider systemMessageProvider;
 
 	/**
-	 * The system message provider.
-	 * 
-	 */
-	private final ContentProvider systemMessagesProvider;
-
-	/**
 	 * Create a ProviderFactory.
 	 * 
 	 */
@@ -165,22 +162,6 @@ public class ProviderFactory {
 		super();
 		documentModel = ModelFactory.getInstance().getDocumentModel(getClass());
 		sessionModel = ModelFactory.getInstance().getSessionModel(getClass());
-		this.documentProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				try {
-					// sort by:
-					// 	+> hasBeenSeen ? true b4 false
-					//	+> last update ? earlier b4 later
-					//  +> name ? alpha order
-					final AbstractArtifactComparator sort =
-						new HasBeenSeenComparator(Boolean.FALSE);
-					sort.add(new UpdatedOnComparator(Boolean.FALSE));
-					sort.add(new ComparatorBuilder().createByName(Boolean.TRUE));
-					return documentModel.list(sort).toArray(new Document[] {});
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
-		};
 		this.historyProvider = new FlatContentProvider() {
 			final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
 			final Comparator<ArtifactVersion> versionIdDescending =
@@ -201,18 +182,51 @@ public class ProviderFactory {
 			}
 		};
 		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.mainDocumentProvider = new FlatContentProvider() {
+			public Object[] getElements(final Object input) {
+				try {
+					// sort by:
+					// 	+> hasBeenSeen ? true b4 false
+					//	+> last update ? earlier b4 later
+					//  +> name ? alpha order
+					final AbstractArtifactComparator sort =
+						new HasBeenSeenComparator(Boolean.FALSE);
+					sort.add(new UpdatedOnComparator(Boolean.FALSE));
+					sort.add(new ComparatorBuilder().createByName(Boolean.TRUE));
+					return documentModel.list(sort).toArray(new Document[] {});
+				}
+				catch(final ParityException px) { throw new RuntimeException(px); }
+			}
+		};
+		this.mainKeyProvider = new FlatContentProvider() {
+			public Object[] getElements(final Object input) {
+				List<Long> keys;
+				try { keys = sessionModel.getArtifactKeys(); }
+				catch(final ParityException px) {
+					logger.error("Cannot obtain main keys.", px);
+					keys = Collections.<Long>emptyList();
+				}
+				return keys.toArray(new Long[] {});
+			}
+		};
+		this.mainMessageProvider = new FlatContentProvider() {
+			// RANDOMDATA System Messages
+			final RandomData randomData = new RandomData();
+			public Object[] getElements(final Object input) {
+				return randomData.getSystemMessages();
+			}
+		};
 		this.mainProvider = new CompositeFlatContentProvider() {
+			private final ContentProvider[] contentProviders = new ContentProvider[] {mainDocumentProvider, mainMessageProvider, mainKeyProvider};
 			public Object[] getElements(final Integer index, final Object input) {
 				Assert.assertNotNull("Index cannot be null.", index);
 				Assert.assertTrue(
-						"Index must lie within [0," + 1 + "]",
-						index >= 0 && index <= 1);
+						"Index must lie within [0," + (contentProviders.length - 1) + "]",
+						index >= 0 && index < contentProviders.length);
 				return ((FlatContentProvider) getProvider(index)).getElements(input);
 			}
-			private ContentProvider getProvider(final Integer index) {
-				if(0 == index) { return systemMessagesProvider; }
-				else if(1 == index) { return documentProvider; }
-				else { throw Assert.createUnreachable(""); }
+			private FlatContentProvider getProvider(final Integer index) {
+				return (FlatContentProvider) contentProviders[index];
 			}
 		};
 		this.systemMessageProvider = new SingleContentProvider() {
@@ -220,13 +234,6 @@ public class ProviderFactory {
 			final RandomData randomData = new RandomData();
 			public Object getElement(Object input) {
 				return randomData.getSystemMessage();
-			}
-		};
-		this.systemMessagesProvider = new FlatContentProvider() {
-			// RANDOMDATA System Messages
-			final RandomData randomData = new RandomData();
-			public Object[] getElements(Object input) {
-				return randomData.getSystemMessages();
 			}
 		};
 		this.sendArtifactRosterProvider = new FlatContentProvider() {
@@ -332,7 +339,7 @@ public class ProviderFactory {
 	 * 
 	 * @return The document content provider.
 	 */
-	private ContentProvider doGetDocumentProvider() { return documentProvider; }
+	private ContentProvider doGetDocumentProvider() { return mainDocumentProvider; }
 
 	/**
 	 * Obtain the history content provider.
@@ -367,6 +374,6 @@ public class ProviderFactory {
 	 * @return The system message provider.
 	 */
 	private ContentProvider doGetSystemMessagesProvider() {
-		return systemMessagesProvider;
+		return mainMessageProvider;
 	}
 }

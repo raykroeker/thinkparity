@@ -3,19 +3,15 @@
  */
 package com.thinkparity.browser.util;
 
-import java.awt.Dimension;
-
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.BrowserWindow;
-import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.application.gadget.GadgetWindow;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 
 import com.l2fprod.gui.nativeskin.NativeConstants;
 import com.l2fprod.gui.nativeskin.NativeSkin;
-import com.l2fprod.gui.region.ImageRegion;
 import com.l2fprod.gui.region.Region;
 import com.l2fprod.gui.region.RegionBuilder;
 
@@ -63,7 +59,7 @@ public class NativeSkinUtil {
 	 * The native skin.
 	 * 
 	 */
-//	private final NativeSkin nativeSkin;
+	private final NativeSkin nativeSkin;
 
 	/**
 	 * Create a NativeSkinUtil [Singleton]
@@ -72,7 +68,7 @@ public class NativeSkinUtil {
 	private NativeSkinUtil() {
 		super();
 		this.logger = ModelLoggerFactory.getLogger(getClass());
-//		this.nativeSkin = NativeSkin.getInstance();
+		this.nativeSkin = NativeSkin.getInstance();
 		logger.info("[VERSION] " + NativeConstants.VERSION);
 	}
 
@@ -83,11 +79,9 @@ public class NativeSkinUtil {
 	 *            The gadget window.
 	 */
 	private void doApplyNativeSkin(final GadgetWindow gadgetWindow) {
-//		final Dimension gadgetWindowSize = GadgetWindow.getGadgetWindowSize();
-//		final Region region =
-//			new RegionBuilder().createEllipticRegion(
-//					0, 0, gadgetWindowSize.width, gadgetWindowSize.height);
-//		nativeSkin.setWindowRegion(gadgetWindow, region, true);
+		final Region region =
+			new RegionBuilder().createRegion(GadgetWindow.getImage());
+		nativeSkin.setWindowRegion(gadgetWindow, region, true);
 	}
 
 	/**

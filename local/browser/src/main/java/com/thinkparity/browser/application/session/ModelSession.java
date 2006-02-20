@@ -73,23 +73,6 @@ public class ModelSession {
 
 	private void doEstablishSession() { doEstablishSession(null); }
 
-	private void doEstablishSession_v1(final ParityException previousError) {
-		if(Status.ONLINE == status) { return; }
-		else {
-			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					public void run() { SessionWindow.open(); }
-				});
-			}
-			catch(final InterruptedException ix) { throw new RuntimeException(ix); }
-			catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
-			final SessionWindow sessionWindow = SessionWindow.getSessionWindow();
-			System.out.println(sessionWindow.isOpen());
-			while(sessionWindow.isOpen()) { Thread.yield(); }
-			System.out.println(sessionWindow.isOpen());
-		}
-	}
-
 	private void doEstablishSession(final ParityException previousError) {
 		if(Status.ONLINE == status) { return; }
 		else {

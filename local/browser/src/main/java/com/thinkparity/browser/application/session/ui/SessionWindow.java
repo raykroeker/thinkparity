@@ -5,8 +5,6 @@ package com.thinkparity.browser.application.session.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -71,11 +69,8 @@ public class SessionWindow extends AbstractJFrame implements SessionUI {
 	public static SessionWindow open() {
 		sessionWindow = new SessionWindow();
 		sessionWindow.setVisible(true);
+		sessionWindow.applyRenderingHints();
 		SwingUtil.centreOnScreen(sessionWindow);
-		((Graphics2D) sessionWindow.getGraphics())
-			.setRenderingHint(
-					RenderingHints.KEY_RENDERING,
-					RenderingHints.VALUE_RENDER_QUALITY);
 		sessionWindow.debugGeometry();
 		sessionWindow.debugLookAndFeel();
 		return sessionWindow;

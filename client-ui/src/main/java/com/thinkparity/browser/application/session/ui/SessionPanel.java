@@ -6,18 +6,26 @@ package com.thinkparity.browser.application.session.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import com.thinkparity.browser.application.session.ui.SessionWindow.ReturnCode;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.util.SwingUtil;
+
+import com.thinkparity.model.parity.model.workspace.Preferences;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class SessionPanel extends AbstractJPanel {
+
+	private static final Preferences preferences = ModelUtil.getPreferences();
 
 	/**
 	 * @see java.io.Serializable
@@ -54,7 +62,7 @@ public class SessionPanel extends AbstractJPanel {
      */
     private ReturnCode returnCode;
 
-    private javax.swing.JLabel serverJLabel;
+    private javax.swing.JLabel infoJLabel;
 
     /**
      * The username.
@@ -137,6 +145,24 @@ public class SessionPanel extends AbstractJPanel {
     private void initComponents() {
         usernameJLabel = new javax.swing.JLabel();
         passwordJLabel = new javax.swing.JLabel();
+        passwordJLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				if(2 == e.getClickCount()) {
+					if(e.isShiftDown()) {
+						final String info =
+							new StringBuffer(preferences.getServerHost())
+							.append(":").append(preferences.getServerPort())
+							.toString();
+						infoJLabel.setText(info);
+						new Timer(1500, new ActionListener() {
+							public void actionPerformed(final ActionEvent e) {
+								infoJLabel.setText("");
+							}
+						}).start();
+					}
+				}
+			}
+        });
         usernameJTextField = new javax.swing.JTextField();
         usernameJTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
@@ -150,7 +176,7 @@ public class SessionPanel extends AbstractJPanel {
 			}
         });
         rememberPasswordJCheckBox = new javax.swing.JCheckBox();
-        serverJLabel = new javax.swing.JLabel();
+        infoJLabel = new javax.swing.JLabel();
         cancelJButton = new javax.swing.JButton();
         loginJButton = new javax.swing.JButton();
         loginJButton.requestFocus();
@@ -194,7 +220,7 @@ public class SessionPanel extends AbstractJPanel {
                             .add(usernameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
                             .add(rememberPasswordJCheckBox)))
                     .add(layout.createSequentialGroup()
-                        .add(serverJLabel)
+                        .add(infoJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 195, Short.MAX_VALUE)
                         .add(loginJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -216,7 +242,7 @@ public class SessionPanel extends AbstractJPanel {
                 .add(rememberPasswordJCheckBox)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(serverJLabel)
+                    .add(infoJLabel)
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(cancelJButton)
                         .add(loginJButton)))

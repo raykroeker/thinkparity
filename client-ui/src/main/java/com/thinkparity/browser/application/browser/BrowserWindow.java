@@ -5,9 +5,7 @@ package com.thinkparity.browser.application.browser;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.HeadlessException;
-import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -59,8 +57,7 @@ public class BrowserWindow extends AbstractJFrame {
 	public static BrowserWindow open() {
 		final BrowserWindow mainWindow = new BrowserWindow();
 		mainWindow.setVisible(true);
-		((Graphics2D) mainWindow.getGraphics())
-			.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		mainWindow.applyRenderingHints();
 		mainWindow.debugGeometry();
 		mainWindow.debugLookAndFeel();
 		return mainWindow;

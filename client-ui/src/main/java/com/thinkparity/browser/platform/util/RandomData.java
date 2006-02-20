@@ -59,7 +59,7 @@ public class RandomData {
 			new String[] {" today", " yesterday", " last friday", " on Tuesday Dec 2, 2005"};
 
 		ARTIFACT_FLAG_DATA =
-			new ArtifactFlag[] {ArtifactFlag.CLOSED, ArtifactFlag.SEEN, ArtifactFlag.KEY};
+			new ArtifactFlag[] {ArtifactFlag.SEEN};
 
 		ARTIFACT_KEY_HOLDER_DATA =
 			new String[] {"John Wayne", "Omid Ejtemai", "Raymond Kroeker", "Alan Turing"};

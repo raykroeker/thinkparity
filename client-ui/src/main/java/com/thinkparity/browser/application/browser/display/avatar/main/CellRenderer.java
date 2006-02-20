@@ -105,6 +105,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 
 		cellIconJLabel.setIcon(listItem.getMenuIcon());
 		cellNameJLabel.setText(listItem.getName());
+		cellNameJLabel.setForeground(listItem.getNameForeground());
 		cellInfoIconJLabel.setIcon(listItem.getInfoIcon());
 
 		return this;

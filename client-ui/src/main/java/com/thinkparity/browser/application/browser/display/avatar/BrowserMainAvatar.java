@@ -9,6 +9,8 @@ import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -59,6 +61,13 @@ class BrowserMainAvatar extends Avatar {
 	private DefaultListModel jListModel;
 
 	/**
+	 * Contains a list of the artifact's the user posesses the key for.
+	 * 
+	 * @see #reloadKeys()
+	 */
+	private final List<Long> keys = new LinkedList<Long>();
+
+	/**
 	 * Create a BrowserMainAvatar.
 	 * 
 	 */
@@ -86,6 +95,7 @@ class BrowserMainAvatar extends Avatar {
 	 */
 	public void reload() {
 		jListModel.clear();
+		reloadKeys();
 		reloadSystemMessages();
 		reloadDocuments();
 	}
@@ -95,6 +105,10 @@ class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	public void setState(final State state) {}
+
+	private Long[] getKeys() {
+		return (Long[]) ((CompositeFlatContentProvider) contentProvider).getElements(2, null);
+	}
 
 	/**
 	 * Initialize the swing components.
@@ -142,10 +156,19 @@ class BrowserMainAvatar extends Avatar {
 	 *
 	 */
 	private void reloadDocuments() {
-		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
-		for(final Object element : elements) {
-			jListModel.addElement(DocumentListItem.create((Document) element));
+		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, null);
+		Document d;
+		for(final Object e : elements) {
+			d = (Document) e;
+			jListModel.addElement(
+					DocumentListItem.create(d, keys.contains(d.getId())));
 		}
+	}
+
+	private void reloadKeys() {
+		keys.clear();
+		final Long[] keyArray = getKeys();
+		for(final Long key : keyArray) { keys.add(key); }
 	}
 
 	/**
@@ -153,7 +176,7 @@ class BrowserMainAvatar extends Avatar {
 	 *
 	 */
 	private void reloadSystemMessages() {
-		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, null);
+		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
 		for(Object element : elements) {
 			jListModel.addElement(ListItem.create((Message) element));
 		}

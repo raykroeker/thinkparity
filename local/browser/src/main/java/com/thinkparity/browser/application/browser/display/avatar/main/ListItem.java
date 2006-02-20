@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.main;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
 import java.util.Map;
@@ -32,10 +33,14 @@ public abstract class ListItem {
 	 * 
 	 * @param document
 	 *            The document.
+	 * @param isKeyHolder
+	 *            A flag indicating whether or not the user is this document
+	 *            item's key holder.
 	 * @return The list item.
 	 */
-	public static ListItem create(final Document document) {
-		return new DocumentListItem(document);
+	public static ListItem create(final Document document,
+			final Boolean isKeyHolder) {
+		return new DocumentListItem(document, isKeyHolder);
 	}
 
 	/**
@@ -72,6 +77,12 @@ public abstract class ListItem {
 	 * 
 	 */
 	private String name;
+
+	/**
+	 * The list item name color.
+	 * 
+	 */
+	private Color nameForeground;
 
 	/**
 	 * Property map.
@@ -213,10 +224,27 @@ public abstract class ListItem {
 	}
 
 	/**
+	 * Obtain the name label foreground color.
+	 * 
+	 * @return The name label foreground color.
+	 */
+	protected Color getNameForeground() { return nameForeground; }
+
+	/**
 	 * @see ListItemLocalization#getString(String)
 	 * 
 	 */
 	protected String getString(final String localKey) {
 		return localization.getString(localKey);
+	}
+
+	/**
+	 * Set the name label foreground color.
+	 * 
+	 * @param nameForeground
+	 *            The name label foreground color.
+	 */
+	protected void setNameForeground(final Color nameForeground) {
+		this.nameForeground = nameForeground;
 	}
 }

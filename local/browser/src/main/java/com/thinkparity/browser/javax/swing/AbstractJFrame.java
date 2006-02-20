@@ -3,6 +3,9 @@
  */
 package com.thinkparity.browser.javax.swing;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -44,6 +47,26 @@ public abstract class AbstractJFrame extends JFrame {
 	protected AbstractJFrame(final String l18Context) {
 		super();
 		this.localization = new JFrameLocalization(l18Context);
+	}
+
+	/**
+	 * Determine whether the user input for the frame is valid.
+	 * 
+	 * @return True if the input is valid; false otherwise.
+	 */
+	public Boolean isInputValid() { return Boolean.TRUE; }
+
+	/**
+	 * <p>Apply specific renderings for the JFrame.</p>
+	 * <p>The hints applied are:<ul>
+	 * <li>rendering:  render quality
+	 * <li>antialiasing:  on</p>
+	 * 
+	 */
+	protected void applyRenderingHints() {
+		final Graphics2D g2 = (Graphics2D) getGraphics();
+		applyRenderingHint(g2, RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		applyRenderingHint(g2, RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	}
 
 	/**
@@ -93,9 +116,17 @@ public abstract class AbstractJFrame extends JFrame {
 	}
 
 	/**
-	 * Determine whether the user input for the frame is valid.
+	 * Apply a specific rendering hint to the graphics.
 	 * 
-	 * @return True if the input is valid; false otherwise.
+	 * @param g2
+	 *            The 2D graphics.
+	 * @param key
+	 *            The rendering hint key.
+	 * @param value
+	 *            The rendering hint value.
 	 */
-	public Boolean isInputValid() { return Boolean.TRUE; }
+	private void applyRenderingHint(final Graphics2D g2,
+			final RenderingHints.Key key, final Object value) {
+		g2.setRenderingHint(key, value);
+	}
 }

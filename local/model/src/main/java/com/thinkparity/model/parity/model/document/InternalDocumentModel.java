@@ -31,6 +31,10 @@ public class InternalDocumentModel extends DocumentModel implements
 		context.assertContextIsValid();
 	}
 
+	public void close(final UUID documentUniqueId) throws ParityException {
+		synchronized(getImplLock()) { getImpl().close(documentUniqueId); }
+	}
+
 	/**
 	 * Obtain a document with a specified id.
 	 * 
@@ -41,6 +45,22 @@ public class InternalDocumentModel extends DocumentModel implements
 	 */
 	public Document get(final UUID documentUniqueId) throws ParityException {
 		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
+	}
+
+	/**
+	 * Determine whether or not the working version of the document is equal to
+	 * the last version.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return True if the working version is different from the last version.
+	 * @throws ParityException
+	 */
+	public Boolean isWorkingVersionEqual(final Long documentId)
+			throws ParityException {
+		synchronized(getImplLock()) {
+			return getImpl().isWorkingVersionEqual(documentId);
+		}
 	}
 
 	/**
@@ -65,7 +85,18 @@ public class InternalDocumentModel extends DocumentModel implements
 		synchronized(getImplLock()) { getImpl().unlock(documentId); }
 	}
 
-	public void close(final UUID documentUniqueId) throws ParityException {
-		synchronized(getImplLock()) { getImpl().close(documentUniqueId); }
+	/**
+	 * Obtain the latest document version.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return The latest document version.
+	 * @throws ParityException
+	 */
+	public DocumentVersion getLatestVersion(final Long documentId)
+			throws ParityException {
+		synchronized(getImplLock()) {
+			return getImpl().getLatestVersion(documentId);
+		}
 	}
 }

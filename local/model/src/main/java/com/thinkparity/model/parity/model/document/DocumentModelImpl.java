@@ -477,6 +477,24 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Obtain the latest document version.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return The latest version.
+	 */
+	DocumentVersion getLatestVersion(final Long documentId)
+			throws ParityException {
+		logger.info("getLatestVersion(Long)");
+		logger.debug(documentId);
+		try { return documentIO.getLatestVersion(documentId); }
+		catch(RuntimeException rx) {
+			logger.error("Could not obtain latest version.", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Obtain a document version.
 	 * 
 	 * @param documentId
@@ -516,6 +534,41 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try { return documentIO.getVersionContent(documentId, versionId); }
 		catch(RuntimeException rx) {
 			logger.error("getVersionContent(DocumentVersion)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Determine whether or not the working version of the document is different
+	 * from the last version.
+	 * 
+	 * @return True if the working version is different from the last version.
+	 * @throws ParityException
+	 */
+	Boolean isWorkingVersionEqual(final Long documentId)
+			throws ParityException {
+		logger.info("isWorkingVersionDifferent(Long)");
+		logger.debug(documentId);
+		try {
+			final Document document = get(documentId);
+
+			final LocalFile localFile = getLocalFile(document);
+			localFile.read();
+			final String workingVersionChecksum = localFile.getFileChecksum();
+
+			final DocumentVersion version = getLatestVersion(documentId);
+			final DocumentVersionContent versionContent =
+				getVersionContent(documentId, version.getVersionId());
+
+			return versionContent.getDocumentContent().getChecksum()
+				.equals(workingVersionChecksum);
+		}
+		catch(final IOException iox) {
+			logger.error("Could not determine working version delta:  " + documentId, iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Could not determine working version delta:  " + documentId, rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -826,6 +879,55 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Insert a version for a document.
+	 * @param documentId The document.
+	 * @param version The version to insert.
+	 */
+	private void insertVersion(final Long documentId,
+			final DocumentVersion version,
+			final DocumentVersionContent versionContent) throws ParityException {
+		logger.info("insertVersion(Long,DocumentVersion,DocumentVersionContent)");
+		logger.debug(documentId);
+		logger.debug(version);
+		logger.debug(versionContent);
+		try {
+			final Document document = get(documentId);
+
+			// insert version info into db
+			documentIO.createVersion(version.getVersionId(), version, versionContent);
+
+			// create version local file
+			final LocalFile versionFile = getLocalFile(document, version);
+			versionFile.write(versionContent.getDocumentContent().getContent());
+			versionFile.lock();
+
+			// fire the object version event notification
+			notifyCreation_objectVersionCreated(version);
+		}
+		catch(IOException iox) {
+			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(RuntimeException rx) {
+			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Check and see if this version is the latest version.
+	 * 
+	 * @param version
+	 *            A document version.
+	 * @return True if this is the latest local version of the document.
+	 */
+	private Boolean isLatestLocalVersion(final DocumentVersion version) {
+		final DocumentVersion latestLocalVersion =
+			documentIO.getLatestVersion(version.getArtifactId());
+		return latestLocalVersion.getVersionId().equals(version.getVersionId());
+	}
+
+	/**
 	 * Fire the objectCreated event for all of the creation listeners.
 	 * 
 	 * @param document
@@ -940,42 +1042,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Insert a version for a document.
-	 * @param documentId The document.
-	 * @param version The version to insert.
-	 */
-	private void insertVersion(final Long documentId,
-			final DocumentVersion version,
-			final DocumentVersionContent versionContent) throws ParityException {
-		logger.info("insertVersion(Long,DocumentVersion,DocumentVersionContent)");
-		logger.debug(documentId);
-		logger.debug(version);
-		logger.debug(versionContent);
-		try {
-			final Document document = get(documentId);
-
-			// insert version info into db
-			documentIO.createVersion(version.getVersionId(), version, versionContent);
-
-			// create version local file
-			final LocalFile versionFile = getLocalFile(document, version);
-			versionFile.write(versionContent.getDocumentContent().getContent());
-			versionFile.lock();
-
-			// fire the object version event notification
-			notifyCreation_objectVersionCreated(version);
-		}
-		catch(IOException iox) {
-			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
-			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
 	 * Insert the corresponding version for the xmpp document received. Check to
 	 * see if this is the latest version locally; and if it is; update the
 	 * document\document content. Notify that a version has been received.
@@ -1031,19 +1097,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Check and see if this version is the latest version.
-	 * 
-	 * @param version
-	 *            A document version.
-	 * @return True if this is the latest local version of the document.
-	 */
-	private Boolean isLatestLocalVersion(final DocumentVersion version) {
-		final DocumentVersion latestLocalVersion =
-			documentIO.getLatestVersion(version.getArtifactId());
-		return latestLocalVersion.getVersionId().equals(version.getVersionId());
-	}
-
-	/**
 	 * Write the content of a document to a file.
 	 * 
 	 * @param documentId
@@ -1057,5 +1110,4 @@ class DocumentModelImpl extends AbstractModelImpl {
 		final DocumentContent content = getContent(documentId);
 		FileUtil.writeBytes(file, content.getContent());
 	}
-
 }

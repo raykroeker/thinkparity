@@ -721,8 +721,12 @@ class SessionModelImpl extends AbstractModelImpl {
 			throws ParityException {
 		assertLoggedInUserIsKeyHolder(documentId);
 
-		final DocumentVersion version =
-			getInternalDocumentModel().createVersion(documentId);
+		final InternalDocumentModel iDModel = getInternalDocumentModel();
+		final DocumentVersion version;
+		if(!iDModel.isWorkingVersionEqual(documentId)) {
+			version = iDModel.createVersion(documentId);
+		}
+		else { version = iDModel.getLatestVersion(documentId); }
 		send(users, documentId, version.getVersionId());
 	}
 

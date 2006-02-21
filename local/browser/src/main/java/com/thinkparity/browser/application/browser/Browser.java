@@ -22,6 +22,7 @@ import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Delete;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
+import com.thinkparity.browser.platform.action.session.RequestKey;
 import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.display.Display;
@@ -296,7 +297,8 @@ public class Browser implements Application {
 	}
 
 	public void runRequestArtifactKey(final Long artifactId) {
-		final Data data = new Data();
+		final Data data = new Data(1);
+		data.set(RequestKey.DataKey.ARTIFACT_ID, artifactId);
 		invoke(ActionId.SESSION_REQUEST_KEY, data);
 	}
 

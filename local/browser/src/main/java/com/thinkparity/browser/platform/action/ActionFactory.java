@@ -58,6 +58,8 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.document.OpenVersion();
 		case SESSION_ADD_CONTACT:
 			return new com.thinkparity.browser.platform.action.session.AddContact();
+		case SESSION_REQUEST_KEY:
+			return new com.thinkparity.browser.platform.action.session.RequestKey();
 		default: throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
 		}
 	}

@@ -3,13 +3,13 @@
  */
 package com.thinkparity.browser.platform.action.session;
 
-import java.util.UUID;
-
 import javax.swing.Icon;
 
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -42,7 +42,8 @@ public class RequestKey extends AbstractAction {
 	 * 
 	 */
 	public void invoke(Data data) throws Exception {
-		final UUID artifactId = (UUID) data.get(DataKey.ARTIFACT_ID);
+		final Long artifactId = (Long) data.get(DataKey.ARTIFACT_ID);
+		Assert.assertNotNull("Cannot request key for null artifact id.", artifactId);
 		getSessionModel().sendKeyRequest(artifactId);
 	}
 }

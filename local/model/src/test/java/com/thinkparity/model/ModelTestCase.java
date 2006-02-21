@@ -31,6 +31,8 @@ public abstract class ModelTestCase extends TestCase {
 	static {
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
+		// set staging system
+		System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);

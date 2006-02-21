@@ -12,6 +12,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.parity.model.md.MetaData;
+import com.thinkparity.model.parity.model.md.MetaDataType;
 
 /**
  * @author raykroeker@gmail.com
@@ -19,16 +21,10 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
  */
 public class SessionManager {
 
-	private static final String GET_PROPERTY_SQL =
-		"select VALUE from META_DATA where KEY = ?";
-
-	private static final String INSERT_PROPERTY_SQL =
-		"insert into META_DATA (KEY,VALUE) values (?, ?)";
-
 	private static final List<Session> sessions;
 
-	private static final String UPDATE_PROPERTY_SQL =
-		"update META_DATA set (VALUE = ?) where KEY = ?";
+	private static final String SQL_GET_META_DATA =
+		"select VALUE from META_DATA where META_DATA_TYPE_ID=? and KEY=?";
 
 	static {
 		sessions = new LinkedList<Session>();
@@ -56,12 +52,13 @@ public class SessionManager {
 	 * @return The property value; or null if no such property exists.
 	 * @throws HypersonicException
 	 */
-	public static String getProperty(final Property property)
+	public static String getMetaDataString(final MetaData metaData)
 			throws HypersonicException {
 		final Session session = SessionManager.openSession();
 		try {
-			session.prepareStatement(GET_PROPERTY_SQL);
-			session.setString(1, property.toString().toLowerCase());
+			session.prepareStatement(SQL_GET_META_DATA);
+			session.setTypeAsInteger(1, MetaDataType.STRING);
+			session.setMetaDataAsString(2, metaData);
 			session.executeQuery();
 			if(session.nextResult()) { return session.getString("VALUE"); }
 			else { return null; }
@@ -102,40 +99,6 @@ public class SessionManager {
 		final Session session = new Session(HypersonicUtil.createConnection());
 		sessions.add(session);
 		return session;
-	}
-
-	/**
-	 * Set a named property in the database.
-	 * 
-	 * @param property
-	 *            The property.
-	 * @param value
-	 *            The property value.
-	 * @return The original property value.
-	 * @throws HypersonicException
-	 */
-	public static String setProperty(final Property property, final String value)
-			throws HypersonicException {
-		final String originalValue = SessionManager.getProperty(property);
-		final Session session = SessionManager.openSession();
-		try {
-			final String propertySql;
-			if(null == originalValue) { propertySql = INSERT_PROPERTY_SQL; }
-			else { propertySql = UPDATE_PROPERTY_SQL; }
-			session.prepareStatement(propertySql);
-			session.setString(1, property.toString().toLowerCase());
-			session.setString(2, value);
-			if(1 != session.executeUpdate())
-				throw new HypersonicException("Could not set property:  " + property);
-
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-		return originalValue;
 	}
 
 	/**
@@ -182,6 +145,4 @@ public class SessionManager {
 	 * 
 	 */
 	private SessionManager() { super(); }
-
-	public enum Property { VERSION_ID }
 }

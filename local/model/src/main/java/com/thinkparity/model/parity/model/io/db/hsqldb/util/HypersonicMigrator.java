@@ -15,11 +15,13 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.audit.ArtifactAuditType;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Table;
-import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager.Property;
+import com.thinkparity.model.parity.model.md.MetaData;
+import com.thinkparity.model.parity.model.md.MetaDataType;
 
 /**
  * @author raykroeker@gmail.com
@@ -31,34 +33,51 @@ class HypersonicMigrator {
 
 	private static final String[] CREATE_SCHEMA_SQL;
 
+	private static final String INSERT_SEED_ARTIFACT_AUDIT_TYPE;
+
 	private static final String INSERT_SEED_ARTIFACT_FLAG;
 
 	private static final String INSERT_SEED_ARTIFACT_STATE;
 
 	private static final String INSERT_SEED_ARTIFACT_TYPE;
 
+	private static final String INSERT_SEED_META_DATA;
+
+	private static final String INSERT_SEED_META_DATA_TYPE;
+
 	static {
 		// sql statements
 		CONFIG = ConfigFactory.newInstance(HypersonicMigrator.class);
 
 		CREATE_SCHEMA_SQL = new String[] {
+				CONFIG.getProperty("CreateMetaDataType"),
+				CONFIG.getProperty("CreateMetaData"),
 				CONFIG.getProperty("CreateArtifactState"),
-				CONFIG.getProperty("CreateArtifactFlag"),
 				CONFIG.getProperty("CreateArtifactType"),
 				CONFIG.getProperty("CreateArtifact"),
+				CONFIG.getProperty("CreateArtifactFlag"),
 				CONFIG.getProperty("CreateArtifactFlagRel"),
 				CONFIG.getProperty("CreateArtifactVersion"),
 				CONFIG.getProperty("CreateArtifactVersionMetaData"),
+				CONFIG.getProperty("CreateArtifactAuditType"),
+				CONFIG.getProperty("CreateArtifactAudit"),
+				CONFIG.getProperty("CreateArtifactAuditMetaData"),
+				CONFIG.getProperty("CreateArtifactAuditVersion"),
 				CONFIG.getProperty("CreateDocument"),
-				CONFIG.getProperty("CreateDocumentVersion"),
-				CONFIG.getProperty("CreateMetaData")
+				CONFIG.getProperty("CreateDocumentVersion")
 		};
+
+		INSERT_SEED_META_DATA_TYPE = CONFIG.getProperty("InsertSeedMetaDataType");
 		
+		INSERT_SEED_META_DATA = CONFIG.getProperty("InsertSeedMetaData");
+
 		INSERT_SEED_ARTIFACT_FLAG = CONFIG.getProperty("InsertSeedArtifactFlag");
 
 		INSERT_SEED_ARTIFACT_STATE = CONFIG.getProperty("InsertSeedArtifactState");
 
 		INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
+
+		INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
 	}
 
 	protected final Logger logger;
@@ -97,7 +116,7 @@ class HypersonicMigrator {
 			}
 		}
 		if(!isTableFound) { return null; }
-		else { return SessionManager.getProperty(Property.VERSION_ID); }
+		else { return SessionManager.getMetaDataString(MetaData.VERSION); }
 	}
 
 	/**
@@ -120,7 +139,22 @@ class HypersonicMigrator {
 	}
 
 	private void insertSeedData(final Session session) {
-		SessionManager.setProperty(Property.VERSION_ID, Version.getBuildId());
+		session.prepareStatement(INSERT_SEED_META_DATA_TYPE);
+		for(final MetaDataType mdt : MetaDataType.values()) {
+			session.setTypeAsInteger(1, mdt);
+			session.setTypeAsString(2, mdt);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException(
+						"Could not insert meta data seed data:  " + mdt);
+		}
+
+		session.prepareStatement(INSERT_SEED_META_DATA);
+		session.setTypeAsInteger(1, MetaData.VERSION.getType());
+		session.setMetaDataAsString(2, MetaData.VERSION);
+		session.setString(3, Version.getBuildId());
+		if(1 != session.executeUpdate())
+			throw new HypersonicException(
+					"Could not insert meta data seed data:  " + MetaData.VERSION);
 
 		session.prepareStatement(INSERT_SEED_ARTIFACT_FLAG);
 		for(final ArtifactFlag af : ArtifactFlag.values()) {
@@ -147,6 +181,15 @@ class HypersonicMigrator {
 			if(1 != session.executeUpdate())
 				throw new HypersonicException(
 						"Could not insert artifact type seed data:  " + at);
+		}
+
+		session.prepareStatement(INSERT_SEED_ARTIFACT_AUDIT_TYPE);
+		for(final ArtifactAuditType aat : ArtifactAuditType.values()) {
+			session.setTypeAsInteger(1, aat);
+			session.setTypeAsString(2, aat);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException(
+						"Could not insert artifact audit type seed data:  " + aat);
 		}
 	}
 

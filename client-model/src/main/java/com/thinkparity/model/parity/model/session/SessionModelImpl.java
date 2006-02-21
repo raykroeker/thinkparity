@@ -292,6 +292,12 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * The session model auditor.
+	 * 
+	 */
+	private final SessionModelAuditor auditor;
+
+	/**
 	 * Create a SessionModelImpl
 	 * 
 	 * @param workspace
@@ -299,6 +305,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	SessionModelImpl(final Workspace workspace) {
 		super(workspace);
+		this.auditor = new SessionModelAuditor(getContext());
 	}
 
 	/**
@@ -769,6 +776,11 @@ class SessionModelImpl extends AbstractModelImpl {
 
 				// send the document version
 				xmppHelper.send(users, xmppDocument);
+
+				// audit the send
+				final DocumentVersion dv = iDocumentModel.getVersion(documentId, versionId);
+				auditor.send(dv.getArtifactId(), dv.getVersionId(),
+						dv.getUpdatedBy(), dv.getUpdatedOn(), users);
 			}
 			catch(final SmackException sx) {
 				logger.error("Could not send document version.", sx);
@@ -943,18 +955,16 @@ class SessionModelImpl extends AbstractModelImpl {
 		assertLoggedInUserIsKeyHolder(documentId);
 		synchronized(SessionModelImpl.xmppHelperLock) {
 			try {
-				final InternalDocumentModel iDocumentModel =
-					DocumentModel.getInternalModel(getContext());
+				final InternalDocumentModel iDModel = getInternalDocumentModel();
 				// if the user sends an acceptance of the key request; we
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
 				case ACCEPT:
 					// create the new version
-					final DocumentVersion version =
-						getInternalDocumentModel().createVersion(documentId);
+					final DocumentVersion version = iDModel.createVersion(documentId);
 
 					// send the key change to the server
-					final Document document = iDocumentModel.get(documentId);
+					final Document document = iDModel.get(documentId);
 					xmppHelper.sendKeyResponse(
 							document.getUniqueId(), keyResponse, user);
 
@@ -964,11 +974,18 @@ class SessionModelImpl extends AbstractModelImpl {
 					send(users, documentId, version.getVersionId());
 
 					// lock the local document
-					iDocumentModel.lock(documentId);
+					iDModel.lock(documentId);
+
+					// audit send key
+					final DocumentVersion dv = iDModel.getVersion(
+							version.getArtifactId(), version.getVersionId());
+					auditor.sendKey(dv.getArtifactId(), dv.getVersionId(),
+							version.getUpdatedBy(), version.getUpdatedOn(),
+							user);
 					break;
 				case DENY:
 					break;
-				default: throw Assert.createUnreachable("");
+				default: throw Assert.createUnreachable("Unknown key response:  " + keyResponse);
 				}
 			}
 			catch(final SmackException sx) {

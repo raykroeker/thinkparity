@@ -47,13 +47,6 @@ public class HypersonicUtil {
 		connectionInfo.setProperty("user", "sa");
 		connectionInfo.setProperty("password", "");
 		connectionInfo.setProperty("hsqldb.default_table_type", "cached");
-
-		if(Boolean.getBoolean("parity.dbmanager")) {
-			new Thread() {
-				public void run() {
-				}
-			}.start();
-		}
 	}
 
 	/**
@@ -209,9 +202,7 @@ public class HypersonicUtil {
 			final Session session = SessionManager.openSession();
 			try {
 				final String[] sql = {
-						"SET PROPERTY \"sql.tx_no_multi_rewrite\" TRUE"/*,
-						"SET PROPERTY \"hsqldb.cache_scale\" 8",
-						"SET PROPERTY \"hsqldb.cache_size_scale\" 6"*/
+						"SET PROPERTY \"sql.tx_no_multi_rewrite\" TRUE"
 				};
 				session.execute(sql);
 			}

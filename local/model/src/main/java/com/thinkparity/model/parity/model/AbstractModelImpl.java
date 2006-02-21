@@ -22,6 +22,7 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
@@ -273,6 +274,11 @@ public abstract class AbstractModelImpl {
 	 * @return A handle to the project model.
 	 */
 	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
+
+	protected InternalAuditModel getInternalAuditModel() {
+		final InternalAuditModel iAModel = InternalAuditModel.getInternalModel(context);
+		return iAModel;
+	}
 
 	protected InternalDocumentModel getInternalDocumentModel() {
 		final InternalDocumentModel iDocumentModel =

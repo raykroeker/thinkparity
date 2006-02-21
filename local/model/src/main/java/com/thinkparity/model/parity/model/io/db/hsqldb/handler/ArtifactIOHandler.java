@@ -130,7 +130,8 @@ class ArtifactIOHandler extends AbstractIOHandler {
 		.toString();
 
 	private static final String SQL_UPDATE_STATE =
-		new StringBuffer("update ARTIFACT set ARTIFACT_STATE_ID=? ")
+		new StringBuffer("update ARTIFACT set ARTIFACT_STATE_ID=?,")
+		.append("UPDATED_ON=CURRENT_TIMESTAMP ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 	

@@ -29,6 +29,7 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
@@ -86,6 +87,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * The document model auditor.
+	 * 
+	 */
+	private final DocumentModelAuditor auditor;
+
+	/**
 	 * Default sort comparator for documents.
 	 * 
 	 */
@@ -111,6 +118,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	DocumentModelImpl(final Workspace workspace) {
 		super(workspace);
 		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
+		this.auditor = new DocumentModelAuditor(getContext());
 		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
@@ -168,13 +176,21 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		assertLoggedInUserIsKeyHolder(documentId);
 		try {
+			// close the document
 			final Document document = get(documentId);
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
 			documentIO.updateState(document.getId(), ArtifactState.CLOSED);
 
+			// lock the document
+			lock(documentId);
+
+			// send the closeure to the server
 			final InternalSessionModel iSModel = getInternalSessionModel();
 			iSModel.sendClose(documentId);
-			lock(documentId);
+
+			// audit the closeure
+			final Document d = get(documentId);
+			auditor.close(d.getId(), d.getUpdatedBy(), d.getUpdatedOn());
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentId, rx);
@@ -186,11 +202,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("close(UUID)");
 		logger.debug(documentUniqueId);
 		try {
+			// close the document
 			final Document document = get(documentUniqueId);
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
 			documentIO.updateState(document.getId(), ArtifactState.CLOSED);
 
+			// lock the document
 			lock(document.getId());
+
+			// audit the closure
+			final Document d = get(document.getId());
+			auditor.close(d.getId(), d.getUpdatedBy(), d.getUpdatedOn());
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentUniqueId, rx);
@@ -259,6 +281,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// fire a creation event
 			notifyCreation_objectCreated(document);
+
+			// audit the creation
+			final Document d = get(document.getId());
+			auditor.create(d.getId(), d.getCreatedBy(), d.getCreatedOn());
 			return document;
 		}
 		catch(IOException iox) {
@@ -371,15 +397,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final InternalSessionModel iSModel = getInternalSessionModel();
 			iSModel.sendDelete(documentId);
 
-			// delete the document locally
-			// delete the versions
+			// delete the audit info
+			final InternalAuditModel iAModel = getInternalAuditModel();
+			iAModel.delete(documentId);
+
+			// delete the versions locally
 			final Collection<DocumentVersion> versions = listVersions(documentId);
 			for(final DocumentVersion version : versions) {
 				getLocalFile(document, version).delete();
 				documentIO.deleteVersion(documentId, version.getVersionId());
 			}
 
-			// delete the document
+			// delete the document locally
 			final LocalFile localFile = getLocalFile(document);
 			localFile.delete();
 			localFile.deleteParent();
@@ -764,10 +793,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("receiveDocument(XMPPDocument)");
 		logger.debug(xmppDocument);
 		try {
-			final Document existingDocument = get(xmppDocument.getUniqueId());
-			logger.debug(existingDocument);
-			if(null == existingDocument) { receiveCreate(xmppDocument); }
-			else { receiveUpdate(xmppDocument, existingDocument); }
+			Document document = get(xmppDocument.getUniqueId());
+			logger.debug(document);
+			if(null == document) { document = receiveCreate(xmppDocument); }
+			else { receiveUpdate(xmppDocument, document); }
+
+			// audit the receiving
+			auditor.recieve(document.getId(), xmppDocument.getVersionId(),
+					xmppDocument.getCreatedBy(), xmppDocument.getUpdatedBy(),
+					xmppDocument.getUpdatedOn());
 		}
 		catch(IOException iox) {
 			logger.error("receiveDocument(XMPPDocument)", iox);
@@ -1012,11 +1046,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param xmppDocument
 	 *            The xmpp document.
+	 * @return The new document.
 	 * @throws ParityException
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private void receiveCreate(final XMPPDocument xmppDocument)
+	private Document receiveCreate(final XMPPDocument xmppDocument)
 			throws ParityException, FileNotFoundException, IOException {
 		// create the document
 		final Document document = new Document();
@@ -1041,6 +1076,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		getInternalSessionModel().sendSubscribe(document);
 
 		receiveUpdate(xmppDocument, document);
+		return document;
 	}
 
 	/**

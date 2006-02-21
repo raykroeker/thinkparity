@@ -302,8 +302,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final DocumentContent content = getContent(documentId);
 
 			// read the document local file
-			final LocalFile documentLocalFile = getLocalFile(document);
-			documentLocalFile.read();
+			final LocalFile localFile = getLocalFile(document);
+			localFile.read();
+			content.setChecksum(localFile.getFileChecksum());
+			content.setContent(localFile.getFileBytes());
 
 			// create a new version\version content
 			final DocumentVersion version = new DocumentVersion();
@@ -333,8 +335,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 			documentIO.update(document);
 
 			// update the content bytes\checksum
-			content.setContent(documentLocalFile.getFileBytes());
-			content.setChecksum(documentLocalFile.getFileChecksum());
+			content.setContent(localFile.getFileBytes());
+			content.setChecksum(localFile.getFileChecksum());
 			documentIO.updateContent(content);
 
 			// fire the object version event notification

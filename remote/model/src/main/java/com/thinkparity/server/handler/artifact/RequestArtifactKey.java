@@ -27,7 +27,8 @@ public class RequestArtifactKey extends IQHandler {
 	 * @see com.thinkparity.server.handler.IQHandler#handleIQ(org.xmpp.packet.IQ,
 	 *      com.thinkparity.server.model.session.Session)
 	 */
-	public IQ handleIQ(final IQ iq, final Session session) throws ParityServerModelException, UnauthorizedException {
+	public IQ handleIQ(final IQ iq, final Session session)
+			throws ParityServerModelException, UnauthorizedException {
 		logger.info("handleIQ(IQ)");
 		logger.debug(iq);
 		logger.debug(session);

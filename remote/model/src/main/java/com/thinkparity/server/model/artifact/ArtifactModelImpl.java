@@ -405,11 +405,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			iq.setFrom(session.getJID());
 			send(keyHolderJID, iq);
 		}
-		catch(UnauthorizedException ux) {
+		catch(final UnauthorizedException ux) {
 			logger.error("requestKey(Artifact)", ux);
 			throw ParityErrorTranslator.translate(ux);
 		}
-		catch(RuntimeException rx) {
+		catch(final RuntimeException rx) {
 			logger.error("requestKey(Artifact)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}

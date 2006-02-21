@@ -566,9 +566,8 @@ public class XMPPSessionImpl implements XMPPSession {
 		logger.info("sendKeyRequest(UUID)");
 		logger.debug(artifactUniqueId);
 		final IQArtifact iq = new IQKeyRequest(artifactUniqueId);
-		iq.setType(IQ.Type.GET);
-		logger.debug(iq);
-		sendPacket(iq);
+		iq.setType(IQ.Type.SET);
+		sendAndConfirmPacket(iq);
 	}
 
 	/**

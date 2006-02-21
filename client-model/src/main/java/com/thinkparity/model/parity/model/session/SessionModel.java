@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
@@ -300,12 +299,11 @@ public class SessionModel extends AbstractModel {
 	 * Send a reqest for a document key to the parity server.
 	 * 
 	 * @param artifactId
-	 *            The document unique id.
+	 *            The artifact id.
 	 * @throws ParityException
 	 * @see KeyListener#keyRequested(KeyEvent)
 	 */
-	public void sendKeyRequest(final UUID artifactId)
-			throws ParityException {
+	public void sendKeyRequest(final Long artifactId) throws ParityException {
 		synchronized(implLock) { impl.sendKeyRequest(artifactId); }
 	}
 

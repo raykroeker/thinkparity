@@ -896,23 +896,26 @@ class SessionModelImpl extends AbstractModelImpl {
 	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
-	 * @param documentId
-	 *            The document unique id.
+	 * @param artifactId
+	 *            The artifact unique id.
 	 * @throws ParityException
 	 * @see KeyListener#keyRequested(KeyEvent)
 	 */
-	void sendKeyRequest(final UUID documentId) throws ParityException {
-		logger.info("sendKeyRequest(UUID)");
-		logger.debug(documentId);
+	void sendKeyRequest(final Long artifactId) throws ParityException {
+		logger.info("sendKeyRequest(Long)");
+		logger.debug(artifactId);
 		synchronized(SessionModelImpl.xmppHelperLock) {
-			assertIsLoggedIn("sendKeyRequest(UUID)", SessionModelImpl.xmppHelper);
-			try { SessionModelImpl.xmppHelper.sendKeyRequest(documentId); }
+			assertIsLoggedIn("Cannot request key while offline.", xmppHelper);
+			try {
+				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+				xmppHelper.sendKeyRequest(artifactUniqueId);
+			}
 			catch(SmackException sx) {
-				logger.error("sendKeyRequest(UUID)", sx);
+				logger.error("Cannot send key request.", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(RuntimeException rx) {
-				logger.error("sendKeyRequest(UUID)", rx);
+				logger.error("Cannot send key request.", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}

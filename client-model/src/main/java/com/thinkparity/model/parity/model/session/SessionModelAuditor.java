@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Collection;
 
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.audit.ArtifactAuditType;
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.SendEvent;
 import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
 import com.thinkparity.model.parity.model.document.AbstractAuditor;
@@ -51,7 +51,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 		sendEvent.setArtifactVersionId(artifactVersionId);
 		sendEvent.setCreatedBy(sentBy);
 		sendEvent.setCreatedOn(sentOn);
-		sendEvent.setType(ArtifactAuditType.SEND);
+		sendEvent.setType(AuditEventType.SEND);
 		for(final User u : sentTo) { sendEvent.add(u.getSimpleUsername()); }
 
 		getInternalAuditModel().audit(sendEvent);
@@ -79,7 +79,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 		sendKeyEvent.setCreatedBy(sentBy);
 		sendKeyEvent.setCreatedOn(sentOn);
 		sendKeyEvent.setSentTo(sentTo.getSimpleUsername());
-		sendKeyEvent.setType(ArtifactAuditType.SEND_KEY);
+		sendKeyEvent.setType(AuditEventType.SEND_KEY);
 
 		getInternalAuditModel().audit(sendKeyEvent);
 	}

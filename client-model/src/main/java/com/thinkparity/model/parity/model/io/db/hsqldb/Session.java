@@ -17,9 +17,9 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.audit.ArtifactAuditType;
-import com.thinkparity.model.parity.model.md.MetaData;
-import com.thinkparity.model.parity.model.md.MetaDataType;
+import com.thinkparity.model.parity.model.audit.AuditEventType;
+import com.thinkparity.model.parity.model.io.md.MetaData;
+import com.thinkparity.model.parity.model.io.md.MetaDataType;
 
 /**
  * @author raykroeker@gmail.com
@@ -140,6 +140,14 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+	public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
+		assertOpen("getAuditEventTypeFromInteger(String)");
+		assertOpenResult("getAuditEventTypeFromInteger(String)");
+		debugSql(columnName);
+		try { return AuditEventType.fromId(resultSet.getInt(columnName)); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
 	public byte[] getBytes(final String columnName) {
 		assertOpen("getBytes(String)");
 		assertOpenResult("getBytes(String)");
@@ -197,6 +205,14 @@ public class Session {
 		assertOpenResult("getLong(String)");
 		debugSql(columnName);
 		try { return resultSet.getLong(columnName); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
+	public MetaDataType getMetaDataTypeFromInteger(final String columnName) {
+		assertOpen("getMetaDataTypeFromInteger(String)");
+		assertOpenResult("getMetaDataTypeFromInteger(String)");
+		debugSql(columnName);
+		try { return MetaDataType.fromId(resultSet.getInt(columnName)); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
@@ -367,9 +383,9 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final ArtifactAuditType type) {
-		assertOpen("setTypeAsInteger(Integer,ArtifactAuditType)");
-		assertPreparedStatement("setTypeAsInteger(Integer,ArtifactAuditType)");
+	public void setTypeAsInteger(final Integer index, final AuditEventType type) {
+		assertOpen("setTypeAsInteger(Integer,AuditEventType)");
+		assertPreparedStatement("setTypeAsInteger(Integer,AuditEventType)");
 		debugSql(null == type ? null : type.getId(), index);
 		try { preparedStatement.setInt(index, type.getId()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
@@ -384,16 +400,24 @@ public class Session {
 	}
 
 	public void setTypeAsString(final Integer index, final ArtifactType type) {
-		assertOpen("setType(Integer,ArtifactType)");
+		assertOpen("setTypeAsString(Integer,ArtifactType)");
 		assertPreparedStatement("setTypeString(Integer,ArtifactType)");
 		debugSql(null == type ? null : type.toString(), index);
 		try { preparedStatement.setString(index, type.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsString(final Integer index, final ArtifactAuditType type) {
-		assertOpen("setTypeAsString(Integer,ArtifactAuditType)");
-		assertPreparedStatement("setTypeAsString(Integer,ArtifactAuditType)");
+	public void setTypeAsString(final Integer index, final AuditEventType type) {
+		assertOpen("setTypeAsString(Integer,AuditEventType)");
+		assertPreparedStatement("setTypeAsString(Integer,AuditEventType)");
+		debugSql(null == type ? null : type.toString(), index);
+		try { preparedStatement.setString(index, type.toString()); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
+	public void setTypeAsString(final Integer index, final Enum<?> type) {
+		assertOpen("setTypeAsString(Integer,Enum<?>)");
+		assertPreparedStatement("setTypeString(Integer,Enum<?>)");
 		debugSql(null == type ? null : type.toString(), index);
 		try { preparedStatement.setString(index, type.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }

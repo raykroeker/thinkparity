@@ -7,7 +7,7 @@ package com.thinkparity.model.parity.model.audit.event;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class CloseEvent extends AbstractAuditEvent {
+public class CloseEvent extends AuditEvent {
 
 	/**
 	 * Create a CloseEvent.

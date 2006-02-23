@@ -1,7 +1,7 @@
 /*
  * Feb 21, 2006
  */
-package com.thinkparity.model.parity.model.md;
+package com.thinkparity.model.parity.model.io.md;
 
 import com.thinkparity.codebase.assertion.Assert;
 

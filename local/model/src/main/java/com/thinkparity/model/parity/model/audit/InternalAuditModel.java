@@ -3,13 +3,10 @@
  */
 package com.thinkparity.model.parity.model.audit;
 
+import java.util.Collection;
+
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.audit.event.CloseEvent;
-import com.thinkparity.model.parity.model.audit.event.CreateEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveKeyEvent;
-import com.thinkparity.model.parity.model.audit.event.SendEvent;
-import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
+import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
@@ -57,5 +54,9 @@ public class InternalAuditModel extends AuditModel {
 
 	public void delete(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().delete(artifactId); }
+	}
+
+	public Collection<AuditEvent> read(final Long artifactId) {
+		synchronized(getImplLock()) { return getImpl().read(artifactId); }
 	}
 }

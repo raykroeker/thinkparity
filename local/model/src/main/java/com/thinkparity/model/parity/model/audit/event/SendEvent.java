@@ -10,7 +10,7 @@ import java.util.Set;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class SendEvent extends AbstractAuditEvent {
+public class SendEvent extends AuditEvent {
 
 	private Long artifactVersionId;
 

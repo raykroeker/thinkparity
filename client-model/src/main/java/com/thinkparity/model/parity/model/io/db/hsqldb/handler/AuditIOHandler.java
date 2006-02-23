@@ -3,13 +3,20 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
-import com.thinkparity.model.parity.model.md.MetaDataType;
+import com.thinkparity.model.parity.model.io.md.MetaData;
+import com.thinkparity.model.parity.model.io.md.MetaDataType;
 
 /**
  * @author raykroeker@gmail.com
@@ -61,6 +68,31 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		new StringBuffer("select META_DATA_ID ")
 		.append("from ARTIFACT_AUDIT_META_DATA ")
 		.append("where ARTIFACT_AUDIT_ID=?")
+		.toString();
+
+	/**
+	 * Sql to read the audit event.
+	 * 
+	 */
+	private static final String SQL_READ_BY_ARTIFACT_ID =
+		new StringBuffer("select AA.ARTIFACT_AUDIT_ID,AA.ARTIFACT_AUDIT_TYPE_ID,")
+		.append("AA.ARTIFACT_ID,AA.CREATED_ON,AA.CREATED_BY,")
+		.append("AAV.ARTIFACT_VERSION_ID ")
+		.append("from ARTIFACT_AUDIT AA ")
+		.append("inner join ARTIFACT_AUDIT_TYPE AAT on ")
+		.append("AA.ARTIFACT_AUDIT_TYPE_ID=AAT.ARTIFACT_AUDIT_TYPE_ID ")
+		.append("left join ARTIFACT_AUDIT_VERSION AAV on ")
+		.append("AA.ARTIFACT_AUDIT_ID=AAV.ARTIFACT_AUDIT_ID ")
+		.append("where AA.ARTIFACT_ID=?")
+		.toString();
+
+	private static final String SQL_READ_META_DATA =
+		new StringBuffer("select MD.META_DATA_ID,MD.META_DATA_TYPE_ID,MD.KEY,")
+		.append("MD.VALUE ")
+		.append("from ARTIFACT_AUDIT AA inner join ARTIFACT_AUDIT_META_DATA AAMD ")
+		.append("on AA.ARTIFACT_AUDIT_ID = AAMD.ARTIFACT_AUDIT_ID ")
+		.append("inner join META_DATA MD on AAMD.META_DATA_ID = MD.META_DATA_ID ")
+		.append("where AA.ARTIFACT_AUDIT_ID=? and MD.KEY=?")
 		.toString();
 
 	private final MetaDataIOHandler metaDataIO;
@@ -204,8 +236,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			final Long[] auditIds = listAuditIds(session, artifactId);
 			final Long[] metaDataIds = listMetaDataIds(session, auditIds);
 
-			metaDataIO.delete(session, metaDataIds);
-
+			for(final Long metaDataId : metaDataIds)
+				metaDataIO.delete(session, metaDataId);
+				
 			session.prepareStatement(SQL_DELETE_AUDIT_META_DATA);
 			for(final Long metaDataId : metaDataIds) {
 				session.setLong(1, metaDataId);
@@ -234,6 +267,26 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#list(java.lang.Long)
+	 */
+	public Collection<AuditEvent> list(Long artifactId) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_BY_ARTIFACT_ID);
+			session.setLong(1, artifactId);
+			session.executeQuery();
+			final Collection<AuditEvent> events = new LinkedList<AuditEvent>();
+			while(session.nextResult()) { events.add(extract(session)); }
+			return events;
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	/**
 	 * Create the abstract audit event.
 	 * 
 	 * @param session
@@ -242,7 +295,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	 *            The audit event.
 	 */
 	private void audit(final Session session,
-			final AbstractAuditEvent auditEvent) {
+			final AuditEvent auditEvent) {
 		session.prepareStatement(SQL_AUDIT);
 		session.setTypeAsInteger(1, auditEvent.getType());
 		session.setLong(2, auditEvent.getArtifactId());
@@ -255,11 +308,10 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
 	private void auditMetaData(final Session session,
-			final AbstractAuditEvent auditEvent,
-			final MetaDataType metaDataType, final MetaDataKey metaDataKey,
-			final Object metaDataValue) {
-		final Long metaDataId = 
-			metaDataIO.create(session, metaDataType, metaDataKey, metaDataValue);
+			final AuditEvent auditEvent, final MetaDataType metaDataType,
+			final MetaDataKey metaDataKey, final Object metaDataValue) {
+		final Long metaDataId = metaDataIO.create(session, metaDataType,
+				metaDataKey.toString(), metaDataValue);
 
 		session.prepareStatement(SQL_AUDIT_META_DATA);
 		session.setLong(1, auditEvent.getId());
@@ -269,13 +321,139 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
 	private void auditVersion(final Session session,
-			final AbstractAuditEvent auditEvent, final Long versionId) {
+			final AuditEvent auditEvent, final Long versionId) {
 		session.prepareStatement(SQL_AUDIT_VERSION);
 		session.setLong(1, auditEvent.getId());
 		session.setLong(2, auditEvent.getArtifactId());
 		session.setLong(3, versionId);
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not audit version.");
+	}
+
+	/**
+	 * Extract the various audit events from the session.
+	 * 
+	 * @param session
+	 *            The database session.
+	 * @return The audit event.
+	 */
+	private AuditEvent extract(final Session session) {
+		final AuditEventType eventType = session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID");
+		switch(eventType) {
+		case CLOSE:
+			return extractClose(session);
+		case CREATE:
+			return extractCreate(session);
+		case RECEIVE:
+			return extractReceive(session);
+		case RECEIVE_KEY:
+			return extractReceiveKey(session);
+		case SEND:
+			return extractSend(session);
+		case SEND_KEY:
+			return extractSendKey(session);
+		default:
+			throw Assert.createUnreachable("Unknown event type:  " + eventType);
+		}
+	}
+
+	private CloseEvent extractClose(final Session session) {
+		final CloseEvent closeEvent = new CloseEvent();
+		closeEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
+		closeEvent.setCreatedBy(session.getString("CREATED_BY"));
+		closeEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
+		closeEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		closeEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+		return closeEvent;
+	}
+
+	private CreateEvent extractCreate(final Session session) {
+		final CreateEvent createEvent = new CreateEvent();
+		createEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
+		createEvent.setCreatedBy(session.getString("CREATED_BY"));
+		createEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
+		createEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		createEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+		return createEvent;
+	}
+
+	/**
+	 * Extract the meta data from the session.
+	 * 
+	 * @param session
+	 *            The database session.
+	 * @return The meta data object.
+	 */
+	private MetaData extractMetaData(final Session session) {
+		final MetaData metaData = new MetaData();
+		metaData.setId(session.getLong("META_DATA_ID"));
+		metaData.setKey(session.getString("KEY"));
+		metaData.setType(session.getMetaDataTypeFromInteger("META_DATA_TYPE_ID"));
+		metaData.setValue(metaDataIO.extractValue(session, metaData.getType(), "VALUE"));
+		return metaData;
+	}
+		
+
+	private ReceiveEvent extractReceive(final Session session) {
+		final ReceiveEvent receiveEvent = new ReceiveEvent();
+		receiveEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
+		receiveEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+		receiveEvent.setCreatedBy(session.getString("CREATED_BY"));
+		receiveEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
+		receiveEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		receiveEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+
+		final MetaData[] metaData = readMetaData(receiveEvent.getId(), MetaDataKey.RECEIVED_FROM);
+		receiveEvent.setReceivedFrom((String) metaData[0].getValue());
+
+		return receiveEvent;
+	}
+
+	private ReceiveKeyEvent extractReceiveKey(final Session session) {
+		final ReceiveKeyEvent receiveKeyEvent = new ReceiveKeyEvent();
+		receiveKeyEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
+		receiveKeyEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+		receiveKeyEvent.setCreatedBy(session.getString("CREATED_BY"));
+		receiveKeyEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
+		receiveKeyEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		receiveKeyEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+
+		final MetaData[] metaData = readMetaData(receiveKeyEvent.getId(), MetaDataKey.RECEIVED_FROM);
+		receiveKeyEvent.setReceivedFrom((String) metaData[0].getValue());
+
+		return receiveKeyEvent;
+	}
+
+	private SendEvent extractSend(final Session session) {
+		final SendEvent sendEvent = new SendEvent();
+		sendEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
+		sendEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+		sendEvent.setCreatedBy(session.getString("CREATED_BY"));
+		sendEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
+		sendEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		sendEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+
+		final MetaData[] metaData = readMetaData(sendEvent.getId(), MetaDataKey.SENT_TO);
+		for(final MetaData md : metaData) {
+			sendEvent.add((String) md.getValue());
+		}
+
+		return sendEvent;
+	}
+
+	private SendKeyEvent extractSendKey(final Session session) {
+		final SendKeyEvent sendKeyEvent = new SendKeyEvent();
+		sendKeyEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
+		sendKeyEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+		sendKeyEvent.setCreatedBy(session.getString("CREATED_BY"));
+		sendKeyEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
+		sendKeyEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		sendKeyEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_ID"));
+
+		final MetaData[] metaData = readMetaData(sendKeyEvent.getId(), MetaDataKey.SENT_TO);
+		sendKeyEvent.setSentTo((String) metaData[0].getValue());
+
+		return sendKeyEvent;
 	}
 
 	private Long[] listAuditIds(final Session session, final Long artifactId)
@@ -302,6 +480,27 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			}
 		}
 		return metaDataIds.toArray(new Long[] {});
+	}
+
+	private MetaData[] readMetaData(final Long auditEventId,
+			final MetaDataKey metaDataKey) {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_META_DATA);
+			session.setLong(1, auditEventId);
+			session.setTypeAsString(2, metaDataKey);
+			session.executeQuery();
+			final List<MetaData> metaData = new LinkedList<MetaData>();
+			while(session.nextResult()) {
+				metaData.add(extractMetaData(session));
+			}
+			return metaData.toArray(new MetaData[] {});
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
 	}
 
 	private enum MetaDataKey { RECEIVED_FROM, SENT_TO }

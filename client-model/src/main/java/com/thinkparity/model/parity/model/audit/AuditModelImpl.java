@@ -3,13 +3,10 @@
  */
 package com.thinkparity.model.parity.model.audit;
 
+import java.util.Collection;
+
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.audit.event.CloseEvent;
-import com.thinkparity.model.parity.model.audit.event.CreateEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveKeyEvent;
-import com.thinkparity.model.parity.model.audit.event.SendEvent;
-import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
+import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -73,5 +70,11 @@ class AuditModelImpl extends AbstractModelImpl {
 		logger.info("delete(Long)");
 		logger.debug(artifactId);
 		auditIO.delete(artifactId);
+	}
+
+	Collection<AuditEvent> read(final Long artifactId) {
+		logger.info("list(Long)");
+		logger.debug(artifactId);
+		return auditIO.list(artifactId);
 	}
 }

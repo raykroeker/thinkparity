@@ -12,8 +12,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.model.md.MetaData;
-import com.thinkparity.model.parity.model.md.MetaDataType;
+import com.thinkparity.model.parity.model.io.md.MetaData;
+import com.thinkparity.model.parity.model.io.md.MetaDataType;
 
 /**
  * @author raykroeker@gmail.com

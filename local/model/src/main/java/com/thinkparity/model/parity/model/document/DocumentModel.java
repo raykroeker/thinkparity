@@ -13,6 +13,7 @@ import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -30,17 +31,6 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
 public class DocumentModel {
 
 	/**
-	 * Obtain a handle to a document model.
-	 * 
-	 * @return The handle to the model.
-	 */
-	public static DocumentModel getModel() {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
-		final DocumentModel documentModel = new DocumentModel(workspace);
-		return documentModel;
-	}
-
-	/**
 	 * Obtain a handle to an internal document model.
 	 * 
 	 * @param context
@@ -51,6 +41,17 @@ public class DocumentModel {
 		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
 		final InternalDocumentModel internalModel = new InternalDocumentModel(workspace, context);
 		return internalModel;
+	}
+
+	/**
+	 * Obtain a handle to a document model.
+	 * 
+	 * @return The handle to the model.
+	 */
+	public static DocumentModel getModel() {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		final DocumentModel documentModel = new DocumentModel(workspace);
+		return documentModel;
 	}
 
 	/**
@@ -254,6 +255,37 @@ public class DocumentModel {
 	public Collection<Document> list(final Comparator<Artifact> comparator)
 			throws ParityException {
 		synchronized(implLock) { return impl.list(comparator); }
+	}
+
+	/**
+	 * Read the document's history.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return A list of a history items.
+	 * @throws ParityException
+	 */
+	public Collection<HistoryItem> readHistory(final Long documentId)
+			throws ParityException {
+		synchronized(implLock) { return impl.readHistory(documentId); }
+	}
+
+	/**
+	 * Read the document's history.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @param comparator
+	 *            The sort to use when returning the history.
+	 * @return A list of a history items.
+	 * @throws ParityException
+	 */
+	public Collection<HistoryItem> readHistory(final Long documentId,
+			final Comparator<HistoryItem> comparator)
+			throws ParityException {
+		synchronized(implLock) {
+			return impl.readHistory(documentId, comparator);
+		}
 	}
 
 	/**

@@ -7,6 +7,7 @@ import java.util.Comparator;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
@@ -15,19 +16,12 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
  */
 public class ComparatorBuilder {
 
+	private Comparator<SystemMessage> systemMessageDefault;
+
 	/**
 	 * Create a ComparatorBuilder.
 	 */
 	public ComparatorBuilder() { super(); }
-
-	private Comparator<SystemMessage> systemMessageDefault;
-
-	public Comparator<SystemMessage> createSystemMessageDefault() {
-		if(null == systemMessageDefault) {
-			systemMessageDefault = new SystemMessageIdComparator(Boolean.TRUE);
-		}
-		return systemMessageDefault;
-	}
 
 	/**
 	 * Create a name comparator.
@@ -39,6 +33,21 @@ public class ComparatorBuilder {
 	 */
 	public Comparator<Artifact> createByName(final Boolean isAscending) {
 		return new NameComparator(isAscending);
+	}
+
+	public Comparator<HistoryItem> createDateAscending() {
+		return new HistoryItemDateComparator(Boolean.TRUE);
+	}
+
+	public Comparator<HistoryItem> createDateDescending() {
+		return new HistoryItemDateComparator(Boolean.FALSE);
+	}
+
+	public Comparator<SystemMessage> createSystemMessageDefault() {
+		if(null == systemMessageDefault) {
+			systemMessageDefault = new SystemMessageIdComparator(Boolean.TRUE);
+		}
+		return systemMessageDefault;
 	}
 
 	/**

@@ -221,26 +221,6 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		catch(final ParityException px) { throw new RuntimeException(px); }
 	}
 
-//	/**
-//	 * Open the hypersonic database manager.
-//	 *
-//	 */
-//	protected void openHypersonicManager() {
-//		final String url = new StringBuffer("jdbc:hsqldb:file:")
-//			.append(getWorkspace().getDataDirectory())
-//			.append(File.separator)
-//			.append(IParityModelConstants.DIRECTORY_NAME_DB_DATA)
-//			.append(File.separator)
-//			.append(IParityModelConstants.FILE_NAME_DB_DATA)
-//			.toString();
-//		final String[] args = {
-//				"-url", url,
-//				"-user", "sa",
-//				"-noexit"
-//		};
-//		org.hsqldb.util.DatabaseManagerSwing.main(args);
-//	}
-
 	protected void logout() {
 		try { getSessionModel().logout(); }
 		catch(final ParityException px) { throw new RuntimeException(px); }

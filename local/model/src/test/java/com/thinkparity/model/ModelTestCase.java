@@ -5,13 +5,9 @@ package com.thinkparity.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.user.User;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
@@ -33,6 +29,8 @@ public abstract class ModelTestCase extends TestCase {
 		System.setProperty("parity.insecure", "true");
 		// set staging system
 		System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
+		// set smack debugging
+		System.setProperty("smack.debugEnabled", "true");
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);
@@ -79,11 +77,5 @@ public abstract class ModelTestCase extends TestCase {
 	 */
 	protected ModelTestUser getModelTestUser() {
 		return (ModelTestUser) testSession.getData("modelTestUser");
-	}
-
-	protected List<User> proxy(final Collection<User> c) {
-		final List<User> l = new LinkedList<User>();
-		for(final User u : c) { l.add(u); }
-		return l;
 	}
 }

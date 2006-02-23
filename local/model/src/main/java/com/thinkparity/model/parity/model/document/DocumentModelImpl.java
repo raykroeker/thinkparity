@@ -6,11 +6,7 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -30,12 +26,16 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
+import com.thinkparity.model.parity.model.audit.event.AuditEvent;
+import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.document.history.HistoryItemBuilder;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.ArtifactSorter;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
+import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -99,8 +99,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private final Comparator<Artifact> defaultComparator;
 
 	/**
+	 * Default history item comparator.
+	 * 
+	 */
+	private Comparator<HistoryItem> defaultHistoryItemComparator;
+
+	/**
 	 * Default sort comparator for document versions.
 	 * 
+	 * @see #getDefaultHistoryItemComparator()
 	 */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
@@ -781,6 +788,39 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	List<HistoryItem> readHistory(final Long documentId)
+			throws ParityException {
+		logger.info("readHistory(Long)");
+		logger.debug(documentId);
+		return readHistory(documentId, getDefaultHistoryItemComparator());
+	}
+
+	List<HistoryItem> readHistory(final Long documentId,
+			final Comparator<HistoryItem> comparator) throws ParityException {
+		logger.info("readHistory(Long,Comparator<HistoryItem>)");
+		logger.debug(documentId);
+		logger.debug(comparator);
+		try {
+			final InternalSessionModel iSModel = getInternalSessionModel();
+			final Document document = get(documentId);
+			final List<HistoryItem> historyItems = new LinkedList<HistoryItem>();
+
+			final InternalAuditModel iAModel = getInternalAuditModel();
+			final Collection<AuditEvent> auditEvents = iAModel.read(documentId);
+			for(final AuditEvent auditEvent : auditEvents) {
+				historyItems.add(
+						HistoryItemBuilder.create(iSModel, document, auditEvent));
+			}
+			ModelSorter.sortHistoryItems(historyItems, comparator);
+
+			return historyItems;
+		}
+		catch(final RuntimeException rx) {
+			logger.error("Could not obtain history list.", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
 	/**
 	 * Receive an xmpp document. If no local document exists; create it; then
 	 * insert the xmpp document as a version of the local document.
@@ -889,6 +929,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 			logger.error("update(Document)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
+	}
+
+	/**
+	 * Obtain the default history item comparator.
+	 * 
+	 * @return A sort by date descending history item comparator.
+	 */
+	private Comparator<HistoryItem> getDefaultHistoryItemComparator() {
+		if(null == defaultHistoryItemComparator) {
+			defaultHistoryItemComparator = new ComparatorBuilder().createDateDescending();
+		}
+		return defaultHistoryItemComparator;
 	}
 
 	/**

@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.text.MessageFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
@@ -420,6 +422,37 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Find a roster entry for a given username.
+	 * 
+	 * @param username
+	 *            The username.
+	 * @return The parity user.
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             </ul>
+	 * @throws ParityException
+	 */
+	User findRosterEntry(final String username) throws ParityException {
+		logger.info("findRosterEntry(String)");
+		logger.debug(username);
+		synchronized(xmppHelperLock) {
+			assertIsLoggedIn("Cannot find roster entry while offline.", xmppHelper);
+			try {
+				final Collection<User> roster = xmppHelper.getRosterEntries();
+				for(final User user : roster) {
+					if(user.getSimpleUsername().equals(username)) { return user; }
+				}
+				return null;
+			}
+			catch(final SmackException sx) {
+				logger.error("Could not find roster entry:  " + username, sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+		}
+	}
+
+	/**
 	 * Obtain the artifact key holder.
 	 * 
 	 * @param artifactId
@@ -778,9 +811,10 @@ class SessionModelImpl extends AbstractModelImpl {
 				xmppHelper.send(users, xmppDocument);
 
 				// audit the send
+				final Calendar now = DateUtil.getInstance();
 				final DocumentVersion dv = iDocumentModel.getVersion(documentId, versionId);
-				auditor.send(dv.getArtifactId(), dv.getVersionId(),
-						dv.getUpdatedBy(), dv.getUpdatedOn(), users);
+				auditor.send(dv.getArtifactId(), dv.getVersionId(), dv
+						.getUpdatedBy(), now, users);
 			}
 			catch(final SmackException sx) {
 				logger.error("Could not send document version.", sx);

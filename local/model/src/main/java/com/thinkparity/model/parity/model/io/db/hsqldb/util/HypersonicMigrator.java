@@ -15,13 +15,12 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.audit.ArtifactAuditType;
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Table;
-import com.thinkparity.model.parity.model.md.MetaData;
-import com.thinkparity.model.parity.model.md.MetaDataType;
+import com.thinkparity.model.parity.model.io.md.MetaDataType;
 
 /**
  * @author raykroeker@gmail.com
@@ -41,9 +40,11 @@ class HypersonicMigrator {
 
 	private static final String INSERT_SEED_ARTIFACT_TYPE;
 
-	private static final String INSERT_SEED_META_DATA;
-
 	private static final String INSERT_SEED_META_DATA_TYPE;
+
+	private static final String INSERT_SEED_VERSION;
+
+	private static final String READ_META_DATA_VERSION;
 
 	static {
 		// sql statements
@@ -69,7 +70,7 @@ class HypersonicMigrator {
 
 		INSERT_SEED_META_DATA_TYPE = CONFIG.getProperty("InsertSeedMetaDataType");
 		
-		INSERT_SEED_META_DATA = CONFIG.getProperty("InsertSeedMetaData");
+		INSERT_SEED_VERSION = CONFIG.getProperty("InsertSeedVersion");
 
 		INSERT_SEED_ARTIFACT_FLAG = CONFIG.getProperty("InsertSeedArtifactFlag");
 
@@ -78,6 +79,8 @@ class HypersonicMigrator {
 		INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
 
 		INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
+
+		READ_META_DATA_VERSION = CONFIG.getProperty("ReadMetaDataVersion");
 	}
 
 	protected final Logger logger;
@@ -116,7 +119,19 @@ class HypersonicMigrator {
 			}
 		}
 		if(!isTableFound) { return null; }
-		else { return SessionManager.getMetaDataString(MetaData.VERSION); }
+		else {
+			final Session session = SessionManager.openSession();
+			try {
+				session.prepareStatement(READ_META_DATA_VERSION);
+				session.setLong(1, 1000L);
+				session.setTypeAsInteger(2, MetaDataType.STRING);
+				session.setString(3, "VERSION");
+				session.executeQuery();
+				session.nextResult();
+				return session.getString("VALUE");
+			}
+			finally { session.close(); }
+		}
 	}
 
 	/**
@@ -148,13 +163,13 @@ class HypersonicMigrator {
 						"Could not insert meta data seed data:  " + mdt);
 		}
 
-		session.prepareStatement(INSERT_SEED_META_DATA);
-		session.setTypeAsInteger(1, MetaData.VERSION.getType());
-		session.setMetaDataAsString(2, MetaData.VERSION);
+		session.prepareStatement(INSERT_SEED_VERSION);
+		session.setTypeAsInteger(1, MetaDataType.STRING);
+		session.setString(2, "VERSION");
 		session.setString(3, Version.getBuildId());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException(
-					"Could not insert meta data seed data:  " + MetaData.VERSION);
+					"Could not insert version seed.");
 
 		session.prepareStatement(INSERT_SEED_ARTIFACT_FLAG);
 		for(final ArtifactFlag af : ArtifactFlag.values()) {
@@ -184,7 +199,7 @@ class HypersonicMigrator {
 		}
 
 		session.prepareStatement(INSERT_SEED_ARTIFACT_AUDIT_TYPE);
-		for(final ArtifactAuditType aat : ArtifactAuditType.values()) {
+		for(final AuditEventType aat : AuditEventType.values()) {
 			session.setTypeAsInteger(1, aat);
 			session.setTypeAsString(2, aat);
 			if(1 != session.executeUpdate())

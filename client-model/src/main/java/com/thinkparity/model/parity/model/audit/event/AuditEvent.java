@@ -5,13 +5,13 @@ package com.thinkparity.model.parity.model.audit.event;
 
 import java.util.Calendar;
 
-import com.thinkparity.model.parity.model.audit.ArtifactAuditType;
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class AbstractAuditEvent {
+public abstract class AuditEvent {
 
 	protected Long artifactId;
 
@@ -21,13 +21,13 @@ public abstract class AbstractAuditEvent {
 
 	protected Long id;
 
-	protected ArtifactAuditType type;
+	protected AuditEventType type;
 
 	/**
-	 * Create an AbstractAuditEvent.
+	 * Create an AuditEvent.
 	 * 
 	 */
-	protected AbstractAuditEvent() { super(); }
+	protected AuditEvent() { super(); }
 
 	/**
 	 * @return Returns the artifact.
@@ -58,7 +58,7 @@ public abstract class AbstractAuditEvent {
 	/**
 	 * @return Returns the type.
 	 */
-	public ArtifactAuditType getType() {
+	public AuditEventType getType() {
 		return type;
 	}
 
@@ -93,7 +93,7 @@ public abstract class AbstractAuditEvent {
 	/**
 	 * @param type The type to set.
 	 */
-	public void setType(ArtifactAuditType type) {
+	public void setType(AuditEventType type) {
 		this.type = type;
 	}
 }

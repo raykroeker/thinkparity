@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import com.thinkparity.codebase.assertion.NotTrueAssertion;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
@@ -25,6 +27,24 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	InternalSessionModel(final Workspace workspace, final Context context) {
 		super(workspace);
 		context.assertContextIsValid();
+	}
+
+	/**
+	 * Find a roster entry for a given username.
+	 * 
+	 * @param username
+	 *            The username.
+	 * @return The parity user.
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             </ul>
+	 * @throws ParityException
+	 */
+	public User findRosterEntry(final String username) throws ParityException {
+		synchronized(getImplLock()) {
+			return getImpl().findRosterEntry(username);
+		}
 	}
 
 	/**
@@ -86,7 +106,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	 * @throws ParityException
 	 * @throws NotTrueAssertion
 	 *             <ul>
-	 *             <li>If the user if offline.
+	 *             <li>If the user is offline.
 	 *             </ul>
 	 */
 	public void sendDelete(final Long artifactId) throws ParityException {

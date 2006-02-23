@@ -7,6 +7,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.codebase.CollectionsUtil;
+
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
@@ -31,7 +33,7 @@ public class GetSubscriptionsTest extends ModelTestCase {
 			List<User> subscriptions;
 			for(final Fixture datum : data) {
 				subscriptions =
-					proxy(datum.sessionModel.getSubscriptions(datum.artifactId));
+					CollectionsUtil.proxy(datum.sessionModel.getSubscriptions(datum.artifactId));
 
 				assertNotNull("Artifact subscription is null.", subscriptions);
 				assertEquals(

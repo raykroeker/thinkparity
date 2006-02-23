@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.document;
 import java.util.Calendar;
 
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.audit.ArtifactAuditType;
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.CloseEvent;
 import com.thinkparity.model.parity.model.audit.event.CreateEvent;
 import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
@@ -33,7 +33,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 		closeEvent.setArtifactId(documentId);
 		closeEvent.setCreatedBy(closedBy);
 		closeEvent.setCreatedOn(closedOn);
-		closeEvent.setType(ArtifactAuditType.CLOSE);
+		closeEvent.setType(AuditEventType.CLOSE);
 
 		getInternalAuditModel().audit(closeEvent);
 	}
@@ -44,7 +44,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 		createEvent.setArtifactId(documentId);
 		createEvent.setCreatedBy(createdBy);
 		createEvent.setCreatedOn(createdOn);
-		createEvent.setType(ArtifactAuditType.CREATE);
+		createEvent.setType(AuditEventType.CREATE);
 
 		getInternalAuditModel().audit(createEvent);
 	}
@@ -58,7 +58,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 		receiveEvent.setCreatedBy(receivedBy);
 		receiveEvent.setCreatedOn(receivedOn);
 		receiveEvent.setReceivedFrom(receivedFrom);
-		receiveEvent.setType(ArtifactAuditType.RECEIVE);
+		receiveEvent.setType(AuditEventType.RECEIVE);
 
 		getInternalAuditModel().audit(receiveEvent);
 	}

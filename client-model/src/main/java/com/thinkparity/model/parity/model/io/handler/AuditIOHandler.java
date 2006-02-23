@@ -3,12 +3,9 @@
  */
 package com.thinkparity.model.parity.model.io.handler;
 
-import com.thinkparity.model.parity.model.audit.event.CloseEvent;
-import com.thinkparity.model.parity.model.audit.event.CreateEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveKeyEvent;
-import com.thinkparity.model.parity.model.audit.event.SendEvent;
-import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
+import java.util.Collection;
+
+import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 
 /**
@@ -23,4 +20,6 @@ public interface AuditIOHandler {
 	public void audit(final SendEvent sendEvent) throws HypersonicException;
 	public void audit(final SendKeyEvent sendKeyEvent) throws HypersonicException;
 	public void delete(final Long artifactId) throws HypersonicException;
+	public Collection<AuditEvent> list(final Long artifactId)
+			throws HypersonicException;
 }

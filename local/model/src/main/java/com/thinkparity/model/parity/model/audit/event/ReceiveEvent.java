@@ -8,7 +8,7 @@ package com.thinkparity.model.parity.model.audit.event;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ReceiveEvent extends AbstractAuditEvent {
+public class ReceiveEvent extends AuditEvent {
 
 	private Long artifactVersionId;
 

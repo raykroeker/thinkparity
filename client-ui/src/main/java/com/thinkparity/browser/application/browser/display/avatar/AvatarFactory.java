@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
@@ -60,12 +59,6 @@ public class AvatarFactory {
 	private Avatar browserTitle;
 
 	/**
-	 * Main controller.
-	 * 
-	 */
-	private final Browser controller;
-
-	/**
 	 * The document history list avatar.
 	 * 
 	 */
@@ -99,10 +92,7 @@ public class AvatarFactory {
 	 * Create a AvatarFactory [Singleton, Factory]
 	 * 
 	 */
-	private AvatarFactory() {
-		super();
-		this.controller = Browser.getInstance();
-	}
+	private AvatarFactory() { super(); }
 
 	/**
 	 * Create the browser logo avatar.
@@ -147,7 +137,7 @@ public class AvatarFactory {
 	 */
 	private Avatar createDocumentHistoryList() {
 		if(null == documentHistoryList) {
-			documentHistoryList = new DocumentHistoryAvatar(controller);
+			documentHistoryList = new DocumentHistoryAvatar();
 			documentHistoryList.setContentProvider(ProviderFactory.getHistoryProvider());
 		}
 		return documentHistoryList;

@@ -4,7 +4,6 @@
 package com.thinkparity.browser.application.browser.component;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 
 import javax.swing.Icon;
@@ -16,43 +15,6 @@ import javax.swing.SwingConstants;
  * @version 1.1
  */
 public class LabelFactory extends ComponentFactory {
-
-	/**
-	 * Text alignment when using an image and text in a label.
-	 * 
-	 */
-	public enum TextAlignment {
-
-		CENTER(SwingConstants.CENTER), LEADING(SwingConstants.LEADING),
-		LEFT(SwingConstants.LEFT), RIGHT(SwingConstants.RIGHT),
-		TRAILING(SwingConstants.TRAILING);
-
-		/**
-		 * The swing constant that the enum wraps.
-		 * 
-		 * @see SwingConstants
-		 */
-		private final Integer swingConstant;
-
-		/**
-		 * Create a TextAlignment.
-		 * 
-		 * @param swingConstant
-		 *            The wrapped swing constant.
-		 * 
-		 * @see SwingConstants           
-		 */
-		private TextAlignment(final Integer swingConstant) {
-			this.swingConstant = swingConstant;
-		}
-
-		/**
-		 * Obtain the swing constant this type wraps.
-		 * 
-		 * @return The swing constant.
-		 */
-		public Integer getSwingConstant() { return swingConstant; }
-	}
 
 	/**
 	 * Foreground color of the link.
@@ -86,46 +48,55 @@ public class LabelFactory extends ComponentFactory {
 	 * @return The JLabel.
 	 */
 	public static JLabel create() {
-		synchronized(singletonLock) { return singleton.doCreate(); }
+		synchronized (singletonLock) {
+			return singleton.doCreate();
+		}
 	}
 
 	public static JLabel create(final Font font) {
-		synchronized(singletonLock) { return singleton.doCreate(font); }
+		synchronized (singletonLock) {
+			return singleton.doCreate(font);
+		}
 	}
 
 	public static JLabel create(final Icon icon) {
-		synchronized(singletonLock) { return singleton.doCreate(icon); }
+		synchronized (singletonLock) {
+			return singleton.doCreate(icon);
+		}
 	}
 
 	public static JLabel create(final String text, final Font font) {
-		synchronized(singletonLock) { return singleton.doCreate(text, font); }
+		synchronized (singletonLock) {
+			return singleton.doCreate(text, font);
+		}
 	}
 
 	public static JLabel create(final String text, final Font font,
 			final Color foreground) {
-		synchronized(singletonLock) {
+		synchronized (singletonLock) {
 			return singleton.doCreate(text, font, foreground);
 		}
 	}
 
 	public static JLabel create(final String text, final Icon icon,
 			final TextAlignment textAlignment, final Font font) {
-		synchronized(singletonLock) {
+		synchronized (singletonLock) {
 			return singleton.doCreate(text, icon, textAlignment, font);
 		}
 	}
 
-	public static JLabel createLink(final Component parent, final String text,
-			final Font font) {
+	public static JLabel createLink(final String text, final Font font) {
 		synchronized(singletonLock) {
-			return singleton.doCreateLink(parent, text, font);
+			return singleton.doCreateLink(text, font);
 		}
 	}
 
 	/**
 	 * Create a ButtonFactory.
 	 */
-	private LabelFactory() { super(); }
+	private LabelFactory() {
+		super();
+	}
 
 	/**
 	 * Apply an icon to a JLabel.
@@ -206,7 +177,7 @@ public class LabelFactory extends ComponentFactory {
 	private JLabel doCreate(final String text, final Font font) {
 		final JLabel jLabel = doCreate(text);
 		applyFont(jLabel, font);
-		return jLabel;		
+		return jLabel;
 	}
 
 	/**
@@ -244,8 +215,8 @@ public class LabelFactory extends ComponentFactory {
 	 */
 	private JLabel doCreate(final String text, final Icon icon,
 			final TextAlignment textAlignment, final Font font) {
-		final JLabel jLabel =
-			new JLabel(text, icon, textAlignment.getSwingConstant());
+		final JLabel jLabel = new JLabel(text, icon, textAlignment
+				.getSwingConstant());
 		applyFont(jLabel, font);
 		return jLabel;
 	}
@@ -254,8 +225,6 @@ public class LabelFactory extends ComponentFactory {
 	 * Create a JLabel containing text that appears as a hyperlink; with a font
 	 * applied.
 	 * 
-	 * @param parent
-	 *            The parent component on which the link will be placed.
 	 * @param text
 	 *            The link text.
 	 * @param font
@@ -263,10 +232,48 @@ public class LabelFactory extends ComponentFactory {
 	 * 
 	 * @return The JLabel.
 	 */
-	private JLabel doCreateLink(final Component parent, final String text,
-			final Font font) {
+	private JLabel doCreateLink(final String text, final Font font) {
 		final JLabel jLabel = doCreate(text, font, LINK_FOREGROUND);
 		applyHandCursor(jLabel);
 		return jLabel;
+	}
+
+	/**
+	 * Text alignment when using an image and text in a label.
+	 * 
+	 */
+	public enum TextAlignment {
+
+		CENTER(SwingConstants.CENTER), LEADING(SwingConstants.LEADING), LEFT(
+				SwingConstants.LEFT), RIGHT(SwingConstants.RIGHT), TRAILING(
+				SwingConstants.TRAILING);
+
+		/**
+		 * The swing constant that the enum wraps.
+		 * 
+		 * @see SwingConstants
+		 */
+		private final Integer swingConstant;
+
+		/**
+		 * Create a TextAlignment.
+		 * 
+		 * @param swingConstant
+		 *            The wrapped swing constant.
+		 * 
+		 * @see SwingConstants
+		 */
+		private TextAlignment(final Integer swingConstant) {
+			this.swingConstant = swingConstant;
+		}
+
+		/**
+		 * Obtain the swing constant this type wraps.
+		 * 
+		 * @return The swing constant.
+		 */
+		public Integer getSwingConstant() {
+			return swingConstant;
+		}
 	}
 }

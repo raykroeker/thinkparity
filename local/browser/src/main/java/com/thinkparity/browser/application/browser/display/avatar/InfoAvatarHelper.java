@@ -93,7 +93,7 @@ class InfoAvatarHelper {
 
 		c.anchor = GridBagConstraints.WEST;
 		c.gridx = 0;
-		c.weightx = 1.0;
+		c.weightx = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 
 		avatar.add(headingJLabel, c.clone());

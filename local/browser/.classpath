@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry output="target/classes" kind="src" path="src/main/java"/>
 	<classpathentry output="target/classes" kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_06 - sys libs"/>
 	<classpathentry output="target/test-classes" kind="src" path="src/test/java"/>
 	<classpathentry output="target/test-classes" kind="src" path="src/test/resources"/>
 	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
@@ -15,6 +16,5 @@
 	<classpathentry kind="var" path="M2_REPO/net/java/javadesktop/swing-layout/1.0/swing-layout-1.0.jar"/>
 	<classpathentry sourcepath="/M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2-sources.jar" kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/l2fprod/l2fprod-6.2-sources.jar" kind="var" path="M2_REPO/com/l2fprod/nativeskin/6.2/nativeskin-6.2.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_06 - sys libs"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

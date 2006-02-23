@@ -73,7 +73,10 @@ public class ResourceBundleHelper {
 	public String getString(final String localKey) {
 		final String qualifiedKey = getQualifiedKey(localKey);
 		try { return bundle.getString(qualifiedKey); }
-		catch(MissingResourceException mrx) { return "!" + qualifiedKey + "!"; }
+		catch(final MissingResourceException mrx) {
+			logger.warn("!" + qualifiedKey + "!");
+			return "!" + qualifiedKey + "!";
+		}
 	}
 
 	/**
@@ -91,7 +94,10 @@ public class ResourceBundleHelper {
 		final String qualifiedKey = getQualifiedKey(localKey);
 		final String string = getString(localKey);
 		try { return MessageFormat.format(string, arguments); }
-		catch(IllegalArgumentException iax) { return "!!" + qualifiedKey + "!!"; }
+		catch(final IllegalArgumentException iax) {
+			logger.warn("!!" + qualifiedKey + "!!");
+			return "!!" + qualifiedKey + "!!";
+		}
 	}
 
 	/**

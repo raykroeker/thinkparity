@@ -107,7 +107,7 @@ class BrowserLogoAvatar extends Avatar {
 	private JLabel createJLabelLink(final String text,
 			final ActionListener actionListener) {
 		final JLabel jLabelLink =
-			LabelFactory.createLink(this, text, UIConstants.DefaultFontBold);
+			LabelFactory.createLink(text, UIConstants.DefaultFontBold);
 		jLabelLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				actionListener.actionPerformed(
@@ -129,7 +129,7 @@ class BrowserLogoAvatar extends Avatar {
 	private JLabel createJLabelLink(final String text,
 			final JPopupMenu jPopupMenu) {
 		final JLabel jLabelLink =
-			LabelFactory.createLink(this, text, UIConstants.DefaultFontBold);
+			LabelFactory.createLink(text, UIConstants.DefaultFontBold);
 		jLabelLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				jPopupMenu.show(jLabelLink, 0, jLabelLink.getHeight());
@@ -234,8 +234,8 @@ class BrowserLogoAvatar extends Avatar {
 		});
 		jPopupMenu.add(newContactMenuItem);
 		jPopupMenu.add(newDocumentMenuItem);
-		final JLabel addJLabelLink =
-			createJLabelLink(getString("New"), jPopupMenu);
+		final JLabel addJLabelLink = createJLabelLink(
+				getString("New"), jPopupMenu);
 		c.anchor = GridBagConstraints.EAST;
 		c.insets.top = 9;
 		c.weightx = 1;

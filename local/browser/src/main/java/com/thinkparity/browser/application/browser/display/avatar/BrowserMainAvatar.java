@@ -137,7 +137,7 @@ class BrowserMainAvatar extends Avatar {
 					final Integer selectedIndex = jList.getSelectedIndex();
 					if(-1 != selectedIndex) {
 						final ListItem item = (ListItem) jList.getSelectedValue();
-						item.fireSelection();
+						item.fireSelection();								
 					}
 				}
 			}
@@ -296,7 +296,7 @@ class BrowserMainAvatar extends Avatar {
 		 */
 		private Rectangle getMenuIconBounds(final Integer index) {
 			final Rectangle cellBounds = jList.getCellBounds(index, index);
-			// X_Y_WIDTH_HEIGHT 13, 4, 13
+			// X_Y_WIDTH_HEIGHT 13,4,13,13
 			cellBounds.x += 13;
 			cellBounds.y += 4;
 			cellBounds.width = cellBounds.height = 13;

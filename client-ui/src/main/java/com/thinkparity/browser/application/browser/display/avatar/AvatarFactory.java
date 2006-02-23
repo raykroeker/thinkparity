@@ -27,7 +27,7 @@ public class AvatarFactory {
 			return SINGLETON.createBrowserMain();
 		case BROWSER_TITLE:
 			return SINGLETON.createBrowserTitle();
-		case DOCUMENT_HISTORY_LIST:
+		case DOCUMENT_HISTORY:
 			return SINGLETON.createDocumentHistoryList();
 		case SESSION_LOGIN:
 			return SINGLETON.createSessionLogin();
@@ -147,7 +147,7 @@ public class AvatarFactory {
 	 */
 	private Avatar createDocumentHistoryList() {
 		if(null == documentHistoryList) {
-			documentHistoryList = new DocumentHistoryListAvatar(controller);
+			documentHistoryList = new DocumentHistoryAvatar(controller);
 			documentHistoryList.setContentProvider(ProviderFactory.getHistoryProvider());
 		}
 		return documentHistoryList;

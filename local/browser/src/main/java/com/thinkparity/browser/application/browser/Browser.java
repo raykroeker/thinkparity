@@ -102,8 +102,8 @@ public class Browser implements Application {
 	 * Display the document history list.
 	 *
 	 */
-	public void displayDocumentHistoryListAvatar() {
-		displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY_LIST);
+	public void displayDocumentHistoryAvatar() {
+		displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY);
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class Browser implements Application {
             	displayTitleAvatar();
             	displayLogoAvatar();
             	displayMainBrowserAvatar();
-            	displayDocumentHistoryListAvatar();
+            	displayDocumentHistoryAvatar();
             }
         });
 	}
@@ -223,7 +223,7 @@ public class Browser implements Application {
 		// NOTE Wierd
 		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
 		// NOTE Super wierd
-		AvatarFactory.create(AvatarId.DOCUMENT_HISTORY_LIST).reload();
+		AvatarFactory.create(AvatarId.DOCUMENT_HISTORY).reload();
 	}
 
 	/**
@@ -231,6 +231,10 @@ public class Browser implements Application {
 	 * 
 	 */
 	public void restore(final State state) {}
+
+	public void runAddContact() {
+		invoke(ActionId.SESSION_ADD_CONTACT);
+	}
 
 	/**
 	 * Run the close document action.
@@ -250,10 +254,6 @@ public class Browser implements Application {
 	 */
 	public void runCreateDocument() {
 		invoke(ActionId.DOCUMENT_CREATE);
-	}
-
-	public void runAddContact() {
-		invoke(ActionId.SESSION_ADD_CONTACT);
 	}
 
 	/**
@@ -315,7 +315,7 @@ public class Browser implements Application {
 	 *            The document id.
 	 */
 	public void selectDocument(final Long documentId) {
-		setInput(AvatarId.DOCUMENT_HISTORY_LIST, documentId);
+		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 		setInput(AvatarId.SESSION_SEND_KEY_FORM, documentId);
 	}

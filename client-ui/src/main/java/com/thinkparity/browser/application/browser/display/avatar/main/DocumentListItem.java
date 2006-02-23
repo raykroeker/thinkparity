@@ -180,7 +180,7 @@ public class DocumentListItem extends ListItem {
 	 */
 	public void fireSelection() {
 		getController().selectDocument(getDocumentId());
-		getController().displayDocumentHistoryListAvatar();
+		getController().displayDocumentHistoryAvatar();
 	}
 
 	/**

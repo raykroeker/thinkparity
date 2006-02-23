@@ -114,6 +114,7 @@ public class LoggerFactory {
 	 *            The global log4j configuration.
 	 */
 	private static void configureGlobal(final Properties global) {
+		global.setProperty("log4j.logger.com.thinkparity.browser.application.browser.Browser", "ERROR");
 		global.setProperty("log4j.logger.com.thinkparity.model.xmpp.XMPPSessionImpl", "DEBUG");
 		global.setProperty("log4j.logger.com.thinkparity.model", "INFO");
 		global.setProperty("log4j.logger.com.thinkparity.model.parity.model.io", "WARN");

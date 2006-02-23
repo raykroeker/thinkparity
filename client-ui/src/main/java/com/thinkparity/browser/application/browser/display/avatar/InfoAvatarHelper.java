@@ -80,7 +80,9 @@ class InfoAvatarHelper {
 		if(null == headingJLabel) {
 			headingJLabel =
 				LabelFactory.create(headingText, UIConstants.DefaultFontBold);
-			headingJLabel.setBackground(new Color(117, 138, 155));
+			// COLOR 117,138,155,255
+			headingJLabel.setBackground(new Color(117, 138, 155, 255));
+			// COLOR WHITE
 			headingJLabel.setForeground(Color.WHITE);
 			headingJLabel.setIcon(getHeadingIcon());
 			headingJLabel.setOpaque(true);

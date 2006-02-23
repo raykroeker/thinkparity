@@ -3,7 +3,12 @@
  */
 package com.thinkparity.browser.application.browser.display.provider;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -15,10 +20,10 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
@@ -163,22 +168,15 @@ public class ProviderFactory {
 		documentModel = ModelFactory.getInstance().getDocumentModel(getClass());
 		sessionModel = ModelFactory.getInstance().getSessionModel(getClass());
 		this.historyProvider = new FlatContentProvider() {
-			final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
-			final Comparator<ArtifactVersion> versionIdDescending =
-				comparatorBuilder.createVersionById(Boolean.FALSE);
-			public Object[] getElements(Object input) {
+			public Object[] getElements(final Object input) {
 				final Long documentId = (Long) input;
-				Collection<DocumentVersion> versionList;
-				try {
-					versionList =
-						documentModel.listVersions(
-								documentId, versionIdDescending);
-				}
+				Collection<HistoryItem> history;
+				try { history = documentModel.readHistory(documentId); }
 				catch(final ParityException px) {
-					logger.error("Could not obtain the document version list.", px);
-					versionList = new Vector<DocumentVersion>(0);
+					logger.error("Could not obtain the document history.", px);
+					history = Collections.emptyList();
 				}
-				return versionList.toArray(new DocumentVersion[] {});
+				return history.toArray(new HistoryItem[] {});
 			}
 		};
 		this.logger = ModelLoggerFactory.getLogger(getClass());

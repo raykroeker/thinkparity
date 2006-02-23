@@ -7,6 +7,10 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.apache.log4j.Logger;
+
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+
 /**
  * ResourceBundleHelper This helper class is used to obtain sets of resources
  * from a bundle within a set l18Context. This is useful when the eventual user
@@ -36,6 +40,12 @@ public class ResourceBundleHelper {
 	private final String l18Context;
 
 	/**
+	 * An apache logger.
+	 * 
+	 */
+	private final Logger logger;
+
+	/**
 	 * Create a ResourceBundleHelper
 	 * 
 	 * @param bundle
@@ -48,6 +58,8 @@ public class ResourceBundleHelper {
 		super();
 		this.bundle = bundle;
 		this.l18Context = l18Context;
+		this.logger = LoggerFactory.getLogger(getClass());
+		logger.info("l18Context:" + l18Context);
 	}
 
 	/**
@@ -71,14 +83,14 @@ public class ResourceBundleHelper {
 	 * 
 	 * @param localKey
 	 *            The local key.
-	 * @param stringData
+	 * @param arguments
 	 *            The message data to insert.
 	 * @return The formatted string.
 	 */
-	public String getString(final String localKey, final Object[] stringData) {
+	public String getString(final String localKey, final Object[] arguments) {
 		final String qualifiedKey = getQualifiedKey(localKey);
 		final String string = getString(localKey);
-		try { return MessageFormat.format(string, stringData); }
+		try { return MessageFormat.format(string, arguments); }
 		catch(IllegalArgumentException iax) { return "!!" + qualifiedKey + "!!"; }
 	}
 

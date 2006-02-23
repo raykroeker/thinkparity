@@ -123,6 +123,13 @@ public class AbstractJPanel extends JPanel {
 	}
 
 	/**
+	 * Determine whether the user input for the frame is valid.
+	 * 
+	 * @return True if the input is valid; false otherwise.
+	 */
+	public Boolean isInputValid() { return Boolean.TRUE; }
+
+	/**
 	 * Obtain a handle to the document api.
 	 * 
 	 * @return The document api.
@@ -158,6 +165,14 @@ public class AbstractJPanel extends JPanel {
 	}
 
 	/**
+	 * @see JPanelLocalization#getString(String, Object[])
+	 * 
+	 */
+	protected String getString(final String localKey, final Object[] arguments) {
+		return localization.getString(localKey, arguments);
+	}
+
+	/**
 	 * Obtain a handle to the parity workspace.
 	 * 
 	 * @return The parity workspace.
@@ -165,13 +180,6 @@ public class AbstractJPanel extends JPanel {
 	protected Workspace getWorkspace() {
 		return modelFactory.getWorkspace(getClass());
 	}
-
-	/**
-	 * Determine whether the user input for the frame is valid.
-	 * 
-	 * @return True if the input is valid; false otherwise.
-	 */
-	public Boolean isInputValid() { return Boolean.TRUE; }
 
 	/**
 	 * Set a default background color. 

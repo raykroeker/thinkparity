@@ -34,16 +34,16 @@ public class EventDispatcher {
 	}
 
 	/**
-	 * Handle to the model factory.
-	 * 
-	 */
-	protected final ModelFactory modelFactory = ModelFactory.getInstance();
-
-	/**
 	 * Main controller.
 	 * 
 	 */
 	protected Browser controller;
+
+	/**
+	 * Handle to the model factory.
+	 * 
+	 */
+	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
 	 * Handle to the document model api.
@@ -102,7 +102,9 @@ public class EventDispatcher {
 			public void objectVersionCreated(final VersionCreationEvent e) {
 				controller.reloadMainBrowserAvatar();
 			}
-			public void objectVersionReceived(VersionCreationEvent e) {}
+			public void objectVersionReceived(final VersionCreationEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 		};
 	}
 
@@ -111,7 +113,9 @@ public class EventDispatcher {
 			public void objectDeleted(final DeleteEvent e) {
 				controller.reloadMainBrowserAvatar();
 			}
-			public void objectReceived(final UpdateEvent e) {}
+			public void objectReceived(final UpdateEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 			public void objectUpdated(final UpdateEvent e) {
 				controller.reloadMainBrowserAvatar();
 			}
@@ -120,15 +124,23 @@ public class EventDispatcher {
 
 	private KeyListener createSessionModelKeyListener() {
 		return new KeyListener() {
-			public void keyRequestAccepted(final KeyEvent e) {}
-			public void keyRequestDenied(final KeyEvent e) {}
-			public void keyRequested(final KeyEvent e) {}
+			public void keyRequestAccepted(final KeyEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
+			public void keyRequestDenied(final KeyEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
+			public void keyRequested(final KeyEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 		};
 	}
 
 	private PresenceListener createSessionModelPresenceListener() {
 		return new PresenceListener() {
-			public void presenceRequested(final PresenceEvent e) {}
+			public void presenceRequested(final PresenceEvent e) {
+				controller.reloadMainBrowserAvatar();
+			}
 		};
 	}
 

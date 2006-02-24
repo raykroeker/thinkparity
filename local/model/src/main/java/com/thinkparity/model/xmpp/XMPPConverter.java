@@ -78,6 +78,14 @@ public abstract class XMPPConverter implements Converter {
 		return createdBy;
 	}
 
+	protected String readReceivedFrom(final HierarchicalStreamReader reader,
+			final UnmarshallingContext context) {
+		reader.moveDown();
+		final String receivedFrom = reader.getValue();
+		reader.moveUp();
+		return receivedFrom;
+	}
+
 	/**
 	 * Read the creation date of a parity object.
 	 * 
@@ -246,6 +254,14 @@ public abstract class XMPPConverter implements Converter {
 			final HierarchicalStreamWriter writer,
 			final MarshallingContext context) {
 		writer.startNode("createdBy");
+		writer.setValue(username);
+		writer.endNode();
+	}
+
+	protected void writeReceivedFrom(final String username,
+			final HierarchicalStreamWriter writer,
+			final MarshallingContext context) {
+		writer.startNode("receivedFrom");
 		writer.setValue(username);
 		writer.endNode();
 	}

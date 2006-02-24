@@ -840,7 +840,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the receiving
 			auditor.recieve(document.getId(), xmppDocument.getVersionId(),
-					xmppDocument.getCreatedBy(), xmppDocument.getUpdatedBy(),
+					xmppDocument.getReceivedFrom(), xmppDocument.getUpdatedBy(),
 					xmppDocument.getUpdatedOn());
 		}
 		catch(IOException iox) {
@@ -1174,10 +1174,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 			document.setUpdatedBy(xmppDocument.getUpdatedBy());
 			document.setUpdatedOn(xmppDocument.getUpdatedOn());
 
+			// update the db
 			documentIO.update(document);
-
 			documentIO.updateContent(content);
+
+			// update the local file
+			final LocalFile localFile = getLocalFile(document);
+			localFile.delete();
+			localFile.write(content.getContent());
 		}
+
+		// if not the key holder lock
+		final InternalSessionModel iSModel = getInternalSessionModel();
+		if(!iSModel.isLoggedInUserKeyHolder(document.getId()))
+			lock(document.getId());
 
 		// flag the document
 		flagAsNotSEEN(document);

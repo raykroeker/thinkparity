@@ -16,6 +16,7 @@ import com.thinkparity.model.log4j.or.org.xmlpull.v1.XmlPullParserRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentContentRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentRenderer;
 import com.thinkparity.model.log4j.or.parity.document.DocumentVersionRenderer;
+import com.thinkparity.model.log4j.or.parity.document.HistoryItemRenderer;
 import com.thinkparity.model.log4j.or.smack.packet.MessageRenderer;
 import com.thinkparity.model.log4j.or.smack.packet.PacketExtensionRenderer;
 import com.thinkparity.model.log4j.or.smack.packet.PacketRenderer;
@@ -24,6 +25,7 @@ import com.thinkparity.model.log4j.or.xmpp.user.UserRenderer;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -95,6 +97,7 @@ class ModelLog4JConfigurator {
 		configureRenderer(configuration, Document.class, DocumentRenderer.class);
 		configureRenderer(configuration, DocumentContent.class, DocumentContentRenderer.class);
 		configureRenderer(configuration, DocumentVersion.class, DocumentVersionRenderer.class);
+		configureRenderer(configuration, HistoryItem.class, HistoryItemRenderer.class);
 		configureRenderer(configuration, Message.class, MessageRenderer.class);
 		configureRenderer(configuration, Packet.class, PacketRenderer.class);
 		configureRenderer(configuration, PacketExtension.class, PacketExtensionRenderer.class);

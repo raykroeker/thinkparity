@@ -802,6 +802,7 @@ class SessionModelImpl extends AbstractModelImpl {
 				xmppDocument.setCreatedBy(version.getCreatedBy());
 				xmppDocument.setCreatedOn(version.getCreatedOn());
 				xmppDocument.setName(version.getName());
+				xmppDocument.setReceivedFrom(getLoggedInUser().getSimpleUsername());
 				xmppDocument.setUniqueId(version.getArtifactUniqueId());
 				xmppDocument.setUpdatedBy(version.getUpdatedBy());
 				xmppDocument.setUpdatedOn(version.getUpdatedOn());

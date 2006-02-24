@@ -6,9 +6,6 @@ package com.thinkparity.model.xmpp.document;
 import java.util.Calendar;
 import java.util.UUID;
 
-import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentContent;
-import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.xmpp.XMPPSerializable;
 
 /**
@@ -44,27 +41,12 @@ public class XMPPDocument implements XMPPSerializable {
 	 */
 	public static XMPPDocument create(final byte[] content,
 			final String createdBy, final Calendar createdOn,
-			final String description, final String name, final UUID uniqueId,
+			final String description, final String name,
+			final String receivedFrom, final UUID uniqueId,
 			final String updatedBy, final Calendar updatedOn,
 			final Long versionId) {
 		return new XMPPDocument(content, createdBy, createdOn, description,
-				name, uniqueId, updatedBy, updatedOn, versionId);
-	}
-
-	/**
-	 * Create a new XMPPDocument based upon a parity document.
-	 * 
-	 * @param document
-	 *            The parity document to base the xmpp document upon.
-	 * @return The new xmpp document.
-	 */
-	public static XMPPDocument create(final Document document,
-			final DocumentContent content, final DocumentVersion version) {
-		return XMPPDocument.create(content.getContent(), document.getCreatedBy(),
-				document.getCreatedOn(), document.getDescription(),
-				document.getName(), document.getUniqueId(),
-				document.getUpdatedBy(), document.getUpdatedOn(),
-				version.getVersionId());
+				name, receivedFrom, uniqueId, updatedBy, updatedOn, versionId);
 	}
 
 	private byte[] content;
@@ -72,10 +54,13 @@ public class XMPPDocument implements XMPPSerializable {
 	private Calendar createdOn;
 	private String description;
 	private String name;
+	private String receivedFrom;
 	private UUID uniqueId;
 	private String updatedBy;
 	private Calendar updatedOn;
 	private Long versionId;
+
+	public XMPPDocument() { super(); }
 
 	/**
 	 * Create an XMPPDocument.
@@ -101,8 +86,9 @@ public class XMPPDocument implements XMPPSerializable {
 	 */
 	private XMPPDocument(final byte[] content, final String createdBy,
 			final Calendar createdOn, final String description,
-			final String name, final UUID uniqueId, final String updatedBy,
-			final Calendar updatedOn, final Long versionId) {
+			final String name, final String receivedFrom, final UUID uniqueId,
+			final String updatedBy, final Calendar updatedOn,
+			final Long versionId) {
 		super();
 		this.content = new byte[content.length];
 		System.arraycopy(content, 0, this.content, 0, content.length);
@@ -110,13 +96,12 @@ public class XMPPDocument implements XMPPSerializable {
 		this.createdOn = createdOn;
 		this.description = description;
 		this.name = name;
+		this.receivedFrom = receivedFrom;
 		this.uniqueId = uniqueId;
 		this.updatedBy = updatedBy;
 		this.updatedOn = updatedOn;
 		this.versionId = versionId;
 	}
-
-	public XMPPDocument() { super(); }
 
 	/**
 	 * Obtain the content of the xmpp document.
@@ -151,6 +136,13 @@ public class XMPPDocument implements XMPPSerializable {
 	 * @return The name.
 	 */
 	public String getName() { return name; }
+
+	/**
+	 * @return Returns the receivedFrom.
+	 */
+	public String getReceivedFrom() {
+		return receivedFrom;
+	}
 
 	/**
 	 * Obtain the xmpp document unique id.
@@ -213,6 +205,13 @@ public class XMPPDocument implements XMPPSerializable {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * @param receivedFrom The receivedFrom to set.
+	 */
+	public void setReceivedFrom(String sentFrom) {
+		this.receivedFrom = sentFrom;
 	}
 
 	/**

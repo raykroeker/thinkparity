@@ -52,6 +52,7 @@ public class XMPPDocumentConverter extends XMPPConverter {
 		writeName(xmppDocument.getName(), writer, context);
 		writeCreatedBy(xmppDocument.getCreatedBy(), writer, context);
 		writeCreatedOn(xmppDocument.getCreatedOn(), writer, context);
+		writeReceivedFrom(xmppDocument.getReceivedFrom(), writer, context);
 		writeUpdatedBy(xmppDocument.getUpdatedBy(), writer, context);
 		writeUpdatedOn(xmppDocument.getUpdatedOn(), writer, context);
 		writeDescription(xmppDocument.getDescription(), writer, context);
@@ -72,6 +73,7 @@ public class XMPPDocumentConverter extends XMPPConverter {
 		final String name = readName(reader, context);
 		final String createdBy = readCreatedBy(reader, context);
 		final Calendar createdOn = readCreatedOn(reader, context);
+		final String receivedFrom = readReceivedFrom(reader, context);
 		final String updatedBy = readUpdatedBy(reader, context);
 		final Calendar updatedOn = readUpdatedOn(reader, context);
 		final String description = readDescription(reader, context);
@@ -86,7 +88,7 @@ public class XMPPDocumentConverter extends XMPPConverter {
 			throw XmlIOConverterErrorTranslator.translate(iox);
 		}
 		return XMPPDocument.create(content, createdBy, createdOn, description,
-				name, uniqueId, updatedBy, updatedOn, versionId);
+				name, receivedFrom, uniqueId, updatedBy, updatedOn, versionId);
 	}
 
 	/**

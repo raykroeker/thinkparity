@@ -236,15 +236,15 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			final Long[] auditIds = listAuditIds(session, artifactId);
 			final Long[] metaDataIds = listMetaDataIds(session, auditIds);
 
-			for(final Long metaDataId : metaDataIds)
-				metaDataIO.delete(session, metaDataId);
-				
 			session.prepareStatement(SQL_DELETE_AUDIT_META_DATA);
 			for(final Long metaDataId : metaDataIds) {
 				session.setLong(1, metaDataId);
 				if(1 != session.executeUpdate())
 					throw new HypersonicException("Could not delete audit meta data.");
 			}
+
+			for(final Long metaDataId : metaDataIds)
+				metaDataIO.delete(session, metaDataId);
 
 			session.prepareStatement(SQL_DELETE_AUDIT_VERSION);
 			session.setLong(1, artifactId);

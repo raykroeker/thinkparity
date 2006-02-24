@@ -106,6 +106,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 		cellIconJLabel.setIcon(listItem.getMenuIcon());
 		cellNameJLabel.setText(listItem.getName());
 		cellNameJLabel.setForeground(listItem.getNameForeground());
+		cellNameJLabel.setFont(listItem.getNameFont());
 		cellInfoIconJLabel.setIcon(listItem.getInfoIcon());
 
 		return this;
@@ -159,6 +160,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 		cellInfoIconJLabel = LabelFactory.create();
 		c.gridx = 2;
 		c.weightx = 0;
+		c.insets.right = 15;
 		add(cellInfoIconJLabel, c.clone());
 	}
 }

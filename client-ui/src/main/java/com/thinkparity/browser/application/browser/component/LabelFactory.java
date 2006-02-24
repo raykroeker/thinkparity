@@ -5,6 +5,8 @@ package com.thinkparity.browser.application.browser.component;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -235,7 +237,22 @@ public class LabelFactory extends ComponentFactory {
 	private JLabel doCreateLink(final String text, final Font font) {
 		final JLabel jLabel = doCreate(text, font, LINK_FOREGROUND);
 		applyHandCursor(jLabel);
+		applyColorChange(jLabel);
 		return jLabel;
+	}
+
+	private void applyColorChange(final JLabel jLabel) {
+		jLabel.addMouseListener(new MouseAdapter() {
+			// COLOR 249,163,97,255
+			final Color hoverForeground = new Color(249, 163, 97, 255);
+			final Color originalForeground = jLabel.getForeground();
+			public void mouseEntered(final MouseEvent e) {
+				jLabel.setForeground(hoverForeground);
+			}
+			public void mouseExited(final MouseEvent e) {
+				jLabel.setForeground(originalForeground);
+			}
+		});
 	}
 
 	/**

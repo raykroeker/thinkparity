@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.display.avatar.main;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.util.Hashtable;
 import java.util.Map;
@@ -12,11 +13,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.model.tmp.system.message.Message;
 import com.thinkparity.browser.platform.util.l10n.ListItemLocalization;
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -61,6 +65,12 @@ public abstract class ListItem {
 	protected final ListItemLocalization localization;
 
 	/**
+	 * An apache logger.
+	 * 
+	 */
+	protected final Logger logger;
+
+	/**
 	 * The list item information menuIcon.
 	 * 
 	 */
@@ -77,6 +87,12 @@ public abstract class ListItem {
 	 * 
 	 */
 	private String name;
+
+	/**
+	 * The font to use with the name label.
+	 * 
+	 */
+	private Font nameFont;
 
 	/**
 	 * The list item name color.
@@ -97,6 +113,7 @@ public abstract class ListItem {
 	protected ListItem(final String l18nContext) {
 		super();
 		this.localization = new ListItemLocalization(l18nContext);
+		this.logger = LoggerFactory.getLogger(getClass());
 		this.propertyMap = new Hashtable<Object,Object>(7, 0.75F);
 	}
 
@@ -126,6 +143,13 @@ public abstract class ListItem {
 	 * @return The list item name.
 	 */
 	public String getName() { return name; }
+
+	/**
+	 * Obtain the font to use for the name label.
+	 * 
+	 * @return The font.
+	 */
+	public Font getNameFont() { return nameFont; }
 
 	/**
 	 * Obtain a list item property.
@@ -220,6 +244,7 @@ public abstract class ListItem {
 	 */
 	protected Integer getMnemonic(final String localKey) {
 		final String mnemonicString = getString(localKey + "Mnemonic");
+		logger.debug("ListItem.MnemonicString:" + mnemonicString + "]");
 		return new Integer(mnemonicString.charAt(0));
 	}
 
@@ -236,6 +261,16 @@ public abstract class ListItem {
 	 */
 	protected String getString(final String localKey) {
 		return localization.getString(localKey);
+	}
+
+	/**
+	 * Set the font to use with the name label.
+	 * 
+	 * @param nameFont
+	 *            The font.
+	 */
+	protected void setNameFont(final Font nameFont) {
+		this.nameFont = nameFont;
 	}
 
 	/**

@@ -11,14 +11,11 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
 import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
-import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
@@ -107,32 +104,12 @@ class BrowserLogoAvatar extends Avatar {
 	private JLabel createJLabelLink(final String text,
 			final ActionListener actionListener) {
 		final JLabel jLabelLink =
-			LabelFactory.createLink(text, UIConstants.DefaultFontBold);
+			LabelFactory.createLink(text, UIConstants.SmallFont);
 		jLabelLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				actionListener.actionPerformed(
 						new ActionEvent(e.getSource(),
 								ActionEvent.ACTION_PERFORMED, ""));
-			}
-		});
-		return jLabelLink;
-	}
-
-	/**
-	 * Create a JLabel component that behaves as a link. It is clickable and
-	 * colored blue.
-	 * 
-	 * @param text
-	 *            The link text.
-	 * @return The JLabel.
-	 */
-	private JLabel createJLabelLink(final String text,
-			final JPopupMenu jPopupMenu) {
-		final JLabel jLabelLink =
-			LabelFactory.createLink(text, UIConstants.DefaultFontBold);
-		jLabelLink.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent e) {
-				jPopupMenu.show(jLabelLink, 0, jLabelLink.getHeight());
 			}
 		});
 		return jLabelLink;
@@ -217,27 +194,15 @@ class BrowserLogoAvatar extends Avatar {
 		final GridBagConstraints c = new GridBagConstraints();
 		final GridBagConstraints c2 = new GridBagConstraints();
 
-		final JPopupMenu jPopupMenu = new JPopupMenu();
-		final JMenuItem newContactMenuItem =
-			MenuItemFactory.create(getString("Contact"), 0);
-		newContactMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				runAddContact();
-			}
-		});
-		final JMenuItem newDocumentMenuItem =
-			MenuItemFactory.create(getString("Document"), 0);
-		newDocumentMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				runAddDocument();
-			}
-		});
-		jPopupMenu.add(newContactMenuItem);
-		jPopupMenu.add(newDocumentMenuItem);
 		final JLabel addJLabelLink = createJLabelLink(
-				getString("New"), jPopupMenu);
+				getString("AddContact"),
+				new ActionListener() {
+					public void actionPerformed(final ActionEvent e) {
+						runAddContact();
+					}
+				});
 		c.anchor = GridBagConstraints.EAST;
-		c.insets.top = 9;
+		c.insets.top = 21;
 		c.weightx = 1;
 		add(addJLabelLink, c.clone());
 
@@ -251,20 +216,9 @@ class BrowserLogoAvatar extends Avatar {
 			createJLabelLink(getString("Invite"), new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {}
 			});
-		c.insets.left = c.insets.right = 0;
-		add(inviteJLabelLink, c.clone());
-
-		final JLabel separatorJLabel2 = createJLabelSeparator();
-		c.insets.left = c.insets.right = 7;
-		add(separatorJLabel2, c.clone());
-
-		final JLabel helpJLabelLink =
-			createJLabelLink(getString("Help"), new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {}
-			});
 		c.insets.left = 0;
-		c.insets.right = 6;
-		add(helpJLabelLink, c.clone());
+		c.insets.right = 15;
+		add(inviteJLabelLink, c.clone());
 
 		final JPanel searchJPanel = new JPanel();
 		searchJPanel.setLayout(new GridBagLayout());
@@ -272,7 +226,7 @@ class BrowserLogoAvatar extends Avatar {
 
 		final JLabel leftSearchJLabel = createLeftSearchJLabel();
 		c2.anchor = GridBagConstraints.EAST;
-		c2.insets.left = 168;
+		c2.insets.left = 209;
 		searchJPanel.add(leftSearchJLabel, c2.clone());
 
 		final JTextField searchJTextField = createSearchTextField();
@@ -285,23 +239,18 @@ class BrowserLogoAvatar extends Avatar {
 		final JLabel rightSearchJLabel = createRightSearchJLabel();
 		c2.fill = GridBagConstraints.NONE;
 		c2.insets.top = c2.insets.bottom = 0;
-		c2.insets.right = 13;
+		c2.insets.right = 14;
 		c2.weightx = 0;
 		searchJPanel.add(rightSearchJLabel, c2.clone());
 
 		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 5;
+		c.gridwidth = 3;
 		c.gridy = 1;
-		c.insets.top = c.insets.left = c.insets.bottom = c.insets.right = 0;
+		c.insets.top = c.insets.left = c.insets.right = 0;
+		c.insets.bottom = 18;
 		c.weighty = 1;
 		add(searchJPanel, c.clone());
 	}
 
 	private void runAddContact() { getController().runAddContact(); }
-
-	/**
-	 * Run the add document action.
-	 *
-	 */
-	private void runAddDocument() { getController().runCreateDocument(); }
 }

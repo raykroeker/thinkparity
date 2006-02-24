@@ -32,6 +32,8 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.KeyResponse;
@@ -156,12 +158,27 @@ public class SessionSendFormAvatar extends Avatar {
 	}
 
 	/**
+	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
+	 * 
+	 */
+	public void setInput(Object input) {
+		Assert.assertNotNull("Cannot set null input:  " + getId(), input);
+		this.input = input;
+		reload();
+	}
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
 	public void setState(final State state) {}
 
 	private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		getController().displayMainBrowserAvatar();
+	}
+
+	private void displayMainBrowserAvatar(final Boolean doReload) {
+		if(doReload) { getController().reloadMainBrowserAvatar(); }
 		getController().displayMainBrowserAvatar();
 	}
 
@@ -173,11 +190,11 @@ public class SessionSendFormAvatar extends Avatar {
 		return (Long) input;
 	}
 
+	// End of variables declaration
+
 	private DocumentVersion extractDocumentVersion() {
 		return (DocumentVersion) versionJComboBox.getSelectedItem();
 	}
-
-	// End of variables declaration
 
 	private Boolean extractDoIncludeKey() { return includeKeyJCheckBox.isSelected(); }
 
@@ -530,29 +547,25 @@ public class SessionSendFormAvatar extends Avatar {
 					// update the server key holder
 					final User user = users.get(0);
 					getSessionModel().sendKeyResponse(documentId, user, KeyResponse.ACCEPT);
-					displayMainBrowserAvatar();
+					displayMainBrowserAvatar(Boolean.TRUE);
 				}
 				else {
 					final DocumentVersion version = extractDocumentVersion();
 					if(version == WorkingVersion.getWorkingVersion()) {
 						// create a version and send it
 						getSessionModel().send(users, documentId);
-						displayMainBrowserAvatar();
+						displayMainBrowserAvatar(Boolean.TRUE);
 					}
 					else {
 						// send a specific version
 						getSessionModel().send(
 								users, documentId, version.getVersionId());
-						displayMainBrowserAvatar();
+						displayMainBrowserAvatar(Boolean.TRUE);
 					}
 				}
 			}
 			catch(final ParityException px) { throw new RuntimeException(px); }
 			finally { toggleVisualFeedback(Boolean.FALSE); }
 		}
-	}
-
-	private void displayMainBrowserAvatar() {
-		getController().displayMainBrowserAvatar();
 	}
 }

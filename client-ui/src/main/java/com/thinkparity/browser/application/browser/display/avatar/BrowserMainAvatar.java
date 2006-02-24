@@ -8,16 +8,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MouseInputAdapter;
@@ -25,6 +21,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.CellRenderer;
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
@@ -149,7 +146,24 @@ class BrowserMainAvatar extends Avatar {
 		c.weightx = 1;
 		c.weighty = 1;
 		add(jListScrollPane, c.clone());
+
+		final JLabel addDocumentJLabel = LabelFactory.createLink(
+				getString("AddDocument"), UIConstants.DefaultFont);
+		final Color originalForeground = addDocumentJLabel.getForeground();
+		addDocumentJLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				addDocumentJLabel.setForeground(originalForeground);
+				runCreateDocumentAction();
+			}
+		});
+		c.anchor = GridBagConstraints.SOUTH;
+		c.fill = GridBagConstraints.NONE;
+		c.insets.top = c.insets.bottom = 2;
+		c.gridy = 1;
+		add(addDocumentJLabel, c.clone());
 	}
+
+	private void runCreateDocumentAction() { getController().runCreateDocument(); }
 
 	/**
 	 * Reload the list of documents.

@@ -22,10 +22,18 @@ public class MenuItemFactory extends ComponentFactory {
 	static {
 		singleton = new MenuItemFactory();
 		singletonLock = new Object();
+
+		final UIDefaults defaults = UIManager.getDefaults();
+		// COLOR 215,231,244,255
+		defaults.put("MenuItem.selectionBackground", new Color(215, 231, 244, 255));
+		// COLOR BLACK
+		defaults.put("MenuItem.selectionForeground", Color.BLACK);
 	}
 
 	public static JMenuItem create(final String text, final Integer mnemonic) {
-		synchronized(singletonLock) { return singleton.doCreate(text, mnemonic); }
+		synchronized(singletonLock) {
+			return singleton.doCreate(text, mnemonic);
+		}
 	}
 
 	/**
@@ -34,15 +42,13 @@ public class MenuItemFactory extends ComponentFactory {
 	 */
 	private MenuItemFactory() { super(); }
 
-	static {
-		final UIDefaults defaults = UIManager.getDefaults();
-		// COLOR 215, 231, 244, 255
-		defaults.put("MenuItem.selectionBackground", new Color(215, 231, 244, 255));
-		// COLOR BLACK
-		defaults.put("MenuItem.selectionForeground", Color.BLACK);
+	private void applyMnemonic(final JMenuItem jMenuItem, final Integer mnemonic) {
+		logger.debug("JMenuItem.Mnemonic[" + mnemonic + "]");
+		jMenuItem.setMnemonic(mnemonic);
 	}
 
 	private JMenuItem doCreate(final String text) {
+		logger.debug("JMenuItem[" + text + "]");
 		final JMenuItem jMenuItem = new JMenuItem(text);
 		applyDefaultFont(jMenuItem);
 		applyHandCursor(jMenuItem);
@@ -53,9 +59,5 @@ public class MenuItemFactory extends ComponentFactory {
 		final JMenuItem jMenuItem = doCreate(text);
 		applyMnemonic(jMenuItem, mnemonic);
 		return jMenuItem;
-	}
-
-	private void applyMnemonic(final JMenuItem jMenuItem, final Integer mnemonic) {
-		jMenuItem.setMnemonic(mnemonic);
 	}
 }

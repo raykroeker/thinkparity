@@ -67,7 +67,6 @@ public class LoggerFactory {
 				log4jProperties.setProperty("log4j.threshold", "debug");
 				log4jProperties.setProperty("log4j.rootLogger", "debug, broswerHTML, console");
 
-				configureGlobal(log4jProperties);
 				configureRenderers(log4jProperties);
 
 				final ModelFactory modelFactory = ModelFactory.getInstance();
@@ -105,19 +104,6 @@ public class LoggerFactory {
 		console.setProperty("log4j.appender.console", "org.apache.log4j.ConsoleAppender");
 		console.setProperty("log4j.appender.console.layout", "org.apache.log4j.PatternLayout");
 		console.setProperty("log4j.appender.console.layout.ConversionPattern", "%-5p [%t] [%C{1}]: %m%n");
-	}
-
-	/**
-	 * Configure global logging settings.
-	 * 
-	 * @param global
-	 *            The global log4j configuration.
-	 */
-	private static void configureGlobal(final Properties global) {
-		global.setProperty("log4j.logger.com.thinkparity.browser.application.browser.Browser", "ERROR");
-		global.setProperty("log4j.logger.com.thinkparity.model.xmpp.XMPPSessionImpl", "DEBUG");
-		global.setProperty("log4j.logger.com.thinkparity.model", "INFO");
-		global.setProperty("log4j.logger.com.thinkparity.model.parity.model.io", "WARN");
 	}
 
 	/**

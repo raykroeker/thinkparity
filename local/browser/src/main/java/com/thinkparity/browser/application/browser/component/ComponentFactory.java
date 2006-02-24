@@ -10,7 +10,10 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -19,10 +22,19 @@ import com.thinkparity.browser.application.browser.UIConstants;
 abstract class ComponentFactory {
 
 	/**
+	 * An apache logger.
+	 * 
+	 */
+	protected final Logger logger;
+
+	/**
 	 * Create a ComponentFactory.
 	 * 
 	 */
-	protected ComponentFactory() { super(); }
+	protected ComponentFactory() {
+		super();
+		this.logger = LoggerFactory.getLogger(getClass());
+	}
 
 	/**
 	 * Apply the default font to a component.
@@ -66,8 +78,8 @@ abstract class ComponentFactory {
 	 */
 	protected void applyHandCursor(final Component component) {
 		component.addMouseListener(new MouseAdapter() {
-			final Cursor originalCursor = component.getCursor();
 			final Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+			final Cursor originalCursor = component.getCursor();
 			public void mouseEntered(final MouseEvent e) {
 				component.setCursor(handCursor);
 			}

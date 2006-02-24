@@ -17,25 +17,32 @@ public class ModelUtil {
 
 	private static final Object singletonLock;
 
-	public static Preferences getPreferences() {
-		synchronized(singletonLock) { return singleton.doGetPreferences(); }
-	}
-
 	static {
 		singleton = new ModelUtil();
 		singletonLock = new Object();
 	}
 
+	public static Preferences getPreferences() {
+		synchronized(singletonLock) { return singleton.doGetPreferences(); }
+	}
+
+	public static Workspace getWorkspace() {
+		synchronized(singletonLock) { return singleton.doGetWorkspace(); }
+	}
+
 	private final Preferences preferences;
+
+	private final Workspace workspace;
 
 	/**
 	 * Create a ModelUtil.
 	 */
 	private ModelUtil() {
 		super();
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		this.workspace = WorkspaceModel.getModel().getWorkspace();
 		this.preferences = workspace.getPreferences();
 	}
 
 	private Preferences doGetPreferences() { return preferences; }
+	private Workspace doGetWorkspace() { return workspace; }
 }

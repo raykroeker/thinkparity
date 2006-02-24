@@ -105,7 +105,7 @@ public class DisplayFactory {
 	private Display createContent() {
 		if(null == content) {
 			content = new ContentDisplay();
-			applySize(content, 275);
+			applySize(content, 300);
 		}
 		return content;
 	}
@@ -118,7 +118,7 @@ public class DisplayFactory {
 	private Display createForm() {
 		if(null == form) {
 			form = new FormDisplay();
-			applySize(form, 435);
+			applySize(form, 394);
 		}
 		return form;
 	}
@@ -131,7 +131,7 @@ public class DisplayFactory {
 	private Display createInfo() {
 		if(null == info) {
 			info = new InfoDisplay();
-			applySize(info, 160);
+			applySize(info, 135);
 		}
 		return info;
 	}
@@ -144,7 +144,7 @@ public class DisplayFactory {
 	private Display createLogo() {
 		if(null == logo) {
 			logo = new LogoDisplay();
-			applySize(logo, 85);
+			applySize(logo, 94);
 		}
 		return logo;
 	}
@@ -157,7 +157,7 @@ public class DisplayFactory {
 	private Display createTitle() {
 		if(null == title) {
 			title = new TitleDisplay();
-			applySize(title, 30);
+			applySize(title, 21);
 		}
 		return title;
 	}

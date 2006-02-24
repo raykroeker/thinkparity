@@ -11,6 +11,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.model.util.ArtifactUtil;
 
 import com.thinkparity.codebase.ResourceUtil;
@@ -47,13 +48,13 @@ public class DocumentListItem extends ListItem {
 	private static final Color NAME_FOREGROUND_CLOSED;
 
 	static {
-		MENU_ICON = new ImageIcon(ResourceUtil.getURL("images/documentIconBlue.png"));
+		MENU_ICON = new ImageIcon(ResourceUtil.getURL("images/documentIconGreen.png"));
 		MENU_ICON_CLOSED = new ImageIcon(ResourceUtil.getURL("images/documentIconGray.png"));
 		// COLOR BLACK
 		NAME_FOREGROUND = Color.BLACK;
 		// COLOR 127,131,134,255
 		NAME_FOREGROUND_CLOSED = new Color(127,131,134,255);
-		KEY_ICON = new ImageIcon(ResourceUtil.getURL("images/keyHolder.png"));
+		KEY_ICON = new ImageIcon(ResourceUtil.getURL("images/key.png"));
 	}
 
 	/**
@@ -164,12 +165,17 @@ public class DocumentListItem extends ListItem {
 		else {
 			setMenuIcon(MENU_ICON);
 			setNameForeground(NAME_FOREGROUND);
+
+			if(hasBeenSeen(document.getId())) { setNameFont(UIConstants.DefaultFont); }
+			else { setNameFont(UIConstants.DefaultFontBold); }
 		}
 
-		setName(new StringBuffer(document.getName()).append(" - ").append(document.getId()).toString());
+		setName(document.getName());
 		if(isKeyHolder) { setInfoIcon(KEY_ICON); }
 	}
-
+	private static Boolean hasBeenSeen(final Long documentId) {
+		return ArtifactUtil.hasBeenSeen(documentId, ArtifactType.DOCUMENT);
+	}
 	private static Boolean isClosed(final Long documentId) {
 		return ArtifactUtil.isClosed(documentId, ArtifactType.DOCUMENT);
 	}
@@ -195,10 +201,10 @@ public class DocumentListItem extends ListItem {
 		}
 		else {
 			jPopupMenu.add(getSendMenuItem());
+
 			if(isKeyHolder) { jPopupMenu.add(getSendKeyMenuItem()); }
-			else {
-				jPopupMenu.add(getRequestKeyMenuItem());
-			}
+			else { jPopupMenu.add(getRequestKeyMenuItem()); }
+
 			if(canClose(getDocumentId())) {
 				jPopupMenu.addSeparator();
 				jPopupMenu.add(getCloseMenuItem());
@@ -216,7 +222,7 @@ public class DocumentListItem extends ListItem {
 	private JMenuItem getOpenMenuItem() {
 		if(null == openMenuItem) {
 			openMenuItem = createJMenuItem(getString("Open"),
-					getMnemonic("OpenMnemonic"),
+					getMnemonic("Open"),
 					getOpenMenuItemActionListener());
 		}
 		return openMenuItem;
@@ -246,7 +252,7 @@ public class DocumentListItem extends ListItem {
 	private JMenuItem getCloseMenuItem() {
 		if(null == closeMenuItem) {
 			closeMenuItem = createJMenuItem(getString("Close"),
-					getMnemonic("CloseMnemonic"),
+					getMnemonic("Close"),
 					getCloseMenuItemActionListener());
 		}
 		return closeMenuItem;
@@ -276,7 +282,7 @@ public class DocumentListItem extends ListItem {
 	private JMenuItem getDeleteMenuItem() {
 		if(null == deleteMenuItem) {
 			deleteMenuItem = createJMenuItem(getString("Delete"),
-					getMnemonic("DeleteMnemonic"),
+					getMnemonic("Delete"),
 					getDeleteMenuItemActionListener());
 		}
 		return deleteMenuItem;
@@ -313,7 +319,7 @@ public class DocumentListItem extends ListItem {
 	private JMenuItem getRequestKeyMenuItem() {
 		if(null == requestKeyMenuItem) {
 			requestKeyMenuItem = createJMenuItem(getString("RequestKey"),
-					getMnemonic("RequestKeyMnemonic"),
+					getMnemonic("RequestKey"),
 					getRequestKeyMenuItemActionListener());
 		}
 		return requestKeyMenuItem;
@@ -343,7 +349,7 @@ public class DocumentListItem extends ListItem {
 	private JMenuItem getSendKeyMenuItem() {
 		if(null == sendKeyMenuItem) {
 			sendKeyMenuItem = createJMenuItem(getString("SendKey"),
-					getMnemonic("SendKeyMnemonic"),
+					getMnemonic("SendKey"),
 					getSendKeyMenuItemActionListener());
 		}
 		return sendKeyMenuItem;
@@ -373,7 +379,7 @@ public class DocumentListItem extends ListItem {
 	private JMenuItem getSendMenuItem() {
 		if(null == sendMenuItem) {
 			sendMenuItem = createJMenuItem(getString("Send"),
-					getMnemonic("SendMnemonic"), getSendMenuItemActionListener());
+					getMnemonic("Send"), getSendMenuItemActionListener());
 		}
 		return sendMenuItem;
 	}

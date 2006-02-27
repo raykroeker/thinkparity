@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.jivesoftware.smack.packet.IQ;
 
+import com.thinkparity.model.xmpp.JabberId;
+
 /**
  * A query to the parity server for the current artifact key holder.
  * 
@@ -17,7 +19,7 @@ public class IQGetKeyHolderResponse extends IQ {
 
 	private UUID artifactUniqueId;
 
-	private String username;
+	private JabberId keyHolder;
 
 	/**
 	 * Create a IQGetKeyHolder.
@@ -28,13 +30,11 @@ public class IQGetKeyHolderResponse extends IQ {
 	 *            The key holder username.
 	 */
 	public IQGetKeyHolderResponse(final UUID artifactUniqueId,
-			final String username) {
+			final JabberId keyHolder) {
 		super();
 		this.artifactUniqueId = artifactUniqueId;
-		this.username = username;
+		this.keyHolder = keyHolder;
 	}
-
-	public String getUsername() { return username; }
 
 	public UUID getArtifactUniqueId() { return artifactUniqueId; }
 
@@ -43,4 +43,6 @@ public class IQGetKeyHolderResponse extends IQ {
 	 * 
 	 */
 	public String getChildElementXML() { return null; }
+
+	public JabberId getKeyHolder() { return keyHolder; }
 }

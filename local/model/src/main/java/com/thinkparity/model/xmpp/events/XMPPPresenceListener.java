@@ -3,16 +3,15 @@
  */
 package com.thinkparity.model.xmpp.events;
 
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.JabberId;
 
 public interface XMPPPresenceListener {
 
 	/**
-	 * This event is fired when another parity user requests visibility into
-	 * this user's presence state.
+	 * Event fired when a user invites another user as a contact.
 	 * 
-	 * @param xmppUser
-	 *            <code>org.kcs.projectmanager.xmpp.user.XMPPUser</code>
+	 * @param jabberId
+	 *            The user sending the invitation.
 	 */
-	public void presenceRequested(final User xmppUser);
+	public void presenceRequested(final JabberId jabberId);
 }

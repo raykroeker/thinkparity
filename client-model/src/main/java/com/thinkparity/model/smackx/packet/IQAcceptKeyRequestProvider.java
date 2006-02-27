@@ -86,6 +86,6 @@ public class IQAcceptKeyRequestProvider implements IQProvider {
 		}
 		Assert.assertNotNull(ASSERT_ARTIFACT_UUID, artifactUUID);
 		Assert.assertNotNull(ASSERT_USERNAME, username);
-		return new IQAcceptKeyRequest(artifactUUID, new User(null, username, null));
+		return new IQAcceptKeyRequest(artifactUUID, new User(username));
 	}
 }

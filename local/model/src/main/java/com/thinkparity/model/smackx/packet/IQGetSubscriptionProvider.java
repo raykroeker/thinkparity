@@ -15,6 +15,8 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -44,7 +46,7 @@ public class IQGetSubscriptionProvider implements IQProvider {
 		logger.info("parseIQ(XmlPullParser)");
 		logger.debug(parser);
 		UUID artifactUniqueId = null;
-		final List<String> jids = new LinkedList<String>();
+		final List<JabberId> jabberIds = new LinkedList<JabberId>();
 
 		Integer attributeCount, depth, eventType;
 		String name, namespace, prefix, text;
@@ -74,7 +76,7 @@ public class IQGetSubscriptionProvider implements IQProvider {
 			else if(XmlPullParser.START_TAG == eventType && "jids".equals(name)) {}
 			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				parser.next();
-				jids.add(parser.getText());
+				jabberIds.add(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
 				parser.next();
 			}
 			else if(XmlPullParser.END_TAG == eventType && "jids".equals(name)) {
@@ -83,8 +85,8 @@ public class IQGetSubscriptionProvider implements IQProvider {
 			}
 		}
 		Assert.assertNotNull("", artifactUniqueId);
-		Assert.assertNotNull("", jids);
-		Assert.assertTrue("", 0 < jids.size());
-		return new IQGetSubscriptionResponse(artifactUniqueId, jids);
+		Assert.assertNotNull("", jabberIds);
+		Assert.assertTrue("", 0 < jabberIds.size());
+		return new IQGetSubscriptionResponse(artifactUniqueId, jabberIds);
 	}
 }

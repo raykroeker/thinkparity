@@ -8,5 +8,5 @@ package com.thinkparity.model.parity.api.events;
  * @version 1.1
  */
 public interface SystemMessageListener {
-
+	public void systemMessageCreated(final SystemMessageEvent systemMessageEvent);
 }

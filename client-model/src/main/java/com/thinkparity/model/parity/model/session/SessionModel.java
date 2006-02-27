@@ -18,6 +18,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -117,18 +118,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Add a roster entry for the user. This will send a presence request to
-	 * user.
-	 * 
-	 * @param user
-	 *            The user to add to the roster.
-	 * @throws ParityException
-	 */
-	public void addRosterEntry(final User user) throws ParityException {
-		synchronized(implLock) { impl.addRosterEntry(user); }
-	}
-
-	/**
 	 * Deny the presence visibility request from user to the currently logged
 	 * in user.
 	 * 
@@ -167,6 +156,18 @@ public class SessionModel extends AbstractModel {
 		synchronized(implLock) {
 			return impl.getSubscriptions(artifactId);
 		}
+	}
+
+	/**
+	 * Add a roster entry for the user. This will send a presence request to
+	 * user.
+	 * 
+	 * @param user
+	 *            The user to add to the roster.
+	 * @throws ParityException
+	 */
+	public void inviteContact(final JabberId jabberId) throws ParityException {
+		synchronized(implLock) { impl.inviteContact(jabberId); }
 	}
 
 	/**
@@ -348,15 +349,6 @@ public class SessionModel extends AbstractModel {
 	 */
 	public void sendSubscribe(final Document document) throws ParityException {
 		synchronized(implLock) { impl.sendSubscribe(document); }
-	}
-
-	/**
-	 * Update the roster entry to the values found in user.
-	 * @param user
-	 * @throws ParityException
-	 */
-	public void updateRosterEntry(final User user) throws ParityException {
-		synchronized(implLock) { impl.updateRosterEntry(user); }
 	}
 
 	/**

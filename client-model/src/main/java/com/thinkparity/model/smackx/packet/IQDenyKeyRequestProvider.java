@@ -86,6 +86,6 @@ public class IQDenyKeyRequestProvider implements IQProvider {
 		}
 		Assert.assertNotNull(ASSERT_ARTIFACT_UUID, artifactUUID);
 		Assert.assertNotNull(ASSERT_USERNAME, username);
-		return new IQDenyKeyRequest(artifactUUID, new User(null, username, null));
+		return new IQDenyKeyRequest(artifactUUID, new User(username));
 	}
 }

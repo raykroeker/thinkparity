@@ -95,16 +95,11 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		.append("where AA.ARTIFACT_AUDIT_ID=? and MD.KEY=?")
 		.toString();
 
-	private final MetaDataIOHandler metaDataIO;
-
 	/**
 	 * Create an AuditIOHandler.
 	 * 
 	 */
-	public AuditIOHandler() {
-		super();
-		this.metaDataIO = new MetaDataIOHandler();
-	}
+	public AuditIOHandler() { super(); }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.CloseEvent)
@@ -244,7 +239,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			}
 
 			for(final Long metaDataId : metaDataIds)
-				metaDataIO.delete(session, metaDataId);
+				getMetaDataIO().delete(session, metaDataId);
 
 			session.prepareStatement(SQL_DELETE_AUDIT_VERSION);
 			session.setLong(1, artifactId);
@@ -310,7 +305,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private void auditMetaData(final Session session,
 			final AuditEvent auditEvent, final MetaDataType metaDataType,
 			final MetaDataKey metaDataKey, final Object metaDataValue) {
-		final Long metaDataId = metaDataIO.create(session, metaDataType,
+		final Long metaDataId = getMetaDataIO().create(session, metaDataType,
 				metaDataKey.toString(), metaDataValue);
 
 		session.prepareStatement(SQL_AUDIT_META_DATA);
@@ -376,23 +371,6 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		createEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
 		return createEvent;
 	}
-
-	/**
-	 * Extract the meta data from the session.
-	 * 
-	 * @param session
-	 *            The database session.
-	 * @return The meta data object.
-	 */
-	private MetaData extractMetaData(final Session session) {
-		final MetaData metaData = new MetaData();
-		metaData.setId(session.getLong("META_DATA_ID"));
-		metaData.setKey(session.getString("KEY"));
-		metaData.setType(session.getMetaDataTypeFromInteger("META_DATA_TYPE_ID"));
-		metaData.setValue(metaDataIO.extractValue(session, metaData.getType(), "VALUE"));
-		return metaData;
-	}
-		
 
 	private ReceiveEvent extractReceive(final Session session) {
 		final ReceiveEvent receiveEvent = new ReceiveEvent();

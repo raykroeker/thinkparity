@@ -9,6 +9,8 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -198,8 +200,14 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	Object extractValue(final Session session,
 			final MetaDataType metaDataType, final String columnName) {
 		switch(metaDataType) {
+		case BOOLEAN:
+			return Boolean.valueOf(session.getString(columnName));
+		case LONG:
+			return Long.valueOf(session.getString(columnName));
 		case STRING:
 			return session.getString(columnName);
+		case JABBER_ID:
+			return JabberIdBuilder.parseQualifiedUsername(session.getString(columnName));
 		default:
 			throw Assert.createUnreachable("Unknown meta data type:  " + metaDataType);
 		}
@@ -280,8 +288,17 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	private void setValue(final Session session, final Integer index,
 			final MetaDataType metaDataType, final Object value) {
 		switch(metaDataType) {
+		case BOOLEAN:
+			session.setString(index, ((Boolean) value).toString());
+			break;
+		case LONG:
+			session.setString(index, ((Long) value).toString());
+			break;
 		case STRING:
 			session.setString(index, (String) value);
+			break;
+		case JABBER_ID:
+			session.setQualifiedUsername(index, (JabberId) value);
 			break;
 		default: Assert.assertUnreachable("Unknown meta data type:  " + metaDataType);
 		}

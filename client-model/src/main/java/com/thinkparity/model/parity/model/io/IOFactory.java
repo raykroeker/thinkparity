@@ -8,6 +8,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicIOFactory;
 import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
+import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -55,6 +56,13 @@ public abstract class IOFactory {
 	}
 
 	/**
+	 * Create an audit io handler.
+	 * 
+	 * @return The audit io handler.
+	 */
+	public abstract AuditIOHandler createAuditHandler();
+
+	/**
 	 * Create a document io handler.
 	 * 
 	 * @return The document io handler.
@@ -62,11 +70,11 @@ public abstract class IOFactory {
 	public abstract DocumentIOHandler createDocumentHandler();
 
 	/**
-	 * Create an audit io handler.
+	 * Create a system message io handler.
 	 * 
-	 * @return The audit io handler.
+	 * @return The system message io handler.
 	 */
-	public abstract AuditIOHandler createAuditHandler();
+	public abstract SystemMessageIOHandler createSystemMessageHandler();
 
 	/**
 	 * Initialize the io layer. Any directory\file creation should be done here.

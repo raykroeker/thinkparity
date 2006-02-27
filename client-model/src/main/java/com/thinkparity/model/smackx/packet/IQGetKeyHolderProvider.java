@@ -13,6 +13,8 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -35,7 +37,7 @@ public class IQGetKeyHolderProvider implements IQProvider {
 		logger.info("parseIQ(XmlPullParser)");
 		logger.debug(parser);
 		UUID artifactUniqueId = null;
-		String username = null;
+		JabberId keyHolder = null;
 
 		Integer attributeCount, depth, eventType;
 		String name, namespace, prefix, text;
@@ -65,13 +67,13 @@ public class IQGetKeyHolderProvider implements IQProvider {
 			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				isComplete = Boolean.TRUE;
 				parser.next();
-				username = parser.getText();
+				keyHolder = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
 				parser.next();
 			}
 		}
 		Assert.assertNotNull("", artifactUniqueId);
-		Assert.assertNotNull("", username);
-		return new IQGetKeyHolderResponse(artifactUniqueId, username);
+		Assert.assertNotNull("", keyHolder);
+		return new IQGetKeyHolderResponse(artifactUniqueId, keyHolder);
 	}
 
 	protected final Logger logger;

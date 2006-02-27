@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.audit.event;
 
 
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -31,9 +32,7 @@ public class ReceiveEvent extends AuditEvent {
 	/**
 	 * @return Returns the receivedFrom.
 	 */
-	public String getReceivedFrom() {
-		return receivedFrom;
-	}
+	public String getReceivedFrom() { return receivedFrom; }
 
 	/**
 	 * @param artifactVersionId The artifactVersionId to set.
@@ -45,7 +44,7 @@ public class ReceiveEvent extends AuditEvent {
 	/**
 	 * @param receivedFrom The receivedFrom to set.
 	 */
-	public void setReceivedFrom(String receivedFrom) {
+	public void setReceivedFrom(final String receivedFrom) {
 		this.receivedFrom = receivedFrom;
 	}
 

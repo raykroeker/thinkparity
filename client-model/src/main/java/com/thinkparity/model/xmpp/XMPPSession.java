@@ -16,6 +16,7 @@ import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.user.UserVCard;
 
 /**
  * XMPPSession
@@ -33,18 +34,20 @@ public interface XMPPSession {
 	public void addListener(final XMPPExtensionListener xmppExtensionListener);
 	public void addListener(final XMPPPresenceListener xmppPresenceListener);
 	public void addListener(final XMPPSessionListener xmppSessionListener);
-	public void addRosterEntry(final User user) throws SmackException;
 	public void create(final UUID artifactUniqueId) throws SmackException;
 	public void denyPresence(final User user) throws SmackException;
 	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
 			throws SmackException;
-	public List<UUID> getArtifactKeys() throws SmackException;
 	public User getArtifactKeyHolder(final UUID artifactUniqueId)
 			throws SmackException;
+	public List<UUID> getArtifactKeys() throws SmackException;
 	public List<User> getArtifactSubscription(final UUID artifactUniqueId)
 			throws SmackException;
 	public Collection<User> getRosterEntries() throws SmackException;
 	public User getUser() throws SmackException;
+	public UserVCard getUserVCard() throws SmackException;
+	public UserVCard getUserVCard(final JabberId jabberId) throws SmackException;
+	public void inviteContact(final JabberId jabberId) throws SmackException;
 	public Boolean isLoggedIn();
 	public void login(final String host, final Integer port,
 			final String username, final String password) throws SmackException;
@@ -53,6 +56,7 @@ public interface XMPPSession {
 	public void removeListener(final XMPPExtensionListener xmppExtensionListener);
 	public void removeListener(final XMPPPresenceListener xmppPresenceListener);
 	public void removeListener(final XMPPSessionListener xmppSessionListener);
+	public void saveVCard(final UserVCard userVCard) throws SmackException;
 	public void send(final Collection<User> users, final String message)
 			throws SmackException;
 	public void send(final Collection<User> users,
@@ -69,5 +73,4 @@ public interface XMPPSession {
 	public void sendSubscribe(final UUID artifactUniqueId) throws SmackException;
 	public void subscribe(final UUID artifactUniqueId) throws SmackException;
 	public void unsubscribe(final UUID artifactUniqueId) throws SmackException;
-	public void updateRosterEntry(final User user);
 }

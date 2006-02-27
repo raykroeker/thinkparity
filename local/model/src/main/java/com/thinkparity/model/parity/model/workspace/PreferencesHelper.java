@@ -14,7 +14,6 @@ import java.util.Properties;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.xmpp.user.User;
-import com.thinkparity.model.xmpp.user.User.Presence;
 
 /**
  * 
@@ -86,9 +85,7 @@ class PreferencesHelper {
 				}
 			}
 			public User getSystemUser() {
-				return new User(
-						"thinkParity.com Solutions",
-						"thinkparity.com", Presence.UNAVAILABLE);
+				return User.SystemUser;
 			}
 			public String getUsername() {
 				return javaProperties.getProperty("parity.username", null);

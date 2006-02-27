@@ -39,7 +39,7 @@ public class UserRenderer implements ObjectRenderer {
 		if(null == o) { return NULL_USER; }
 		else {
 			return new StringBuffer(PREFIX)
-				.append(((User) o).getUsername()).toString();
+				.append(((User) o).getSimpleUsername()).toString();
 		}
 	}
 }

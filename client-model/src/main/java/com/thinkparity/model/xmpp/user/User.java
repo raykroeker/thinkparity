@@ -3,6 +3,9 @@
  */
 package com.thinkparity.model.xmpp.user;
 
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
+
 /**
  * Represents a parity user.
  * 
@@ -11,43 +14,64 @@ package com.thinkparity.model.xmpp.user;
  */
 public class User {
 
-	/**
-	 * The user's name.
-	 * 
-	 */
-	private final String name;
+	public static final User SystemUser;
+
+	static { SystemUser = new User("thinkparity"); }
 
 	/**
-	 * The user's presence info.
+	 * The user's first name.
 	 * 
 	 */
-	private final Presence presence;
+	private String firstName;
 
 	/**
-	 * The fully qualified username. This contains the username; the domain
-	 * information as well as the resource information.
+	 * The user's jabber id.
 	 * 
-	 * @see #getUsername()
-	 * @see #getSimpleUsername()
 	 */
-	private final String username;
+	private JabberId jabberId;
+
+	/**
+	 * The user's last name.
+	 * 
+	 */
+	private String lastName;
+
+	/**
+	 * The user's organization.
+	 * 
+	 */
+	private String organization;
 
 	/**
 	 * Create a User.
 	 * 
-	 * @param name
-	 *            The name of the user.
+	 * @param jabberId
+	 *            The user's jabber id.
+	 */
+	public User(final JabberId jabberId) {
+		super();
+		this.jabberId = jabberId;
+	}
+
+	/**
+	 * Create a User.
+	 * 
 	 * @param username
 	 *            The fully qualified username.
-	 * @param presence
-	 *            The presence of the user.
 	 */
-	public User(final String name, final String username,
-			final Presence presence) {
+	public User(final String username) {
 		super();
-		this.name = name;
-		this.username = username;
-		this.presence = presence;
+		JabberId jabberId = null;
+		try { jabberId = JabberIdBuilder.parseQualifiedJabberId(username); }
+		catch(final IllegalArgumentException iax) { jabberId = null; }
+		if(null == jabberId) {
+			try { jabberId = JabberIdBuilder.parseQualifiedUsername(username); }
+			catch(final IllegalArgumentException iax) { jabberId = null; }
+			if(null == jabberId) {
+				jabberId = JabberIdBuilder.parseUsername(username);
+			}
+		}
+		this.jabberId = jabberId;
 	}
 
 	/**
@@ -56,53 +80,79 @@ public class User {
 	 */
 	public boolean equals(Object obj) {
 		if(null != obj && obj instanceof User) {
-			return username.equals(((User) obj).username);
+			return jabberId.equals(((User) obj).jabberId);
 		}
 		return false;
 	}
 
 	/**
-	 * Obtain the name of the user.
+	 * Obtain the user's first name.
 	 * 
-	 * @return The name of the user.
+	 * @return The user's first name.
 	 */
-	public String getName() { return name; }
+	public String getFirstName() { return firstName; }
 
 	/**
-	 * Obtain the presence of the user.
+	 * Obtain the user's last name.
 	 * 
-	 * @return The presence of the user.
+	 * @return The user's last name.
 	 */
-	public Presence getPresence() { return presence; }
+	public String getLastName() { return lastName; }
+
+	/**
+	 * Obtain the user's organization.
+	 * 
+	 * @return Returns the organization.
+	 */
+	public String getOrganization() {
+		return organization;
+	}
 
 	/**
 	 * Obtain the simple username of the user.
 	 * 
 	 * @return The simple username; without the domain\resource suffix.
 	 */
-	public String getSimpleUsername() {
-		if(username.contains("@")) {
-			return username.substring(0, username.indexOf("@"));
-		}
-		else { return username; }
-	}
+	public String getSimpleUsername() { return jabberId.getUsername(); }
 
 	/**
 	 * Obtain the username of the user.
 	 * 
 	 * @return The username of the user.
 	 */
-	public String getUsername() { return username; }
+	public String getUsername() { return jabberId.getQualifiedUsername(); }
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 * 
 	 */
-	public int hashCode() { return username.hashCode(); }
+	public int hashCode() { return jabberId.hashCode(); }
 
 	/**
-	 * The user's presence types.
+	 * Set the user's first name.
 	 * 
+	 * @param firstName
+	 *            The user's first name.
 	 */
-	public enum Presence { AVAILABLE, OFFLINE, UNAVAILABLE }
+	public void setFirstName(final String firstName) {
+		this.firstName = firstName;
+	}
+
+	/**
+	 * Set the user's last name.
+	 * 
+	 * @param lastName
+	 *            The user's last name.
+	 */
+	public void setLastName(final String lastName) { this.lastName = lastName; }
+
+	/**
+	 * Set the user's organization.
+	 * 
+	 * @param organization
+	 *            The user's organization.
+	 */
+	public void setOrganization(final String organization) {
+		this.organization = organization;
+	}
 }

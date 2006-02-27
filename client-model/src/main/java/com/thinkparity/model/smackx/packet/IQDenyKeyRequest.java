@@ -5,7 +5,7 @@ package com.thinkparity.model.smackx.packet;
 
 import java.util.UUID;
 
-import com.thinkparity.model.xmpp.JIDBuilder;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -27,7 +27,7 @@ public class IQDenyKeyRequest extends IQArtifact {
 	 */
 	public IQDenyKeyRequest(final UUID artifactUUID, final User user) {
 		super(Action.DENYKEYREQUEST, artifactUUID);
-		setQualifiedJID(new JIDBuilder(user).getQualifiedJID());
+		setQualifiedJID(new JabberIdBuilder(user).getQualifiedJID());
 	}
 
 	/**

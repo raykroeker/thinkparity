@@ -5,8 +5,8 @@ package com.thinkparity.model.xmpp.events;
 
 import java.util.UUID;
 
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * XMPPExtensionListener
@@ -14,9 +14,17 @@ import com.thinkparity.model.xmpp.user.User;
  *
  */
 public interface XMPPExtensionListener {
+
 	public void artifactClosed(final UUID artifactUniqueId);
+
 	public void documentReceived(final XMPPDocument xmppDocument);
-	public void keyRequestAccepted(final User user, final UUID artifactUUID);
-	public void keyRequestDenied(final User user, final UUID artifactUUID);
-	public void keyRequested(final User user, final UUID artifactUUID);
+
+	public void keyRequestAccepted(final UUID artifactUniqueId,
+			final JabberId acceptedBy);
+
+	public void keyRequestDenied(final UUID artifactUUID,
+			final JabberId deniedBy);
+
+	public void keyRequested(final UUID artifactUniqueId,
+			final JabberId requestedBy);
 }

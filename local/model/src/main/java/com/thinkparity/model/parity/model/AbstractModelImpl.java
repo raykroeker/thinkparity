@@ -30,6 +30,8 @@ import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 
@@ -188,6 +190,30 @@ public abstract class AbstractModelImpl {
 			break;
 		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
 		}
+	}
+
+	/**
+	 * Build a jabber id from a parity user.
+	 * 
+	 * @param user
+	 *            The parity user.
+	 * @return The jabber id.
+	 */
+	protected JabberId buildJabberId(final User user) {
+		JabberId jabberId = null;
+		try { jabberId =
+			JabberIdBuilder.parseQualifiedJabberId(user.getUsername()); }
+		catch(final IllegalArgumentException iax) {}
+		if(null != jabberId) {
+			try {
+				jabberId =
+					JabberIdBuilder.parseQualifiedUsername(user.getUsername());
+			}
+			catch(final IllegalArgumentException iax) {}
+			if(null != jabberId)
+				jabberId = JabberIdBuilder.parseUsername(user.getUsername());
+		}
+		return jabberId;
 	}
 
 	/**

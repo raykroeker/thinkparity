@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
 import com.thinkparity.model.smack.SmackException;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
 import com.thinkparity.model.xmpp.XMPPSessionFactory;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
@@ -63,19 +64,22 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 			public void documentReceived(final XMPPDocument xmppDocument) {
 				handleDocumentReceived(xmppDocument);
 			}
-			public void keyRequestAccepted(final User user, final UUID artifactUUID) {
-				handleKeyRequestAccepted(user, artifactUUID);
+			public void keyRequestAccepted(final UUID artifactUniqueId,
+					final JabberId acceptedBy) {
+				handleKeyRequestAccepted(artifactUniqueId, acceptedBy);
 			}
-			public void keyRequestDenied(final User user, final UUID artifactUUID) {
-				handleKeyRequestDenied(user, artifactUUID);
+			public void keyRequestDenied(final UUID artifactUniqueId,
+					final JabberId deniedBy) {
+				handleKeyRequestDenied(artifactUniqueId, deniedBy);
 			}
-			public void keyRequested(final User user, final UUID artifactUUID) {
-				handleKeyRequested(user, artifactUUID);
+			public void keyRequested(final UUID artifactUniqueId,
+					final JabberId requestedBy) {
+				handleKeyRequested(artifactUniqueId, requestedBy);
 			}
 		};
 		this.xmppPresenceListener = new XMPPPresenceListener() {
-			public void presenceRequested(final User user) {
-				handlePresenceRequested(user);
+			public void presenceRequested(final JabberId jabberId) {
+				handlePresenceRequested(jabberId);
 			}
 		};
 		this.xmppSessionListener = new XMPPSessionListener() {
@@ -97,23 +101,11 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param user
 	 *            The user seeking visibility into the presence.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#addRosterEntry(User)
+	 * @see SessionModelXMPPHelper#inviteContact(User)
 	 * @see SessionModelXMPPHelper#denyPresence(User)
 	 */
 	void acceptPresence(final User user) throws SmackException {
 		xmppSession.acceptPresence(user);
-	}
-
-	/**
-	 * Add a user to the roster. This will send a presence visibility request to
-	 * the user.
-	 * 
-	 * @param user
-	 *            The user to add to the roster.
-	 * @throws SmackException
-	 */
-	void addRosterEntry(final User user) throws SmackException {
-		xmppSession.addRosterEntry(user);
 	}
 
 	/**
@@ -122,7 +114,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param user
 	 *            The user seeking visibility into the presence.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#addRosterEntry(User)
+	 * @see SessionModelXMPPHelper#inviteContact(User)
 	 * @see SessionModelXMPPHelper#acceptPresence(User)
 	 */
 	void denyPresence(final User user) throws SmackException {
@@ -172,6 +164,18 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @return The user for the current session.
 	 */
 	User getUser() throws SmackException { return xmppSession.getUser(); }
+
+	/**
+	 * Add a user to the roster. This will send a presence visibility request to
+	 * the user.
+	 * 
+	 * @param jabberId
+	 *            The jabber id of the contact to invite.
+	 * @throws SmackException
+	 */
+	void inviteContact(final JabberId jabberId) throws SmackException {
+		xmppSession.inviteContact(jabberId);
+	}
 
 	/**
 	 * Determine if the user is logged in.
@@ -278,19 +282,19 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
-	 * @param parityObjectUUID
+	 * @param artifactUniqueId
 	 *            The object unique id.
 	 * @throws ParityException
 	 */
-	void sendKeyRequest(final UUID parityObjectUUID) throws SmackException {
-		xmppSession.sendKeyRequest(parityObjectUUID);
+	void sendKeyRequest(final UUID artifactUniqueId) throws SmackException {
+		xmppSession.sendKeyRequest(artifactUniqueId);
 	}
 
 	/**
 	 * Send the response to a document key request to the user (via the parity
 	 * server).
 	 * 
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The document unique id.
 	 * @param keyResponse
 	 *            The response.
@@ -298,9 +302,9 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 *            The user.
 	 * @throws SmackException
 	 */
-	void sendKeyResponse(final UUID artifactUUID, final KeyResponse keyResponse,
+	void sendKeyResponse(final UUID artifactUniqueId, final KeyResponse keyResponse,
 			final User user) throws SmackException {
-		xmppSession.sendKeyResponse(artifactUUID, keyResponse, user);
+		xmppSession.sendKeyResponse(artifactUniqueId, keyResponse, user);
 	}
 
 	/**
@@ -320,22 +324,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	/**
 	 * Send a subscribe packet to the parity server.
 	 * 
-	 * @param parityObjectUUID
+	 * @param artifactUniqueId
 	 *            The object unique id.
 	 * @throws SmackException
 	 */
-	void sendSubscribe(final UUID parityObjectUUID) throws SmackException {
-		xmppSession.sendSubscribe(parityObjectUUID);
-	}
-
-	/**
-	 * Update the information in the roster for a user.
-	 * 
-	 * @param user
-	 *            The user for whom the information will be updated.
-	 */
-	void updateRosterEntry(final User user) {
-		xmppSession.updateRosterEntry(user);
+	void sendSubscribe(final UUID artifactUniqueId) throws SmackException {
+		xmppSession.sendSubscribe(artifactUniqueId);
 	}
 
 	/**
@@ -363,11 +357,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * 
 	 * @param user
 	 *            The user who accepted the request.
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id being requested.
 	 */
-	private void handleKeyRequestAccepted(final User user, final UUID artifactUUID) {
-		SessionModelImpl.notifyKeyRequestAccepted(artifactUUID, user);
+	private void handleKeyRequestAccepted(final UUID artifactUniqueId,
+			final JabberId acceptedBy) {
+		SessionModelImpl.notifyKeyRequestAccepted(artifactUniqueId, acceptedBy);
 	}
 
 	/**
@@ -375,11 +370,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * 
 	 * @param user
 	 *            The user who accepted the request.
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id being requested.
 	 */
-	private void handleKeyRequestDenied(final User user, final UUID artifactUUID) {
-		SessionModelImpl.notifyKeyRequestDenied(artifactUUID, user);
+	private void handleKeyRequestDenied(final UUID artifactUniqueId,
+			final JabberId deniedBy) {
+		SessionModelImpl.notifyKeyRequestDenied(artifactUniqueId, deniedBy);
 	}
 
 	/**
@@ -387,11 +383,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * 
 	 * @param user
 	 *            The user requesting the key.
-	 * @param artifactUUID
+	 * @param artifactUniqueId
 	 *            The artifact unique id being requested.
 	 */
-	private void handleKeyRequested(final User user, final UUID artifactUUID) {
-		SessionModelImpl.notifyKeyRequested(user, artifactUUID);
+	private void handleKeyRequested(final UUID artifactUniqueId,
+			final JabberId requestedBy) {
+		SessionModelImpl.notifyKeyRequested(artifactUniqueId, requestedBy);
 	}
 
 	/**
@@ -400,8 +397,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param user
 	 *            The user requesting presence visibility.
 	 */
-	private void handlePresenceRequested(final User user) {
-		SessionModelImpl.notifyPresenceRequested(user);
+	private void handlePresenceRequested(final JabberId jabberId) {
+		SessionModelImpl.notifyPresenceRequested(jabberId);
 	}
 
 	/**

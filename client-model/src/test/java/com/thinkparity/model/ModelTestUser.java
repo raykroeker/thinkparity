@@ -15,11 +15,11 @@ public class ModelTestUser {
 
 	public static ModelTestUser getJUnit() {
 		return new ModelTestUser(
-				"parity", "parity", "thinkparity.dyndns.org", 5222, "junit");
+				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit");
 	}
 	public static ModelTestUser getJUnitBuddy0() {
 		return new ModelTestUser(
-				"parity", "parity", "thinkparity.dyndns.org", 5222, "junit.buddy.0");
+				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit.buddy.0");
 	}
 
 	private final String password;
@@ -62,21 +62,10 @@ public class ModelTestUser {
 	 */
 	public Integer getServerPort() { return serverPort; }
 
+	public User getUser() { return new User(username); }
+
 	/**
 	 * @return The username.
 	 */
 	public String getUsername() { return username; }
-
-	public User getUser() {
-//		return new User(
-//		username,
-//		new StringBuffer(username).append("@")
-//			.append(getServerHost()).append("/")
-//			.append(getResource()).toString(),
-//		null);
-		return new User(
-				username,
-				username,
-				null);
-	}
 }

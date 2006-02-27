@@ -22,7 +22,6 @@ import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.KeyEvent;
 import com.thinkparity.model.parity.api.events.KeyListener;
-import com.thinkparity.model.parity.api.events.PresenceEvent;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
@@ -33,8 +32,10 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -181,22 +182,18 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user.
 	 */
 	static void notifyKeyRequestAccepted(final UUID artifactUniqueId,
-			final User user) {
+			final JabberId acceptedBy) {
 		final InternalDocumentModel iDocumentModel =
 			DocumentModel.getInternalModel(sContext);
 		try {
 			final Document document = iDocumentModel.get(artifactUniqueId);
 			iDocumentModel.unlock(document.getId());
+			SystemMessageModel.getInternalModel(sContext).
+				createKeyResponse(document.getId(), Boolean.FALSE, acceptedBy);
 		}
 		catch(ParityException px) {
 			sLogger.fatal("Could not accept key request.", px);
 			return;
-		}
-		synchronized(SessionModelImpl.keyListenersLock) {
-			final KeyEvent keyEvent = new KeyEvent(artifactUniqueId, user);
-			for(KeyListener listener : SessionModelImpl.keyListeners) {
-				listener.keyRequestAccepted(keyEvent);
-			}
 		}
 	}
 
@@ -209,13 +206,17 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param user
 	 *            The user.
 	 */
-	static void notifyKeyRequestDenied(final UUID artifactUUID,
-			final User user) {
-		synchronized(SessionModelImpl.keyListenersLock) {
-			final KeyEvent keyEvent = new KeyEvent(artifactUUID, user);
-			for(KeyListener listener : SessionModelImpl.keyListeners) {
-				listener.keyRequestAccepted(keyEvent);
-			}
+	static void notifyKeyRequestDenied(final UUID artifactUniqueId,
+			final JabberId deniedBy) {
+		try {
+			final Document document =
+				DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
+			SystemMessageModel.getInternalModel(sContext).
+				createKeyResponse(document.getId(), Boolean.FALSE, deniedBy);
+		}
+		catch(final ParityException px) {
+			sLogger.error("Could not accept key response denial.", px);
+			return;
 		}
 	}
 
@@ -228,28 +229,27 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param artifactUUID
 	 *            The artifact.
 	 */
-	static void notifyKeyRequested(final User user, final UUID artifactUUID) {
-		synchronized(SessionModelImpl.keyListenersLock) {
-			final KeyEvent keyEvent = new KeyEvent(artifactUUID, user);
-			for(final KeyListener listener : SessionModelImpl.keyListeners) {
-				listener.keyRequested(keyEvent);
-			}
+	static void notifyKeyRequested(final UUID artifactUniqueId,
+			final JabberId requestedBy) {
+		try {
+			final Document document = DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
+			SystemMessageModel.getInternalModel(sContext).createKeyRequest(document.getId(), requestedBy);
+		}
+		catch(final ParityException px) {
+			sLogger.error("Could not create system message for key request.", px);
+			return;
 		}
 	}
 
 	/**
-	 * Notify all of the registered presence listeners that a user has requested
-	 * visiblity into their presence.
+	 * Create a system message.
 	 * 
 	 * @param user
 	 *            The requesting user.
 	 */
-	static void notifyPresenceRequested(final User user) {
-		synchronized(SessionModelImpl.presenceListenersLock) {
-			for(PresenceListener listener : SessionModelImpl.presenceListeners) {
-				listener.presenceRequested(new PresenceEvent(user));
-			}
-		}
+	static void notifyPresenceRequested(final JabberId requestedBy) {
+		SystemMessageModel.getInternalModel(sContext).createPresenceRequest(
+				requestedBy);
 	}
 
 	/**
@@ -375,28 +375,6 @@ class SessionModelImpl extends AbstractModelImpl {
 		Assert.assertTrue("Cannot re-register the same session listener.",
 				!sessionListeners.contains(sessionListener));
 		sessionListeners.add(sessionListener);
-	}
-
-	/**
-	 * Add a roster entry for the user. This will send a presence request to
-	 * user.
-	 * 
-	 * @param user
-	 *            The user to add to the roster.
-	 * @throws ParityException
-	 */
-	void addRosterEntry(final User user) throws ParityException {
-		synchronized(xmppHelperLock) {
-			try { xmppHelper.addRosterEntry(user); }
-			catch(SmackException sx) {
-				logger.error("addRosterEntry(User)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("addRosterEntry(User)", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
 	}
 
 	/**
@@ -579,6 +557,28 @@ class SessionModelImpl extends AbstractModelImpl {
 				logger.error("getSubscriptions(Long)", rx);
 				throw ParityErrorTranslator.translate(rx);
 
+			}
+		}
+	}
+
+	/**
+	 * Add a roster entry for the user. This will send a presence request to
+	 * user.
+	 * 
+	 * @param jabberId
+	 *            The jabber id of the contact to invite.
+	 * @throws ParityException
+	 */
+	void inviteContact(final JabberId jabberId) throws ParityException {
+		synchronized(xmppHelperLock) {
+			try { xmppHelper.inviteContact(jabberId); }
+			catch(SmackException sx) {
+				logger.error("addRosterEntry(User)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("addRosterEntry(User)", rx);
+				throw ParityErrorTranslator.translate(rx);
 			}
 		}
 	}
@@ -1080,20 +1080,6 @@ class SessionModelImpl extends AbstractModelImpl {
 				logger.error("sendSubscribe(Document)", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
-		}
-	}
-
-	/**
-	 * Update a roster entry for the currently logged in user.
-	 * 
-	 * @param user
-	 *            The roster entry to update.
-	 * @throws ParityException
-	 */
-	void updateRosterEntry(final User user) throws ParityException {
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("updateRosterEntry", xmppHelper);
-			xmppHelper.updateRosterEntry(user);
 		}
 	}
 

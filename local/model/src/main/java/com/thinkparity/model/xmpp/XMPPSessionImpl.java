@@ -19,8 +19,8 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.packet.VCard;
 
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
@@ -29,7 +29,6 @@ import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.smack.SmackRosterListener;
 import com.thinkparity.model.smack.packet.SmackPresenceFilter;
 import com.thinkparity.model.smack.packet.SmackPresenceListener;
 import com.thinkparity.model.smackx.XFactory;
@@ -41,6 +40,7 @@ import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.user.UserVCard;
 
 /**
  * XMPPSessionImpl
@@ -82,7 +82,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	private SmackPresenceFilter smackPresenceFilter;
 
 	private SmackPresenceListenerImpl smackPresenceListenerImpl;
-	private SmackRosterListenerImpl smackRosterListenerImpl;
 	private XMPPConnection smackXMPPConnection;
 	private Vector<XMPPExtensionListener> xmppExtensionListeners;
 	private final Object xmppExtensionListenersLock = new Object();
@@ -111,8 +110,6 @@ public class XMPPSessionImpl implements XMPPSession {
 
 		pendingXMPPUsers = new Hashtable<String, User>(10);
 
-		smackRosterListenerImpl = new SmackRosterListenerImpl();
-
 		smackPresenceFilter = new SmackPresenceFilter();
 		smackPresenceListenerImpl = new SmackPresenceListenerImpl();
 	}
@@ -134,7 +131,7 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 * 
 	 */
-	public void addListener(XMPPExtensionListener xmppExtensionListener) {
+	public void addListener(final XMPPExtensionListener xmppExtensionListener) {
 		logger.info("addListener(XMPPExtensionListener)");
 		logger.debug(xmppExtensionListener);
 		Assert.assertNotNull("Cannot register a null xmpp extension listener.",
@@ -169,27 +166,6 @@ public class XMPPSessionImpl implements XMPPSession {
 		Assert.assertTrue("Cannot re-register the same session listener.",
 				!xmppSessionListeners.contains(xmppSessionListener));
 		xmppSessionListeners.add(xmppSessionListener);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#addRosterEntry(com.thinkparity.model.xmpp.user.User)
-	 */
-	public void addRosterEntry(final User xmppUser)
-			throws SmackException {
-		logger.info("addRosterEntry(UserRenderer)");
-		logger.debug(xmppUser);
-		assertLoggedIn("addRosterEntry(UserRenderer)");
-		Assert.assertNotNull("Cannot add null user to your roster.", xmppUser);
-		// in phase 2, we'll implement the groups
-		try {
-			final Roster roster = getRoster();
-			if(!roster.contains(xmppUser.getUsername()))
-				roster.createEntry(xmppUser.getUsername(), xmppUser.getName(), null);
-		}
-		catch(XMPPException xmppx) {
-			logger.error("addRosterEntry(User)", xmppx);
-			throw XMPPErrorTranslator.translate(xmppx);
-		}
 	}
 
 	/**
@@ -243,7 +219,7 @@ public class XMPPSessionImpl implements XMPPSession {
 		logger.debug(iq);
 		final IQGetKeyHolderResponse response =
 			(IQGetKeyHolderResponse) sendAndConfirmPacket(iq);
-		return new User(null, response.getUsername(), User.Presence.OFFLINE);
+		return new User(response.getKeyHolder());
 	}
 
 	/**
@@ -278,14 +254,8 @@ public class XMPPSessionImpl implements XMPPSession {
 		final IQGetSubscriptionResponse response =
 			(IQGetSubscriptionResponse) sendAndConfirmPacket(iq);
 		final List<User> subscription = new LinkedList<User>();
-		final Roster roster = getRoster();
-		JIDBuilder jidBuilder;
-		for(final String jid : response.getJids()) {
-			jidBuilder = new JIDBuilder(jid);
-			if(isLoggedInUser(jidBuilder))
-				subscription.add(getLoggedInUser());
-			else
-				subscription.add(buildRosterUser(roster, jidBuilder));
+		for (final JabberId jabberId : response.getJids()) {
+			subscription.add(createUser(jabberId));
 		}
 		return subscription;
 	}
@@ -311,11 +281,64 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getUser()
 	 * 
 	 */
-	public User getUser() {
-		assertLoggedIn("Cannot obtain the user if not logged in.");
+	public User getUser() throws SmackException {
+		assertLoggedIn("Cannot obtain user while offline.");
 		final String user = smackXMPPConnection.getUser();
-		return new User(
-				null, user.substring(0, user.indexOf("/")), User.Presence.AVAILABLE);
+		return new User(user.substring(0, user.indexOf('/')));
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#getUserVCard()
+	 */
+	public UserVCard getUserVCard() throws SmackException {
+		logger.info("getUserVCard()");
+		return getUserVCard(getJabberId());
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#getUserVCard(com.thinkparity.model.xmpp.JabberId)
+	 * 
+	 */
+	public UserVCard getUserVCard(final JabberId jabberId)
+			throws SmackException {
+		logger.info("getUserVCard(JabberId)");
+		logger.debug(jabberId);
+		try {
+			final VCard vCard = new VCard();
+			vCard.load(smackXMPPConnection, jabberId.getQualifiedUsername());
+
+			final UserVCard userVCard = new UserVCard();
+			userVCard.setJabberId(jabberId);
+			userVCard.setFirstName(vCard.getFirstName());
+			userVCard.setLastName(vCard.getLastName());
+			userVCard.setOrganization(vCard.getOrganization());
+			return userVCard;
+		}
+		catch(final XMPPException xmppx) {
+			logger.error("Could not load user vCard:  " + jabberId, xmppx);
+			throw XMPPErrorTranslator.translate(xmppx);
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#inviteContact(com.thinkparity.model.xmpp.JabberId)
+	 * 
+	 */
+	public void inviteContact(final JabberId jabberId) throws SmackException {
+		logger.info("inviteContact(JabberId)");
+		logger.debug(jabberId);
+		assertLoggedIn("Cannot invite a contact while offline.");
+		Assert.assertNotNull("Cannot invite a null contact", jabberId);
+		try {
+			final Roster roster = getRoster();
+			if(!roster.contains(jabberId.getQualifiedUsername()))
+				roster.createEntry(jabberId.getQualifiedUsername(),
+						jabberId.getQualifiedUsername(), null);
+		}
+		catch(XMPPException xmppx) {
+			logger.error("addRosterEntry(User)", xmppx);
+			throw XMPPErrorTranslator.translate(xmppx);
+		}
 	}
 
 	/**
@@ -402,7 +425,6 @@ public class XMPPSessionImpl implements XMPPSession {
 
 			smackXMPPConnection.login(username, password,
 					IParityModelConstants.PARITY_CONNECTION_RESOURCE);
-			smackXMPPConnection.getRoster().addRosterListener(smackRosterListenerImpl);
 		}
 		catch(final XMPPException xmppx) {
 			logger.error("login(String,Integer,String,String)", xmppx);
@@ -469,6 +491,25 @@ public class XMPPSessionImpl implements XMPPSession {
 				"Cannot unregister a non-registered session listener.",
 				xmppSessionListeners.contains(xmppSessionListener));
 		xmppSessionListeners.remove(xmppSessionListener);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#saveVCard(com.thinkparity.model.xmpp.user.UserVCard)
+	 * 
+	 */
+	public void saveVCard(final UserVCard userVCard) throws SmackException {
+		logger.info("saveVCard(UserVCard)");
+		logger.debug(userVCard);
+		assertLoggedIn("Cannot save vCard while offline.");
+		Assert.assertTrue("Cannot save other user's vCard.",
+				userVCard.getJabberId().equals(getJabberId()));
+
+		final VCard vCard = new VCard();
+		vCard.setFirstName(userVCard.getFirstName());
+		vCard.setLastName(userVCard.getLastName());
+		vCard.setOrganization(userVCard.getOrganization());
+		vCard.setType(IQ.Type.SET);
+		sendAndConfirmPacket(vCard);
 	}
 
 	/**
@@ -645,17 +686,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#updateRosterEntry(com.thinkparity.model.xmpp.user.User)
-	 */
-	public void updateRosterEntry(User user) {
-		logger.info("updateRosterEntry(UserRenderer)");
-		logger.debug(user);
-		final Roster roster = getRoster();
-		final RosterEntry rosterEntry = roster.getEntry(user.getUsername());
-		rosterEntry.setName(user.getName());
-	}
-
-	/**
 	 * Assert that the underlying connection is authenticated.
 	 * 
 	 * @param callerName
@@ -667,35 +697,27 @@ public class XMPPSessionImpl implements XMPPSession {
 				smackXMPPConnection.isAuthenticated());
 	}
 
-	private User buildRosterUser(final Roster roster, final JIDBuilder jidBuilder) {
-		assertLoggedIn("Cannot construct a user when offline.");
-		final Iterator iRoster = roster.getEntries();
-		RosterEntry entry;
-		while(iRoster.hasNext()) {
-			entry = (RosterEntry) iRoster.next();
-			if(entry.getUser().equals(jidBuilder.getQualifiedUsername())) {
-				return createUser(roster, entry);
-			}
-		}
-		throw Assert.createUnreachable(
-				"Cannot build user that is not a part of the roster:  " +
-					jidBuilder.getQualifiedJID());
+	/**
+	 * Create a parity user from a jabber id. This will pull the user's VCard
+	 * information and set it in the user.
+	 * 
+	 * @param jabberId
+	 *            The jabber id.
+	 * @return The parity user.
+	 * @throws SmackException
+	 */
+	private User createUser(final JabberId jabberId) throws SmackException {
+		final User user = new User(jabberId);
+		final UserVCard userVCard = getUserVCard(jabberId);
+		user.setFirstName(userVCard.getFirstName());
+		user.setLastName(userVCard.getLastName());
+		user.setOrganization(userVCard.getOrganization());
+		return user;
 	}
 
 	private User createUser(final Roster roster, final RosterEntry rosterEntry) {
-		final Presence presence = roster.getPresence(rosterEntry.getUser());
-
-		final User.Presence userPresence;
-		if(presence == null) { userPresence = User.Presence.OFFLINE; }
-		else {
-			final Type type = presence.getType();
-			final Mode mode = presence.getMode();
-			if(Type.AVAILABLE == type && Mode.AVAILABLE == mode) {
-				userPresence = User.Presence.AVAILABLE;
-			}
-			else { userPresence = User.Presence.UNAVAILABLE; }
-		}
-		return new User(rosterEntry.getName(), rosterEntry.getUser(), userPresence);
+		final JabberId jabberId = JabberIdBuilder.parseQualifiedUsername(rosterEntry.getUser());
+		return new User(jabberId);
 	}
 
 	/**
@@ -706,9 +728,9 @@ public class XMPPSessionImpl implements XMPPSession {
 	 *            <code>org.jivesoftware.packet.Packet</code>
 	 */
 	private void doFirePresenceRequested(final Packet packet) {
-		final User fromXMPPUser = getUserPacketFrom(packet);
-		for(XMPPPresenceListener listener : xmppPresenceListeners) {
-			listener.presenceRequested(fromXMPPUser);
+		final JabberId fromJabberId = getFromJabberId(packet);
+		for(final XMPPPresenceListener l : xmppPresenceListeners) {
+			l.presenceRequested(fromJabberId);
 		}
 	}
 
@@ -754,23 +776,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * Event handler for the presenceChanged event generated by the
-	 * smackRosterListenerImpl. This will check to see if there is a pending
-	 * user in the map for the given address, and if there is, it will update
-	 * the roster name accordingly.
-	 * 
-	 * @param xmppAddress
-	 *            <code>java.lang.String</code>
-	 */
-	private void doNotifyPresenceChanged(final String xmppAddress) {
-		final User pendingXMPPUser = pendingXMPPUsers.remove(xmppAddress);
-		if(null != pendingXMPPUser) {
-			final RosterEntry rosterEntry = getRosterEntry(pendingXMPPUser);
-			rosterEntry.setName(pendingXMPPUser.getName());
-		}
-	}
-
-	/**
 	 * Event handler for the procesPacket event generated by the
 	 * smackPresenceListenerImpl. If the presence packet type is a subscription
 	 * request, a presence requested event is passed on to the
@@ -798,12 +803,23 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * Obtain the logged in user.
+	 * Obtain the from user's jabber id from the packet.
 	 * 
-	 * @return The logged in user.
+	 * @param packet
+	 *            The xmpp packet.
+	 * @return The from user's jabber id.
 	 */
-	private User getLoggedInUser() {
-		return getUser();
+	private JabberId getFromJabberId(final Packet packet) {
+		return JabberIdBuilder.parseQualifiedJabberId(packet.getFrom());
+	}
+
+	/**
+	 * Obtain the jabber id for the logged in user.
+	 * 
+	 * @return The jabber id of the logged in user.
+	 */
+	private JabberId getJabberId() {
+		return JabberIdBuilder.parseQualifiedJabberId(smackXMPPConnection.getUser());
 	}
 
 	/**
@@ -815,64 +831,11 @@ public class XMPPSessionImpl implements XMPPSession {
 	private Roster getRoster() { return smackXMPPConnection.getRoster(); }
 
 	/**
-	 * Obtain the roster entry for a given user in 3 stages.  All versions of
-	 * the username are attempted.
-	 * username
-	 * username@host.com
-	 * username@host.com/resource
-	 * @param username <code>java.lang.String</code>
-	 * @return <code>java.lang.String</code>
-	 * @throws SmackException
-	 */
-	private RosterEntry getRosterEntry(final User xmppUser) {
-		final Roster roster = getRoster();
-		RosterEntry rosterEntry = roster.getEntry(xmppUser.getUsername());
-		if(null != rosterEntry) { return rosterEntry; }
-		else {
-			// check if there's a trailing resource on the username, and if so
-			// strip it and try again
-			final String username = xmppUser.getUsername();
-			if(0 < username.lastIndexOf("/")) {
-				rosterEntry = roster.getEntry(StringUtil.removeAfter(username, "/"));
-				if(null != rosterEntry) { return rosterEntry; }
-				else {
-					if(0 < username.lastIndexOf("@")) {
-						rosterEntry = roster.getEntry(StringUtil.removeAfter(username, "@"));
-						if(null != rosterEntry) { return rosterEntry; }
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Obtain the number of entries in the current roster.
 	 * 
 	 * @return <code>java.lang.Integer</code>
 	 */
 	private Integer getRosterEntryCount() { return getRoster().getEntryCount(); }
-
-	/**
-	 * Extract an UserRenderer using the packet information.
-	 * @param packet <code>org.jivesoftware.smack.packet.Packet</code>
-	 * @return <code>org.kcs.projectmanager.xmpp.user.XMPPUser</code>
-	 */
-	private User getUserPacketFrom(final Packet packet) {
-		// TODO:  Figure out a way to extract the name.
-		return new User(null, packet.getFrom(), User.Presence.OFFLINE);
-	}
-
-	/**
-	 * Determine if the jabber id belongs to the logged in user.
-	 * 
-	 * @param jidBuilder
-	 *            The jabber id.
-	 * @return The jabber id.
-	 */
-	private Boolean isLoggedInUser(final JIDBuilder jidBuilder) {
-		return smackXMPPConnection.getUser().equals(jidBuilder.getQualifiedJID());
-	}
 
 	/**
 	 * Fire the artifact closed event for all of the xmpp extension listeners.
@@ -897,8 +860,8 @@ public class XMPPSessionImpl implements XMPPSession {
 	 */
 	private void notifyXMPPExtension_documentReceived(final XMPPDocument xmppDocument) {
 		synchronized(xmppExtensionListenersLock) {
-			for(XMPPExtensionListener listener : xmppExtensionListeners) {
-				listener.documentReceived(xmppDocument);
+			for(final XMPPExtensionListener l : xmppExtensionListeners) {
+				l.documentReceived(xmppDocument);
 			}
 		}
 	}
@@ -912,10 +875,10 @@ public class XMPPSessionImpl implements XMPPSession {
 	private void notifyXMPPExtension_keyRequestAccepted(
 			final IQAcceptKeyRequest iq) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = new User(null, iq.getQualifiedJID(), null);
+			final JabberId acceptedBy = getFromJabberId(iq);
 			final UUID artifactUniqueId = iq.getArtifactUUID();
-			for(XMPPExtensionListener listener : xmppExtensionListeners) {
-				listener.keyRequestAccepted(user, artifactUniqueId);
+			for(final XMPPExtensionListener l : xmppExtensionListeners) {
+				l.keyRequestAccepted(artifactUniqueId, acceptedBy);
 			}
 		}
 	}
@@ -928,10 +891,10 @@ public class XMPPSessionImpl implements XMPPSession {
 	 */
 	private void notifyXMPPExtension_keyRequestDenied(final IQDenyKeyRequest iq) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = new User(null, iq.getQualifiedJID(), null);
+			final JabberId deniedBy = getFromJabberId(iq);
 			final UUID artifactUniqueId = iq.getArtifactUUID();
-			for(XMPPExtensionListener listener : xmppExtensionListeners) {
-				listener.keyRequestDenied(user, artifactUniqueId);
+			for(final XMPPExtensionListener l : xmppExtensionListeners) {
+				l.keyRequestDenied(artifactUniqueId, deniedBy);
 			}
 		}
 	}
@@ -942,12 +905,12 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @param iqKeyRequest
 	 *            The IQKeyRequest to use to build the event source.
 	 */
-	private void notifyXMPPExtension_keyRequested(final IQKeyRequest iqKeyRequest) {
+	private void notifyXMPPExtension_keyRequested(final IQKeyRequest iq) {
 		synchronized(xmppExtensionListenersLock) {
-			final User user = getUserPacketFrom(iqKeyRequest);
-			final UUID artifactUniqueId = iqKeyRequest.getArtifactUUID();
-			for(XMPPExtensionListener listener : xmppExtensionListeners) {
-				listener.keyRequested(user, artifactUniqueId);
+			final JabberId requestedBy = getFromJabberId(iq);
+			final UUID artifactUniqueId = iq.getArtifactUUID();
+			for(final XMPPExtensionListener l : xmppExtensionListeners) {
+				l.keyRequested(artifactUniqueId, requestedBy);
 			}
 		}
 	}
@@ -1077,24 +1040,6 @@ public class XMPPSessionImpl implements XMPPSession {
 				logger.error("Cannot process presence packet.", sx);
 			}
 		}
-	}
-
-	/**
-	 * SmackRosterListenerImpl
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class SmackRosterListenerImpl extends SmackRosterListener {
-		/**
-		 * @see com.thinkparity.model.smack.SmackRosterListener#presenceChanged(String)
-		 */
-		public void presenceChanged(final String xmppAddress) {
-			doNotifyPresenceChanged(xmppAddress);
-		}
-		/**
-		 * @see com.thinkparity.model.smack.SmackRosterListener#rosterModified()
-		 */
-		public void rosterModified() {}
 	}
 
 

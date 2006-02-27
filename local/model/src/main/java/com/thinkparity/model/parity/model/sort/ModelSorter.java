@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * Utility convenience class for sorting lists.
@@ -19,6 +20,11 @@ public class ModelSorter {
 
 	public static void sortHistoryItems(final List<HistoryItem> list,
 			final Comparator<HistoryItem> comparator) {
+		Collections.sort(list, comparator);
+	}
+
+	public static void sortSystemMessages(final List<SystemMessage> list,
+			final Comparator<SystemMessage> comparator) {
 		Collections.sort(list, comparator);
 	}
 

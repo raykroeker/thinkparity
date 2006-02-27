@@ -21,6 +21,7 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Table;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
+import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 
 /**
  * @author raykroeker@gmail.com
@@ -41,6 +42,8 @@ class HypersonicMigrator {
 	private static final String INSERT_SEED_ARTIFACT_TYPE;
 
 	private static final String INSERT_SEED_META_DATA_TYPE;
+
+	private static final String INSERT_SEED_SYSTEM_MESSAGE_TYPE;
 
 	private static final String INSERT_SEED_VERSION;
 
@@ -64,6 +67,9 @@ class HypersonicMigrator {
 				CONFIG.getProperty("CreateArtifactAudit"),
 				CONFIG.getProperty("CreateArtifactAuditMetaData"),
 				CONFIG.getProperty("CreateArtifactAuditVersion"),
+				CONFIG.getProperty("CreateSystemMessageType"),
+				CONFIG.getProperty("CreateSystemMessage"),
+				CONFIG.getProperty("CreateSystemMessageMetaData"),
 				CONFIG.getProperty("CreateDocument"),
 				CONFIG.getProperty("CreateDocumentVersion")
 		};
@@ -79,6 +85,8 @@ class HypersonicMigrator {
 		INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
 
 		INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
+
+		INSERT_SEED_SYSTEM_MESSAGE_TYPE = CONFIG.getProperty("InsertSeedSystemMessageType");
 
 		READ_META_DATA_VERSION = CONFIG.getProperty("ReadMetaDataVersion");
 	}
@@ -205,6 +213,15 @@ class HypersonicMigrator {
 			if(1 != session.executeUpdate())
 				throw new HypersonicException(
 						"Could not insert artifact audit type seed data:  " + aat);
+		}
+
+		session.prepareStatement(INSERT_SEED_SYSTEM_MESSAGE_TYPE);
+		for(final SystemMessageType smt : SystemMessageType.values()) {
+			session.setTypeAsInteger(1, smt);
+			session.setTypeAsString(2, smt);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException(
+						"Could not insert system message type seed data:  " + smt);
 		}
 	}
 

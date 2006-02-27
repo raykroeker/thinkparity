@@ -29,8 +29,6 @@ public abstract class ModelTestCase extends TestCase {
 		System.setProperty("parity.insecure", "true");
 		// set staging system
 		System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
-		// set smack debugging
-		System.setProperty("smack.debugEnabled", "true");
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);

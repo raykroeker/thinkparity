@@ -17,6 +17,7 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -210,8 +211,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, sendKeyEvent);
 			auditVersion(session, sendKeyEvent, sendKeyEvent.getArtifactVersionId());
 
-			auditMetaData(session, sendKeyEvent,
-					MetaDataType.STRING, MetaDataKey.SENT_TO,
+			auditMetaData(session, sendKeyEvent, MetaDataType.JABBER_ID, MetaDataKey.SENT_TO,
 					sendKeyEvent.getSentTo());
 		}
 		catch(final HypersonicException hx) {
@@ -429,7 +429,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		sendKeyEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_ID"));
 
 		final MetaData[] metaData = readMetaData(sendKeyEvent.getId(), MetaDataKey.SENT_TO);
-		sendKeyEvent.setSentTo((String) metaData[0].getValue());
+		sendKeyEvent.setSentTo((JabberId) metaData[0].getValue());
 
 		return sendKeyEvent;
 	}

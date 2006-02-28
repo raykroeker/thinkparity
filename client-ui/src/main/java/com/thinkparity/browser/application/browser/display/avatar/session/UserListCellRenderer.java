@@ -12,6 +12,8 @@ import javax.swing.ListCellRenderer;
 
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 
+import com.thinkparity.codebase.StringUtil.Separator;
+
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -58,8 +60,32 @@ public class UserListCellRenderer implements ListCellRenderer {
 		if(isSelected) { jLabel.setBackground(listItemBackgroundSelect); }
 		else { jLabel.setBackground(listItemBackground); }
 
-		jLabel.setText(((User) value).getName());
+		jLabel.setText(getDisplayText((User) value));
 		return jLabel;
 	}
 
+	private String getDisplayText(final User user) {
+		if(isSetFirstAndLastName(user)) {
+			return new StringBuffer(user.getLastName())
+				.append(Separator.CommaSpace)
+				.append(user.getFirstName())
+				.toString();
+		}
+		else if(isSetFirstName(user)) { return user.getFirstName(); }
+		else { return user.getUsername(); }
+	}
+
+	private Boolean isSetFirstAndLastName(final User user) {
+		return isSetFirstName(user) && isSetLastName(user);
+	}
+
+	private Boolean isSetFirstName(final User user) {
+		final String firstName = user.getFirstName();
+		return null != firstName && 0 < firstName.length();
+	}
+	
+	private Boolean isSetLastName(final User user) {
+		final String lastName = user.getLastName();
+		return null != lastName && 0 < lastName.length();
+	}
 }

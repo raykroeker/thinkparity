@@ -96,29 +96,25 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
-	 * Accept the user's presence request.
+	 * Accept an invitation to the user's contact list.
 	 * 
-	 * @param user
-	 *            The user seeking visibility into the presence.
+	 * @param jabberId
+	 *            The user's jabber id.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#inviteContact(User)
-	 * @see SessionModelXMPPHelper#denyPresence(User)
 	 */
-	void acceptPresence(final User user) throws SmackException {
-		xmppSession.acceptPresence(user);
+	void acceptInvitation(final JabberId jabberId) throws SmackException {
+		xmppSession.acceptInvitation(jabberId);
 	}
 
 	/**
-	 * Deny the user's presence request.
+	 * Decline an invitation to the user's contact list.
 	 * 
-	 * @param user
-	 *            The user seeking visibility into the presence.
+	 * @param jabberId
+	 *            The user's jabber id.
 	 * @throws SmackException
-	 * @see SessionModelXMPPHelper#inviteContact(User)
-	 * @see SessionModelXMPPHelper#acceptPresence(User)
 	 */
-	void denyPresence(final User user) throws SmackException {
-		xmppSession.denyPresence(user);
+	void declineInvitation(final JabberId jabberId) throws SmackException {
+		xmppSession.declineInvitation(jabberId);
 	}
 
 	/**

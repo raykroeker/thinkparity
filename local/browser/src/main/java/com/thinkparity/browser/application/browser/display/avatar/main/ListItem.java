@@ -18,13 +18,15 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.model.tmp.system.message.Message;
+import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.ListItemLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * @author raykroeker@gmail.com
@@ -50,12 +52,12 @@ public abstract class ListItem {
 	/**
 	 * Create a list item for a system message.
 	 * 
-	 * @param message
+	 * @param systemMessage
 	 *            The system message.
 	 * @return The list item.
 	 */
-	public static ListItem create(final Message message) {
-		return new SystemMessageListItem(message);
+	public static ListItem create(final SystemMessage systemMessage) {
+		return new SystemMessageListItem(systemMessage);
 	}
 
 	/**
@@ -81,6 +83,12 @@ public abstract class ListItem {
 	 * 
 	 */
 	private ImageIcon menuIcon;
+
+	/**
+	 * The parity model factory.
+	 * 
+	 */
+	private final ModelFactory modelFactory;
 
 	/**
 	 * The list item name.
@@ -114,6 +122,7 @@ public abstract class ListItem {
 		super();
 		this.localization = new ListItemLocalization(l18nContext);
 		this.logger = LoggerFactory.getLogger(getClass());
+		this.modelFactory = ModelFactory.getInstance();
 		this.propertyMap = new Hashtable<Object,Object>(7, 0.75F);
 	}
 
@@ -232,6 +241,15 @@ public abstract class ListItem {
 	protected Browser getController() { return Browser.getInstance(); }
 
 	/**
+	 * Obtain a handle to the document model.
+	 * 
+	 * @return The document model.
+	 */
+	protected DocumentModel getDocumentModel() {
+		return modelFactory.getDocumentModel(getClass());
+	}
+
+	/**
 	 * Obtain a menu item mnemonic from the l18n resources. This will simply
 	 * look for the item with Mnemonic tacked on the end of the key, and convert
 	 * the first character in that string to an acsii integer.
@@ -261,6 +279,14 @@ public abstract class ListItem {
 	 */
 	protected String getString(final String localKey) {
 		return localization.getString(localKey);
+	}
+
+	/**
+	 * @see ListItemLocalization#getString(String, Object[])
+	 * 
+	 */
+	protected String getString(final String localKey, final Object[] arguments) {
+		return localization.getString(localKey, arguments);
 	}
 
 	/**

@@ -26,7 +26,6 @@ import com.thinkparity.browser.application.browser.display.avatar.main.CellRende
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
-import com.thinkparity.browser.model.tmp.system.message.Message;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -34,6 +33,7 @@ import com.thinkparity.browser.platform.util.SwingUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 
 /**
@@ -108,6 +108,15 @@ class BrowserMainAvatar extends Avatar {
 	}
 
 	/**
+	 * Obtain the list of system messages from the content provider.
+	 * 
+	 * @return The list of system messages.
+	 */
+	private SystemMessage[] getSystemMessages() {
+		return (SystemMessage[]) ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
+	}
+
+	/**
 	 * Initialize the swing components.
 	 *
 	 */
@@ -163,7 +172,20 @@ class BrowserMainAvatar extends Avatar {
 		add(addDocumentJLabel, c.clone());
 	}
 
-	private void runCreateDocumentAction() { getController().runCreateDocument(); }
+	/**
+	 * Load the main list model with system messages.
+	 * 
+	 * @param listModel
+	 *            The main list model.
+	 * @param systemMessages
+	 *            The system message list.
+	 */
+	private void loadMainList(final DefaultListModel listModel,
+			final SystemMessage[] systemMessages) {
+		for(final SystemMessage systemMessage : systemMessages) {
+			listModel.addElement(ListItem.create(systemMessage));
+		}
+	}
 
 	/**
 	 * Reload the list of documents.
@@ -190,11 +212,10 @@ class BrowserMainAvatar extends Avatar {
 	 *
 	 */
 	private void reloadSystemMessages() {
-		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
-		for(Object element : elements) {
-			jListModel.addElement(ListItem.create((Message) element));
-		}
+		loadMainList(jListModel, getSystemMessages());
 	}
+
+	private void runCreateDocumentAction() { getController().runCreateDocument(); }
 
 	/**
 	 * The selection driver for the main list. In this list we are "selecting"

@@ -74,6 +74,17 @@ public class SystemMessageModel extends AbstractModel {
 	}
 
 	/**
+	 * Delete a system message.
+	 * 
+	 * @param systemMessageId
+	 *            The system message id.
+	 * @throws ParityException
+	 */
+	public void delete(final Long systemMessageId) throws ParityException {
+		synchronized(implLock) { impl.delete(systemMessageId); }
+	}
+
+	/**
 	 * Read all system messages.
 	 * 
 	 * @return A list of system messages.

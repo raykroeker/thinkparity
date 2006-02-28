@@ -103,9 +103,9 @@ public class Browser2Platform implements Platform {
 		{
 			final com.thinkparity.browser.application.session.Session session =
 				(com.thinkparity.browser.application.session.Session) getApplication(ApplicationId.SESSION);
-			while(Status.OFFLINE == session.getStatus()) { session.login(); }
+			if(Status.ONLINE == session.getStatus())
+				startApplication(ApplicationId.BROWSER);
 		}
-		startApplication(ApplicationId.GADGET);
 	}
 
 	/**

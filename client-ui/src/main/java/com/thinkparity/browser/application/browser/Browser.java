@@ -13,16 +13,20 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.model.tmp.system.message.MessageId;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
+import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Delete;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
+import com.thinkparity.browser.platform.action.session.AcceptInvitation;
+import com.thinkparity.browser.platform.action.session.DeclineInvitation;
 import com.thinkparity.browser.platform.action.session.RequestKey;
+import com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage;
 import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.display.Display;
@@ -123,6 +127,14 @@ public class Browser implements Application {
 	}
 
 	/**
+	 * Display the invite contact form.
+	 *
+	 */
+	public void displaySessionInviteContact() {
+		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_INVITE_CONTACT);
+	}
+
+	/**
 	 * Display the send form.
 	 *
 	 */
@@ -138,14 +150,6 @@ public class Browser implements Application {
 	public void displaySessionSendKeyFormAvatar() {
 		putClientProperty(AvatarId.SESSION_SEND_KEY_FORM, "doIncludeKey", Boolean.TRUE);
 		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_KEY_FORM);
-	}
-
-	/**
-	 * Display the system message avatar.
-	 *
-	 */
-	public void displaySystemMessageAvatar() {
-		displayAvatar(DisplayId.INFO, AvatarId.SYSTEM_MESSAGE);
 	}
 
 	/**
@@ -232,8 +236,23 @@ public class Browser implements Application {
 	 */
 	public void restore(final State state) {}
 
-	public void runAddContact() {
-		invoke(ActionId.SESSION_ADD_CONTACT);
+	/**
+	 * Accept an invitation.
+	 * 
+	 * @param systemMessageId
+	 *            The system message id.
+	 */
+	public void runAcceptContactInvitation(final Long systemMessageId) {
+		final Data data = new Data(1);
+		data.set(AcceptInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+		invoke(ActionId.SESSION_ACCEPT_INVITATION, data);
+	}
+
+	public void runAcceptKeyRequest(final Long systemMessageId) {
+		final Data data = new Data(2);
+		data.set(AcceptKeyRequest.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
+		reloadMainBrowserAvatar();
 	}
 
 	/**
@@ -256,6 +275,19 @@ public class Browser implements Application {
 		invoke(ActionId.DOCUMENT_CREATE);
 	}
 
+	public void runDeclineContactInvitation(final Long systemMessageId) {
+		final Data data = new Data(1);
+		data.set(DeclineInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+		invoke(ActionId.SESSION_DECLINE_INVITATION, data);
+	}
+
+	public void runDeclineKeyRequest(final Long systemMessageId) {
+		final Data data = new Data(2);
+		data.set(DeclineKeyRequest.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+		invoke(ActionId.ARTIFACT_DECLINE_KEY_REQUEST, data);
+		reloadMainBrowserAvatar();
+	}
+
 	/**
 	 * Run the delete document action.
 	 * 
@@ -266,6 +298,21 @@ public class Browser implements Application {
 		final Data data = new Data(1);
 		data.set(Delete.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_DELETE, data);
+	}
+
+	public void runDeleteSystemMessage(final Long systemMessageId) {
+		final Data data = new Data(1);
+		data.set(DeleteSystemMessage.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+		invoke(ActionId.SYSTEM_MESSAGE_DELETE, data);
+		reloadMainBrowserAvatar();
+	}
+
+	/**
+	 * Invite a contact.
+	 *
+	 */
+	public void runInviteContact() {
+		invoke(ActionId.SESSION_ADD_CONTACT);
 	}
 
 	/**
@@ -318,16 +365,6 @@ public class Browser implements Application {
 		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 		setInput(AvatarId.SESSION_SEND_KEY_FORM, documentId);
-	}
-
-	/**
-	 * Select the system message.
-	 * 
-	 * @param messageId
-	 *            The message id.
-	 */
-	public void selectSystemMessage(final MessageId messageId) {
-		setInput(AvatarId.SYSTEM_MESSAGE, messageId);
 	}
 
 	/**

@@ -37,6 +37,8 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.KeyResponse;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -546,7 +548,9 @@ public class SessionSendFormAvatar extends Avatar {
 					// create a version and send it
 					// update the server key holder
 					final User user = users.get(0);
-					getSessionModel().sendKeyResponse(documentId, user, KeyResponse.ACCEPT);
+					// TODO Refactor the user object.
+					final JabberId jabberId = JabberIdBuilder.parseUsername(user.getSimpleUsername());
+					getSessionModel().sendKeyResponse(documentId, jabberId, KeyResponse.ACCEPT);
 					displayMainBrowserAvatar(Boolean.TRUE);
 				}
 				else {

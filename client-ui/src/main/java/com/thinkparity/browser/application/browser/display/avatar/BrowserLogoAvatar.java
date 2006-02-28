@@ -252,5 +252,5 @@ class BrowserLogoAvatar extends Avatar {
 		add(searchJPanel, c.clone());
 	}
 
-	private void runAddContact() { getController().runAddContact(); }
+	private void runAddContact() { getController().runInviteContact(); }
 }

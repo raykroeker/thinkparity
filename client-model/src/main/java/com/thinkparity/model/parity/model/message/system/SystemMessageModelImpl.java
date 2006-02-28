@@ -103,6 +103,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		logger.debug(artifactId);
 		logger.debug(responseFrom);
 		final KeyResponseMessage keyResponseMessage = new KeyResponseMessage();
+		keyResponseMessage.setArtifactId(artifactId);
 		keyResponseMessage.setDidAcceptRequest(didAcceptRequest);
 		keyResponseMessage.setResponseFrom(responseFrom);
 		keyResponseMessage.setType(SystemMessageType.KEY_RESPONSE);
@@ -170,9 +171,26 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	SystemMessage read(final Long systemMessageId) throws ParityException {
 		logger.info("read(Long)");
 		logger.debug(systemMessageId);
-		try { return null; }
+		try { return systemMessageIO.read(systemMessageId); }
 		catch(final RuntimeException rx) {
 			logger.error("Could not obtain system message:  " + systemMessageId, rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
+	 * Delete a system message.
+	 * 
+	 * @param systemMessageId
+	 *            The system message id.
+	 * @throws ParityException
+	 */
+	void delete(final Long systemMessageId) throws ParityException {
+		logger.info("delete(Long)");
+		logger.debug(systemMessageId);
+		try { systemMessageIO.delete(systemMessageId); }
+		catch(final RuntimeException rx) {
+			logger.error("Could not delete message:  " + systemMessageId, rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

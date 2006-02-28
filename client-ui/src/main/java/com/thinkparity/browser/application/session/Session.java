@@ -86,10 +86,10 @@ public class Session extends AbstractApplication {
 		super();
 		this.sessionModel = SessionModel.getModel();
 		this.sessionModel.addListener(new SessionListener() {
-			public void sessionEstablished() { /*updateStatus();*/ }
-			public void sessionTerminated() { /*updateStatus();*/ }
+			public void sessionEstablished() {}
+			public void sessionTerminated() { updateStatus(); }
 			public void sessionTerminated(final Throwable cause) {
-				/*updateStatus();*/
+				updateStatus();
 			}
 		});
 	}
@@ -149,10 +149,12 @@ public class Session extends AbstractApplication {
 			catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
 			final SessionWindow sessionWindow = SessionWindow.getSessionWindow();
 			sessionWindow.processEventQueue();
-			if(ReturnCode.LOGIN == sessionWindow.getReturnCode())
+			if(ReturnCode.LOGIN == sessionWindow.getReturnCode()) {
 				login(sessionWindow.extractUsername(),
 						sessionWindow.extractPassword(),
 						sessionWindow.extractDoRememberPassword());
+				status = Status.ONLINE;
+			}
 		}
 	}
 

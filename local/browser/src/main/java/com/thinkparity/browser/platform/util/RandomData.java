@@ -4,21 +4,14 @@
 package com.thinkparity.browser.platform.util;
 
 import java.awt.Color;
-import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.Random;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.model.tmp.system.message.Message;
-import com.thinkparity.browser.model.tmp.system.message.Sender;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
-import com.thinkparity.model.xmpp.user.User;
-import com.thinkparity.model.xmpp.user.User.Presence;
 
 /**
  * @author raykroeker@gmail.com
@@ -43,14 +36,6 @@ public class RandomData {
 	private static final Color[] COLOR_DATA;
 
 	private static final String[] DATE_DATA;
-
-	private static final String[] SYSTEM_MESSAGE_BODY_DATA;
-	
-	private static final Integer[] SYSTEM_MESSAGE_COUNT_DATA;
-	
-	private static final String[] SYSTEM_MESSAGE_HEADER_DATA;
-
-	private static final User[] USER_DATA;
 
 	static {
 		ACTION_DATA = new String[] {"Created by ", "Sent to ", "Received from "};
@@ -117,33 +102,6 @@ public class RandomData {
 
 		DATE_DATA =
 			new String[] {" today", " yesterday", " last monday", " last tuesday", " last wednesday", " last thursday", " last friday", " on Jan 2", " on Jan 23", " on Dec 26, 2005", " on Sep 4, 2004"};
-
-		SYSTEM_MESSAGE_COUNT_DATA =
-			new Integer[] {0, 1, 2, 3, 4, 5, 2, 2, 2, 3, 4, 5, 1, 3, 0};
-
-		SYSTEM_MESSAGE_HEADER_DATA = new String[] {
-				"Invitation request",
-				"Invitation request declined",
-				"Invitation request accepted",
-				"Ownership request:  {0}",				// {0} = artifact name
-				"Ownership request declined:  {0}",		// {0} = artifact name
-				"Ownership request accepted:  {0}"};	// {0} = artifact name
-
-		SYSTEM_MESSAGE_BODY_DATA = new String[] {
-				"{0} has invited you to join their team.",				// {0} = user name
-				"{0} has declined your invitation to join their team.",	// {0} = user name
-				"{0} has accepted your invitation to join their team.",	// {0} = user name
-				"Your request for ownership for {0} {1} has been declined.",	// {0} = artifact type;	{1} = artifact name
-				"Your request for ownership for {0} {1} has been accepted."};	// {0} = artifact type; {1} = artifact name
-
-		USER_DATA =
-			new User[] {
-				new User("John Wayne", "jwayne", Presence.OFFLINE),
-				new User("Omid Ejtemai", "oejtemai", Presence.OFFLINE),
-				new User("Raymond Kroeker", "rkroeker", Presence.OFFLINE),
-				new User("Alan Turing", "aturing", Presence.OFFLINE),
-				new User("Martin Fowler", "mfowler", Presence.OFFLINE),
-				new User("Sid Kendall", "skendall", Presence.OFFLINE)};
 	}
 
 	/**
@@ -181,13 +139,6 @@ public class RandomData {
 	 * @return A random action date.
 	 */
 	public String getActionDate() { return getStringData(ACTION_DATE_DATA); }
-
-	/**
-	 * Obtain a random action username.
-	 * 
-	 * @return A random action username.
-	 */
-	public User getActionUser() { return (User) getData(USER_DATA); }
 
 	/**
 	 * Obtain a random artifact flag.
@@ -229,50 +180,7 @@ public class RandomData {
 	 */
 	public String getDate() { return getStringData(DATE_DATA); }
 
-	/**
-	 * Obtain a random system message.
-	 * 
-	 * @return A random system message.
-	 */
-	public Message getSystemMessage() {
-		final Message m = new Message();
-		final Integer index = random.nextInt(SYSTEM_MESSAGE_BODY_DATA.length);
-		m.setBody(getSystemMessageBody(index));
-		m.setHeader(getSystemMessageHeader(index));
-		m.setSender(new Sender(USER_DATA[random.nextInt(USER_DATA.length)]));
-		return m;
-	}
-
-	/**
-	 * Obtain random system messages.
-	 * 
-	 * @return Random system messages.
-	 */
-	public Message[] getSystemMessages() {
-		final Integer messageCount = getSystemMessageCount();
-		final Collection<Message> messages = new Vector<Message>(messageCount);
-		for(int i = 0; i < messageCount; i++) {
-			messages.add(getSystemMessage());
-		}
-		return messages.toArray(new Message[] {});
-	}
-
-	/**
-	 * Obtain a random user.
-	 * 
-	 * @return A random user.
-	 */
-	public User getUser() { return (User) getData(USER_DATA); }
-
 	public Boolean hasBeenSeen() { return (Boolean) getData(ARTIFACT_HAS_BEEN_SEEN); }
-
-	private String format(final String pattern, final Object[] arguments) {
-		return MessageFormat.format(pattern, arguments);
-	}
-
-	private String getArtifactName() {
-		return getArtifactName(getDataIndex(ARTIFACT_NAME_DATA));
-	}
 
 	/**
 	 * Obtain random object data from an input set.
@@ -299,41 +207,5 @@ public class RandomData {
 	 */
 	private String getStringData(final String[] data) {
 		return (String) getData(data);
-	}
-
-	private String getSystemMessageBody(final Integer index) {
-		if(0 == index || 1 == index || 2 == index) {
-			// insert a random user's name
-			return format(SYSTEM_MESSAGE_BODY_DATA[index], new String[] { getUser().getName() });
-		}
-		else {
-			// insert a random artifact name
-			final Integer i = getDataIndex(ARTIFACT_TYPE_DATA);
-			return format(SYSTEM_MESSAGE_BODY_DATA[index],
-					new String[] {getArtifactType(i).toString().toLowerCase(),
-					getArtifactName(i)});
-		}
-	}
-
-	/**
-	 * Obtain the number of system messages to retreive.
-	 * 
-	 * @return The number of system messages to retreive.
-	 */
-	private Integer getSystemMessageCount() {
-		return 0;
-//		return (Integer) getData(SYSTEM_MESSAGE_COUNT_DATA);
-	}
-
-	private String getSystemMessageHeader(final Integer index) {
-		if(0 == index || 1 == index || 2 == index) {
-			return SYSTEM_MESSAGE_HEADER_DATA[index];
-		}
-		else {
-			// insert a random artifact name
-			return format(
-					SYSTEM_MESSAGE_HEADER_DATA[index],
-					new String[] {getArtifactName()});
-		}
 	}
 }

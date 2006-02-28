@@ -39,6 +39,6 @@ public class AddContact extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-//		getController().displaySessionAddContactFormAvatar();
+		getController().displaySessionInviteContact();
 	}
 }

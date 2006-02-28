@@ -3,9 +3,12 @@
  */
 package com.thinkparity.browser.model.util;
 
+import com.thinkparity.codebase.StringUtil.Separator;
+
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -20,6 +23,10 @@ public class ModelUtil {
 	static {
 		singleton = new ModelUtil();
 		singletonLock = new Object();
+	}
+
+	public static String getName(final User user) {
+		synchronized(singletonLock) { return singleton.doGetName(user); }
 	}
 
 	public static Preferences getPreferences() {
@@ -43,6 +50,33 @@ public class ModelUtil {
 		this.preferences = workspace.getPreferences();
 	}
 
+	private String doGetName(final User user) {
+		if(null == user) { return "!!!!!!!!!NULL!!!!!!!!!!!!!!!"; }
+		if(isSetFirstAndLastName(user)) {
+			return new StringBuffer(user.getLastName())
+				.append(Separator.CommaSpace)
+				.append(user.getFirstName())
+				.toString();
+		}
+		else if(isSetFirstName(user)) { return user.getFirstName(); }
+		else { return user.getUsername(); }
+	}
+
+	private Boolean isSetFirstAndLastName(final User user) {
+		return isSetFirstName(user) && isSetLastName(user);
+	}
+
+	private Boolean isSetFirstName(final User user) {
+		final String firstName = user.getFirstName();
+		return null != firstName && 0 < firstName.length();
+	}
+	
+	private Boolean isSetLastName(final User user) {
+		final String lastName = user.getLastName();
+		return null != lastName && 0 < lastName.length();
+	}
+
 	private Preferences doGetPreferences() { return preferences; }
+
 	private Workspace doGetWorkspace() { return workspace; }
 }

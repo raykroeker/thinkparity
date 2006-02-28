@@ -46,6 +46,10 @@ public class ActionFactory {
 	 */
 	private AbstractAction doCreateAction(final ActionId actionId) {
 		switch(actionId) {
+		case ARTIFACT_ACCEPT_KEY_REQUEST:
+			return new com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest();
+		case ARTIFACT_DECLINE_KEY_REQUEST:
+			return new com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest();
 		case DOCUMENT_CLOSE:
 			return new com.thinkparity.browser.platform.action.document.Close();
 		case DOCUMENT_CREATE:
@@ -56,10 +60,14 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.document.Open();
 		case DOCUMENT_OPEN_VERSION:
 			return new com.thinkparity.browser.platform.action.document.OpenVersion();
+		case SESSION_ACCEPT_INVITATION:
+			return new com.thinkparity.browser.platform.action.session.AcceptInvitation();
 		case SESSION_ADD_CONTACT:
 			return new com.thinkparity.browser.platform.action.session.AddContact();
 		case SESSION_REQUEST_KEY:
 			return new com.thinkparity.browser.platform.action.session.RequestKey();
+		case SYSTEM_MESSAGE_DELETE:
+			return new com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage();
 		default: throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
 		}
 	}

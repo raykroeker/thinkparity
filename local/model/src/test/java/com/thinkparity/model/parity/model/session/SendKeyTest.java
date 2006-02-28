@@ -7,10 +7,11 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,7 +31,7 @@ public class SendKeyTest extends ModelTestCase {
 		try {
 			for(final Fixture datum : data) {
 				datum.sessionModel.sendKeyResponse(
-						datum.artifactId, datum.user, datum.keyResponse);
+						datum.artifactId, datum.jabberId, datum.keyResponse);
 			}
 		}
 		catch(final Throwable t) { fail(createFailMessage(t)); }
@@ -47,11 +48,12 @@ public class SendKeyTest extends ModelTestCase {
 		final SessionModel sessionModel = getSessionModel();
 
 		login();
-		final User user = findUser("junit.buddy.0");
+		final ModelTestUser jUnitTestUser = ModelTestUser.getJUnitBuddy0();
+		final JabberId jabberId = jUnitTestUser.getJabberId();
 		Document d;
 		for(final File inputFile : getInputFiles()) {
 			d = documentModel.create(inputFile.getName(), inputFile.getName(), inputFile);
-			data.add(new Fixture(d.getId(), KeyResponse.ACCEPT, sessionModel, user));
+			data.add(new Fixture(d.getId(), KeyResponse.ACCEPT, sessionModel, jabberId));
 		}
 	}
 
@@ -68,16 +70,16 @@ public class SendKeyTest extends ModelTestCase {
 
 	private class Fixture {
 		private final Long artifactId;
+		private final JabberId jabberId;
 		private final KeyResponse keyResponse;
 		private final SessionModel sessionModel;
-		private final User user;
 		private Fixture(final Long artifactId, final KeyResponse keyResponse,
-				final SessionModel sessionModel, final User user) {
+				final SessionModel sessionModel, final JabberId jabberId) {
 			super();
 			this.artifactId = artifactId;
 			this.keyResponse = keyResponse;
 			this.sessionModel = sessionModel;
-			this.user = user;
+			this.jabberId = jabberId;
 		}
 	}
 }

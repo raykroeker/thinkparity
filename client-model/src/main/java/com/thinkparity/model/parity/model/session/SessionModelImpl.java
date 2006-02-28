@@ -189,7 +189,7 @@ class SessionModelImpl extends AbstractModelImpl {
 			final Document document = iDocumentModel.get(artifactUniqueId);
 			iDocumentModel.unlock(document.getId());
 			SystemMessageModel.getInternalModel(sContext).
-				createKeyResponse(document.getId(), Boolean.FALSE, acceptedBy);
+				createKeyResponse(document.getId(), Boolean.TRUE, acceptedBy);
 		}
 		catch(ParityException px) {
 			sLogger.fatal("Could not accept key request.", px);
@@ -311,15 +311,15 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Accept a presence request from user.
+	 * Accept an invitation to the user's contact list.
 	 * 
-	 * @param user
-	 *            The user to accept the request from.
+	 * @param jabberId
+	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void acceptPresence(final User user) throws ParityException {
+	void acceptInvitation(final JabberId jabberId) throws ParityException {
 		synchronized(xmppHelperLock) {
-			try { xmppHelper.acceptPresence(user); }
+			try { xmppHelper.acceptInvitation(jabberId); }
 			catch(SmackException sx) {
 				logger.error("acceptPresence(User)", sx);
 				throw ParityErrorTranslator.translate(sx);
@@ -378,22 +378,22 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Deny a presence request from user.
+	 * Decline a user's invitation to their contact list.
 	 * 
-	 * @param user
-	 *            The user to deny.
+	 * @param jabberId
+	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void denyPresence(final User user) throws ParityException {
+	void declineInvitation(final JabberId jabberId) throws ParityException {
 		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("denyPresence", xmppHelper);
-			try { xmppHelper.denyPresence(user); }
+			assertIsLoggedIn("Cannot decline invitation while offline.", xmppHelper);
+			try { xmppHelper.declineInvitation(jabberId); }
 			catch(SmackException sx) {
-				logger.error("denyPresence(User)", sx);
+				logger.error("Could not decline invitation:  " + jabberId, sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(RuntimeException rx) {
-				logger.error("denyPresence(User)", rx);
+				logger.error("Could not decline invitation:  " + jabberId, rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -976,21 +976,26 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param documentId
 	 *            The document id.
-	 * @param user
-	 *            The user.
+	 * @param requestedBy
+	 *            The jabber id of the user requesting the key.
 	 * @param keyResponse
 	 *            The response.
 	 */
-	void sendKeyResponse(final Long documentId, final User user,
+	void sendKeyResponse(final Long documentId, final JabberId requestedBy,
 			final KeyResponse keyResponse) throws ParityException {
 		logger.info("sendKeyResponse(UUID,User,KeyResponse)");
 		logger.debug(documentId);
-		logger.debug(user);
+		logger.debug(requestedBy);
 		logger.debug(keyResponse);
 		assertLoggedInUserIsKeyHolder(documentId);
 		synchronized(SessionModelImpl.xmppHelperLock) {
 			try {
+				// NOTE This should be refactored when the session can be changed.
+				final User requestedByUser = new User(requestedBy.getQualifiedJabberId());
+
 				final InternalDocumentModel iDModel = getInternalDocumentModel();
+				final Document document = iDModel.get(documentId);
+
 				// if the user sends an acceptance of the key request; we
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
@@ -999,13 +1004,12 @@ class SessionModelImpl extends AbstractModelImpl {
 					final DocumentVersion version = iDModel.createVersion(documentId);
 
 					// send the key change to the server
-					final Document document = iDModel.get(documentId);
 					xmppHelper.sendKeyResponse(
-							document.getUniqueId(), keyResponse, user);
+							document.getUniqueId(), keyResponse, requestedByUser);
 
 					// send new version
 					final Collection<User> users = new Vector<User>(1);
-					users.add(user);
+					users.add(requestedByUser);
 					send(users, documentId, version.getVersionId());
 
 					// lock the local document
@@ -1016,9 +1020,12 @@ class SessionModelImpl extends AbstractModelImpl {
 							version.getArtifactId(), version.getVersionId());
 					auditor.sendKey(dv.getArtifactId(), dv.getVersionId(),
 							version.getUpdatedBy(), version.getUpdatedOn(),
-							user);
+							requestedBy);
 					break;
 				case DENY:
+					// send the declination to the server
+					xmppHelper.sendKeyResponse(
+							document.getUniqueId(), KeyResponse.DENY, requestedByUser);
 					break;
 				default: throw Assert.createUnreachable("Unknown key response:  " + keyResponse);
 				}

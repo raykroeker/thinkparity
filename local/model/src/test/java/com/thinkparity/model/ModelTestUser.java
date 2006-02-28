@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model;
 
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 
@@ -68,4 +70,13 @@ public class ModelTestUser {
 	 * @return The username.
 	 */
 	public String getUsername() { return username; }
+
+	public JabberId getJabberId() {
+		return JabberIdBuilder.parseQualifiedJabberId(
+				new StringBuffer(username)
+				.append('@')
+				.append(serverHost)
+				.append('/')
+				.append(resource).toString());
+	}
 }

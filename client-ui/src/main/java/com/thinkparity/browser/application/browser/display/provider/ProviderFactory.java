@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.model.document.WorkingVersion;
-import com.thinkparity.browser.platform.util.RandomData;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -24,6 +23,8 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
@@ -96,10 +97,6 @@ public class ProviderFactory {
 		synchronized(singletonLock) { return singleton.doGetSendArtifactProvider(); }
 	}
 
-	public static ContentProvider getSystemMessageProvider() {
-		synchronized(singletonLock) { return singleton.doGetSystemMessageProvider(); }
-	}
-
 	/**
 	 * Document model api.
 	 * 
@@ -117,6 +114,12 @@ public class ProviderFactory {
 	 * 
 	 */
 	protected final SessionModel sessionModel;
+
+	/**
+	 * System message interface.
+	 * 
+	 */
+	protected final SystemMessageModel systemMessageModel;
 
 	/**
 	 * The document history provider.
@@ -157,16 +160,16 @@ public class ProviderFactory {
 
 	private final ContentProvider sendArtifactVersionProvider;
 
-	private final ContentProvider systemMessageProvider;
-
 	/**
 	 * Create a ProviderFactory.
 	 * 
 	 */
 	private ProviderFactory() {
 		super();
-		documentModel = ModelFactory.getInstance().getDocumentModel(getClass());
-		sessionModel = ModelFactory.getInstance().getSessionModel(getClass());
+		final ModelFactory modelFactory = ModelFactory.getInstance();
+		this.documentModel = modelFactory.getDocumentModel(getClass());
+		this.sessionModel = modelFactory.getSessionModel(getClass());
+		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 		this.historyProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				final Long documentId = (Long) input;
@@ -208,10 +211,13 @@ public class ProviderFactory {
 			}
 		};
 		this.mainMessageProvider = new FlatContentProvider() {
-			// RANDOMDATA System Messages
-			final RandomData randomData = new RandomData();
 			public Object[] getElements(final Object input) {
-				return randomData.getSystemMessages();
+				try {
+					final Collection<SystemMessage> messages =
+						systemMessageModel.read();
+					return messages.toArray(new SystemMessage[] {});
+				}
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
 		this.mainProvider = new CompositeFlatContentProvider() {
@@ -225,13 +231,6 @@ public class ProviderFactory {
 			}
 			private FlatContentProvider getProvider(final Integer index) {
 				return (FlatContentProvider) contentProviders[index];
-			}
-		};
-		this.systemMessageProvider = new SingleContentProvider() {
-			// RANDOMDATA System Message
-			final RandomData randomData = new RandomData();
-			public Object getElement(Object input) {
-				return randomData.getSystemMessage();
 			}
 		};
 		this.sendArtifactRosterProvider = new FlatContentProvider() {
@@ -360,10 +359,6 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetSendArtifactProvider() {
 		return sendArtifactProvider;
-	}
-
-	private ContentProvider doGetSystemMessageProvider() {
-		return systemMessageProvider;
 	}
 
 	/**

@@ -7,6 +7,7 @@ import com.thinkparity.browser.application.browser.Browser;
 
 import com.thinkparity.model.parity.api.events.*;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
@@ -64,6 +65,12 @@ public class EventDispatcher {
 	private SessionModel sessionModel;
 
 	/**
+	 * Handle to the system message interface.
+	 * 
+	 */
+	private SystemMessageModel systemMessageModel;
+
+	/**
 	 * Create an EventDispatcher.
 	 * 
 	 */
@@ -82,12 +89,14 @@ public class EventDispatcher {
 
 			documentModel = modelFactory.getDocumentModel(getClass());
 			sessionModel = modelFactory.getSessionModel(getClass());
+			systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 	
 			documentModel.addListener(createDocumentModelCreationListener());
 			documentModel.addListener(createDocumentModelUpdateListener());
 			sessionModel.addListener(createSessionModelPresenceListener());
 			sessionModel.addListener(createSessionModelKeyListener());
 			sessionModel.addListener(createSessionModelSessionListener());
+			systemMessageModel.addListener(createSystemMessageListener());
 
 			isInitialized = true;
 		}
@@ -150,6 +159,15 @@ public class EventDispatcher {
 			public void sessionTerminated() {}
 			public void sessionTerminated(final Throwable cause) {
 				sessionTerminated();
+			}
+		};
+	}
+
+	private SystemMessageListener createSystemMessageListener() {
+		return new SystemMessageListener() {
+			public void systemMessageCreated(
+					final SystemMessageEvent systemMessageEvent) {
+				controller.reloadMainBrowserAvatar();
 			}
 		};
 	}

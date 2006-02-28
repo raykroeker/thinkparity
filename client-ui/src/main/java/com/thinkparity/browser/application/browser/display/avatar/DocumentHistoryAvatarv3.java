@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 import com.thinkparity.browser.application.browser.display.avatar.history.DefaultRenderer;
 import com.thinkparity.browser.application.browser.display.avatar.history.LinkRenderer;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
@@ -149,7 +150,7 @@ class DocumentHistoryAvatarv3 extends Avatar {
 		case RECEIVE:
 		case RECEIVE_KEY:
 			final ReceiveHistoryItem rhi = (ReceiveHistoryItem) historyItem;
-			arguments = new Object[] {rhi.getReceivedFrom().getName()};
+			arguments = new Object[] {ModelUtil.getName(rhi.getReceivedFrom())};
 			return getString("Info.RECEIVED_FROM", arguments);
 		case SEND:
 			final SendHistoryItem shi = (SendHistoryItem) historyItem;
@@ -159,12 +160,12 @@ class DocumentHistoryAvatarv3 extends Avatar {
 			for(final User sentTo : shi.getSentTo()) {
 				if(0 == i++) { localKey = "Info.SENT_TO_0"; }
 				else { localKey = "Info.SENT_TO_N"; }
-				buffer.append(getString(localKey, new Object[] {sentTo.getName()}));
+				buffer.append(getString(localKey, new Object[] {ModelUtil.getName(sentTo)}));
 			}
 			return buffer.toString();
 		case SEND_KEY:
 			final SendKeyHistoryItem skhi = (SendKeyHistoryItem) historyItem;
-			return getString("Info.SENT_TO_0", new Object[] {skhi.getSentTo().getName()});
+			return getString("Info.SENT_TO_0", new Object[] {ModelUtil.getName(skhi.getSentTo())});
 		default:
 			throw Assert.createUnreachable("Unknown history item event:  " +
 					historyItem.getEvent());

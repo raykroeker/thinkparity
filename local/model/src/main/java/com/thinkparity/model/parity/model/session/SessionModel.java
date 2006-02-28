@@ -74,17 +74,14 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Accept the presence visibility request from user to the currently logged
-	 * in user.
+	 * Accept an invitation to the user's contact list.
 	 * 
-	 * @param user
-	 *            The user who's presence request the currently logged in user
-	 *            will accept.
-	 * @see SessionModel#denyPresence(User)
+	 * @param jabberId
+	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	public void acceptPresence(final User user) throws ParityException {
-		synchronized(implLock) { impl.acceptPresence(user); }
+	public void acceptInvitation(final JabberId jabberId) throws ParityException {
+		synchronized(implLock) { impl.acceptInvitation(jabberId); }
 	}
 
 	/**
@@ -127,8 +124,8 @@ public class SessionModel extends AbstractModel {
 	 * @see SessionModel#acceptPresence(User)
 	 * @throws ParityException
 	 */
-	public void denyPresence(final User user) throws ParityException {
-		synchronized(implLock) { impl.denyPresence(user); }
+	public void declineInvitation(final JabberId jabberId) throws ParityException {
+		synchronized(implLock) { impl.declineInvitation(jabberId); }
 	}
 
 	/**
@@ -313,8 +310,8 @@ public class SessionModel extends AbstractModel {
 	 * 
 	 * @param artifactId
 	 *            The document unique id.
-	 * @param user
-	 *            The user.
+	 * @param requestedBy
+	 *            The jabber id of the user requesting the key.
 	 * @param keyResponse
 	 *            The response.
 	 * 
@@ -322,10 +319,11 @@ public class SessionModel extends AbstractModel {
 	 * @throws NotTrueAssertion
 	 *             If the logged in user is not the key holder.
 	 */
-	public void sendKeyResponse(final Long artifactId, final User user,
-			final KeyResponse keyResponse) throws ParityException {
+	public void sendKeyResponse(final Long artifactId,
+			final JabberId requestedBy, final KeyResponse keyResponse)
+			throws ParityException {
 		synchronized(implLock) {
-			impl.sendKeyResponse(artifactId, user, keyResponse);
+			impl.sendKeyResponse(artifactId, requestedBy, keyResponse);
 		}
 	}
 

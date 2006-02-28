@@ -4,7 +4,12 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.*;
@@ -29,8 +34,6 @@ import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.smack.packet.SmackPresenceFilter;
-import com.thinkparity.model.smack.packet.SmackPresenceListener;
 import com.thinkparity.model.smackx.XFactory;
 import com.thinkparity.model.smackx.document.XMPPDocumentXFilter;
 import com.thinkparity.model.smackx.document.XMPPDocumentXListener;
@@ -77,18 +80,15 @@ public class XMPPSessionImpl implements XMPPSession {
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:keyrequest", new IQKeyRequestProvider());
 	}
 
-	private Map<String, User> pendingXMPPUsers;
-
-	private SmackPresenceFilter smackPresenceFilter;
-
-	private SmackPresenceListenerImpl smackPresenceListenerImpl;
 	private XMPPConnection smackXMPPConnection;
 	private Vector<XMPPExtensionListener> xmppExtensionListeners;
 	private final Object xmppExtensionListenersLock = new Object();
 	private Vector<XMPPPresenceListener> xmppPresenceListeners;
 	private Vector<XMPPSessionListener> xmppSessionListeners;
+
 	/**
 	 * Create a XMPPSessionImpl
+	 * 
 	 */
 	XMPPSessionImpl() {
 		logger.info("Jive Software:  Smack:  " + SmackConfiguration.getVersion());
@@ -107,11 +107,6 @@ public class XMPPSessionImpl implements XMPPSession {
 				doNotifyConnectionEstablished(connection);
 			}
 		});
-
-		pendingXMPPUsers = new Hashtable<String, User>(10);
-
-		smackPresenceFilter = new SmackPresenceFilter();
-		smackPresenceListenerImpl = new SmackPresenceListenerImpl();
 	}
 
 	/**
@@ -119,12 +114,10 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * indicating that the user is subscribed and available.
 	 * 
 	 */
-	public void acceptPresence(final User user) throws SmackException {
-		logger.info("acceptPresence(UserRenderer)");
-		logger.debug(user);
-		// save the user for use by the roster event later on
-		pendingXMPPUsers.put(user.getUsername(), user);
-		sendPresencePacket(user.getUsername(), Type.SUBSCRIBED, Mode.AVAILABLE);
+	public void acceptInvitation(final JabberId jabberId) throws SmackException {
+		logger.info("acceptInvitation(JabberId)");
+		logger.debug(jabberId);
+		sendPresencePacket(jabberId.getQualifiedUsername(), Type.SUBSCRIBED, Mode.AVAILABLE);
 	}
 
 	/**
@@ -181,14 +174,20 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#denyPresence(com.thinkparity.model.xmpp.user.User)
+	 * @see com.thinkparity.model.xmpp.XMPPSession#declineInvitation(com.thinkparity.model.xmpp.JabberId)
+	 * 
 	 */
-	public void denyPresence(User user) throws SmackException {
-		logger.info("denyPresence(UserRenderer)");
-		logger.debug(user);
-		// save the user for use by the roster event later on
-		pendingXMPPUsers.put(user.getUsername(), user);
-		sendPresencePacket(user.getUsername(), Type.UNSUBSCRIBED);
+	public void declineInvitation(final JabberId jabberId) throws SmackException {
+		logger.info("declineInvitation(JabberId)");
+		logger.debug(jabberId);
+
+		sendPresencePacket(jabberId.getQualifiedUsername(), Type.UNSUBSCRIBED, Mode.AWAY);
+
+		final RosterEntry rosterEntry = getRoster().getEntry(jabberId.getQualifiedJabberId());
+		try { getRoster().removeEntry(rosterEntry); }
+		catch(final XMPPException xmppx) {
+			throw XMPPErrorTranslator.translate(xmppx);
+		}
 	}
 
 	/**
@@ -331,12 +330,11 @@ public class XMPPSessionImpl implements XMPPSession {
 		Assert.assertNotNull("Cannot invite a null contact", jabberId);
 		try {
 			final Roster roster = getRoster();
-			if(!roster.contains(jabberId.getQualifiedUsername()))
-				roster.createEntry(jabberId.getQualifiedUsername(),
-						jabberId.getQualifiedUsername(), null);
+			if(!roster.contains(jabberId.getQualifiedJabberId()))
+				roster.createEntry(jabberId.getQualifiedJabberId(), null, null);
 		}
-		catch(XMPPException xmppx) {
-			logger.error("addRosterEntry(User)", xmppx);
+		catch(final XMPPException xmppx) {
+			logger.error("Could not invite contact:  " + jabberId, xmppx);
 			throw XMPPErrorTranslator.translate(xmppx);
 		}
 	}
@@ -420,8 +418,59 @@ public class XMPPSessionImpl implements XMPPSession {
 						}
 					},
 					new XMPPDocumentXFilter());
-
-			smackXMPPConnection.addPacketListener(smackPresenceListenerImpl, smackPresenceFilter);
+			// contact invitation
+			smackXMPPConnection.addPacketListener(
+					new PacketListener() {
+						public void processPacket(final Packet packet) {
+							notifyContactInvitation((Presence) packet);
+						}
+					},
+					new PacketFilter() {
+						public boolean accept(final Packet packet) {
+							if(packet.getClass().isAssignableFrom(Presence.class)) {
+								if(((Presence) packet).getType() == Presence.Type.SUBSCRIBE) {
+									return true;
+								}
+							}
+							return false;
+						}
+					});
+			// contact deletion
+			smackXMPPConnection.addPacketListener(
+					new PacketListener() {
+						public void processPacket(final Packet packet) {
+							notifyContactDeletion((Presence) packet);
+						}
+					},
+					new PacketFilter() {
+						public boolean accept(final Packet packet) {
+							if(packet.getClass().isAssignableFrom(Presence.class)) {
+								if(((Presence) packet).getType() == Presence.Type.UNSUBSCRIBE) {
+									return true;
+								}
+							}
+							return false;
+						}
+					});
+			// contact invitation response
+			smackXMPPConnection.addPacketListener(
+					new PacketListener() {
+						public void processPacket(final Packet packet) {
+							notifyContactInvitationResponse((Presence) packet);
+						}
+					},
+					new PacketFilter() {
+						public boolean accept(final Packet packet) {
+							if(packet.getClass().isAssignableFrom(Presence.class)) {
+								final Presence.Type type = ((Presence) packet).getType();
+								if(Presence.Type.SUBSCRIBED == type
+										|| Presence.Type.UNSUBSCRIBED == type) {
+									return true;
+								}
+							}
+							return false;
+						}
+					});
 
 			smackXMPPConnection.login(username, password,
 					IParityModelConstants.PARITY_CONNECTION_RESOURCE);
@@ -721,20 +770,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * Iterate through the list of xmppPresenceListeners and fire the
-	 * presenceRequested event.
-	 * 
-	 * @param packet
-	 *            <code>org.jivesoftware.packet.Packet</code>
-	 */
-	private void doFirePresenceRequested(final Packet packet) {
-		final JabberId fromJabberId = getFromJabberId(packet);
-		for(final XMPPPresenceListener l : xmppPresenceListeners) {
-			l.presenceRequested(fromJabberId);
-		}
-	}
-
-	/**
 	 * Event handler for the connectionClosed event generated by the smack
 	 * connection listener impl. This will iterate through the
 	 * xmppSessionListeners list and fire the sessionTerminated event.
@@ -776,33 +811,6 @@ public class XMPPSessionImpl implements XMPPSession {
 	}
 
 	/**
-	 * Event handler for the procesPacket event generated by the
-	 * smackPresenceListenerImpl. If the presence packet type is a subscription
-	 * request, a presence requested event is passed on to the
-	 * xmppPresenceListeners list. If the presence packet type is a subscription
-	 * accepted notification, and the current user's roster does not have an
-	 * entry for the requesting user, a subscription accepted event is sent
-	 * back.
-	 * 
-	 * @param presence
-	 *            <code>org.jivesoftware.packet.Presence</code>
-	 */
-	private void doNotifyProcessPresence(final Presence presence)
-			throws SmackException {
-		final Type presencePacketType = presence.getType();
-		if(presencePacketType == Type.SUBSCRIBE) {
-			doFirePresenceRequested(presence);
-		}
-		else if(presencePacketType == Type.SUBSCRIBED) {
-			final Roster roster = getRoster();
-			final Presence rosterPresence = roster.getPresence(presence.getFrom());
-			if(null == rosterPresence) {
-				sendPresenceAcceptance(presence.getFrom());
-			}
-		}
-	}
-
-	/**
 	 * Obtain the from user's jabber id from the packet.
 	 * 
 	 * @param packet
@@ -836,6 +844,66 @@ public class XMPPSessionImpl implements XMPPSession {
 	 * @return <code>java.lang.Integer</code>
 	 */
 	private Integer getRosterEntryCount() { return getRoster().getEntryCount(); }
+
+	/**
+	 * Iterate through the list of xmppPresenceListeners and fire the
+	 * presenceRequested event.
+	 * 
+	 * @param packet
+	 *            <code>org.jivesoftware.packet.Packet</code>
+	 */
+	private void notifyContactInvitation(final Packet packet) {
+		// NOTE The presence packets do not contain resource info
+		final JabberId fromJabberId =
+			JabberIdBuilder.parseQualifiedUsername(packet.getFrom());
+		for(final XMPPPresenceListener l : xmppPresenceListeners) {
+			l.presenceRequested(fromJabberId);
+		}
+	}
+
+	private void notifyContactDeletion(final Packet packet) {
+		final JabberId fromJabberId =
+			JabberIdBuilder.parseQualifiedUsername(packet.getFrom());
+		final RosterEntry rosterEntry = getRoster().getEntry(fromJabberId.getQualifiedJabberId());
+		try { getRoster().removeEntry(rosterEntry); }
+		catch(final XMPPException xmppx) {
+			logger.error("Cannot delete contact.", xmppx);
+		}
+	}
+
+	/**
+	 * Process the contact invitation response.
+	 * 
+	 * @param presence
+	 *            The presence packet.
+	 */
+	private void notifyContactInvitationResponse(final Presence presence) {
+		final Presence.Type type = presence.getType();
+		if(Presence.Type.SUBSCRIBED == type) {
+			final Roster roster = getRoster();
+			final Presence rosterPresence = roster.getPresence(presence.getFrom());
+			if(null == rosterPresence) {
+				try {  sendPresenceAcceptance(presence.getFrom()); }
+				catch(final SmackException sx) {
+					logger.error("Could not process presence packet.", sx);
+				}
+			}
+		}
+		else if(Presence.Type.UNSUBSCRIBED == type) {
+			final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(presence.getFrom());
+
+			final RosterEntry rosterEntry = getRoster().getEntry(jabberId.getQualifiedJabberId());
+			try { getRoster().removeEntry(rosterEntry); }
+			catch(final XMPPException xmppx) {
+				logger.error("Could not remove roster entry:  " + jabberId, xmppx);
+			}
+		}
+		else {
+			Assert.assertUnreachable(
+					"Unknown presence type for contact invitation response:  "
+					+ type);
+		}
+	}
 
 	/**
 	 * Fire the artifact closed event for all of the xmpp extension listeners.
@@ -1024,23 +1092,4 @@ public class XMPPSessionImpl implements XMPPSession {
 		presence.setFrom(smackXMPPConnection.getUser());
 		sendPacket(presence);
 	}
-
-	/**
-	 * SmackPresenceListenerImpl
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class SmackPresenceListenerImpl extends SmackPresenceListener {
-		/**
-		 * @see org.jivesoftware.smack.PacketListener#processPacket(org.jivesoftware.smack.packet.Packet)
-		 */
-		public void processPacket(final Packet packet) {
-			try { doNotifyProcessPresence((Presence) packet); }
-			catch(final SmackException sx) {
-				logger.error("Cannot process presence packet.", sx);
-			}
-		}
-	}
-
-
 }

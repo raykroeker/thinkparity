@@ -3,8 +3,10 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -47,6 +49,24 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	/**
+	 * Sql to delete a system message.
+	 * 
+	 */
+	private static final String SQL_DELETE_MESSAGE =
+		new StringBuffer("delete from SYSTEM_MESSAGE ")
+		.append("where SYSTEM_MESSAGE_ID=?")
+		.toString();
+
+	/**
+	 * Sql to delete all of the system message's meta data links.
+	 * 
+	 */
+	private static final String SQL_DELETE_MESSAGE_META_DATA =
+		new StringBuffer("delete from SYSTEM_MESSAGE_META_DATA ")
+		.append("where SYSTEM_MESSAGE_ID=?")
+		.toString();
+
+	/**
 	 * Sql to read the system messages.
 	 * 
 	 */
@@ -54,6 +74,16 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		new StringBuffer("select SYSTEM_MESSAGE_ID,SYSTEM_MESSAGE_TYPE_ID ")
 		.append("from SYSTEM_MESSAGE ")
 		.append("order by SYSTEM_MESSAGE_ID asc")
+		.toString();
+
+	/**
+	 * Sql to obtain a single system message.
+	 * 
+	 */
+	private static final String SQL_READ_BY_MESSAGE_ID =
+		new StringBuffer("select SYSTEM_MESSAGE_ID,SYSTEM_MESSAGE_TYPE_ID ")
+		.append("from SYSTEM_MESSAGE ")
+		.append("where SYSTEM_MESSAGE_ID=?")
 		.toString();
 
 	/**
@@ -67,6 +97,12 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.append("on SM.SYSTEM_MESSAGE_ID = SMMD.SYSTEM_MESSAGE_ID ")
 		.append("inner join META_DATA MD on SMMD.META_DATA_ID = MD.META_DATA_ID ")
 		.append("where SM.SYSTEM_MESSAGE_ID=? and MD.KEY=?")
+		.toString();
+
+	private static final String SQL_READ_META_DATA_IDS_BY_MESSAGE_ID =
+		new StringBuffer("select META_DATA_ID ")
+		.append("from SYSTEM_MESSAGE_META_DATA ")
+		.append("where SYSTEM_MESSAGE_ID=?")
 		.toString();
 
 	/**
@@ -167,6 +203,39 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#delete(java.lang.Long)
+	 * 
+	 */
+	public void delete(final Long messageId) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			final Long[] metaDataIds = readMetaDataIds(session, messageId);
+
+			// delete all system message meta data links
+			session.prepareStatement(SQL_DELETE_MESSAGE_META_DATA);
+			session.setLong(1, messageId);
+			session.executeUpdate();
+
+			// delete all meta data
+			for(final Long metaDataId : metaDataIds)
+				getMetaDataIO().delete(session, metaDataId);
+
+			// delete the message
+			session.prepareStatement(SQL_DELETE_MESSAGE);
+			session.setLong(1, messageId);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException("Could not delete message.");
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#read()
 	 * 
 	 */
@@ -181,6 +250,26 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		}
 		catch(final HypersonicException hx) {
 			session.rollback();;
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#read(java.lang.Long)
+	 * 
+	 */
+	public SystemMessage read(final Long messageId) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_BY_MESSAGE_ID);
+			session.setLong(1, messageId);
+			session.executeQuery();
+			if(session.nextResult()) { return extract(session); }
+			else { return null; }
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
 			throw hx;
 		}
 		finally { session.close(); }
@@ -338,5 +427,18 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
+	private Long[] readMetaDataIds(final Session session, final Long messageId)
+			throws HypersonicException {
+		session.prepareStatement(SQL_READ_META_DATA_IDS_BY_MESSAGE_ID);
+		final Set<Long> metaDataIds = new HashSet<Long>();
+		session.setLong(1, messageId);
+		session.executeQuery();
+		while(session.nextResult()) {
+			metaDataIds.add(session.getLong("META_DATA_ID"));
+		}
+		return metaDataIds.toArray(new Long[] {});
+	}
+
 	private enum MetaDataKey { ARTIFACT_ID, DID_ACCEPT_REQUEST, REQUESTED_BY, RESPONSE_FROM }
+
 }

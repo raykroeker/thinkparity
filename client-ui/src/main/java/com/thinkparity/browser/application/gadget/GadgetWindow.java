@@ -142,7 +142,10 @@ public class GadgetWindow extends AbstractJFrame {
 			int offsetX;
 			int offsetY;
 			public void mouseClicked(final MouseEvent e) {
-				if(2 == e.getClickCount()) { runOpenBrowser(); }
+				if(2 == e.getClickCount()) {
+					if(e.isShiftDown()) { System.exit(0); }
+					else { runOpenBrowser(); }
+				}
 			}
 			public void mouseDragged(final MouseEvent e) {
 				getController().moveWindow(

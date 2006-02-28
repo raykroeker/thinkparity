@@ -30,12 +30,12 @@ import com.thinkparity.model.xmpp.user.UserVCard;
  */
 public interface XMPPSession {
 
-	public void acceptPresence(final User user) throws SmackException;
+	public void acceptInvitation(final JabberId jabberId) throws SmackException;
 	public void addListener(final XMPPExtensionListener xmppExtensionListener);
 	public void addListener(final XMPPPresenceListener xmppPresenceListener);
 	public void addListener(final XMPPSessionListener xmppSessionListener);
 	public void create(final UUID artifactUniqueId) throws SmackException;
-	public void denyPresence(final User user) throws SmackException;
+	public void declineInvitation(final JabberId jabberId) throws SmackException;
 	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
 			throws SmackException;
 	public User getArtifactKeyHolder(final UUID artifactUniqueId)

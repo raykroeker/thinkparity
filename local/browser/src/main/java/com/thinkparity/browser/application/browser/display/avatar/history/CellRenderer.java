@@ -15,6 +15,7 @@ import javax.swing.ListCellRenderer;
 import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.model.util.ModelUtil;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -132,7 +133,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 		case RECEIVE:
 		case RECEIVE_KEY:
 			final ReceiveHistoryItem rhi = (ReceiveHistoryItem) historyItem;
-			arguments = new Object[] {rhi.getReceivedFrom().getName()};
+			arguments = new Object[] {ModelUtil.getName(rhi.getReceivedFrom())};
 			infoText = getString("Info.RECEIVED_FROM", arguments);
 			break;
 		case SEND:
@@ -143,13 +144,13 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 			for(final User sentTo : shi.getSentTo()) {
 				if(0 == i++) { localKey = "Info.SENT_TO_0"; }
 				else { localKey = "Info.SENT_TO_N"; }
-				buffer.append(getString(localKey, new Object[] {sentTo.getName()}));
+				buffer.append(getString(localKey, new Object[] {ModelUtil.getName(sentTo)}));
 			}
 			infoText = buffer.toString();
 			break;
 		case SEND_KEY:
 			final SendKeyHistoryItem skhi = (SendKeyHistoryItem) historyItem;
-			infoText = getString("Info.SENT_TO_0", new Object[] {skhi.getSentTo().getName()});
+			infoText = getString("Info.SENT_TO_0", new Object[] {ModelUtil.getName(skhi.getSentTo())});
 			break;
 		default:
 			infoText = null;

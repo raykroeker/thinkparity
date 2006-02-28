@@ -23,7 +23,9 @@ public interface SystemMessageIOHandler {
 		throws HypersonicException;
 	public void create(final PresenceRequestMessage presenceRequestMessage)
 			throws HypersonicException;
+	public void delete(final Long messageId) throws HypersonicException;
 	public List<SystemMessage> read() throws HypersonicException;
+	public SystemMessage read(final Long messageId) throws HypersonicException;
 	public PresenceRequestMessage readPresenceRequest(final JabberId jabberId)
 			throws HypersonicException;
 }

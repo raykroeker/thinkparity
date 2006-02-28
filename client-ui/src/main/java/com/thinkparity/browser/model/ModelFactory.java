@@ -4,6 +4,7 @@
 package com.thinkparity.browser.model;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -25,7 +26,15 @@ public class ModelFactory {
 	private boolean isInitialized;
 	private Preferences preferences;
 	private SessionModel sessionModel;
+
+	/**
+	 * The system message interface.
+	 * 
+	 */
+	private SystemMessageModel systemMessageModel;
+
 	private Workspace workspace;
+
 	private WorkspaceModel workspaceModel;
 
 	/**
@@ -47,6 +56,13 @@ public class ModelFactory {
 
 	public SessionModel getSessionModel(final Class clasz) {
 		return sessionModel;
+	}
+
+	public SystemMessageModel getSystemMessageModel(final Class clasz) {
+		if(null == systemMessageModel) {
+			systemMessageModel = SystemMessageModel.getModel();
+		}
+		return systemMessageModel;
 	}
 
 	public Workspace getWorkspace(final Class clasz) {

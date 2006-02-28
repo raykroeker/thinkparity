@@ -28,14 +28,14 @@ public class AvatarFactory {
 			return SINGLETON.createBrowserTitle();
 		case DOCUMENT_HISTORY:
 			return SINGLETON.createDocumentHistoryList();
+		case SESSION_INVITE_CONTACT:
+			return SINGLETON.createSessionInviteContact();
 		case SESSION_LOGIN:
 			return SINGLETON.createSessionLogin();
 		case SESSION_SEND_FORM:
 			return SINGLETON.createSessionSendForm();
 		case SESSION_SEND_KEY_FORM:
 			return SINGLETON.createSessionSendKeyForm();
-		case SYSTEM_MESSAGE:
-			return SINGLETON.createSystemMessage();
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}
 	}
@@ -65,6 +65,12 @@ public class AvatarFactory {
 	private Avatar documentHistoryList;
 
 	/**
+	 * The invite contact avatar.
+	 * 
+	 */
+	private Avatar sessionInviteContact;
+
+	/**
 	 * The session login avatar.
 	 * 
 	 */
@@ -81,12 +87,6 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar sessionSendKeyForm;
-
-	/**
-	 * The system message avatar.
-	 * 
-	 */
-	private Avatar systemMessage;
 
 	/**
 	 * Create a AvatarFactory [Singleton, Factory]
@@ -144,6 +144,18 @@ public class AvatarFactory {
 	}
 
 	/**
+	 * Create the session invite contact avatar.
+	 * 
+	 * @return The session invite contact avatar.
+	 */
+	private Avatar createSessionInviteContact() {
+		if(null == sessionInviteContact) {
+			sessionInviteContact = new SessionInviteContactAvatar();
+		}
+		return sessionInviteContact;
+	}
+	
+	/**
 	 * Create the session login avatar.
 	 * 
 	 * @return The session login avatar.
@@ -180,18 +192,5 @@ public class AvatarFactory {
 			sessionSendKeyForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
 		}
 		return sessionSendKeyForm;
-	}
-
-	/**
-	 * Create the system message avatar.
-	 * 
-	 * @return The system message avatar.
-	 */
-	private Avatar createSystemMessage() {
-		if(null == systemMessage) {
-			systemMessage = new SystemMessageAvatar();
-			systemMessage.setContentProvider(ProviderFactory.getSystemMessageProvider());
-		}
-		return systemMessage;
 	}
 }

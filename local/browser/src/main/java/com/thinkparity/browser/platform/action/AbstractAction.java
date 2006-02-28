@@ -14,6 +14,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
@@ -176,6 +177,10 @@ public abstract class AbstractAction {
 	 */
 	protected String getString(final String localKey, final Object[] arguments) {
 		return localization.getString(localKey, arguments);
+	}
+
+	protected SystemMessageModel getSystemMessageModel() {
+		return modelFactory.getSystemMessageModel(getClass());
 	}
 
 	/**

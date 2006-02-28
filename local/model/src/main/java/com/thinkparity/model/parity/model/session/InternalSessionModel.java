@@ -10,6 +10,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -45,6 +46,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) {
 			return getImpl().findRosterEntry(username);
 		}
+	}
+
+	public User findRosterEntry(final JabberId jabberId) throws ParityException {
+		return findRosterEntry(jabberId.getUsername());
 	}
 
 	/**

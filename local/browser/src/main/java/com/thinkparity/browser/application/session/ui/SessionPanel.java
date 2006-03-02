@@ -169,6 +169,12 @@ public class SessionPanel extends AbstractJPanel {
 				loginJButtonActionPerformed(e);
 			}
         });
+        if(preferences.isSetUsername()) {
+        	usernameJTextField.setText(preferences.getUsername());
+        	usernameJTextField.setEnabled(false);
+        }
+        else { usernameJLabel.setEnabled(true); }
+
         passwordJPasswordField = new javax.swing.JPasswordField();
         passwordJPasswordField.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {

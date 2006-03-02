@@ -10,7 +10,7 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.message.system.PresenceRequestMessage;
+import com.thinkparity.model.parity.model.message.system.ContactInvitationMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 
 /**
@@ -45,9 +45,9 @@ public class AcceptInvitation extends AbstractAction {
 		final Long messageId = (Long) data.get(DataKey.SYSTEM_MESSAGE_ID);
 		try {
 			final SystemMessageModel sMModel = getSystemMessageModel();
-			final PresenceRequestMessage message =
-				(PresenceRequestMessage) sMModel.read(messageId);
-			getSessionModel().acceptInvitation(message.getRequestedBy());
+			final ContactInvitationMessage message =
+				(ContactInvitationMessage) sMModel.read(messageId);
+			getSessionModel().acceptInvitation(message.getInvitedBy());
 			sMModel.delete(messageId);
 		}
 		catch(final ParityException px) { throw new RuntimeException(px); }

@@ -51,7 +51,6 @@ public class ModelUtil {
 	}
 
 	private String doGetName(final User user) {
-		if(null == user) { return "!!!!!!!!!NULL!!!!!!!!!!!!!!!"; }
 		if(isSetFirstAndLastName(user)) {
 			return new StringBuffer(user.getLastName())
 				.append(Separator.CommaSpace)

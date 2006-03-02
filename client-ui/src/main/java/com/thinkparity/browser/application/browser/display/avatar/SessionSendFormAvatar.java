@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -39,6 +40,7 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -69,6 +71,13 @@ public class SessionSendFormAvatar extends Avatar {
 	private javax.swing.JCheckBox includeKeyJCheckBox;
 
 	private javax.swing.JButton sendJButton;
+
+	/**
+	 * Used by the contact provider.
+	 * 
+	 * @see #reloadTeamMembers()
+	 */
+	private Contact[] team;
 
 	private javax.swing.JLabel teamJLabel;
 
@@ -118,21 +127,21 @@ public class SessionSendFormAvatar extends Avatar {
 		try { documentId = extractDocumentId(); }
 		catch(final Throwable t) { return Boolean.FALSE; }
 
-		Collection<User> users = null;
-		try { users = extractTeam(); }
+		Collection<Contact> contacts = null;
+		try { contacts = extractTeam(); }
 		catch(final Throwable t) { return Boolean.FALSE; }
 
-		try { users.addAll(extractContacts()); }
+		try { contacts.addAll(extractContacts()); }
 		catch(final Throwable t) { return Boolean.FALSE; }
 
 		final Boolean doIncludeKey = extractDoIncludeKey();
 		if(doIncludeKey) {
 			// only 1 user if the key is to be included
-			if(1 != users.size()) { return Boolean.FALSE; }
+			if(1 != contacts.size()) { return Boolean.FALSE; }
 		}
 		else {
 			// at least 1 user if the key is not included
-			if(1 > users.size()) { return Boolean.FALSE; }
+			if(1 > contacts.size()) { return Boolean.FALSE; }
 		}
 
 		final DocumentVersion version = extractDocumentVersion();
@@ -142,7 +151,7 @@ public class SessionSendFormAvatar extends Avatar {
 			if(version != WorkingVersion.getWorkingVersion()) { return Boolean.FALSE; }
 		}
 
-		if (null != documentId && 0 < users.size()) { return Boolean.TRUE; }
+		if (null != documentId && 0 < contacts.size()) { return Boolean.TRUE; }
 		else { return Boolean.FALSE; }
 	}
 
@@ -184,15 +193,15 @@ public class SessionSendFormAvatar extends Avatar {
 		getController().displayMainBrowserAvatar();
 	}
 
-	private Collection<User> extractContacts() {
+	private Collection<Contact> extractContacts() {
 		return SwingUtil.extract(contactsJList);
 	}
+
+	// End of variables declaration
 
 	private Long extractDocumentId() {
 		return (Long) input;
 	}
-
-	// End of variables declaration
 
 	private DocumentVersion extractDocumentVersion() {
 		return (DocumentVersion) versionJComboBox.getSelectedItem();
@@ -200,16 +209,16 @@ public class SessionSendFormAvatar extends Avatar {
 
 	private Boolean extractDoIncludeKey() { return includeKeyJCheckBox.isSelected(); }
 
-	private List<User> extractTeam() {
+	private List<Contact> extractTeam() {
 		return SwingUtil.extract(teamJList);
 	}
 
-	private User[] getContacts() {
-		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(0, (Long) input);
+	private Contact[] getContacts(final Contact[] team) {
+		return (Contact[]) ((CompositeFlatContentProvider) contentProvider).getElements(0, team);
 	}
 
-	private User[] getTeam() {
-		return (User[]) ((CompositeFlatContentProvider) contentProvider).getElements(1, (Long) input);
+	private Contact[] getTeam() {
+		return (Contact[]) ((CompositeFlatContentProvider) contentProvider).getElements(1, (Long) input);
 	}
 
 	private DocumentVersion[] getVersions() {
@@ -490,10 +499,17 @@ public class SessionSendFormAvatar extends Avatar {
 		}
 	}
 
+	// TODO Fix this.
+	private List<User> proxy(final Iterable<Contact> i) {
+		final List<User> l = new LinkedList<User>();
+		for(final Contact c : i ) { l.add(c); }
+		return l;
+	}
+
 	private void reloadContacts() {
 		contactsModel.clear();
 		if(null != input)
-			loadUserList(contactsModel, getContacts());
+			loadUserList(contactsModel, getContacts(team));
 	}
 
 	/**
@@ -514,8 +530,10 @@ public class SessionSendFormAvatar extends Avatar {
 
 	private void reloadTeamMembers() {
 		teamModel.clear();
-		if(null != input)
-			loadUserList(teamModel, getTeam());
+		if(null != input) {
+			team = getTeam();
+			loadUserList(teamModel, team);
+		}
 	}
 
 	private void reloadVersions() {
@@ -539,15 +557,15 @@ public class SessionSendFormAvatar extends Avatar {
 	private void sendJButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		if(isInputValid()) {
 			final Long documentId = extractDocumentId();
-			final List<User> users = extractTeam();
-			users.addAll(extractContacts());
+			final List<User> contacts = proxy(extractTeam());
+			contacts.addAll(proxy(extractContacts()));
 			final Boolean doIncludeKey = extractDoIncludeKey();
 			toggleVisualFeedback(Boolean.TRUE);
 			try {
 				if(doIncludeKey) {
 					// create a version and send it
 					// update the server key holder
-					final User user = users.get(0);
+					final User user = contacts.get(0);
 					// TODO Refactor the user object.
 					final JabberId jabberId = JabberIdBuilder.parseUsername(user.getSimpleUsername());
 					getSessionModel().sendKeyResponse(documentId, jabberId, KeyResponse.ACCEPT);
@@ -557,13 +575,13 @@ public class SessionSendFormAvatar extends Avatar {
 					final DocumentVersion version = extractDocumentVersion();
 					if(version == WorkingVersion.getWorkingVersion()) {
 						// create a version and send it
-						getSessionModel().send(users, documentId);
+						getSessionModel().send(contacts, documentId);
 						displayMainBrowserAvatar(Boolean.TRUE);
 					}
 					else {
 						// send a specific version
 						getSessionModel().send(
-								users, documentId, version.getVersionId());
+								contacts, documentId, version.getVersionId());
 						displayMainBrowserAvatar(Boolean.TRUE);
 					}
 				}

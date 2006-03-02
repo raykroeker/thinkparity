@@ -4,11 +4,9 @@
 package com.thinkparity.browser.application.browser.display.provider;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -33,7 +31,9 @@ import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * @author raykroeker@gmail.com
@@ -148,15 +148,15 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider mainProvider;
 
+	private final ContentProvider sendArtifactArtifactContactProvider;
+
+	private final ContentProvider sendArtifactContactProvider;
+
 	/**
 	 * Send artifact provider.
 	 * 
 	 */
 	private final ContentProvider sendArtifactProvider;
-
-	private final ContentProvider sendArtifactRosterProvider;
-
-	private final ContentProvider sendArtifactTeamProvider;
 
 	private final ContentProvider sendArtifactVersionProvider;
 
@@ -173,13 +173,11 @@ public class ProviderFactory {
 		this.historyProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				final Long documentId = (Long) input;
-				Collection<HistoryItem> history;
-				try { history = documentModel.readHistory(documentId); }
-				catch(final ParityException px) {
-					logger.error("Could not obtain the document history.", px);
-					history = Collections.emptyList();
+				try {
+					return documentModel.readHistory(documentId)
+						.toArray(new HistoryItem[] {});
 				}
-				return history.toArray(new HistoryItem[] {});
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
 		this.logger = ModelLoggerFactory.getLogger(getClass());
@@ -201,13 +199,10 @@ public class ProviderFactory {
 		};
 		this.mainKeyProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
-				List<Long> keys;
-				try { keys = sessionModel.getArtifactKeys(); }
-				catch(final ParityException px) {
-					logger.error("Cannot obtain main keys.", px);
-					keys = Collections.<Long>emptyList();
+				try {
+					return sessionModel.getArtifactKeys().toArray(new Long[] {});
 				}
-				return keys.toArray(new Long[] {});
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
 		this.mainMessageProvider = new FlatContentProvider() {
@@ -233,32 +228,26 @@ public class ProviderFactory {
 				return (FlatContentProvider) contentProviders[index];
 			}
 		};
-		this.sendArtifactRosterProvider = new FlatContentProvider() {
+		this.sendArtifactContactProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
-				Assert.assertNotNull(
-						"The send artifact roster provider requires an artifact id:  java.lang.Long",
-						input);
-				Assert.assertOfType(
-						"The send artifact roster provider requires an artifact id:  java.lang.Long",
-						Long.class,
-						input);
-				Collection<User> roster;
+				List<Contact> roster;
 				try {
-					final User[] team =
-						(User[]) ((FlatContentProvider) sendArtifactTeamProvider).getElements(input);
-					roster = sessionModel.getRosterEntries();
+					roster = sessionModel.readContacts();
+
 					// remove all team members from the roster list
-					for(final User user : team)
-						roster.remove(user);
+					final Contact[] team = (Contact[]) input;
+					if(null != team) {
+						for(final Contact contact : team)
+							roster.remove(contact);
+					}
 				}
-				catch(final ParityException px) {
-					logger.error("Cannot obtain the user's roster.", px);
-					roster = new Vector<User>(0);
-				}
-				return roster.toArray(new User[] {});
+				catch(final ParityException px) { throw new RuntimeException(px); }
+				return roster.toArray(new Contact[] {});
 			}
 		};
-		this.sendArtifactTeamProvider = new FlatContentProvider() {
+		this.sendArtifactArtifactContactProvider = new FlatContentProvider() {
+			final JabberId jabberId =
+				JabberIdBuilder.parseUsername(preferences.getUsername());
 			public Object[] getElements(final Object input) {
 				Assert.assertNotNull(
 						"The team provider requires an artifact id:  java.lang.Long.",
@@ -267,28 +256,17 @@ public class ProviderFactory {
 						"The team provider requires an artifact id:  java.lang.Long.",
 						Long.class, input);
 				final Long artifactId = (Long) input;
-				Collection<User> team;
+				List<Contact> artifactContacts;
 				try {
-					team = sessionModel.getSubscriptions(artifactId);
-					final Iterator<User> iTeam = team.iterator();
-					User user;
-					final String loggedInUsername = new StringBuffer(preferences.getUsername())
-					.append("@")
-					.append(preferences.getServerHost())
-					.toString();
-					while(iTeam.hasNext()) {
-						user = iTeam.next();
-						if(user.getUsername().equals(loggedInUsername)) {
-							iTeam.remove();
-						}
+					artifactContacts = sessionModel.readArtifactContacts(artifactId);
+					Contact contact;
+					for(final Iterator<Contact> i = artifactContacts.iterator(); i.hasNext();) {
+						contact= i.next();
+						if(contact.getId().equals(jabberId)) { i.remove(); }
 					}
+					return artifactContacts.toArray(new Contact[] {});
 				}
-				catch(final ParityException px) {
-					logger.error("Could not obtain the team for the artifact:  "
-							+ artifactId, px);
-					team = new Vector<User>(0);
-				}
-				return team.toArray(new User[] {});
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
 		this.sendArtifactVersionProvider = new FlatContentProvider() {
@@ -306,15 +284,13 @@ public class ProviderFactory {
 					if(sessionModel.isLoggedInUserKeyHolder(artifactId)) {
 						versions.add(0, WorkingVersion.getWorkingVersion());
 					}
+					return versions.toArray(new DocumentVersion[] {});
 				}
-				catch(final ParityException px) {
-					logger.error("Could not obtain send artifact version list:  " + input, px);
-				}
-				return versions.toArray(new DocumentVersion[] {});
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
 		this.sendArtifactProvider = new CompositeFlatContentProvider() {
-			private final ContentProvider[] contentProviders = new ContentProvider[] {sendArtifactRosterProvider, sendArtifactTeamProvider, sendArtifactVersionProvider};
+			private final ContentProvider[] contentProviders = new ContentProvider[] {sendArtifactContactProvider, sendArtifactArtifactContactProvider, sendArtifactVersionProvider};
 			public Object[] getElements(final Integer index, final Object input) {
 				Assert.assertNotNull(
 						"Index for composite content provider cannot be null.",

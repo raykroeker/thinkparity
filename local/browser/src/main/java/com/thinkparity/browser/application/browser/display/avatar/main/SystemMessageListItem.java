@@ -15,9 +15,10 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.message.system.ContactInvitationMessage;
+import com.thinkparity.model.parity.model.message.system.ContactInvitationResponseMessage;
 import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
 import com.thinkparity.model.parity.model.message.system.KeyResponseMessage;
-import com.thinkparity.model.parity.model.message.system.PresenceRequestMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 
@@ -91,9 +92,12 @@ public class SystemMessageListItem extends ListItem {
 	 */
 	public void populateMenu(final JPopupMenu jPopupMenu) {
 		switch(getMessageType()) {
-		case PRESENCE_REQUEST:
+		case CONTACT_INVITATION:
 			jPopupMenu.add(getAcceptMenuItem());
 			jPopupMenu.add(getDeclineMenuItem());
+			break;
+		case CONTACT_INVITATION_RESPONSE:
+			jPopupMenu.add(getDeleteMenuItem());
 			break;
 		case KEY_REQUEST:
 			jPopupMenu.add(getAcceptMenuItem());
@@ -190,6 +194,39 @@ public class SystemMessageListItem extends ListItem {
 		return (SystemMessageType) getProperty("messageType");
 	}
 
+	/**
+	 * Obtain the list item name for the presence request message.
+	 * 
+	 * @param message
+	 *            The presence request message.
+	 * @return The list item name.
+	 */
+	private String getName(final ContactInvitationMessage message) {
+		return getString(
+				message.getType(),
+				new Object[] {message.getInvitedBy().toString()});
+	}
+
+	/**
+	 * Obtain the list item name for the contact response message.
+	 * 
+	 * @param message
+	 *            The contact invitation response message.
+	 * @return The list item name.
+	 */
+	private String getName(final ContactInvitationResponseMessage message) {
+		if(message.didAcceptInvitation()) {
+			return getString(
+					message.getType() + ".ACCEPTED",
+					new Object[] {message.getResponseFrom().toString()});
+		}
+		else {
+			return getString(
+					message.getType() + ".DECLINED",
+					new Object[] {message.getResponseFrom().toString()});
+		}
+	}
+
 	private String getName(final KeyRequestMessage message) {
 		Document document;
 		try { document = getDocumentModel().get(message.getArtifactId()); }
@@ -216,19 +253,6 @@ public class SystemMessageListItem extends ListItem {
 	}
 
 	/**
-	 * Obtain the list item name for the presence request message.
-	 * 
-	 * @param message
-	 *            The presence request message.
-	 * @return The list item name.
-	 */
-	private String getName(final PresenceRequestMessage message) {
-		return getString(
-				message.getType(),
-				new Object[] {message.getRequestedBy().getUsername()});
-	}
-
-	/**
 	 * Obtain the list item name for the message.
 	 * 
 	 * @param message
@@ -238,7 +262,8 @@ public class SystemMessageListItem extends ListItem {
 	private String getName(final SystemMessage message) {
 		final SystemMessageType messageType = message.getType();
 		switch(messageType) {
-		case PRESENCE_REQUEST: return getName((PresenceRequestMessage) message);
+		case CONTACT_INVITATION: return getName((ContactInvitationMessage) message);
+		case CONTACT_INVITATION_RESPONSE: return getName((ContactInvitationResponseMessage) message);
 		case KEY_RESPONSE: return getName((KeyResponseMessage) message);
 		case KEY_REQUEST: return getName((KeyRequestMessage) message);
 		default:
@@ -261,7 +286,7 @@ public class SystemMessageListItem extends ListItem {
 	private void runAccept() {
 		final SystemMessage message = getMessage();
 		switch(message.getType()) {
-		case PRESENCE_REQUEST:
+		case CONTACT_INVITATION:
 			getController().runAcceptContactInvitation(message.getId());
 			break;
 		case KEY_REQUEST:
@@ -275,7 +300,7 @@ public class SystemMessageListItem extends ListItem {
 	private void runDecline() {
 		final SystemMessage message = getMessage();
 		switch(message.getType()) {
-		case PRESENCE_REQUEST:
+		case CONTACT_INVITATION:
 			getController().runDeclineContactInvitation(message.getId());
 			break;
 		case KEY_REQUEST:
@@ -289,6 +314,7 @@ public class SystemMessageListItem extends ListItem {
 	private void runDelete() {
 		final SystemMessage message = getMessage();
 		switch(message.getType()) {
+		case CONTACT_INVITATION_RESPONSE:
 		case KEY_RESPONSE:
 			getController().runDeleteSystemMessage(message.getId());
 			break;

@@ -62,6 +62,8 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.document.OpenVersion();
 		case SESSION_ACCEPT_INVITATION:
 			return new com.thinkparity.browser.platform.action.session.AcceptInvitation();
+		case SESSION_DECLINE_INVITATION:
+			return new com.thinkparity.browser.platform.action.session.DeclineInvitation();
 		case SESSION_ADD_CONTACT:
 			return new com.thinkparity.browser.platform.action.session.AddContact();
 		case SESSION_REQUEST_KEY:

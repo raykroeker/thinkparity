@@ -29,9 +29,7 @@ public class UnsubscribeUser extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session) throws ParityServerModelException,
 			UnauthorizedException {
-		logger.info("handleIQ(IQ,Session)");
-		logger.debug(iq);
-		logger.debug(session);
+		logger.info("[RMODEL] [USER] [UNSUBSCRIBE]");
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		artifactModel.unsubscribe(extractArtifact(artifactModel, iq));
 		return createResult(iq);

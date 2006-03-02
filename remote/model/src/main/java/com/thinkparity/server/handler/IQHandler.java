@@ -69,16 +69,15 @@ public abstract class IQHandler extends
 	 * @see org.jivesoftware.messenger.handler.IQHandler#getInfo()
 	 */
 	public IQHandlerInfo getInfo() {
-		logger.info("getInfo()");
 		logger.debug(iqHandlerInfo);
 		return iqHandlerInfo;
 	}
 
 	/**
 	 * @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)
+	 * 
 	 */
 	public IQ handleIQ(final IQ iq) throws UnauthorizedException {
-		logger.info("handleIQ(IQ)");
 		logger.debug(iq);
 		try {
 			final Session session = new Session() {
@@ -87,8 +86,8 @@ public abstract class IQHandler extends
 				public JabberId getJabberId() { return jabberId; }
 				public JID getJID() { return jid; }
 			};
+			logger.debug(session);
 			final IQ resultIQ = handleIQ(iq, session);
-			logger.debug("resultIQ");
 			logger.debug(resultIQ);
 			return resultIQ;
 		}

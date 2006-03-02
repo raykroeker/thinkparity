@@ -29,9 +29,7 @@ public class SubscribeUser extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("handleIQ(IQ,Session)");
-		logger.debug(iq);
-		logger.debug(session);
+		logger.info("[RMODEL] [USER] [SUBSCRIBE]");
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		artifactModel.subscribe(extractArtifact(artifactModel, iq));
 		return createResult(iq);

@@ -28,12 +28,9 @@ public class DenyKeyRequest extends IQHandler {
 	 */
 	public IQ handleIQ(IQ iq, Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("handleIQ(IQ,Session)");
-		logger.debug(iq);
-		logger.debug(session);
+		logger.info("[RMODEL] [ARTIFACT] [DENY KEY]");
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		artifactModel.denyKeyRequest(extractUniqueId(iq), extractJID(iq));
 		return createResult(iq);
 	}
-
 }

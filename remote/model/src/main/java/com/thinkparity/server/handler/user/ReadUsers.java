@@ -33,6 +33,7 @@ public class ReadUsers extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
+		logger.info("[RMODEL] [USER] [READ USERS]");
 		final List<User> users = getUserModel(session).readUsers(extractJabberIds(iq));
 		return createResult(iq, session, users);
 	}

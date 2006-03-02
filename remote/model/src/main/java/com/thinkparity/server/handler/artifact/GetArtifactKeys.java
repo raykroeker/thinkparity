@@ -35,9 +35,7 @@ public class GetArtifactKeys extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("handleIQ(IQ,Session)");
-		logger.debug(iq);
-		logger.debug(session);
+		logger.info("[RMODEL] [ARTIFACT] [GET KEYS]");
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		final List<Artifact> artifacts = artifactModel.listForKeyHolder();
 		return createResult(iq, session, artifacts);

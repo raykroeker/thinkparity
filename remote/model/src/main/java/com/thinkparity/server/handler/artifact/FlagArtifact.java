@@ -32,9 +32,7 @@ public class FlagArtifact extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session) throws ParityServerModelException,
 			UnauthorizedException {
-		logger.info("handleIQ(IQ,Session)");
-		logger.debug(iq);
-		logger.debug(session);
+		logger.info("[RMODEL] [ARTIFACT] [FLAG]");
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		artifactModel.flag(extractArtifact(artifactModel, iq), extractFlag(iq));
 		return createResult(iq);

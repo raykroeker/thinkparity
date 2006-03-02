@@ -32,6 +32,7 @@ public class InviteContact extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
+		logger.info("[RMODEL] [CONTACT] [INVITE]");
 		final JabberId to = extractJabberId(iq);
 		final ContactModel contactModel = getContactModel(session);
 		contactModel.createInvitation(to);

@@ -108,14 +108,8 @@ public class ServerLog4jConfigurator {
 	 */
 	private void configureGlobal(final Properties globalProperties) {
 		globalProperties.setProperty("log4j.logger.com.thinkparity.server", "ERROR, serverHTML");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.ParityServer", "DEBUG");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.AbstractModelImpl", "DEBUG");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.contact", "DEBUG");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.user", "DEBUG");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.IQHandler", "DEBUG");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.contact", "DEBUG");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.user", "DEBUG");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.io.sql", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.ParityServer", "INFO");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler", "INFO");
 	}
 
 	/**
@@ -163,7 +157,7 @@ public class ServerLog4jConfigurator {
 	private void configureServerHTMLAppender(
 			final Properties log4jProperties, final File log4jDirectory) {
 		log4jProperties.setProperty("log4j.appender.serverHTML", "org.apache.log4j.RollingFileAppender");
-		log4jProperties.setProperty("log4j.appender.serverHTML.MaxFileSize", "3MB");
+		log4jProperties.setProperty("log4j.appender.serverHTML.MaxFileSize", "512MB");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout", "org.apache.log4j.HTMLLayout");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout.locationInfo", "true");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout.title", "Parity Server");

@@ -33,6 +33,7 @@ public class DeclineInvitation extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
+		logger.info("[RMODEL] [CONTACT] [DECLINE INVITATION]");
 		final JabberId jabberId = extractJabberId(iq);
 		final ContactModel contactModel = getContactModel(session);
 		final Invitation invitation = contactModel.readInvitation(jabberId);

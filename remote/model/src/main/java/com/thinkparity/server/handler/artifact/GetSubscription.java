@@ -34,9 +34,7 @@ public class GetSubscription extends IQHandler {
 	 */
 	public IQ handleIQ(IQ iq, Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("handleIQ(IQ,Session)");
-		logger.debug(iq);
-		logger.debug(session);
+		logger.info("[RMODEL] [ARTIFACT] [GET SUBSCRIPTION]");
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		final Artifact artifact = artifactModel.get(extractUniqueId(iq));
 		final List<ArtifactSubscription> subscriptions = artifactModel.getSubscription(extractUniqueId(iq));

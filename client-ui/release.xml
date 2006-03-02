@@ -27,6 +27,10 @@
 	<!-- files -->
 	<property name="file.jnlp" value="${basedir}/${name}.jnlp"/>
 	<property name="file.cmd" value="${basedir}/${name}.cmd"/>
+	<property name="djohnson.cmd" value="${basedir}/djohnson.cmd"/>
+	<property name="emorrison.cmd" value="${basedir}/emorrison.cmd"/>
+	<property name="kmfarland.cmd" value="${basedir}/kmfarland.cmd"/>
+	<property name="strimnell.cmd" value="${basedir}/strimnell.cmd"/>
 	<property name="file.zip" value="${releasedir}/${name}-${version}.zip"/>
 
 	<!-- targets -->
@@ -49,7 +53,11 @@
 			<fileset file="${lib.hsqldb}"/>
 
 			<fileset file="${file.jnlp}"/>
-			<fileset file="${file.cmd}"/>
+			<fileset file="${file.cmd}"/>\
+			<fileset file="${djohnson.cmd}"/>
+			<fileset file="${emorrison.cmd}"/>
+			<fileset file="${kmfarland.cmd}"/>
+			<fileset file="${strimnell.cmd}"/>
 		</copy>
 		<zip destfile="${file.zip}">
 			<fileset dir="${releasedir}">

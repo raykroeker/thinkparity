@@ -59,7 +59,8 @@ class QueueModelImpl extends AbstractModelImpl {
 		try {
 			final String username = jid.getNode();
 			final String message = iq.toXML();
-			final Integer queueId = queueSql.insert(username, message);
+			final Integer queueId = queueSql.insert(
+					username, message, session.getJabberId());
 			return queueSql.select(queueId);
 		}
 		catch(SQLException sqlx) {

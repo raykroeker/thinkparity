@@ -17,6 +17,7 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.server.JabberId;
 import com.thinkparity.server.JabberIdBuilder;
 import com.thinkparity.server.model.artifact.ArtifactSubscription;
 import com.thinkparity.server.model.io.sql.AbstractSql;
@@ -34,8 +35,9 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 
 	private static final String INSERT =
 		new StringBuffer("insert into parityArtifactSubscription ")
-		.append("(artifactSubscriptionId,artifactId,updatedOn,username) ")
-		.append("values (?,?,CURRENT_TIMESTAMP,?)")
+		.append("(artifactSubscriptionId,artifactId,createdBy,updatedOn,")
+		.append("updatedBy,username) ")
+		.append("values (?,?,?,CURRENT_TIMESTAMP,?,?)")
 		.toString();
 
 	private static final String SELECT = new StringBuffer()
@@ -78,7 +80,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public Integer insert(final Integer artifactId, final String username)
+	public Integer insert(final Integer artifactId, final String username, final JabberId createdBy)
 			throws SQLException {
 		logger.info("insert(Integer,String)");
 		logger.debug(artifactId);
@@ -90,13 +92,14 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 			debugSql(INSERT);
 			ps = cx.prepareStatement(INSERT);
 			final Integer artifactSubscriptionId = nextId(this);
-			debugSql(1, artifactSubscriptionId);
-			ps.setInt(1, artifactSubscriptionId);
-			debugSql(2, artifactId);
-			ps.setInt(2, artifactId);
-			debugSql(3, username);
-			ps.setString(3, username);
-			Assert.assertTrue("insert(Integer,String)", 1 == ps.executeUpdate());
+			set(ps, 1, artifactSubscriptionId);
+			set(ps, 2, artifactId);
+			set(ps, 3, createdBy);
+			set(ps, 4, createdBy);
+			set(ps, 5, username);
+			if(1 != ps.executeUpdate())
+				throw new SQLException("Could not create subscription.");
+
 			return artifactSubscriptionId;
 		}
 		finally { close(cx, ps); }

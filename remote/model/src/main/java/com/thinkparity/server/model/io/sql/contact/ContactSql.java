@@ -22,8 +22,8 @@ public class ContactSql extends AbstractSql {
 
 	private static final String SQL_CREATE =
 		new StringBuffer("insert into parityContact ")
-		.append("(username,contactUsername) ")
-		.append("values (?,?)")
+		.append("(username,contactUsername,createdBy,updatedBy,updatedOn) ")
+		.append("values (?,?,?,?,CURRENT_TIMESTAMP)")
 		.toString();
 
 	private static final String SQL_DELETE =
@@ -43,16 +43,18 @@ public class ContactSql extends AbstractSql {
 	 */
 	public ContactSql() { super(); }
 
-	public void create(final JabberId username, final JabberId contact)
-		throws SQLException {
+	public void create(final JabberId username, final JabberId contact,
+			final JabberId createdBy) throws SQLException {
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
 			debugSql(SQL_CREATE);
 			ps = cx.prepareStatement(SQL_CREATE);
-			ps.setString(1, username.getUsername());
-			ps.setString(2, contact.getQualifiedUsername());
+			set(ps, 1, username.getUsername());
+			set(ps, 2, contact.getQualifiedUsername());
+			set(ps, 3, createdBy);
+			set(ps, 4, createdBy);
 			if(1 != ps.executeUpdate())
 				throw new SQLException("Could not create contact.");
 		}

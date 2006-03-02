@@ -18,6 +18,7 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.Artifact.State;
 import com.thinkparity.server.model.io.sql.AbstractSql;
@@ -31,8 +32,8 @@ public class ArtifactSql extends AbstractSql {
 
 	private static final String INSERT =
 		new StringBuffer("insert into parityArtifact ")
-		.append("(artifactId,artifactUUID,artifactKeyHolder,artifactStateId,updatedOn) ")
-		.append("values (?,?,?,?,CURRENT_TIMESTAMP)")
+		.append("(artifactId,artifactUUID,artifactKeyHolder,artifactStateId,createdBy,updatedOn,updatedBy) ")
+		.append("values (?,?,?,?,?,CURRENT_TIMESTAMP,?)")
 		.toString();
 
 	private static final String SELECT = new StringBuffer()
@@ -53,14 +54,17 @@ public class ArtifactSql extends AbstractSql {
 		.append("where artifactKeyHolder= ?").toString();
 
 	private static final String UPDATE_KEYHOLDER =
-		new StringBuffer("update parityArtifact set artifactKeyHolder = ?,")
-		.append("updatedOn = current_timestamp where artifactId = ?")
+		new StringBuffer("update parityArtifact ")
+		.append("set artifactKeyHolder=?,updatedOn=current_timestamp,")
+		.append("updatedBy=? ")
+		.append("where artifactId=?")
 		.toString();
 
 	private static final String SQL_UPDATE_STATE =
-		new StringBuffer("update parityArtifact set artifactStateId=?,")
-		.append("updatedOn = current_timestamp where artifactId=? ")
-		.append("and artifactStateId=?")
+		new StringBuffer("update parityArtifact ")
+		.append("set artifactStateId=?,updatedOn=current_timestamp,")
+		.append("updatedBy=? ")
+		.append("where artifactId=? and artifactStateId=?")
 		.toString();
 
 	private static final String SQL_DELETE =
@@ -74,8 +78,8 @@ public class ArtifactSql extends AbstractSql {
 	public ArtifactSql() { super(); }
 
 	public Integer insert(final UUID artifactUUID,
-			final String artifactKeyHolder, final Artifact.State state)
-			throws SQLException {
+			final String artifactKeyHolder, final Artifact.State state,
+			final JabberId createdBy) throws SQLException {
 		logger.info("insert(UUID)");
 		logger.debug(artifactUUID);
 		logger.debug(artifactKeyHolder);
@@ -94,6 +98,8 @@ public class ArtifactSql extends AbstractSql {
 			ps.setString(3, artifactKeyHolder);
 			debugSql(4, state);
 			ps.setInt(4, state.getId());
+			set(ps, 5, createdBy);
+			set(ps, 6, createdBy);
 			Assert.assertTrue("insert(UUID)", 1 == ps.executeUpdate());
 			return artifactId;
 		}
@@ -160,7 +166,8 @@ public class ArtifactSql extends AbstractSql {
 	}
 
 	public void updateKeyHolder(final Integer artifactId,
-			final String artifactKeyHolder) throws SQLException {
+			final String artifactKeyHolder, final JabberId updatedBy)
+			throws SQLException {
 		logger.info("updateKeyHolder(Integer,String)");
 		logger.debug(artifactId);
 		logger.debug(artifactKeyHolder);
@@ -172,8 +179,9 @@ public class ArtifactSql extends AbstractSql {
 			ps = cx.prepareStatement(UPDATE_KEYHOLDER);
 			debugSql(1, artifactKeyHolder);
 			ps.setString(1, artifactKeyHolder);
-			debugSql(2, artifactId);
-			ps.setInt(2, artifactId);
+			set(ps, 2, updatedBy);
+			debugSql(3, artifactId);
+			ps.setInt(3, artifactId);
 			Assert.assertTrue(
 					"updateKeyHolder(Integer,String)", 1 == ps.executeUpdate());
 		}
@@ -181,7 +189,7 @@ public class ArtifactSql extends AbstractSql {
 	}
 
 	public void updateState(final Integer artifactId, final State currentState,
-			final State newState) throws SQLException {
+			final State newState, final JabberId updatedBy) throws SQLException {
 		logger.info("updateState(Long,State,State)");
 		logger.debug(artifactId);
 		logger.debug(currentState);
@@ -190,17 +198,13 @@ public class ArtifactSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			debugSql(SQL_UPDATE_STATE);
-			ps = cx.prepareStatement(SQL_UPDATE_STATE);
-			debugSql(1, newState);
-			ps.setInt(1, newState.getId());
-			debugSql(2, artifactId);
-			ps.setInt(2, artifactId);
-			debugSql(3, currentState);
-			ps.setInt(3, currentState.getId());
-			Assert.assertTrue("Unable to update state.",
-					1 == ps.executeUpdate());
-				
+			ps = prepare(cx, SQL_UPDATE_STATE);
+			set(ps, 1, newState);
+			set(ps, 2, updatedBy);
+			set(ps, 3, artifactId);
+			set(ps, 4, currentState);
+			if(1 != ps.executeUpdate())
+				throw new SQLException("Unable to update state.");
 		}
 		finally { close(cx, ps); }
 	}

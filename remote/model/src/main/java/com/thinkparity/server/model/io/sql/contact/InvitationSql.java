@@ -21,8 +21,8 @@ public class InvitationSql extends AbstractSql {
 
 	private static final String SQL_CREATE =
 		new StringBuffer("insert into parityContactInvitation ")
-		.append("(invitationFrom,invitationTo) ")
-		.append("values (?,?)")
+		.append("(invitationFrom,invitationTo,createdBy,updatedBy,updatedOn) ")
+		.append("values (?,?,?,?,CURRENT_TIMESTAMP)")
 		.toString();
 
 	private static final String SQL_DELETE =
@@ -41,8 +41,8 @@ public class InvitationSql extends AbstractSql {
 	 */
 	public InvitationSql() { super(); }
 
-	public void create(final JabberId from, final JabberId to)
-			throws SQLException {
+	public void create(final JabberId from, final JabberId to,
+			final JabberId createdBy) throws SQLException {
 		logger.info("create(JabberId,JabberId)");
 		logger.debug(from);
 		logger.debug(to);
@@ -52,8 +52,10 @@ public class InvitationSql extends AbstractSql {
 			cx = getCx();
 			debugSql(SQL_CREATE);
 			ps = cx.prepareStatement(SQL_CREATE);
-			ps.setString(1, from.getQualifiedUsername());
-			ps.setString(2, to.getQualifiedUsername());
+			set(ps, 1, from.getQualifiedUsername());
+			set(ps, 2, to.getQualifiedUsername());
+			set(ps, 3, createdBy);
+			set(ps, 4, createdBy);
 			if(1 != ps.executeUpdate())
 				throw new SQLException("Could not create invitation.");
 		}

@@ -62,8 +62,8 @@ class ContactModelImpl extends AbstractModelImpl {
 			final Invitation invitation = invitationSql.read(from, to);
 			Assert.assertNotNull("Cannot accept a null invitation.", invitation);
 
-			contactSql.create(from, to);
-			contactSql.create(to, from);
+			contactSql.create(from, to, session.getJabberId());
+			contactSql.create(to, from, session.getJabberId());
 
 			invitationSql.delete(from, to);
 
@@ -90,7 +90,7 @@ class ContactModelImpl extends AbstractModelImpl {
 			final Invitation invitation = invitationSql.read(session.getJabberId(), to);
 			// if an invitation already exists we do nothing
 			if(null == invitation) {
-				invitationSql.create(session.getJabberId(), to);
+				invitationSql.create(session.getJabberId(), to, session.getJabberId());
 
 				// send the invitation
 				final IQ iq = new IQInviteContact(session.getJabberId());

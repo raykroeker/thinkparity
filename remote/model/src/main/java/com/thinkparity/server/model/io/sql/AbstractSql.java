@@ -12,6 +12,8 @@ import org.apache.log4j.Logger;
 import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.database.SequenceManager;
 
+import com.thinkparity.server.JabberId;
+import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 
 /**
@@ -44,6 +46,19 @@ public abstract class AbstractSql {
 		}
 	}
 
+	protected void debugSql(final Integer index, final Object value) {
+		debugSql(new StringBuffer("[")
+				.append(index)
+				.append("] ")
+				.append(value).toString());
+	}
+
+	protected void debugSql(final String sql) {
+		final StringBuffer message = new StringBuffer("[SQL] ")
+			.append(sql);
+		logger.debug(message);
+	}
+
 	protected Connection getCx() throws SQLException {
 		return DbConnectionManager.getConnection();
 	}
@@ -53,16 +68,86 @@ public abstract class AbstractSql {
 		return nextId.intValue();
 	}
 
-	protected void debugSql(final String sql) {
-		final StringBuffer message = new StringBuffer("[SQL] ")
-			.append(sql);
-		logger.debug(message);
+	/**
+	 * Set a variable in a prepared statement to an integer value.
+	 * 
+	 * @param ps
+	 *            The prepared statement.
+	 * @param index
+	 *            The index of the variable in the prepared statement.
+	 * @param integer
+	 *            The integer value.
+	 * @throws SQLException
+	 */
+	protected void set(final PreparedStatement ps, final Integer index,
+			final Integer integer) throws SQLException {
+		debugSql(index, integer);
+		ps.setInt(index, integer);
 	}
 
-	protected void debugSql(final Integer index, final Object value) {
-		debugSql(new StringBuffer("[")
-				.append(index)
-				.append("] ")
-				.append(value).toString());
+	/**
+	 * Set a variable in a prepared statement to a jabber id value.
+	 * 
+	 * @param ps
+	 *            The prepared statement.
+	 * @param index
+	 *            The index of the variable in the prepared statement.
+	 * @param jabberId
+	 *            The jabber id.
+	 * @throws SQLException
+	 */
+	protected void set(final PreparedStatement ps, final Integer index,
+			final JabberId jabberId) throws SQLException {
+		debugSql(index, jabberId.getUsername());
+		ps.setString(index, jabberId.getUsername());
+	}
+
+	/**
+	 * Set a variable in a prepared statement to a string value.
+	 * 
+	 * @param ps
+	 *            The prepared statement.
+	 * @param index
+	 *            The index of the variable in the prepared statement.
+	 * @param string
+	 *            The string value.
+	 * @throws SQLException
+	 */
+	protected void set(final PreparedStatement ps, final Integer index,
+			final String string) throws SQLException {
+		debugSql(index, string);
+		ps.setString(index, string);
+	}
+
+	/**
+	 * Set a variable in a prepared statement to an artifact state value.
+	 * 
+	 * @param ps
+	 *            The prepared statement.
+	 * @param index
+	 *            The index of the variable in the prepared statement.
+	 * @param state
+	 *            The artifact state.
+	 * @throws SQLException
+	 */
+	protected void set(final PreparedStatement ps, final Integer index,
+			final Artifact.State state) throws SQLException {
+		debugSql(index, state.getId());
+		ps.setInt(index, state.getId());
+	}
+
+	/**
+	 * Prepare a statement for execution for a connection.
+	 * 
+	 * @param cx
+	 *            The connection.
+	 * @param sql
+	 *            The sql.
+	 * @return The prepared statement.
+	 */
+	protected PreparedStatement prepare(final Connection cx, final String sql)
+			throws SQLException {
+		debugSql(sql);
+		return cx.prepareStatement(sql);
 	}
 }

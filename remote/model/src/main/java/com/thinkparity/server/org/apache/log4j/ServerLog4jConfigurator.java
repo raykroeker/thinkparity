@@ -115,6 +115,7 @@ public class ServerLog4jConfigurator {
 		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.IQHandler", "DEBUG");
 		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.contact", "DEBUG");
 		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.user", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.io.sql", "DEBUG");
 	}
 
 	/**

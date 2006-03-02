@@ -16,6 +16,7 @@ import org.jivesoftware.database.JiveID;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.io.sql.AbstractSql;
 import com.thinkparity.server.model.queue.QueueItem;
 
@@ -29,9 +30,12 @@ public class QueueSql extends AbstractSql {
 	private static final String DELETE =
 		"delete from parityQueue where queueId = ?";
 
-	private static final String INSERT = new StringBuffer()
-		.append("insert into parityQueue (queueId,username,queueMessageSize,")
-		.append("queueMessage,updatedOn) values (?,?,?,?,CURRENT_TIMESTAMP)").toString();
+	private static final String INSERT =
+		new StringBuffer("insert into parityQueue ")
+		.append("(queueId,username,queueMessageSize,queueMessage,createdBy,")
+		.append("updatedBy,updatedOn) ")
+		.append("values (?,?,?,?,?,?,CURRENT_TIMESTAMP)")
+		.toString();
 
 	private static final String SELECT = new StringBuffer()
 		.append("select queueId,username,queueMessageSize,queueMessage,")
@@ -64,8 +68,8 @@ public class QueueSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public Integer insert(final String username, final String message)
-			throws SQLException {
+	public Integer insert(final String username, final String message,
+			final JabberId createdBy) throws SQLException {
 		logger.info("insert(String,String)");
 		logger.debug(username);
 		logger.debug(message);
@@ -73,13 +77,18 @@ public class QueueSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			ps = cx.prepareStatement(INSERT);
+			ps = prepare(cx, INSERT);
+
 			final Integer queueId = nextId(this);
-			ps.setInt(1, queueId);
-			ps.setString(2, username);
-			ps.setInt(3, message.length());
-			ps.setString(4, message);
-			Assert.assertTrue("insert(String,String)", 1 == ps.executeUpdate());
+			set(ps, 1, queueId);
+			set(ps, 2, username);
+			set(ps, 3, message.length());
+			set(ps, 4, message);
+			set(ps, 5, createdBy);
+			set(ps, 6, createdBy);
+			if(1 != ps.executeUpdate())
+				throw new SQLException("Could not create queue entry.");
+
 			return queueId;
 		}
 		finally { close(cx, ps); }

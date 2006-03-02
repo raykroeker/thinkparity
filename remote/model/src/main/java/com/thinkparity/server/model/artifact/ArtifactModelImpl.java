@@ -122,7 +122,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			final Artifact artifact = get(artifactUniqueId);
 			final Integer artifactId = artifact.getArtifactId();
 			final String username = jid.getNode();
-			artifactSql.updateKeyHolder(artifactId, username);
+			artifactSql.updateKeyHolder(artifactId, username, session.getJabberId());
 			// send the requestor an acceptance packet
 			final IQ iq = new IQAcceptKeyRequest(artifactUniqueId, session.getJID());
 			iq.setTo(jid);
@@ -198,12 +198,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.debug(artifactUniqueId);
 		try {
 			final String artifactKeyHolder = session.getJID().getNode();
-			artifactSql.insert(artifactUniqueId, artifactKeyHolder, Artifact.State.ACTIVE);
+			artifactSql.insert(artifactUniqueId, artifactKeyHolder,
+					Artifact.State.ACTIVE, session.getJabberId());
 			final Artifact artifact = artifactSql.select(artifactUniqueId);
 			// also add a subscription for the creator
 			final Integer artifactId = artifact.getArtifactId();
 			final String username = session.getJID().getNode();
-			artifactSubscriptionSql.insert(artifactId, username);
+			artifactSubscriptionSql.insert(artifactId, username, session.getJabberId());
 			return artifact;
 		}
 		catch(SQLException sqlx) {
@@ -467,7 +468,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 						.append("User already has a subscription.");
 				logger.warn(warning);
 			}
-			else { artifactSubscriptionSql.insert(artifactId, username); }
+			else { artifactSubscriptionSql.insert(artifactId, username, session.getJabberId()); }
 		}
 		catch(SQLException sqlx) {
 			logger.error("subscribe(User,Artifact)", sqlx);
@@ -580,6 +581,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			final Artifact.State newState) throws SQLException {
 		assertStateTransition(artifact.getArtifactState(), newState);
 		artifactSql.updateState(artifact.getArtifactId(),
-				artifact.getArtifactState(), newState);
+				artifact.getArtifactState(), newState, session.getJabberId());
 	}
 }

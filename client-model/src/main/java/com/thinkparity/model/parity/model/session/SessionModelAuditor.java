@@ -45,7 +45,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 	 *            The sent to list.
 	 */
 	void send(final Long artifactId, final Long artifactVersionId,
-			final String sentBy, final Calendar sentOn,
+			final JabberId sentBy, final Calendar sentOn,
 			final Collection<User> sentTo) {
 		final SendEvent sendEvent = new SendEvent();
 		sendEvent.setArtifactId(artifactId);
@@ -53,7 +53,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 		sendEvent.setCreatedBy(sentBy);
 		sendEvent.setCreatedOn(sentOn);
 		sendEvent.setType(AuditEventType.SEND);
-		for(final User u : sentTo) { sendEvent.add(u.getSimpleUsername()); }
+		for(final User u : sentTo) { sendEvent.add(u.getId()); }
 
 		getInternalAuditModel().audit(sendEvent);
 	}
@@ -73,7 +73,7 @@ public class SessionModelAuditor extends AbstractAuditor {
 	 *            The user the key was sent to.
 	 */
 	void sendKey(final Long artifactId, final Long artifactVersionId,
-			final String sentBy, final Calendar sentOn, final JabberId sentTo) {
+			final JabberId sentBy, final Calendar sentOn, final JabberId sentTo) {
 		final SendKeyEvent sendKeyEvent = new SendKeyEvent();
 		sendKeyEvent.setArtifactId(artifactId);
 		sendKeyEvent.setArtifactVersionId(artifactVersionId);

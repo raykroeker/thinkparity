@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import java.util.List;
+
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
@@ -31,28 +33,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	}
 
 	/**
-	 * Find a roster entry for a given username.
-	 * 
-	 * @param username
-	 *            The username.
-	 * @return The parity user.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             </ul>
-	 * @throws ParityException
-	 */
-	public User findRosterEntry(final String username) throws ParityException {
-		synchronized(getImplLock()) {
-			return getImpl().findRosterEntry(username);
-		}
-	}
-
-	public User findRosterEntry(final JabberId jabberId) throws ParityException {
-		return findRosterEntry(jabberId.getUsername());
-	}
-
-	/**
 	 * Obtain the artifact key holder.
 	 * 
 	 * @param artifactId
@@ -74,6 +54,11 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	 */
 	public User getLoggedInUser() throws ParityException {
 		synchronized(getImplLock()) { return getImpl().getLoggedInUser(); }
+	}
+
+	public List<User> readUsers(final List<JabberId> jabberIds)
+			throws ParityException {
+		synchronized(getImplLock()) { return getImpl().readUsers(jabberIds); }
 	}
 
 	/**

@@ -45,7 +45,7 @@ public class ReadTest extends SystemMessageTestCase {
 		data = new LinkedList<Fixture>();
 		final SystemMessageModel systemMessageModel = getSystemMessageModel();
 
-		data.add(new Fixture(0, systemMessageModel));
+		data.add(new Fixture(systemMessageModel));
 	}
 
 	/**
@@ -57,11 +57,8 @@ public class ReadTest extends SystemMessageTestCase {
 	}
 
 	private class Fixture {
-		private final Integer expectedCount;
 		private final SystemMessageModel systemMessageModel;
-		private Fixture(final Integer expectedCount,
-				final SystemMessageModel systemMessageModel) {
-			this.expectedCount = expectedCount;
+		private Fixture(final SystemMessageModel systemMessageModel) {
 			this.systemMessageModel = systemMessageModel;
 		}
 	}

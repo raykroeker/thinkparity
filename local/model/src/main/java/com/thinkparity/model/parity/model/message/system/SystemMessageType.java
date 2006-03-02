@@ -11,14 +11,14 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum SystemMessageType {
 
-	INFO(0), PRESENCE_REQUEST(1), PRESENCE_RESPONSE(2), KEY_REQUEST(3),
-	KEY_RESPONSE(4);
+	INFO(0), CONTACT_INVITATION(1), CONTACT_INVITATION_RESPONSE(2),
+	KEY_REQUEST(3), KEY_RESPONSE(4);
 
 	public static SystemMessageType fromId(final Integer id) {
 		switch(id) {
 		case 0: return INFO;
-		case 1: return PRESENCE_REQUEST;
-		case 2: return PRESENCE_RESPONSE;
+		case 1: return CONTACT_INVITATION;
+		case 2: return CONTACT_INVITATION_RESPONSE;
 		case 3: return KEY_REQUEST;
 		case 4: return KEY_RESPONSE;
 		default: throw Assert.createUnreachable("");

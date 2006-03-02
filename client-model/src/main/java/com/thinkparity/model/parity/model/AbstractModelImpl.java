@@ -339,29 +339,6 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a user reference for a given username. This will obtain the user's
-	 * roster and compare the username. If a match is found; the user will be
-	 * returned; otherwise null will be returned. This api assumes that the
-	 * user's session is established.
-	 * 
-	 * @param simpleUsername
-	 *            The simple username to find.
-	 * @return The user reference.
-	 * @throws ParityException
-	 * 
-	 * @see User#getSimpleUsername()
-	 */
-	protected User getUser(final String simpleUsername) throws ParityException {
-		final SessionModel sessionModel = getSessionModel();
-		Assert.assertTrue("getUser(String)", sessionModel.isLoggedIn());
-		final Collection<User> rosterEntries = sessionModel.getRosterEntries();
-		for(User user : rosterEntries) {
-			if(user.getSimpleUsername().equals(simpleUsername)) { return user; }
-		}
-		return null;
-	}
-
-	/**
 	 * Remove the seen flag from the document. This will also update the parent
 	 * so that its seen flag is removed.
 	 * 

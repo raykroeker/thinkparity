@@ -11,9 +11,10 @@ import java.util.UUID;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.events.XMPPContactListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
-import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
 import com.thinkparity.model.xmpp.user.UserVCard;
@@ -31,8 +32,8 @@ import com.thinkparity.model.xmpp.user.UserVCard;
 public interface XMPPSession {
 
 	public void acceptInvitation(final JabberId jabberId) throws SmackException;
+	public void addListener(final XMPPContactListener xmppPresenceListener);
 	public void addListener(final XMPPExtensionListener xmppExtensionListener);
-	public void addListener(final XMPPPresenceListener xmppPresenceListener);
 	public void addListener(final XMPPSessionListener xmppSessionListener);
 	public void create(final UUID artifactUniqueId) throws SmackException;
 	public void declineInvitation(final JabberId jabberId) throws SmackException;
@@ -41,20 +42,21 @@ public interface XMPPSession {
 	public User getArtifactKeyHolder(final UUID artifactUniqueId)
 			throws SmackException;
 	public List<UUID> getArtifactKeys() throws SmackException;
-	public List<User> getArtifactSubscription(final UUID artifactUniqueId)
-			throws SmackException;
-	public Collection<User> getRosterEntries() throws SmackException;
 	public User getUser() throws SmackException;
-	public UserVCard getUserVCard() throws SmackException;
-	public UserVCard getUserVCard(final JabberId jabberId) throws SmackException;
 	public void inviteContact(final JabberId jabberId) throws SmackException;
 	public Boolean isLoggedIn();
 	public void login(final String host, final Integer port,
 			final String username, final String password) throws SmackException;
 	public void logout() throws SmackException;
 	public void processOfflineQueue() throws SmackException;
+	public List<Contact> readArtifactContacts(final UUID artifactUniqueId)
+			throws SmackException;
+	public List<Contact> readContacts() throws SmackException;
+	public List<User> readUsers(final List<JabberId> jabberIds)
+			throws SmackException;
+	public UserVCard readVCard(final JabberId jabberId) throws SmackException;
+	public void removeListener(final XMPPContactListener xmppPresenceListener);
 	public void removeListener(final XMPPExtensionListener xmppExtensionListener);
-	public void removeListener(final XMPPPresenceListener xmppPresenceListener);
 	public void removeListener(final XMPPSessionListener xmppSessionListener);
 	public void saveVCard(final UserVCard userVCard) throws SmackException;
 	public void send(final Collection<User> users, final String message)

@@ -4,12 +4,12 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.codebase.CollectionsUtil;
 
+import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.document.history.HistoryItemEvent;
 import com.thinkparity.model.parity.model.document.history.SendHistoryItem;
@@ -80,15 +80,13 @@ public class ReadHistoryTest extends DocumentTestCase {
 		data = new LinkedList<Fixture>();
 		final SessionModel sModel = getSessionModel();
 		final DocumentModel dModel = getDocumentModel();
-		final User user = findUser("junit.buddy.0");
-		final Collection<User> users = new LinkedList<User>();
-		users.add(user);
+
 		Document d;
 		for(final File file : getInputFiles()) {
 			d = dModel.create(file.getName(), file.getName(), file);
-			sModel.send(users, d.getId());
+			sModel.send(ModelTestUser.getJUnitBuddy0().getJabberId(), d.getId());
 			dModel.close(d.getId());
-			data.add(new Fixture(dModel, d.getId(), user, 1L));
+			data.add(new Fixture(dModel, d.getId(), ModelTestUser.getJUnitBuddy0().getUser(), 1L));
 		}
 	}
 

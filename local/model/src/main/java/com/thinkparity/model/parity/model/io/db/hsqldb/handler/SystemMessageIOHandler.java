@@ -14,9 +14,10 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
+import com.thinkparity.model.parity.model.message.system.ContactInvitationMessage;
+import com.thinkparity.model.parity.model.message.system.ContactInvitationResponseMessage;
 import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
 import com.thinkparity.model.parity.model.message.system.KeyResponseMessage;
-import com.thinkparity.model.parity.model.message.system.PresenceRequestMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.xmpp.JabberId;
@@ -87,6 +88,19 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	/**
+	 * Sql to read a presence request system message by its requested by meta
+	 * data.
+	 * 
+	 */
+	private static final String SQL_READ_BY_META_DATA =
+		new StringBuffer("select SYSTEM_MESSAGE_ID,SYSTEM_MESSAGE_TYPE_ID ")
+		.append("from SYSTEM_MESSAGE SM inner join SYSTEM_MESSAGE_META_DATA SMMD ")
+		.append("on SM.SYSTEM_MESSAGE_ID = SMMD.SYSTEM_MESSAGE_ID ")
+		.append("inner join META_DATA MD on SMMD.META_DATA_ID = MD.META_DATA_ID ")
+		.append("where MD.KEY=? and MD.VALUE=?")
+		.toString();
+
+	/**
 	 * Sql to read a system message from the database.
 	 * 
 	 */
@@ -106,23 +120,59 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	/**
-	 * Sql to read a presence request system message by its requested by meta
-	 * data.
-	 * 
-	 */
-	private static final String SQL_READ_PRESENCE_REQUEST_BY_REQUESTED_BY =
-		new StringBuffer("select SYSTEM_MESSAGE_ID,SYSTEM_MESSAGE_TYPE_ID ")
-		.append("from SYSTEM_MESSAGE SM inner join SYSTEM_MESSAGE_META_DATA SMMD ")
-		.append("on SM.SYSTEM_MESSAGE_ID = SMMD.SYSTEM_MESSAGE_ID ")
-		.append("inner join META_DATA MD on SMMD.META_DATA_ID = MD.META_DATA_ID ")
-		.append("where MD.KEY=? and MD.VALUE=?")
-		.toString();
-
-	/**
 	 * Create a SystemMessageIOHandler.
 	 * 
 	 */
 	public SystemMessageIOHandler() { super(); }
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#create(com.thinkparity.model.parity.model.message.system.PresenceRequestMessage)
+	 * 
+	 */
+	public void create(final ContactInvitationMessage contactInvitation)
+			throws HypersonicException {
+		final Session session = openSession();
+		try {
+			create(session, contactInvitation);
+
+			createMetaData(session, contactInvitation,
+					MetaDataType.JABBER_ID, MetaDataKey.INVITED_BY,
+					contactInvitation.getInvitedBy());
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+		
+	}
+
+	public void create(
+			final ContactInvitationResponseMessage contactInvitationResponse)
+			throws HypersonicException {
+		final Session session = openSession();
+		try {
+			create(session, contactInvitationResponse);
+
+			createMetaData(session, contactInvitationResponse,
+					MetaDataType.JABBER_ID, MetaDataKey.RESPONSE_FROM,
+					contactInvitationResponse.getResponseFrom());
+
+			createMetaData(session, contactInvitationResponse,
+					MetaDataType.BOOLEAN, MetaDataKey.DID_ACCEPT_REQUEST,
+					contactInvitationResponse.didAcceptInvitation());
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+		
+	}
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#create(com.thinkparity.model.parity.model.message.system.KeyRequestMessage)
@@ -177,29 +227,6 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			throw hx;
 		}
 		finally { session.close(); }
-	}
-
-	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#create(com.thinkparity.model.parity.model.message.system.PresenceRequestMessage)
-	 * 
-	 */
-	public void create(final PresenceRequestMessage presenceRequestMessage) throws HypersonicException {
-		final Session session = openSession();
-		try {
-			create(session, presenceRequestMessage);
-
-			createMetaData(session, presenceRequestMessage, MetaDataType.JABBER_ID,
-						MetaDataKey.REQUESTED_BY,
-						presenceRequestMessage.getRequestedBy());
-
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-		
 	}
 
 	/**
@@ -279,14 +306,33 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 	 * @see com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler#readPresenceRequest(com.thinkparity.model.xmpp.JabberId)
 	 * 
 	 */
-	public PresenceRequestMessage readPresenceRequest(final JabberId jabberId) throws HypersonicException {
+	public ContactInvitationMessage readContactInvitation(
+			final JabberId invitedBy) throws HypersonicException {
 		final Session session = openSession();
 		try {
-			session.prepareStatement(SQL_READ_PRESENCE_REQUEST_BY_REQUESTED_BY);
-			session.setTypeAsString(1, MetaDataKey.REQUESTED_BY);
-			session.setQualifiedUsername(2, jabberId);
+			session.prepareStatement(SQL_READ_BY_META_DATA);
+			session.setTypeAsString(1, MetaDataKey.INVITED_BY);
+			session.setQualifiedUsername(2, invitedBy);
 			session.executeQuery();
-			if(session.nextResult()) { return extractPresenceRequest(session); }
+			if(session.nextResult()) { return extractInvitation(session); }
+			else { return null; }
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	public ContactInvitationResponseMessage readContactInvitationResponse(
+			final JabberId responseBy) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_BY_META_DATA);
+			session.setTypeAsString(1, MetaDataKey.RESPONSE_FROM);
+			session.setQualifiedUsername(2, responseBy);
+			session.executeQuery();
+			if(session.nextResult()) { return extractInvitationResponse(session); }
 			else { return null; }
 		}
 		catch(final HypersonicException hx) {
@@ -323,12 +369,54 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		final SystemMessageType messageType =
 			session.getSystemMessageTypeFromInteger("SYSTEM_MESSAGE_TYPE_ID");
 		switch(messageType) {
-		case PRESENCE_REQUEST: return extractPresenceRequest(session);
+		case CONTACT_INVITATION: return extractInvitation(session);
+		case CONTACT_INVITATION_RESPONSE: return extractInvitationResponse(session);
 		case KEY_REQUEST: return extractKeyRequest(session);
 		case KEY_RESPONSE: return extractKeyResponse(session);
 		default:
 			throw Assert.createUnreachable("Unknown system message type:  " + messageType);
 		}
+	}
+
+	/**
+	 * Extract the presence request system message from the database session.
+	 * 
+	 * @param session
+	 *            the database session.
+	 * @return The presence request system message.
+	 */
+	private ContactInvitationMessage extractInvitation(final Session session) {
+		final ContactInvitationMessage presenceRequest = new ContactInvitationMessage();
+		extractSystemMessage(session, presenceRequest);
+
+		final MetaData[] metaData =
+			readMetaData(presenceRequest.getId(), MetaDataKey.INVITED_BY);
+		presenceRequest.setInvitedBy((JabberId) metaData[0].getValue());
+
+		return presenceRequest;
+	}
+
+	/**
+	 * Extract the contact invitation response from the database session.
+	 * 
+	 * @param session
+	 *            The database session.
+	 * @return The contact invitation response.
+	 */
+	private ContactInvitationResponseMessage extractInvitationResponse(
+			final Session session) {
+		final ContactInvitationResponseMessage message = new ContactInvitationResponseMessage();
+		extractSystemMessage(session, message);
+
+		MetaData[] metaData =
+			readMetaData(message.getId(), MetaDataKey.RESPONSE_FROM);
+		message.setResponseFrom((JabberId) metaData[0].getValue());
+
+		metaData =
+			readMetaData(message.getId(), MetaDataKey.DID_ACCEPT_REQUEST);
+		message.setDidAcceptInvitation((Boolean) metaData[0].getValue());
+
+		return message;
 	}
 
 	/**
@@ -372,23 +460,6 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		keyResponse.setResponseFrom((JabberId) metaData[0].getValue());
 
 		return keyResponse;
-	}
-
-	/**
-	 * Extract the presence request system message from the database session.
-	 * 
-	 * @param session
-	 *            the database session.
-	 * @return The presence request system message.
-	 */
-	private PresenceRequestMessage extractPresenceRequest(final Session session) {
-		final PresenceRequestMessage presenceRequest = new PresenceRequestMessage();
-		extractSystemMessage(session, presenceRequest);
-
-		final MetaData[] metaData = readMetaData(presenceRequest.getId(), MetaDataKey.REQUESTED_BY);
-		presenceRequest.setRequestedBy((JabberId) metaData[0].getValue());
-
-		return presenceRequest;
 	}
 
 	/**
@@ -439,6 +510,8 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		return metaDataIds.toArray(new Long[] {});
 	}
 
-	private enum MetaDataKey { ARTIFACT_ID, DID_ACCEPT_REQUEST, REQUESTED_BY, RESPONSE_FROM }
+	private enum MetaDataKey {
+		ARTIFACT_ID, DID_ACCEPT_REQUEST, INVITED_BY, REQUESTED_BY, RESPONSE_FROM
+	}
 
 }

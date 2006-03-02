@@ -4,13 +4,13 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
-import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * Test the session model send api.
@@ -19,26 +19,6 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1.2.2
  */
 public class SendTest extends ModelTestCase {
-
-	/**
-	 * Test data fixture.
-	 * 
-	 * @see SendTest#setUp()
-	 * @see SendTest#tearDown()
-	 */
-	private class Fixture {
-		private final Document document;
-		private final String message;
-		private final SessionModel sessionModel;
-		private final Collection<User> users;
-		private Fixture(final Document document, final String message,
-				final SessionModel sessionModel, final Collection<User> users) {
-			this.document = document;
-			this.message = message;
-			this.sessionModel = sessionModel;
-			this.users = users;
-		}
-	}
 
 	/**
 	 * Test data.
@@ -57,8 +37,10 @@ public class SendTest extends ModelTestCase {
 	public void testSend() {
 		try {
 			for(Fixture datum : data) {
-				datum.sessionModel.send(datum.users, datum.document.getId());
-				datum.sessionModel.send(datum.users, datum.message);
+				for(final Contact contact : datum.contacts) {
+					datum.sessionModel.send(contact.getId(), datum.document.getId());
+					datum.sessionModel.send(contact.getId(), datum.message);
+				}
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }
@@ -77,7 +59,7 @@ public class SendTest extends ModelTestCase {
 		String message;
 
 		login();
-		final Collection<User> users = sessionModel.getRosterEntries();
+		final List<Contact> contacts = sessionModel.readContacts();
 
 		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
@@ -86,7 +68,7 @@ public class SendTest extends ModelTestCase {
 				documentModel.create(name, description, testFile);
 			message = getTestText(250);
 
-			data.add(new Fixture(document, message, sessionModel, users));
+			data.add(new Fixture(document, message, sessionModel, contacts));
 		}
 	}
 
@@ -98,5 +80,25 @@ public class SendTest extends ModelTestCase {
 		data = null;
 
 		logout();
+	}
+
+	/**
+	 * Test data fixture.
+	 * 
+	 * @see SendTest#setUp()
+	 * @see SendTest#tearDown()
+	 */
+	private class Fixture {
+		private final List<Contact> contacts;
+		private final Document document;
+		private final String message;
+		private final SessionModel sessionModel;
+		private Fixture(final Document document, final String message,
+				final SessionModel sessionModel, final List<Contact> contacts) {
+			this.document = document;
+			this.message = message;
+			this.sessionModel = sessionModel;
+			this.contacts = contacts;
+		}
 	}
 }

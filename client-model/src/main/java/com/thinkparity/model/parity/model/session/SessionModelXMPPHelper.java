@@ -14,9 +14,10 @@ import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
 import com.thinkparity.model.xmpp.XMPPSessionFactory;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.events.XMPPContactListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
-import com.thinkparity.model.xmpp.events.XMPPPresenceListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -39,7 +40,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	/**
 	 * XMPP Presence listener.
 	 */
-	private final XMPPPresenceListener xmppPresenceListener;
+	private final XMPPContactListener xmppPresenceListener;
 
 	/**
 	 * XMPP session.
@@ -77,9 +78,15 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 				handleKeyRequested(artifactUniqueId, requestedBy);
 			}
 		};
-		this.xmppPresenceListener = new XMPPPresenceListener() {
-			public void presenceRequested(final JabberId jabberId) {
-				handlePresenceRequested(jabberId);
+		this.xmppPresenceListener = new XMPPContactListener() {
+			public void invitationAccepted(final JabberId acceptedBy) {
+				handleInvitationAccepted(acceptedBy);
+			}
+			public void invitationDeclined(final JabberId declinedBy) {
+				handleInvitationDeclined(declinedBy);
+			}
+			public void invitationExtended(final JabberId invitedBy) {
+				handleInvitationExtended(invitedBy);
 			}
 		};
 		this.xmppSessionListener = new XMPPSessionListener() {
@@ -140,18 +147,16 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
-	 * Obtain a list of roster entries.
+	 * Obtain a list of contacts for an artifact.
 	 * 
-	 * @return The list of roster entries.
+	 * @param artifactUniqueId
+	 *            The artifact unqique id.
+	 * @return A list of contacts.
 	 * @throws SmackException
 	 */
-	Collection<User> getRosterEntries() throws SmackException {
-		return xmppSession.getRosterEntries();
-	}
-
-	Collection<User> getSubscriptions(final UUID artifactUniqueId)
+	List<Contact> readArtifactContacts(final UUID artifactUniqueId)
 			throws SmackException {
-		return xmppSession.getArtifactSubscription(artifactUniqueId);
+		return xmppSession.readArtifactContacts(artifactUniqueId);
 	}
 
 	/**
@@ -212,6 +217,20 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	void processOfflineQueue() throws SmackException {
 		xmppSession.processOfflineQueue();
+	}
+
+	/**
+	 * Obtain a list of the user's contacts.
+	 * 
+	 * @return A list of contacts.
+	 * @throws SmackException
+	 */
+	List<Contact> readContacts() throws SmackException {
+		return xmppSession.readContacts();
+	}
+
+	List<User> readUsers(final List<JabberId> jabberIds) throws SmackException {
+		return xmppSession.readUsers(jabberIds);
 	}
 
 	/**
@@ -348,6 +367,18 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		SessionModelImpl.notifyDocumentReceived(xmppDocument);
 	}
 
+	private void handleInvitationAccepted(final JabberId acceptedBy) {
+		SessionModelImpl.notifyInvitationAccepted(acceptedBy);
+	}
+
+	private void handleInvitationDeclined(final JabberId declinedBy) {
+		SessionModelImpl.notifyInvitationDeclined(declinedBy);
+	}
+
+	private void handleInvitationExtended(final JabberId invitedBy) {
+		SessionModelImpl.notifyInvitationExtended(invitedBy);
+	}
+
 	/**
 	 * Event handler for the extension listener's key request accepted event.
 	 * 
@@ -385,16 +416,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	private void handleKeyRequested(final UUID artifactUniqueId,
 			final JabberId requestedBy) {
 		SessionModelImpl.notifyKeyRequested(artifactUniqueId, requestedBy);
-	}
-
-	/**
-	 * Event handler for the presence listener's presence requested event.
-	 * 
-	 * @param user
-	 *            The user requesting presence visibility.
-	 */
-	private void handlePresenceRequested(final JabberId jabberId) {
-		SessionModelImpl.notifyPresenceRequested(jabberId);
 	}
 
 	/**

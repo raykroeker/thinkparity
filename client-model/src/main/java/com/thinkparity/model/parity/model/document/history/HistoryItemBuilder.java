@@ -3,12 +3,15 @@
  */
 package com.thinkparity.model.parity.model.document.history;
 
+import java.util.Map;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -18,25 +21,25 @@ public class HistoryItemBuilder {
 
 	/**
 	 * Create a history item.
-	 * 
-	 * @param sModel
-	 *            The session model.
 	 * @param document
 	 *            The document.
 	 * @param auditEvent
 	 *            The audit event.
+	 * @param sModel
+	 *            The session model.
+	 * 
 	 * @return This history item.
 	 */
-	public static HistoryItem create(final InternalSessionModel iSModel,
-			final Document document, final AuditEvent auditEvent)
-			throws ParityException {
+	public static HistoryItem create(final Document document,
+			final AuditEvent auditEvent,
+			final Map<JabberId, User> auditEventUsers) throws ParityException {
 		switch(auditEvent.getType()) {
 		case CLOSE: return buildCloseHistoryItem(document, (CloseEvent) auditEvent);
 		case CREATE: return buildCreateHistoryItem(document, (CreateEvent) auditEvent);
-		case RECEIVE: return buildReceiveHistoryItem(iSModel, document, (ReceiveEvent) auditEvent);
-		case RECEIVE_KEY: return buildReceiveKeyHistoryItem(iSModel, document, (ReceiveKeyEvent) auditEvent);
-		case SEND: return buildSendHistoryItem(iSModel, document, (SendEvent) auditEvent);
-		case SEND_KEY: return buildSendKeyHistoryItem(iSModel, document, (SendKeyEvent) auditEvent);
+		case RECEIVE: return buildReceiveHistoryItem(document, (ReceiveEvent) auditEvent, auditEventUsers);
+		case RECEIVE_KEY: return buildReceiveKeyHistoryItem(document, (ReceiveKeyEvent) auditEvent, auditEventUsers);
+		case SEND: return buildSendHistoryItem(document, (SendEvent) auditEvent, auditEventUsers);
+		case SEND_KEY: return buildSendKeyHistoryItem(document, (SendKeyEvent) auditEvent, auditEventUsers);
 		default:
 			throw Assert.createUnreachable("Unuspported audit event:  " + auditEvent.getType());
 		}
@@ -63,68 +66,65 @@ public class HistoryItemBuilder {
 	}
 
 	private static ReceiveHistoryItem buildReceiveHistoryItem(
-			final InternalSessionModel iSModel, final Document document,
-			final ReceiveEvent receiveEvent) throws ParityException {
+			final Document document, final ReceiveEvent receiveEvent,
+			final Map<JabberId, User> receiveEventUsers) {
 		final ReceiveHistoryItem receiveHistoryItem = new ReceiveHistoryItem();
 		receiveHistoryItem.setDate(receiveEvent.getCreatedOn());
 		receiveHistoryItem.setDocumentId(receiveEvent.getArtifactId());
 		receiveHistoryItem.setEvent(HistoryItemEvent.RECEIVE);
 		receiveHistoryItem.setName(document.getName());
 		receiveHistoryItem.setReceivedFrom(
-				iSModel.findRosterEntry(receiveEvent.getReceivedFrom()));
+				receiveEventUsers.get(receiveEvent.getReceivedFrom()));
 		receiveHistoryItem.setVersionId(receiveEvent.getArtifactVersionId());
 		return receiveHistoryItem;
 	}
 
 	private static ReceiveKeyHistoryItem buildReceiveKeyHistoryItem(
-			final InternalSessionModel iSModel, final Document document,
-			final ReceiveKeyEvent receiveKeyEvent) throws ParityException {
+			final Document document, final ReceiveKeyEvent receiveKeyEvent,
+			final Map<JabberId, User> receiveKeyEventUsers) {
 		final ReceiveKeyHistoryItem receiveKeyHistoryItem = new ReceiveKeyHistoryItem();
 		receiveKeyHistoryItem.setDate(receiveKeyEvent.getCreatedOn());
 		receiveKeyHistoryItem.setDocumentId(receiveKeyEvent.getArtifactId());
 		receiveKeyHistoryItem.setEvent(HistoryItemEvent.RECEIVE_KEY);
 		receiveKeyHistoryItem.setName(document.getName());
 		receiveKeyHistoryItem.setReceivedFrom(
-				iSModel.findRosterEntry(receiveKeyEvent.getReceivedFrom()));
+				receiveKeyEventUsers.get(receiveKeyEvent.getReceivedFrom()));
 		receiveKeyHistoryItem.setVersionId(receiveKeyEvent.getArtifactVersionId());
 		return receiveKeyHistoryItem;
 	}
 
 	private static SendHistoryItem buildSendHistoryItem(
-			final InternalSessionModel iSModel, final Document document,
-			final SendEvent sendEvent) throws ParityException {
+			final Document document, final SendEvent sendEvent,
+			final Map<JabberId, User> sendEventUsers) {
 		final SendHistoryItem sendHistoryItem = new SendHistoryItem();
 		sendHistoryItem.setDate(sendEvent.getCreatedOn());
 		sendHistoryItem.setDocumentId(sendEvent.getArtifactId());
 		sendHistoryItem.setEvent(HistoryItemEvent.SEND);
 		sendHistoryItem.setName(document.getName());
-		for(final String sentTo : sendEvent.getSentTo()) {
-			sendHistoryItem.addSentTo(iSModel.findRosterEntry(sentTo));
+		for(final JabberId sentTo : sendEvent.getSentTo()) {
+			sendHistoryItem.addSentTo(sendEventUsers.get(sentTo));
 		}
 		sendHistoryItem.setVersionId(sendEvent.getArtifactVersionId());
 		return sendHistoryItem;
 	}
 
 	private static SendKeyHistoryItem buildSendKeyHistoryItem(
-			final InternalSessionModel iSModel, final Document document,
-			final SendKeyEvent sendKeyEvent) throws ParityException {
+			final Document document, final SendKeyEvent sendKeyEvent,
+			final Map<JabberId, User> sendKeyEventUsers) {
 		final SendKeyHistoryItem sendKeyHistoryItem = new SendKeyHistoryItem();
 		sendKeyHistoryItem.setDate(sendKeyEvent.getCreatedOn());
 		sendKeyHistoryItem.setDocumentId(sendKeyEvent.getArtifactId());
 		sendKeyHistoryItem.setEvent(HistoryItemEvent.SEND_KEY);
 		sendKeyHistoryItem.setName(document.getName());
 		sendKeyHistoryItem.setSentTo(
-				iSModel.findRosterEntry(sendKeyEvent.getSentTo()));
+				sendKeyEventUsers.get(sendKeyEvent.getSentTo()));
 		sendKeyHistoryItem.setVersionId(sendKeyEvent.getArtifactVersionId());
 		return sendKeyHistoryItem;
 	}
 
 	/**
 	 * Create a HistoryItemBuilder.
+	 * 
 	 */
-	public HistoryItemBuilder() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
+	private HistoryItemBuilder() { super(); }
 }

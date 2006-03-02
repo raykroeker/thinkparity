@@ -28,7 +28,7 @@ public class User {
 	 * The user's jabber id.
 	 * 
 	 */
-	private JabberId jabberId;
+	private JabberId id;
 
 	/**
 	 * The user's last name.
@@ -45,12 +45,12 @@ public class User {
 	/**
 	 * Create a User.
 	 * 
-	 * @param jabberId
+	 * @param id
 	 *            The user's jabber id.
 	 */
-	public User(final JabberId jabberId) {
+	public User(final JabberId id) {
 		super();
-		this.jabberId = jabberId;
+		this.id = id;
 	}
 
 	/**
@@ -61,18 +61,24 @@ public class User {
 	 */
 	public User(final String username) {
 		super();
-		JabberId jabberId = null;
-		try { jabberId = JabberIdBuilder.parseQualifiedJabberId(username); }
-		catch(final IllegalArgumentException iax) { jabberId = null; }
-		if(null == jabberId) {
-			try { jabberId = JabberIdBuilder.parseQualifiedUsername(username); }
-			catch(final IllegalArgumentException iax) { jabberId = null; }
-			if(null == jabberId) {
-				jabberId = JabberIdBuilder.parseUsername(username);
+		JabberId id = null;
+		try { id = JabberIdBuilder.parseQualifiedJabberId(username); }
+		catch(final IllegalArgumentException iax) { id = null; }
+		if(null == id) {
+			try { id = JabberIdBuilder.parseQualifiedUsername(username); }
+			catch(final IllegalArgumentException iax) { id = null; }
+			if(null == id) {
+				id = JabberIdBuilder.parseUsername(username);
 			}
 		}
-		this.jabberId = jabberId;
+		this.id = id;
 	}
+
+	/**
+	 * Create a User.
+	 * 
+	 */
+	public User() { super(); }
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -80,7 +86,7 @@ public class User {
 	 */
 	public boolean equals(Object obj) {
 		if(null != obj && obj instanceof User) {
-			return jabberId.equals(((User) obj).jabberId);
+			return id.equals(((User) obj).id);
 		}
 		return false;
 	}
@@ -91,6 +97,13 @@ public class User {
 	 * @return The user's first name.
 	 */
 	public String getFirstName() { return firstName; }
+
+	/**
+	 * Obtain the user's id.
+	 * 
+	 * @return The user's jabber id.
+	 */
+	public JabberId getId() { return id; }
 
 	/**
 	 * Obtain the user's last name.
@@ -113,20 +126,20 @@ public class User {
 	 * 
 	 * @return The simple username; without the domain\resource suffix.
 	 */
-	public String getSimpleUsername() { return jabberId.getUsername(); }
+	public String getSimpleUsername() { return id.getUsername(); }
 
 	/**
 	 * Obtain the username of the user.
 	 * 
 	 * @return The username of the user.
 	 */
-	public String getUsername() { return jabberId.getQualifiedUsername(); }
+	public String getUsername() { return id.getQualifiedUsername(); }
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 * 
 	 */
-	public int hashCode() { return jabberId.hashCode(); }
+	public int hashCode() { return id.hashCode(); }
 
 	/**
 	 * Set the user's first name.
@@ -137,6 +150,14 @@ public class User {
 	public void setFirstName(final String firstName) {
 		this.firstName = firstName;
 	}
+
+	/**
+	 * Set the user's id.
+	 * 
+	 * @param id
+	 *            The user's jabber id.
+	 */
+	public void setId(final JabberId id) { this.id = id; }
 
 	/**
 	 * Set the user's last name.

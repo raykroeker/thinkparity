@@ -111,17 +111,36 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		notify_MessageCreated(keyResponseMessage);
 	}
 
-	void createPresenceRequest(final JabberId requestedBy) {
-		logger.info("createPresenceRequest(User)");
-		logger.debug(requestedBy);
-		// check to see if a similar presence request for the user already exists
+	void createContactInvitation(final JabberId invitedBy) {
+		logger.info("createPresenceRequest(JabberId)");
+		logger.debug(invitedBy);
+		// check to see if a similar invitation for the user already exists
 		// if it does we don't want to add another one
-		PresenceRequestMessage message = 
-			systemMessageIO.readPresenceRequest(requestedBy);
+		ContactInvitationMessage message = 
+			systemMessageIO.readContactInvitation(invitedBy);
 		if(null == message) {
-			message = new PresenceRequestMessage();
-			message.setRequestedBy(requestedBy);
-			message.setType(SystemMessageType.PRESENCE_REQUEST);
+			message = new ContactInvitationMessage();
+			message.setInvitedBy(invitedBy);
+			message.setType(SystemMessageType.CONTACT_INVITATION);
+			systemMessageIO.create(message);
+			notify_MessageCreated(message);
+		}
+	}
+
+	void createContactInvitationResponse(final JabberId responseBy,
+			final Boolean didAcceptInvitation) {
+		logger.info("createContactInvitationResponse(JabberId,Boolean)");
+		logger.debug(responseBy);
+		logger.debug(didAcceptInvitation);
+		// check to see if a similar invitation for the user already exists
+		// if it does we don't want to add another one
+		ContactInvitationResponseMessage message = 
+			systemMessageIO.readContactInvitationResponse(responseBy);
+		if(null == message) {
+			message = new ContactInvitationResponseMessage();
+			message.setDidAcceptInvitation(didAcceptInvitation);
+			message.setResponseFrom(responseBy);
+			message.setType(SystemMessageType.CONTACT_INVITATION_RESPONSE);
 			systemMessageIO.create(message);
 			notify_MessageCreated(message);
 		}

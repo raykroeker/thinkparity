@@ -22,6 +22,7 @@ import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -224,6 +225,15 @@ public class Session {
 		debugSql(columnName);
 		try { return MetaDataType.fromId(resultSet.getInt(columnName)); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
+	public JabberId getQualifiedUsername(final String columnName) {
+		assertOpen("Cannot get values if the session is not open.");
+		assertOpenResult("Cannot get values if the result is not open.");
+		debugSql(columnName);
+		try { return JabberIdBuilder.parseQualifiedUsername(resultSet.getString(columnName)); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		catch(final IllegalArgumentException iax) { throw new HypersonicException(iax); }
 	}
 
 	public ArtifactState getStateFromInteger(final String columnName) {

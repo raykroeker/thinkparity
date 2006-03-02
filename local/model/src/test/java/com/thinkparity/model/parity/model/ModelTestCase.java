@@ -19,7 +19,6 @@ import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * ModelTestCase
@@ -96,17 +95,6 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	protected String createFailMessage(Throwable t) {
 		testLogger.error("Failure", t);
 		return super.createFailMessage(t);
-	}
-
-	protected User findUser(final String username) {
-		try {
-			final Collection<User> roster = getSessionModel().getRosterEntries();
-			for(final User user : roster) {
-				if(user.getSimpleUsername().equals(username)) { return user; }
-			}
-			return null;
-		}
-		catch(final ParityException px) { throw new RuntimeException(px); }
 	}
 
 	/**

@@ -13,37 +13,38 @@ import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class GetSubscriptionsTest extends ModelTestCase {
+public class ReadArtifactContactsTest extends ModelTestCase {
 
 	private List<Fixture> data;
 
 	/**
-	 * Create a GetSubscriptionsTest.
+	 * Create a ReadArtifactContactsTest.
 	 */
-	public GetSubscriptionsTest() { super("Get Subscriptions Test"); }
+	public ReadArtifactContactsTest() { super("Read Artifact Contacts Test"); }
 
-	public void testGetSubscriptions() {
+	public void testReadArtifactContacts() {
 		try {
-			List<User> subscriptions;
+			List<Contact> subscriptions;
 			for(final Fixture datum : data) {
 				subscriptions =
-					CollectionsUtil.proxy(datum.sessionModel.getSubscriptions(datum.artifactId));
+					CollectionsUtil.proxy(datum.sessionModel.readArtifactContacts(datum.artifactId));
 
 				assertNotNull("Artifact subscription is null.", subscriptions);
 				assertEquals(
 						"Number of artifact subscriptions does not match expectation.",
-						datum.expectedSubscriptions.size(), subscriptions.size());
+						datum.expectedArtifactContacts.size(), subscriptions.size());
 				
 				for(int i = 0; i < subscriptions.size(); i++) {
 					assertEquals(
 							"Subscription user does not match expectation.",
-							datum.expectedSubscriptions.get(i).getSimpleUsername(),
+							datum.expectedArtifactContacts.get(i).getSimpleUsername(),
 							subscriptions.get(i).getSimpleUsername());
 				}
 			}
@@ -65,12 +66,15 @@ public class GetSubscriptionsTest extends ModelTestCase {
 
 		login();
 		Document d;
-		List<User> subscriptions;
+		List<Contact> artifactContacts;
+		Contact contact;
 		for(final File file : getInputFiles()) {
 			d = documentModel.create(file.getName(), file.getName(), file);
-			subscriptions = new LinkedList<User>();
-			subscriptions.add(jUnitUser);
-			data.add(new Fixture(d.getId(), subscriptions, sessionModel));
+			artifactContacts = new LinkedList<Contact>();
+			contact = new Contact();
+			contact.setId(jUnitUser.getId());
+			artifactContacts.add(contact);
+			data.add(new Fixture(d.getId(), artifactContacts, sessionModel));
 		}
 	}
 
@@ -84,14 +88,14 @@ public class GetSubscriptionsTest extends ModelTestCase {
 
 	private class Fixture {
 		private final Long artifactId;
-		private final List<User> expectedSubscriptions;
+		private final List<Contact> expectedArtifactContacts;
 		private final SessionModel sessionModel;
 		private Fixture(final Long artifactId,
-				final List<User> expectedSubscriptions,
+				final List<Contact> expectedArtifactContacts,
 				final SessionModel sessionModel) {
 			super();
 			this.artifactId = artifactId;
-			this.expectedSubscriptions = expectedSubscriptions;
+			this.expectedArtifactContacts = expectedArtifactContacts;
 			this.sessionModel = sessionModel;
 		}
 	}

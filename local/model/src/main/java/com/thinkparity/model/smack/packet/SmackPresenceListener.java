@@ -6,7 +6,7 @@ package com.thinkparity.model.smack.packet;
 import org.jivesoftware.smack.PacketListener;
 
 /**
- * XMPPPresenceListener This listener is used to translate presence packets into
+ * XMPPContactListener This listener is used to translate presence packets into
  * events required by the parity client. The currently required events are
  * subscription requests by other parity users.
  * 
@@ -16,7 +16,7 @@ import org.jivesoftware.smack.PacketListener;
 public abstract class SmackPresenceListener implements PacketListener {
 
 	/**
-	 * Create an XMPPPresenceListener
+	 * Create an XMPPContactListener
 	 */
 	protected SmackPresenceListener() { super(); }
 }

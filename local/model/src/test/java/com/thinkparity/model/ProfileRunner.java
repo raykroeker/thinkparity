@@ -36,7 +36,7 @@ public class ProfileRunner {
 		suite.addTest(new com.thinkparity.model.parity.model.document.OpenVersionTest());
 		suite.addTest(new com.thinkparity.model.parity.model.document.UnlockTest());
 		suite.addTest(new com.thinkparity.model.parity.model.io.db.hsqldb.util.HypersonicValidatorTest());
-		suite.addTest(new com.thinkparity.model.parity.model.session.GetRosterEntriesTest());
+		suite.addTest(new com.thinkparity.model.parity.model.session.ReadContactsTest());
 		suite.addTest(new com.thinkparity.model.parity.model.session.LoginTest());
 		suite.addTest(new com.thinkparity.model.parity.model.session.SendTest());
 		suite.addTest(new com.thinkparity.model.parity.model.workspace.GetWorkspaceTest());

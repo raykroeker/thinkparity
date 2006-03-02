@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.util.UUIDGenerator;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -26,20 +27,20 @@ public class GetSubscriptionListTest extends XMPPTestCase {
 
 	public void testGetSubscription() {
 		try {
-			List<User> subscription;
+			List<Contact> artifactContacts;
 			for(final Fixture datum : data) {
-				subscription =
-					datum.session.getArtifactSubscription(datum.artifactUniqueId);
+				artifactContacts =
+					datum.session.readArtifactContacts(datum.artifactUniqueId);
 
-				assertNotNull("Returned subscription is null.", subscription);
+				assertNotNull("Returned artifact contacts are null.", artifactContacts);
 				assertEquals(
-						"Expected subscription size does not match actual.",
-						datum.expectedSubscription.size(), subscription.size());
-				for(int i = 0; i < datum.expectedSubscription.size(); i++) {
+						"Expected artifact contacts size does not match actual.",
+						datum.expectedArtifactContacts.size(), artifactContacts.size());
+				for(int i = 0; i < datum.expectedArtifactContacts.size(); i++) {
 					assertEquals(
-							"Expected subscription user does not match actual.",
-							datum.expectedSubscription.get(i).getSimpleUsername(),
-							subscription.get(i).getSimpleUsername());
+							"Expected artifact contact does not match actual.",
+							datum.expectedArtifactContacts.get(i),
+							artifactContacts.get(i));
 				}
 			}
 		}
@@ -53,50 +54,33 @@ public class GetSubscriptionListTest extends XMPPTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new LinkedList<Fixture>();
-//		final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitBuddy0();
-//
 		final XMPPSession session = getSession();
 		final User jUnitUser = session.getUser();
-//		User jUnitBuddy0User = null;
-//		for(final User rosterEntry : session.getRosterEntries()) {
-//			if(rosterEntry.getSimpleUsername().equals(jUnitBuddy0.getUsername())) {
-//				jUnitBuddy0User = rosterEntry;
-//				break;
-//			}
-//		}
 
-//		session.logout();
-//		session.login(jUnitBuddy0.getServerHost(), jUnitBuddy0.getServerPort(),
-//				jUnitBuddy0.getUsername(), jUnitBuddy0.getPassword());
-
-		final List<User> expectedSubscription = new LinkedList<User>();
-//		expectedSubscription.add(jUnitBuddy0User);
-		expectedSubscription.add(jUnitUser);
+		final List<Contact> expectedArtifactContacts = new LinkedList<Contact>();
+		final Contact contact = new Contact();
+		contact.setId(jUnitUser.getId());
+		expectedArtifactContacts.add(contact);
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();
-//		session.subscribe(artifactUniqueId);
 		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedSubscription, session));
+		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-//		session.subscribe(artifactUniqueId);
 		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedSubscription, session));
+		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-//		session.subscribe(artifactUniqueId);
 		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedSubscription, session));
+		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-//		session.subscribe(artifactUniqueId);
 		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedSubscription, session));
+		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-//		session.subscribe(artifactUniqueId);
 		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedSubscription, session));
+		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
 	}
 
 	/**
@@ -109,13 +93,13 @@ public class GetSubscriptionListTest extends XMPPTestCase {
 
 	private class Fixture {
 		private final UUID artifactUniqueId;
-		private final List<User> expectedSubscription;
+		private final List<Contact> expectedArtifactContacts;
 		private final XMPPSession session;
 		private Fixture(final UUID artifactUniqueId,
-				final List<User> expectedSubscription,
+				final List<Contact> expectedArtifactContacts,
 				final XMPPSession session) {
 			this.artifactUniqueId = artifactUniqueId;
-			this.expectedSubscription = expectedSubscription;
+			this.expectedArtifactContacts = expectedArtifactContacts;
 			this.session = session;
 		}
 	}

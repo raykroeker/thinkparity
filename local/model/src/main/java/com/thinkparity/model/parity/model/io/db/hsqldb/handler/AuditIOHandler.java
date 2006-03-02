@@ -148,7 +148,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			auditVersion(session, receiveEvent, receiveEvent.getArtifactVersionId());
 
 			auditMetaData(session, receiveEvent,
-					MetaDataType.STRING, MetaDataKey.RECEIVED_FROM,
+					MetaDataType.JABBER_ID, MetaDataKey.RECEIVED_FROM,
 					receiveEvent.getReceivedFrom());
 		}
 		catch(final HypersonicException hx) {
@@ -169,6 +169,10 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, receiveKeyEvent);
 			auditVersion(session, receiveKeyEvent,
 					receiveKeyEvent.getArtifactVersionId());
+
+			auditMetaData(session, receiveKeyEvent,
+					MetaDataType.JABBER_ID, MetaDataKey.RECEIVED_FROM,
+					receiveKeyEvent.getReceivedFrom());
 		}
 		catch(final HypersonicException hx) {
 			session.rollback();
@@ -187,9 +191,9 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			audit(session, sendEvent);
 			auditVersion(session, sendEvent, sendEvent.getArtifactVersionId());
 
-			for(final String sentTo : sendEvent.getSentTo()) {
+			for(final JabberId sentTo : sendEvent.getSentTo()) {
 				auditMetaData(session, sendEvent,
-						MetaDataType.STRING, MetaDataKey.SENT_TO, sentTo);
+						MetaDataType.JABBER_ID, MetaDataKey.SENT_TO, sentTo);
 			}
 
 			session.commit();
@@ -295,7 +299,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		session.setTypeAsInteger(1, auditEvent.getType());
 		session.setLong(2, auditEvent.getArtifactId());
 		session.setCalendar(3, auditEvent.getCreatedOn());
-		session.setString(4, auditEvent.getCreatedBy());
+		session.setQualifiedUsername(4, auditEvent.getCreatedBy());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not create audit.");
 
@@ -355,7 +359,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private CloseEvent extractClose(final Session session) {
 		final CloseEvent closeEvent = new CloseEvent();
 		closeEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
-		closeEvent.setCreatedBy(session.getString("CREATED_BY"));
+		closeEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		closeEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		closeEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		closeEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
@@ -365,7 +369,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private CreateEvent extractCreate(final Session session) {
 		final CreateEvent createEvent = new CreateEvent();
 		createEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
-		createEvent.setCreatedBy(session.getString("CREATED_BY"));
+		createEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		createEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		createEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		createEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
@@ -376,13 +380,13 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final ReceiveEvent receiveEvent = new ReceiveEvent();
 		receiveEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
 		receiveEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-		receiveEvent.setCreatedBy(session.getString("CREATED_BY"));
+		receiveEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		receiveEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		receiveEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		receiveEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
 
 		final MetaData[] metaData = readMetaData(receiveEvent.getId(), MetaDataKey.RECEIVED_FROM);
-		receiveEvent.setReceivedFrom((String) metaData[0].getValue());
+		receiveEvent.setReceivedFrom((JabberId) metaData[0].getValue());
 
 		return receiveEvent;
 	}
@@ -391,13 +395,13 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final ReceiveKeyEvent receiveKeyEvent = new ReceiveKeyEvent();
 		receiveKeyEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
 		receiveKeyEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-		receiveKeyEvent.setCreatedBy(session.getString("CREATED_BY"));
+		receiveKeyEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		receiveKeyEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		receiveKeyEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		receiveKeyEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
 
 		final MetaData[] metaData = readMetaData(receiveKeyEvent.getId(), MetaDataKey.RECEIVED_FROM);
-		receiveKeyEvent.setReceivedFrom((String) metaData[0].getValue());
+		receiveKeyEvent.setReceivedFrom((JabberId) metaData[0].getValue());
 
 		return receiveKeyEvent;
 	}
@@ -406,14 +410,14 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final SendEvent sendEvent = new SendEvent();
 		sendEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
 		sendEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-		sendEvent.setCreatedBy(session.getString("CREATED_BY"));
+		sendEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		sendEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		sendEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		sendEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
 
 		final MetaData[] metaData = readMetaData(sendEvent.getId(), MetaDataKey.SENT_TO);
 		for(final MetaData md : metaData) {
-			sendEvent.add((String) md.getValue());
+			sendEvent.add((JabberId) md.getValue());
 		}
 
 		return sendEvent;
@@ -423,7 +427,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final SendKeyEvent sendKeyEvent = new SendKeyEvent();
 		sendKeyEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
 		sendKeyEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
-		sendKeyEvent.setCreatedBy(session.getString("CREATED_BY"));
+		sendKeyEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		sendKeyEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		sendKeyEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		sendKeyEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_ID"));

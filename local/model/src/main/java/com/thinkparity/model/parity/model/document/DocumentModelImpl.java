@@ -27,6 +27,10 @@ import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
+import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
+import com.thinkparity.model.parity.model.audit.event.ReceiveKeyEvent;
+import com.thinkparity.model.parity.model.audit.event.SendEvent;
+import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.document.history.HistoryItemBuilder;
 import com.thinkparity.model.parity.model.io.IOFactory;
@@ -39,7 +43,10 @@ import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Implementation of the document model interface.
@@ -197,7 +204,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the closeure
 			final Document d = get(documentId);
-			auditor.close(d.getId(), d.getUpdatedBy(), d.getUpdatedOn());
+			auditor.close(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getUpdatedOn());
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentId, rx);
@@ -219,7 +226,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the closure
 			final Document d = get(document.getId());
-			auditor.close(d.getId(), d.getUpdatedBy(), d.getUpdatedOn());
+			auditor.close(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getUpdatedOn());
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentUniqueId, rx);
@@ -291,7 +298,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the creation
 			final Document d = get(document.getId());
-			auditor.create(d.getId(), d.getCreatedBy(), d.getCreatedOn());
+			auditor.create(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getCreatedOn());
 			return document;
 		}
 		catch(IOException iox) {
@@ -801,15 +808,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(comparator);
 		try {
-			final InternalSessionModel iSModel = getInternalSessionModel();
-			final Document document = get(documentId);
-			final List<HistoryItem> historyItems = new LinkedList<HistoryItem>();
-
 			final InternalAuditModel iAModel = getInternalAuditModel();
+
+			final Document document = get(documentId);
 			final Collection<AuditEvent> auditEvents = iAModel.read(documentId);
+
+			Map<JabberId, User> auditUsers = buildAuditUserMap(auditEvents);
+			final List<HistoryItem> historyItems = new LinkedList<HistoryItem>();
 			for(final AuditEvent auditEvent : auditEvents) {
 				historyItems.add(
-						HistoryItemBuilder.create(iSModel, document, auditEvent));
+						HistoryItemBuilder.create(document, auditEvent, auditUsers));
 			}
 			ModelSorter.sortHistoryItems(historyItems, comparator);
 
@@ -819,6 +827,52 @@ class DocumentModelImpl extends AbstractModelImpl {
 			logger.error("Could not obtain history list.", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
+	}
+
+	private Map<JabberId, User> buildAuditUserMap(
+			final Iterable<AuditEvent> auditEvents) throws ParityException {
+		final List<JabberId> jabberIds = new LinkedList<JabberId>();
+		for(final AuditEvent auditEvent : auditEvents) {
+			switch(auditEvent.getType()) {
+			case CLOSE:
+			case CREATE:
+				if(!jabberIds.contains(auditEvent.getCreatedBy()))
+						jabberIds.add(auditEvent.getCreatedBy());
+				break;
+			case RECEIVE:
+				if(!jabberIds.contains(((ReceiveEvent) auditEvent).getReceivedFrom()))
+					jabberIds.add(((ReceiveEvent) auditEvent).getReceivedFrom());
+				if(!jabberIds.contains(auditEvent.getCreatedBy()))
+					jabberIds.add(auditEvent.getCreatedBy());
+				break;
+			case RECEIVE_KEY:
+				if(!jabberIds.contains(((ReceiveKeyEvent) auditEvent).getReceivedFrom()))
+					jabberIds.add(((ReceiveKeyEvent) auditEvent).getReceivedFrom());
+				if(!jabberIds.contains(auditEvent.getCreatedBy()))
+					jabberIds.add(auditEvent.getCreatedBy());
+				break;
+			case SEND:
+				for(final JabberId sentTo : ((SendEvent) auditEvent).getSentTo()) {
+					if(!jabberIds.contains(sentTo))
+						jabberIds.add(sentTo);
+				}
+				if(!jabberIds.contains(auditEvent.getCreatedBy()))
+					jabberIds.add(auditEvent.getCreatedBy());
+				break;
+			case SEND_KEY:
+				if(!jabberIds.contains(((SendKeyEvent) auditEvent).getSentTo()))
+					jabberIds.add(((SendKeyEvent) auditEvent).getSentTo());
+				if(!jabberIds.contains(auditEvent.getCreatedBy()))
+					jabberIds.add(auditEvent.getCreatedBy());
+				break;
+			default: Assert.assertUnreachable("");
+			}
+		}
+		final InternalSessionModel iSModel = getInternalSessionModel();
+		final List<User> users = iSModel.readUsers(jabberIds);
+		final Map<JabberId, User> userMap = new LinkedHashMap<JabberId, User>();
+		for(final User user : users) { userMap.put(user.getId(), user); }
+		return userMap;
 	}
 
 	/**
@@ -833,6 +887,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("receiveDocument(XMPPDocument)");
 		logger.debug(xmppDocument);
 		try {
+			final JabberId receivedFromJabberId =
+				JabberIdBuilder.parseUsername(xmppDocument.getReceivedFrom());
+
 			Document document = get(xmppDocument.getUniqueId());
 			logger.debug(document);
 			if(null == document) { document = receiveCreate(xmppDocument); }
@@ -840,7 +897,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the receiving
 			auditor.recieve(document.getId(), xmppDocument.getVersionId(),
-					xmppDocument.getReceivedFrom(), xmppDocument.getUpdatedBy(),
+					receivedFromJabberId, JabberIdBuilder.parseUsername(preferences.getUsername()),
 					xmppDocument.getUpdatedOn());
 		}
 		catch(IOException iox) {

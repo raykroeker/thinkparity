@@ -19,6 +19,7 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -139,23 +140,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain a list of roster entries.
-	 * 
-	 * @return The list of roster entries.
-	 * @throws ParityException
-	 */
-	public Collection<User> getRosterEntries() throws ParityException {
-		synchronized(implLock) { return impl.getRosterEntries(); }
-	}
-
-	public Collection<User> getSubscriptions(final Long artifactId)
-			throws ParityException {
-		synchronized(implLock) {
-			return impl.getSubscriptions(artifactId);
-		}
-	}
-
-	/**
 	 * Add a roster entry for the user. This will send a presence request to
 	 * user.
 	 * 
@@ -214,6 +198,29 @@ public class SessionModel extends AbstractModel {
 	 */
 	public void logout() throws ParityException {
 		synchronized(implLock) { impl.logout(); }
+	}
+
+	/**
+	 * Obtain a list of contacts for an artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return A list of contacts for the artifact.
+	 * @throws ParityException
+	 */
+	public List<Contact> readArtifactContacts(final Long artifactId)
+			throws ParityException {
+		synchronized(implLock) { return impl.readArtifactContacts(artifactId); }
+	}
+
+	/**
+	 * Obtain a list of contacts.
+	 * 
+	 * @return A list of contacts.
+	 * @throws ParityException
+	 */
+	public List<Contact> readContacts() throws ParityException {
+		synchronized(implLock) { return impl.readContacts(); }
 	}
 
 	/**
@@ -280,17 +287,31 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send a message to a list of parity users.
+	 * Send the working version of the document to the user.
 	 * 
-	 * @param users
-	 *            The list of parity users to send to.
-	 * @param message
-	 *            The message to send.
+	 * @param jabberId
+	 *            The user id.
+	 * @param documentId
+	 *            The document id.
 	 * @throws ParityException
 	 */
-	public void send(final Collection<User> users, final String message)
+	public void send(final JabberId jabberId, final Long documentId)
+			throws ParityException {
+		synchronized(implLock) { impl.send(jabberId, documentId); }
+	}
+
+	/**
+	 * Send a message to a user.
+	 * 
+	 * @param jabberId
+	 *            The user id.
+	 * @param message
+	 *            The message.
+	 * @throws ParityException
+	 */
+	public void send(final JabberId jabberId, final String message)
 		throws ParityException {
-		synchronized(implLock) { impl.send(users, message); }
+		synchronized(implLock) { impl.send(jabberId, message); }
 	}
 
 	/**

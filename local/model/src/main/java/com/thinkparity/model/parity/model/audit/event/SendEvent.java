@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.audit.event;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.thinkparity.model.xmpp.JabberId;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -14,7 +16,7 @@ public class SendEvent extends AuditEvent {
 
 	private Long artifactVersionId;
 
-	private final Set<String> sentTo;
+	private final Set<JabberId> sentTo;
 
 	/**
 	 * Create a SendEvent.
@@ -22,10 +24,10 @@ public class SendEvent extends AuditEvent {
 	 */
 	public SendEvent() {
 		super();
-		this.sentTo = new HashSet<String>();
+		this.sentTo = new HashSet<JabberId>();
 	}
 
-	public boolean add(final String username) {
+	public boolean add(final JabberId username) {
 		return sentTo.add(username);
 	}
 
@@ -39,7 +41,7 @@ public class SendEvent extends AuditEvent {
 	/**
 	 * @return Returns the sentTo.
 	 */
-	public Set<String> getSentTo() { return sentTo; }
+	public Set<JabberId> getSentTo() { return sentTo; }
 
 	public boolean remove(final String username) {
 		return sentTo.remove(username);

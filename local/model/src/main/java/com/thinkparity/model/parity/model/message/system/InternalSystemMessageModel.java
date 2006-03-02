@@ -26,6 +26,19 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 		context.assertContextIsValid();
 	}
 
+	public void createContactInvitation(final JabberId invitedBy) {
+		synchronized(getImplLock()) {
+			getImpl().createContactInvitation(invitedBy);
+		}
+	}
+
+	public void createContactInvitationResponse(final JabberId responseBy,
+			final Boolean didAcceptInvitation) {
+		synchronized(getImplLock()) {
+			getImpl().createContactInvitationResponse(responseBy, didAcceptInvitation);
+		}
+	}
+
 	public void createKeyRequest(final Long artifactId, final JabberId requestedBy) {
 		synchronized(getImplLock()) {
 			getImpl().createKeyRequest(artifactId, requestedBy);
@@ -36,12 +49,6 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 			final Boolean didAcceptRequest, final JabberId responseFrom) {
 		synchronized(getImplLock()) {
 			getImpl().createKeyResponse(artifactId, didAcceptRequest, responseFrom);
-		}
-	}
-
-	public void createPresenceRequest(final JabberId requestedBy) {
-		synchronized(getImplLock()) {
-			getImpl().createPresenceRequest(requestedBy);
 		}
 	}
 }

@@ -10,6 +10,7 @@ import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.CloseEvent;
 import com.thinkparity.model.parity.model.audit.event.CreateEvent;
 import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -27,7 +28,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 		super(context);
 	}
 
-	void close(final Long documentId, final String closedBy,
+	void close(final Long documentId, final JabberId closedBy,
 			final Calendar closedOn) {
 		final CloseEvent closeEvent = new CloseEvent();
 		closeEvent.setArtifactId(documentId);
@@ -38,7 +39,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 		getInternalAuditModel().audit(closeEvent);
 	}
 
-	void create(final Long documentId, final String createdBy,
+	void create(final Long documentId, final JabberId createdBy,
 			final Calendar createdOn) {
 		final CreateEvent createEvent = new CreateEvent();
 		createEvent.setArtifactId(documentId);
@@ -50,7 +51,7 @@ class DocumentModelAuditor extends AbstractAuditor {
 	}
 
 	void recieve(final Long artifactId, final Long artifactVersionId,
-			final String receivedFrom, final String receivedBy,
+			final JabberId receivedFrom, final JabberId receivedBy,
 			final Calendar receivedOn) {
 		final ReceiveEvent receiveEvent = new ReceiveEvent();
 		receiveEvent.setArtifactId(artifactId);

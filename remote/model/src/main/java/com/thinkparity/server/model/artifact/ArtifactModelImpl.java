@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.jivesoftware.messenger.vcard.VCardManager;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
@@ -19,6 +20,7 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.contact.Contact;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSql;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSubscriptionSql;
 import com.thinkparity.server.model.session.Session;
@@ -54,12 +56,19 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	private final ArtifactSubscriptionSql artifactSubscriptionSql;
 
 	/**
+	 * The VCard manager.
+	 * 
+	 */
+	private final VCardManager vCardManager;
+
+	/**
 	 * Create a ArtifactModelImpl.
 	 */
 	ArtifactModelImpl(final Session session) {
 		super(session);
 		this.artifactSql = new ArtifactSql();
 		this.artifactSubscriptionSql = new ArtifactSubscriptionSql();
+		this.vCardManager = VCardManager.getInstance();
 	}
 
 	/**
@@ -382,6 +391,28 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Could not obtain artifacts for key holder.", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	List<Contact> readContacts(final UUID artifactUniqueId)
+			throws ParityServerModelException {
+		logger.info("[SERVER] [MODEL] [ARTIFACT] [READ CONTACTS]");
+		logger.debug(artifactUniqueId);
+		try {
+			final List<ArtifactSubscription> s =getSubscription(artifactUniqueId);
+			final List<Contact> contacts = new LinkedList<Contact>();
+			Contact contact;
+			for(final ArtifactSubscription as : s) {
+				contact = new Contact();
+				contact.setId(as.getJabberId());
+				contact.setVCard(vCardManager.getVCard(as.getJabberId().getUsername()));
+				contacts.add(contact);
+			}
+			return contacts;
+		}
+		catch(final RuntimeException rx) {
+			logger.error("[SERVER] [MODEL] [ARTIFACT] [READ CONTACTS]", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

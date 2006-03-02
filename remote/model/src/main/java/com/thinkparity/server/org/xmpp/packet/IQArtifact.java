@@ -16,18 +16,6 @@ import java.util.UUID;
 public abstract class IQArtifact extends IQParity {
 
 	/**
-	 * Artifact actions that are possible to perform.
-	 * 
-	 */
-	public enum Action { CLOSE, CREATE, FLAG, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION,
-		REQUESTKEY, SUBSCRIBE, UNSUBSCRIBE }
-
-	/**
-	 * IQAction to perform.
-	 */
-	private final Action action;
-
-	/**
 	 * Artifact unique id.
 	 */
 	private final UUID artifactUUID;
@@ -36,17 +24,9 @@ public abstract class IQArtifact extends IQParity {
 	 * Create a IQArtifact.
 	 */
 	protected IQArtifact(final Action action, final UUID artifactUUID) {
-		super();
-		this.action = action;
+		super(action);
 		this.artifactUUID = artifactUUID;
 	}
-
-	/**
-	 * Obtain the action.
-	 * 
-	 * @return The action.
-	 */
-	public Action getAction() { return action; }
 
 	/**
 	 * Obtain the artifact unique id.

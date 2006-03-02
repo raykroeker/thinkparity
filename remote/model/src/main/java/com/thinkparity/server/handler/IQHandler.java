@@ -5,6 +5,8 @@ package com.thinkparity.server.handler;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -18,12 +20,16 @@ import org.xmpp.packet.PacketError;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
+import com.thinkparity.server.JabberId;
+import com.thinkparity.server.JabberIdBuilder;
 import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
+import com.thinkparity.server.model.contact.ContactModel;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
+import com.thinkparity.server.model.user.UserModel;
 import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 import com.thinkparity.server.org.dom4j.ElementName;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
@@ -77,6 +83,8 @@ public abstract class IQHandler extends
 		try {
 			final Session session = new Session() {
 				final JID jid = iq.getFrom();
+				final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(jid.toString());
+				public JabberId getJabberId() { return jabberId; }
 				public JID getJID() { return jid; }
 			};
 			final IQ resultIQ = handleIQ(iq, session);
@@ -161,6 +169,25 @@ public abstract class IQHandler extends
 		return JIDBuilder.buildQualified((String) jidElement.getData());
 	}
 
+	protected JabberId extractJabberId(final IQ iq) {
+		final Element childElement = iq.getChildElement();
+		final Element jidElement = getElement(childElement, ElementName.JID);
+		return JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData());
+	}
+
+	protected List<JabberId> extractJabberIds(final IQ iq) {
+		final Element childElement = iq.getChildElement();
+		final Element jidListElement = getElement(childElement, ElementName.JIDS);
+		final List jidElements = getElements(jidListElement, ElementName.JID);
+		final List<JabberId> jabberIds = new LinkedList<JabberId>();
+		Element jidElement;
+		for(final Object o : jidElements) {
+			jidElement = (Element) o;
+			jabberIds.add(JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData()));
+		}
+		return jabberIds;
+	}
+
 	/**
 	 * Extract the artifact's unique id from the iq xml document. The required
 	 * child element is: &lt;uuid&gt;&lt;/uuid&gt;
@@ -184,8 +211,12 @@ public abstract class IQHandler extends
 		return ArtifactModel.getModel(session);
 	}
 
-	protected QueueModel getQueueModel(final Session session) {
-		return QueueModel.getModel(session);
+	protected UserModel getUserModel(final Session session) {
+		return UserModel.getModel(session);
+	}
+
+	protected ContactModel getContactModel(final Session session) {
+		return ContactModel.getModel(session);
 	}
 
 	/**
@@ -201,6 +232,24 @@ public abstract class IQHandler extends
 	protected Element getElement(final Element element,
 			final ElementName elementName) {
 		return element.element(elementName.getName());
+	}
+
+	/**
+	 * Grab all elements of the given name from the element.
+	 * 
+	 * @param element
+	 *            The element.
+	 * @param elementName
+	 *            The element name.
+	 * @return All elements.
+	 */
+	protected List getElements(final Element element,
+			final ElementName elementName) {
+		return element.elements(elementName.getName());
+	}
+
+	protected QueueModel getQueueModel(final Session session) {
+		return QueueModel.getModel(session);
 	}
 
 	/**

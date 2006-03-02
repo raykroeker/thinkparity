@@ -15,11 +15,13 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
+import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.session.SessionModel;
+import com.thinkparity.server.model.user.UserModel;
 import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 
@@ -102,6 +104,11 @@ public abstract class AbstractModelImpl {
 		return sModel;
 	}
 
+	protected UserModel getUserModel() {
+		final UserModel uModel = UserModel.getModel(session);
+		return uModel;
+	}
+
 	/**
 	 * Determine whether or not the user represented by the jabber id is
 	 * currently online.
@@ -123,6 +130,22 @@ public abstract class AbstractModelImpl {
 		final ArtifactModel aModel = getArtifactModel();
 		return aModel.get(artifactUniqueId).getArtifactKeyHolder().equals(
 				session.getJID().getNode());
+	}
+
+	/**
+	 * Route an IQ to a jive user. This will determine whether or not the user
+	 * is currently online; and if they are not; it will queue the request.
+	 * 
+	 * @param jabberId
+	 *            The jabber id.
+	 * @param iq
+	 *            The iq.
+	 */
+	protected void send(final JabberId jabberId, final IQ iq)
+			throws ParityServerModelException, UnauthorizedException {
+		logger.info("send(JabberId,IQ)");
+		logger.debug(jabberId);
+		send(jabberId.getJID(), iq);
 	}
 
 	/**

@@ -36,7 +36,7 @@ public class UserRenderer implements ObjectRenderer {
 		else {
 			final User u = (User) o;
 			return new StringBuffer(PREFIX)
-				.append(USERNAME).append(u.getUsername())
+				.append(USERNAME).append(u.getId())
 				.append(IRendererConstants.SUFFIX).toString();
 		}
 	}

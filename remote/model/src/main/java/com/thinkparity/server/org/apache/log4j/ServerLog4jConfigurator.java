@@ -107,7 +107,14 @@ public class ServerLog4jConfigurator {
 	 *            The global log4j properties.
 	 */
 	private void configureGlobal(final Properties globalProperties) {
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server", "DEBUG, serverHTML");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server", "ERROR, serverHTML");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.ParityServer", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.AbstractModelImpl", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.contact", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.model.user", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.IQHandler", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.contact", "DEBUG");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler.user", "DEBUG");
 	}
 
 	/**

@@ -5,6 +5,8 @@ package com.thinkparity.server.model.artifact;
 
 import java.util.Calendar;
 
+import com.thinkparity.server.JabberId;
+
 
 /**
  * @author raykroeker@gmail.com
@@ -17,6 +19,8 @@ public class ArtifactSubscription {
 	private final Integer artifactSubscriptionId;
 
 	private final Calendar createdOn;
+
+	private JabberId jabberId;
 
 	private final Calendar updatedOn;
 
@@ -58,6 +62,13 @@ public class ArtifactSubscription {
 	public Calendar getCreatedOn() { return createdOn; }
 
 	/**
+	 * @return Returns the jabberId.
+	 */
+	public JabberId getJabberId() {
+		return jabberId;
+	}
+
+	/**
 	 * Obtain the last update date.
 	 * 
 	 * @return The updated on date.
@@ -70,4 +81,11 @@ public class ArtifactSubscription {
 	 * @return The username.
 	 */
 	public String getUsername() { return username; }
+
+	/**
+	 * @param jabberId The jabberId to set.
+	 */
+	public void setJabberId(JabberId jabberId) {
+		this.jabberId = jabberId;
+	}
 }

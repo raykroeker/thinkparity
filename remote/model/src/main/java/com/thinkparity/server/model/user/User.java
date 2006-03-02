@@ -3,27 +3,46 @@
  */
 package com.thinkparity.server.model.user;
 
+import org.dom4j.Element;
+
+import com.thinkparity.server.JabberId;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class User {
 
-	private final String username;
+	private JabberId id;
+
+	private Element vCard;
 
 	/**
 	 * Create a User.
 	 */
-	public User(final String username) {
-		super();
-		this.username = username;
+	public User() { super(); }
+
+	/**
+	 * @return Returns the id.
+	 */
+	public JabberId getId() { return id; }
+
+	/**
+	 * @return Returns the vCard.
+	 */
+	public Element getVCard() {
+		return vCard;
 	}
 
 	/**
-	 * Obtain the username.
-	 * 
-	 * @return The username.
+	 * @param id The id to set.
 	 */
-	public String getUsername() { return username; }
+	public void setId(final JabberId id) { this.id = id; }
 
+	/**
+	 * @param cardInfo The vCard to set.
+	 */
+	public void setVCard(Element cardInfo) {
+		vCard = cardInfo;
+	}
 }

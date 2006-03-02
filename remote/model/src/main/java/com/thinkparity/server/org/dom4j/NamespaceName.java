@@ -9,11 +9,15 @@ package com.thinkparity.server.org.dom4j;
  */
 public enum NamespaceName {
 
-	IQ_ACCEPT_KEY_REQUEST("acceptkeyrequest"),
-	IQ_CLOSE_ARTIFACT("closeartifact"), IQ_ARTIFACT_FLAG("artifactflag"),
+	IQ_ARTIFACT_READ_CONTACTS("artifactreadcontacts"),
+	IQ_ACCEPT_CONTACT_INVITATION("acceptcontactinvitation"),
+	IQ_ACCEPT_KEY_REQUEST("acceptkeyrequest"), IQ_ARTIFACT_FLAG("artifactflag"),
+	IQ_CLOSE_ARTIFACT("closeartifact"),
+	IQ_DECLINE_CONTACT_INVITATION("declinecontactinvitation"),
 	IQ_DENY_KEY_REQUEST("denykeyrequest"), IQ_GET_KEYHOLDER("getkeyholder"),
 	IQ_GET_KEYS("getkeys"), IQ_GET_SUBSCRIPTION("getsubscriptions"),
-	IQ_KEY_REQUEST("keyrequest");
+	IQ_INVITE_CONTACT("invitecontact"), IQ_KEY_REQUEST("keyrequest"),
+	IQ_READ_CONTACTS("readcontacts"), IQ_READ_USERS("readusers");
 
 	/**
 	 * The root parity xml namespace.

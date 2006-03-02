@@ -18,6 +18,10 @@ import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 public abstract class IQParity extends IQ {
 
 	/**
+	 * IQAction to perform.
+	 */
+	protected final Action action;
+	/**
 	 * Handle to an apache logger.
 	 */
 	protected final Logger logger = ServerLoggerFactory.getLogger(getClass());
@@ -25,5 +29,23 @@ public abstract class IQParity extends IQ {
 	/**
 	 * Create a IQParity.
 	 */
-	protected IQParity() { super(); }
+	protected IQParity(final Action action) {
+		super();
+		this.action = action;
+	}
+
+	/**
+	 * Obtain the action.
+	 * 
+	 * @return The action.
+	 */
+	public Action getAction() { return action; }
+
+	/**
+	 * Artifact actions that are possible to perform.
+	 * 
+	 */
+	public enum Action {
+		ARTIFACTREADCONTACTS, ACCEPTCONTACTINVITATION, CLOSE, CREATE, DECLINECONTACTINVITATION, FLAG, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION, INVITECONTACT, READCONTACTS, READUSERS, REQUESTKEY, SUBSCRIBE, UNSUBSCRIBE
+	}
 }

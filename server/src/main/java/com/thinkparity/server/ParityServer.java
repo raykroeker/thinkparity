@@ -16,7 +16,12 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.server.handler.IQHandler;
 import com.thinkparity.server.handler.artifact.*;
+import com.thinkparity.server.handler.contact.AcceptInvitation;
+import com.thinkparity.server.handler.contact.DeclineInvitation;
+import com.thinkparity.server.handler.contact.InviteContact;
+import com.thinkparity.server.handler.contact.ReadContacts;
 import com.thinkparity.server.handler.queue.ProcessOfflineQueue;
+import com.thinkparity.server.handler.user.ReadUsers;
 import com.thinkparity.server.handler.user.SubscribeUser;
 import com.thinkparity.server.handler.user.UnsubscribeUser;
 import com.thinkparity.server.org.apache.log4j.ServerLog4jConfigurator;
@@ -28,22 +33,25 @@ import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
  */
 public class ParityServer implements Plugin {
 
+	private IQHandler acceptInvitation;
 	private AcceptKeyRequest acceptKeyRequest;
+	private IQHandler artifactReadContacts;
 	private IQHandler closeArtifact;
 	private CreateArtifact createArtifact;
+	private IQHandler declineInvitation;
 	private IQHandler deleteArtifact;
 	private DenyKeyRequest denyKeyRequest;
 	private IQHandler flagArtifact;
 	private IQHandler getArtifactKeys;
 	private IQHandler getKeyHolder;
 	private IQHandler getSubscription;
+	private IQHandler inviteContact;
 	private final IQRouter iqRouter;
 	private IQHandler processOfflineQueue;
-
+	private IQHandler readContacts;
+	private IQHandler readUsers;
 	private RequestArtifactKey requestArtifactKey;
-
 	private SubscribeUser subscribeUser;
-
 	private UnsubscribeUser unsubscribeUser;
 
 	/**
@@ -80,6 +88,10 @@ public class ParityServer implements Plugin {
 	 * 
 	 */
 	private void destroyIQHandlers() {
+		iqRouter.removeHandler(acceptInvitation);
+		acceptInvitation.destroy();
+		acceptInvitation = null;
+
 		iqRouter.removeHandler(acceptKeyRequest);
 		acceptKeyRequest.destroy();
 		acceptKeyRequest = null;
@@ -91,6 +103,10 @@ public class ParityServer implements Plugin {
 		iqRouter.removeHandler(createArtifact);
 		createArtifact.destroy();
 		createArtifact = null;
+
+		iqRouter.removeHandler(declineInvitation);
+		declineInvitation.destroy();
+		declineInvitation = null;
 
 		iqRouter.removeHandler(deleteArtifact);
 		deleteArtifact.destroy();
@@ -116,6 +132,10 @@ public class ParityServer implements Plugin {
 		getSubscription.destroy();
 		getSubscription = null;
 
+		iqRouter.removeHandler(inviteContact);
+		inviteContact.destroy();
+		inviteContact = null;
+
 		iqRouter.removeHandler(processOfflineQueue);
 		processOfflineQueue.destroy();
 		processOfflineQueue = null;
@@ -123,6 +143,18 @@ public class ParityServer implements Plugin {
 		iqRouter.removeHandler(requestArtifactKey);
 		requestArtifactKey.destroy();
 		requestArtifactKey = null;
+
+		iqRouter.removeHandler(artifactReadContacts);
+		artifactReadContacts.destroy();
+		artifactReadContacts = null;
+
+		iqRouter.removeHandler(readContacts);
+		readContacts.destroy();
+		readContacts = null;
+
+		iqRouter.removeHandler(readUsers);
+		readUsers.destroy();
+		readUsers = null;
 		
 		iqRouter.removeHandler(subscribeUser);
 		subscribeUser.destroy();
@@ -144,6 +176,9 @@ public class ParityServer implements Plugin {
 	 * 
 	 */
 	private void initializeIQHandlers() {
+		acceptInvitation = new AcceptInvitation();
+		iqRouter.addHandler(acceptInvitation);
+
 		acceptKeyRequest = new AcceptKeyRequest();
 		iqRouter.addHandler(acceptKeyRequest);
 		
@@ -152,6 +187,9 @@ public class ParityServer implements Plugin {
 
 		createArtifact = new CreateArtifact();
 		iqRouter.addHandler(createArtifact);
+
+		declineInvitation = new DeclineInvitation();
+		iqRouter.addHandler(declineInvitation);
 
 		deleteArtifact = new DeleteArtifact();
 		iqRouter.addHandler(deleteArtifact);
@@ -171,8 +209,20 @@ public class ParityServer implements Plugin {
 		getSubscription = new GetSubscription();
 		iqRouter.addHandler(getSubscription);
 
+		inviteContact = new InviteContact();
+		iqRouter.addHandler(inviteContact);
+
 		processOfflineQueue = new ProcessOfflineQueue();
 		iqRouter.addHandler(processOfflineQueue);
+
+		artifactReadContacts = new com.thinkparity.server.handler.artifact.ReadContacts();
+		iqRouter.addHandler(artifactReadContacts);
+
+		readContacts = new ReadContacts();
+		iqRouter.addHandler(readContacts);
+
+		readUsers = new ReadUsers();
+		iqRouter.addHandler(readUsers);
 
 		requestArtifactKey = new RequestArtifactKey();
 		iqRouter.addHandler(requestArtifactKey);

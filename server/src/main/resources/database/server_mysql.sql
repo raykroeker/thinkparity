@@ -49,3 +49,15 @@ create table parityQueue (
 create index parityQueue_username_index on parityQueue(username);
 create index parityQueue_createdOn_index on parityQueue(createdOn);
 insert into jiveID (idType,id) values (1002, 1);
+
+create table parityContactInvitation (
+  invitationFrom varchar(32) not null references jiveUser(username),
+  invitationTo varchar(32) not null references jiveUser(username),
+  primary key (invitationFrom,invitationTo)
+);
+
+create table parityContact (
+  username varchar(32) not null references jiveUser(username),
+  contactUsername varchar(32) not null references jiveUser(username),
+  primary key (username,contactUsername)
+);

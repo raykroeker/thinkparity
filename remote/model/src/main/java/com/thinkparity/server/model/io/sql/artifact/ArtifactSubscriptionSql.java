@@ -12,12 +12,15 @@ import java.util.Collection;
 import java.util.Vector;
 
 import org.jivesoftware.database.JiveID;
+import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.server.JabberIdBuilder;
 import com.thinkparity.server.model.artifact.ArtifactSubscription;
 import com.thinkparity.server.model.io.sql.AbstractSql;
+import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -153,8 +156,11 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		final String username = rs.getString(3);
 		final Calendar createdOn = DateUtil.getInstance(rs.getTimestamp(4));
 		final Calendar updatedOn = DateUtil.getInstance(rs.getTimestamp(5));
-		return new ArtifactSubscription(artifactId, artifactSubscriptionId,
+		final ArtifactSubscription as = new ArtifactSubscription(artifactId, artifactSubscriptionId,
 				createdOn, updatedOn, username);
+		final JID jid = JIDBuilder.build(username);
+		as.setJabberId(JabberIdBuilder.parseJID(jid));
+		return as;
 	}
 
 	public Boolean existSubscriptions(final Integer artifactId)

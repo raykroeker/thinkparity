@@ -10,6 +10,7 @@ import org.xmpp.packet.JID;
 
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.contact.Contact;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -129,6 +130,11 @@ public class ArtifactModel extends AbstractModel {
 	public List<ArtifactSubscription> getSubscription(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		synchronized(implLock) { return impl.getSubscription(artifactUniqueId); }
+	}
+
+	public List<Contact> readContacts(final UUID artifactUniqueId)
+			throws ParityServerModelException {
+		synchronized(implLock) { return impl.readContacts(artifactUniqueId); }
 	}
 
 	/**

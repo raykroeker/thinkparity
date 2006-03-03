@@ -3,12 +3,14 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -97,6 +99,14 @@ public class InternalDocumentModel extends DocumentModel implements
 			throws ParityException {
 		synchronized(getImplLock()) {
 			return getImpl().getLatestVersion(documentId);
+		}
+	}
+
+	public void auditRecieveKey(final Long artifactId,
+			final JabberId createdBy, final Calendar createdOn,
+			final JabberId receivedFrom) {
+		synchronized(getImplLock()) {
+			getImpl().auditKeyRecieved(artifactId, createdBy, createdOn, receivedFrom);
 		}
 	}
 }

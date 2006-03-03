@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -21,13 +22,13 @@ import com.thinkparity.model.parity.model.io.md.MetaDataType;
  */
 public class SessionManager {
 
-	private static final List<Session> sessions;
+	private static final Vector<Session> sessions;
 
 	private static final String SQL_GET_META_DATA =
 		"select VALUE from META_DATA where META_DATA_TYPE_ID=? and KEY=?";
 
 	static {
-		sessions = new LinkedList<Session>();
+		sessions = new Vector<Session>();
 		HypersonicUtil.registerDriver();
 		HypersonicUtil.setInitialProperties();
 		Runtime.getRuntime().addShutdownHook(new Thread("thinkParity - Shutdown Database") {

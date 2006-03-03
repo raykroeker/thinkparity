@@ -4,10 +4,7 @@
 package com.thinkparity.model.parity.model;
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.UUID;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
@@ -18,10 +15,10 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -43,12 +40,6 @@ import com.thinkparity.model.xmpp.user.User;
 public abstract class AbstractModelImpl {
 
 	/**
-	 * Empty list of parity object flags.
-	 */
-	protected static final Collection<ArtifactFlag> NO_FLAGS =
-		Collections.unmodifiableCollection(new Vector<ArtifactFlag>(0));
-
-	/**
 	 * Assertion message to be displayed if the username is not set in the
 	 * parity preferences.
 	 */
@@ -62,6 +53,13 @@ public abstract class AbstractModelImpl {
 	 * @see #getSessionModelContext()
 	 */
 	private static Context sessionModelContext;
+
+	/**
+	 * Obtain the current date\time.
+	 * 
+	 * @return The current date\time.
+	 */
+	protected static Calendar currentDateTime() { return DateUtil.getInstance(); }
 
 	/**
 	 * Obtain the session model context.
@@ -216,47 +214,6 @@ public abstract class AbstractModelImpl {
 		return jabberId;
 	}
 
-	/**
-	 * Flag the object as not having been seen. This will remove the seen flag
-	 * from the object, and remove the seen flag from the parent objects all the
-	 * way up the tree.
-	 * 
-	 * @param parityObject
-	 *            The object to flag.
-	 * @throws ParityException
-	 */
-	protected void flagAsNotSEEN(final Artifact parityObject)
-			throws ParityException {
-		switch(parityObject.getType()) {
-		case DOCUMENT:
-			flagAsNotSEEN((Document) parityObject);
-			break;
-		default:
-			throw Assert.createUnreachable(
-					"removeFlag(Artifact,ArtifactFlag)");
-		}
-	}
-
-	/**
-	 * Flag the object as having been seen. This will add the SEEN flag to the
-	 * object; then check the parent to see if all of the siblings of the object
-	 * contain the SEEN flag; and if they do, the parent will be flagged as
-	 * well.
-	 * 
-	 * @param parityObject
-	 *            The object to flag.
-	 * @throws ParityException
-	 */
-	protected void flagAsSEEN(final Artifact parityObject) throws ParityException {
-		switch(parityObject.getType()) {
-		case DOCUMENT:
-			flagAsSEEN((Document) parityObject);
-			break;
-		default:
-			throw Assert.createUnreachable("flagAsSEEN(Artifact)");
-		}
-	}
-
 	protected Long getArtifactId(final UUID artifactUniqueId)
 			throws ParityException {
 		// NOTE I'm assuming document
@@ -301,15 +258,16 @@ public abstract class AbstractModelImpl {
 	 */
 	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
 
+	protected InternalArtifactModel getInternalArtifactModel() {
+		return ArtifactModel.getInternalModel(context);
+	}
+
 	protected InternalAuditModel getInternalAuditModel() {
-		final InternalAuditModel iAModel = InternalAuditModel.getInternalModel(context);
-		return iAModel;
+		return InternalAuditModel.getInternalModel(context);
 	}
 
 	protected InternalDocumentModel getInternalDocumentModel() {
-		final InternalDocumentModel iDocumentModel =
-			DocumentModel.getInternalModel(getContext());
-		return iDocumentModel;
+		return DocumentModel.getInternalModel(context);
 	}
 
 	/**
@@ -318,9 +276,7 @@ public abstract class AbstractModelImpl {
 	 * @return The internal session model.
 	 */
 	protected InternalSessionModel getInternalSessionModel() {
-		final InternalSessionModel iSessionModel =
-			SessionModel.getInternalModel(getContext());
-		return iSessionModel;
+		return SessionModel.getInternalModel(getContext());
 	}
 
 	/**
@@ -329,45 +285,6 @@ public abstract class AbstractModelImpl {
 	 * @return Obtain a handle to the session model.
 	 */
 	protected SessionModel getSessionModel() { return SessionModel.getModel(); }
-
-	/**
-	 * Obtain a timestamp representing now.
-	 * @return The timestamp.
-	 */
-	protected Calendar getTimestamp() {
-		return DateUtil.getInstance();
-	}
-
-	/**
-	 * Remove the seen flag from the document. This will also update the parent
-	 * so that its seen flag is removed.
-	 * 
-	 * @param document
-	 *            The document to flag.
-	 * @throws ParityException
-	 */
-	private void flagAsNotSEEN(final Document document) throws ParityException {
-		if(document.contains(ArtifactFlag.SEEN)) {
-			// remove the seen flag
-			document.remove(ArtifactFlag.SEEN);
-			getDocumentModel().update(document);
-		}
-	}
-
-	/**
-	 * Flag a document as having been seen. If the document's sibling objects
-	 * have all been seen as well, the parent will be updated.
-	 * 
-	 * @param document
-	 *            The document to flag.
-	 * @throws ParityException
-	 */
-	private void flagAsSEEN(final Document document) throws ParityException {
-		if(!document.contains(ArtifactFlag.SEEN)) {
-			document.add(ArtifactFlag.SEEN);
-			getDocumentModel().update(document);
-		}
-	}
 
 	private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,

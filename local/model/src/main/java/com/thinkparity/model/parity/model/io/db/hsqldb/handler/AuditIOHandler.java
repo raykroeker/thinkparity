@@ -167,12 +167,12 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			audit(session, receiveKeyEvent);
-			auditVersion(session, receiveKeyEvent,
-					receiveKeyEvent.getArtifactVersionId());
 
 			auditMetaData(session, receiveKeyEvent,
 					MetaDataType.JABBER_ID, MetaDataKey.RECEIVED_FROM,
 					receiveKeyEvent.getReceivedFrom());
+
+			session.commit();
 		}
 		catch(final HypersonicException hx) {
 			session.rollback();
@@ -217,6 +217,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, sendKeyEvent, MetaDataType.JABBER_ID, MetaDataKey.SENT_TO,
 					sendKeyEvent.getSentTo());
+
+			session.commit();
 		}
 		catch(final HypersonicException hx) {
 			session.rollback();
@@ -247,13 +249,11 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			session.prepareStatement(SQL_DELETE_AUDIT_VERSION);
 			session.setLong(1, artifactId);
-			int rowsDeleted = session.executeUpdate();
-			if(0 !=  rowsDeleted && 1 != rowsDeleted)
-				throw new HypersonicException("Could not delete audit version.");
+			session.executeUpdate();
 
 			session.prepareStatement(SQL_DELETE_AUDIT);
 			session.setLong(1, artifactId);
-			if(1 != session.executeUpdate())
+			if(auditIds.length != session.executeUpdate())
 				throw new HypersonicException("Could not delete audit.");
 
 			session.commit();
@@ -394,7 +394,6 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private ReceiveKeyEvent extractReceiveKey(final Session session) {
 		final ReceiveKeyEvent receiveKeyEvent = new ReceiveKeyEvent();
 		receiveKeyEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
-		receiveKeyEvent.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
 		receiveKeyEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		receiveKeyEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		receiveKeyEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
@@ -430,7 +429,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		sendKeyEvent.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		sendKeyEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		sendKeyEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
-		sendKeyEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_ID"));
+		sendKeyEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
 
 		final MetaData[] metaData = readMetaData(sendKeyEvent.getId(), MetaDataKey.SENT_TO);
 		sendKeyEvent.setSentTo((JabberId) metaData[0].getValue());

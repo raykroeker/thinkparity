@@ -23,8 +23,10 @@ import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
@@ -37,7 +39,6 @@ import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.sort.ArtifactSorter;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -205,6 +206,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// audit the closeure
 			final Document d = get(documentId);
 			auditor.close(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getUpdatedOn());
+
+			// fire event
+			notifyUpdate_objectClosed(d);
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentId, rx);
@@ -227,6 +231,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// audit the closure
 			final Document d = get(document.getId());
 			auditor.close(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getUpdatedOn());
+
+			// fire event
+			notifyUpdate_objectClosed(d);
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentUniqueId, rx);
@@ -264,10 +271,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 				"create(Project,String,String,File)",
 				(file.length() <= IParityModelConstants.FILE_SIZE_UPPER_BOUNDS));
 		try {
-			final Calendar now = getTimestamp();
+			final Calendar now = currentDateTime();
 			final Document document = new Document(preferences.getUsername(),
-					now, description, NO_FLAGS, UUIDGenerator.nextUUID(), name,
-					preferences.getUsername(), now);
+					now, description, Collections.<ArtifactFlag>emptyList(),
+					UUIDGenerator.nextUUID(), name, preferences.getUsername(),
+					now);
 			document.setState(ArtifactState.ACTIVE);
 			final byte[] contentBytes = FileUtil.readBytes(file);
 			final DocumentContent content = new DocumentContent();
@@ -291,15 +299,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 			createVersion(document.getId());
 
 			// flag the document as having been seen.
-			flagAsSEEN(document);
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.applyFlagKey(document.getId());
+			iAModel.applyFlagSeen(document.getId());
 
 			// fire a creation event
-			notifyCreation_objectCreated(document);
+			final Document d = get(document.getId());
+			notifyCreation_objectCreated(d);
 
 			// audit the creation
-			final Document d = get(document.getId());
 			auditor.create(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getCreatedOn());
-			return document;
+			return d;
 		}
 		catch(IOException iox) {
 			logger.error("createDocument(Document)", iox);
@@ -371,7 +381,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// update the document updated by\on
 			document.setUpdatedBy(preferences.getUsername());
-			document.setUpdatedOn(getTimestamp());
+			document.setUpdatedOn(currentDateTime());
 			documentIO.update(document);
 
 			// update the content bytes\checksum
@@ -647,8 +657,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("list(Comparator<Artifact>)");
 		logger.debug(comparator);
 		try {
-			final Collection<Document> documents = documentIO.list();
-			ArtifactSorter.sortDocuments(documents, comparator);
+			final List<Document> documents = documentIO.list();
+			ModelSorter.sortDocuments(documents, comparator);
 			return documents;
 		}
 		catch(RuntimeException rx) {
@@ -695,9 +705,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(comparator);
 		try {
-			final Collection<DocumentVersion> versions =
+			final List<DocumentVersion> versions =
 				documentIO.listVersions(documentId);
-			ArtifactSorter.sortVersions(versions, comparator);
+			ModelSorter.sortDocumentVersions(versions, comparator);
 			return versions;
 		}
 		catch(RuntimeException rx) {
@@ -742,7 +752,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void open(final Long documentId) throws ParityException {
-		logger.info("open(Long)");
+		logger.info("[LMODEL] [DOCUMENT] [OPEN]");
 		logger.debug(documentId);
 		try {
 			final Document document = get(documentId);
@@ -752,7 +762,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 			localFile.open();
 
 			// flag it as having been seen
-			flagAsSEEN(document);
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.applyFlagSeen(documentId);
 		}
 		catch(IOException iox) {
 			logger.error("open(UUID)", iox);
@@ -893,12 +904,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 			Document document = get(xmppDocument.getUniqueId());
 			logger.debug(document);
 			if(null == document) { document = receiveCreate(xmppDocument); }
-			else { receiveUpdate(xmppDocument, document); }
+			else {
+				final DocumentVersion version =
+					getVersion(document.getId(), xmppDocument.getVersionId());
+				// i have this version.  wtf? biotch
+				if(null == version) { receiveUpdate(xmppDocument, document); }
+			}
 
 			// audit the receiving
 			auditor.recieve(document.getId(), xmppDocument.getVersionId(),
-					receivedFromJabberId, JabberIdBuilder.parseUsername(preferences.getUsername()),
-					xmppDocument.getUpdatedOn());
+					receivedFromJabberId,
+					JabberIdBuilder.parseUsername(preferences.getUsername()),
+					currentDateTime());
 		}
 		catch(IOException iox) {
 			logger.error("receiveDocument(XMPPDocument)", iox);
@@ -1119,6 +1136,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Fire the object closed event.
+	 * 
+	 * @param document
+	 *            The document that was closed.
+	 */
+	private void notifyUpdate_objectClosed(final Document document) {
+		synchronized(updateListenersLock) {
+			for(final UpdateListener l : updateListeners) {
+				l.objectClosed(new com.thinkparity.model.parity.api.events.CloseEvent(document));
+			}
+		}
+	}
+
+	/**
 	 * Fire the objectReceived event for all update listeners.
 	 * 
 	 * @param document
@@ -1241,13 +1272,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 			localFile.write(content.getContent());
 		}
 
-		// if not the key holder lock
+		// if key holder:  apply flag key
+		// if not key holder:  lock
 		final InternalSessionModel iSModel = getInternalSessionModel();
-		if(!iSModel.isLoggedInUserKeyHolder(document.getId()))
-			lock(document.getId());
+		if(iSModel.isLoggedInUserKeyHolder(document.getId())) {
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.applyFlagKey(document.getId());
+		}
+		else { lock(document.getId()); }
 
-		// flag the document
-		flagAsNotSEEN(document);
+		// remove flag seen
+		final InternalArtifactModel iAModel = getInternalArtifactModel();
+		iAModel.removeFlagSeen(document.getId());
 
 		// notify
 		notifyUpdate_objectReceived(document);
@@ -1266,5 +1302,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throws ParityException, IOException {
 		final DocumentContent content = getContent(documentId);
 		FileUtil.writeBytes(file, content.getContent());
+	}
+
+	void auditKeyRecieved(final Long artifactId, final JabberId createdBy,
+			final Calendar createdOn, final JabberId receivedFrom) {
+		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
 }

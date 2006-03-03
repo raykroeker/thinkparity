@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.model;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -22,6 +23,7 @@ public class ModelFactory {
 
 	public static ModelFactory getInstance() { return INSTANCE; }
 
+	private ArtifactModel artifactModel;
 	private DocumentModel documentModel;
 	private boolean isInitialized;
 	private Preferences preferences;
@@ -44,6 +46,10 @@ public class ModelFactory {
 	private ModelFactory() {
 		super();
 		this.isInitialized = false;
+	}
+
+	public ArtifactModel getArtifactModel(final Class clasz) {
+		return artifactModel;
 	}
 
 	public DocumentModel getDocumentModel(final Class clasz) {
@@ -83,6 +89,7 @@ public class ModelFactory {
 	 */
 	public void initialize() {
 		if(!isInitialized) {
+			artifactModel = ArtifactModel.getModel();
 			documentModel = DocumentModel.getModel();
 			sessionModel = SessionModel.getModel();
 			workspaceModel = WorkspaceModel.getModel();

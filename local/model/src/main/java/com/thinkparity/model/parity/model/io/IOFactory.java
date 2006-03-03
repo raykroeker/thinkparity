@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.io;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicIOFactory;
+import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
@@ -54,6 +55,13 @@ public abstract class IOFactory {
 		super();
 		this.workspace = workspace;
 	}
+
+	/**
+	 * Create an artifact io handler.
+	 * 
+	 * @return An artifact io handler.
+	 */
+	public abstract ArtifactIOHandler createArtifactHandler();
 
 	/**
 	 * Create an audit io handler.

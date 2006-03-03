@@ -27,6 +27,7 @@ import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -196,13 +197,24 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	static void notifyKeyRequestAccepted(final UUID artifactUniqueId,
 			final JabberId acceptedBy) {
-		final InternalDocumentModel iDocumentModel =
+		final InternalDocumentModel iDModel =
 			DocumentModel.getInternalModel(sContext);
 		try {
-			final Document document = iDocumentModel.get(artifactUniqueId);
-			iDocumentModel.unlock(document.getId());
+			final Document document = iDModel.get(artifactUniqueId);
+			iDModel.unlock(document.getId());
 			SystemMessageModel.getInternalModel(sContext).
 				createKeyResponse(document.getId(), Boolean.TRUE, acceptedBy);
+
+			// audit receive key
+			final User loggedInUser;
+			synchronized(xmppHelperLock) {
+				loggedInUser =  xmppHelper.getUser();
+			}
+			iDModel.auditRecieveKey(document.getId(), loggedInUser.getId(), currentDateTime(), acceptedBy);
+		}
+		catch(final SmackException sx) {
+			sLogger.fatal("Could not accept key request.", sx);
+			return;
 		}
 		catch(ParityException px) {
 			sLogger.fatal("Could not accept key request.", px);
@@ -424,44 +436,6 @@ class SessionModelImpl extends AbstractModelImpl {
 			}
 			catch(final RuntimeException rx) {
 				logger.error("Cannot obtain artifact key holder.", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
-	 * Obtain a list of artifacts for which the logged in user has the key.
-	 * 
-	 * @return A list of artifact ids.
-	 * @throws ParityException
-	 * @throws NotTrueAssertion If the user is offline.
-	 */
-	List<Long> getArtifactKeys() throws ParityException {
-		logger.info("getArtifactKeys()");
-		synchronized(xmppHelper) {
-			assertIsLoggedIn(
-					"Cannot obtain artifact keys if the user is offline.",
-					xmppHelper);
-			try {
-				final List<UUID> keys = xmppHelper.getArtifactKeys();
-				final List<Long> localKeys = new LinkedList<Long>();
-				Long artifactId;
-				for(final UUID key : keys) {
-					artifactId = getArtifactId(key);
-					if(null == artifactId) {
-						// the user *might* have multiple installations?
-						logger.warn("Artifact with id:  " + artifactId + " does not exist locally.");
-					}
-					else { localKeys.add(artifactId); }
-				}
-				return localKeys;
-			}
-			catch(final SmackException sx) {
-				logger.error("Cannot obtain artifact keys.", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("Cannot obtain artifact keys.", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -1020,8 +994,12 @@ class SessionModelImpl extends AbstractModelImpl {
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
 				case ACCEPT:
-					// create the new version
-					final DocumentVersion version = iDModel.createVersion(documentId);
+					// check if a new version is needed
+					final DocumentVersion version;
+					if(iDModel.isWorkingVersionEqual(documentId)) {
+						version = iDModel.getLatestVersion(documentId);
+					}
+					else { version = iDModel.createVersion(documentId); }
 
 					// send the key change to the server
 					xmppHelper.sendKeyResponse(
@@ -1032,6 +1010,10 @@ class SessionModelImpl extends AbstractModelImpl {
 					users.add(requestedByUser);
 					send(users, documentId, version.getVersionId());
 
+					// remove flag key
+					final InternalArtifactModel iAModel = getInternalArtifactModel();
+					iAModel.removeFlagKey(documentId);
+
 					// lock the local document
 					iDModel.lock(documentId);
 
@@ -1039,7 +1021,7 @@ class SessionModelImpl extends AbstractModelImpl {
 					final DocumentVersion dv = iDModel.getVersion(
 							version.getArtifactId(), version.getVersionId());
 					auditor.sendKey(dv.getArtifactId(), dv.getVersionId(),
-							xmppHelper.getUser().getId(), version.getUpdatedOn(),
+							xmppHelper.getUser().getId(), currentDateTime(),
 							requestedBy);
 					break;
 				case DENY:

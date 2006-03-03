@@ -14,11 +14,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
  * The parity object helper provides common utility functionality for the user
@@ -140,6 +140,12 @@ public class ArtifactUtil {
 		LoggerFactory.getLogger(getClass());
 
 	/**
+	 * The artifact api.
+	 * 
+	 */
+	private final ArtifactModel artifactModel;
+
+	/**
 	 * Parity document api.
 	 */
 	private final DocumentModel documentModel;
@@ -151,19 +157,13 @@ public class ArtifactUtil {
 	private final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
-	 * The parity session api.
-	 * 
-	 */
-	private final SessionModel sessionModel;
-
-	/**
 	 * Create a ArtifactUtil.
 	 * 
 	 */
 	private ArtifactUtil() {
 		super();
+		this.artifactModel = modelFactory.getArtifactModel(getClass());
 		this.documentModel = modelFactory.getDocumentModel(getClass());
-		this.sessionModel = modelFactory.getSessionModel(getClass());
 	}
 
 	/**
@@ -199,8 +199,7 @@ public class ArtifactUtil {
 	 * @return True if the current user is the key holder; false otherwise.
 	 */
 	private Boolean determineIsKeyHolder(final Long artifactId) {
-		try { return sessionModel.isLoggedInUserKeyHolder(artifactId); }
-		catch(final ParityException px) { throw new RuntimeException(px); }
+		return artifactModel.isFlagApplied(artifactId, ArtifactFlag.KEY);
 	}
 
 	/**

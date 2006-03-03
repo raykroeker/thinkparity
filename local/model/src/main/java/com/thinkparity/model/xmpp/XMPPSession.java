@@ -41,7 +41,6 @@ public interface XMPPSession {
 			throws SmackException;
 	public User getArtifactKeyHolder(final UUID artifactUniqueId)
 			throws SmackException;
-	public List<UUID> getArtifactKeys() throws SmackException;
 	public User getUser() throws SmackException;
 	public void inviteContact(final JabberId jabberId) throws SmackException;
 	public Boolean isLoggedIn();

@@ -130,16 +130,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain a list of artifact ids for which the logged in user has the key.
-	 * 
-	 * @return A list of artifact ids.
-	 * @throws ParityException
-	 */
-	public List<Long> getArtifactKeys() throws ParityException {
-		synchronized(implLock) { return impl.getArtifactKeys(); }
-	}
-
-	/**
 	 * Add a roster entry for the user. This will send a presence request to
 	 * user.
 	 * 

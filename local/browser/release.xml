@@ -53,7 +53,7 @@
 			<fileset file="${lib.hsqldb}"/>
 
 			<fileset file="${file.jnlp}"/>
-			<fileset file="${file.cmd}"/>\
+			<fileset file="${file.cmd}"/>
 			<fileset file="${djohnson.cmd}"/>
 			<fileset file="${emorrison.cmd}"/>
 			<fileset file="${kmfarland.cmd}"/>

@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.io.db.hsqldb;
 
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.db.hsqldb.util.HypersonicValidator;
+import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
@@ -23,6 +24,14 @@ public class HypersonicIOFactory extends IOFactory {
 	public HypersonicIOFactory(final Workspace workspace) {
 		super(workspace);
 		new HypersonicValidator(workspace).validate();
+	}
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.IOFactory#createArtifactHandler()
+	 * 
+	 */
+	public ArtifactIOHandler createArtifactHandler() {
+		return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ArtifactIOHandler();
 	}
 
 	/**

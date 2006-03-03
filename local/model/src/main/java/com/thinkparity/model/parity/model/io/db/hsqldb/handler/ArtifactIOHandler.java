@@ -19,7 +19,8 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class ArtifactIOHandler extends AbstractIOHandler {
+public class ArtifactIOHandler extends AbstractIOHandler implements
+		com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler {
 
 	/**
 	 * Sql query to delete the artifact.
@@ -138,7 +139,41 @@ class ArtifactIOHandler extends AbstractIOHandler {
 	/**
 	 * Create a ArtifactIOHandler.
 	 */
-	ArtifactIOHandler() { super(); }
+	public ArtifactIOHandler() { super(); }
+
+	/**
+	 * Obtain the artifact's flags.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return The artifact's flags.
+	 * @throws HypersonicException
+	 */
+	public List<ArtifactFlag> getFlags(final Long artifactId)
+			throws HypersonicException {
+		final Session session = openSession();
+		try { return getFlags(session, artifactId); }
+		finally { session.close(); }
+	}
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#setFlags(java.lang.Long,
+	 *      java.util.List)
+	 * 
+	 */
+	public void updateFlags(final Long artifactId,
+			final List<ArtifactFlag> flags) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			setFlags(session, artifactId, flags);
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
 
 	/**
 	 * Obtain the latest version id for the given artifact.
@@ -275,21 +310,6 @@ class ArtifactIOHandler extends AbstractIOHandler {
 		session.setLong(2, versionId);
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not delete version.");
-	}
-
-	/**
-	 * Obtain the artifact's flags.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return The artifact's flags.
-	 * @throws HypersonicException
-	 */
-	List<ArtifactFlag> getFlags(final Long artifactId)
-			throws HypersonicException {
-		final Session session = openSession();
-		try { return getFlags(session, artifactId); }
-		finally { session.close(); }
 	}
 
 	/**

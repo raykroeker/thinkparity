@@ -137,16 +137,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
-	 * Obtain a list of artifact keys.
-	 * 
-	 * @return A list of artifact keys.
-	 * @throws SmackException
-	 */
-	List<UUID> getArtifactKeys() throws SmackException {
-		return xmppSession.getArtifactKeys();
-	}
-
-	/**
 	 * Obtain a list of contacts for an artifact.
 	 * 
 	 * @param artifactUniqueId

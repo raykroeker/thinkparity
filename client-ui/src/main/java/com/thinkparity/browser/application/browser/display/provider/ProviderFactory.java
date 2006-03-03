@@ -133,8 +133,6 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider mainDocumentProvider;
 
-	private final ContentProvider mainKeyProvider;
-
 	/**
 	 * The system message provider.
 	 * 
@@ -197,14 +195,6 @@ public class ProviderFactory {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.mainKeyProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				try {
-					return sessionModel.getArtifactKeys().toArray(new Long[] {});
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
-		};
 		this.mainMessageProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				try {
@@ -216,7 +206,7 @@ public class ProviderFactory {
 			}
 		};
 		this.mainProvider = new CompositeFlatContentProvider() {
-			private final ContentProvider[] contentProviders = new ContentProvider[] {mainDocumentProvider, mainMessageProvider, mainKeyProvider};
+			private final ContentProvider[] contentProviders = new ContentProvider[] {mainDocumentProvider, mainMessageProvider};
 			public Object[] getElements(final Integer index, final Object input) {
 				Assert.assertNotNull("Index cannot be null.", index);
 				Assert.assertTrue(

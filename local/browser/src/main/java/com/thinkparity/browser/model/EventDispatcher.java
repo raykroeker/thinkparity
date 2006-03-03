@@ -128,6 +128,9 @@ public class EventDispatcher {
 			public void objectUpdated(final UpdateEvent e) {
 				controller.reloadMainBrowserAvatar();
 			}
+			public void objectClosed(CloseEvent closeEvent) {
+				controller.reloadMainBrowserAvatar();
+			}
 		};
 	}
 

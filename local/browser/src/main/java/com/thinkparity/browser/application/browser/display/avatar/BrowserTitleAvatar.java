@@ -10,20 +10,34 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.Timer;
 import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
 import com.thinkparity.codebase.ResourceUtil;
+
+import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 class BrowserTitleAvatar extends Avatar {
+
+	/**
+	 * The parity workspace.
+	 * 
+	 */
+	private static final Workspace workspace;
+
+	static { workspace = ModelUtil.getWorkspace(); }
 
 	/**
 	 * @see java.io.Serializable
@@ -53,6 +67,23 @@ class BrowserTitleAvatar extends Avatar {
 		this.mouseInputAdapter = new MouseInputAdapter() {
 			int offsetX;
 			int offsetY;
+			public void mouseClicked(final MouseEvent e) {
+				if(2 == e.getClickCount()) {
+					if(e.isShiftDown()) {
+						final String info = new StringBuffer()
+							.append(workspace.getWorkspaceURL())
+							.toString();
+						if(info.length() > 68) {
+							infoJLabel.setText(info.substring(68));
+						}
+						new Timer(1500, new ActionListener() {
+							public void actionPerformed(final ActionEvent e) {
+								infoJLabel.setText("");
+							}
+						}).start();
+					}
+				}
+			}
 			public void mouseDragged(final MouseEvent e) {
 				getController().moveMainWindow(
 						new Point(e.getPoint().x - offsetX,
@@ -66,21 +97,27 @@ class BrowserTitleAvatar extends Avatar {
 		addMouseListener(mouseInputAdapter);
 		addMouseMotionListener(mouseInputAdapter);
 		setLayout(new GridBagLayout());
-		initBrowserTitleComponents();
+		initComponents();
 	}
+
+	private JLabel infoJLabel;
 
 	/**
 	 * Initialize the browser's title components.
 	 *
 	 */
-	private void initBrowserTitleComponents() {
+	private void initComponents() {
 		//	 _______________________________________
 		//	/										\
 		//	|	                                 X  |
 		//	|										|
 		//	-----------------------------------------
-		
 		final GridBagConstraints c = new GridBagConstraints();
+
+		infoJLabel = LabelFactory.create();
+		c.anchor = GridBagConstraints.WEST;
+		c.insets.left = 7;
+		add(infoJLabel, c.clone());
 
 		final ImageIcon closeJButtonIcon =
 			new ImageIcon(ResourceUtil.getURL("images/closeButton.png"));
@@ -96,6 +133,7 @@ class BrowserTitleAvatar extends Avatar {
 		closeJButton.setPreferredSize(iconSize);
 
 		c.anchor = GridBagConstraints.EAST;
+		c.insets.left = 0;
 		c.insets.right = 7;
 		c.weightx = 1;
 		add(closeJButton, c.clone());

@@ -10,8 +10,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -26,6 +24,7 @@ import com.thinkparity.browser.application.browser.display.avatar.main.CellRende
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
+import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -58,13 +57,6 @@ class BrowserMainAvatar extends Avatar {
 	private DefaultListModel jListModel;
 
 	/**
-	 * Contains a list of the artifact's the user posesses the key for.
-	 * 
-	 * @see #reloadKeys()
-	 */
-	private final List<Long> keys = new LinkedList<Long>();
-
-	/**
 	 * Create a BrowserMainAvatar.
 	 * 
 	 */
@@ -92,7 +84,6 @@ class BrowserMainAvatar extends Avatar {
 	 */
 	public void reload() {
 		jListModel.clear();
-		reloadKeys();
 		reloadSystemMessages();
 		reloadDocuments();
 	}
@@ -102,10 +93,6 @@ class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	public void setState(final State state) {}
-
-	private Long[] getKeys() {
-		return (Long[]) ((CompositeFlatContentProvider) contentProvider).getElements(2, null);
-	}
 
 	/**
 	 * Obtain the list of system messages from the content provider.
@@ -197,14 +184,9 @@ class BrowserMainAvatar extends Avatar {
 		for(final Object e : elements) {
 			d = (Document) e;
 			jListModel.addElement(
-					DocumentListItem.create(d, keys.contains(d.getId())));
+					DocumentListItem.create(
+							d, ArtifactUtil.isKeyHolder(d.getId())));
 		}
-	}
-
-	private void reloadKeys() {
-		keys.clear();
-		final Long[] keyArray = getKeys();
-		for(final Long key : keyArray) { keys.add(key); }
 	}
 
 	/**

@@ -89,7 +89,6 @@ public class HistoryItemBuilder {
 		receiveKeyHistoryItem.setName(document.getName());
 		receiveKeyHistoryItem.setReceivedFrom(
 				receiveKeyEventUsers.get(receiveKeyEvent.getReceivedFrom()));
-		receiveKeyHistoryItem.setVersionId(receiveKeyEvent.getArtifactVersionId());
 		return receiveKeyHistoryItem;
 	}
 

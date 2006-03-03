@@ -12,8 +12,6 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class ReceiveKeyEvent extends AuditEvent {
 
-	private Long artifactVersionId;
-
 	private JabberId receivedFrom;
 
 	/**
@@ -24,24 +22,10 @@ public class ReceiveKeyEvent extends AuditEvent {
 	}
 
 	/**
-	 * @return Returns the artifactVersionId.
-	 */
-	public Long getArtifactVersionId() {
-		return artifactVersionId;
-	}
-
-	/**
 	 * @return Returns the receivedFrom.
 	 */
 	public JabberId getReceivedFrom() {
 		return receivedFrom;
-	}
-
-	/**
-	 * @param artifactVersionId The artifactVersionId to set.
-	 */
-	public void setArtifactVersionId(Long artifactVersionId) {
-		this.artifactVersionId = artifactVersionId;
 	}
 
 	/**

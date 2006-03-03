@@ -110,6 +110,11 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			audit(session, closeEvent);
+
+			auditMetaData(session, closeEvent,
+					MetaDataType.JABBER_ID, MetaDataKey.CLOSED_BY,
+					closeEvent.getClosedBy());
+
 			session.commit();
 		}
 		catch(final HypersonicException hx) {
@@ -179,6 +184,32 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			throw hx;
 		}
 		finally { session.close(); }
+	}
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.RequestKeyEvent)
+	 */
+	public void audit(final RequestKeyEvent requestKeyEvent) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			audit(session, requestKeyEvent);
+
+			auditMetaData(session, requestKeyEvent,
+					MetaDataType.JABBER_ID, MetaDataKey.REQUESTED_BY,
+					requestKeyEvent.getRequestedBy());
+
+			auditMetaData(session, requestKeyEvent,
+					MetaDataType.JABBER_ID, MetaDataKey.REQUESTED_FROM,
+					requestKeyEvent.getRequestedFrom());
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+		
 	}
 
 	/**
@@ -347,6 +378,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			return extractReceive(session);
 		case RECEIVE_KEY:
 			return extractReceiveKey(session);
+		case REQUEST_KEY:
+			return extractRequestKey(session);
 		case SEND:
 			return extractSend(session);
 		case SEND_KEY:
@@ -363,6 +396,10 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		closeEvent.setCreatedOn(session.getCalendar("CREATED_ON"));
 		closeEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		closeEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+
+		final MetaData[] metaData = readMetaData(closeEvent.getId(), MetaDataKey.CLOSED_BY);
+		closeEvent.setClosedBy((JabberId) metaData[0].getValue());
+
 		return closeEvent;
 	}
 
@@ -403,6 +440,23 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		receiveKeyEvent.setReceivedFrom((JabberId) metaData[0].getValue());
 
 		return receiveKeyEvent;
+	}
+
+	private RequestKeyEvent extractRequestKey(final Session session) {
+		final RequestKeyEvent event = new RequestKeyEvent();
+		event.setArtifactId(session.getLong("ARTIFACT_ID"));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
+		event.setCreatedOn(session.getCalendar("CREATED_ON"));
+		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		event.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+
+		MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.REQUESTED_BY);
+		event.setRequestedBy((JabberId) metaData[0].getValue());
+
+		metaData = readMetaData(event.getId(), MetaDataKey.REQUESTED_FROM);
+		event.setRequestedFrom((JabberId) metaData[0].getValue());
+
+		return event;
 	}
 
 	private SendEvent extractSend(final Session session) {
@@ -484,5 +538,5 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	private enum MetaDataKey { RECEIVED_FROM, SENT_TO }
+	private enum MetaDataKey { CLOSED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO }
 }

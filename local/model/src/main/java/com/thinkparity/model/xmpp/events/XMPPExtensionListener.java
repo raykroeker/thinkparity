@@ -15,7 +15,8 @@ import com.thinkparity.model.xmpp.document.XMPPDocument;
  */
 public interface XMPPExtensionListener {
 
-	public void artifactClosed(final UUID artifactUniqueId);
+	public void artifactClosed(final UUID artifactUniqueId,
+			final JabberId artifactClosedBy);
 
 	public void documentReceived(final XMPPDocument xmppDocument);
 

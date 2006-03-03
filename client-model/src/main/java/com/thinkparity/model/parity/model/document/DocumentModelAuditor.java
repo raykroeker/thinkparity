@@ -30,9 +30,10 @@ class DocumentModelAuditor extends AbstractAuditor {
 	}
 
 	void close(final Long documentId, final JabberId closedBy,
-			final Calendar closedOn) {
+			final Calendar closedOn, final JabberId createdBy) {
 		final CloseEvent closeEvent = new CloseEvent();
 		closeEvent.setArtifactId(documentId);
+		closeEvent.setClosedBy(closedBy);
 		closeEvent.setCreatedBy(closedBy);
 		closeEvent.setCreatedOn(closedOn);
 		closeEvent.setType(AuditEventType.CLOSE);

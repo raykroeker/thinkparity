@@ -31,49 +31,55 @@ class AuditModelImpl extends AbstractModelImpl {
 	}
 
 	void audit(final CloseEvent closeEvent) {
-		logger.info("audit(CloseEvent)");
+		logger.info("[LMODEL] [AUDIT] [AUDIT CLOSE]");
 		logger.debug(closeEvent);
 		auditIO.audit(closeEvent);
 	}
 
 	void audit(final CreateEvent createEvent) {
-		logger.info("audit(CreateEvent)");
+		logger.info("[LMODEL] [AUDIT] [AUDIT CREATE]");
 		logger.debug(createEvent);
 		auditIO.audit(createEvent);
 	}
 
 	void audit(final ReceiveEvent receiveEvent) {
-		logger.info("audit(Receive)");
+		logger.info("[LMODEL] [AUDIT] [AUDIT RECEIVE]");
 		logger.debug(receiveEvent);
 		auditIO.audit(receiveEvent);
 	}
 
 	void audit(final ReceiveKeyEvent receiveKeyEvent) {
-		logger.info("audit(ReceiveKey)");
+		logger.info("[LMODEL] [AUDIT] [AUDIT RECEIVE KEY]");
 		logger.debug(receiveKeyEvent);
 		auditIO.audit(receiveKeyEvent);
 	}
 
+	void audit(final RequestKeyEvent requestKeyEvent) {
+		logger.info("[LMODEL] [AUDIT] [AUDIT REQUEST KEY]");
+		logger.debug(requestKeyEvent);
+		auditIO.audit(requestKeyEvent);
+	}
+
 	void audit(final SendEvent sendEvent) {
-		logger.info("audit(SendEvent)");
+		logger.info("[LMODEL] [AUDIT] [AUDIT SEND]");
 		logger.debug(sendEvent);
 		auditIO.audit(sendEvent);
 	}
 
 	void audit(final SendKeyEvent sendKeyEvent) {
-		logger.info("audit(SendKeyEvent)");
+		logger.info("[LMODEL] [AUDIT] [AUDIT SEND KEY]");
 		logger.debug(sendKeyEvent);
 		auditIO.audit(sendKeyEvent);
 	}
 
 	void delete(final Long artifactId) {
-		logger.info("delete(Long)");
+		logger.info("[LMODEL] [AUDIT] [DELETE]");
 		logger.debug(artifactId);
 		auditIO.delete(artifactId);
 	}
 
 	Collection<AuditEvent> read(final Long artifactId) {
-		logger.info("list(Long)");
+		logger.info("[LMODEL] [AUDIT] [READ]");
 		logger.debug(artifactId);
 		return auditIO.list(artifactId);
 	}

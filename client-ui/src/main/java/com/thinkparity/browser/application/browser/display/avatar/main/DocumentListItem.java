@@ -57,39 +57,19 @@ public class DocumentListItem extends ListItem {
 		KEY_ICON = new ImageIcon(ResourceUtil.getURL("images/key.png"));
 	}
 
-	/**
-	 * @see ArtifactUtil#canClose(Long, ArtifactType)
-	 * 
-	 */
-	private static Boolean canClose(final Long documentId) {
-		return ArtifactUtil.canClose(documentId);
+	private static Boolean hasBeenSeen(final Long documentId) {
+		return ArtifactUtil.hasBeenSeen(documentId, ArtifactType.DOCUMENT);
 	}
 
-	/**
-	 * Flag indicating whether or not the user is this document list item's key
-	 * holder.
-	 * 
-	 * @see #DocumentListItem(Document, Boolean)
-	 */
-	private final Boolean isKeyHolder;
+	private static Boolean isClosed(final Long documentId) {
+		return ArtifactUtil.isClosed(documentId, ArtifactType.DOCUMENT);
+	}
 
 	/**
 	 * Close menu item.
 	 * 
 	 */
 	private JMenuItem closeMenuItem;
-
-	/**
-	 * Open menu item.
-	 * 
-	 */
-	private JMenuItem openMenuItem;
-
-	/**
-	 * The action listener for the open menu item.
-	 * 
-	 */
-	private ActionListener openMenuItemActionListener;
 
 	/**
 	 * The action listener for the close menu item.
@@ -110,6 +90,26 @@ public class DocumentListItem extends ListItem {
 	private ActionListener deleteMenuItemActionListener;
 
 	/**
+	 * Flag indicating whether or not the user is this document list item's key
+	 * holder.
+	 * 
+	 * @see #DocumentListItem(Document, Boolean)
+	 */
+	private final Boolean isKeyHolder;
+
+	/**
+	 * Open menu item.
+	 * 
+	 */
+	private JMenuItem openMenuItem;
+
+	/**
+	 * The action listener for the open menu item.
+	 * 
+	 */
+	private ActionListener openMenuItemActionListener;
+
+	/**
 	 * Request key menu item.
 	 * 
 	 */
@@ -120,30 +120,17 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 */
 	private ActionListener requestKeyMenuItemActionListener;
-	/**
-	 * Send keymenu item.
-	 * 
-	 */
-	private JMenuItem sendKeyMenuItem;
-
-	/**
-	 * The action listener for the send menu item.
-	 * 
-	 */
-	private ActionListener sendKeyMenuItemActionListener;
 
 	/**
 	 * Send menu item.
 	 * 
 	 */
 	private JMenuItem sendMenuItem;
-
 	/**
 	 * The action listener for the send menu item.
 	 * 
 	 */
 	private ActionListener sendMenuItemActionListener;
-
 	/**
 	 * Create a DocumentListItem.
 	 * 
@@ -173,12 +160,6 @@ public class DocumentListItem extends ListItem {
 		setName(document.getName());
 		if(isKeyHolder) { setInfoIcon(KEY_ICON); }
 	}
-	private static Boolean hasBeenSeen(final Long documentId) {
-		return ArtifactUtil.hasBeenSeen(documentId, ArtifactType.DOCUMENT);
-	}
-	private static Boolean isClosed(final Long documentId) {
-		return ArtifactUtil.isClosed(documentId, ArtifactType.DOCUMENT);
-	}
 
 	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#fireSelection()
@@ -202,46 +183,16 @@ public class DocumentListItem extends ListItem {
 		else {
 			jPopupMenu.add(getSendMenuItem());
 
-			if(isKeyHolder) { jPopupMenu.add(getSendKeyMenuItem()); }
-			else { jPopupMenu.add(getRequestKeyMenuItem()); }
-
-			if(canClose(getDocumentId())) {
+			if(isKeyHolder) {
 				jPopupMenu.addSeparator();
 				jPopupMenu.add(getCloseMenuItem());
 			}
-			else { jPopupMenu.addSeparator(); }
-			jPopupMenu.add(getDeleteMenuItem());
+			else {
+				jPopupMenu.add(getRequestKeyMenuItem());
+				jPopupMenu.addSeparator();
+				jPopupMenu.add(getDeleteMenuItem());
+			}
 		}
-	}
-
-	/**
-	 * Obtain the open menu item.
-	 * 
-	 * @return The open menu item.
-	 */
-	private JMenuItem getOpenMenuItem() {
-		if(null == openMenuItem) {
-			openMenuItem = createJMenuItem(getString("Open"),
-					getMnemonic("Open"),
-					getOpenMenuItemActionListener());
-		}
-		return openMenuItem;
-	}
-
-	/**
-	 * Obtain the open menu item action listener.
-	 * 
-	 * @return The open menu item action listener.
-	 */
-	private ActionListener getOpenMenuItemActionListener() {
-		if(null == openMenuItemActionListener) {
-			openMenuItemActionListener = new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					getController().runOpenDocument(getDocumentId());
-				}
-			};
-		}
-		return openMenuItemActionListener;
 	}
 
 	/**
@@ -312,6 +263,36 @@ public class DocumentListItem extends ListItem {
 	private Long getDocumentId() { return (Long) getProperty("documentId"); }
 
 	/**
+	 * Obtain the open menu item.
+	 * 
+	 * @return The open menu item.
+	 */
+	private JMenuItem getOpenMenuItem() {
+		if(null == openMenuItem) {
+			openMenuItem = createJMenuItem(getString("Open"),
+					getMnemonic("Open"),
+					getOpenMenuItemActionListener());
+		}
+		return openMenuItem;
+	}
+
+	/**
+	 * Obtain the open menu item action listener.
+	 * 
+	 * @return The open menu item action listener.
+	 */
+	private ActionListener getOpenMenuItemActionListener() {
+		if(null == openMenuItemActionListener) {
+			openMenuItemActionListener = new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					getController().runOpenDocument(getDocumentId());
+				}
+			};
+		}
+		return openMenuItemActionListener;
+	}
+
+	/**
 	 * Obtain the request key menu item.
 	 * 
 	 * @return the request key menu item.
@@ -339,36 +320,6 @@ public class DocumentListItem extends ListItem {
 			};
 		}
 		return requestKeyMenuItemActionListener;
-	}
-
-	/**
-	 * Get the send key menu item.
-	 * 
-	 * @return The send key menu item.
-	 */
-	private JMenuItem getSendKeyMenuItem() {
-		if(null == sendKeyMenuItem) {
-			sendKeyMenuItem = createJMenuItem(getString("SendKey"),
-					getMnemonic("SendKey"),
-					getSendKeyMenuItemActionListener());
-		}
-		return sendKeyMenuItem;
-	}
-
-	/**
-	 * Obtain the action listener for the send key menu item.
-	 * 
-	 * @return The action listener for the send key menu item.
-	 */
-	private ActionListener getSendKeyMenuItemActionListener() {
-		if(null == sendKeyMenuItemActionListener) {
-			sendKeyMenuItemActionListener = new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					getController().displaySessionSendKeyFormAvatar();
-				}
-			};
-		}
-		return sendKeyMenuItemActionListener;
 	}
 
 	/**

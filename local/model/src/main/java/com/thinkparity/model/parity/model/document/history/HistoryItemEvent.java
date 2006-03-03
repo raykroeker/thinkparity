@@ -8,5 +8,5 @@ package com.thinkparity.model.parity.model.document.history;
  * @version 1.1
  */
 public enum HistoryItemEvent {
-	CLOSE, CREATE, RECEIVE, RECEIVE_KEY, SEND, SEND_KEY
+	CLOSE, CREATE, RECEIVE, RECEIVE_KEY, REQUEST_KEY, SEND, SEND_KEY
 }

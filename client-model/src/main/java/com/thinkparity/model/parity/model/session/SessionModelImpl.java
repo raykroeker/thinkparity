@@ -88,6 +88,12 @@ class SessionModelImpl extends AbstractModelImpl {
 	private static final Object presenceListenersLock;
 
 	/**
+	 * Static handle to the session model's auditor.
+	 * 
+	 */
+	private static final SessionModelAuditor sAuditor;
+
+	/**
 	 * The static session model context.
 	 * 
 	 */
@@ -140,6 +146,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		sessionListenersLock = new Object();
 		// session context
 		sContext = getSessionModelContext();
+		sAuditor = new SessionModelAuditor(sContext);
 		// create the xmpp helper
 		xmppHelper = new SessionModelXMPPHelper();
 		xmppHelperLock = new Object();
@@ -151,8 +158,12 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param artifactUniqueId
 	 *            The artifact unique id.
 	 */
-	static void notifyArtifactClosed(final UUID artifactUniqueId) {
-		try { DocumentModel.getInternalModel(sContext).close(artifactUniqueId); }
+	static void notifyArtifactClosed(final UUID artifactUniqueId,
+			final JabberId artifactClosedBy) {
+		try {
+			final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
+			iDModel.close(artifactUniqueId, artifactClosedBy);
+		}
 		catch(final ParityException px) {
 			sLogger.fatal("Could not close artifact.", px);
 			return;
@@ -254,14 +265,22 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param artifactUUID
 	 *            The artifact.
 	 */
-	static void notifyKeyRequested(final UUID artifactUniqueId,
-			final JabberId requestedBy) {
+	static void notifyKeyRequested(final UUID artifactUniqueId, final JabberId requestedBy) {
 		try {
 			final Document document = DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
 			SystemMessageModel.getInternalModel(sContext).createKeyRequest(document.getId(), requestedBy);
+
+			// audit key request
+			final User loggedInUser;
+			synchronized(xmppHelperLock) { loggedInUser =  xmppHelper.getUser(); }
+			sAuditor.requestKey(document.getId(), loggedInUser.getId(), currentDateTime(), requestedBy, loggedInUser.getId());
+		}
+		catch(final SmackException sx) {
+			sLogger.fatal("Could not process key request:  " + artifactUniqueId, sx);
+			return;
 		}
 		catch(final ParityException px) {
-			sLogger.error("Could not create system message for key request.", px);
+			sLogger.error("Could not process key request:  " + artifactUniqueId, px);
 			return;
 		}
 	}
@@ -950,6 +969,11 @@ class SessionModelImpl extends AbstractModelImpl {
 			try {
 				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
 				xmppHelper.sendKeyRequest(artifactUniqueId);
+
+				// audit key request
+				final User loggedInUser = xmppHelper.getUser();
+				final User keyHolder = getArtifactKeyHolder(artifactId);
+				auditor.requestKey(artifactId, loggedInUser.getId(), currentDateTime(), loggedInUser.getId(), keyHolder.getId());
 			}
 			catch(SmackException sx) {
 				logger.error("Cannot send key request.", sx);

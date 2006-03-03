@@ -19,10 +19,7 @@ import com.thinkparity.browser.model.util.ModelUtil;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
-import com.thinkparity.model.parity.model.document.history.ReceiveHistoryItem;
-import com.thinkparity.model.parity.model.document.history.SendHistoryItem;
-import com.thinkparity.model.parity.model.document.history.SendKeyHistoryItem;
+import com.thinkparity.model.parity.model.document.history.*;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -127,14 +124,29 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 		final String infoText;
 		switch(historyItem.getEvent()) {
 		case CLOSE:
+			final CloseHistoryItem chi = (CloseHistoryItem) historyItem;
+			infoText = getString("Info.CLOSE", new Object[] {ModelUtil.getName(chi.getClosedBy())});
+			break;
 		case CREATE:
-			infoText = "";
+			infoText = getString("Info.CREATE");
 			break;
 		case RECEIVE:
-		case RECEIVE_KEY:
 			final ReceiveHistoryItem rhi = (ReceiveHistoryItem) historyItem;
 			arguments = new Object[] {ModelUtil.getName(rhi.getReceivedFrom())};
-			infoText = getString("Info.RECEIVED_FROM", arguments);
+			infoText = getString("Info.RECEIVE", arguments);
+			break;
+		case RECEIVE_KEY:
+			final ReceiveKeyHistoryItem rki = (ReceiveKeyHistoryItem) historyItem;
+			arguments = new Object[] {ModelUtil.getName(rki.getReceivedFrom())};
+			infoText = getString("Info.RECEIVE_KEY", arguments);
+			break;
+		case REQUEST_KEY:
+			final RequestKeyItem rki2 = (RequestKeyItem) historyItem;
+			arguments = new Object[] {
+				ModelUtil.getName(rki2.getRequestedBy()),
+				ModelUtil.getName(rki2.getRequestedFrom())
+			};
+			infoText = getString("Info.REQUEST_KEY", arguments);
 			break;
 		case SEND:
 			final SendHistoryItem shi = (SendHistoryItem) historyItem;
@@ -142,15 +154,15 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 			int i = 0;
 			final StringBuffer buffer = new StringBuffer();
 			for(final User sentTo : shi.getSentTo()) {
-				if(0 == i++) { localKey = "Info.SENT_TO_0"; }
-				else { localKey = "Info.SENT_TO_N"; }
+				if(0 == i++) { localKey = "Info.SEND_0"; }
+				else { localKey = "Info.SEND_N"; }
 				buffer.append(getString(localKey, new Object[] {ModelUtil.getName(sentTo)}));
 			}
 			infoText = buffer.toString();
 			break;
 		case SEND_KEY:
 			final SendKeyHistoryItem skhi = (SendKeyHistoryItem) historyItem;
-			infoText = getString("Info.SENT_TO_0", new Object[] {ModelUtil.getName(skhi.getSentTo())});
+			infoText = getString("Info.SEND_KEY", new Object[] {ModelUtil.getName(skhi.getSentTo())});
 			break;
 		default:
 			infoText = null;

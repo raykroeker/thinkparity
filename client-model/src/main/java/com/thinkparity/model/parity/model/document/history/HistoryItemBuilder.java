@@ -34,10 +34,11 @@ public class HistoryItemBuilder {
 			final AuditEvent auditEvent,
 			final Map<JabberId, User> auditEventUsers) throws ParityException {
 		switch(auditEvent.getType()) {
-		case CLOSE: return buildCloseHistoryItem(document, (CloseEvent) auditEvent);
+		case CLOSE: return buildCloseHistoryItem(document, (CloseEvent) auditEvent, auditEventUsers);
 		case CREATE: return buildCreateHistoryItem(document, (CreateEvent) auditEvent);
 		case RECEIVE: return buildReceiveHistoryItem(document, (ReceiveEvent) auditEvent, auditEventUsers);
 		case RECEIVE_KEY: return buildReceiveKeyHistoryItem(document, (ReceiveKeyEvent) auditEvent, auditEventUsers);
+		case REQUEST_KEY: return buildRequestKeyHistoryItem(document, (RequestKeyEvent) auditEvent, auditEventUsers);
 		case SEND: return buildSendHistoryItem(document, (SendEvent) auditEvent, auditEventUsers);
 		case SEND_KEY: return buildSendKeyHistoryItem(document, (SendKeyEvent) auditEvent, auditEventUsers);
 		default:
@@ -46,14 +47,17 @@ public class HistoryItemBuilder {
 	}
 
 	private static CloseHistoryItem buildCloseHistoryItem(
-			final Document document, final CloseEvent closeEvent) {
+			final Document document, final CloseEvent closeEvent,
+			final Map<JabberId, User> closeEventUsers) {
 		final CloseHistoryItem closeHistoryItem = new CloseHistoryItem();
+		closeHistoryItem.setClosedBy(closeEventUsers.get(closeEvent.getClosedBy()));
 		closeHistoryItem.setDate(closeEvent.getCreatedOn());
 		closeHistoryItem.setDocumentId(closeEvent.getArtifactId());
 		closeHistoryItem.setEvent(HistoryItemEvent.CLOSE);
 		closeHistoryItem.setName(document.getName());
 		return closeHistoryItem;
 	}
+
 
 	private static CreateHistoryItem buildCreateHistoryItem(
 			final Document document, final CreateEvent createEvent) {
@@ -90,6 +94,19 @@ public class HistoryItemBuilder {
 		receiveKeyHistoryItem.setReceivedFrom(
 				receiveKeyEventUsers.get(receiveKeyEvent.getReceivedFrom()));
 		return receiveKeyHistoryItem;
+	}
+
+	private static RequestKeyItem buildRequestKeyHistoryItem(
+			final Document document, final RequestKeyEvent event,
+			final Map<JabberId, User> eventUsers) {
+		final RequestKeyItem item = new RequestKeyItem();
+		item.setDate(event.getCreatedOn());
+		item.setDocumentId(document.getId());
+		item.setEvent(HistoryItemEvent.REQUEST_KEY);
+		item.setName(document.getName());
+		item.setRequestedBy(eventUsers.get(event.getRequestedBy()));
+		item.setRequestedFrom(eventUsers.get(event.getRequestedFrom()));
+		return item;
 	}
 
 	private static SendHistoryItem buildSendHistoryItem(

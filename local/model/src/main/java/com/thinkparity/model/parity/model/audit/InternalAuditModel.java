@@ -44,6 +44,10 @@ public class InternalAuditModel extends AuditModel {
 		synchronized(getImplLock()) { getImpl().audit(receiveKeyEvent); }
 	}
 
+	public void audit(final RequestKeyEvent requestKeyEvent) {
+		synchronized(getImplLock()) { getImpl().audit(requestKeyEvent); }
+	}
+
 	public void audit(final SendEvent sendEvent) {
 		synchronized(getImplLock()) { getImpl().audit(sendEvent); }
 	}

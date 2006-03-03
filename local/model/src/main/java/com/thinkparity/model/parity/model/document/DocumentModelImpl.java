@@ -31,6 +31,7 @@ import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
 import com.thinkparity.model.parity.model.audit.event.ReceiveKeyEvent;
+import com.thinkparity.model.parity.model.audit.event.RequestKeyEvent;
 import com.thinkparity.model.parity.model.audit.event.SendEvent;
 import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
@@ -187,7 +188,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void close(final Long documentId) throws ParityException {
-		logger.info("close(Long)");
+		logger.info("[LMODEL] [DOCUMENT] [CLOSE]");
 		logger.debug(documentId);
 		assertLoggedInUserIsKeyHolder(documentId);
 		try {
@@ -205,7 +206,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the closeure
 			final Document d = get(documentId);
-			auditor.close(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getUpdatedOn());
+			auditor.close(d.getId(), currentUserId(), d.getUpdatedOn(), currentUserId());
 
 			// fire event
 			notifyUpdate_objectClosed(d);
@@ -216,9 +217,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	void close(final UUID documentUniqueId) throws ParityException {
-		logger.info("close(UUID)");
+	void close(final UUID documentUniqueId, final JabberId closedBy)
+			throws ParityException {
+		logger.info("[LMDOEL] [DOCUMENT] [CLOSE BY REQUEST]");
 		logger.debug(documentUniqueId);
+		logger.debug(closedBy);
 		try {
 			// close the document
 			final Document document = get(documentUniqueId);
@@ -230,7 +233,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the closure
 			final Document d = get(document.getId());
-			auditor.close(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getUpdatedOn());
+			auditor.close(d.getId(), closedBy, d.getUpdatedOn(), currentUserId());
 
 			// fire event
 			notifyUpdate_objectClosed(d);
@@ -308,7 +311,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			notifyCreation_objectCreated(d);
 
 			// audit the creation
-			auditor.create(d.getId(), JabberIdBuilder.parseUsername(preferences.getUsername()), d.getCreatedOn());
+			auditor.create(d.getId(), currentUserId(), d.getCreatedOn());
 			return d;
 		}
 		catch(IOException iox) {
@@ -416,6 +419,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final Document document = get(documentId);
 			assertStateTransition(document.getState(), ArtifactState.DELETED);
+
+			// if the document is not closed ensure the user is not the
+			// key holder
+			if(ArtifactState.CLOSED != document.getState())
+				assertLoggedInUserIsNotKeyHolder(documentId);
 			
 			// delete the document remotely
 			final InternalSessionModel iSModel = getInternalSessionModel();
@@ -862,6 +870,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 				if(!jabberIds.contains(auditEvent.getCreatedBy()))
 					jabberIds.add(auditEvent.getCreatedBy());
 				break;
+			case REQUEST_KEY:
+				if(!jabberIds.contains(((RequestKeyEvent) auditEvent).getRequestedBy()))
+					jabberIds.add(((RequestKeyEvent) auditEvent).getRequestedBy());
+				if(!jabberIds.contains(((RequestKeyEvent) auditEvent).getRequestedFrom()))
+					jabberIds.add(((RequestKeyEvent) auditEvent).getRequestedFrom());
+				if(!jabberIds.contains(auditEvent.getCreatedBy()))
+					jabberIds.add(auditEvent.getCreatedBy());
+				break;
 			case SEND:
 				for(final JabberId sentTo : ((SendEvent) auditEvent).getSentTo()) {
 					if(!jabberIds.contains(sentTo))
@@ -911,11 +927,21 @@ class DocumentModelImpl extends AbstractModelImpl {
 				if(null == version) { receiveUpdate(xmppDocument, document); }
 			}
 
+			// if key holder:  apply flag key
+			final InternalSessionModel iSModel = getInternalSessionModel();
+			if(iSModel.isLoggedInUserKeyHolder(document.getId())) {
+				final InternalArtifactModel iAModel = getInternalArtifactModel();
+				iAModel.applyFlagKey(document.getId());
+			}
+
+
 			// audit the receiving
-			auditor.recieve(document.getId(), xmppDocument.getVersionId(),
-					receivedFromJabberId,
-					JabberIdBuilder.parseUsername(preferences.getUsername()),
-					currentDateTime());
+			final Document d = get(document.getId());
+			auditor.recieve(d.getId(), xmppDocument.getVersionId(),
+					receivedFromJabberId, currentUserId(), currentDateTime());
+
+			// notify
+			notifyUpdate_objectReceived(d);
 		}
 		catch(IOException iox) {
 			logger.error("receiveDocument(XMPPDocument)", iox);
@@ -1272,21 +1298,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 			localFile.write(content.getContent());
 		}
 
-		// if key holder:  apply flag key
 		// if not key holder:  lock
 		final InternalSessionModel iSModel = getInternalSessionModel();
-		if(iSModel.isLoggedInUserKeyHolder(document.getId())) {
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.applyFlagKey(document.getId());
+		if(!iSModel.isLoggedInUserKeyHolder(document.getId())) {
+			lock(document.getId());
 		}
-		else { lock(document.getId()); }
 
 		// remove flag seen
 		final InternalArtifactModel iAModel = getInternalArtifactModel();
 		iAModel.removeFlagSeen(document.getId());
-
-		// notify
-		notifyUpdate_objectReceived(document);
 	}
 
 	/**

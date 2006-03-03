@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
+import com.thinkparity.model.parity.model.audit.event.RequestKeyEvent;
 import com.thinkparity.model.parity.model.audit.event.SendEvent;
 import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
 import com.thinkparity.model.parity.model.document.AbstractAuditor;
@@ -28,6 +29,20 @@ public class SessionModelAuditor extends AbstractAuditor {
 	 */
 	SessionModelAuditor(final Context context) {
 		super(context);
+	}
+
+	void requestKey(final Long artifactId, final JabberId createdBy,
+			final Calendar createdOn, final JabberId requestedBy,
+			final JabberId requestedFrom) {
+		final RequestKeyEvent event = new RequestKeyEvent();
+		event.setArtifactId(artifactId);
+		event.setCreatedBy(createdBy);
+		event.setCreatedOn(createdOn);
+		event.setRequestedBy(requestedBy);
+		event.setRequestedFrom(requestedFrom);
+		event.setType(AuditEventType.REQUEST_KEY);
+
+		getInternalAuditModel().audit(event);
 	}
 
 	/**

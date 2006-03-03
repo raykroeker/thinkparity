@@ -59,8 +59,9 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppExtensionListener = new XMPPExtensionListener() {
-			public void artifactClosed(final UUID artifactUniqueId) {
-				handleArtifactClosed(artifactUniqueId);
+			public void artifactClosed(final UUID artifactUniqueId,
+					final JabberId artifactClosedBy) {
+				handleArtifactClosed(artifactUniqueId, artifactClosedBy);
 			}
 			public void documentReceived(final XMPPDocument xmppDocument) {
 				handleDocumentReceived(xmppDocument);
@@ -73,8 +74,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 					final JabberId deniedBy) {
 				handleKeyRequestDenied(artifactUniqueId, deniedBy);
 			}
-			public void keyRequested(final UUID artifactUniqueId,
-					final JabberId requestedBy) {
+			public void keyRequested(final UUID artifactUniqueId, final JabberId requestedBy) {
 				handleKeyRequested(artifactUniqueId, requestedBy);
 			}
 		};
@@ -342,9 +342,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * 
 	 * @param artifactUniqueId
 	 *            The artifact unique id.
+	 * @param artifactClosedBy
+	 *            The user who closed the artfiact.
 	 */
-	private void handleArtifactClosed(final UUID artifactUniqueId) {
-		SessionModelImpl.notifyArtifactClosed(artifactUniqueId);
+	private void handleArtifactClosed(final UUID artifactUniqueId,
+			final JabberId artifactClosedBy) {
+		SessionModelImpl.notifyArtifactClosed(artifactUniqueId, artifactClosedBy);
 	}
 
 	/**

@@ -12,6 +12,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.assertion.TrueAssertion;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
@@ -60,6 +61,15 @@ public abstract class AbstractModelImpl {
 	 * @return The current date\time.
 	 */
 	protected static Calendar currentDateTime() { return DateUtil.getInstance(); }
+
+	/**
+	 * Obtain the current user id.
+	 * 
+	 * @return The jabber id of the current user.
+	 */
+	protected JabberId currentUserId() {
+		return JabberIdBuilder.parseUsername(preferences.getUsername());
+	}
 
 	/**
 	 * Obtain the session model context.
@@ -149,6 +159,28 @@ public abstract class AbstractModelImpl {
 			throws ParityException {
 		final InternalSessionModel iSModel = getInternalSessionModel();
 		Assert.assertTrue("Logged in user is not the key holder.",
+				iSModel.isLoggedInUserKeyHolder(artifactId));
+	}
+
+	/**
+	 * Assert that the logged in user is not the key holder.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             </ul>
+	 * @throws ParityException
+	 * @throws TrueAssertion
+	 *             <ul>
+	 *             <li>If the user is the key holder.
+	 *             </ul>
+	 */
+	protected void assertLoggedInUserIsNotKeyHolder(final Long artifactId)
+			throws NotTrueAssertion, ParityException, TrueAssertion {
+		final InternalSessionModel iSModel = getInternalSessionModel();
+		Assert.assertNotTrue("Logged in user is the key holder.",
 				iSModel.isLoggedInUserKeyHolder(artifactId));
 	}
 

@@ -750,7 +750,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			final IQCloseArtifact artifactClose) {
 		synchronized(xmppExtensionListenersLock) {
 			for(final XMPPExtensionListener l : xmppExtensionListeners) {
-				l.artifactClosed(artifactClose.getArtifactUUID());
+				l.artifactClosed(
+						artifactClose.getArtifactUUID(),
+						artifactClose.getClosedBy());
 			}
 		}
 	}

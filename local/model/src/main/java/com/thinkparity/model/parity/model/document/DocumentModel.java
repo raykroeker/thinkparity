@@ -7,6 +7,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
 
+import com.thinkparity.codebase.assertion.NotTrueAssertion;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.CreationListener;
 import com.thinkparity.model.parity.api.events.UpdateListener;
@@ -14,6 +16,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -91,6 +94,29 @@ public class DocumentModel {
 	 */
 	public void addListener(final UpdateListener listener) {
 		synchronized(implLock) { impl.addListener(listener); }
+	}
+
+	/**
+	 * Archive a document.
+	 * 
+	 * @param documentId
+	 *            The document to archive.
+	 * @throws ParityException
+	 */
+	public File archive(final Long documentId) throws ParityException {
+		synchronized(implLock) { return impl.archive(documentId); }
+	}
+
+	/**
+	 * Archive a document.
+	 * 
+	 * @param documentId
+	 *            The document to archive.
+	 * @throws ParityException
+	 */
+	public File archive(final Long documentId,
+			final ProgressIndicator progressIndicator) throws ParityException {
+		synchronized(implLock) { return impl.archive(documentId, progressIndicator); }
 	}
 
 	/**
@@ -258,37 +284,6 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Read the document's history.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @return A list of a history items.
-	 * @throws ParityException
-	 */
-	public Collection<HistoryItem> readHistory(final Long documentId)
-			throws ParityException {
-		synchronized(implLock) { return impl.readHistory(documentId); }
-	}
-
-	/**
-	 * Read the document's history.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @param comparator
-	 *            The sort to use when returning the history.
-	 * @return A list of a history items.
-	 * @throws ParityException
-	 */
-	public Collection<HistoryItem> readHistory(final Long documentId,
-			final Comparator<HistoryItem> comparator)
-			throws ParityException {
-		synchronized(implLock) {
-			return impl.readHistory(documentId, comparator);
-		}
-	}
-
-	/**
 	 * Obtain a list of document versions for a document.
 	 * 
 	 * @param documentId
@@ -349,6 +344,37 @@ public class DocumentModel {
 	public void openVersion(final Long documentId, final Long versionId)
 			throws ParityException {
 		synchronized(implLock) { impl.openVersion(documentId, versionId); }
+	}
+
+	/**
+	 * Read the document's history.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return A list of a history items.
+	 * @throws ParityException
+	 */
+	public Collection<HistoryItem> readHistory(final Long documentId)
+			throws ParityException {
+		synchronized(implLock) { return impl.readHistory(documentId); }
+	}
+
+	/**
+	 * Read the document's history.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @param comparator
+	 *            The sort to use when returning the history.
+	 * @return A list of a history items.
+	 * @throws ParityException
+	 */
+	public Collection<HistoryItem> readHistory(final Long documentId,
+			final Comparator<HistoryItem> comparator)
+			throws ParityException {
+		synchronized(implLock) {
+			return impl.readHistory(documentId, comparator);
+		}
 	}
 
 	/**

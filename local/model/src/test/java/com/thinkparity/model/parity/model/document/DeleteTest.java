@@ -71,6 +71,8 @@ public class DeleteTest extends DocumentTestCase {
 			name = testFile.getName();
 			description = name;
 			document = documentModel.create(name, description, testFile);
+			// unless we relenquish ownership; we need to close then delete
+			documentModel.close(document.getId());
 			data.add(new Fixture(document, documentModel));
 		}
 	}

@@ -102,6 +102,25 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	 */
 	public AuditIOHandler() { super(); }
 
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ArchiveEvent)
+	 * 
+	 */
+	public void audit(final ArchiveEvent archiveEvent) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			audit(session, archiveEvent);
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.CloseEvent)
 	 * 
@@ -370,6 +389,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	private AuditEvent extract(final Session session) {
 		final AuditEventType eventType = session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID");
 		switch(eventType) {
+		case ARCHIVE:
+			return extractArchive(session);
 		case CLOSE:
 			return extractClose(session);
 		case CREATE:
@@ -389,6 +410,16 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		}
 	}
 
+	private ArchiveEvent extractArchive(final Session session) {
+		final ArchiveEvent event = new ArchiveEvent();
+		event.setArtifactId(session.getLong("ARTIFACT_ID"));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
+		event.setCreatedOn(session.getCalendar("CREATED_ON"));
+		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		event.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+
+		return event;
+	}
 	private CloseEvent extractClose(final Session session) {
 		final CloseEvent closeEvent = new CloseEvent();
 		closeEvent.setArtifactId(session.getLong("ARTIFACT_ID"));

@@ -14,16 +14,14 @@ import com.thinkparity.model.parity.model.document.history.HistoryItem;
  */
 public class HistoryItemRenderer implements ObjectRenderer {
 
-	private static final String DATE = ",date:";
+	private static final String ARTIFACT_VERSION_ID = ",artifactVersionId:";
 
-	private static final String EVENT = ",event:";
+	private static final String DATE = ",eventDate:";
 
-	private static final String NAME = ",name:";
+	private static final String EVENT = ",eventText:";
 
 	private static final String PREFIX =
 		HistoryItem.class.getName() + IRendererConstants.PREFIX_SUFFIX;
-
-	private static final String VERSION = ",version:";
 
 	/**
 	 * Create a HistoryItemRenderer.
@@ -44,12 +42,14 @@ public class HistoryItemRenderer implements ObjectRenderer {
 		}
 		else {
 			final HistoryItem hi = (HistoryItem) o;
-			return new StringBuffer(PREFIX)
-				.append(IRendererConstants.ID).append(hi.getDocumentId())
-				.append(DATE).append(hi.getDate().getTimeInMillis())
-				.append(EVENT).append(hi.getEvent().toString())
-				.append(NAME).append(hi.getName())
-				.append(VERSION).append(hi.getVersionId())
+			final StringBuffer buffer = new StringBuffer(PREFIX)
+				.append(IRendererConstants.ID).append(hi.getDocumentId());
+			if(hi.isSetVersionId()) {
+				buffer.append(ARTIFACT_VERSION_ID)
+					.append(hi.getVersionId());
+			}
+			return buffer.append(DATE).append(hi.getDate().getTimeInMillis())
+				.append(EVENT).append(hi.getEvent())
 				.toString();
 		}
 	}

@@ -67,6 +67,12 @@ class PreferencesHelper {
 			public void clearPassword() {
 				javaProperties.remove("parity.password");
 			}
+			public File getArchiveOutputDirectory() {
+				final String archiveOutputDirectory =
+					javaProperties.getProperty("parity.archive.outputDirectory", null);
+				if(null == archiveOutputDirectory) { return null; }
+				else { return new File(archiveOutputDirectory); }
+			}
 			public Locale getLocale() { return Locale.getDefault(); }
 			public String getPassword() {
 				return javaProperties.getProperty("parity.password");
@@ -90,10 +96,19 @@ class PreferencesHelper {
 			public String getUsername() {
 				return javaProperties.getProperty("parity.username", null);
 			}
+			public Boolean isSetArchiveOutputDirectory() {
+				return null != getArchiveOutputDirectory();
+			}
 			public Boolean isSetLocale() { return Boolean.TRUE; }
 			public Boolean isSetUsername() {
 				final String username = getUsername();
 				return (null != username && 0 < username.length());
+			}
+			public void setArchiveOutputDirectory(
+					final File archiveOutputDirectory) {
+				javaProperties.setProperty(
+						"parity.archive.outputDirectory",
+						archiveOutputDirectory.getAbsolutePath());
 			}
 			public void setLocale(final Locale locale) {}
 			public void setPassword(final String password) {

@@ -11,10 +11,7 @@ import com.thinkparity.codebase.CollectionsUtil;
 
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
-import com.thinkparity.model.parity.model.document.history.HistoryItemEvent;
-import com.thinkparity.model.parity.model.document.history.SendHistoryItem;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -34,37 +31,25 @@ public class ReadHistoryTest extends DocumentTestCase {
 		try {
 			List<HistoryItem> history;
 			HistoryItem hItem;
-			SendHistoryItem sHItem;
-			List<User> sentTo;
 			for(final Fixture datum : data) {
 				history = CollectionsUtil.proxy(datum.dModel.readHistory(datum.documentId));
 
 				assertNotNull("Null history returned.", history);
 				hItem = history.get(0);
 				assertNotNull("Close history item is null.", hItem);
-				assertEquals("Close history item event does not match expectation.",
-						HistoryItemEvent.CLOSE, hItem.getEvent());
+				assertNotNull("Close history item is null.", hItem.getEvent());
 				assertEquals("Close history item document id does not match expectation.",
 						datum.documentId, hItem.getDocumentId());
 
 				hItem = history.get(1);
 				assertNotNull("Send history item is null.", hItem);
-				assertEquals("Send history item event does not match expectation.",
-						HistoryItemEvent.SEND, hItem.getEvent());
+				assertNotNull("Send history item event is null.", hItem.getEvent());
 				assertEquals("Send history item document id does not match expectation.",
 						datum.documentId, hItem.getDocumentId());
-				sHItem = (SendHistoryItem) hItem;
-				sentTo = sHItem.getSentTo();
-				assertNotNull("Send history item's sent to list is null.", sentTo);
-				assertEquals("Sent history items' sent to list does not match expectation.",
-						datum.sendSentTo, sentTo.get(0));
-				assertEquals("Sent history item's version id does not match expectation.",
-						datum.sendVersionId, sHItem.getVersionId());
 
 				hItem = history.get(2);
 				assertNotNull("Create history item is null.", hItem);
-				assertEquals("Create history item event does not match expectation.",
-						HistoryItemEvent.CREATE, hItem.getEvent());
+				assertNotNull("Create history item event is null.", hItem.getEvent());
 				assertEquals("Create history item document id does not match expectation.",
 						datum.documentId, hItem.getDocumentId());			}
 		}
@@ -86,7 +71,7 @@ public class ReadHistoryTest extends DocumentTestCase {
 			d = dModel.create(file.getName(), file.getName(), file);
 			sModel.send(ModelTestUser.getJUnitBuddy0().getJabberId(), d.getId());
 			dModel.close(d.getId());
-			data.add(new Fixture(dModel, d.getId(), ModelTestUser.getJUnitBuddy0().getUser(), 1L));
+			data.add(new Fixture(dModel, d.getId()));
 		}
 	}
 
@@ -103,14 +88,9 @@ public class ReadHistoryTest extends DocumentTestCase {
 	private class Fixture {
 		private final DocumentModel dModel;
 		private final Long documentId;
-		private final User sendSentTo;
-		private final Long sendVersionId;
-		private Fixture(final DocumentModel dModel, final Long documentId,
-				final User sendSentTo, final Long sendVersionId) {
+		private Fixture(final DocumentModel dModel, final Long documentId) {
 			this.dModel = dModel;
 			this.documentId = documentId;
-			this.sendSentTo = sendSentTo;
-			this.sendVersionId = sendVersionId;
 		}
 	}
 }

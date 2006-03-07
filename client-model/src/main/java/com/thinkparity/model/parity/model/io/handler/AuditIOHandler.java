@@ -13,6 +13,8 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
  * @version 1.1
  */
 public interface AuditIOHandler {
+	public void audit(final ArchiveEvent archiveEvent)
+			throws HypersonicException;
 	public void audit(final CloseEvent closeEvent) throws HypersonicException;
 	public void audit(final CreateEvent createEvent) throws HypersonicException;
 	public void audit(final ReceiveEvent receiveEvent) throws HypersonicException;

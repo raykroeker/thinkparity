@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.*;
 
 import com.thinkparity.codebase.FileUtil;
@@ -22,22 +23,19 @@ import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.api.events.VersionCreationEvent;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.L18nContext;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
-import com.thinkparity.model.parity.model.audit.event.AuditEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveKeyEvent;
-import com.thinkparity.model.parity.model.audit.event.RequestKeyEvent;
-import com.thinkparity.model.parity.model.audit.event.SendEvent;
-import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.document.history.HistoryItemBuilder;
 import com.thinkparity.model.parity.model.io.IOFactory;
+import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
+import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
@@ -48,7 +46,6 @@ import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Implementation of the document model interface.
@@ -121,6 +118,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
 	/**
+	 * Document history i\o.
+	 * 
+	 */
+	private final DocumentHistoryIOHandler documentHistoryIO;
+
+	/**
 	 * Document xml input\output.
 	 */
 	private final DocumentIOHandler documentIO;
@@ -132,13 +135,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The workspace to work within.
 	 */
 	DocumentModelImpl(final Workspace workspace) {
-		super(workspace);
+		super(workspace, L18nContext.DOCUMENT);
 		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
 		this.auditor = new DocumentModelAuditor(getContext());
 		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentIO = IOFactory.getDefault().createDocumentHandler();
+		this.documentHistoryIO = IOFactory.getPDF().createDocumentHistoryIOHandler();
 	}
 
 	/**
@@ -173,6 +177,51 @@ class DocumentModelImpl extends AbstractModelImpl {
 					DocumentModelImpl.updateListeners.contains(listener));
 			DocumentModelImpl.updateListeners.add(listener);
 		}
+	}
+
+	/**
+	 * @param documentId
+	 * @return
+	 * @throws ParityException
+	 */
+	File archive(final Long documentId) throws ParityException {
+		return archive(documentId, ProgressIndicator.emptyIndicator());
+	}
+
+	/**
+	 * 
+	 * @param documentId
+	 * @param progressIndicator
+	 * @return
+	 * @throws ParityException
+	 */
+	File archive(final Long documentId,
+			final ProgressIndicator progressIndicator) throws ParityException {
+		logger.info("[LMODEL] [DOCUMENT] [ARCHIVE]");
+		logger.debug(documentId);
+		logger.debug(progressIndicator);
+		assertValidOutputDirectory();
+		// 1  Audit Archive
+		auditor.archive(documentId, currentUserId(), currentDateTime());
+		// 2  Archive History
+		return documentHistoryIO.archive(documentId, readHistory(documentId));
+	}
+
+	/**
+	 * Audit a key received event.
+	 * 
+	 * @param artifactId
+	 *            The document id.
+	 * @param createdBy
+	 *            The creator.
+	 * @param createdOn
+	 *            The creation date.
+	 * @param receivedFrom
+	 *            The user the key was received from.
+	 */
+	void auditKeyRecieved(final Long artifactId, final JabberId createdBy,
+			final Calendar createdOn, final JabberId receivedFrom) {
+		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
 
 	/**
@@ -829,77 +878,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final InternalAuditModel iAModel = getInternalAuditModel();
 
-			final Document document = get(documentId);
-			final Collection<AuditEvent> auditEvents = iAModel.read(documentId);
+			final HistoryItemBuilder hib =
+				new HistoryItemBuilder(l18n, get(documentId));
 
-			Map<JabberId, User> auditUsers = buildAuditUserMap(auditEvents);
-			final List<HistoryItem> historyItems = new LinkedList<HistoryItem>();
-			for(final AuditEvent auditEvent : auditEvents) {
-				historyItems.add(
-						HistoryItemBuilder.create(document, auditEvent, auditUsers));
-			}
-			ModelSorter.sortHistoryItems(historyItems, comparator);
+			final List<HistoryItem> history =
+				hib.create(iAModel.read(documentId), getInternalSessionModel());
+			ModelSorter.sortHistoryItems(history, comparator);
 
-			return historyItems;
+			return history;
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Could not obtain history list.", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
-	}
-
-	private Map<JabberId, User> buildAuditUserMap(
-			final Iterable<AuditEvent> auditEvents) throws ParityException {
-		final List<JabberId> jabberIds = new LinkedList<JabberId>();
-		for(final AuditEvent auditEvent : auditEvents) {
-			switch(auditEvent.getType()) {
-			case CLOSE:
-			case CREATE:
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-						jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case RECEIVE:
-				if(!jabberIds.contains(((ReceiveEvent) auditEvent).getReceivedFrom()))
-					jabberIds.add(((ReceiveEvent) auditEvent).getReceivedFrom());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case RECEIVE_KEY:
-				if(!jabberIds.contains(((ReceiveKeyEvent) auditEvent).getReceivedFrom()))
-					jabberIds.add(((ReceiveKeyEvent) auditEvent).getReceivedFrom());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case REQUEST_KEY:
-				if(!jabberIds.contains(((RequestKeyEvent) auditEvent).getRequestedBy()))
-					jabberIds.add(((RequestKeyEvent) auditEvent).getRequestedBy());
-				if(!jabberIds.contains(((RequestKeyEvent) auditEvent).getRequestedFrom()))
-					jabberIds.add(((RequestKeyEvent) auditEvent).getRequestedFrom());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case SEND:
-				for(final JabberId sentTo : ((SendEvent) auditEvent).getSentTo()) {
-					if(!jabberIds.contains(sentTo))
-						jabberIds.add(sentTo);
-				}
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case SEND_KEY:
-				if(!jabberIds.contains(((SendKeyEvent) auditEvent).getSentTo()))
-					jabberIds.add(((SendKeyEvent) auditEvent).getSentTo());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			default: Assert.assertUnreachable("");
-			}
-		}
-		final InternalSessionModel iSModel = getInternalSessionModel();
-		final List<User> users = iSModel.readUsers(jabberIds);
-		final Map<JabberId, User> userMap = new LinkedHashMap<JabberId, User>();
-		for(final User user : users) { userMap.put(user.getId(), user); }
-		return userMap;
 	}
 
 	/**
@@ -1032,6 +1023,38 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Assert that the archive output directory has been set.
+	 * 
+	 */
+	private void assertValidOutputDirectory() {
+		Assert.assertTrue(
+				"Archive output directory has not been set.",
+				preferences.isSetArchiveOutputDirectory());
+		final File aod = preferences.getArchiveOutputDirectory();
+		if(!aod.exists()) {
+			Assert.assertTrue(
+					format("Cannot create archive output directory [{0}]", aod),
+					aod.mkdir());
+		}
+		Assert.assertTrue(
+				format("Archive output directory [{0}] is not a directory.", aod), aod.isDirectory());
+		Assert.assertTrue(
+				format("Cannot read archive output directory [{0}]", aod), aod.canRead());
+		Assert.assertTrue(
+				format("Cannot write archive output directory [{0}]", aod), aod.canWrite());
+	}
+
+	private String format(final String pattern, final File file) {
+		return format(pattern, new Object[] {file.getAbsolutePath()});
+	}
+
+	private String format(final String pattern, final Object[] arguments) {
+		return MessageFormat.format(
+				pattern,
+				arguments);
+	}
+
+	/**
 	 * Obtain the default history item comparator.
 	 * 
 	 * @return A sort by date descending history item comparator.
@@ -1148,20 +1171,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Fire the object deleted event for all of the update listeners.
-	 * 
-	 * @param document
-	 *            The document that was deleted.
-	 */
-	private void notifyUpdate_objectDeleted(final Document document) {
-		synchronized(DocumentModelImpl.updateListeners) {
-			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
-				listener.objectDeleted(new DeleteEvent(document));
-			}
-		}
-	}
-
-	/**
 	 * Fire the object closed event.
 	 * 
 	 * @param document
@@ -1171,6 +1180,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 		synchronized(updateListenersLock) {
 			for(final UpdateListener l : updateListeners) {
 				l.objectClosed(new com.thinkparity.model.parity.api.events.CloseEvent(document));
+			}
+		}
+	}
+
+	/**
+	 * Fire the object deleted event for all of the update listeners.
+	 * 
+	 * @param document
+	 *            The document that was deleted.
+	 */
+	private void notifyUpdate_objectDeleted(final Document document) {
+		synchronized(DocumentModelImpl.updateListeners) {
+			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
+				listener.objectDeleted(new DeleteEvent(document));
 			}
 		}
 	}
@@ -1244,7 +1267,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		receiveUpdate(xmppDocument, document);
 		return document;
 	}
-
 	/**
 	 * Insert the corresponding version for the xmpp document received. Check to
 	 * see if this is the latest version locally; and if it is; update the
@@ -1322,10 +1344,5 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throws ParityException, IOException {
 		final DocumentContent content = getContent(documentId);
 		FileUtil.writeBytes(file, content.getContent());
-	}
-
-	void auditKeyRecieved(final Long artifactId, final JabberId createdBy,
-			final Calendar createdOn, final JabberId receivedFrom) {
-		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
 }

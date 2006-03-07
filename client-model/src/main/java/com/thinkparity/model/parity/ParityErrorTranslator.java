@@ -32,6 +32,17 @@ public class ParityErrorTranslator {
 	}
 
 	/**
+	 * Create a parity error based upon a thread interruption error.
+	 * 
+	 * @param ix
+	 *            The thead interruption error.
+	 * @return The parity error.
+	 */
+	public static ParityException translate(final InterruptedException ix) {
+		synchronized(singletonLock) { return singleton.translateImpl(ix); }
+	}
+
+	/**
 	 * Create a parity error based upon an io error.
 	 * 
 	 * @param iox
@@ -68,6 +79,17 @@ public class ParityErrorTranslator {
 	 * Create a ParityErrorTranslator [Singleton]
 	 */
 	private ParityErrorTranslator() { super(); }
+
+	/**
+	 * Create a parity error based upon a thread interruption error.
+	 * 
+	 * @param ix
+	 *            The thead interruption error.
+	 * @return The parity error.
+	 */
+	private ParityException translateImpl(final InterruptedException ix) {
+		return new ParityException(ix);
+	}
 
 	/**
 	 * Create a parity error based upon an io error.

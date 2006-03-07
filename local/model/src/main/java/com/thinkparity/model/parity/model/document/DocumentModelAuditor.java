@@ -7,6 +7,7 @@ import java.util.Calendar;
 
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
+import com.thinkparity.model.parity.model.audit.event.ArchiveEvent;
 import com.thinkparity.model.parity.model.audit.event.CloseEvent;
 import com.thinkparity.model.parity.model.audit.event.CreateEvent;
 import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
@@ -27,6 +28,17 @@ class DocumentModelAuditor extends AbstractAuditor {
 	 */
 	DocumentModelAuditor(final Context context) {
 		super(context);
+	}
+
+	void archive(final Long artifactId, final JabberId createdBy,
+			final Calendar createdOn) {
+		final ArchiveEvent event = new ArchiveEvent();
+		event.setArtifactId(artifactId);
+		event.setCreatedBy(createdBy);
+		event.setCreatedOn(createdOn);
+		event.setType(AuditEventType.ARCHIVE);
+
+		getInternalAuditModel().audit(event);
 	}
 
 	void close(final Long documentId, final JabberId closedBy,

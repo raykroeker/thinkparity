@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 import com.raykroeker.junitx.TestCase;
@@ -29,13 +30,16 @@ public abstract class ModelTestCase extends TestCase {
 		System.setProperty("parity.insecure", "true");
 		// set staging system
 		System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
+		// set archive directory
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);
 		System.setProperty("parity.workspace",
 				new File(testSession.getSessionDirectory(), "workspace")
 				.getAbsolutePath());
-		WorkspaceModel.getModel().getWorkspace().getPreferences().setUsername(modelTestUser.getUsername());
+		final Preferences preferences = WorkspaceModel.getModel().getWorkspace().getPreferences();
+		preferences.setUsername(modelTestUser.getUsername());
+		preferences.setArchiveOutputDirectory(new File(testSession.getSessionDirectory(), "Archive"));
 	}
 
 	private DocumentModel documentModel;

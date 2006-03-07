@@ -13,6 +13,7 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.assertion.TrueAssertion;
+import com.thinkparity.codebase.l10n.L18nContext;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
@@ -28,6 +29,7 @@ import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.util.l10n.ModelL18n;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
@@ -63,15 +65,6 @@ public abstract class AbstractModelImpl {
 	protected static Calendar currentDateTime() { return DateUtil.getInstance(); }
 
 	/**
-	 * Obtain the current user id.
-	 * 
-	 * @return The jabber id of the current user.
-	 */
-	protected JabberId currentUserId() {
-		return JabberIdBuilder.parseUsername(preferences.getUsername());
-	}
-
-	/**
 	 * Obtain the session model context.
 	 * 
 	 * @return The session model context.
@@ -88,6 +81,12 @@ public abstract class AbstractModelImpl {
 	 * 
 	 */
 	protected final Context context;
+
+	/**
+	 * The model's l18n.
+	 * 
+	 */
+	protected final ModelL18n l18n;
 
 	/**
 	 * Apache logger.
@@ -107,14 +106,26 @@ public abstract class AbstractModelImpl {
 	protected final Workspace workspace;
 
 	/**
+	 * Create a AbstractModelImpl.
+	 * 
+	 * @param workspace
+	 *            The parity workspace.
+	 */
+	protected AbstractModelImpl(final Workspace workspace) {
+		this(workspace, null);
+	}
+
+	/**
 	 * Create an AbstractModelImpl
 	 * 
 	 * @param workspace
-	 *            Handle to an existing parity model workspace.
+	 *            The parity workspace.
 	 */
-	protected AbstractModelImpl(final Workspace workspace) {
+	protected AbstractModelImpl(final Workspace workspace,
+			final L18nContext l18nContext) {
 		super();
 		this.context = new Context(getClass());
+		this.l18n = null == l18nContext ? null : new ModelL18n(l18nContext);
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
@@ -246,6 +257,15 @@ public abstract class AbstractModelImpl {
 		return jabberId;
 	}
 
+	/**
+	 * Obtain the current user id.
+	 * 
+	 * @return The jabber id of the current user.
+	 */
+	protected JabberId currentUserId() {
+		return JabberIdBuilder.parseUsername(preferences.getUsername());
+	}
+
 	protected Long getArtifactId(final UUID artifactUniqueId)
 			throws ParityException {
 		// NOTE I'm assuming document
@@ -317,6 +337,22 @@ public abstract class AbstractModelImpl {
 	 * @return Obtain a handle to the session model.
 	 */
 	protected SessionModel getSessionModel() { return SessionModel.getModel(); }
+
+	/**
+	 * @see ModelL18n#getString(String)
+	 * 
+	 */
+	protected String getString(final String localKey) {
+		return l18n.getString(localKey);
+	}
+
+	/**
+	 * @see ModelL18n#getString(String, Object[])
+	 * 
+	 */
+	protected String getString(final String localKey, final Object[] arguments) {
+		return l18n.getString(localKey, arguments);
+	}
 
 	private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,

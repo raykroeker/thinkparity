@@ -6,19 +6,42 @@ package com.thinkparity.model.parity.model.document.history;
 import java.util.Calendar;
 
 /**
+ * The history item is a read-only localized version of the user's local audit
+ * events.  The history item includes the date of the event; and text describing
+ * the nature of the event.
+ * 
+ * The history item also includes links to the document and potentially a
+ * specific version of that document.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class HistoryItem {
+public class HistoryItem {
 
+	/**
+	 * The date and time this history item occured.
+	 * 
+	 */
 	private Calendar date;
 
+	/**
+	 * The document id this history item is linked to.
+	 * 
+	 */
 	private Long documentId;
 
-	private HistoryItemEvent event;
+	/**
+	 * The event information of the history item. This is localized text
+	 * describing the history item in detail.
+	 * 
+	 */
+	private String event;
 
-	private String name;
-
+	/**
+	 * The version id of the document linked to this history item.  This
+	 * value is optional.
+	 * 
+	 */
 	private Long versionId;
 
 	/**
@@ -28,74 +51,75 @@ public abstract class HistoryItem {
 	protected HistoryItem() { super(); }
 
 	/**
-	 * @return Returns the date.
+	 * Obtain the history item date.
+	 * 
+	 * @return The history item date.
 	 */
-	public Calendar getDate() {
-		return date;
-	}
+	public Calendar getDate() { return date; }
 
 	/**
-	 * @return Returns the documentId.
+	 * Obtain the history item's event.
+	 * 
+	 * @return The history item's event.
 	 */
-	public Long getDocumentId() {
-		return documentId;
-	}
+	public String getEvent() { return event; }
 
 	/**
-	 * @return Returns the event.
+	 * Obtain the history item document id.
+	 * 
+	 * @return The history item document id.
 	 */
-	public HistoryItemEvent getEvent() {
-		return event;
-	}
+	public Long getDocumentId() { return documentId; }
 
 	/**
-	 * @return Returns the name.
+	 * Obtain the history item's version id.
+	 * 
+	 * @return The history item's version id.
 	 */
-	public String getName() {
-		return name;
-	}
+	public Long getVersionId() { return versionId; }
 
 	/**
-	 * @return Returns the versionId.
+	 * Determine whether or not the version id has been set.
+	 * 
+	 * @return True if the version id is set; false otherwise.
 	 */
-	public Long getVersionId() {
-		return versionId;
-	}
-
 	public Boolean isSetVersionId() { return null != versionId; }
 
 	/**
-	 * @param date The date to set.
+	 * Set the history item's event date.
+	 * 
+	 * @param date
+	 * 	The event date.
 	 */
-	public void setDate(Calendar date) {
-		this.date = date;
-	}
+	public void setDate(final Calendar date) { this.date = date; }
 
 	/**
-	 * @param documentId The documentId to set.
+	 * Set the history item's document id.
+	 * 
+	 * @param documentId
+	 * 	The history item's document id.
 	 */
-	public void setDocumentId(Long documentId) {
+	public void setDocumentId(final Long documentId) {
 		this.documentId = documentId;
 	}
 
 	/**
-	 * @param event The event to set.
+	 * Set the history item's version id.
+	 * 
+	 * @param versionId
+	 * 	The history item's version id.
 	 */
-	public void setEvent(HistoryItemEvent event) {
-		this.event = event;
-	}
-
-	/**
-	 * @param name The name to set.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * @param versionId The versionId to set.
-	 */
-	public void setVersionId(Long versionId) {
+	public void setVersionId(final Long versionId) {
 		this.versionId = versionId;
+	}
+
+	/**
+	 * Set the history item's event text.
+	 * 
+	 * @param event
+	 * 	The history item's event text.
+	 */
+	public void setEvent(final String event) {
+		this.event = event;
 	}
 }

@@ -30,6 +30,12 @@ class AuditModelImpl extends AbstractModelImpl {
 		this.auditIO = IOFactory.getDefault().createAuditHandler();
 	}
 
+	void audit(final ArchiveEvent event) {
+		logger.info("[LMODEL] [AUDIT] [AUDIT ARCHIVE]");
+		logger.debug(event);
+		auditIO.audit(event);
+	}
+
 	void audit(final CloseEvent closeEvent) {
 		logger.info("[LMODEL] [AUDIT] [AUDIT CLOSE]");
 		logger.debug(closeEvent);

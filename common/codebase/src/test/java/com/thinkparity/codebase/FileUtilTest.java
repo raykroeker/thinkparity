@@ -41,10 +41,11 @@ public class FileUtilTest extends CodebaseTestCase {
 
 	public void testCopy() {
 		try {
-			for(CopyData data : copyData) {
+			for(final CopyData data : copyData) {
 				FileUtil.copy(data.file, data.target);
 				FileUtilTest.assertTrue(data.target.exists());
 				assertContentEquals(data.file, data.target);
+				assertTrue("Could not delete target file.", data.target.delete());
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }
@@ -93,13 +94,8 @@ public class FileUtilTest extends CodebaseTestCase {
 
 	protected void setUpRead() throws Exception {
 		readData = new Vector<ReadData>(getInputFilesLength());
-		Long size;
-
-		for(File inputFile : getInputFiles()) {
-			size = inputFile.length();
-
-			readData.add(new ReadData(inputFile, size));
-			readData.add(new ReadData(inputFile, size));
+		for(final File inputFile : getInputFiles()) {
+			readData.add(new ReadData(inputFile, inputFile.length()));
 		}
 	}
 

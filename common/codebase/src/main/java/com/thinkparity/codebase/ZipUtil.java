@@ -71,14 +71,15 @@ public class ZipUtil {
 			new ZipOutputStream(new FileOutputStream(zipFile));
 		zipOutputStream.setLevel(9);
 		final File[] inputFiles = inputDirectory.listFiles();
-		BufferedInputStream bufferedInputStream;
+		BufferedInputStream bis = null;
 		try {
 			for(File inputFile : inputFiles) {
 				zipOutputStream.putNextEntry(new ZipEntry(inputFile.getName()));
 
-				bufferedInputStream =
+				bis =
 					new BufferedInputStream(new FileInputStream(inputFile), 512);
-				StreamUtil.copy(bufferedInputStream, zipOutputStream, 512);
+				try { StreamUtil.copy(bis, zipOutputStream, 512); }
+				finally { bis.close(); }
 
 				zipOutputStream.closeEntry();
 			}

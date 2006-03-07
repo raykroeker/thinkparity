@@ -34,6 +34,8 @@ public class ZipUtilTest extends CodebaseTestCase {
 		try {
 			for(Fixture datum : data) {
 				ZipUtil.createZipFile(datum.zipFile, datum.inputDirectory);
+
+				assertTrue("Could not delete zip file.", datum.zipFile.delete());
 			}
 		}
 		catch(final Throwable t) { fail(createFailMessage(t)); }

@@ -15,12 +15,8 @@ import javax.swing.ListCellRenderer;
 import com.thinkparity.browser.application.browser.UIConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.model.util.ModelUtil;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.model.document.history.*;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.parity.model.document.history.HistoryItem;
 
 /**
  * @author raykroeker@gmail.com
@@ -120,55 +116,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 	}
 
 	private void setInfoText(final HistoryItem historyItem) {
-		final Object[] arguments;
-		final String infoText;
-		switch(historyItem.getEvent()) {
-		case CLOSE:
-			final CloseHistoryItem chi = (CloseHistoryItem) historyItem;
-			infoText = getString("Info.CLOSE", new Object[] {ModelUtil.getName(chi.getClosedBy())});
-			break;
-		case CREATE:
-			infoText = getString("Info.CREATE");
-			break;
-		case RECEIVE:
-			final ReceiveHistoryItem rhi = (ReceiveHistoryItem) historyItem;
-			arguments = new Object[] {ModelUtil.getName(rhi.getReceivedFrom())};
-			infoText = getString("Info.RECEIVE", arguments);
-			break;
-		case RECEIVE_KEY:
-			final ReceiveKeyHistoryItem rki = (ReceiveKeyHistoryItem) historyItem;
-			arguments = new Object[] {ModelUtil.getName(rki.getReceivedFrom())};
-			infoText = getString("Info.RECEIVE_KEY", arguments);
-			break;
-		case REQUEST_KEY:
-			final RequestKeyItem rki2 = (RequestKeyItem) historyItem;
-			arguments = new Object[] {
-				ModelUtil.getName(rki2.getRequestedBy()),
-				ModelUtil.getName(rki2.getRequestedFrom())
-			};
-			infoText = getString("Info.REQUEST_KEY", arguments);
-			break;
-		case SEND:
-			final SendHistoryItem shi = (SendHistoryItem) historyItem;
-			String localKey;
-			int i = 0;
-			final StringBuffer buffer = new StringBuffer();
-			for(final User sentTo : shi.getSentTo()) {
-				if(0 == i++) { localKey = "Info.SEND_0"; }
-				else { localKey = "Info.SEND_N"; }
-				buffer.append(getString(localKey, new Object[] {ModelUtil.getName(sentTo)}));
-			}
-			infoText = buffer.toString();
-			break;
-		case SEND_KEY:
-			final SendKeyHistoryItem skhi = (SendKeyHistoryItem) historyItem;
-			infoText = getString("Info.SEND_KEY", new Object[] {ModelUtil.getName(skhi.getSentTo())});
-			break;
-		default:
-			infoText = null;
-			Assert.assertUnreachable("Unknown history item event:  " + historyItem.getEvent());
-		}
-		infoJLabel.setText(infoText);
+		infoJLabel.setText(historyItem.getEvent());
 	}
 
 	private void setText(final HistoryItem historyItem) {

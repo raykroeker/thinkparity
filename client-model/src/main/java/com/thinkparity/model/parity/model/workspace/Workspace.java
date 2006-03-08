@@ -14,13 +14,6 @@ import java.net.URL;
 public interface Workspace {
 
 	/**
-	 * Obtain the URL representing the data directory for the parity workspace.
-	 * 
-	 * @return URL
-	 */
-	public URL getDataURL();
-
-	/**
 	 * Obtain the data directory.
 	 * 
 	 * @return The data directory.
@@ -28,11 +21,18 @@ public interface Workspace {
 	public File getDataDirectory();
 
 	/**
-	 * Obtain the URL representing the log directory for the parity workspace.
+	 * Obtain the URL representing the data directory for the parity workspace.
 	 * 
 	 * @return URL
 	 */
-	public URL getLoggerURL();
+	public URL getDataURL();
+
+	/**
+	 * Obtain the index directory.
+	 * 
+	 * @return The index directory.
+	 */
+	public File getIndexDirectory();
 
 	/**
 	 * Obtain a Zip archive of the workspace logs.
@@ -40,6 +40,13 @@ public interface Workspace {
 	 * @return A zip archive of the workspace logs.
 	 */
 	public File getLogArchive();
+
+	/**
+	 * Obtain the URL representing the log directory for the parity workspace.
+	 * 
+	 * @return URL
+	 */
+	public URL getLoggerURL();
 
 	/**
 	 * Obtain the preferences for the workspace.

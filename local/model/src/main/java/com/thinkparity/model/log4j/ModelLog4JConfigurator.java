@@ -106,6 +106,7 @@ class ModelLog4JConfigurator {
 	}
 
 	private static void configureVerbosity(final Properties log4jProperties) {
+		configureVerbosity(log4jProperties, com.thinkparity.model.parity.model.AbstractModel.class.getPackage(), Level.DEBUG);
 		configureVerbosity(log4jProperties, com.thinkparity.model.Version.class.getPackage(), Level.ERROR);
 		configureVerbosity(log4jProperties, com.thinkparity.model.xmpp.XMPPSessionImpl.class, Level.INFO);
 	}

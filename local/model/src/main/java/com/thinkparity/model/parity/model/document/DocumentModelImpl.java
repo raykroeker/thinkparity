@@ -129,6 +129,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private final DocumentIOHandler documentIO;
 
 	/**
+	 * Responsible for indexing documents.
+	 * 
+	 */
+	private final DocumentIndexor indexor;
+
+	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -143,6 +149,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentIO = IOFactory.getDefault().createDocumentHandler();
 		this.documentHistoryIO = IOFactory.getPDF().createDocumentHistoryIOHandler();
+		this.indexor = new DocumentIndexor(getContext());
 	}
 
 	/**
@@ -361,6 +368,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// audit the creation
 			auditor.create(d.getId(), currentUserId(), d.getCreatedOn());
+
+			// index the creation
+			{
+				final JabberId createdBy = currentUserId();
+				final Calendar createdOn = now;
+				final Long id = d.getId();
+				final JabberId keyHolder = createdBy;
+				final List<JabberId> contacts = new LinkedList<JabberId>();
+				contacts.add(createdBy);
+				indexor.create(createdBy, createdOn, id, keyHolder, name, contacts);
+			}
 			return d;
 		}
 		catch(IOException iox) {

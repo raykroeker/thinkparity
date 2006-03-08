@@ -43,11 +43,19 @@ class WorkspaceHelper {
 		return new Workspace() {
 			/**
 			 * URL to the data directory within the workspace.
+			 * 
 			 */
 			final URL dataURL = initChild(workspaceRootURL, "data");
 
 			/**
+			 * File the index resides in.
+			 * 
+			 */
+			final File indexDirectory = initChild(workspaceRoot, "index");
+
+			/**
 			 * URL to the log file directory within the workspace.
+			 * 
 			 */
 			final URL loggerURL = initChild(workspaceRootURL, "logs");
 
@@ -69,6 +77,12 @@ class WorkspaceHelper {
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataURL()
 			 */
 			public URL getDataURL() { return dataURL; }
+
+			/**
+			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getIndexDirectory()
+			 * 
+			 */
+			public File getIndexDirectory() { return indexDirectory; }
 
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getLogArchive()
@@ -107,6 +121,25 @@ class WorkspaceHelper {
 	 * Initialize an immediate child of the workspace. This will create the
 	 * child (directory) if it does not already exist.
 	 * 
+	 * @param workspaceDirectory
+	 *            The workspace root directory.
+	 * @param child
+	 *            The name of a child directory of the workspace.
+	 * @return The child directory of the workspace.
+	 */
+	private File initChild(final File workspaceDirectory, final String child) {
+		final File childFile = new File(workspaceDirectory, child);
+		if(!childFile.exists())
+			Assert.assertTrue(
+					"Cannot create workspace sub-directory:  " + child,
+					childFile.mkdir());
+		return childFile;
+	}
+
+	/**
+	 * Initialize an immediate child of the workspace. This will create the
+	 * child (directory) if it does not already exist.
+	 * 
 	 * @param workspaceURL
 	 *            The workspace root url.
 	 * @param child
@@ -114,12 +147,7 @@ class WorkspaceHelper {
 	 * @return The url of the child directory of the workspace.
 	 */
 	private URL initChild(final URL workspaceURL, final String child) {
-		final File childFile = new File(workspaceURL.getFile(), child);
-		if(!childFile.exists())
-			Assert.assertTrue(
-					"Cannot create workspace sub-directory:  " + child,
-					childFile.mkdir());
-		try { return childFile.toURL(); }
+		try { return initChild(new File(workspaceURL.getFile()), child).toURL(); }
 		catch(MalformedURLException murlx) {
 			murlx.printStackTrace();
 			return null;

@@ -6,12 +6,12 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Calendar;
 import java.util.Collection;
 
+import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.RequestKeyEvent;
 import com.thinkparity.model.parity.model.audit.event.SendEvent;
 import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
-import com.thinkparity.model.parity.model.document.AbstractAuditor;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 

@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.document;
 
 import java.util.Calendar;
 
+import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.ArchiveEvent;

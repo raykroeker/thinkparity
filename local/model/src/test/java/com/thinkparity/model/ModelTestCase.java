@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -44,6 +45,8 @@ public abstract class ModelTestCase extends TestCase {
 
 	private DocumentModel documentModel;
 
+	private IndexModel indexModel;
+
 	/**
 	 * Create a ModelTestCase.
 	 * 
@@ -60,6 +63,13 @@ public abstract class ModelTestCase extends TestCase {
 			documentModel = DocumentModel.getModel();
 		}
 		return documentModel;
+	}
+
+	protected IndexModel getIndexModel() {
+		if(null == indexModel) {
+			indexModel = IndexModel.getModel();
+		}
+		return indexModel;
 	}
 
 	/**

@@ -12,6 +12,8 @@ import java.awt.Rectangle;
 import javax.swing.border.AbstractBorder;
 
 /**
+ * Provides a multiple line border at the top of a component.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */

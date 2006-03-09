@@ -6,15 +6,15 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.model.util.ArtifactUtil;
-
-import com.thinkparity.codebase.ResourceUtil;
+import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.Document;
@@ -25,6 +25,14 @@ import com.thinkparity.model.parity.model.document.Document;
  */
 public class DocumentListItem extends ListItem {
 
+	private static final BufferedImage BG;
+
+	private static final BufferedImage BG_CLOSED;
+
+	private static final BufferedImage BG_CLOSED_SEL;
+
+	private static final BufferedImage BG_SEL;
+
 	/**
 	 * Info icon used when the user is the key holder.
 	 * 
@@ -32,29 +40,27 @@ public class DocumentListItem extends ListItem {
 	private static final ImageIcon KEY_ICON;
 
 	/**
-	 * Menu icon for the document list item.
+	 * Text colour.
 	 * 
 	 */
-	private static final ImageIcon MENU_ICON;
-
-	/**
-	 * Menu icon for closed documents.
-	 * 
-	 */
-	private static final ImageIcon MENU_ICON_CLOSED;
-
 	private static final Color NAME_FOREGROUND;
 
+	/**
+	 * Text colour when document is closed.
+	 * 
+	 */
 	private static final Color NAME_FOREGROUND_CLOSED;
 
 	static {
-		MENU_ICON = new ImageIcon(ResourceUtil.getURL("images/documentIconGreen.png"));
-		MENU_ICON_CLOSED = new ImageIcon(ResourceUtil.getURL("images/documentIconGray.png"));
-		// COLOR BLACK
+		BG = ImageIOUtil.read("DocumentCell.png");
+		BG_SEL = ImageIOUtil.read("DocumentCellSelected.png");
+		BG_CLOSED = ImageIOUtil.read("DocumentCellClosed.png");
+		BG_CLOSED_SEL = ImageIOUtil.read("DocumentCellClosedSelected.png");
+		KEY_ICON = ImageIOUtil.readIcon("Key.png");
+		// COLOR DocumentListItem Text BLACK
 		NAME_FOREGROUND = Color.BLACK;
-		// COLOR 127,131,134,255
-		NAME_FOREGROUND_CLOSED = new Color(127,131,134,255);
-		KEY_ICON = new ImageIcon(ResourceUtil.getURL("images/key.png"));
+		// COLOR DocumentListItem Closed Text 127,131,134,255
+		NAME_FOREGROUND_CLOSED = new Color(127, 131, 134, 255);
 	}
 
 	private static Boolean hasBeenSeen(final Long documentId) {
@@ -102,7 +108,6 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 */
 	private JMenuItem openMenuItem;
-
 	/**
 	 * The action listener for the open menu item.
 	 * 
@@ -115,6 +120,7 @@ public class DocumentListItem extends ListItem {
 	 */
 	private JMenuItem requestKeyMenuItem;
 
+
 	/**
 	 * The action listener for the request key menu item.
 	 * 
@@ -126,11 +132,13 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 */
 	private JMenuItem sendMenuItem;
+
 	/**
 	 * The action listener for the send menu item.
 	 * 
 	 */
 	private ActionListener sendMenuItemActionListener;
+
 	/**
 	 * Create a DocumentListItem.
 	 * 
@@ -146,15 +154,17 @@ public class DocumentListItem extends ListItem {
 		setDocumentId(document.getId());
 
 		if(isClosed(document.getId())) {
-			setMenuIcon(MENU_ICON_CLOSED);
+			setBackgroundImage(BG_CLOSED);
+			setBackgroundImageSelected(BG_CLOSED_SEL);
 			setNameForeground(NAME_FOREGROUND_CLOSED);
 		}
 		else {
-			setMenuIcon(MENU_ICON);
+			setBackgroundImage(BG);
+			setBackgroundImageSelected(BG_SEL);
 			setNameForeground(NAME_FOREGROUND);
 
-			if(hasBeenSeen(document.getId())) { setNameFont(UIConstants.DefaultFont); }
-			else { setNameFont(UIConstants.DefaultFontBold); }
+			if(hasBeenSeen(document.getId())) { setNameFont(BrowserConstants.DefaultFont); }
+			else { setNameFont(BrowserConstants.DefaultFontBold); }
 		}
 
 		setName(document.getName());
@@ -167,7 +177,6 @@ public class DocumentListItem extends ListItem {
 	 */
 	public void fireSelection() {
 		getController().selectDocument(getDocumentId());
-		getController().displayDocumentHistoryAvatar();
 	}
 
 	/**
@@ -344,7 +353,6 @@ public class DocumentListItem extends ListItem {
 		if(null == sendMenuItemActionListener) {
 			sendMenuItemActionListener = new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
-					getController().selectDocument(getDocumentId());
 					getController().displaySessionSendFormAvatar();
 				}
 			};

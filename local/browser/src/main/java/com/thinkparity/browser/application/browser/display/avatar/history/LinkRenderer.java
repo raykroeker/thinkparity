@@ -11,7 +11,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 
 /**
@@ -52,7 +52,7 @@ public class LinkRenderer implements TableCellRenderer {
 	public LinkRenderer(final Browser browser) {
 		super();
 		this.browser = browser;
-		this.jLabelLink = LabelFactory.createLink("", UIConstants.DefaultFont);
+		this.jLabelLink = LabelFactory.createLink("", BrowserConstants.DefaultFont);
 		this.originalCursor = jLabelLink.getCursor();
 	}
 

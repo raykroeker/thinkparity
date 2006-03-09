@@ -12,7 +12,7 @@ import java.awt.event.MouseEvent;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
@@ -43,7 +43,7 @@ abstract class ComponentFactory {
 	 *            The component.
 	 */
 	protected void applyDefaultFont(final Component component) {
-		applyFont(component, UIConstants.DefaultFont);
+		applyFont(component, BrowserConstants.DefaultFont);
 	}
 
 	/**

@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -73,16 +74,22 @@ public abstract class ListItem {
 	protected final Logger logger;
 
 	/**
+	 * The list item background image.
+	 * 
+	 */
+	private BufferedImage backgroundImage;
+
+	/**
+	 * The list item backgound image when the list item is selected.
+	 * 
+	 */
+	private BufferedImage backgroundImageSelected;
+
+	/**
 	 * The list item information menuIcon.
 	 * 
 	 */
 	private ImageIcon infoIcon;
-
-	/**
-	 * The list item menuIcon.
-	 * 
-	 */
-	private ImageIcon menuIcon;
 
 	/**
 	 * The parity model factory.
@@ -137,14 +144,17 @@ public abstract class ListItem {
 	 * 
 	 * @return The list item information menuIcon.
 	 */
-	public ImageIcon getInfoIcon() { return infoIcon; }
+	public BufferedImage getBackgroundImage(final Boolean isSelected) {
+		if(isSelected) { return backgroundImageSelected; }
+		else { return backgroundImage; }
+	}
 
 	/**
-	 * Obtain the list item's menuIcon.
+	 * Obtain the list item information menuIcon.
 	 * 
-	 * @return The list item's menuIcon.
+	 * @return The list item information menuIcon.
 	 */
-	public ImageIcon getMenuIcon() { return menuIcon; }
+	public ImageIcon getInfoIcon() { return infoIcon; }
 
 	/**
 	 * Obtain the list item name.
@@ -179,20 +189,33 @@ public abstract class ListItem {
 	public void populateMenu(final JPopupMenu jPopupMenu) {}
 
 	/**
+	 * Set the list item background image.
+	 * 
+	 * @param backgroundImage
+	 *            The list item background image.
+	 */
+	public void setBackgroundImage(final BufferedImage backgroundImage) {
+		this.backgroundImage = backgroundImage;
+	}
+
+	/**
+	 * Set the list item background image when selected.
+	 * 
+	 * @param backgroundImageSelected
+	 *            The selected background image.
+	 */
+	public void setBackgroundImageSelected(
+			final BufferedImage backgroundImageSelected) {
+		this.backgroundImageSelected = backgroundImageSelected;
+	}
+
+	/**
 	 * The list item info menuIcon.
 	 * 
 	 * @param infoIcon
 	 *            The list item info menuIcon.
 	 */
 	public void setInfoIcon(final ImageIcon infoIcon) { this.infoIcon = infoIcon; }
-
-	/**
-	 * The list item menu menuIcon.
-	 * 
-	 * @param menuIcon
-	 *            The list item menu menuIcon to set.
-	 */
-	public void setMenuIcon(final ImageIcon menuIcon) { this.menuIcon = menuIcon; }
 
 	/**
 	 * Set the list item name.

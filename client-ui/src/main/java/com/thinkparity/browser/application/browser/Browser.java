@@ -144,15 +144,6 @@ public class Browser implements Application {
 	}
 
 	/**
-	 * Display the send key form.
-	 *
-	 */
-	public void displaySessionSendKeyFormAvatar() {
-		putClientProperty(AvatarId.SESSION_SEND_KEY_FORM, "doIncludeKey", Boolean.TRUE);
-		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_KEY_FORM);
-	}
-
-	/**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
 	 */
@@ -212,9 +203,8 @@ public class Browser implements Application {
             public void run() {
             	mainWindow = BrowserWindow.open();
             	displayTitleAvatar();
-            	displayLogoAvatar();
-            	displayMainBrowserAvatar();
-            	displayDocumentHistoryAvatar();
+            	displayInfoAvatar();
+            	displayDocumentListAvatar();
             }
         });
 	}
@@ -224,10 +214,7 @@ public class Browser implements Application {
 	 *
 	 */
 	public void reloadMainBrowserAvatar() {
-		// NOTE Wierd
 		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
-		// NOTE Super wierd
-		AvatarFactory.create(AvatarId.DOCUMENT_HISTORY).reload();
 	}
 
 	/**
@@ -362,7 +349,7 @@ public class Browser implements Application {
 	 *            The document id.
 	 */
 	public void selectDocument(final Long documentId) {
-		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
+//		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 		setInput(AvatarId.SESSION_SEND_KEY_FORM, documentId);
 	}
@@ -429,12 +416,12 @@ public class Browser implements Application {
 		display.repaint();
 	}
 
-	/**
-	 * Display the browser's logo avatar.
-	 *
-	 */
-	private void displayLogoAvatar() {
-    	displayAvatar(DisplayId.LOGO, AvatarId.BROWSER_LOGO);
+	private void displayDocumentListAvatar() {
+		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
+	}
+
+	private void displayInfoAvatar() {
+		displayAvatar(DisplayId.INFO, AvatarId.BROWSER_INFO);
 	}
 
 	/**

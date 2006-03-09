@@ -92,11 +92,11 @@ public class NativeSkinUtil {
 //		final RegionBuilder regionBuilder = new RegionBuilder();
 //		final Region region =
 //			regionBuilder.createRoundRectangleRegion(
-//					0, 0, browserWindowSize.width + 1, UIConstants.TitlePaneHeight * 2,
-//					UIConstants.TitlePaneCurvature,
-//					UIConstants.TitlePaneCurvature);
+//					0, 0, browserWindowSize.width + 1, BrowserConstants.TitlePaneHeight * 2,
+//					BrowserConstants.TitlePaneCurvature,
+//					BrowserConstants.TitlePaneCurvature);
 //		final Region region2 = regionBuilder.createRectangleRegion(0,
-//				UIConstants.TitlePaneHeight, browserWindowSize.width, browserWindowSize.height);
+//				BrowserConstants.TitlePaneHeight, browserWindowSize.width, browserWindowSize.height);
 //		final Region region3 = regionBuilder.combineRegions(region, region2,
 //				NativeConstants.REGION_OR);
 //		NativeSkin.getInstance().setWindowRegion(browserWindow, region3, true);

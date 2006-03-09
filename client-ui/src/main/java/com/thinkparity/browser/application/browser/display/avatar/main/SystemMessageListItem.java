@@ -5,12 +5,13 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.codebase.ResourceUtil;
+import com.thinkparity.browser.platform.util.ImageIOUtil;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
@@ -29,14 +30,20 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 public class SystemMessageListItem extends ListItem {
 
 	/**
-	 * The message menu icon.
+	 * The background image.
 	 * 
 	 */
-	private static final ImageIcon MENU_ICON;
+	private static final BufferedImage BG;
+
+	/**
+	 * The background image when selected.
+	 * 
+	 */
+	private static final BufferedImage BG_SEL;
 
 	static {
-		MENU_ICON =
-			new ImageIcon(ResourceUtil.getURL("images/systemMessageIconOrange.png"));
+		BG = ImageIOUtil.read("SystemMessageCell.png");
+		BG_SEL = ImageIOUtil.read("SystemMessageCellSelected.png");
 	}
 
 	/**
@@ -75,7 +82,8 @@ public class SystemMessageListItem extends ListItem {
 	 */
 	SystemMessageListItem(final SystemMessage systemMessage) {
 		super("SystemMessageListItem");
-		setMenuIcon(MENU_ICON);
+		setBackgroundImage(BG);
+		setBackgroundImageSelected(BG_SEL);
 		setName(getName(systemMessage));
 		setMessage(systemMessage);
 	}

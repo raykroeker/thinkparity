@@ -3,23 +3,20 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.main;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
-import javax.swing.border.Border;
 
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.javax.swing.border.TopBorder;
 
 /**
  * The browser main cell renderer is responsible for rendering each of the list
@@ -32,31 +29,16 @@ import com.thinkparity.browser.javax.swing.border.TopBorder;
 public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 
 	/**
-	 * Border used for the cells.
+	 * @see java.io.Serializable
 	 * 
 	 */
-	private static final Border CELL_BORDER;
-
-	private static final Color listItemBackground;
-
-	private static final Color listItemBackgroundSelect;
-
 	private static final long serialVersionUID = 1;
 
-	static {
-		// COLOR 237, 241, 244, 255
-		listItemBackground = new Color(237, 241, 244, 255);
-		// COLOR 215, 231, 244, 255
-		listItemBackgroundSelect = new Color(215, 231, 244, 255);
-		// COLOR WHITE
-		CELL_BORDER = new TopBorder(Color.WHITE);
-	}
-
 	/**
-	 * Displays the cell icon.
+	 * The background image of the cell to paint.
 	 * 
 	 */
-	private JLabel cellIconJLabel;
+	private BufferedImage backgroundImage;
 
 	/**
 	 * Display's additional info about the cell.
@@ -82,9 +64,9 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 	 * 
 	 */
 	public CellRenderer() {
-		super("CellRenderer", listItemBackground);
+		super("CellRenderer");
 		setLayout(new GridBagLayout());
-		initBrowserMainCellComponents();
+		initComponents();
 	}
 
 	/**
@@ -95,33 +77,29 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 	public Component getListCellRendererComponent(final JList list,
 			final Object value, final int index, final boolean isSelected,
 			final boolean cellHasFocus) {
-		if(0 == index) { setBorder(BorderFactory.createEmptyBorder()); }
-		else { setBorder(CELL_BORDER); }
-
-		if(isSelected) { setBackground(listItemBackgroundSelect); }
-		else { setBackground(listItemBackground); }
-
 		final ListItem listItem = (ListItem) value;
+		backgroundImage = listItem.getBackgroundImage(isSelected);
 
-		cellIconJLabel.setIcon(listItem.getMenuIcon());
 		cellNameJLabel.setText(listItem.getName());
 		cellNameJLabel.setForeground(listItem.getNameForeground());
 		cellNameJLabel.setFont(listItem.getNameFont());
+
 		cellInfoIconJLabel.setIcon(listItem.getInfoIcon());
 
+		logger.debug(listItem.getName());
+		logger.debug("isSelected:  " + isSelected);
 		return this;
 	}
 
 	/**
-	 * @see javax.swing.JComponent#getPreferredSize()
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
 	 */
-	public Dimension getPreferredSize() {
-		final Insets insets = getInsets();
-		// DIMENSION 400x20
-		final Dimension ps = super.getPreferredSize();
-		ps.height = 20 + insets.top + insets.bottom;
-		return ps;
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		final Graphics2D g2 = (Graphics2D) g.create();
+		try { g2.drawImage(backgroundImage, getInsets().left, getInsets().top, this); }
+		finally { g2.dispose(); }
 	}
 
 	/**
@@ -141,26 +119,21 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 	 * Initialize all of the list item's swing components.
 	 *
 	 */
-	private void initBrowserMainCellComponents() {
-		final GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.WEST;
-		c.fill = GridBagConstraints.BOTH;
-		c.weighty = 1;
-
-		cellIconJLabel = LabelFactory.create();
-		c.insets.bottom = 1;
-		c.insets.left = 13;
-		add(cellIconJLabel, c.clone());
-
+	private void initComponents() {
 		cellNameJLabel = LabelFactory.create();
-		c.gridx = 1;
+		cellInfoIconJLabel = LabelFactory.create();
+
+		final GridBagConstraints c = new GridBagConstraints();
+
+		c.anchor = GridBagConstraints.WEST;
+		c.insets.left = 49;
 		c.weightx = 1;
 		add(cellNameJLabel, c.clone());
 
-		cellInfoIconJLabel = LabelFactory.create();
-		c.gridx = 2;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets.left = 0;
+		c.insets.right = 32;
 		c.weightx = 0;
-		c.insets.right = 15;
 		add(cellInfoIconJLabel, c.clone());
 	}
 }

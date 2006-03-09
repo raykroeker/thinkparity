@@ -20,6 +20,8 @@ public class AvatarFactory {
 
 	public static Avatar create(final AvatarId id) {
 		switch(id) {
+		case BROWSER_INFO:
+			return SINGLETON.createBrowserInfo();
 		case BROWSER_LOGO:
 			return SINGLETON.createBrowserLogo();
 		case BROWSER_MAIN:
@@ -39,6 +41,12 @@ public class AvatarFactory {
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}
 	}
+
+	/**
+	 * The browser info avatar.
+	 * 
+	 */
+	private Avatar browserInfo;
 
 	/**
 	 * Browser logo avatar.
@@ -95,6 +103,18 @@ public class AvatarFactory {
 	private AvatarFactory() { super(); }
 
 	/**
+	 * Create the browser info avatar.
+	 * 
+	 * @return The browser info avatar.
+	 */
+	private Avatar createBrowserInfo() {
+		if(null == browserInfo) {
+			browserInfo = new BrowserInfoAvatar();
+		}
+		return browserInfo;
+	}
+
+	/**
 	 * Create the browser logo avatar.
 	 * @return The browser logo avatar.
 	 */
@@ -129,7 +149,7 @@ public class AvatarFactory {
 		}
 		return browserTitle;
 	}
-
+	
 	/**
 	 * Create the document history list avatar.
 	 * 
@@ -154,7 +174,7 @@ public class AvatarFactory {
 		}
 		return sessionInviteContact;
 	}
-	
+
 	/**
 	 * Create the session login avatar.
 	 * 

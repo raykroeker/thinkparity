@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 
@@ -96,7 +96,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 		actionJLabel.setPreferredSize(new Dimension(52, 15));
 		add(actionJLabel, c.clone());
 
-		versionJLabel = LabelFactory.createLink("", UIConstants.DefaultFont);
+		versionJLabel = LabelFactory.createLink("", BrowserConstants.DefaultFont);
 		// DIMENSION 68,15
 		versionJLabel.setPreferredSize(new Dimension(68,15));
 		c.weightx = 0;

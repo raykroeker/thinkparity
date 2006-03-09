@@ -98,9 +98,7 @@ public class MainPanel extends AbstractJPanel {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 		add(DisplayFactory.create(DisplayId.TITLE));
-		add(DisplayFactory.create(DisplayId.LOGO));
-		add(DisplayFactory.create(DisplayId.CONTENT));
 		add(DisplayFactory.create(DisplayId.INFO));
-		add(DisplayFactory.create(DisplayId.FORM));
+		add(DisplayFactory.create(DisplayId.CONTENT));
 	}
 }

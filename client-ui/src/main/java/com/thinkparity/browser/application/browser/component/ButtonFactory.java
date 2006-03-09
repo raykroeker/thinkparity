@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.component;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 
 /**
@@ -37,6 +38,10 @@ public class ButtonFactory extends ComponentFactory {
 		synchronized(singletonLock) { return singleton.doCreate(); }
 	}
 
+	public static JButton create(final Icon icon) {
+		synchronized(singletonLock) { return singleton.doCreate(icon); }
+	}
+
 	/**
 	 * Create a JButton with the specified text.
 	 * 
@@ -53,6 +58,10 @@ public class ButtonFactory extends ComponentFactory {
 	 */
 	private ButtonFactory() { super(); }
 
+	private void applyIcon(final JButton jButton, final Icon icon) {
+		jButton.setIcon(icon);
+	}
+
 	/**
 	 * Create a JButton.
 	 * 
@@ -61,6 +70,12 @@ public class ButtonFactory extends ComponentFactory {
 	private JButton doCreate() {
 		final JButton jButton = new JButton();
 		applyDefaultFont(jButton);
+		return jButton;
+	}
+
+	private JButton doCreate(final Icon imageIcon) {
+		final JButton jButton = doCreate();
+		applyIcon(jButton, imageIcon);
 		return jButton;
 	}
 

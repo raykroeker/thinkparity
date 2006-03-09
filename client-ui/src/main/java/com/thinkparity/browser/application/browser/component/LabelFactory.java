@@ -261,9 +261,9 @@ public class LabelFactory extends ComponentFactory {
 	 */
 	public enum TextAlignment {
 
-		CENTER(SwingConstants.CENTER), LEADING(SwingConstants.LEADING), LEFT(
-				SwingConstants.LEFT), RIGHT(SwingConstants.RIGHT), TRAILING(
-				SwingConstants.TRAILING);
+		CENTER(SwingConstants.CENTER), LEADING(SwingConstants.LEADING),
+		LEFT(SwingConstants.LEFT), RIGHT(SwingConstants.RIGHT),
+		TRAILING(SwingConstants.TRAILING);
 
 		/**
 		 * The swing constant that the enum wraps.

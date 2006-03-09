@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 
@@ -40,6 +41,18 @@ public class ImageIOUtil {
 		logger.debug(imageName);
 		final String imagePath = "images/" + imageName;
 		return read(ResourceUtil.getURL(imagePath));
+	}
+
+	public static ImageIcon readIcon(final String imageName) {
+		logger.info("[BROWSER2] [PLATFORM] [READ ICON]");
+		logger.debug(imageName);
+		return readIcon(ResourceUtil.getURL("images/" + imageName));
+	}
+
+	public static ImageIcon readIcon(final URL imageURL) {
+		logger.info("[BROWSER2] [PLATFORM] [READ ICON]");
+		logger.debug(imageURL);
+		return new ImageIcon(imageURL);
 	}
 
 	/**

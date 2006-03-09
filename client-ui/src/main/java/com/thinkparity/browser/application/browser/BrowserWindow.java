@@ -3,11 +3,10 @@
  */
 package com.thinkparity.browser.application.browser;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
@@ -15,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
 import com.thinkparity.browser.platform.application.display.Display;
+import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.util.NativeSkinUtil;
 
@@ -38,13 +38,24 @@ public class BrowserWindow extends AbstractJFrame {
 	private static final long serialVersionUID = 1;
 
 	/**
+	 * The window icon.
+	 * 
+	 */
+	private static final BufferedImage BROWSER_ICON;
+
+	static {
+		BROWSER_ICON = ImageIOUtil.read("BrowserIcon.png");
+	}
+
+	/**
 	 * Obtain the size of the main window.
 	 * 
 	 * @return The size of the main window.
 	 */
 	public static Dimension getMainWindowSize() {
 		if(null == mainWindowSize) {
-			mainWindowSize = new Dimension(402, 552);
+			// DIMENSION BrowserWindow 354x562
+			mainWindowSize = new Dimension(354, 562);
 		}
 		return mainWindowSize;
 	}
@@ -54,7 +65,7 @@ public class BrowserWindow extends AbstractJFrame {
 	 * 
 	 * @return The main window.
 	 */
-	public static BrowserWindow open() {
+	static BrowserWindow open() {
 		final BrowserWindow mainWindow = new BrowserWindow();
 		mainWindow.setVisible(true);
 		mainWindow.applyRenderingHints();
@@ -91,8 +102,9 @@ public class BrowserWindow extends AbstractJFrame {
 		super("BrowserWindow");
 		// initialize the state
 		new BrowserWindowState(this);
-		// COLOR BLACK
-		getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+		getRootPane().setBorder(BrowserConstants.BrowserWindowBorder);
+		setIconImage(BROWSER_ICON);
+		setTitle(getString("Title"));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);

@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.event.MouseInputAdapter;
 
-import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
@@ -199,7 +199,7 @@ public class GadgetWindow extends AbstractJFrame {
 	private void initComponents() {
 		setLayout(new GridBagLayout());
 		final GridBagConstraints c = new GridBagConstraints();
-		final JLabel jLabel = LabelFactory.create("Test", UIConstants.DefaultFontBold, Color.WHITE);
+		final JLabel jLabel = LabelFactory.create("Test", BrowserConstants.DefaultFontBold, Color.WHITE);
 		add(jLabel, c.clone());
 	}
 

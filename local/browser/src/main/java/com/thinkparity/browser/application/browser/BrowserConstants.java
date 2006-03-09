@@ -7,11 +7,14 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 
+import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public interface UIConstants {
+public interface BrowserConstants {
 
 	public static final Font DefaultFont = new Font("Verdana", Font.PLAIN, 11);
 
@@ -33,4 +36,8 @@ public interface UIConstants {
 	public static final Cursor HandCursor = new Cursor(Cursor.HAND_CURSOR);
 
 	public static final Cursor DefaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+
+	// BORDER BrowserWindow 184,205,255,255 3
+	public static final Border BrowserWindowBorder =
+		BorderFactory.createLineBorder(new Color(184, 205, 255, 255), 4);
 }

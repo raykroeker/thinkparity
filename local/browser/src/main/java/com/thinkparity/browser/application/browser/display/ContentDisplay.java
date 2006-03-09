@@ -25,10 +25,10 @@ class ContentDisplay extends Display {
 	 * 
 	 */
 	ContentDisplay() {
-		// COLOR WHITE
+		// COLOR ContentDisplayBackground WHITE
 		super("ContentDisplay", Color.WHITE);
-		// COLOR 180, 180, 180, 255, WHITE
-		setBorder(new MultiLineBorder(new Color[] { new Color(180, 180, 180, 255), Color.WHITE}));
+		// BORDER ContentDisplay Multiline 153,153,153,255, WHITE
+		setBorder(new MultiLineBorder(new Color[] { new Color(153, 153, 153, 255), Color.WHITE}));
 	}
 
 	/**

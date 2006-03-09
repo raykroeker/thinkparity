@@ -24,12 +24,8 @@ public class DisplayFactory {
 		switch(id) {
 		case CONTENT:
 			return SINGLETON.createContent();
-		case FORM:
-			return SINGLETON.createForm();
 		case INFO:
 			return SINGLETON.createInfo();
-		case LOGO:
-			return SINGLETON.createLogo();
 		case TITLE:
 			return SINGLETON.createTitle();
 		default: throw Assert.createUnreachable("Unknown display id:  " + id);
@@ -50,22 +46,10 @@ public class DisplayFactory {
 	private final Integer displayWidth;
 
 	/**
-	 * The form display.
-	 * 
-	 */
-	private Display form;
-
-	/**
 	 * Info display.
 	 * 
 	 */
 	private Display info;
-
-	/**
-	 * Logo display.
-	 * 
-	 */
-	private Display logo;
 
 	/**
 	 * Title display.
@@ -105,22 +89,10 @@ public class DisplayFactory {
 	private Display createContent() {
 		if(null == content) {
 			content = new ContentDisplay();
-			applySize(content, 300);
+			// HEIGHT ContentDisplay 459
+			applySize(content, 459);
 		}
 		return content;
-	}
-
-	/**
-	 * Create the form display.
-	 * 
-	 * @return The form display.
-	 */
-	private Display createForm() {
-		if(null == form) {
-			form = new FormDisplay();
-			applySize(form, 394);
-		}
-		return form;
 	}
 
 	/**
@@ -131,22 +103,10 @@ public class DisplayFactory {
 	private Display createInfo() {
 		if(null == info) {
 			info = new InfoDisplay();
-			applySize(info, 135);
+			// HEIGHT InfoDisplay 27
+			applySize(info, 27);
 		}
 		return info;
-	}
-
-	/**
-	 * Create the logo display.
-	 * 
-	 * @return The logo display.
-	 */
-	private Display createLogo() {
-		if(null == logo) {
-			logo = new LogoDisplay();
-			applySize(logo, 94);
-		}
-		return logo;
 	}
 
 	/**
@@ -157,7 +117,8 @@ public class DisplayFactory {
 	private Display createTitle() {
 		if(null == title) {
 			title = new TitleDisplay();
-			applySize(title, 21);
+			// HEIGHT TitleDisplay 60
+			applySize(title, 60);
 		}
 		return title;
 	}

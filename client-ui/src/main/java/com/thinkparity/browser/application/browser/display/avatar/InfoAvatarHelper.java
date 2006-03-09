@@ -11,7 +11,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
@@ -79,7 +79,7 @@ class InfoAvatarHelper {
 	void addHeading(final String headingText) {
 		if(null == headingJLabel) {
 			headingJLabel =
-				LabelFactory.create(headingText, UIConstants.DefaultFontBold);
+				LabelFactory.create(headingText, BrowserConstants.DefaultFontBold);
 			// COLOR 117,138,155,255
 			headingJLabel.setBackground(new Color(117, 138, 155, 255));
 			// COLOR WHITE

@@ -100,6 +100,15 @@ public abstract class Avatar extends AbstractJPanel {
 	public ContentProvider getContentProvider() { return contentProvider; }
 
 	/**
+	 * Obtain the main controller.
+	 *
+	 */
+	public Browser getController() {
+		if(null == controller) { controller = Browser.getInstance(); }
+		return controller;
+	}
+
+	/**
 	 * Obtain the current display.
 	 * 
 	 * @return The current display.
@@ -186,15 +195,6 @@ public abstract class Avatar extends AbstractJPanel {
 	 *            The avatar's state information.
 	 */
 	public abstract void setState(final State state);
-
-	/**
-	 * Obtain the main controller.
-	 *
-	 */
-	protected Browser getController() {
-		if(null == controller) { controller = Browser.getInstance(); }
-		return controller;
-	}
 
 	/**
 	 * Provide a visual cue to the user that work is being done.

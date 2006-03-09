@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.thinkparity.browser.application.browser.UIConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
@@ -104,7 +104,7 @@ class BrowserLogoAvatar extends Avatar {
 	private JLabel createJLabelLink(final String text,
 			final ActionListener actionListener) {
 		final JLabel jLabelLink =
-			LabelFactory.createLink(text, UIConstants.SmallFont);
+			LabelFactory.createLink(text, BrowserConstants.SmallFont);
 		jLabelLink.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				actionListener.actionPerformed(

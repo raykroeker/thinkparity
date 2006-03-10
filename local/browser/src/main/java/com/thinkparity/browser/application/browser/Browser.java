@@ -8,11 +8,14 @@ import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.window.PopupWindow;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -140,7 +143,18 @@ public class Browser implements Application {
 	 */
 	public void displaySessionSendFormAvatar() {
 		putClientProperty(AvatarId.SESSION_SEND_FORM, "doIncludeKey", Boolean.FALSE);
-		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_SEND_FORM);
+
+		final Avatar avatar = AvatarFactory.create(AvatarId.SESSION_SEND_FORM);
+		final Object input = getAvatarInput(AvatarId.SESSION_SEND_FORM);
+		if(null == input) { logger.info("Null input:  " + AvatarId.SESSION_SEND_FORM); }
+		else { avatar.setInput(getAvatarInput(AvatarId.SESSION_SEND_FORM)); }
+
+		final PopupWindow window = new PopupWindow(mainWindow);
+		window.setSize(405, 308);
+		window.setLocation(200, 200);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() { window.open(avatar); }
+		});
 	}
 
 	/**
@@ -400,7 +414,6 @@ public class Browser implements Application {
 
 		final Avatar currentAvatar = display.getAvatar();
 		state.saveAvatarState(currentAvatar);
-		if(null != currentAvatar) { currentAvatar.setDisplay(null); }
 
 		final Avatar nextAvatar = AvatarFactory.create(avatarId);
 		state.loadAvatarState(nextAvatar);
@@ -408,7 +421,6 @@ public class Browser implements Application {
 		final Object input = getAvatarInput(avatarId);
 		if(null == input) { logger.info("Null input:  " + avatarId); }
 		else { nextAvatar.setInput(getAvatarInput(avatarId)); }
-		nextAvatar.setDisplay(display);
 
 		display.setAvatar(nextAvatar);
 		display.displayAvatar();

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.window;
 
-import com.thinkparity.browser.platform.application.display.Display;
+import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.platform.application.window.Window;
 
 /**
@@ -22,17 +22,8 @@ public class PopupWindow extends Window {
 	 * Create a PopupWindow.
 	 * @param l18Context
 	 */
-	public PopupWindow() {
-		super("PopupWindow");
-	}
-
-	/**
-	 * @see com.thinkparity.browser.platform.application.window.Window#addDisplay(com.thinkparity.browser.platform.application.display.Display)
-	 * 
-	 */
-	public void addDisplay(final Display display) {
-		super.addDisplay(display);
-		add(display);
+	public PopupWindow(final BrowserWindow browserWindow) {
+		super(browserWindow, Boolean.FALSE, "");
 	}
 
 	/**

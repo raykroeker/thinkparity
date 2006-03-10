@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.window;
 
+import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.application.window.WindowRegistry;
 
@@ -29,8 +30,8 @@ public class WindowFactory {
 	 *            The window id.
 	 * @return The window for the given id.
 	 */
-	public static Window create(final WindowId windowId) {
-		return singleton.doCreate(windowId);
+	public static Window create(final WindowId windowId, final BrowserWindow browserWindow) {
+		return singleton.doCreate(windowId, browserWindow);
 	}
 
 	/**
@@ -67,9 +68,10 @@ public class WindowFactory {
 	 *            The window id.
 	 * @return The window for the given id.
 	 */
-	private Window doCreate(final WindowId windowId) {
+	private Window doCreate(final WindowId windowId,
+			final BrowserWindow browserWindow) {
 		switch(windowId) {
-		case POPUP: return doCreatePopup();
+		case POPUP: return doCreatePopup(browserWindow);
 		case SESSION_SEND_POPUP: return doCreateSessionSendPopup();
 		default:
 			throw Assert.createUnreachable("Unknown window:  " + windowId);
@@ -81,9 +83,9 @@ public class WindowFactory {
 	 * 
 	 * @return The modal popup window.
 	 */
-	private Window doCreatePopup() {
+	private Window doCreatePopup(final BrowserWindow browserWindow) {
 		if(null == popup) {
-			popup = new PopupWindow();
+			popup = new PopupWindow(browserWindow);
 			registry.put(WindowId.POPUP, popup);
 		}
 		return popup;

@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +14,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -184,8 +186,8 @@ public class SessionSendFormAvatar extends Avatar {
 	 */
 	public void setState(final State state) {}
 
-	private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		getController().displayMainBrowserAvatar();
+	private void cancelJButtonActionPerformed(final ActionEvent evt) {
+		SwingUtilities.getWindowAncestor(this).dispose();
 	}
 
 	private void displayMainBrowserAvatar(final Boolean doReload) {
@@ -361,134 +363,54 @@ public class SessionSendFormAvatar extends Avatar {
 			}
 		});
 
-		org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(
-				this);
-		this.setLayout(layout);
-		layout
-				.setHorizontalGroup(layout
-						.createParallelGroup(
-								org.jdesktop.layout.GroupLayout.LEADING)
-						.add(
-								layout
-										.createSequentialGroup()
-										.addContainerGap()
-										.add(
-												layout
-														.createParallelGroup(
-																org.jdesktop.layout.GroupLayout.LEADING)
-														.add(
-																org.jdesktop.layout.GroupLayout.TRAILING,
-																layout
-																		.createSequentialGroup()
-																		.add(
-																				layout
-																						.createParallelGroup(
-																								org.jdesktop.layout.GroupLayout.LEADING)
-																						.add(
-																								versionJLabel)
-																						.add(
-																								teamJLabel)
-																						.add(
-																								contactJLabel))
-																		.add(
-																				21,
-																				21,
-																				21)
-																		.add(
-																				layout
-																						.createParallelGroup(
-																								org.jdesktop.layout.GroupLayout.TRAILING)
-																						.add(
-																								contactsJScrollPane,
-																								org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-																								282,
-																								Short.MAX_VALUE)
-																						.add(
-																								teamJScrollPane,
-																								org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-																								282,
-																								Short.MAX_VALUE)
-																						.add(
-																								versionJComboBox,
-																								0,
-																								282,
-																								Short.MAX_VALUE)
-																						.add(
-																								org.jdesktop.layout.GroupLayout.LEADING,
-																								includeKeyJCheckBox)))
-														.add(
-																org.jdesktop.layout.GroupLayout.TRAILING,
-																layout
-																		.createSequentialGroup()
-																		.add(
-																				sendJButton)
-																		.addPreferredGap(
-																				org.jdesktop.layout.LayoutStyle.RELATED)
-																		.add(
-																				cancelJButton)))
-										.addContainerGap()));
-		layout
-				.setVerticalGroup(layout
-						.createParallelGroup(
-								org.jdesktop.layout.GroupLayout.LEADING)
-						.add(
-								layout
-										.createSequentialGroup()
-										.addContainerGap()
-										.add(
-												layout
-														.createParallelGroup(
-																org.jdesktop.layout.GroupLayout.BASELINE)
-														.add(versionJLabel)
-														.add(
-																versionJComboBox,
-																org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-																org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-																org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-										.addPreferredGap(
-												org.jdesktop.layout.LayoutStyle.RELATED)
-										.add(
-												layout
-														.createParallelGroup(
-																org.jdesktop.layout.GroupLayout.LEADING)
-														.add(teamJLabel)
-														.add(
-																teamJScrollPane,
-																org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-																82,
-																org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-										.addPreferredGap(
-												org.jdesktop.layout.LayoutStyle.RELATED)
-										.add(
-												layout
-														.createParallelGroup(
-																org.jdesktop.layout.GroupLayout.LEADING)
-														.add(
-																layout
-																		.createSequentialGroup()
-																		.add(
-																				contactsJScrollPane,
-																				org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-																				83,
-																				org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-																		.addPreferredGap(
-																				org.jdesktop.layout.LayoutStyle.RELATED)
-																		.add(
-																				includeKeyJCheckBox)
-																		.addPreferredGap(
-																				org.jdesktop.layout.LayoutStyle.RELATED)
-																		.add(
-																				layout
-																						.createParallelGroup(
-																								org.jdesktop.layout.GroupLayout.BASELINE)
-																						.add(
-																								cancelJButton)
-																						.add(
-																								sendJButton)))
-														.add(contactJLabel))
-										.addContainerGap(
-												org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-												Short.MAX_VALUE)));
+		org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(versionJLabel)
+                            .add(teamJLabel)
+                            .add(contactJLabel))
+                        .add(21, 21, 21)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                            .add(teamJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                            .add(versionJComboBox, 0, 303, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, includeKeyJCheckBox)))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(sendJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(versionJLabel)
+                    .add(versionJComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(teamJLabel)
+                    .add(teamJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 82, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 83, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(includeKeyJCheckBox))
+                    .add(contactJLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelJButton)
+                    .add(sendJButton))
+                .addContainerGap())
+        );
 	}// </editor-fold>
 
 	private void loadUserList(final DefaultListModel listModel,

@@ -12,7 +12,6 @@ import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.util.State;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -28,12 +27,6 @@ public abstract class Avatar extends AbstractJPanel {
 	 * 
 	 */
 	protected ContentProvider contentProvider;
-
-	/**
-	 * The current display.
-	 * 
-	 */
-	protected Display display;
 
 	/**
 	 * The avatar input.
@@ -109,13 +102,6 @@ public abstract class Avatar extends AbstractJPanel {
 	}
 
 	/**
-	 * Obtain the current display.
-	 * 
-	 * @return The current display.
-	 */
-	public Display getDisplay() { return display; }
-
-	/**
 	 * Obtain the avatar id.
 	 * 
 	 * @return The avatar id.
@@ -165,14 +151,6 @@ public abstract class Avatar extends AbstractJPanel {
 		this.contentProvider = contentProvider;
 		reload();
 	}
-
-	/**
-	 * Set the current display.
-	 * 
-	 * @param display
-	 *            The display.
-	 */
-	public void setDisplay(Display display) { this.display = display; }
 
 	/**
 	 * Set the avatar's input.

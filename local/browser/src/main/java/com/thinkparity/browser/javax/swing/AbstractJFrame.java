@@ -7,8 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.log4j.Logger;
 
@@ -39,6 +37,12 @@ public abstract class AbstractJFrame extends JFrame {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
+	 * Container tools for swing.
+	 * 
+	 */
+	private final ContainerTools containerTools;
+
+	/**
 	 * Create a AbstractJFrame.
 	 * 
 	 * @param l18Context
@@ -46,6 +50,7 @@ public abstract class AbstractJFrame extends JFrame {
 	 */
 	protected AbstractJFrame(final String l18Context) {
 		super();
+		this.containerTools = new ContainerTools(this);
 		this.localization = new JFrameLocalization(l18Context);
 	}
 
@@ -70,34 +75,22 @@ public abstract class AbstractJFrame extends JFrame {
 	}
 
 	/**
-	 * Debug the geometry of the main window; and all of the children throughout
-	 * the hierarchy.
+	 * Debug all components of the JFrame.
+	 *
+	 */
+	protected void debugComponents() { containerTools.debugComponents(); }
+
+	/**
+	 * Debug the geometry of the JFrame.
 	 * 
 	 */
-	protected void debugGeometry() {
-		logger.debug(getClass().getSimpleName());
-		logger.debug("l:" + getLocation());
-		logger.debug("b:" + getBounds());
-		logger.debug("i:" + getInsets());
-	}
+	protected void debugGeometry() { containerTools.debugGeometry(); }
 
 	/**
 	 * Debug the look and feel.
 	 *
 	 */
-	protected void debugLookAndFeel() {
-		logger.debug(getClass().getSimpleName());
-		logger.debug("lnf:" + UIManager.getLookAndFeel().getClass().getName());
-		final StringBuffer buffer = new StringBuffer("installed lnf:[");
-		boolean isFirst = true;
-		for(LookAndFeelInfo lnfi : UIManager.getInstalledLookAndFeels()) {
-			if(isFirst) { isFirst = false; }
-			else { buffer.append(","); }
-			buffer.append(lnfi.getClassName());
-		}
-		buffer.append("]");
-		logger.debug(buffer);
-	}
+	protected void debugLookAndFeel() { containerTools.debugLookAndFeel(); }
 
 	/**
 	 * @see JFrameLocalization#getString(String)

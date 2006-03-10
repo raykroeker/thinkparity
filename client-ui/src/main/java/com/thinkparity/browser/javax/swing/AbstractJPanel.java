@@ -4,7 +4,6 @@
 package com.thinkparity.browser.javax.swing;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -15,8 +14,6 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.JPanelLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
-import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -64,6 +61,12 @@ public class AbstractJPanel extends JPanel {
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
+	 * Swing container tools.
+	 * 
+	 */
+	private final ContainerTools containerTools;
+
+	/**
 	 * The debug mouse adapter for a jpanel. This mouse adapter will print the
 	 * geometry and component composition to the logger.
 	 * 
@@ -97,6 +100,7 @@ public class AbstractJPanel extends JPanel {
 	 */
 	protected AbstractJPanel(final String l18nContext, final Color background) {
 		super();
+		this.containerTools = new ContainerTools(this);
 		this.localization = new JPanelLocalization(l18nContext);
 		addMouseListener(debugMouseAdapter);
 		setOpaque(true);
@@ -108,19 +112,14 @@ public class AbstractJPanel extends JPanel {
 	 * recursive if the component is an AbstractJPanel implementation.
 	 * 
 	 */
-	public void debugComponents() { logger.debug(internalDebugComponents()); }
+	public void debugComponents() { containerTools.debugComponents(); }
 
 	/**
 	 * Debug the geometry of the JPanel. This includes the location; bounds and
 	 * insets.
 	 * 
 	 */
-	public void debugGeometry() {
-		logger.debug(getClass().getSimpleName());
-		logger.debug("l:" + getLocation());
-		logger.debug("b:" + getBounds());
-		logger.debug("i:" + getInsets());
-	}
+	public void debugGeometry() { containerTools.debugGeometry(); }
 
 	/**
 	 * Determine whether the user input for the frame is valid.
@@ -188,28 +187,4 @@ public class AbstractJPanel extends JPanel {
 	protected void setDefaultBackground() {
 		setBackground(DEFAULT_BACKGROUND);
 	}
-
-	/**
-	 * Generate a debug message which will illustrate the component hierarchy
-	 * that exists on this JPanel.
-	 * 
-	 * @return The debug message.
-	 */
-	private StringBuffer internalDebugComponents() {
-		final Component[] components = getComponents();
-		final StringBuffer debugMessage = new StringBuffer(getClass().getSimpleName())
-			.append("(");
-		boolean isFirstComponent = true;
-		for(Component c : components) {
-			if(isFirstComponent) { isFirstComponent = false; }
-			else { debugMessage.append(Separator.Comma); }
-			if(c instanceof AbstractJPanel) {
-				debugMessage.append(((AbstractJPanel) c).internalDebugComponents());
-			}
-			else {
-				debugMessage.append(c.getClass().getSimpleName());
-			}
-		}
-		return debugMessage.append(")");
-	} 
 }

@@ -3,13 +3,12 @@
  */
 package com.thinkparity.browser.platform.application.window;
 
-import java.util.Hashtable;
-import java.util.Map;
+import javax.swing.JDialog;
 
-import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
-import com.thinkparity.browser.platform.application.display.Display;
+import com.thinkparity.browser.javax.swing.AbstractJFrame;
+import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
  * @author raykroeker@gmail.com
@@ -24,12 +23,6 @@ public abstract class Window extends AbstractJDialog {
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * A registry of all displays in this window.
-	 * 
-	 */
-	protected final Map<DisplayId, Object> displayRegistry;
-
-	/**
 	 * The panel onto which all displays are dropped.
 	 * 
 	 */
@@ -41,44 +34,11 @@ public abstract class Window extends AbstractJDialog {
 	 * @param l18Context
 	 *            The localization context
 	 */
-	public Window(final String l18Context) {
-		super(l18Context);
-		this.displayRegistry = new Hashtable<DisplayId, Object>();
+	public Window(final AbstractJFrame owner, final Boolean modal,
+			final String l18nContext) {
+		super(owner, modal, l18nContext);
 		setTitle(getString("Title"));
-		setResizable(false);
-		initComponents();
-	}
-
-	/**
-	 * Add a display to the window.
-	 * 
-	 * @param display
-	 *            The display to add.
-	 */
-	public void addDisplay(final Display display) {
-		displayRegistry.put(display.getId(), display);
-	}
-
-	/**
-	 * Determine whether or not the window currently contains the display.
-	 * 
-	 * @param displayId
-	 *            The display id.
-	 * @return True if the window contains the display; false otherwise.
-	 */
-	public Boolean containsDisplay(final DisplayId displayId) {
-		return displayRegistry.containsKey(displayId);
-	}
-
-	/**
-	 * Obtain the display for the given id.
-	 * 
-	 * @param displayId
-	 *            The display id.
-	 * @return The display.
-	 */
-	public Display getDisplay(final DisplayId displayId) {
-		return (Display) displayRegistry.get(displayId);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 
 	/**
@@ -89,11 +49,20 @@ public abstract class Window extends AbstractJDialog {
 	public abstract WindowId getId();
 
 	/**
-	 * Initialize the window's components.
+	 * Open the window.
 	 *
 	 */
-	private void initComponents() {
+	public void open(final Avatar avatar) {
+		initComponents(avatar);
+		debugGeometry();
+		debugLookAndFeel();
+		setVisible(true);
+	}
+
+	private void initComponents(final Avatar avatar) {
 		windowPanel = new WindowPanel();
+		windowPanel.addAvatar(avatar);
+
 		add(windowPanel);
 	}
 }

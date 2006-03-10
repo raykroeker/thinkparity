@@ -5,17 +5,13 @@ package com.thinkparity.browser.platform.application.window;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.Hashtable;
-import java.util.Map;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.util.LinkedList;
+import java.util.List;
 
-import javax.swing.BoxLayout;
-
-import com.thinkparity.browser.application.browser.display.DisplayFactory;
-import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.platform.application.display.Display;
-
-import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,10 +26,16 @@ public class WindowPanel extends AbstractJPanel {
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * Map of display ids to the displays.
+	 * Grid bag constraints for the avatars.
 	 * 
 	 */
-	private final Map<DisplayId, Display> displayMap;
+	private final GridBagConstraints ac;
+
+	/**
+	 * List of all avatars currently on the panel.
+	 * 
+	 */
+	private final List<Avatar> avatars;
 
 	/**
 	 * Create a MainPanel.
@@ -41,8 +43,12 @@ public class WindowPanel extends AbstractJPanel {
 	 */
 	public WindowPanel() {
 		super("MainPanel", Color.RED);
-		this.displayMap = new Hashtable<DisplayId, Display>(3, 1.0F);
-
+		this.ac = new GridBagConstraints();
+		this.ac.fill = GridBagConstraints.BOTH;
+		this.ac.weightx = 1;
+		this.ac.weighty = 1;
+		this.avatars = new LinkedList<Avatar>();
+		setLayout(new GridBagLayout());
 		initComponents();
 	}
 
@@ -50,55 +56,43 @@ public class WindowPanel extends AbstractJPanel {
 	 * @see com.thinkparity.browser.javax.swing.AbstractJPanel#debugGeometry()
 	 * 
 	 */
-	public void debugGeometry() {
-		super.debugGeometry();
-		for(Display d : displayMap.values()) { d.debugGeometry(); }
+	public void debugGeometry() { super.debugGeometry(); }
+
+	/**
+	 * Add an avatar to the main panel.
+	 * 
+	 * @param avatar
+	 *            The avatar to add.
+	 */
+	void addAvatar(final Avatar avatar) {
+		avatars.add(avatar);
+		ac.gridy++;
+		add((Component) avatar, ac.clone());
 	}
 
 	/**
-	 * Obtain the display for the given id.
-	 * 
-	 * @param displayId
-	 *            The display id.
-	 * @return The display.
+	 * Clear all avatars from the window panel.
+	 *
 	 */
-	Display getDisplay(final DisplayId displayId) {
-		Assert.assertNotNull("Cannot retreive display for null id.", displayId);
-		Assert.assertTrue(
-				"Display [" + displayId + "] does not exist.", displayMap.containsKey(displayId));
-		return displayMap.get(displayId);
+	void clearAvatars() {
+		ac.gridy = 1;
+		for(final Avatar avatar : avatars) {
+			remove(avatar);
+		}
+		avatars.clear();
 	}
 
 	/**
-	 * Obtain all of the displays on the main panel.
+	 * Remove an avatar from the window panel.
 	 * 
-	 * @return The displays on the main panel.
+	 * @param avatar
+	 *            The avatar to remove.
 	 */
-	Display[] getDisplays() {
-		return displayMap.values().toArray(new Display[] {});
+	void removeAvatar(final Avatar avatar) {
+		avatars.remove(avatar);
+		ac.gridy--;
+		remove(avatar);
 	}
 
-	/**
-	 * Add a display to the main panel.
-	 * 
-	 * @param display
-	 *            The display to add.
-	 */
-	private void add(final Display display) {
-		displayMap.put(display.getId(), display);
-		add((Component) display);
-	}
-
-	/**
-	 * Initialize the main panel components. This consists of adding all of the
-	 * displays to the main panel.
-	 * 
-	 */
-	private void initComponents() {
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-		add(DisplayFactory.create(DisplayId.TITLE));
-		add(DisplayFactory.create(DisplayId.INFO));
-		add(DisplayFactory.create(DisplayId.CONTENT));
-	}
+	private void initComponents() {}
 }

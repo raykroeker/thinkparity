@@ -44,8 +44,9 @@ public abstract class AbstractJDialog extends JDialog {
 	 * @param l18Context
 	 *            The localization context.
 	 */
-	protected AbstractJDialog(final String l18Context) {
-		super();
+	protected AbstractJDialog(final AbstractJFrame owner, final Boolean modal,
+			final String l18Context) {
+		super(owner, modal);
 		this.localization = new JFrameLocalization(l18Context);
 	}
 

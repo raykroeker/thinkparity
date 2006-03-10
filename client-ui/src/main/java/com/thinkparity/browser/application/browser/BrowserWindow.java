@@ -54,8 +54,8 @@ public class BrowserWindow extends AbstractJFrame {
 	 */
 	public static Dimension getMainWindowSize() {
 		if(null == mainWindowSize) {
-			// DIMENSION BrowserWindow 354x562
-			mainWindowSize = new Dimension(354, 562);
+			// DIMENSION BrowserWindow 354x554
+			mainWindowSize = new Dimension(354, 554);
 		}
 		return mainWindowSize;
 	}

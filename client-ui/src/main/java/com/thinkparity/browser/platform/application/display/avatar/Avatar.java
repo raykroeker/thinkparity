@@ -56,6 +56,10 @@ public abstract class Avatar extends AbstractJPanel {
 		this(l18nContext, ScrollPolicy.NONE);
 	}
 
+	protected Avatar(final String l18nContext, final Color background) {
+		this(l18nContext, ScrollPolicy.NONE, background);
+	}
+
 	/**
 	 * Create an Avatar.
 	 * 

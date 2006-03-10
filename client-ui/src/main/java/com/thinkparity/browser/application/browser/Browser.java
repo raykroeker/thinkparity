@@ -16,6 +16,7 @@ import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.window.PopupWindow;
+import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -34,6 +35,8 @@ import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.browser.platform.application.window.Window;
+import com.thinkparity.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
@@ -95,6 +98,12 @@ public class Browser implements Application {
 	private final BrowserState state;
 
 	/**
+	 * The window registry.
+	 * 
+	 */
+	private final WindowRegistry windowRegistry;
+
+	/**
 	 * Create a Browser [Singleton]
 	 * 
 	 */
@@ -103,6 +112,7 @@ public class Browser implements Application {
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
 		this.state = new BrowserState(this);
+		this.windowRegistry = new WindowRegistry();
 	}
 
 	/**
@@ -143,18 +153,7 @@ public class Browser implements Application {
 	 */
 	public void displaySessionSendFormAvatar() {
 		putClientProperty(AvatarId.SESSION_SEND_FORM, "doIncludeKey", Boolean.FALSE);
-
-		final Avatar avatar = AvatarFactory.create(AvatarId.SESSION_SEND_FORM);
-		final Object input = getAvatarInput(AvatarId.SESSION_SEND_FORM);
-		if(null == input) { logger.info("Null input:  " + AvatarId.SESSION_SEND_FORM); }
-		else { avatar.setInput(getAvatarInput(AvatarId.SESSION_SEND_FORM)); }
-
-		final PopupWindow window = new PopupWindow(mainWindow);
-		window.setSize(405, 308);
-		window.setLocation(200, 200);
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() { window.open(avatar); }
-		});
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
 	}
 
 	/**
@@ -225,11 +224,10 @@ public class Browser implements Application {
 
 	/**
 	 * Reload the main browser avatar.
-	 *
+	 * 
+	 * @deprecated Use {@link #reloadMainList()}
 	 */
-	public void reloadMainBrowserAvatar() {
-		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
-	}
+	public void reloadMainBrowserAvatar() { reloadMainList(); }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Saveable#restore(com.thinkparity.browser.platform.util.State)
@@ -326,6 +324,7 @@ public class Browser implements Application {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
+		reloadMainList();
 	}
 
 	/**
@@ -428,6 +427,36 @@ public class Browser implements Application {
 		display.repaint();
 	}
 
+	/**
+	 * Display an avatar.
+	 * 
+	 * @param displayId
+	 *            The display to use.
+	 * @param avatarId
+	 *            The avatar to display.
+	 */
+	private void displayAvatar(final WindowId windowId, final AvatarId avatarId) {
+		Assert.assertNotNull("Cannot display on a null window.", windowId);
+		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
+final Window window = new PopupWindow(mainWindow);
+//		if(windowRegistry.contains(windowId)) {
+//			window = windowRegistry.get(windowId);
+//		}
+//		else { window = WindowFactory.create(windowId, mainWindow); }
+
+		final Avatar avatar = AvatarFactory.create(avatarId);
+		final Object input = getAvatarInput(avatarId);
+		if(null == input) { logger.info("Null input:  " + avatarId); }
+		else { avatar.setInput(getAvatarInput(avatarId)); }
+
+window.setSize(405, 308);
+window.setLocation(200, 200);
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() { window.open(avatar); }
+		});
+	}
+
 	private void displayDocumentListAvatar() {
 		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
 	}
@@ -509,6 +538,14 @@ public class Browser implements Application {
 			final Object value) {
 		final Avatar avatar = AvatarFactory.create(avatarId);
 		avatar.putClientProperty(key, value);
+	}
+
+	/**
+	 * Reload the main list.
+	 *
+	 */
+	public void reloadMainList() {
+		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
 	}
 
 	/**

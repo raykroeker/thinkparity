@@ -94,5 +94,11 @@ public class WindowPanel extends AbstractJPanel {
 		remove(avatar);
 	}
 
+	/**
+	 * Initialize the window components.
+	 * 
+	 * TODO Insert a title panel for all windows.
+	 *
+	 */
 	private void initComponents() {}
 }

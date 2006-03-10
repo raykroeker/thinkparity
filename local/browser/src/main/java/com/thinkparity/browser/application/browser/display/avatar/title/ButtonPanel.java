@@ -28,22 +28,29 @@ public class ButtonPanel extends AbstractJPanel {
 
 	private static final Icon CLOSE_ROLLOVER_ICON;
 
+	private static final Icon CONTACTS_ICON;
+
+	private static final Icon CONTACTS_ROLLOVER_ICON;
+
+	private static final Icon INVITE_ICON;
+
+	private static final Icon INVITE_ROLLOVER_ICON;
+
 	/**
 	 * @see java.io.Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
 
-	private static final Icon STD_BUTTON_ICON;
-
-	private static final Icon STD_BUTTON_ROLLOVER_ICON;
-
 	static {
 		CLOSE_ICON = ImageIOUtil.readIcon("CloseButton.png");
 		CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("CloseButtonRollover.png");
 
-		STD_BUTTON_ICON = ImageIOUtil.readIcon("StandardButton.png");
-		STD_BUTTON_ROLLOVER_ICON = ImageIOUtil.readIcon("StandardButtonRollover.png");
+		CONTACTS_ICON = ImageIOUtil.readIcon("ContactsButton.png");
+		CONTACTS_ROLLOVER_ICON = ImageIOUtil.readIcon("ContactsButtonRollover.png");
+
+		INVITE_ICON = ImageIOUtil.readIcon("InvitePartner.png");
+		INVITE_ROLLOVER_ICON = ImageIOUtil.readIcon("InvitePartnerRollover.png");
 	}
 
 	private JLabel closeJLabel;
@@ -81,16 +88,16 @@ public class ButtonPanel extends AbstractJPanel {
 	private Browser getBrowser() { return container.getController(); }
 
 	private void initComponents() {
-		contactsJLabel = LabelFactory.create(STD_BUTTON_ICON);
+		contactsJLabel = LabelFactory.create(CONTACTS_ICON);
 		contactsJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				runManageContacts();
 			}
 			public void mouseEntered(final MouseEvent e) {
-				contactsJLabel.setIcon(STD_BUTTON_ROLLOVER_ICON);
+				contactsJLabel.setIcon(CONTACTS_ROLLOVER_ICON);
 			}
 			public void mouseExited(final MouseEvent e) {
-				contactsJLabel.setIcon(STD_BUTTON_ICON);
+				contactsJLabel.setIcon(CONTACTS_ICON);
 			}
 		});
 		closeJLabel = LabelFactory.create(CLOSE_ICON);
@@ -105,16 +112,16 @@ public class ButtonPanel extends AbstractJPanel {
 				closeJLabel.setIcon(CLOSE_ICON);
 			}
 		});
-		invitePartnerJLabel = LabelFactory.create(STD_BUTTON_ICON);
+		invitePartnerJLabel = LabelFactory.create(INVITE_ICON);
 		invitePartnerJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				runInvitePartner();
 			}
 			public void mouseEntered(final MouseEvent e) {
-				invitePartnerJLabel.setIcon(STD_BUTTON_ROLLOVER_ICON);
+				invitePartnerJLabel.setIcon(INVITE_ROLLOVER_ICON);
 			}
 			public void mouseExited(final MouseEvent e) {
-				invitePartnerJLabel.setIcon(STD_BUTTON_ICON);
+				invitePartnerJLabel.setIcon(INVITE_ICON);
 			}
 		});
 

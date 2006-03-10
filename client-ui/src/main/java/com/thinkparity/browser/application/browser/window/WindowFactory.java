@@ -47,12 +47,6 @@ public class WindowFactory {
 	private final WindowRegistry registry;
 
 	/**
-	 * The session send popup window.
-	 * 
-	 */
-	private Window sessionSendPopup;
-
-	/**
 	 * Create a WindowFactory [Singleton, Factory].
 	 * 
 	 */
@@ -72,7 +66,6 @@ public class WindowFactory {
 			final BrowserWindow browserWindow) {
 		switch(windowId) {
 		case POPUP: return doCreatePopup(browserWindow);
-		case SESSION_SEND_POPUP: return doCreateSessionSendPopup();
 		default:
 			throw Assert.createUnreachable("Unknown window:  " + windowId);
 		}
@@ -89,18 +82,5 @@ public class WindowFactory {
 			registry.put(WindowId.POPUP, popup);
 		}
 		return popup;
-	}
-
-	/**
-	 * Create the modal popup window.
-	 * 
-	 * @return The modal popup window.
-	 */
-	private Window doCreateSessionSendPopup() {
-		if(null == sessionSendPopup) {
-			sessionSendPopup = null;;
-			registry.put(WindowId.SESSION_SEND_POPUP, sessionSendPopup);
-		}
-		return sessionSendPopup;
 	}
 }

@@ -116,6 +116,19 @@ class BrowserMainAvatar extends Avatar {
 		// HEIGHT MainListCell 21
 		jList.setFixedCellHeight(21);
 		jList.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				if(2 == e.getClickCount()) {
+					final Point p = e.getPoint();
+					final Integer listIndex = jList.locationToIndex(p);
+					jList.setSelectedIndex(listIndex);
+
+					// TODO Fix this
+					final ListItem listItem =
+						(ListItem) jList.getSelectedValue();
+					runOpenDocumentAction((Long) listItem.getProperty("documentId"));
+				}
+			}
+
 			public void mouseReleased(final MouseEvent e) {
 				if(e.isPopupTrigger()) {
 					final Point p = e.getPoint();
@@ -212,5 +225,13 @@ class BrowserMainAvatar extends Avatar {
 	 */
 	private void runCreateDocumentAction() {
 		getController().runCreateDocument();
+	}
+
+	/**
+	 * Open the document.
+	 *
+	 */
+	private void runOpenDocumentAction(final Long documentId) {
+		getController().runOpenDocument(documentId);
 	}
 }

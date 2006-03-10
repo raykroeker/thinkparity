@@ -102,9 +102,8 @@ public class SessionSendFormAvatar extends Avatar {
 	 * 
 	 */
 	public SessionSendFormAvatar() {
-		// COLOR 237, 241, 244, 255
-		super("SessionSendForm", ScrollPolicy.NONE, new Color(237, 241, 244,
-				255));
+		// COLOR SendForm Background WHITE
+		super("SessionSendForm", Color.WHITE);
 		initComponents();
 	}
 
@@ -188,11 +187,6 @@ public class SessionSendFormAvatar extends Avatar {
 
 	private void cancelJButtonActionPerformed(final ActionEvent evt) {
 		SwingUtilities.getWindowAncestor(this).dispose();
-	}
-
-	private void displayMainBrowserAvatar(final Boolean doReload) {
-		if(doReload) { getController().reloadMainBrowserAvatar(); }
-		getController().displayMainBrowserAvatar();
 	}
 
 	private Collection<Contact> extractContacts() {
@@ -476,7 +470,7 @@ public class SessionSendFormAvatar extends Avatar {
 		}
 	}
 
-	private void sendJButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	private void sendJButtonActionPerformed(final ActionEvent e) {
 		if(isInputValid()) {
 			final Long documentId = extractDocumentId();
 			final List<User> contacts = proxy(extractTeam());
@@ -491,25 +485,28 @@ public class SessionSendFormAvatar extends Avatar {
 					// TODO Refactor the user object.
 					final JabberId jabberId = JabberIdBuilder.parseUsername(user.getSimpleUsername());
 					getSessionModel().sendKeyResponse(documentId, jabberId, KeyResponse.ACCEPT);
-					displayMainBrowserAvatar(Boolean.TRUE);
+					cancelJButtonActionPerformed(e);
 				}
 				else {
 					final DocumentVersion version = extractDocumentVersion();
 					if(version == WorkingVersion.getWorkingVersion()) {
 						// create a version and send it
 						getSessionModel().send(contacts, documentId);
-						displayMainBrowserAvatar(Boolean.TRUE);
+						cancelJButtonActionPerformed(e);
 					}
 					else {
 						// send a specific version
 						getSessionModel().send(
 								contacts, documentId, version.getVersionId());
-						displayMainBrowserAvatar(Boolean.TRUE);
+						cancelJButtonActionPerformed(e);
 					}
 				}
 			}
 			catch(final ParityException px) { throw new RuntimeException(px); }
-			finally { toggleVisualFeedback(Boolean.FALSE); }
+			finally {
+				toggleVisualFeedback(Boolean.FALSE);
+				getController().reloadMainList();
+			}
 		}
 	}
 }

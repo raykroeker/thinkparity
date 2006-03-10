@@ -15,7 +15,9 @@ create table parityArtifact (
   artifactUUID varchar(255) not null,
   artifactKeyHolder varchar(32) not null references jiveUser(username),
   artifactStateId tinyint not null references parityArtifactState(artifactStateId),
+  createdBy varchar(32) not null references jiveUser(username),
   createdOn timestamp not null default current_timestamp,
+  updatedBy varchar(32) not null references jiveUser(username),
   updatedOn timestamp not null,
   primary key (artifactId),
   unique (artifactUUID)
@@ -28,7 +30,9 @@ create table parityArtifactSubscription (
   artifactSubscriptionId integer not null,
   artifactId integer not null references parityArtifact(artifactId),
   username varchar(32) not null references jiveUser(username),
+  createdBy varchar(32) not null references jiveUser(username),
   createdOn timestamp not null default current_timestamp,
+  updatedBy varchar(32) not null references jiveUser(username),
   updatedOn timestamp not null,
   primary key (artifactSubscriptionId),
   unique (artifactId, username)
@@ -42,7 +46,9 @@ create table parityQueue (
   username varchar(32) not null references jiveUser(username),
   queueMessageSize integer not null,
   queueMessage text not null,
+  createdBy varchar(32) not null references jiveUser(username),
   createdOn timestamp not null default current_timestamp,
+  updatedBy varchar(32) not null references jiveUser(username),
   updatedOn timestamp not null,
   primary key (queueId)
 );
@@ -53,11 +59,19 @@ insert into jiveID (idType,id) values (1002, 1);
 create table parityContactInvitation (
   invitationFrom varchar(32) not null references jiveUser(username),
   invitationTo varchar(32) not null references jiveUser(username),
+  createdBy varchar(32) not null references jiveUser(username),
+  createdOn timestamp not null default current_timestamp,
+  updatedBy varchar(32) not null references jiveUser(username),
+  updatedOn varchar(32) not null,
   primary key (invitationFrom,invitationTo)
 );
 
 create table parityContact (
   username varchar(32) not null references jiveUser(username),
   contactUsername varchar(32) not null references jiveUser(username),
+  createdBy varchar(32) not null references jiveUser(username),
+  createdOn timestamp not null default current_timestamp,
+  updatedBy varchar(32) not null references jiveUser(username),
+  updatedOn varchar(32) not null,
   primary key (username,contactUsername)
 );

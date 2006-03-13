@@ -233,7 +233,7 @@ public class HistoryItemBuilder {
 			}
 			else {
 				sentToBuffer.append(
-					getString("eventText.SENT.TO.N",
+					getString("eventText.SEND.TO.N",
 					new Object[] {
 						getName(eventUsers.get(jabberId))
 					}));

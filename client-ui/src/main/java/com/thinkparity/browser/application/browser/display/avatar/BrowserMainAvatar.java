@@ -10,12 +10,16 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.thinkparity.browser.application.browser.BrowserConstants;
-import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.CellRenderer;
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
@@ -101,8 +105,6 @@ class BrowserMainAvatar extends Avatar {
 	 *
 	 */
 	private void initComponents() {
-		final GridBagConstraints c = new GridBagConstraints();
-
 		jListModel = new DefaultListModel();
 
 		// the list that resides on the browser's main avatar
@@ -137,8 +139,8 @@ class BrowserMainAvatar extends Avatar {
 
 					final ListItem listItem =
 						(ListItem) jList.getSelectedValue();
-					final JPopupMenu jPopupMenu = new JPopupMenu();
-					listItem.populateMenu(jPopupMenu);
+					final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+					listItem.populateMenu(e, jPopupMenu);
 					jPopupMenu.show(jList, e.getX(), e.getY());
 				}
 			}
@@ -158,27 +160,13 @@ class BrowserMainAvatar extends Avatar {
 		final JScrollPane jListScrollPane = new JScrollPane(jList);
         jListScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-		c.fill = GridBagConstraints.BOTH;
+        final GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
 		c.insets.left = c.insets.right = 2;
 		c.insets.top = c.insets.bottom = 1;
 		c.weightx = 1;
 		c.weighty = 1;
 		add(jListScrollPane, c.clone());
-
-		final JLabel addDocumentJLabel = LabelFactory.createLink(
-				getString("AddDocument"), BrowserConstants.DefaultFont);
-		final Color originalForeground = addDocumentJLabel.getForeground();
-		addDocumentJLabel.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent e) {
-				addDocumentJLabel.setForeground(originalForeground);
-				runCreateDocumentAction();
-			}
-		});
-		c.anchor = GridBagConstraints.SOUTH;
-		c.fill = GridBagConstraints.NONE;
-		c.insets.top = c.insets.bottom = 2;
-		c.gridy = 1;
-		add(addDocumentJLabel, c.clone());
 	}
 
 	/**
@@ -217,14 +205,6 @@ class BrowserMainAvatar extends Avatar {
 	 */
 	private void reloadSystemMessages() {
 		loadMainList(jListModel, getSystemMessages());
-	}
-
-	/**
-	 * Create a new document.
-	 *
-	 */
-	private void runCreateDocumentAction() {
-		getController().runCreateDocument();
 	}
 
 	/**

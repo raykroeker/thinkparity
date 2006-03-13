@@ -13,6 +13,7 @@ set B2_CP=%B2_CP%;log4j-1.2.13.jar
 set B2_CP=%B2_CP%;nativeskin-6.2.jar
 set B2_CP=%B2_CP%;swing-layout-1.0.jar
 set B2_CP=%B2_CP%;hsqldb-1.8.0.2.jar
+set B2_CP=%B2_CP%;lucene-1.9.1.jar
 set B2_MAIN=com.thinkparity.browser.Browser2
 
 set B2_OPTS=-Dparity.workspace="%APPDATA%\Parity Software\Parity.dJohnson"

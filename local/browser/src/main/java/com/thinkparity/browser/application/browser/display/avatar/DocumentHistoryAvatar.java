@@ -4,20 +4,28 @@
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
-import java.awt.GridBagConstraints;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
+import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.application.browser.component.ListFactory;
+import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
 import com.thinkparity.browser.application.browser.display.avatar.history.CellRenderer;
-import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
 
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 
 /**
@@ -27,22 +35,48 @@ import com.thinkparity.model.parity.model.document.history.HistoryItem;
 class DocumentHistoryAvatar extends Avatar {
 
 	/**
+	 * History list bg color.
+	 * 
+	 */
+	private static final Color HISTORY_LIST_BACKGROUND;
+
+	/**
 	 * @see java.io.Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * Helper class for the info display avatars.
+	 * The title foreground color.
 	 * 
 	 */
-	private final InfoAvatarHelper helper;
+	private static final Color TITLE_FOREGROUND;
+
+	private static final BufferedImage WINDOW_IMAGE;
+
+	static {
+        // COLOR History List Background
+		HISTORY_LIST_BACKGROUND = new Color(103, 111, 128, 255);
+
+		// COLOR History Title Foreground
+		TITLE_FOREGROUND = Color.WHITE;
+
+		WINDOW_IMAGE = ImageIOUtil.read("HistoryWindow.png");
+	}
+
+	// Variables declaration - do not modify
+	private javax.swing.JList historyJList;
+
+	private javax.swing.JScrollPane historyJListJScrollPane;
 
 	/**
 	 * The history list model.
 	 * 
 	 */
-	private DefaultListModel jListModel;
+	private DefaultListModel historyModel;
+
+	private javax.swing.JLabel titleJLabel;
+	// End of variables declaration
 
 	/**
 	 * Create a DocumentHistoryAvatar.
@@ -50,7 +84,6 @@ class DocumentHistoryAvatar extends Avatar {
 	 */
 	protected DocumentHistoryAvatar() {
 		super("DocumentHistory");
-		this.helper = new InfoAvatarHelper(this);
 		setLayout(new GridBagLayout());
 		initComponents();
 	}
@@ -72,9 +105,23 @@ class DocumentHistoryAvatar extends Avatar {
 	 * 
 	 */
 	public void reload() {
-		reloadHistoryItems();
+		reloadHistory();
+		reloadDocument();
 	}
 
+	/**
+	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
+	 * 
+	 */
+	public void setInput(final Object input) {
+		Assert.assertNotNull(
+				"Document history requires java.lang.Long input.", input);
+		Assert.assertOfType(
+				"Document history requires java.lang.Long input.",
+				Long.class, input);
+		this.input = input;
+		reload();
+	}
 	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
 	 * 
@@ -82,65 +129,121 @@ class DocumentHistoryAvatar extends Avatar {
 	public void setState(final State state) {}
 
 	/**
-	 * Use the data provider to obtain a list of history items.
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 * 
-	 * @return A list of history items.
 	 */
-	private HistoryItem[] getHistoryItems() {
-		return (HistoryItem[]) ((FlatContentProvider) contentProvider).getElements(input);
-	}
-
-	private void initComponents() {
-		helper.addHeading(getString("History"));
-		final GridBagConstraints c = new GridBagConstraints();
-
-		jListModel = new DefaultListModel();
-
-		// the list that resides on the history avatar
-		//	* is a single selection list
-		// 	* spans the width of the entire avatar
-		//	* uses a custom cell renderer
-		final JList jList = new JList(jListModel);
-		// COLOR 235,240,246,255
-		jList.setBackground(new Color(235, 240, 246, 255));
-		jList.setLayoutOrientation(JList.VERTICAL);
-		jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		jList.setCellRenderer(new CellRenderer());
-
-		final JScrollPane jListScrollPane = new JScrollPane(jList);
-		jListScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-		c.fill = GridBagConstraints.BOTH;
-		c.gridy = 1;
-		c.weightx = 1;
-		c.weighty = 1;
-		add(jListScrollPane, c.clone());
+	protected void paintComponent(Graphics g) {
+		final Graphics2D g2 = (Graphics2D) g.create();
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		super.paintComponent(g2);
+		try { g2.drawImage(WINDOW_IMAGE, 0, 0, this); }
+		finally { g2.dispose(); }
 	}
 
 	/**
-	 * Iterate the list of history items and add them all to the list model.
+	 * Obtain the document.
 	 * 
-	 * @param listModel
-	 *            The list model.
-	 * @param historyItems
-	 *            The history items.
+	 * @param documentId
+	 *            The document id.
+	 * @return The document
 	 */
-	private void loadHistoryItems(final DefaultListModel listModel,
-			final HistoryItem[] historyItems) {
-		for(final HistoryItem historyItem : historyItems) {
-			logger.debug("Adding history item.");
-			listModel.addElement(historyItem);
+	private Document getDocument(final Long documentId) {
+		return (Document)
+		((CompositeFlatSingleContentProvider) contentProvider).getElement(0, documentId);
+
+	}
+
+	/**
+	 * Obtain the history.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return The history.
+	 */
+	private HistoryItem[] getHistory(final Long documentId) {
+		return (HistoryItem[])
+			((CompositeFlatSingleContentProvider) contentProvider).getElements(0, documentId);
+	}
+
+	/**
+	 * This method is called from within the constructor to initialize the form.
+	 * WARNING: Do NOT modify this code. The content of this method is always
+	 * regenerated by the Form Editor.
+	 */
+	// <editor-fold defaultstate="collapsed" desc=" Generated Code ">
+	private void initComponents() {
+        titleJLabel = LabelFactory.create();
+        titleJLabel.setFont(BrowserConstants.TitleFont);
+        titleJLabel.setForeground(TITLE_FOREGROUND);
+
+        historyJListJScrollPane = ScrollPaneFactory.create();
+        historyJList = ListFactory.create();
+        historyJList.setBackground(HISTORY_LIST_BACKGROUND);
+        historyJList.setCellRenderer(new CellRenderer());
+        historyModel = new DefaultListModel();
+        historyJList.setModel(historyModel);
+
+        historyJListJScrollPane.setViewportView(historyJList);
+        historyJListJScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, historyJListJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(titleJLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(historyJListJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+    }// </editor-fold>
+
+	/**
+	 * Load the history into the model.
+	 * 
+	 * @param model
+	 *            The model to load.
+	 * @param history
+	 *            The history.
+	 */
+	private void loadHistory(final DefaultListModel model,
+			final HistoryItem[] history) {
+		for(final HistoryItem historyItem : history) {
+			logger.debug("Adding item:  " + historyItem.getEvent());
+			model.addElement(historyItem);
 		}
 	}
 
 	/**
-	 * Reload the history items. Clear the model; query the data provider for
-	 * the history; and load the items into the model.
+	 * Reload the document.
+	 *
+	 */
+	private void reloadDocument() {
+		titleJLabel.setText(getString("Title.Empty"));
+		if(null != input) {
+			final Document d = getDocument((Long) input);
+			titleJLabel.setText(getString("Title", new Object[] {d.getName()}));
+		}
+	}
+
+	/**
+	 * Reload the history model.
 	 * 
 	 */
-	private void reloadHistoryItems() {
-		jListModel.clear();
-		if(null != input)
-			loadHistoryItems(jListModel, getHistoryItems());
+	private void reloadHistory() {
+		historyModel.clear();
+		if(null != input) {
+			loadHistory(historyModel, getHistory((Long) input));
+		}
 	}
 }

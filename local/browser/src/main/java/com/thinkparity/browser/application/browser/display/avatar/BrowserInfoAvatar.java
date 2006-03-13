@@ -129,8 +129,14 @@ public class BrowserInfoAvatar extends Avatar {
         add(showHistoryJLabel, c.clone());
     }
 
-	private void showHistoryJLabelMouseClicked(final MouseEvent evt) {
-		Assert.assertNotYetImplemented("[BROWSER2] [INFO] [SHOW HISTORY]");
+	/**
+	 * Display the document history.
+	 * 
+	 * @param e
+	 *            The action event.
+	 */
+	private void showHistoryJLabelMouseClicked(final MouseEvent e) {
+		getController().toggleHistoryAvatar();
 	}
 
 	private void sortJLabelMouseClicked(final MouseEvent evt) {

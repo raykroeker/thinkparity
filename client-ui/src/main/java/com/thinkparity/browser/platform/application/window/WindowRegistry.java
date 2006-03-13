@@ -67,4 +67,15 @@ public class WindowRegistry {
 	public Window put(final WindowId windowId, final Window window) {
 		return (Window) registry.put(windowId, window);
 	}
+
+	/**
+	 * Dispose of the window.
+	 * 
+	 * @param windowId
+	 *            The window id.
+	 */
+	public void dispose(final WindowId windowId) {
+		final Window window = (Window) registry.remove(windowId);
+		window.dispose();
+	}
 }

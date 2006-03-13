@@ -106,13 +106,11 @@ public class EventDispatcher {
 		return new CreationListener() {
 			public void objectCreated(final CreationEvent e) {}
 			public void objectReceived(final CreationEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
-			public void objectVersionCreated(final VersionCreationEvent e) {
-				controller.reloadMainBrowserAvatar();
-			}
+			public void objectVersionCreated(final VersionCreationEvent e) {}
 			public void objectVersionReceived(final VersionCreationEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 		};
 	}
@@ -120,16 +118,16 @@ public class EventDispatcher {
 	private UpdateListener createDocumentModelUpdateListener() {
 		return new UpdateListener() {
 			public void objectDeleted(final DeleteEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 			public void objectReceived(final UpdateEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 			public void objectUpdated(final UpdateEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 			public void objectClosed(CloseEvent closeEvent) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 		};
 	}
@@ -137,13 +135,13 @@ public class EventDispatcher {
 	private KeyListener createSessionModelKeyListener() {
 		return new KeyListener() {
 			public void keyRequestAccepted(final KeyEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 			public void keyRequestDenied(final KeyEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 			public void keyRequested(final KeyEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 		};
 	}
@@ -151,7 +149,7 @@ public class EventDispatcher {
 	private PresenceListener createSessionModelPresenceListener() {
 		return new PresenceListener() {
 			public void presenceRequested(final PresenceEvent e) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 		};
 	}
@@ -170,7 +168,7 @@ public class EventDispatcher {
 		return new SystemMessageListener() {
 			public void systemMessageCreated(
 					final SystemMessageEvent systemMessageEvent) {
-				controller.reloadMainBrowserAvatar();
+				controller.reloadMainList();
 			}
 		};
 	}

@@ -15,7 +15,8 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.application.browser.window.PopupWindow;
+import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
+import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
@@ -86,6 +87,12 @@ public class Browser implements Application {
 	private final Map<AvatarId, Object> avatarInputMap;
 
 	/**
+	 * The avatar registry.
+	 * 
+	 */
+	private final AvatarRegistry avatarRegistry;
+
+	/**
 	 * Main window.
 	 * 
 	 */
@@ -109,6 +116,7 @@ public class Browser implements Application {
 	 */
 	private Browser() {
 		super();
+		this.avatarRegistry = new AvatarRegistry();
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
 		this.state = new BrowserState(this);
@@ -116,11 +124,19 @@ public class Browser implements Application {
 	}
 
 	/**
-	 * Display the document history list.
+	 * Toggle the document history display.
 	 *
 	 */
-	public void displayDocumentHistoryAvatar() {
-		displayAvatar(DisplayId.INFO, AvatarId.DOCUMENT_HISTORY);
+	public void toggleHistoryAvatar() {
+//		final Window historyWindow = windowRegistry.get(WindowId.HISTORY);
+//		if(null != historyWindow && historyWindow.isVisible()) {
+//			historyWindow.dispose();
+//		}
+//		else { displayAvatar(WindowId.HISTORY, AvatarId.DOCUMENT_HISTORY); }
+		if(windowRegistry.contains(WindowId.HISTORY)) {
+			windowRegistry.dispose(WindowId.HISTORY);
+		}
+		else { displayAvatar(WindowId.HISTORY, AvatarId.DOCUMENT_HISTORY); }
 	}
 
 	/**
@@ -144,7 +160,15 @@ public class Browser implements Application {
 	 *
 	 */
 	public void displaySessionInviteContact() {
-		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_INVITE_CONTACT);
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_INVITE_CONTACT);
+	}
+
+	/**
+	 * Display the manage contacts dialogue.
+	 *
+	 */
+	public void displaySessionManageContacts() {
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
 	}
 
 	/**
@@ -201,6 +225,13 @@ public class Browser implements Application {
 		l.y += relativeLocation.y;
 		logger.debug(l);
 		mainWindow.setLocation(l);
+		final Window historyWindow = windowRegistry.get(WindowId.HISTORY);
+		if(null != historyWindow && historyWindow.isVisible()) {
+			final Point l2 = historyWindow.getLocation();
+			l2.x += relativeLocation.x;
+			l2.y += relativeLocation.y;
+			historyWindow.setLocation(l2);
+		}
 	}
 
 	/**
@@ -230,6 +261,14 @@ public class Browser implements Application {
 	public void reloadMainBrowserAvatar() { reloadMainList(); }
 
 	/**
+	 * Reload the main list.
+	 *
+	 */
+	public void reloadMainList() {
+		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
+	}
+
+	/**
 	 * @see com.thinkparity.browser.platform.Saveable#restore(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
@@ -245,13 +284,14 @@ public class Browser implements Application {
 		final Data data = new Data(1);
 		data.set(AcceptInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.SESSION_ACCEPT_INVITATION, data);
+		reloadMainList();
 	}
 
 	public void runAcceptKeyRequest(final Long systemMessageId) {
 		final Data data = new Data(2);
 		data.set(AcceptKeyRequest.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
-		reloadMainBrowserAvatar();
+		reloadMainList();
 	}
 
 	/**
@@ -272,6 +312,7 @@ public class Browser implements Application {
 	 */
 	public void runCreateDocument() {
 		invoke(ActionId.DOCUMENT_CREATE);
+		reloadMainList();
 	}
 
 	public void runDeclineContactInvitation(final Long systemMessageId) {
@@ -362,9 +403,8 @@ public class Browser implements Application {
 	 *            The document id.
 	 */
 	public void selectDocument(final Long documentId) {
-//		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
+		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
-		setInput(AvatarId.SESSION_SEND_KEY_FORM, documentId);
 	}
 
 	/**
@@ -438,19 +478,17 @@ public class Browser implements Application {
 	private void displayAvatar(final WindowId windowId, final AvatarId avatarId) {
 		Assert.assertNotNull("Cannot display on a null window.", windowId);
 		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
-final Window window = new PopupWindow(mainWindow);
-//		if(windowRegistry.contains(windowId)) {
-//			window = windowRegistry.get(windowId);
-//		}
-//		else { window = WindowFactory.create(windowId, mainWindow); }
+		final Window window = WindowFactory.create(windowId, mainWindow);
 
-		final Avatar avatar = AvatarFactory.create(avatarId);
+		final Avatar avatar;
+		if(avatarRegistry.contains(avatarId)) {
+			avatar = avatarRegistry.get(avatarId);
+		}
+		else { avatar = AvatarFactory.create(avatarId); }
+
 		final Object input = getAvatarInput(avatarId);
 		if(null == input) { logger.info("Null input:  " + avatarId); }
 		else { avatar.setInput(getAvatarInput(avatarId)); }
-
-window.setSize(405, 308);
-window.setLocation(200, 200);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() { window.open(avatar); }
@@ -501,13 +539,6 @@ window.setLocation(200, 200);
 		return avatarInputMap.get(avatarId);
 	}
 
-	/**
-	 * Obtain a list of all of the displays.
-	 * 
-	 * @return A list of all of the displays.
-	 */
-	private Display[] getDisplays() { return mainWindow.getDisplays(); }
-
 	private void invoke(final ActionId actionId) {
 		invoke(actionId, new Data(0));
 	}
@@ -541,14 +572,6 @@ window.setLocation(200, 200);
 	}
 
 	/**
-	 * Reload the main list.
-	 *
-	 */
-	public void reloadMainList() {
-		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
-	}
-
-	/**
 	 * Set the input for an avatar. If the avatar is currently being displayed;
 	 * it will be set immediately; otherwise it will be stored in the local
 	 * hash; and set when the avatar is displayed.
@@ -559,21 +582,14 @@ window.setLocation(200, 200);
 	 *            The avatar input.
 	 */
 	private void setInput(final AvatarId avatarId, final Object input) {
-		Assert.assertNotNull("Cannot set the input for a null avatar.", avatarId);
-		final Display[] displays = getDisplays();
-		Avatar avatar;
-		for(Display display : displays) {
-			avatar = display.getAvatar();
-			if(null == avatar) {
-				logger.warn("No avatar available on display:  " + display.getId());
-			}
-			else {
-				if(avatarId == avatar.getId()) { avatar.setInput(input); }
-				else {
-					if(null == input) { logger.warn("Null input being set."); }
-					else { avatarInputMap.put(avatarId, input); }
-				}
-			}
+		final Avatar avatar = avatarRegistry.get(avatarId);
+		if(null == avatar) {
+			logger.warn("Avatar " + avatarId + " not yet available.");
+			avatarInputMap.put(avatarId, input);
+		}
+		else {
+			avatarInputMap.remove(avatarId);
+			avatar.setInput(input);
 		}
 	}
 }

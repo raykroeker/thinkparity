@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JMenuItem;
@@ -95,10 +96,11 @@ public class SystemMessageListItem extends ListItem {
 	public void fireSelection() {}
 
 	/**
-	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#populateMenu(javax.swing.JPopupMenu)
+	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#populateMenu(java.awt.event.MouseEvent,
+	 *      javax.swing.JPopupMenu)
 	 * 
 	 */
-	public void populateMenu(final JPopupMenu jPopupMenu) {
+	public void populateMenu(final MouseEvent e, final JPopupMenu jPopupMenu) {
 		switch(getMessageType()) {
 		case CONTACT_INVITATION:
 			jPopupMenu.add(getAcceptMenuItem());
@@ -115,6 +117,11 @@ public class SystemMessageListItem extends ListItem {
 			jPopupMenu.add(getDeleteMenuItem());
 			break;
 		default: Assert.assertUnreachable("Unknown message type:  " + getMessageType());
+		}
+		// DEBUG System Message Menu Options
+		if(e.isShiftDown()) {
+			jPopupMenu.addSeparator();
+			jPopupMenu.add(new JMenuItem("Id:" + getMessage().getId()));
 		}
 	}
 

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.platform.application.window;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -42,13 +41,14 @@ public class WindowPanel extends AbstractJPanel {
 	 * 
 	 */
 	public WindowPanel() {
-		super("MainPanel", Color.RED);
+		super("MainPanel");
 		this.ac = new GridBagConstraints();
 		this.ac.fill = GridBagConstraints.BOTH;
 		this.ac.weightx = 1;
 		this.ac.weighty = 1;
 		this.avatars = new LinkedList<Avatar>();
 		setLayout(new GridBagLayout());
+setOpaque(false);
 		initComponents();
 	}
 

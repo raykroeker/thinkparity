@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
+import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.model.document.WorkingVersion;
 
@@ -20,7 +22,6 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -53,18 +54,11 @@ public class ProviderFactory {
 	 */
 	private static final ProviderFactory singleton;
 
-	/**
-	 * Singleton synchronization lock.
-	 * 
-	 */
-	private static final Object singletonLock;
-
 	static {
 		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
 		preferences = workspace.getPreferences();
 
 		singleton = new ProviderFactory();
-		singletonLock = new Object();
 	}
 
 	/**
@@ -73,7 +67,7 @@ public class ProviderFactory {
 	 * @return The history content provider.
 	 */
 	public static ContentProvider getHistoryProvider() {
-		synchronized(singletonLock) { return singleton.doGetHistoryProvider(); }
+		return singleton.doGetHistoryProvider();
 	}
 
 	/**
@@ -82,19 +76,28 @@ public class ProviderFactory {
 	 * @return The document content provider.
 	 */
 	public static ContentProvider getMainDocumentProvider() {
-		synchronized(singletonLock) { return singleton.doGetDocumentProvider(); }
+		return singleton.doGetDocumentProvider();
 	}
 
 	public static ContentProvider getMainMessageProvider() {
-		synchronized(singletonLock) { return singleton.doGetSystemMessagesProvider(); }
+		return singleton.doGetSystemMessagesProvider();
 	}
 
 	public static ContentProvider getMainProvider() {
-		synchronized(singletonLock) { return singleton.doGetMainProvider(); }
+		return singleton.doGetMainProvider();
+	}
+
+	/**
+	 * Obtain the manage contacts provider.
+	 * 
+	 * @return The manage contacts provider.
+	 */
+	public static ContentProvider getManageContactsProvider() {
+		return singleton.doGetManageContactsProvider();
 	}
 
 	public static ContentProvider getSendArtifactProvider() {
-		synchronized(singletonLock) { return singleton.doGetSendArtifactProvider(); }
+		return singleton.doGetSendArtifactProvider();
 	}
 
 	/**
@@ -146,6 +149,12 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider mainProvider;
 
+	/**
+	 * Manage contacts provider.
+	 * 
+	 */
+	private final ContentProvider manageContactsProvider;
+
 	private final ContentProvider sendArtifactArtifactContactProvider;
 
 	private final ContentProvider sendArtifactContactProvider;
@@ -168,16 +177,7 @@ public class ProviderFactory {
 		this.documentModel = modelFactory.getDocumentModel(getClass());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
-		this.historyProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				final Long documentId = (Long) input;
-				try {
-					return documentModel.readHistory(documentId)
-						.toArray(new HistoryItem[] {});
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
-		};
+		this.historyProvider = new HistoryProvider(documentModel);
 		this.logger = ModelLoggerFactory.getLogger(getClass());
 		this.mainDocumentProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
@@ -218,6 +218,7 @@ public class ProviderFactory {
 				return (FlatContentProvider) contentProviders[index];
 			}
 		};
+		this.manageContactsProvider = new ManageContactsProvider(sessionModel);
 		this.sendArtifactContactProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				List<Contact> roster;
@@ -317,6 +318,15 @@ public class ProviderFactory {
 	 * @return The main provider.
 	 */
 	private ContentProvider doGetMainProvider() { return mainProvider; }
+
+	/**
+	 * Obtain the manage contacts provider.
+	 * 
+	 * @return The manage contacts provider.
+	 */
+	private ContentProvider doGetManageContactsProvider() {
+		return manageContactsProvider;
+	}
 
 	/**
 	 * Obtain the user provider.

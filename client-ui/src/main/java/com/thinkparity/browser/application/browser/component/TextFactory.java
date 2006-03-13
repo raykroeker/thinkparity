@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.component;
 
 import javax.swing.JPasswordField;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 
@@ -34,6 +35,10 @@ public class TextFactory extends ComponentFactory {
 		synchronized(singletonLock) { return singleton.doCreate(); }
 	}
 
+	public static JTextArea createArea() {
+		synchronized(singletonLock) { return singleton.doCreateArea(); }
+	}
+
 	public static JPasswordField createPassword() {
 		synchronized(singletonLock) { return singleton.doCreatePassword(); }
 	}
@@ -42,6 +47,12 @@ public class TextFactory extends ComponentFactory {
 	 * Create a ButtonFactory.
 	 */
 	private TextFactory() { super(); }
+
+	private JTextArea doCreateArea() {
+		final JTextArea jTextArea = new JTextArea();
+		applyDefaultFont(jTextArea);
+		return jTextArea;
+	}
 
 	private JTextField doCreate() {
 		final JTextField jTextField = new JTextField();

@@ -6,11 +6,18 @@ package com.thinkparity.browser.util;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.BrowserWindow;
+import com.thinkparity.browser.application.browser.window.HistoryWindow;
 import com.thinkparity.browser.application.gadget.GadgetWindow;
+import com.thinkparity.browser.platform.application.window.Window;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 
 import com.l2fprod.gui.nativeskin.NativeConstants;
+import com.l2fprod.gui.nativeskin.NativeSkin;
+import com.l2fprod.gui.region.Region;
+import com.l2fprod.gui.region.RegionBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -37,6 +44,16 @@ public class NativeSkinUtil {
 	}
 
 	/**
+	 * Apply a native skin to a parity window.
+	 * 
+	 * @param window
+	 *            The parity window.
+	 */
+	public static void applyNativeSkin(final Window window) {
+		singleton.doApplyNativeSkin(window);
+	}
+
+	/**
 	 * Apply the native skin to the browser window.
 	 * 
 	 * @param browserWindow
@@ -56,7 +73,7 @@ public class NativeSkinUtil {
 	 * The native skin.
 	 * 
 	 */
-//	private final NativeSkin nativeSkin;
+	private final NativeSkin nativeSkin;
 
 	/**
 	 * Create a NativeSkinUtil [Singleton]
@@ -65,7 +82,7 @@ public class NativeSkinUtil {
 	private NativeSkinUtil() {
 		super();
 		this.logger = ModelLoggerFactory.getLogger(getClass());
-//		this.nativeSkin = NativeSkin.getInstance();
+		this.nativeSkin = NativeSkin.getInstance();
 		logger.info("[VERSION] " + NativeConstants.VERSION);
 	}
 
@@ -100,5 +117,33 @@ public class NativeSkinUtil {
 //		final Region region3 = regionBuilder.combineRegions(region, region2,
 //				NativeConstants.REGION_OR);
 //		NativeSkin.getInstance().setWindowRegion(browserWindow, region3, true);
+	}
+
+	/**
+	 * Apply a native skin to a parity window.
+	 * 
+	 * @param window
+	 *            The parity window.
+	 */
+	private void doApplyNativeSkin(final Window window) {
+		switch(window.getId()) {
+		case HISTORY:
+			doApplyNativeSkin((HistoryWindow) window);
+			break;
+		default:
+			Assert.assertUnreachable("Native skin unavailable for window:  " + window.getId());
+		}
+	}
+
+	/**
+	 * Apply a native skin to the parity history window.
+	 * 
+	 * @param historyWindow
+	 *            The parity history window.
+	 */
+	private void doApplyNativeSkin(final HistoryWindow historyWindow) {
+		final Region region =
+			new RegionBuilder().createRegion(HistoryWindow.getImage());
+		nativeSkin.setWindowRegion(historyWindow, region, true);
 	}
 }

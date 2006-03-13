@@ -16,6 +16,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 
 import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 
 /**
@@ -108,9 +109,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 	 * @return The JPopupMenu.
 	 */
 	private JPopupMenu getJPopupMenu() {
-		if(null == jPopupMenu) {
-			jPopupMenu = new JPopupMenu();
-		}
+		if(null == jPopupMenu) { jPopupMenu = MenuFactory.createPopup(); }
 		jPopupMenu.removeAll();
 		return jPopupMenu;
 	}

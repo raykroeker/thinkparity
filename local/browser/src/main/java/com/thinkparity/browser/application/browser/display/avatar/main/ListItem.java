@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Hashtable;
 import java.util.Map;
@@ -186,7 +187,7 @@ public abstract class ListItem {
 	 * @param jPopupMenu
 	 *            The JPopupMenu to populate.
 	 */
-	public void populateMenu(final JPopupMenu jPopupMenu) {}
+	public void populateMenu(final MouseEvent e, final JPopupMenu jPopupMenu) {}
 
 	/**
 	 * Set the list item background image.

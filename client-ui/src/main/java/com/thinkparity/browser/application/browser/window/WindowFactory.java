@@ -41,6 +41,12 @@ public class WindowFactory {
 	private Window popup;
 
 	/**
+	 * The history window.
+	 * 
+	 */
+	private Window history;
+
+	/**
 	 * The window registry.
 	 * 
 	 */
@@ -65,10 +71,23 @@ public class WindowFactory {
 	private Window doCreate(final WindowId windowId,
 			final BrowserWindow browserWindow) {
 		switch(windowId) {
+		case HISTORY: return doCreateHistory(browserWindow);
 		case POPUP: return doCreatePopup(browserWindow);
 		default:
 			throw Assert.createUnreachable("Unknown window:  " + windowId);
 		}
+	}
+
+	private Window doCreateHistory(final BrowserWindow browserWindow) {
+//		if(null == history) {
+			history = new HistoryWindow(browserWindow);
+			register(history);
+//		}
+		return history;
+	}
+
+	private void register(final Window window) {
+		registry.put(window.getId(), window);
 	}
 
 	/**
@@ -77,10 +96,10 @@ public class WindowFactory {
 	 * @return The modal popup window.
 	 */
 	private Window doCreatePopup(final BrowserWindow browserWindow) {
-		if(null == popup) {
+//		if(null == popup) {
 			popup = new PopupWindow(browserWindow);
-			registry.put(WindowId.POPUP, popup);
-		}
+			register(popup);
+//		}
 		return popup;
 	}
 }

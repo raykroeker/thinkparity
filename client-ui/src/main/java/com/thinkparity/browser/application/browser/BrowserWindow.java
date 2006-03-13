@@ -3,11 +3,15 @@
  */
 package com.thinkparity.browser.application.browser;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
 import org.apache.log4j.Logger;
 
@@ -25,6 +29,19 @@ import com.thinkparity.browser.util.NativeSkinUtil;
 public class BrowserWindow extends AbstractJFrame {
 
 	/**
+	 * The browser window border.
+	 * 
+	 * @see #getBorder()
+	 */
+	private static Border border;
+
+	/**
+	 * The window icon.
+	 * 
+	 */
+	private static final BufferedImage BROWSER_ICON;
+
+	/**
 	 * The size of the main window.
 	 * 
 	 * @see #getMainWindowSize()
@@ -37,14 +54,22 @@ public class BrowserWindow extends AbstractJFrame {
 	 */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * The window icon.
-	 * 
-	 */
-	private static final BufferedImage BROWSER_ICON;
-
 	static {
 		BROWSER_ICON = ImageIOUtil.read("BrowserIcon.png");
+	}
+
+	/**
+	 * Obtain the border for the browser window.
+	 * 
+	 * @return The browser window border.
+	 */
+	public static Border getBorder() {
+		if(null == border) {
+			final Color c1 = new Color(196, 213, 255, 255);
+			final Color c2 = new Color(117, 130, 162, 255);
+			border = BorderFactory.createEtchedBorder(EtchedBorder.RAISED, c1, c2);
+		}
+		return border;
 	}
 
 	/**
@@ -54,8 +79,8 @@ public class BrowserWindow extends AbstractJFrame {
 	 */
 	public static Dimension getMainWindowSize() {
 		if(null == mainWindowSize) {
-			// DIMENSION BrowserWindow 354x554
-			mainWindowSize = new Dimension(354, 554);
+			// DIMENSION BrowserWindow 350x550
+			mainWindowSize = new Dimension(350, 550);
 		}
 		return mainWindowSize;
 	}
@@ -102,7 +127,7 @@ public class BrowserWindow extends AbstractJFrame {
 		super("BrowserWindow");
 		// initialize the state
 		new BrowserWindowState(this);
-		getRootPane().setBorder(BrowserConstants.BrowserWindowBorder);
+		getRootPane().setBorder(getBorder());
 		setIconImage(BROWSER_ICON);
 		setTitle(getString("Title"));
 		setUndecorated(true);

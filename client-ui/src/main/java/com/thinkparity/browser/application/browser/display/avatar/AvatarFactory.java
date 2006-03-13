@@ -34,6 +34,8 @@ public class AvatarFactory {
 			return SINGLETON.createSessionInviteContact();
 		case SESSION_LOGIN:
 			return SINGLETON.createSessionLogin();
+		case SESSION_MANAGE_CONTACTS:
+			return SINGLETON.createSessionManageContacts();
 		case SESSION_SEND_FORM:
 			return SINGLETON.createSessionSendForm();
 		case SESSION_SEND_KEY_FORM:
@@ -41,6 +43,12 @@ public class AvatarFactory {
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}
 	}
+
+	/**
+	 * The avatar registry.
+	 * 
+	 */
+	private final AvatarRegistry avatarRegistry;
 
 	/**
 	 * The browser info avatar.
@@ -85,6 +93,12 @@ public class AvatarFactory {
 	private Avatar sessionLogin;
 
 	/**
+	 * The manage contacts avatar.
+	 * 
+	 */
+	private Avatar sessionManageContacts;
+
+	/**
 	 * The session send form avatar.
 	 * 
 	 */
@@ -100,7 +114,10 @@ public class AvatarFactory {
 	 * Create a AvatarFactory [Singleton, Factory]
 	 * 
 	 */
-	private AvatarFactory() { super(); }
+	private AvatarFactory() {
+		super();
+		this.avatarRegistry = new AvatarRegistry();
+	}
 
 	/**
 	 * Create the browser info avatar.
@@ -110,6 +127,7 @@ public class AvatarFactory {
 	private Avatar createBrowserInfo() {
 		if(null == browserInfo) {
 			browserInfo = new BrowserInfoAvatar();
+			register(browserInfo);
 		}
 		return browserInfo;
 	}
@@ -121,6 +139,7 @@ public class AvatarFactory {
 	private Avatar createBrowserLogo() {
 		if(null == browserLogo) {
 			browserLogo = new BrowserLogoAvatar();
+			register(browserLogo);
 		}
 		return browserLogo;
 	}
@@ -134,6 +153,7 @@ public class AvatarFactory {
 		if(null == browserMain) {
 			browserMain = new BrowserMainAvatar();
 			browserMain.setContentProvider(ProviderFactory.getMainProvider());
+			register(browserMain);
 		}
 		return browserMain;
 	}
@@ -146,6 +166,7 @@ public class AvatarFactory {
 	private Avatar createBrowserTitle() {
 		if(null == browserTitle) {
 			browserTitle = new BrowserTitleAvatar();
+			register(browserTitle);
 		}
 		return browserTitle;
 	}
@@ -159,6 +180,7 @@ public class AvatarFactory {
 		if(null == documentHistoryList) {
 			documentHistoryList = new DocumentHistoryAvatar();
 			documentHistoryList.setContentProvider(ProviderFactory.getHistoryProvider());
+			register(documentHistoryList);
 		}
 		return documentHistoryList;
 	}
@@ -171,6 +193,7 @@ public class AvatarFactory {
 	private Avatar createSessionInviteContact() {
 		if(null == sessionInviteContact) {
 			sessionInviteContact = new SessionInviteContactAvatar();
+			register(sessionInviteContact);
 		}
 		return sessionInviteContact;
 	}
@@ -183,8 +206,23 @@ public class AvatarFactory {
 	private Avatar createSessionLogin() {
 		if(null == sessionLogin) {
 			sessionLogin = new SessionLoginAvatar();
+			register(sessionLogin);
 		}
 		return sessionLogin;
+	}
+
+	/**
+	 * Create the manage contacts avatar.
+	 * 
+	 * @return The manage contacts avatar.
+	 */
+	private Avatar createSessionManageContacts() {
+		if(null == sessionManageContacts) {
+			sessionManageContacts = new ManageContactsAvatar();
+			sessionManageContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
+			register(sessionManageContacts);
+		}
+		return sessionManageContacts;
 	}
 
 	/**
@@ -196,6 +234,7 @@ public class AvatarFactory {
 		if(null == sessionSendForm) {
 			sessionSendForm = new SessionSendFormAvatar();
 			sessionSendForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
+			register(sessionSendForm);
 		}
 		return sessionSendForm;
 	}
@@ -210,7 +249,20 @@ public class AvatarFactory {
 		if(null == sessionSendKeyForm) {
 			sessionSendKeyForm = new SessionSendFormAvatar();
 			sessionSendKeyForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
+			register(sessionSendKeyForm);
 		}
 		return sessionSendKeyForm;
+	}
+
+	/**
+	 * Register an avatar in the registry.
+	 * 
+	 * @param avatar
+	 *            The avatar to register.
+	 */
+	private void register(final Avatar avatar) {
+		Assert.assertIsNull(
+				"Avatar " + avatar.getId() + " already registerd.",
+				avatarRegistry.put(avatar.getId(), avatar));
 	}
 }

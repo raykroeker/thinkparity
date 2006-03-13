@@ -29,6 +29,12 @@ public abstract class Window extends AbstractJDialog {
 	protected WindowPanel windowPanel;
 
 	/**
+	 * A lookup for window sizes for avatars.
+	 * 
+	 */
+	private final WindowSize windowSize;
+
+	/**
 	 * Create a Window.
 	 * 
 	 * @param l18Context
@@ -37,6 +43,7 @@ public abstract class Window extends AbstractJDialog {
 	public Window(final AbstractJFrame owner, final Boolean modal,
 			final String l18nContext) {
 		super(owner, modal, l18nContext);
+		this.windowSize = new WindowSize();
 		setTitle(getString("Title"));
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
@@ -56,10 +63,14 @@ public abstract class Window extends AbstractJDialog {
 		initComponents(avatar);
 		debugGeometry();
 		debugLookAndFeel();
+		setSize(windowSize.get(avatar.getId()));
+		invalidate();
 		setVisible(true);
 	}
 
-	private void initComponents(final Avatar avatar) {
+	protected void initComponents(final Avatar avatar) {
+		avatar.reload();
+
 		windowPanel = new WindowPanel();
 		windowPanel.addAvatar(avatar);
 

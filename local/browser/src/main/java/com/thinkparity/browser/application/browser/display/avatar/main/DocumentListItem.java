@@ -4,11 +4,16 @@
 package com.thinkparity.browser.application.browser.display.avatar.main;
 
 import java.awt.Color;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -150,6 +155,7 @@ public class DocumentListItem extends ListItem {
 	 */
 	DocumentListItem(final Document document, final Boolean isKeyHolder) {
 		super("DocumentListItem");
+		this.document = document;
 		this.isKeyHolder = isKeyHolder;
 		setDocumentId(document.getId());
 
@@ -171,6 +177,8 @@ public class DocumentListItem extends ListItem {
 		if(isKeyHolder) { setInfoIcon(KEY_ICON); }
 	}
 
+	private final Document document;
+
 	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#fireSelection()
 	 * 
@@ -180,10 +188,11 @@ public class DocumentListItem extends ListItem {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#populateMenu(javax.swing.JPopupMenu)
+	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#populateMenu(java.awt.event.MouseEvent,
+	 *      javax.swing.JPopupMenu)
 	 * 
 	 */
-	public void populateMenu(final JPopupMenu jPopupMenu) {
+	public void populateMenu(final MouseEvent e, final JPopupMenu jPopupMenu) {
 		jPopupMenu.add(getOpenMenuItem());
 		if(isClosed(getDocumentId())) {
 			jPopupMenu.addSeparator();
@@ -201,6 +210,29 @@ public class DocumentListItem extends ListItem {
 				jPopupMenu.addSeparator();
 				jPopupMenu.add(getDeleteMenuItem());
 			}
+		}
+		// DEBUG Document Menu Options
+		if(e.isShiftDown()) {
+			final Clipboard systemClipboard =
+				Toolkit.getDefaultToolkit().getSystemClipboard();
+			final ActionListener debugActionListener = new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					final StringSelection stringSelection =
+						new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+					systemClipboard.setContents(stringSelection, null);
+				}
+			};
+			final JMenuItem idJMenuItem = new JMenuItem("Id:" + document.getId());
+			idJMenuItem.putClientProperty("COPY_ME", document.getId());
+			idJMenuItem.addActionListener(debugActionListener);
+
+			final JMenuItem uidJMenuItem = new JMenuItem("U Id:" + document.getUniqueId());
+			uidJMenuItem.putClientProperty("COPY_ME", document.getUniqueId());
+			uidJMenuItem.addActionListener(debugActionListener);
+
+			jPopupMenu.addSeparator();
+			jPopupMenu.add(idJMenuItem);
+			jPopupMenu.add(uidJMenuItem);
 		}
 	}
 

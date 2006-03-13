@@ -51,7 +51,6 @@ public class MenuItemFactory extends ComponentFactory {
 		logger.debug("JMenuItem[" + text + "]");
 		final JMenuItem jMenuItem = new JMenuItem(text);
 		applyDefaultFont(jMenuItem);
-		applyHandCursor(jMenuItem);
 		return jMenuItem;
 	}
 

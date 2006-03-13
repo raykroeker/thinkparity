@@ -8,5 +8,10 @@ package com.thinkparity.browser.application.browser.display.provider;
  * @version 1.1
  */
 public abstract class ContentProvider {
+
+	/**
+	 * Create a ContentProvider.
+	 * 
+	 */
 	protected ContentProvider() { super(); }
 }

@@ -7,7 +7,7 @@
 	<url>http://thinkparity.dyndns.org</url>
 
 	<artifactId>server</artifactId>
-	<name>Parity Server</name>
+	<name>thinkParity - rModel</name>
 	<packaging>jar</packaging>
 
 	<scm>

@@ -5,7 +5,7 @@
 	<url>http://thinkparity.dyndns.org</url>
 	
 	<artifactId>model</artifactId>
-	<name>Parity Model</name>
+	<name>thinkParity - lModel</name>
 	<version>1.0-SNAPSHOT</version>
 
 	<scm>

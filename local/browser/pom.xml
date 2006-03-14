@@ -7,7 +7,7 @@
 	<url>http://thinkparity.dyndns.org</url>
 
 	<artifactId>browser2</artifactId>
-	<name>Parity Browser2</name>
+	<name>thinkParity - Browser2</name>
 	<packaging>jar</packaging>
 
 	<scm>

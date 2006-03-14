@@ -7,7 +7,7 @@
 	<url>http://thinkparity.dyndns.org</url>
 
 	<artifactId>codebase</artifactId>
-	<name>Parity Codebase</name>
+	<name>thinkParity - Codebase</name>
 	<packaging>jar</packaging>
 
 	<scm>

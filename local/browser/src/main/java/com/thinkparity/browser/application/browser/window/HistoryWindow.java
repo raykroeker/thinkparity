@@ -10,8 +10,8 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import com.thinkparity.browser.application.browser.BrowserWindow;
+import com.thinkparity.browser.javax.swing.AbstractJDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.util.NativeSkinUtil;
 
@@ -19,7 +19,7 @@ import com.thinkparity.browser.util.NativeSkinUtil;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class HistoryWindow extends Window {
+public class HistoryWindow extends AbstractJDialog {
 
 	/**
 	 * @see java.io.Serializable
@@ -45,27 +45,14 @@ public class HistoryWindow extends Window {
 	 * @param browserWindow
 	 *            The main browser window.
 	 */
-	public HistoryWindow(final BrowserWindow browserWindow) {
+	public HistoryWindow(final BrowserWindow browserWindow, final Avatar avatar) {
 		super(browserWindow, Boolean.FALSE, "");
 		setUndecorated(true);
 		setLayout(new GridBagLayout());
+		setSize(new Dimension(249, 484));
 		setLocation(calculateLocation(browserWindow));
-		setResizable(false);
 		applyNativeSkin();
-	}
-
-	/**
-	 * @see com.thinkparity.browser.platform.application.window.Window#getId()
-	 * 
-	 */
-	public WindowId getId() { return WindowId.HISTORY; }
-
-	/**
-	 * Apply a rounded border to this window.
-	 *
-	 */
-	private void applyNativeSkin() {
-		NativeSkinUtil.applyNativeSkin(this);
+		initComponents(avatar);
 	}
 
 	/**
@@ -73,12 +60,16 @@ public class HistoryWindow extends Window {
 	 * 
 	 */
 	protected void initComponents(final Avatar avatar) {
-		avatar.reload();
-
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
 		c.weighty = 1;
 		add(avatar, c.clone());
 	}
+
+	/**
+	 * Apply a rounded border to this window.
+	 *
+	 */
+	private void applyNativeSkin() { NativeSkinUtil.applyNativeSkin(this); }
 }

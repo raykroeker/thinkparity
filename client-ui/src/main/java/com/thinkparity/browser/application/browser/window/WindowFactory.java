@@ -80,7 +80,7 @@ public class WindowFactory {
 
 	private Window doCreateHistory(final BrowserWindow browserWindow) {
 //		if(null == history) {
-			history = new HistoryWindow(browserWindow);
+			history = null;//new HistoryWindow(browserWindow);
 			register(history);
 //		}
 		return history;

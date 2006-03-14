@@ -92,8 +92,6 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 		if(0 < index) { setBorder(SEP_BORDER); }
 		else { setBorder(null); }
 		setText((HistoryItem) value);
-		revalidate();
-
 		return this;
 	}
 
@@ -133,6 +131,7 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 2;
 		c.gridy = 1;
+		c.weighty = 1;
 		add(eventJTextArea, c.clone());
 	}
 

@@ -6,12 +6,12 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.ScrollPaneConstants;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
@@ -84,7 +84,6 @@ class DocumentHistoryAvatar extends Avatar {
 	 */
 	protected DocumentHistoryAvatar() {
 		super("DocumentHistory");
-		setLayout(new GridBagLayout());
 		initComponents();
 	}
 
@@ -107,6 +106,9 @@ class DocumentHistoryAvatar extends Avatar {
 	public void reload() {
 		reloadHistory();
 		reloadDocument();
+
+revalidate();
+doLayout();
 	}
 
 	/**
@@ -176,18 +178,20 @@ class DocumentHistoryAvatar extends Avatar {
         titleJLabel.setFont(BrowserConstants.TitleFont);
         titleJLabel.setForeground(TITLE_FOREGROUND);
 
-        historyJListJScrollPane = ScrollPaneFactory.create();
+        historyModel = new DefaultListModel();
         historyJList = ListFactory.create();
         historyJList.setBackground(HISTORY_LIST_BACKGROUND);
         historyJList.setCellRenderer(new CellRenderer());
-        historyModel = new DefaultListModel();
+        historyJList.setFixedCellHeight(60);
         historyJList.setModel(historyModel);
 
+        historyJListJScrollPane = ScrollPaneFactory.create();
         historyJListJScrollPane.setViewportView(historyJList);
+        historyJListJScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         historyJListJScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
+        setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()

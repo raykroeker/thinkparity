@@ -49,9 +49,11 @@ public class NativeSkinUtil {
 	 * @param window
 	 *            The parity window.
 	 */
-	public static void applyNativeSkin(final Window window) {
-		singleton.doApplyNativeSkin(window);
+	public static void applyNativeSkin(final HistoryWindow historyWindow) {
+		singleton.doApplyNativeSkin(historyWindow);
 	}
+
+	public static void applyNativeSkin(final Window window) {}
 
 	/**
 	 * Apply the native skin to the browser window.
@@ -126,13 +128,6 @@ public class NativeSkinUtil {
 	 *            The parity window.
 	 */
 	private void doApplyNativeSkin(final Window window) {
-		switch(window.getId()) {
-		case HISTORY:
-			doApplyNativeSkin((HistoryWindow) window);
-			break;
-		default:
-			Assert.assertUnreachable("Native skin unavailable for window:  " + window.getId());
-		}
 	}
 
 	/**

@@ -16,6 +16,7 @@ import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
+import com.thinkparity.browser.application.browser.window.HistoryWindow;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.platform.action.AbstractAction;
@@ -128,16 +129,23 @@ public class Browser implements Application {
 	 *
 	 */
 	public void toggleHistoryAvatar() {
-//		final Window historyWindow = windowRegistry.get(WindowId.HISTORY);
-//		if(null != historyWindow && historyWindow.isVisible()) {
-//			historyWindow.dispose();
-//		}
-//		else { displayAvatar(WindowId.HISTORY, AvatarId.DOCUMENT_HISTORY); }
-		if(windowRegistry.contains(WindowId.HISTORY)) {
-			windowRegistry.dispose(WindowId.HISTORY);
+		if(null == historyWindow) {
+			if(!avatarRegistry.contains(AvatarId.DOCUMENT_HISTORY))
+				AvatarFactory.create(AvatarId.DOCUMENT_HISTORY);
+			final Avatar avatar = avatarRegistry.get(AvatarId.DOCUMENT_HISTORY);
+			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY))
+				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY));
+			
+			historyWindow = new HistoryWindow(mainWindow, avatar);
+			historyWindow.setVisible(true);
 		}
-		else { displayAvatar(WindowId.HISTORY, AvatarId.DOCUMENT_HISTORY); }
+		else {
+			historyWindow.dispose();
+			historyWindow = null;
+		}
 	}
+
+	private HistoryWindow historyWindow;
 
 	/**
 	 * Display the login avatar.

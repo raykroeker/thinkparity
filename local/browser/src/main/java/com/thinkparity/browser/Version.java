@@ -42,7 +42,7 @@ public class Version {
 	 * 
 	 * @return The NAME.
 	 */
-	public static String getName() { return config.getProperty("NAME"); }
+	public static String getName() { return config.getProperty("name"); }
 
 	/**
 	 * Obtain the version of the codebase.

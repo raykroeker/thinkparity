@@ -354,9 +354,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final LocalFile localFile = getLocalFile(document);
 			localFile.write(contentBytes);
 
-			// create a version
-			createVersion(document.getId());
-
 			// flag the document as having been seen.
 			final InternalArtifactModel iAModel = getInternalArtifactModel();
 			iAModel.applyFlagKey(document.getId());

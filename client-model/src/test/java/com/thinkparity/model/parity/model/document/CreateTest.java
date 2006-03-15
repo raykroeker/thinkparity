@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
@@ -36,9 +37,7 @@ public class CreateTest extends DocumentTestCase {
 		try {
 			Document document;
 			DocumentContent content;
-			DocumentVersion version;
-			DocumentVersionContent versionContent;
-			DocumentContent versionContentSnapshot;
+			Collection<DocumentVersion> versions;
 			for(Fixture datum : data) {
 				document = datum.documentModel.create(datum.name,
 						datum.description, datum.file);
@@ -48,15 +47,9 @@ public class CreateTest extends DocumentTestCase {
 				assertNotNull(content);
 				assertEquals(content.getChecksum(), datum.documentContentChecksum);
 
-				version = datum.documentModel.listVersions(document.getId()).iterator().next();
-				assertNotNull(version);
-				assertEquals(version.getArtifactId(), document.getId());
-				assertEquals(version.getArtifactUniqueId(), document.getUniqueId());
-
-				versionContent = datum.documentModel.getVersionContent(document.getId(), version.getVersionId());
-				versionContentSnapshot = versionContent.getDocumentContent();
-				assertNotNull(versionContent);
-				assertEquals(versionContentSnapshot, content);
+				versions = datum.documentModel.listVersions(document.getId());
+				assertNotNull(versions);
+				assertEquals("Number of versions does not match expectation.", datum.expectedVersionsSize, versions.size());
 			}
 		}
 		catch(final Throwable t) { fail(createFailMessage(t)); }
@@ -77,7 +70,7 @@ public class CreateTest extends DocumentTestCase {
 			description = name;
 			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(testFile));
 			data.add(new Fixture(description, testFile,
-					documentContentChecksum, documentModel, name));
+					documentContentChecksum, documentModel, 0, name));
 		}
 	}
 
@@ -100,15 +93,18 @@ public class CreateTest extends DocumentTestCase {
 		private final String description;
 		private final String documentContentChecksum;
 		private final DocumentModel documentModel;
+		private final int expectedVersionsSize;
 		private final File file;
 		private final String name;
-		private Fixture(final String description,
-				final File file, final String documentContentChecksum,
-				final DocumentModel documentModel, final String name) {
+		private Fixture(final String description, final File file,
+				final String documentContentChecksum,
+				final DocumentModel documentModel,
+				final int expectedVersionsSize, final String name) {
 			this.description = description;
 			this.file = file;
 			this.documentContentChecksum = documentContentChecksum;
 			this.documentModel = documentModel;
+			this.expectedVersionsSize = expectedVersionsSize;
 			this.name = name;
 		}
 	}

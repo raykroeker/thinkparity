@@ -109,7 +109,7 @@ public class ListVersionsTest extends DocumentTestCase {
 			documentModel.createVersion(document.getId());
 			documentModel.createVersion(document.getId());
 			documentModel.createVersion(document.getId());
-			data.add(new Fixture(document, documentModel, 4));
+			data.add(new Fixture(document, documentModel, 3));
 		}
 	}
 

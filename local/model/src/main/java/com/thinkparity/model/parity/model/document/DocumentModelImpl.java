@@ -684,11 +684,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final String workingVersionChecksum = localFile.getFileChecksum();
 
 			final DocumentVersion version = getLatestVersion(documentId);
-			final DocumentVersionContent versionContent =
-				getVersionContent(documentId, version.getVersionId());
-
-			return versionContent.getDocumentContent().getChecksum()
-				.equals(workingVersionChecksum);
+			// we might have no recorded versions (initial point)
+			if(null == version) { return Boolean.FALSE; }
+			else {
+				final DocumentVersionContent versionContent =
+					getVersionContent(documentId, version.getVersionId());
+	
+				return versionContent.getDocumentContent().getChecksum()
+					.equals(workingVersionChecksum);
+			}
 		}
 		catch(final IOException iox) {
 			logger.error("Could not determine working version delta:  " + documentId, iox);

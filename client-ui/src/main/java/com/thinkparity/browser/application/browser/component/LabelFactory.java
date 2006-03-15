@@ -73,6 +73,10 @@ public class LabelFactory extends ComponentFactory {
 		}
 	}
 
+	public static JLabel create(final String text) {
+		synchronized(singletonLock) { return singleton.doCreate(text); }
+	}
+
 	public static JLabel create(final String text, final Font font,
 			final Color foreground) {
 		synchronized (singletonLock) {

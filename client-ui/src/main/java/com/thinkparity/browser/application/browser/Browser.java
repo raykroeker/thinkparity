@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
@@ -16,6 +17,8 @@ import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
+import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAvatar;
+import com.thinkparity.browser.application.browser.window.History2Window;
 import com.thinkparity.browser.application.browser.window.HistoryWindow;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
@@ -26,6 +29,7 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.document.Close;
+import com.thinkparity.browser.platform.action.document.Create;
 import com.thinkparity.browser.platform.action.document.Delete;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
@@ -145,7 +149,34 @@ public class Browser implements Application {
 		}
 	}
 
+	public void toggleHistory2Avatar() {
+		if(null == history2Window) {
+			if(!avatarRegistry.contains(AvatarId.DOCUMENT_HISTORY2))
+				AvatarFactory.create(AvatarId.DOCUMENT_HISTORY2);
+			final Avatar avatar = avatarRegistry.get(AvatarId.DOCUMENT_HISTORY2);
+			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY2))
+				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY2));
+			
+			history2Window = new History2Window(mainWindow, avatar);
+			history2Window.setVisible(true);
+		}
+		else {
+			final BrowserInfoAvatar bia = (BrowserInfoAvatar)
+				avatarRegistry.get(AvatarId.BROWSER_INFO);
+			bia.showHistoryButton();
+
+			history2Window.dispose();
+			history2Window = null;
+		}
+	}
+
+	public Boolean isHistoryVisible() {
+		return null != historyWindow && historyWindow.isVisible();
+	}
+
 	private HistoryWindow historyWindow;
+
+	private History2Window history2Window;
 
 	/**
 	 * Display the login avatar.
@@ -233,12 +264,17 @@ public class Browser implements Application {
 		l.y += relativeLocation.y;
 		logger.debug(l);
 		mainWindow.setLocation(l);
-		final Window historyWindow = windowRegistry.get(WindowId.HISTORY);
 		if(null != historyWindow && historyWindow.isVisible()) {
 			final Point l2 = historyWindow.getLocation();
 			l2.x += relativeLocation.x;
 			l2.y += relativeLocation.y;
 			historyWindow.setLocation(l2);
+		}
+		if(null != history2Window && history2Window.isVisible()) {
+			final Point l2 = history2Window.getLocation();
+			l2.x += relativeLocation.x;
+			l2.y += relativeLocation.y;
+//			history2Window.setLocation(l2);
 		}
 	}
 
@@ -315,12 +351,33 @@ public class Browser implements Application {
 	}
 
 	/**
+	 * The file chooser.
+	 * 
+	 * @see #getJFileChooser()
+	 */
+	private JFileChooser jFileChooser;
+
+	/**
+	 * Obtain the file chooser.
+	 * 
+	 * @return The file chooser.
+	 */
+	private JFileChooser getJFileChooser() {
+		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
+		return jFileChooser;
+	}
+
+	/**
 	 * Run the create document action.
 	 *
 	 */
 	public void runCreateDocument() {
-		invoke(ActionId.DOCUMENT_CREATE);
-		reloadMainList();
+		if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(mainWindow)) {
+			final Data data = new Data(1);
+			data.set(Create.DataKey.FILE, jFileChooser.getSelectedFile());
+			invoke(ActionId.DOCUMENT_CREATE, data);
+			reloadMainList();
+		}
 	}
 
 	public void runDeclineContactInvitation(final Long systemMessageId) {
@@ -412,6 +469,7 @@ public class Browser implements Application {
 	 */
 	public void selectDocument(final Long documentId) {
 		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
+		setInput(AvatarId.DOCUMENT_HISTORY2, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 	}
 

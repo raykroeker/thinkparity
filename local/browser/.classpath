@@ -17,5 +17,6 @@
 	<classpathentry sourcepath="/M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2-sources.jar" kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/l2fprod/l2fprod-6.2-sources.jar" kind="var" path="M2_REPO/com/l2fprod/nativeskin/6.2/nativeskin-6.2.jar"/>
 	<classpathentry sourcepath="/M2_REPO/lucene/lucene/1.9.1/lucene-1.9.1-sources.jar" kind="var" path="M2_REPO/lucene/lucene/1.9.1/lucene-1.9.1.jar"/>
+	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/browser2-startup/1.0-SNAPSHOT/browser2-startup-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/browser2-startup/1.0-SNAPSHOT/browser2-startup-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

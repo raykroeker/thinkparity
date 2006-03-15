@@ -4,16 +4,13 @@
 package com.thinkparity.browser.application.browser.display.provider;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
+import com.thinkparity.browser.application.browser.display.provider.session.SendArtifactProvider;
 import com.thinkparity.browser.model.ModelFactory;
-import com.thinkparity.browser.model.document.WorkingVersion;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -21,7 +18,6 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -34,7 +30,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
-import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * @author raykroeker@gmail.com
@@ -131,6 +126,12 @@ public class ProviderFactory {
 	private final ContentProvider historyProvider;
 
 	/**
+	 * The user in the parity prefferences.
+	 * 
+	 */
+	private final JabberId loggedInUser;
+
+	/**
 	 * The document provider.
 	 * 
 	 */
@@ -155,17 +156,11 @@ public class ProviderFactory {
 	 */
 	private final ContentProvider manageContactsProvider;
 
-	private final ContentProvider sendArtifactArtifactContactProvider;
-
-	private final ContentProvider sendArtifactContactProvider;
-
 	/**
 	 * Send artifact provider.
 	 * 
 	 */
 	private final ContentProvider sendArtifactProvider;
-
-	private final ContentProvider sendArtifactVersionProvider;
 
 	/**
 	 * Create a ProviderFactory.
@@ -175,6 +170,8 @@ public class ProviderFactory {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.documentModel = modelFactory.getDocumentModel(getClass());
+		this.loggedInUser =
+			JabberIdBuilder.parseUsername(preferences.getUsername());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 		this.historyProvider = new HistoryProvider(documentModel);
@@ -219,83 +216,7 @@ public class ProviderFactory {
 			}
 		};
 		this.manageContactsProvider = new ManageContactsProvider(sessionModel);
-		this.sendArtifactContactProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				List<Contact> roster;
-				try {
-					roster = sessionModel.readContacts();
-
-					// remove all team members from the roster list
-					final Contact[] team = (Contact[]) input;
-					if(null != team) {
-						for(final Contact contact : team)
-							roster.remove(contact);
-					}
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-				return roster.toArray(new Contact[] {});
-			}
-		};
-		this.sendArtifactArtifactContactProvider = new FlatContentProvider() {
-			final JabberId jabberId =
-				JabberIdBuilder.parseUsername(preferences.getUsername());
-			public Object[] getElements(final Object input) {
-				Assert.assertNotNull(
-						"The team provider requires an artifact id:  java.lang.Long.",
-						input);
-				Assert.assertOfType(
-						"The team provider requires an artifact id:  java.lang.Long.",
-						Long.class, input);
-				final Long artifactId = (Long) input;
-				List<Contact> artifactContacts;
-				try {
-					artifactContacts = sessionModel.readArtifactContacts(artifactId);
-					Contact contact;
-					for(final Iterator<Contact> i = artifactContacts.iterator(); i.hasNext();) {
-						contact= i.next();
-						if(contact.getId().equals(jabberId)) { i.remove(); }
-					}
-					return artifactContacts.toArray(new Contact[] {});
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
-		};
-		this.sendArtifactVersionProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				Assert.assertNotNull(
-						"The send artifact version provider requires an artifact id:  java.lang.Long.",
-						input);
-				Assert.assertOfType(
-						"The send artifact version provider requires an artifact id:  java.lang.Long.",
-						Long.class, input);
-				final Long artifactId = (Long) input;
-				final List<DocumentVersion> versions = new LinkedList<DocumentVersion>();
-				try {
-					versions.addAll(documentModel.listVersions(artifactId));
-					if(sessionModel.isLoggedInUserKeyHolder(artifactId)) {
-						versions.add(0, WorkingVersion.getWorkingVersion());
-					}
-					return versions.toArray(new DocumentVersion[] {});
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
-		};
-		this.sendArtifactProvider = new CompositeFlatContentProvider() {
-			private final ContentProvider[] contentProviders = new ContentProvider[] {sendArtifactContactProvider, sendArtifactArtifactContactProvider, sendArtifactVersionProvider};
-			public Object[] getElements(final Integer index, final Object input) {
-				Assert.assertNotNull(
-						"Index for composite content provider cannot be null.",
-						index);
-				Assert.assertTrue(
-						"Index for the send artifact content provider mus lie within [0," + 2 + "]",
-						index >= 0 && index <= 2);
-				return getProvider(index).getElements(input);
-			}
-			private FlatContentProvider getProvider(final Integer index) {
-				return (FlatContentProvider) contentProviders[index];
-			}
-		};
-
+		this.sendArtifactProvider = new SendArtifactProvider(documentModel, sessionModel, loggedInUser);
 	}
 
 	/**

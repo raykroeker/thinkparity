@@ -14,6 +14,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 
 /**
  * @author raykroeker@gmail.com

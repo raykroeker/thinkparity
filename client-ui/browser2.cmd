@@ -6,7 +6,7 @@ set PATH=C:\Program Files\Java\jre1.5.0_06\bin;.\%PATH%
 
 set B2_OPTS=
 
-set B2_CP=.\startup-1.0-SNAPSHOT.jar
+set B2_CP=.\browser2-startup-1.0-SNAPSHOT.jar
 set B2_CP=%B2_CP%;.\browser2-1.0-SNAPSHOT.jar
 set B2_CP=%B2_CP%;.\codebase-1.0-SNAPSHOT.jar
 set B2_CP=%B2_CP%;.\model-1.0-SNAPSHOT.jar

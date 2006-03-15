@@ -88,7 +88,7 @@ public class BottomBorder extends AbstractBorder {
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
 		final Color oColor = g.getColor();
 		g.setColor(color);
-		g.drawLine(x, y, x + width - 1, y);
+		g.drawLine(x, y + height -1, x + width - 1, y + height - 1);
 		g.setColor(oColor);
 	}
 }

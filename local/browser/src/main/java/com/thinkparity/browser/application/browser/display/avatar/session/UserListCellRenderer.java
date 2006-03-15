@@ -3,14 +3,12 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.session;
 
-import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 
-import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.model.util.ModelUtil;
 
 import com.thinkparity.model.xmpp.user.User;
@@ -19,34 +17,19 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class UserListCellRenderer implements ListCellRenderer {
-
-	private static final Color listItemBackground;
-
-	private static final Color listItemBackgroundSelect;
-
-	static {
-		// COLOR 237, 241, 244, 255
-		listItemBackground = new Color(237, 241, 244, 255);
-		// COLOR 215, 231, 244, 255
-		listItemBackgroundSelect = new Color(215, 231, 244, 255);
-	}
+public class UserListCellRenderer extends DefaultListCellRenderer {
 
 	/**
-	 * The label.
+	 * @see java.io.Serializable
 	 * 
 	 */
-	private final JLabel jLabel;
+	private static final long serialVersionUID = 1;
 
 	/**
 	 * Create a UserListCellRenderer.
 	 * 
 	 */
-	public UserListCellRenderer() {
-		super();
-		this.jLabel = LabelFactory.create();
-		this.jLabel.setOpaque(true);
-	}
+	public UserListCellRenderer() { super(); }
 
 	/**
 	 * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
@@ -56,9 +39,8 @@ public class UserListCellRenderer implements ListCellRenderer {
 	public Component getListCellRendererComponent(final JList list,
 			final Object value, final int index, final boolean isSelected,
 			final boolean cellHasFocus) {
-		if(isSelected) { jLabel.setBackground(listItemBackgroundSelect); }
-		else { jLabel.setBackground(listItemBackground); }
-
+		final JLabel jLabel = (JLabel) super.getListCellRendererComponent(list, value,
+				index, isSelected, cellHasFocus);
 		jLabel.setText(ModelUtil.getName((User) value));
 		return jLabel;
 	}

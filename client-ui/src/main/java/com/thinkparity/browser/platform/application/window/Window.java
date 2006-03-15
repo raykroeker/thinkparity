@@ -3,6 +3,10 @@
  */
 package com.thinkparity.browser.platform.application.window;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
+
 import javax.swing.JDialog;
 
 import com.thinkparity.browser.application.browser.window.WindowId;
@@ -21,6 +25,32 @@ public abstract class Window extends AbstractJDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
+
+	/**
+	 * Calculate the location for the window based upon its owner and its size.
+	 * 
+	 * @param owner
+	 *            The owner window.
+	 * @param window
+	 *            The window.
+	 * @return The location of the window centered on the owner.
+	 */
+	protected static Point calculateLocation(final java.awt.Window owner,
+			final Window window) {
+		final Dimension os = owner.getSize();
+		final Dimension ws = window.getSize();
+		final Point l = owner.getLocation();
+		l.x += (os.width - ws.width) / 2;
+		l.y += (os.height - ws.height) / 2;
+
+		final Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
+		if(l.x + ws.width > (ss.width)) { l.x = ss.width - ws.width; }
+		if(l.y + ws.height > (ss.height)) { l.y = ss.height - ws.height; }
+
+		if(l.x < 0) { l.x = 0; }
+		if(l.y < 0) { l.y = 0; }
+		return l;
+	}
 
 	/**
 	 * The panel onto which all displays are dropped.
@@ -64,6 +94,7 @@ public abstract class Window extends AbstractJDialog {
 		debugGeometry();
 		debugLookAndFeel();
 		setSize(windowSize.get(avatar.getId()));
+		setLocation(calculateLocation(getOwner(), this));
 		invalidate();
 		setVisible(true);
 	}

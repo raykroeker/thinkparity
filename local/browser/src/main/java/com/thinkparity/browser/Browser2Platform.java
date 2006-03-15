@@ -41,8 +41,14 @@ public class Browser2Platform implements Platform {
 		System.out.println(buffer);
 		Initializer.getInstance().initialize();
 
-		applicationRegistry = new Hashtable<ApplicationId,Application>(3, 1.0F);
+		applicationRegistry = new Hashtable<ApplicationId, Application>(3, 1.0F);
 	}
+
+	// Me only.
+	public static Boolean isDebugMode() { return Boolean.FALSE; }
+
+	// Me an omid
+	public static Boolean isTestMode() { return Boolean.TRUE; }
 
 	/**
 	 * The parity ui platform session.

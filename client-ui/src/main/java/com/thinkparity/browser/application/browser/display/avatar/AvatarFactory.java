@@ -22,14 +22,14 @@ public class AvatarFactory {
 		switch(id) {
 		case BROWSER_INFO:
 			return SINGLETON.createBrowserInfo();
-		case BROWSER_LOGO:
-			return SINGLETON.createBrowserLogo();
 		case BROWSER_MAIN:
 			return SINGLETON.createBrowserMain();
 		case BROWSER_TITLE:
 			return SINGLETON.createBrowserTitle();
 		case DOCUMENT_HISTORY:
 			return SINGLETON.createDocumentHistoryList();
+		case DOCUMENT_HISTORY2:
+			return SINGLETON.createDocumentHistory2List();
 		case SESSION_INVITE_CONTACT:
 			return SINGLETON.createSessionInviteContact();
 		case SESSION_LOGIN:
@@ -55,12 +55,6 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar browserInfo;
-
-	/**
-	 * Browser logo avatar.
-	 * 
-	 */
-	private Avatar browserLogo;
 
 	/**
 	 * The message list avatar.
@@ -133,18 +127,6 @@ public class AvatarFactory {
 	}
 
 	/**
-	 * Create the browser logo avatar.
-	 * @return The browser logo avatar.
-	 */
-	private Avatar createBrowserLogo() {
-		if(null == browserLogo) {
-			browserLogo = new BrowserLogoAvatar();
-			register(browserLogo);
-		}
-		return browserLogo;
-	}
-
-	/**
 	 * Create the message list avatar.
 	 * 
 	 * @return The message list avatar.
@@ -183,6 +165,13 @@ public class AvatarFactory {
 			register(documentHistoryList);
 		}
 		return documentHistoryList;
+	}
+
+	private Avatar createDocumentHistory2List() {
+		final Avatar a = new DocumentHistoryAvatar2();
+		a.setContentProvider(ProviderFactory.getHistoryProvider());
+		register(a);
+		return a;
 	}
 
 	/**

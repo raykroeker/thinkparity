@@ -59,21 +59,19 @@ public class BrowserInfoAvatar extends Avatar {
 
 	private JLabel infoJLabel;
 
-    private JLabel showHistoryJLabel;
-
-	private JLabel showHistory2JLabel;
+	private JLabel showHistoryJLabel;
 
 	private JLabel sortJLabel;
-
-    /**
+	
+	/**
 	 * Create a BrowserInfoAvatar.
-	 * 
+	 *
 	 */
 	public BrowserInfoAvatar() {
-		super("BrowserInfo");
-		setLayout(new GridBagLayout());
-		setOpaque(false);
-		initComponents();
+	    super("BrowserInfo");
+	    setLayout(new GridBagLayout());
+	    setOpaque(false);
+	    initComponents();
 	}
 
 	/**
@@ -145,19 +143,6 @@ public class BrowserInfoAvatar extends Avatar {
         	}
         });
 
-        showHistory2JLabel = LabelFactory.create(getHistoryIcon());
-        showHistory2JLabel.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent e) {
-				showHistory2JLabelMouseClicked(e);
-			}
-			public void mouseEntered(final MouseEvent e) {
-				showHistory2JLabel.setIcon(getHistoryRolloverIcon());
-			}
-			public void mouseExited(final MouseEvent e) {
-				showHistory2JLabel.setIcon(getHistoryIcon());
-			}
-        });
-
         final GridBagConstraints c = new GridBagConstraints();
         c.insets.left = 7;
         add(sortJLabel, c.clone());
@@ -171,8 +156,6 @@ public class BrowserInfoAvatar extends Avatar {
         c.insets.right = 8;
         c.weightx = 0;
         add(showHistoryJLabel, c.clone());
-
-        add(showHistory2JLabel, c.clone());
     }
 
 	/**
@@ -199,20 +182,8 @@ public class BrowserInfoAvatar extends Avatar {
 	 *            The action event.
 	 */
 	private void showHistoryJLabelMouseClicked(final MouseEvent e) {
-		getController().toggleHistoryAvatar();
+		getController().toggleHistory3Avatar();
 		showHistoryJLabel.setIcon(getHistoryRolloverIcon());
-	}
-
-	private void showHistory2JLabelMouseClicked(final MouseEvent e) {
-		getController().toggleHistory2Avatar();
-showHistory2JLabel.setVisible(false);
-showHistoryJLabel.setVisible(false);
-		showHistory2JLabel.setIcon(getHistoryRolloverIcon());
-	}
-
-	public void showHistoryButton() {
-		showHistory2JLabel.setVisible(true);
-		showHistoryJLabel.setVisible(true);
 	}
 
 	private void sortJLabelMouseClicked(final MouseEvent evt) {

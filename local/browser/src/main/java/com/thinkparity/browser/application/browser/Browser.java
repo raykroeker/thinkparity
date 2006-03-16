@@ -149,6 +149,24 @@ public class Browser implements Application {
 		}
 	}
 
+	public void toggleHistory3Avatar() {
+	    if(null == history2Window) {
+		final AvatarId id = AvatarId.DOCUMENT_HISTORY3;
+		if(!avatarRegistry.contains(id))
+		    AvatarFactory.create(id);
+		final Avatar avatar = avatarRegistry.get(id);
+		if(null != getAvatarInput(id))
+		    avatar.setInput(getAvatarInput(id));
+
+		history2Window = new History2Window(mainWindow, avatar);
+		history2Window.setVisible(true);
+	    }
+	    else {
+		history2Window.dispose();
+		history2Window = null;
+	    }
+	}
+	
 	public void toggleHistory2Avatar() {
 		if(null == history2Window) {
 			if(!avatarRegistry.contains(AvatarId.DOCUMENT_HISTORY2))
@@ -161,10 +179,6 @@ public class Browser implements Application {
 			history2Window.setVisible(true);
 		}
 		else {
-			final BrowserInfoAvatar bia = (BrowserInfoAvatar)
-				avatarRegistry.get(AvatarId.BROWSER_INFO);
-			bia.showHistoryButton();
-
 			history2Window.dispose();
 			history2Window = null;
 		}
@@ -274,7 +288,7 @@ public class Browser implements Application {
 			final Point l2 = history2Window.getLocation();
 			l2.x += relativeLocation.x;
 			l2.y += relativeLocation.y;
-//			history2Window.setLocation(l2);
+			history2Window.setLocation(l2);
 		}
 	}
 
@@ -470,6 +484,7 @@ public class Browser implements Application {
 	public void selectDocument(final Long documentId) {
 		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
 		setInput(AvatarId.DOCUMENT_HISTORY2, documentId);
+		setInput(AvatarId.DOCUMENT_HISTORY3, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 	}
 

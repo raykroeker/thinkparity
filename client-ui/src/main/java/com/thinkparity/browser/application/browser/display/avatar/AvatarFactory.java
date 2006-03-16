@@ -30,6 +30,8 @@ public class AvatarFactory {
 			return SINGLETON.createDocumentHistoryList();
 		case DOCUMENT_HISTORY2:
 			return SINGLETON.createDocumentHistory2List();
+		case DOCUMENT_HISTORY3:
+			return SINGLETON.createDocumentHistory3List();
 		case SESSION_INVITE_CONTACT:
 			return SINGLETON.createSessionInviteContact();
 		case SESSION_LOGIN:
@@ -167,6 +169,12 @@ public class AvatarFactory {
 		return documentHistoryList;
 	}
 
+	private Avatar createDocumentHistory3List() {
+	    final Avatar a = new DocumentHistoryAvatar3();
+	    a.setContentProvider(ProviderFactory.getHistoryProvider());
+	    register(a);
+	    return a;
+	}
 	private Avatar createDocumentHistory2List() {
 		final Avatar a = new DocumentHistoryAvatar2();
 		a.setContentProvider(ProviderFactory.getHistoryProvider());

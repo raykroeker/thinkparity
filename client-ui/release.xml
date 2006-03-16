@@ -10,7 +10,7 @@
 	<property environment="env"/>
 	<property name="maven.repo" value="${env.HOME}/.m2/repository"/>
 	<property name="lib.browser2" value="${maven.repo}/com/thinkparity/parity/browser2/1.0-SNAPSHOT/browser2-1.0-SNAPSHOT.jar"/>
-	<property name="lib.startup" value="${maven.repo}/com/thinkparity/parity/startup/1.0-SNAPSHOT/startup-1.0-SNAPSHOT.jar"/>
+	<property name="lib.startup" value="${maven.repo}/com/thinkparity/parity/browser2-startup/1.0-SNAPSHOT/browser2-startup-1.0-SNAPSHOT.jar"/>
 	<property name="lib.codebase" value="${maven.repo}/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
 	<property name="lib.model" value="${maven.repo}/com/thinkparity/parity/model/1.0-SNAPSHOT/model-1.0-SNAPSHOT.jar"/>
 	<property name="lib.xpp3" value="${maven.repo}/xpp3/xpp3/1.1.3.3/xpp-1.1.3.3.jar"/>

@@ -17,20 +17,10 @@ import javax.swing.border.EtchedBorder;
 public class CustomEtechedBorder extends EtchedBorder {
 
 	/**
-	 * @see javax.swing.border.EtchedBorder#getBorderInsets(java.awt.Component, java.awt.Insets)
+	 * @see java.io.Serializable
+	 * 
 	 */
-	public Insets getBorderInsets(Component c, Insets insets) {
-        insets.left = 0;
-        insets.top = insets.right = insets.bottom = 2;
-        return insets;
-	}
-
-	/**
-	 * @see javax.swing.border.EtchedBorder#getBorderInsets(java.awt.Component)
-	 */
-	public Insets getBorderInsets(Component c) {
-        return new Insets(2, 0, 2, 2);
-	}
+	private static final long serialVersionUID = 1;
 
 	/**
 	 * Create a CustomEtechedBorder.
@@ -43,6 +33,22 @@ public class CustomEtechedBorder extends EtchedBorder {
 	}
 
 	/**
+	 * @see javax.swing.border.EtchedBorder#getBorderInsets(java.awt.Component)
+	 */
+	public Insets getBorderInsets(Component c) {
+        return new Insets(2, 0, 2, 2);
+	}
+
+	/**
+	 * @see javax.swing.border.EtchedBorder#getBorderInsets(java.awt.Component, java.awt.Insets)
+	 */
+	public Insets getBorderInsets(Component c, Insets insets) {
+        insets.left = 0;
+        insets.top = insets.right = insets.bottom = 2;
+        return insets;
+	}
+
+	/**
 	 * @see javax.swing.border.EtchedBorder#paintBorder(java.awt.Component, java.awt.Graphics, int, int, int, int)
 	 */
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
@@ -52,21 +58,15 @@ public class CustomEtechedBorder extends EtchedBorder {
 		g.translate(x, y);
 
 		g.setColor(etchType == LOWERED? getShadowColor(c) : getHighlightColor(c));
-//		g.drawRect(0, 0, w-2, h-2);
 		g.drawLine(0, 0, w-2, 0);		// Left to right on the top
 		g.drawLine(w-2, 0, w-2, h-2);	// Top to bottom on the right
 		g.drawLine(w-2, h-2, 0, h-2);	// Right to left on the bottom
-//		g.drawLine(0, h-2, 0, 0);		// Bottom to top on the left
 		
 		g.setColor(etchType == LOWERED? getHighlightColor(c) : getShadowColor(c));
-//		g.drawLine(1, h-3, 1, 1);		// Bottom to top on the left
-		g.drawLine(1, 1, w-3, 1);		// Left to right on the top
+		g.drawLine(0, 1, w-3, 1);		// Left to right on the top
 		
 		g.drawLine(0, h-1, w-1, h-1);	// Left to right on the bottom
 		g.drawLine(w-1, h-1, w-1, 0);	// Bottom to top on the right
-
-		g.setColor(new Color(204, 209, 214, 255));
-		g.drawLine(0, 1, 0, 1);
 
 		g.translate(-x, -y);
 	}

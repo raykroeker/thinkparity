@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Point;
 
 import javax.swing.border.EtchedBorder;
@@ -32,8 +31,7 @@ public class History2Window extends AbstractJDialog {
 	private static Point calculateLocation(final BrowserWindow browserWindow, final Dimension hws) {
 		final Point bwl = browserWindow.getLocation();
 		final Dimension bws = browserWindow.getSize();
-		final Insets bwi = browserWindow.getRootPane().getInsets();
-		return new Point(bwl.x + bws.width - bwi.right, bwl.y + (bws.height - hws.height));
+		return new Point(bwl.x + bws.width, bwl.y + (bws.height - hws.height));
 	}
 
 	/**
@@ -49,7 +47,7 @@ public class History2Window extends AbstractJDialog {
 		getRootPane().setBorder(new CustomEtechedBorder(EtchedBorder.RAISED, c1, c2));
 		setUndecorated(true);
 		setLayout(new GridBagLayout());
-		setSize(new Dimension(306, 490));
+		setSize(new Dimension(306, 462));
 		setLocation(calculateLocation(browserWindow, getSize()));
 		initComponents(avatar);
 	}

@@ -137,19 +137,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
-	 * Obtain a list of contacts for an artifact.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unqique id.
-	 * @return A list of contacts.
-	 * @throws SmackException
-	 */
-	List<Contact> readArtifactContacts(final UUID artifactUniqueId)
-			throws SmackException {
-		return xmppSession.readArtifactContacts(artifactUniqueId);
-	}
-
-	/**
 	 * Obtain the user for the current session.
 	 * 
 	 * @return The user for the current session.
@@ -207,6 +194,19 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	void processOfflineQueue() throws SmackException {
 		xmppSession.processOfflineQueue();
+	}
+
+	/**
+	 * Obtain a list of contacts for an artifact.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unqique id.
+	 * @return A list of contacts.
+	 * @throws SmackException
+	 */
+	List<Contact> readArtifactContacts(final UUID artifactUniqueId)
+			throws SmackException {
+		return xmppSession.readArtifactContacts(artifactUniqueId);
 	}
 
 	/**
@@ -347,7 +347,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	private void handleArtifactClosed(final UUID artifactUniqueId,
 			final JabberId artifactClosedBy) {
-		SessionModelImpl.notifyArtifactClosed(artifactUniqueId, artifactClosedBy);
+		try {
+			SessionModelImpl.notifyArtifactClosed(
+					artifactUniqueId, artifactClosedBy);
+		}
+		catch(final ParityException px) { unexpectedOccured(px); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
 	/**
@@ -357,19 +362,25 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 *            The xmpp document that has been received.
 	 */
 	private void handleDocumentReceived(final XMPPDocument xmppDocument) {
-		SessionModelImpl.notifyDocumentReceived(xmppDocument);
+		try {
+			SessionModelImpl.notifyDocumentReceived(xmppDocument);
+		}
+		catch(final ParityException px) { unexpectedOccured(px); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
-
 	private void handleInvitationAccepted(final JabberId acceptedBy) {
-		SessionModelImpl.notifyInvitationAccepted(acceptedBy);
+		try { SessionModelImpl.notifyInvitationAccepted(acceptedBy); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
 	private void handleInvitationDeclined(final JabberId declinedBy) {
-		SessionModelImpl.notifyInvitationDeclined(declinedBy);
+		try { SessionModelImpl.notifyInvitationDeclined(declinedBy); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
 	private void handleInvitationExtended(final JabberId invitedBy) {
-		SessionModelImpl.notifyInvitationExtended(invitedBy);
+		try { SessionModelImpl.notifyInvitationExtended(invitedBy); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
 	/**
@@ -382,7 +393,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	private void handleKeyRequestAccepted(final UUID artifactUniqueId,
 			final JabberId acceptedBy) {
-		SessionModelImpl.notifyKeyRequestAccepted(artifactUniqueId, acceptedBy);
+		try {
+			SessionModelImpl.notifyKeyRequestAccepted(
+					artifactUniqueId, acceptedBy);
+		}
+		catch(final ParityException px) { unexpectedOccured(px); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
+		catch(final SmackException sx) { unexpectedOccured(sx); }
 	}
 
 	/**
@@ -395,7 +412,11 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	private void handleKeyRequestDenied(final UUID artifactUniqueId,
 			final JabberId deniedBy) {
-		SessionModelImpl.notifyKeyRequestDenied(artifactUniqueId, deniedBy);
+		try {
+			SessionModelImpl.notifyKeyRequestDenied(artifactUniqueId, deniedBy);
+		}
+		catch(final ParityException px) { unexpectedOccured(px); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
 	/**
@@ -408,7 +429,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	private void handleKeyRequested(final UUID artifactUniqueId,
 			final JabberId requestedBy) {
-		SessionModelImpl.notifyKeyRequested(artifactUniqueId, requestedBy);
+		try {
+			SessionModelImpl.notifyKeyRequested(artifactUniqueId, requestedBy);
+		}
+		catch(final ParityException px) { unexpectedOccured(px); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
+		catch(final SmackException sx) { unexpectedOccured(sx); }
 	}
 
 	/**
@@ -416,7 +442,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 *
 	 */
 	private void handleSessionEstablished() {
-		SessionModelImpl.notifySessionEstablished();
+		try { SessionModelImpl.notifySessionEstablished(); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
 	/**
@@ -424,7 +451,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * 
 	 */
 	private void handleSessionTerminated() {
-		SessionModelImpl.notifySessionTerminated();
+		try { SessionModelImpl.notifySessionTerminated(); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
 	/**
@@ -435,6 +463,22 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 *            The error.
 	 */
 	private void handleSessionTerminated(final Exception x) {
-		SessionModelImpl.notifySessionTerminated(x);
+		try { SessionModelImpl.notifySessionTerminated(x); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
+	}
+
+	private void unexpectedOccured(final ParityException px) {
+		// TODO  Implement rModel rollback.
+		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", px);
+	}
+
+	private void unexpectedOccured(final RuntimeException rx) {
+		// TODO  Implement rModel rollback.
+		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", rx);
+	}
+
+	private void unexpectedOccured(final SmackException sx) {
+		// TODO  Implement rModel rollback.
+		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", sx);
 	}
 }

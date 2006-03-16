@@ -11,13 +11,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.KeyEvent;
@@ -114,13 +111,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	private static final Object sessionListenersLock;
 
 	/**
-	 * Handle to an apache logger for the static methods.
-	 * 
-	 */
-	private static final Logger sLogger =
-		ModelLoggerFactory.getLogger(SessionModelImpl.class);
-
-	/**
 	 * Helper wrapper class for xmpp calls.
 	 * 
 	 * @see SessionModelImpl#xmppHelperLock
@@ -159,15 +149,9 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The artifact unique id.
 	 */
 	static void notifyArtifactClosed(final UUID artifactUniqueId,
-			final JabberId artifactClosedBy) {
-		try {
-			final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
-			iDModel.close(artifactUniqueId, artifactClosedBy);
-		}
-		catch(final ParityException px) {
-			sLogger.fatal("Could not close artifact.", px);
-			return;
-		}
+			final JabberId artifactClosedBy) throws ParityException {
+		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
+		iDModel.close(artifactUniqueId, artifactClosedBy);
 	}
 
 	/**
@@ -177,12 +161,9 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param xmppDocument
 	 *            The xmpp document that has been received.
 	 */
-	static void notifyDocumentReceived(final XMPPDocument xmppDocument) {
-		try { DocumentModel.getInternalModel(sContext).receive(xmppDocument); }
-		catch(ParityException px) {
-			sLogger.fatal("Could not receive document.", px);
-			return;
-		}
+	static void notifyDocumentReceived(final XMPPDocument xmppDocument)
+			throws ParityException {
+		DocumentModel.getInternalModel(sContext).receive(xmppDocument);
 	}
 
 	static void notifyInvitationAccepted(final JabberId acceptedBy) {
@@ -207,30 +188,20 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user.
 	 */
 	static void notifyKeyRequestAccepted(final UUID artifactUniqueId,
-			final JabberId acceptedBy) {
+			final JabberId acceptedBy) throws SmackException, ParityException {
 		final InternalDocumentModel iDModel =
 			DocumentModel.getInternalModel(sContext);
-		try {
-			final Document document = iDModel.get(artifactUniqueId);
-			iDModel.unlock(document.getId());
-			SystemMessageModel.getInternalModel(sContext).
-				createKeyResponse(document.getId(), Boolean.TRUE, acceptedBy);
+		final Document document = iDModel.get(artifactUniqueId);
+		iDModel.unlock(document.getId());
+		SystemMessageModel.getInternalModel(sContext).
+			createKeyResponse(document.getId(), Boolean.TRUE, acceptedBy);
 
-			// audit receive key
-			final User loggedInUser;
-			synchronized(xmppHelperLock) {
-				loggedInUser =  xmppHelper.getUser();
-			}
-			iDModel.auditRecieveKey(document.getId(), loggedInUser.getId(), currentDateTime(), acceptedBy);
+		// audit receive key
+		final User loggedInUser;
+		synchronized(xmppHelperLock) {
+			loggedInUser =  xmppHelper.getUser();
 		}
-		catch(final SmackException sx) {
-			sLogger.fatal("Could not accept key request.", sx);
-			return;
-		}
-		catch(ParityException px) {
-			sLogger.fatal("Could not accept key request.", px);
-			return;
-		}
+		iDModel.auditRecieveKey(document.getId(), loggedInUser.getId(), currentDateTime(), acceptedBy);
 	}
 
 	/**
@@ -243,17 +214,11 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user.
 	 */
 	static void notifyKeyRequestDenied(final UUID artifactUniqueId,
-			final JabberId deniedBy) {
-		try {
-			final Document document =
-				DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
-			SystemMessageModel.getInternalModel(sContext).
-				createKeyResponse(document.getId(), Boolean.FALSE, deniedBy);
-		}
-		catch(final ParityException px) {
-			sLogger.error("Could not accept key response denial.", px);
-			return;
-		}
+			final JabberId deniedBy) throws ParityException {
+		final Document document =
+			DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
+		SystemMessageModel.getInternalModel(sContext).
+			createKeyResponse(document.getId(), Boolean.FALSE, deniedBy);
 	}
 
 	/**
@@ -265,24 +230,15 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param artifactUUID
 	 *            The artifact.
 	 */
-	static void notifyKeyRequested(final UUID artifactUniqueId, final JabberId requestedBy) {
-		try {
-			final Document document = DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
-			SystemMessageModel.getInternalModel(sContext).createKeyRequest(document.getId(), requestedBy);
+	static void notifyKeyRequested(final UUID artifactUniqueId,
+			final JabberId requestedBy) throws ParityException, SmackException {
+		final Document document = DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
+		SystemMessageModel.getInternalModel(sContext).createKeyRequest(document.getId(), requestedBy);
 
-			// audit key request
-			final User loggedInUser;
-			synchronized(xmppHelperLock) { loggedInUser =  xmppHelper.getUser(); }
-			sAuditor.requestKey(document.getId(), loggedInUser.getId(), currentDateTime(), requestedBy, loggedInUser.getId());
-		}
-		catch(final SmackException sx) {
-			sLogger.fatal("Could not process key request:  " + artifactUniqueId, sx);
-			return;
-		}
-		catch(final ParityException px) {
-			sLogger.error("Could not process key request:  " + artifactUniqueId, px);
-			return;
-		}
+		// audit key request
+		final User loggedInUser;
+		synchronized(xmppHelperLock) { loggedInUser =  xmppHelper.getUser(); }
+		sAuditor.requestKey(document.getId(), loggedInUser.getId(), currentDateTime(), requestedBy, loggedInUser.getId());
 	}
 
 	/**

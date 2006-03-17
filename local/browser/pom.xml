@@ -16,7 +16,7 @@
 
 	<ciManagement>
 		<system>continuum</system>
-		<notifiers/>
+		<url>http://tpdev.thinkparity.com:8080/continuum</url>
 	</ciManagement>
 
 	<developers>

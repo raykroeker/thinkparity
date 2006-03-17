@@ -2,9 +2,11 @@
 <classpath>
 	<classpathentry output="target/classes" kind="src" path="src/main/java"/>
 	<classpathentry output="target/classes" kind="src" path="src/main/resources"/>
-	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry output="target/test-classes" kind="src" path="src/test/java"/>
 	<classpathentry output="target/test-classes" kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_06 - sys libs"/>
+	<classpathentry sourcepath="/M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.src.jar" kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
+	<classpathentry sourcepath="/M2_REPO/junit/junit/3.8.1/junit-3.8.1-sources.jar" kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+	<classpathentry sourcepath="/M2_REPO/com/raykroeker/jUnitX/1.0-SNAPSHOT/jUnitX-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/raykroeker/jUnitX/1.0-SNAPSHOT/jUnitX-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

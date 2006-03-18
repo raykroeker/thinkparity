@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<assembly>
+	<id>bin</id>
+
+	<formats>
+		<format>zip</format>
+	</formats>
+
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<fileSets>
+		<fileSet>
+			<outputDirectory>browser2-1.0-SNAPSHOT</outputDirectory>
+			<includes>
+				<include>README.txt</include>
+				<include>LICENSE.txt</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>/browser2-1.0-SNAPSHOT/bin</outputDirectory>
+			<directory>target/classes/bin</directory>
+			<includes>
+				<include>*.cmd</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>browser2-1.0-SNAPSHOT/core</outputDirectory>
+			<directory>target</directory>
+			<includes>
+				<include>*.jar</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>browser2-1.0-SNAPSHOT/lib/win32</outputDirectory>
+			<directory>src/main/lib/win32</directory>
+			<includes>
+				<include>*.dll</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/browser2-1.0-SNAPSHOT/core</outputDirectory>
+			<scope>runtime</scope>
+			<includes>
+				<include>com.thinkparity.parity:browser2-startup</include>
+				<include>com.thinkparity.parity:codebase</include>
+				<include>com.thinkparity.parity:model</include>
+			</includes>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>browser2-1.0-SNAPSHOT/lib</outputDirectory>
+			<scope>runtime</scope>
+			<excludes>
+				<exclude>com.thinkparity.parity:browser2-startup</exclude>
+				<exclude>com.thinkparity.parity:codebase</exclude>
+				<exclude>com.thinkparity.parity:model</exclude>
+			</excludes>
+		</dependencySet>
+	</dependencySets>
+
+</assembly>

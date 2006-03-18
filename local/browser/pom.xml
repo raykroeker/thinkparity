@@ -12,12 +12,19 @@
 
 	<scm>
 		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:browser2</connection>
+		<tag>v1_0</tag>
+		<url>http://tpdev.thinkparity.com/viewcvs</url>
 	</scm>
 
 	<ciManagement>
 		<system>continuum</system>
 		<url>http://tpdev.thinkparity.com:8080/continuum</url>
 	</ciManagement>
+
+	<issueManagement>
+		<system>Trac</system>
+		<url>http://tpdev.thinkparity.com/trac/parity</url>
+	</issueManagement>
 
 	<developers>
 		<developer>
@@ -36,33 +43,45 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
+			<artifactId>browser2-startup</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>codebase</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>model</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.13</version>
 			<scope>compile</scope>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.l2fprod</groupId>
 			<artifactId>nativeskin</artifactId>
 			<version>1.2.12</version>
 			<scope>compile</scope>
+			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>net.java.javadesktop</groupId>
 			<artifactId>swing-layout</artifactId>
 			<version>1.0</version>
 			<scope>compile</scope>
+			<type>jar</type>
 		</dependency>
 	</dependencies>
 
@@ -76,6 +95,16 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.0-beta-1</version>
+				<configuration>
+					<descriptor>src/main/assembly/bin.xml</descriptor>
+					<outputDirectory>target</outputDirectory>
+					<workDirectory>target/assembly/work</workDirectory>
+				</configuration>
+            </plugin>
 		</plugins>
 	</build>
 </project>

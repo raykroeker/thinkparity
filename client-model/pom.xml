@@ -84,12 +84,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>jivesoftware</groupId>
-			<artifactId>smackx</artifactId>
-			<version>2.0.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>xstream</groupId>
 			<artifactId>xstream</artifactId>
 			<version>1.1.2</version>
@@ -102,21 +96,24 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.raykroeker</groupId>
-			<artifactId>jUnitX</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<groupId>lucene</groupId>
+			<artifactId>lucene</artifactId>
+			<version>1.9.1</version>
 			<scope>compile</scope>
-			</dependency>
+		</dependency>
+
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>1.8.0.2</version>
-			<scope>compile</scope>
+			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>lucene</groupId>
-			<artifactId>lucene</artifactId>
-			<version>1.9.1</version>
+			<groupId>com.raykroeker</groupId>
+			<artifactId>jUnitX</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

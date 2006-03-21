@@ -58,6 +58,27 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
+	 * Apply the seen flag to the artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 */
+	public void applyFlagSeen(final Long artifactId) {
+		synchronized(implLock) { impl.applyFlagSeen(artifactId); }
+	}
+
+	/**
+	 * Determine whether or not the artifact has been seen.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return True if the artifact has been seen; false otherwise.
+	 */
+	public Boolean hasBeenSeen(final Long artifactId) {
+		synchronized(implLock) { return impl.hasBeenSeen(artifactId); }
+	}
+
+	/**
 	 * Determine whether or not an artifact has a flag applied.
 	 * 
 	 * @param artifactId
@@ -70,6 +91,15 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { return impl.isFlagApplied(artifactId, flag); }
 	}
 
+	/**
+	 * Remove the seen flag from the artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 */
+	public void removeFlagSeen(final Long artifactId) {
+		synchronized(implLock) { impl.removeFlagSeen(artifactId); }
+	}
 	/**
 	 * Obtain the implemenatation.
 	 * 

@@ -209,10 +209,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(progressIndicator);
 		assertValidOutputDirectory();
 
-		// flag the document as having been seen.
-		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		iAModel.applyFlagSeen(documentId);
-
 		// 1  Audit Archive
 		auditor.archive(documentId, currentUserId(), currentDateTime());
 
@@ -254,10 +250,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		assertLoggedInUserIsKeyHolder(documentId);
 		try {
-			// flag the document as having been seen.
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.applyFlagSeen(documentId);
-
 			// close the document
 			final Document document = get(documentId);
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
@@ -290,10 +282,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(closedBy);
 		try {
 			final Document document = get(documentUniqueId);
-
-			// flag the document as having been seen.
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.applyFlagSeen(document.getId());
 
 			// close the document
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
@@ -372,7 +360,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// flag the document as having been seen.
 			final InternalArtifactModel iAModel = getInternalArtifactModel();
 			iAModel.applyFlagKey(document.getId());
-			iAModel.applyFlagSeen(document.getId());
 
 			// fire a creation event
 			final Document d = get(document.getId());
@@ -430,10 +417,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		assertLoggedInUserIsKeyHolder(documentId);
 		try {
-			// flag the document as having been seen.
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.applyFlagSeen(documentId);
-
 			final Document document = get(documentId);
 			final DocumentContent content = getContent(documentId);
 
@@ -824,10 +807,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// open the local file
 			final LocalFile localFile = getLocalFile(document);
 			localFile.open();
-
-			// flag it as having been seen
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.applyFlagSeen(documentId);
 		}
 		catch(IOException iox) {
 			logger.error("open(UUID)", iox);
@@ -859,10 +838,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			final LocalFile localFile = getLocalFile(document, version);
 			localFile.open();
-
-			// flag the document as having been seen.
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.applyFlagSeen(documentId);
 		}
 		catch(IOException iox) {
 			logger.error("openVersion(UUID,String)", iox);
@@ -887,10 +862,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(comparator);
 		try {
-			// flag the document as having been seen.
-			final InternalArtifactModel iArModel = getInternalArtifactModel();
-			iArModel.applyFlagSeen(documentId);
-
 			final InternalAuditModel iAModel = getInternalAuditModel();
 
 			final HistoryItemBuilder hib =

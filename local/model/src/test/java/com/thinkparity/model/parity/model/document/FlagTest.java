@@ -36,7 +36,7 @@ public class FlagTest extends DocumentTestCase {
 				flags = datum.document.getFlags();
 
 				assertNotNull(flags);
-				assertTrue(flags.contains(ArtifactFlag.SEEN));
+				assertTrue(flags.contains(ArtifactFlag.KEY));
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }

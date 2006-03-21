@@ -36,23 +36,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Determine whether or not an artifact has a flag applied.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param flag
-	 *            The artifact flag.
-	 * @return True if the flag is applied; false otherwise.
-	 */
-	Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
-		logger.info("[LMODEL] [ARTIFACT] [IS FLAG APPLIED]");
-		logger.debug(artifactId);
-		logger.debug(flag);
-		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
-		return flags.contains(flag);
-	}
-
-	/**
 	 * Apply the key flag.
 	 * 
 	 * @param artifactId
@@ -72,6 +55,35 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	void applyFlagSeen(final Long artifactId) {
 		logger.info("[LMODEL] [ARTIFACT] [APPLY SEEN]");
 		applyFlag(artifactId, ArtifactFlag.SEEN);
+	}
+
+	/**
+	 * Determine whether or not the artifact has been seen.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return True if the artifact has been seen.
+	 */
+	Boolean hasBeenSeen(final Long artifactId) {
+		logger.info("[LMODEL] [ARTIFACT] [HAS BEEN SEEN]");
+		return isFlagApplied(artifactId, ArtifactFlag.SEEN);
+	}
+
+	/**
+	 * Determine whether or not an artifact has a flag applied.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @param flag
+	 *            The artifact flag.
+	 * @return True if the flag is applied; false otherwise.
+	 */
+	Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
+		logger.info("[LMODEL] [ARTIFACT] [IS FLAG APPLIED]");
+		logger.debug(artifactId);
+		logger.debug(flag);
+		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
+		return flags.contains(flag);
 	}
 
 	/**

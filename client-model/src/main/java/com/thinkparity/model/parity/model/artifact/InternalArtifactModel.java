@@ -29,15 +29,7 @@ public class InternalArtifactModel extends ArtifactModel {
 		synchronized(getImplLock()) { getImpl().applyFlagKey(artifactId); }
 	}
 
-	public void applyFlagSeen(final Long artifactId) {
-		synchronized(getImplLock()) { getImpl().applyFlagSeen(artifactId); }
-	}
-
 	public void removeFlagKey(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
-	}
-
-	public void removeFlagSeen(final Long artifactId) {
-		synchronized(getImplLock()) { getImpl().removeFlagSeen(artifactId); }
 	}
 }

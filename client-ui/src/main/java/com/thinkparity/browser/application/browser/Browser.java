@@ -92,6 +92,12 @@ public class Browser extends AbstractApplication {
 	 */
 	private final Map<AvatarId, Object> avatarInputMap;
 
+	/**
+	 * The browser's event dispatcher.
+	 * 
+	 */
+	private EventDispatcher ed;
+
 	private History2Window history2Window;
 
 	private HistoryWindow historyWindow;
@@ -178,7 +184,11 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void end(final Platform platform) {
+		logger.info("[BROWSER2] [APP] [B2] [END]");
 		assertStatusChange(ApplicationStatus.ENDING);
+
+		ed.end();
+		ed = null;
 
 		if(isMainWindowOpen()) { closeMainWindow(); }
 
@@ -440,8 +450,13 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void start(final Platform platform) {
+		logger.info("[BROWSER2] [APP] [B2] [START]");
+
 		assertStatusChange(ApplicationStatus.STARTING);
 		setStatus(ApplicationStatus.STARTING);
+
+		ed = new EventDispatcher(this);
+		ed.start();
 
 		assertStatusChange(ApplicationStatus.RUNNING);
 		openMainWindow();
@@ -495,6 +510,14 @@ public class Browser extends AbstractApplication {
 	 */
 	void displayTitleAvatar() {
     	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
+	}
+
+	/**
+	 * Reload the document history list.
+	 *
+	 */
+	void reloadHistoryList() {
+		getPlatform().getAvatarRegistry().get(AvatarId.DOCUMENT_HISTORY3).reload();
 	}
 
 	private void closeMainWindow() {

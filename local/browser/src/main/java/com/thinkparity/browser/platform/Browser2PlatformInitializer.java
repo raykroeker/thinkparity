@@ -6,7 +6,6 @@ package com.thinkparity.browser.platform;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.thinkparity.browser.model.EventDispatcher;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
@@ -28,7 +27,6 @@ public class Browser2PlatformInitializer {
 
 		LoggerFactory.getLogger(Browser2PlatformInitializer.class);
 		ModelFactory.getInstance().initialize();
-		EventDispatcher.getInstance().initialize();
 
 		// Set the application lnf
 		try { UIManager.setLookAndFeel(new WindowsLookAndFeel()); }

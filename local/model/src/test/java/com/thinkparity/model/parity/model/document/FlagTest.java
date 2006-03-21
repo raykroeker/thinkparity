@@ -17,10 +17,8 @@ public class FlagTest extends DocumentTestCase {
 
 	private class Fixture {
 		private Document document;
-		private DocumentModel documentModel;
-		private Fixture(final Document document, final DocumentModel documentModel) {
+		private Fixture(final Document document) {
 			this.document = document;
-			this.documentModel = documentModel;
 		}
 	}
 
@@ -39,12 +37,6 @@ public class FlagTest extends DocumentTestCase {
 
 				assertNotNull(flags);
 				assertTrue(flags.contains(ArtifactFlag.SEEN));
-
-				datum.document.remove(ArtifactFlag.SEEN);
-				datum.documentModel.update(datum.document);
-
-				flags = datum.document.getFlags();
-				assertNotNull(flags);
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }
@@ -64,7 +56,7 @@ public class FlagTest extends DocumentTestCase {
 		name = testFile.getName();
 		description = name;
 		document = documentModel.create(name, description, testFile);
-		data.add(new Fixture(document, documentModel));
+		data.add(new Fixture(document));
 	}
 
 	/**

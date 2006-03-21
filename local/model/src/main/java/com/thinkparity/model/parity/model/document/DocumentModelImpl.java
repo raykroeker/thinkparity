@@ -208,8 +208,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(progressIndicator);
 		assertValidOutputDirectory();
+
+		// flag the document as having been seen.
+		final InternalArtifactModel iAModel = getInternalArtifactModel();
+		iAModel.applyFlagSeen(documentId);
+
 		// 1  Audit Archive
 		auditor.archive(documentId, currentUserId(), currentDateTime());
+
 		// 2  Archive History
 		return documentHistoryIO.archive(documentId, readHistory(documentId));
 	}
@@ -248,6 +254,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		assertLoggedInUserIsKeyHolder(documentId);
 		try {
+			// flag the document as having been seen.
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.applyFlagSeen(documentId);
+
 			// close the document
 			final Document document = get(documentId);
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
@@ -279,8 +289,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentUniqueId);
 		logger.debug(closedBy);
 		try {
-			// close the document
 			final Document document = get(documentUniqueId);
+
+			// flag the document as having been seen.
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.applyFlagSeen(document.getId());
+
+			// close the document
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
 			documentIO.updateState(document.getId(), ArtifactState.CLOSED);
 
@@ -415,6 +430,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		assertLoggedInUserIsKeyHolder(documentId);
 		try {
+			// flag the document as having been seen.
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.applyFlagSeen(documentId);
+
 			final Document document = get(documentId);
 			final DocumentContent content = getContent(documentId);
 
@@ -515,37 +534,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("delete(UUID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
-	 * Take the given document, and export it to the specified file. This will
-	 * obtain the document's content, and save it to the file. Note that if file
-	 * exists, it will be overwritten.
-	 * 
-	 * @param document
-	 *            The document to export.
-	 * @param file
-	 *            The file to export the document to.
-	 * @throws ParityException
-	 */
-	void export(final Document document, final File file)
-			throws ParityException {
-		logger.info("export(Document)");
-		logger.debug(document);
-		logger.debug(file);
-		try {
-			Assert.assertNotTrue("File cannot already exist.", file.exists());
-			Assert.assertTrue("Could not create new file.", file.createNewFile());
-			writeDocumentContent(document.getId(), file);
-		}
-		catch(IOException iox) {
-			logger.error("export(Document,File)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
-			logger.error("export(Document,File)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -871,6 +859,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			final LocalFile localFile = getLocalFile(document, version);
 			localFile.open();
+
+			// flag the document as having been seen.
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.applyFlagSeen(documentId);
 		}
 		catch(IOException iox) {
 			logger.error("openVersion(UUID,String)", iox);
@@ -895,6 +887,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(comparator);
 		try {
+			// flag the document as having been seen.
+			final InternalArtifactModel iArModel = getInternalArtifactModel();
+			iArModel.applyFlagSeen(documentId);
+
 			final InternalAuditModel iAModel = getInternalAuditModel();
 
 			final HistoryItemBuilder hib =
@@ -1023,20 +1019,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 		catch(RuntimeException rx) {
 			logger.error("unlock(UUID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	// USED BY THE ABSTRACT MODEL
-	void update(final Document document) throws ParityException {
-		logger.info("update(Document)");
-		logger.debug(document);
-		try {
-			documentIO.update(document);
-			notifyUpdate_objectUpdated(document);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("update(Document)", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -1233,21 +1215,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Fire the objectUpdated event for all of the udpate listeners.
-	 * 
-	 * @param document
-	 *            The document to use as the event source.
-	 * @see UpdateListener#objectUpdated(UpdateEvent)
-	 */
-	private void notifyUpdate_objectUpdated(final Document document) {
-		synchronized(DocumentModelImpl.updateListenersLock) {
-			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
-				listener.objectUpdated(new UpdateEvent(document));
-			}
-		}
-	}
-
-	/**
 	 * This is the first time this particular document has been recieved. We
 	 * need to create the document; send a subscription request; then receive
 	 * update.
@@ -1348,20 +1315,5 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// remove flag seen
 		final InternalArtifactModel iAModel = getInternalArtifactModel();
 		iAModel.removeFlagSeen(document.getId());
-	}
-
-	/**
-	 * Write the content of a document to a file.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param file
-	 *            The target file.
-	 * @throws IOException
-	 */
-	private void writeDocumentContent(final Long documentId, final File file)
-			throws ParityException, IOException {
-		final DocumentContent content = getContent(documentId);
-		FileUtil.writeBytes(file, content.getContent());
 	}
 }

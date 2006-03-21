@@ -8,11 +8,10 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Calendar;
 
-import junit.framework.Assert;
-
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;

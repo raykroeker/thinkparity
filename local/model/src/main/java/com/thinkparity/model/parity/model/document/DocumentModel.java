@@ -183,22 +183,6 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Take the given document, and export it to the specified file. This will
-	 * obtain the document's content, and save it to the file. Note that if file
-	 * exists, it will be overwritten.
-	 * 
-	 * @param file
-	 *            The file to export the document to.
-	 * @param document
-	 *            The document to export.
-	 * @throws ParityException
-	 */
-	public void export(final Document document, final File file)
-			throws ParityException {
-		synchronized(implLock) { impl.export(document, file); }
-	}
-
-	/**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentId
@@ -406,11 +390,6 @@ public class DocumentModel {
 	 */
 	public void removeListener(final UpdateListener listener) {
 		synchronized(implLock) { impl.removeListener(listener); }
-	}
-
-	// USED BY THE ABSTRACT MODEL
-	public void update(final Document document) throws ParityException {
-		synchronized(implLock) { impl.update(document); }
 	}
 
 	/**

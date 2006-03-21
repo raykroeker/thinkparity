@@ -10,7 +10,5 @@ package com.thinkparity.model.parity.api.events;
  */
 public interface CreationListener {
 	public void objectCreated(final CreationEvent creationEvent);
-	public void objectReceived(final CreationEvent creationEvent);
 	public void objectVersionCreated(final VersionCreationEvent versionCreationEvent);
-	public void objectVersionReceived(final VersionCreationEvent versionCreationEvent);
 }

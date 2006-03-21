@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.window;
 import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.application.window.WindowRegistry;
+import com.thinkparity.browser.platform.login.ui.LoginWindow;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -32,6 +33,10 @@ public class WindowFactory {
 	 */
 	public static Window create(final WindowId windowId, final BrowserWindow browserWindow) {
 		return singleton.doCreate(windowId, browserWindow);
+	}
+
+	public static Window create(final WindowId windowId) {
+		return singleton.doCreate(windowId);
 	}
 
 	/**
@@ -76,6 +81,30 @@ public class WindowFactory {
 		default:
 			throw Assert.createUnreachable("Unknown window:  " + windowId);
 		}
+	}
+
+	/**
+	 * Create a window.
+	 * 
+	 * @param windowId
+	 *            The window id.
+	 * @return The window for the given id.
+	 */
+	private Window doCreate(final WindowId windowId) {
+		final Window window;
+		switch(windowId) {
+		case PLATFORM_LOGIN:
+			window = doCreatePlatformLogin();
+			break;
+		default:
+			throw Assert.createUnreachable("Unknown window:  " + windowId);
+		}
+		register(window);
+		return window;
+	}
+
+	private Window doCreatePlatformLogin() {
+		return new LoginWindow();
 	}
 
 	private Window doCreateHistory(final BrowserWindow browserWindow) {

@@ -6,9 +6,14 @@ package com.thinkparity.browser.platform.application.window;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 
+import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
@@ -25,32 +30,6 @@ public abstract class Window extends AbstractJDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
-
-	/**
-	 * Calculate the location for the window based upon its owner and its size.
-	 * 
-	 * @param owner
-	 *            The owner window.
-	 * @param window
-	 *            The window.
-	 * @return The location of the window centered on the owner.
-	 */
-	protected static Point calculateLocation(final java.awt.Window owner,
-			final Window window) {
-		final Dimension os = owner.getSize();
-		final Dimension ws = window.getSize();
-		final Point l = owner.getLocation();
-		l.x += (os.width - ws.width) / 2;
-		l.y += (os.height - ws.height) / 2;
-
-		final Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
-		if(l.x + ws.width > (ss.width)) { l.x = ss.width - ws.width; }
-		if(l.y + ws.height > (ss.height)) { l.y = ss.height - ws.height; }
-
-		if(l.x < 0) { l.x = 0; }
-		if(l.y < 0) { l.y = 0; }
-		return l;
-	}
 
 	/**
 	 * The panel onto which all displays are dropped.
@@ -94,9 +73,68 @@ public abstract class Window extends AbstractJDialog {
 		debugGeometry();
 		debugLookAndFeel();
 		setSize(windowSize.get(avatar.getId()));
-		setLocation(calculateLocation(getOwner(), this));
+		setLocation(calculateLocation());
 		invalidate();
 		setVisible(true);
+	}
+
+	/**
+	 * Open an avatar in the window.  Display 
+	 * @param avatar
+	 * @param errors
+	 */
+	public void openAndWait(final Avatar avatar) {
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosed(final WindowEvent e) {
+				synchronized(Window.this) { Window.this.notifyAll(); }
+			}
+		});
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() { open(avatar); }
+			});
+		}
+		catch(final InterruptedException ix) { throw new RuntimeException(ix); }
+		catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
+		synchronized(Window.this) {
+			try { wait(); }
+			catch(final InterruptedException ix) {
+				throw new RuntimeException(ix);
+			}
+		}
+	}
+
+	/**
+	 * Calculate the location for the window based upon its owner and its size.
+	 * 
+	 * @return The location of the window centered on the owner.
+	 */
+	protected Point calculateLocation() {
+		final Dimension os = getOwner().getSize();
+		final Dimension ss = Toolkit.getDefaultToolkit().getScreenSize();
+		final Dimension ws = getSize();
+		if(0 == os.width || 0 == os.height) {
+			final Point l = getLocation();
+			l.x = (ss.width - ws.width) / 2;
+			l.y = (ss.height - ws.height) / 2;
+			return l;
+		}
+		else {
+			final Point l = getOwner().getLocation();
+			l.x += (os.width - ws.width) / 2;
+			l.y += (os.height - ws.height) / 2;
+	
+			if(l.x + ws.width > (ss.width)) { l.x = ss.width - ws.width; }
+			if(l.y + ws.height > (ss.height)) { l.y = ss.height - ws.height; }
+	
+			if(l.x < 0) { l.x = 0; }
+			if(l.y < 0) { l.y = 0; }
+			return l;
+		}
+	}
+
+	protected Dimension calculateSize(final AvatarId avatarId) {
+		return windowSize.get(avatarId);
 	}
 
 	protected void initComponents(final Avatar avatar) {

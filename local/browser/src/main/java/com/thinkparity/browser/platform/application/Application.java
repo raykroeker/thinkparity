@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.platform.application;
 
+import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.Saveable;
 
 /**
@@ -10,9 +11,60 @@ import com.thinkparity.browser.platform.Saveable;
  * @version 1.1
  */
 public interface Application extends Saveable {
-	public void end();
+
+	/**
+	 * Add a listener to the application. The listener is used to generate
+	 * status change events.
+	 * 
+	 * @param l
+	 *            The application listener.
+	 */
+	public void addListener(final ApplicationListener l);
+
+	/**
+	 * End the application.
+	 *
+	 */
+	public void end(final Platform platform);
+
+	/**
+	 * Obtain the application id.
+	 * 
+	 * @return The application id.
+	 */
 	public ApplicationId getId();
-	public void hibernate();
-	public void start();
-	public void launch();
+
+	/**
+	 * Determine the application's current status.
+	 * 
+	 * @return The application's current status.
+	 */
+	public ApplicationStatus getStatus();
+
+	/**
+	 * Hibernate the application.
+	 *
+	 */
+	public void hibernate(final Platform platform);
+
+	/**
+	 * Add a listener to the application. The listener is used to generate
+	 * status change events.
+	 * 
+	 * @param l
+	 *            The application listener.
+	 */
+	public void removeListener(final ApplicationListener l);
+
+	/**
+	 * Restore the application from hibernation.
+	 *
+	 */
+	public void restore(final Platform platform);
+
+	/**
+	 * Start the application.
+	 *
+	 */
+	public void start(final Platform platform);
 }

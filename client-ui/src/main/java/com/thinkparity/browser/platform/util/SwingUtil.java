@@ -3,18 +3,14 @@
  */
 package com.thinkparity.browser.platform.util;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -61,9 +57,6 @@ public class SwingUtil {
 	public static void setToolTip(final JTextField jTextField, final String text) {
 		synchronized(singletonLock) { singleton.doSetToolTip(jTextField, text); }
 	}
-	public static void centreOnScreen(final JFrame jFrame) {
-		synchronized(singletonLock) { singleton.doCentreOnScreen(jFrame); }
-	}
 
 	/**
 	 * Create a SwingUtil [Singleton]
@@ -105,19 +98,6 @@ public class SwingUtil {
 		final Object[] a = jList.getSelectedValues();
 		for(final Object o : a) { l.add((T) o); }
 		return l;
-	}
-
-	private void doCentreOnScreen(final JFrame jFrame) {
-		final Dimension ss = getDefaultScreenSize();
-		final Point l = jFrame.getLocation();
-		final Dimension js = jFrame.getSize();
-		l.x = (ss.width - js.width) / 2;
-		l.y = (ss.height - js.height) / 2;
-		jFrame.setLocation(l);
-	}
-
-	private Dimension getDefaultScreenSize() {
-		return Toolkit.getDefaultToolkit().getScreenSize();
 	}
 
 	private Boolean doExtract(final JCheckBox jCheckBox) {

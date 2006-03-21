@@ -26,6 +26,8 @@ public class PopupWindow extends Window {
 		super(browserWindow, Boolean.FALSE, "");
 	}
 
+	public PopupWindow() { super(null, Boolean.FALSE, ""); }
+
 	/**
 	 * @see com.thinkparity.browser.platform.application.window.Window#getId()
 	 * 

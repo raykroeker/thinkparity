@@ -31,7 +31,11 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  */
 public class ButtonPanel extends AbstractJPanel {
 
-	private static final Icon CLOSE_ICON;
+	private static final Icon MIN_ICON;
+
+	private static final Icon MIN_ROLLOVER_ICON;
+
+        private static final Icon CLOSE_ICON;
 
 	private static final Icon CLOSE_ROLLOVER_ICON;
 
@@ -58,6 +62,9 @@ public class ButtonPanel extends AbstractJPanel {
 
 		DOCUMENTS_ICON = ImageIOUtil.readIcon("DocumentsButton.png");
 		DOCUMENTS_ROLLOVER_ICON = ImageIOUtil.readIcon("DocumentsButtonRollover.png");
+
+		MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
+		MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("MinimizeButtonRollover.png");
 	}
 
 	/**
@@ -65,6 +72,12 @@ public class ButtonPanel extends AbstractJPanel {
 	 * 
 	 */
 	private JLabel closeJLabel;
+
+	/**
+	 * The minimize button.
+	 *
+	 */
+	private JLabel minJLabel;
 
 	/**
 	 * The contacts button.
@@ -205,7 +218,7 @@ public class ButtonPanel extends AbstractJPanel {
 		closeJLabel = LabelFactory.create(CLOSE_ICON);
 		closeJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
-				runCloseBrowser();
+				closeJLabelMouseClicked(e);
 			}
 			public void mouseEntered(final MouseEvent e) {
 				closeJLabel.setIcon(CLOSE_ROLLOVER_ICON);
@@ -226,6 +239,18 @@ public class ButtonPanel extends AbstractJPanel {
 				documentsJLabel.setIcon(DOCUMENTS_ICON);
 			}
 		});
+		minJLabel = LabelFactory.create(MIN_ICON);
+		minJLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent e) {
+				minJLabelMouseClicked(e);
+			}
+			public void mouseExited(final MouseEvent e) {
+				minJLabel.setIcon(MIN_ICON);
+			}
+			public void mouseEntered(final MouseEvent e) {
+				minJLabel.setIcon(MIN_ROLLOVER_ICON);
+			}
+		});
 
 		final GridBagConstraints c = new GridBagConstraints();
 
@@ -234,13 +259,19 @@ public class ButtonPanel extends AbstractJPanel {
 		c.weighty = 1;
 		add(documentsJLabel, c.clone());
 
-		c.insets.left = 11;
+		c.insets.left = 4;
 		c.weightx = 0;
 		c.weighty = 0;
 		add(contactsJLabel, c.clone());
 
 		c.anchor = GridBagConstraints.NORTH;
 		c.insets.top = 6;
+
+		c.insets.left = 4;
+		c.insets.right = 2;
+		add(minJLabel, c.clone());
+
+		c.insets.left = 0;
 		c.insets.right = 8;
 		add(closeJLabel, c.clone());
 	}
@@ -255,7 +286,11 @@ public class ButtonPanel extends AbstractJPanel {
 	 * Close the browser.
 	 *
 	 */
-	private void runCloseBrowser() { getBrowser().end(); }
+	private void closeJLabelMouseClicked(final MouseEvent e) {
+		if(e.isShiftDown()) { getBrowser().end(getBrowser().getPlatform()); }
+		else { getBrowser().close(); }
+		closeJLabel.setIcon(CLOSE_ICON);
+	}
 
 	/**
 	 * Open an invite contact dialogue.
@@ -274,5 +309,14 @@ public class ButtonPanel extends AbstractJPanel {
 	private void showMenu(final JComponent jComponent,
 			final JPopupMenu jPopupMenu) {
 		jPopupMenu.show(jComponent, 0, jComponent.getSize().height);
+	}
+
+	/**
+	 * The user clicked on the minimize button.
+	 *
+	 * @param e The mouse event.
+	 */
+	private void minJLabelMouseClicked(final MouseEvent e) {
+		container.getController().minimize();
 	}
 }

@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
@@ -86,20 +87,6 @@ public class BrowserWindow extends AbstractJFrame {
 	}
 
 	/**
-	 * Open the main window.
-	 * 
-	 * @return The main window.
-	 */
-	static BrowserWindow open() {
-		final BrowserWindow mainWindow = new BrowserWindow();
-		mainWindow.setVisible(true);
-		mainWindow.applyRenderingHints();
-		mainWindow.debugGeometry();
-		mainWindow.debugLookAndFeel();
-		return mainWindow;
-	}
-
-	/**
 	 * Handle to an apache logger.
 	 * 
 	 */
@@ -112,26 +99,26 @@ public class BrowserWindow extends AbstractJFrame {
 	public MainPanel mainPanel;
 
 	/**
-	 * The main controller.
+	 * The browser application.
 	 * 
-	 * @see #getController()
 	 */
-	private Browser controller;
+	private final Browser browser;
 
 	/**
 	 * Create a BrowserWindow.
 	 * 
 	 * @throws HeadlessException
 	 */
-	private BrowserWindow() throws HeadlessException {
+	BrowserWindow(final Browser browser) throws HeadlessException {
 		super("BrowserWindow");
+		this.browser = browser;
 		// initialize the state
 		new BrowserWindowState(this);
 		getRootPane().setBorder(getBorder());
 		setIconImage(BROWSER_ICON);
 		setTitle(getString("Title"));
 		setUndecorated(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setSize(BrowserWindow.getMainWindowSize());
 		applyNativeSkin();
@@ -157,20 +144,30 @@ public class BrowserWindow extends AbstractJFrame {
 	public Display[] getDisplays() { return mainPanel.getDisplays(); }
 
 	/**
+	 * Open the main window.
+	 * 
+	 * @return The main window.
+	 */
+	void open() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				setVisible(true);
+				applyRenderingHints();
+				debugGeometry();
+				debugLookAndFeel();
+
+		    	browser.displayTitleAvatar();
+		    	browser.displayInfoAvatar();
+		    	browser.displayDocumentListAvatar();
+			}
+		});
+	}
+
+	/**
 	 * Apply native skin attributes to the browser window.
 	 * 
 	 */
 	private void applyNativeSkin() { NativeSkinUtil.applyNativeSkin(this); }
-
-	/**
-	 * Obtain the main controller.
-	 * 
-	 * @return The main controller.
-	 */
-	private Browser getController() {
-		if(null == controller) { controller = Browser.getInstance(); }
-		return controller;
-	}
 
 	/**
 	 * Add the main panel to the window.

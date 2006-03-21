@@ -9,19 +9,19 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
-import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
-import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAvatar;
 import com.thinkparity.browser.application.browser.window.History2Window;
 import com.thinkparity.browser.application.browser.window.HistoryWindow;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
+import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -37,12 +37,12 @@ import com.thinkparity.browser.platform.action.session.AcceptInvitation;
 import com.thinkparity.browser.platform.action.session.DeclineInvitation;
 import com.thinkparity.browser.platform.action.session.RequestKey;
 import com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage;
-import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.ApplicationId;
+import com.thinkparity.browser.platform.application.ApplicationStatus;
+import com.thinkparity.browser.platform.application.L18nContext;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
-import com.thinkparity.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
@@ -56,22 +56,22 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Browser implements Application {
+public class Browser extends AbstractApplication {
 
 	/**
-	 * Singleton instance of the controller.
+	 * Instance of the browser.
 	 * 
+	 * @see #Browser(Platform)
+	 * @see #getInstance()
 	 */
-	private static final Browser singleton;
-
-	static { singleton = new Browser(); }
+	private static Browser INSTANCE;
 
 	/**
 	 * Obtain the instance of the controller.
 	 * 
 	 * @return The instance of the controller.
 	 */
-	public static Browser getInstance() { return singleton; }
+	public static Browser getInstance() { return INSTANCE; }
 
 	/**
 	 * Apache logger.
@@ -91,11 +91,16 @@ public class Browser implements Application {
 	 */
 	private final Map<AvatarId, Object> avatarInputMap;
 
+	private History2Window history2Window;
+
+	private HistoryWindow historyWindow;
+
 	/**
-	 * The avatar registry.
+	 * The file chooser.
 	 * 
+	 * @see #getJFileChooser()
 	 */
-	private final AvatarRegistry avatarRegistry;
+	private JFileChooser jFileChooser;
 
 	/**
 	 * Main window.
@@ -108,89 +113,25 @@ public class Browser implements Application {
 	 * 
 	 */
 	private final BrowserState state;
-
-	/**
-	 * The window registry.
-	 * 
-	 */
-	private final WindowRegistry windowRegistry;
-
+	
 	/**
 	 * Create a Browser [Singleton]
 	 * 
 	 */
-	private Browser() {
-		super();
-		this.avatarRegistry = new AvatarRegistry();
+	public Browser(final Platform platform) {
+		super(platform, L18nContext.BROWSER2);
+		Assert.assertIsNull("Cannot create a second browser.", INSTANCE);
+		INSTANCE = this;
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
 		this.state = new BrowserState(this);
-		this.windowRegistry = new WindowRegistry();
 	}
 
 	/**
-	 * Toggle the document history display.
+	 * Close the main window.
 	 *
 	 */
-	public void toggleHistoryAvatar() {
-		if(null == historyWindow) {
-			if(!avatarRegistry.contains(AvatarId.DOCUMENT_HISTORY))
-				AvatarFactory.create(AvatarId.DOCUMENT_HISTORY);
-			final Avatar avatar = avatarRegistry.get(AvatarId.DOCUMENT_HISTORY);
-			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY))
-				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY));
-			
-			historyWindow = new HistoryWindow(mainWindow, avatar);
-			historyWindow.setVisible(true);
-		}
-		else {
-			historyWindow.dispose();
-			historyWindow = null;
-		}
-	}
-
-	public void toggleHistory3Avatar() {
-	    if(null == history2Window) {
-		final AvatarId id = AvatarId.DOCUMENT_HISTORY3;
-		if(!avatarRegistry.contains(id))
-		    AvatarFactory.create(id);
-		final Avatar avatar = avatarRegistry.get(id);
-		if(null != getAvatarInput(id))
-		    avatar.setInput(getAvatarInput(id));
-
-		history2Window = new History2Window(mainWindow, avatar);
-		history2Window.setVisible(true);
-	    }
-	    else {
-		history2Window.dispose();
-		history2Window = null;
-	    }
-	}
-	
-	public void toggleHistory2Avatar() {
-		if(null == history2Window) {
-			if(!avatarRegistry.contains(AvatarId.DOCUMENT_HISTORY2))
-				AvatarFactory.create(AvatarId.DOCUMENT_HISTORY2);
-			final Avatar avatar = avatarRegistry.get(AvatarId.DOCUMENT_HISTORY2);
-			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY2))
-				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY2));
-			
-			history2Window = new History2Window(mainWindow, avatar);
-			history2Window.setVisible(true);
-		}
-		else {
-			history2Window.dispose();
-			history2Window = null;
-		}
-	}
-
-	public Boolean isHistoryVisible() {
-		return null != historyWindow && historyWindow.isVisible();
-	}
-
-	private HistoryWindow historyWindow;
-
-	private History2Window history2Window;
+	public void close() { getPlatform().hibernate(getId()); }
 
 	/**
 	 * Display the login avatar.
@@ -229,7 +170,6 @@ public class Browser implements Application {
 	 *
 	 */
 	public void displaySessionSendFormAvatar() {
-		putClientProperty(AvatarId.SESSION_SEND_FORM, "doIncludeKey", Boolean.FALSE);
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
 	}
 
@@ -237,13 +177,27 @@ public class Browser implements Application {
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
 	 */
-	public void end() { closeMainWindow(); }
+	public void end(final Platform platform) {
+		assertStatusChange(ApplicationStatus.ENDING);
+
+		if(isMainWindowOpen()) { closeMainWindow(); }
+
+		setStatus(ApplicationStatus.ENDING);
+		notifyEnd();
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.Application#getId()
 	 * 
 	 */
-	public ApplicationId getId() { return ApplicationId.BROWSER; }
+	public ApplicationId getId() { return ApplicationId.BROWSER2; }
+
+	/**
+	 * Obtain the platform.
+	 * 
+	 * @return The platform the application is running on.
+	 */
+	public Platform getPlatform() { return super.getPlatform(); }
 
 	/**
 	 * Obtain the selected system message.
@@ -256,59 +210,53 @@ public class Browser implements Application {
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate()
 	 * 
 	 */
-	public void hibernate() {}
+	public void hibernate(final Platform platform) {
+		assertStatusChange(ApplicationStatus.HIBERNATING);
 
-	/**
-	 * @see com.thinkparity.browser.platform.application.Application#launch()
-	 * 
-	 */
-	public void launch() {}
+		closeMainWindow();
 
-	/**
-	 * Move the main window.
-	 * 
-	 * @param relativeLocation
-	 *            The new relative location of the window.
-	 */
-	public void moveMainWindow(final Point relativeLocation) {
-		logger.info("moveMainWindow(Point)");
-		logger.debug(relativeLocation);
-		final Point l = mainWindow.getLocation();
-		l.x += relativeLocation.x;
-		l.y += relativeLocation.y;
-		logger.debug(l);
-		mainWindow.setLocation(l);
-		if(null != historyWindow && historyWindow.isVisible()) {
-			final Point l2 = historyWindow.getLocation();
-			l2.x += relativeLocation.x;
-			l2.y += relativeLocation.y;
-			historyWindow.setLocation(l2);
-		}
-		if(null != history2Window && history2Window.isVisible()) {
-			final Point l2 = history2Window.getLocation();
-			l2.x += relativeLocation.x;
-			l2.y += relativeLocation.y;
-			history2Window.setLocation(l2);
-		}
+		setStatus(ApplicationStatus.HIBERNATING);
+		notifyHibernate();
+	}
+
+	public Boolean isHistoryVisible() {
+		return null != historyWindow && historyWindow.isVisible();
 	}
 
 	/**
-	 * Open the main window.
+	 * Minimize the browser application.
 	 *
 	 */
-	public void openMainWindow() {
-		Assert.assertIsNull("Cannot reopen main window.", mainWindow);
+	public void minimize() {
+		if(!isMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
+	}
 
-		// Schedule a job for the event-dispatching thread:  creating and
-		// showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-            	mainWindow = BrowserWindow.open();
-            	displayTitleAvatar();
-            	displayInfoAvatar();
-            	displayDocumentListAvatar();
-            }
-        });
+	/**
+	 * Move the browser window.
+	 * 
+	 * @param l
+	 *            The new relative location of the window.
+	 */
+	public void moveBrowserWindow(final Point l) {
+		logger.info("moveMainWindow(Point)");
+		logger.debug(l);
+		final Point newL = mainWindow.getLocation();
+		newL.x += l.x;
+		newL.y += l.y;
+		logger.debug(newL);
+		mainWindow.setLocation(newL);
+		if(null != historyWindow && historyWindow.isVisible()) {
+			final Point hl = historyWindow.getLocation();
+			hl.x += l.x;
+			hl.y += l.y;
+			historyWindow.setLocation(hl);
+		}
+		if(null != history2Window && history2Window.isVisible()) {
+			final Point hl = history2Window.getLocation();
+			hl.x += l.x;
+			hl.y += l.y;
+			history2Window.setLocation(hl);
+		}
 	}
 
 	/**
@@ -323,14 +271,30 @@ public class Browser implements Application {
 	 *
 	 */
 	public void reloadMainList() {
-		AvatarFactory.create(AvatarId.BROWSER_MAIN).reload();
+		getPlatform().getAvatarRegistry().get(AvatarId.BROWSER_MAIN).reload();
 	}
 
 	/**
-	 * @see com.thinkparity.browser.platform.Saveable#restore(com.thinkparity.browser.platform.util.State)
+	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
-	public void restore(final State state) {}
+	public void restore(final Platform platform) {
+		assertStatusChange(ApplicationStatus.RESTORING);
+
+		openMainWindow();
+
+		setStatus(ApplicationStatus.RESTORING);
+		notifyRestore();
+
+		assertStatusChange(ApplicationStatus.RUNNING);
+		setStatus(ApplicationStatus.RUNNING);
+	}
+
+	/**
+	 * @see com.thinkparity.browser.platform.Saveable#restoreState(com.thinkparity.browser.platform.util.State)
+	 * 
+	 */
+	public void restoreState(final State state) {}
 
 	/**
 	 * Accept an invitation.
@@ -362,23 +326,6 @@ public class Browser implements Application {
 		final Data data = new Data(1);
 		data.set(Close.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_CLOSE, data);
-	}
-
-	/**
-	 * The file chooser.
-	 * 
-	 * @see #getJFileChooser()
-	 */
-	private JFileChooser jFileChooser;
-
-	/**
-	 * Obtain the file chooser.
-	 * 
-	 * @return The file chooser.
-	 */
-	private JFileChooser getJFileChooser() {
-		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
-		return jFileChooser;
 	}
 
 	/**
@@ -417,13 +364,14 @@ public class Browser implements Application {
 		final Data data = new Data(1);
 		data.set(Delete.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_DELETE, data);
+		reloadMainList();
 	}
 
 	public void runDeleteSystemMessage(final Long systemMessageId) {
 		final Data data = new Data(1);
 		data.set(DeleteSystemMessage.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.SYSTEM_MESSAGE_DELETE, data);
-		reloadMainBrowserAvatar();
+		reloadMainList();
 	}
 
 	/**
@@ -470,10 +418,10 @@ public class Browser implements Application {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.platform.Saveable#save(com.thinkparity.browser.platform.util.State)
+	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
-	public void save(final State state) {}
+	public void saveState(final State state) {}
 
 	/**
 	 * Select a document.
@@ -492,7 +440,68 @@ public class Browser implements Application {
 	 * @see com.thinkparity.browser.platform.application.Application#start()
 	 * 
 	 */
-	public void start() { openMainWindow(); }
+	public void start(final Platform platform) {
+		assertStatusChange(ApplicationStatus.STARTING);
+		setStatus(ApplicationStatus.STARTING);
+
+		assertStatusChange(ApplicationStatus.RUNNING);
+		openMainWindow();
+
+		setStatus(ApplicationStatus.RUNNING);
+		notifyStart();
+	}
+
+	public void toggleHistory2Avatar() {
+		if(null == history2Window) {
+			final Avatar avatar = getAvatar(AvatarId.DOCUMENT_HISTORY2);
+
+			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY2))
+				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY2));
+			
+			history2Window = new History2Window(mainWindow, avatar);
+			history2Window.setVisible(true);
+		}
+		else {
+			history2Window.dispose();
+			history2Window = null;
+		}
+	}
+
+	public void toggleHistory3Avatar() {
+	    if(null == history2Window) {
+			final Avatar avatar = getAvatar(AvatarId.DOCUMENT_HISTORY3);
+
+			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY3))
+				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY3));
+
+			history2Window = new History2Window(mainWindow, avatar);
+			history2Window.setVisible(true);
+		}
+		else {
+			history2Window.dispose();
+			history2Window = null;
+		}
+	}
+
+	/**
+	 * Toggle the document history display.
+	 *
+	 */
+	public void toggleHistoryAvatar() {
+		if(null == historyWindow) {
+			final Avatar avatar = getAvatar(AvatarId.DOCUMENT_HISTORY);
+			
+			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY))
+				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY));
+
+			historyWindow = new HistoryWindow(mainWindow, avatar);
+			historyWindow.setVisible(true);
+		}
+		else {
+			historyWindow.dispose();
+			historyWindow = null;
+		}
+	}
 
 	/**
 	 * Unselect a document.
@@ -508,10 +517,22 @@ public class Browser implements Application {
 	 */
 	public void unselectSystemMessage() {}
 
+	void displayDocumentListAvatar() {
+		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
+	}
+
+	void displayInfoAvatar() {
+		displayAvatar(DisplayId.INFO, AvatarId.BROWSER_INFO);
+	}
+
 	/**
-	 * Close the main window.
+	 * Display the browser's title avatar.
 	 *
 	 */
+	void displayTitleAvatar() {
+    	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
+	}
+
 	private void closeMainWindow() {
 		Assert.assertNotNull(
 				"Cannot close main window before it is open.", mainWindow);
@@ -535,7 +556,7 @@ public class Browser implements Application {
 		final Avatar currentAvatar = display.getAvatar();
 		state.saveAvatarState(currentAvatar);
 
-		final Avatar nextAvatar = AvatarFactory.create(avatarId);
+		final Avatar nextAvatar = getAvatar(avatarId);
 		state.loadAvatarState(nextAvatar);
 
 		final Object input = getAvatarInput(avatarId);
@@ -561,11 +582,7 @@ public class Browser implements Application {
 		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
 		final Window window = WindowFactory.create(windowId, mainWindow);
 
-		final Avatar avatar;
-		if(avatarRegistry.contains(avatarId)) {
-			avatar = avatarRegistry.get(avatarId);
-		}
-		else { avatar = AvatarFactory.create(avatarId); }
+		final Avatar avatar = getAvatar(avatarId);
 
 		final Object input = getAvatarInput(avatarId);
 		if(null == input) { logger.info("Null input:  " + avatarId); }
@@ -574,22 +591,6 @@ public class Browser implements Application {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() { window.open(avatar); }
 		});
-	}
-
-	private void displayDocumentListAvatar() {
-		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
-	}
-
-	private void displayInfoAvatar() {
-		displayAvatar(DisplayId.INFO, AvatarId.BROWSER_INFO);
-	}
-
-	/**
-	 * Display the browser's title avatar.
-	 *
-	 */
-	private void displayTitleAvatar() {
-    	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
 	}
 
 	/**
@@ -620,6 +621,16 @@ public class Browser implements Application {
 		return avatarInputMap.get(avatarId);
 	}
 
+	/**
+	 * Obtain the file chooser.
+	 * 
+	 * @return The file chooser.
+	 */
+	private JFileChooser getJFileChooser() {
+		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
+		return jFileChooser;
+	}
+
 	private void invoke(final ActionId actionId) {
 		invoke(actionId, new Data(0));
 	}
@@ -635,21 +646,21 @@ public class Browser implements Application {
 		}
 	}
 
+	private Boolean isMainWindowOpen() {
+		return null != mainWindow && mainWindow.isVisible();
+	}
+
+	private Boolean isMinimized() {
+		return JFrame.ICONIFIED == mainWindow.getExtendedState();
+	}
+
 	/**
-	 * Use the putClientProperty api of the swing component to add a key\value
-	 * pair to the avatar.
-	 * 
-	 * @param avatarId
-	 *            The avatar.
-	 * @param key
-	 *            The key.
-	 * @param value
-	 *            The value.
+	 * Open the main browser window.
+	 *
 	 */
-	private void putClientProperty(final AvatarId avatarId, final String key,
-			final Object value) {
-		final Avatar avatar = AvatarFactory.create(avatarId);
-		avatar.putClientProperty(key, value);
+	private void openMainWindow() {
+		mainWindow = new BrowserWindow(this);
+		mainWindow.open();
 	}
 
 	/**
@@ -663,7 +674,7 @@ public class Browser implements Application {
 	 *            The avatar input.
 	 */
 	private void setInput(final AvatarId avatarId, final Object input) {
-		final Avatar avatar = avatarRegistry.get(avatarId);
+		final Avatar avatar = getAvatar(avatarId);
 		if(null == avatar) {
 			logger.warn("Avatar " + avatarId + " not yet available.");
 			avatarInputMap.put(avatarId, input);

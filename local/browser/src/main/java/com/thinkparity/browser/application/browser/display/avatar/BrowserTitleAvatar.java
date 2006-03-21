@@ -12,14 +12,13 @@ import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.application.browser.display.avatar.title.ButtonPanel;
 import com.thinkparity.browser.application.browser.display.avatar.title.SearchPanel;
-import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class BrowserTitleAvatar extends Avatar {
+class BrowserTitleAvatar extends BrowserAvatar {
 
 	/**
 	 * @see java.io.Serializable
@@ -43,7 +42,7 @@ class BrowserTitleAvatar extends Avatar {
 			int offsetX;
 			int offsetY;
 			public void mouseDragged(final MouseEvent e) {
-				getController().moveMainWindow(
+				moveBrowserWindow(
 						new Point(e.getPoint().x - offsetX,
 								e.getPoint().y - offsetY));
 			}

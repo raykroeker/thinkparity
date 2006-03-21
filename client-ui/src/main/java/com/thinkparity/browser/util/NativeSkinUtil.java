@@ -7,10 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.application.browser.window.HistoryWindow;
-import com.thinkparity.browser.application.gadget.GadgetWindow;
 import com.thinkparity.browser.platform.application.window.Window;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 
@@ -32,16 +29,6 @@ public class NativeSkinUtil {
 	private static final NativeSkinUtil singleton;
 
 	static { singleton = new NativeSkinUtil(); }
-
-	/**
-	 * Apply the native skin to the gadget window.
-	 * 
-	 * @param gadgetWindow
-	 *            The gadget window.
-	 */
-	public static void applyNativeSkin(final GadgetWindow gadgetWindow) {
-		singleton.doApplyNativeSkin(gadgetWindow);
-	}
 
 	/**
 	 * Apply a native skin to a parity window.
@@ -89,18 +76,6 @@ public class NativeSkinUtil {
 	}
 
 	/**
-	 * Apply the native skin to the gadget window.
-	 * 
-	 * @param gadgetWindow
-	 *            The gadget window.
-	 */
-	private void doApplyNativeSkin(final GadgetWindow gadgetWindow) {
-//		final Region region =
-//			new RegionBuilder().createRegion(GadgetWindow.getImage());
-//		nativeSkin.setWindowRegion(gadgetWindow, region, true);
-	}
-
-	/**
 	 * Apply the native skin to the browser window.
 	 * 
 	 * @param browserWindow
@@ -127,8 +102,7 @@ public class NativeSkinUtil {
 	 * @param window
 	 *            The parity window.
 	 */
-	private void doApplyNativeSkin(final Window window) {
-	}
+	private void doApplyNativeSkin(final Window window) {}
 
 	/**
 	 * Apply a native skin to the parity history window.

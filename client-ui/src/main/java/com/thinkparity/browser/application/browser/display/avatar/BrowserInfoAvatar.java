@@ -11,7 +11,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import com.thinkparity.browser.Browser2Platform;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
@@ -163,7 +162,7 @@ public class BrowserInfoAvatar extends Avatar {
 	 *
 	 */
 	private void setTestInfoMessage() {
-		if(Browser2Platform.isTestMode()) {
+		if(isTestMode()) {
 			final Object[] infoParityUserArguments = new Object[] {
 					getPreferences().getUsername(),
 					getPreferences().getServerHost()

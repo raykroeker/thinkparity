@@ -3,7 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
@@ -18,11 +18,11 @@ public class AvatarRegistry {
 	 * The underlying avatar registry.
 	 * 
 	 */
-	private static Map<AvatarId, Object> registry;
+	private static Map<AvatarId, Object> REGISTRY;
 
 	static {
 		final Integer avatarCount = AvatarId.values().length;
-		registry = new Hashtable<AvatarId, Object>(avatarCount, 1.0F);
+		REGISTRY = new HashMap<AvatarId, Object>(avatarCount, 1.0F);
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class AvatarRegistry {
 	 * @return True if the registry contains the avatar; false otherwise.
 	 */
 	public Boolean contains(final AvatarId avatarId) {
-		return registry.containsKey(avatarId);
+		synchronized(REGISTRY) { return REGISTRY.containsKey(avatarId); }
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class AvatarRegistry {
 	 * @return The avatar; or null if the avatar has not yet been displayed.
 	 */
 	public Avatar get(final AvatarId avatarId) {
-		return (Avatar) registry.get(avatarId);
+		synchronized(REGISTRY) { return (Avatar) REGISTRY.get(avatarId); }
 	}
 
 	/**
@@ -62,6 +62,6 @@ public class AvatarRegistry {
 	 *            The avatar.
 	 */
 	Avatar put(final AvatarId avatarId, final Avatar avatar) {
-		return (Avatar) registry.put(avatarId, avatar);
+		synchronized(REGISTRY) { return (Avatar) REGISTRY.put(avatarId, avatar); }
 	}
 }

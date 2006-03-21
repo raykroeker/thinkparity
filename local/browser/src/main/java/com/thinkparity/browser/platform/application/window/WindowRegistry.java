@@ -3,7 +3,7 @@
  */
 package com.thinkparity.browser.platform.application.window;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.thinkparity.browser.application.browser.window.WindowId;
@@ -20,11 +20,11 @@ public class WindowRegistry {
 	 * The underlying registry.
 	 * 
 	 */
-	private static final Map<WindowId, Object> registry;
+	private static final Map<WindowId, Object> REGISTRY;
 
 	static {
 		final int windowCount = WindowId.values().length;
-		registry = new Hashtable<WindowId, Object>(windowCount, 1.0F);
+		REGISTRY = new HashMap<WindowId, Object>(windowCount, 1.0F);
 	}
 
 	/**
@@ -41,7 +41,19 @@ public class WindowRegistry {
 	 * @return True if the registry contains the window; false otherwise.
 	 */
 	public Boolean contains(final WindowId windowId) {
-		return registry.containsKey(windowId);
+		synchronized(REGISTRY) { return REGISTRY.containsKey(windowId); }
+	}
+
+	/**
+	 * Dispose of the window.
+	 * 
+	 * @param windowId
+	 *            The window id.
+	 */
+	public void dispose(final WindowId windowId) {
+		final Window window;
+		synchronized(REGISTRY) { window = (Window) REGISTRY.remove(windowId); }
+		window.dispose();
 	}
 
 	/**
@@ -52,7 +64,7 @@ public class WindowRegistry {
 	 * @return The window.
 	 */
 	public Window get(final WindowId windowId) {
-		return (Window) registry.get(windowId);
+		synchronized(REGISTRY) { return (Window) REGISTRY.get(windowId); }
 	}
 
 	/**
@@ -65,17 +77,6 @@ public class WindowRegistry {
 	 * @return The previous value in the registry.
 	 */
 	public Window put(final WindowId windowId, final Window window) {
-		return (Window) registry.put(windowId, window);
-	}
-
-	/**
-	 * Dispose of the window.
-	 * 
-	 * @param windowId
-	 *            The window id.
-	 */
-	public void dispose(final WindowId windowId) {
-		final Window window = (Window) registry.remove(windowId);
-		window.dispose();
+		synchronized(REGISTRY) { return (Window) REGISTRY.put(windowId, window); }
 	}
 }

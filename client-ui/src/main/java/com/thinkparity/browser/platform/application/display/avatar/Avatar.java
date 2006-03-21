@@ -5,6 +5,8 @@ package com.thinkparity.browser.platform.application.display.avatar;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JButton;
 
@@ -27,6 +29,12 @@ public abstract class Avatar extends AbstractJPanel {
 	 * 
 	 */
 	protected ContentProvider contentProvider;
+
+	/**
+	 * The avatar's error.
+	 * 
+	 */
+	protected final List<Throwable> errors;
 
 	/**
 	 * The avatar input.
@@ -70,6 +78,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 */
 	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy) {
 		super(l18nContext);
+		this.errors = new LinkedList<Throwable>();
 		this.scrollPolicy = scrollPolicy;
 	}
 
@@ -86,8 +95,23 @@ public abstract class Avatar extends AbstractJPanel {
 	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy,
 			final Color background) {
 		super(l18nContext, background);
+		this.errors = new LinkedList<Throwable>();
 		this.scrollPolicy = scrollPolicy;
 	}
+
+	/**
+	 * Set an error for display.
+	 * 
+	 * @param error
+	 *            The error.
+	 */
+	public void addError(final Throwable error) { errors.add(error); }
+
+	/**
+	 * Clear all display errors.
+	 *
+	 */
+	public void clearErrors() { errors.clear(); }
 
 	/**
 	 * Obtain the content provider.
@@ -104,6 +128,13 @@ public abstract class Avatar extends AbstractJPanel {
 		if(null == controller) { controller = Browser.getInstance(); }
 		return controller;
 	}
+
+	/**
+	 * Obtain the error.
+	 * 
+	 * @return The error.
+	 */
+	public List<Throwable> getErrors() { return errors; }
 
 	/**
 	 * Obtain the avatar id.
@@ -132,6 +163,13 @@ public abstract class Avatar extends AbstractJPanel {
 	 * @return The avatar's state information.
 	 */
 	public abstract State getState();
+
+	/**
+	 * Determine whether or not the error has been set.
+	 * 
+	 * @return True if error has been set; false otherwise.
+	 */
+	public Boolean containsErrors() { return 0 < errors.size(); }
 
 	/**
 	 * Reload the avatar. This event is called when either the content provider
@@ -177,6 +215,24 @@ public abstract class Avatar extends AbstractJPanel {
 	 *            The avatar's state information.
 	 */
 	public abstract void setState(final State state);
+
+	/**
+	 * Determine whether or not the platform is running in test mode.
+	 * 
+	 * @return True if the platform is in test mode; false otherwise.
+	 */
+	protected final Boolean isDebugMode() {
+		return getController().getPlatform().isDebugMode();
+	}
+
+	/**
+	 * Determine whether or not the platform is running in test mode.
+	 * 
+	 * @return True if the platform is in test mode; false otherwise.
+	 */
+	protected final Boolean isTestMode() {
+		return getController().getPlatform().isTestMode();
+	}
 
 	/**
 	 * Provide a visual cue to the user that work is being done.

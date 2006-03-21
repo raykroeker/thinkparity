@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser.display.avatar;
 
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.browser.platform.login.ui.LoginAvatar;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -14,36 +15,23 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public class AvatarFactory {
 
+	/**
+	 * The avatar singleton factory.
+	 * 
+	 */
 	private static final AvatarFactory SINGLETON;
 
 	static { SINGLETON = new AvatarFactory(); }
 
+	/**
+	 * Create an avatar.
+	 * 
+	 * @param id
+	 *            The avatar id.
+	 * @return The avatar.
+	 */
 	public static Avatar create(final AvatarId id) {
-		switch(id) {
-		case BROWSER_INFO:
-			return SINGLETON.createBrowserInfo();
-		case BROWSER_MAIN:
-			return SINGLETON.createBrowserMain();
-		case BROWSER_TITLE:
-			return SINGLETON.createBrowserTitle();
-		case DOCUMENT_HISTORY:
-			return SINGLETON.createDocumentHistoryList();
-		case DOCUMENT_HISTORY2:
-			return SINGLETON.createDocumentHistory2List();
-		case DOCUMENT_HISTORY3:
-			return SINGLETON.createDocumentHistory3List();
-		case SESSION_INVITE_CONTACT:
-			return SINGLETON.createSessionInviteContact();
-		case SESSION_LOGIN:
-			return SINGLETON.createSessionLogin();
-		case SESSION_MANAGE_CONTACTS:
-			return SINGLETON.createSessionManageContacts();
-		case SESSION_SEND_FORM:
-			return SINGLETON.createSessionSendForm();
-		case SESSION_SEND_KEY_FORM:
-			return SINGLETON.createSessionSendKeyForm();
-		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
-		}
+		return SINGLETON.doCreate(id);
 	}
 
 	/**
@@ -123,7 +111,6 @@ public class AvatarFactory {
 	private Avatar createBrowserInfo() {
 		if(null == browserInfo) {
 			browserInfo = new BrowserInfoAvatar();
-			register(browserInfo);
 		}
 		return browserInfo;
 	}
@@ -137,7 +124,6 @@ public class AvatarFactory {
 		if(null == browserMain) {
 			browserMain = new BrowserMainAvatar();
 			browserMain.setContentProvider(ProviderFactory.getMainProvider());
-			register(browserMain);
 		}
 		return browserMain;
 	}
@@ -150,11 +136,21 @@ public class AvatarFactory {
 	private Avatar createBrowserTitle() {
 		if(null == browserTitle) {
 			browserTitle = new BrowserTitleAvatar();
-			register(browserTitle);
 		}
 		return browserTitle;
 	}
 	
+	private Avatar createDocumentHistory2List() {
+		final Avatar a = new DocumentHistoryAvatar2();
+		a.setContentProvider(ProviderFactory.getHistoryProvider());
+		return a;
+	}
+
+	private Avatar createDocumentHistory3List() {
+	    final Avatar a = new DocumentHistoryAvatar3();
+	    a.setContentProvider(ProviderFactory.getHistoryProvider());
+	    return a;
+	}
 	/**
 	 * Create the document history list avatar.
 	 * 
@@ -164,22 +160,18 @@ public class AvatarFactory {
 		if(null == documentHistoryList) {
 			documentHistoryList = new DocumentHistoryAvatar();
 			documentHistoryList.setContentProvider(ProviderFactory.getHistoryProvider());
-			register(documentHistoryList);
 		}
 		return documentHistoryList;
 	}
 
-	private Avatar createDocumentHistory3List() {
-	    final Avatar a = new DocumentHistoryAvatar3();
-	    a.setContentProvider(ProviderFactory.getHistoryProvider());
-	    register(a);
-	    return a;
-	}
-	private Avatar createDocumentHistory2List() {
-		final Avatar a = new DocumentHistoryAvatar2();
-		a.setContentProvider(ProviderFactory.getHistoryProvider());
-		register(a);
-		return a;
+	/**
+	 * Create the platform login avatar.
+	 * 
+	 * @return The platform login avatar.
+	 */
+	private Avatar createPlatformLogin() {
+		final Avatar platformLogin = new LoginAvatar();
+		return platformLogin;
 	}
 
 	/**
@@ -190,7 +182,6 @@ public class AvatarFactory {
 	private Avatar createSessionInviteContact() {
 		if(null == sessionInviteContact) {
 			sessionInviteContact = new SessionInviteContactAvatar();
-			register(sessionInviteContact);
 		}
 		return sessionInviteContact;
 	}
@@ -203,7 +194,6 @@ public class AvatarFactory {
 	private Avatar createSessionLogin() {
 		if(null == sessionLogin) {
 			sessionLogin = new SessionLoginAvatar();
-			register(sessionLogin);
 		}
 		return sessionLogin;
 	}
@@ -217,7 +207,6 @@ public class AvatarFactory {
 		if(null == sessionManageContacts) {
 			sessionManageContacts = new ManageContactsAvatar();
 			sessionManageContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
-			register(sessionManageContacts);
 		}
 		return sessionManageContacts;
 	}
@@ -231,7 +220,6 @@ public class AvatarFactory {
 		if(null == sessionSendForm) {
 			sessionSendForm = new SessionSendFormAvatar();
 			sessionSendForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
-			register(sessionSendForm);
 		}
 		return sessionSendForm;
 	}
@@ -246,9 +234,60 @@ public class AvatarFactory {
 		if(null == sessionSendKeyForm) {
 			sessionSendKeyForm = new SessionSendFormAvatar();
 			sessionSendKeyForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
-			register(sessionSendKeyForm);
 		}
 		return sessionSendKeyForm;
+	}
+
+	/**
+	 * Create an avatar and register it.
+	 * 
+	 * @param id
+	 *            The avatar id.
+	 * @return The avatar.
+	 */
+	private Avatar doCreate(final AvatarId id) {
+		final Avatar avatar;
+		switch(id) {
+		case BROWSER_INFO:
+			avatar = createBrowserInfo();
+			break;
+		case BROWSER_MAIN:
+			avatar = createBrowserMain();
+			break;
+		case BROWSER_TITLE:
+			avatar = createBrowserTitle();
+			break;
+		case DOCUMENT_HISTORY:
+			avatar = createDocumentHistoryList();
+			break;
+		case DOCUMENT_HISTORY2:
+			avatar = createDocumentHistory2List();
+			break;
+		case DOCUMENT_HISTORY3:
+			avatar = createDocumentHistory3List();
+			break;
+		case PLATFORM_LOGIN:
+			avatar = createPlatformLogin();
+			break;
+		case SESSION_INVITE_CONTACT:
+			avatar = createSessionInviteContact();
+			break;
+		case SESSION_LOGIN:
+			avatar = createSessionLogin();
+			break;
+		case SESSION_MANAGE_CONTACTS:
+			avatar = createSessionManageContacts();
+			break;
+		case SESSION_SEND_FORM:
+			avatar = createSessionSendForm();
+			break;
+		case SESSION_SEND_KEY_FORM:
+			avatar = createSessionSendKeyForm();
+			break;
+		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
+		}
+		register(avatar);
+		return avatar;
 	}
 
 	/**

@@ -35,10 +35,10 @@ public class EventDispatcher {
 	}
 
 	/**
-	 * Main controller.
+	 * The browser.
 	 * 
 	 */
-	protected Browser controller;
+	protected Browser browser;
 
 	/**
 	 * Handle to the model factory.
@@ -85,7 +85,6 @@ public class EventDispatcher {
 	 */
 	public void initialize() {
 		if(!isInitialized) {
-			controller = Browser.getInstance();
 
 			documentModel = modelFactory.getDocumentModel(getClass());
 			sessionModel = modelFactory.getSessionModel(getClass());
@@ -102,32 +101,42 @@ public class EventDispatcher {
 		}
 	}
 
+	/**
+	 * Obtain the browser.
+	 * 
+	 * @return The browser.
+	 */
+	protected Browser getBrowser() {
+		if(null == browser) {
+			browser = Browser.getInstance();
+		}
+		return browser;
+	}
+
 	private CreationListener createDocumentModelCreationListener() {
 		return new CreationListener() {
 			public void objectCreated(final CreationEvent e) {}
 			public void objectReceived(final CreationEvent e) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 			public void objectVersionCreated(final VersionCreationEvent e) {}
 			public void objectVersionReceived(final VersionCreationEvent e) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 		};
 	}
 
 	private UpdateListener createDocumentModelUpdateListener() {
 		return new UpdateListener() {
-			public void objectDeleted(final DeleteEvent e) {
-				controller.reloadMainList();
+			public void objectClosed(CloseEvent closeEvent) {
+				getBrowser().reloadMainList();
 			}
+			public void objectDeleted(final DeleteEvent e) {}
 			public void objectReceived(final UpdateEvent e) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 			public void objectUpdated(final UpdateEvent e) {
-				controller.reloadMainList();
-			}
-			public void objectClosed(CloseEvent closeEvent) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 		};
 	}
@@ -135,13 +144,13 @@ public class EventDispatcher {
 	private KeyListener createSessionModelKeyListener() {
 		return new KeyListener() {
 			public void keyRequestAccepted(final KeyEvent e) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 			public void keyRequestDenied(final KeyEvent e) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 			public void keyRequested(final KeyEvent e) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 		};
 	}
@@ -149,7 +158,7 @@ public class EventDispatcher {
 	private PresenceListener createSessionModelPresenceListener() {
 		return new PresenceListener() {
 			public void presenceRequested(final PresenceEvent e) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 		};
 	}
@@ -168,7 +177,7 @@ public class EventDispatcher {
 		return new SystemMessageListener() {
 			public void systemMessageCreated(
 					final SystemMessageEvent systemMessageEvent) {
-				controller.reloadMainList();
+				getBrowser().reloadMainList();
 			}
 		};
 	}

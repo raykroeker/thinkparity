@@ -4,7 +4,7 @@
 package com.thinkparity.browser;
 
 
-import com.thinkparity.browser.platform.Platform;
+import com.thinkparity.browser.platform.Browser2Platform;
 
 /**
  * @author raykroeker@gmail.com
@@ -13,28 +13,12 @@ import com.thinkparity.browser.platform.Platform;
 public class Browser2 {
 
 	/**
-	 * The browser platform.
-	 * 
-	 */
-	private static Platform platform;
-
-	/**
-	 * Obtain the browser platform.
-	 * 
-	 * @return The browser platform.
-	 */
-	public static Platform getPlatform() { return platform; }
-
-	/**
 	 * Run Browser2
 	 * 
 	 * @param args
 	 *            Command line arguments.
 	 */
-	public static void main(String[] args) {
-		platform = new Browser2Platform();
-		platform.start();
-	}
+	public static void main(String[] args) { Browser2Platform.start(args); }
 
 	/**
 	 * Create a Browser2.

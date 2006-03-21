@@ -164,6 +164,8 @@ public class SessionSendFormAvatar extends Avatar {
 		reloadTeamMembers();
 		reloadContacts();
 		reloadVersions();
+
+		versionJComboBox.requestFocusInWindow();
 	}
 
     /** This method is called from within the constructor to
@@ -548,10 +550,6 @@ public class SessionSendFormAvatar extends Avatar {
 			final Boolean isKeyHolder = ArtifactUtil
 					.isKeyHolder(extractDocumentId());
 			includeKeyJCheckBox.setVisible(isKeyHolder);
-			if(isKeyHolder) {
-				final Boolean doIncludeKey = (Boolean) getClientProperty("doIncludeKey");
-				includeKeyJCheckBox.setSelected(doIncludeKey);
-			}
 		}
 	}
     

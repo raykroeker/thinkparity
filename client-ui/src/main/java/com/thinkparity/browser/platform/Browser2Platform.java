@@ -255,26 +255,6 @@ public class Browser2Platform implements Platform {
 	}
 
 	/**
-	 * End the application.
-	 * 
-	 * @param id
-	 *            The application id.
-	 */
-	private void endApplication(final ApplicationId id) {
-		applicationRegistry.get(id).end(this);
-	}
-
-	/**
-	 * End all applications.
-	 *
-	 */
-	private void endApplications() {
-		for(final ApplicationId id : ApplicationId.values()) {
-			if(applicationRegistry.contains(id)) { endApplication(id); }
-		}
-	}
-
-	/**
 	 * Check the registry for the application; and if it does not yet exist;
 	 * create it.
 	 * 

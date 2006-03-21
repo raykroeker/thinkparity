@@ -6,26 +6,36 @@
 
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+
 import com.thinkparity.browser.application.browser.component.ListFactory;
 import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
 import com.thinkparity.browser.application.browser.display.avatar.history.CellRenderer2;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
+
 import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
 
 /**
+ * A 3rd alternative to the document history avatar.
  *
  * @author  raymond
  */
 public class DocumentHistoryAvatar3 extends Avatar {
 
-    /**
+	/**
+	 * @see java.io.Serializable
+	 * 
+	 */
+	private static final long serialVersionUID = 1;
+
+	/**
      * The history list's model.
      *
      */
@@ -39,14 +49,27 @@ public class DocumentHistoryAvatar3 extends Avatar {
     }
 
     /**
-     * Set the avatar state.
+     * Obtain the avatar id.
      *
      *
-     * @param state
-     *            The avatar's state information.
+     * @return The avatar id.
      */
-    public void setState(final State state) {}
+    public AvatarId getId() { return AvatarId.DOCUMENT_HISTORY3; }
 
+    /**
+     * Obtain the avatar's state information.
+     *
+     *
+     * @return The avatar's state information.
+     */
+    public State getState() { return null; }
+    
+    /**
+     * Reload the avatar. This event is called when either the content provider
+     * or the input has changed; or as a manual reload of the avatar.
+     */
+    public void reload() { reloadHistory(); }
+    
     /**
      * Set the avatar's input.
      *
@@ -62,43 +85,16 @@ public class DocumentHistoryAvatar3 extends Avatar {
     }
     
     /**
-     * Reload the avatar. This event is called when either the content provider
-     * or the input has changed; or as a manual reload of the avatar.
+     * Set the avatar state.
+     *
+     *
+     * @param state
+     *            The avatar's state information.
      */
-    public void reload() { reloadHistory(); }
-    
-    /**
-     * Obtain the avatar's state information.
-     *
-     *
-     * @return The avatar's state information.
-     */
-    public State getState() { return null; }
-    
-    /**
-     * Obtain the avatar id.
-     *
-     *
-     * @return The avatar id.
-     */
-    public AvatarId getId() { return AvatarId.DOCUMENT_HISTORY3; }
-
-    private void reloadHistory() {
-	historyModel.clear();
-	if(null != input) {
-	    loadHistory(historyModel, getHistory((Long) input));
-	}
-    }
+    public void setState(final State state) {}
 
     private HistoryItem[] getHistory(final Long documentId) {
 	return (HistoryItem[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, documentId);
-    }
-
-    private void loadHistory(final DefaultListModel listModel, final HistoryItem[] history) {
-	for(final HistoryItem hi : history) {
-	    logger.debug("Adding history item...");
-	    listModel.addElement(hi);
-	}
     }
 
     /** This method is called from within the constructor to
@@ -137,6 +133,20 @@ public class DocumentHistoryAvatar3 extends Avatar {
             .add(historyListScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void loadHistory(final DefaultListModel listModel, final HistoryItem[] history) {
+	for(final HistoryItem hi : history) {
+	    logger.debug("Adding history item...");
+	    listModel.addElement(hi);
+	}
+    }
+
+    private void reloadHistory() {
+	historyModel.clear();
+	if(null != input) {
+	    loadHistory(historyModel, getHistory((Long) input));
+	}
+    }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

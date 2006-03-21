@@ -226,7 +226,17 @@ doLayout();
 		}
 	}
 
+	/**
+	 * The heading panel for the history avatar.
+	 * 
+	 */
 	private class HeadingJPanel extends AbstractJPanel {
+
+		/**
+		 * @see java.io.Serializable
+		 * 
+		 */
+		private static final long serialVersionUID = 1;
 
 		private JLabel headingJLabel;
 

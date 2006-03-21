@@ -24,6 +24,7 @@ import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -189,10 +190,18 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	static void notifyKeyRequestAccepted(final UUID artifactUniqueId,
 			final JabberId acceptedBy) throws SmackException, ParityException {
+		// unlock
 		final InternalDocumentModel iDModel =
 			DocumentModel.getInternalModel(sContext);
 		final Document document = iDModel.get(artifactUniqueId);
 		iDModel.unlock(document.getId());
+
+		// apply key flag
+		final InternalArtifactModel iAModel =
+			ArtifactModel.getInternalModel(sContext);
+		iAModel.applyFlagKey(document.getId());
+
+		// create system message
 		SystemMessageModel.getInternalModel(sContext).
 			createKeyResponse(document.getId(), Boolean.TRUE, acceptedBy);
 

@@ -53,6 +53,7 @@ public class Close extends AbstractAction {
 				getString("ConfirmClosureMessage", new String[] {document.getName()}),
 				getString("ConfirmClosureTitle"))) {
 			getDocumentModel().close(documentId);
+			getArtifactModel().applyFlagSeen(documentId);
 		}
 	}
 }

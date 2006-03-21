@@ -80,9 +80,12 @@ class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	public void reload() {
+		final Long systemMessageId = getSelectedSystemMessageId();
+		final Long documentId = getSelectedDocumentId();
+
 		jListModel.clear();
-		reloadSystemMessages();
-		reloadDocuments();
+		reloadSystemMessages(systemMessageId);
+		reloadDocuments(documentId);
 	}
 
 	/**
@@ -90,6 +93,22 @@ class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	public void setState(final State state) {}
+
+	/**
+	 * TODO Obtain the selected document id.
+	 * 
+	 * @return The selected document id; or null if no document is
+	 *         selected.
+	 */
+	private Long getSelectedDocumentId() { return null; }
+
+	/**
+	 * TODO Obtain the selected system message id.
+	 * 
+	 * @return The selected system message id; or null if no system message is
+	 *         selected.
+	 */
+	private Long getSelectedSystemMessageId() { return null; }
 
 	/**
 	 * Obtain the list of system messages from the content provider.
@@ -176,19 +195,23 @@ class BrowserMainAvatar extends Avatar {
 	 *            The main list model.
 	 * @param systemMessages
 	 *            The system message list.
+	 * @param systemMessageId
+	 *            The selected system message prior to load.
 	 */
 	private void loadMainList(final DefaultListModel listModel,
-			final SystemMessage[] systemMessages) {
+			final SystemMessage[] systemMessages, final Long systemMessageId) {
 		for(final SystemMessage systemMessage : systemMessages) {
 			listModel.addElement(ListItem.create(systemMessage));
 		}
+		// TODO Maintain the system message selection
 	}
 
 	/**
 	 * Reload the list of documents.
 	 *
 	 */
-	private void reloadDocuments() {
+	private void reloadDocuments(final Long documentId) {
+		// TODO Maintain the document selection
 		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, null);
 		Document d;
 		for(final Object e : elements) {
@@ -203,8 +226,8 @@ class BrowserMainAvatar extends Avatar {
 	 * Reload the list of system messages.
 	 *
 	 */
-	private void reloadSystemMessages() {
-		loadMainList(jListModel, getSystemMessages());
+	private void reloadSystemMessages(final Long systemMessageId) {
+		loadMainList(jListModel, getSystemMessages(), systemMessageId);
 	}
 
 	/**

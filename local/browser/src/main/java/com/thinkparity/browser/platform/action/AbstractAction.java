@@ -13,6 +13,7 @@ import com.thinkparity.browser.platform.util.l10n.ActionLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -131,6 +132,15 @@ public abstract class AbstractAction {
 	 *            The action NAME.
 	 */
 	public void setName(String name) { this.name = name; }
+
+	/**
+	 * Obtain the parity artifact interface.
+	 * 
+	 * @return The parity artifact interface.
+	 */
+	protected ArtifactModel getArtifactModel() {
+		return modelFactory.getArtifactModel(getClass());
+	}
 
 	/**
 	 * Obtain the main controller.

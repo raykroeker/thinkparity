@@ -27,6 +27,7 @@ import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
+import com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Create;
@@ -109,11 +110,17 @@ public class Browser extends AbstractApplication {
 	private BrowserWindow mainWindow;
 
 	/**
+	 * Contains the browser's session information.
+	 * 
+	 */
+	private final BrowserSession session;
+	
+	/**
 	 * The state information for the controller.
 	 * 
 	 */
 	private final BrowserState state;
-	
+
 	/**
 	 * Create a Browser [Singleton]
 	 * 
@@ -124,6 +131,7 @@ public class Browser extends AbstractApplication {
 		INSTANCE = this;
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
+		this.session= new BrowserSession(this);
 		this.state = new BrowserState(this);
 	}
 
@@ -132,14 +140,6 @@ public class Browser extends AbstractApplication {
 	 *
 	 */
 	public void close() { getPlatform().hibernate(getId()); }
-
-	/**
-	 * Display the login avatar.
-	 *
-	 */
-	public void displayLoginAvatar() {
-		displayAvatar(DisplayId.CONTENT, AvatarId.SESSION_LOGIN);
-	}
 
 	/**
 	 * Display the main browser avatar.
@@ -430,8 +430,7 @@ public class Browser extends AbstractApplication {
 	 *            The document id.
 	 */
 	public void selectDocument(final Long documentId) {
-		setInput(AvatarId.DOCUMENT_HISTORY, documentId);
-		setInput(AvatarId.DOCUMENT_HISTORY2, documentId);
+		session.setSelectedDocumentId(documentId);
 		setInput(AvatarId.DOCUMENT_HISTORY3, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 	}
@@ -451,22 +450,10 @@ public class Browser extends AbstractApplication {
 		notifyStart();
 	}
 
-	public void toggleHistory2Avatar() {
-		if(null == history2Window) {
-			final Avatar avatar = getAvatar(AvatarId.DOCUMENT_HISTORY2);
-
-			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY2))
-				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY2));
-			
-			history2Window = new History2Window(mainWindow, avatar);
-			history2Window.setVisible(true);
-		}
-		else {
-			history2Window.dispose();
-			history2Window = null;
-		}
-	}
-
+	/**
+	 * Toggle the history window.
+	 *
+	 */
 	public void toggleHistory3Avatar() {
 	    if(null == history2Window) {
 			final Avatar avatar = getAvatar(AvatarId.DOCUMENT_HISTORY3);
@@ -476,6 +463,9 @@ public class Browser extends AbstractApplication {
 
 			history2Window = new History2Window(mainWindow, avatar);
 			history2Window.setVisible(true);
+
+			runApplyFlagSeen(session.getSelectedDocumentId());
+			reloadMainList();
 		}
 		else {
 			history2Window.dispose();
@@ -484,43 +474,17 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-	 * Toggle the document history display.
+	 * Display the document list.
 	 *
 	 */
-	public void toggleHistoryAvatar() {
-		if(null == historyWindow) {
-			final Avatar avatar = getAvatar(AvatarId.DOCUMENT_HISTORY);
-			
-			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY))
-				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY));
-
-			historyWindow = new HistoryWindow(mainWindow, avatar);
-			historyWindow.setVisible(true);
-		}
-		else {
-			historyWindow.dispose();
-			historyWindow = null;
-		}
-	}
-
-	/**
-	 * Unselect a document.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 */
-	public void unselectDocument(final Long documentId) { /* NOTE Huh? */ }
-
-	/**
-	 * Unselect the system message.
-	 *
-	 */
-	public void unselectSystemMessage() {}
-
 	void displayDocumentListAvatar() {
 		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
 	}
 
+	/**
+	 * Display the browser info.
+	 *
+	 */
 	void displayInfoAvatar() {
 		displayAvatar(DisplayId.INFO, AvatarId.BROWSER_INFO);
 	}
@@ -661,6 +625,18 @@ public class Browser extends AbstractApplication {
 	private void openMainWindow() {
 		mainWindow = new BrowserWindow(this);
 		mainWindow.open();
+	}
+
+	/**
+	 * Run the ApplyFlagSeen action.
+	 * 
+	 * @param documentId
+	 *            The document to apply the seen flag to.
+	 */
+	private void runApplyFlagSeen(final Long documentId) {
+		final Data data = new Data(1);
+		data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
+		invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);
 	}
 
 	/**

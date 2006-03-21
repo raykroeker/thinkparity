@@ -38,7 +38,7 @@ class WindowSize {
 
 		sizeMap = new Hashtable<AvatarId, Object>(2, 1.0F);
 		// DIMENSION History Window 249x484
-		sizeMap.put(AvatarId.DOCUMENT_HISTORY, new Dimension(249, 484));
+		sizeMap.put(AvatarId.DOCUMENT_HISTORY3, new Dimension(249, 484));
 		// DIMENSION Invite Contact Window 409x196
 		sizeMap.put(AvatarId.SESSION_INVITE_CONTACT, new Dimension(409, 196));
 		// DIMENSION Manage Contacts Window 520x321

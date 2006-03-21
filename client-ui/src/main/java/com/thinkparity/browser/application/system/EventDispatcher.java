@@ -73,7 +73,6 @@ class EventDispatcher {
 			public void objectReceived(final UpdateEvent updateEvent) {
 				sysApp.notifyReceived(updateEvent.getSource());
 			}
-			public void objectUpdated(final UpdateEvent updateEvent) {}
 		};
 	}
 

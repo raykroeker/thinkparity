@@ -65,7 +65,10 @@ public class OpenVersion extends AbstractAction {
 	public void invoke(Data data) {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Long versionId = (Long) data.get(DataKey.VERSION_ID);
-		try { getDocumentModel().openVersion(documentId, versionId); }
+		try {
+			getDocumentModel().openVersion(documentId, versionId);
+			getArtifactModel().applyFlagSeen(documentId);
+		}
 		catch(ParityException px) { registerError(px); }
 	}
 }

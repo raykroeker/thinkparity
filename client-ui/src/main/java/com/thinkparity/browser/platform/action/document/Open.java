@@ -58,6 +58,7 @@ public class Open extends AbstractAction {
 	public void invoke(final Data data) throws Exception {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		getDocumentModel().open(documentId);
+		getArtifactModel().applyFlagSeen(documentId);
 	}
 
 	/**

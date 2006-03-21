@@ -116,13 +116,7 @@ public class EventDispatcher {
 	private CreationListener createDocumentModelCreationListener() {
 		return new CreationListener() {
 			public void objectCreated(final CreationEvent e) {}
-			public void objectReceived(final CreationEvent e) {
-				getBrowser().reloadMainList();
-			}
 			public void objectVersionCreated(final VersionCreationEvent e) {}
-			public void objectVersionReceived(final VersionCreationEvent e) {
-				getBrowser().reloadMainList();
-			}
 		};
 	}
 
@@ -133,9 +127,6 @@ public class EventDispatcher {
 			}
 			public void objectDeleted(final DeleteEvent e) {}
 			public void objectReceived(final UpdateEvent e) {
-				getBrowser().reloadMainList();
-			}
-			public void objectUpdated(final UpdateEvent e) {
 				getBrowser().reloadMainList();
 			}
 		};

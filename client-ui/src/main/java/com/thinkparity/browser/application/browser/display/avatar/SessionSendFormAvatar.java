@@ -179,7 +179,6 @@ public class SessionSendFormAvatar extends Avatar {
         javax.swing.JLabel contactsJLabel;
         javax.swing.JScrollPane contactsJScrollPane;
         javax.swing.JSeparator jSeparator_1;
-        javax.swing.JButton sendJButton;
         javax.swing.JLabel teamJLabel;
         javax.swing.JScrollPane teamJScrollPane;
         javax.swing.JLabel versionJLabel;
@@ -198,26 +197,33 @@ public class SessionSendFormAvatar extends Avatar {
         contactsJList = ListFactory.create();
         sendJButton = ButtonFactory.create(getString("SendButton"));
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
+        vSpacerJLabel = LabelFactory.create();
 
         setOpaque(false);
 
         versionJComboBox.setModel(versionModel);
         versionJComboBox.setRenderer(new VersionListCellRenderer());
+        versionJComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent e) {
+                versionJComboBoxItemStateChanged(e);
+            }
+        });
 
         includeKeyJCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         includeKeyJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         includeKeyJCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                includeKeyJCheckBoxStateChanged(evt);
+            public void stateChanged(javax.swing.event.ChangeEvent e) {
+                includeKeyJCheckBoxStateChanged(e);
             }
         });
+
 
         teamJList.setCellRenderer(new UserListCellRenderer());
         teamJList.setModel(teamModel);
         teamJList.setSelectionModel(teamSelectionModel);
         teamJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                teamJListValueChanged(evt);
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                teamJListValueChanged(e);
             }
         });
 
@@ -227,8 +233,8 @@ public class SessionSendFormAvatar extends Avatar {
         contactsJList.setModel(contactsModel);
         contactsJList.setSelectionModel(contactsSelectionModel);
         contactsJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                contactsJListValueChanged(evt);
+            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
+                contactsJListValueChanged(e);
             }
         });
 
@@ -261,14 +267,14 @@ public class SessionSendFormAvatar extends Avatar {
         );
 
         sendJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                sendJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -288,7 +294,9 @@ public class SessionSendFormAvatar extends Avatar {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jSeparator_1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(versionJLabel)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(versionJLabel)
+                            .add(vSpacerJLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, includeKeyJCheckBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
@@ -305,7 +313,9 @@ public class SessionSendFormAvatar extends Avatar {
                     .add(versionJLabel)
                     .add(versionJComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(includeKeyJCheckBox)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(includeKeyJCheckBox)
+                    .add(vSpacerJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jSeparator_1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -317,6 +327,10 @@ public class SessionSendFormAvatar extends Avatar {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void versionJComboBoxItemStateChanged(java.awt.event.ItemEvent e) {//GEN-FIRST:event_versionJComboBoxItemStateChanged
+    	reloadSendJButtonState();
+    }//GEN-LAST:event_versionJComboBoxItemStateChanged
 
     private void sendJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendJButtonActionPerformed
     	if(isInputValid()) {
@@ -399,6 +413,7 @@ public class SessionSendFormAvatar extends Avatar {
 			reloadVersions();
 		}
 		includeKeyIsSelected = includeKeyJCheckBox.isSelected();
+    	reloadSendJButtonState();
     }//GEN-LAST:event_includeKeyJCheckBoxStateChanged
     
     private void contactsJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_contactsJListValueChanged
@@ -408,6 +423,7 @@ public class SessionSendFormAvatar extends Avatar {
 				teamSelectionModel.clearSelection();
 			}
 		}
+    	reloadSendJButtonState();
     }//GEN-LAST:event_contactsJListValueChanged
     
     private void teamJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_teamJListValueChanged
@@ -417,6 +433,7 @@ public class SessionSendFormAvatar extends Avatar {
 				contactsSelectionModel.clearSelection();
 			}
 		}
+    	reloadSendJButtonState();
     }//GEN-LAST:event_teamJListValueChanged
 
     /**
@@ -552,7 +569,16 @@ public class SessionSendFormAvatar extends Avatar {
 			includeKeyJCheckBox.setVisible(isKeyHolder);
 		}
 	}
-    
+
+    /**
+     * Set the enabled property of the send button based upon the validity
+     * of the form's input.
+     *
+     */
+    private void reloadSendJButtonState() {
+    	sendJButton.setEnabled(isInputValid());
+    }
+
     private void reloadTeamMembers() {
 		teamModel.clear();
 		if(null != input) {
@@ -593,8 +619,10 @@ public class SessionSendFormAvatar extends Avatar {
     private javax.swing.JList contactsJList;
     private javax.swing.JLabel documentJLabel;
     private javax.swing.JCheckBox includeKeyJCheckBox;
+    private javax.swing.JButton sendJButton;
     private javax.swing.JPanel sendToJPanel;
     private javax.swing.JList teamJList;
+    private javax.swing.JLabel vSpacerJLabel;
     private javax.swing.JComboBox versionJComboBox;
     // End of variables declaration//GEN-END:variables
     

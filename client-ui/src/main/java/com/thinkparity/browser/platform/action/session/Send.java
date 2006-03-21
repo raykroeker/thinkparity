@@ -46,5 +46,6 @@ public class Send extends AbstractAction {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Collection<User> users = (Collection<User>) data.get(DataKey.USERS);
 		getSessionModel().send(users, documentId);
+		getArtifactModel().applyFlagSeen(documentId);
 	}
 }

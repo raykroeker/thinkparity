@@ -59,22 +59,10 @@ public class AvatarFactory {
 	private Avatar browserTitle;
 
 	/**
-	 * The document history list avatar.
-	 * 
-	 */
-	private Avatar documentHistoryList;
-
-	/**
 	 * The invite contact avatar.
 	 * 
 	 */
 	private Avatar sessionInviteContact;
-
-	/**
-	 * The session login avatar.
-	 * 
-	 */
-	private Avatar sessionLogin;
 
 	/**
 	 * The manage contacts avatar.
@@ -139,29 +127,16 @@ public class AvatarFactory {
 		}
 		return browserTitle;
 	}
-	
-	private Avatar createDocumentHistory2List() {
-		final Avatar a = new DocumentHistoryAvatar2();
-		a.setContentProvider(ProviderFactory.getHistoryProvider());
-		return a;
-	}
 
+	/**
+	 * Create the document history list avatar.
+	 * 
+	 * @return The document history list avatar.
+	 */
 	private Avatar createDocumentHistory3List() {
 	    final Avatar a = new DocumentHistoryAvatar3();
 	    a.setContentProvider(ProviderFactory.getHistoryProvider());
 	    return a;
-	}
-	/**
-	 * Create the document history list avatar.
-	 * 
-	 * @return the document history list avatar.
-	 */
-	private Avatar createDocumentHistoryList() {
-		if(null == documentHistoryList) {
-			documentHistoryList = new DocumentHistoryAvatar();
-			documentHistoryList.setContentProvider(ProviderFactory.getHistoryProvider());
-		}
-		return documentHistoryList;
 	}
 
 	/**
@@ -184,18 +159,6 @@ public class AvatarFactory {
 			sessionInviteContact = new SessionInviteContactAvatar();
 		}
 		return sessionInviteContact;
-	}
-
-	/**
-	 * Create the session login avatar.
-	 * 
-	 * @return The session login avatar.
-	 */
-	private Avatar createSessionLogin() {
-		if(null == sessionLogin) {
-			sessionLogin = new SessionLoginAvatar();
-		}
-		return sessionLogin;
 	}
 
 	/**
@@ -257,12 +220,6 @@ public class AvatarFactory {
 		case BROWSER_TITLE:
 			avatar = createBrowserTitle();
 			break;
-		case DOCUMENT_HISTORY:
-			avatar = createDocumentHistoryList();
-			break;
-		case DOCUMENT_HISTORY2:
-			avatar = createDocumentHistory2List();
-			break;
 		case DOCUMENT_HISTORY3:
 			avatar = createDocumentHistory3List();
 			break;
@@ -271,9 +228,6 @@ public class AvatarFactory {
 			break;
 		case SESSION_INVITE_CONTACT:
 			avatar = createSessionInviteContact();
-			break;
-		case SESSION_LOGIN:
-			avatar = createSessionLogin();
 			break;
 		case SESSION_MANAGE_CONTACTS:
 			avatar = createSessionManageContacts();

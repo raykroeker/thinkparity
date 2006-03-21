@@ -203,20 +203,6 @@ public class ArtifactUtil {
 	}
 
 	/**
-	 * Determine whether or not the artifact contains the flag.
-	 * 
-	 * @param artifact
-	 *            The artifact.
-	 * @param flag
-	 *            The flag.
-	 * @return True; if the artifact contains the flag; false otherwise.
-	 */
-	private Boolean doesArtifactContainFlag(final Artifact artifact,
-			final ArtifactFlag flag) {
-		return artifact.contains(flag);
-	}
-
-	/**
 	 * Obtain the parity artifact for a given type\id.
 	 * 
 	 * @param artifactId
@@ -236,7 +222,7 @@ public class ArtifactUtil {
 	}
 
 	/**
-	 * Obtain the document's file NAME extension.
+	 * Obtain the document's filename extension.
 	 * 
 	 * @param document
 	 *            The document.
@@ -268,7 +254,6 @@ public class ArtifactUtil {
 	 */
 	private Boolean hasBeenSeenImpl(final Long artifactId,
 			final ArtifactType artifactType) {
-		return doesArtifactContainFlag(
-				doGetArtifact(artifactId, artifactType), ArtifactFlag.SEEN);
+		return artifactModel.hasBeenSeen(artifactId);
 	}
 }

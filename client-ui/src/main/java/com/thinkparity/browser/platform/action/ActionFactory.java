@@ -48,6 +48,8 @@ public class ActionFactory {
 		switch(actionId) {
 		case ARTIFACT_ACCEPT_KEY_REQUEST:
 			return new com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest();
+		case ARTIFACT_APPLY_FLAG_SEEN:
+			return new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen();
 		case ARTIFACT_DECLINE_KEY_REQUEST:
 			return new com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest();
 		case DOCUMENT_CLOSE:

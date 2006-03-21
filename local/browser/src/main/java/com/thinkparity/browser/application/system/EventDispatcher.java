@@ -51,6 +51,9 @@ class EventDispatcher {
 	void end() {
 		sysApp.getDocumentModel().removeListener(documentUpdateListener);
 		documentUpdateListener = null;
+
+		sysApp.getSystemMessageModel().removeListener(systemMessageListener);
+		systemMessageListener = null;
 	}
 
 	void start() {

@@ -87,6 +87,9 @@ public class SysApp extends AbstractApplication {
 		impl = null;
 
 		ed.end();
+		ed = null;
+
+		notifyHibernate();
 	}
 
 	/**
@@ -99,7 +102,10 @@ public class SysApp extends AbstractApplication {
 		impl = new SysAppImpl(this);
 		impl.start();
 
+		ed = new EventDispatcher(this);
 		ed.start();
+
+		notifyRestore();
 	}
 
 	/**

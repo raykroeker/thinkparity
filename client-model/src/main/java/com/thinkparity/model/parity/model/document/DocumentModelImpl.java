@@ -891,15 +891,33 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("receiveDocument(XMPPDocument)");
 		logger.debug(xmppDocument);
 		try {
+			final JabberId receivedFromJabberId =
+				JabberIdBuilder.parseUsername(xmppDocument.getReceivedFrom());
+
 			Document document = get(xmppDocument.getUniqueId());
 			logger.debug(document);
 			if(null == document) { document = receiveCreate(xmppDocument); }
 			else {
 				final DocumentVersion version =
 					getVersion(document.getId(), xmppDocument.getVersionId());
-				// i have this version.  wtf? biotch
+				// i have this version.  wtf biotch
 				if(null == version) { receiveUpdate(xmppDocument, document); }
 			}
+
+			// if key holder:  apply flag key
+			final InternalSessionModel iSModel = getInternalSessionModel();
+			if(iSModel.isLoggedInUserKeyHolder(document.getId())) {
+				final InternalArtifactModel iAModel = getInternalArtifactModel();
+				iAModel.applyFlagKey(document.getId());
+			}
+
+			// audit the receiving
+			final Document d = get(document.getId());
+			auditor.recieve(d.getId(), xmppDocument.getVersionId(),
+					receivedFromJabberId, currentUserId(), currentDateTime());
+
+			// notify
+			notifyUpdate_objectReceived(d);
 		}
 		catch(IOException iox) {
 			logger.error("receiveDocument(XMPPDocument)", iox);
@@ -1258,28 +1276,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 			localFile.write(content.getContent());
 		}
 
-		// remove flag seen
-		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		iAModel.removeFlagSeen(document.getId());
-
-
 		// if not key holder:  lock
 		final InternalSessionModel iSModel = getInternalSessionModel();
 		if(!iSModel.isLoggedInUserKeyHolder(document.getId())) {
 			lock(document.getId());
 		}
-		else { iAModel.applyFlagKey(document.getId()); }
 
-		// audit the receiving
-		final Document d = get(document.getId());
-		{
-			final JabberId receivedFromJabberId =
-				JabberIdBuilder.parseUsername(xmppDocument.getReceivedFrom());
-			auditor.recieve(d.getId(), xmppDocument.getVersionId(),
-					receivedFromJabberId, currentUserId(), currentDateTime());
-		}
-
-		// notify
-		notifyUpdate_objectReceived(d);
+		// remove flag seen
+		final InternalArtifactModel iAModel = getInternalArtifactModel();
+		iAModel.removeFlagSeen(document.getId());
 	}
 }

@@ -17,6 +17,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * @author raykroeker@gmail.com
@@ -159,6 +160,16 @@ public class SysApp extends AbstractApplication {
 	 */
 	void notifyReceived(final ArtifactVersion artifactVersion) {
 		impl.notifyReceived(artifactVersion);
+	}
+
+	/**
+	 * Notification that a system message was created.
+	 * 
+	 * @param systemMessage
+	 *            The system message.
+	 */
+	void notifyReceived(final SystemMessage systemMessage) {
+		impl.notifyReceived(systemMessage);
 	}
 
 	/**

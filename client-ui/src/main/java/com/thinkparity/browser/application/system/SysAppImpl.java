@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.system;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 
 /**
@@ -105,6 +106,19 @@ class SysAppImpl extends Thread {
 	 *            The artifact.
 	 */
 	void notifyReceived(final ArtifactVersion artifactVersion) {
+		synchronized(this) {
+			queueItems++;
+			notifyAll();
+		}
+	}
+
+	/**
+	 * Notification that a system message has been received.
+	 * 
+	 * @param systemMessage
+	 *            The system message.
+	 */
+	void notifyReceived(final SystemMessage systemMessage) {
 		synchronized(this) {
 			queueItems++;
 			notifyAll();

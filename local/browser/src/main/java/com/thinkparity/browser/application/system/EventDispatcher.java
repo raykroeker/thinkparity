@@ -5,8 +5,11 @@ package com.thinkparity.browser.application.system;
 
 import com.thinkparity.model.parity.api.events.CloseEvent;
 import com.thinkparity.model.parity.api.events.DeleteEvent;
+import com.thinkparity.model.parity.api.events.SystemMessageEvent;
+import com.thinkparity.model.parity.api.events.SystemMessageListener;
 import com.thinkparity.model.parity.api.events.UpdateEvent;
 import com.thinkparity.model.parity.api.events.UpdateListener;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * The system application's event dispatcher.  
@@ -21,6 +24,12 @@ class EventDispatcher {
 	 * 
 	 */
 	private UpdateListener documentUpdateListener;
+
+	/**
+	 * Listens for new system messages.
+	 * 
+	 */
+	private SystemMessageListener systemMessageListener;
 
 	/**
 	 * The system application.
@@ -47,6 +56,9 @@ class EventDispatcher {
 	void start() {
 		documentUpdateListener = createDocumentUpdateListener();
 		sysApp.getDocumentModel().addListener(documentUpdateListener);
+
+		systemMessageListener = createSystemMessageListener();
+		sysApp.getSystemMessageModel().addListener(systemMessageListener);
 	}
 
 	/**
@@ -62,6 +74,20 @@ class EventDispatcher {
 				sysApp.notifyReceived(updateEvent.getSource());
 			}
 			public void objectUpdated(final UpdateEvent updateEvent) {}
+		};
+	}
+
+	/**
+	 * Create a system message listener.
+	 * 
+	 * @return The system message listener.
+	 */
+	private SystemMessageListener createSystemMessageListener() {
+		return new SystemMessageListener() {
+			public void systemMessageCreated(
+					final SystemMessageEvent systemMessageEvent) {
+				sysApp.notifyReceived((SystemMessage) systemMessageEvent.getSource());
+			}
 		};
 	}
 }

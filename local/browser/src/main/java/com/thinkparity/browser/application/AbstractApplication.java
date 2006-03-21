@@ -27,6 +27,7 @@ import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
@@ -57,15 +58,6 @@ public abstract class AbstractApplication implements Application {
 	 */
 	protected final Logger logger;
 
-	/**
-	 * The current application status.
-	 * 
-	 * @see #AbstractApplication(Platform, L18nContext)
-	 * @see #getStatus()
-	 * @see #setStatus(ApplicationStatus)
-	 */
-	private ApplicationStatus status;
-
 	private final AvatarRegistry avatarRegistry;
 
 	/**
@@ -79,6 +71,15 @@ public abstract class AbstractApplication implements Application {
 	 * 
 	 */
 	private final Platform platform;
+
+	/**
+	 * The current application status.
+	 * 
+	 * @see #AbstractApplication(Platform, L18nContext)
+	 * @see #getStatus()
+	 * @see #setStatus(ApplicationStatus)
+	 */
+	private ApplicationStatus status;
 
 	/**
 	 * Create an AbstractApplication.
@@ -136,6 +137,15 @@ public abstract class AbstractApplication implements Application {
 	public ApplicationStatus getStatus() { return status; }
 
 	/**
+	 * Obtain the parity system message interface.
+	 * 
+	 * @return The parity system message interface.
+	 */
+	public SystemMessageModel getSystemMessageModel() {
+		return platform.getModelFactory().getSystemMessageModel(getClass());
+	}
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#removeListener(com.thinkparity.browser.platform.application.ApplicationListener)
 	 * 
 	 */
@@ -148,6 +158,50 @@ public abstract class AbstractApplication implements Application {
 			listeners.remove(l);
 			APPLICATION_LISTENERS.put(getClass(), listeners);
 		}
+	}
+
+	/**
+	 * Assert the status change is valid.
+	 * 
+	 * @param status
+	 *            The status to change to.
+	 */
+	protected void assertStatusChange(final ApplicationStatus status) {
+		final ApplicationStatus[] acceptableStatus;
+		switch(this.status) {
+		case NEW:
+			acceptableStatus = new ApplicationStatus[] {
+				ApplicationStatus.STARTING
+			};
+			break;
+		case STARTING:
+			acceptableStatus = new ApplicationStatus[] {
+				ApplicationStatus.RUNNING
+			};
+			break;
+		case RUNNING:
+			acceptableStatus = new ApplicationStatus[] {
+				ApplicationStatus.ENDING, ApplicationStatus.HIBERNATING
+			};
+			break;
+		case HIBERNATING:
+			acceptableStatus = new ApplicationStatus[] {
+				ApplicationStatus.ENDING, ApplicationStatus.RESTORING
+			};
+			break;
+		case RESTORING:
+			acceptableStatus = new ApplicationStatus[] {
+				ApplicationStatus.RUNNING
+			};
+			break;
+		case ENDING:
+			acceptableStatus = new ApplicationStatus[] {};
+			break;
+		default:
+			throw Assert.createUnreachable(
+					"Unknown application status:  " + status);
+		}
+		assertIsOneOf(acceptableStatus, status);
 	}
 
 	/**
@@ -257,50 +311,6 @@ public abstract class AbstractApplication implements Application {
 	protected void setStatus(final ApplicationStatus status) {
 		assertStatusChange(status);
 		this.status = status;
-	}
-
-	/**
-	 * Assert the status change is valid.
-	 * 
-	 * @param status
-	 *            The status to change to.
-	 */
-	protected void assertStatusChange(final ApplicationStatus status) {
-		final ApplicationStatus[] acceptableStatus;
-		switch(this.status) {
-		case NEW:
-			acceptableStatus = new ApplicationStatus[] {
-				ApplicationStatus.STARTING
-			};
-			break;
-		case STARTING:
-			acceptableStatus = new ApplicationStatus[] {
-				ApplicationStatus.RUNNING
-			};
-			break;
-		case RUNNING:
-			acceptableStatus = new ApplicationStatus[] {
-				ApplicationStatus.ENDING, ApplicationStatus.HIBERNATING
-			};
-			break;
-		case HIBERNATING:
-			acceptableStatus = new ApplicationStatus[] {
-				ApplicationStatus.ENDING, ApplicationStatus.RESTORING
-			};
-			break;
-		case RESTORING:
-			acceptableStatus = new ApplicationStatus[] {
-				ApplicationStatus.RUNNING
-			};
-			break;
-		case ENDING:
-			acceptableStatus = new ApplicationStatus[] {};
-			break;
-		default:
-			throw Assert.createUnreachable(
-					"Unknown application status:  " + status);
-		}
-		assertIsOneOf(acceptableStatus, status);
 	}
 
 	private void assertIsOneOf(final ApplicationStatus[] acceptableStatus,

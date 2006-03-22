@@ -83,6 +83,13 @@
 			<scope>compile</scope>
 			<type>jar</type>
 		</dependency>
+		<dependency>
+			<groupId>net.java.</groupId>
+			<artifactId>jdic</artifactId>
+			<version>0.9.1</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
 	</dependencies>
 
 	<build>

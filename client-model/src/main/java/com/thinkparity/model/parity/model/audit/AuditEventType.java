@@ -11,7 +11,8 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum AuditEventType {
 
-	ARCHIVE(0), CLOSE(1), CREATE(2), RECEIVE(3), RECEIVE_KEY(4), REQUEST_KEY(5), SEND(6), SEND_KEY(7);
+	ARCHIVE(0), CLOSE(1), CREATE(2), RECEIVE(3), RECEIVE_KEY(4), REQUEST_KEY(5),
+	SEND(6), SEND_KEY(7), KEY_REQUEST_DENIED(8), KEY_RESPONSE_DENIED(9);
 
 	public static AuditEventType fromId(final Integer id) {
 		switch(id) {
@@ -23,6 +24,8 @@ public enum AuditEventType {
 		case 5: return REQUEST_KEY;
 		case 6: return SEND;
 		case 7: return SEND_KEY;
+		case 8: return KEY_REQUEST_DENIED;
+		case 9: return KEY_RESPONSE_DENIED;
 		default:
 			throw Assert.createUnreachable("Could not determine audit type:  " + id);
 		}

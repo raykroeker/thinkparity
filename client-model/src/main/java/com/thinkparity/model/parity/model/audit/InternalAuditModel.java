@@ -28,16 +28,24 @@ public class InternalAuditModel extends AuditModel {
 		context.assertContextIsValid();
 	}
 
-	public void audit(final CloseEvent closeEvent) {
-		synchronized(getImplLock()) { getImpl().audit(closeEvent); }
-	}
-
 	public void audit(final ArchiveEvent archiveEvent) {
 		synchronized(getImplLock()) { getImpl().audit(archiveEvent); }
 	}
 
+	public void audit(final CloseEvent closeEvent) {
+		synchronized(getImplLock()) { getImpl().audit(closeEvent); }
+	}
+
 	public void audit(final CreateEvent createEvent) {
 		synchronized(getImplLock()) { getImpl().audit(createEvent); }
+	}
+
+	public void audit(final KeyRequestDeniedEvent event) {
+		synchronized(getImplLock()) { getImpl().audit(event); }
+	}
+
+	public void audit(final KeyResponseDeniedEvent event) {
+		synchronized(getImplLock()) { getImpl().audit(event); }
 	}
 
 	public void audit(final ReceiveEvent receiveEvent) {

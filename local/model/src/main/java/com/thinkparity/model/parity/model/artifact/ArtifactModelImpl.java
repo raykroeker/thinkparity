@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.artifact;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.TrueAssertion;
@@ -11,12 +12,19 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 class ArtifactModelImpl extends AbstractModelImpl {
+
+	/**
+	 * The artifact model's auditor.
+	 * 
+	 */
+	protected final ArtifactModelAuditor auditor;
 
 	/**
 	 * Artifact persistance io.
@@ -33,6 +41,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	ArtifactModelImpl(final Workspace workspace) {
 		super(workspace);
 		this.artifactIO = IOFactory.getDefault().createArtifactHandler();
+		this.auditor = new ArtifactModelAuditor(getContext());
 	}
 
 	/**
@@ -55,6 +64,24 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	void applyFlagSeen(final Long artifactId) {
 		logger.info("[LMODEL] [ARTIFACT] [APPLY SEEN]");
 		applyFlag(artifactId, ArtifactFlag.SEEN);
+	}
+
+	/**
+	 * Audit the denial of a key request for an artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @param createdBy
+	 *            The creator.
+	 * @param creatdOn
+	 *            The creation date.
+	 * @param deniedBy
+	 *            The user denying the request.
+	 */
+	void auditKeyRequestDenied(final Long artifactId,
+			final JabberId createdBy, final Calendar createdOn,
+			final JabberId deniedBy) {
+		auditor.KeyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 
 	/**

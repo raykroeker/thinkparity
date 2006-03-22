@@ -48,6 +48,18 @@ class AuditModelImpl extends AbstractModelImpl {
 		auditIO.audit(createEvent);
 	}
 
+	void audit(final KeyRequestDeniedEvent event) {
+		logger.info("[LMODEL] [AUDIT] [KEY REQUEST DENIED]");
+		logger.debug(event);
+		auditIO.audit(event);
+	}
+
+	void audit(final KeyResponseDeniedEvent event) {
+		logger.info("[LMODEL] [AUDIT] [KEY RESPONSE DENIED]");
+		logger.debug(event);
+		auditIO.audit(event);
+	}
+
 	void audit(final ReceiveEvent receiveEvent) {
 		logger.info("[LMODEL] [AUDIT] [AUDIT RECEIVE]");
 		logger.debug(receiveEvent);

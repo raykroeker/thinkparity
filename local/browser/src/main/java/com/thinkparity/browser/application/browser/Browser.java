@@ -517,7 +517,8 @@ public class Browser extends AbstractApplication {
 	 *
 	 */
 	void reloadHistoryList() {
-		getPlatform().getAvatarRegistry().get(AvatarId.DOCUMENT_HISTORY3).reload();
+		final Avatar avatar = getPlatform().getAvatarRegistry().get(AvatarId.DOCUMENT_HISTORY3);
+		if(null != avatar) { avatar.reload(); }
 	}
 
 	private void closeMainWindow() {

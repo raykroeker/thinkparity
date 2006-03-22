@@ -161,6 +161,51 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.KeyRequestDeniedEvent)
+	 * 
+	 */
+	public void audit(final KeyRequestDeniedEvent event) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			audit(session, event);
+
+			auditMetaData(session, event,
+					MetaDataType.JABBER_ID, MetaDataKey.DENIED_BY,
+					event.getDeniedBy());
+			
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+
+	/**
+	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.KeyResponseDeniedEvent)
+	 */
+	public void audit(final KeyResponseDeniedEvent event) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			audit(session, event);
+
+			auditMetaData(session, event,
+					MetaDataType.JABBER_ID, MetaDataKey.REQUESTED_BY,
+					event.getRequestedBy());
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+
+	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ReceiveEvent)
 	 * 
 	 */
@@ -395,6 +440,10 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			return extractClose(session);
 		case CREATE:
 			return extractCreate(session);
+		case KEY_RESPONSE_DENIED:
+			return extractKeyResponseDenied(session);
+		case KEY_REQUEST_DENIED:
+			return extractKeyRequestDenied(session);
 		case RECEIVE:
 			return extractReceive(session);
 		case RECEIVE_KEY:
@@ -442,6 +491,34 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		createEvent.setId(session.getLong("ARTIFACT_AUDIT_ID"));
 		createEvent.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
 		return createEvent;
+	}
+
+	private KeyRequestDeniedEvent extractKeyRequestDenied(final Session session) {
+		final KeyRequestDeniedEvent event = new KeyRequestDeniedEvent();
+		event.setArtifactId(session.getLong("ARTIFACT_ID"));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
+		event.setCreatedOn(session.getCalendar("CREATED_ON"));
+		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		event.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+		
+		final MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.DENIED_BY);
+		event.setDeniedBy((JabberId) metaData[0].getValue());
+
+		return event;
+	}
+
+	private KeyResponseDeniedEvent extractKeyResponseDenied(final Session session) {
+		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
+		event.setArtifactId(session.getLong("ARTIFACT_ID"));
+		event.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
+		event.setCreatedOn(session.getCalendar("CREATED_ON"));
+		event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+		event.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
+
+		final MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.REQUESTED_BY);
+		event.setRequestedBy((JabberId) metaData[0].getValue());
+
+		return event;
 	}
 
 	private ReceiveEvent extractReceive(final Session session) {
@@ -569,5 +646,5 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	private enum MetaDataKey { CLOSED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO }
+	private enum MetaDataKey { CLOSED_BY, DENIED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO }
 }

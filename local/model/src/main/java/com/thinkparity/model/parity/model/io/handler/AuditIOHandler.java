@@ -17,6 +17,8 @@ public interface AuditIOHandler {
 			throws HypersonicException;
 	public void audit(final CloseEvent closeEvent) throws HypersonicException;
 	public void audit(final CreateEvent createEvent) throws HypersonicException;
+	public void audit(final KeyRequestDeniedEvent event) throws HypersonicException;
+	public void audit(final KeyResponseDeniedEvent event) throws HypersonicException;
 	public void audit(final ReceiveEvent receiveEvent) throws HypersonicException;
 	public void audit(final ReceiveKeyEvent receiveKeyEvent) throws HypersonicException;
 	public void audit(final RequestKeyEvent requestKeyEvent)

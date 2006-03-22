@@ -33,6 +33,14 @@ public class InternalDocumentModel extends DocumentModel implements
 		context.assertContextIsValid();
 	}
 
+	public void auditRecieveKey(final Long artifactId,
+			final JabberId createdBy, final Calendar createdOn,
+			final JabberId receivedFrom) {
+		synchronized(getImplLock()) {
+			getImpl().auditKeyRecieved(artifactId, createdBy, createdOn, receivedFrom);
+		}
+	}
+
 	public void close(final UUID documentUniqueId, final JabberId closedBy)
 			throws ParityException {
 		synchronized(getImplLock()) { getImpl().close(documentUniqueId, closedBy); }
@@ -48,6 +56,21 @@ public class InternalDocumentModel extends DocumentModel implements
 	 */
 	public Document get(final UUID documentUniqueId) throws ParityException {
 		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
+	}
+
+	/**
+	 * Obtain the latest document version.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return The latest document version.
+	 * @throws ParityException
+	 */
+	public DocumentVersion getLatestVersion(final Long documentId)
+			throws ParityException {
+		synchronized(getImplLock()) {
+			return getImpl().getLatestVersion(documentId);
+		}
 	}
 
 	/**
@@ -86,28 +109,5 @@ public class InternalDocumentModel extends DocumentModel implements
 	 */
 	public void unlock(final Long documentId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().unlock(documentId); }
-	}
-
-	/**
-	 * Obtain the latest document version.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @return The latest document version.
-	 * @throws ParityException
-	 */
-	public DocumentVersion getLatestVersion(final Long documentId)
-			throws ParityException {
-		synchronized(getImplLock()) {
-			return getImpl().getLatestVersion(documentId);
-		}
-	}
-
-	public void auditRecieveKey(final Long artifactId,
-			final JabberId createdBy, final Calendar createdOn,
-			final JabberId receivedFrom) {
-		synchronized(getImplLock()) {
-			getImpl().auditKeyRecieved(artifactId, createdBy, createdOn, receivedFrom);
-		}
 	}
 }

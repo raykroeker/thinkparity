@@ -9,6 +9,7 @@ import java.util.Collection;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
+import com.thinkparity.model.parity.model.audit.event.KeyResponseDeniedEvent;
 import com.thinkparity.model.parity.model.audit.event.RequestKeyEvent;
 import com.thinkparity.model.parity.model.audit.event.SendEvent;
 import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
@@ -98,5 +99,29 @@ public class SessionModelAuditor extends AbstractAuditor {
 		sendKeyEvent.setType(AuditEventType.SEND_KEY);
 
 		getInternalAuditModel().audit(sendKeyEvent);
+	}
+
+	/**
+	 * Audit the key response denied.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @param createdBy
+	 *            The creator.
+	 * @param createdOn
+	 *            The creation date.
+	 * @param requestedBy
+	 *            The key requestor.
+	 */
+	void keyResponseDenied(final Long artifactId, final JabberId createdBy,
+			final Calendar createdOn, final JabberId requestedBy) {
+		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
+		event.setArtifactId(artifactId);
+		event.setCreatedBy(createdBy);
+		event.setCreatedOn(createdOn);
+		event.setRequestedBy(requestedBy);
+		event.setType(AuditEventType.KEY_RESPONSE_DENIED);
+
+		getInternalAuditModel().audit(event);
 	}
 }

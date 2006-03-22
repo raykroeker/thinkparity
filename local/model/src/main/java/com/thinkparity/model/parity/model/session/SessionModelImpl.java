@@ -223,11 +223,18 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user.
 	 */
 	static void notifyKeyRequestDenied(final UUID artifactUniqueId,
-			final JabberId deniedBy) throws ParityException {
-		final Document document =
-			DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
+			final JabberId deniedBy) throws ParityException, SmackException {
+		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
+		final Document document = iDModel.get(artifactUniqueId);
 		SystemMessageModel.getInternalModel(sContext).
 			createKeyResponse(document.getId(), Boolean.FALSE, deniedBy);
+
+		// audit key request denied
+		final User loggedInUser;
+		synchronized(xmppHelperLock) { loggedInUser = xmppHelper.getUser(); }
+		final InternalArtifactModel iAModel = ArtifactModel.getInternalModel(sContext);
+		iAModel.auditKeyRequestDenied(document.getId(), loggedInUser.getId(),
+				currentDateTime(), deniedBy);
 	}
 
 	/**
@@ -1017,6 +1024,11 @@ class SessionModelImpl extends AbstractModelImpl {
 					// send the declination to the server
 					xmppHelper.sendKeyResponse(
 							document.getUniqueId(), KeyResponse.DENY, requestedByUser);
+
+					// audit send key denied
+					auditor.keyResponseDenied(documentId,
+							xmppHelper.getUser().getId(), currentDateTime(),
+							requestedBy);
 					break;
 				default: throw Assert.createUnreachable("Unknown key response:  " + keyResponse);
 				}

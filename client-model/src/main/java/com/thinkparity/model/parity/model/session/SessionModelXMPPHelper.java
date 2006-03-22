@@ -417,6 +417,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		}
 		catch(final ParityException px) { unexpectedOccured(px); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
+		catch(final SmackException sx) { unexpectedOccured(sx); }
 	}
 
 	/**

@@ -43,13 +43,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
-			<artifactId>browser2-startup</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>compile</scope>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>codebase</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
@@ -88,6 +81,14 @@
 			<artifactId>jdic</artifactId>
 			<version>0.9.1</version>
 			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>com.thinkparity.parity</groupId>
+			<artifactId>browser2-startup</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>runtime</scope>
 			<type>jar</type>
 		</dependency>
 	</dependencies>

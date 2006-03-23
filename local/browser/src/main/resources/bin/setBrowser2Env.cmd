@@ -22,6 +22,7 @@ set B2_CP=%B2_CP%;..\lib\nativeskin-6.2.jar
 set B2_CP=%B2_CP%;..\lib\swing-layout-1.0.jar
 set B2_CP=%B2_CP%;..\lib\hsqldb-1.8.0.2.jar
 set B2_CP=%B2_CP%;..\lib\lucene-1.9.1.jar
+set B2_CP=%B2_CP%;..\lib\jdic-0.9.1.jar
 
 @rem ***************************************************************************
 @rem Setup browser2 main class

@@ -55,7 +55,11 @@ class SysAppImpl extends Thread {
 			catch(final InterruptedException ix) {
 				sysApp.logger.info("[BROWSER2] [APP] [SYS] [IMPL] [INTERRUPTED]");
 			}
-			processQueue();
+			try { processQueue(); }
+			catch(final RuntimeException rx) {
+				sysApp.logger.error("[BROWSER2] [APP] [SYS] [IMPL RUNNING]", rx);
+				throw rx;
+			}
 		}
 	}
 

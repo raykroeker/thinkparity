@@ -3,7 +3,7 @@
 @rem ***************************************************************************
 @rem Setup browser2 java library path
 @rem ***************************************************************************
-set PATH=C:\Program Files\Java\jre1.5.0_06\bin;..\lib\win32\%PATH%
+set PATH=C:\Program Files\Java\jre1.5.0_06\bin;..\lib\win32;%PATH%
 
 @rem ***************************************************************************
 @rem Setup browser2 classpath

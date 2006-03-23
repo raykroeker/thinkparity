@@ -10,9 +10,6 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
-import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
-import com.thinkparity.model.parity.model.session.KeyResponse;
 
 /**
  * @author raykroeker@gmail.com
@@ -43,17 +40,10 @@ public class AcceptKeyRequest extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-		final Long messageId = (Long) data.get(DataKey.SYSTEM_MESSAGE_ID);
-		try {
-			final SystemMessageModel sMModel = getSystemMessageModel();
-			final KeyRequestMessage message =
-				(KeyRequestMessage) sMModel.read(messageId);
-			getSessionModel().sendKeyResponse(message.getArtifactId(),
-					message.getRequestedBy(), KeyResponse.ACCEPT);
-			sMModel.delete(messageId);
-		}
+		final Long keyRequestId = (Long) data.get(DataKey.KEY_REQUEST_ID);
+		try { getArtifactModel().acceptKeyRequest(keyRequestId); }
 		catch(final ParityException px) { throw new RuntimeException(px); }
 	}
 
-	public enum DataKey { SYSTEM_MESSAGE_ID }
+	public enum DataKey { KEY_REQUEST_ID }
 }

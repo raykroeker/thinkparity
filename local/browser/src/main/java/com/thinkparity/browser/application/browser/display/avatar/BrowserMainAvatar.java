@@ -21,14 +21,13 @@ import javax.swing.event.ListSelectionListener;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.CellRenderer;
+import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
-import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
-import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 
@@ -46,6 +45,12 @@ class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
+
+	/**
+	 * The list.
+	 * 
+	 */
+	private JList jList;
 
 	/**
 	 * The list model used to populate the list.
@@ -81,7 +86,7 @@ class BrowserMainAvatar extends Avatar {
 	 */
 	public void reload() {
 		final Long systemMessageId = getSelectedSystemMessageId();
-		final Long documentId = getSelectedDocumentId();
+		final Long documentId = getController().getSelectedDocumentId();
 
 		jListModel.clear();
 		reloadSystemMessages(systemMessageId);
@@ -93,14 +98,6 @@ class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	public void setState(final State state) {}
-
-	/**
-	 * TODO Obtain the selected document id.
-	 * 
-	 * @return The selected document id; or null if no document is
-	 *         selected.
-	 */
-	private Long getSelectedDocumentId() { return null; }
 
 	/**
 	 * TODO Obtain the selected system message id.
@@ -130,7 +127,7 @@ class BrowserMainAvatar extends Avatar {
 		// 	* is a single selection list
 		//	* spans the width of the entire avatar
 		// 	* uses a custom cell renderer
-		final JList jList = new JList(jListModel);
+		jList = new JList(jListModel);
 		jList.setLayoutOrientation(JList.VERTICAL);
 		jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jList.setCellRenderer(new CellRenderer());
@@ -213,12 +210,16 @@ class BrowserMainAvatar extends Avatar {
 	private void reloadDocuments(final Long documentId) {
 		// TODO Maintain the document selection
 		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, null);
-		Document d;
+		int index = 0;
+		DisplayDocument dd;
 		for(final Object e : elements) {
-			d = (Document) e;
-			jListModel.addElement(
-					DocumentListItem.create(
-							d, ArtifactUtil.isKeyHolder(d.getId())));
+			dd = (DisplayDocument) e;
+
+			jListModel.addElement(DocumentListItem.create((DisplayDocument) e));
+
+			if(dd.getDocumentId().equals(documentId)) { jList.setSelectedIndex(index); }
+
+			index++;
 		}
 	}
 

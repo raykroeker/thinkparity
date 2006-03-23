@@ -9,7 +9,7 @@ package com.thinkparity.model.parity.model;
  */
 public enum L18nContext implements com.thinkparity.codebase.l10n.L18nContext {
 
-	DOCUMENT("Artifact.Document");
+	DOCUMENT("Artifact.Document"), SYSTEM_MESSAGE("SystemMessage");
 
 	/**
 	 * The l18n lookup context.

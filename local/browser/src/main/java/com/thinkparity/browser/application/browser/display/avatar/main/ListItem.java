@@ -26,7 +26,6 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
@@ -39,16 +38,12 @@ public abstract class ListItem {
 	/**
 	 * Create a list item for a document.
 	 * 
-	 * @param document
-	 *            The document.
-	 * @param isKeyHolder
-	 *            A flag indicating whether or not the user is this document
-	 *            item's key holder.
+	 * @param displayDocument
+	 *            The display document.
 	 * @return The list item.
 	 */
-	public static ListItem create(final Document document,
-			final Boolean isKeyHolder) {
-		return new DocumentListItem(document, isKeyHolder);
+	public static ListItem create(final DisplayDocument displayDocument) {
+		return new DocumentListItem(displayDocument);
 	}
 
 	/**
@@ -103,6 +98,12 @@ public abstract class ListItem {
 	 * 
 	 */
 	private String name;
+
+	/**
+	 * The list item name info.
+	 * 
+	 */
+	private String nameInfo;
 
 	/**
 	 * The font to use with the name label.
@@ -163,6 +164,13 @@ public abstract class ListItem {
 	 * @return The list item name.
 	 */
 	public String getName() { return name; }
+
+	/**
+	 * Obtain the list item name info.
+	 * 
+	 * @return The list item name info.
+	 */
+	public String getNameInfo() { return nameInfo; }
 
 	/**
 	 * Obtain the font to use for the name label.
@@ -226,6 +234,8 @@ public abstract class ListItem {
 	 */
 	public void setName(final String name) { this.name = name; }
 
+	public void setNameInfo(final String nameInfo) { this.nameInfo = nameInfo; }
+
 	/**
 	 * Set a list item property.
 	 * 
@@ -237,6 +247,18 @@ public abstract class ListItem {
 	public void setProperty(final Object key, final Object value) {
 		Assert.assertNotNull("", key);
 		propertyMap.put(key, value);
+	}
+
+	protected JMenuItem createJMenuItem(final String localKey,
+			final Object[] arguments, final ActionListener actionListener) {
+		return createJMenuItem(getString(localKey, arguments), getMnemonic(localKey),
+				actionListener);
+	}
+
+	protected JMenuItem createJMenuItem(final String localKey,
+			final ActionListener actionListener) {
+		return createJMenuItem(getString(localKey), getMnemonic(localKey),
+				actionListener);
 	}
 
 	/**

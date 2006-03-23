@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.message.system;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.SystemMessageListener;
@@ -118,6 +119,18 @@ public class SystemMessageModel extends AbstractModel {
 	public SystemMessage read(final Long systemMessageId)
 			throws ParityException {
 		synchronized(implLock) { return impl.read(systemMessageId); }
+	}
+
+	/**
+	 * Read all system messaages not related to artifacts.
+	 * 
+	 * @return A list of system messages.
+	 * @throws ParityException
+	 * 
+	 * @deprecated Should use a generic filter instead.
+	 */
+	public List<SystemMessage> readForNonArtifacts() throws ParityException {
+		synchronized(implLock) { return impl.readForNonArtifacts(); }
 	}
 
 	/**

@@ -3,28 +3,19 @@
  */
 package com.thinkparity.browser.application.browser.display.provider;
 
-import java.util.Collection;
-
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
+import com.thinkparity.browser.application.browser.display.provider.main.MainProvider;
 import com.thinkparity.browser.application.browser.display.provider.session.SendArtifactProvider;
 import com.thinkparity.browser.model.ModelFactory;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
-import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
-import com.thinkparity.model.parity.model.sort.HasBeenSeenComparator;
-import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -65,19 +56,6 @@ public class ProviderFactory {
 		return singleton.doGetHistoryProvider();
 	}
 
-	/**
-	 * Obtain the document content provider.
-	 * 
-	 * @return The document content provider.
-	 */
-	public static ContentProvider getMainDocumentProvider() {
-		return singleton.doGetDocumentProvider();
-	}
-
-	public static ContentProvider getMainMessageProvider() {
-		return singleton.doGetSystemMessagesProvider();
-	}
-
 	public static ContentProvider getMainProvider() {
 		return singleton.doGetMainProvider();
 	}
@@ -100,6 +78,12 @@ public class ProviderFactory {
 	 * 
 	 */
 	protected final DocumentModel documentModel;
+
+	/**
+	 * The parity artifact interface.
+	 * 
+	 */
+	protected final ArtifactModel artifactModel;
 
 	/**
 	 * An apache logger.
@@ -132,18 +116,6 @@ public class ProviderFactory {
 	private final JabberId loggedInUser;
 
 	/**
-	 * The document provider.
-	 * 
-	 */
-	private final ContentProvider mainDocumentProvider;
-
-	/**
-	 * The system message provider.
-	 * 
-	 */
-	private final ContentProvider mainMessageProvider;
-
-	/**
 	 * The main provider. Is a composite provider consisting of a document
 	 * list provider as well as a message list provider.
 	 * 
@@ -169,62 +141,19 @@ public class ProviderFactory {
 	private ProviderFactory() {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
+		this.artifactModel = modelFactory.getArtifactModel(getClass());
 		this.documentModel = modelFactory.getDocumentModel(getClass());
+		this.logger = ModelLoggerFactory.getLogger(getClass());
 		this.loggedInUser =
 			JabberIdBuilder.parseUsername(preferences.getUsername());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
+
 		this.historyProvider = new HistoryProvider(documentModel);
-		this.logger = ModelLoggerFactory.getLogger(getClass());
-		this.mainDocumentProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				try {
-					// sort by:
-					// 	+> hasBeenSeen ? true b4 false
-					//	+> last update ? earlier b4 later
-					//  +> name ? alpha order
-					final AbstractArtifactComparator sort =
-						new HasBeenSeenComparator(Boolean.FALSE);
-					sort.add(new UpdatedOnComparator(Boolean.FALSE));
-					sort.add(new ComparatorBuilder().createByName(Boolean.TRUE));
-					return documentModel.list(sort).toArray(new Document[] {});
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
-		};
-		this.mainMessageProvider = new FlatContentProvider() {
-			public Object[] getElements(final Object input) {
-				try {
-					final Collection<SystemMessage> messages =
-						systemMessageModel.read();
-					return messages.toArray(new SystemMessage[] {});
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
-		};
-		this.mainProvider = new CompositeFlatContentProvider() {
-			private final ContentProvider[] contentProviders = new ContentProvider[] {mainDocumentProvider, mainMessageProvider};
-			public Object[] getElements(final Integer index, final Object input) {
-				Assert.assertNotNull("Index cannot be null.", index);
-				Assert.assertTrue(
-						"Index must lie within [0," + (contentProviders.length - 1) + "]",
-						index >= 0 && index < contentProviders.length);
-				return ((FlatContentProvider) getProvider(index)).getElements(input);
-			}
-			private FlatContentProvider getProvider(final Integer index) {
-				return (FlatContentProvider) contentProviders[index];
-			}
-		};
+		this.mainProvider = new MainProvider(artifactModel, documentModel, systemMessageModel);
 		this.manageContactsProvider = new ManageContactsProvider(sessionModel);
 		this.sendArtifactProvider = new SendArtifactProvider(documentModel, sessionModel, loggedInUser);
 	}
-
-	/**
-	 * Obtain the document content provider.
-	 * 
-	 * @return The document content provider.
-	 */
-	private ContentProvider doGetDocumentProvider() { return mainDocumentProvider; }
 
 	/**
 	 * Obtain the history content provider.
@@ -256,14 +185,5 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetSendArtifactProvider() {
 		return sendArtifactProvider;
-	}
-
-	/**
-	 * Obtain the system message provider.
-	 * 
-	 * @return The system message provider.
-	 */
-	private ContentProvider doGetSystemMessagesProvider() {
-		return mainMessageProvider;
 	}
 }

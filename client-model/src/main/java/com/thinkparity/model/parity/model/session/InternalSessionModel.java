@@ -56,6 +56,10 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) { return getImpl().getLoggedInUser(); }
 	}
 
+	public User readUser(final JabberId jabberId) throws ParityException {
+		synchronized(getImplLock()) { return getImpl().readUser(jabberId); }
+	}
+
 	public List<User> readUsers(final List<JabberId> jabberIds)
 			throws ParityException {
 		synchronized(getImplLock()) { return getImpl().readUsers(jabberIds); }

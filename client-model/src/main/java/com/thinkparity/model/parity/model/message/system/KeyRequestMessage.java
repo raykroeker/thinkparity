@@ -15,6 +15,8 @@ public class KeyRequestMessage extends SystemMessage {
 
 	private JabberId requestedBy;
 
+	private String requestedByName;
+
 	/**
 	 * Create a KeyRequestMessage.
 	 * 
@@ -34,6 +36,13 @@ public class KeyRequestMessage extends SystemMessage {
 	public JabberId getRequestedBy() { return requestedBy; }
 
 	/**
+	 * @return Returns the requestedByName.
+	 */
+	public String getRequestedByName() {
+		return requestedByName;
+	}
+
+	/**
 	 * @param artifactId The artifactId to set.
 	 */
 	public void setArtifactId(Long artifactId) {
@@ -45,5 +54,12 @@ public class KeyRequestMessage extends SystemMessage {
 	 */
 	public void setRequestedBy(final JabberId requestFrom) {
 		this.requestedBy = requestFrom;
+	}
+
+	/**
+	 * @param requestedByName The requestedByName to set.
+	 */
+	public void setRequestedByName(String requestedByName) {
+		this.requestedByName = requestedByName;
 	}
 }

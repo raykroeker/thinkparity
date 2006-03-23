@@ -13,6 +13,7 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.assertion.TrueAssertion;
+import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
@@ -21,10 +22,13 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
+import com.thinkparity.model.parity.model.audit.AuditModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
+import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -86,7 +90,7 @@ public abstract class AbstractModelImpl {
 	 * The model's l18n.
 	 * 
 	 */
-	protected final ModelL18n l18n;
+	protected final L18n l18n;
 
 	/**
 	 * Apache logger.
@@ -315,7 +319,7 @@ public abstract class AbstractModelImpl {
 	}
 
 	protected InternalAuditModel getInternalAuditModel() {
-		return InternalAuditModel.getInternalModel(context);
+		return AuditModel.getInternalModel(context);
 	}
 
 	protected InternalDocumentModel getInternalDocumentModel() {
@@ -331,12 +335,23 @@ public abstract class AbstractModelImpl {
 		return SessionModel.getInternalModel(getContext());
 	}
 
+	protected InternalSystemMessageModel getInternalSystemMessageModel() {
+		return SystemMessageModel.getInternalModel(context);
+	}
+
+	/**
+	 * Obtain the model's localization.
+	 * 
+	 * @return The model's localization.
+	 */
+	protected L18n getL18n() { return l18n; }
+
 	/**
 	 * Obtain a handle to the session model.
 	 * 
 	 * @return Obtain a handle to the session model.
 	 */
-	protected SessionModel getSessionModel() { return SessionModel.getModel(); }
+	protected SessionModel getSessionModel() { return SessionModel.getModel(); };
 
 	/**
 	 * @see ModelL18n#getString(String)

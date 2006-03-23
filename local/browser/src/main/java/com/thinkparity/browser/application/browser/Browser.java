@@ -18,7 +18,6 @@ import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.window.History2Window;
-import com.thinkparity.browser.application.browser.window.HistoryWindow;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.platform.Platform;
@@ -28,6 +27,7 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen;
+import com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests;
 import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Create;
@@ -99,8 +99,6 @@ public class Browser extends AbstractApplication {
 	private EventDispatcher ed;
 
 	private History2Window history2Window;
-
-	private HistoryWindow historyWindow;
 
 	/**
 	 * The file chooser.
@@ -210,6 +208,13 @@ public class Browser extends AbstractApplication {
 	public Platform getPlatform() { return super.getPlatform(); }
 
 	/**
+	 * Obtain the selected document id from the session.
+	 * 
+	 * @return A document id.
+	 */
+	public Long getSelectedDocumentId() { return session.getSelectedDocumentId(); }
+
+	/**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
@@ -230,7 +235,7 @@ public class Browser extends AbstractApplication {
 	}
 
 	public Boolean isHistoryVisible() {
-		return null != historyWindow && historyWindow.isVisible();
+		return null != history2Window && history2Window.isVisible();
 	}
 
 	/**
@@ -255,12 +260,6 @@ public class Browser extends AbstractApplication {
 		newL.y += l.y;
 		logger.debug(newL);
 		mainWindow.setLocation(newL);
-		if(null != historyWindow && historyWindow.isVisible()) {
-			final Point hl = historyWindow.getLocation();
-			hl.x += l.x;
-			hl.y += l.y;
-			historyWindow.setLocation(hl);
-		}
 		if(null != history2Window && history2Window.isVisible()) {
 			final Point hl = history2Window.getLocation();
 			hl.x += l.x;
@@ -319,9 +318,15 @@ public class Browser extends AbstractApplication {
 		reloadMainList();
 	}
 
-	public void runAcceptKeyRequest(final Long systemMessageId) {
-		final Data data = new Data(2);
-		data.set(AcceptKeyRequest.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+	/**
+	 * Run the accept key action.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	public void runAcceptKeyRequest(final Long keyRequestId) {
+		final Data data = new Data(1);
+		data.set(AcceptKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
 		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
 		reloadMainList();
 	}
@@ -351,17 +356,36 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
+	/**
+	 * Run the decline key action.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	public void runDeclineAllKeyRequests(final Long artifactId) {
+		final Data data = new Data(1);
+		data.set(DeclineAllKeyRequests.DataKey.ARTIFACT_ID, artifactId);
+		invoke(ActionId.ARTIFACT_DECLINE_ALL_KEY_REQUESTS, data);
+		reloadMainList();
+	}
+
 	public void runDeclineContactInvitation(final Long systemMessageId) {
 		final Data data = new Data(1);
 		data.set(DeclineInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.SESSION_DECLINE_INVITATION, data);
 	}
 
-	public void runDeclineKeyRequest(final Long systemMessageId) {
-		final Data data = new Data(2);
-		data.set(DeclineKeyRequest.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+	/**
+	 * Run the decline key action.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	public void runDeclineKeyRequest(final Long keyRequestId) {
+		final Data data = new Data(1);
+		data.set(DeclineKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
 		invoke(ActionId.ARTIFACT_DECLINE_KEY_REQUEST, data);
-		reloadMainBrowserAvatar();
+		reloadMainList();
 	}
 
 	/**

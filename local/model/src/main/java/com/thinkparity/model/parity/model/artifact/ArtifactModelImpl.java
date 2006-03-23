@@ -4,13 +4,21 @@
 package com.thinkparity.model.parity.model.artifact;
 
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.TrueAssertion;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
+import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
+import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.parity.model.message.system.SystemMessageType;
+import com.thinkparity.model.parity.model.session.InternalSessionModel;
+import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 
@@ -42,6 +50,38 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		super(workspace);
 		this.artifactIO = IOFactory.getDefault().createArtifactHandler();
 		this.auditor = new ArtifactModelAuditor(getContext());
+	}
+
+	/**
+	 * Accept the key request.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	void acceptKeyRequest(final Long keyRequestId) throws ParityException {
+		logger.info("[LMODEL] [ARTIFACT] [ACCEPT KEY REQUEST]");
+		logger.debug(keyRequestId);
+		final InternalSessionModel iSModel = getInternalSessionModel();
+		final InternalSystemMessageModel iSMModel = getInternalSystemMessageModel();
+		final KeyRequestMessage keyRequestMessage =
+			(KeyRequestMessage) iSMModel.read(keyRequestId);
+		// send a denial to all others
+		final List<KeyRequest> requests = readKeyRequests(keyRequestMessage.getArtifactId());
+		for(final KeyRequest request : requests) {
+			if(request.getId().equals(keyRequestId)) {
+				iSMModel.delete(request.getId());
+				continue;
+			}
+			if(request.getRequestedBy().equals(keyRequestMessage.getRequestedBy())) {
+				iSMModel.delete(request.getId());
+				continue;
+			}
+			declineKeyRequest(request.getId());
+		}
+		// send acceptance
+		iSModel.sendKeyResponse(
+				keyRequestMessage.getArtifactId(),
+				keyRequestMessage.getRequestedBy(), KeyResponse.ACCEPT);
 	}
 
 	/**
@@ -84,6 +124,21 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		auditor.KeyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 
+	void declineKeyRequest(final Long keyRequestId) throws ParityException {
+		logger.info("[LMODEL] [ARTIFACT] [DENY KEY REQUEST]");
+		logger.debug(keyRequestId);
+		final InternalSystemMessageModel iSMModel =
+			getInternalSystemMessageModel();
+		final KeyRequestMessage keyRequestMessage =
+			(KeyRequestMessage) iSMModel.read(keyRequestId);
+		iSMModel.delete(keyRequestMessage.getId());
+
+		getInternalSessionModel().sendKeyResponse(
+				keyRequestMessage.getArtifactId(),
+				keyRequestMessage.getRequestedBy(), KeyResponse.DENY);
+
+	}
+
 	/**
 	 * Determine whether or not the artifact has been seen.
 	 * 
@@ -111,6 +166,27 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.debug(flag);
 		final List<ArtifactFlag> flags = artifactIO.getFlags(artifactId);
 		return flags.contains(flag);
+	}
+
+	/**
+	 * Read all key requests for the given artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return A list of requests.
+	 */
+	List<KeyRequest> readKeyRequests(final Long artifactId)
+			throws ParityException {
+		logger.info("[LMODEL] [ARTIFACT] [READ KEY REQUESTS]");
+		logger.debug(artifactId);
+		final List<SystemMessage> messages =
+			getInternalSystemMessageModel().readForArtifact(
+					artifactId, SystemMessageType.KEY_REQUEST);
+		final List<KeyRequest> requests = new LinkedList<KeyRequest>();
+		for(final SystemMessage message : messages) {
+			requests.add(createKeyRequest((KeyRequestMessage) message));
+		}
+		return requests;
 	}
 
 	/**
@@ -156,6 +232,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			flags.add(flag);
 			artifactIO.updateFlags(artifactId, flags);
 		}
+	}
+
+	/**
+	 * Create a key request based upon a key request system message.
+	 * 
+	 * @param message
+	 *            The key request system message.
+	 * @return The key request.
+	 */
+	private KeyRequest createKeyRequest(final KeyRequestMessage message) {
+		final KeyRequest request = new KeyRequest();
+		request.setArtifactId(message.getArtifactId());
+		request.setRequestedBy(message.getRequestedBy());
+		request.setRequestedByName(message.getRequestedByName());
+		request.setId(message.getId());
+		return request;
 	}
 
 	/**

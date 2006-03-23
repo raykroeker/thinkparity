@@ -4,7 +4,9 @@
 package com.thinkparity.model.parity.model.artifact;
 
 import java.util.Calendar;
+import java.util.List;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
@@ -32,10 +34,6 @@ public class InternalArtifactModel extends ArtifactModel {
 		synchronized(getImplLock()) { getImpl().applyFlagKey(artifactId); }
 	}
 
-	public void removeFlagKey(final Long artifactId) {
-		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
-	}
-
 	/**
 	 * Audit the denial of a key request for an artifact.
 	 * 
@@ -54,5 +52,24 @@ public class InternalArtifactModel extends ArtifactModel {
 		synchronized(getImplLock()) {
 			getImpl().auditKeyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 		}
+	}
+
+	/**
+	 * Obtain all pending key requests for the artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return A list of key requests.
+	 * @throws ParityException
+	 */
+	public List<KeyRequest> readKeyRequests(final Long artifactId)
+			throws ParityException {
+		synchronized(getImplLock()) {
+			return getImpl().readKeyRequests(artifactId);
+		}
+	}
+
+	public void removeFlagKey(final Long artifactId) {
+		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
 	}
 }

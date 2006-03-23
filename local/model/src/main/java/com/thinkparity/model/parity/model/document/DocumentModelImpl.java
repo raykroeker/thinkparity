@@ -153,6 +153,26 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Accept the key request.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	void acceptKeyRequest(final Long keyRequestId) throws ParityException {
+		getInternalArtifactModel().acceptKeyRequest(keyRequestId);
+	}
+
+	/**
+	 * Accept the key request.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	void declineKeyRequest(final Long keyRequestId) throws ParityException {
+		getInternalArtifactModel().declineKeyRequest(keyRequestId);
+	}
+
+	/**
 	 * @see DocumentModel#addListener(CreationListener)
 	 * @param listener
 	 *            The listener to add.

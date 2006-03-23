@@ -85,7 +85,6 @@ public class DocumentModel {
 	public void addListener(final CreationListener listener) {
 		synchronized(implLock) { impl.addListener(listener); }
 	}
-
 	/**
 	 * Add a an update listener for documents.
 	 * 

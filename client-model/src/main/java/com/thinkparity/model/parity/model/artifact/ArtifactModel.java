@@ -3,6 +3,9 @@
  */
 package com.thinkparity.model.parity.model.artifact;
 
+import java.util.List;
+
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -58,6 +61,19 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
+	 * Accept the key request.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 * 
+	 * @throws ParityException
+	 */
+	public void acceptKeyRequest(final Long keyRequestId)
+			throws ParityException {
+		synchronized(implLock) { impl.acceptKeyRequest(keyRequestId); }
+	}
+
+	/**
 	 * Apply the seen flag to the artifact.
 	 * 
 	 * @param artifactId
@@ -65,6 +81,17 @@ public class ArtifactModel extends AbstractModel {
 	 */
 	public void applyFlagSeen(final Long artifactId) {
 		synchronized(implLock) { impl.applyFlagSeen(artifactId); }
+	}
+
+	/**
+	 * Decline a key request.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 * @throws ParityException
+	 */
+	public void declineKeyRequest(final Long keyRequestId) throws ParityException {
+		synchronized(implLock) { impl.declineKeyRequest(keyRequestId); }
 	}
 
 	/**
@@ -90,6 +117,18 @@ public class ArtifactModel extends AbstractModel {
 	public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
 		synchronized(implLock) { return impl.isFlagApplied(artifactId, flag); }
 	}
+	/**
+	 * Obtain all pending key requests for the document.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return A list of key requests.
+	 * @throws ParityException
+	 */
+	public List<KeyRequest> readKeyRequests(final Long documentId)
+			throws ParityException {
+		synchronized(implLock) { return impl.readKeyRequests(documentId); }
+	}
 
 	/**
 	 * Remove the seen flag from the artifact.
@@ -100,6 +139,7 @@ public class ArtifactModel extends AbstractModel {
 	public void removeFlagSeen(final Long artifactId) {
 		synchronized(implLock) { impl.removeFlagSeen(artifactId); }
 	}
+
 	/**
 	 * Obtain the implemenatation.
 	 * 

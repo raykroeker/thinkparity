@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.message.system;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -15,12 +16,16 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.SystemMessageEvent;
 import com.thinkparity.model.parity.api.events.SystemMessageListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.L18nContext;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
+import com.thinkparity.model.parity.model.session.InternalSessionModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -61,7 +66,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	 * Create a SystemMessageModelImpl.
 	 */
 	SystemMessageModelImpl(final Workspace workspace) {
-		super(workspace);
+		super(workspace, L18nContext.SYSTEM_MESSAGE);
 		this.defaultComparator = new ComparatorBuilder().createSystemMessageDefault();
 		this.systemMessageIO = IOFactory.getDefault().createSystemMessageHandler();
 	}
@@ -83,32 +88,6 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 					SystemMessageModelImpl.systemMessageListeners.contains(listener));
 			SystemMessageModelImpl.systemMessageListeners.add(listener);
 		}
-	}
-
-	void createKeyRequest(final Long artifactId, final JabberId requestedBy) {
-		logger.info("createKeyRequest(Long,User)");
-		logger.debug(artifactId);
-		logger.debug(requestedBy);
-		final KeyRequestMessage keyRequestMessage = new KeyRequestMessage();
-		keyRequestMessage.setArtifactId(artifactId);
-		keyRequestMessage.setRequestedBy(requestedBy);
-		keyRequestMessage.setType(SystemMessageType.KEY_REQUEST);
-		systemMessageIO.create(keyRequestMessage);
-		notify_MessageCreated(keyRequestMessage);
-	}
-
-	void createKeyResponse(final Long artifactId,
-			final Boolean didAcceptRequest, final JabberId responseFrom) {
-		logger.info("createKeyResponse(Long,User)");
-		logger.debug(artifactId);
-		logger.debug(responseFrom);
-		final KeyResponseMessage keyResponseMessage = new KeyResponseMessage();
-		keyResponseMessage.setArtifactId(artifactId);
-		keyResponseMessage.setDidAcceptRequest(didAcceptRequest);
-		keyResponseMessage.setResponseFrom(responseFrom);
-		keyResponseMessage.setType(SystemMessageType.KEY_RESPONSE);
-		systemMessageIO.create(keyResponseMessage);
-		notify_MessageCreated(keyResponseMessage);
 	}
 
 	void createContactInvitation(final JabberId invitedBy) {
@@ -143,6 +122,49 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 			message.setType(SystemMessageType.CONTACT_INVITATION_RESPONSE);
 			systemMessageIO.create(message);
 			notify_MessageCreated(message);
+		}
+	}
+
+	void createKeyRequest(final Long artifactId, final JabberId requestedBy) {
+		logger.info("createKeyRequest(Long,User)");
+		logger.debug(artifactId);
+		logger.debug(requestedBy);
+		final KeyRequestMessage keyRequestMessage = new KeyRequestMessage();
+		keyRequestMessage.setArtifactId(artifactId);
+		keyRequestMessage.setRequestedBy(requestedBy);
+		keyRequestMessage.setType(SystemMessageType.KEY_REQUEST);
+		systemMessageIO.create(keyRequestMessage);
+		notify_MessageCreated(keyRequestMessage);
+	}
+
+	void createKeyResponse(final Long artifactId,
+			final Boolean didAcceptRequest, final JabberId responseFrom) {
+		logger.info("createKeyResponse(Long,User)");
+		logger.debug(artifactId);
+		logger.debug(responseFrom);
+		final KeyResponseMessage keyResponseMessage = new KeyResponseMessage();
+		keyResponseMessage.setArtifactId(artifactId);
+		keyResponseMessage.setDidAcceptRequest(didAcceptRequest);
+		keyResponseMessage.setResponseFrom(responseFrom);
+		keyResponseMessage.setType(SystemMessageType.KEY_RESPONSE);
+		systemMessageIO.create(keyResponseMessage);
+		notify_MessageCreated(keyResponseMessage);
+	}
+
+	/**
+	 * Delete a system message.
+	 * 
+	 * @param systemMessageId
+	 *            The system message id.
+	 * @throws ParityException
+	 */
+	void delete(final Long systemMessageId) throws ParityException {
+		logger.info("delete(Long)");
+		logger.debug(systemMessageId);
+		try { systemMessageIO.delete(systemMessageId); }
+		catch(final RuntimeException rx) {
+			logger.error("Could not delete message:  " + systemMessageId, rx);
+			throw ParityErrorTranslator.translate(rx);
 		}
 	}
 
@@ -197,21 +219,31 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
-	 * Delete a system message.
-	 * 
-	 * @param systemMessageId
-	 *            The system message id.
-	 * @throws ParityException
-	 */
-	void delete(final Long systemMessageId) throws ParityException {
-		logger.info("delete(Long)");
-		logger.debug(systemMessageId);
-		try { systemMessageIO.delete(systemMessageId); }
+	List<SystemMessage> readForArtifact(final Long artifactId,
+			final SystemMessageType type) throws ParityException {
+		logger.info("[LMODEL] [SYSTEM MESSAGE] [READ FOR ARTIFACT]");
+		logger.debug(artifactId);
+		logger.debug(type);
+		try {
+			final List<SystemMessage> messages =
+				systemMessageIO.readForArtifact(artifactId, type);
+			populateUserInfo(messages);
+			return messages;
+		}
 		catch(final RuntimeException rx) {
-			logger.error("Could not delete message:  " + systemMessageId, rx);
+			logger.error("[LMODEL] [SYSTEM MESSAGE] [READ FOR ARTIFACT]", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
+	}
+
+	List<SystemMessage> readForNonArtifacts() throws ParityException {
+		logger.info("[LMODEL] [SYSTEM MESSAGE] [READ FOR NON ARTIFACTS]");
+		final List<SystemMessage> filtered = new LinkedList<SystemMessage>();
+		final Collection<SystemMessage> messages = read();
+		for(final SystemMessage message : messages) {
+			if(!isForArtifacts(message)) { filtered.add(message); }
+		}
+		return filtered;
 	}
 
 	/**
@@ -234,6 +266,27 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Determine whether the system message is for an artifact.
+	 * 
+	 * @param message
+	 *            The system message.
+	 * @return True if the message is for an artifact; false otherwise.
+	 */
+	private Boolean isForArtifacts(final SystemMessage message) {
+		switch(message.getType()) {
+		case INFO:
+		case CONTACT_INVITATION:
+		case CONTACT_INVITATION_RESPONSE:
+			return Boolean.FALSE;
+		case KEY_REQUEST:
+		case KEY_RESPONSE:
+			return Boolean.TRUE;
+		default:
+			throw Assert.createUnreachable("Unknown message type:  " + message.getType());
+		}
+	}
+
+	/**
 	 * Fire a message created notification event.
 	 *
 	 */
@@ -241,6 +294,32 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		synchronized(systemMessageListenersLock) {
 			for(final SystemMessageListener l : systemMessageListeners) {
 				l.systemMessageCreated(new SystemMessageEvent(systemMessage));
+			}
+		}
+	}
+
+	private void populateUserInfo(final List<SystemMessage> messages)
+			throws ParityException {
+		final InternalSessionModel iSModel =
+			SessionModel.getInternalModel(getContext());
+		for(final SystemMessage message : messages) {
+			switch(message.getType()) {
+			case INFO:
+			case CONTACT_INVITATION:
+			case CONTACT_INVITATION_RESPONSE:
+			case KEY_RESPONSE:
+				break;
+			case KEY_REQUEST:
+				final User requestedByUser = iSModel.readUser(((KeyRequestMessage) message).getRequestedBy());
+				final Object[] arguments = new Object[] {
+					requestedByUser.getFirstName(),
+					requestedByUser.getLastName(),
+					requestedByUser.getOrganization()
+				};
+				((KeyRequestMessage) message).setRequestedByName(getString("KeyRequestMessage.RequestedByName", arguments));
+				break;
+			default:
+				Assert.assertUnreachable("Unknown message type:  " + message.getType());
 			}
 		}
 	}

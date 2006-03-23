@@ -11,6 +11,7 @@ import com.thinkparity.model.parity.model.message.system.ContactInvitationRespon
 import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
 import com.thinkparity.model.parity.model.message.system.KeyResponseMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -30,8 +31,12 @@ public interface SystemMessageIOHandler {
 	public void delete(final Long messageId) throws HypersonicException;
 	public List<SystemMessage> read() throws HypersonicException;
 	public SystemMessage read(final Long messageId) throws HypersonicException;
-	public ContactInvitationResponseMessage readContactInvitationResponse(
-			final JabberId responseBy) throws HypersonicException;
 	public ContactInvitationMessage readContactInvitation(final JabberId invitedBy)
 		throws HypersonicException;
+	public ContactInvitationResponseMessage readContactInvitationResponse(
+			final JabberId responseBy) throws HypersonicException;
+	public List<SystemMessage> readForArtifact(final Long artifactId)
+		throws HypersonicException;
+	public List<SystemMessage> readForArtifact(final Long artifactId,
+			final SystemMessageType type) throws HypersonicException;
 }

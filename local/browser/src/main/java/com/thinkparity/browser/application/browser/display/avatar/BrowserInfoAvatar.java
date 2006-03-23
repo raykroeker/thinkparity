@@ -5,18 +5,22 @@ package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * Displays the browser's info panel. This avatar contains the sort button as
@@ -27,7 +31,7 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class BrowserInfoAvatar extends Avatar {
+class BrowserInfoAvatar extends Avatar {
 
 	private static final Icon HIDE_HISTORY_ICON;
 
@@ -66,7 +70,7 @@ public class BrowserInfoAvatar extends Avatar {
 	 * Create a BrowserInfoAvatar.
 	 *
 	 */
-	public BrowserInfoAvatar() {
+	BrowserInfoAvatar() {
 	    super("BrowserInfo");
 	    setLayout(new GridBagLayout());
 	    setOpaque(false);
@@ -87,7 +91,6 @@ public class BrowserInfoAvatar extends Avatar {
 
 	public void setInfoMessage(final String infoMessageKey, final Object[] arguments) {
 		infoJLabel.setText(getString(infoMessageKey, arguments));
-//		repaint();
 	}
 
 	/**
@@ -95,6 +98,20 @@ public class BrowserInfoAvatar extends Avatar {
 	 * 
 	 */
 	public void setState(final State state) {}
+
+	private JMenuItem createJMenuItem(final String textLocalKey,
+			final ActionListener actionListener) {
+		return createJMenuItem(getString(textLocalKey),
+				getMnemonic(textLocalKey), actionListener);
+	}
+
+	private JMenuItem createJMenuItem(final String text, final Integer mnemonic,
+			final ActionListener actionListener) {
+		final JMenuItem jMenuItem = MenuItemFactory.create(text, mnemonic);
+		jMenuItem.addActionListener(actionListener);
+		return jMenuItem;
+
+	}
 
 	/**
 	 * Determine which icon to use. Check the browser to see if the history is
@@ -112,18 +129,23 @@ public class BrowserInfoAvatar extends Avatar {
 		else { return SHOW_HISTORY_ROLLOVER_ICON; }
 	}
 
+	private Integer getMnemonic(final String textLocalKey) {
+		final String mnemonicString = getString(textLocalKey + "Mnemonic");
+		return new Integer(mnemonicString.charAt(0));
+	}
+
 	private void initComponents() {
         sortJLabel = LabelFactory.create(SORT_ICON);
         sortJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-        	public void mouseClicked(final MouseEvent e) {
-        		sortJLabelMouseClicked(e);
-        	}
-        	public void mouseEntered(final MouseEvent e) {
+			public void mouseEntered(final MouseEvent e) {
         		sortJLabel.setIcon(SORT_ROLLOVER_ICON);
         	}
-        	public void mouseExited(MouseEvent e) {
+			public void mouseExited(MouseEvent e) {
         		sortJLabel.setIcon(SORT_ICON);
         	}
+        	public void mouseReleased(final MouseEvent e) {
+				sortJLabelMouseReleased(e);
+			}
         });
 
         infoJLabel = LabelFactory.create();
@@ -185,7 +207,13 @@ public class BrowserInfoAvatar extends Avatar {
 		showHistoryJLabel.setIcon(getHistoryRolloverIcon());
 	}
 
-	private void sortJLabelMouseClicked(final MouseEvent evt) {
-		Assert.assertNotYetImplemented("[BROWSER2] [INFO] [SORT BY]");
+	private void sortJLabelMouseReleased(final MouseEvent e) {
+		final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+		jPopupMenu.add(createJMenuItem("ReloadMainList", new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				getController().reloadMainList();
+			}
+		}));
+		jPopupMenu.show(sortJLabel, 0, sortJLabel.getSize().height);
 	}
 }

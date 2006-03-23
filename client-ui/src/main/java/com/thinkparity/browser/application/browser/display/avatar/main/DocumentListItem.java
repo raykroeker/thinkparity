@@ -18,11 +18,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
-import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
-
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * @author raykroeker@gmail.com
@@ -37,6 +33,18 @@ public class DocumentListItem extends ListItem {
 	private static final BufferedImage BG_CLOSED_SEL;
 
 	private static final BufferedImage BG_SEL;
+
+	/**
+	 * Background for documents requiring immediate action.
+	 * 
+	 */
+	private static final BufferedImage BG_URGENT;
+
+	/**
+	 * Background for selected documents requiring immediate action.
+	 * 
+	 */
+	private static final BufferedImage BG_URGENT_SEL;
 
 	/**
 	 * Info icon used when the user is the key holder.
@@ -56,24 +64,25 @@ public class DocumentListItem extends ListItem {
 	 */
 	private static final Color NAME_FOREGROUND_CLOSED;
 
+	/**
+	 * Text color of documents requiring immediate action.
+	 * 
+	 */
+	private static final Color NAME_FOREGROUND_URGENT;
+
 	static {
 		BG = ImageIOUtil.read("DocumentCell.png");
 		BG_SEL = ImageIOUtil.read("DocumentCellSelected.png");
 		BG_CLOSED = ImageIOUtil.read("DocumentCellClosed.png");
 		BG_CLOSED_SEL = ImageIOUtil.read("DocumentCellClosedSelected.png");
+		BG_URGENT = ImageIOUtil.read("DocumentCellUrgent.png");
+		BG_URGENT_SEL = ImageIOUtil.read("DocumentCellUrgentSelected.png");
 		KEY_ICON = ImageIOUtil.readIcon("Key.png");
 		// COLOR DocumentListItem Text BLACK
 		NAME_FOREGROUND = Color.BLACK;
 		// COLOR DocumentListItem Closed Text 127,131,134,255
 		NAME_FOREGROUND_CLOSED = new Color(127, 131, 134, 255);
-	}
-
-	private static Boolean hasBeenSeen(final Long documentId) {
-		return ArtifactUtil.hasBeenSeen(documentId, ArtifactType.DOCUMENT);
-	}
-
-	private static Boolean isClosed(final Long documentId) {
-		return ArtifactUtil.isClosed(documentId, ArtifactType.DOCUMENT);
+		NAME_FOREGROUND_URGENT = NAME_FOREGROUND;
 	}
 
 	/**
@@ -100,31 +109,26 @@ public class DocumentListItem extends ListItem {
 	 */
 	private ActionListener deleteMenuItemActionListener;
 
-	/**
-	 * Flag indicating whether or not the user is this document list item's key
-	 * holder.
-	 * 
-	 * @see #DocumentListItem(Document, Boolean)
-	 */
-	private final Boolean isKeyHolder;
+	private final DisplayDocument displayDocument;
 
 	/**
 	 * Open menu item.
 	 * 
 	 */
 	private JMenuItem openMenuItem;
+
 	/**
 	 * The action listener for the open menu item.
 	 * 
 	 */
 	private ActionListener openMenuItemActionListener;
 
+
 	/**
 	 * Request key menu item.
 	 * 
 	 */
 	private JMenuItem requestKeyMenuItem;
-
 
 	/**
 	 * The action listener for the request key menu item.
@@ -153,31 +157,39 @@ public class DocumentListItem extends ListItem {
 	 *            A flag indicating whether or not the user is the document's
 	 *            key holder.
 	 */
-	DocumentListItem(final Document document, final Boolean isKeyHolder) {
+	DocumentListItem(final DisplayDocument displayDocument) {
 		super("DocumentListItem");
-		this.document = document;
-		this.isKeyHolder = isKeyHolder;
-		setDocumentId(document.getId());
+		this.displayDocument = displayDocument;
+		setDocumentId(displayDocument.getDocumentId());
 
-		if(isClosed(document.getId())) {
-			setBackgroundImage(BG_CLOSED);
-			setBackgroundImageSelected(BG_CLOSED_SEL);
-			setNameForeground(NAME_FOREGROUND_CLOSED);
-		}
-		else {
-			setBackgroundImage(BG);
-			setBackgroundImageSelected(BG_SEL);
-			setNameForeground(NAME_FOREGROUND);
+		if(displayDocument.isUrgent()) {
+			setBackgroundImage(BG_URGENT);
+			setBackgroundImageSelected(BG_URGENT_SEL);
+			setNameForeground(NAME_FOREGROUND_URGENT);
+			setNameInfo(displayDocument.getUrgentInfo(this));
 
-			if(hasBeenSeen(document.getId())) { setNameFont(BrowserConstants.DefaultFont); }
+			if(displayDocument.hasBeenSeen()) { setNameFont(BrowserConstants.DefaultFont); }
 			else { setNameFont(BrowserConstants.DefaultFontBold); }
 		}
+		else {
+			if(displayDocument.isClosed()) {
+				setBackgroundImage(BG_CLOSED);
+				setBackgroundImageSelected(BG_CLOSED_SEL);
+				setNameForeground(NAME_FOREGROUND_CLOSED);
+			}
+			else {
+				setBackgroundImage(BG);
+				setBackgroundImageSelected(BG_SEL);
+				setNameForeground(NAME_FOREGROUND);
+	
+				if(displayDocument.hasBeenSeen()) { setNameFont(BrowserConstants.DefaultFont); }
+				else { setNameFont(BrowserConstants.DefaultFontBold); }
+			}
+		}
 
-		setName(document.getName());
-		if(isKeyHolder) { setInfoIcon(KEY_ICON); }
+		setName(displayDocument.getDisplay());
+		if(displayDocument.isKeyHolder()) { setInfoIcon(KEY_ICON); }
 	}
-
-	private final Document document;
 
 	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#fireSelection()
@@ -193,15 +205,19 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 */
 	public void populateMenu(final MouseEvent e, final JPopupMenu jPopupMenu) {
+		if(displayDocument.isUrgent()) {
+			displayDocument.populateUrgentMenu(this,e, jPopupMenu);
+			jPopupMenu.addSeparator();
+		}
 		jPopupMenu.add(getOpenMenuItem());
-		if(isClosed(getDocumentId())) {
+		if(displayDocument.isClosed()) {
 			jPopupMenu.addSeparator();
 			jPopupMenu.add(getDeleteMenuItem());
 		}
 		else {
 			jPopupMenu.add(getSendMenuItem());
 
-			if(isKeyHolder) {
+			if(displayDocument.isKeyHolder()) {
 				jPopupMenu.addSeparator();
 				jPopupMenu.add(getCloseMenuItem());
 			}
@@ -222,12 +238,12 @@ public class DocumentListItem extends ListItem {
 					systemClipboard.setContents(stringSelection, null);
 				}
 			};
-			final JMenuItem idJMenuItem = new JMenuItem("Id:" + document.getId());
-			idJMenuItem.putClientProperty("COPY_ME", document.getId());
+			final JMenuItem idJMenuItem = new JMenuItem("Id:" + displayDocument.getDocumentId());
+			idJMenuItem.putClientProperty("COPY_ME", displayDocument.getDocumentId());
 			idJMenuItem.addActionListener(debugActionListener);
 
-			final JMenuItem uidJMenuItem = new JMenuItem("U Id:" + document.getUniqueId());
-			uidJMenuItem.putClientProperty("COPY_ME", document.getUniqueId());
+			final JMenuItem uidJMenuItem = new JMenuItem("U Id:" + displayDocument.getDocumentUniqueId());
+			uidJMenuItem.putClientProperty("COPY_ME", displayDocument.getDocumentUniqueId());
 			uidJMenuItem.addActionListener(debugActionListener);
 
 			jPopupMenu.addSeparator();

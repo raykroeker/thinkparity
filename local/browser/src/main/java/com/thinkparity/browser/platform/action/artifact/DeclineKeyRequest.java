@@ -10,9 +10,6 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
-import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
-import com.thinkparity.model.parity.model.session.KeyResponse;
 
 /**
  * @author raykroeker@gmail.com
@@ -28,33 +25,26 @@ public class DeclineKeyRequest extends AbstractAction {
 
 	static {
 		ICON = null;
-		ID = ActionId.ARTIFACT_ACCEPT_KEY_REQUEST;
-		NAME = "Accept key request";
+		ID = ActionId.ARTIFACT_DECLINE_KEY_REQUEST;
+		NAME = "Decline key request";
 	}
 
 	/**
 	 * Create a AcceptKeyRequest.
 	 * 
 	 */
-	public DeclineKeyRequest() { super("AcceptKeyRequest", ID, NAME, ICON); }
+	public DeclineKeyRequest() { super("DeclineKeyRequest", ID, NAME, ICON); }
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-		final Long messageId = (Long) data.get(DataKey.SYSTEM_MESSAGE_ID);
-		try {
-			final SystemMessageModel sMModel = getSystemMessageModel();
-			final KeyRequestMessage message =
-				(KeyRequestMessage) sMModel.read(messageId);
-			getSessionModel().sendKeyResponse(message.getArtifactId(),
-					message.getRequestedBy(), KeyResponse.DENY);
-			sMModel.delete(messageId);
-		}
+		final Long keyRequestId = (Long) data.get(DataKey.KEY_REQUEST_ID);
+		try { getArtifactModel().declineKeyRequest(keyRequestId); }
 		catch(final ParityException px) { throw new RuntimeException(px); }
 
 	}
 
-	public enum DataKey { SYSTEM_MESSAGE_ID }
+	public enum DataKey { KEY_REQUEST_ID }
 }

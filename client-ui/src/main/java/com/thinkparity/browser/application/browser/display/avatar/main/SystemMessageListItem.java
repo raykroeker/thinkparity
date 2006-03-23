@@ -304,9 +304,6 @@ public class SystemMessageListItem extends ListItem {
 		case CONTACT_INVITATION:
 			getController().runAcceptContactInvitation(message.getId());
 			break;
-		case KEY_REQUEST:
-			getController().runAcceptKeyRequest(message.getId());
-			break;
 		default:
 			Assert.assertUnreachable("Unknown system message:  " + message.getType());
 		}
@@ -317,9 +314,6 @@ public class SystemMessageListItem extends ListItem {
 		switch(message.getType()) {
 		case CONTACT_INVITATION:
 			getController().runDeclineContactInvitation(message.getId());
-			break;
-		case KEY_REQUEST:
-			getController().runDeclineKeyRequest(message.getId());
 			break;
 		default:
 			Assert.assertUnreachable("Unknown system message:  " + message.getType());

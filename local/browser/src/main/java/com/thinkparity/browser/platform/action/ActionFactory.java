@@ -52,6 +52,8 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen();
 		case ARTIFACT_DECLINE_KEY_REQUEST:
 			return new com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest();
+		case ARTIFACT_DECLINE_ALL_KEY_REQUESTS:
+			return new com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests();
 		case DOCUMENT_CLOSE:
 			return new com.thinkparity.browser.platform.action.document.Close();
 		case DOCUMENT_CREATE:

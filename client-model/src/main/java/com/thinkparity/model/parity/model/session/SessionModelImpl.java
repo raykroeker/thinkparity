@@ -200,6 +200,8 @@ class SessionModelImpl extends AbstractModelImpl {
 		final InternalArtifactModel iAModel =
 			ArtifactModel.getInternalModel(sContext);
 		iAModel.applyFlagKey(document.getId());
+		// remove seen flag
+		iAModel.removeFlagSeen(document.getId());
 
 		// create system message
 		SystemMessageModel.getInternalModel(sContext).
@@ -224,15 +226,20 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	static void notifyKeyRequestDenied(final UUID artifactUniqueId,
 			final JabberId deniedBy) throws ParityException, SmackException {
-		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
-		final Document document = iDModel.get(artifactUniqueId);
+		final Document document =
+			DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
+
+		// remove seen flag
+		final InternalArtifactModel iAModel = ArtifactModel.getInternalModel(sContext);
+		iAModel.removeFlagSeen(document.getId());
+
+		// create system message
 		SystemMessageModel.getInternalModel(sContext).
 			createKeyResponse(document.getId(), Boolean.FALSE, deniedBy);
 
 		// audit key request denied
 		final User loggedInUser;
 		synchronized(xmppHelperLock) { loggedInUser = xmppHelper.getUser(); }
-		final InternalArtifactModel iAModel = ArtifactModel.getInternalModel(sContext);
 		iAModel.auditKeyRequestDenied(document.getId(), loggedInUser.getId(),
 				currentDateTime(), deniedBy);
 	}
@@ -249,6 +256,12 @@ class SessionModelImpl extends AbstractModelImpl {
 	static void notifyKeyRequested(final UUID artifactUniqueId,
 			final JabberId requestedBy) throws ParityException, SmackException {
 		final Document document = DocumentModel.getInternalModel(sContext).get(artifactUniqueId);
+
+		// remove seen flag
+		final InternalArtifactModel iAModel = ArtifactModel.getInternalModel(sContext);
+		iAModel.removeFlagSeen(document.getId());
+
+		// create system message
 		SystemMessageModel.getInternalModel(sContext).createKeyRequest(document.getId(), requestedBy);
 
 		// audit key request
@@ -634,6 +647,12 @@ class SessionModelImpl extends AbstractModelImpl {
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
+	}
+
+	User readUser(final JabberId jabberId) throws ParityException {
+		final List<JabberId> jabberIds = new LinkedList<JabberId>();
+		jabberIds.add(jabberId);
+		return readUsers(jabberIds).get(0);
 	}
 
 	List<User> readUsers(final List<JabberId> jabberIds) throws ParityException {

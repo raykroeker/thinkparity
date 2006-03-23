@@ -3,6 +3,9 @@
  */
 package com.thinkparity.model.parity.model.message.system;
 
+import java.util.List;
+
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
@@ -49,6 +52,21 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 			final Boolean didAcceptRequest, final JabberId responseFrom) {
 		synchronized(getImplLock()) {
 			getImpl().createKeyResponse(artifactId, didAcceptRequest, responseFrom);
+		}
+	}
+
+	/**
+	 * Read all system messages for an artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return A list of system messages.
+	 * @throws ParityException
+	 */
+	public List<SystemMessage> readForArtifact(final Long artifactId,
+			final SystemMessageType type) throws ParityException {
+		synchronized(getImplLock()) {
+			return getImpl().readForArtifact(artifactId, type);
 		}
 	}
 }

@@ -101,6 +101,20 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	/**
+	 * Sql to read a presence request system message by its requested by meta
+	 * data.
+	 * 
+	 */
+	private static final String SQL_READ_BY_TYPE_BY_META_DATA =
+		new StringBuffer("select SYSTEM_MESSAGE_ID,SYSTEM_MESSAGE_TYPE_ID ")
+		.append("from SYSTEM_MESSAGE SM inner join SYSTEM_MESSAGE_META_DATA SMMD ")
+		.append("on SM.SYSTEM_MESSAGE_ID = SMMD.SYSTEM_MESSAGE_ID ")
+		.append("inner join META_DATA MD on SMMD.META_DATA_ID = MD.META_DATA_ID ")
+		.append("where SM.SYSTEM_MESSAGE_TYPE_ID=? ")
+		.append("and (MD.KEY=? and MD.VALUE=?)")
+		.toString();
+
+	/**
 	 * Sql to read a system message from the database.
 	 * 
 	 */
@@ -334,6 +348,47 @@ public class SystemMessageIOHandler extends AbstractIOHandler implements
 			session.executeQuery();
 			if(session.nextResult()) { return extractInvitationResponse(session); }
 			else { return null; }
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	public List<SystemMessage> readForArtifact(final Long artifactId)
+			throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_BY_META_DATA);
+			session.setTypeAsString(1, MetaDataKey.ARTIFACT_ID);
+			session.setLong(2, artifactId);
+			session.executeQuery();
+			final List<SystemMessage> messages = new LinkedList<SystemMessage>();
+			while(session.nextResult()) { messages.add(extract(session)); }
+			return messages;
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	public List<SystemMessage> readForArtifact(final Long artifactId,
+			final SystemMessageType type) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_READ_BY_TYPE_BY_META_DATA);
+			session.setTypeAsInteger(1, type);
+			session.setTypeAsString(2, MetaDataKey.ARTIFACT_ID);
+			session.setLong(3, artifactId);
+			session.executeQuery();
+			final List<SystemMessage> messages = new LinkedList<SystemMessage>();
+			while (session.nextResult()) {
+				messages.add(extract(session));
+			}
+			return messages;
 		}
 		catch(final HypersonicException hx) {
 			session.rollback();

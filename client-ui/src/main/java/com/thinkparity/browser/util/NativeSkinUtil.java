@@ -6,15 +6,12 @@ package com.thinkparity.browser.util;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.BrowserWindow;
-import com.thinkparity.browser.application.browser.window.HistoryWindow;
 import com.thinkparity.browser.platform.application.window.Window;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 
 import com.l2fprod.gui.nativeskin.NativeConstants;
 import com.l2fprod.gui.nativeskin.NativeSkin;
-import com.l2fprod.gui.region.Region;
-import com.l2fprod.gui.region.RegionBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -36,9 +33,9 @@ public class NativeSkinUtil {
 	 * @param window
 	 *            The parity window.
 	 */
-	public static void applyNativeSkin(final HistoryWindow historyWindow) {
-		singleton.doApplyNativeSkin(historyWindow);
-	}
+//	public static void applyNativeSkin(final HistoryWindow historyWindow) {
+//		singleton.doApplyNativeSkin(historyWindow);
+//	}
 
 	public static void applyNativeSkin(final Window window) {}
 
@@ -110,9 +107,9 @@ public class NativeSkinUtil {
 	 * @param historyWindow
 	 *            The parity history window.
 	 */
-	private void doApplyNativeSkin(final HistoryWindow historyWindow) {
-		final Region region =
-			new RegionBuilder().createRegion(HistoryWindow.getImage());
-		nativeSkin.setWindowRegion(historyWindow, region, true);
-	}
+//	private void doApplyNativeSkin(final HistoryWindow historyWindow) {
+//		final Region region =
+//			new RegionBuilder().createRegion(HistoryWindow.getImage());
+//		nativeSkin.setWindowRegion(historyWindow, region, true);
+//	}
 }

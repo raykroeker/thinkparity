@@ -570,7 +570,7 @@ public class Session {
 	}
 
 	private void debugSql(final String sql, final Integer sqlIndex) {
-		final StringBuffer message = new StringBuffer("[SQL] ");
+		final StringBuffer message = new StringBuffer("[LMODEL] [IO] [HSQLDB] [SQL] ");
 		if(null != sqlIndex) {
 			message.append("[")
 				.append(sqlIndex)

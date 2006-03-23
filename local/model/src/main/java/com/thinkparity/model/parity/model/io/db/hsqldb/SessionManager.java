@@ -22,6 +22,10 @@ import com.thinkparity.model.parity.model.io.md.MetaDataType;
  */
 public class SessionManager {
 
+	/**
+	 * Contains all open sessions to the hsqldb database.
+	 * 
+	 */
 	private static final Vector<Session> sessions;
 
 	private static final String SQL_GET_META_DATA =
@@ -35,10 +39,12 @@ public class SessionManager {
 			public void run() {
 				// remove abandoned sessions
 				final Logger logger = ModelLoggerFactory.getLogger(SessionManager.class);
-				logger.info("Number of abandoned sessions:  " + sessions.size());
-				for(final Session session : sessions) {
-					logger.info(session.getId());
-					session.close();
+				synchronized(sessions) {
+					logger.warn("Number of abandoned sessions:  " + sessions.size());
+					for(final Session session : sessions) {
+						logger.warn(session.getId());
+						session.close();
+					}
 				}
 				HypersonicUtil.shutdown();
 			}

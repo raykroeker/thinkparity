@@ -7,11 +7,11 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 
@@ -34,25 +34,33 @@ public class DeclineAllKeyRequests extends AbstractAction {
 	}
 
 	/**
+	 * The browser application.
+	 * 
+	 */
+	private final Browser browser;
+
+	/**
 	 * Create a AcceptKeyRequest.
 	 * 
 	 */
-	public DeclineAllKeyRequests() { super("DeclineKeyRequest", ID, NAME, ICON); }
+	public DeclineAllKeyRequests(final Browser browser) {
+		super("DeclineKeyRequest", ID, NAME, ICON);
+		this.browser = browser;
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
+		final ArtifactModel aModel = getArtifactModel();
 		final Long artifactId = (Long) data.get(DataKey.ARTIFACT_ID);
-		try {
-			final ArtifactModel aModel = getArtifactModel();
-			final List<KeyRequest> keyRequests = aModel.readKeyRequests(artifactId);
-			for(final KeyRequest keyRequest : keyRequests) {
-				aModel.declineKeyRequest(keyRequest.getId());
-			}
+		final List<KeyRequest> keyRequests = aModel.readKeyRequests(artifactId);
+		for(final KeyRequest keyRequest : keyRequests) {
+			aModel.declineKeyRequest(keyRequest.getId());
 		}
-		catch(final ParityException px) { throw new RuntimeException(px); }
+
+		browser.fireDocumentUpdated(artifactId);
 	}
 
 	public enum DataKey { ARTIFACT_ID }

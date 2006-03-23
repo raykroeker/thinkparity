@@ -8,8 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
-import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -28,21 +29,51 @@ import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class MainProvider extends CompositeFlatContentProvider {
+public class MainProvider extends CompositeFlatSingleContentProvider {
+
+	private final SingleContentProvider documentProvider;
 
 	private final FlatContentProvider documentsProvider;
 
-	private final FlatContentProvider[] flatContentProviders;
+	private final FlatContentProvider[] flatProviders;
+
+	private final SingleContentProvider[] singleProviders;
 
 	private final FlatContentProvider systemMessagesProvider;
 
+	private Long assertNotNullLong(final String assertion, final Object input) {
+		Assert.assertNotNull(assertion, input);
+		Assert.assertOfType(assertion, Long.class, input);
+		return (Long) input;
+	}
+
 	/**
 	 * Create a MainProvider.
+	 * 
+	 * @param artifactModel
+	 *            The parity artifact interface.
+	 * @param documentModel
+	 *            The parity document interface.
+	 * @param systemMessageModel
+	 *            The parity system message interface.
 	 */
 	public MainProvider(final ArtifactModel artifactModel,
 			final DocumentModel documentModel,
 			final SystemMessageModel systemMessageModel) {
 		super();
+		this.documentProvider = new SingleContentProvider() {
+			public Object getElement(final Object input) {
+				final Long documentId = assertNotNullLong(
+						"The main provider's document provider requires " +
+						"non-null java.lang.Long input.", input);
+				final List<Document> documents = new LinkedList<Document>();
+				try {
+					documents.add(documentModel.get(documentId));
+					return toDisplay(documents, artifactModel)[0];
+				}
+				catch(final ParityException px) { throw new RuntimeException(px); }
+			}
+		};
 		this.documentsProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				try {
@@ -71,7 +102,21 @@ public class MainProvider extends CompositeFlatContentProvider {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.flatContentProviders = new FlatContentProvider[] {documentsProvider, systemMessagesProvider};
+		this.flatProviders = new FlatContentProvider[] {documentsProvider, systemMessagesProvider};
+		this.singleProviders = new SingleContentProvider[] {documentProvider};
+	}
+
+	/**
+	 * @see com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider#getElement(java.lang.Integer,
+	 *      java.lang.Object)
+	 * 
+	 */
+	public Object getElement(final Integer index, final Object input) {
+		Assert.assertNotNull("Index cannot be null.", index);
+		Assert.assertTrue(
+				"Index must lie within [0," + (singleProviders.length - 1) + "]",
+				index >= 0 && index < singleProviders.length);
+		return singleProviders[index].getElement(input);
 	}
 
 	/**
@@ -82,9 +127,9 @@ public class MainProvider extends CompositeFlatContentProvider {
 	public Object[] getElements(final Integer index, final Object input) {
 		Assert.assertNotNull("Index cannot be null.", index);
 		Assert.assertTrue(
-				"Index must lie within [0," + (flatContentProviders.length - 1) + "]",
-				index >= 0 && index < flatContentProviders.length);
-		return flatContentProviders[index].getElements(input);
+				"Index must lie within [0," + (flatProviders.length - 1) + "]",
+				index >= 0 && index < flatProviders.length);
+		return flatProviders[index].getElements(input);
 	}
 
 	/**

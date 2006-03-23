@@ -37,12 +37,14 @@ public class DisplayDocument {
 	 * 
 	 * @param listItem
 	 *            The list item.
+	 * @param artifactId
+	 *            The artifact id.
 	 * @param systemMessageId
 	 *            The system message id.
 	 */
 	private static void runAcceptKeyRequest(final ListItem listItem,
-			final Long keyRequestId) {
-		listItem.getController().runAcceptKeyRequest(keyRequestId);
+			final Long artifactId, final Long keyRequestId) {
+		listItem.getController().runAcceptKeyRequest(artifactId, keyRequestId);
 	}
 
 	/**
@@ -67,8 +69,8 @@ public class DisplayDocument {
 	 *            The system message id.
 	 */
 	private static void runDeclineKeyRequest(final ListItem listItem,
-			final Long keyRequestId) {
-		listItem.getController().runDeclineKeyRequest(keyRequestId);
+			final Long artifactId, final Long keyRequestId) {
+		listItem.getController().runDeclineKeyRequest(artifactId, keyRequestId);
 	}
 
 	private Document document;
@@ -86,6 +88,17 @@ public class DisplayDocument {
 		this.keyRequests = new LinkedList<KeyRequest>();
 	}
 
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * 
+	 */
+	public boolean equals(final Object obj) {
+		if(null != obj && obj instanceof DisplayDocument) {
+			return (((DisplayDocument) obj).document.equals(document));
+		}
+		return false;
+	}
+
 	public String getDisplay() {
 		return document.getName();
 	}
@@ -101,6 +114,12 @@ public class DisplayDocument {
 	public Boolean hasBeenSeen() {
 		return ArtifactUtil.hasBeenSeen(document.getId(), document.getType());
 	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 * 
+	 */
+	public int hashCode() { return document.hashCode(); }
 
 	public Boolean isClosed() {
 		return ArtifactUtil.isClosed(document.getId(), document.getType());
@@ -143,11 +162,17 @@ public class DisplayDocument {
 		this.keyRequests.addAll(keyRequests);
 	}
 
+	/**
+	 * @see java.lang.Object#toString()
+	 * 
+	 */
+	public String toString() { return document.toString(); }
+
 	private JMenuItem getKeyRequestAcceptMenuItem(final ListItem listItem,
 			final KeyRequest keyRequest) {
 		return listItem.createJMenuItem("KeyRequestAccept", new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				runAcceptKeyRequest(listItem, keyRequest.getId());
+				runAcceptKeyRequest(listItem, document.getId(), keyRequest.getId());
 			}
 		});
 	}
@@ -160,7 +185,7 @@ public class DisplayDocument {
 		return listItem.createJMenuItem(
 				"KeyRequestAcceptMultiple", arguments, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				runAcceptKeyRequest(listItem, keyRequest.getId());
+				runAcceptKeyRequest(listItem, document.getId(), keyRequest.getId());
 			}
 		});
 	}
@@ -177,7 +202,7 @@ public class DisplayDocument {
 			final KeyRequest keyRequest) {
 		return listItem.createJMenuItem("KeyRequestDecline", new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				runDeclineKeyRequest(listItem, keyRequest.getId());
+				runDeclineKeyRequest(listItem, document.getId(), keyRequest.getId());
 			}
 		});
 	}

@@ -192,12 +192,29 @@ public class DocumentListItem extends ListItem {
 	}
 
 	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * 
+	 */
+	public boolean equals(final Object obj) {
+		if(null != obj && obj instanceof DocumentListItem) {
+			return ((DocumentListItem) obj).getDocumentId().equals(getDocumentId());
+		}
+		return false;
+	}
+
+	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#fireSelection()
 	 * 
 	 */
 	public void fireSelection() {
 		getController().selectDocument(getDocumentId());
 	}
+
+	/**
+	 * @see java.lang.Object#hashCode()
+	 * 
+	 */
+	public int hashCode() { return getDocumentId().hashCode(); }
 
 	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#populateMenu(java.awt.event.MouseEvent,
@@ -372,7 +389,7 @@ public class DocumentListItem extends ListItem {
 		if(null == requestKeyMenuItemActionListener) {
 			requestKeyMenuItemActionListener = new ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
-					getController().runRequestArtifactKey(getDocumentId());
+					getController().runRequestKey(getDocumentId());
 				}
 			};
 		}

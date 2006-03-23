@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
+import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
 import com.thinkparity.browser.application.browser.window.History2Window;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
@@ -29,6 +31,7 @@ import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests;
 import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
+import com.thinkparity.browser.platform.action.artifact.RequestKey;
 import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Create;
 import com.thinkparity.browser.platform.action.document.Delete;
@@ -36,7 +39,6 @@ import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
 import com.thinkparity.browser.platform.action.session.AcceptInvitation;
 import com.thinkparity.browser.platform.action.session.DeclineInvitation;
-import com.thinkparity.browser.platform.action.session.RequestKey;
 import com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
@@ -93,6 +95,12 @@ public class Browser extends AbstractApplication {
 	private final Map<AvatarId, Object> avatarInputMap;
 
 	/**
+	 * The avatar registry.
+	 * 
+	 */
+	private final AvatarRegistry avatarRegistry;
+
+	/**
 	 * The browser's event dispatcher.
 	 * 
 	 */
@@ -112,12 +120,13 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	private BrowserWindow mainWindow;
-
+	
 	/**
 	 * Contains the browser's session information.
 	 * 
 	 */
 	private final BrowserSession session;
+
 	
 	/**
 	 * The state information for the controller.
@@ -135,6 +144,7 @@ public class Browser extends AbstractApplication {
 		INSTANCE = this;
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
+		this.avatarRegistry = new AvatarRegistry();
 		this.session= new BrowserSession(this);
 		this.state = new BrowserState(this);
 	}
@@ -192,6 +202,21 @@ public class Browser extends AbstractApplication {
 
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
+	}
+
+	/**
+	 * Notify the application that a document's state has changed.
+	 * 
+	 * @param documentId
+	 *            The document that has changed.
+	 */
+	public void fireDocumentUpdated(final Long documentId) {
+		// refresh the document in the main list
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId);
+			}
+		});
 	}
 
 	/**
@@ -269,13 +294,6 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-	 * Reload the main browser avatar.
-	 * 
-	 * @deprecated Use {@link #reloadMainList()}
-	 */
-	public void reloadMainBrowserAvatar() { reloadMainList(); }
-
-	/**
 	 * Reload the main list.
 	 *
 	 */
@@ -324,11 +342,12 @@ public class Browser extends AbstractApplication {
 	 * @param keyRequestId
 	 *            The key request id.
 	 */
-	public void runAcceptKeyRequest(final Long keyRequestId) {
-		final Data data = new Data(1);
+	public void runAcceptKeyRequest(final Long artifactId,
+			final Long keyRequestId) {
+		final Data data = new Data(2);
+		data.set(AcceptKeyRequest.DataKey.ARTIFACT_ID, artifactId);
 		data.set(AcceptKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
 		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
-		reloadMainList();
 	}
 
 	/**
@@ -381,11 +400,12 @@ public class Browser extends AbstractApplication {
 	 * @param keyRequestId
 	 *            The key request id.
 	 */
-	public void runDeclineKeyRequest(final Long keyRequestId) {
-		final Data data = new Data(1);
+	public void runDeclineKeyRequest(final Long artifactId,
+			final Long keyRequestId) {
+		final Data data = new Data(2);
+		data.set(DeclineKeyRequest.DataKey.ARTIFACT_ID, artifactId);
 		data.set(DeclineKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
 		invoke(ActionId.ARTIFACT_DECLINE_KEY_REQUEST, data);
-		reloadMainList();
 	}
 
 	/**
@@ -426,7 +446,6 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
-		reloadMainList();
 	}
 
 	/**
@@ -445,10 +464,16 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
 
-	public void runRequestArtifactKey(final Long artifactId) {
+	/**
+	 * Run the request key action.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 */
+	public void runRequestKey(final Long artifactId) {
 		final Data data = new Data(1);
 		data.set(RequestKey.DataKey.ARTIFACT_ID, artifactId);
-		invoke(ActionId.SESSION_REQUEST_KEY, data);
+		invoke(ActionId.ARTIFACT_REQUEST_KEY, data);
 	}
 
 	/**
@@ -617,7 +642,7 @@ public class Browser extends AbstractApplication {
 	 */
 	private AbstractAction getActionFromCache(final ActionId actionId) {
 		AbstractAction action = (AbstractAction) actionCache.get(actionId);
-		if(null == action) { action = ActionFactory.createAction(actionId); }
+		if(null == action) { action = ActionFactory.createAction(actionId, this); }
 		actionCache.put(actionId, action);
 		return action;
 	}
@@ -652,10 +677,7 @@ public class Browser extends AbstractApplication {
 			final AbstractAction action = getActionFromCache(actionId);
 			action.invoke(data);
 		}
-		catch(final Exception x) {
-			logger.error("Cannot invoke action:  " + actionId, x);
-			// NOTE Display Error
-		}
+		catch(final Exception x) { throw new RuntimeException(x); }
 	}
 
 	private Boolean isMainWindowOpen() {

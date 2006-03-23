@@ -24,7 +24,7 @@ import com.thinkparity.browser.application.browser.display.avatar.main.CellRende
 import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
-import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
@@ -38,7 +38,7 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class BrowserMainAvatar extends Avatar {
+public class BrowserMainAvatar extends Avatar {
 
 	/**
 	 * @see java.io.Serializable
@@ -94,10 +94,37 @@ class BrowserMainAvatar extends Avatar {
 	}
 
 	/**
+	 * Reload the document in the list.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 */
+	public void reloadDocument(final Long documentId) {
+		final DisplayDocument displayDocument = getDisplayDocument(documentId);
+		final ListItem listItem = DocumentListItem.create(displayDocument);
+		if(jListModel.contains(listItem)) {
+			final int index = jListModel.indexOf(listItem);
+			jListModel.remove(index);
+			jListModel.add(index, listItem);
+		}
+	}
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
 	public void setState(final State state) {}
+
+	/**
+	 * Obtain the display document.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return The display document.
+	 */
+	private DisplayDocument getDisplayDocument(final Long documentId) {
+		return (DisplayDocument) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, documentId);
+	}
 
 	/**
 	 * TODO Obtain the selected system message id.
@@ -113,7 +140,7 @@ class BrowserMainAvatar extends Avatar {
 	 * @return The list of system messages.
 	 */
 	private SystemMessage[] getSystemMessages() {
-		return (SystemMessage[]) ((CompositeFlatContentProvider) contentProvider).getElements(1, null);
+		return (SystemMessage[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(1, null);
 	}
 
 	/**
@@ -204,20 +231,29 @@ class BrowserMainAvatar extends Avatar {
 	}
 
 	/**
+	 * Obtain the display documents from the provider.
+	 * 
+	 * @return The display documents.
+	 */
+	private DisplayDocument[] getDisplayDocuments() {
+		return (DisplayDocument[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
+	}
+
+	/**
 	 * Reload the list of documents.
 	 *
 	 */
 	private void reloadDocuments(final Long documentId) {
 		// TODO Maintain the document selection
-		final Object[] elements = ((CompositeFlatContentProvider) contentProvider).getElements(0, null);
+		final DisplayDocument[] displayDocuments = getDisplayDocuments();
 		int index = 0;
-		DisplayDocument dd;
-		for(final Object e : elements) {
-			dd = (DisplayDocument) e;
+		for(final DisplayDocument displayDocument : displayDocuments) {
 
-			jListModel.addElement(DocumentListItem.create((DisplayDocument) e));
+			jListModel.addElement(DocumentListItem.create(displayDocument));
 
-			if(dd.getDocumentId().equals(documentId)) { jList.setSelectedIndex(index); }
+			if(displayDocument.getDocumentId().equals(documentId)) {
+				jList.setSelectedIndex(index);
+			}
 
 			index++;
 		}

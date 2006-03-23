@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser;
 
 import com.thinkparity.model.parity.api.events.*;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 
 /**
  * The browser's event dispatcher.
@@ -121,8 +122,8 @@ class EventDispatcher {
 
 	private UpdateListener createDocumentModelUpdateListener() {
 		return new UpdateListener() {
-			public void objectClosed(CloseEvent closeEvent) {
-				browser.reloadMainList();
+			public void objectClosed(final CloseEvent e) {
+				browser.fireDocumentUpdated(((Artifact) e.getSource()).getId());
 			}
 			public void objectDeleted(final DeleteEvent e) {}
 			public void objectReceived(final UpdateEvent e) {
@@ -135,13 +136,13 @@ class EventDispatcher {
 	private KeyListener createSessionModelKeyListener() {
 		return new KeyListener() {
 			public void keyRequestAccepted(final KeyEvent e) {
-				browser.reloadMainList();
+				browser.fireDocumentUpdated(e.getArtifactId());
 			}
 			public void keyRequestDenied(final KeyEvent e) {
-				browser.reloadMainList();
+				browser.fireDocumentUpdated(e.getArtifactId());
 			}
 			public void keyRequested(final KeyEvent e) {
-				browser.reloadMainList();
+				browser.fireDocumentUpdated(e.getArtifactId());
 			}
 		};
 	}

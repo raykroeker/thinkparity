@@ -60,16 +60,8 @@ class SessionModelImpl extends AbstractModelImpl {
 	/**
 	 * List of all of the registered parity key listeners.
 	 * 
-	 * @see SessionModelImpl#keyListenersLock
 	 */
 	private static final Collection<KeyListener> keyListeners;
-
-	/**
-	 * Synchronization lock for the key listeners list.
-	 * 
-	 * @see SessionModelImpl#keyListeners
-	 */
-	private static final Object keyListenersLock;
 
 	/**
 	 * List of all of the registered parity presence listeners.
@@ -128,7 +120,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	static {
 		// create the key listener list & sync lock
 		keyListeners = new Vector<KeyListener>(3);
-		keyListenersLock = new Object();
 		// create the presence listener list & sync lock
 		presenceListeners = new Vector<PresenceListener>(3);
 		presenceListenersLock = new Object();
@@ -213,6 +204,9 @@ class SessionModelImpl extends AbstractModelImpl {
 			loggedInUser =  xmppHelper.getUser();
 		}
 		iDModel.auditRecieveKey(document.getId(), loggedInUser.getId(), currentDateTime(), acceptedBy);
+
+		// fire the key request accepted event
+		notifyKey_keyRequestAccepted(document.getId());
 	}
 
 	/**
@@ -242,6 +236,9 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelperLock) { loggedInUser = xmppHelper.getUser(); }
 		iAModel.auditKeyRequestDenied(document.getId(), loggedInUser.getId(),
 				currentDateTime(), deniedBy);
+
+		// fire the key request declined event
+		notifyKey_keyRequestDeclined(document.getId());
 	}
 
 	/**
@@ -268,6 +265,9 @@ class SessionModelImpl extends AbstractModelImpl {
 		final User loggedInUser;
 		synchronized(xmppHelperLock) { loggedInUser =  xmppHelper.getUser(); }
 		sAuditor.requestKey(document.getId(), loggedInUser.getId(), currentDateTime(), requestedBy, loggedInUser.getId());
+
+		// fire the key requested event
+		notifyKey_keyRequested(document.getId());
 	}
 
 	/**
@@ -308,6 +308,45 @@ class SessionModelImpl extends AbstractModelImpl {
 			for(SessionListener listener : SessionModelImpl.sessionListeners) {
 				listener.sessionTerminated(x);
 			}
+		}
+	}
+
+	/**
+	 * Fire the keyRequestAccepted event for all key listeners.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 */
+	private static void notifyKey_keyRequestAccepted(final Long artifactId) {
+		synchronized(keyListeners) {
+			final KeyEvent e = new KeyEvent(artifactId);
+			for(final KeyListener l : keyListeners) { l.keyRequestAccepted(e); }
+		}
+	}
+
+	/**
+	 * Fire the keyRequestDeclined event for all key listeners.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 */
+	private static void notifyKey_keyRequestDeclined(final Long artifactId) {
+		synchronized(keyListeners) {
+			final KeyEvent e = new KeyEvent(artifactId);
+			for(final KeyListener l : keyListeners) { l.keyRequestDenied(e); }
+		}
+	}
+
+	/**
+	 * Fire the keyRequestDeclined event for all key listeners.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 */
+	private static void notifyKey_keyRequested(final Long artifactId) {
+		synchronized(keyListeners) {
+			final KeyEvent e = new KeyEvent(artifactId);
+			for(final KeyListener l : keyListeners) { l.keyRequested(e); }
 		}
 	}
 
@@ -357,7 +396,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	void addListener(final KeyListener keyListener) {
 		Assert.assertNotNull("Cannot register a null key listener.", keyListener);
-		synchronized(SessionModelImpl.keyListenersLock) {
+		synchronized(keyListeners) {
 			Assert.assertNotTrue(
 					"Cannot re-registry the same key listener.",
 					SessionModelImpl.keyListeners.contains(keyListener));
@@ -677,10 +716,8 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The key listener to remove.
 	 */
 	void removeListener(final KeyListener keyListener) {
-		logger.info("removeListener(KeyListener)");
-		logger.debug(keyListener);
 		Assert.assertNotNull("Cannot remove a null key listener.", keyListener);
-		synchronized(SessionModelImpl.keyListenersLock) {
+		synchronized(SessionModelImpl.keyListeners) {
 			Assert.assertTrue(
 					"Cannot remove a non-registered listener.",
 					SessionModelImpl.keyListeners.contains(keyListener));

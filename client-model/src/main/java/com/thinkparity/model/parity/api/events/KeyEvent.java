@@ -3,10 +3,7 @@
  */
 package com.thinkparity.model.parity.api.events;
 
-import java.util.UUID;
-
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * The key event is used by the key listener and the session model inteface to
@@ -15,6 +12,7 @@ import com.thinkparity.model.xmpp.user.User;
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
+ * 
  * @see KeyListener
  * @see SessionModel#addListener(KeyListener)
  * @see SessionModel#removeListener(KeyListener)
@@ -22,41 +20,26 @@ import com.thinkparity.model.xmpp.user.User;
 public class KeyEvent {
 
 	/**
-	 * If the event fired is the keyRequested event; the user is the requesting
-	 * user; otherwise it is null.
+	 * The artifact id.
+	 * 
 	 */
-	private final User user;
-
-	/**
-	 * The artifact unique id.
-	 */
-	private final UUID artifactUUID;
+	private final Long artifactId;
 
 	/**
 	 * Create a KeyEvent.
 	 * 
-	 * @param artifactUUID
-	 *            The artifact unique id.
-	 * @param user
-	 *            The user.
+	 * @param artifactId
+	 *            The artifact id.
 	 */
-	public KeyEvent(final UUID artifactUUID, final User user) {
+	public KeyEvent(final Long artifactId) {
 		super();
-		this.artifactUUID = artifactUUID;
-		this.user = user;
+		this.artifactId = artifactId;
 	}
 
 	/**
-	 * Obtain the artifact unique id.
+	 * Obtain the artifact id.
 	 * 
-	 * @return The artifact unique id.
+	 * @return The artifact id.
 	 */
-	public UUID getArtifactUUID() { return artifactUUID; }
-
-	/**
-	 * Obtain the user.
-	 * 
-	 * @return The user.
-	 */
-	public User getUser() { return user; }
+	public Long getArtifactId() { return artifactId; }
 }

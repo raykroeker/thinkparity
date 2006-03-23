@@ -5,24 +5,16 @@ package com.thinkparity.browser.platform.action.document;
 
 import javax.swing.Icon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-
-import com.thinkparity.model.parity.ParityException;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class OpenVersion extends AbstractAction {
-
-	/**
-	 * The keys used to get\set the action data.
-	 * 
-	 * @see Data
-	 */
-	public enum DataKey { DOCUMENT_ID, VERSION_ID }
 
 	/**
 	 * The action icon.
@@ -54,21 +46,38 @@ public class OpenVersion extends AbstractAction {
 	}
 
 	/**
-	 * Create an OpenVersion.
+	 * The browser application.
+	 * 
 	 */
-	public OpenVersion() { super("Document.OpenVersion", ID, NAME, ICON); }
+	private final Browser browser;
+
+	/**
+	 * Create an OpenVersion.
+	 * 
+	 * @param browser The browser application.
+	 */
+	public OpenVersion(final Browser browser) {
+		super("Document.OpenVersion", ID, NAME, ICON);
+		this.browser = browser;
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 * 
 	 */
-	public void invoke(Data data) {
+	public void invoke(final Data data) throws Exception {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Long versionId = (Long) data.get(DataKey.VERSION_ID);
-		try {
-			getDocumentModel().openVersion(documentId, versionId);
-			getArtifactModel().applyFlagSeen(documentId);
-		}
-		catch(ParityException px) { registerError(px); }
+		getDocumentModel().openVersion(documentId, versionId);
+		getArtifactModel().applyFlagSeen(documentId);
+
+		browser.fireDocumentUpdated(documentId);
 	}
+
+	/**
+	 * The keys used to get\set the action data.
+	 * 
+	 * @see Data
+	 */
+	public enum DataKey { DOCUMENT_ID, VERSION_ID }
 }

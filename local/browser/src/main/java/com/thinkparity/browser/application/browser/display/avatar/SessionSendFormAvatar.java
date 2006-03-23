@@ -30,6 +30,7 @@ import com.thinkparity.browser.platform.util.SwingUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.KeyResponse;
@@ -363,11 +364,13 @@ public class SessionSendFormAvatar extends Avatar {
 						cancelJButtonActionPerformed(evt);
 					}
 				}
+				// NOTE Interesting
+				ArtifactModel.getModel().applyFlagSeen(documentId);
 			}
 			catch(final ParityException px) { throw new RuntimeException(px); }
 			finally {
 				toggleVisualFeedback(Boolean.FALSE);
-				getController().reloadMainList();
+				getController().fireDocumentUpdated(documentId);
 			}
 		}
     }//GEN-LAST:event_sendJButtonActionPerformed

@@ -5,6 +5,7 @@ package com.thinkparity.browser.platform.action.document;
 
 import javax.swing.Icon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
@@ -46,10 +47,19 @@ public class Open extends AbstractAction {
 	}
 
 	/**
+	 * The browser application.
+	 * 
+	 */
+	private final Browser browser;
+
+	/**
 	 * Create an Open.
 	 * 
 	 */
-	public Open() { super("Document.Open", ID, NAME, ICON); }
+	public Open(final Browser browser) {
+		super("Document.Open", ID, NAME, ICON);
+		this.browser = browser;
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
@@ -59,6 +69,8 @@ public class Open extends AbstractAction {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		getDocumentModel().open(documentId);
 		getArtifactModel().applyFlagSeen(documentId);
+
+		browser.fireDocumentUpdated(documentId);
 	}
 
 	/**

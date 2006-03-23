@@ -5,11 +5,10 @@ package com.thinkparity.browser.platform.action.artifact;
 
 import javax.swing.ImageIcon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-
-import com.thinkparity.model.parity.ParityException;
 
 /**
  * @author raykroeker@gmail.com
@@ -29,22 +28,29 @@ public class DeclineKeyRequest extends AbstractAction {
 		NAME = "Decline key request";
 	}
 
+	private final Browser browser;
+
 	/**
 	 * Create a AcceptKeyRequest.
 	 * 
 	 */
-	public DeclineKeyRequest() { super("DeclineKeyRequest", ID, NAME, ICON); }
+	public DeclineKeyRequest(final Browser browser) {
+		super("DeclineKeyRequest", ID, NAME, ICON);
+		this.browser = browser;
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
+		final Long artifactId = (Long) data.get(DataKey.ARTIFACT_ID);
 		final Long keyRequestId = (Long) data.get(DataKey.KEY_REQUEST_ID);
-		try { getArtifactModel().declineKeyRequest(keyRequestId); }
-		catch(final ParityException px) { throw new RuntimeException(px); }
+		getArtifactModel().declineKeyRequest(keyRequestId);
+		getArtifactModel().applyFlagSeen(artifactId);
 
+		browser.fireDocumentUpdated(artifactId);
 	}
 
-	public enum DataKey { KEY_REQUEST_ID }
+	public enum DataKey { ARTIFACT_ID, KEY_REQUEST_ID }
 }

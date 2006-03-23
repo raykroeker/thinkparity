@@ -9,12 +9,10 @@ import org.apache.log4j.Logger;
  * A singleton factory for obtaining log4j logger instances.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1.2.3
- * @see ModelLog4JConfigurator
+ * @version 1.1.2.4
+ * @see org.apache.log4j.Logger#getLogger(java.lang.Class)
  */
 public class ModelLoggerFactory {
-
-	static { ModelLog4JConfigurator.configure(); }
 
 	/**
 	 * Obtain a logger.
@@ -24,18 +22,6 @@ public class ModelLoggerFactory {
 	 * @return The logger.
 	 */
 	public static Logger getLogger(final Class clasz) {
-		final Logger modelLogger = getModelLogger(clasz);
-		return modelLogger;
-	}
-
-	/**
-	 * Obtain a handle to a model logger.
-	 * 
-	 * @param clasz
-	 *            The class for which to obtain a logger.
-	 * @return A log4j logger.
-	 */
-	private static Logger getModelLogger(final Class clasz) {
 		final Logger modelLogger = Logger.getLogger(clasz);
 		return modelLogger;
 	}

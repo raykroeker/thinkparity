@@ -371,7 +371,6 @@ public class Browser extends AbstractApplication {
 			final Data data = new Data(1);
 			data.set(Create.DataKey.FILE, jFileChooser.getSelectedFile());
 			invoke(ActionId.DOCUMENT_CREATE, data);
-			reloadMainList();
 		}
 	}
 

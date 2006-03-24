@@ -56,8 +56,6 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen();
 		case DOCUMENT_CLOSE:
 			return new com.thinkparity.browser.platform.action.document.Close();
-		case DOCUMENT_CREATE:
-			return new com.thinkparity.browser.platform.action.document.Create();
 		case DOCUMENT_DELETE:
 			return new com.thinkparity.browser.platform.action.document.Delete();
 		case SESSION_ACCEPT_INVITATION:
@@ -91,6 +89,8 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests(browser);
 		case ARTIFACT_REQUEST_KEY:
 			return new com.thinkparity.browser.platform.action.artifact.RequestKey(browser);
+		case DOCUMENT_CREATE:
+			return new com.thinkparity.browser.platform.action.document.Create(browser);
 		case DOCUMENT_OPEN:
 			return new com.thinkparity.browser.platform.action.document.Open(browser);
 		case DOCUMENT_OPEN_VERSION:

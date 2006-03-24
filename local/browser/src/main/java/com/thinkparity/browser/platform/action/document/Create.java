@@ -7,11 +7,10 @@ import java.io.File;
 
 import javax.swing.Icon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-
-import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,10 +31,21 @@ public class Create extends AbstractAction {
 	}
 
 	/**
-	 * Create a Create.
+	 * The browser application.
 	 * 
 	 */
-	public Create() { super("Document.Create", ID, NAME, ICON); }
+	private final Browser browser;
+
+	/**
+	 * Create a Create.
+	 * 
+	 * @param browser
+	 *            The browser application.
+	 */
+	public Create(final Browser browser) {
+		super("Document.Create", ID, NAME, ICON);
+		this.browser = browser;
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
@@ -43,9 +53,9 @@ public class Create extends AbstractAction {
 	 */
 	public void invoke(final Data data) throws Exception {
 		final File file = (File) data.get(DataKey.FILE);
-		final Document document =
-			getDocumentModel().create(file.getName(), file.getName(), file);
-		getArtifactModel().applyFlagSeen(document.getId());
+		getDocumentModel().create(file.getName(), file.getName(), file);
+
+		browser.reloadMainList();
 	}
 
 	public enum DataKey { FILE }

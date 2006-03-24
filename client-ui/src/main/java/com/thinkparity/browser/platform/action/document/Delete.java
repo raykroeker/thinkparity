@@ -5,6 +5,7 @@ package com.thinkparity.browser.platform.action.document;
 
 import javax.swing.Icon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.javax.swing.JOptionPaneUtil;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -17,8 +18,6 @@ import com.thinkparity.model.parity.model.document.Document;
  * @version 1.1
  */
 public class Delete extends AbstractAction {
-
-	public enum DataKey { DOCUMENT_ID }
 
 	private static final Icon ICON;
 
@@ -33,10 +32,21 @@ public class Delete extends AbstractAction {
 	}
 
 	/**
-	 * Create a Delete.
+	 * The application browser.
 	 * 
 	 */
-	public Delete() { super("Document.Delete", ID, NAME, ICON); }
+	private final Browser browser;
+
+	/**
+	 * Create a Delete.
+	 * 
+	 * @param browser
+	 *            The application browser.
+	 */
+	public Delete(final Browser browser) {
+		super("Document.Delete", ID, NAME, ICON);
+		this.browser = browser;
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
@@ -49,6 +59,10 @@ public class Delete extends AbstractAction {
 				getString("ConfirmDeletionMessage", new String[] {document.getName()}),
 				getString("ConfirmDeletionTitle"))) {
 			getDocumentModel().delete(documentId);
+
+			browser.fireDocumentDeleted(documentId);
 		}
 	}
+
+	public enum DataKey { DOCUMENT_ID }
 }

@@ -41,12 +41,6 @@ public class AvatarFactory {
 	private final AvatarRegistry avatarRegistry;
 
 	/**
-	 * The browser info avatar.
-	 * 
-	 */
-	private Avatar browserInfo;
-
-	/**
 	 * The message list avatar.
 	 * 
 	 */
@@ -97,9 +91,8 @@ public class AvatarFactory {
 	 * @return The browser info avatar.
 	 */
 	private Avatar createBrowserInfo() {
-		if(null == browserInfo) {
-			browserInfo = new BrowserInfoAvatar();
-		}
+		final Avatar browserInfo = new BrowserInfoAvatar();
+		browserInfo.setContentProvider(ProviderFactory.getInfoProvider());
 		return browserInfo;
 	}
 

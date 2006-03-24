@@ -18,6 +18,7 @@ import javax.swing.JPopupMenu;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
+import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
@@ -31,7 +32,7 @@ import com.thinkparity.browser.platform.util.State;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class BrowserInfoAvatar extends Avatar {
+public class BrowserInfoAvatar extends Avatar {
 
 	private static final Icon HIDE_HISTORY_ICON;
 
@@ -89,6 +90,15 @@ class BrowserInfoAvatar extends Avatar {
 	 */
 	public State getState() { return null; }
 
+	/**
+	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
+	 * 
+	 */
+	public void reload() {
+		if(0 < getDocumentCount()) { showHistoryJLabel.setVisible(true); }
+		else { showHistoryJLabel.setVisible(false); }
+	}
+
 	public void setInfoMessage(final String infoMessageKey, final Object[] arguments) {
 		infoJLabel.setText(getString(infoMessageKey, arguments));
 	}
@@ -111,6 +121,15 @@ class BrowserInfoAvatar extends Avatar {
 		jMenuItem.addActionListener(actionListener);
 		return jMenuItem;
 
+	}
+
+	/**
+	 * Obtain the document count from the content provider.
+	 * 
+	 * @return The document count.
+	 */
+	private Integer getDocumentCount() {
+		return (Integer) ((SingleContentProvider) contentProvider).getElement(null);
 	}
 
 	/**

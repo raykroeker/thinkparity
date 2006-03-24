@@ -18,6 +18,7 @@ import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
+import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
 import com.thinkparity.browser.application.browser.window.History2Window;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -205,7 +206,37 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-	 * Notify the application that a document's state has changed.
+	 * Notify the application that a document has been created.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 */
+	public void fireDocumentCreated(final Long documentId) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
+			}
+		});
+		reloadMainList();
+	}
+
+	/**
+	 * Notify the application that a document has been created.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 */
+	public void fireDocumentDeleted(final Long documentId) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
+			}
+		});
+		reloadMainList();
+	}
+
+	/**
+	 * Notify the application that a document has in some way been updated.
 	 * 
 	 * @param documentId
 	 *            The document that has changed.

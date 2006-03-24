@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
+import com.thinkparity.browser.application.browser.display.provider.main.InfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.MainProvider;
 import com.thinkparity.browser.application.browser.display.provider.session.SendArtifactProvider;
 import com.thinkparity.browser.model.ModelFactory;
@@ -56,6 +57,15 @@ public class ProviderFactory {
 		return singleton.doGetHistoryProvider();
 	}
 
+	/**
+	 * Obtain the info provider.
+	 * 
+	 * @return The info provider.
+	 */
+	public static ContentProvider getInfoProvider() {
+		return singleton.doGetInfoProvider();
+	}
+
 	public static ContentProvider getMainProvider() {
 		return singleton.doGetMainProvider();
 	}
@@ -74,16 +84,16 @@ public class ProviderFactory {
 	}
 
 	/**
-	 * Document model api.
-	 * 
-	 */
-	protected final DocumentModel documentModel;
-
-	/**
 	 * The parity artifact interface.
 	 * 
 	 */
 	protected final ArtifactModel artifactModel;
+
+	/**
+	 * Document model api.
+	 * 
+	 */
+	protected final DocumentModel dModel;
 
 	/**
 	 * An apache logger.
@@ -108,6 +118,12 @@ public class ProviderFactory {
 	 * 
 	 */
 	private final ContentProvider historyProvider;
+
+	/**
+	 * The info pane provider.
+	 * 
+	 */
+	private final ContentProvider infoProvider;
 
 	/**
 	 * The user in the parity prefferences.
@@ -142,17 +158,18 @@ public class ProviderFactory {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
-		this.documentModel = modelFactory.getDocumentModel(getClass());
+		this.dModel = modelFactory.getDocumentModel(getClass());
 		this.logger = ModelLoggerFactory.getLogger(getClass());
 		this.loggedInUser =
 			JabberIdBuilder.parseUsername(preferences.getUsername());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 
-		this.historyProvider = new HistoryProvider(documentModel);
-		this.mainProvider = new MainProvider(artifactModel, documentModel, systemMessageModel);
+		this.historyProvider = new HistoryProvider(dModel);
+		this.infoProvider = new InfoProvider(dModel);
+		this.mainProvider = new MainProvider(artifactModel, dModel, systemMessageModel);
 		this.manageContactsProvider = new ManageContactsProvider(sessionModel);
-		this.sendArtifactProvider = new SendArtifactProvider(documentModel, sessionModel, loggedInUser);
+		this.sendArtifactProvider = new SendArtifactProvider(dModel, sessionModel, loggedInUser);
 	}
 
 	/**
@@ -161,6 +178,13 @@ public class ProviderFactory {
 	 * @return The history content provider.
 	 */
 	private ContentProvider doGetHistoryProvider() { return historyProvider; }
+
+	/**
+	 * Obtain the info content provider.
+	 * 
+	 * @return The info content provider.
+	 */
+	private ContentProvider doGetInfoProvider() { return infoProvider; }
 
 	/**
 	 * Obtain the main provider.

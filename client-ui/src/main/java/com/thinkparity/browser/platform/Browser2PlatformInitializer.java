@@ -33,14 +33,5 @@ public class Browser2PlatformInitializer {
 		catch(final UnsupportedLookAndFeelException ulafx) {
 			throw new RuntimeException(ulafx);
 		}
-		
-		// ensure a session is established
-//		if(Status.ONLINE != ModelSession.getStatus()) {
-//			ModelSession.establishSession();
-//		}
-//		if(Status.ONLINE != ModelSession.getStatus()) {
-//			System.out.println("Must be logged in to use the parity browser.");
-//			System.exit(1);
-//		}
 	}
 }

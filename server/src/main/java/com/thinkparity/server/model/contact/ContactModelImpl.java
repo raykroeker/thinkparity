@@ -21,8 +21,6 @@ import com.thinkparity.server.model.io.sql.contact.InvitationSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
 import com.thinkparity.server.model.user.UserModel;
-import com.thinkparity.server.org.xmpp.packet.contact.IQAcceptContactInvitation;
-import com.thinkparity.server.org.xmpp.packet.contact.IQDeclineContactInvitation;
 import com.thinkparity.server.org.xmpp.packet.contact.IQInviteContact;
 
 /**
@@ -66,20 +64,10 @@ class ContactModelImpl extends AbstractModelImpl {
 			contactSql.create(to, from, session.getJabberId());
 
 			invitationSql.delete(from, to);
-
-			// send the acceptance
-			final IQ iq = new IQAcceptContactInvitation(to);
-			iq.setTo(from.getJID());
-			iq.setFrom(to.getJID());
-			send(from, iq);
 		}
 		catch(final SQLException sqlx) {
 			logger.error("could not accept invitation:  " + from + ", " + to, sqlx);
 			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("could not accept invitation:  " + from + ", " + to, ux);
-			throw ParityErrorTranslator.translate(ux);
 		}
 	}
 
@@ -121,20 +109,10 @@ class ContactModelImpl extends AbstractModelImpl {
 			Assert.assertNotNull("Cannot decline a null invitation.", invitation);
 
 			invitationSql.delete(from, to);
-
-			// send the declination
-			final IQ iq = new IQDeclineContactInvitation(to);
-			iq.setTo(from.getJID());
-			iq.setFrom(to.getJID());
-			send(from, iq);
 		}
 		catch(final SQLException sqlx) {
 			logger.error("could not decline invitation:  " + from + ", " + to, sqlx);
 			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final UnauthorizedException ux) {
-			logger.error("could not decline ccept invitation:  " + from + ", " + to, ux);
-			throw ParityErrorTranslator.translate(ux);
 		}
 	}
 

@@ -104,7 +104,10 @@ public class WindowFactory {
 	}
 
 	private Window doCreatePlatformLogin() {
-		return new LoginWindow();
+		final Window window = new LoginWindow();
+		window.setModal(true);
+		window.setResizable(false);
+		return window;
 	}
 
 	private Window doCreateHistory(final BrowserWindow browserWindow) {

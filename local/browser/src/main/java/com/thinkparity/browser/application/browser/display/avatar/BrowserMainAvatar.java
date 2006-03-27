@@ -103,9 +103,11 @@ public class BrowserMainAvatar extends Avatar {
 		final DisplayDocument displayDocument = getDisplayDocument(documentId);
 		final ListItem listItem = DocumentListItem.create(displayDocument);
 		if(jListModel.contains(listItem)) {
+			final int selectedIndex = jList.getSelectedIndex();
 			final int index = jListModel.indexOf(listItem);
 			jListModel.remove(index);
 			jListModel.add(index, listItem);
+			jList.setSelectedIndex(selectedIndex);
 		}
 	}
 

@@ -5,22 +5,15 @@ package com.thinkparity.browser.application.browser.display.avatar.title;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
-import com.thinkparity.browser.application.browser.component.MenuFactory;
-import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
@@ -31,11 +24,7 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  */
 public class ButtonPanel extends AbstractJPanel {
 
-	private static final Icon MIN_ICON;
-
-	private static final Icon MIN_ROLLOVER_ICON;
-
-        private static final Icon CLOSE_ICON;
+	private static final Icon CLOSE_ICON;
 
 	private static final Icon CLOSE_ROLLOVER_ICON;
 
@@ -46,6 +35,10 @@ public class ButtonPanel extends AbstractJPanel {
 	private static final Icon DOCUMENTS_ICON;
 
 	private static final Icon DOCUMENTS_ROLLOVER_ICON;
+
+	private static final Icon MIN_ICON;
+
+	private static final Icon MIN_ROLLOVER_ICON;
 
 	/**
 	 * @see java.io.Serializable
@@ -60,8 +53,8 @@ public class ButtonPanel extends AbstractJPanel {
 		CONTACTS_ICON = ImageIOUtil.readIcon("ContactsButton.png");
 		CONTACTS_ROLLOVER_ICON = ImageIOUtil.readIcon("ContactsButtonRollover.png");
 
-		DOCUMENTS_ICON = ImageIOUtil.readIcon("DocumentsButton.png");
-		DOCUMENTS_ROLLOVER_ICON = ImageIOUtil.readIcon("DocumentsButtonRollover.png");
+		DOCUMENTS_ICON = ImageIOUtil.readIcon("NewDocumentButton.png");
+		DOCUMENTS_ROLLOVER_ICON = ImageIOUtil.readIcon("NewDocumentButtonRollover.png");
 
 		MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
 		MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("MinimizeButtonRollover.png");
@@ -74,23 +67,10 @@ public class ButtonPanel extends AbstractJPanel {
 	private JLabel closeJLabel;
 
 	/**
-	 * The minimize button.
-	 *
-	 */
-	private JLabel minJLabel;
-
-	/**
 	 * The contacts button.
 	 * 
 	 */
 	private JLabel contactsJLabel;
-
-	/**
-	 * The contacts popup menu.
-	 * 
-	 * @see #getContactsMenu()
-	 */
-	private JPopupMenu contactsJPopupMenu;
 
 	/**
 	 * Handle to the container avatar.
@@ -105,11 +85,10 @@ public class ButtonPanel extends AbstractJPanel {
 	private JLabel documentsJLabel;
 
 	/**
-	 * The documents popup menu.
-	 * 
-	 * @see #getDocumentsMenu
+	 * The minimize button.
+	 *
 	 */
-	private JPopupMenu documentsJPopupMenu;
+	private JLabel minJLabel;
 
 	/**
 	 * Create a ButtonPanel.
@@ -127,21 +106,13 @@ public class ButtonPanel extends AbstractJPanel {
 	}
 
 	/**
-	 * Create a menu item and attach an action listener.
-	 * 
-	 * @param menuItemKey
-	 *            The menu item localization key.
-	 * @param actionListener
-	 *            The action listener.
-	 * @return The menu item.
+	 * Close the browser.
+	 *
 	 */
-	private JMenuItem createMenuItem(final String menuItemKey,
-			final ActionListener actionListener) {
-		final String text = getString(menuItemKey);
-		final Integer mnemonic = new Integer(getString(menuItemKey + "Mnemonic").charAt(0));
-		final JMenuItem jMenuItem = MenuItemFactory.create(text, mnemonic);
-		jMenuItem.addActionListener(actionListener);
-		return jMenuItem;
+	private void closeJLabelMouseClicked(final MouseEvent e) {
+		if(e.isShiftDown()) { getBrowser().end(getBrowser().getPlatform()); }
+		else { getBrowser().close(); }
+		closeJLabel.setIcon(CLOSE_ICON);
 	}
 
 	/**
@@ -160,45 +131,6 @@ public class ButtonPanel extends AbstractJPanel {
 	private Browser getBrowser() { return container.getController(); }
 
 	/**
-	 * Create the contacts popup menu if it does not exist; and return it.
-	 * 
-	 * @return The contacts popup menu.
-	 */
-	private JPopupMenu getContactsMenu() {
-		if(null == contactsJPopupMenu) {
-			contactsJPopupMenu = MenuFactory.createPopup();
-			contactsJPopupMenu.add(createMenuItem("Contacts.Invite", new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					runInviteContact();
-				}
-			}));
-			contactsJPopupMenu.add(createMenuItem("Contacts.Manage", new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					displayManageContacts();
-				}
-			}));
-		}
-		return contactsJPopupMenu;
-	}
-
-	/**
-	 * Create the documents popup menu if it does not exist; and return it.
-	 * 
-	 * @return The documents popup menu.
-	 */
-	private JPopupMenu getDocumentsMenu() {
-		if(null == documentsJPopupMenu) {
-			documentsJPopupMenu = MenuFactory.createPopup();
-			documentsJPopupMenu.add(createMenuItem("Documents.Add", new ActionListener() {
-				public void actionPerformed(final ActionEvent e) {
-					runAddDocument();
-				}
-			}));
-		}
-		return documentsJPopupMenu;
-	}
-
-	/**
 	 * Initialize the panel's swing components.
 	 *
 	 */
@@ -206,7 +138,7 @@ public class ButtonPanel extends AbstractJPanel {
 		contactsJLabel = LabelFactory.create(CONTACTS_ICON);
 		contactsJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
-				showMenu(contactsJLabel, getContactsMenu());
+				displayManageContacts();
 			}
 			public void mouseEntered(final MouseEvent e) {
 				contactsJLabel.setIcon(CONTACTS_ROLLOVER_ICON);
@@ -230,7 +162,7 @@ public class ButtonPanel extends AbstractJPanel {
 		documentsJLabel = LabelFactory.create(DOCUMENTS_ICON);
 		documentsJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
-				showMenu(documentsJLabel, getDocumentsMenu());
+				runAddDocument();
 			}
 			public void mouseEntered(final MouseEvent e) {
 				documentsJLabel.setIcon(DOCUMENTS_ROLLOVER_ICON);
@@ -244,11 +176,11 @@ public class ButtonPanel extends AbstractJPanel {
 			public void mouseClicked(final MouseEvent e) {
 				minJLabelMouseClicked(e);
 			}
-			public void mouseExited(final MouseEvent e) {
-				minJLabel.setIcon(MIN_ICON);
-			}
 			public void mouseEntered(final MouseEvent e) {
 				minJLabel.setIcon(MIN_ROLLOVER_ICON);
+			}
+			public void mouseExited(final MouseEvent e) {
+				minJLabel.setIcon(MIN_ICON);
 			}
 		});
 
@@ -277,41 +209,6 @@ public class ButtonPanel extends AbstractJPanel {
 	}
 
 	/**
-	 * Add a document.
-	 *
-	 */
-	private void runAddDocument() { getBrowser().runCreateDocument(); }
-
-	/**
-	 * Close the browser.
-	 *
-	 */
-	private void closeJLabelMouseClicked(final MouseEvent e) {
-		if(e.isShiftDown()) { getBrowser().end(getBrowser().getPlatform()); }
-		else { getBrowser().close(); }
-		closeJLabel.setIcon(CLOSE_ICON);
-	}
-
-	/**
-	 * Open an invite contact dialogue.
-	 *
-	 */
-	private void runInviteContact() { getBrowser().displaySessionInviteContact(); }
-
-	/**
-	 * Display a popup menu below the component.
-	 * 
-	 * @param jComponent
-	 *            The component.
-	 * @param jPopupMenu
-	 *            The popup menu.
-	 */
-	private void showMenu(final JComponent jComponent,
-			final JPopupMenu jPopupMenu) {
-		jPopupMenu.show(jComponent, 0, jComponent.getSize().height);
-	}
-
-	/**
 	 * The user clicked on the minimize button.
 	 *
 	 * @param e The mouse event.
@@ -319,4 +216,10 @@ public class ButtonPanel extends AbstractJPanel {
 	private void minJLabelMouseClicked(final MouseEvent e) {
 		container.getController().minimize();
 	}
+
+	/**
+	 * Add a document.
+	 *
+	 */
+	private void runAddDocument() { getBrowser().runCreateDocument(); }
 }

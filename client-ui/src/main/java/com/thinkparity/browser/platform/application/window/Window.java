@@ -11,6 +11,7 @@ import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
@@ -50,6 +51,11 @@ public abstract class Window extends AbstractJDialog {
 	 *            The localization context
 	 */
 	public Window(final AbstractJFrame owner, final Boolean modal,
+			final String l18nContext) {
+		this((JFrame) owner, modal, l18nContext);
+	}
+
+	public Window(final JFrame owner, final Boolean modal,
 			final String l18nContext) {
 		super(owner, modal, l18nContext);
 		this.windowSize = new WindowSize();

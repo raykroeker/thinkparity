@@ -165,11 +165,11 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-	 * Display the invite contact form.
+	 * Display the invite partner dialogue.
 	 *
 	 */
-	public void displaySessionInviteContact() {
-		displayAvatar(WindowId.POPUP, AvatarId.SESSION_INVITE_CONTACT);
+	public void displaySessionInvitePartner() {
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_INVITE_PARTNER);
 	}
 
 	/**
@@ -459,14 +459,6 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-	 * Invite a contact.
-	 *
-	 */
-	public void runInviteContact() {
-		invoke(ActionId.SESSION_ADD_CONTACT);
-	}
-
-	/**
 	 * Run the open document action.
 	 * 
 	 * @param documentId
@@ -696,10 +688,6 @@ public class Browser extends AbstractApplication {
 	private JFileChooser getJFileChooser() {
 		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
 		return jFileChooser;
-	}
-
-	private void invoke(final ActionId actionId) {
-		invoke(actionId, new Data(0));
 	}
 
 	private void invoke(final ActionId actionId, final Data data) {

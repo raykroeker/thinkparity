@@ -114,6 +114,13 @@ public abstract class Avatar extends AbstractJPanel {
 	public void clearErrors() { errors.clear(); }
 
 	/**
+	 * Determine whether or not the error has been set.
+	 * 
+	 * @return True if error has been set; false otherwise.
+	 */
+	public Boolean containsErrors() { return 0 < errors.size(); }
+
+	/**
 	 * Obtain the content provider.
 	 * 
 	 * @return The content provider.
@@ -163,13 +170,6 @@ public abstract class Avatar extends AbstractJPanel {
 	 * @return The avatar's state information.
 	 */
 	public abstract State getState();
-
-	/**
-	 * Determine whether or not the error has been set.
-	 * 
-	 * @return True if error has been set; false otherwise.
-	 */
-	public Boolean containsErrors() { return 0 < errors.size(); }
 
 	/**
 	 * Reload the avatar. This event is called when either the content provider

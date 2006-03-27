@@ -6,9 +6,12 @@ package com.thinkparity.browser.application.browser.component;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.JComponent;
 
 import org.apache.log4j.Logger;
 
@@ -87,5 +90,27 @@ abstract class ComponentFactory {
 				component.setCursor(originalCursor);
 			}
 		});
+	}
+
+	protected void applyMinimumHeight(final JComponent jComponent,
+			final Integer minimumHeight) {
+		final Dimension minimumSize = jComponent.getMinimumSize();
+		minimumSize.height = minimumHeight;
+		jComponent.setMinimumSize(minimumSize);
+	}
+
+	protected void applyMinimumSize(final JComponent jComponent,
+			final Integer minimumWidth, final Integer minimumHeight) {
+		final Dimension minimumSize = jComponent.getMinimumSize();
+		minimumSize.width = minimumWidth;
+		minimumSize.height = minimumHeight;
+		jComponent.setMinimumSize(minimumSize);
+	}
+
+	protected void applyMinimumWidth(final JComponent jComponent,
+			final Integer minimumWidth) {
+		final Dimension minimumSize = jComponent.getMinimumSize();
+		minimumSize.width = minimumWidth;
+		jComponent.setMinimumSize(minimumSize);
 	}
 }

@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -86,6 +87,7 @@ public class SystemMessageListItem extends ListItem {
 		setBackgroundImage(BG);
 		setBackgroundImageSelected(BG_SEL);
 		setName(getName(systemMessage));
+		setNameFont(BrowserConstants.DefaultFontBold);
 		setMessage(systemMessage);
 	}
 

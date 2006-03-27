@@ -31,7 +31,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="loginJButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="errorsJLabel" alignment="0" pref="163" max="32767" attributes="0"/>
+                  <Component id="infoJLabel" alignment="0" pref="163" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -53,7 +53,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="savePasswordJCheckBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="errorsJLabel" min="-2" max="-2" attributes="0"/>
+              <Component id="infoJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="loginJButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -84,6 +84,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="!Password:!"/>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="passwordJLabelMouseClicked"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.create(getString(&quot;PasswordLabel&quot;));"/>
       </AuxValues>
@@ -109,6 +112,7 @@
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
+        <Property name="opaque" type="boolean" value="false"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="CheckBoxFactory.create(getString(&quot;SavePasswordCheckBox&quot;));"/>
@@ -138,9 +142,9 @@
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;CancelButton&quot;));"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JLabel" name="errorsJLabel">
+    <Component class="javax.swing.JLabel" name="infoJLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="!Errors!"/>
+        <Property name="text" type="java.lang.String" value="!Info!"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.create();"/>

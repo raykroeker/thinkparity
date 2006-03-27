@@ -348,20 +348,17 @@ public class SessionSendFormAvatar extends Avatar {
 					// TODO Refactor the user object.
 					final JabberId jabberId = JabberIdBuilder.parseUsername(user.getSimpleUsername());
 					getSessionModel().sendKeyResponse(documentId, jabberId, KeyResponse.ACCEPT);
-					cancelJButtonActionPerformed(evt);
 				}
 				else {
 					final DocumentVersion version = extractDocumentVersion();
 					if(version == WorkingVersion.getWorkingVersion()) {
 						// create a version and send it
 						getSessionModel().send(contacts, documentId);
-						cancelJButtonActionPerformed(evt);
 					}
 					else {
 						// send a specific version
 						getSessionModel().send(
 								contacts, documentId, version.getVersionId());
-						cancelJButtonActionPerformed(evt);
 					}
 				}
 				// NOTE Interesting
@@ -371,13 +368,18 @@ public class SessionSendFormAvatar extends Avatar {
 			finally {
 				toggleVisualFeedback(Boolean.FALSE);
 				getController().fireDocumentUpdated(documentId);
+				disposeWindow();
 			}
 		}
     }//GEN-LAST:event_sendJButtonActionPerformed
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
-		SwingUtilities.getWindowAncestor(this).dispose();
+		disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    private void disposeWindow() {
+    	SwingUtilities.getWindowAncestor(this).dispose();
+    }
 
     private void includeKeyJCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_includeKeyJCheckBoxStateChanged
 		if(includeKeyIsSelected != includeKeyJCheckBox.isSelected()) {

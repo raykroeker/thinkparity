@@ -60,11 +60,10 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.session.AcceptInvitation();
 		case SESSION_DECLINE_INVITATION:
 			return new com.thinkparity.browser.platform.action.session.DeclineInvitation();
-		case SESSION_ADD_CONTACT:
-			return new com.thinkparity.browser.platform.action.session.AddContact();
 		case SYSTEM_MESSAGE_DELETE:
 			return new com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage();
-		default: throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
+		default:
+			throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
 		}
 	}
 

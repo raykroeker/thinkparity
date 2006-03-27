@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -46,8 +47,13 @@ public abstract class AbstractJDialog extends JDialog {
 	 */
 	protected AbstractJDialog(final AbstractJFrame owner, final Boolean modal,
 			final String l18Context) {
+		this((JFrame) owner, modal, l18Context);
+	}
+
+	protected AbstractJDialog(final JFrame owner, final Boolean modal,
+			final String l18nContext) {
 		super(owner, modal);
-		this.localization = new JFrameLocalization(l18Context);
+		this.localization = new JFrameLocalization(l18nContext);
 	}
 
 	/**

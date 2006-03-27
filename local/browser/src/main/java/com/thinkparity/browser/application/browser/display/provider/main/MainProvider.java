@@ -21,8 +21,6 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
-import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
-import com.thinkparity.model.parity.model.sort.HasBeenSeenComparator;
 import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
 
 /**
@@ -82,9 +80,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 					//	+> last update ? earlier b4 later
 					//  +> name ? alpha order
 					final AbstractArtifactComparator sort =
-						new HasBeenSeenComparator(Boolean.FALSE);
-					sort.add(new UpdatedOnComparator(Boolean.FALSE));
-					sort.add(new ComparatorBuilder().createByName(Boolean.TRUE));
+						new UpdatedOnComparator(Boolean.FALSE);
 					final Collection<Document> documents = documentModel.list(sort);
 					return toDisplay(documents, artifactModel);
 				}

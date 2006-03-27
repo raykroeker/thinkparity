@@ -53,18 +53,6 @@ public class AvatarFactory {
 	private Avatar browserTitle;
 
 	/**
-	 * The invite contact avatar.
-	 * 
-	 */
-	private Avatar sessionInviteContact;
-
-	/**
-	 * The manage contacts avatar.
-	 * 
-	 */
-	private Avatar sessionManageContacts;
-
-	/**
 	 * The session send form avatar.
 	 * 
 	 */
@@ -147,11 +135,9 @@ public class AvatarFactory {
 	 * 
 	 * @return The session invite contact avatar.
 	 */
-	private Avatar createSessionInviteContact() {
-		if(null == sessionInviteContact) {
-			sessionInviteContact = new SessionInviteContactAvatar();
-		}
-		return sessionInviteContact;
+	private Avatar createSessionInvitePartner() {
+		final Avatar sessionInvitePartner = new SessionInvitePartner();
+		return sessionInvitePartner;
 	}
 
 	/**
@@ -160,10 +146,8 @@ public class AvatarFactory {
 	 * @return The manage contacts avatar.
 	 */
 	private Avatar createSessionManageContacts() {
-		if(null == sessionManageContacts) {
-			sessionManageContacts = new ManageContactsAvatar();
-			sessionManageContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
-		}
+		final Avatar sessionManageContacts = new SessionManageContacts();
+		sessionManageContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
 		return sessionManageContacts;
 	}
 
@@ -219,8 +203,8 @@ public class AvatarFactory {
 		case PLATFORM_LOGIN:
 			avatar = createPlatformLogin();
 			break;
-		case SESSION_INVITE_CONTACT:
-			avatar = createSessionInviteContact();
+		case SESSION_INVITE_PARTNER:
+			avatar = createSessionInvitePartner();
 			break;
 		case SESSION_MANAGE_CONTACTS:
 			avatar = createSessionManageContacts();

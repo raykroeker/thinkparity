@@ -66,6 +66,12 @@ public abstract class Artifact {
 	private Collection<Note> notes;
 
 	/**
+	 * The artifact's remote info.
+	 * 
+	 */
+	private ArtifactRemoteInfo remoteInfo;
+
+	/**
 	 * The artifact state.
 	 * 
 	 */
@@ -244,6 +250,13 @@ public abstract class Artifact {
 	}
 
 	/**
+     * Obtain the artifact's remote info.
+     * 
+     * @return The remote info.
+     */
+	public ArtifactRemoteInfo getRemoteInfo() { return remoteInfo; }
+
+	/**
 	 * Obtain the artifact state.
 	 * 
 	 * @return The artifact state.
@@ -346,7 +359,7 @@ public abstract class Artifact {
 	public void setCustomName(final String name) {
 		customProperties.setProperty("name", name);
 	}
-
+	
 	/**
 	 * Set a named custom property. The custom property is set on a per-user
 	 * basis.
@@ -360,7 +373,6 @@ public abstract class Artifact {
 			final String customPropertyValue) {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
 	}
-	
 	/**
 	 * Set the artifact flags.
 	 * 
@@ -371,6 +383,7 @@ public abstract class Artifact {
 		this.flags.clear();
 		this.flags.addAll(flags);
 	}
+
 	/**
 	 * Set the artifact id.
 	 * 
@@ -386,6 +399,16 @@ public abstract class Artifact {
 	 *            The name.
 	 */
 	public void setName(final String name) { this.name = name; }
+
+	/**
+     * Set the artifact's remote info.
+     * 
+     * @param remoteInfo
+     *            The remote info.
+     */
+	public void setRemoteInfo(final ArtifactRemoteInfo remoteInfo) {
+		this.remoteInfo = remoteInfo;
+	}
 
 	/**
 	 * Set the artifact state.

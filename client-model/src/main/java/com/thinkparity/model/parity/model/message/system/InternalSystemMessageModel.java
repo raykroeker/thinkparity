@@ -35,6 +35,10 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 		}
 	}
 
+	/**
+	 * @deprecated The accept\decline contact invitation system messages are
+	 * no longer required.
+	 */
 	public void createContactInvitationResponse(final JabberId responseBy,
 			final Boolean didAcceptInvitation) {
 		synchronized(getImplLock()) {

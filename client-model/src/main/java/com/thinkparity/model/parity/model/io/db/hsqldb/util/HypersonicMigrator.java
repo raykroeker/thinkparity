@@ -61,6 +61,7 @@ class HypersonicMigrator {
 				CONFIG.getProperty("CreateArtifact"),
 				CONFIG.getProperty("CreateArtifactFlag"),
 				CONFIG.getProperty("CreateArtifactFlagRel"),
+				CONFIG.getProperty("CreateArtifactRemoteInfo"),
 				CONFIG.getProperty("CreateArtifactVersion"),
 				CONFIG.getProperty("CreateArtifactVersionMetaData"),
 				CONFIG.getProperty("CreateArtifactAuditType"),

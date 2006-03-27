@@ -124,6 +124,37 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		auditor.KeyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 
+	/**
+     * Create the artifact's remote info.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param updatedBy
+     *            The remote user to update the artifact.
+     * @param updatedOn
+     *            The last time the artifact was updated.
+     */
+	void createRemoteInfo(final Long artifactId, final JabberId updatedBy,
+			final Calendar updatedOn) {
+		logger.info("[LMODEL] [ARTIFACT] [CREATE REMOTE INFO]");
+		logger.debug(artifactId);
+		logger.debug(updatedBy);
+		logger.debug(updatedOn);
+		artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
+	}
+
+	/**
+     * Delete the artifact's remote info.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+	void deleteRemoteInfo(final Long artifactId) {
+		logger.info("[LMODEL] [ARTIFACT] [DELETE REMOTE INFO]");
+		logger.debug(artifactId);
+		artifactIO.deleteRemoteInfo(artifactId);
+	}
+
 	void declineKeyRequest(final Long keyRequestId) throws ParityException {
 		logger.info("[LMODEL] [ARTIFACT] [DENY KEY REQUEST]");
 		logger.debug(keyRequestId);
@@ -209,6 +240,25 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	void removeFlagSeen(final Long artifactId) {
 		logger.info("[LMODEL] [ARTIFACT] [REMOVE SEEN]");
 		removeFlag(artifactId, ArtifactFlag.SEEN);
+	}
+
+	/**
+     * Update the artifact's remote info.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param updatedBy
+     *            The last remote user to update the artifact.
+     * @param updatedOn
+     *            The last time the artifact was remotely updated.
+     */
+	void updateRemoteInfo(final Long artifactId, final JabberId updatedBy,
+			final Calendar updatedOn) {
+		logger.info("[LMODEL] [ARTIFACT] [UPDATE REMOTE INFO]");
+		logger.debug(artifactId);
+		logger.debug(updatedBy);
+		logger.debug(updatedOn);
+		artifactIO.updateRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
 
 	/**

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
@@ -48,19 +49,25 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	private static final String SQL_GET =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_STATE_ID,")
-		.append("ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,")
-		.append("UPDATED_BY,UPDATED_ON ")
-		.append("from ARTIFACT ")
-		.append("where ARTIFACT_ID=?")
+		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
+		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
+		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
+		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
+		.append("from ARTIFACT A left join ARTIFACT_REMOTE_INFO ARI ")
+		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+		.append("where A.ARTIFACT_ID=?")
 		.toString();
 
 	private static final String SQL_GET_BY_UNIQUE_ID =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_STATE_ID,")
-		.append("ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,")
-		.append("UPDATED_BY,UPDATED_ON ")
-		.append("from ARTIFACT ")
-		.append("where ARTIFACT_UNIQUE_ID=?")
+		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
+		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
+		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
+		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
+		.append("from ARTIFACT A left join ARTIFACT_REMOTE_INFO ARI ")
+		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+		.append("where A.ARTIFACT_UNIQUE_ID=?")
 		.toString();
 
 	private static final String SQL_GET_CONTENT =
@@ -86,11 +93,14 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.toString();
 
 	private static final String SQL_LIST =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_NAME,ARTIFACT_STATE_ID,")
-		.append("ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,CREATED_BY,CREATED_ON,")
-		.append("UPDATED_BY,UPDATED_ON ")
-		.append("from ARTIFACT ")
-		.append("order by ARTIFACT_ID asc")
+		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
+		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
+		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
+		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
+		.append("from ARTIFACT A left join ARTIFACT_REMOTE_INFO ARI ")
+		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+		.append("order by A.ARTIFACT_ID asc")
 		.toString();
 
 	private static final String SQL_LIST_VERSIONS =
@@ -100,6 +110,12 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("from ARTIFACT_VERSION ")
 		.append("where ARTIFACT_ID=? ")
 		.append("order by ARTIFACT_VERSION_ID asc")
+		.toString();
+
+	private static final String SQL_UPDATE =
+		new StringBuffer("update ARTIFACT ")
+		.append("set UPDATED_ON=? ")
+		.append("where ARTIFACT_ID=?")
 		.toString();
 
 	private static final String SQL_UPDATE_CONTENT =
@@ -438,10 +454,17 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#update(com.thinkparity.model.parity.model.document.Document)
 	 */
 	public void update(final Document document) {
-		logger.warn("Update is misleading.  Only flags are being set.");
+		logger.warn("Update is misleading.  Only updated on timestamp\flags are being set.");
 		final Session session = openSession();
 		try {
 			artifactIO.setFlags(session, document.getId(), document.getFlags());
+
+			session.prepareStatement(SQL_UPDATE);
+			session.setCalendar(1, document.getUpdatedOn());
+			session.setLong(2, document.getId());
+			if(1 != session.executeUpdate())
+				throw new HypersonicException("Could not update document.");
+
 			session.commit();
 		}
 		catch(final HypersonicException hx) {
@@ -506,6 +529,11 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		d.setUpdatedOn(session.getCalendar("UPDATED_ON"));
 
 		d.setFlags(artifactIO.getFlags(d.getId()));
+
+		final ArtifactRemoteInfo remoteInfo = new ArtifactRemoteInfo();
+		remoteInfo.setUpdatedBy(session.getQualifiedUsername("REMOTE_UPDATED_BY"));
+		remoteInfo.setUpdatedOn(session.getCalendar("REMOTE_UPDATED_ON"));
+		d.setRemoteInfo(remoteInfo);
 		return d;
 	}
 

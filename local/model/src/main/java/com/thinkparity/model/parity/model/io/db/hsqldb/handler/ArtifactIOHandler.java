@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -130,16 +132,92 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
+	/**
+	 * Sql to create the remote info.
+	 * 
+	 */
+	private static final String SQL_CREATE_REMOTE_INFO =
+		new StringBuffer("insert into ARTIFACT_REMOTE_INFO ")
+		.append("(ARTIFACT_ID,UPDATED_BY,UPDATED_ON) ")
+		.append("values (?,?,?)")
+		.toString();
+	
+	/**
+	 * Sql to delete the remote info.
+	 * 
+	 */
+	private static final String SQL_DELETE_REMOTE_INFO =
+		new StringBuffer("delete from ARTIFACT_REMOTE_INFO ")
+		.append("where ARTIFACT_ID=?")
+		.toString();
+
+	/**
+	 * Sql to update the remote info of an artifact.
+	 * 
+	 */
+	private static final String SQL_UPDATE_REMOTE_INFO =
+		new StringBuffer("update ARTIFACT_REMOTE_INFO ")
+		.append("set (UPDATED_BY=?,UPDATED_ON=?) ")
+		.append("where ARTIFACT_ID=?")
+		.toString();
+
 	private static final String SQL_UPDATE_STATE =
 		new StringBuffer("update ARTIFACT set ARTIFACT_STATE_ID=?,")
 		.append("UPDATED_ON=CURRENT_TIMESTAMP ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
-	
+
 	/**
 	 * Create a ArtifactIOHandler.
 	 */
 	public ArtifactIOHandler() { super(); }
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#createRemoteInfo(java.lang.Long,
+     *      com.thinkparity.model.xmpp.JabberId, java.util.Calendar)
+     * 
+     */
+	public void createRemoteInfo(final Long artifactId,
+			final JabberId updatedBy, final Calendar updatedOn)
+			throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_CREATE_REMOTE_INFO);
+			session.setQualifiedUsername(1, updatedBy);
+			session.setCalendar(2, updatedOn);
+			session.setLong(3, artifactId);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException("Could not create remote info.");
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteRemoteInfo(java.lang.Long)
+     * 
+     */
+	public void deleteRemoteInfo(final Long artifactId) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_DELETE_REMOTE_INFO);
+			session.setLong(1, artifactId);
+			if(1 != session.executeUpdate())
+				throw new HypersonicException("Could not delete remote info.");
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
 
 	/**
 	 * Obtain the artifact's flags.
@@ -166,6 +244,33 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			setFlags(session, artifactId, flags);
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#updateRemoteInfo(java.lang.Long,
+     *      com.thinkparity.model.xmpp.JabberId, java.util.Calendar)
+     * 
+     */
+	public void updateRemoteInfo(final Long artifactId,
+			final JabberId updatedBy, final Calendar updatedOn)
+			throws HypersonicException {
+		final Session session = openSession();
+		try {
+			session.prepareStatement(SQL_UPDATE_REMOTE_INFO);
+			session.setQualifiedUsername(1, updatedBy);
+			session.setCalendar(2, updatedOn);
+			session.setLong(3, artifactId);
+
+			if(1 != session.executeUpdate())
+				throw new HypersonicException("Could not update remote info.");
+
 			session.commit();
 		}
 		catch(final HypersonicException hx) {

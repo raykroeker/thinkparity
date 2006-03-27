@@ -171,8 +171,12 @@ public class Session {
 		assertOpenResult("getCalendar(String)");
 		try {
 			final Calendar calendar = DateUtil.getInstance();
-			calendar.setTime(resultSet.getTimestamp(columnName, calendar));
-			return calendar;
+			final Timestamp timestamp = resultSet.getTimestamp(columnName, calendar);
+			if(resultSet.wasNull()) { return null; }
+			else {
+				calendar.setTime(timestamp);
+				return calendar;
+			}
 		}
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
@@ -231,7 +235,11 @@ public class Session {
 		assertOpen("Cannot get values if the session is not open.");
 		assertOpenResult("Cannot get values if the result is not open.");
 		debugSql(columnName);
-		try { return JabberIdBuilder.parseQualifiedUsername(resultSet.getString(columnName)); }
+		try {
+			final String qualifiedUsername = resultSet.getString(columnName);
+			if(resultSet.wasNull()) { return null; }
+			else { return JabberIdBuilder.parseQualifiedUsername(qualifiedUsername); }
+		}
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 		catch(final IllegalArgumentException iax) { throw new HypersonicException(iax); }
 	}

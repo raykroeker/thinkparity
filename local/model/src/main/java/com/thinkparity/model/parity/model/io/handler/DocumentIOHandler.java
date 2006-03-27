@@ -69,7 +69,7 @@ public interface DocumentIOHandler extends IOHandler {
 	public List<DocumentVersion> listVersions(final Long documentId);
 	
 	public void update(final Document document);
-	
+
 	public void updateContent(final DocumentContent content);
 	
 	public void updateState(final Long documentId, final ArtifactState state);

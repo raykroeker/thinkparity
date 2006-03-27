@@ -55,6 +55,35 @@ public class InternalArtifactModel extends ArtifactModel {
 	}
 
 	/**
+     * Create the artifact's remote info.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param updatedBy
+     *            The remote user to update the artifact.
+     * @param updatedOn
+     *            The last time the artifact was updated.
+     */
+	public void createRemoteInfo(final Long artifactId,
+			final JabberId updatedBy, final Calendar updatedOn) {
+		synchronized(getImplLock()) {
+			getImpl().createRemoteInfo(artifactId, updatedBy, updatedOn);
+		}
+	}
+
+	/**
+     * Delete the artifact's remote info.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+	public void deleteRemoteInfo(final Long artifactId) {
+		synchronized(getImplLock()) {
+			getImpl().deleteRemoteInfo(artifactId);
+		}
+	}
+
+	/**
 	 * Obtain all pending key requests for the artifact.
 	 * 
 	 * @param artifactId
@@ -71,5 +100,22 @@ public class InternalArtifactModel extends ArtifactModel {
 
 	public void removeFlagKey(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
+	}
+
+	/**
+     * Update the artifact's remote info.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param updatedBy
+     *            The last user to update the artifact.
+     * @param updatedOn
+     *            The last time the artifact was updated.
+     */
+	public void updateRemoteInfo(final Long artifactId,
+			final JabberId updatedBy, final Calendar updatedOn) {
+		synchronized(getImplLock()) {
+			getImpl().updateRemoteInfo(artifactId, updatedBy, updatedOn);
+		}
 	}
 }

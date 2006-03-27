@@ -20,7 +20,6 @@ import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * DocumentModel
@@ -358,17 +357,6 @@ public class DocumentModel {
 		synchronized(implLock) {
 			return impl.readHistory(documentId, comparator);
 		}
-	}
-
-	/**
-	 * Use the document model to receive a document from another parity user.
-	 * 
-	 * @param xmppDocument
-	 *            The xmpp document received from another parity user.
-	 * @throws ParityException
-	 */
-	public void receive(final XMPPDocument xmppDocument) throws ParityException {
-		synchronized(implLock) { impl.receive(xmppDocument); }
 	}
 
 	/**

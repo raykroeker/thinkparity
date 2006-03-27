@@ -35,6 +35,7 @@ import com.thinkparity.model.parity.model.document.history.HistoryItemBuilder;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
+import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -297,7 +298,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 	void close(final UUID documentUniqueId, final JabberId closedBy)
 			throws ParityException {
-		logger.info("[LMDOEL] [DOCUMENT] [CLOSE BY REQUEST]");
+		logger.info("[LMODEL] [DOCUMENT] [CLOSE BY REQUEST]");
 		logger.debug(documentUniqueId);
 		logger.debug(closedBy);
 		try {
@@ -309,6 +310,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 			// lock the document
 			lock(document.getId());
+
+			// update the remote info row
+			final InternalArtifactModel iAModel = getInternalArtifactModel();
+			iAModel.updateRemoteInfo(document.getId(), closedBy, currentDateTime());
 
 			// audit the closure
 			final Document d = get(document.getId());
@@ -915,13 +920,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 				JabberIdBuilder.parseUsername(xmppDocument.getReceivedFrom());
 
 			Document document = get(xmppDocument.getUniqueId());
-			logger.debug(document);
 			if(null == document) { document = receiveCreate(xmppDocument); }
 			else {
 				final DocumentVersion version =
 					getVersion(document.getId(), xmppDocument.getVersionId());
 				// i have this version.  wtf biotch
-				if(null == version) { receiveUpdate(xmppDocument, document); }
+				if(null == version) {
+					document.setUpdatedOn(currentDateTime());
+					receiveUpdate(xmppDocument, document);
+				}
 			}
 
 			// if key holder:  apply flag key
@@ -984,6 +991,25 @@ class DocumentModelImpl extends AbstractModelImpl {
 					DocumentModelImpl.updateListeners.contains(listener));
 			DocumentModelImpl.updateListeners.remove(listener);
 		}
+	}
+
+	void requestKey(final Long documentId, final JabberId requestedBy)
+			throws ParityException {
+		logger.info("[LMODEL] [DOCUMENT] [REQUEST KEY]");
+		logger.debug(documentId);
+
+		// remove seen flag
+		final InternalArtifactModel iAModel = getInternalArtifactModel();
+		iAModel.removeFlagSeen(documentId);
+
+		// create system message
+		final InternalSystemMessageModel iSMModel = getInternalSystemMessageModel();
+		iSMModel.createKeyRequest(documentId, requestedBy);
+
+		// update the document's last update date
+		final Document d = get(documentId);
+		d.setUpdatedOn(currentDateTime());
+		documentIO.update(d);
 	}
 
 	/**
@@ -1218,20 +1244,27 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private Document receiveCreate(final XMPPDocument xmppDocument)
 			throws ParityException, FileNotFoundException, IOException {
+		final Calendar currentDateTime = currentDateTime();
 		// create the document
 		final Document document = new Document();
 		document.setCreatedBy(xmppDocument.getCreatedBy());
-		document.setCreatedOn(xmppDocument.getCreatedOn());
+		document.setCreatedOn(currentDateTime);
 		document.setName(xmppDocument.getName());
 		document.setState(ArtifactState.ACTIVE);
 		document.setUniqueId(xmppDocument.getUniqueId());
 		document.setUpdatedBy(xmppDocument.getUpdatedBy());
-		document.setUpdatedOn(xmppDocument.getUpdatedOn());
+		document.setUpdatedOn(currentDateTime);
 
 		final DocumentContent content = new DocumentContent();
 		content.setChecksum(MD5Util.md5Hex(xmppDocument.getContent()));
 		content.setContent(xmppDocument.getContent());
 		documentIO.create(document, content);
+
+		// create the remote info row
+		final InternalArtifactModel iAModel = getInternalArtifactModel();
+		final JabberId remoteUpdatedBy =
+			JabberIdBuilder.parseQualifiedJabberId(xmppDocument.getCreatedBy());
+		iAModel.createRemoteInfo(document.getId(), remoteUpdatedBy, currentDateTime);
 
 		// create the document file
 		final LocalFile file = getLocalFile(document);
@@ -1284,7 +1317,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 		if(isLatestLocalVersion(version)) {
 			document.setUpdatedBy(xmppDocument.getUpdatedBy());
-			document.setUpdatedOn(xmppDocument.getUpdatedOn());
 
 			// update the db
 			documentIO.update(document);

@@ -21,6 +21,7 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
+import com.thinkparity.model.parity.model.sort.RemoteUpdatedOnComparator;
 import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
 
 /**
@@ -38,12 +39,6 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 	private final SingleContentProvider[] singleProviders;
 
 	private final FlatContentProvider systemMessagesProvider;
-
-	private Long assertNotNullLong(final String assertion, final Object input) {
-		Assert.assertNotNull(assertion, input);
-		Assert.assertOfType(assertion, Long.class, input);
-		return (Long) input;
-	}
 
 	/**
 	 * Create a MainProvider.
@@ -64,10 +59,9 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				final Long documentId = assertNotNullLong(
 						"The main provider's document provider requires " +
 						"non-null java.lang.Long input.", input);
-				final List<Document> documents = new LinkedList<Document>();
 				try {
-					documents.add(documentModel.get(documentId));
-					return toDisplay(documents, artifactModel)[0];
+					final Document document = documentModel.get(documentId);
+					return toDisplay(document, artifactModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -80,7 +74,8 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 					//	+> last update ? earlier b4 later
 					//  +> name ? alpha order
 					final AbstractArtifactComparator sort =
-						new UpdatedOnComparator(Boolean.FALSE);
+						new RemoteUpdatedOnComparator(Boolean.FALSE);
+					sort.add(new UpdatedOnComparator(Boolean.FALSE));
 					final Collection<Document> documents = documentModel.list(sort);
 					return toDisplay(documents, artifactModel);
 				}
@@ -128,6 +123,12 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		return flatProviders[index].getElements(input);
 	}
 
+	private Long assertNotNullLong(final String assertion, final Object input) {
+		Assert.assertNotNull(assertion, input);
+		Assert.assertOfType(assertion, Long.class, input);
+		return (Long) input;
+	}
+
 	/**
 	 * Convert a list of documents and the system messages for that document
 	 * into a display document.
@@ -152,5 +153,18 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			display.add(dd);
 		}
 		return display.toArray(new DisplayDocument[] {});
+	}
+
+	private DisplayDocument toDisplay(final Document document,
+			final ArtifactModel artifactModel) throws ParityException {
+		if(null == document) { return null; }
+		else {
+			final DisplayDocument dd = new DisplayDocument();
+			
+			dd.setDocument(document);
+			dd.setKeyRequests(artifactModel.readKeyRequests(document.getId()));
+
+			return dd;
+		}
 	}
 }

@@ -6,7 +6,6 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,14 +99,7 @@ public class DisplayDocument {
 		return false;
 	}
 
-	public String getDisplay() {
-		final StringBuffer buffer = new StringBuffer(document.getName())
-			.append(" - ")
-			.append(sdf.format(document.getUpdatedOn().getTime()));
-		return buffer.toString();
-	}
-
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss,SSS");
+	public String getDisplay() { return document.getName(); }
 
 	public Long getDocumentId() { return document.getId(); }
 

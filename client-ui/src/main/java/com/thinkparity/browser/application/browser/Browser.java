@@ -232,7 +232,27 @@ public class Browser extends AbstractApplication {
 				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
 			}
 		});
-		reloadMainList();
+		// refresh the document main list
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId);
+			}
+		});
+	}
+
+	/**
+     * Notify the application that a document has been received.
+     * 
+     * @param documentId
+     *            The document id.
+     */
+	public void fireDocumentReceived(final Long documentId) {
+		// refresh the document main list
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId);
+			}
+		});
 	}
 
 	/**
@@ -448,7 +468,6 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(Delete.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_DELETE, data);
-		reloadMainList();
 	}
 
 	public void runDeleteSystemMessage(final Long systemMessageId) {

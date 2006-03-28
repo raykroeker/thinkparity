@@ -39,12 +39,6 @@ class EventDispatcher {
 	private KeyListener sessionKeyListener;
 
 	/**
-	 * The parity session presence event listener.
-	 * 
-	 */
-	private PresenceListener sessionPresenceListener;
-
-	/**
 	 * The parity session event listener.
 	 * 
 	 */
@@ -76,9 +70,6 @@ class EventDispatcher {
 		browser.getDocumentModel().removeListener(documentUpdateListener);
 		documentUpdateListener = null;
 
-		browser.getSessionModel().removeListener(sessionPresenceListener);
-		sessionPresenceListener = null;
-
 		browser.getSessionModel().removeListener(sessionKeyListener);
 		sessionKeyListener = null;
 
@@ -100,9 +91,6 @@ class EventDispatcher {
 		documentUpdateListener = createDocumentModelUpdateListener();
 		browser.getDocumentModel().addListener(documentUpdateListener);
 
-		sessionPresenceListener = createSessionModelPresenceListener();
-		browser.getSessionModel().addListener(sessionPresenceListener);
-
 		sessionKeyListener = createSessionModelKeyListener();
 		browser.getSessionModel().addListener(sessionKeyListener);
 
@@ -123,12 +111,13 @@ class EventDispatcher {
 	private UpdateListener createDocumentModelUpdateListener() {
 		return new UpdateListener() {
 			public void objectClosed(final CloseEvent e) {
-				browser.fireDocumentUpdated(((Artifact) e.getSource()).getId());
+				final Artifact artifact = (Artifact) e.getSource();
+				browser.getArtifactModel().removeFlagSeen(artifact.getId());
+				browser.fireDocumentUpdated(artifact.getId());
 			}
 			public void objectDeleted(final DeleteEvent e) {}
 			public void objectReceived(final UpdateEvent e) {
-				browser.reloadMainList();
-				browser.reloadHistoryList();
+				browser.fireDocumentReceived(((Artifact) e.getSource()).getId());
 			}
 		};
 	}
@@ -143,14 +132,6 @@ class EventDispatcher {
 			}
 			public void keyRequested(final KeyEvent e) {
 				browser.fireDocumentUpdated(e.getArtifactId());
-			}
-		};
-	}
-
-	private PresenceListener createSessionModelPresenceListener() {
-		return new PresenceListener() {
-			public void presenceRequested(final PresenceEvent e) {
-				browser.reloadMainList();
 			}
 		};
 	}

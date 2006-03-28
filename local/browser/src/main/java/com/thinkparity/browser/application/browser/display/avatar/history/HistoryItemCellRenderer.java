@@ -3,7 +3,6 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.history;
 
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -11,25 +10,25 @@ import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JTextArea;
 import javax.swing.ListCellRenderer;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
-import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 
 /**
+ * An abstraction of the history item cell. Writes the date/event/version info
+ * and paints a background image for the cell.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
+ * 
+ * @see ActiveCellRenderer
+ * @see ClosedCellRenderer
  */
-public class CellRenderer2 extends AbstractJPanel implements ListCellRenderer {
-
-	private static final BufferedImage BACKGROUND;
+public abstract class HistoryItemCellRenderer extends AbstractJPanel implements ListCellRenderer {
 
 	/**
 	 * @see java.io.Serializable
@@ -37,7 +36,12 @@ public class CellRenderer2 extends AbstractJPanel implements ListCellRenderer {
 	 */
 	private static final long serialVersionUID = 1;
 
-	static { BACKGROUND = ImageIOUtil.read("DocumentHistoryCell.png"); }
+	/**
+	 * The background image to paint.
+	 * 
+	 * @see #paintComponent(Graphics)
+	 */
+	protected BufferedImage background;
 
 	/**
 	 * Contains the date label.
@@ -49,7 +53,7 @@ public class CellRenderer2 extends AbstractJPanel implements ListCellRenderer {
 	 * Contains any action info.
 	 * 
 	 */
-	private JTextArea eventJTextArea;
+	private JLabel eventJLabel;
 
 	/**
 	 * Contains the version link.
@@ -61,22 +65,10 @@ public class CellRenderer2 extends AbstractJPanel implements ListCellRenderer {
 	 * Create a CellRenderer.
 	 * 
 	 */
-	public CellRenderer2() {
-		super("DocumentHistory");
+	public HistoryItemCellRenderer() {
+		super("HistoryItem");
 		setLayout(new GridBagLayout());
 		initComponents();
-	}
-
-	/**
-	 * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList,
-	 *      java.lang.Object, int, boolean, boolean)
-	 * 
-	 */
-	public Component getListCellRendererComponent(final JList list,
-			final Object value, final int index, final boolean isSelected,
-			final boolean cellHasFocus) {
-		setText((HistoryItem) value);
-		return this;
 	}
 
 	/**
@@ -86,8 +78,30 @@ public class CellRenderer2 extends AbstractJPanel implements ListCellRenderer {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		final Graphics2D g2 = (Graphics2D) g.create();
-		try { g2.drawImage(BACKGROUND, getInsets().left, getInsets().top, this); }
+		try { g2.drawImage(background, getInsets().left, getInsets().top, this); }
 		finally { g2.dispose(); }
+	}
+
+	/**
+     * Set the current background image.
+     * 
+     * @param background
+     *            The background image.
+     */
+	protected void setBackground(final BufferedImage background) {
+		this.background = background;
+	}
+
+	/**
+     * Set the text for the history item.
+     * 
+     * @param historyItem
+     *            The history item.
+     */
+	protected void setText(final HistoryItem historyItem) {
+		setDateText(historyItem);
+		setEventText(historyItem);
+		setVersionText(historyItem);
 	}
 
 	/**
@@ -95,55 +109,53 @@ public class CellRenderer2 extends AbstractJPanel implements ListCellRenderer {
 	 *
 	 */
 	private void initComponents() {
-		dateJLabel = LabelFactory.create();
-		dateJLabel.setFont(BrowserConstants.SmallFont);
-
-		eventJTextArea = TextFactory.createArea();
-		eventJTextArea.setFont(BrowserConstants.SmallFont);
-		eventJTextArea.setLineWrap(true);
-		eventJTextArea.setWrapStyleWord(true);
-		eventJTextArea.setOpaque(false);
-
-		versionJLabel = LabelFactory.create();
-		versionJLabel.setFont(BrowserConstants.SmallFont);
+		dateJLabel = LabelFactory.create(BrowserConstants.SmallFont);
+		eventJLabel = LabelFactory.create(BrowserConstants.SmallFont);
+		versionJLabel = LabelFactory.create(BrowserConstants.SmallFont);
 
 		final GridBagConstraints c = new GridBagConstraints();
 
 		c.insets.left = 7;
-		c.insets.top = 3;
 		c.anchor = GridBagConstraints.WEST;
 		add(dateJLabel, c.clone());
 
-		c.weightx = 1;
+		c.insets.left = 0;
 		add(versionJLabel, c.clone());
 
-		c.insets.top = 0;
-		c.insets.bottom = 3;
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 2;
-		c.gridy = 1;
-		c.weighty = 1;
-		add(eventJTextArea, c.clone());
+		c.weightx = 1;
+		add(eventJLabel, c.clone());
 	}
 
+	/**
+     * Set the history item's date.
+     * 
+     * @param historyItem
+     *            The history item.
+     */
 	private void setDateText(final HistoryItem historyItem) {
 		dateJLabel.setText(getString("Date", new Object[] {historyItem.getDate().getTime()}));
 	}
 
+	/**
+     * Set the history item event text.
+     * 
+     * @param historyItem
+     *            The history item.
+     */
 	private void setEventText(final HistoryItem historyItem) {
-		eventJTextArea.setText(historyItem.getEvent());
+		eventJLabel.setText(historyItem.getEvent());
 	}
 
-	private void setText(final HistoryItem historyItem) {
-		setDateText(historyItem);
-		setEventText(historyItem);
-		setVersionText(historyItem);
-	}
-
+	/**
+     * Set the history item version text.
+     * 
+     * @param historyItem
+     *            The history item.
+     */
 	private void setVersionText(final HistoryItem historyItem) {
 		if(historyItem.isSetVersionId()) {
 			versionJLabel.setText(getString("Version", new Object[] {historyItem.getVersionId()}));
 		}
-		else { versionJLabel.setText(""); }
+		else { versionJLabel.setText(getString("Version.Empty")); }
 	}
 }

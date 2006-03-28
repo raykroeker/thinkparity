@@ -101,13 +101,29 @@ public class BrowserMainAvatar extends Avatar {
 	 */
 	public void reloadDocument(final Long documentId) {
 		final DisplayDocument displayDocument = getDisplayDocument(documentId);
-		final ListItem listItem = DocumentListItem.create(displayDocument);
-		if(jListModel.contains(listItem)) {
-			final int selectedIndex = jList.getSelectedIndex();
-			final int index = jListModel.indexOf(listItem);
-			jListModel.remove(index);
-			jListModel.add(index, listItem);
-			jList.setSelectedIndex(selectedIndex);
+		if(null == displayDocument) {
+			ListItem listItem;
+			for(int i = 0; i < jListModel.size(); i++) {
+				listItem = (ListItem) jListModel.get(i);
+				if(listItem instanceof DocumentListItem) {
+					if(((DocumentListItem) listItem).getDocumentId().equals(documentId)) {
+						jListModel.remove(i);
+						break;
+					}
+				}
+			}
+		}
+		else {
+			final ListItem listItem = DocumentListItem.create(displayDocument);
+			if(jListModel.contains(listItem)) {
+				final int selectedIndex = jList.getSelectedIndex();
+				final int index = jListModel.indexOf(listItem);
+				jListModel.remove(index);
+//				jListModel.add(index, listItem);
+				jListModel.add(0, listItem);
+				jList.setSelectedIndex(selectedIndex);
+			}
+			else { jListModel.add(0, listItem); }
 		}
 	}
 

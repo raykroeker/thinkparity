@@ -4,8 +4,6 @@
 package com.thinkparity.browser.application.browser.component;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JMenuItem;
 import javax.swing.UIDefaults;
@@ -30,13 +28,6 @@ public class MenuItemFactory extends ComponentFactory {
 		defaults.put("MenuItem.selectionBackground", new Color(215, 231, 244, 255));
 		// COLOR BLACK
 		defaults.put("MenuItem.selectionForeground", Color.BLACK);
-
-		
-		
-		System.out.println("\n\n\n");
-		System.out.println(defaults.get("MenuItem.margin").toString());
-		System.out.println("\n\n\n");
-//		defaults.put("MenuItem.margin", new InsetsUIResource());
 	}
 
 	public static JMenuItem create(final String text, final Integer mnemonic) {

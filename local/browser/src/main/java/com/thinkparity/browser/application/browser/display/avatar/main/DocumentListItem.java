@@ -176,6 +176,9 @@ public class DocumentListItem extends ListItem {
 				setBackgroundImage(BG_CLOSED);
 				setBackgroundImageSelected(BG_CLOSED_SEL);
 				setNameForeground(NAME_FOREGROUND_CLOSED);
+
+				if(displayDocument.hasBeenSeen()) { setNameFont(BrowserConstants.DefaultFont); }
+				else { setNameFont(BrowserConstants.DefaultFontBold); }
 			}
 			else {
 				setBackgroundImage(BG);
@@ -334,7 +337,7 @@ public class DocumentListItem extends ListItem {
 	 * 
 	 * @return The document unique id.
 	 */
-	private Long getDocumentId() { return (Long) getProperty("documentId"); }
+	public Long getDocumentId() { return (Long) getProperty("documentId"); }
 
 	/**
 	 * Obtain the open menu item.

@@ -26,6 +26,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -119,6 +120,15 @@ public abstract class AbstractApplication implements Application {
 	 */
 	public DocumentModel getDocumentModel() { 
 		return platform.getModelFactory().getDocumentModel(getClass());
+	}
+
+	/**
+     * Obtain the parity artifact interface.
+     * 
+     * @return The parity artifact interface.
+     */
+	public ArtifactModel getArtifactModel() {
+		return platform.getModelFactory().getArtifactModel(getClass());
 	}
 
 	/**

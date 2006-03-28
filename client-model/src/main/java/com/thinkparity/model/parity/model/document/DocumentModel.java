@@ -16,6 +16,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -263,6 +264,34 @@ public class DocumentModel {
 	public Collection<Document> list(final Comparator<Artifact> comparator)
 			throws ParityException {
 		synchronized(implLock) { return impl.list(comparator); }
+	}
+
+	/**
+     * Obtain a filtered and sorted list of documents.
+     * 
+     * @param comparator
+     *            The comparator.
+     * @param filter
+     *            The document filter.
+     * @return A list of documents.
+     * @throws ParityException
+     */
+	public Collection<Document> list(final Comparator<Artifact> comaprator,
+			final Filter<? super Artifact> filter) throws ParityException {
+		synchronized(implLock) { return impl.list(comaprator, filter); }
+	}
+
+	/**
+     * Obtain a filtered list of documents.
+     * 
+     * @param filter
+     *            The document filter.
+     * @return A list of documents.
+     * @throws ParityException
+     */
+	public Collection<Document> list(final Filter<? super Artifact> filter)
+			throws ParityException {
+		synchronized(implLock) { return impl.list(filter); }
 	}
 
 	/**

@@ -32,6 +32,8 @@ import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.document.history.HistoryItemBuilder;
+import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.ModelFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
@@ -713,8 +715,44 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @see #list(UUID, Comparator)
 	 */
 	Collection<Document> list() throws ParityException {
-		logger.info("list()");
+		logger.info("[LMODEL] [DOCUMENT] [LIST]");
 		return list(defaultComparator);
+	}
+
+	/**
+     * Obtain a filtered list of documents.
+     * 
+     * @param filter
+     *            The document filter.
+     * @return A list of documents.
+     * @throws ParityException
+     */
+	Collection<Document> list(final Filter<? super Artifact> filter)
+			throws ParityException {
+		logger.info("[LMODEL] [DOCUMENT] [LIST FILTERED]");
+		logger.debug(filter);
+		return list(defaultComparator, filter);
+	}
+
+	/**
+     * Obtain a filtered and sorted list of documents.
+     * 
+     * @param comparator
+     *            The comparator.
+     * @param filter
+     *            The document filter.
+     * @return A list of documents.
+     * @throws ParityException
+     */
+	Collection<Document> list(final Comparator<Artifact> comparator,
+			final Filter<? super Artifact> filter) throws ParityException {
+		logger.info("[LMODEL] [DOCUMENT] [LIST SORTED & FILTERED]");
+		logger.debug(comparator);
+		logger.debug(filter);
+		final List<Document> documents = documentIO.list();
+		ModelFilterManager.filter(documents, filter);
+		ModelSorter.sortDocuments(documents, comparator);
+		return documents;
 	}
 
 	/**
@@ -729,7 +767,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	Collection<Document> list(final Comparator<Artifact> comparator)
 			throws ParityException {
-		logger.info("list(Comparator<Artifact>)");
+		logger.info("[LMODEL] [DOCUMENT] [LIST SORTED]");
 		logger.debug(comparator);
 		try {
 			final List<Document> documents = documentIO.list();

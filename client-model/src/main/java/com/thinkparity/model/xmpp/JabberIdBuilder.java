@@ -145,18 +145,18 @@ public class JabberIdBuilder {
 	 */
 	private JabberId doParseQualifiedJabberId(final String qualifiedJabberId) {
 		final int indexOfAt = qualifiedJabberId.indexOf('@');
-		if(-1 == indexOfAt) throw new IllegalArgumentException("Qualified jabber id contains no user\\host separation.");
+		if(-1 == indexOfAt) throw new IllegalArgumentException("Qualified jabber id contains no user\\host separation:  " + qualifiedJabberId);
 		final String username = qualifiedJabberId.substring(0, indexOfAt);
 		final int indexOfSlash = qualifiedJabberId.indexOf('/');
-		if(-1 == indexOfSlash) throw new IllegalArgumentException("Qualified jabber id contains no host\\resource separation.");
+		if(-1 == indexOfSlash) throw new IllegalArgumentException("Qualified jabber id contains no host\\resource separation:  " + qualifiedJabberId);
 		final String host = qualifiedJabberId.substring(indexOfAt + 1, indexOfSlash);
 		final String resource = qualifiedJabberId.substring(indexOfSlash + 1);
-		if(null == username) throw new IllegalArgumentException("Username cannot be null.");
-		if(1 > username.length()) throw new IllegalArgumentException("Username cannot be empty.");
-		if(null == host) throw new IllegalArgumentException("Host cannot be null.");
-		if(1 > host.length()) throw new IllegalArgumentException("Host cannot be empty.");
-		if(null == resource) throw new IllegalArgumentException("Resource cannot be null.");
-		if(1 > resource.length()) throw new IllegalArgumentException("Resource cannot be empty.");
+		if(null == username) throw new IllegalArgumentException("Username cannot be null:  " + qualifiedJabberId);
+		if(1 > username.length()) throw new IllegalArgumentException("Username cannot be empty:  " + qualifiedJabberId);
+		if(null == host) throw new IllegalArgumentException("Host cannot be null:  " + qualifiedJabberId);
+		if(1 > host.length()) throw new IllegalArgumentException("Host cannot be empty:  " + qualifiedJabberId);
+		if(null == resource) throw new IllegalArgumentException("Resource cannot be null:  " + qualifiedJabberId);
+		if(1 > resource.length()) throw new IllegalArgumentException("Resource cannot be empty:  " + qualifiedJabberId);
 		return new JabberId(username, host, resource);
 	}
 
@@ -171,14 +171,14 @@ public class JabberIdBuilder {
 	 */
 	private JabberId doParseQualifiedUsername(final String qualifiedUsername) {
 		final int indexOfAt = qualifiedUsername.indexOf('@');
-		if(-1 == indexOfAt) throw new IllegalArgumentException("Qualified username contains no user\\host separation.");
+		if(-1 == indexOfAt) throw new IllegalArgumentException("Qualified username contains no user\\host separation:  " + qualifiedUsername);
 		final String username = qualifiedUsername.substring(0, indexOfAt);
 		final String host = qualifiedUsername.substring(indexOfAt + 1);
-		if(null == username) throw new IllegalArgumentException("Username cannot be null.");
-		if(1 > username.length()) throw new IllegalArgumentException("Username cannot be empty.");
-		if(null == host) throw new IllegalArgumentException("Host cannot be null.");
-		if(1 > host.length()) throw new IllegalArgumentException("Host cannot be empty.");
-		if(-1 != host.indexOf('/')) throw new IllegalArgumentException("Host cannot contain '/'");
+		if(null == username) throw new IllegalArgumentException("Username cannot be null:  " + qualifiedUsername);
+		if(1 > username.length()) throw new IllegalArgumentException("Username cannot be empty:  " + qualifiedUsername);
+		if(null == host) throw new IllegalArgumentException("Host cannot be null:  " + qualifiedUsername);
+		if(1 > host.length()) throw new IllegalArgumentException("Host cannot be empty:  " + qualifiedUsername);
+		if(-1 != host.indexOf('/')) throw new IllegalArgumentException("Host cannot contain '/':  " + qualifiedUsername);
 		return new JabberId(username, host, defaultResource);
 	}
 
@@ -192,10 +192,10 @@ public class JabberIdBuilder {
 	 * @return A fully qualified jabber id.
 	 */
 	private JabberId doParseUsername(final String username) {
-		if(null == username) throw new IllegalArgumentException("Username cannot be null.");
-		if(1 > username.length()) throw new IllegalArgumentException("Username cannot be empty.");
-		if(-1 != username.indexOf('@')) throw new IllegalArgumentException("Username cannot contain '@'");
-		if(-1 != username.indexOf('/')) throw new IllegalArgumentException("Username cannot contain '/'");
+		if(null == username) throw new IllegalArgumentException("Username cannot be null:  " + username);
+		if(1 > username.length()) throw new IllegalArgumentException("Username cannot be empty:  " + username);
+		if(-1 != username.indexOf('@')) throw new IllegalArgumentException("Username cannot contain '@':  " + username);
+		if(-1 != username.indexOf('/')) throw new IllegalArgumentException("Username cannot contain '/':  " + username);
 		return new JabberId(username, defaultHost, defaultResource);
 	}
 

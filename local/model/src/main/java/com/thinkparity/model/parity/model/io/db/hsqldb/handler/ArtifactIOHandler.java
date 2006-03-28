@@ -157,7 +157,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	 */
 	private static final String SQL_UPDATE_REMOTE_INFO =
 		new StringBuffer("update ARTIFACT_REMOTE_INFO ")
-		.append("set (UPDATED_BY=?,UPDATED_ON=?) ")
+		.append("set UPDATED_BY=?,UPDATED_ON=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
@@ -183,9 +183,9 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		final Session session = openSession();
 		try {
 			session.prepareStatement(SQL_CREATE_REMOTE_INFO);
-			session.setQualifiedUsername(1, updatedBy);
-			session.setCalendar(2, updatedOn);
-			session.setLong(3, artifactId);
+			session.setLong(1, artifactId);
+			session.setQualifiedUsername(2, updatedBy);
+			session.setCalendar(3, updatedOn);
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not create remote info.");
 

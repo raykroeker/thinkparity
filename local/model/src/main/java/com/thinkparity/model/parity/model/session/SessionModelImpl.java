@@ -207,7 +207,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		iAModel.removeFlagSeen(document.getId());
 
 		// update the remote info row
-		iAModel.createRemoteInfo(document.getId(), acceptedBy, currentDateTime);
+		iAModel.updateRemoteInfo(document.getId(), acceptedBy, currentDateTime);
 
 		// create system message
 		SystemMessageModel.getInternalModel(sContext).
@@ -244,7 +244,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		iAModel.removeFlagSeen(document.getId());
 
 		// update the remote info row
-		iAModel.createRemoteInfo(document.getId(), deniedBy, currentDateTime);
+		iAModel.updateRemoteInfo(document.getId(), deniedBy, currentDateTime);
 
 		// create system message
 		SystemMessageModel.getInternalModel(sContext).
@@ -281,7 +281,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		// update the remote info row
 		final InternalArtifactModel iAModel =
 			ArtifactModel.getInternalModel(sContext);
-		iAModel.createRemoteInfo(document.getId(), requestedBy, currentDateTime);
+		iAModel.updateRemoteInfo(document.getId(), requestedBy, currentDateTime);
 
 		// audit key request
 		final User loggedInUser;

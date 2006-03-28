@@ -386,6 +386,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final InternalArtifactModel iAModel = getInternalArtifactModel();
 			iAModel.applyFlagKey(document.getId());
 
+			// create the remote info row
+			iAModel.createRemoteInfo(document.getId(), currentUserId(), now);
+
 			// fire a creation event
 			final Document d = get(document.getId());
 			notifyCreation_objectCreated(d);
@@ -1263,7 +1266,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// create the remote info row
 		final InternalArtifactModel iAModel = getInternalArtifactModel();
 		final JabberId remoteUpdatedBy =
-			JabberIdBuilder.parseQualifiedJabberId(xmppDocument.getCreatedBy());
+			JabberIdBuilder.parseUsername(xmppDocument.getCreatedBy());
 		iAModel.createRemoteInfo(document.getId(), remoteUpdatedBy, currentDateTime);
 
 		// create the document file
@@ -1337,5 +1340,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// remove flag seen
 		final InternalArtifactModel iAModel = getInternalArtifactModel();
 		iAModel.removeFlagSeen(document.getId());
+
+		// update remote info
+		final JabberId remoteUpdatedBy =
+			JabberIdBuilder.parseUsername(xmppDocument.getUpdatedBy());
+		iAModel.updateRemoteInfo(document.getId(), remoteUpdatedBy, currentDateTime());
 	}
 }

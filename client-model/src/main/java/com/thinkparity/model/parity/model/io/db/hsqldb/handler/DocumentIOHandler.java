@@ -249,7 +249,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.setLong(1, documentId);
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Cannot delete.");
-			
+
+			artifactIO.deleteRemoteInfo(documentId);
 			artifactIO.delete(session, documentId);
 			session.commit();
 		}

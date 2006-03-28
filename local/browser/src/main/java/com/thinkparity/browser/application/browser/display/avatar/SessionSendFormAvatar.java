@@ -201,6 +201,9 @@ public class SessionSendFormAvatar extends Avatar {
         vSpacerJLabel = LabelFactory.create();
 
         setOpaque(false);
+        documentJLabel.setText("!Document:  0!");
+
+        versionJLabel.setText("!Version:!");
 
         versionJComboBox.setModel(versionModel);
         versionJComboBox.setRenderer(new VersionListCellRenderer());
@@ -210,6 +213,7 @@ public class SessionSendFormAvatar extends Avatar {
             }
         });
 
+        includeKeyJCheckBox.setText("!Include key!");
         includeKeyJCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         includeKeyJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         includeKeyJCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -218,6 +222,9 @@ public class SessionSendFormAvatar extends Avatar {
             }
         });
 
+        teamJLabel.setText("!Team:!");
+
+        contactsJLabel.setText("!Contacts:!");
 
         teamJList.setCellRenderer(new UserListCellRenderer());
         teamJList.setModel(teamModel);
@@ -267,12 +274,14 @@ public class SessionSendFormAvatar extends Avatar {
                 .addContainerGap())
         );
 
+        sendJButton.setText("!Send!");
         sendJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 sendJButtonActionPerformed(e);
             }
         });
 
+        cancelJButton.setText("!Cancel!");
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 cancelJButtonActionPerformed(e);

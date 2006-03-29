@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import com.thinkparity.browser.application.browser.display.avatar.history.HistoryItems;
+import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.login.ui.LoginAvatar;
@@ -59,12 +61,6 @@ public class AvatarFactory {
 	private Avatar sessionSendForm;
 
 	/**
-	 * The sesssion send key form.
-	 * 
-	 */
-	private Avatar sessionSendKeyForm;
-
-	/**
 	 * Create a AvatarFactory [Singleton, Factory]
 	 * 
 	 */
@@ -115,7 +111,7 @@ public class AvatarFactory {
 	 * @return The document history list avatar.
 	 */
 	private Avatar createDocumentHistory3List() {
-	    final Avatar a = new DocumentHistoryAvatar3();
+	    final Avatar a = new HistoryItems();
 	    a.setContentProvider(ProviderFactory.getHistoryProvider());
 	    return a;
 	}
@@ -164,18 +160,11 @@ public class AvatarFactory {
 		return sessionSendForm;
 	}
 
-	/**
-	 * Create the session send key form avatar.  Note that we are using the
-	 * same form as send.
-	 * 
-	 * @return The session send key form avatar.
-	 */
-	private Avatar createSessionSendKeyForm() {
-		if(null == sessionSendKeyForm) {
-			sessionSendKeyForm = new SessionSendFormAvatar();
-			sessionSendKeyForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
-		}
-		return sessionSendKeyForm;
+	private Avatar createSendVersion() {
+		final Avatar avatar = new SessionSendVersion();
+		avatar.setContentProvider(ProviderFactory.getSendVersionProvider());
+
+		return avatar;
 	}
 
 	/**
@@ -212,8 +201,8 @@ public class AvatarFactory {
 		case SESSION_SEND_FORM:
 			avatar = createSessionSendForm();
 			break;
-		case SESSION_SEND_KEY_FORM:
-			avatar = createSessionSendKeyForm();
+		case SESSION_SEND_VERSION:
+			avatar = createSendVersion();
 			break;
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}

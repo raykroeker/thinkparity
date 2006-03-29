@@ -10,6 +10,7 @@ import com.thinkparity.browser.application.browser.display.provider.document.His
 import com.thinkparity.browser.application.browser.display.provider.main.InfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.MainProvider;
 import com.thinkparity.browser.application.browser.display.provider.session.SendArtifactProvider;
+import com.thinkparity.browser.application.browser.display.provider.session.SendVersionProvider;
 import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
@@ -83,6 +84,10 @@ public class ProviderFactory {
 		return singleton.doGetSendArtifactProvider();
 	}
 
+	public static ContentProvider getSendVersionProvider() {
+		return singleton.doGetSendVersionProvider();
+	}
+
 	/**
 	 * The parity artifact interface.
 	 * 
@@ -151,6 +156,12 @@ public class ProviderFactory {
 	private final ContentProvider sendArtifactProvider;
 
 	/**
+	 * Send artifact version provider.
+	 * 
+	 */
+	private final ContentProvider sendVersionProvider;
+
+	/**
 	 * Create a ProviderFactory.
 	 * 
 	 */
@@ -170,6 +181,7 @@ public class ProviderFactory {
 		this.mainProvider = new MainProvider(artifactModel, dModel, systemMessageModel);
 		this.manageContactsProvider = new ManageContactsProvider(sessionModel);
 		this.sendArtifactProvider = new SendArtifactProvider(dModel, sessionModel, loggedInUser);
+		this.sendVersionProvider = new SendVersionProvider(dModel, sessionModel, loggedInUser);
 	}
 
 	/**
@@ -209,5 +221,9 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetSendArtifactProvider() {
 		return sendArtifactProvider;
+	}
+
+	private ContentProvider doGetSendVersionProvider() {
+		return sendVersionProvider;
 	}
 }

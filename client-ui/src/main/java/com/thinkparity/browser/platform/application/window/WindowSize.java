@@ -47,6 +47,8 @@ class WindowSize {
 		sizeMap.put(AvatarId.SESSION_MANAGE_CONTACTS, new Dimension(520, 321));
 		// DIMENSION Send Document Window 405x308
 		sizeMap.put(AvatarId.SESSION_SEND_FORM, new Dimension(405, 308));
+		// DIMENSION Send Version Window 405x308
+		sizeMap.put(AvatarId.SESSION_SEND_VERSION, new Dimension(405, 308));
 		// DIMENSION Platform Login Window 385x173
 		sizeMap.put(AvatarId.PLATFORM_LOGIN, new Dimension(385, 173));
 	}

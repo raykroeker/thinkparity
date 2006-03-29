@@ -24,6 +24,7 @@ import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.ListItemLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
+import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -82,6 +83,12 @@ public abstract class ListItem {
 	private BufferedImage backgroundImageSelected;
 
 	/**
+	 * List item id.
+	 * 
+	 */
+	private final JVMUniqueId id;
+
+	/**
 	 * The list item information menuIcon.
 	 * 
 	 */
@@ -100,12 +107,6 @@ public abstract class ListItem {
 	private String name;
 
 	/**
-	 * The list item name info.
-	 * 
-	 */
-	private String nameInfo;
-
-	/**
 	 * The font to use with the name label.
 	 * 
 	 */
@@ -116,6 +117,12 @@ public abstract class ListItem {
 	 * 
 	 */
 	private Color nameForeground;
+
+	/**
+	 * The list item name info.
+	 * 
+	 */
+	private String nameInfo;
 
 	/**
 	 * Property map.
@@ -129,6 +136,7 @@ public abstract class ListItem {
 	 */
 	protected ListItem(final String l18nContext) {
 		super();
+		this.id = JVMUniqueId.nextId();
 		this.localization = new ListItemLocalization(l18nContext);
 		this.logger = LoggerFactory.getLogger(getClass());
 		this.modelFactory = ModelFactory.getInstance();
@@ -166,18 +174,18 @@ public abstract class ListItem {
 	public String getName() { return name; }
 
 	/**
-	 * Obtain the list item name info.
-	 * 
-	 * @return The list item name info.
-	 */
-	public String getNameInfo() { return nameInfo; }
-
-	/**
 	 * Obtain the font to use for the name label.
 	 * 
 	 * @return The font.
 	 */
 	public Font getNameFont() { return nameFont; }
+
+	/**
+	 * Obtain the list item name info.
+	 * 
+	 * @return The list item name info.
+	 */
+	public String getNameInfo() { return nameInfo; }
 
 	/**
 	 * Obtain a list item property.
@@ -250,12 +258,6 @@ public abstract class ListItem {
 	}
 
 	protected JMenuItem createJMenuItem(final String localKey,
-			final Object[] arguments, final ActionListener actionListener) {
-		return createJMenuItem(getString(localKey, arguments), getMnemonic(localKey),
-				actionListener);
-	}
-
-	protected JMenuItem createJMenuItem(final String localKey,
 			final ActionListener actionListener) {
 		return createJMenuItem(getString(localKey), getMnemonic(localKey),
 				actionListener);
@@ -277,6 +279,12 @@ public abstract class ListItem {
 		final JMenuItem jMenuItem = MenuItemFactory.create(text, mnemonic);
 		jMenuItem.addActionListener(actionListener);
 		return jMenuItem;
+	}
+
+	protected JMenuItem createJMenuItem(final String localKey,
+			final Object[] arguments, final ActionListener actionListener) {
+		return createJMenuItem(getString(localKey, arguments), getMnemonic(localKey),
+				actionListener);
 	}
 
 	/**

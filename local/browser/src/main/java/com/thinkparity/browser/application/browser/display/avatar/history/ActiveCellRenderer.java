@@ -10,9 +10,6 @@ import javax.swing.JList;
 
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
-
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -57,7 +54,7 @@ public class ActiveCellRenderer extends HistoryItemCellRenderer {
 			final Object value, final int index, final boolean isSelected,
 			final boolean cellHasFocus) {
 		setBackground(isSelected ? BG_SEL : BG);
-		setText((HistoryItem) value);
+		setText((DisplayHistoryItem) value);
 		return this;
 	}
 }

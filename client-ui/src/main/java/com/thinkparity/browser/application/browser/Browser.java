@@ -20,6 +20,7 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.window.History2Window;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
@@ -203,6 +204,17 @@ public class Browser extends AbstractApplication {
 	 */
 	public void displaySessionSendFormAvatar() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
+	}
+
+	/**
+	 * Display send version.
+	 *
+	 */
+	public void displaySendVersion(final Long artifactId, final Long versionId) {
+		final Data data = new Data(2);
+		data.set(SessionSendVersion.DataKey.ARTIFACT_ID, artifactId);
+		data.set(SessionSendVersion.DataKey.VERSION_ID, versionId);
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_VERSION, data);
 	}
 
 	/**
@@ -731,6 +743,20 @@ public class Browser extends AbstractApplication {
 		final Object input = getAvatarInput(avatarId);
 		if(null == input) { logger.info("Null input:  " + avatarId); }
 		else { avatar.setInput(getAvatarInput(avatarId)); }
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() { window.open(avatar); }
+		});
+	}
+
+	private void displayAvatar(final WindowId windowId,
+			final AvatarId avatarId, final Data input) {
+		Assert.assertNotNull("Cannot display on a null window.", windowId);
+		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
+		final Window window = WindowFactory.create(windowId, mainWindow);
+
+		final Avatar avatar = getAvatar(avatarId);
+		avatar.setInput(input);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() { window.open(avatar); }

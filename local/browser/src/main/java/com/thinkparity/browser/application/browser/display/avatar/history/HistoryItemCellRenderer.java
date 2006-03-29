@@ -16,8 +16,6 @@ import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
-
 /**
  * An abstraction of the history item cell. Writes the date/event/version info
  * and paints a background image for the cell.
@@ -44,22 +42,10 @@ public abstract class HistoryItemCellRenderer extends AbstractJPanel implements 
 	protected BufferedImage background;
 
 	/**
-	 * Contains the date label.
+	 * Contains the history item.
 	 * 
 	 */
-	private JLabel dateJLabel;
-
-	/**
-	 * Contains any action info.
-	 * 
-	 */
-	private JLabel eventJLabel;
-
-	/**
-	 * Contains the version link.
-	 * 
-	 */
-	private JLabel versionJLabel;
+	private JLabel itemJLabel;
 
 	/**
 	 * Create a CellRenderer.
@@ -82,80 +68,39 @@ public abstract class HistoryItemCellRenderer extends AbstractJPanel implements 
 		finally { g2.dispose(); }
 	}
 
-	/**
-     * Set the current background image.
-     * 
-     * @param background
-     *            The background image.
-     */
+        /**
+         * Set the current background image.
+         *
+         * @param background
+         *            The background image.
+         */
 	protected void setBackground(final BufferedImage background) {
 		this.background = background;
 	}
 
-	/**
-     * Set the text for the history item.
-     * 
-     * @param historyItem
-     *            The history item.
-     */
-	protected void setText(final HistoryItem historyItem) {
-		setDateText(historyItem);
-		setEventText(historyItem);
-		setVersionText(historyItem);
+        /**
+         * Set the text for the history item.
+         *
+         * @param historyItem
+         *            The history item.
+         */
+	protected void setText(final DisplayHistoryItem displayHistoryItem) {
+            itemJLabel.setText(displayHistoryItem.getDisplay());
 	}
 
-	/**
-	 * Initialize the swing components.
-	 *
-	 */
-	private void initComponents() {
-		dateJLabel = LabelFactory.create(BrowserConstants.SmallFont);
-		eventJLabel = LabelFactory.create(BrowserConstants.SmallFont);
-		versionJLabel = LabelFactory.create(BrowserConstants.SmallFont);
+        /**
+         * Initialize the swing components.
+         *
+         */
+        private void initComponents() {
+            itemJLabel = LabelFactory.create(BrowserConstants.SmallFont);
 
-		final GridBagConstraints c = new GridBagConstraints();
-
-		c.insets.left = 7;
-		c.anchor = GridBagConstraints.WEST;
-		add(dateJLabel, c.clone());
-
-		c.insets.left = 0;
-		add(versionJLabel, c.clone());
-
-		c.weightx = 1;
-		add(eventJLabel, c.clone());
-	}
-
-	/**
-     * Set the history item's date.
-     * 
-     * @param historyItem
-     *            The history item.
-     */
-	private void setDateText(final HistoryItem historyItem) {
-		dateJLabel.setText(getString("Date", new Object[] {historyItem.getDate().getTime()}));
-	}
-
-	/**
-     * Set the history item event text.
-     * 
-     * @param historyItem
-     *            The history item.
-     */
-	private void setEventText(final HistoryItem historyItem) {
-		eventJLabel.setText(historyItem.getEvent());
-	}
-
-	/**
-     * Set the history item version text.
-     * 
-     * @param historyItem
-     *            The history item.
-     */
-	private void setVersionText(final HistoryItem historyItem) {
-		if(historyItem.isSetVersionId()) {
-			versionJLabel.setText(getString("Version", new Object[] {historyItem.getVersionId()}));
-		}
-		else { versionJLabel.setText(getString("Version.Empty")); }
-	}
+            final GridBagConstraints c = new GridBagConstraints();
+ 
+            c.insets.left = 7;
+            c.anchor = GridBagConstraints.WEST;
+            c.fill = GridBagConstraints.BOTH;
+            c.weightx = 1;
+            add(itemJLabel, c.clone());
+        }
 }

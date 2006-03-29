@@ -200,8 +200,6 @@ public class SessionSendFormAvatar extends Avatar {
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
         vSpacerJLabel = LabelFactory.create();
 
-        setOpaque(false);
-
         versionJComboBox.setModel(versionModel);
         versionJComboBox.setRenderer(new VersionListCellRenderer());
         versionJComboBox.addItemListener(new java.awt.event.ItemListener() {
@@ -212,11 +210,14 @@ public class SessionSendFormAvatar extends Avatar {
 
         includeKeyJCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         includeKeyJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        includeKeyJCheckBox.setOpaque(false);
         includeKeyJCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent e) {
                 includeKeyJCheckBoxStateChanged(e);
             }
         });
+
+        sendToJPanel.setOpaque(false);
 
         teamJList.setCellRenderer(new UserListCellRenderer());
         teamJList.setModel(teamModel);

@@ -73,13 +73,13 @@ public class BrowserMainAvatar extends Avatar {
 		setLayout(new GridBagLayout());
 		initComponents();
 	}
-
-	/**
-     * Apply an artifact filter to the document list.
-     * 
-     * @param filter
-     *            The artifact filter.
-     */
+        
+        /**
+         * Apply an artifact filter to the document list.
+         *
+         * @param filter
+         *            The artifact filter.
+         */
 	public void applyFilter(final Filter<Artifact> filter) {
 		if(!filterChain.containsFilter(filter)) {
 			filterChain.addFilter(filter);
@@ -132,6 +132,7 @@ public class BrowserMainAvatar extends Avatar {
 				if(listItem instanceof DocumentListItem) {
 					if(((DocumentListItem) listItem).getDocumentId().equals(documentId)) {
 						jListModel.remove(i);
+						jList.setSelectedIndex(i);
 						break;
 					}
 				}
@@ -145,15 +146,17 @@ public class BrowserMainAvatar extends Avatar {
 			// if the reload is not the result of a remote event; put it back
 			// where it was; otherwise move it to the top
 			if(jListModel.contains(listItem)) {
-				final int selectedIndex = jList.getSelectedIndex();
 				final int index = jListModel.indexOf(listItem);
 				jListModel.remove(index);
 				if(remoteReload) { jListModel.add(0, listItem); }
 				else { jListModel.add(index, listItem); }
-				jList.setSelectedIndex(selectedIndex);
 			}
 			// if it's not in the list; just add it to the top
 			else { jListModel.add(0, listItem); }
+
+			// maintain selection
+			final Integer modelIndex = jListModel.indexOf(listItem);
+			jList.setSelectedIndex(modelIndex);
 		}
 	}
 

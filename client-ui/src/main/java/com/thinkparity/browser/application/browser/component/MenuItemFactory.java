@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser.component;
 
 import java.awt.Color;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -36,6 +37,12 @@ public class MenuItemFactory extends ComponentFactory {
 		}
 	}
 
+	public static JMenuItem createCheckBox(final String text, final Integer mnemonic) {
+		synchronized(singletonLock) {
+			return singleton.doCreateCheckBox(text, mnemonic);
+		}
+	}
+
 	/**
 	 * Create a MenuItemFactory [Singleton]
 	 * 
@@ -45,6 +52,14 @@ public class MenuItemFactory extends ComponentFactory {
 	private void applyMnemonic(final JMenuItem jMenuItem, final Integer mnemonic) {
 		logger.debug("JMenuItem.Mnemonic[" + mnemonic + "]");
 		jMenuItem.setMnemonic(mnemonic);
+	}
+
+	private JMenuItem doCreateCheckBox(final String text, final Integer mnemonic) {
+		logger.debug(text);
+		final JMenuItem jMenuItem = new JCheckBoxMenuItem(text);
+		applyDefaultFont(jMenuItem);
+		applyMnemonic(jMenuItem, mnemonic);
+		return jMenuItem;
 	}
 
 	private JMenuItem doCreate(final String text) {

@@ -5,11 +5,11 @@ package com.thinkparity.browser.platform.action.session;
 
 import javax.swing.ImageIcon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.message.system.ContactInvitationMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 
@@ -35,7 +35,12 @@ public class DeclineInvitation extends AbstractAction {
 	 * Create a DeclineInvitation.
 	 * 
 	 */
-	public DeclineInvitation() { super("DeclineInvitation", ID, NAME, ICON);  }
+	public DeclineInvitation(final Browser browser) {
+		super("DeclineInvitation", ID, NAME, ICON);
+		this.browser = browser;
+	}
+
+	private final Browser browser;
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
@@ -43,14 +48,13 @@ public class DeclineInvitation extends AbstractAction {
 	 */
 	public void invoke(final Data data) throws Exception {
 		final Long messageId = (Long) data.get(DataKey.SYSTEM_MESSAGE_ID);
-		try {
-			final SystemMessageModel sMModel = getSystemMessageModel();
-			final ContactInvitationMessage message =
-				(ContactInvitationMessage) sMModel.read(messageId);
-			getSessionModel().declineInvitation(message.getInvitedBy());
-			sMModel.delete(messageId);
-		}
-		catch(final ParityException px) { throw new RuntimeException(px); }
+		final SystemMessageModel sMModel = getSystemMessageModel();
+		final ContactInvitationMessage message =
+			(ContactInvitationMessage) sMModel.read(messageId);
+		getSessionModel().declineInvitation(message.getInvitedBy());
+		sMModel.delete(messageId);
+
+		browser.fireSystemMessageDeleted(messageId);
 	}
 
 	public enum DataKey { SYSTEM_MESSAGE_ID }

@@ -5,11 +5,10 @@ package com.thinkparity.browser.platform.action.system.message;
 
 import javax.swing.ImageIcon;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-
-import com.thinkparity.model.parity.ParityException;
 
 /**
  * @author raykroeker@gmail.com
@@ -29,11 +28,16 @@ public class DeleteSystemMessage extends AbstractAction {
 		NAME = "Delete system message";
 	}
 
+	private final Browser browser;
+
 	/**
 	 * Create a DeleteSystemMessage.
 	 * 
 	 */
-	public DeleteSystemMessage() { super("DeleteSystemMessage", ID, NAME, ICON);  }
+	public DeleteSystemMessage(final Browser browser) {
+		super("DeleteSystemMessage", ID, NAME, ICON); 
+		this.browser = browser;
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
@@ -41,8 +45,9 @@ public class DeleteSystemMessage extends AbstractAction {
 	 */
 	public void invoke(final Data data) throws Exception {
 		final Long messageId = (Long) data.get(DataKey.SYSTEM_MESSAGE_ID);
-		try { getSystemMessageModel().delete(messageId); }
-		catch(final ParityException px) { throw new RuntimeException(px); }
+		getSystemMessageModel().delete(messageId);
+
+		browser.fireSystemMessageDeleted(messageId);
 	}
 
 	public enum DataKey { SYSTEM_MESSAGE_ID }

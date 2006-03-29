@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser;
 
 import com.thinkparity.model.parity.api.events.*;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * The browser's event dispatcher.
@@ -125,13 +126,13 @@ class EventDispatcher {
 	private KeyListener createSessionModelKeyListener() {
 		return new KeyListener() {
 			public void keyRequestAccepted(final KeyEvent e) {
-				browser.fireDocumentUpdated(e.getArtifactId());
+				browser.fireDocumentUpdated(e.getArtifactId(), Boolean.TRUE);
 			}
 			public void keyRequestDenied(final KeyEvent e) {
-				browser.fireDocumentUpdated(e.getArtifactId());
+				browser.fireDocumentUpdated(e.getArtifactId(), Boolean.TRUE);
 			}
 			public void keyRequested(final KeyEvent e) {
-				browser.fireDocumentUpdated(e.getArtifactId());
+				browser.fireDocumentUpdated(e.getArtifactId(), Boolean.TRUE);
 			}
 		};
 	}
@@ -150,7 +151,7 @@ class EventDispatcher {
 		return new SystemMessageListener() {
 			public void systemMessageCreated(
 					final SystemMessageEvent systemMessageEvent) {
-				browser.reloadMainList();
+				browser.fireSystemMessageCreated(((SystemMessage) systemMessageEvent.getSource()).getId());
 			}
 		};
 	}

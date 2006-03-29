@@ -38,6 +38,8 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 
 	private final SingleContentProvider[] singleProviders;
 
+	private final SingleContentProvider systemMessageProvider;
+
 	private final FlatContentProvider systemMessagesProvider;
 
 	/**
@@ -83,6 +85,27 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			}
 
 		};
+		this.systemMessageProvider = new SingleContentProvider() {
+			public Object getElement(final Object input) {
+				final Long systemMessageId = assertNotNullLong(
+						"The main provider's system message provider " +
+						"requires non-null java.lang.Long input.", input);
+				final SystemMessage systemMessage;
+				try { systemMessage = systemMessageModel.read(systemMessageId); }
+				catch(final ParityException px) { throw new RuntimeException(px); }
+				switch(systemMessage.getType()) {
+				case INFO:
+				case CONTACT_INVITATION:
+				case CONTACT_INVITATION_RESPONSE:
+					return systemMessage;
+				case KEY_REQUEST:
+				case KEY_RESPONSE:
+					return null;
+				default:
+					throw Assert.createUnreachable("Unknown message type:  " + systemMessage.getType());
+				}
+			}
+		};
 		this.systemMessagesProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				try {
@@ -94,7 +117,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			}
 		};
 		this.flatProviders = new FlatContentProvider[] {documentsProvider, systemMessagesProvider};
-		this.singleProviders = new SingleContentProvider[] {documentProvider};
+		this.singleProviders = new SingleContentProvider[] {documentProvider, systemMessageProvider};
 	}
 
 	/**

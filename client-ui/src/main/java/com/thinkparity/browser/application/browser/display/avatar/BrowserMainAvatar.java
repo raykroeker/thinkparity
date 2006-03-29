@@ -24,12 +24,15 @@ import com.thinkparity.browser.application.browser.display.avatar.main.CellRende
 import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
+import com.thinkparity.browser.application.browser.display.avatar.main.SystemMessageListItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.FilterChain;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
-
 
 /**
  * The main list avatar displays a list of crucial system messages; as well as
@@ -45,6 +48,8 @@ public class BrowserMainAvatar extends Avatar {
 	 * 
 	 */
 	private static final long serialVersionUID = 1;
+
+	private final FilterChain<Artifact> filterChain;
 
 	/**
 	 * The list.
@@ -64,8 +69,22 @@ public class BrowserMainAvatar extends Avatar {
 	 */
 	BrowserMainAvatar() {
 		super("BrowserMainAvatar", ScrollPolicy.NONE, Color.WHITE);
+		this.filterChain = new FilterChain<Artifact>();
 		setLayout(new GridBagLayout());
 		initComponents();
+	}
+
+	/**
+     * Apply an artifact filter to the document list.
+     * 
+     * @param filter
+     *            The artifact filter.
+     */
+	public void applyFilter(final Filter<Artifact> filter) {
+		if(!filterChain.containsFilter(filter)) {
+			filterChain.addFilter(filter);
+			reloadFilters();
+		}
 	}
 
 	/**
@@ -94,13 +113,18 @@ public class BrowserMainAvatar extends Avatar {
 	}
 
 	/**
-	 * Reload the document in the list.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 */
-	public void reloadDocument(final Long documentId) {
+     * Reload the document in the list.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param remoteReload
+     *            Indicates wether the reload is the result of a remote event
+     */
+	public void reloadDocument(final Long documentId, final Boolean remoteReload) {
 		final DisplayDocument displayDocument = getDisplayDocument(documentId);
+		// if the display document is null; we can assume the document has been
+		// deleted (it's not longer being created by the provider); so we find
+		// the document and remove it
 		if(null == displayDocument) {
 			ListItem listItem;
 			for(int i = 0; i < jListModel.size(); i++) {
@@ -115,16 +139,68 @@ public class BrowserMainAvatar extends Avatar {
 		}
 		else {
 			final ListItem listItem = DocumentListItem.create(displayDocument);
+			// if the document list item is in the list; we need to remove it;
+			// and re-add it.
+			// 
+			// if the reload is not the result of a remote event; put it back
+			// where it was; otherwise move it to the top
 			if(jListModel.contains(listItem)) {
 				final int selectedIndex = jList.getSelectedIndex();
 				final int index = jListModel.indexOf(listItem);
 				jListModel.remove(index);
-//				jListModel.add(index, listItem);
-				jListModel.add(0, listItem);
+				if(remoteReload) { jListModel.add(0, listItem); }
+				else { jListModel.add(index, listItem); }
 				jList.setSelectedIndex(selectedIndex);
 			}
+			// if it's not in the list; just add it to the top
 			else { jListModel.add(0, listItem); }
 		}
+	}
+
+	/**
+     * Reload the system message in the list.
+     * 
+     * @param systemMessageId
+     *            The system message id.
+     */
+	public void reloadSystemMessage(final Long systemMessageId) {
+		final SystemMessage systemMessage = getSystemMessage(systemMessageId);
+		if(null == systemMessage) {
+			ListItem listItem;
+			for(int i = 0; i < jListModel.size(); i++) {
+				listItem = (ListItem) jListModel.get(i);
+				if(listItem instanceof SystemMessageListItem) {
+					if(((SystemMessageListItem) listItem).getId().equals(systemMessageId)) {
+						jListModel.remove(i);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	private SystemMessage getSystemMessage(final Long systemMessageId) {
+		return (SystemMessage) ((CompositeFlatSingleContentProvider) contentProvider).getElement(1, systemMessageId);
+	}
+
+	/**
+     * Remove a filter and reload the documents.
+     * 
+     * @param filter
+     *            The artifact filter.
+     */
+	public void removeFilter(final Filter<Artifact> filter) {
+		if(filterChain.containsFilter(filter)) {
+			filterChain.removeFilter(filter);
+			reloadFilters();
+		}
+	}
+
+	/**
+	 * Use the model filter and the filter chain scope the list.
+	 *
+	 */
+	private void reloadFilters() {
 	}
 
 	/**
@@ -142,6 +218,15 @@ public class BrowserMainAvatar extends Avatar {
 	 */
 	private DisplayDocument getDisplayDocument(final Long documentId) {
 		return (DisplayDocument) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, documentId);
+	}
+
+	/**
+	 * Obtain the display documents from the provider.
+	 * 
+	 * @return The display documents.
+	 */
+	private DisplayDocument[] getDisplayDocuments() {
+		return (DisplayDocument[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
 	}
 
 	/**
@@ -246,15 +331,6 @@ public class BrowserMainAvatar extends Avatar {
 			listModel.addElement(ListItem.create(systemMessage));
 		}
 		// TODO Maintain the system message selection
-	}
-
-	/**
-	 * Obtain the display documents from the provider.
-	 * 
-	 * @return The display documents.
-	 */
-	private DisplayDocument[] getDisplayDocuments() {
-		return (DisplayDocument[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
 	}
 
 	/**

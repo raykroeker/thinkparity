@@ -56,12 +56,6 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen();
 		case DOCUMENT_CLOSE:
 			return new com.thinkparity.browser.platform.action.document.Close();
-		case SESSION_ACCEPT_INVITATION:
-			return new com.thinkparity.browser.platform.action.session.AcceptInvitation();
-		case SESSION_DECLINE_INVITATION:
-			return new com.thinkparity.browser.platform.action.session.DeclineInvitation();
-		case SYSTEM_MESSAGE_DELETE:
-			return new com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage();
 		default:
 			throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
 		}
@@ -94,6 +88,12 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.document.Open(browser);
 		case DOCUMENT_OPEN_VERSION:
 			return new com.thinkparity.browser.platform.action.document.OpenVersion(browser);
+		case SESSION_DECLINE_INVITATION:
+			return new com.thinkparity.browser.platform.action.session.DeclineInvitation(browser);
+		case SYSTEM_MESSAGE_DELETE:
+			return new com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage(browser);
+		case SESSION_ACCEPT_INVITATION:
+			return new com.thinkparity.browser.platform.action.session.AcceptInvitation(browser);
 		default:
 			return doCreateAction(actionId);
 		}

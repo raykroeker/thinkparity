@@ -52,6 +52,9 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.filter.Filter;
+
 /**
  * The controller is used to manage state as well as control display of the
  * parity browser.
@@ -151,6 +154,20 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
+     * Apply a filter to the document list.
+     * 
+     * @param filter
+     *            The document filter.
+     */
+	public void applyDocumentFilter(final Filter<Artifact> filter) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).applyFilter(filter);
+			}
+		});
+	}
+
+	/**
 	 * Close the main window.
 	 *
 	 */
@@ -217,7 +234,11 @@ public class Browser extends AbstractApplication {
 				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
 			}
 		});
-		reloadMainList();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, Boolean.FALSE);
+			}
+		});
 	}
 
 	/**
@@ -235,7 +256,7 @@ public class Browser extends AbstractApplication {
 		// refresh the document main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, Boolean.FALSE);
 			}
 		});
 	}
@@ -250,7 +271,7 @@ public class Browser extends AbstractApplication {
 		// refresh the document main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, Boolean.TRUE);
 			}
 		});
 	}
@@ -262,10 +283,44 @@ public class Browser extends AbstractApplication {
 	 *            The document that has changed.
 	 */
 	public void fireDocumentUpdated(final Long documentId) {
+		fireDocumentUpdated(documentId, Boolean.FALSE);
+	}
+
+	public void fireDocumentUpdated(final Long documentId, final Boolean remoteReload) {
 		// refresh the document in the main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, remoteReload);
+			}
+		});
+	}
+
+	/**
+     * Notify the application that a system message has been created.
+     * 
+     * @param systemMessageId
+     *            The system message id.
+     */
+	public void fireSystemMessageCreated(final Long systemMessageId) {
+		// refresh the system message in the main list
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadSystemMessage(systemMessageId);
+			}
+		});
+	}
+
+	/**
+     * Notify the application that a system message has been deleted.
+     * 
+     * @param systemMessageId
+     *            The system message id.
+     */
+	public void fireSystemMessageDeleted(final Long systemMessageId) {
+		// refresh the system message in the main list
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadSystemMessage(systemMessageId);
 			}
 		});
 	}
@@ -353,6 +408,20 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
+     * Remove a filter from the document list.
+     * 
+     * @param filter
+     *            The document filter.
+     */
+	public void removeDocumentFilter(final Filter<Artifact> filter) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).removeFilter(filter);
+			}
+		});
+	}
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -384,7 +453,6 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(AcceptInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.SESSION_ACCEPT_INVITATION, data);
-		reloadMainList();
 	}
 
 	/**
@@ -435,7 +503,6 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(DeclineAllKeyRequests.DataKey.ARTIFACT_ID, artifactId);
 		invoke(ActionId.ARTIFACT_DECLINE_ALL_KEY_REQUESTS, data);
-		reloadMainList();
 	}
 
 	public void runDeclineContactInvitation(final Long systemMessageId) {
@@ -474,7 +541,6 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(DeleteSystemMessage.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.SYSTEM_MESSAGE_DELETE, data);
-		reloadMainList();
 	}
 
 	/**
@@ -569,8 +635,8 @@ public class Browser extends AbstractApplication {
 			history2Window = new History2Window(mainWindow, avatar);
 			history2Window.setVisible(true);
 
-			runApplyFlagSeen(session.getSelectedDocumentId());
-			reloadMainList();
+			runApplyFlagSeen(getSelectedDocumentId());
+			fireDocumentUpdated(getSelectedDocumentId());
 		}
 		else {
 			history2Window.dispose();

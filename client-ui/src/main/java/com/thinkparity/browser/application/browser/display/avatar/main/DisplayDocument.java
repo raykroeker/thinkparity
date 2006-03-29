@@ -168,7 +168,10 @@ public class DisplayDocument {
 
 	private JMenuItem getKeyRequestAcceptMenuItem(final ListItem listItem,
 			final KeyRequest keyRequest) {
-		return listItem.createJMenuItem("KeyRequestAccept", new ActionListener() {
+		final Object[] arguments = new Object[] {
+				keyRequest.getRequestedByName()
+		};
+		return listItem.createJMenuItem("KeyRequestAccept", arguments, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				runAcceptKeyRequest(listItem, document.getId(), keyRequest.getId());
 			}

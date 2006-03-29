@@ -91,6 +91,8 @@ public class SystemMessageListItem extends ListItem {
 		setMessage(systemMessage);
 	}
 
+	public Long getId() { return ((SystemMessage) getProperty("message")).getId(); }
+
 	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#fireSelection()
 	 * 

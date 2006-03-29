@@ -5,13 +5,13 @@ package com.thinkparity.model.parity.model.filter.artifact;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.AbstractFilter;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class IsNotKeyHolder implements Filter<Artifact> {
+public class IsNotKeyHolder extends AbstractFilter<Artifact> {
 
 	/**
 	 * Create a IsNotKeyHolder.

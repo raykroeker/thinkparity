@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model.filter.artifact;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.AbstractFilter;
 
 /**
  * A parity filter that will catch only closed documents.
@@ -16,7 +16,7 @@ import com.thinkparity.model.parity.model.filter.Filter;
  * @see Artifact#getState()
  * @see ArtifactState#CLOSED
  */
-public class Closed implements Filter<Artifact> {
+public class Closed extends AbstractFilter<Artifact> {
 
 	/**
 	 * Create a Closed.

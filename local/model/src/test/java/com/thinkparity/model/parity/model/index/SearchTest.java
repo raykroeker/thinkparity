@@ -29,10 +29,13 @@ public class SearchTest extends IndexTestCase {
 			List<IndexHit> indexHits;
 			for(final Fixture datum : data) {
 				indexHits = datum.iModel.search(datum.d.getName());
-
 				assertNotNull("Index hits is null.", indexHits);
-				assertTrue("Number of hits does not match expectation.",
-						datum.hitsExpectedSize <= indexHits.size());
+
+				Document searchHit;
+				for(final IndexHit indexHit : indexHits) {
+					searchHit = datum.dModel.get(indexHit.getId());
+					assertEquals(searchHit.getName(), datum.d.getName());
+				}
 			}
 		}
 		catch(final Throwable t) { fail(createFailMessage(t)); }
@@ -51,7 +54,7 @@ public class SearchTest extends IndexTestCase {
 		Document d;
 		for(final File inputFile : getInputFiles()) {
 			d = dModel.create(inputFile.getName(), inputFile.getName(), inputFile);
-			data.add(new Fixture(d, 1, iModel));
+			data.add(new Fixture(d, dModel, 1, iModel));
 		}
 	}
 
@@ -68,11 +71,13 @@ public class SearchTest extends IndexTestCase {
 
 	private class Fixture {
 		private final Document d;
+		private final DocumentModel dModel;
 		private final int hitsExpectedSize;
 		private final IndexModel iModel;
-		private Fixture(final Document d, final Integer hitsExpectedSize,
-				final IndexModel iModel) {
+		private Fixture(final Document d, final DocumentModel dModel,
+				final Integer hitsExpectedSize, final IndexModel iModel) {
 			this.d = d;
+			this.dModel = dModel;
 			this.hitsExpectedSize = hitsExpectedSize;
 			this.iModel = iModel;
 		}

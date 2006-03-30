@@ -196,4 +196,14 @@ public class FieldBuilder {
 	public Field toField() {
 		return new Field(name, value, store, index, termVector);
 	}
+
+	/**
+     * Obtain a lucene field representation for search only. Note the value will
+     * be an empty string.
+     * 
+     * @return The lucene field.
+     */
+	public Field toSearchField() {
+		return new Field(name, "", store, index, termVector);
+	}
 }

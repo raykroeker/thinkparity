@@ -73,18 +73,17 @@ public class BrowserMainAvatar extends Avatar {
 		setLayout(new GridBagLayout());
 		initComponents();
 	}
-        
-        /**
-         * Apply an artifact filter to the document list.
-         *
-         * @param filter
-         *            The artifact filter.
-         */
+    
+    /**
+     * Apply an artifact filter to the document list.
+     * 
+     * @param filter
+     *            The artifact filter.
+     */
 	public void applyFilter(final Filter<Artifact> filter) {
-		if(!filterChain.containsFilter(filter)) {
-			filterChain.addFilter(filter);
-			reloadFilters();
-		}
+		filterChain.addFilter(filter);
+		jListModel.clear();
+		reloadDocuments(getController().getSelectedDocumentId());
 	}
 
 	/**
@@ -193,17 +192,9 @@ public class BrowserMainAvatar extends Avatar {
      *            The artifact filter.
      */
 	public void removeFilter(final Filter<Artifact> filter) {
-		if(filterChain.containsFilter(filter)) {
-			filterChain.removeFilter(filter);
-			reloadFilters();
-		}
-	}
-
-	/**
-	 * Use the model filter and the filter chain scope the list.
-	 *
-	 */
-	private void reloadFilters() {
+		filterChain.removeFilter(filter);
+		jListModel.clear();
+		reloadDocuments(getController().getSelectedDocumentId());
 	}
 
 	/**
@@ -229,7 +220,7 @@ public class BrowserMainAvatar extends Avatar {
 	 * @return The display documents.
 	 */
 	private DisplayDocument[] getDisplayDocuments() {
-		return (DisplayDocument[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, null);
+		return (DisplayDocument[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, filterChain);
 	}
 
 	/**
@@ -345,13 +336,10 @@ public class BrowserMainAvatar extends Avatar {
 		final DisplayDocument[] displayDocuments = getDisplayDocuments();
 		int index = 0;
 		for(final DisplayDocument displayDocument : displayDocuments) {
-
 			jListModel.addElement(DocumentListItem.create(displayDocument));
-
 			if(displayDocument.getDocumentId().equals(documentId)) {
 				jList.setSelectedIndex(index);
 			}
-
 			index++;
 		}
 	}

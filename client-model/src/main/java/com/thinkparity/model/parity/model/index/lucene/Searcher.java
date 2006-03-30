@@ -84,7 +84,7 @@ public class Searcher {
 		final List<Query> queries = createQueries(expression);
 
 		final List<QueryHit> hits = new LinkedList<QueryHit>();
-		final QueryHitBuilder queryHitBuilder = new QueryHitBuilder(idField, fields);
+		final QueryHitBuilder queryHitBuilder = new QueryHitBuilder(idField);
 		Iterator iHits;
 		for(final Query query : queries) {
 			logger.debug("query:" + query.toString());

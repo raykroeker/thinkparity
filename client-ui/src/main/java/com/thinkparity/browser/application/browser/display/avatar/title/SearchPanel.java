@@ -131,26 +131,26 @@ public class SearchPanel extends AbstractJPanel {
 	private JPopupMenu getSearchJPopupMenu() {
 		if(null == searchJPopupMenu) {
 			searchJPopupMenu = MenuFactory.createPopup();
-			searchJPopupMenu.add(createJMenuItem("ShowClosed", new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					getBrowser().applyDocumentFilter(new Closed());
-				}
-			}));
-			searchJPopupMenu.add(createJMenuItem("ShowOpen", new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					getBrowser().applyDocumentFilter(new Active());
-				}
-			}));
-			searchJPopupMenu.add(createJMenuItem("ShowKey", new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					getBrowser().applyDocumentFilter(new IsKeyHolder());
-				}
-			}));
-			searchJPopupMenu.add(createJMenuItem("ShowNotKey", new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					getBrowser().applyDocumentFilter(new IsNotKeyHolder());
-				}
-			}));
+//			searchJPopupMenu.add(createJMenuItem("ShowClosed", new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					getBrowser().applyDocumentFilter(new Closed());
+//				}
+//			}));
+//			searchJPopupMenu.add(createJMenuItem("ShowOpen", new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					getBrowser().applyDocumentFilter(new Active());
+//				}
+//			}));
+//			searchJPopupMenu.add(createJMenuItem("ShowKey", new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					getBrowser().applyDocumentFilter(new IsKeyHolder());
+//				}
+//			}));
+//			searchJPopupMenu.add(createJMenuItem("ShowNotKey", new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					getBrowser().applyDocumentFilter(new IsNotKeyHolder());
+//				}
+//			}));
 		}
 		return searchJPopupMenu;
 	}
@@ -165,6 +165,11 @@ public class SearchPanel extends AbstractJPanel {
 		searchJTextField.setBackground(new Color(237, 241, 244, 255));
 		// BORDER SearchText TopBottom 204,215,226,255
 		searchJTextField.setBorder(new TopBottomBorder(new Color(204, 215, 226, 255)));
+		searchJTextField.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+				searchJTextFieldKeyTyped(e);
+			}
+		});
 		searchLeftJLabel = LabelFactory.create(SEARCH_LEFT_ICON);
 		searchLeftJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
@@ -191,6 +196,10 @@ public class SearchPanel extends AbstractJPanel {
 		c.insets.right = 7;
 		c.weightx = 0;
 		add(searchRightJLabel, c.clone());
+	}
+
+	private void searchJTextFieldKeyTyped(final ActionEvent e) {
+		getBrowser().runSearchArtifact(searchJTextField.getText());
 	}
 
 	private void searchLeftJLabelMouseClicked(final MouseEvent e) {

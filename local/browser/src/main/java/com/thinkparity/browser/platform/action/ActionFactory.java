@@ -80,6 +80,8 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests(browser);
 		case ARTIFACT_REQUEST_KEY:
 			return new com.thinkparity.browser.platform.action.artifact.RequestKey(browser);
+		case ARTIFACT_SEARCH:
+			return new com.thinkparity.browser.platform.action.artifact.Search(browser);
 		case DOCUMENT_CREATE:
 			return new com.thinkparity.browser.platform.action.document.Create(browser);
 		case DOCUMENT_DELETE:

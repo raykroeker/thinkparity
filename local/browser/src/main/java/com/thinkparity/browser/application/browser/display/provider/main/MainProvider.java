@@ -15,9 +15,11 @@ import com.thinkparity.browser.application.browser.display.provider.SingleConten
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
@@ -72,13 +74,20 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			public Object[] getElements(final Object input) {
 				try {
 					// sort by:
-					// 	+> hasBeenSeen ? true b4 false
-					//	+> last update ? earlier b4 later
-					//  +> name ? alpha order
+					// 	+> remote update ? later b4 earlier
+					//	+> last update ? later b4 earlier
 					final AbstractArtifactComparator sort =
 						new RemoteUpdatedOnComparator(Boolean.FALSE);
 					sort.add(new UpdatedOnComparator(Boolean.FALSE));
-					final Collection<Document> documents = documentModel.list(sort);
+
+					final Filter<Artifact> filter = (Filter<Artifact>) input;
+
+					final Collection<Document> documents;
+					if(null != filter) {
+						documents = documentModel.list(sort, filter);
+					}
+					else { documents = documentModel.list(sort); }
+
 					return toDisplay(documents, artifactModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }

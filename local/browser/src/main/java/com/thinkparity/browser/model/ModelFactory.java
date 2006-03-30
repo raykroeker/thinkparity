@@ -5,6 +5,7 @@ package com.thinkparity.browser.model;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -25,6 +26,7 @@ public class ModelFactory {
 
 	private ArtifactModel artifactModel;
 	private DocumentModel documentModel;
+	private IndexModel indexModel;
 	private boolean isInitialized;
 	private Preferences preferences;
 	private SessionModel sessionModel;
@@ -54,6 +56,10 @@ public class ModelFactory {
 
 	public DocumentModel getDocumentModel(final Class clasz) {
 		return documentModel;
+	}
+
+	public IndexModel getIndexModel(final Class clasz) {
+		return indexModel;
 	}
 
 	public Preferences getPreferences(final Class clasz) {
@@ -91,6 +97,7 @@ public class ModelFactory {
 		if(!isInitialized) {
 			artifactModel = ArtifactModel.getModel();
 			documentModel = DocumentModel.getModel();
+			indexModel = IndexModel.getModel();
 			sessionModel = SessionModel.getModel();
 			workspaceModel = WorkspaceModel.getModel();
 			workspace = workspaceModel.getWorkspace();

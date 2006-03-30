@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFileChooser;
@@ -34,6 +35,7 @@ import com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen;
 import com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests;
 import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.RequestKey;
+import com.thinkparity.browser.platform.action.artifact.Search;
 import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Create;
 import com.thinkparity.browser.platform.action.document.Delete;
@@ -53,8 +55,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.index.IndexHit;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -127,12 +128,18 @@ public class Browser extends AbstractApplication {
 	private BrowserWindow mainWindow;
 	
 	/**
+	 * User search filter.
+	 * 
+	 */
+	private com.thinkparity.model.parity.model.filter.artifact.Search searchFilter;
+
+	
+	/**
 	 * Contains the browser's session information.
 	 * 
 	 */
 	private final BrowserSession session;
 
-	
 	/**
 	 * The state information for the controller.
 	 * 
@@ -154,16 +161,15 @@ public class Browser extends AbstractApplication {
 		this.state = new BrowserState(this);
 	}
 
-	/**
-     * Apply a filter to the document list.
-     * 
-     * @param filter
-     *            The document filter.
-     */
-	public void applyDocumentFilter(final Filter<Artifact> filter) {
+	public void applySearchFilter(final List<IndexHit> searchResult) {
+		if(null == searchFilter) {
+			searchFilter =
+				new com.thinkparity.model.parity.model.filter.artifact.Search(searchResult);
+		}
+		else { searchFilter.setResults(searchResult); }
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).applyFilter(filter);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).applyFilter(searchFilter);
 			}
 		});
 	}
@@ -180,6 +186,17 @@ public class Browser extends AbstractApplication {
 	 */
 	public void displayMainBrowserAvatar() {
 		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
+	}
+
+	/**
+	 * Display send version.
+	 *
+	 */
+	public void displaySendVersion(final Long artifactId, final Long versionId) {
+		final Data data = new Data(2);
+		data.set(SessionSendVersion.DataKey.ARTIFACT_ID, artifactId);
+		data.set(SessionSendVersion.DataKey.VERSION_ID, versionId);
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_VERSION, data);
 	}
 
 	/**
@@ -204,17 +221,6 @@ public class Browser extends AbstractApplication {
 	 */
 	public void displaySessionSendFormAvatar() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
-	}
-
-	/**
-	 * Display send version.
-	 *
-	 */
-	public void displaySendVersion(final Long artifactId, final Long versionId) {
-		final Data data = new Data(2);
-		data.set(SessionSendVersion.DataKey.ARTIFACT_ID, artifactId);
-		data.set(SessionSendVersion.DataKey.VERSION_ID, versionId);
-		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_VERSION, data);
 	}
 
 	/**
@@ -419,16 +425,10 @@ public class Browser extends AbstractApplication {
 		getPlatform().getAvatarRegistry().get(AvatarId.BROWSER_MAIN).reload();
 	}
 
-	/**
-     * Remove a filter from the document list.
-     * 
-     * @param filter
-     *            The document filter.
-     */
-	public void removeDocumentFilter(final Filter<Artifact> filter) {
+	public void removeSearchFilter() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).removeFilter(filter);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).removeFilter(searchFilter);
 			}
 		});
 	}
@@ -593,6 +593,18 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(RequestKey.DataKey.ARTIFACT_ID, artifactId);
 		invoke(ActionId.ARTIFACT_REQUEST_KEY, data);
+	}
+
+	/**
+     * Run a search for an artifact on the criteria.
+     * 
+     * @param criteria
+     *            The search criteria.
+     */
+	public void runSearchArtifact(final String criteria) {
+		final Data data = new Data(1);
+		data.set(Search.DataKey.CRITERIA, criteria);
+		invoke(ActionId.ARTIFACT_SEARCH, data);
 	}
 
 	/**

@@ -15,6 +15,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
@@ -161,6 +162,20 @@ public abstract class AbstractAction {
 		return modelFactory.getDocumentModel(getClass());
 	}
 
+	/**
+     * Obtain the parity index interface.
+     * 
+     * @return The parity index interface.
+     */
+	protected IndexModel getIndexModel() {
+		return modelFactory.getIndexModel(getClass());
+	}
+
+	/**
+     * Obtain the parity session interface.
+     * 
+     * @return The parity session interface.
+     */
 	protected SessionModel getSessionModel() {
 		return modelFactory.getSessionModel(getClass());
 	}

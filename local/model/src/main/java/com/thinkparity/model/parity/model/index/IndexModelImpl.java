@@ -194,12 +194,15 @@ class IndexModelImpl extends AbstractModelImpl {
 		logger.debug(expression);
 
 		final List<Field> fields = new LinkedList<Field>();
-		fields.add(IDX_ARTIFACT_NAME.toField());
+		fields.add(IDX_ARTIFACT_NAME.toSearchField());
+		fields.add(IDX_ARTIFACT_CREATED_BY.toSearchField());
+		fields.add(IDX_ARTIFACT_KEYHOLDER.toSearchField());
+		fields.add(IDX_ARTIFACT_CONTACTS.toSearchField());
 
 		final Searcher searcher =
 			new Searcher(logger, indexAnalyzer, openIndexReader(),
-					IDX_ARTIFACT_ID.toField(), fields);
-		final List<QueryHit> queryHits = searcher.search(expression);
+					IDX_ARTIFACT_ID.toSearchField(), fields);
+		final List<QueryHit> queryHits = searcher.search(expression + "*");
 
 		final List<IndexHit> indexHits = new LinkedList<IndexHit>();
 		for(final QueryHit queryHit : queryHits) {

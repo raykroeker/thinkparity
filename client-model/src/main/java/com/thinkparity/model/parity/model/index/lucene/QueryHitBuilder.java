@@ -4,7 +4,6 @@
 package com.thinkparity.model.parity.model.index.lucene;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Hit;
@@ -14,12 +13,6 @@ import org.apache.lucene.search.Hit;
  * @version 1.1
  */
 public class QueryHitBuilder {
-
-	/**
-	 * The query fields.
-	 * 
-	 */
-	private final List<Field> fields;
 
 	/**
 	 * The query id field.
@@ -33,10 +26,9 @@ public class QueryHitBuilder {
 	 * @param capacity
 	 *            The initial hit capacity.
 	 */
-	QueryHitBuilder(final Field idField, final List<Field> fields) {
+	QueryHitBuilder(final Field idField) {
 		super();
 		this.idField = idField;
-		this.fields = fields;
 	}
 
 	/**

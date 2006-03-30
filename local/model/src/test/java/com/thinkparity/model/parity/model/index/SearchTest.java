@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
@@ -25,20 +26,18 @@ public class SearchTest extends IndexTestCase {
 	public SearchTest() { super("Test Search"); }
 
 	public void testSearch() {
-		try {
-			List<IndexHit> indexHits;
-			for(final Fixture datum : data) {
-				indexHits = datum.iModel.search(datum.criteria);
-				assertNotNull("Index hits is null.", indexHits);
+		List<IndexHit> indexHits;
+		for(final Fixture datum : data) {
+			try { indexHits = datum.iModel.search(datum.criteria); }
+			catch(final ParityException px) { throw new RuntimeException(px); }
+			assertNotNull("Index hits is null.", indexHits);
 
-				Document searchHit;
-				for(final IndexHit indexHit : indexHits) {
-					searchHit = datum.dModel.get(indexHit.getId());
-					assertTrue(searchHit.getName().contains(datum.criteria));
-				}
+			Document searchHit;
+			for(final IndexHit indexHit : indexHits) {
+				try { searchHit = datum.dModel.get(indexHit.getId()); }
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		}
-		catch(final Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**

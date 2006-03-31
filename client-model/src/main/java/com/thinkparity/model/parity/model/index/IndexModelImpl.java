@@ -168,7 +168,7 @@ class IndexModelImpl extends AbstractModelImpl {
 			final Searcher searcher =
 				new Searcher(logger, indexAnalyzer, indexReader,
 						IDX_ARTIFACT_ID.toSearchField(), fields);
-			final List<QueryHit> queryHits = searcher.search(expression + "*");
+			final List<QueryHit> queryHits = searcher.search(expression);
 	
 			final List<IndexHit> indexHits = new LinkedList<IndexHit>();
 			for(final QueryHit queryHit : queryHits) {

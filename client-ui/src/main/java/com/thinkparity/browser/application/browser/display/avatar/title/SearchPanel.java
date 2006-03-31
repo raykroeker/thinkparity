@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.application.browser.Browser;
@@ -27,11 +29,6 @@ import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
-
-import com.thinkparity.model.parity.model.filter.artifact.Active;
-import com.thinkparity.model.parity.model.filter.artifact.Closed;
-import com.thinkparity.model.parity.model.filter.artifact.IsKeyHolder;
-import com.thinkparity.model.parity.model.filter.artifact.IsNotKeyHolder;
 
 /**
  * @author raykroeker@gmail.com
@@ -170,6 +167,17 @@ public class SearchPanel extends AbstractJPanel {
 				searchJTextFieldKeyTyped(e);
 			}
 		});
+		searchJTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(final DocumentEvent e) {
+				searchJTextFieldChangedUpdate(e);
+			}
+			public void insertUpdate(final DocumentEvent e) {
+				searchJTextFieldInsertUpdate(e);
+			}
+			public void removeUpdate(final DocumentEvent e) {
+				searchJTextFieldRemoveUpdate(e);
+			}
+		});
 		searchLeftJLabel = LabelFactory.create(SEARCH_LEFT_ICON);
 		searchLeftJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
@@ -205,4 +213,14 @@ public class SearchPanel extends AbstractJPanel {
 	private void searchLeftJLabelMouseClicked(final MouseEvent e) {
 		getSearchJPopupMenu().show(searchLeftJLabel, 0, searchLeftJLabel.getSize().height);
 	}
+
+	private void searchJTextFieldRemoveUpdate(final DocumentEvent e) {
+		if(e.getDocument().getLength() == 0) {
+			getBrowser().removeSearchFilter();
+		}
+	}
+
+	private void searchJTextFieldInsertUpdate(final DocumentEvent e) {}
+
+	private void searchJTextFieldChangedUpdate(final DocumentEvent e) {}
 }

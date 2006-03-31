@@ -161,6 +161,13 @@ public class Browser extends AbstractApplication {
 		this.state = new BrowserState(this);
 	}
 
+	/**
+     * Set the search results in the search filter and apply it to the document
+     * list.
+     * 
+     * @param searchResult
+     *            The search results.
+     */
 	public void applySearchFilter(final List<IndexHit> searchResult) {
 		if(null == searchFilter) {
 			searchFilter =
@@ -417,6 +424,10 @@ public class Browser extends AbstractApplication {
 		getPlatform().getAvatarRegistry().get(AvatarId.BROWSER_MAIN).reload();
 	}
 
+	/**
+	 * Remove the search filter from the document list.
+	 *
+	 */
 	public void removeSearchFilter() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

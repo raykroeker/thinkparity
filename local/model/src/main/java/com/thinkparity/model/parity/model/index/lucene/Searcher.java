@@ -87,7 +87,8 @@ public class Searcher {
 		final QueryHitBuilder queryHitBuilder = new QueryHitBuilder(idField);
 		Iterator iHits;
 		for(final Query query : queries) {
-			logger.debug("query:" + query.toString());
+			logger.info("[LMODEL] [INDEX] [SEARCH] [QUERY]");
+			logger.debug(query.toString());
 			try { iHits = indexSearcher.search(query).iterator(); }
 			catch(final IOException iox) {
 				throw new IndexException("Could not search index.", iox);

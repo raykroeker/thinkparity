@@ -107,6 +107,37 @@ public class FieldBuilder {
 	/**
 	 * Set the field value.
 	 * 
+	 * @param c
+	 *            The field value.
+	 * @param r
+	 *            The field value resolution.
+	 * @return A reference to this object.
+	 */
+	public FieldBuilder setValue(final Calendar c, final DateTools.Resolution r) {
+		this.value = DateTools.dateToString(c.getTime(), r);
+		return this;
+	}
+
+	/**
+	 * Set the field value.
+	 * 
+	 * @param users
+	 *            The field value.
+	 * @return A reference to this object.
+	 */
+	public FieldBuilder setValue(final List<Contact> contacts) {
+		final StringBuffer buffer = new StringBuffer();
+		for(final Contact contact : contacts) {
+			if(0 < buffer.length()) { buffer.append(Separator.SemiColon); }
+			buffer.append(tokenize(contact));
+		}
+		this.value = buffer.toString();
+		return this;
+	}
+
+	/**
+	 * Set the field value.
+	 * 
 	 * @param l
 	 *            The field value.
 	 * @return A reference to this object.
@@ -129,6 +160,18 @@ public class FieldBuilder {
 	}
 
 	/**
+     * Set the field value.
+     * 
+     * @param b
+     *            The field value.
+     * @return A reference to this object.
+     */
+	public FieldBuilder setValue(final StringBuffer b) {
+		this.value = b.toString();
+		return this;
+	}
+
+	/**
 	 * Set the field value.
 	 * 
 	 * @param u
@@ -137,55 +180,6 @@ public class FieldBuilder {
 	 */
 	public FieldBuilder setValue(final User user) {
 		this.value = tokenize(user);
-		return this;
-	}
-
-	/**
-	 * Set the field value.
-	 * 
-	 * @param users
-	 *            The field value.
-	 * @return A reference to this object.
-	 */
-	public FieldBuilder setValue(final List<Contact> contacts) {
-		final StringBuffer buffer = new StringBuffer();
-		for(final Contact contact : contacts) {
-			if(0 < buffer.length()) { buffer.append(Separator.SemiColon); }
-			buffer.append(tokenize(contact));
-		}
-		this.value = buffer.toString();
-		return this;
-	}
-
-	/**
-	 * Tokenize a user's name\organization.
-	 * 
-	 * @param user
-	 *            The user.
-	 * @return A comma separated list.
-	 */
-	private String tokenize(final User user) {
-		final StringBuffer buffer = new StringBuffer(user.getFirstName())
-			.append(Separator.Comma)
-			.append(user.getLastName());
-		if(null != user.getOrganization()) {
-			buffer.append(Separator.Comma)
-				.append(user.getOrganization());
-		}
-		return buffer.toString();
-	}
-
-	/**
-	 * Set the field value.
-	 * 
-	 * @param c
-	 *            The field value.
-	 * @param r
-	 *            The field value resolution.
-	 * @return A reference to this object.
-	 */
-	public FieldBuilder setValue(final Calendar c, final DateTools.Resolution r) {
-		this.value = DateTools.dateToString(c.getTime(), r);
 		return this;
 	}
 
@@ -206,5 +200,23 @@ public class FieldBuilder {
      */
 	public Field toSearchField() {
 		return new Field(name, "", store, index, termVector);
+	}
+
+	/**
+	 * Tokenize a user's name\organization.
+	 * 
+	 * @param user
+	 *            The user.
+	 * @return A comma separated list.
+	 */
+	private String tokenize(final User user) {
+		final StringBuffer buffer = new StringBuffer(user.getFirstName())
+			.append(Separator.Comma)
+			.append(user.getLastName());
+		if(null != user.getOrganization()) {
+			buffer.append(Separator.Comma)
+				.append(user.getOrganization());
+		}
+		return buffer.toString();
 	}
 }

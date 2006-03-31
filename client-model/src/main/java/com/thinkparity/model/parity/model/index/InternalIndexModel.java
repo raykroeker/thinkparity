@@ -26,10 +26,10 @@ public class InternalIndexModel extends IndexModel {
 		context.assertContextIsValid();
 	}
 
-	public void createArtifact(final Long artifactId, final String artifactName)
+	public void createDocument(final Long documentId, final String documentName)
 			throws ParityException {
 		synchronized(getImplLock()) {
-			getImpl().createArtifact(artifactId, artifactName);
+			getImpl().createDocument(documentId, documentName);
 		}
 	}
 

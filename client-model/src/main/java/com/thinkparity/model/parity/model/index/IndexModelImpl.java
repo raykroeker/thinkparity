@@ -17,6 +17,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
@@ -106,18 +107,31 @@ class IndexModelImpl extends AbstractModelImpl {
 	 *            The artifact index entry.
 	 * @throws ParityException
 	 */
-	void createArtifact(final Long artifactId, final String artifactName)
+	void createDocument(final Long documentId, final String documentName)
 			throws ParityException {
-		logger.info("[LMODEL] [INDEX] [CREATE ARTIFACT INDEX]");
-		logger.debug(artifactId);
-		logger.debug(artifactName);
+		logger.info("[LMODEL] [INDEX] [CREATE DOCUMENT INDEX]");
+		logger.debug(documentId);
+		logger.debug(documentName);
+
+		// since a document's name is a filename; we can assume it follows this
+		// format document.doc
+		// therefore; we want to set the value in the index to be
+		// document.doc document
+		final StringBuffer documentNameValue = new StringBuffer();
+		if(-1 < documentName.indexOf('.')) {
+			documentNameValue.append(documentName.substring(
+					0, documentName.lastIndexOf('.')))
+				.append(Separator.SemiColon)
+				.append(documentName);
+		}
+		logger.debug("[LMODEL] [INDEX] [CREATE DOCUMENT INDEX] [DOCUMENT NAME VALUE] [" + documentNameValue + "]");
 
 		final InternalSessionModel iSModel = getInternalSessionModel();
-		final List<Contact> contacts = iSModel.readArtifactContacts(artifactId);
+		final List<Contact> contacts = iSModel.readArtifactContacts(documentId);
 
 		final DocumentBuilder db = new DocumentBuilder(6);
-		db.append(IDX_ARTIFACT_ID.setValue(artifactId).toField())
-			.append(IDX_ARTIFACT_NAME.setValue(artifactName).toField())
+		db.append(IDX_ARTIFACT_ID.setValue(documentId).toField())
+			.append(IDX_ARTIFACT_NAME.setValue(documentNameValue.toString()).toField())
 			.append(IDX_ARTIFACT_CONTACTS.setValue(contacts).toField());
 
 		index(db.toDocument());

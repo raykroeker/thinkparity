@@ -23,12 +23,12 @@ class DocumentIndexor extends AbstractIndexor {
 	 */
 	DocumentIndexor(final Context context) { super(context); }
 
-	void create(final Long artifactId, final String artifactName)
+	void create(final Long documentId, final String documentName)
 			throws ParityException {
-		getInternalIndexModel().createArtifact(artifactId, artifactName);
+		getInternalIndexModel().createDocument(documentId, documentName);
 	}
 
-	void delete(final Long id) throws ParityException {
-		getInternalIndexModel().deleteArtifact(id);
+	void delete(final Long artifactId) throws ParityException {
+		getInternalIndexModel().deleteArtifact(artifactId);
 	}
 }

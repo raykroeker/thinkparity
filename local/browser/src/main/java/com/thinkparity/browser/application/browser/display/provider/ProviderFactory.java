@@ -110,7 +110,7 @@ public class ProviderFactory {
 	 * Session model api.
 	 * 
 	 */
-	protected final SessionModel sessionModel;
+	protected final SessionModel sModel;
 
 	/**
 	 * System message interface.
@@ -173,15 +173,15 @@ public class ProviderFactory {
 		this.logger = ModelLoggerFactory.getLogger(getClass());
 		this.loggedInUser =
 			JabberIdBuilder.parseUsername(preferences.getUsername());
-		this.sessionModel = modelFactory.getSessionModel(getClass());
+		this.sModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 
 		this.historyProvider = new HistoryProvider(dModel);
-		this.infoProvider = new InfoProvider(dModel);
+		this.infoProvider = new InfoProvider(dModel, sModel);
 		this.mainProvider = new MainProvider(artifactModel, dModel, systemMessageModel);
-		this.manageContactsProvider = new ManageContactsProvider(sessionModel);
-		this.sendArtifactProvider = new SendArtifactProvider(dModel, sessionModel, loggedInUser);
-		this.sendVersionProvider = new SendVersionProvider(dModel, sessionModel, loggedInUser);
+		this.manageContactsProvider = new ManageContactsProvider(sModel);
+		this.sendArtifactProvider = new SendArtifactProvider(dModel, sModel, loggedInUser);
+		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, loggedInUser);
 	}
 
 	/**

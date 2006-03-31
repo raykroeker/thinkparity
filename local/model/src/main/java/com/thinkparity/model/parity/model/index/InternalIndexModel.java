@@ -26,7 +26,14 @@ public class InternalIndexModel extends IndexModel {
 		context.assertContextIsValid();
 	}
 
-	public void index(final ArtifactIndex index) throws ParityException {
-		synchronized(getImplLock()) { getImpl().index(index); }
+	public void createArtifact(final Long artifactId, final String artifactName)
+			throws ParityException {
+		synchronized(getImplLock()) {
+			getImpl().createArtifact(artifactId, artifactName);
+		}
+	}
+
+	public void deleteArtifact(final Long artifactId) throws ParityException {
+		synchronized(getImplLock()) { getImpl().deleteArtifactIndex(artifactId); }
 	}
 }

@@ -11,6 +11,7 @@ import org.apache.lucene.document.Field;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -146,11 +147,11 @@ public class FieldBuilder {
 	 *            The field value.
 	 * @return A reference to this object.
 	 */
-	public FieldBuilder setValue(final List<User> users) {
+	public FieldBuilder setValue(final List<Contact> contacts) {
 		final StringBuffer buffer = new StringBuffer();
-		for(final User user : users) {
-			if(1 > buffer.length()) { buffer.append(Separator.SemiColon); }
-			buffer.append(tokenize(user));
+		for(final Contact contact : contacts) {
+			if(0 < buffer.length()) { buffer.append(Separator.SemiColon); }
+			buffer.append(tokenize(contact));
 		}
 		this.value = buffer.toString();
 		return this;

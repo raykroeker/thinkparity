@@ -342,6 +342,11 @@ public class BrowserMainAvatar extends Avatar {
 			}
 			index++;
 		}
+		// if there is no selection; and the list is not empty; select
+		// the first document
+		if(jList.isSelectionEmpty()) {
+			if(!jListModel.isEmpty()) { jList.setSelectedIndex(0); }
+		}
 	}
 
 	/**

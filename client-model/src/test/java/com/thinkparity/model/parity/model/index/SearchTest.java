@@ -28,7 +28,7 @@ public class SearchTest extends IndexTestCase {
 	public void testSearch() {
 		List<IndexHit> indexHits;
 		for(final Fixture datum : data) {
-			try { indexHits = datum.iModel.search(datum.criteria); }
+			try { indexHits = datum.iModel.searchArtifact(datum.criteria); }
 			catch(final ParityException px) { throw new RuntimeException(px); }
 			assertNotNull("Index hits is null.", indexHits);
 
@@ -36,6 +36,7 @@ public class SearchTest extends IndexTestCase {
 			for(final IndexHit indexHit : indexHits) {
 				try { searchHit = datum.dModel.get(indexHit.getId()); }
 				catch(final ParityException px) { throw new RuntimeException(px); }
+				assertNotNull(searchHit);
 			}
 		}
 	}

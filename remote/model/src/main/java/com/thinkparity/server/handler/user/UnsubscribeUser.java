@@ -13,6 +13,9 @@ import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.session.Session;
 
 /**
+ * Handle the removal of a user from an artifact; AKA team member
+ * creation; AKA artifact contacts.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */

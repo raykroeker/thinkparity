@@ -16,6 +16,7 @@ import com.thinkparity.model.xmpp.XMPPSession;
 import com.thinkparity.model.xmpp.XMPPSessionFactory;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -31,6 +32,12 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.2
  */
 class SessionModelXMPPHelper extends AbstractModelImplHelper {
+
+	/**
+	 * The xmpp artifact event listener.
+	 * 
+	 */
+	private final XMPPArtifactListener xmppArtifactListener;
 
 	/**
 	 * XMPP Extension listener.
@@ -58,6 +65,16 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	SessionModelXMPPHelper() {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
+		this.xmppArtifactListener = new XMPPArtifactListener() {
+			public void teamMemberAdded(final UUID artifactUniqueId,
+					final Contact teamMember) {
+				handleTeamMemberAdded(artifactUniqueId, teamMember);
+			}
+			public void teamMemberRemoved(final UUID artifactUniqueId,
+					final Contact teamMember) {
+				handleTeamMemberRemoved(artifactUniqueId, teamMember);
+			}
+		};
 		this.xmppExtensionListener = new XMPPExtensionListener() {
 			public void artifactClosed(final UUID artifactUniqueId,
 					final JabberId artifactClosedBy) {
@@ -97,6 +114,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 			}
 		};
 
+		xmppSession.addListener(xmppArtifactListener);
 		xmppSession.addListener(xmppExtensionListener);
 		xmppSession.addListener(xmppPresenceListener);
 		xmppSession.addListener(xmppSessionListener);
@@ -465,6 +483,32 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	private void handleSessionTerminated(final Exception x) {
 		try { SessionModelImpl.notifySessionTerminated(x); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
+	}
+
+	/**
+     * Handle the event that occurs when a team member is added.
+     * 
+     * @param teamMember
+     *            The new team member.
+     */
+	private void handleTeamMemberAdded(final UUID artifactUniqueId,
+			final Contact teamMember) {
+		try { SessionModelImpl.notifyTeamMemberAdded(artifactUniqueId, teamMember); }
+		catch(final ParityException px) { unexpectedOccured(px); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
+	}
+
+	/**
+     * Handle the event that occurs when a team member is removed.
+     * 
+     * @param teamMember
+     *            The team member.
+     */
+	private void handleTeamMemberRemoved(final UUID artifactUniqueId,
+			final Contact teamMember) {
+		try { SessionModelImpl.notifyTeamMemberRemoved(artifactUniqueId, teamMember); }
+		catch(final ParityException px) { unexpectedOccured(px); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 

@@ -3,18 +3,21 @@
  */
 package com.thinkparity.model.parity.model.index;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
@@ -25,14 +28,19 @@ import com.thinkparity.model.parity.model.index.lucene.QueryHit;
 import com.thinkparity.model.parity.model.index.lucene.Searcher;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 class IndexModelImpl extends AbstractModelImpl {
+
+	/**
+	 * Artifact contacts index field.
+	 * 
+	 */
+	private static final FieldBuilder IDX_ARTIFACT_CONTACTS;
 
 	/**
 	 * Artifact id index field.
@@ -46,33 +54,9 @@ class IndexModelImpl extends AbstractModelImpl {
 	 */
 	private static final FieldBuilder IDX_ARTIFACT_NAME;
 
-	/**
-	 * Artifact created on index field.
-	 * 
-	 */
-	private static final FieldBuilder IDX_ARTIFACT_CREATED_ON;
-
-	/**
-	 * Artifact created by index field.
-	 * 
-	 */
-	private static final FieldBuilder IDX_ARTIFACT_CREATED_BY;
-
-	/**
-	 * Artifact key holder index field.
-	 * 
-	 */
-	private static final FieldBuilder IDX_ARTIFACT_KEYHOLDER;
-
-	/**
-	 * Artifact contacts index field.
-	 * 
-	 */
-	private static final FieldBuilder IDX_ARTIFACT_CONTACTS;
-
 	static {
 		IDX_ARTIFACT_ID = new FieldBuilder()
-			.setIndex(Field.Index.NO)
+			.setIndex(Field.Index.UN_TOKENIZED)
 			.setName("ARTIFACT.ARTIFACT_ID")
 			.setStore(Field.Store.YES)
 			.setTermVector(Field.TermVector.NO);
@@ -80,24 +64,6 @@ class IndexModelImpl extends AbstractModelImpl {
 		IDX_ARTIFACT_NAME = new FieldBuilder()
 			.setIndex(Field.Index.TOKENIZED)
 			.setName("ARTIFACT.ARTIFACT_NAME")
-			.setStore(Field.Store.YES)
-			.setTermVector(Field.TermVector.NO);
-
-		IDX_ARTIFACT_CREATED_ON = new FieldBuilder()
-			.setIndex(Field.Index.UN_TOKENIZED)
-			.setName("ARTIFACT.CREATED_ON")
-			.setStore(Field.Store.YES)
-			.setTermVector(Field.TermVector.NO);
-
-		IDX_ARTIFACT_CREATED_BY = new FieldBuilder()
-			.setIndex(Field.Index.TOKENIZED)
-			.setName("ARTIFACT.CREATED_BY")
-			.setStore(Field.Store.YES)
-			.setTermVector(Field.TermVector.NO);
-
-		IDX_ARTIFACT_KEYHOLDER = new FieldBuilder()
-			.setIndex(Field.Index.TOKENIZED)
-			.setName("ARTIFACT.KEYHOLDER")
 			.setStore(Field.Store.YES)
 			.setTermVector(Field.TermVector.NO);
 
@@ -140,97 +106,125 @@ class IndexModelImpl extends AbstractModelImpl {
 	 *            The artifact index entry.
 	 * @throws ParityException
 	 */
-	void index(final ArtifactIndex index) throws ParityException {
-		logger.info("[LMODEL] [INDEX] [INDEX ARTIFACT]");
-		logger.debug(index);
+	void createArtifact(final Long artifactId, final String artifactName)
+			throws ParityException {
+		logger.info("[LMODEL] [INDEX] [CREATE ARTIFACT INDEX]");
+		logger.debug(artifactId);
+		logger.debug(artifactName);
 
 		final InternalSessionModel iSModel = getInternalSessionModel();
-		final List<JabberId> jabberIds = new LinkedList<JabberId>();
-		jabberIds.add(index.getCreatedBy());
-		jabberIds.add(index.getKeyHolder());
-		jabberIds.addAll(index.getContacts());
-		final List<User> users = iSModel.readUsers(jabberIds);
-
-		final List<User> contacts = filter(users, index.getContacts());
-		final User createdBy = filter(users, index.getKeyHolder());
-		final User keyHolder = filter(users, index.getCreatedBy());
+		final List<Contact> contacts = iSModel.readArtifactContacts(artifactId);
 
 		final DocumentBuilder db = new DocumentBuilder(6);
-		db.append(IDX_ARTIFACT_ID.setValue(index.getId()).toField())
-			.append(IDX_ARTIFACT_NAME.setValue(index.getName()).toField())
-			.append(IDX_ARTIFACT_CREATED_ON.setValue(index.getCreatedOn(), DateTools.Resolution.DAY).toField())
-			.append(IDX_ARTIFACT_CREATED_BY.setValue(createdBy).toField())
-			.append(IDX_ARTIFACT_KEYHOLDER.setValue(keyHolder).toField())
+		db.append(IDX_ARTIFACT_ID.setValue(artifactId).toField())
+			.append(IDX_ARTIFACT_NAME.setValue(artifactName).toField())
 			.append(IDX_ARTIFACT_CONTACTS.setValue(contacts).toField());
 
 		index(db.toDocument());
 	}
 
-	protected List<User> filter(final List<User> users, final List<JabberId> jabberId) {
-		final List<User> filtered = new LinkedList<User>();
-		for(final User user : users) {
-			if(user.getId().equals(jabberId)) { filtered.add(user); }
+	/**
+     * Delete an index entry for an artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @throws ParityException
+     */
+	void deleteArtifactIndex(final Long artifactId) throws ParityException {
+		logger.info("[LMODEL] [INDEX] [DELETE ARTIFACT INDEX]");
+		logger.debug(artifactId);
+		final IndexReader indexReader = openIndexReader();
+		try {
+			final Field idField = IDX_ARTIFACT_ID.toSearchField();
+			final Term idTerm = new Term(idField.name(), artifactId.toString());
+			Assert.assertTrue(
+					"[LMODEL] [INDEX] [DELETE ARTIFACT INDEX] [CORRUPT INDEX]",
+					1 == indexReader.deleteDocuments(idTerm));
 		}
-		return filtered;
-	}
-
-	protected User filter(final List<User> users, final JabberId jabberId) {
-		for(final User user : users) {
-			if(user.getId().equals(jabberId)) { return user; }
+		catch(final IOException iox) {
+			logger.error("[LMODEL] [INDEX] [DELETE ARTIFACT INDEX] [IO ERROR]", iox);
+			throw ParityErrorTranslator.translate(iox);
 		}
-		return null;
+		finally { closeIndexReader(indexReader); }
 	}
 
 	/**
-	 * Search the index.
+	 * Search the artifact index.
 	 * 
 	 * @param expression
 	 *            The search expression.
 	 * @return A list of index hits.
 	 * @throws ParityException
 	 */
-	List<IndexHit> search(final String expression) throws ParityException {
-		logger.info("[LMODEL] [INDEX] [SEARCH]");
+	List<IndexHit> searchArtifact(final String expression) throws ParityException {
+		logger.info("[LMODEL] [INDEX] [SEARCH ARTIFACT]");
 		logger.debug(expression);
-
-		final List<Field> fields = new LinkedList<Field>();
-		fields.add(IDX_ARTIFACT_NAME.toSearchField());
-		fields.add(IDX_ARTIFACT_CREATED_BY.toSearchField());
-		fields.add(IDX_ARTIFACT_KEYHOLDER.toSearchField());
-		fields.add(IDX_ARTIFACT_CONTACTS.toSearchField());
-
-		final Searcher searcher =
-			new Searcher(logger, indexAnalyzer, openIndexReader(),
-					IDX_ARTIFACT_ID.toSearchField(), fields);
-		final List<QueryHit> queryHits = searcher.search(expression + "*");
-
-		final List<IndexHit> indexHits = new LinkedList<IndexHit>();
-		for(final QueryHit queryHit : queryHits) {
-			indexHits.add(indexHitBuilder.toIndexHit(queryHit));
+		final IndexReader indexReader = openIndexReader();
+		try {
+			final List<Field> fields = new LinkedList<Field>();
+			fields.add(IDX_ARTIFACT_NAME.toSearchField());
+			fields.add(IDX_ARTIFACT_CONTACTS.toSearchField());
+	
+			final Searcher searcher =
+				new Searcher(logger, indexAnalyzer, indexReader,
+						IDX_ARTIFACT_ID.toSearchField(), fields);
+			final List<QueryHit> queryHits = searcher.search(expression + "*");
+	
+			final List<IndexHit> indexHits = new LinkedList<IndexHit>();
+			for(final QueryHit queryHit : queryHits) {
+				indexHits.add(indexHitBuilder.toIndexHit(queryHit));
+			}
+			return indexHits;
 		}
-		return indexHits;
+		finally { closeIndexReader(indexReader); }
 	}
 
 	/**
-	 * Create a lucene index writer.
-	 * 
-	 * @return The lucene index writer.
-	 * @throws ParityException
-	 *             If the index writer cannot be created.
-	 * @see #indexAnalyzer
-	 */
-	private IndexWriter createIndexWriter() throws ParityException {
-		final File indexDirectory = workspace.getIndexDirectory();
-		final Boolean doCreate;
-		if(0 == indexDirectory.listFiles().length) { doCreate = Boolean.TRUE; }
-		else { doCreate = Boolean.FALSE; }
-
-		try { return new IndexWriter(indexDirectory, indexAnalyzer, doCreate); }
+     * Close the index reader.
+     * 
+     * @param indexReader
+     *            The index reader.
+     * @throws ParityException
+     */
+	private void closeIndexReader(final IndexReader indexReader)
+			throws ParityException {
+		try {
+			indexReader.close();
+			getIndexDirectory().close();
+		}
 		catch(final IOException iox) {
-			logger.error("Could not create index writer.", iox);
-			logger.error(indexDirectory);
+			logger.error("[LMODEL] [INDEX] [CLOSE READER] [IO ERROR]", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
+	}
+
+	/**
+     * Close the index writer.
+     * 
+     * @param indexWriter
+     *            The index writer.
+     * @throws ParityException
+     */
+	private void closeIndexWriter(final IndexWriter indexWriter)
+			throws ParityException {
+		try {
+			indexWriter.close();
+			getIndexDirectory().close();
+		}
+		catch(final IOException iox) {
+			logger.error("[LMODEL] [INDEX] [INDEX DOCUMENT] [CLOSE WRITER IO ERROR]", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+	}
+
+	/**
+     * Obtain the lucene index directory.
+     * 
+     * @return The lucene index directory.
+     * @throws IOException
+     */
+	private Directory getIndexDirectory() throws IOException {
+		return FSDirectory.getDirectory(workspace.getIndexDirectory(), false);
 	}
 
 	/**
@@ -242,24 +236,17 @@ class IndexModelImpl extends AbstractModelImpl {
 	 *             If the document could not be indexed.
 	 */
 	private void index(final Document document) throws ParityException {
-		final IndexWriter indexWriter = createIndexWriter();
+		final IndexWriter indexWriter = openIndexWriter();
 		try {
 			indexWriter.addDocument(document);
 			indexWriter.optimize();
 		}
 		catch(final IOException iox) {
-			logger.error("Could not index document.", iox);
+			logger.error("[LMODEL] [INDEX] [INDEX DOCUMENT] [IO ERROR]", iox);
 			logger.error(document);
 			throw ParityErrorTranslator.translate(iox);
 		}
-		finally {
-			try { indexWriter.close(); }
-			catch(final IOException iox) {
-				logger.error("Could not close index.", iox);
-				logger.error(document);
-				throw ParityErrorTranslator.translate(iox);
-			}
-		}
+		finally { closeIndexWriter(indexWriter); }
 	}
 
 	/**
@@ -270,10 +257,33 @@ class IndexModelImpl extends AbstractModelImpl {
 	 *             If the index reader cannot be opened.
 	 */
 	private IndexReader openIndexReader() throws ParityException {
-		try {  return IndexReader.open(workspace.getIndexDirectory()); }
+		try { return IndexReader.open(getIndexDirectory()); }
 		catch(final IOException iox) {
-			logger.error("Could not open index.", iox);
-			logger.error(workspace.getIndexDirectory());
+			logger.error("[LMODEL] [INDEX] [OPEN READER] [IO ERROR]", iox);
+			throw ParityErrorTranslator.translate(iox);
+		}
+	}
+
+	/**
+	 * Create a lucene index writer.
+	 * 
+	 * @return The lucene index writer.
+	 * @throws ParityException
+	 *             If the index writer cannot be created.
+	 * @see #indexAnalyzer
+	 */
+	private IndexWriter openIndexWriter() throws ParityException {
+		try {
+			final Directory directory = getIndexDirectory();
+
+			final Boolean doCreate;
+			if(0 == directory.list().length) { doCreate = Boolean.TRUE; }
+			else { doCreate = Boolean.FALSE; }		
+
+			return new IndexWriter(directory, indexAnalyzer, doCreate);
+		}
+		catch(final IOException iox) {
+			logger.error("[LMODEL] [INDEX] [OPEN WRITER] [IO ERROR]", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
 	}

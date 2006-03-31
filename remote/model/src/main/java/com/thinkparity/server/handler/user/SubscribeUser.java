@@ -13,6 +13,9 @@ import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.session.Session;
 
 /**
+ * Handle the initial subscription of a user to an artifact; AKA team member
+ * creation; AKA artifact contacts.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */

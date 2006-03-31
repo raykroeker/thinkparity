@@ -18,6 +18,7 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
+import com.thinkparity.server.model.contact.ContactModel;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.session.SessionModel;
@@ -89,21 +90,40 @@ public abstract class AbstractModelImpl {
 		return JIDBuilder.build(username);
 	}
 
+	/**
+     * Obtain the parity artifact interface.
+     * 
+     * @return The parity artifact interface.
+     */
 	protected ArtifactModel getArtifactModel() {
 		final ArtifactModel artifactModel = ArtifactModel.getModel(session);
 		return artifactModel;
 	}
 
 	/**
-	 * Obtain the session model for this session.
+     * Obtain the parity contact interface.
+     * 
+     * @return The parity contact interface.
+     */
+	protected ContactModel getContactModel() {
+		return ContactModel.getModel(session);
+	}
+
+	/**
+	 * Obtain the parity session interface.
 	 * 
-	 * @return The session model.
+	 * @return The parity session interface.
 	 */
 	protected SessionModel getSessionModel() {
 		final SessionModel sModel = SessionModel.getModel(session);
 		return sModel;
 	}
 
+	/**
+     * Obtain the parity user interface.
+     * 
+     * @return The parity user interface.
+     */
 	protected UserModel getUserModel() {
 		final UserModel uModel = UserModel.getModel(session);
 		return uModel;

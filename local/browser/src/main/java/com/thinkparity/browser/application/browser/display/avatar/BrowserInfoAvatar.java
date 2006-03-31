@@ -14,14 +14,18 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
 
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
-import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.CompositeSingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
+import com.thinkparity.browser.platform.util.SwingUtil;
+
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * Displays the browser's info panel. This avatar contains the sort button as
@@ -52,7 +56,10 @@ public class BrowserInfoAvatar extends Avatar {
 
 	private static final Icon SORT_ROLLOVER_ICON;
 
+	private static final Icon INVISIBLE_HISTORY_ICON;
+
 	static {
+		INVISIBLE_HISTORY_ICON = ImageIOUtil.readIcon("InvisibleHistoryButton.png");
 		HIDE_HISTORY_ICON = ImageIOUtil.readIcon("HideHistoryButton.png");
 		HIDE_HISTORY_ROLLOVER_ICON = ImageIOUtil.readIcon("HideHistoryButtonRollover.png");
 		SORT_ICON = ImageIOUtil.readIcon("SortButton.png");
@@ -63,9 +70,9 @@ public class BrowserInfoAvatar extends Avatar {
 
 	private JLabel infoJLabel;
 
-	private JLabel showHistoryJLabel;
+	private JLabel toggleHistoryJLabel;
 
-	private JLabel sortJLabel;
+	private JLabel filterJLabel;
 	
 	/**
 	 * Create a BrowserInfoAvatar.
@@ -95,8 +102,43 @@ public class BrowserInfoAvatar extends Avatar {
 	 * 
 	 */
 	public void reload() {
-		if(0 < getDocumentCount()) { showHistoryJLabel.setVisible(true); }
-		else { showHistoryJLabel.setVisible(false); }
+		reloadInfo();
+		if(0 < getDocumentCount()) {
+			toggleHistoryJLabel.setEnabled(true);
+			if(SwingUtil.regionContains(toggleHistoryJLabel.getBounds(), getMousePosition())) {
+				toggleHistoryJLabel.setIcon(getHistoryRolloverIcon());
+			}
+			else { toggleHistoryJLabel.setIcon(getHistoryIcon()); }
+		}
+		else {
+			// if the history is visible; kill it
+			if(getController().isHistoryVisible()) {
+				getController().toggleHistory3Avatar();
+			}
+			toggleHistoryJLabel.setEnabled(false);
+			toggleHistoryJLabel.setIcon(INVISIBLE_HISTORY_ICON);
+		}
+	}
+
+	/**
+	 * Reload the info label.
+	 *
+	 */
+	private void reloadInfo() {
+		infoJLabel.setText(getString("Info.Empty"));
+		if(isTestMode()) {
+			final Contact contact = getContact();
+
+			final Object[] infoParityUserArguments = new Object[] {
+					contact.getFirstName(),
+					contact.getLastName(),
+					contact.getOrganization()
+			};
+			final StringBuffer buffer =
+				new StringBuffer(getString("Info.Contact", infoParityUserArguments))
+				.append(infoJLabel.getText());
+			infoJLabel.setText(buffer.toString());
+		}
 	}
 
 	public void setInfoMessage(final String infoMessageKey, final Object[] arguments) {
@@ -124,12 +166,21 @@ public class BrowserInfoAvatar extends Avatar {
 	}
 
 	/**
+     * Obtain the contact from the content provider.
+     * 
+     * @return The contact.
+     */
+	private Contact getContact() {
+		return (Contact) ((CompositeSingleContentProvider) contentProvider).getElement(1, null);
+	}
+
+	/**
 	 * Obtain the document count from the content provider.
 	 * 
 	 * @return The document count.
 	 */
 	private Integer getDocumentCount() {
-		return (Integer) ((SingleContentProvider) contentProvider).getElement(null);
+		return (Integer) ((CompositeSingleContentProvider) contentProvider).getElement(0, null);
 	}
 
 	/**
@@ -139,13 +190,19 @@ public class BrowserInfoAvatar extends Avatar {
 	 * @return The image icon.
 	 */
 	private Icon getHistoryIcon() {
-		if(getController().isHistoryVisible()) { return HIDE_HISTORY_ICON; }
-		else { return SHOW_HISTORY_ICON; }
+		if(null != toggleHistoryJLabel && toggleHistoryJLabel.isEnabled()) {
+			if(getController().isHistoryVisible()) { return HIDE_HISTORY_ICON; }
+			else { return SHOW_HISTORY_ICON; }
+		}
+		else { return INVISIBLE_HISTORY_ICON; }
 	}
 
 	private Icon getHistoryRolloverIcon() {
-		if(getController().isHistoryVisible()) { return HIDE_HISTORY_ROLLOVER_ICON; }
-		else { return SHOW_HISTORY_ROLLOVER_ICON; }
+		if(null != toggleHistoryJLabel && toggleHistoryJLabel.isEnabled()) {
+			if(getController().isHistoryVisible()) { return HIDE_HISTORY_ROLLOVER_ICON; }
+			else { return SHOW_HISTORY_ROLLOVER_ICON; }
+		}
+		else { return INVISIBLE_HISTORY_ICON; }
 	}
 
 	private Integer getMnemonic(final String textLocalKey) {
@@ -154,13 +211,14 @@ public class BrowserInfoAvatar extends Avatar {
 	}
 
 	private void initComponents() {
-        sortJLabel = LabelFactory.create(SORT_ICON);
-        sortJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        filterJLabel = LabelFactory.create(SORT_ICON);
+        filterJLabel.setToolTipText(getString("FilterButtonToolTip"));
+        filterJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			public void mouseEntered(final MouseEvent e) {
-        		sortJLabel.setIcon(SORT_ROLLOVER_ICON);
+        		filterJLabel.setIcon(SORT_ROLLOVER_ICON);
         	}
 			public void mouseExited(MouseEvent e) {
-        		sortJLabel.setIcon(SORT_ICON);
+        		filterJLabel.setIcon(SORT_ICON);
         	}
         	public void mouseReleased(final MouseEvent e) {
 				sortJLabelMouseReleased(e);
@@ -168,24 +226,25 @@ public class BrowserInfoAvatar extends Avatar {
         });
 
         infoJLabel = LabelFactory.create();
-        setTestInfoMessage();
+        infoJLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        showHistoryJLabel = LabelFactory.create(getHistoryIcon());
-        showHistoryJLabel.addMouseListener(new MouseAdapter() {
+        toggleHistoryJLabel = LabelFactory.create(getHistoryIcon());
+        toggleHistoryJLabel.setToolTipText(getString("ToggleHistoryButtonToolTip"));
+        toggleHistoryJLabel.addMouseListener(new MouseAdapter() {
         	public void mouseClicked(final MouseEvent e) {
-        		showHistoryJLabelMouseClicked(e);
+        		toggleHistoryJLabelMouseClicked(e);
         	}
         	public void mouseEntered(final MouseEvent e) {
-        		showHistoryJLabel.setIcon(getHistoryRolloverIcon());
+        		toggleHistoryJLabel.setIcon(getHistoryRolloverIcon());
         	}
         	public void mouseExited(final MouseEvent e) {
-        		showHistoryJLabel.setIcon(getHistoryIcon());
+        		toggleHistoryJLabel.setIcon(getHistoryIcon());
         	}
         });
 
         final GridBagConstraints c = new GridBagConstraints();
         c.insets.left = 7;
-        add(sortJLabel, c.clone());
+        add(filterJLabel, c.clone());
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets.left = 0;
@@ -195,25 +254,8 @@ public class BrowserInfoAvatar extends Avatar {
         c.fill = GridBagConstraints.NONE;
         c.insets.right = 8;
         c.weightx = 0;
-        add(showHistoryJLabel, c.clone());
+        add(toggleHistoryJLabel, c.clone());
     }
-
-	/**
-	 * Set a debug info message.
-	 *
-	 */
-	private void setTestInfoMessage() {
-		if(isTestMode()) {
-			final Object[] infoParityUserArguments = new Object[] {
-					getPreferences().getUsername(),
-					getPreferences().getServerHost()
-			};
-			final StringBuffer buffer =
-				new StringBuffer(getString("Info.ParityUser", infoParityUserArguments))
-				.append(infoJLabel.getText());
-			infoJLabel.setText(buffer.toString());
-		}
-	}
 
 	/**
 	 * Display the document history.
@@ -221,9 +263,11 @@ public class BrowserInfoAvatar extends Avatar {
 	 * @param e
 	 *            The action event.
 	 */
-	private void showHistoryJLabelMouseClicked(final MouseEvent e) {
-		getController().toggleHistory3Avatar();
-		showHistoryJLabel.setIcon(getHistoryRolloverIcon());
+	private void toggleHistoryJLabelMouseClicked(final MouseEvent e) {
+		if(toggleHistoryJLabel.isEnabled()) {
+			getController().toggleHistory3Avatar();
+			toggleHistoryJLabel.setIcon(getHistoryRolloverIcon());
+		}
 	}
 
 	private void sortJLabelMouseReleased(final MouseEvent e) {
@@ -233,6 +277,6 @@ public class BrowserInfoAvatar extends Avatar {
 				getController().reloadMainList();
 			}
 		}));
-		jPopupMenu.show(sortJLabel, 0, sortJLabel.getSize().height);
+		jPopupMenu.show(filterJLabel, 0, filterJLabel.getSize().height);
 	}
 }

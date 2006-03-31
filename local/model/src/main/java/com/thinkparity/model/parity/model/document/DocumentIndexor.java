@@ -3,14 +3,9 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.util.Calendar;
-import java.util.List;
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractIndexor;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.index.ArtifactIndex;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * Adds an ability to index documents.
@@ -28,17 +23,12 @@ class DocumentIndexor extends AbstractIndexor {
 	 */
 	DocumentIndexor(final Context context) { super(context); }
 
-	void create(final JabberId createdBy, final Calendar createdOn,
-			final Long id, final JabberId keyHolder, final String name,
-			final List<JabberId> contacts) throws ParityException {
-		final ArtifactIndex index = new ArtifactIndex();
-		index.setCreatedBy(createdBy);
-		index.setCreatedOn(createdOn);
-		index.setId(id);
-		index.setKeyHolder(keyHolder);
-		index.setName(name);
-		index.addAllContacts(contacts);
+	void create(final Long artifactId, final String artifactName)
+			throws ParityException {
+		getInternalIndexModel().createArtifact(artifactId, artifactName);
+	}
 
-		getInternalIndexModel().index(index);
+	void delete(final Long id) throws ParityException {
+		getInternalIndexModel().deleteArtifact(id);
 	}
 }

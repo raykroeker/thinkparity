@@ -107,9 +107,7 @@ public class ServerLog4jConfigurator {
 	 *            The global log4j properties.
 	 */
 	private void configureGlobal(final Properties globalProperties) {
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server", "ERROR, serverHTML");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.ParityServer", "INFO");
-		globalProperties.setProperty("log4j.logger.com.thinkparity.server.handler", "INFO");
+		globalProperties.setProperty("log4j.logger.com.thinkparity.server", "INFO, serverHTML");
 	}
 
 	/**
@@ -157,7 +155,7 @@ public class ServerLog4jConfigurator {
 	private void configureServerHTMLAppender(
 			final Properties log4jProperties, final File log4jDirectory) {
 		log4jProperties.setProperty("log4j.appender.serverHTML", "org.apache.log4j.RollingFileAppender");
-		log4jProperties.setProperty("log4j.appender.serverHTML.MaxFileSize", "512MB");
+		log4jProperties.setProperty("log4j.appender.serverHTML.MaxFileSize", "512KB");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout", "org.apache.log4j.HTMLLayout");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout.locationInfo", "true");
 		log4jProperties.setProperty("log4j.appender.serverHTML.layout.title", "Parity Server");

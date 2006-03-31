@@ -37,6 +37,7 @@ import com.thinkparity.model.smackx.document.XMPPDocumentXListener;
 import com.thinkparity.model.smackx.packet.*;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -139,6 +140,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	public void acceptInvitation(final JabberId jabberId) throws SmackException {
 		xmppContact.accept(jabberId);
+	}
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPArtifactListener)
+     * 
+     */
+	public void addListener(final XMPPArtifactListener l) {
+		xmppArtifact.addListener(l);
 	}
 
 	/**
@@ -413,6 +422,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	public UserVCard readVCard(final JabberId jabberId) throws SmackException {
 		return xmppUser.readVCard(jabberId);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPArtifactListener)
+	 * 
+	 */
+	public void removeListener(final XMPPArtifactListener l) {
+		xmppArtifact.removeListener(l);
 	}
 
 	/**

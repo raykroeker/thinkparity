@@ -181,14 +181,6 @@ public class Browser extends AbstractApplication {
 	public void close() { getPlatform().hibernate(getId()); }
 
 	/**
-	 * Display the main browser avatar.
-	 *
-	 */
-	public void displayMainBrowserAvatar() {
-		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
-	}
-
-	/**
 	 * Display send version.
 	 *
 	 */

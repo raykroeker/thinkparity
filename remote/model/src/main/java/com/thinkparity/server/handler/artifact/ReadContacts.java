@@ -16,6 +16,9 @@ import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQReadContacts;
 
 /**
+ * Read the contacts attached to an artifact; AKA the team; AKA artifact
+ * subscription.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
@@ -23,7 +26,7 @@ public class ReadContacts extends IQHandler {
 
 	/**
 	 * Create a ReadContacts.
-	 * @param action
+	 * 
 	 */
 	public ReadContacts() { super(IQAction.ARTIFACTREADCONTACTS); }
 

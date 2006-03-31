@@ -67,9 +67,9 @@ public class IndexModel extends AbstractModel {
 	 * @return A list of index hits.
 	 * @throws ParityException
 	 */
-	public List<IndexHit> search(final String expression)
+	public List<IndexHit> searchArtifact(final String expression)
 			throws ParityException {
-		synchronized(implLock) { return impl.search(expression); }
+		synchronized(implLock) { return impl.searchArtifact(expression); }
 	}
 
 	/**

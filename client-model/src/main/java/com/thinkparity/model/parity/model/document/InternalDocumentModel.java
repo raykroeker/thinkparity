@@ -127,4 +127,14 @@ public class InternalDocumentModel extends DocumentModel implements
 	public void unlock(final Long documentId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().unlock(documentId); }
 	}
+
+	/**
+     * Update the index for a document.
+     * 
+     * @param documentId
+     *            The document id.
+     */
+	public void updateIndex(final Long documentId) throws ParityException {
+		synchronized(getImplLock()) { getImpl().updateIndex(documentId); }
+	}
 }

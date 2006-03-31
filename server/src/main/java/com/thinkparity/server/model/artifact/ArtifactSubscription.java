@@ -62,11 +62,11 @@ public class ArtifactSubscription {
 	public Calendar getCreatedOn() { return createdOn; }
 
 	/**
-	 * @return Returns the jabberId.
-	 */
-	public JabberId getJabberId() {
-		return jabberId;
-	}
+     * Obtain the jabber id of the subscribed user.
+     * 
+     * @return The jabber id.
+     */
+	public JabberId getJabberId() { return jabberId; }
 
 	/**
 	 * Obtain the last update date.

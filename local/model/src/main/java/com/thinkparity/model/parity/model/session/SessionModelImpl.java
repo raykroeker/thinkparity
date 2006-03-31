@@ -334,6 +334,38 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+     * Handle the event that a new team member was added to the artifact.
+     * 
+     * @param artifactUniqueId
+     *            The artifact's unique id.
+     * @param newTeamMember
+     *            The new team member.
+     * @throws ParityException
+     */
+	static void notifyTeamMemberAdded(final UUID artifactUniqueId,
+			final Contact teamMember) throws ParityException {
+		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
+		final Document d = iDModel.get(artifactUniqueId);
+		iDModel.updateIndex(d.getId());
+	}
+
+	/**
+     * Handle the event that a new team member was removed from the artifact.
+     * 
+     * @param artifactUniqueId
+     *            The artifact's unique id.
+     * @param newTeamMember
+     *            The team member.
+     * @throws ParityException
+     */
+	static void notifyTeamMemberRemoved(final UUID artifactUniqueId,
+			final Contact teamMember) throws ParityException {
+		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
+		final Document d = iDModel.get(artifactUniqueId);
+		iDModel.updateIndex(d.getId());
+	}
+
+	/**
 	 * Fire the keyRequestAccepted event for all key listeners.
 	 * 
 	 * @param artifactId
@@ -687,6 +719,17 @@ class SessionModelImpl extends AbstractModelImpl {
 
 			}
 		}
+	}
+
+	/**
+     * Obtain the contact for the logged in user.
+     * 
+     * @return The contact .
+     * @throws ParityException
+     */
+	Contact readContact() throws ParityException {
+		logger.info("");
+		return proxy(readUser(currentUserId()));
 	}
 
 	/**
@@ -1205,4 +1248,16 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @return The password mask.
 	 */
 	private String mask(final String password) { return "XXXXXXXXXX"; }
+
+	/**
+	 * @deprecated
+	 */
+	private Contact proxy(final User user) {
+		final Contact contact = new Contact();
+		contact.setFirstName(user.getFirstName());
+		contact.setId(user.getId());
+		contact.setLastName(user.getLastName());
+		contact.setOrganization(user.getOrganization());
+		return contact;
+	}
 }

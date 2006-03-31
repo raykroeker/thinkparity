@@ -38,7 +38,10 @@ public class QueryHitBuilder {
 	 */
 	public QueryHit toQueryHit(final Hit hit) {
 		final QueryHit queryHit = new QueryHit();
-		try { queryHit.setDataId(parseLong(hit, idField)); }
+		try {
+			queryHit.setDataId(parseLong(hit, idField));
+			queryHit.setDocument(hit.getDocument());
+		}
 		catch(final IOException iox) {
 			throw new IndexException("Could not extract hit value.", iox);
 		}

@@ -36,6 +36,15 @@ class UserModelImpl extends AbstractModelImpl {
 		this.vCardManager = VCardManager.getInstance();
 	}
 
+	User readUser(final JabberId jabberId) {
+		logger.info("[RMODEL] [USER] [READ USER]");
+		logger.debug(jabberId);
+		final User user = new User();
+		user.setId(jabberId);
+		user.setVCard(vCardManager.getVCard(jabberId.getUsername()));
+		return user;
+	}
+
 	List<User> readUsers(final List<JabberId> jabberIds)
 			throws ParityServerModelException {
 		logger.info("readUsers()");

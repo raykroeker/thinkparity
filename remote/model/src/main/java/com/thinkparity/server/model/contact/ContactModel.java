@@ -93,6 +93,18 @@ public class ContactModel extends AbstractModel {
 		synchronized(implLock) { return impl.readInvitation(from); }
 	}
 
+	/**
+     * Read the contact info for the jabber id.
+     * 
+     * @param jabberId
+     *            The jabber id.
+     * @return The contact info.
+     * @throws ParityServerModelException
+     */
+	public Contact readContact(final JabberId jabberId) {
+		synchronized(implLock) { return impl.readContact(jabberId); }
+	}
+
 	public List<Contact> readContacts() throws ParityServerModelException {
 		synchronized(implLock) { return impl.readContacts(); }
 	}

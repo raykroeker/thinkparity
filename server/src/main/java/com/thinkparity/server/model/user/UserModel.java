@@ -52,6 +52,10 @@ public class UserModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
+	public User readUser(final JabberId jabberId) {
+		synchronized(implLock) { return impl.readUser(jabberId); }
+	}
+
 	public List<User> readUsers(final List<JabberId> jabberIds) throws ParityServerModelException {
 		synchronized(implLock) { return impl.readUsers(jabberIds); }
 	}

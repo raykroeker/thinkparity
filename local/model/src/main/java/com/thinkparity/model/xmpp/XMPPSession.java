@@ -13,6 +13,7 @@ import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.document.XMPPDocument;
+import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -32,6 +33,7 @@ import com.thinkparity.model.xmpp.user.UserVCard;
 public interface XMPPSession {
 
 	public void acceptInvitation(final JabberId jabberId) throws SmackException;
+	public void addListener(final XMPPArtifactListener xmppArtifactListener);
 	public void addListener(final XMPPContactListener xmppPresenceListener);
 	public void addListener(final XMPPExtensionListener xmppExtensionListener);
 	public void addListener(final XMPPSessionListener xmppSessionListener);
@@ -54,6 +56,7 @@ public interface XMPPSession {
 	public List<User> readUsers(final List<JabberId> jabberIds)
 			throws SmackException;
 	public UserVCard readVCard(final JabberId jabberId) throws SmackException;
+	public void removeListener(final XMPPArtifactListener xmppArtifactListener);
 	public void removeListener(final XMPPContactListener xmppPresenceListener);
 	public void removeListener(final XMPPExtensionListener xmppExtensionListener);
 	public void removeListener(final XMPPSessionListener xmppSessionListener);

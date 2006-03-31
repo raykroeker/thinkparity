@@ -58,7 +58,7 @@ public class Search extends AbstractAction {
 			browser.removeSearchFilter();
 		}
 		else {
-			final List<IndexHit> searchResult = getIndexModel().search(criteria);
+			final List<IndexHit> searchResult = getIndexModel().searchArtifact(criteria);
 			browser.applySearchFilter(searchResult);
 		}
 	}

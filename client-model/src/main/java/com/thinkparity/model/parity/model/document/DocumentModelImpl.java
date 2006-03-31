@@ -166,16 +166,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Accept the key request.
-	 * 
-	 * @param keyRequestId
-	 *            The key request id.
-	 */
-	void declineKeyRequest(final Long keyRequestId) throws ParityException {
-		getInternalArtifactModel().declineKeyRequest(keyRequestId);
-	}
-
-	/**
 	 * @see DocumentModel#addListener(CreationListener)
 	 * @param listener
 	 *            The listener to add.
@@ -399,15 +389,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			auditor.create(d.getId(), currentUserId(), d.getCreatedOn());
 
 			// index the creation
-			{
-				final JabberId createdBy = currentUserId();
-				final Calendar createdOn = now;
-				final Long id = d.getId();
-				final JabberId keyHolder = createdBy;
-				final List<JabberId> contacts = new LinkedList<JabberId>();
-				contacts.add(createdBy);
-				indexor.create(createdBy, createdOn, id, keyHolder, name, contacts);
-			}
+			indexor.create(d.getId(), d.getName());
 			return d;
 		}
 		catch(IOException iox) {
@@ -503,6 +485,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Accept the key request.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	void declineKeyRequest(final Long keyRequestId) throws ParityException {
+		getInternalArtifactModel().declineKeyRequest(keyRequestId);
+	}
+
+	/**
 	 * Delete a document.
 	 * 
 	 * @param documentId
@@ -541,6 +533,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			localFile.delete();
 			localFile.deleteParent();
 			documentIO.delete(documentId);
+
+			// delete the index
+			indexor.delete(documentId);
 
 			// notify
 			notifyUpdate_objectDeleted(document);
@@ -720,18 +715,28 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-     * Obtain a filtered list of documents.
-     * 
-     * @param filter
-     *            The document filter.
-     * @return A list of documents.
-     * @throws ParityException
-     */
-	Collection<Document> list(final Filter<? super Artifact> filter)
+	 * Obtain a list of sorted documents.
+	 * 
+	 * @param comparator
+	 *            The comparator.
+	 * @return A sorted list of documents.
+	 * @throws ParityException
+	 * 
+	 * @see ComparatorBuilder
+	 */
+	Collection<Document> list(final Comparator<Artifact> comparator)
 			throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [LIST FILTERED]");
-		logger.debug(filter);
-		return list(defaultComparator, filter);
+		logger.info("[LMODEL] [DOCUMENT] [LIST SORTED]");
+		logger.debug(comparator);
+		try {
+			final List<Document> documents = documentIO.list();
+			ModelSorter.sortDocuments(documents, comparator);
+			return documents;
+		}
+		catch(RuntimeException rx) {
+			logger.error("list(UUID,Comparator<Artifact>)", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
 	}
 
 	/**
@@ -756,28 +761,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a list of sorted documents.
-	 * 
-	 * @param comparator
-	 *            The comparator.
-	 * @return A sorted list of documents.
-	 * @throws ParityException
-	 * 
-	 * @see ComparatorBuilder
-	 */
-	Collection<Document> list(final Comparator<Artifact> comparator)
+     * Obtain a filtered list of documents.
+     * 
+     * @param filter
+     *            The document filter.
+     * @return A list of documents.
+     * @throws ParityException
+     */
+	Collection<Document> list(final Filter<? super Artifact> filter)
 			throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [LIST SORTED]");
-		logger.debug(comparator);
-		try {
-			final List<Document> documents = documentIO.list();
-			ModelSorter.sortDocuments(documents, comparator);
-			return documents;
-		}
-		catch(RuntimeException rx) {
-			logger.error("list(UUID,Comparator<Artifact>)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		logger.info("[LMODEL] [DOCUMENT] [LIST FILTERED]");
+		logger.debug(filter);
+		return list(defaultComparator, filter);
 	}
 
 	/**
@@ -1098,6 +1093,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	void updateIndex(final Long documentId) throws ParityException {
+		logger.info("[LMODEL] [DOCUMENT] [UPDATE INDEX]");
+		logger.debug(documentId);
+		indexor.delete(documentId);
+		indexor.create(documentId, get(documentId).getName());
+	}
+
 	/**
 	 * Assert that the archive output directory has been set.
 	 * 
@@ -1332,6 +1334,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// send a subscription request
 		getInternalSessionModel().sendSubscribe(document);
 
+		// index the creation
+		indexor.create(document.getId(), document.getName());
+
+		// fire an update event
 		receiveUpdate(xmppDocument, document);
 		return document;
 	}

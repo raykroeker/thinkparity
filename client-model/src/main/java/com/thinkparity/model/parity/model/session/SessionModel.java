@@ -204,6 +204,16 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
+     * Obtain the contact for the logged in user.
+     * 
+     * @return The contact .
+     * @throws ParityException
+     */
+	public Contact readContact() throws ParityException {
+		synchronized(implLock) { return impl.readContact(); }
+	}
+
+	/**
 	 * Obtain a list of contacts.
 	 * 
 	 * @return A list of contacts.

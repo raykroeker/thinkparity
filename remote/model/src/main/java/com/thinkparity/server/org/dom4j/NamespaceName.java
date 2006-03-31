@@ -17,7 +17,9 @@ public enum NamespaceName {
 	IQ_DENY_KEY_REQUEST("denykeyrequest"), IQ_GET_KEYHOLDER("getkeyholder"),
 	IQ_GET_KEYS("getkeys"), IQ_GET_SUBSCRIPTION("getsubscriptions"),
 	IQ_INVITE_CONTACT("invitecontact"), IQ_KEY_REQUEST("keyrequest"),
-	IQ_READ_CONTACTS("readcontacts"), IQ_READ_USERS("readusers");
+	IQ_READ_CONTACTS("readcontacts"), IQ_READ_USERS("readusers"),
+	IQ_NOTIFY_TEAM_MEMBER_ADDED("notifyteammemberadded"),
+	IQ_NOTIFY_TEAM_MEMBER_REMOVED("notifyteammemberremoved");;
 
 	/**
 	 * The root parity xml namespace.

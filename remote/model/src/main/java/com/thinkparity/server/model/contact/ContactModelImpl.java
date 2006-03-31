@@ -127,6 +127,16 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	Contact readContact(final JabberId jabberId) {
+		logger.info("[RMODEL] [CONTACT] [READ CONTACT]");
+		logger.debug(jabberId);
+		final User user = getUserModel().readUser(jabberId);
+		final Contact contact = new Contact();
+		contact.setId(user.getId());
+		contact.setVCard(user.getVCard());
+		return contact;
+	}
+
 	List<Contact> readContacts() throws ParityServerModelException {
 		logger.info("readContacts()");
 		try {

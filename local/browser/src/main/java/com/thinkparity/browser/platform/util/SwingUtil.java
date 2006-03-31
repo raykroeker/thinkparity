@@ -87,6 +87,8 @@ public class SwingUtil {
 	}
 
 	private Boolean doesRegionContain(final Rectangle region, final Point point) {
+		if(null == region) { return Boolean.FALSE; }
+		if(null == point) { return Boolean.FALSE; }
         return (point.x >= region.x)
         	&& (point.x < region.x + region.width)
         	&& (point.y >= region.y)

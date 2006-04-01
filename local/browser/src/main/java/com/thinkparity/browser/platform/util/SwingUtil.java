@@ -35,20 +35,21 @@ public class SwingUtil {
 		singletonLock = new Object();
 	}
 
-	public static Boolean regionContains(final Rectangle region,
-			final Point point) {
-		synchronized(singletonLock) { return singleton.doesRegionContain(region, point); }
-	}
-
 	public static Boolean extract(final JCheckBox jCheckBox) {
 		synchronized(singletonLock) { return singleton.doExtract(jCheckBox); }
-	}
-	public static String extract(final JTextField jTextField) {
-		synchronized(singletonLock) { return singleton.doExtract(jTextField); }
 	}
 
 	public static <T extends Object> List<T> extract(final JList jList) {
 		synchronized(singletonLock) { return singleton.doExtract(jList); }
+	}
+
+	public static String extract(final JTextField jTextField) {
+		synchronized(singletonLock) { return singleton.doExtract(jTextField); }
+	}
+
+	public static Boolean regionContains(final Rectangle region,
+			final Point point) {
+		synchronized(singletonLock) { return singleton.doesRegionContain(region, point); }
 	}
 
 	public static void set(final JTextField jTextField, final String text) {
@@ -63,6 +64,26 @@ public class SwingUtil {
 	 * 
 	 */
 	private SwingUtil() { super(); }
+
+	private Boolean doesRegionContain(final Rectangle region, final Point point) {
+		if(null == region) { return Boolean.FALSE; }
+		if(null == point) { return Boolean.FALSE; }
+        return (point.x >= region.x)
+        	&& (point.x < region.x + region.width)
+        	&& (point.y >= region.y)
+        	&& (point.y < region.y + region.height);
+	}
+
+	private Boolean doExtract(final JCheckBox jCheckBox) {
+		return jCheckBox.isSelected();
+	}
+
+	private <T extends Object> List<T> doExtract(final JList jList) {
+		final List<T> l = new LinkedList<T>();
+		final Object[] a = jList.getSelectedValues();
+		for(final Object o : a) { l.add((T) o); }
+		return l;
+	}
 
 	private String doExtract(final JTextField jTextField) {
 		return doExtract(jTextField.getText());
@@ -84,25 +105,5 @@ public class SwingUtil {
 		if(null == string) { return; }
 		if(0 == string.length()) { return; }
 		jTextField.setToolTipText(string);
-	}
-
-	private Boolean doesRegionContain(final Rectangle region, final Point point) {
-		if(null == region) { return Boolean.FALSE; }
-		if(null == point) { return Boolean.FALSE; }
-        return (point.x >= region.x)
-        	&& (point.x < region.x + region.width)
-        	&& (point.y >= region.y)
-        	&& (point.y < region.y + region.height);
-	}
-
-	private <T extends Object> List<T> doExtract(final JList jList) {
-		final List<T> l = new LinkedList<T>();
-		final Object[] a = jList.getSelectedValues();
-		for(final Object o : a) { l.add((T) o); }
-		return l;
-	}
-
-	private Boolean doExtract(final JCheckBox jCheckBox) {
-		return jCheckBox.isSelected();
 	}
 }

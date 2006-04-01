@@ -41,15 +41,16 @@ public class WindowPanel extends AbstractJPanel {
 	 * 
 	 */
 	public WindowPanel() {
-		super("MainPanel");
-		this.ac = new GridBagConstraints();
-		this.ac.fill = GridBagConstraints.BOTH;
-		this.ac.weightx = 1;
-		this.ac.weighty = 1;
-		this.avatars = new LinkedList<Avatar>();
-		setLayout(new GridBagLayout());
-setOpaque(false);
-		initComponents();
+            super("MainPanel");
+            this.ac = new GridBagConstraints();
+            this.ac.fill = GridBagConstraints.BOTH;
+            this.ac.weightx = 1;
+            this.ac.weighty = 1;
+            this.ac.gridy = 1;
+            this.avatars = new LinkedList<Avatar>();
+            setLayout(new GridBagLayout());
+            setOpaque(false);
+            initComponents();
 	}
 
 	/**
@@ -65,6 +66,11 @@ setOpaque(false);
 	 *            The avatar to add.
 	 */
 	void addAvatar(final Avatar avatar) {
+		final GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		add(new WindowTitleDecoration(), c.clone());
+
 		avatars.add(avatar);
 		ac.gridy++;
 		add((Component) avatar, ac.clone());

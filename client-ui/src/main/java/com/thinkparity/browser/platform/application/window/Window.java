@@ -14,6 +14,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
@@ -59,8 +60,10 @@ public abstract class Window extends AbstractJDialog {
 			final String l18nContext) {
 		super(owner, modal, l18nContext);
 		this.windowSize = new WindowSize();
+		getRootPane().setBorder(BrowserWindow.getBorder());
 		setTitle(getString("Title"));
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setUndecorated(true);
 	}
 
 	/**

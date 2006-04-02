@@ -187,6 +187,10 @@ public class Browser extends AbstractApplication {
 	 */
 	public void close() { getPlatform().hibernate(getId()); }
 
+        public void displayContactSearch() {
+            displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEARCH_PARTNER);
+        }
+
 	/**
 	 * Display send version.
 	 *

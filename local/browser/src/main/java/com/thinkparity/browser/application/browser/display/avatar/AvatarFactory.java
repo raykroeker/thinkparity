@@ -3,7 +3,10 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
 import com.thinkparity.browser.application.browser.display.avatar.history.HistoryItems;
+import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
+import com.thinkparity.browser.application.browser.display.avatar.contact.SearchPartner;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
@@ -132,9 +135,14 @@ public class AvatarFactory {
 	 * @return The session invite contact avatar.
 	 */
 	private Avatar createSessionInvitePartner() {
-		final Avatar sessionInvitePartner = new SessionInvitePartner();
+		final Avatar sessionInvitePartner = new InvitePartner();
 		return sessionInvitePartner;
 	}
+
+        private Avatar createSessionSearchPartner() {
+            final Avatar avatar = new SearchPartner();
+            return avatar;
+        }
 
 	/**
 	 * Create the manage contacts avatar.
@@ -142,7 +150,7 @@ public class AvatarFactory {
 	 * @return The manage contacts avatar.
 	 */
 	private Avatar createSessionManageContacts() {
-		final Avatar sessionManageContacts = new SessionManageContacts();
+		final Avatar sessionManageContacts = new Manage();
 		sessionManageContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
 		return sessionManageContacts;
 	}
@@ -198,6 +206,9 @@ public class AvatarFactory {
 		case SESSION_MANAGE_CONTACTS:
 			avatar = createSessionManageContacts();
 			break;
+                case SESSION_SEARCH_PARTNER:
+                        avatar = createSessionSearchPartner();
+                        break;
 		case SESSION_SEND_FORM:
 			avatar = createSessionSendForm();
 			break;

@@ -52,9 +52,9 @@ public class BrowserInfoAvatar extends Avatar {
 
 	private static final Icon SHOW_HISTORY_ROLLOVER_ICON;
 
-	private static final Icon SORT_ICON;
+	private static final Icon FILTER_ICON;
 
-	private static final Icon SORT_ROLLOVER_ICON;
+	private static final Icon FILTER_ROLLOVER_ICON;
 
 	private static final Icon INVISIBLE_HISTORY_ICON;
 
@@ -62,8 +62,8 @@ public class BrowserInfoAvatar extends Avatar {
 		INVISIBLE_HISTORY_ICON = ImageIOUtil.readIcon("InvisibleHistoryButton.png");
 		HIDE_HISTORY_ICON = ImageIOUtil.readIcon("HideHistoryButton.png");
 		HIDE_HISTORY_ROLLOVER_ICON = ImageIOUtil.readIcon("HideHistoryButtonRollover.png");
-		SORT_ICON = ImageIOUtil.readIcon("SortButton.png");
-		SORT_ROLLOVER_ICON = ImageIOUtil.readIcon("SortButtonRollover.png");
+		FILTER_ICON = ImageIOUtil.readIcon("FilterButton.png");
+		FILTER_ROLLOVER_ICON = ImageIOUtil.readIcon("FilterButtonRollover.png");
 		SHOW_HISTORY_ICON = ImageIOUtil.readIcon("ShowHistoryButton.png");
 		SHOW_HISTORY_ROLLOVER_ICON = ImageIOUtil.readIcon("ShowHistoryButtonRollover.png");
 	}
@@ -211,14 +211,14 @@ public class BrowserInfoAvatar extends Avatar {
 	}
 
 	private void initComponents() {
-        filterJLabel = LabelFactory.create(SORT_ICON);
+        filterJLabel = LabelFactory.create(FILTER_ICON);
         filterJLabel.setToolTipText(getString("FilterButtonToolTip"));
         filterJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 			public void mouseEntered(final MouseEvent e) {
-        		filterJLabel.setIcon(SORT_ROLLOVER_ICON);
+        		filterJLabel.setIcon(FILTER_ROLLOVER_ICON);
         	}
 			public void mouseExited(MouseEvent e) {
-        		filterJLabel.setIcon(SORT_ICON);
+        		filterJLabel.setIcon(FILTER_ICON);
         	}
         	public void mouseReleased(final MouseEvent e) {
 				sortJLabelMouseReleased(e);

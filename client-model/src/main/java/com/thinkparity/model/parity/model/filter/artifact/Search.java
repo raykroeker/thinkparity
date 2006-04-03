@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.filter.artifact;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.filter.AbstractFilter;
 import com.thinkparity.model.parity.model.index.IndexHit;
@@ -29,6 +31,15 @@ public class Search extends AbstractFilter<Artifact> {
 	}
 
 	/**
+     * @see com.thinkparity.model.parity.model.filter.Filter#debug(org.apache.log4j.Logger)
+     * 
+     */
+    public void debug(final Logger logger) {
+        logger.debug("[LMODEL] [FILTER] [ARTIFACT] [INDEX HIT MATCH]");
+        for(final IndexHit indexHit : searchResults) { logger.debug(indexHit); }
+    }
+
+	/**
 	 * @see com.thinkparity.model.parity.model.filter.Filter#doFilter(T)
 	 * 
 	 */
@@ -39,7 +50,7 @@ public class Search extends AbstractFilter<Artifact> {
 		return Boolean.TRUE;
 	}
 
-	public void setResults(final List<IndexHit> searchResults) {
+    public void setResults(final List<IndexHit> searchResults) {
 		this.searchResults.clear();
 		this.searchResults.addAll(searchResults);
 	}

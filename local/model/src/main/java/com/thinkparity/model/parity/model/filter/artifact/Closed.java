@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.filter.artifact;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.filter.AbstractFilter;
@@ -23,6 +25,14 @@ public class Closed extends AbstractFilter<Artifact> {
 	 * 
 	 */
 	public Closed() { super(); }
+
+    /**
+     * @see com.thinkparity.model.parity.model.filter.Filter#debug(org.apache.log4j.Logger)
+     * 
+     */
+    public void debug(final Logger logger) {
+        logger.debug("[LMODEL] [FILTER] [ARTIFACT] [IS CLOSED]");
+    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.filter.Filter#doFilter(T)

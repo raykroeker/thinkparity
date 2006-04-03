@@ -4,8 +4,11 @@
 package com.thinkparity.model.parity.model.filter;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.log4j.Logger;
 
 /**
  * A filter chain is an ordered set of filters linked together.
@@ -13,7 +16,7 @@ import java.util.Set;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class FilterChain<T> extends AbstractFilter<T> {
+public class FilterChain<T> extends AbstractFilter<T> implements Iterable<Filter<T>> {
 
 	/**
 	 * The ordered set of filters.
@@ -53,6 +56,16 @@ public class FilterChain<T> extends AbstractFilter<T> {
 	}
 
 	/**
+     * Removes all filters from the filter chain.
+     * 
+     * @return A reference to the filter chain.
+     */
+    public FilterChain clearFilters() {
+        chain.clear();
+        return this;
+    }
+
+    /**
      * Determine whether or not the filter chain contains the filter.
      * 
      * @param filter
@@ -65,6 +78,16 @@ public class FilterChain<T> extends AbstractFilter<T> {
 		return chain.contains(filter);
 	}
 
+    /**
+     * Debug the filter chain to the logger.
+     * 
+     * @param logger
+     *            An apache logger.
+     */
+    public void debug(final Logger logger) {
+        for(final Filter<T> filter : chain) { filter.debug(logger); }
+    }
+
 	/**
 	 * @see com.thinkparity.model.parity.model.filter.Filter#doFilter(T)
 	 * 
@@ -76,7 +99,13 @@ public class FilterChain<T> extends AbstractFilter<T> {
 		return false;
 	}
 
-	/**
+    /**
+     * @see java.lang.Iterable#iterator()
+     * 
+     */
+    public Iterator<Filter<T>> iterator() { return chain.iterator(); }
+
+    /**
      * Remove a filter from the filter chain.
      * 
      * @param filter

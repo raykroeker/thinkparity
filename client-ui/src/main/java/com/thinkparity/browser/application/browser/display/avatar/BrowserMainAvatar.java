@@ -9,6 +9,9 @@ import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -29,9 +32,19 @@ import com.thinkparity.browser.application.browser.display.provider.CompositeFla
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
+import com.thinkparity.codebase.Pair;
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.FilterChain;
+import com.thinkparity.model.parity.model.filter.artifact.Active;
+import com.thinkparity.model.parity.model.filter.artifact.Closed;
+import com.thinkparity.model.parity.model.filter.artifact.IsKeyHolder;
+import com.thinkparity.model.parity.model.filter.artifact.IsNotKeyHolder;
+import com.thinkparity.model.parity.model.filter.artifact.Search;
+import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
@@ -49,6 +62,16 @@ public class BrowserMainAvatar extends Avatar {
 	 */
 	private static final long serialVersionUID = 1;
 
+    /**
+     * The filter that is passed to the provider when filtering documents in
+     * the list.
+     * 
+     * @see #getDisplayDocument(Long)
+     * @see #getDisplayDocuments()
+     * @see #applyFilter(Filter)
+     * @see #clearFilters()
+     * @see #removeFilter(Filter)
+     */
 	private final FilterChain<Artifact> filterChain;
 
 	/**
@@ -64,6 +87,46 @@ public class BrowserMainAvatar extends Avatar {
 	private DefaultListModel jListModel;
 
 	/**
+     * The not key holder filter.
+     * 
+     * @see #applyKeyHolderFilter(Boolean)
+     * @see #removeKeyHolderFilter()
+     */
+    private Filter<Artifact> keyFilterFalse;
+
+    /**
+     * The key holder filter.
+     * 
+     * @see #applyKeyHolderFilter(Boolean)
+     * @see #removeKeyHolderFilter()
+     */
+    private Filter<Artifact> keyFilterTrue;
+
+    /**
+     * The search filter.
+     * 
+     * @see #applySearchFilter(List)
+     * @see #removeSearchFilter()
+     */
+    private Search searchFilter;
+    
+    /**
+     * The active state filter.
+     * 
+     * @see #applyStateFilter(ArtifactState)
+     * @see #removeStateFilter()
+     */
+    private Filter<Artifact> stateFilterActive;
+
+    /**
+     * The closed state filter.
+     * 
+     * @see #applyStateFilter(ArtifactState)
+     * @see #removeStateFilter()
+     */
+    private Filter<Artifact> stateFilterClosed;
+
+    /**
 	 * Create a BrowserMainAvatar.
 	 * 
 	 */
@@ -73,20 +136,104 @@ public class BrowserMainAvatar extends Avatar {
 		setLayout(new GridBagLayout());
 		initComponents();
 	}
-    
-    /**
-     * Apply an artifact filter to the document list.
-     * 
-     * @param filter
-     *            The artifact filter.
-     */
-	public void applyFilter(final Filter<Artifact> filter) {
-		filterChain.addFilter(filter);
-		jListModel.clear();
-		reloadDocuments(getController().getSelectedDocumentId());
-	}
 
-	/**
+    /**
+     * Apply a key holder filter to the main list.
+     * 
+     * @param keyHolder
+     *            If true; results are filtered where the user has the key if
+     *            false; results are filtered where the user does not have the
+     *            key.
+     * 
+     * @see #keyFilterFalse
+     * @see #keyFilterTrue
+     * @see #applyFilter(Filter)
+     * @see #removeKeyHolderFilter()
+     */
+    public void applyKeyHolderFilter(final Boolean keyHolder) {
+        if(null == keyFilterTrue) { keyFilterTrue = new IsKeyHolder(); }
+        if(null == keyFilterFalse) { keyFilterFalse = new IsNotKeyHolder(); }
+        invokeLater(new Runnable() {
+            public void run() {
+                applyFilter(keyHolder ? keyFilterTrue : keyFilterFalse);
+            }
+        });
+    }
+
+    /**
+     * Apply the search results to filter the main list.
+     * 
+     * @param searchResult
+     *            The search results.
+     * 
+     * @see #searchFilter
+     * @see #applyFilter(Filter)
+     * @see #removeSearchFilter()
+     */
+    public void applySearchFilter(final List<IndexHit> searchResult) {
+        if(null == searchFilter) { searchFilter = new Search(new LinkedList<IndexHit>()); }
+        searchFilter.setResults(searchResult);
+
+        invokeLater(new Runnable() {
+            public void run() { applyFilter(searchFilter); }
+        });
+    }
+
+    /**
+     * Apply an artifact state filter.
+     * 
+     * @param state
+     *            The artifact state to filter by.
+     * 
+     * @see #stateFilter
+     * @see #applyFilter(Filter)
+     * @see #removeStateFilter()
+     */
+    public void applyStateFilter(final ArtifactState state) {
+        if(null == stateFilterActive) { stateFilterActive = new Active(); }
+        if(null == stateFilterClosed) { stateFilterClosed = new Closed(); }
+        invokeLater(new Runnable() {
+            public void run() {
+                if(ArtifactState.ACTIVE == state) {
+                    applyFilter(stateFilterActive);
+                }
+                else if(ArtifactState.CLOSED == state) {
+                    applyFilter(stateFilterClosed);
+                }
+                else {
+                    Assert.assertUnreachable(
+                            "[BROWSER2] [APP] [B2] [MAIN AVATAR] [CANNOT FILTER BY STATE " + state + "]");
+                }
+            }
+        });
+    }
+
+    /**
+     * Remove all non-search filters from the document list.
+     *
+     */
+    public void clearFilters() {
+        Filter<Artifact> f;
+        for(final Iterator<Filter<Artifact>> i = filterChain.iterator(); i.hasNext();) {
+            f = i.next();
+            if(f != searchFilter) { i.remove(); }
+        }
+        jListModel.clear();
+        reloadDocuments(getController().getSelectedDocumentId());
+    }
+
+    /**
+     * Debug the filter applied to the main list.
+     *
+     */
+    public void debugFilter() {
+        Assert.assertTrue(
+                "[BROWSER2] [APP] [B2] [MAIN AVATAR] [IS NOT DEBUG MODE]",
+                isDebugMode());
+        filterChain.debug(logger);
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
 	 * 
 	 */
@@ -159,7 +306,7 @@ public class BrowserMainAvatar extends Avatar {
 		}
 	}
 
-	/**
+    /**
      * Reload the system message in the list.
      * 
      * @param systemMessageId
@@ -181,27 +328,69 @@ public class BrowserMainAvatar extends Avatar {
 		}
 	}
 
-	private SystemMessage getSystemMessage(final Long systemMessageId) {
-		return (SystemMessage) ((CompositeFlatSingleContentProvider) contentProvider).getElement(1, systemMessageId);
-	}
-
-	/**
-     * Remove a filter and reload the documents.
+    /**
+     * Remove the key holder filter.
      * 
-     * @param filter
-     *            The artifact filter.
+     * @see #keyFilterFalse
+     * @see #keyFilterTrue
+     * @see #applyKeyHolderFilter(Boolean)
+     * @see #removeFilter(Filter)
      */
-	public void removeFilter(final Filter<Artifact> filter) {
-		filterChain.removeFilter(filter);
-		jListModel.clear();
-		reloadDocuments(getController().getSelectedDocumentId());
-	}
+	public void removeKeyHolderFilter() {
+        invokeLater(new Runnable() {
+            public void run() {
+                removeFilter(keyFilterFalse);
+                removeFilter(keyFilterTrue);
+            }
+        });
+    }
+
+    /**
+     * Remove the search filter from the list.
+     *
+     * @see #removeFilter(Filter)
+     * @see #applySearchFilter(List)
+     */
+    public void removeSearchFilter() {
+        invokeLater(new Runnable() {
+            public void run() { removeFilter(searchFilter); }
+        });
+    }
 
 	/**
+     * Remove the state filter from the list.
+     * 
+     * @see #stateFilterActive
+     * @see #stateFilterClosed
+     * @see #removeFilter(Filter)
+     * @see #applyStateFilter(ArtifactState)
+     */
+    public void removeStateFilter() {
+        invokeLater(new Runnable() {
+            public void run() {
+                removeFilter(stateFilterActive);
+                removeFilter(stateFilterClosed); 
+            }
+        });
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
 	public void setState(final State state) {}
+
+	/**
+     * Apply an artifact filter to the document list.
+     * 
+     * @param filter
+     *            The artifact filter.
+     */
+	private void applyFilter(final Filter<Artifact> filter) {
+		filterChain.addFilter(filter);
+		jListModel.clear();
+		reloadDocuments(getController().getSelectedDocumentId());
+	}
 
 	/**
 	 * Obtain the display document.
@@ -211,7 +400,7 @@ public class BrowserMainAvatar extends Avatar {
 	 * @return The display document.
 	 */
 	private DisplayDocument getDisplayDocument(final Long documentId) {
-		return (DisplayDocument) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, documentId);
+		return (DisplayDocument) ((CompositeFlatSingleContentProvider) contentProvider).getElement(0, new Pair(documentId, filterChain));
 	}
 
 	/**
@@ -230,6 +419,10 @@ public class BrowserMainAvatar extends Avatar {
 	 *         selected.
 	 */
 	private Long getSelectedSystemMessageId() { return null; }
+
+	private SystemMessage getSystemMessage(final Long systemMessageId) {
+		return (SystemMessage) ((CompositeFlatSingleContentProvider) contentProvider).getElement(1, systemMessageId);
+	}
 
 	/**
 	 * Obtain the list of system messages from the content provider.
@@ -347,6 +540,10 @@ public class BrowserMainAvatar extends Avatar {
 		if(jList.isSelectionEmpty()) {
 			if(!jListModel.isEmpty()) { jList.setSelectedIndex(0); }
 		}
+
+        // if the list is empty; disable history
+        if(jListModel.isEmpty()) { getController().disableHistory(); }
+        else { getController().enableHistory(); }
 	}
 
 	/**
@@ -355,6 +552,18 @@ public class BrowserMainAvatar extends Avatar {
 	 */
 	private void reloadSystemMessages(final Long systemMessageId) {
 		loadMainList(jListModel, getSystemMessages(), systemMessageId);
+	}
+
+	/**
+     * Remove a filter and reload the documents.
+     * 
+     * @param filter
+     *            The artifact filter.
+     */
+	private void removeFilter(final Filter<Artifact> filter) {
+		filterChain.removeFilter(filter);
+		jListModel.clear();
+		reloadDocuments(getController().getSelectedDocumentId());
 	}
 
 	/**

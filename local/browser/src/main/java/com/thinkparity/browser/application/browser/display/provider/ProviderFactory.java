@@ -176,7 +176,7 @@ public class ProviderFactory {
 		this.sModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 
-		this.historyProvider = new HistoryProvider(dModel);
+		this.historyProvider = new HistoryProvider(loggedInUser, dModel, sModel);
 		this.infoProvider = new InfoProvider(dModel, sModel);
 		this.mainProvider = new MainProvider(artifactModel, dModel, systemMessageModel);
 		this.manageContactsProvider = new ManageContactsProvider(sModel);

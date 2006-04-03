@@ -8,9 +8,11 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 
 import org.apache.log4j.Logger;
@@ -113,4 +115,9 @@ abstract class ComponentFactory {
 		minimumSize.width = minimumWidth;
 		jComponent.setMinimumSize(minimumSize);
 	}
+
+	protected void addActionListener(final AbstractButton abstractButton,
+            final ActionListener l) {
+	    abstractButton.addActionListener(l);
+    }
 }

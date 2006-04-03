@@ -6,18 +6,20 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.history;
 
-import com.thinkparity.browser.application.browser.display.avatar.*;
 import java.awt.Color;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
 import com.thinkparity.browser.application.browser.component.ListFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
+import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.browser.javax.swing.border.MultiLineBorder;
 import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
@@ -26,11 +28,13 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
-import javax.swing.JPopupMenu;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * A 3rd alternative to the document history avatar.
+ * 
  * @author raykroeker@gmail.com
+ * @version 
  */
 public class HistoryItems extends Avatar {
     
@@ -45,10 +49,17 @@ public class HistoryItems extends Avatar {
      *
      */
     private static final HistoryItemCellRenderer CR_CLOSED;
+
+    private static final Color BC_1;
+
+    private static final Color BC_2;
     
     static {
         CR_ACTIVE = new ActiveCellRenderer();
         CR_CLOSED = new ClosedCellRenderer();
+
+        BC_1 = new Color(137, 139, 142, 255);
+        BC_2 = new Color(238, 238, 238, 255);
     }
     
     /**
@@ -68,6 +79,7 @@ public class HistoryItems extends Avatar {
      */
     public HistoryItems() {
         super("DocumentHistory", Color.WHITE);
+        setBorder(new MultiLineBorder(new Color[] {BC_1, BC_2}));
         initComponents();
     }
     
@@ -137,7 +149,19 @@ public class HistoryItems extends Avatar {
         return (HistoryItem[]) ((CompositeFlatSingleContentProvider) contentProvider)
         .getElements(0, documentId);
     }
-    
+
+    /**
+     * Obtain the document team from the content provider.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return The document's team.
+     */
+    Contact[] getTeam(final Long documentId) {
+        return (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider)
+        .getElements(1, documentId);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -147,11 +171,18 @@ public class HistoryItems extends Avatar {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JScrollPane historyListScrollPane;
+        javax.swing.JLabel infoJLabel;
 
+        infoJLabel = new javax.swing.JLabel();
         historyListScrollPane = ScrollPaneFactory.create();
         historyList = ListFactory.create();
 
         setLayout(new java.awt.GridBagLayout());
+
+        infoJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/HistoryInfoDisplay.png")));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        add(infoJLabel, gridBagConstraints);
 
         historyListScrollPane.setBorder(null);
         historyListScrollPane.setViewportView(historyList);
@@ -172,8 +203,9 @@ public class HistoryItems extends Avatar {
         historyListScrollPane.setViewportView(historyList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 2, 0, 2);
         add(historyListScrollPane, gridBagConstraints);
@@ -203,6 +235,9 @@ public class HistoryItems extends Avatar {
             display.setHistoryItem(hi);
             listModel.addElement(display);
         }
+
+        if(historyList.isSelectionEmpty())
+            historyList.setSelectedIndex(0);
     }
 
     private void reloadHistory() {

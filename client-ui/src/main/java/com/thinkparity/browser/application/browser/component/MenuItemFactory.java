@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.component;
 
 import java.awt.Color;
+import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
@@ -37,9 +38,24 @@ public class MenuItemFactory extends ComponentFactory {
 		}
 	}
 
-	public static JMenuItem createCheckBox(final String text, final Integer mnemonic) {
+    public static JMenuItem create(final String text, final Integer mnemonic,
+            final ActionListener l) {
+        synchronized(singletonLock) {
+            return singleton.doCreate(text, mnemonic, l);
+        }
+    }
+
+    public static JCheckBoxMenuItem createCheckBox(final String text,
+            final Integer mnemonic) {
+        synchronized(singletonLock) {
+            return singleton.doCreateCheckBox(text, mnemonic);
+        }
+    }
+
+    public static JCheckBoxMenuItem createCheckBox(final String text,
+            final Integer mnemonic, final ActionListener l) {
 		synchronized(singletonLock) {
-			return singleton.doCreateCheckBox(text, mnemonic);
+			return singleton.doCreateCheckBox(text, mnemonic, l);
 		}
 	}
 
@@ -54,15 +70,7 @@ public class MenuItemFactory extends ComponentFactory {
 		jMenuItem.setMnemonic(mnemonic);
 	}
 
-	private JMenuItem doCreateCheckBox(final String text, final Integer mnemonic) {
-		logger.debug(text);
-		final JMenuItem jMenuItem = new JCheckBoxMenuItem(text);
-		applyDefaultFont(jMenuItem);
-		applyMnemonic(jMenuItem, mnemonic);
-		return jMenuItem;
-	}
-
-	private JMenuItem doCreate(final String text) {
+    private JMenuItem doCreate(final String text) {
 		logger.debug("JMenuItem[" + text + "]");
 		final JMenuItem jMenuItem = new JMenuItem(text);
 		applyDefaultFont(jMenuItem);
@@ -70,9 +78,32 @@ public class MenuItemFactory extends ComponentFactory {
 		return jMenuItem;
 	}
 
-	private JMenuItem doCreate(final String text, final Integer mnemonic) {
+    private JMenuItem doCreate(final String text, final Integer mnemonic) {
 		final JMenuItem jMenuItem = doCreate(text);
 		applyMnemonic(jMenuItem, mnemonic);
 		return jMenuItem;
 	}
+
+    private JMenuItem doCreate(final String text, final Integer mnemonic,
+            final ActionListener l) {
+        final JMenuItem jMenuItem = doCreate(text, mnemonic);
+        addActionListener(jMenuItem, l);
+        return jMenuItem;
+    }
+	private JCheckBoxMenuItem doCreateCheckBox(final String text,
+            final Integer mnemonic) {
+        logger.debug(text);
+        final JCheckBoxMenuItem jCheckBoxMenuItem = new JCheckBoxMenuItem(text);
+        applyDefaultFont(jCheckBoxMenuItem);
+        applyMnemonic(jCheckBoxMenuItem, mnemonic);
+        return jCheckBoxMenuItem;
+    }
+
+	private JCheckBoxMenuItem doCreateCheckBox(final String text,
+            final Integer mnemonic, final ActionListener actionListener) {
+        logger.debug(text);
+        final JCheckBoxMenuItem jCheckBoxMenuItem = doCreateCheckBox(text, mnemonic);
+        addActionListener(jCheckBoxMenuItem, actionListener);
+        return jCheckBoxMenuItem;
+    }
 }

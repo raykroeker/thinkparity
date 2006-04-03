@@ -35,8 +35,8 @@ public class ActiveCellRenderer extends HistoryItemCellRenderer {
 	private static final long serialVersionUID = 1;
 
 	static {
-		BG = ImageIOUtil.read("DocumentCell.png");
-		BG_SEL = ImageIOUtil.read("DocumentCellSelected.png");
+		BG = ImageIOUtil.read("DocumentHistoryCell.png");
+		BG_SEL = ImageIOUtil.read("DocumentHistoryCellSelected.png");
 	}
 
 	/**

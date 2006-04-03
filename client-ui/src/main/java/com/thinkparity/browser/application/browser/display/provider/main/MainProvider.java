@@ -12,6 +12,7 @@ import com.thinkparity.browser.application.browser.display.provider.CompositeFla
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
+import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
@@ -60,12 +61,12 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		super();
 		this.documentProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
-				final Long documentId = assertNotNullLong(
-						"The main provider's document provider requires " +
-						"non-null java.lang.Long input.", input);
+				final Long documentId = (Long) ((Pair) input).getFirst();
+                final Filter<Artifact> filter = (Filter<Artifact>) ((Pair) input).getSecond();
 				try {
 					final Document document = documentModel.get(documentId);
-					return toDisplay(document, artifactModel);
+                    if(filter.doFilter(document)) { return null; }
+                    else { return toDisplay(document, artifactModel); }
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}

@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -25,6 +26,7 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
@@ -38,9 +40,22 @@ import com.thinkparity.model.xmpp.contact.Contact;
  */
 public class BrowserInfoAvatar extends Avatar {
 
+	private static final Icon FILTER_ICON;
+
+	private static final Icon FILTER_ROLLOVER_ICON;
+
+	/**
+     * The filter popup menu.
+     * 
+     * @see #getFilterJPopupMenu()
+     */
+    private static JPopupMenu filterJPopupMenu;
+
 	private static final Icon HIDE_HISTORY_ICON;
 
 	private static final Icon HIDE_HISTORY_ROLLOVER_ICON;
+
+	private static final Icon INVISIBLE_HISTORY_ICON;
 
 	/**
 	 * @see java.io.Serializable
@@ -48,15 +63,9 @@ public class BrowserInfoAvatar extends Avatar {
 	 */
 	private static final long serialVersionUID = 1;
 
-	private static final Icon SHOW_HISTORY_ICON;
+    private static final Icon SHOW_HISTORY_ICON;
 
-	private static final Icon SHOW_HISTORY_ROLLOVER_ICON;
-
-	private static final Icon FILTER_ICON;
-
-	private static final Icon FILTER_ROLLOVER_ICON;
-
-	private static final Icon INVISIBLE_HISTORY_ICON;
+    private static final Icon SHOW_HISTORY_ROLLOVER_ICON;
 
 	static {
 		INVISIBLE_HISTORY_ICON = ImageIOUtil.readIcon("InvisibleHistoryButton.png");
@@ -68,12 +77,12 @@ public class BrowserInfoAvatar extends Avatar {
 		SHOW_HISTORY_ROLLOVER_ICON = ImageIOUtil.readIcon("ShowHistoryButtonRollover.png");
 	}
 
-	private JLabel infoJLabel;
+	private JLabel filterJLabel;
 
+	private JLabel infoJLabel;
+	
 	private JLabel toggleHistoryJLabel;
 
-	private JLabel filterJLabel;
-	
 	/**
 	 * Create a BrowserInfoAvatar.
 	 *
@@ -103,7 +112,7 @@ public class BrowserInfoAvatar extends Avatar {
 	 */
 	public void reload() {
 		reloadInfo();
-		if(0 < getDocumentCount()) {
+		if(getController().isHistoryEnabled()) {
 			toggleHistoryJLabel.setEnabled(true);
 			if(SwingUtil.regionContains(toggleHistoryJLabel.getBounds(), getMousePosition())) {
 				toggleHistoryJLabel.setIcon(getHistoryRolloverIcon());
@@ -120,28 +129,16 @@ public class BrowserInfoAvatar extends Avatar {
 		}
 	}
 
-	/**
-	 * Reload the info label.
-	 *
-	 */
-	private void reloadInfo() {
-		infoJLabel.setText(getString("Info.Empty"));
-		if(isTestMode()) {
-			final Contact contact = getContact();
-
-			final Object[] infoParityUserArguments = new Object[] {
-					contact.getFirstName(),
-					contact.getLastName(),
-					contact.getOrganization()
-			};
-			final StringBuffer buffer =
-				new StringBuffer(getString("Info.Contact", infoParityUserArguments))
-				.append(infoJLabel.getText());
-			infoJLabel.setText(buffer.toString());
-		}
-	}
-
-	public void setInfoMessage(final String infoMessageKey, final Object[] arguments) {
+    /**
+     * Set a localized message in the info label.
+     * 
+     * @param infoMessageKey
+     *            The localized message local key.
+     * @param arguments
+     *            The localized message arguments.
+     */
+	public void setInfoMessage(final String infoMessageKey,
+            final Object[] arguments) {
 		infoJLabel.setText(getString(infoMessageKey, arguments));
 	}
 
@@ -151,18 +148,38 @@ public class BrowserInfoAvatar extends Avatar {
 	 */
 	public void setState(final State state) {}
 
-	private JMenuItem createJMenuItem(final String textLocalKey,
-			final ActionListener actionListener) {
-		return createJMenuItem(getString(textLocalKey),
-				getMnemonic(textLocalKey), actionListener);
+    /**
+     * Create a checkbox menu item.
+     * 
+     * @param textLocalKey
+     *            The menu item localization local key.
+     * @return The checkbox menu item.
+     */
+	private JCheckBoxMenuItem createJCheckBoxMenuItem(final String textLocalKey) {
+        return MenuItemFactory.createCheckBox(
+                getString(textLocalKey), getMnemonic(textLocalKey));
 	}
 
-	private JMenuItem createJMenuItem(final String text, final Integer mnemonic,
-			final ActionListener actionListener) {
-		final JMenuItem jMenuItem = MenuItemFactory.create(text, mnemonic);
-		jMenuItem.addActionListener(actionListener);
-		return jMenuItem;
+    /**
+     * Create a menu item.
+     * 
+     * @param textLocalKey
+     *            The menu item localization local key.
+     * @return The menu item.
+     */
+    private JMenuItem createJMenuItem(final String textLocalKey) {
+        return MenuItemFactory.create(
+                getString(textLocalKey), getMnemonic(textLocalKey));
+    }
 
+	/**
+     * Show the filter menu.
+     * 
+     * @param e
+     *            The mouse event.
+     */
+	private void filterJLabelMouseReleased(final MouseEvent e) {
+		getFilterJPopupMenu().show(filterJLabel, 0, filterJLabel.getSize().height);
 	}
 
 	/**
@@ -175,42 +192,114 @@ public class BrowserInfoAvatar extends Avatar {
 	}
 
 	/**
-	 * Obtain the document count from the content provider.
-	 * 
-	 * @return The document count.
-	 */
-	private Integer getDocumentCount() {
-		return (Integer) ((CompositeSingleContentProvider) contentProvider).getElement(0, null);
-	}
+     * Get the filter menu. It will be created the first time this api is
+     * called.
+     * 
+     * @return The filter popup menu.
+     */
+    private JPopupMenu getFilterJPopupMenu() {
+        if(null == filterJPopupMenu) {
+            filterJPopupMenu = MenuFactory.createPopup();
 
-	/**
-	 * Determine which icon to use. Check the browser to see if the history is
-	 * visible or not.
-	 * 
-	 * @return The image icon.
-	 */
-	private Icon getHistoryIcon() {
-		if(null != toggleHistoryJLabel && toggleHistoryJLabel.isEnabled()) {
-			if(getController().isHistoryVisible()) { return HIDE_HISTORY_ICON; }
-			else { return SHOW_HISTORY_ICON; }
-		}
-		else { return INVISIBLE_HISTORY_ICON; }
-	}
+            final JCheckBoxMenuItem closed = createJCheckBoxMenuItem("FilterShowClosed");
+            final JCheckBoxMenuItem open = createJCheckBoxMenuItem("FilterShowOpen");
+            final JCheckBoxMenuItem key = createJCheckBoxMenuItem("FilterShowKey");
+            final JCheckBoxMenuItem notKey = createJCheckBoxMenuItem("FilterShowNotKey");
+            final JMenuItem clear = createJMenuItem("FilterClearAll");
 
-	private Icon getHistoryRolloverIcon() {
-		if(null != toggleHistoryJLabel && toggleHistoryJLabel.isEnabled()) {
-			if(getController().isHistoryVisible()) { return HIDE_HISTORY_ROLLOVER_ICON; }
-			else { return SHOW_HISTORY_ROLLOVER_ICON; }
-		}
-		else { return INVISIBLE_HISTORY_ICON; }
-	}
+            closed.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if(((JCheckBoxMenuItem) e.getSource()).isSelected()) {
+                        open.setSelected(false);
+                        
+                        getController().removeStateFilter();
+                        getController().applyStateFilter(ArtifactState.CLOSED);
+                        }
+                    else { getController().removeStateFilter(); }
+                }});
+            open.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if(((JCheckBoxMenuItem) e.getSource()).isSelected()) {
+                        closed.setSelected(false);
 
-	private Integer getMnemonic(final String textLocalKey) {
+                        getController().removeStateFilter();
+                        getController().applyStateFilter(ArtifactState.ACTIVE);
+                    }
+                    else { getController().removeStateFilter(); }
+                }});
+
+            key.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    notKey.setSelected(false);
+
+                    getController().removeKeyHolderFilter();
+                    getController().applyKeyHolderFilter(Boolean.TRUE);
+                }});
+            notKey.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    key.setSelected(false);
+
+                    getController().removeKeyHolderFilter();
+                    getController().applyKeyHolderFilter(Boolean.FALSE);
+                }
+            });
+
+            clear.addActionListener(new ActionListener() {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
+                    closed.setSelected(false);
+                    open.setSelected(false);
+                    key.setSelected(false);
+                    notKey.setSelected(false);
+
+                    getController().clearFilters();
+                }
+            });
+
+            filterJPopupMenu.add(closed);
+            filterJPopupMenu.add(open);
+            filterJPopupMenu.addSeparator();
+            filterJPopupMenu.add(key);
+            filterJPopupMenu.add(notKey);
+            filterJPopupMenu.addSeparator();
+            filterJPopupMenu.add(clear);
+        }
+        return filterJPopupMenu;
+    }
+
+    /**
+     * Determine which icon to use. Check the browser to see if the history is
+     * visible or not.
+     * 
+     * @return The image icon.
+     */
+    private Icon getHistoryIcon() {
+        if(null != toggleHistoryJLabel && toggleHistoryJLabel.isEnabled()) {
+            if(getController().isHistoryVisible()) { return HIDE_HISTORY_ICON; }
+            else { return SHOW_HISTORY_ICON; }
+        }
+        else { return INVISIBLE_HISTORY_ICON; }
+    }
+
+    /**
+     * Determine which rollover icon to use. Check the browser to see if the history is
+     * visible or not.
+     * 
+     * @return The image icon.
+     */
+    private Icon getHistoryRolloverIcon() {
+        if(null != toggleHistoryJLabel && toggleHistoryJLabel.isEnabled()) {
+            if(getController().isHistoryVisible()) { return HIDE_HISTORY_ROLLOVER_ICON; }
+            else { return SHOW_HISTORY_ROLLOVER_ICON; }
+        }
+        else { return INVISIBLE_HISTORY_ICON; }
+    }
+
+    private Integer getMnemonic(final String textLocalKey) {
 		final String mnemonicString = getString(textLocalKey + "Mnemonic");
 		return new Integer(mnemonicString.charAt(0));
 	}
 
-	private void initComponents() {
+    private void initComponents() {
         filterJLabel = LabelFactory.create(FILTER_ICON);
         filterJLabel.setToolTipText(getString("FilterButtonToolTip"));
         filterJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -221,7 +310,7 @@ public class BrowserInfoAvatar extends Avatar {
         		filterJLabel.setIcon(FILTER_ICON);
         	}
         	public void mouseReleased(final MouseEvent e) {
-				sortJLabelMouseReleased(e);
+				filterJLabelMouseReleased(e);
 			}
         });
 
@@ -257,7 +346,28 @@ public class BrowserInfoAvatar extends Avatar {
         add(toggleHistoryJLabel, c.clone());
     }
 
-	/**
+    /**
+	 * Reload the info label.
+	 *
+	 */
+	private void reloadInfo() {
+		infoJLabel.setText(getString("Info.Empty"));
+		if(isTestMode()) {
+			final Contact contact = getContact();
+
+			final Object[] infoParityUserArguments = new Object[] {
+					contact.getFirstName(),
+					contact.getLastName(),
+					contact.getOrganization()
+			};
+			final StringBuffer buffer =
+				new StringBuffer(getString("Info.Contact", infoParityUserArguments))
+				.append(infoJLabel.getText());
+			infoJLabel.setText(buffer.toString());
+		}
+	}
+
+    /**
 	 * Display the document history.
 	 * 
 	 * @param e
@@ -268,15 +378,5 @@ public class BrowserInfoAvatar extends Avatar {
 			getController().toggleHistory3Avatar();
 			toggleHistoryJLabel.setIcon(getHistoryRolloverIcon());
 		}
-	}
-
-	private void sortJLabelMouseReleased(final MouseEvent e) {
-		final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-		jPopupMenu.add(createJMenuItem("ReloadMainList", new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				getController().reloadMainList();
-			}
-		}));
-		jPopupMenu.show(filterJLabel, 0, filterJLabel.getSize().height);
 	}
 }

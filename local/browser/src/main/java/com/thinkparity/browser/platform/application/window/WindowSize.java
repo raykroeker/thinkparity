@@ -38,9 +38,9 @@ class WindowSize {
 
 		sizeMap = new Hashtable<AvatarId, Object>(2, 1.0F);
 		// DIMENSION History Window 130x484
-		sizeMap.put(AvatarId.DOCUMENT_HISTORY3, new Dimension(130, 484));
+		sizeMap.put(AvatarId.DOCUMENT_HISTORY3, new Dimension(130, 512));
 		// DIMENSION Send Document Window 405x308
-		sizeMap.put(AvatarId.SESSION_SEND_FORM, new Dimension(405, 308));
+		sizeMap.put(AvatarId.SESSION_SEND_FORM, new Dimension(405, 265));
 		// DIMENSION Send Version Window 405x308
 		sizeMap.put(AvatarId.SESSION_SEND_VERSION, new Dimension(405, 308));
 		// DIMENSION Platform Login Window 385x173

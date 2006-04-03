@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,12 +31,7 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
-import com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen;
-import com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests;
-import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
-import com.thinkparity.browser.platform.action.artifact.RequestKey;
-import com.thinkparity.browser.platform.action.artifact.Search;
+import com.thinkparity.browser.platform.action.artifact.*;
 import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Create;
 import com.thinkparity.browser.platform.action.document.Delete;
@@ -55,7 +51,9 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.index.IndexHit;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -114,26 +112,25 @@ public class Browser extends AbstractApplication {
 
 	private History2Window history2Window;
 
+    /**
+     * Flag indicating whether or not history is enabled.
+     * 
+     */
+	private Boolean historyEnabled = Boolean.FALSE;
+
 	/**
 	 * The file chooser.
 	 * 
 	 * @see #getJFileChooser()
 	 */
 	private JFileChooser jFileChooser;
-
+	
 	/**
 	 * Main window.
 	 * 
 	 */
 	private BrowserWindow mainWindow;
-	
-	/**
-	 * User search filter.
-	 * 
-	 */
-	private com.thinkparity.model.parity.model.filter.artifact.Search searchFilter;
 
-	
 	/**
 	 * Contains the browser's session information.
 	 * 
@@ -161,7 +158,19 @@ public class Browser extends AbstractApplication {
 		this.state = new BrowserState(this);
 	}
 
-	/**
+    /**
+     * Apply a key holder filter.
+     * 
+     * @param keyHolder
+     *            True to filter by keys; false to filter by non-keys.
+     * 
+     * @see BrowserMainAvatar#applyKeyHolderFilter(Boolean)
+     */
+    public void applyKeyHolderFilter(final Boolean keyHolder) {
+        getMainAvatar().applyKeyHolderFilter(keyHolder);
+    }
+
+    /**
      * Set the search results in the search filter and apply it to the document
      * list.
      * 
@@ -169,32 +178,59 @@ public class Browser extends AbstractApplication {
      *            The search results.
      */
 	public void applySearchFilter(final List<IndexHit> searchResult) {
-		if(null == searchFilter) {
-			searchFilter =
-				new com.thinkparity.model.parity.model.filter.artifact.Search(searchResult);
-		}
-		else { searchFilter.setResults(searchResult); }
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).applyFilter(searchFilter);
-			}
-		});
+	    getMainAvatar().applySearchFilter(searchResult);
 	}
 
-	/**
+    /**
+     * Apply an artifact state filter.
+     * 
+     * @param state
+     *            The artifact state.
+     * @see ArtifactState
+     * @see BrowserMainAvatar#applyStateFilter(ArtifactState)
+     */
+    public void applyStateFilter(final ArtifactState state) {
+        getMainAvatar().applyStateFilter(state);
+    }
+
+    /**
+     * Clear the non-search filters for the main list.
+     *
+     * @see #removeSearchFilter()
+     */
+    public void clearFilters() { getMainAvatar().clearFilters(); }
+
+    /**
 	 * Close the main window.
 	 *
 	 */
 	public void close() { getPlatform().hibernate(getId()); }
 
-        public void displayContactSearch() {
-            displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEARCH_PARTNER);
-        }
+    /**
+     * Debug the filter applied to the main list.
+     *
+     */
+	public void debugFilter() { getMainAvatar().debugFilter(); }
+
+    /**
+     * Disable the ability to display the history. Also; if the history window
+     * is currently displayed; close it.
+     * 
+     */
+    public void disableHistory() {
+        historyEnabled = Boolean.FALSE;
+        if(isHistoryVisible()) { toggleHistory3Avatar(); }
+        getInfoAvatar().reload();
+    }
+
+	public void displayContactSearch() {
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEARCH_PARTNER);
+	}
 
 	/**
-	 * Display send version.
-	 *
-	 */
+     * Display send version.
+     * 
+     */
 	public void displaySendVersion(final Long artifactId, final Long versionId) {
 		final Data data = new Data(2);
 		data.set(SessionSendVersion.DataKey.ARTIFACT_ID, artifactId);
@@ -224,6 +260,15 @@ public class Browser extends AbstractApplication {
 	 */
 	public void displaySessionSendFormAvatar() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
+	}
+
+    /**
+     * Enable the history.
+     * 
+     */
+	public void enableHistory() {
+        historyEnabled = Boolean.TRUE;
+        getInfoAvatar().reload();
 	}
 
 	/**
@@ -373,7 +418,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public Object getSelectedSystemMessage() { return null; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate()
 	 * 
 	 */
@@ -386,7 +431,22 @@ public class Browser extends AbstractApplication {
 		notifyHibernate();
 	}
 
-	public Boolean isHistoryVisible() {
+    /**
+     * Determine if the history is enabled.
+     * 
+     * @return True if the history is enabled; false otherwise.
+     * 
+     * @see #enableHistory()
+     * @see #disableHistory()
+     */
+    public Boolean isHistoryEnabled() { return historyEnabled; }
+
+    /**
+     * Check if the history is currently visible.
+     * 
+     * @return True if the history is visible; false otherwise.
+     */
+    public Boolean isHistoryVisible() {
 		return null != history2Window && history2Window.isVisible();
 	}
 
@@ -429,18 +489,28 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
+     * Remove the key holder filter.
+     * 
+     * @see BrowserMainAvatar#removeKeyHolderFilter()
+     */
+    public void removeKeyHolderFilter() {
+        getMainAvatar().removeKeyHolderFilter();
+    }
+
+	/**
 	 * Remove the search filter from the document list.
 	 *
 	 */
-	public void removeSearchFilter() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).removeFilter(searchFilter);
-			}
-		});
-	}
+	public void removeSearchFilter() { getMainAvatar().removeSearchFilter(); }
 
 	/**
+     * Remove the artifact state filter.
+     * 
+     * @see BrowserMainAvatar#removeStateFilter()
+     */
+    public void removeStateFilter() { getMainAvatar().removeStateFilter(); }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -613,6 +683,44 @@ public class Browser extends AbstractApplication {
 		data.set(Search.DataKey.CRITERIA, criteria);
 		invoke(ActionId.ARTIFACT_SEARCH, data);
 	}
+
+    /**
+     * Run the send artifact version action.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param contacts
+     *            The contacts to send to.
+     * @param versionId
+     *            The version id.
+     */
+    public void runSendArtifactVersion(final Long artifactId,
+            final List<Contact> contacts, final Long versionId) {
+        final Data data = new Data(3);
+        data.set(SendVersion.DataKey.ARTIFACT_ID, artifactId);
+        data.set(SendVersion.DataKey.CONTACTS, contacts);
+        data.set(SendVersion.DataKey.VERSION_ID, versionId);
+        invoke(ActionId.ARTIFACT_SEND_VERSION, data);
+    }
+
+    /**
+     * Run the send artifact version action.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param contact
+     *            The contact to send to.
+     * @param versionId
+     *            The version id.
+     * 
+     * @see #runSendArtifactVersion(Long, List, Long)
+     */
+    public void runSendArtifactVersion(final Long artifactId,
+            final Contact contact, final Long versionId) {
+        final List<Contact> contacts = new LinkedList<Contact>();
+        contacts.add(contact);
+        runSendArtifactVersion(artifactId, contacts, versionId);
+    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
@@ -811,6 +919,15 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
+     * Convenience method to obtain the info avatar.
+     * 
+     * @return The info avatar.
+     */
+    private BrowserInfoAvatar getInfoAvatar() {
+        return (BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO);
+    }
+
+	/**
 	 * Obtain the file chooser.
 	 * 
 	 * @return The file chooser.
@@ -819,6 +936,15 @@ public class Browser extends AbstractApplication {
 		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
 		return jFileChooser;
 	}
+
+    /**
+     * Convenience method to obtain the main avatar.
+     * 
+     * @return The main avatar.
+     */
+    private BrowserMainAvatar getMainAvatar() {
+        return (BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN);
+    }
 
 	private void invoke(final ActionId actionId, final Data data) {
 		try {

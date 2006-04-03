@@ -47,7 +47,7 @@ public class History2Window extends AbstractJDialog {
 		getRootPane().setBorder(new CustomEtechedBorder(EtchedBorder.RAISED, c1, c2));
 		setUndecorated(true);
 		setLayout(new GridBagLayout());
-		setSize(new Dimension(306, 462));
+		setSize(new Dimension(306, 490));
 		setLocation(calculateLocation(browserWindow, getSize()));
 		initComponents(avatar);
 	}

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.component;
 
+import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 
 /**
@@ -19,7 +20,11 @@ public class MenuFactory {
 
 	static { singleton = new MenuFactory(); }
 
-	/**
+    public static JMenu create(final String text) {
+        return singleton.doCreate(text);
+    }
+
+    /**
 	 * Create a JPopupMenu.
 	 * 
 	 * @return The JPopupMenu.
@@ -42,4 +47,6 @@ public class MenuFactory {
 	private JPopupMenu doCreatePopup() {
 		return new JPopupMenu();
 	}
+
+    private JMenu doCreate(final String text) { return new JMenu(text); }
 }

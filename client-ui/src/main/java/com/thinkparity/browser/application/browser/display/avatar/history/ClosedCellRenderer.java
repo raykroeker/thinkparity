@@ -35,8 +35,8 @@ public class ClosedCellRenderer extends HistoryItemCellRenderer {
 	private static final long serialVersionUID = 1;
 
 	static {
-		BG = ImageIOUtil.read("DocumentCellClosed.png");
-		BG_SEL = ImageIOUtil.read("DocumentCellClosedSelected.png");
+		BG = ImageIOUtil.read("DocumentHistoryCellClosed.png");
+		BG_SEL = ImageIOUtil.read("DocumentHistoryCellClosedSelected.png");
 	}
 
 	/**

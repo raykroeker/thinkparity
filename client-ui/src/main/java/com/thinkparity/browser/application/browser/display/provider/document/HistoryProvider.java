@@ -3,6 +3,9 @@
  */
 package com.thinkparity.browser.application.browser.display.provider.document;
 
+import java.util.Iterator;
+import java.util.List;
+
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
@@ -12,6 +15,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * The document history provider. Provides a single document and its history.
@@ -39,6 +45,12 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 	 */
 	private final FlatContentProvider historyProvider;
 
+    /**
+     * An artifact team provider.
+     * 
+     */
+    private final FlatContentProvider teamProvider;
+
 	/**
 	 * A list of single result content providers.
 	 * 
@@ -46,9 +58,17 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 	private final SingleContentProvider[] singleProviders;
 
 	/**
-	 * Create a HistoryProvider.
-	 */
-	public HistoryProvider(final DocumentModel documentModel) {
+     * Create a HistoryProvider.
+     * 
+     * @param loggedInUserId
+     *            The logged in user's jabber id.
+     * @param dModel
+     *            The parity document interface.
+     * @param sModel
+     *            The parity session interface.
+     */
+	public HistoryProvider(final JabberId loggedInUserId, final DocumentModel dModel,
+            final SessionModel sModel) {
 		super();
 		this.documentProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
@@ -58,7 +78,7 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 				Assert.assertOfType(
 						"The history provider requries java.lang.Long input.",
 						Long.class, input);
-				try { return documentModel.get((Long) input); }
+				try { return dModel.get((Long) input); }
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
@@ -70,12 +90,26 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 				Assert.assertOfType(
 						"The history provider requries java.lang.Long input.",
 						Long.class, input);
-				try { return documentModel.readHistory((Long) input).toArray(new HistoryItem[] {}); }
+				try { return dModel.readHistory((Long) input).toArray(new HistoryItem[] {}); }
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.flatProviders = new FlatContentProvider[] { historyProvider };
-		this.singleProviders = new SingleContentProvider[] { documentProvider };
+        this.teamProvider = new FlatContentProvider() {
+            public Object[] getElements(final Object input) {
+                final Long documentId = (Long) input;
+                final List<Contact> team;
+                try { team =  sModel.readArtifactContacts(documentId); }
+                catch(final ParityException px) { throw new RuntimeException(px); }
+                Contact contact;
+                for(final Iterator<Contact> i = team.iterator(); i.hasNext();) {
+                    contact= i.next();
+                    if(contact.getId().equals(loggedInUserId)) { i.remove(); }
+                }
+                return team.toArray(new Contact[] {});
+            }
+        };
+		this.flatProviders = new FlatContentProvider[] {historyProvider, teamProvider};
+		this.singleProviders = new SingleContentProvider[] {documentProvider};
 	}
 
 	/**

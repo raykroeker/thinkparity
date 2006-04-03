@@ -11,17 +11,19 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.browser.application.browser.component.*;
+import com.thinkparity.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.browser.application.browser.component.CheckBoxFactory;
+import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.application.browser.component.ListFactory;
+import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
+import com.thinkparity.browser.application.browser.component.SeparatorFactory;
 import com.thinkparity.browser.application.browser.display.avatar.session.UserListCellRenderer;
-import com.thinkparity.browser.application.browser.display.avatar.session.VersionListCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-import com.thinkparity.browser.model.document.WorkingVersion;
 import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
@@ -32,7 +34,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
@@ -90,12 +91,6 @@ public class SessionSendFormAvatar extends Avatar {
     private Contact[] team;
 
     /**
-     * The version model.
-     *
-     */
-    private final DefaultComboBoxModel versionModel;
-
-    /**
      * Create a SessionSendFormAvatar
      *
      */
@@ -106,7 +101,6 @@ public class SessionSendFormAvatar extends Avatar {
 		this.contactsSelectionModel = new DefaultListSelectionModel();
 		this.teamModel = new DefaultListModel();
 		this.teamSelectionModel = new DefaultListSelectionModel();
-		this.versionModel = new DefaultComboBoxModel();
 		initComponents();
 	}
 
@@ -142,13 +136,6 @@ public class SessionSendFormAvatar extends Avatar {
 			if(1 > contacts.size()) { return Boolean.FALSE; }
 		}
 
-		final DocumentVersion version = extractDocumentVersion();
-		if(null == version) { return Boolean.FALSE; }
-		if(doIncludeKey) {
-			// if including the key; the working version must be selected
-			if(version != WorkingVersion.getWorkingVersion()) { return Boolean.FALSE; }
-		}
-
 		if(null != documentId && 0 < contacts.size()) {
 			return Boolean.TRUE;
 		}
@@ -164,9 +151,8 @@ public class SessionSendFormAvatar extends Avatar {
 		reloadIncludeKey();
 		reloadTeamMembers();
 		reloadContacts();
-		reloadVersions();
 
-		versionJComboBox.requestFocusInWindow();
+		includeKeyJCheckBox.requestFocusInWindow();
 	}
 
     /** This method is called from within the constructor to
@@ -179,14 +165,12 @@ public class SessionSendFormAvatar extends Avatar {
         javax.swing.JButton cancelJButton;
         javax.swing.JLabel contactsJLabel;
         javax.swing.JScrollPane contactsJScrollPane;
+        javax.swing.JLabel documentJLabel;
         javax.swing.JSeparator jSeparator_1;
         javax.swing.JLabel teamJLabel;
         javax.swing.JScrollPane teamJScrollPane;
-        javax.swing.JLabel versionJLabel;
 
-        documentJLabel = LabelFactory.create();
-        versionJLabel = LabelFactory.create(getString("VersionLabel"));
-        versionJComboBox = ComboBoxFactory.create();
+        documentJLabel = LabelFactory.create(getString("DocumentLabel"));
         includeKeyJCheckBox = CheckBoxFactory.create(getString("IncludeKeyCheckBox"));
         jSeparator_1 = SeparatorFactory.create();
         sendToJPanel = new javax.swing.JPanel();
@@ -199,14 +183,7 @@ public class SessionSendFormAvatar extends Avatar {
         sendJButton = ButtonFactory.create(getString("SendButton"));
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
         vSpacerJLabel = LabelFactory.create();
-
-        versionJComboBox.setModel(versionModel);
-        versionJComboBox.setRenderer(new VersionListCellRenderer());
-        versionJComboBox.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent e) {
-                versionJComboBoxItemStateChanged(e);
-            }
-        });
+        documentNameJLabel = new javax.swing.JLabel();
 
         includeKeyJCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         includeKeyJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -248,7 +225,7 @@ public class SessionSendFormAvatar extends Avatar {
             .add(sendToJPanelLayout.createSequentialGroup()
                 .add(sendToJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(teamJLabel)
-                    .add(teamJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE))
+                    .add(teamJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(sendToJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                     .add(contactsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -283,42 +260,38 @@ public class SessionSendFormAvatar extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, sendToJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(documentJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(cancelJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(sendJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSeparator_1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(vSpacerJLabel)
+                    .add(jSeparator_1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .add(sendToJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(versionJLabel)
-                            .add(vSpacerJLabel))
+                        .add(documentJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, includeKeyJCheckBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, versionJComboBox, 0, 309, Short.MAX_VALUE))))
+                            .add(includeKeyJCheckBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                            .add(documentNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(documentJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(versionJLabel)
-                    .add(versionJComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(documentJLabel)
+                    .add(documentNameJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(includeKeyJCheckBox)
-                    .add(vSpacerJLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator_1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(includeKeyJCheckBox)
+                .add(10, 10, 10)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(vSpacerJLabel)
+                    .add(jSeparator_1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(sendToJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -328,10 +301,6 @@ public class SessionSendFormAvatar extends Avatar {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void versionJComboBoxItemStateChanged(java.awt.event.ItemEvent e) {//GEN-FIRST:event_versionJComboBoxItemStateChanged
-    	reloadSendJButtonState();
-    }//GEN-LAST:event_versionJComboBoxItemStateChanged
 
     private void sendJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendJButtonActionPerformed
     	if(isInputValid()) {
@@ -349,18 +318,7 @@ public class SessionSendFormAvatar extends Avatar {
 					final JabberId jabberId = JabberIdBuilder.parseUsername(user.getSimpleUsername());
 					getSessionModel().sendKeyResponse(documentId, jabberId, KeyResponse.ACCEPT);
 				}
-				else {
-					final DocumentVersion version = extractDocumentVersion();
-					if(version == WorkingVersion.getWorkingVersion()) {
-						// create a version and send it
-						getSessionModel().send(contacts, documentId);
-					}
-					else {
-						// send a specific version
-						getSessionModel().send(
-								contacts, documentId, version.getVersionId());
-					}
-				}
+				else { getSessionModel().send(contacts, documentId); }
 				// NOTE Interesting
 				ArtifactModel.getModel().applyFlagSeen(documentId);
 			}
@@ -384,29 +342,32 @@ public class SessionSendFormAvatar extends Avatar {
     private void includeKeyJCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_includeKeyJCheckBoxStateChanged
 		if(includeKeyIsSelected != includeKeyJCheckBox.isSelected()) {
 			if(includeKeyJCheckBox.isSelected()) {
-				contactsSelectionModel.setSelectionMode(
-						ListSelectionModel.SINGLE_SELECTION);
-				teamSelectionModel.setSelectionMode(
-						ListSelectionModel.SINGLE_SELECTION);
-
 				// since include key is selected; only 1 user can be used
 				// as the "destination"  remove *all* but the first selected
 				// user
-				int[] indices = teamJList.getSelectedIndices();
-				if(1 < indices.length) {
-					for(int i = 1; i < indices.length; i++) {
+				final int[] teamIndices = teamJList.getSelectedIndices();
+                if(1 < teamIndices.length) {
+					for(int i = 1; i < teamIndices.length; i++) {
 						teamSelectionModel.removeSelectionInterval(i, i);
 					}
 					contactsSelectionModel.clearSelection();
 				}
-				else {
-					indices = contactsJList.getSelectedIndices();
-					if(1 < indices.length) {
-						for(int i = 1; i < indices.length; i++) {
-							contactsSelectionModel.removeSelectionInterval(i, i);
-						}
-					}
-				}
+                else {
+                    final int[] contactIndices = contactsJList.getSelectedIndices();
+                    if(0 < teamIndices.length && 0 < contactIndices.length) {
+                        contactsSelectionModel.clearSelection();
+                    }
+                }
+
+                final int[] contactIndices = contactsJList.getSelectedIndices();
+                if(1 < contactIndices.length) {
+    				for(int i = 1; i < contactIndices.length; i++) {
+    					contactsSelectionModel.removeSelectionInterval(i, i);
+    				}
+    			}
+
+                contactsSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                teamSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			}
 			else {
 				contactsSelectionModel.setSelectionMode(
@@ -414,8 +375,6 @@ public class SessionSendFormAvatar extends Avatar {
 				teamSelectionModel.setSelectionMode(
 						ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			}
-			// if the state changes we reload the versions
-			reloadVersions();
 		}
 		includeKeyIsSelected = includeKeyJCheckBox.isSelected();
     	reloadSendJButtonState();
@@ -464,14 +423,6 @@ public class SessionSendFormAvatar extends Avatar {
     private Long extractDocumentId() { return (Long) input; }
 
     /**
-     * Extract the selected version.
-     *
-     */
-    private DocumentVersion extractDocumentVersion() {
-		return (DocumentVersion) versionJComboBox.getSelectedItem();
-	}
-
-    /**
      * Extract the selected team.
      *
      */
@@ -503,15 +454,6 @@ public class SessionSendFormAvatar extends Avatar {
     private Contact[] getTeam() {
 		return (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider)
 				.getElements(1, (Long) input);
-	}
-
-    /**
-     * Obtain a list of versions from the content provider.
-     *
-     */
-    private DocumentVersion[] getVersions() {
-		return (DocumentVersion[]) ((CompositeFlatSingleContentProvider) contentProvider)
-				.getElements(2, (Long) input);
 	}
 
     /**
@@ -554,11 +496,11 @@ public class SessionSendFormAvatar extends Avatar {
      *
      */
     private void reloadDocument() {
-    	documentJLabel.setText(getString("DocumentLabel.Empty"));
+    	documentNameJLabel.setText(getString("DocumentNameLabel.Empty"));
     	if(null != input) {
     		final Document document = getDocument();
     		final Object[] arguments = new Object[] {document.getName()};
-    		documentJLabel.setText(getString("DocumentLabel", arguments));
+    		documentNameJLabel.setText(getString("DocumentNameLabel", arguments));
     	}
     }
 
@@ -585,50 +527,31 @@ public class SessionSendFormAvatar extends Avatar {
     }
 
     private void reloadTeamMembers() {
-		teamModel.clear();
-		if(null != input) {
-			team = getTeam();
-			loadUserList(teamModel, team);
-		}
-	}
-    
-    private void reloadVersions() {
-		versionModel.removeAllElements();
-		if(null != input) {
-			// only include the working version if we are to send the key
-			if(extractDoIncludeKey()) {
-				versionModel.addElement(WorkingVersion.getWorkingVersion());
-				versionJComboBox.setEnabled(false);
-			}
-			else {
-				final DocumentVersion[] versions = getVersions();
-				for (final DocumentVersion version : versions) {
-					versionModel.addElement(version);
-					versionJComboBox.setEnabled(true);
-				}
-			}
-		}
-	}
+        teamModel.clear();
+        if(null != input) {
+            team = getTeam();
+            loadUserList(teamModel, team);
+        }
+    }
 
     /**
-	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
-	 * 
-	 */
-	public void setInput(Object input) {
-		Assert.assertNotNull("Cannot set null input:  " + getId(), input);
-		this.input = input;
-		reload();
-	}
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
+     *
+     */
+    public void setInput(Object input) {
+        Assert.assertNotNull("Cannot set null input:  " + getId(), input);
+        this.input = input;
+        reload();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList contactsJList;
-    private javax.swing.JLabel documentJLabel;
+    private javax.swing.JLabel documentNameJLabel;
     private javax.swing.JCheckBox includeKeyJCheckBox;
     private javax.swing.JButton sendJButton;
     private javax.swing.JPanel sendToJPanel;
     private javax.swing.JList teamJList;
     private javax.swing.JLabel vSpacerJLabel;
-    private javax.swing.JComboBox versionJComboBox;
     // End of variables declaration//GEN-END:variables
     
 }

@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
@@ -217,6 +218,18 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract void setState(final State state);
 
 	/**
+     * Causes <i>doRun.run()</i> to be executed asynchronously on the AWT event
+     * dispatching thread.
+     * 
+     * @param doRun
+     *            The runnable to execute.
+     * @see SwingUtilities#invokeLater(java.lang.Runnable)
+     */
+	protected void invokeLater(final Runnable doRun) {
+        SwingUtilities.invokeLater(doRun);
+    }
+
+	/**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the platform is in test mode; false otherwise.
@@ -262,7 +275,7 @@ public abstract class Avatar extends AbstractJPanel {
 		}
 	}
 
-	/**
+    /**
 	 * The scrolling policy for the avatar.
 	 * 
 	 */

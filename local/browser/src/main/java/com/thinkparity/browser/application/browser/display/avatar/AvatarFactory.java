@@ -206,9 +206,9 @@ public class AvatarFactory {
 		case SESSION_MANAGE_CONTACTS:
 			avatar = createSessionManageContacts();
 			break;
-                case SESSION_SEARCH_PARTNER:
-                        avatar = createSessionSearchPartner();
-                        break;
+        case SESSION_SEARCH_PARTNER:
+            avatar = createSessionSearchPartner();
+            break;
 		case SESSION_SEND_FORM:
 			avatar = createSessionSendForm();
 			break;

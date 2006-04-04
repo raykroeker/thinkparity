@@ -206,7 +206,22 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.getContent(documentId); }
 	}
 
-	/**
+    /**
+     * Obtain the latest document version.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return The latest document version.
+     * @throws ParityException
+     */
+    public DocumentVersion readLatestVersion(final Long documentId)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            return getImpl().readLatestVersion(documentId);
+        }
+    }
+
+    /**
 	 * Obtain a document version.
 	 * 
 	 * @param documentId

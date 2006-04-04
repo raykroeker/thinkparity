@@ -948,7 +948,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		if(!iDModel.isWorkingVersionEqual(documentId)) {
 			version = iDModel.createVersion(documentId);
 		}
-		else { version = iDModel.getLatestVersion(documentId); }
+		else { version = iDModel.readLatestVersion(documentId); }
 		send(jabberIds, documentId, version.getVersionId());
 	}
 
@@ -1114,7 +1114,7 @@ class SessionModelImpl extends AbstractModelImpl {
 					// check if a new version is needed
 					final DocumentVersion version;
 					if(iDModel.isWorkingVersionEqual(documentId)) {
-						version = iDModel.getLatestVersion(documentId);
+						version = iDModel.readLatestVersion(documentId);
 					}
 					else { version = iDModel.createVersion(documentId); }
 

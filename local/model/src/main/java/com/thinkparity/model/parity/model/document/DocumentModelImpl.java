@@ -606,7 +606,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document id.
 	 * @return The latest version.
 	 */
-	DocumentVersion getLatestVersion(final Long documentId)
+	DocumentVersion readLatestVersion(final Long documentId)
 			throws ParityException {
 		logger.info("getLatestVersion(Long)");
 		logger.debug(documentId);
@@ -679,7 +679,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			localFile.read();
 			final String workingVersionChecksum = localFile.getFileChecksum();
 
-			final DocumentVersion version = getLatestVersion(documentId);
+			final DocumentVersion version = readLatestVersion(documentId);
 			// we might have no recorded versions (initial point)
 			if(null == version) { return Boolean.FALSE; }
 			else {

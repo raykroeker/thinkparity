@@ -60,21 +60,6 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
 	/**
-	 * Obtain the latest document version.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @return The latest document version.
-	 * @throws ParityException
-	 */
-	public DocumentVersion getLatestVersion(final Long documentId)
-			throws ParityException {
-		synchronized(getImplLock()) {
-			return getImpl().getLatestVersion(documentId);
-		}
-	}
-
-	/**
 	 * Determine whether or not the working version of the document is equal to
 	 * the last version.
 	 * 

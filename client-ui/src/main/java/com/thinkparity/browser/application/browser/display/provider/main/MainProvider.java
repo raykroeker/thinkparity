@@ -65,7 +65,8 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
                 final Filter<Artifact> filter = (Filter<Artifact>) ((Pair) input).getSecond();
 				try {
 					final Document document = documentModel.get(documentId);
-                    if(filter.doFilter(document)) { return null; }
+                    if(null == document) { return null; }
+                    else if(filter.doFilter(document)) { return null; }
                     else { return toDisplay(document, artifactModel); }
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }

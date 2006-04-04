@@ -13,23 +13,18 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="contactsJScrollPane" alignment="1" pref="276" max="32767" attributes="0"/>
-                  <Component id="searchJTextField" alignment="1" pref="276" max="32767" attributes="0"/>
-                  <Component id="eaJLabel" alignment="1" pref="276" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="contactsJScrollPane" pref="303" max="32767" attributes="0"/>
+                  <Component id="eaJLabel" alignment="1" pref="303" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="inviteJButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="searchJTextField" pref="224" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="manageJButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="searchJButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
-                  <Component id="searchJButton" min="-2" max="-2" attributes="0"/>
-                  <Component id="addJButton" alignment="0" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <Component id="addJButton" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -40,21 +35,20 @@
               <Component id="eaJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="searchJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="searchJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="searchJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="contactsJScrollPane" pref="117" max="32767" attributes="0"/>
-                  <Component id="addJButton" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="addJButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="127" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Component id="contactsJScrollPane" pref="139" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="closeJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="manageJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="inviteJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -126,39 +120,6 @@
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;AddButton&quot;));"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JButton" name="closeJButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="!Close!"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeJButtonActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;CloseButton&quot;));"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JButton" name="manageJButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="!Manage!"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="manageJButtonActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;ManageButton&quot;));"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JButton" name="inviteJButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="!Invite!"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="inviteJButtonActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;InviteButton&quot;));"/>
       </AuxValues>
     </Component>
   </SubComponents>

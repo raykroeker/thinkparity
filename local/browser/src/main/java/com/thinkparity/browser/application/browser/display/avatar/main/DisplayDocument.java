@@ -32,6 +32,10 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class DisplayDocument {
 
+	private static final Integer DISPLAY_MAX_LENGTH;
+
+    static { DISPLAY_MAX_LENGTH = 35; }
+
 	/**
 	 * Using the browser from the list item; run the accept key request action.
 	 * 
@@ -99,7 +103,19 @@ public class DisplayDocument {
 		return false;
 	}
 
-	public String getDisplay() { return document.getName(); }
+    public String getDisplay() {
+	    if(DISPLAY_MAX_LENGTH < document.getName().length()) {
+            return document.getName().substring(0, DISPLAY_MAX_LENGTH - 1 - 3) + "...";
+        }
+        else { return document.getName(); }
+	}
+
+    public String getDisplayToolTip() {
+        if(DISPLAY_MAX_LENGTH < document.getName().length()) {
+            return document.getName();
+        }
+        else { return ""; }
+    }
 
 	public Long getDocumentId() { return document.getId(); }
 

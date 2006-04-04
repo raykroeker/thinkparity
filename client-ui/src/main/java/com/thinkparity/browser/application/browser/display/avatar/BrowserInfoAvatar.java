@@ -352,7 +352,10 @@ public class BrowserInfoAvatar extends Avatar {
 	 */
 	private void reloadInfo() {
 		infoJLabel.setText(getString("Info.Empty"));
-		if(isTestMode()) {
+        if(getController().isFilterEnabled()) {
+            infoJLabel.setText(getString("Info.FilterOn"));
+        }
+        else if(isTestMode()) {
 			final Contact contact = getContact();
 
 			final Object[] infoParityUserArguments = new Object[] {

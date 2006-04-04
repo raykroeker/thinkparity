@@ -166,7 +166,6 @@ public class DocumentListItem extends ListItem {
 			setBackgroundImage(BG_URGENT);
 			setBackgroundImageSelected(BG_URGENT_SEL);
 			setNameForeground(NAME_FOREGROUND_URGENT);
-			setNameInfo(displayDocument.getUrgentInfo(this));
 
 			if(displayDocument.hasBeenSeen()) { setNameFont(BrowserConstants.DefaultFont); }
 			else { setNameFont(BrowserConstants.DefaultFontBold); }
@@ -191,6 +190,7 @@ public class DocumentListItem extends ListItem {
 		}
 
 		setName(displayDocument.getDisplay());
+        setNameInfo(displayDocument.getDisplayToolTip());
 		if(displayDocument.isKeyHolder()) { setInfoIcon(KEY_ICON); }
 	}
 

@@ -245,6 +245,28 @@ public class BrowserMainAvatar extends Avatar {
 	 */
 	public State getState() { return null; }
 
+    /**
+     * Determine whether or not the filter is enabled.
+     * 
+     * @return True if it is; false otherwise.
+     */
+    public Boolean isFilterEnabled() {
+        if(filterChain.isEmpty()) { return Boolean.FALSE; }
+        else {
+            if(filterChain.containsFilter(searchFilter)) {
+                if(filterChain.containsFilter(stateFilterActive) ||
+                        filterChain.containsFilter(stateFilterClosed) ||
+                        filterChain.containsFilter(keyFilterFalse) ||
+                        filterChain.containsFilter(keyFilterTrue)) {
+                    return Boolean.TRUE;
+                }
+                else { return Boolean.FALSE; }
+                
+            }
+            else { return Boolean.TRUE; }
+        }
+    }
+
 	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
 	 * 
@@ -304,6 +326,10 @@ public class BrowserMainAvatar extends Avatar {
 			final Integer modelIndex = jListModel.indexOf(listItem);
 			jList.setSelectedIndex(modelIndex);
 		}
+
+        // if the list is empty; disable history
+        if(jListModel.isEmpty()) { getController().disableHistory(); }
+        else { getController().enableHistory(); }
 	}
 
     /**

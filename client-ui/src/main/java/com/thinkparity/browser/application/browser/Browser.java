@@ -442,6 +442,16 @@ public class Browser extends AbstractApplication {
     public Boolean isHistoryEnabled() { return historyEnabled; }
 
     /**
+     * Determine whether or not the main avatar's filter is enabled.
+     * 
+     * @return True if it is; false otherwise.
+     */
+    public Boolean isFilterEnabled() {
+        if(null == getMainAvatar()) { return Boolean.FALSE; }
+        return getMainAvatar().isFilterEnabled();
+    }
+
+    /**
      * Check if the history is currently visible.
      * 
      * @return True if the history is visible; false otherwise.

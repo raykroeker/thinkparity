@@ -84,11 +84,8 @@ public class SearchPartner extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JButton closeJButton;
         javax.swing.JScrollPane contactsJScrollPane;
         javax.swing.JLabel eaJLabel;
-        javax.swing.JButton inviteJButton;
-        javax.swing.JButton manageJButton;
 
         eaJLabel = LabelFactory.create(getString("EmbeddedAssistance"));
         contactsJScrollPane = new javax.swing.JScrollPane();
@@ -96,9 +93,8 @@ public class SearchPartner extends Avatar {
         searchJTextField = TextFactory.create();
         searchJButton = ButtonFactory.create(getString("SearchButton"));
         addJButton = ButtonFactory.create(getString("AddButton"));
-        closeJButton = ButtonFactory.create(getString("CloseButton"));
-        manageJButton = ButtonFactory.create(getString("ManageButton"));
-        inviteJButton = ButtonFactory.create(getString("InviteButton"));
+
+        eaJLabel.setText("!Embedded Assistance!");
 
         contactsModel = new DefaultListModel();
         contactsJList.setModel(contactsModel);
@@ -123,33 +119,17 @@ public class SearchPartner extends Avatar {
             }
         });
 
+        searchJButton.setText("!Search!");
         searchJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 searchJButtonActionPerformed(e);
             }
         });
 
+        addJButton.setText("!Add!");
         addJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 addJButtonActionPerformed(e);
-            }
-        });
-
-        closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                closeJButtonActionPerformed(e);
-            }
-        });
-
-        manageJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                manageJButtonActionPerformed(e);
-            }
-        });
-
-        inviteJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                inviteJButtonActionPerformed(e);
             }
         });
 
@@ -159,19 +139,15 @@ public class SearchPartner extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, searchJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(inviteJButton)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                    .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(searchJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(manageJButton)))
+                        .add(searchJButton)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(closeJButton)
-                    .add(searchJButton)
-                    .add(addJButton))
+                .add(addJButton)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -181,18 +157,16 @@ public class SearchPartner extends Avatar {
                 .add(eaJLabel)
                 .add(6, 6, 6)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(searchJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(searchJButton))
+                    .add(searchJButton)
+                    .add(searchJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                    .add(addJButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(closeJButton)
-                    .add(manageJButton)
-                    .add(inviteJButton))
-                .addContainerGap())
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(addJButton)
+                        .add(127, 127, 127))
+                    .add(layout.createSequentialGroup()
+                        .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -204,23 +178,9 @@ public class SearchPartner extends Avatar {
         searchJButton.setEnabled(0 < searchJTextField.getText().length());
     }
 
-    private void manageJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_manageJButtonActionPerformed
-        disposeWindow();
-        getController().displaySessionManageContacts();
-    }//GEN-LAST:event_manageJButtonActionPerformed
-
     private void reloadAddJButton() {
         addJButton.setEnabled(!contactsJList.isSelectionEmpty());
     }
-
-    private void inviteJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_inviteJButtonActionPerformed
-        disposeWindow();
-        getController().displaySessionInvitePartner();
-    }//GEN-LAST:event_inviteJButtonActionPerformed
-
-    private void closeJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_closeJButtonActionPerformed
-        disposeWindow();
-    }//GEN-LAST:event_closeJButtonActionPerformed
 
     private void addJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_addJButtonActionPerformed
 // TODO add your handling code here:

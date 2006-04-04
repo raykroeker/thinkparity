@@ -151,6 +151,7 @@ public class SessionSendFormAvatar extends Avatar {
 		reloadIncludeKey();
 		reloadTeamMembers();
 		reloadContacts();
+		reloadSendJButtonState();
 
 		includeKeyJCheckBox.requestFocusInWindow();
 	}
@@ -509,6 +510,7 @@ public class SessionSendFormAvatar extends Avatar {
      *
      */
     private void reloadIncludeKey() {
+        includeKeyJCheckBox.setSelected(false);
 		includeKeyJCheckBox.setVisible(false);
 		if(null != input) {
 			final Boolean isKeyHolder = ArtifactUtil

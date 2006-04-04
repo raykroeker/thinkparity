@@ -14,20 +14,20 @@
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="eaJLabel" alignment="0" pref="349" max="32767" attributes="0"/>
+                  <Component id="eaJLabel" alignment="0" pref="398" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="1" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="searchJButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="inviteJButton" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="contactsJScrollPane" alignment="1" pref="264" max="32767" attributes="0"/>
+                          <Component id="contactsJScrollPane" alignment="1" pref="313" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="closeJButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="removeJButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="viewJButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="removeJButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -41,15 +41,20 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="eaJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="contactsJScrollPane" pref="145" max="32767" attributes="0"/>
-                  <Component id="removeJButton" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="closeJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="inviteJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="searchJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="contactsJScrollPane" pref="146" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="searchJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="inviteJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Component id="viewJButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="removeJButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -91,17 +96,6 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="closeJButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="!Close!"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeJButtonActionPerformed"/>
-      </Events>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;CloseButton&quot;));"/>
-      </AuxValues>
-    </Component>
     <Component class="javax.swing.JButton" name="inviteJButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="!Invite!"/>
@@ -133,6 +127,19 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;RemoveButton&quot;));"/>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JButton" name="viewJButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="!View!"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="viewJButtonActionPerformed"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;ViewButton&quot;));"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
       </AuxValues>

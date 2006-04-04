@@ -30,6 +30,11 @@ public class MenuItemFactory extends ComponentFactory {
 		defaults.put("MenuItem.selectionBackground", new Color(215, 231, 244, 255));
 		// COLOR BLACK
 		defaults.put("MenuItem.selectionForeground", Color.BLACK);
+
+        // COLOR 215,231,244,255
+        defaults.put("CheckBoxMenuItem.selectionBackground", new Color(215, 231, 244, 255));
+        // COLOR BLACK
+        defaults.put("CheckBoxMenuItem.selectionForeground", Color.BLACK);
 	}
 
 	public static JMenuItem create(final String text, final Integer mnemonic) {

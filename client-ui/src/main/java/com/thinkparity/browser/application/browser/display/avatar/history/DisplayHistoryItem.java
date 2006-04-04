@@ -16,8 +16,10 @@ import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
+import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.util.l10n.ListItemLocalization;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -88,8 +90,17 @@ public class DisplayHistoryItem {
             final JPopupMenu jPopupMenu) {
         if(isVersionAttached()) {
             jPopupMenu.add(getOpenVersionMenuItem());
-            jPopupMenu.add(getSendVersionMenu());
+            if(!isClosed()) {
+                final Contact[] team = avatar.getTeam(historyItem.getDocumentId());
+                if(0 < team.length) {
+                    jPopupMenu.add(getSendVersionMenu(team));
+                }
+            }
         }
+    }
+
+    private Boolean isClosed() {
+        return ArtifactUtil.isClosed(historyItem.getDocumentId(), ArtifactType.DOCUMENT);
     }
 
     /**
@@ -215,8 +226,7 @@ public class DisplayHistoryItem {
      * 
      * @return The send version menu.
      */
-    private JMenu getSendVersionMenu() {
-        final Contact[] team = avatar.getTeam(historyItem.getDocumentId());
+    private JMenu getSendVersionMenu(final Contact[] team) {
         final JMenu jMenu = MenuFactory.create(getString("SendVersion"));
         for(final Contact teamMember : team) {
             jMenu.add(createJMenuItem(

@@ -100,6 +100,13 @@ public class FilterChain<T> extends AbstractFilter<T> implements Iterable<Filter
 	}
 
     /**
+     * Determine whether or not the filter chain is empty.
+     * 
+     * @return True if it is empty; false otherwise.
+     */
+    public Boolean isEmpty() { return chain.isEmpty(); }
+
+    /**
      * @see java.lang.Iterable#iterator()
      * 
      */

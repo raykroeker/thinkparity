@@ -371,7 +371,7 @@ public class Browser extends AbstractApplication {
 		// refresh the system message in the main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadSystemMessage(systemMessageId);
+//				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadSystemMessage(systemMessageId);
 			}
 		});
 	}
@@ -386,7 +386,7 @@ public class Browser extends AbstractApplication {
 		// refresh the system message in the main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadSystemMessage(systemMessageId);
+//				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadSystemMessage(systemMessageId);
 			}
 		});
 	}

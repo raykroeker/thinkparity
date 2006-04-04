@@ -160,7 +160,7 @@ public class DocumentListItem extends ListItem {
 	DocumentListItem(final DisplayDocument displayDocument) {
 		super("DocumentListItem");
 		this.displayDocument = displayDocument;
-		setDocumentId(displayDocument.getDocumentId());
+		setDocumentId(displayDocument.getId());
 
 		if(displayDocument.isUrgent()) {
 			setBackgroundImage(BG_URGENT);
@@ -258,12 +258,12 @@ public class DocumentListItem extends ListItem {
 					systemClipboard.setContents(stringSelection, null);
 				}
 			};
-			final JMenuItem idJMenuItem = new JMenuItem("Id:" + displayDocument.getDocumentId());
-			idJMenuItem.putClientProperty("COPY_ME", displayDocument.getDocumentId());
+			final JMenuItem idJMenuItem = new JMenuItem("Id:" + displayDocument.getId());
+			idJMenuItem.putClientProperty("COPY_ME", displayDocument.getId());
 			idJMenuItem.addActionListener(debugActionListener);
 
-			final JMenuItem uidJMenuItem = new JMenuItem("U Id:" + displayDocument.getDocumentUniqueId());
-			uidJMenuItem.putClientProperty("COPY_ME", displayDocument.getDocumentUniqueId());
+			final JMenuItem uidJMenuItem = new JMenuItem("U Id:" + displayDocument.getUniqueId());
+			uidJMenuItem.putClientProperty("COPY_ME", displayDocument.getUniqueId());
 			uidJMenuItem.addActionListener(debugActionListener);
 
 			jPopupMenu.addSeparator();
@@ -437,4 +437,9 @@ public class DocumentListItem extends ListItem {
 	private void setDocumentId(final Long documentId) {
 		setProperty("documentId", documentId);
 	}
+
+    /**
+     * @return Returns the displayDocument.
+     */
+    public DisplayDocument getDisplayDocument() { return displayDocument; }
 }

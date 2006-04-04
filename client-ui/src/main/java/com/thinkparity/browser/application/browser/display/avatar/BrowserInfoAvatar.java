@@ -230,17 +230,23 @@ public class BrowserInfoAvatar extends Avatar {
 
             key.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    notKey.setSelected(false);
+                    if(((JCheckBoxMenuItem) e.getSource()).isSelected()) {
+                        notKey.setSelected(false);
 
-                    getController().removeKeyHolderFilter();
-                    getController().applyKeyHolderFilter(Boolean.TRUE);
+                        getController().removeKeyHolderFilter();
+                        getController().applyKeyHolderFilter(Boolean.TRUE);
+                    }
+                    else { getController().removeKeyHolderFilter(); }
                 }});
             notKey.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    key.setSelected(false);
+                    if(((JCheckBoxMenuItem) e.getSource()).isSelected()) {
+                        key.setSelected(false);
 
-                    getController().removeKeyHolderFilter();
-                    getController().applyKeyHolderFilter(Boolean.FALSE);
+                        getController().removeKeyHolderFilter();
+                        getController().applyKeyHolderFilter(Boolean.FALSE);
+                    }
+                    else { getController().removeKeyHolderFilter(); }
                 }
             });
 

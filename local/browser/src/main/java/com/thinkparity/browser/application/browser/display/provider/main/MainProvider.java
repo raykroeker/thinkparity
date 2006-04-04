@@ -12,15 +12,12 @@ import com.thinkparity.browser.application.browser.display.provider.CompositeFla
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
-import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
@@ -56,18 +53,15 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 	 *            The parity system message interface.
 	 */
 	public MainProvider(final ArtifactModel artifactModel,
-			final DocumentModel documentModel,
-			final SystemMessageModel systemMessageModel) {
+            final DocumentModel dModel,
+            final SystemMessageModel systemMessageModel) {
 		super();
 		this.documentProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
-				final Long documentId = (Long) ((Pair) input).getFirst();
-                final Filter<Artifact> filter = (Filter<Artifact>) ((Pair) input).getSecond();
+				final Long documentId = (Long) input;
 				try {
-					final Document document = documentModel.get(documentId);
-                    if(null == document) { return null; }
-                    else if(filter.doFilter(document)) { return null; }
-                    else { return toDisplay(document, artifactModel); }
+					final Document document = dModel.get(documentId);
+                    return toDisplay(document, artifactModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -82,15 +76,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 						new RemoteUpdatedOnComparator(Boolean.FALSE);
 					sort.add(new UpdatedOnComparator(Boolean.FALSE));
 
-					final Filter<Artifact> filter = (Filter<Artifact>) input;
-
-					final Collection<Document> documents;
-					if(null != filter) {
-						documents = documentModel.list(sort, filter);
-					}
-					else { documents = documentModel.list(sort); }
-
-					return toDisplay(documents, artifactModel);
+					return toDisplay(dModel.list(sort), artifactModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -179,9 +165,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 
 		DisplayDocument dd;
 		for(final Document d : documents) {
-			dd = new DisplayDocument();
-
-			dd.setDocument(d);
+			dd = new DisplayDocument(d);
 			dd.setKeyRequests(artifactModel.readKeyRequests(d.getId()));
 
 			display.add(dd);
@@ -193,9 +177,8 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			final ArtifactModel artifactModel) throws ParityException {
 		if(null == document) { return null; }
 		else {
-			final DisplayDocument dd = new DisplayDocument();
+			final DisplayDocument dd = new DisplayDocument(document);
 			
-			dd.setDocument(document);
 			dd.setKeyRequests(artifactModel.readKeyRequests(document.getId()));
 
 			return dd;

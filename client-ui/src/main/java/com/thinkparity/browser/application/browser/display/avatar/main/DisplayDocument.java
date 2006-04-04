@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -30,7 +29,7 @@ import com.thinkparity.model.xmpp.JabberId;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class DisplayDocument {
+public class DisplayDocument extends Document {
 
 	private static final Integer DISPLAY_MAX_LENGTH;
 
@@ -77,8 +76,6 @@ public class DisplayDocument {
 		listItem.getController().runDeclineKeyRequest(artifactId, keyRequestId);
 	}
 
-	private Document document;
-
 	private final List<KeyRequest> keyRequests;
 
 	private Boolean urgent;
@@ -87,61 +84,42 @@ public class DisplayDocument {
 	 * Create a DisplayDocument.
 	 * 
 	 */
-	public DisplayDocument() {
-		super();
+	public DisplayDocument(final Document d) {
+        super(d.getCreatedBy(), d.getCreatedOn(), d.getDescription(),
+                d.getFlags(), d.getUniqueId(), d.getName(), d.getUpdatedBy(),
+                d.getUpdatedOn());
+        setId(d.getId());
+        setState(d.getState());
 		this.keyRequests = new LinkedList<KeyRequest>();
 	}
 
-	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 * 
-	 */
-	public boolean equals(final Object obj) {
-		if(null != obj && obj instanceof DisplayDocument) {
-			return (((DisplayDocument) obj).document.equals(document));
-		}
-		return false;
-	}
-
     public String getDisplay() {
-	    if(DISPLAY_MAX_LENGTH < document.getName().length()) {
-            return document.getName().substring(0, DISPLAY_MAX_LENGTH - 1 - 3) + "...";
+	    if(DISPLAY_MAX_LENGTH < getName().length()) {
+            return getName().substring(0, DISPLAY_MAX_LENGTH - 1 - 3) + "...";
         }
-        else { return document.getName(); }
+        else { return getName(); }
 	}
 
     public String getDisplayToolTip() {
-        if(DISPLAY_MAX_LENGTH < document.getName().length()) {
-            return document.getName();
+        if(DISPLAY_MAX_LENGTH < getName().length()) {
+            return getName();
         }
         else { return ""; }
     }
-
-	public Long getDocumentId() { return document.getId(); }
-
-	public UUID getDocumentUniqueId() { return document.getUniqueId(); }
 
 	public String getUrgentInfo(final ListItem listItem) {
 		return null;
 	}
 
 	public Boolean hasBeenSeen() {
-		return ArtifactUtil.hasBeenSeen(document.getId(), document.getType());
+		return ArtifactUtil.hasBeenSeen(getId(), getType());
 	}
-
-	/**
-	 * @see java.lang.Object#hashCode()
-	 * 
-	 */
-	public int hashCode() { return document.hashCode(); }
 
 	public Boolean isClosed() {
-		return ArtifactUtil.isClosed(document.getId(), document.getType());
+        return ArtifactUtil.isClosed(getId(), getType());
 	}
 
-	public Boolean isKeyHolder() {
-		return ArtifactUtil.isKeyHolder(document.getId());
-	}
+	public Boolean isKeyHolder() { return ArtifactUtil.isKeyHolder(getId()); }
 
 	public Boolean isUrgent() { return urgent; }
 
@@ -166,21 +144,11 @@ public class DisplayDocument {
 		}
 	}
 
-	public void setDocument(final Document document) {
-		this.document = document;
-	}
-
 	public void setKeyRequests(final List<KeyRequest> keyRequests) {
 		urgent = keyRequests.size() > 0;
 		this.keyRequests.clear();
 		this.keyRequests.addAll(keyRequests);
 	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 * 
-	 */
-	public String toString() { return document.toString(); }
 
 	private JMenuItem getKeyRequestAcceptMenuItem(final ListItem listItem,
 			final KeyRequest keyRequest) {
@@ -189,7 +157,7 @@ public class DisplayDocument {
 		};
 		return listItem.createJMenuItem("KeyRequestAccept", arguments, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				runAcceptKeyRequest(listItem, document.getId(), keyRequest.getId());
+				runAcceptKeyRequest(listItem, getId(), keyRequest.getId());
 			}
 		});
 	}
@@ -202,7 +170,7 @@ public class DisplayDocument {
 		return listItem.createJMenuItem(
 				"KeyRequestAcceptMultiple", arguments, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				runAcceptKeyRequest(listItem, document.getId(), keyRequest.getId());
+				runAcceptKeyRequest(listItem, getId(), keyRequest.getId());
 			}
 		});
 	}
@@ -210,7 +178,7 @@ public class DisplayDocument {
 	private JMenuItem getKeyRequestDeclineAllMenuItem(final ListItem listItem) {
 		return listItem.createJMenuItem("KeyRequestDeclineAll", new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				runDeclineAllKeyRequests(listItem, document.getId());
+				runDeclineAllKeyRequests(listItem, getId());
 			}
 		});
 	}
@@ -219,7 +187,7 @@ public class DisplayDocument {
 			final KeyRequest keyRequest) {
 		return listItem.createJMenuItem("KeyRequestDecline", new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				runDeclineKeyRequest(listItem, document.getId(), keyRequest.getId());
+				runDeclineKeyRequest(listItem, getId(), keyRequest.getId());
 			}
 		});
 	}

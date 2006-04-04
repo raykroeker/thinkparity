@@ -34,6 +34,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
@@ -319,7 +320,18 @@ public class SessionSendFormAvatar extends Avatar {
 					final JabberId jabberId = JabberIdBuilder.parseUsername(user.getSimpleUsername());
 					getSessionModel().sendKeyResponse(documentId, jabberId, KeyResponse.ACCEPT);
 				}
-				else { getSessionModel().send(contacts, documentId); }
+				else {
+                    // if the user is the key holder; we send the working version
+                    // otherwise we send the latest version
+                    if(ArtifactUtil.isKeyHolder(documentId)) {
+                        getSessionModel().send(contacts, documentId);
+                    }
+                    else {
+                        final DocumentVersion latestVersion =
+                            getDocumentModel().readLatestVersion(documentId);
+                        getSessionModel().send(contacts, documentId, latestVersion.getVersionId());
+                    }
+				}
 				// NOTE Interesting
 				ArtifactModel.getModel().applyFlagSeen(documentId);
 			}

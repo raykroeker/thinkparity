@@ -33,4 +33,10 @@ public interface BrowserConstants {
 	public static final Cursor HandCursor = new Cursor(Cursor.HAND_CURSOR);
 
 	public static final Cursor DefaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+
+    public static final Color SelectionBackground =
+        new Color(215, 231, 244, 255);
+
+    public static final Color SelectionForeground =
+        Color.BLACK;
 }

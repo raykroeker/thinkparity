@@ -302,7 +302,7 @@ public class Browser extends AbstractApplication {
 		});
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, Boolean.FALSE);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, Boolean.FALSE);
 			}
 		});
 	}
@@ -322,7 +322,7 @@ public class Browser extends AbstractApplication {
 		// refresh the document main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, Boolean.FALSE);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, Boolean.FALSE);
 			}
 		});
 	}
@@ -337,7 +337,7 @@ public class Browser extends AbstractApplication {
 		// refresh the document main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, Boolean.TRUE);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, Boolean.TRUE);
 			}
 		});
 	}
@@ -356,7 +356,7 @@ public class Browser extends AbstractApplication {
 		// refresh the document in the main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).reloadDocument(documentId, remoteReload);
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, remoteReload);
 			}
 		});
 	}
@@ -475,8 +475,6 @@ public class Browser extends AbstractApplication {
 	 *            The new relative location of the window.
 	 */
 	public void moveBrowserWindow(final Point l) {
-		logger.info("moveMainWindow(Point)");
-		logger.debug(l);
 		final Point newL = mainWindow.getLocation();
 		newL.x += l.x;
 		newL.y += l.y;
@@ -488,14 +486,6 @@ public class Browser extends AbstractApplication {
 			hl.y += l.y;
 			history2Window.setLocation(hl);
 		}
-	}
-
-	/**
-	 * Reload the main list.
-	 *
-	 */
-	public void reloadMainList() {
-		getPlatform().getAvatarRegistry().get(AvatarId.BROWSER_MAIN).reload();
 	}
 
 	/**

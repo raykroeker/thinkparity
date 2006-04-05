@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,9 +90,12 @@ public class DisplayDocument extends Document {
                 d.getFlags(), d.getUniqueId(), d.getName(), d.getUpdatedBy(),
                 d.getUpdatedOn());
         setId(d.getId());
+        setRemoteInfo(d.getRemoteInfo());
         setState(d.getState());
 		this.keyRequests = new LinkedList<KeyRequest>();
 	}
+
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("HH:mm:ss.SSS");
 
     public String getDisplay() {
 	    if(DISPLAY_MAX_LENGTH < getName().length()) {
@@ -101,10 +105,13 @@ public class DisplayDocument extends Document {
 	}
 
     public String getDisplayToolTip() {
-        if(DISPLAY_MAX_LENGTH < getName().length()) {
-            return getName();
-        }
-        else { return ""; }
+//        if(DISPLAY_MAX_LENGTH < getName().length()) {
+//            return getName();
+//        }
+//        else { return null; }
+        return new StringBuffer(getName())
+            .append(" - ")
+            .append(SDF.format(getRemoteInfo().getUpdatedOn().getTime())).toString();
     }
 
 	public String getUrgentInfo(final ListItem listItem) {

@@ -92,10 +92,18 @@ public class BrowserMainDocumentModel {
     private final DefaultListModel jListModel;
 
     /**
+     * The list of all updated documents.
+     * 
+     * @see #syncDocument(Long, Boolean)
+     * @see #syncDocuments()
+     */
+    private final List<DisplayDocument> touchedDocuments;
+
+    /**
      * The set of all visible documents.
      * 
      */
-    private final List<DisplayDocument> visibleDocuments;
+    private final List<DisplayDocument> visibleDocuments; 
 
     /**
      * Create a BrowserMainDocumentModel.
@@ -108,6 +116,7 @@ public class BrowserMainDocumentModel {
         this.documents = new LinkedList<DisplayDocument>();
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
+        this.touchedDocuments = new LinkedList<DisplayDocument>();
         this.visibleDocuments = new LinkedList<DisplayDocument>();
     }
 
@@ -232,17 +241,29 @@ public class BrowserMainDocumentModel {
     }
 
     /**
-     * Reload the document in the list. The content provider is queried for the
-     * document and if it can be obtained; it will either be added to or updated
-     * in the list. If it cannot be found; it will be removed from the list.
+     * Determine if the document is visible.
+     * 
+     * @param displayDocument
+     *            The display document.
+     * @return True if the document is visible; false otherwise.
+     */
+    Boolean isDocumentVisible(final DisplayDocument displayDocument) {
+        return visibleDocuments.contains(displayDocument);
+    }
+
+    /**
+     * Synchronize the document with the list. The content provider is queried
+     * for the document and if it can be obtained; it will either be added to or
+     * updated in the list. If it cannot be found; it will be removed from the
+     * list.
      * 
      * @param documentId
      *            The document id.
-     * @param remoteReload
+     * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
      */
-    void reload(final Long documentId, final Boolean remoteReload) {
+    void syncDocument(final Long documentId, final Boolean remote) {
         final DisplayDocument displayDocument =
             (DisplayDocument) contentProvider.getElement(0, documentId);
         // if the display document is null; we can assume the document has been
@@ -265,8 +286,14 @@ public class BrowserMainDocumentModel {
 
                 // if the reload is not the result of a remote event; put it back
                 // where it was; otherwise move it to the top
-                if(remoteReload) { documents.add(0, displayDocument); }
-                else { documents.add(index, displayDocument); }
+                if(remote) {
+                    documents.add(0, displayDocument);
+                    touchedDocuments.add(displayDocument);
+                }
+                else {
+                    documents.add(index, displayDocument);
+                    touchedDocuments.add(displayDocument);
+                }
             }
             // if it's not in the list; just add it to the top
             else { documents.add(0, displayDocument); }
@@ -379,13 +406,25 @@ public class BrowserMainDocumentModel {
         }
         final ListItem[] modelItems = new ListItem[jListModel.size()];
         jListModel.copyInto(modelItems);
-        for(final ListItem li2 : modelItems) {
-            if(li2 instanceof DocumentListItem) {
-                if(!visibleDocuments.contains(((DocumentListItem) li2).getDisplayDocument())) {
-                    jListModel.removeElement(li2);
+        DocumentListItem dli;
+        int touchedIndex;
+        for(int i = 0; i < modelItems.length; i++) {
+            li = modelItems[i];
+            if(li instanceof DocumentListItem) {
+                dli = (DocumentListItem) li;
+                // remove documents that are no longer visible
+                if(!visibleDocuments.contains(dli.getDisplayDocument()))
+                    jListModel.removeElement(li);
+
+                // re-create the list item of those that have been touched
+                if(touchedDocuments.contains(dli.getDisplayDocument())) {
+                    touchedIndex = touchedDocuments.indexOf(dli.getDisplayDocument());
+                    jListModel.remove(i);
+                    jListModel.add(i, ListItem.create(touchedDocuments.get(touchedIndex)));
                 }
             }
         }
+        touchedDocuments.clear();
         if(1 > visibleDocuments.size()) {
             browser.disableHistory();
         }

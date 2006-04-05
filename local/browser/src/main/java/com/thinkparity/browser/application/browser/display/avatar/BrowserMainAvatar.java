@@ -21,6 +21,8 @@ import javax.swing.event.ListSelectionListener;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.CellRenderer;
+import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
@@ -48,16 +50,16 @@ public class BrowserMainAvatar extends Avatar {
 	private static final long serialVersionUID = 1;
 
     /**
-     * The model for the documents in the list.
-     * 
-     */
-    private final BrowserMainDocumentModel mainDocumentModel;
-
-    /**
 	 * The swing list.
 	 * 
 	 */
 	private JList jList;
+
+    /**
+     * The model for the documents in the list.
+     * 
+     */
+    private final BrowserMainDocumentModel mainDocumentModel;
 
     /**
      * The search filter.
@@ -67,14 +69,6 @@ public class BrowserMainAvatar extends Avatar {
      */
     private Search searchFilter;
     
-    /**
-     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setContentProvider(com.thinkparity.browser.application.browser.display.provider.ContentProvider)
-     * 
-     */
-    public void setContentProvider(final ContentProvider contentProvider) {
-        mainDocumentModel.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
-    }
-
     /**
 	 * Create a BrowserMainAvatar.
 	 * 
@@ -144,13 +138,13 @@ public class BrowserMainAvatar extends Avatar {
 	 */
 	public AvatarId getId() { return AvatarId.BROWSER_MAIN; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState()
 	 * 
 	 */
 	public State getState() { return null; }
 
-    /**
+	/**
      * Determine whether or not the filter is enabled.
      * 
      * @return True if it is; false otherwise.
@@ -159,25 +153,13 @@ public class BrowserMainAvatar extends Avatar {
         return mainDocumentModel.isDocumentListFiltered();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
 	 * 
 	 */
 	public void reload() {}
 
 	/**
-     * Reload the document in the list.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param remoteReload
-     *            Indicates wether the reload is the result of a remote event
-     */
-	public void reloadDocument(final Long documentId, final Boolean remoteReload) {
-	    mainDocumentModel.reload(documentId, remoteReload);
-	}
-
-    /**
      * Remove the key holder filter.
      * 
      * @see #applyKeyHolderFilter(Boolean)
@@ -186,7 +168,7 @@ public class BrowserMainAvatar extends Avatar {
         mainDocumentModel.removeKeyHolderFilters();
     }
 
-    /**
+	/**
      * Remove the search filter from the list.
      *
      * @see #applySearchFilter(List)
@@ -195,7 +177,7 @@ public class BrowserMainAvatar extends Avatar {
         mainDocumentModel.removeSearchFilter();
     }
 
-	/**
+    /**
      * Remove the state filter from the list.
      * 
      * @see #applyStateFilter(ArtifactState)
@@ -203,12 +185,43 @@ public class BrowserMainAvatar extends Avatar {
     public void removeStateFilter() { mainDocumentModel.removeStateFilters(); }
 
     /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setContentProvider(com.thinkparity.browser.application.browser.display.provider.ContentProvider)
+     * 
+     */
+    public void setContentProvider(final ContentProvider contentProvider) {
+        mainDocumentModel.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
 	public void setState(final State state) {}
 
-	/**
+    /**
+     * Synchronize the document in the list.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param remote
+     *            Indicates wether the sync is the result of a remote event
+     */
+	public void syncDocument(final Long documentId, final Boolean remote) {
+        final DisplayDocument selectedDocument = getSelectedDocument();
+	    mainDocumentModel.syncDocument(documentId, remote);
+        if(mainDocumentModel.isDocumentVisible(selectedDocument))
+            selectDocument(selectedDocument);
+	}
+
+	private DisplayDocument getSelectedDocument() {
+        final ListItem li = (ListItem) jList.getSelectedValue();
+        if(li instanceof DocumentListItem) {
+            return ((DocumentListItem) li).getDisplayDocument();
+        }
+        else { return null; }
+    }
+
+    /**
 	 * Initialize the swing components.
 	 *
 	 */
@@ -282,4 +295,8 @@ public class BrowserMainAvatar extends Avatar {
 	private void runOpenDocumentAction(final Long documentId) {
 		getController().runOpenDocument(documentId);
 	}
+
+	private void selectDocument(final DisplayDocument displayDocument) {
+        jList.setSelectedValue(ListItem.create(displayDocument), true);
+    }
 }

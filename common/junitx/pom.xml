@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.raykroeker</groupId>
+	<version>1.0</version>
+	<url>http://raykroeker.dyndns.org</url>
+
+	<artifactId>jUnitX</artifactId>
+	<name>JUnit eXtensions</name>
+	<packaging>jar</packaging>
+
+	<scm>
+		<connection>scm:cvs:pserver:pluto@rkutil.raykroeker.com:2401:/home/cvs/raykroeker.com:source/JUnitX</connection>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>raymond</id>
+			<name>Raymond Kroeker</name>
+			<email>raykroeker@gmail.com</email>
+			<url>http://www.raykroeker.com</url>
+			<roles>
+				<role>Architect</role>
+				<role>Engineer</role>
+			</roles>
+			<timezone>-8</timezone>
+			<properties/>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>compile</scope>
+			<type>jar</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+
+			<!-- assembly -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.0-beta-1</version>
+				<configuration>
+					<descriptor>src/main/assembly/bin.xml</descriptor>
+					<outputDirectory>target</outputDirectory>
+					<workDirectory>target/assembly/work</workDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

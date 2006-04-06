@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
@@ -60,7 +60,15 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) { return getImpl().readUser(jabberId); }
 	}
 
-	public List<User> readUsers(final List<JabberId> jabberIds)
+    /**
+     * Read a set of users.
+     * 
+     * @param jabberIds
+     *            A set of user ids.
+     * @return A set of users.
+     * @throws ParityException
+     */
+	public Set<User> readUsers(final Set<JabberId> jabberIds)
 			throws ParityException {
 		synchronized(getImplLock()) { return getImpl().readUsers(jabberIds); }
 	}

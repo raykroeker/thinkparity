@@ -5,8 +5,10 @@ package com.thinkparity.server.handler;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -27,6 +29,7 @@ import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.contact.ContactModel;
+import com.thinkparity.server.model.document.DocumentModel;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.UserModel;
@@ -155,24 +158,24 @@ public abstract class IQHandler extends
 		return artifactModel.get(extractUniqueId(iq));
 	}
 
-	/**
-	 * Extract the jive id from the iq.
-	 * 
-	 * @param iq
-	 *            The iq.
-	 * @return The jive id.
-	 */
-	protected JID extractJID(final IQ iq) {
-		final Element childElement = iq.getChildElement();
-		final Element jidElement = getElement(childElement, ElementName.JID);
-		return JIDBuilder.buildQualified((String) jidElement.getData());
-	}
-
 	protected JabberId extractJabberId(final IQ iq) {
 		final Element childElement = iq.getChildElement();
 		final Element jidElement = getElement(childElement, ElementName.JID);
 		return JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData());
 	}
+
+    protected Set<JabberId> extractJabberIdSet(final IQ iq) {
+        final Element childElement = iq.getChildElement();
+        final Element jidListElement = getElement(childElement, ElementName.JIDS);
+        final List jidElements = getElements(jidListElement, ElementName.JID);
+        final Set<JabberId> jabberIds = new HashSet<JabberId>();
+        Element jidElement;
+        for(final Object o : jidElements) {
+            jidElement = (Element) o;
+            jabberIds.add(JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData()));
+        }
+        return jabberIds;
+    }
 
 	protected List<JabberId> extractJabberIds(final IQ iq) {
 		final Element childElement = iq.getChildElement();
@@ -188,6 +191,25 @@ public abstract class IQHandler extends
 	}
 
 	/**
+	 * Extract the jive id from the iq.
+	 * 
+	 * @param iq
+	 *            The iq.
+	 * @return The jive id.
+	 */
+	protected JID extractJID(final IQ iq) {
+		final Element childElement = iq.getChildElement();
+		final Element jidElement = getElement(childElement, ElementName.JID);
+		return JIDBuilder.buildQualified((String) jidElement.getData());
+	}
+
+    protected String extractName(final IQ iq) {
+        final Element e = iq.getChildElement();
+        final Element name = e.element(ElementName.NAME.getName());
+        return (String) name.getData();
+    }
+
+    /**
 	 * Extract the artifact's unique id from the iq xml document. The required
 	 * child element is: &lt;uuid&gt;&lt;/uuid&gt;
 	 * 
@@ -201,24 +223,53 @@ public abstract class IQHandler extends
 		return UUID.fromString((String) uuidElement.getData());
 	}
 
-	/**
-	 * Obtain a handle to the artifact model.
-	 * 
-	 * @return A hanlde to the artifact model.
-	 */
+    /**
+     * Extract a named version id from the xmpp internet query.
+     * 
+     * @param iq
+     *            The xmpp internet query.
+     * @return The version id.
+     */
+    protected Long extractVersionId(final IQ iq) {
+        final Element e = iq.getChildElement();
+        final Element versionId = e.element(ElementName.VERSIONID.getName());
+        return Long.parseLong((String) versionId.getData());
+    }
+
+    /**
+     * Obtain the parity artifact interface.
+     * 
+     * @param session
+     *            The user's session.
+     * @return The parity artifact interface.
+     */
 	protected ArtifactModel getArtifactModel(final Session session) {
 		return ArtifactModel.getModel(session);
 	}
 
-	protected UserModel getUserModel(final Session session) {
-		return UserModel.getModel(session);
-	}
-
+    /**
+     * Obtain the parity contact interface.
+     * 
+     * @param session
+     *            The user's session.
+     * @return The parity contact interface.
+     */
 	protected ContactModel getContactModel(final Session session) {
 		return ContactModel.getModel(session);
 	}
 
-	/**
+    /**
+     * Obtain the parity document interface.
+     * 
+     * @param session
+     *            The user's session.
+     * @return The parity document interface.
+     */
+    protected DocumentModel getDocumentModel(final Session session) {
+        return DocumentModel.getModel(session);
+    }
+
+    /**
 	 * Simplicity method to extract a named element from an element.
 	 * 
 	 * @param element
@@ -249,6 +300,17 @@ public abstract class IQHandler extends
 
 	protected QueueModel getQueueModel(final Session session) {
 		return QueueModel.getModel(session);
+	}
+
+	/**
+     * Obtain the parity user interface.
+     * 
+     * @param session
+     *            The user's session.
+     * @return The parity user interface.
+     */
+	protected UserModel getUserModel(final Session session) {
+		return UserModel.getModel(session);
 	}
 
 	/**

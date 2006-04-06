@@ -4,7 +4,7 @@
 package com.thinkparity.browser.application.browser.display.provider.session;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
@@ -20,6 +20,7 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -54,9 +55,9 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
 			public Object[] getElements(final Object input) {
 				final Long artifactId = assertValidInput(input);
 				try {
-					final List<Contact> team =
-						sModel.readArtifactContacts(artifactId);
-					for(final Iterator<Contact> i = team.iterator(); i.hasNext();) {
+					final Set<User> team =
+						sModel.readArtifactTeam(artifactId);
+					for(final Iterator<User> i = team.iterator(); i.hasNext();) {
 						if(i.next().getId().equals(loggedInUser)) { i.remove(); }
 					}
 					return team.toArray(new Contact[] {});

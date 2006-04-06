@@ -5,6 +5,7 @@ package com.thinkparity.model.xmpp;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -18,8 +19,8 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.artifact.*;
-import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -94,16 +95,17 @@ class XMPPArtifact {
 	}
 
 	/**
-	 * Read the contacts for an artifact.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @return The artifact contacts.
-	 */
-	List<Contact> readContacts(final UUID artifactUniqueId) throws SmackException {
-		logger.info("[XMPP] [ARTIFACT] [READ CONTACTS]");
-		logger.debug(artifactUniqueId);
-		final IQ iq = new IQReadContacts(artifactUniqueId);
+     * Read the artifact team.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @return A set of users.
+     * @throws SmackException
+     */
+	Set<User> readTeam(final UUID uniqueId) throws SmackException {
+		logger.info("[LMODEL] [XMPP] [ARTIFACT] [READ TEAM]");
+		logger.debug(uniqueId);
+		final IQ iq = new IQReadContacts(uniqueId);
 		iq.setType(IQ.Type.GET);
 		final IQReadContactsResult result =
 			(IQReadContactsResult) xmppCore.sendAndConfirmPacket(iq);

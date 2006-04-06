@@ -27,6 +27,7 @@ import com.thinkparity.model.parity.model.L18nContext;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
@@ -47,8 +48,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * Implementation of the document model interface.
@@ -600,24 +599,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain the latest document version.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @return The latest version.
-	 */
-	DocumentVersion readLatestVersion(final Long documentId)
-			throws ParityException {
-		logger.info("getLatestVersion(Long)");
-		logger.debug(documentId);
-		try { return documentIO.getLatestVersion(documentId); }
-		catch(RuntimeException rx) {
-			logger.error("Could not obtain latest version.", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
 	 * Obtain a document version.
 	 * 
 	 * @param documentId
@@ -941,6 +922,24 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Obtain the latest document version.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 * @return The latest version.
+	 */
+	DocumentVersion readLatestVersion(final Long documentId)
+			throws ParityException {
+		logger.info("getLatestVersion(Long)");
+		logger.debug(documentId);
+		try { return documentIO.getLatestVersion(documentId); }
+		catch(RuntimeException rx) {
+			logger.error("Could not obtain latest version.", rx);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+	/**
 	 * Receive an xmpp document. If no local document exists; create it; then
 	 * insert the xmpp document as a version of the local document.
 	 * 
@@ -948,16 +947,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The xmpp document.
 	 * @throws ParityException
 	 */
-	void receive(final XMPPDocument xmppDocument) throws ParityException {
-		logger.info("receiveDocument(XMPPDocument)");
-		logger.debug(xmppDocument);
+	void receive(final JabberId receivedFrom, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] content)
+            throws ParityException {
+		logger.info("[LMODEL] [DOCUMENT] [RECEIVE]");
 		try {
-			final JabberId receivedFromJabberId =
-				JabberIdBuilder.parseUsername(xmppDocument.getReceivedFrom());
-
-			Document document = get(xmppDocument.getUniqueId());
+			Document document = get(uniqueId);
 			if(null == document) {
-				document = receiveCreate(xmppDocument);
+				document = receiveCreate(receivedFrom, uniqueId, versionId,
+                        name, content);
 
 				// if key holder:  apply flag key
 				final InternalSessionModel iSModel = getInternalSessionModel();
@@ -968,20 +966,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 				// audit the receiving
 				final Document d = get(document.getId());
-				auditor.recieve(d.getId(), xmppDocument.getVersionId(),
-						receivedFromJabberId, currentUserId(), currentDateTime());
+				auditor.recieve(d.getId(), versionId, receivedFrom,
+                        currentUserId(), currentDateTime());
 
 				// notify
 				notifyUpdate_objectReceived(d);
 			}
 			else {
 				final DocumentVersion version =
-					getVersion(document.getId(), xmppDocument.getVersionId());
+                    getVersion(document.getId(), versionId);
 				// i have this version.  wtf biotch
 				if(null == version) {
 					document.setUpdatedOn(currentDateTime());
-					receiveUpdate(xmppDocument, document);
-
+                    receiveUpdate(receivedFrom, uniqueId, document.getId(), versionId, name, content);
 
 					// if key holder:  apply flag key
 					final InternalSessionModel iSModel = getInternalSessionModel();
@@ -991,10 +988,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 					}
 				}
 
-//				 audit the receiving
+				// audit the receiving
 				final Document d = get(document.getId());
-				auditor.recieve(d.getId(), xmppDocument.getVersionId(),
-						receivedFromJabberId, currentUserId(), currentDateTime());
+				auditor.recieve(d.getId(), versionId, receivedFrom,
+                        currentUserId(), currentDateTime());
 
 				// notify if this is a new version
 				if(null == version) { notifyUpdate_objectReceived(d); }
@@ -1303,29 +1300,29 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private Document receiveCreate(final XMPPDocument xmppDocument)
-			throws ParityException, FileNotFoundException, IOException {
+	private Document receiveCreate(final JabberId receivedFrom,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] bytes) throws ParityException, FileNotFoundException,
+            IOException {
 		final Calendar currentDateTime = currentDateTime();
 		// create the document
 		final Document document = new Document();
-		document.setCreatedBy(xmppDocument.getCreatedBy());
+		document.setCreatedBy(receivedFrom.getUsername());
 		document.setCreatedOn(currentDateTime);
-		document.setName(xmppDocument.getName());
+		document.setName(name);
 		document.setState(ArtifactState.ACTIVE);
-		document.setUniqueId(xmppDocument.getUniqueId());
-		document.setUpdatedBy(xmppDocument.getUpdatedBy());
+		document.setUniqueId(uniqueId);
+		document.setUpdatedBy(receivedFrom.getUsername());
 		document.setUpdatedOn(currentDateTime);
 
 		final DocumentContent content = new DocumentContent();
-		content.setChecksum(MD5Util.md5Hex(xmppDocument.getContent()));
-		content.setContent(xmppDocument.getContent());
+		content.setChecksum(MD5Util.md5Hex(bytes));
+		content.setContent(bytes);
 		documentIO.create(document, content);
 
 		// create the remote info row
 		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		final JabberId remoteUpdatedBy =
-			JabberIdBuilder.parseUsername(xmppDocument.getCreatedBy());
-		iAModel.createRemoteInfo(document.getId(), remoteUpdatedBy, currentDateTime);
+		iAModel.createRemoteInfo(document.getId(), receivedFrom, currentDateTime);
 
 		// create the document file
 		final LocalFile file = getLocalFile(document);
@@ -1337,11 +1334,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// index the creation
 		indexor.create(document.getId(), document.getName());
 
-		// fire an update event
-		receiveUpdate(xmppDocument, document);
+		// update the document
+		receiveUpdate(receivedFrom, uniqueId, document.getId(), versionId, name, bytes);
 		return document;
 	}
-	/**
+
+    /**
 	 * Insert the corresponding version for the xmpp document received. Check to
 	 * see if this is the latest version locally; and if it is; update the
 	 * document\document content. Notify that a version has been received.
@@ -1354,58 +1352,60 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws IOException
 	 * @throws ParityException
 	 */
-	private void receiveUpdate(final XMPPDocument xmppDocument,
-			final Document document) throws FileNotFoundException, IOException,
-			ParityException {
-		final DocumentVersion version = new DocumentVersion();
-		version.setArtifactId(document.getId());
-		version.setArtifactType(document.getType());
-		version.setArtifactUniqueId(document.getUniqueId());
-		version.setCreatedBy(xmppDocument.getCreatedBy());
-		version.setCreatedOn(xmppDocument.getCreatedOn());
-		version.setName(document.getName());
-		version.setUpdatedBy(xmppDocument.getUpdatedBy());
-		version.setUpdatedOn(xmppDocument.getUpdatedOn());
-		version.setVersionId(xmppDocument.getVersionId());
+	private void receiveUpdate(final JabberId receivedFrom,
+            final UUID uniqueId, final Long documentId, final Long versionId,
+            final String name, final byte[] bytes)
+            throws FileNotFoundException, IOException, ParityException {
+	    final Calendar currentDateTime = currentDateTime();
+
+        final DocumentVersion version = new DocumentVersion();
+		version.setArtifactId(documentId);
+		version.setArtifactType(ArtifactType.DOCUMENT);
+		version.setArtifactUniqueId(uniqueId);
+		version.setCreatedBy(receivedFrom.getUsername());
+		version.setCreatedOn(currentDateTime);
+		version.setName(name);
+		version.setUpdatedBy(currentUserId().getUsername());
+		version.setUpdatedOn(currentDateTime);
+		version.setVersionId(versionId);
 
 		final DocumentContent content = new DocumentContent();
-		content.setChecksum(MD5Util.md5Hex(xmppDocument.getContent()));
-		content.setContent(xmppDocument.getContent());
-		content.setDocumentId(version.getArtifactId());
+		content.setChecksum(MD5Util.md5Hex(bytes));
+		content.setContent(bytes);
+		content.setDocumentId(documentId);
 
 		final DocumentVersionContent versionContent = new DocumentVersionContent();
 		versionContent.setDocumentContent(content);
-		versionContent.setDocumentId(version.getArtifactId());
-		versionContent.setVersionId(version.getVersionId());
+		versionContent.setDocumentId(documentId);
+		versionContent.setVersionId(versionId);
 
 		insertVersion(version.getArtifactId(), version, versionContent);
 
 		if(isLatestLocalVersion(version)) {
-			document.setUpdatedBy(xmppDocument.getUpdatedBy());
+            final Document d = get(documentId);
+			d.setUpdatedBy(currentUserId().getUsername());
 
 			// update the db
-			documentIO.update(document);
+			documentIO.update(d);
 			documentIO.updateContent(content);
 
 			// update the local file
-			final LocalFile localFile = getLocalFile(document);
+			final LocalFile localFile = getLocalFile(d);
 			localFile.delete();
 			localFile.write(content.getContent());
 		}
 
 		// if not key holder:  lock
 		final InternalSessionModel iSModel = getInternalSessionModel();
-		if(!iSModel.isLoggedInUserKeyHolder(document.getId())) {
-			lock(document.getId());
+		if(!iSModel.isLoggedInUserKeyHolder(documentId)) {
+			lock(documentId);
 		}
 
 		// remove flag seen
 		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		iAModel.removeFlagSeen(document.getId());
+		iAModel.removeFlagSeen(documentId);
 
 		// update remote info
-		final JabberId remoteUpdatedBy =
-			JabberIdBuilder.parseUsername(xmppDocument.getUpdatedBy());
-		iAModel.updateRemoteInfo(document.getId(), remoteUpdatedBy, currentDateTime());
+		iAModel.updateRemoteInfo(documentId, receivedFrom, currentDateTime);
 	}
 }

@@ -46,23 +46,23 @@ public class SendKeyTest extends XMPPTestCase {
 		data = new LinkedList<Fixture>();
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
 	}
 

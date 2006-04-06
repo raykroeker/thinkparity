@@ -3,10 +3,12 @@
  */
 package com.thinkparity.model.parity.model.document.history;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
@@ -35,7 +37,7 @@ public class HistoryItemBuilder {
 	private static Map<JabberId, User> buildUserMap(
 			final Iterable<AuditEvent> auditEvents,
 			final InternalSessionModel iSModel) throws ParityException {
-		final List<JabberId> jabberIds = new LinkedList<JabberId>();
+		final Set<JabberId> jabberIds = new HashSet<JabberId>();
 		for(final AuditEvent auditEvent : auditEvents) {
 			switch(auditEvent.getType()) {
 			case ARCHIVE:
@@ -93,7 +95,7 @@ public class HistoryItemBuilder {
 			default: Assert.assertUnreachable("");
 			}
 		}
-		final List<User> users = iSModel.readUsers(jabberIds);
+		final Set<User> users = iSModel.readUsers(jabberIds);
 		final Map<JabberId, User> userMap = new LinkedHashMap<JabberId, User>();
 		for(final User user : users) { userMap.put(user.getId(), user); }
 		return userMap;

@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * Abstraction of an xmpp internet query. Used primarily to insert a logger and
@@ -78,6 +80,15 @@ public abstract class IQParity extends IQ {
 	}
 
 	/**
+     * Obtain the from jabber id.
+     * 
+     * @return The from jabber id.
+     */
+	public JabberId getFromJabberId() {
+        return JabberIdBuilder.parseQualifiedJabberId(getFrom());
+    }
+
+	/**
 	 * Finish xml for the query.
 	 * 
 	 * @return The finish xml tag for the query.
@@ -107,13 +118,13 @@ public abstract class IQParity extends IQ {
 			.append("\">").toString();
 	}
 
-	/**
+    /**
 	 * Artifact actions that are possible to perform.
 	 * 
 	 */
 	protected enum Action {
-		ARTIFACTREADCONTACTS, ACCEPTCONTACTINVITATION, ACCEPTKEYREQUEST, CLOSEARTIFACT, CREATEARTIFACT, DELETEARTIFACT,
-		DECLINECONTACTINVITATION, DENYKEYREQUEST, FLAGARTIFACT, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION,
+		ACCEPTCONTACTINVITATION, ACCEPTKEYREQUEST, ARTIFACTREADCONTACTS, CLOSEARTIFACT, CREATEARTIFACT, DECLINECONTACTINVITATION,
+		DELETEARTIFACT, DENYKEYREQUEST, DOCUMENTSEND, FLAGARTIFACT, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION,
 		INVITECONTACT, PROCESSOFFLINEQUEUE, READCONTACTS, READUSERS, REQUESTKEY, SUBSCRIBEUSER, UNSUBSCRIBEUSER
 	}
 }

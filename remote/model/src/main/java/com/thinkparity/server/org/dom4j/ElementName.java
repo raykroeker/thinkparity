@@ -9,10 +9,10 @@ package com.thinkparity.server.org.dom4j;
  */
 public enum ElementName {
 
-	ACTION("action"), CONTACT("contact"), CONTACTS("contacts"), FLAG("flag"),
+	ACTION("action"), BYTES("bytes"), CONTACT("contact"), CONTACTS("contacts"), FLAG("flag"),
 	JID("jid"), JIDS("jids"), KEYHOLDER("keyholder"),
-	KEYRESPONSE("keyresponse"), QUERY("query"), USERNAME("username"),
-	UUID("uuid"), UUIDS("uuids"), USERS("users"), USER("user"), VCARD("vcard");
+	KEYRESPONSE("keyresponse"), NAME("name"), QUERY("query"), USERNAME("username"),
+	UUID("uuid"), UUIDS("uuids"), VERSIONID("versionid"), USERS("users"), USER("user"), VCARD("vcard");
 
 	/**
 	 * The xml element name.

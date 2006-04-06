@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.index;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -29,7 +30,7 @@ import com.thinkparity.model.parity.model.index.lucene.QueryHit;
 import com.thinkparity.model.parity.model.index.lucene.Searcher;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -127,12 +128,12 @@ class IndexModelImpl extends AbstractModelImpl {
 		logger.debug("[LMODEL] [INDEX] [CREATE DOCUMENT INDEX] [DOCUMENT NAME VALUE] [" + documentNameValue + "]");
 
 		final InternalSessionModel iSModel = getInternalSessionModel();
-		final List<Contact> contacts = iSModel.readArtifactContacts(documentId);
+		final Set<User> documentTeam = iSModel.readArtifactTeam(documentId);
 
 		final DocumentBuilder db = new DocumentBuilder(6);
 		db.append(IDX_ARTIFACT_ID.setValue(documentId).toField())
 			.append(IDX_ARTIFACT_NAME.setValue(documentNameValue.toString()).toField())
-			.append(IDX_ARTIFACT_CONTACTS.setValue(contacts).toField());
+			.append(IDX_ARTIFACT_CONTACTS.setValue(documentTeam).toField());
 
 		index(db.toDocument());
 	}

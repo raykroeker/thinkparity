@@ -4,14 +4,8 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.text.MessageFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
@@ -36,7 +30,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -156,9 +149,11 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param xmppDocument
 	 *            The xmpp document that has been received.
 	 */
-	static void notifyDocumentReceived(final XMPPDocument xmppDocument)
-			throws ParityException {
-		DocumentModel.getInternalModel(sContext).receive(xmppDocument);
+	static void notifyDocumentReceived(final JabberId receivedFrom,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] content) throws ParityException {
+		DocumentModel.getInternalModel(sContext)
+            .receive(receivedFrom, uniqueId, versionId, name, content);
 	}
 
 	/**
@@ -691,32 +686,31 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Read a list of contacts for an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return A list of contacts.
-	 * @throws ParityException
-	 */
-	List<Contact> readArtifactContacts(final Long artifactId)
-			throws ParityException {
-		logger.info("READING ARTIFACT CONTACTS");
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return A set of users.
+     * @throws ParityException
+     */
+	Set<User> readArtifactTeam(final Long artifactId)
+            throws ParityException {
+		logger.info("[LMODEL] [SESSION] [READ ARTIFACT TEAM]");
 		logger.debug(artifactId);
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("Cannot read artifact contacts while offline.",
+		synchronized(xmppHelper) {
+			assertIsLoggedIn("[LMODEL] [SESSION] [READ ARTIFACT TEAM]",
 					xmppHelper);
 			try {
-				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
-				return xmppHelper.readArtifactContacts(artifactUniqueId);
+				final UUID uniqueId = getArtifactUniqueId(artifactId);
+				return xmppHelper.readArtifactTeam(uniqueId);
 			}
 			catch(final SmackException sx) {
-				logger.error("getSubscriptions(Long)", sx);
+				logger.error("[LMODEL] [SESSION] [READ ARTIFACT TEAM] [XMPP ERROR]", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(final RuntimeException rx) {
-				logger.error("getSubscriptions(Long)", rx);
+				logger.error("[LMODEL] [SESSION] [READ ARTIFACT TEAM] [UNKNOWN ERROR]", rx);
 				throw ParityErrorTranslator.translate(rx);
-
 			}
 		}
 	}
@@ -733,33 +727,49 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain a list of roster entries.
-	 * 
-	 * @return The list of roster entries.
-	 * @throws ParityException
-	 */
-	List<Contact> readContacts() throws ParityException {
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("Cannot read contact list while offline.", xmppHelper);
+     * Read the logged in user's contacts.
+     * 
+     * @return A set of contacts.
+     * @throws ParityException
+     */
+	Set<Contact> readContacts() throws ParityException {
+		synchronized(xmppHelper) {
+			assertIsLoggedIn("[LMODEL] [SESSION] [READ CONTACTS]", xmppHelper);
 			try { return xmppHelper.readContacts(); }
-			catch(SmackException sx) {
-				logger.error("getRosterEntries()", sx);
+			catch(final SmackException sx) {
+				logger.error("[LMODEL] [SESSION] [READ CONTACTS] [XMPP ERROR]", sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
-			catch(RuntimeException rx) {
-				logger.error("getRosterEntries()", rx);
+			catch(final RuntimeException rx) {
+				logger.error("[LMODEL] [SESSION] [READ CONTACTS] [UNKNOWN ERROR]", rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
 	}
 
+    /**
+     * Read a single user.
+     * 
+     * @param jabberId
+     *            The user id.
+     * @return The user.
+     * @throws ParityException
+     */
 	User readUser(final JabberId jabberId) throws ParityException {
-		final List<JabberId> jabberIds = new LinkedList<JabberId>();
+		final Set<JabberId> jabberIds = new HashSet<JabberId>();
 		jabberIds.add(jabberId);
-		return readUsers(jabberIds).get(0);
+		return readUsers(jabberIds).iterator().next();
 	}
 
-	List<User> readUsers(final List<JabberId> jabberIds) throws ParityException {
+    /**
+     * Read a set of users.
+     * 
+     * @param jabberIds
+     *            A set of user ids.
+     * @return A set of users.
+     * @throws ParityException
+     */
+	Set<User> readUsers(final Set<JabberId> jabberIds) throws ParityException {
 		synchronized(xmppHelperLock) {
 			assertIsLoggedIn("Cannot read user list while offline.", xmppHelper);
 			try { return xmppHelper.readUsers(jabberIds); }
@@ -865,32 +875,19 @@ class SessionModelImpl extends AbstractModelImpl {
 		logger.debug(versionId);
 		synchronized(xmppHelper) {
 			try {
-				final InternalDocumentModel iDocumentModel =
-					getInternalDocumentModel();
-				final DocumentVersion version =
-					iDocumentModel.getVersion(documentId, versionId);
-				final DocumentVersionContent versionContent =
-					iDocumentModel.getVersionContent(documentId, versionId);
-
-				final XMPPDocument xmppDocument = new XMPPDocument();
-				xmppDocument.setContent(versionContent.getDocumentContent().getContent());
-				xmppDocument.setCreatedBy(version.getCreatedBy());
-				xmppDocument.setCreatedOn(version.getCreatedOn());
-				xmppDocument.setName(version.getName());
-				xmppDocument.setReceivedFrom(getLoggedInUser().getSimpleUsername());
-				xmppDocument.setUniqueId(version.getArtifactUniqueId());
-				xmppDocument.setUpdatedBy(version.getUpdatedBy());
-				xmppDocument.setUpdatedOn(version.getUpdatedOn());
-				xmppDocument.setVersionId(version.getVersionId());
+				final InternalDocumentModel iDModel = getInternalDocumentModel();
+                final Document d = iDModel.get(documentId);
+				final DocumentVersion dv = iDModel.getVersion(documentId, versionId);
+				final DocumentVersionContent vc = iDModel.getVersionContent(documentId, versionId);
 
 				// send the document version
-				xmppHelper.send(users, xmppDocument);
+				xmppHelper.sendDocumentVersion(extractIdSet(users),
+                        d.getUniqueId(), dv.getVersionId(), d.getName(),
+                        vc.getDocumentContent().getContent());
 
 				// audit the send
-				final Calendar now = DateUtil.getInstance();
-				final DocumentVersion dv = iDocumentModel.getVersion(documentId, versionId);
 				auditor.send(dv.getArtifactId(), dv.getVersionId(),
-						xmppHelper.getUser().getId(), now, users);
+                        currentUserId(), currentDateTime(), users);
 			}
 			catch(final SmackException sx) {
 				logger.error("Could not send document version.", sx);
@@ -908,35 +905,6 @@ class SessionModelImpl extends AbstractModelImpl {
 		final List<JabberId> jabberIds = new LinkedList<JabberId>();
 		jabberIds.add(jabberId);
 		send(jabberIds, documentId);
-	}
-
-	/**
-	 * Send a message to a list of parity users.
-	 * 
-	 * @param jabberId
-	 *            The user id.
-	 * @param message
-	 *            The message to send.
-	 * @throws ParityException
-	 */
-	void send(final JabberId jabberId, final String message)
-			throws ParityException {
-		synchronized(xmppHelperLock) {
-			assertIsLoggedIn("send(Collection<User>,String)", xmppHelper);
-			try {
-				final Collection<User> users = new Vector<User>(0);
-				users.add(new User(jabberId));
-				xmppHelper.send(users, message);
-			}
-			catch(SmackException sx) {
-				logger.error("send(Collection<User>,String)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("send(Collection<User>,String)", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
 	}
 
 	void send(final List<JabberId> jabberIds, final Long documentId)
@@ -1118,14 +1086,14 @@ class SessionModelImpl extends AbstractModelImpl {
 					}
 					else { version = iDModel.createVersion(documentId); }
 
-					// send the key change to the server
-					xmppHelper.sendKeyResponse(
-							document.getUniqueId(), keyResponse, requestedByUser);
-
 					// send new version
 					final Collection<User> users = new Vector<User>(1);
 					users.add(requestedByUser);
 					send(users, documentId, version.getVersionId());
+
+                    // send the key change to the server
+					xmppHelper.sendKeyResponse(
+					        document.getUniqueId(), keyResponse, requestedByUser);
 
 					// remove flag key
 					final InternalArtifactModel iAModel = getInternalArtifactModel();
@@ -1225,8 +1193,21 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	private void assertIsLoggedIn(final String message,
 			final SessionModelXMPPHelper xmppHelper) {
-		Assert.assertTrue(message, xmppHelper.isLoggedIn());
+		Assert.assertTrue(message + " [NOT LOGGED IN]", xmppHelper.isLoggedIn());
 	}
+
+	/**
+     * Extract a set of jabber ids from the list of users.
+     * 
+     * @param users
+     *            A list of users.
+     * @return A set of jabber ids.
+     */
+    private Set<JabberId> extractIdSet(final Iterable<User> users) {
+        final Set<JabberId> jabberIds = new HashSet<JabberId>();
+        for(final User user : users) { jabberIds.add(user.getId()); }
+        return jabberIds;
+    }
 
 	/**
 	 * Create an asssertion message.
@@ -1249,7 +1230,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	private String mask(final String password) { return "XXXXXXXXXX"; }
 
-	/**
+    /**
 	 * @deprecated
 	 */
 	private Contact proxy(final User user) {

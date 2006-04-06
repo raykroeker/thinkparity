@@ -13,13 +13,15 @@ import java.awt.Font;
  */
 public interface BrowserConstants {
 
-	public static final Font DefaultFont = new Font("Verdana", Font.PLAIN, 11);
+    public static final String FONT_NAME = "Verdana";
 
-	public static final Font DefaultFontBold = new Font("Verdana", Font.BOLD, 11);
+	public static final Font DefaultFont = new Font(FONT_NAME, Font.PLAIN, 11);
 
-	public static final Font SmallFont = new Font("Verdana", Font.PLAIN, 10);
+	public static final Font DefaultFontBold = new Font(FONT_NAME, Font.BOLD, 11);
 
-	public static final Font SmallFontBold = new Font("Verdana", Font.BOLD, 10);
+	public static final Font SmallFont = new Font(FONT_NAME, Font.PLAIN, 10);
+
+	public static final Font SmallFontBold = new Font(FONT_NAME, Font.BOLD, 10);
 
 	public static final Font TitleFont = DefaultFont;
 

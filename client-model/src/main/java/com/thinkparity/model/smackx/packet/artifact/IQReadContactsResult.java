@@ -3,11 +3,11 @@
  */
 package com.thinkparity.model.smackx.packet.artifact;
 
-import java.util.List;
+import java.util.Set;
 
 import org.jivesoftware.smack.packet.IQ;
 
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -15,12 +15,12 @@ import com.thinkparity.model.xmpp.contact.Contact;
  */
 public class IQReadContactsResult extends IQ {
 
-	private final List<Contact> contacts;
+	private final Set<User> contacts;
 
 	/**
 	 * Create a IQReadUsersResult.
 	 */
-	IQReadContactsResult(final List<Contact> contacts) {
+	IQReadContactsResult(final Set<User> contacts) {
 		super();
 		this.contacts = contacts;
 	}
@@ -31,5 +31,5 @@ public class IQReadContactsResult extends IQ {
 	 */
 	public String getChildElementXML() { return null; }
 
-	public List<Contact> getContacts() { return contacts; }
+	public Set<User> getContacts() { return contacts; }
 }

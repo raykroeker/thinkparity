@@ -3,9 +3,12 @@
  */
 package com.thinkparity.model.smack.provider;
 
+import org.apache.log4j.Logger;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.xmlpull.v1.XmlPullParser;
+
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 
 /**
  * Parse parity iq request and convert into IQ objects.
@@ -15,10 +18,19 @@ import org.xmlpull.v1.XmlPullParser;
  */
 public class IQParityProvider implements IQProvider {
 
-	/**
+    /**
+     * An apache logger.
+     * 
+     */
+    protected final Logger logger;
+
+    /**
 	 * Create a IQParityProvider.
 	 */
-	public IQParityProvider() { super(); }
+	public IQParityProvider() {
+        super();
+        this.logger = ModelLoggerFactory.getLogger(getClass());
+	}
 
 	/**
 	 * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)

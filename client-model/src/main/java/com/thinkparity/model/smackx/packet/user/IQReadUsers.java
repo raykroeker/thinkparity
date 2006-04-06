@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.smackx.packet.user;
 
-import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.model.smackx.packet.IQParity;
 import com.thinkparity.model.xmpp.JabberId;
@@ -22,12 +22,12 @@ public class IQReadUsers extends IQParity {
 
 	private static final String XML_JABBER_IDS_START = "<jids>";
 
-	private final List<JabberId> jabberIds;
+	private final Set<JabberId> jabberIds;
 	/**
 	 * Create a IQReadUsers.
 	 * @param action
 	 */
-	public IQReadUsers(final List<JabberId> jabberIds) {
+	public IQReadUsers(final Set<JabberId> jabberIds) {
 		super(Action.READUSERS);
 		this.jabberIds = jabberIds;
 	}

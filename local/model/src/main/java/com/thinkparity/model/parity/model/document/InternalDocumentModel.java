@@ -11,7 +11,6 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * @author raykroeker@gmail.com
@@ -93,8 +92,12 @@ public class InternalDocumentModel extends DocumentModel implements
 	 *            The xmpp document received from another parity user.
 	 * @throws ParityException
 	 */
-	public void receive(final XMPPDocument xmppDocument) throws ParityException {
-		synchronized(getImplLock()) { getImpl().receive(xmppDocument); }
+	public void receive(final JabberId receivedFrom,
+            final UUID documentUniqueId, final Long versionId,
+            final String name, final byte[] content) throws ParityException {
+		synchronized(getImplLock()) {
+            getImpl().receive(receivedFrom, documentUniqueId, versionId, name, content);
+        }
 	}
 
 	public void requestKey(final Long documentId, final JabberId requestedBy)

@@ -88,6 +88,6 @@ public class XMPPErrorTranslator {
 	}
 
 	private SmackException doTranslate(final XMPPError xmppError) {
-		return new SmackException(xmppError);
+        return new SmackException(xmppError);
 	}
 }

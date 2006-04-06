@@ -4,8 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
@@ -15,9 +14,9 @@ import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
 import com.thinkparity.model.xmpp.XMPPSessionFactory;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
+import com.thinkparity.model.xmpp.events.XMPPDocumentListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
@@ -38,6 +37,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * 
 	 */
 	private final XMPPArtifactListener xmppArtifactListener;
+
+    /**
+     * The xmpp document event listener.
+     * 
+     */
+    private final XMPPDocumentListener xmppDocumentListener;
 
 	/**
 	 * XMPP Extension listener.
@@ -75,13 +80,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 				handleTeamMemberRemoved(artifactUniqueId, teamMember);
 			}
 		};
+        this.xmppDocumentListener = new XMPPDocumentListener() {
+            public void documentReceived(final JabberId receivedFrom,
+                    final UUID uniqueId, final Long versionId,
+                    final String name, final byte[] content) {
+                handleDocumentReceived(receivedFrom, uniqueId, versionId, name, content);
+            }
+        };
 		this.xmppExtensionListener = new XMPPExtensionListener() {
 			public void artifactClosed(final UUID artifactUniqueId,
 					final JabberId artifactClosedBy) {
 				handleArtifactClosed(artifactUniqueId, artifactClosedBy);
-			}
-			public void documentReceived(final XMPPDocument xmppDocument) {
-				handleDocumentReceived(xmppDocument);
 			}
 			public void keyRequestAccepted(final UUID artifactUniqueId,
 					final JabberId acceptedBy) {
@@ -115,6 +124,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		};
 
 		xmppSession.addListener(xmppArtifactListener);
+        xmppSession.addListener(xmppDocumentListener);
 		xmppSession.addListener(xmppExtensionListener);
 		xmppSession.addListener(xmppPresenceListener);
 		xmppSession.addListener(xmppSessionListener);
@@ -151,7 +161,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	User getArtifactKeyHolder(final UUID artifactUniqueId)
 			throws SmackException {
-		return xmppSession.getArtifactKeyHolder(artifactUniqueId);
+		return xmppSession.readArtifactKeyHolder(artifactUniqueId);
 	}
 
 	/**
@@ -159,7 +169,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * 
 	 * @return The user for the current session.
 	 */
-	User getUser() throws SmackException { return xmppSession.getUser(); }
+	User getUser() throws SmackException { return xmppSession.readCurrentUser(); }
 
 	/**
 	 * Add a user to the roster. This will send a presence visibility request to
@@ -170,7 +180,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @throws SmackException
 	 */
 	void inviteContact(final JabberId jabberId) throws SmackException {
-		xmppSession.inviteContact(jabberId);
+		xmppSession.sendInvitation(jabberId);
 	}
 
 	/**
@@ -217,56 +227,35 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	/**
 	 * Obtain a list of contacts for an artifact.
 	 * 
-	 * @param artifactUniqueId
+	 * @param uniqueId
 	 *            The artifact unqique id.
 	 * @return A list of contacts.
 	 * @throws SmackException
 	 */
-	List<Contact> readArtifactContacts(final UUID artifactUniqueId)
-			throws SmackException {
-		return xmppSession.readArtifactContacts(artifactUniqueId);
+	Set<User> readArtifactTeam(final UUID uniqueId) throws SmackException {
+		return xmppSession.readArtifactTeam(uniqueId);
 	}
 
 	/**
-	 * Obtain a list of the user's contacts.
+	 * Read the logged in user's contacts.
 	 * 
 	 * @return A list of contacts.
 	 * @throws SmackException
 	 */
-	List<Contact> readContacts() throws SmackException {
+	Set<Contact> readContacts() throws SmackException {
 		return xmppSession.readContacts();
 	}
 
-	List<User> readUsers(final List<JabberId> jabberIds) throws SmackException {
+    /**
+     * Read a set of users.
+     * 
+     * @param jabberIds
+     *            The user ids to read.
+     * @return A set of users.
+     * @throws SmackException
+     */
+	Set<User> readUsers(final Set<JabberId> jabberIds) throws SmackException {
 		return xmppSession.readUsers(jabberIds);
-	}
-
-	/**
-	 * Send a message to a list of users.
-	 * 
-	 * @param users
-	 *            The users to send the message to.
-	 * @param message
-	 *            The message to send.
-	 * @throws SmackException
-	 */
-	void send(final Collection<User> users, final String message)
-			throws SmackException {
-		xmppSession.send(users, message);
-	}
-
-	/**
-	 * Send a document to a list of users.
-	 * 
-	 * @param users
-	 *            The users to send the document to.
-	 * @param xmppDocument
-	 *            The xmpp document to send.
-	 * @throws SmackException
-	 */
-	void send(final Collection<User> users, final XMPPDocument xmppDocument)
-			throws SmackException {
-		xmppSession.send(users, xmppDocument);
 	}
 
 	/**
@@ -277,7 +266,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @throws SmackException
 	 */
 	void sendClose(final UUID artifactUniqueId) throws SmackException {
-		xmppSession.sendClose(artifactUniqueId);
+		xmppSession.closeArtifact(artifactUniqueId);
 	}
 
 	/**
@@ -288,7 +277,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @throws SmackException
 	 */
 	void sendCreate(final UUID artifactUniqueId) throws SmackException {
-		xmppSession.sendCreate(artifactUniqueId);
+		xmppSession.createArtifact(artifactUniqueId);
 	}
 
 	/**
@@ -299,7 +288,26 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @throws SmackException
 	 */
 	void sendDelete(final UUID artifactUniqueId) throws SmackException {
-		xmppSession.sendDelete(artifactUniqueId);
+		xmppSession.removeArtifactTeamMember(artifactUniqueId);
+	}
+
+	/**
+     * Send a document.
+     * 
+     * @param sendTo
+     *            The ids to send to.
+     * @param uniqueId
+     *            The document unique id.
+     * @param name
+     *            The document name.
+     * @param content
+     *            The document content.
+     * @throws SmackException
+     */
+	void sendDocumentVersion(final Set<JabberId> sendTo, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] content)
+            throws SmackException {
+		xmppSession.sendDocumentVersion(sendTo, uniqueId, versionId, name, content);
 	}
 
 	/**
@@ -310,7 +318,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @throws ParityException
 	 */
 	void sendKeyRequest(final UUID artifactUniqueId) throws SmackException {
-		xmppSession.sendKeyRequest(artifactUniqueId);
+		xmppSession.requestArtifactKey(artifactUniqueId);
 	}
 
 	/**
@@ -352,7 +360,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @throws SmackException
 	 */
 	void sendSubscribe(final UUID artifactUniqueId) throws SmackException {
-		xmppSession.sendSubscribe(artifactUniqueId);
+		xmppSession.addArtifactTeamMember(artifactUniqueId);
 	}
 
 	/**
@@ -379,14 +387,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @param xmppDocument
 	 *            The xmpp document that has been received.
 	 */
-	private void handleDocumentReceived(final XMPPDocument xmppDocument) {
+	private void handleDocumentReceived(final JabberId receivedFrom, final UUID uniqueId, final Long versionId, final String name, final byte[] content) {
 		try {
-			SessionModelImpl.notifyDocumentReceived(xmppDocument);
+			SessionModelImpl
+                .notifyDocumentReceived(receivedFrom, uniqueId, versionId, name,
+                        content);
 		}
 		catch(final ParityException px) { unexpectedOccured(px); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
-	private void handleInvitationAccepted(final JabberId acceptedBy) {
+
+    private void handleInvitationAccepted(final JabberId acceptedBy) {
 		try { SessionModelImpl.notifyInvitationAccepted(acceptedBy); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}

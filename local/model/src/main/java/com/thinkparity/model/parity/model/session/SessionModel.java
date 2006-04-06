@@ -4,7 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
@@ -23,12 +23,10 @@ import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
- * SessionModel
+ * The parity session interface.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
- * 
- * TODO The RFO should display the document's history info.
- *   The details of the System messages should be displayed in the info panel.
  */
 public class SessionModel extends AbstractModel {
 
@@ -191,16 +189,16 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain a list of contacts for an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return A list of contacts for the artifact.
-	 * @throws ParityException
-	 */
-	public List<Contact> readArtifactContacts(final Long artifactId)
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return A set of users.
+     * @throws ParityException
+     */
+	public Set<User> readArtifactTeam(final Long artifactId)
 			throws ParityException {
-		synchronized(implLock) { return impl.readArtifactContacts(artifactId); }
+		synchronized(implLock) { return impl.readArtifactTeam(artifactId); }
 	}
 
 	/**
@@ -214,12 +212,12 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Obtain a list of contacts.
-	 * 
-	 * @return A list of contacts.
-	 * @throws ParityException
-	 */
-	public List<Contact> readContacts() throws ParityException {
+     * Read the logged in user's contacts.
+     * 
+     * @return A set of contacts.
+     * @throws ParityException
+     */
+	public Set<Contact> readContacts() throws ParityException {
 		synchronized(implLock) { return impl.readContacts(); }
 	}
 
@@ -298,20 +296,6 @@ public class SessionModel extends AbstractModel {
 	public void send(final JabberId jabberId, final Long documentId)
 			throws ParityException {
 		synchronized(implLock) { impl.send(jabberId, documentId); }
-	}
-
-	/**
-	 * Send a message to a user.
-	 * 
-	 * @param jabberId
-	 *            The user id.
-	 * @param message
-	 *            The message.
-	 * @throws ParityException
-	 */
-	public void send(final JabberId jabberId, final String message)
-		throws ParityException {
-		synchronized(implLock) { impl.send(jabberId, message); }
 	}
 
 	/**

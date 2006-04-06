@@ -4,7 +4,7 @@
 package com.thinkparity.browser.application.browser.display.provider.document;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
@@ -18,6 +18,7 @@ import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * The document history provider. Provides a single document and its history.
@@ -97,13 +98,13 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
         this.teamProvider = new FlatContentProvider() {
             public Object[] getElements(final Object input) {
                 final Long documentId = (Long) input;
-                final List<Contact> team;
-                try { team =  sModel.readArtifactContacts(documentId); }
+                final Set<User> team;
+                try { team =  sModel.readArtifactTeam(documentId); }
                 catch(final ParityException px) { throw new RuntimeException(px); }
-                Contact contact;
-                for(final Iterator<Contact> i = team.iterator(); i.hasNext();) {
-                    contact= i.next();
-                    if(contact.getId().equals(loggedInUserId)) { i.remove(); }
+                User teamMember;
+                for(final Iterator<User> i = team.iterator(); i.hasNext();) {
+                    teamMember = i.next();
+                    if(teamMember.getId().equals(loggedInUserId)) { i.remove(); }
                 }
                 return team.toArray(new Contact[] {});
             }

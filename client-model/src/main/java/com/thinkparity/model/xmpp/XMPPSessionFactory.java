@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.xmpp;
 
-import com.thinkparity.model.smackx.provider.XManager;
 
 
 /**
@@ -27,7 +26,6 @@ public final class XMPPSessionFactory {
 	static {
 		singleton = new XMPPSessionFactory();
 		singletonLock = new Object();
-		XManager.register();
 	}
 
 	/**

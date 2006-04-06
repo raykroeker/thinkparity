@@ -26,7 +26,7 @@ public class SendDeleteTest extends XMPPTestCase {
 	public void testSendDelete() {
 		try {
 			for(final Fixture datum : data) {
-				datum.session.sendDelete(datum.artifactUniqueId);
+				datum.session.removeArtifactTeamMember(datum.artifactUniqueId);
 			}
 		}
 		catch(final Throwable t) { fail(createFailMessage(t)); }
@@ -43,8 +43,8 @@ public class SendDeleteTest extends XMPPTestCase {
 		final XMPPSession session = getSession();
 		for(int i = 0, count = getInputFiles().length; i < count; i++) {
 			artifactUniqueId = UUIDGenerator.nextUUID();
-			session.sendCreate(artifactUniqueId);
-			session.sendClose(artifactUniqueId);
+			session.createArtifact(artifactUniqueId);
+			session.closeArtifact(artifactUniqueId);
 			data.add(new Fixture(artifactUniqueId, session));
 		}
 	}

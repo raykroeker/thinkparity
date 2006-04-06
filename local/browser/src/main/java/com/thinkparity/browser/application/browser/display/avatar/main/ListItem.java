@@ -24,7 +24,6 @@ import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.ListItemLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
-import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -83,12 +82,6 @@ public abstract class ListItem {
 	private BufferedImage backgroundImageSelected;
 
 	/**
-	 * List item id.
-	 * 
-	 */
-	private final JVMUniqueId id;
-
-	/**
 	 * The list item information menuIcon.
 	 * 
 	 */
@@ -136,7 +129,6 @@ public abstract class ListItem {
 	 */
 	protected ListItem(final String l18nContext) {
 		super();
-		this.id = JVMUniqueId.nextId();
 		this.localization = new ListItemLocalization(l18nContext);
 		this.logger = LoggerFactory.getLogger(getClass());
 		this.modelFactory = ModelFactory.getInstance();

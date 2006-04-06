@@ -3,10 +3,12 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
+import com.thinkparity.model.ModelTestUser;
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -33,23 +35,23 @@ public class ReadContactsTest extends ModelTestCase {
 	 * Test the session model getRosterEntries api.
 	 */
 	public void testReadContacts() {
-		try {
-			List<Contact> contacts;
-			for(Fixture datum : data) {
-				contacts = datum.sessionModel.readContacts();
-				
-				assertNotNull("Contacts from session model are null.", contacts);
-				assertEquals("Number of contacts from session model; don't match fixture data.", datum.contactsSize, contacts.size());
-				for(final Contact contact : contacts) {
-					assertNotNull(contact);
-					assertTrue(datum.contactIds.contains(contact.getId()));
+		Set<Contact> contacts = null;
+		for(Fixture datum : data) {
+			try { contacts = datum.sessionModel.readContacts(); }
+            catch(final ParityException px) {
+                fail(createFailMessage(px));
+            }
+			
+			assertNotNull("Contacts from session model are null.", contacts);
+			assertEquals("Number of contacts from session model; don't match fixture data.", datum.contactsSize, contacts.size());
+			for(final Contact contact : contacts) {
+				assertNotNull(contact);
+				assertTrue(datum.contactIds.contains(contact.getId()));
 
-					datum.contactIds.remove(contact.getId());
-				}
-				assertEquals(0, datum.contactIds.size());
+				datum.contactIds.remove(contact.getId());
 			}
+			assertEquals(0, datum.contactIds.size());
 		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -59,11 +61,11 @@ public class ReadContactsTest extends ModelTestCase {
 		super.setUp();
 		final SessionModel sessionModel = getSessionModel();
 		data = new Vector<Fixture>(1);
-		final List<JabberId> contactIds;
 
 		login();
 
-		contactIds = new LinkedList<JabberId>();
+		final Set<JabberId> contactIds = new HashSet<JabberId>();
+        contactIds.add(ModelTestUser.getJUnitBuddy0().getJabberId());
 
 		data.add(new Fixture(contactIds.size(), contactIds, sessionModel));
 	}
@@ -85,11 +87,11 @@ public class ReadContactsTest extends ModelTestCase {
 	 * @see ReadContactsTest#tearDown()
 	 */
 	private class Fixture {
-		private final List<JabberId> contactIds;
+		private final Set<JabberId> contactIds;
 		private final int contactsSize;
 		private final SessionModel sessionModel;
 		private Fixture(final int contactsSize,
-				final List<JabberId> contactIds,
+				final Set<JabberId> contactIds,
 				final SessionModel sessionModel) {
 			this.contactsSize = contactsSize;
 			this.contactIds = contactIds;

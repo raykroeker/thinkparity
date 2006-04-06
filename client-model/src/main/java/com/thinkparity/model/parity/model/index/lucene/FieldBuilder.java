@@ -4,14 +4,13 @@
 package com.thinkparity.model.parity.model.index.lucene;
 
 import java.util.Calendar;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Field;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
-import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -125,11 +124,11 @@ public class FieldBuilder {
 	 *            The field value.
 	 * @return A reference to this object.
 	 */
-	public FieldBuilder setValue(final List<Contact> contacts) {
+	public FieldBuilder setValue(final Set<User> users) {
 		final StringBuffer buffer = new StringBuffer();
-		for(final Contact contact : contacts) {
+		for(final User user : users) {
 			if(0 < buffer.length()) { buffer.append(Separator.SemiColon); }
-			buffer.append(tokenize(contact));
+			buffer.append(tokenize(user));
 		}
 		this.value = buffer.toString();
 		return this;

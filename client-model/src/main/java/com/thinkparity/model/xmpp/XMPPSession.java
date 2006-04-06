@@ -4,21 +4,18 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
+import com.thinkparity.model.xmpp.events.XMPPDocumentListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
-import com.thinkparity.model.xmpp.user.UserVCard;
 
 /**
  * XMPPSession
@@ -32,49 +29,235 @@ import com.thinkparity.model.xmpp.user.UserVCard;
  */
 public interface XMPPSession {
 
-	public void acceptInvitation(final JabberId jabberId) throws SmackException;
-	public void addListener(final XMPPArtifactListener xmppArtifactListener);
-	public void addListener(final XMPPContactListener xmppPresenceListener);
-	public void addListener(final XMPPExtensionListener xmppExtensionListener);
-	public void addListener(final XMPPSessionListener xmppSessionListener);
-	public void create(final UUID artifactUniqueId) throws SmackException;
-	public void declineInvitation(final JabberId jabberId) throws SmackException;
-	public void flag(final UUID artifactUniqueId, final ArtifactFlag flag)
-			throws SmackException;
-	public User getArtifactKeyHolder(final UUID artifactUniqueId)
-			throws SmackException;
-	public User getUser() throws SmackException;
-	public void inviteContact(final JabberId jabberId) throws SmackException;
-	public Boolean isLoggedIn();
+    /**
+     * Accept an invitation from a user.
+     * 
+     * @param jabberId
+     *            The user id.
+     * @throws SmackException
+     */
+    public void acceptInvitation(final JabberId jabberId) throws SmackException;
+
+    /**
+     * Add the logged in user as a team member.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @throws SmackException
+     */
+    public void addArtifactTeamMember(final UUID artifactUniqueId)
+            throws SmackException;
+
+    /**
+     * Add an xmpp artifact event listener.
+     * 
+     * @param l
+     *            The xmpp artifact event listener.
+     */
+    public void addListener(final XMPPArtifactListener l);
+
+    /**
+     * Add an xmpp contact event listener.
+     * 
+     * @param l
+     *            The xmpp contact event listener.
+     */
+    public void addListener(final XMPPContactListener l);
+
+	/**
+     * Add an xmpp document event listener.
+     * 
+     * @param l
+     *            The xmpp document event listener.
+     */
+    public void addListener(final XMPPDocumentListener l);
+
+    public void addListener(final XMPPExtensionListener l);
+	public void addListener(final XMPPSessionListener l);
+
+    /**
+     * Close an artifact.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @throws SmackException
+     */
+	public void closeArtifact(final UUID uniqueId) throws SmackException;
+
+    /**
+     * Create an artifact
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @throws SmackException
+     */
+	public void createArtifact(final UUID uniqueId) throws SmackException;
+
+    /**
+     * Decline an invitation from a user.
+     * 
+     * @param jabberId
+     *            The user id.
+     * @throws SmackException
+     */
+    public void declineInvitation(final JabberId jabberId) throws SmackException;
+
+    /**
+     * Determine if the user is logged in.
+     * 
+     * @return True if the user is logged in; false otherwise.
+     */
+    public Boolean isLoggedIn();
+
+    /**
+     * Login.
+     * 
+     * @param host
+     *            The host.
+     * @param port
+     *            The port.
+     * @param username
+     *            The username.
+     * @param password
+     *            The password.
+     * @throws SmackException
+     */
 	public void login(final String host, final Integer port,
 			final String username, final String password) throws SmackException;
+
+    /**
+     * Logout.
+     * 
+     * @throws SmackException
+     */
 	public void logout() throws SmackException;
-	public void processOfflineQueue() throws SmackException;
-	public List<Contact> readArtifactContacts(final UUID artifactUniqueId)
+
+    /**
+     * Process events queued on the server since last login.
+     * 
+     * @throws SmackException
+     */
+    public void processOfflineQueue() throws SmackException;
+
+    /**
+     * Read the artifact key holder.
+     * 
+     * @param artifactUniqueId
+     *            The artifact unique id.
+     * @return The artifact key holder user info.
+     * @throws SmackException
+     */
+	public User readArtifactKeyHolder(final UUID uniqueId)
+            throws SmackException;
+
+    /**
+     * Read the artifact team.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @return The users representing the artifact team.
+     * @throws SmackException
+     */
+    public Set<User> readArtifactTeam(final UUID artifactUniqueId)
+            throws SmackException;
+
+	/**
+     * Read the logged in user's contacts.
+     * 
+     * @return The logge in user's contacts.
+     * @throws SmackException
+     */
+    public Set<Contact> readContacts() throws SmackException;
+
+    /**
+     * Read the logged in user.
+     * 
+     * @return The user info.
+     * @throws SmackException
+     */
+	public User readCurrentUser() throws SmackException;
+
+    /**
+     * Update the logged in user.
+     * 
+     * @param firstName
+     *            The user's first name.
+     * @param lastName
+     *            The user's last name.
+     * @param organization
+     *            The user's organization.
+     */
+    public void updateCurrentUser(final String firstName,
+            final String lastName, final String organization)
+            throws SmackException;
+
+    /**
+     * Read a set of users.
+     * 
+     * @param jabberIds
+     *            The user ids to read.
+     * @return A set of users.
+     * @throws SmackException
+     */
+    public Set<User> readUsers(final Set<JabberId> jabberIds)
 			throws SmackException;
-	public List<Contact> readContacts() throws SmackException;
-	public List<User> readUsers(final List<JabberId> jabberIds)
-			throws SmackException;
-	public UserVCard readVCard(final JabberId jabberId) throws SmackException;
-	public void removeListener(final XMPPArtifactListener xmppArtifactListener);
-	public void removeListener(final XMPPContactListener xmppPresenceListener);
-	public void removeListener(final XMPPExtensionListener xmppExtensionListener);
-	public void removeListener(final XMPPSessionListener xmppSessionListener);
-	public void saveVCard(final UserVCard userVCard) throws SmackException;
-	public void send(final Collection<User> users, final String message)
-			throws SmackException;
-	public void send(final Collection<User> users,
-			final XMPPDocument xmppDocument) throws SmackException;
-	public void sendClose(final UUID artifactUniqueId) throws SmackException;
-	public void sendCreate(final UUID artifactUniqueId) throws SmackException;
-	public void sendDelete(final UUID artifactUniqueId) throws SmackException;
-	public void sendKeyRequest(final UUID artifactUniqueId) throws SmackException;
-	public void sendKeyResponse(final UUID artifactUniqueId,
+
+	/**
+     * Remove the logged in user from the artifact team.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @throws SmackException
+     */
+    public void removeArtifactTeamMember(final UUID uniqueId)
+            throws SmackException;
+
+    public void removeListener(final XMPPArtifactListener l);
+    public void removeListener(final XMPPContactListener l);
+    public void removeListener(final XMPPExtensionListener l);
+    public void removeListener(final XMPPSessionListener l);
+
+    /**
+     * Request the key for an artifact.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @throws SmackException
+     */
+    public void requestArtifactKey(final UUID uniqueId) throws SmackException;
+
+    /**
+     * Send a document across the parity xmpp network.
+     * 
+     * @param sendTo
+     *            The ids to send the document to.
+     * @param uniqueId
+     *            The document unique id.
+     * @param versionId
+     *            The document version id.
+     * @param name
+     *            The document name.
+     * @param content
+     *            The document content.
+     * @throws SmackException
+     */
+	public void sendDocumentVersion(final Set<JabberId> sendTo,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] content) throws SmackException;
+
+    /**
+     * Send an invitation to a user.
+     * 
+     * @param jabberId
+     *            The user id.
+     * @throws SmackException
+     */
+	public void sendInvitation(final JabberId jabberId) throws SmackException;
+
+    public void sendKeyResponse(final UUID artifactUniqueId,
 			final KeyResponse keyResponse, final User user)
 			throws SmackException;
-	public void sendLogFileArchive(final File logFileArchive, final User user)
+
+    public void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException;
-	public void sendSubscribe(final UUID artifactUniqueId) throws SmackException;
-	public void subscribe(final UUID artifactUniqueId) throws SmackException;
-	public void unsubscribe(final UUID artifactUniqueId) throws SmackException;
 }

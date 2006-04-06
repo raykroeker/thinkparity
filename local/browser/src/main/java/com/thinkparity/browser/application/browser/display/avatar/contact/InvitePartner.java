@@ -8,7 +8,6 @@ package com.thinkparity.browser.application.browser.display.avatar.contact;
 
 import java.awt.Color;
 
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -77,10 +76,6 @@ public class InvitePartner extends Avatar {
         return Boolean.TRUE;
     }
 
-    private void disposeWindow() {
-    	SwingUtilities.getWindowAncestor(this).dispose();
-    }
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -92,7 +87,6 @@ public class InvitePartner extends Avatar {
         javax.swing.JLabel emailJLabel;
         javax.swing.JLabel invitationJLabel;
         javax.swing.JScrollPane jScrollPane1;
-        javax.swing.JButton manageJButton;
         javax.swing.JButton previewJButton;
 
         eaJLabel = LabelFactory.create(getString("EmbeddedAssistance"));
@@ -103,10 +97,6 @@ public class InvitePartner extends Avatar {
         invitationJTextArea = TextFactory.createArea();
         invitationJLabel = LabelFactory.create(getString("InvitationLabel"));
         previewJButton = ButtonFactory.create(getString("PreviewButton"));
-
-        eaJLabel.setText("!Embedded Assistance!");
-
-        emailJLabel.setText("!Email Address!");
 
         emailJTextField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(final javax.swing.event.DocumentEvent e) {
@@ -120,7 +110,6 @@ public class InvitePartner extends Avatar {
             }
         });
 
-        sendJButton.setText("!Send!");
         sendJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 sendJButtonActionPerformed(e);
@@ -142,9 +131,6 @@ public class InvitePartner extends Avatar {
         });
         jScrollPane1.setViewportView(invitationJTextArea);
 
-        invitationJLabel.setText("!Email Invitation!");
-
-        previewJButton.setText("!Preview!");
         previewJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 previewJButtonActionPerformed(e);

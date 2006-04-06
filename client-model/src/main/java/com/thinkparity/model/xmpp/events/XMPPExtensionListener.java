@@ -6,7 +6,6 @@ package com.thinkparity.model.xmpp.events;
 import java.util.UUID;
 
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 
 /**
  * XMPPExtensionListener
@@ -17,8 +16,6 @@ public interface XMPPExtensionListener {
 
 	public void artifactClosed(final UUID artifactUniqueId,
 			final JabberId artifactClosedBy);
-
-	public void documentReceived(final XMPPDocument xmppDocument);
 
 	public void keyRequestAccepted(final UUID artifactUniqueId,
 			final JabberId acceptedBy);

@@ -30,7 +30,7 @@ public class GetKeyHolderTest extends XMPPTestCase {
 		try {
 			User keyHolder;
 			for(final Fixture datum : data) {
-				keyHolder = datum.session.getArtifactKeyHolder(datum.artifactUniqueId);
+				keyHolder = datum.session.readArtifactKeyHolder(datum.artifactUniqueId);
 
 				assertNotNull("Key holder is null.", keyHolder);
 				assertEquals("Expected key holder does not match actual.",
@@ -57,25 +57,25 @@ public class GetKeyHolderTest extends XMPPTestCase {
 		final User jUnitBuddy0User = new User(jUnitBuddy0.getJabberId());
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		data.add(new Fixture(artifactUniqueId, jUnitUser, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		data.add(new Fixture(artifactUniqueId, jUnitUser, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jUnitBuddy0User);
 		data.add(new Fixture(artifactUniqueId, jUnitBuddy0User, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jUnitBuddy0User);
 		data.add(new Fixture(artifactUniqueId, jUnitBuddy0User, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
+		session.createArtifact(artifactUniqueId);
 		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jUnitBuddy0User);
 		data.add(new Fixture(artifactUniqueId, jUnitBuddy0User, session));
 	}

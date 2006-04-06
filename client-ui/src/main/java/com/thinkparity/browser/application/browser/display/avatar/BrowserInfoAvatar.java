@@ -75,7 +75,7 @@ public class BrowserInfoAvatar extends Avatar {
 		FILTER_ROLLOVER_ICON = ImageIOUtil.readIcon("FilterButtonRollover.png");
 		SHOW_HISTORY_ICON = ImageIOUtil.readIcon("ShowHistoryButton.png");
 		SHOW_HISTORY_ROLLOVER_ICON = ImageIOUtil.readIcon("ShowHistoryButtonRollover.png");
-	}
+    }
 
 	private JLabel filterJLabel;
 

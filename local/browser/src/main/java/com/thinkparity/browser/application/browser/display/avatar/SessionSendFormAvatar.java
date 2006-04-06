@@ -89,7 +89,7 @@ public class SessionSendFormAvatar extends Avatar {
      * list.
      *
      */
-    private Contact[] team;
+    private User[] team;
 
     /**
      * Create a SessionSendFormAvatar
@@ -445,7 +445,7 @@ public class SessionSendFormAvatar extends Avatar {
      * Obtain a list of contacts from the content provider.
      *
      */
-    private Contact[] getContacts(final Contact[] team) {
+    private Contact[] getContacts(final User[] team) {
 		return (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider)
 				.getElements(0, team);
 	}
@@ -464,7 +464,7 @@ public class SessionSendFormAvatar extends Avatar {
      * Obtain a list of team members from the content provider.
      *
      */
-    private Contact[] getTeam() {
+    private User[] getTeam() {
 		return (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider)
 				.getElements(1, (Long) input);
 	}

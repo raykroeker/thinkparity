@@ -18,7 +18,7 @@
 		</fileSet>
 		<fileSet>
 			<outputDirectory>/</outputDirectory>
-			<directory>src/main/resources</directory>
+			<directory>target/classes</directory>
 			<includes>
 				<include>changelog.html</include>
 				<include>icon_large.gif</include>
@@ -32,6 +32,13 @@
 			<directory>target</directory>
 			<includes>
 				<include>server-1.0-SNAPSHOT.jar</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory>/classes</outputDirectory>
+			<directory>target/classes</directory>
+			<includes>
+				<include>log4j.properties</include>
 			</includes>
 		</fileSet>
 	</fileSets>

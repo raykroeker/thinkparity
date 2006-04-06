@@ -26,7 +26,7 @@ public class SendCreateTest extends XMPPTestCase {
 	public void testSendCreate() {
 		try {
 			for(final Fixture datum : data) {
-				datum.session.sendCreate(datum.artifactUniqueId);
+				datum.session.createArtifact(datum.artifactUniqueId);
 			}
 		}
 		catch(final Throwable t) { fail(createFailMessage(t)); }

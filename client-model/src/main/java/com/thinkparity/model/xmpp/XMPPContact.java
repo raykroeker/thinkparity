@@ -5,6 +5,7 @@ package com.thinkparity.model.xmpp;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.PacketListener;
@@ -159,11 +160,11 @@ class XMPPContact {
 	}
 
 	/**
-	 * Read the contact list from the server.
-	 * 
-	 * @return The list of contacts for the user.
-	 */
-	List<Contact> readContacts() throws SmackException {
+     * Read the contacts.
+     * 
+     * @return The list of contacts for the user.
+     */
+	Set<Contact> read() throws SmackException {
 		logger.info("[XMPP] [CONTACT] [READ CONTACTS]");
 		final IQ iq = new IQReadContacts();
 		iq.setType(IQ.Type.GET);

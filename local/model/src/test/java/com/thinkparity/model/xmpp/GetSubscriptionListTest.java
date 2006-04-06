@@ -3,8 +3,10 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.util.UUIDGenerator;
@@ -27,20 +29,19 @@ public class GetSubscriptionListTest extends XMPPTestCase {
 
 	public void testGetSubscription() {
 		try {
-			List<Contact> artifactContacts;
+			Set<User> artifactTeam;
 			for(final Fixture datum : data) {
-				artifactContacts =
-					datum.session.readArtifactContacts(datum.artifactUniqueId);
+                artifactTeam =
+					datum.session.readArtifactTeam(datum.artifactUniqueId);
 
-				assertNotNull("Returned artifact contacts are null.", artifactContacts);
+				assertNotNull("Returned artifact contacts are null.", artifactTeam);
 				assertEquals(
 						"Expected artifact contacts size does not match actual.",
-						datum.expectedArtifactContacts.size(), artifactContacts.size());
-				for(int i = 0; i < datum.expectedArtifactContacts.size(); i++) {
-					assertEquals(
-							"Expected artifact contact does not match actual.",
-							datum.expectedArtifactContacts.get(i),
-							artifactContacts.get(i));
+						datum.expectedTeam.size(), artifactTeam.size());
+				for(final User teamMember : artifactTeam) {
+                    assertTrue(
+                            "Expected artifact contact does not match actual.",
+                            datum.expectedTeam.contains(teamMember));
 				}
 			}
 		}
@@ -55,32 +56,33 @@ public class GetSubscriptionListTest extends XMPPTestCase {
 		super.setUp();
 		data = new LinkedList<Fixture>();
 		final XMPPSession session = getSession();
-		final User jUnitUser = session.getUser();
+		final User jUnitUser = session.readCurrentUser();
 
-		final List<Contact> expectedArtifactContacts = new LinkedList<Contact>();
-		final Contact contact = new Contact();
-		contact.setId(jUnitUser.getId());
-		expectedArtifactContacts.add(contact);
+		final Set<User> expectedTeam = new HashSet<User>();
+
+        final User teamMember = new Contact();
+        teamMember.setId(jUnitUser.getId());
+		expectedTeam.add(teamMember);
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
+		session.createArtifact(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, expectedTeam, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
+		session.createArtifact(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, expectedTeam, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
+		session.createArtifact(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, expectedTeam, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
+		session.createArtifact(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, expectedTeam, session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
-		session.sendCreate(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, expectedArtifactContacts, session));
+		session.createArtifact(artifactUniqueId);
+		data.add(new Fixture(artifactUniqueId, expectedTeam, session));
 	}
 
 	/**
@@ -93,13 +95,12 @@ public class GetSubscriptionListTest extends XMPPTestCase {
 
 	private class Fixture {
 		private final UUID artifactUniqueId;
-		private final List<Contact> expectedArtifactContacts;
+		private final Set<User> expectedTeam;
 		private final XMPPSession session;
 		private Fixture(final UUID artifactUniqueId,
-				final List<Contact> expectedArtifactContacts,
-				final XMPPSession session) {
+                final Set<User> expectedTeam, final XMPPSession session) {
 			this.artifactUniqueId = artifactUniqueId;
-			this.expectedArtifactContacts = expectedArtifactContacts;
+			this.expectedTeam = expectedTeam;
 			this.session = session;
 		}
 	}

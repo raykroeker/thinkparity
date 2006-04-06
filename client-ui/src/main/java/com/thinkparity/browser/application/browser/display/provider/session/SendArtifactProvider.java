@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.provider.session;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
@@ -22,6 +23,7 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -76,12 +78,12 @@ public class SendArtifactProvider extends CompositeFlatSingleContentProvider {
 			public Object[] getElements(final Object input) {
 				final Long documentId = assertValidInput(input);
 				try {
-					final List<Contact> artifactContacts =
-						sessionModel.readArtifactContacts(documentId);
-					Contact contact;
-					for(final Iterator<Contact> i = artifactContacts.iterator(); i.hasNext();) {
-						contact= i.next();
-						if(contact.getId().equals(loggedInUser)) { i.remove(); }
+					final Set<User> artifactContacts =
+						sessionModel.readArtifactTeam(documentId);
+					User teamMember;
+					for(final Iterator<User> i = artifactContacts.iterator(); i.hasNext();) {
+                        teamMember = i.next();
+						if(teamMember.getId().equals(loggedInUser)) { i.remove(); }
 					}
 					return artifactContacts.toArray(new Contact[] {});
 				}
@@ -112,14 +114,14 @@ public class SendArtifactProvider extends CompositeFlatSingleContentProvider {
 		this.userContactProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				try {
-					final List<Contact> roster = sessionModel.readContacts();
+					final Set<Contact> contacts = sessionModel.readContacts();
 					// remove all team members from the roster list
-					final Contact[] team = (Contact[]) input;
+					final User[] team = (User[]) input;
 					if(null != team) {
-						for(final Contact contact : team)
-							roster.remove(contact);
+						for(final User teamMember : team)
+                            contacts.remove(teamMember);
 					}
-					return roster.toArray(new Contact[] {});
+					return contacts.toArray(new Contact[] {});
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}

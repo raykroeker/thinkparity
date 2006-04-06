@@ -51,6 +51,7 @@ public class ParityServer implements Plugin {
 	private IQHandler readContacts;
 	private IQHandler readUsers;
 	private RequestArtifactKey requestArtifactKey;
+	private IQHandler sendDocument;
 	private SubscribeUser subscribeUser;
 	private UnsubscribeUser unsubscribeUser;
 
@@ -155,7 +156,11 @@ public class ParityServer implements Plugin {
 		iqRouter.removeHandler(readUsers);
 		readUsers.destroy();
 		readUsers = null;
-		
+
+        iqRouter.removeHandler(sendDocument);
+        sendDocument.destroy();
+        sendDocument = null;
+
 		iqRouter.removeHandler(subscribeUser);
 		subscribeUser.destroy();
 		subscribeUser = null;
@@ -226,6 +231,9 @@ public class ParityServer implements Plugin {
 
 		requestArtifactKey = new RequestArtifactKey();
 		iqRouter.addHandler(requestArtifactKey);
+
+        sendDocument = new com.thinkparity.server.handler.document.SendDocument();
+        iqRouter.addHandler(sendDocument);
 
 		subscribeUser = new SubscribeUser();
 		iqRouter.addHandler(subscribeUser);

@@ -4,7 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
-import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import com.thinkparity.model.parity.model.ModelTestCase;
@@ -39,7 +39,6 @@ public class SendTest extends ModelTestCase {
 			for(Fixture datum : data) {
 				for(final Contact contact : datum.contacts) {
 					datum.sessionModel.send(contact.getId(), datum.document.getId());
-					datum.sessionModel.send(contact.getId(), datum.message);
 				}
 			}
 		}
@@ -56,19 +55,17 @@ public class SendTest extends ModelTestCase {
 		final SessionModel sessionModel = getSessionModel();
 		Document document;
 		String name, description;
-		String message;
 
 		login();
-		final List<Contact> contacts = sessionModel.readContacts();
+		final Set<Contact> contacts = sessionModel.readContacts();
 
 		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
 			description = name;
 			document =
 				documentModel.create(name, description, testFile);
-			message = getTestText(250);
 
-			data.add(new Fixture(document, message, sessionModel, contacts));
+			data.add(new Fixture(document, sessionModel, contacts));
 		}
 	}
 
@@ -89,14 +86,12 @@ public class SendTest extends ModelTestCase {
 	 * @see SendTest#tearDown()
 	 */
 	private class Fixture {
-		private final List<Contact> contacts;
+		private final Set<Contact> contacts;
 		private final Document document;
-		private final String message;
 		private final SessionModel sessionModel;
-		private Fixture(final Document document, final String message,
-				final SessionModel sessionModel, final List<Contact> contacts) {
+		private Fixture(final Document document,
+                final SessionModel sessionModel, final Set<Contact> contacts) {
 			this.document = document;
-			this.message = message;
 			this.sessionModel = sessionModel;
 			this.contacts = contacts;
 		}

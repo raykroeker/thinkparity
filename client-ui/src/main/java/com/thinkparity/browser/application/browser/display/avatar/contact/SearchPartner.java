@@ -9,7 +9,6 @@ package com.thinkparity.browser.application.browser.display.avatar.contact;
 import java.awt.Color;
 
 import javax.swing.DefaultListModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -71,10 +70,6 @@ public class SearchPartner extends Avatar {
     public void reload() {
         reloadAddJButton();
         reloadSearchJButton();
-    }
-
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
     }
 
     /** This method is called from within the constructor to

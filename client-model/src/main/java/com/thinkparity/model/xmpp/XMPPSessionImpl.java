@@ -4,12 +4,7 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.*;
@@ -31,14 +26,11 @@ import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.smackx.XFactory;
-import com.thinkparity.model.smackx.document.XMPPDocumentXFilter;
-import com.thinkparity.model.smackx.document.XMPPDocumentXListener;
 import com.thinkparity.model.smackx.packet.*;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.document.XMPPDocument;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
+import com.thinkparity.model.xmpp.events.XMPPDocumentListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
 import com.thinkparity.model.xmpp.user.User;
@@ -82,16 +74,22 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	private XMPPConnection smackXMPPConnection;
 
 	/**
-	 * Artifact xmpp interface.
+	 * The artifact xmpp interface.
 	 * 
 	 */
 	private final XMPPArtifact xmppArtifact;
 
-	/**
+    /**
 	 * The xmpp contact interface.
 	 * 
 	 */
 	private final XMPPContact xmppContact;
+
+	/**
+     * The document xmpp interface.
+     * 
+     */
+    private final com.thinkparity.model.xmpp.XMPPDocument xmppDocument;
 
 	private Vector<XMPPExtensionListener> xmppExtensionListeners;
 
@@ -118,6 +116,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		this.xmppSessionListeners = new Vector<XMPPSessionListener>(10);
 
 		this.xmppArtifact = new XMPPArtifact(this);
+        this.xmppDocument = new com.thinkparity.model.xmpp.XMPPDocument(this);
 		this.xmppContact = new XMPPContact(this);
 		this.xmppUser = new XMPPUser(this);
 
@@ -135,11 +134,25 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * Accept the presence invitation.
+	 * Accept a contact's invitation.
 	 * 
 	 */
 	public void acceptInvitation(final JabberId jabberId) throws SmackException {
 		xmppContact.accept(jabberId);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#addArtifactTeamMember(java.util.UUID)
+	 * 
+	 */
+	public void addArtifactTeamMember(final UUID uniqueId)
+            throws SmackException {
+		logger.info("[LMODEL] [XMPP] [ARTIFACT] [ADD TEAM MEMBER]");
+		logger.debug(uniqueId);
+		final IQArtifact iq = new IQArtifactSubscribe(uniqueId);
+		iq.setType(IQ.Type.SET);
+		logger.debug(iq);
+		sendAndConfirmPacket(iq);
 	}
 
 	/**
@@ -154,9 +167,17 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPContactListener)
 	 * 
 	 */
-	public void addListener(final XMPPContactListener xmppContactListener) {
-		xmppContact.addListener(xmppContactListener);
+	public void addListener(final XMPPContactListener l) {
+		xmppContact.addListener(l);
 	}
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPDocumentListener)
+     * 
+     */
+    public void addListener(final XMPPDocumentListener l) {
+        xmppDocument.addListener(l);
+    }
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
@@ -187,15 +208,29 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#create(java.util.UUID)
+	 * @see com.thinkparity.model.xmpp.XMPPSession#closeArtifact(java.util.UUID)
+	 * 
 	 */
-	public void create(final UUID artifactUniqueId) throws SmackException {
-		logger.info("create(UUID)");
+	public void closeArtifact(final UUID artifactUniqueId) throws SmackException {
+		logger.info("sendClose(UUID)");
+		logger.debug(artifactUniqueId);
+		final IQArtifact iq = new IQCloseArtifact(artifactUniqueId);
+		iq.setType(IQ.Type.SET);
+		logger.debug(iq);
+		sendAndConfirmPacket(iq);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#createArtifact(java.util.UUID)
+	 * 
+	 */
+	public void createArtifact(final UUID artifactUniqueId) throws SmackException {
+		logger.info("sendCreate(UUID)");
 		logger.debug(artifactUniqueId);
 		final IQArtifact iq = new IQArtifactCreate(artifactUniqueId);
 		iq.setType(IQ.Type.SET);
 		logger.debug(iq);
-		sendPacket(iq);
+		sendAndConfirmPacket(iq);
 	}
 
 	/**
@@ -222,22 +257,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#getArtifactKeyHolder(java.util.UUID)
-	 * 
-	 */
-	public User getArtifactKeyHolder(final UUID artifactUniqueId)
-			throws SmackException {
-		logger.info("getArtifactKeyHolder(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQGetKeyHolder(artifactUniqueId);
-		iq.setType(IQ.Type.GET);
-		logger.debug(iq);
-		final IQGetKeyHolderResponse response =
-			(IQGetKeyHolderResponse) sendAndConfirmPacket(iq);
-		return new User(response.getKeyHolder());
-	}
-
-	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getArtifactKeys()
 	 * 
 	 */
@@ -259,24 +278,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * 
 	 */
 	public XMPPConnection getConnection() { return smackXMPPConnection; }
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#getUser()
-	 * 
-	 */
-	public User getUser() throws SmackException {
-		assertLoggedIn("Cannot obtain user while offline.");
-		final String user = smackXMPPConnection.getUser();
-		return new User(user.substring(0, user.indexOf('/')));
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#inviteContact(com.thinkparity.model.xmpp.JabberId)
-	 * 
-	 */
-	public void inviteContact(final JabberId jabberId) throws SmackException {
-		xmppContact.invite(jabberId);
-	}
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#isLoggedIn()
@@ -348,19 +349,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 						}
 					},
 					new PacketTypeFilter(IQDenyKeyRequest.class));
-			// document extension handler
-			smackXMPPConnection.addPacketListener(
-					new XMPPDocumentXListener() {
-						public void documentRecieved(
-								final XMPPDocument xmppDocument) {
-							notifyXMPPExtension_documentReceived(xmppDocument);
-						}
-					},
-					new XMPPDocumentXFilter());
 			// add the artifact listeners
 			xmppArtifact.addPacketListeners(smackXMPPConnection);
 			// add the contact listeners
 			xmppContact.addPacketListeners(smackXMPPConnection);
+            // add the document listeners
+            xmppDocument.addPacketListeners(smackXMPPConnection);
 			// add the user listeners
 			xmppUser.addPacketListeners(smackXMPPConnection);
 
@@ -392,28 +386,57 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#getArtifactSubscription(java.util.UUID)
-	 * 
-	 */
-	public List<Contact> readArtifactContacts(final UUID artifactUniqueId)
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactKeyHolder(java.util.UUID)
+     * 
+     */
+	public User readArtifactKeyHolder(final UUID artifactUniqueId)
 			throws SmackException {
-		return xmppArtifact.readContacts(artifactUniqueId);
+		logger.info("getArtifactKeyHolder(UUID)");
+		logger.debug(artifactUniqueId);
+		final IQArtifact iq = new IQGetKeyHolder(artifactUniqueId);
+		iq.setType(IQ.Type.GET);
+		logger.debug(iq);
+		final IQGetKeyHolderResponse response =
+			(IQGetKeyHolderResponse) sendAndConfirmPacket(iq);
+		return xmppUser.read(response.getKeyHolder());
+	}
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactTeam(java.util.UUID)
+     * 
+     */
+	public Set<User> readArtifactTeam(final UUID uniqueId)
+            throws SmackException {
+		return xmppArtifact.readTeam(uniqueId);
 	}
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
-	public List<Contact> readContacts() throws SmackException {
-		return xmppContact.readContacts();
+	public Set<Contact> readContacts() throws SmackException {
+		return xmppContact.read();
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#readUsers(java.util.List)
+	 * @see com.thinkparity.model.xmpp.XMPPSession#readCurrentUser()
+	 * 
 	 */
-	public List<User> readUsers(List<JabberId> jabberIds) throws SmackException {
-		return xmppUser.readUsers(jabberIds);
+	public User readCurrentUser() throws SmackException {
+		assertLoggedIn("[LMODEL] [XMPP] [READ CURRENT USER] [NO SESSION]");
+		final String qualifiedJabberId = smackXMPPConnection.getUser();
+        final JabberId jabberId =
+            JabberIdBuilder.parseQualifiedJabberId(qualifiedJabberId);
+		return xmppUser.read(jabberId);
+	}
+
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#readUsers(java.util.Set)
+     * 
+     */
+	public Set<User> readUsers(final Set<JabberId> jabberIds) throws SmackException {
+		return xmppUser.read(jabberIds);
 	}
 
 	/**
@@ -422,6 +445,18 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	public UserVCard readVCard(final JabberId jabberId) throws SmackException {
 		return xmppUser.readVCard(jabberId);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#removeArtifactTeamMember(java.util.UUID)
+	 * 
+	 */
+	public void removeArtifactTeamMember(final UUID artifactUniqueId) throws SmackException {
+		logger.info("sendDelete(UUID)");
+		logger.debug(artifactUniqueId);
+		final IQArtifact delete = new IQDeleteArtifact(artifactUniqueId);
+		delete.setType(IQ.Type.SET);
+		sendAndConfirmPacket(delete);
 	}
 
 	/**
@@ -447,7 +482,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppPresenceListeners.remove(xmppPresenceListener);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 */
 	public void removeListener(XMPPExtensionListener xmppExtensionListener) {
@@ -473,6 +508,19 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 				"Cannot unregister a non-registered session listener.",
 				xmppSessionListeners.contains(xmppSessionListener));
 		xmppSessionListeners.remove(xmppSessionListener);
+	}
+
+	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#requestArtifactKey(java.util.UUID)
+	 * 
+	 */
+	public void requestArtifactKey(final UUID artifactUniqueId)
+			throws SmackException {
+		logger.info("sendKeyRequest(UUID)");
+		logger.debug(artifactUniqueId);
+		final IQArtifact iq = new IQKeyRequest(artifactUniqueId);
+		iq.setType(IQ.Type.SET);
+		sendAndConfirmPacket(iq);
 	}
 
 	/**
@@ -519,30 +567,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * Send the document to the user. This is done by creating a smack packet
-	 * extension for the xmpp document, using the xstream library to serialize
-	 * the xmpp document; then sending the packet extension as an attachment to
-	 * a message to the user.
-	 * 
-	 * @param users
-	 *            The users to send the document to.
-	 * @param xmppDocument
-	 *            The document to send.
-	 * @see XMPPSessionImpl#send(Collection, PacketExtension)
-	 */
-	public void send(final Collection<User> users, final XMPPDocument xmppDocument)
-			throws SmackException {
-		logger.info("send(Collection<User>,XMPPDocument)");
-		logger.debug(users);
-		logger.debug(xmppDocument);
-		try { send(users, XFactory.createPacketX(xmppDocument)); }
-		catch(InterruptedException ix) {
-			logger.error("send(Collection<User>,XMPPDocument)", ix);
-			throw XMPPErrorTranslator.translate(ix);
-		}
-	}
-
-	/**
 	 * Send the packet and wait for a response. If the response conains an
 	 * error; a SmackException will be thrown.
 	 * 
@@ -559,7 +583,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             smackXMPPConnection.createPacketCollector(new PacketIDFilter(packetId));
         sendPacket(packet);
         final Packet confirmationPacket = collector.nextResult();
-        logger.debug("confirmationPacket");
         logger.debug(confirmationPacket);
         if(null == confirmationPacket) {
         	throw new SmackException("Send and confirm packet timeout.");
@@ -571,54 +594,22 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendClose(java.util.UUID)
-	 * 
-	 */
-	public void sendClose(final UUID artifactUniqueId) throws SmackException {
-		logger.info("sendClose(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQCloseArtifact(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
-		sendAndConfirmPacket(iq);
+     * @see com.thinkparity.model.xmpp.XMPPSession#sendDocument(java.util.Set,
+     *      java.util.UUID, java.lang.String, byte[])
+     * 
+     */
+	public void sendDocumentVersion(final Set<JabberId> sendTo,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] content) throws SmackException {
+	    xmppDocument.sendVersion(sendTo, uniqueId, versionId, name, content);
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendCreate(java.util.UUID)
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
 	 * 
 	 */
-	public void sendCreate(final UUID artifactUniqueId) throws SmackException {
-		logger.info("sendCreate(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQArtifactCreate(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
-		sendAndConfirmPacket(iq);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendDelete(java.util.UUID)
-	 * 
-	 */
-	public void sendDelete(final UUID artifactUniqueId) throws SmackException {
-		logger.info("sendDelete(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact delete = new IQDeleteArtifact(artifactUniqueId);
-		delete.setType(IQ.Type.SET);
-		sendAndConfirmPacket(delete);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendKeyRequest(java.util.UUID)
-	 * 
-	 */
-	public void sendKeyRequest(final UUID artifactUniqueId)
-			throws SmackException {
-		logger.info("sendKeyRequest(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQKeyRequest(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		sendAndConfirmPacket(iq);
+	public void sendInvitation(final JabberId jabberId) throws SmackException {
+		xmppContact.invite(jabberId);
 	}
 
 	/**
@@ -659,41 +650,23 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendSubscribe(java.util.UUID)
-	 * 
-	 */
-	public void sendSubscribe(final UUID artifactUniqueId)
-			throws SmackException {
-		logger.info("sendSubscribe(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQArtifactSubscribe(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
-		sendAndConfirmPacket(iq);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#subscribe(java.util.UUID)
-	 * 
-	 */
-	public void subscribe(final UUID artifactUniqueId) throws SmackException {
-		logger.info("subscribe(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQArtifactSubscribe(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		sendPacket(iq);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#unsubscribe(java.util.UUID)
-	 */
-	public void unsubscribe(final UUID artifactUniqueId) throws SmackException {
-		logger.info("unsubscribe(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQArtifactUnsubscribe(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		sendPacket(iq);
-	}
+     * @see com.thinkparity.model.xmpp.XMPPSession#updateCurrentUser(java.lang.String,
+     *      java.lang.String, java.lang.String)
+     * 
+     */
+    public void updateCurrentUser(final String firstName,
+            final String lastName, final String organization)
+            throws SmackException {
+        assertLoggedIn("[LMODEL] [XMPP] [UPDATE CURRENT USER] [NO SESSION]");
+        final String qualifiedJabberId = smackXMPPConnection.getUser();
+        final JabberId jabberId =
+            JabberIdBuilder.parseQualifiedJabberId(qualifiedJabberId);
+        final UserVCard vCard = xmppUser.readVCard(jabberId);
+        vCard.setFirstName(firstName);
+        vCard.setFirstName(firstName);
+        vCard.setFirstName(firstName);
+        xmppUser.updateVCard(jabberId, vCard);
+    }
 
 	/**
 	 * Assert that the underlying connection is authenticated.
@@ -775,20 +748,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * Fire the documentReceived event for all of the XMPPExtension listeners.
-	 * 
-	 * @param xmppDocument
-	 *            The xmpp document to use as the event source.
-	 */
-	private void notifyXMPPExtension_documentReceived(final XMPPDocument xmppDocument) {
-		synchronized(xmppExtensionListenersLock) {
-			for(final XMPPExtensionListener l : xmppExtensionListeners) {
-				l.documentReceived(xmppDocument);
-			}
-		}
-	}
-
-	/**
 	 * Fire the keyRequestAccepted event for all of the XMPPExtension listeners.
 	 * 
 	 * @param iq
@@ -848,7 +807,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return JabberIdBuilder.parseQualifiedJabberId(packet.getFrom());
 	}
 
-	/**
+    /**
 	 * Send a packet extension to a single user.
 	 * 
 	 * @param user
@@ -868,7 +827,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * Send a packet through the smack xmpp connection.
 	 * 
 	 * @param packet

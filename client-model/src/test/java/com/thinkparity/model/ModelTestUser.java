@@ -21,7 +21,7 @@ public class ModelTestUser {
 	}
 	public static ModelTestUser getJUnitBuddy0() {
 		return new ModelTestUser(
-				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit.buddy.0");
+				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit.0");
 	}
 
 	private final String password;

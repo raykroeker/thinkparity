@@ -13,7 +13,6 @@
 	<scm>
 		<connection>scm:cvs:pserver:pluto:pret0ria@rkutil.raykroeker.com:/home/cvs/raykroeker.com:source/JUnitX</connection>
 		<developerConnection>scm:cvs:pserver:pluto:pret0ria@rkutil.raykroeker.com:/home/cvs/raykroeker.com:source/JUnitX</developerConnection>
-		<tag>v1_0</tag>
 	</scm>
 
 	<developers>

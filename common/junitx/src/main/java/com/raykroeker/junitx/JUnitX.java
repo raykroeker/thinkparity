@@ -24,7 +24,7 @@ public class JUnitX {
 
 	public static String getShortName() { return "jUnitX"; }
 
-	public static String getVersion() { return "0.0.1"; }
+	public static String getVersion() { return "1.0.0"; }
 
 	/**
 	 * Create a JUnitX [Singelton]

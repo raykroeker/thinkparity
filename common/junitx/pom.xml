@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.raykroeker</groupId>
-	<version>1.0</version>
+	<version>1.0.0</version>
 	<url>http://raykroeker.dyndns.org</url>
 
 	<artifactId>jUnitX</artifactId>
@@ -12,6 +12,7 @@
 
 	<scm>
 		<connection>scm:cvs:pserver:pluto@rkutil.raykroeker.com:2401:/home/cvs/raykroeker.com:source/JUnitX</connection>
+		<tag>v1_0</tag>
 	</scm>
 
 	<developers>
@@ -48,6 +49,7 @@
 
 	<build>
 		<plugins>
+			<!-- compiler -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

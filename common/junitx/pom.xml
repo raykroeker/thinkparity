@@ -11,8 +11,8 @@
 	<packaging>jar</packaging>
 
 	<scm>
-		<connection>scm:cvs:pserver:pluto:pret0ria@rkutil.raykroeker.com:2401/home/cvs/raykroeker.com:source/JUnitX</connection>
-		<developerConnection>scm:cvs:pserver:pluto:pret0ria@rkutil.raykroeker.com:2401/home/cvs/raykroeker.com:source/JUnitX</developerConnection>
+		<connection>scm:cvs:pserver:pluto:pret0ria@rkutil.raykroeker.com:2401/home/cvs/raykroeker.com:jUnitX</connection>
+		<developerConnection>scm:cvs:pserver:pluto:pret0ria@rkutil.raykroeker.com:2401/home/cvs/raykroeker.com:jUnitX</developerConnection>
 	</scm>
 
 	<developers>

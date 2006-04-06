@@ -20,7 +20,7 @@
                         <outputDirectory>jUnitX-1.0/core</outputDirectory>
                         <directory>target</directory>
                         <includes>
-                                <include>jUnitX-1.0.jar</include>
+                                <include>jUnitX-1.0.0.jar</include>
                         </includes>
                 </fileSet>
         </fileSets>

@@ -47,4 +47,10 @@ public interface IParityModelConstants {
 	public static final String PARITY_CONNECTION_RESOURCE = "parity";
 
 	public static final String ARCHIVE_TEMP_DIRECTORY = Version.getName() + ".archive";
+
+    public static final String ROOT_DIRECTORY = "thinkParity";
+
+    public static final String ARCHIVE_DIRECTORY = "Archive";
+
+    public static final String EXPORT_DIRECTORY = "Export";
 }

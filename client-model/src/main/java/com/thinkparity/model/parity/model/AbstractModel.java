@@ -12,7 +12,13 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public abstract class AbstractModel {
 
-	/**
+    /**
+     * Every thinkParity lModel api is routed through here. This static block is
+     * the central intitialization point for thinkParity lModel.
+     */
+    static { new ModelInitialiser().initialize(); }
+
+    /**
 	 * Obtain the workspace model.
 	 * 
 	 * @return The parity workspace model.

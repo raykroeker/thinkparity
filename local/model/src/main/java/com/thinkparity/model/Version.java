@@ -7,47 +7,36 @@ import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 /**
- * Version
+ * The lModel version info.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.0.0
+ * @version 1.1
  */
 public class Version {
 
-	/**
-	 * Handle to the version config file
-	 * @see Version#configLock
-	 */
+	/** Version.properties */
 	private static final Config config;
 
-	/**
-	 * Synchronization lock for config.
-	 * @see Version#config
-	 */
-	private static final Object configLock;
-
-	static {
-		config = ConfigFactory.newInstance(Version.class);
-		configLock = new Object();
-	}
+	static { config = ConfigFactory.newInstance(Version.class); }
 
 	/**
-	 * Obtain the build id of the parity model.
-	 * 
-	 * @return The build id of the parity model.
-	 */
+     * Obtain the build id.
+     * 
+     * @return The build id.
+     */
 	public static String getBuildId() { return config.getProperty("buildId"); }
 
 	/**
-	 * Obtain the name of the parity model.
-	 * 
-	 * @return The name of the parity model.
-	 */
+     * Obtain the library name.
+     * 
+     * @return The library name.
+     */
 	public static String getName() { return config.getProperty("name"); }
 
 	/**
-	 * Obtain the version of the parity model.
+	 * Obtain the library version.
 	 * 
-	 * @return The version of the parity model.
+	 * @return The library version.
 	 */
 	public static String getVersion() {return config.getProperty("version"); }
 }

@@ -69,7 +69,7 @@ class PreferencesHelper {
 			}
 			public File getArchiveOutputDirectory() {
 				final String archiveOutputDirectory =
-					javaProperties.getProperty("parity.archive.outputDirectory", null);
+					javaProperties.getProperty("parity.archive.directory", null);
 				if(null == archiveOutputDirectory) { return null; }
 				else { return new File(archiveOutputDirectory); }
 			}

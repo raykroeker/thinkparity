@@ -207,21 +207,6 @@ public class DocumentModel {
 	}
 
     /**
-     * Obtain the latest document version.
-     * 
-     * @param documentId
-     *            The document id.
-     * @return The latest document version.
-     * @throws ParityException
-     */
-    public DocumentVersion readLatestVersion(final Long documentId)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            return getImpl().readLatestVersion(documentId);
-        }
-    }
-
-    /**
 	 * Obtain a document version.
 	 * 
 	 * @param documentId
@@ -236,7 +221,7 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.getVersion(documentId, versionId); }
 	}
 
-	/**
+    /**
 	 * Obtain the content for a specific version.
 	 * 
 	 * @param documentId
@@ -404,6 +389,21 @@ public class DocumentModel {
 	}
 
 	/**
+     * Obtain the latest document version.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return The latest document version.
+     * @throws ParityException
+     */
+    public DocumentVersion readLatestVersion(final Long documentId)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            return getImpl().readLatestVersion(documentId);
+        }
+    }
+
+	/**
 	 * Remove a creation listener.
 	 * 
 	 * @param listener
@@ -422,6 +422,22 @@ public class DocumentModel {
 	public void removeListener(final UpdateListener listener) {
 		synchronized(implLock) { impl.removeListener(listener); }
 	}
+
+    /**
+     * Update the working version of a document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param updateFile
+     *            The new working version.
+     * @throws ParityException
+     */
+    public void updateWorkingVersion(final Long documentId,
+            final File updateFile) throws ParityException {
+        synchronized(implLock) {
+            impl.updateWorkingVersion(documentId, updateFile);
+        }
+    }
 
 	/**
 	 * Obtain the implementation.

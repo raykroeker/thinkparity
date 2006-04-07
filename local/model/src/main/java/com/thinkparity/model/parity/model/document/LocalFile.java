@@ -3,14 +3,13 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -177,6 +176,31 @@ class LocalFile {
 	void write(final byte[] bytes) throws FileNotFoundException, IOException {
 		FileUtil.writeBytes(file, bytes);
 	}
+
+    /**
+     * Write the input stream to the local file.
+     * 
+     * @param is
+     *            The input stream containing new content.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    void write(final InputStream is) throws FileNotFoundException, IOException {
+        final OutputStream os = createOutputStream();
+        try { StreamUtil.copy(is, os, 512); }
+        finally { os.close(); }
+    }
+
+    /**
+     * Create an output stream for the local file.
+     * 
+     * @return The output stream.
+     * @throws FileNotFoundException
+     */
+    private OutputStream createOutputStream()
+            throws FileNotFoundException {
+        return new BufferedOutputStream(new FileOutputStream(file));
+    }
 
 	/**
 	 * Obtain the file for the document.

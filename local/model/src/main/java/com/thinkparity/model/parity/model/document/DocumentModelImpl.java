@@ -3,9 +3,12 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -57,19 +60,41 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 class DocumentModelImpl extends AbstractModelImpl {
 
-	/**
+    /** An assertion statement. */
+	private static final String ASSERT_UWV_0 =
+        "[LMODEL] [DOCUMENT] [UPDATE WORKING VERSION] [WORKING VERSION EQUAL TO LATEST VERSION]";
+
+    /**
 	 * List of listeners to notify when a document is created or received.
 	 * 
 	 * @see DocumentModelImpl#creationListenersLock
 	 */
 	private static final Collection<CreationListener> creationListeners;
 
-	/**
+    /**
 	 * Synchronization lock for the creation listeners.
 	 * 
 	 * @see DocumentModelImpl#creationListeners
 	 */
 	private static final Object creationListenersLock;
+
+    /** A method id. */
+    private static final String LOG_UWV = "[LMODEL] [DOCUMENT] [UPDATE WORKING VERSION] ";
+
+    /** A logger error statement. */
+    private static final String LOG_UWV_ERROR_FNFX =
+        LOG_UWV + "[FILE NOT FOUND]";
+
+    /** A logger error statement. */
+    private static final String LOG_UWV_ERROR_IOX =
+        LOG_UWV + "[IO ERROR]";
+
+    /** A logger error statement. */
+    private static final String LOG_UWV_ERROR_IOX_2 =
+        LOG_UWV + "[IO ERROR ON CLOSE]";
+
+	/** A logger info statement. */
+    private static final String LOG_UWV_INFO = LOG_UWV;
 
 	/**
 	 * List of listeners to notify when a document has been updated.
@@ -1090,14 +1115,56 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	void updateIndex(final Long documentId) throws ParityException {
+    void updateIndex(final Long documentId) throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [UPDATE INDEX]");
 		logger.debug(documentId);
 		indexor.delete(documentId);
 		indexor.create(documentId, get(documentId).getName());
 	}
 
-	/**
+    /**
+     * Update the working version of a document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param updateFile
+     *            The new working version.
+     */
+	void updateWorkingVersion(final Long documentId, final File updateFile)
+            throws ParityException {
+	    logger.info(LOG_UWV_INFO);
+        logger.debug(documentId);
+        logger.debug(updateFile);
+        assertLoggedInUserIsKeyHolder(documentId);
+        Assert.assertNotTrue(
+                ASSERT_UWV_0,
+                isWorkingVersionEqual(documentId));
+        final LocalFile localFile = getLocalFile(get(documentId));
+        InputStream is = null;
+        try {
+            is = createInputStream(updateFile);
+            localFile.write(createInputStream(updateFile));
+        }
+        catch(final FileNotFoundException fnfx) {
+            logger.error(LOG_UWV_ERROR_FNFX, fnfx);
+            throw ParityErrorTranslator.translate(fnfx);
+        }
+        catch(final IOException iox) {
+            logger.error(LOG_UWV_ERROR_IOX, iox);
+            throw ParityErrorTranslator.translate(iox);
+        }
+        finally {
+            if(null != is) {
+                try { is.close(); }
+                catch(final IOException iox) {
+                    logger.error(LOG_UWV_ERROR_IOX_2, iox);
+                    throw ParityErrorTranslator.translate(iox);
+                }
+            }
+        }
+    }
+
+    /**
 	 * Assert that the archive output directory has been set.
 	 * 
 	 */
@@ -1118,6 +1185,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 		Assert.assertTrue(
 				format("Cannot write archive output directory [{0}]", aod), aod.canWrite());
 	}
+
+	/**
+     * Create an input stream from the input file.
+     * 
+     * @param inputFile
+     *            The input file.
+     * @return An input stream.
+     * @throws FileNotFoundException
+     */
+    private InputStream createInputStream(final File inputFile)
+            throws FileNotFoundException {
+        return new BufferedInputStream(new FileInputStream(inputFile));
+    }
 
 	private String format(final String pattern, final File file) {
 		return format(pattern, new Object[] {file.getAbsolutePath()});

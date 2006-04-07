@@ -121,6 +121,12 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		return inputFiles;
 	}
 
+    protected File[] getModFiles() throws IOException {
+        final File[] modFiles = new File[5];
+        System.arraycopy(super.getModFiles(), 0, modFiles, 0, 5);
+        return modFiles;
+    }
+
 	protected InternalDocumentModel getInternalDocumentModel() {
 		if(null == iDocumentModel) {
 			return DocumentModel.getInternalModel(new Context(getClass()));

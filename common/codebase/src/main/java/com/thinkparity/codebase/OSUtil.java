@@ -33,6 +33,8 @@ public class OSUtil {
 				if("Windows XP".equals(osName)) { os = OS.WINDOWS_XP; }
 				else if("Windows 2000".equals(osName)) { os = OS.WINDOWS_2000; }
 				else if("Linux".equals(osName)) { os = OS.LINUX; }
+                else if("Mac OS X".equals(osName)) { os = OS.OSX; }
+
 				// set the version
 				if(null != os) { os.setVersion(System.getProperty("os.version")); }
 			}

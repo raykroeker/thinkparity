@@ -10,7 +10,7 @@ package com.thinkparity.codebase;
  */
 public enum OS {
 
-	LINUX, WINDOWS_2000, WINDOWS_XP;
+	LINUX, OSX, WINDOWS_2000, WINDOWS_XP;
 
 	/**
 	 * The version of the os.

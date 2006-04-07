@@ -56,7 +56,7 @@ public class BrowserWindow extends AbstractJFrame {
 	private static final long serialVersionUID = 1;
 
 	static {
-		BROWSER_ICON = ImageIOUtil.read("BrowserIcon.png");
+		BROWSER_ICON = ImageIOUtil.read("ThinkParity32x32.png");
 	}
 
 	/**

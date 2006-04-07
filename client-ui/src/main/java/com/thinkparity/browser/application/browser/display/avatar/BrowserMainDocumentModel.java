@@ -407,7 +407,7 @@ public class BrowserMainDocumentModel {
         final ListItem[] modelItems = new ListItem[jListModel.size()];
         jListModel.copyInto(modelItems);
         DocumentListItem dli;
-        int touchedIndex;
+        int visibleIndex;
         for(int i = 0; i < modelItems.length; i++) {
             li = modelItems[i];
             if(li instanceof DocumentListItem) {
@@ -418,9 +418,9 @@ public class BrowserMainDocumentModel {
 
                 // re-create the list item of those that have been touched
                 if(touchedDocuments.contains(dli.getDisplayDocument())) {
-                    touchedIndex = touchedDocuments.indexOf(dli.getDisplayDocument());
+                    visibleIndex = visibleDocuments.indexOf(dli.getDisplayDocument());
                     jListModel.remove(i);
-                    jListModel.add(i, ListItem.create(touchedDocuments.get(touchedIndex)));
+                    jListModel.add(visibleIndex, ListItem.create(visibleDocuments.get(visibleIndex)));
                 }
             }
         }

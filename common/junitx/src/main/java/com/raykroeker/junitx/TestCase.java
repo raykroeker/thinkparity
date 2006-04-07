@@ -124,6 +124,16 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
+	 * Obtain a list of modified input files.
+	 * 
+	 * @return A list of modified input files.
+	 * @throws IOException
+	 */
+	protected File[] getModFiles() throws IOException {
+		return TestCaseHelper.getModFiles();
+	}
+
+	/**
 	 * Obtain the directory within which the input files reside.
 	 * 
 	 * @return The directory within which the input files reside.

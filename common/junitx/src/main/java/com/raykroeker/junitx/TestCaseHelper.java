@@ -32,6 +32,12 @@ public class TestCaseHelper {
 	private static List<File> inputFiles;
 
 	/**
+	 * List of modified input files to use for testing.
+	 * 
+	 */
+	private static List<File> modFiles;
+
+	/**
 	 * The directory that contains the input files.
 	 * 
 	 * @see #getInputFilesDirectory()
@@ -105,6 +111,20 @@ public class TestCaseHelper {
 		return inputFiles.toArray(new File[] {});
 	}
 
+	static File[] getModFiles() throws IOException {
+		if(null == modFiles) {
+			modFiles = new LinkedList<File>();
+			modFiles.add(copyInputFile("JUnitTestFrameworkMod.doc"));
+			modFiles.add(copyInputFile("JUnitTestFrameworkMod.odt"));
+			modFiles.add(copyInputFile("JUnitTestFrameworkMod.png"));
+			modFiles.add(copyInputFile("JUnitTestFrameworkMod.txt"));
+			modFiles.add(copyInputFile("JUnitTestFramework1MBMod.txt"));
+			modFiles.add(copyInputFile("JUnitTestFramework2MBMod.txt"));
+			modFiles.add(copyInputFile("JUnitTestFramework4MBMod.txt"));
+		}
+		return modFiles.toArray(new File[] {});
+	}
+
 	/**
 	 * Obtain the directory within which the input files will reside.
 	 * 
@@ -130,15 +150,33 @@ public class TestCaseHelper {
 	 * api will use the classloader to read the resource then copy the stream
 	 * directly to a file of the same name in the input directory.
 	 * 
-	 * @param fileName
-	 *            The file name.
+	 * @param inputName
+	 *            The input file name.
+	 * @param outputName
+	 *            The output file name.
 	 * @throws IOException
 	 */
-	private static File copyInputFile(final String fileName) throws IOException {
-		final File inputFile = new File(getInputFilesDirectory(), fileName);
-		Assert.assertTrue(inputFile.createNewFile());
-		final InputStream is = TestCaseHelper.class.getResourceAsStream(fileName);
-		final OutputStream os = new FileOutputStream(inputFile);
+	private static File copyInputFile(final String inputName) throws IOException {
+		return copyInputFile(inputName, inputName);
+	}
+
+	/**
+	 * Copy the input file of the given name to the input files directory. This
+	 * api will use the classloader to read the resource then copy the stream
+	 * directly to a file of the same name in the input directory.
+	 * 
+	 * @param inputName
+	 *            The input file name.
+	 * @param outputName
+	 *            The output file name.
+	 * @throws IOException
+	 */
+	private static File copyInputFile(final String inputName,
+			final String outputName) throws IOException {
+		final File outputFile = new File(getInputFilesDirectory(), outputName);
+		Assert.assertTrue(outputFile.createNewFile());
+		final InputStream is = TestCaseHelper.class.getResourceAsStream(inputName);
+		final OutputStream os = new FileOutputStream(outputFile);
 		try {
 			int len;
 			final byte[] b = new byte[512];
@@ -151,7 +189,7 @@ public class TestCaseHelper {
 			try { os.close(); }
 			finally { is.close(); }
 		}
-		return inputFile;
+		return outputFile;
 	}
 
 	/**

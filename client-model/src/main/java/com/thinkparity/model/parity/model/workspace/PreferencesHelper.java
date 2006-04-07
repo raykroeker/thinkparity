@@ -107,7 +107,7 @@ class PreferencesHelper {
 			public void setArchiveOutputDirectory(
 					final File archiveOutputDirectory) {
 				javaProperties.setProperty(
-						"parity.archive.outputDirectory",
+						"parity.archive.directory",
 						archiveOutputDirectory.getAbsolutePath());
 			}
 			public void setLocale(final Locale locale) {}

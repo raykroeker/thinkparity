@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser;
 
 import java.awt.Point;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -432,16 +433,6 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
-     * Determine if the history is enabled.
-     * 
-     * @return True if the history is enabled; false otherwise.
-     * 
-     * @see #enableHistory()
-     * @see #disableHistory()
-     */
-    public Boolean isHistoryEnabled() { return historyEnabled; }
-
-    /**
      * Determine whether or not the main avatar's filter is enabled.
      * 
      * @return True if it is; false otherwise.
@@ -450,6 +441,16 @@ public class Browser extends AbstractApplication {
         if(null == getMainAvatar()) { return Boolean.FALSE; }
         return getMainAvatar().isFilterEnabled();
     }
+
+    /**
+     * Determine if the history is enabled.
+     * 
+     * @return True if the history is enabled; false otherwise.
+     * 
+     * @see #enableHistory()
+     * @see #disableHistory()
+     */
+    public Boolean isHistoryEnabled() { return historyEnabled; }
 
     /**
      * Check if the history is currently visible.
@@ -576,11 +577,21 @@ public class Browser extends AbstractApplication {
 	 */
 	public void runCreateDocument() {
 		if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(mainWindow)) {
-			final Data data = new Data(1);
-			data.set(Create.DataKey.FILE, jFileChooser.getSelectedFile());
-			invoke(ActionId.DOCUMENT_CREATE, data);
+		    runCreateDocument(jFileChooser.getSelectedFile());
 		}
 	}
+
+    /**
+     * Create a document.
+     * 
+     * @param file
+     *            The document file.
+     */
+    public void runCreateDocument(final File file) {
+        final Data data = new Data(1);
+        data.set(Create.DataKey.FILE, file);
+        invoke(ActionId.DOCUMENT_CREATE, data);
+    }
 
 	/**
 	 * Run the decline key action.
@@ -689,25 +700,6 @@ public class Browser extends AbstractApplication {
      * 
      * @param artifactId
      *            The artifact id.
-     * @param contacts
-     *            The contacts to send to.
-     * @param versionId
-     *            The version id.
-     */
-    public void runSendArtifactVersion(final Long artifactId,
-            final List<Contact> contacts, final Long versionId) {
-        final Data data = new Data(3);
-        data.set(SendVersion.DataKey.ARTIFACT_ID, artifactId);
-        data.set(SendVersion.DataKey.CONTACTS, contacts);
-        data.set(SendVersion.DataKey.VERSION_ID, versionId);
-        invoke(ActionId.ARTIFACT_SEND_VERSION, data);
-    }
-
-    /**
-     * Run the send artifact version action.
-     * 
-     * @param artifactId
-     *            The artifact id.
      * @param contact
      *            The contact to send to.
      * @param versionId
@@ -720,6 +712,25 @@ public class Browser extends AbstractApplication {
         final List<Contact> contacts = new LinkedList<Contact>();
         contacts.add(contact);
         runSendArtifactVersion(artifactId, contacts, versionId);
+    }
+
+    /**
+     * Run the send artifact version action.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param contacts
+     *            The contacts to send to.
+     * @param versionId
+     *            The version id.
+     */
+    public void runSendArtifactVersion(final Long artifactId,
+            final List<Contact> contacts, final Long versionId) {
+        final Data data = new Data(3);
+        data.set(SendVersion.DataKey.ARTIFACT_ID, artifactId);
+        data.set(SendVersion.DataKey.CONTACTS, contacts);
+        data.set(SendVersion.DataKey.VERSION_ID, versionId);
+        invoke(ActionId.ARTIFACT_SEND_VERSION, data);
     }
 
 	/**

@@ -91,13 +91,19 @@ public class SystemMessageListItem extends ListItem {
 		setMessage(systemMessage);
 	}
 
-	public Long getId() { return ((SystemMessage) getProperty("message")).getId(); }
+	/**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#canImport()
+     * 
+     */
+    public boolean canImport() { return false; }
 
 	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#fireSelection()
 	 * 
 	 */
 	public void fireSelection() {}
+
+	public Long getId() { return ((SystemMessage) getProperty("message")).getId(); }
 
 	/**
 	 * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#populateMenu(java.awt.event.MouseEvent,
@@ -335,7 +341,7 @@ public class SystemMessageListItem extends ListItem {
 		}
 	}
 
-	/**
+    /**
 	 * Set the message id.
 	 * 
 	 * @param messageId

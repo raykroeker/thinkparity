@@ -136,6 +136,13 @@ public abstract class ListItem {
 	}
 
 	/**
+     * Return whether or not the list item can be used as a drop target.
+     * 
+     * @return True if the list item can be used as a drop target.
+     */
+    public abstract boolean canImport();
+
+	/**
 	 * This method is called when an item is selected.
 	 *
 	 */
@@ -345,7 +352,7 @@ public abstract class ListItem {
 		this.nameFont = nameFont;
 	}
 
-	/**
+    /**
 	 * Set the name label foreground color.
 	 * 
 	 * @param nameForeground

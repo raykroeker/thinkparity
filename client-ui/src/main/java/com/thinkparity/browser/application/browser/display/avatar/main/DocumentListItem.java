@@ -195,6 +195,14 @@ public class DocumentListItem extends ListItem {
 	}
 
 	/**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.ListItem#canImport()
+     * 
+     */
+    public boolean canImport() {
+        return displayDocument.isKeyHolder();
+    }
+
+	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * 
 	 */
@@ -212,6 +220,18 @@ public class DocumentListItem extends ListItem {
 	public void fireSelection() {
 		getController().selectDocument(getDocumentId());
 	}
+
+	/**
+     * @return Returns the displayDocument.
+     */
+    public DisplayDocument getDisplayDocument() { return displayDocument; }
+
+	/**
+	 * Get the document id.
+	 * 
+	 * @return The document unique id.
+	 */
+	public Long getDocumentId() { return (Long) getProperty("documentId"); }
 
 	/**
 	 * @see java.lang.Object#hashCode()
@@ -333,13 +353,6 @@ public class DocumentListItem extends ListItem {
 	}
 
 	/**
-	 * Get the document id.
-	 * 
-	 * @return The document unique id.
-	 */
-	public Long getDocumentId() { return (Long) getProperty("documentId"); }
-
-	/**
 	 * Obtain the open menu item.
 	 * 
 	 * @return The open menu item.
@@ -412,7 +425,7 @@ public class DocumentListItem extends ListItem {
 		return sendMenuItem;
 	}
 
-	/**
+    /**
 	 * Obtain the action listener for the send menu item.
 	 * 
 	 * @return The action listener for the send menu item.
@@ -428,7 +441,7 @@ public class DocumentListItem extends ListItem {
 		return sendMenuItemActionListener;
 	}
 
-	/**
+    /**
 	 * Set the document id.
 	 * 
 	 * @param documentId
@@ -437,9 +450,4 @@ public class DocumentListItem extends ListItem {
 	private void setDocumentId(final Long documentId) {
 		setProperty("documentId", documentId);
 	}
-
-    /**
-     * @return Returns the displayDocument.
-     */
-    public DisplayDocument getDisplayDocument() { return displayDocument; }
 }

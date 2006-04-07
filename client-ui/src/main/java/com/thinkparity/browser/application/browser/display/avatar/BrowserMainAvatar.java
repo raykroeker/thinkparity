@@ -20,6 +20,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.display.avatar.main.BrowserMainListTxHandler;
 import com.thinkparity.browser.application.browser.display.avatar.main.CellRenderer;
 import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
@@ -226,16 +227,19 @@ public class BrowserMainAvatar extends Avatar {
 	 *
 	 */
 	private void initComponents() {
-		// the list that resides on the browser's main avatar
+
+        // the list that resides on the browser's main avatar
 		// 	* is a single selection list
 		//	* spans the width of the entire avatar
 		// 	* uses a custom cell renderer
 		jList = new JList(mainDocumentModel.getListModel());
-		jList.setLayoutOrientation(JList.VERTICAL);
-		jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jList.setCellRenderer(new CellRenderer());
+        jList.setDragEnabled(true);
 		// HEIGHT MainListCell 21
 		jList.setFixedCellHeight(21);
+		jList.setLayoutOrientation(JList.VERTICAL);
+		jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		jList.setTransferHandler(new BrowserMainListTxHandler(this));
 		jList.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				if(2 == e.getClickCount()) {

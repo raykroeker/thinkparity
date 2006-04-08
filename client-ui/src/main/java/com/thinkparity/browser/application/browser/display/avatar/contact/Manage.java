@@ -115,8 +115,6 @@ public class Manage extends Avatar {
         removeJButton = ButtonFactory.create(getString("RemoveButton"));
         viewJButton = ButtonFactory.create(getString("ViewButton"));
 
-        eaJLabel.setText("!Embedded Assistance!");
-
         contactsModel = new DefaultListModel();
         contactsJList.setModel(contactsModel);
         contactsJList.setCellRenderer(new ContactCellRenderer());
@@ -128,28 +126,24 @@ public class Manage extends Avatar {
 
         contactsJScrollPane.setViewportView(contactsJList);
 
-        inviteJButton.setText("!Invite!");
         inviteJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 inviteJButtonActionPerformed(e);
             }
         });
 
-        searchJButton.setText("!Search!");
         searchJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 searchJButtonActionPerformed(e);
             }
         });
 
-        removeJButton.setText("!Remove!");
         removeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 removeJButtonActionPerformed(e);
             }
         });
 
-        viewJButton.setText("!View!");
         viewJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 viewJButtonActionPerformed(e);

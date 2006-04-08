@@ -76,6 +76,7 @@ public class WindowFactory {
 	private Window doCreate(final WindowId windowId,
 			final BrowserWindow browserWindow) {
 		switch(windowId) {
+		case CONFIRM: return doCreateConfirm(browserWindow);
 		case HISTORY: return doCreateHistory(browserWindow);
 		case POPUP: return doCreatePopup(browserWindow);
 		default:
@@ -102,6 +103,12 @@ public class WindowFactory {
 		register(window);
 		return window;
 	}
+
+    private Window doCreateConfirm(final BrowserWindow browserWindow) {
+        final Window window = new ConfirmWindow(browserWindow);
+        register(window);
+        return window;
+    }
 
 	private Window doCreatePlatformLogin() {
 		final Window window = new LoginWindow();

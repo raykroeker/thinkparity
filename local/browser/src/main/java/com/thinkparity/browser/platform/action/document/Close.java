@@ -5,7 +5,7 @@ package com.thinkparity.browser.platform.action.document;
 
 import javax.swing.Icon;
 
-import com.thinkparity.browser.javax.swing.JOptionPaneUtil;
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
@@ -17,12 +17,6 @@ import com.thinkparity.model.parity.model.document.Document;
  * @version 1.1
  */
 public class Close extends AbstractAction {
-
-	/**
-	 * Data key used by close.
-	 * 
-	 */
-	public enum DataKey { DOCUMENT_ID }
 
 	private static final Icon ICON;
 
@@ -36,24 +30,34 @@ public class Close extends AbstractAction {
 		NAME = "Close Document";
 	}
 
+	/** The browser application. */
+    private final Browser browser;
+
 	/**
 	 * Create a Close.
 	 * 
 	 */
-	public Close() { super("Document.Close", ID, NAME, ICON); }
+	public Close(final Browser browser) {
+        super("Document.Close", ID, NAME, ICON);
+        this.browser = browser;
+	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 * 
 	 */
 	public void invoke(Data data) throws Exception {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Document document = getDocumentModel().get(documentId);
-		if(JOptionPaneUtil.showConfirmationDialog(
-				getString("ConfirmClosureMessage", new String[] {document.getName()}),
-				getString("ConfirmClosureTitle"))) {
+		if(browser.confirm("DocumentClose.ConfirmClosureMessage", new Object[] {document.getName()})) {
 			getDocumentModel().close(documentId);
 			getArtifactModel().applyFlagSeen(documentId);
 		}
 	}
+
+	/**
+	 * Data key used by close.
+	 * 
+	 */
+	public enum DataKey { DOCUMENT_ID }
 }

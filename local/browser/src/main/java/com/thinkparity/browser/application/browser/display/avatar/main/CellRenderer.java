@@ -15,6 +15,7 @@ import javax.swing.JList;
 import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
@@ -29,28 +30,16 @@ import com.thinkparity.browser.javax.swing.AbstractJPanel;
  */
 public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 
-	/**
-	 * @see java.io.Serializable
-	 * 
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * The background image of the cell to paint.
-	 * 
-	 */
+	/** The background image of the cell to paint. */
 	private BufferedImage backgroundImage;
 
-	/**
-	 * Display's additional info about the cell.
-	 * 
-	 */
+	/** Display's additional info about the cell. */
 	private JLabel cellInfoIconJLabel;
 
-	/**
-	 * Displays the cell name.
-	 * 
-	 */
+	/** Displays the cell name. */
 	private JLabel cellNameJLabel;
 
 	/**
@@ -60,11 +49,8 @@ public class CellRenderer extends AbstractJPanel implements ListCellRenderer {
 	 */
 	private JPopupMenu jPopupMenu;
 
-	/**
-	 * Create a CellRenderer.
-	 * 
-	 */
-	public CellRenderer() {
+	/** Create a CellRenderer. */
+	public CellRenderer(final Browser application, final JList jList) {
 		super("CellRenderer");
 		setLayout(new GridBagLayout());
 		initComponents();

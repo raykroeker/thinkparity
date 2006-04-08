@@ -17,27 +17,18 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  */
 public class TitleDisplay extends Display {
 
-	/**
-	 * The display's background.
-	 * 
-	 */
+	/** The display's background. */
 	private static final Image BACKGROUND;
 
-	/**
-	 * @see java.io.Serializable
-	 * 
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
 	static { BACKGROUND = ImageIOUtil.read("TitleDisplay.png"); }
 
-	/**
-	 * Create a TitleDisplay.
-	 * 
-	 */
+	/** Create a TitleDisplay. */
 	public TitleDisplay() { super("TitleDisplay", Color.WHITE); }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.display.Display#getId()
 	 * 
 	 */

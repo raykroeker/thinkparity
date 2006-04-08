@@ -19,6 +19,7 @@ import javax.swing.event.MouseInputAdapter;
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
+import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
@@ -88,6 +89,7 @@ public class SearchPanel extends AbstractJPanel {
 		addMouseMotionListener(mouseInputAdapter);
 		setLayout(new GridBagLayout());
 		setOpaque(false);
+        setTransferHandler(new CreateDocumentTxHandler(container.getController()));
 		initComponents();
 	}
 
@@ -124,6 +126,7 @@ public class SearchPanel extends AbstractJPanel {
 				searchJTextFieldRemoveUpdate(e);
 			}
 		});
+		searchJTextField.setTransferHandler(new CreateDocumentTxHandler(getBrowser()));
 		searchLeftJLabel = LabelFactory.create(SEARCH_LEFT_ICON);
 		searchRightJLabel = LabelFactory.create(SEARCH_RIGHT_ICON);
 

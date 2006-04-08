@@ -25,16 +25,16 @@ public class WindowPanel extends AbstractJPanel {
 	private static final long serialVersionUID = 1;
 
 	/**
-	 * Grid bag constraints for the avatars.
+	 * Grid bag constraints for the jPanels.
 	 * 
 	 */
 	private final GridBagConstraints ac;
 
 	/**
-	 * List of all avatars currently on the panel.
+	 * List of all jPanels currently on the panel.
 	 * 
 	 */
-	private final List<Avatar> avatars;
+	private final List<AbstractJPanel> jPanels;
 
 	/**
 	 * Create a MainPanel.
@@ -47,7 +47,7 @@ public class WindowPanel extends AbstractJPanel {
             this.ac.weightx = 1;
             this.ac.weighty = 1;
             this.ac.gridy = 1;
-            this.avatars = new LinkedList<Avatar>();
+            this.jPanels = new LinkedList<AbstractJPanel>();
             setLayout(new GridBagLayout());
             setOpaque(false);
             initComponents();
@@ -65,27 +65,27 @@ public class WindowPanel extends AbstractJPanel {
 	 * @param avatar
 	 *            The avatar to add.
 	 */
-	void addAvatar(final Avatar avatar) {
+	void addPanel(final AbstractJPanel jPanel) {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
 		add(new WindowTitleDecoration(), c.clone());
 
-		avatars.add(avatar);
+		jPanels.add(jPanel);
 		ac.gridy++;
-		add((Component) avatar, ac.clone());
+		add((Component) jPanel, ac.clone());
 	}
 
 	/**
-	 * Clear all avatars from the window panel.
+	 * Clear all jPanels from the window panel.
 	 *
 	 */
 	void clearAvatars() {
 		ac.gridy = 1;
-		for(final Avatar avatar : avatars) {
-			remove(avatar);
+		for(final AbstractJPanel jPanel : jPanels) {
+			remove(jPanel);
 		}
-		avatars.clear();
+		jPanels.clear();
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class WindowPanel extends AbstractJPanel {
 	 *            The avatar to remove.
 	 */
 	void removeAvatar(final Avatar avatar) {
-		avatars.remove(avatar);
+		jPanels.remove(avatar);
 		ac.gridy--;
 		remove(avatar);
 	}

@@ -15,6 +15,9 @@ import com.thinkparity.browser.application.browser.display.avatar.title.SearchPa
 import com.thinkparity.browser.platform.util.State;
 
 /**
+ * The title avatar contains the {@link ButtonPanel} (contacts, minimize, close)
+ * and the {@link SearchPanel} for the browser.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */

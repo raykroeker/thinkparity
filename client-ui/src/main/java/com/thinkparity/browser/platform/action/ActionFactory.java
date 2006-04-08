@@ -54,8 +54,6 @@ public class ActionFactory {
 		switch(actionId) {
 		case ARTIFACT_APPLY_FLAG_SEEN:
 			return new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen();
-		case DOCUMENT_CLOSE:
-			return new com.thinkparity.browser.platform.action.document.Close();
 		default:
 			throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
 		}
@@ -86,6 +84,8 @@ public class ActionFactory {
             return new com.thinkparity.browser.platform.action.artifact.SendVersion(browser);
 		case DOCUMENT_CREATE:
 			return new com.thinkparity.browser.platform.action.document.Create(browser);
+		case DOCUMENT_CLOSE:
+		    return new com.thinkparity.browser.platform.action.document.Close(browser);
 		case DOCUMENT_DELETE:
 			return new com.thinkparity.browser.platform.action.document.Delete(browser);
 		case DOCUMENT_OPEN:

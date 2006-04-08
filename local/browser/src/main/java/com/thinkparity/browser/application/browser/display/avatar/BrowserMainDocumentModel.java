@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
@@ -252,56 +253,6 @@ public class BrowserMainDocumentModel {
     }
 
     /**
-     * Synchronize the document with the list. The content provider is queried
-     * for the document and if it can be obtained; it will either be added to or
-     * updated in the list. If it cannot be found; it will be removed from the
-     * list.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param remote
-     *            Whether or not the reload is the result of a remote event or
-     *            not.
-     */
-    void syncDocument(final Long documentId, final Boolean remote) {
-        final DisplayDocument displayDocument =
-            (DisplayDocument) contentProvider.getElement(0, documentId);
-        // if the display document is null; we can assume the document has been
-        // deleted (it's not longer being created by the provider); so we find
-        // the document and remove it
-        if(null == displayDocument) {
-            for(int i = 0; i < documents.size(); i++) {
-                if(documents.get(i).getId().equals(documentId)) {
-                    documents.remove(i);
-                    break;
-                }
-            }
-        }
-        else {
-            // if the document is in the list; we need to remove it;
-            // and re-add it.
-            if(documents.contains(displayDocument)) {
-                final int index = documents.indexOf(displayDocument);
-                documents.remove(index);
-
-                // if the reload is not the result of a remote event; put it back
-                // where it was; otherwise move it to the top
-                if(remote) {
-                    documents.add(0, displayDocument);
-                    touchedDocuments.add(displayDocument);
-                }
-                else {
-                    documents.add(index, displayDocument);
-                    touchedDocuments.add(displayDocument);
-                }
-            }
-            // if it's not in the list; just add it to the top
-            else { documents.add(0, displayDocument); }
-        }
-        syncDocuments();
-    }
-
-    /**
      * Remove all key holder filters.
      *
      * @see #applyKeyHolderFilter(Boolean)
@@ -347,6 +298,44 @@ public class BrowserMainDocumentModel {
     }
 
     /**
+     * Synchronize the document with the list. The content provider is queried
+     * for the document and if it can be obtained; it will either be added to or
+     * updated in the list. If it cannot be found; it will be removed from the
+     * list.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param remote
+     *            Whether or not the reload is the result of a remote event or
+     *            not.
+     */
+    void syncDocument(final Long documentId, final Boolean remote) {
+        syncDocumentInternal(documentId, remote);
+        syncDocuments();
+    }
+
+    /**
+     * Synchronize the documents with the list. The content provider is queried
+     * for the document and if it can be obtained; it will either be added to or
+     * updated in the list. If it cannot be found; it will be removed from the
+     * list.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param remote
+     *            Whether or not the reload is the result of a remote event or
+     *            not.
+     * @see #syncDocumentInternal(Long, Boolean)
+     * @see #syncDocuments()
+     */
+    void syncDocuments(final Set<Long> documentIds, final Boolean remote) {
+        for(final Long documentId : documentIds) {
+            syncDocumentInternal(documentId, remote);
+        }
+        syncDocuments();
+    }
+
+    /**
      * Apply the specified filter.
      * 
      * @param filter
@@ -383,6 +372,59 @@ public class BrowserMainDocumentModel {
     private void removeDocumentFilter(final Filter<Artifact> filter) {
         if(documentFilter.containsFilter(filter)) {
             documentFilter.removeFilter(filter);
+        }
+    }
+
+    /**
+     * Synchronize the document with the list. The content provider is queried
+     * for the document and if it can be obtained; it will either be added to or
+     * updated in the list. If it cannot be found; it will be removed from the
+     * list.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param remote
+     *            Whether or not the reload is the result of a remote event or
+     *            not.
+     * 
+     * @see #syncDocument(Long, Boolean)
+     * @see #syncDocuments()
+     */
+    private void syncDocumentInternal(final Long documentId,
+            final Boolean remote) {
+        final DisplayDocument displayDocument =
+            (DisplayDocument) contentProvider.getElement(0, documentId);
+        // if the display document is null; we can assume the document has been
+        // deleted (it's not longer being created by the provider); so we find
+        // the document and remove it
+        if(null == displayDocument) {
+            for(int i = 0; i < documents.size(); i++) {
+                if(documents.get(i).getId().equals(documentId)) {
+                    documents.remove(i);
+                    break;
+                }
+            }
+        }
+        else {
+            // if the document is in the list; we need to remove it;
+            // and re-add it.
+            if(documents.contains(displayDocument)) {
+                final int index = documents.indexOf(displayDocument);
+                documents.remove(index);
+
+                // if the reload is not the result of a remote event; put it back
+                // where it was; otherwise move it to the top
+                if(remote) {
+                    documents.add(0, displayDocument);
+                    touchedDocuments.add(displayDocument);
+                }
+                else {
+                    documents.add(index, displayDocument);
+                    touchedDocuments.add(displayDocument);
+                }
+            }
+            // if it's not in the list; just add it to the top
+            else { documents.add(0, displayDocument); }
         }
     }
 

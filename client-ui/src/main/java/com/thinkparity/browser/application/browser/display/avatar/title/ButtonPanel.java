@@ -14,6 +14,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
@@ -32,10 +33,6 @@ public class ButtonPanel extends AbstractJPanel {
 
 	private static final Icon CONTACTS_ROLLOVER_ICON;
 
-	private static final Icon DOCUMENTS_ICON;
-
-	private static final Icon DOCUMENTS_ROLLOVER_ICON;
-
 	private static final Icon MIN_ICON;
 
 	private static final Icon MIN_ROLLOVER_ICON;
@@ -52,9 +49,6 @@ public class ButtonPanel extends AbstractJPanel {
 
 		CONTACTS_ICON = ImageIOUtil.readIcon("ContactsButton.png");
 		CONTACTS_ROLLOVER_ICON = ImageIOUtil.readIcon("ContactsButtonRollover.png");
-
-		DOCUMENTS_ICON = ImageIOUtil.readIcon("NewDocumentButton.png");
-		DOCUMENTS_ROLLOVER_ICON = ImageIOUtil.readIcon("NewDocumentButtonRollover.png");
 
 		MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
 		MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("MinimizeButtonRollover.png");
@@ -79,12 +73,6 @@ public class ButtonPanel extends AbstractJPanel {
 	private final Avatar container;
 
 	/**
-	 * The documents button.
-	 * 
-	 */
-	private JLabel documentsJLabel;
-
-	/**
 	 * The minimize button.
 	 *
 	 */
@@ -102,6 +90,7 @@ public class ButtonPanel extends AbstractJPanel {
 		addMouseMotionListener(mouseInputAdapter);
 		setOpaque(false);
 		setLayout(new GridBagLayout());
+        setTransferHandler(new CreateDocumentTxHandler(container.getController()));
 		initComponents();
 	}
 
@@ -159,18 +148,6 @@ public class ButtonPanel extends AbstractJPanel {
 				closeJLabel.setIcon(CLOSE_ICON);
 			}
 		});
-		documentsJLabel = LabelFactory.create(DOCUMENTS_ICON);
-		documentsJLabel.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent e) {
-				runAddDocument();
-			}
-			public void mouseEntered(final MouseEvent e) {
-				documentsJLabel.setIcon(DOCUMENTS_ROLLOVER_ICON);
-			}
-			public void mouseExited(final MouseEvent e) {
-				documentsJLabel.setIcon(DOCUMENTS_ICON);
-			}
-		});
 		minJLabel = LabelFactory.create(MIN_ICON);
 		minJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
@@ -189,18 +166,14 @@ public class ButtonPanel extends AbstractJPanel {
 		c.anchor = GridBagConstraints.NORTHEAST;
 		c.weightx = 1;
 		c.weighty = 1;
-		add(documentsJLabel, c.clone());
-
-		c.insets.left = 4;
-		c.weightx = 0;
-		c.weighty = 0;
 		add(contactsJLabel, c.clone());
 
 		c.anchor = GridBagConstraints.NORTH;
 		c.insets.top = 6;
-
 		c.insets.left = 4;
 		c.insets.right = 2;
+		c.weightx = 0;
+		c.weighty = 0;
 		add(minJLabel, c.clone());
 
 		c.insets.left = 0;
@@ -216,10 +189,4 @@ public class ButtonPanel extends AbstractJPanel {
 	private void minJLabelMouseClicked(final MouseEvent e) {
 		container.getController().minimize();
 	}
-
-	/**
-	 * Add a document.
-	 *
-	 */
-	private void runAddDocument() { getBrowser().runCreateDocument(); }
 }

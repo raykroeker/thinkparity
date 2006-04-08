@@ -7,9 +7,14 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Set;
+import java.util.TooManyListenersException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
@@ -20,13 +25,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
-import com.thinkparity.browser.application.browser.display.avatar.main.BrowserMainListTxHandler;
 import com.thinkparity.browser.application.browser.display.avatar.main.CellRenderer;
 import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
+import com.thinkparity.browser.application.browser.dnd.UpdateDocumentTxHandler;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
@@ -44,7 +49,9 @@ import com.thinkparity.model.parity.model.index.IndexHit;
  */
 public class BrowserMainAvatar extends Avatar {
 
-	/**
+	private static final String ERROR_INIT_TMLX = "[BROWSER2] [APP] [B2] [MAIN LIST] [INIT] [TOO MANY DROP TARGET LISTENERS]";
+
+    /**
 	 * @see java.io.Serializable
 	 * 
 	 */
@@ -191,6 +198,8 @@ public class BrowserMainAvatar extends Avatar {
      */
     public void setContentProvider(final ContentProvider contentProvider) {
         mainDocumentModel.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
+        // set initial selection
+        if(0 < jList.getModel().getSize()) { jList.setSelectedIndex(0); }
     }
 
     /**
@@ -205,7 +214,7 @@ public class BrowserMainAvatar extends Avatar {
      * @param documentId
      *            The document id.
      * @param remote
-     *            Indicates wether the sync is the result of a remote event
+     *            Indicates whether the sync is the result of a remote event
      */
 	public void syncDocument(final Long documentId, final Boolean remote) {
         final DisplayDocument selectedDocument = getSelectedDocument();
@@ -213,6 +222,21 @@ public class BrowserMainAvatar extends Avatar {
         if(mainDocumentModel.isDocumentVisible(selectedDocument))
             selectDocument(selectedDocument);
 	}
+
+    /**
+     * Synchronize the documents in the list.
+     * 
+     * @param documentIds
+     *            The document ids.
+     * @param remote
+     *            Indicates whether the sync is the result of a remove event.
+     */
+    public void syncDocuments(final Set<Long> documentIds, final Boolean remote) {
+        final DisplayDocument selectedDocument = getSelectedDocument();
+        mainDocumentModel.syncDocuments(documentIds, remote);
+        if(mainDocumentModel.isDocumentVisible(selectedDocument))
+            selectDocument(selectedDocument);
+    }
 
 	private DisplayDocument getSelectedDocument() {
         final ListItem li = (ListItem) jList.getSelectedValue();
@@ -222,24 +246,26 @@ public class BrowserMainAvatar extends Avatar {
         else { return null; }
     }
 
+    /** Flag for the drop target listener to use. */
+    private boolean canImportListItem;
+
     /**
 	 * Initialize the swing components.
 	 *
 	 */
 	private void initComponents() {
-
         // the list that resides on the browser's main avatar
 		// 	* is a single selection list
 		//	* spans the width of the entire avatar
 		// 	* uses a custom cell renderer
 		jList = new JList(mainDocumentModel.getListModel());
-		jList.setCellRenderer(new CellRenderer());
+		jList.setCellRenderer(new CellRenderer(getController(), jList));
         jList.setDragEnabled(true);
 		// HEIGHT MainListCell 21
 		jList.setFixedCellHeight(21);
 		jList.setLayoutOrientation(JList.VERTICAL);
 		jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		jList.setTransferHandler(new BrowserMainListTxHandler(this));
+		jList.setTransferHandler(new UpdateDocumentTxHandler(getController(), jList));
 		jList.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
 				if(2 == e.getClickCount()) {
@@ -274,11 +300,23 @@ public class BrowserMainAvatar extends Avatar {
 					final Integer selectedIndex = jList.getSelectedIndex();
 					if(-1 != selectedIndex) {
 						final ListItem item = (ListItem) jList.getSelectedValue();
-						item.fireSelection();								
+						item.fireSelection();
+                        canImportListItem = item.canImport();
 					}
 				}
 			}
 		});
+        try {
+            jList.getDropTarget().addDropTargetListener(new DropTargetAdapter() {
+                public void drop(final DropTargetDropEvent dtde) {}
+                public void dragOver(final DropTargetDragEvent dtde) {
+                    if(!canImportListItem) { dtde.rejectDrag(); }
+                }
+            });
+        }
+        catch(final TooManyListenersException tmlx) {
+            logger.error(ERROR_INIT_TMLX, tmlx);
+        }
 
 		final JScrollPane jListScrollPane = new JScrollPane(jList);
         jListScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));

@@ -19,6 +19,7 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
@@ -78,40 +79,52 @@ public abstract class Window extends AbstractJDialog {
 	 *
 	 */
 	public void open(final Avatar avatar) {
-		initComponents(avatar);
-		debugGeometry();
-		debugLookAndFeel();
-		setSize(windowSize.get(avatar.getId()));
-		setLocation(calculateLocation());
-		invalidate();
-		setVisible(true);
+        initComponents(avatar);
+        debugGeometry();
+        debugLookAndFeel();
+        setSize(windowSize.get(avatar.getId()));
+        setLocation(calculateLocation());
+        invalidate();
+        setVisible(true);
 	}
+
+    public void open(final AbstractJPanel jPanel, final Dimension windowSize) {
+        initComponents(jPanel);
+        debugGeometry();
+        debugLookAndFeel();
+        setSize(windowSize);
+        setLocation(calculateLocation());
+        invalidate();
+        setVisible(true);
+    }
 
 	/**
 	 * Open an avatar in the window.  Display 
 	 * @param avatar
 	 * @param errors
 	 */
-	public void openAndWait(final Avatar avatar) {
-		this.addWindowListener(new WindowAdapter() {
-			public void windowClosed(final WindowEvent e) {
-				synchronized(Window.this) { Window.this.notifyAll(); }
-			}
-		});
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() { open(avatar); }
-			});
-		}
-		catch(final InterruptedException ix) { throw new RuntimeException(ix); }
-		catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
-		synchronized(Window.this) {
-			try { wait(); }
-			catch(final InterruptedException ix) {
-				throw new RuntimeException(ix);
-			}
-		}
-	}
+	public void openAndWait(final Avatar avatar) { openAndWait(avatar, windowSize.get(avatar.getId())); }
+
+    public void openAndWait(final AbstractJPanel jPanel, final Dimension size) {
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosed(final WindowEvent e) {
+                synchronized(Window.this) { Window.this.notifyAll(); }
+            }
+        });
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() { open(jPanel, size); }
+            });
+        }
+        catch(final InterruptedException ix) { throw new RuntimeException(ix); }
+        catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
+        synchronized(Window.this) {
+            try { wait(); }
+            catch(final InterruptedException ix) {
+                throw new RuntimeException(ix);
+            }
+        }
+    }
 
 	/**
 	 * Calculate the location for the window based upon its owner and its size.
@@ -146,12 +159,16 @@ public abstract class Window extends AbstractJDialog {
 		return windowSize.get(avatarId);
 	}
 
+    
 	protected void initComponents(final Avatar avatar) {
 		avatar.reload();
-
-		windowPanel = new WindowPanel();
-		windowPanel.addAvatar(avatar);
-
-		add(windowPanel);
+		initComponents((AbstractJPanel) avatar);
 	}
+
+    protected void initComponents(final AbstractJPanel jPanel) {
+        windowPanel = new WindowPanel();
+        windowPanel.addPanel(jPanel);
+
+        add(windowPanel);
+    }
 }

@@ -16,6 +16,7 @@ import javax.swing.TransferHandler;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
+import com.thinkparity.browser.javax.swing.dnd.TxUtils;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class BrowserMainListTxHandler extends TransferHandler {
     public boolean canImport(final JComponent comp,
             final DataFlavor[] transferFlavors) {
         logger.debug(comp.getClass().getSimpleName());
-        if(containsFile(transferFlavors)) { return true; }
+        if(TxUtils.containsJavaFileList(transferFlavors)) { return true; }
         return false;
     }
 
@@ -99,20 +100,6 @@ public class BrowserMainListTxHandler extends TransferHandler {
     }
 
     private Document[] find(final String name) { return null; }
-
-    /**
-     * Check if the data flavors contains the file flavor.
-     * 
-     * @param flavors
-     *            The data flavors to iterate.
-     * @return True if the flavors contains the file flavor.
-     */
-    private boolean containsFile(final DataFlavor[] flavors) {
-        for(final DataFlavor flavor : flavors) {
-            if(fileFlavor.equals(flavor)) { return true; }
-        }
-        return false;
-    }
 
     /**
      * @see javax.swing.TransferHandler#createTransferable(javax.swing.JComponent)

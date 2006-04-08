@@ -12,8 +12,10 @@ import java.awt.event.AdjustmentListener;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar.ScrollPolicy;
 
@@ -31,7 +33,10 @@ public abstract class Display extends AbstractJPanel {
 	 */
 	protected Avatar avatar;
 
-	/**
+    /** The browser application. */
+    private Application application;
+
+    /**
 	 * Create a Display.
 	 * 
 	 * @param l18nContext
@@ -115,4 +120,14 @@ public abstract class Display extends AbstractJPanel {
 	 * @see #displayAvatar()
 	 */
 	public void setAvatar(final Avatar avatar) { this.avatar = avatar; }
+
+	/**
+     * Obtain the browser application.
+     * 
+     * @return The browser application.
+     */
+    protected Browser getApplication() {
+        if(null == application) { application = Browser.getInstance(); }
+        return (Browser) application;
+    }
 }

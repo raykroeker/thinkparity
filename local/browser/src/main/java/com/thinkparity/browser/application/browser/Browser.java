@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -44,6 +45,7 @@ import com.thinkparity.browser.platform.action.system.message.DeleteSystemMessag
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
+import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
@@ -208,12 +210,34 @@ public class Browser extends AbstractApplication {
 	public void close() { getPlatform().hibernate(getId()); }
 
     /**
+     * Open a confirmation dialog.
+     * 
+     * @param confirmMessageKey
+     *            The confirmation mesage localization key.
+     * @return True if the user confirmed in the affirmative.
+     */
+    public Boolean confirm(final String confirmMessageKey) {
+        return ConfirmDialog.confirm(mainWindow, confirmMessageKey);
+    }
+
+    /**
+     * Open a confirmation dialog.
+     * 
+     * @param confirmMessageKey
+     *            The confirmation mesage localization key.
+     * @return True if the user confirmed in the affirmative.
+     */
+    public Boolean confirm(final String confirmMessageKey, final Object[] arguments) {
+        return ConfirmDialog.confirm(mainWindow, confirmMessageKey, arguments);
+    }
+
+    /**
      * Debug the filter applied to the main list.
      *
      */
 	public void debugFilter() { getMainAvatar().debugFilter(); }
 
-    /**
+	/**
      * Disable the ability to display the history. Also; if the history window
      * is currently displayed; close it.
      * 
@@ -255,7 +279,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
 	}
 
-	/**
+    /**
 	 * Display the send form.
 	 *
 	 */
@@ -263,7 +287,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
 	}
 
-    /**
+	/**
      * Enable the history.
      * 
      */
@@ -289,7 +313,7 @@ public class Browser extends AbstractApplication {
 		notifyEnd();
 	}
 
-	/**
+    /**
 	 * Notify the application that a document has been created.
 	 * 
 	 * @param documentId
@@ -342,6 +366,25 @@ public class Browser extends AbstractApplication {
 			}
 		});
 	}
+
+	/**
+     * Notify the application that a set of documents has been created.
+     * 
+     * @param documentIds
+     *            The document ids.
+     */
+    public void fireDocumentsCreated(final Set<Long> documentIds) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
+            }
+        });
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocuments(documentIds, Boolean.FALSE);
+            }
+        });
+    }
 
 	/**
 	 * Notify the application that a document has in some way been updated.
@@ -412,7 +455,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public Long getSelectedDocumentId() { return session.getSelectedDocumentId(); }
 
-	/**
+    /**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
@@ -452,7 +495,7 @@ public class Browser extends AbstractApplication {
      */
     public Boolean isHistoryEnabled() { return historyEnabled; }
 
-    /**
+	/**
      * Check if the history is currently visible.
      * 
      * @return True if the history is visible; false otherwise.
@@ -504,14 +547,14 @@ public class Browser extends AbstractApplication {
 	 */
 	public void removeSearchFilter() { getMainAvatar().removeSearchFilter(); }
 
-	/**
+    /**
      * Remove the artifact state filter.
      * 
      * @see BrowserMainAvatar#removeStateFilter()
      */
     public void removeStateFilter() { getMainAvatar().removeStateFilter(); }
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -571,7 +614,7 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.DOCUMENT_CLOSE, data);
 	}
 
-	/**
+    /**
 	 * Run the create document action.
 	 *
 	 */
@@ -581,7 +624,7 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-    /**
+	/**
      * Create a document.
      * 
      * @param file
@@ -683,7 +726,7 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.ARTIFACT_REQUEST_KEY, data);
 	}
 
-	/**
+    /**
      * Run a search for an artifact on the criteria.
      * 
      * @param criteria
@@ -714,7 +757,7 @@ public class Browser extends AbstractApplication {
         runSendArtifactVersion(artifactId, contacts, versionId);
     }
 
-    /**
+	/**
      * Run the send artifact version action.
      * 
      * @param artifactId
@@ -752,6 +795,30 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
+     * Set an info message.
+     * 
+     * @param infoKey
+     *            The info message key.
+     */
+    public void setInfoMessage(final String infoKey) {
+        getInfoAvatar().setInfoMessage(infoKey);
+        getInfoAvatar().reload();
+    }
+
+    /**
+     * Set an info message.
+     * 
+     * @param infoKey
+     *            The info message key.
+     * @param arguments
+     *            The info message arguments.
+     */
+    public void setInfoMessage(final String infoKey, final Object[] arguments) {
+        getInfoAvatar().setInfoMessage(infoKey, arguments);
+        getInfoAvatar().reload();
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#start()
 	 * 
 	 */
@@ -834,7 +901,7 @@ public class Browser extends AbstractApplication {
 				new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
 	}
 
-	/**
+    /**
 	 * Display an avatar.
 	 * 
 	 * @param displayId
@@ -863,7 +930,7 @@ public class Browser extends AbstractApplication {
 		display.repaint();
 	}
 
-	/**
+    /**
 	 * Display an avatar.
 	 * 
 	 * @param displayId

@@ -10,17 +10,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Icon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.application.browser.display.provider.CompositeSingleContentProvider;
+import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
@@ -81,6 +77,9 @@ public class BrowserInfoAvatar extends Avatar {
 
 	private JLabel infoJLabel;
 	
+	/** An info message to temporarily display. */
+    private String infoMessage;
+
 	private JLabel toggleHistoryJLabel;
 
 	/**
@@ -91,6 +90,7 @@ public class BrowserInfoAvatar extends Avatar {
 	    super("BrowserInfo");
 	    setLayout(new GridBagLayout());
 	    setOpaque(false);
+        setTransferHandler(new CreateDocumentTxHandler(getController()));
 	    initComponents();
 	}
 
@@ -106,7 +106,7 @@ public class BrowserInfoAvatar extends Avatar {
 	 */
 	public State getState() { return null; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
 	 * 
 	 */
@@ -139,8 +139,18 @@ public class BrowserInfoAvatar extends Avatar {
      */
 	public void setInfoMessage(final String infoMessageKey,
             final Object[] arguments) {
-		infoJLabel.setText(getString(infoMessageKey, arguments));
+		this.infoMessage = getString("Info." + infoMessageKey, arguments);
 	}
+
+    /**
+     * Set a localized message in the info label.
+     * 
+     * @param infoMessageKey
+     *            The localized message local key.
+     */
+    public void setInfoMessage(final String infoMessageKey) {
+        this.infoMessage = getString("Info." + infoMessageKey);
+    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
@@ -358,7 +368,18 @@ public class BrowserInfoAvatar extends Avatar {
 	 */
 	private void reloadInfo() {
 		infoJLabel.setText(getString("Info.Empty"));
-        if(getController().isFilterEnabled()) {
+        if(null != infoMessage) {
+            infoJLabel.setText(infoMessage);
+            final Timer reloadTimer = new Timer(3 * 1000, new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    infoMessage = null;
+                    reloadInfo();
+                }
+            });
+            reloadTimer.setRepeats(false);
+            reloadTimer.start();
+        }
+        else if(getController().isFilterEnabled()) {
             infoJLabel.setText(getString("Info.FilterOn"));
         }
         else if(isTestMode()) {

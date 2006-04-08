@@ -238,6 +238,20 @@ public class DocumentModel {
 		}
 	}
 
+    /**
+     * Determine whether or not the working version of the document is equal to
+     * the last version.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return True if the working version is different from the last version.
+     * @throws ParityException
+     */
+    public Boolean isWorkingVersionEqual(final Long documentId)
+            throws ParityException {
+        synchronized(implLock) { return impl.isWorkingVersionEqual(documentId); }
+    }
+
 	/**
 	 * Obtain a list of documents.
 	 * 
@@ -398,8 +412,8 @@ public class DocumentModel {
      */
     public DocumentVersion readLatestVersion(final Long documentId)
             throws ParityException {
-        synchronized(getImplLock()) {
-            return getImpl().readLatestVersion(documentId);
+        synchronized(implLock) {
+            return impl.readLatestVersion(documentId);
         }
     }
 

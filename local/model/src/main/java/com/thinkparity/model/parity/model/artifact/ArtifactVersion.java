@@ -129,7 +129,7 @@ public abstract class ArtifactVersion {
 	 * @return The artifact version meta data.
 	 */
 	public Properties getMetaData() { return metaData; }
-
+	
 	/**
 	 * Obtain a meta data item.
 	 * 
@@ -140,7 +140,7 @@ public abstract class ArtifactVersion {
 	public String getMetaDataItem(final String key) {
 		return metaData.getProperty(key);
 	}
-	
+
 	/**
 	 * Obtain a meta data item.
 	 * 
@@ -181,7 +181,7 @@ public abstract class ArtifactVersion {
 	 */
 	public Long getVersionId() { return versionId; }
 
-	/**
+    /**
 	 * Set the artifact id.
 	 * 
 	 * @param artifactId
@@ -271,7 +271,7 @@ public abstract class ArtifactVersion {
 		this.updatedBy = updatedBy;
 	}
 
-	/**
+    /**
 	 * Set the update date.
 	 * 
 	 * @param updatedOn
@@ -281,7 +281,7 @@ public abstract class ArtifactVersion {
 		this.updatedOn = updatedOn;
 	}
 
-	/**
+    /**
 	 * Set the version id.
 	 * 
 	 * @param versionId

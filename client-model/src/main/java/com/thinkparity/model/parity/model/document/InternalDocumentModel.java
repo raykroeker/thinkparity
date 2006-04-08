@@ -59,22 +59,6 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
 	/**
-	 * Determine whether or not the working version of the document is equal to
-	 * the last version.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @return True if the working version is different from the last version.
-	 * @throws ParityException
-	 */
-	public Boolean isWorkingVersionEqual(final Long documentId)
-			throws ParityException {
-		synchronized(getImplLock()) {
-			return getImpl().isWorkingVersionEqual(documentId);
-		}
-	}
-
-	/**
 	 * Lock a document.
 	 * 
 	 * @param documentId

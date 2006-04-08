@@ -166,6 +166,9 @@ public abstract class Window extends AbstractJDialog {
 	}
 
     protected void initComponents(final AbstractJPanel jPanel) {
+        // FIXME The window functionality needs more sleep.
+        if(jPanel instanceof Avatar) { ((Avatar) jPanel).reload(); }
+
         windowPanel = new WindowPanel();
         windowPanel.addPanel(jPanel);
 

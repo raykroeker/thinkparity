@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
@@ -135,5 +136,13 @@ public class CreateDocumentTxHandler extends TransferHandler {
             }
             return false;
         }
+    }
+
+    /**
+     * @see javax.swing.TransferHandler#getVisualRepresentation(java.awt.datatransfer.Transferable)
+     */
+    @Override
+    public Icon getVisualRepresentation(Transferable t) {
+        return null;
     }
 }

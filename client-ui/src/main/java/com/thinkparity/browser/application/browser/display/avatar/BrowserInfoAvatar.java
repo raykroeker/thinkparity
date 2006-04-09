@@ -17,6 +17,7 @@ import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.application.browser.display.provider.CompositeSingleContentProvider;
 import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
+import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
@@ -91,6 +92,7 @@ public class BrowserInfoAvatar extends Avatar {
 	    setLayout(new GridBagLayout());
 	    setOpaque(false);
         setTransferHandler(new CreateDocumentTxHandler(getController()));
+        CopyActionEnforcer.applyEnforcer(this);
 	    initComponents();
 	}
 

@@ -22,6 +22,7 @@ import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
+import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
@@ -90,6 +91,7 @@ public class SearchPanel extends AbstractJPanel {
 		setLayout(new GridBagLayout());
 		setOpaque(false);
         setTransferHandler(new CreateDocumentTxHandler(container.getController()));
+        CopyActionEnforcer.applyEnforcer(this);
 		initComponents();
 	}
 

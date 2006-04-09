@@ -16,6 +16,7 @@ import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
@@ -91,6 +92,7 @@ public class ButtonPanel extends AbstractJPanel {
 		setOpaque(false);
 		setLayout(new GridBagLayout());
         setTransferHandler(new CreateDocumentTxHandler(container.getController()));
+        CopyActionEnforcer.applyEnforcer(this);
 		initComponents();
 	}
 

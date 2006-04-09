@@ -50,6 +50,7 @@ import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
+import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -59,10 +60,6 @@ import com.thinkparity.model.xmpp.JabberId;
  * @version 1.5.2.43
  */
 class DocumentModelImpl extends AbstractModelImpl {
-
-    /** An assertion statement. */
-	private static final String ASSERT_UWV_0 =
-        "[LMODEL] [DOCUMENT] [UPDATE WORKING VERSION] [WORKING VERSION EQUAL TO LATEST VERSION]";
 
     /**
 	 * List of listeners to notify when a document is created or received.
@@ -974,7 +971,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	void receive(final JabberId receivedFrom, final UUID uniqueId,
             final Long versionId, final String name, final byte[] content)
-            throws ParityException {
+            throws ParityException, SmackException {
 		logger.info("[LMODEL] [DOCUMENT] [RECEIVE]");
 		try {
 			Document document = get(uniqueId);
@@ -994,7 +991,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 				auditor.recieve(d.getId(), versionId, receivedFrom,
                         currentUserId(), currentDateTime());
 
-				// notify
+                // confirm the document receipt
+                final InternalArtifactModel iAModel = getInternalArtifactModel();
+                iAModel.confirmReceipt(receivedFrom, document.getId());
+
+                // notify
 				notifyUpdate_objectReceived(d);
 			}
 			else {
@@ -1017,6 +1018,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 				final Document d = get(document.getId());
 				auditor.recieve(d.getId(), versionId, receivedFrom,
                         currentUserId(), currentDateTime());
+
+                // confirm the document receipt
+                final InternalArtifactModel iAModel = getInternalArtifactModel();
+                iAModel.confirmReceipt(receivedFrom, document.getId());
 
 				// notify if this is a new version
 				if(null == version) { notifyUpdate_objectReceived(d); }
@@ -1136,9 +1141,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         logger.debug(documentId);
         logger.debug(updateFile);
         assertLoggedInUserIsKeyHolder(documentId);
-        Assert.assertNotTrue(
-                ASSERT_UWV_0,
-                isWorkingVersionEqual(documentId));
         final LocalFile localFile = getLocalFile(get(documentId));
         InputStream is = null;
         try {

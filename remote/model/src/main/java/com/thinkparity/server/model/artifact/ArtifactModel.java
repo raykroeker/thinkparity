@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.xmpp.packet.JID;
 
+import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.contact.Contact;
@@ -63,6 +64,32 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
+	 * Close an artifact.
+	 * 
+	 * @param artifactUniqueId
+	 *            The artifact unique id.
+	 * @throws ParityServerModelException
+	 */
+	public void close(final UUID artifactUniqueId)
+			throws ParityServerModelException {
+		synchronized(implLock) { impl.close(artifactUniqueId); }
+	}
+
+	/**
+     * Confrim receipt of an artifact.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param receivedFrom
+     *            The original sender of the artifact.
+     * @throws ParityServerModelException
+     */
+    public void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom)
+            throws ParityServerModelException {
+        synchronized(implLock) { impl.confirmReceipt(uniqueId, receivedFrom); }
+    }
+
+    /**
 	 * Create an artifact.
 	 * 
 	 * @param artifactUniqueId
@@ -75,16 +102,9 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { return impl.create(artifactUniqueId); }
 	}
 
-	/**
-	 * Close an artifact.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @throws ParityServerModelException
-	 */
-	public void close(final UUID artifactUniqueId)
+	public void delete(final UUID artifactUniqueId)
 			throws ParityServerModelException {
-		synchronized(implLock) { impl.close(artifactUniqueId); }
+		synchronized(implLock) { impl.delete(artifactUniqueId); }
 	}
 
 	/**
@@ -132,6 +152,16 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { return impl.getSubscription(artifactUniqueId); }
 	}
 
+	/**
+	 * Obtain a list of artifacts the user has keys for.
+	 * 
+	 * @return A list of artifacts the user has keys for.
+	 * @throws ParityServerModelException
+	 */
+	public List<Artifact> listForKeyHolder() throws ParityServerModelException {
+		synchronized(implLock) { return impl.listForKeyHolder(); }
+	}
+
 	public List<Contact> readContacts(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		synchronized(implLock) { return impl.readContacts(artifactUniqueId); }
@@ -173,20 +203,5 @@ public class ArtifactModel extends AbstractModel {
 	public void unsubscribe(final Artifact artifact)
 			throws ParityServerModelException {
 		synchronized(implLock) { impl.unsubscribe(artifact); }
-	}
-
-	/**
-	 * Obtain a list of artifacts the user has keys for.
-	 * 
-	 * @return A list of artifacts the user has keys for.
-	 * @throws ParityServerModelException
-	 */
-	public List<Artifact> listForKeyHolder() throws ParityServerModelException {
-		synchronized(implLock) { return impl.listForKeyHolder(); }
-	}
-
-	public void delete(final UUID artifactUniqueId)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.delete(artifactUniqueId); }
 	}
 }

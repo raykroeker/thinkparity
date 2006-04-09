@@ -144,6 +144,28 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+     * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ConfirmationReceipt)
+     */
+    public void audit(final ConfirmationReceipt confirmationReceipt)
+            throws HypersonicException {
+        final Session session = openSession();
+        try {
+            audit(session, confirmationReceipt);
+
+            auditMetaData(session, confirmationReceipt,
+                    MetaDataType.JABBER_ID, MetaDataKey.RECEIVED_BY,
+                    confirmationReceipt.getReceivedBy());
+
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.CreateEvent)
 	 * 
 	 */
@@ -159,6 +181,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
+
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.KeyRequestDeniedEvent)
@@ -203,7 +226,6 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
-
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ReceiveEvent)
@@ -458,7 +480,6 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			throw Assert.createUnreachable("Unknown event type:  " + eventType);
 		}
 	}
-
 	private ArchiveEvent extractArchive(final Session session) {
 		final ArchiveEvent event = new ArchiveEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
@@ -469,6 +490,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 		return event;
 	}
+
 	private CloseEvent extractClose(final Session session) {
 		final CloseEvent closeEvent = new CloseEvent();
 		closeEvent.setArtifactId(session.getLong("ARTIFACT_ID"));
@@ -646,5 +668,5 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	private enum MetaDataKey { CLOSED_BY, DENIED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO }
+    private enum MetaDataKey { CLOSED_BY, DENIED_BY, RECEIVED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO }
 }

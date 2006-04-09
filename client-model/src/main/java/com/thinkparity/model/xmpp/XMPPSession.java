@@ -85,6 +85,18 @@ public interface XMPPSession {
 	public void closeArtifact(final UUID uniqueId) throws SmackException;
 
     /**
+     * Confirm artifact receipt.
+     * 
+     * @param receivedFrom
+     *            From whom the artifact was received.
+     * @param uniqueId
+     *            The artifact unique id.
+     * @throws SmackException
+     */
+    public void confirmArtifactReceipt(final JabberId receivedFrom,
+            final UUID uniqueId) throws SmackException;
+
+    /**
      * Create an artifact
      * 
      * @param uniqueId

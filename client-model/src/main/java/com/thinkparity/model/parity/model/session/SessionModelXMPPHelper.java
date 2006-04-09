@@ -71,11 +71,14 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppArtifactListener = new XMPPArtifactListener() {
+			public void confirmReceipt(final UUID uniqueId, final JabberId receivedBy) {
+                handleConfirmationReceipt(uniqueId, receivedBy);
+            }
 			public void teamMemberAdded(final UUID artifactUniqueId,
 					final Contact teamMember) {
 				handleTeamMemberAdded(artifactUniqueId, teamMember);
 			}
-			public void teamMemberRemoved(final UUID artifactUniqueId,
+            public void teamMemberRemoved(final UUID artifactUniqueId,
 					final Contact teamMember) {
 				handleTeamMemberRemoved(artifactUniqueId, teamMember);
 			}
@@ -141,7 +144,20 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.acceptInvitation(jabberId);
 	}
 
-	/**
+    /**
+     * Send an artifact received confirmation receipt.
+     * 
+     * @param receivedFrom
+     *            From whom the artifact was received.
+     * @param uniqueId
+     *            The artifact unique id.
+     */
+    void confirmArtifactReceipt(final JabberId receivedFrom, final UUID uniqueId)
+            throws SmackException {
+       xmppSession.confirmArtifactReceipt(receivedFrom, uniqueId);
+    }
+
+    /**
 	 * Decline an invitation to the user's contact list.
 	 * 
 	 * @param jabberId
@@ -381,7 +397,20 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
-	/**
+    /**
+     * Event handler for confirmation receipts.
+     * 
+     * @param receivedBy
+     *            By whom the document was received.
+     */
+    private void handleConfirmationReceipt(final UUID uniqueId, final JabberId receivedBy) {
+        try { SessionModelImpl.notifyConfirmationReceipt(uniqueId, receivedBy); }
+        catch(final ParityException px) { unexpectedOccured(px); }
+        catch(final SmackException sx) { unexpectedOccured(sx); }
+        catch(final RuntimeException rx) { unexpectedOccured(rx); }
+    }
+
+    /**
 	 * Event handler for the extension listener's document received event.
 	 * 
 	 * @param xmppDocument
@@ -393,7 +422,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                 .notifyDocumentReceived(receivedFrom, uniqueId, versionId, name,
                         content);
 		}
-		catch(final ParityException px) { unexpectedOccured(px); }
+        catch(final ParityException px) { unexpectedOccured(px); }
+        catch(final SmackException sx) { unexpectedOccured(sx); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 

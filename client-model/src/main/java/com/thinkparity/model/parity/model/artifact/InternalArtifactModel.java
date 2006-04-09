@@ -9,6 +9,7 @@ import java.util.List;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -35,6 +36,24 @@ public class InternalArtifactModel extends ArtifactModel {
 	}
 
 	/**
+     * Audit the confirmation receipt of the artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param receivedBy
+     *            By whom the artifact was received.
+     * @throws ParityException
+     */
+    public void auditConfirmationReceipt(final Long artifactId,
+            final JabberId createdBy, final Calendar createdOn,
+            final JabberId receivedBy) {
+        synchronized(getImplLock()) {
+            getImpl().auditConfirmationReceipt(
+                    artifactId, createdBy, createdOn, receivedBy);
+        }
+    }
+
+    /**
 	 * Audit the denial of a key request for an artifact.
 	 * 
 	 * @param artifactId
@@ -53,6 +72,21 @@ public class InternalArtifactModel extends ArtifactModel {
 			getImpl().auditKeyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 		}
 	}
+
+    /**
+     * Confirm the reciept of an artifact.
+     * 
+     * @param receivedFrom
+     *            From whom the artifact was received.
+     * @param artifactId
+     *            The artifact id.
+     */
+	public void confirmReceipt(final JabberId receivedFrom,
+            final Long artifactId) throws ParityException, SmackException {
+	    synchronized(getImplLock()) {
+            getImpl().confirmReceipt(receivedFrom, artifactId);
+        }
+    }
 
 	/**
      * Create the artifact's remote info.
@@ -102,7 +136,7 @@ public class InternalArtifactModel extends ArtifactModel {
 		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
 	}
 
-	/**
+    /**
      * Update the artifact's remote info.
      * 
      * @param artifactId

@@ -34,6 +34,7 @@ class XMPPArtifact {
 		listeners = new LinkedList<XMPPArtifactListener>();
 
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactreadcontacts", new IQReadContactsProvider());
+        ProviderManager.addIQProvider("query", "jabber:iq:parity:confirmartifactreceipt", new IQConfirmReceiptProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberadded", new IQTeamMemberAddedNotificationProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberremoved", new IQTeamMemberRemovedNotificationProvider());
 	}
@@ -71,6 +72,7 @@ class XMPPArtifact {
 		}
 	}
 
+
 	/**
 	 * Add the packet listeners to the connection.
 	 * 
@@ -92,9 +94,37 @@ class XMPPArtifact {
 					}
 				},
 				new PacketTypeFilter(IQTeamMemberRemovedNotification.class));
+
+		xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        notifyArtifactConfirmation((IQConfirmArtifactReceipt) packet);
+                    }
+                },
+                new PacketTypeFilter(IQConfirmArtifactReceipt.class));
 	}
 
 	/**
+	 * Confirm artifact receipt.
+	 * 
+	 * @param receivedFrom
+	 *            From whom the artifact was received.
+	 * @param uniqueId
+	 *            The artifact unique id.
+	 */
+	void confirmReceipt(final JabberId receivedFrom, final UUID uniqueId)
+            throws SmackException {
+	    logger.info("[LMODEL] [XMPP] [CONFIRM ARTIFACT RECEIPT]");
+	    logger.debug(receivedFrom);
+	    logger.debug(uniqueId);
+        final IQConfirmArtifactReceipt iq = new IQConfirmArtifactReceipt();
+        iq.setArtifactUUID(uniqueId);
+        iq.setRecievedFrom(receivedFrom);
+        iq.setType(IQ.Type.SET);
+        xmppCore.sendAndConfirmPacket(iq);
+	}
+
+    /**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -122,10 +152,25 @@ class XMPPArtifact {
 	}
 
 	/**
-     * Receive a notification re a new team member.
+     * Receive a notifcation re a artifact confirmation receipt.
      * 
-     * @param newTeamMember
-     *            The new team member iq.
+     * @param confirmationPacket
+     *            The confirmation packet.
+     */
+    private void notifyArtifactConfirmation(
+            IQConfirmArtifactReceipt confirmationPacket) {
+        synchronized(listeners) {
+            for(final XMPPArtifactListener l : listeners) {
+                l.confirmReceipt(confirmationPacket.getArtifactUUID(), confirmationPacket.getFromJabberId());
+            }
+        }
+    }
+
+	/**
+     * Receive a notification re team member addition
+     * 
+     * @param notificationPacket
+     *            The notification packet.
      */
 	private void notifyTeamMemberAdded(final IQTeamMemberAddedNotification notificationPacket) {
 		synchronized(listeners) {
@@ -136,11 +181,11 @@ class XMPPArtifact {
 		}
 	}
 
-	/**
-     * Receive a notification re a new team member.
+    /**
+     * Receive a notification re team member removal.
      * 
-     * @param newTeamMember
-     *            The new team member iq.
+     * @param notificationPacket
+     *            The notification packet.
      */
 	private void notifyTeamMemberRemoved(final IQTeamMemberRemovedNotification notificationPacket) {
 		synchronized(listeners) {

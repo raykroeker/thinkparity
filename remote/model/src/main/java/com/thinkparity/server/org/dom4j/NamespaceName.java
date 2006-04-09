@@ -9,6 +9,7 @@ package com.thinkparity.server.org.dom4j;
  */
 public enum NamespaceName {
 
+    IQ_ARTIFACT_CONFIRM_RECEIPT("artifactconfirmreceipt"),
 	IQ_ARTIFACT_READ_CONTACTS("artifactreadcontacts"),
 	IQ_ACCEPT_CONTACT_INVITATION("acceptcontactinvitation"),
 	IQ_ACCEPT_KEY_REQUEST("acceptkeyrequest"), IQ_ARTIFACT_FLAG("artifactflag"),

@@ -221,6 +221,16 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.model.xmpp.JabberId,
+     *      java.util.UUID)
+     * 
+     */
+    public void confirmArtifactReceipt(final JabberId receivedFrom,
+            final UUID uniqueId) throws SmackException {
+        xmppArtifact.confirmReceipt(receivedFrom, uniqueId);
+    }
+
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#createArtifact(java.util.UUID)
 	 * 
 	 */
@@ -376,7 +386,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		smackXMPPConnection = null;
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#processOfflineQueue()
 	 * 
 	 */
@@ -386,7 +396,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactKeyHolder(java.util.UUID)
      * 
      */
@@ -419,7 +429,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppContact.read();
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#readCurrentUser()
 	 * 
 	 */
@@ -431,7 +441,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppUser.read(jabberId);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readUsers(java.util.Set)
      * 
      */
@@ -467,7 +477,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppArtifact.removeListener(l);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPContactListener)
 	 * 
 	 */
@@ -482,7 +492,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppPresenceListeners.remove(xmppPresenceListener);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 */
 	public void removeListener(XMPPExtensionListener xmppExtensionListener) {
@@ -796,7 +806,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain the from user's jabber id from the packet.
 	 * 
 	 * @param packet

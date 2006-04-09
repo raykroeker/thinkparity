@@ -17,6 +17,7 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
+import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -31,6 +32,7 @@ import com.thinkparity.server.org.xmpp.packet.IQArtifactFlag;
 import com.thinkparity.server.org.xmpp.packet.IQCloseArtifact;
 import com.thinkparity.server.org.xmpp.packet.IQDenyKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.IQKeyRequest;
+import com.thinkparity.server.org.xmpp.packet.artifact.IQConfirmReceipt;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQNotifyTeamMemberAdded;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQNotifyTeamMemberRemoved;
 
@@ -186,6 +188,33 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(ux);
 		}
 	}
+
+	/**
+     * Confirm an artifact receipt.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param receivedFrom
+     *            The original sender of the document.
+     * @throws ParityServerModelException
+     */
+	void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom)
+            throws ParityServerModelException {
+	    logger.info("[RMODEL] [ARTIFACT] [CONFIRM RECEIPT]");
+        logger.debug(uniqueId);
+        logger.debug(receivedFrom);
+
+        final IQConfirmReceipt iq = new IQConfirmReceipt();
+        iq.setUniqueId(uniqueId);
+        iq.setFrom(session.getJID());
+        iq.setTo(receivedFrom.getJID());
+
+        try { send(receivedFrom, iq); }
+        catch(final UnauthorizedException ux) {
+            logger.error("[RMODEL] [ARTIFACT] [CONFIRM RECEIPT] [UNAUTHORIZED]", ux);
+            throw ParityErrorTranslator.translate(ux);
+        }
+    }
 
 	/**
 	 * Create an artifact.
@@ -604,7 +633,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return l;
 	}
 
-	/**
+    /**
 	 * Update the artifact's state.
 	 * 
 	 * @param artifact

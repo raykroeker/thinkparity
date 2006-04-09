@@ -6,6 +6,7 @@ package com.thinkparity.server.org.xmpp.packet.document;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.server.org.dom4j.NamespaceName;
+import com.thinkparity.server.org.xmpp.packet.IQParity.Action;
 
 /**
  * The xmpp internet query to send a document to a user.

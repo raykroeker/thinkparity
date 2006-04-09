@@ -37,6 +37,7 @@ public class ParityServer implements Plugin {
 	private AcceptKeyRequest acceptKeyRequest;
 	private IQHandler artifactReadContacts;
 	private IQHandler closeArtifact;
+    private IQHandler confirmArtifactReceipt;
 	private CreateArtifact createArtifact;
 	private IQHandler declineInvitation;
 	private IQHandler deleteArtifact;
@@ -100,6 +101,10 @@ public class ParityServer implements Plugin {
 		iqRouter.removeHandler(closeArtifact);
 		closeArtifact.destroy();
 		closeArtifact = null;
+
+        iqRouter.removeHandler(confirmArtifactReceipt);
+        confirmArtifactReceipt.destroy();
+        confirmArtifactReceipt = null;
 
 		iqRouter.removeHandler(createArtifact);
 		createArtifact.destroy();
@@ -189,6 +194,9 @@ public class ParityServer implements Plugin {
 		
 		closeArtifact = new CloseArtifact();
 		iqRouter.addHandler(closeArtifact);
+
+        confirmArtifactReceipt = new ConfirmReceipt();
+        iqRouter.addHandler(confirmArtifactReceipt);
 
 		createArtifact = new CreateArtifact();
 		iqRouter.addHandler(createArtifact);

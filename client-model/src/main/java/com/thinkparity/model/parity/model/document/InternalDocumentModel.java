@@ -10,6 +10,7 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -78,9 +79,11 @@ public class InternalDocumentModel extends DocumentModel implements
 	 */
 	public void receive(final JabberId receivedFrom,
             final UUID documentUniqueId, final Long versionId,
-            final String name, final byte[] content) throws ParityException {
+            final String name, final byte[] content) throws ParityException,
+            SmackException {
 		synchronized(getImplLock()) {
-            getImpl().receive(receivedFrom, documentUniqueId, versionId, name, content);
+            getImpl().receive(
+                    receivedFrom, documentUniqueId, versionId, name, content);
         }
 	}
 

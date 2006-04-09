@@ -42,6 +42,12 @@ class AuditModelImpl extends AbstractModelImpl {
 		auditIO.audit(closeEvent);
 	}
 
+    void audit(final ConfirmationReceipt confirmationReceipt) {
+        logger.info("[LMODEL] [AUDIT] [AUDIT CONFIRMATION RECEIPT]");
+        logger.debug(confirmationReceipt);
+        auditIO.audit(confirmationReceipt);
+    }
+
 	void audit(final CreateEvent createEvent) {
 		logger.info("[LMODEL] [AUDIT] [AUDIT CREATE]");
 		logger.debug(createEvent);

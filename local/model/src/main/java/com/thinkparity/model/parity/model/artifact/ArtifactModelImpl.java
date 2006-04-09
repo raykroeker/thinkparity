@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.artifact;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.TrueAssertion;
 
@@ -20,6 +21,7 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -106,7 +108,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		applyFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
-	/**
+    /**
+     * Audit the confirmation receipt of the artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param receivedBy
+     *            By whom the artifact was received.
+     * @throws ParityException
+     */
+    void auditConfirmationReceipt(final Long artifactId,
+            final JabberId createdBy, final Calendar createdOn,
+            final JabberId receivedBy) {
+        auditor.confirmationReceipt(artifactId, createdBy, createdOn, receivedBy);
+    }
+
+    /**
 	 * Audit the denial of a key request for an artifact.
 	 * 
 	 * @param artifactId
@@ -121,10 +138,24 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	void auditKeyRequestDenied(final Long artifactId,
 			final JabberId createdBy, final Calendar createdOn,
 			final JabberId deniedBy) {
-		auditor.KeyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
+		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 
-	/**
+    /**
+     * Confirm the reciept of an artifact.
+     * 
+     * @param receivedFrom
+     *            From whom the artifact was received.
+     * @param artifactId
+     *            The artifact id.
+     */
+    void confirmReceipt(final JabberId receivedFrom, final Long artifactId)
+            throws ParityException, SmackException {
+        final UUID uniqueId = getArtifactUniqueId(artifactId);
+        getInternalSessionModel().confirmArtifactReceipt(receivedFrom, uniqueId);
+    }
+
+    /**
      * Create the artifact's remote info.
      * 
      * @param artifactId
@@ -143,18 +174,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
 
-	/**
-     * Delete the artifact's remote info.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-	void deleteRemoteInfo(final Long artifactId) {
-		logger.info("[LMODEL] [ARTIFACT] [DELETE REMOTE INFO]");
-		logger.debug(artifactId);
-		artifactIO.deleteRemoteInfo(artifactId);
-	}
-
 	void declineKeyRequest(final Long keyRequestId) throws ParityException {
 		logger.info("[LMODEL] [ARTIFACT] [DENY KEY REQUEST]");
 		logger.debug(keyRequestId);
@@ -168,6 +187,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
 				keyRequestMessage.getArtifactId(),
 				keyRequestMessage.getRequestedBy(), KeyResponse.DENY);
 
+	}
+
+	/**
+     * Delete the artifact's remote info.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+	void deleteRemoteInfo(final Long artifactId) {
+		logger.info("[LMODEL] [ARTIFACT] [DELETE REMOTE INFO]");
+		logger.debug(artifactId);
+		artifactIO.deleteRemoteInfo(artifactId);
 	}
 
 	/**

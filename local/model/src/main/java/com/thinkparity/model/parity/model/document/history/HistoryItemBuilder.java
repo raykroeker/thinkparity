@@ -160,6 +160,7 @@ public class HistoryItemBuilder {
 			final Map<JabberId, User> auditEventUsers) throws ParityException {
 		switch(auditEvent.getType()) {
 		case ARCHIVE: return create(document, (ArchiveEvent) auditEvent, auditEventUsers);
+        case CONFIRM_RECEIPT: return create(document, (ConfirmationReceipt) auditEvent, auditEventUsers);
 		case CLOSE: return create(document, (CloseEvent) auditEvent, auditEventUsers);
 		case CREATE: return create(document, (CreateEvent) auditEvent, auditEventUsers);
 		case KEY_RESPONSE_DENIED: return create(document, (KeyResponseDeniedEvent) auditEvent, auditEventUsers);
@@ -313,6 +314,16 @@ public class HistoryItemBuilder {
 		send.setVersionId(event.getArtifactVersionId());
 		return send;
 	}
+
+    private HistoryItem create(final Document document,
+            final ConfirmationReceipt event,
+            final Map<JabberId, User> eventUsers) {
+        final HistoryItem hi = new HistoryItem();
+        hi.setDate(event.getCreatedOn());
+        hi.setDocumentId(document.getId());
+        hi.setEvent(getString("", null));
+        return hi;
+    }
 
 	private HistoryItem create(final Document document, final SendKeyEvent event,final Map<JabberId, User> eventUsers) {
 		final Object[] arguments = new Object[] {

@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.util.Set;
+import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
@@ -12,6 +13,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -31,6 +33,21 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		super(workspace);
 		context.assertContextIsValid();
 	}
+
+    /**
+     * Send an artifact received confirmation receipt.
+     * 
+     * @param receivedFrom
+     *            From whom the artifact was received.
+     * @param uniqueId
+     *            The artifact unique id.
+     */
+    public void confirmArtifactReceipt(final JabberId receivedFrom,
+            final UUID uniqueId) throws SmackException {
+        synchronized(getImplLock()) {
+            getImpl().confirmArtifactReceipt(receivedFrom, uniqueId);
+        }
+    }
 
 	/**
 	 * Obtain the artifact key holder.

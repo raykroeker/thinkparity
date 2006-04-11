@@ -142,21 +142,31 @@ public class AvatarFactory {
 		return avatar;
 	}
 
-        /**
-         * Create the session invite contact avatar.
-         * 
-         * @return The session invite contact avatar.
-         */
-        private Avatar createSessionInvitePartner() {
-        	final Avatar sessionInvitePartner = new InvitePartner();
-        	return sessionInvitePartner;
-        }
+    /**
+     * Create the status avatar.
+     * 
+     * @return An avatar.
+     */
+    private Avatar createStatus() {
+        final Avatar status = new Status();
+        return status;
+    }
+
+    /**
+     * Create the session invite contact avatar.
+     * 
+     * @return The session invite contact avatar.
+     */
+    private Avatar createSessionInvitePartner() {
+        final Avatar sessionInvitePartner = new InvitePartner();
+        return sessionInvitePartner;
+    }
 
 	/**
-	 * Create the manage contacts avatar.
-	 * 
-	 * @return The manage contacts avatar.
-	 */
+     * Create the manage contacts avatar.
+     * 
+     * @return The manage contacts avatar.
+     */
 	private Avatar createSessionManageContacts() {
 		final Avatar sessionManageContacts = new Manage();
 		sessionManageContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
@@ -224,6 +234,9 @@ public class AvatarFactory {
 		case SESSION_SEND_VERSION:
 			avatar = createSendVersion();
 			break;
+        case STATUS:
+            avatar = createStatus();
+            break;
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}
 		register(avatar);

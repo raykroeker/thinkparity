@@ -24,6 +24,7 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.Status;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.window.History2Window;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -302,6 +303,16 @@ public class Browser extends AbstractApplication {
         getInfoAvatar().reload();
 	}
 
+    /** Notify the application the filters are on. */
+    public void fireFilterApplied() {
+        setFilterStatusMessage("FilterOn");
+    }
+
+    /** Notify the application the filters are off. */
+    public void fireFilterRevoked() {
+        setFilterStatusMessage("FilterOff");
+    }
+
 	/**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
@@ -326,6 +337,7 @@ public class Browser extends AbstractApplication {
 	 *            The document id.
 	 */
 	public void fireDocumentCreated(final Long documentId) {
+        setCustomStatusMessage("DocumentCreated");
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
@@ -345,6 +357,7 @@ public class Browser extends AbstractApplication {
 	 *            The document id.
 	 */
 	public void fireDocumentDeleted(final Long documentId) {
+        setCustomStatusMessage("DocumentDeleted");
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
@@ -365,6 +378,7 @@ public class Browser extends AbstractApplication {
      *            The document id.
      */
 	public void fireDocumentReceived(final Long documentId) {
+        setCustomStatusMessage("DocumentReceived");
 		// refresh the document main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -380,6 +394,8 @@ public class Browser extends AbstractApplication {
      *            The document ids.
      */
     public void fireDocumentsCreated(final Set<Long> documentIds) {
+        if(documentIds.size() > 1) { setCustomStatusMessage("DocumentsCreated"); }
+        else { setCustomStatusMessage("DocumentCreated"); }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
@@ -403,6 +419,7 @@ public class Browser extends AbstractApplication {
 	}
 
 	public void fireDocumentUpdated(final Long documentId, final Boolean remoteReload) {
+        setCustomStatusMessage("DocumentUpdated");
 		// refresh the document in the main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -801,27 +818,34 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-     * Set an info message.
+     * Set a custom status message.
      * 
-     * @param infoKey
-     *            The info message key.
+     * @param messageKey
+     *            The status message key.
      */
-    public void setInfoMessage(final String infoKey) {
-        getInfoAvatar().setInfoMessage(infoKey);
-        getInfoAvatar().reload();
+    private void setCustomStatusMessage(final String messageKey) {
+        setStatusMessage(Status.Area.CUSTOM, messageKey);
     }
 
-	/**
-     * Set an info message.
+    private void setStatusMessage(final Status.Area area, final String messageKey) {
+        final Avatar avatar = getStatusAvatar();
+        if(null != avatar) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    ((Status) avatar).reloadStatusMessage(area, messageKey);
+                }
+            });
+        }
+    }
+
+    /**
+     * Set a filter status message.
      * 
-     * @param infoKey
-     *            The info message key.
-     * @param arguments
-     *            The info message arguments.
+     * @param messageKey
+     *            The filter message key.
      */
-    public void setInfoMessage(final String infoKey, final Object[] arguments) {
-        getInfoAvatar().setInfoMessage(infoKey, arguments);
-        getInfoAvatar().reload();
+    private void setFilterStatusMessage(final String messageKey) {
+        setStatusMessage(Status.Area.FILTER, messageKey);
     }
 
     /**
@@ -874,6 +898,11 @@ public class Browser extends AbstractApplication {
 	void displayDocumentListAvatar() {
 		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
 	}
+
+    /** Display the browser's status. */
+    void displayStatusAvatar() {
+        displayAvatar(DisplayId.STATUS, AvatarId.STATUS);
+    }
 
 	/**
 	 * Display the browser info.
@@ -1029,6 +1058,15 @@ public class Browser extends AbstractApplication {
      */
     private BrowserInfoAvatar getInfoAvatar() {
         return (BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO);
+    }
+
+    /**
+     * Convenience method to obtain the status avatar.
+     * 
+     * @return The status avatar.
+     */
+    private Status getStatusAvatar() {
+        return (Status) avatarRegistry.get(AvatarId.STATUS);
     }
 
 	/**

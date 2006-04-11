@@ -6,13 +6,9 @@ package com.thinkparity.browser.platform.application.window;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
@@ -86,34 +82,6 @@ public abstract class Window extends AbstractJDialog {
         setLocation(calculateLocation());
         invalidate();
         setVisible(true);
-	}
-
-	/**
-     * Open an avatar in the window; and wait for the window's closing before
-     * moving on.
-     * 
-     * @param avatar
-     *            The avatar.
-     */
-	public void openAndWait(final Avatar avatar) {
-        this.addWindowListener(new WindowAdapter() {
-            public void windowClosed(WindowEvent e) {
-                synchronized(Window.this) { Window.this.notifyAll(); }
-            }
-        });
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() { open(avatar); }
-            });
-        }
-        catch(final InterruptedException ix) { throw new RuntimeException(ix); }
-        catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
-        synchronized(Window.this) {
-            try { wait(); }
-            catch(final InterruptedException ix) {
-                throw new RuntimeException(ix);
-            }
-        }
 	}
 
     /**

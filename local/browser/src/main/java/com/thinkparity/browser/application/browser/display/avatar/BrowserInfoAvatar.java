@@ -381,9 +381,6 @@ public class BrowserInfoAvatar extends Avatar {
             reloadTimer.setRepeats(false);
             reloadTimer.start();
         }
-        else if(getController().isFilterEnabled()) {
-            infoJLabel.setText(getString("Info.FilterOn"));
-        }
         else if(isTestMode()) {
 			final Contact contact = getContact();
 

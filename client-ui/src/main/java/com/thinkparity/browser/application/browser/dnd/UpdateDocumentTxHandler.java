@@ -117,14 +117,12 @@ public class UpdateDocumentTxHandler extends TransferHandler {
                     if(application.confirm("ConfirmOverwriteWorking")) {
                         dModel.updateWorkingVersion(dli.getDocumentId(), (File) data.iterator().next());
                         application.fireDocumentUpdated(dli.getDocumentId());
-                        application.setInfoMessage("Document.Updated");
                         return true;
                     }
                 }
                 else {
                     dModel.updateWorkingVersion(dli.getDocumentId(), (File) data.iterator().next());
                     application.fireDocumentUpdated(dli.getDocumentId());
-                    application.setInfoMessage("Document.Updated");
                     return true;
                 }
             }

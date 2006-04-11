@@ -56,8 +56,8 @@ public class BrowserWindow extends AbstractJFrame {
 	 */
 	public static Dimension getMainWindowSize() {
 		if(null == mainWindowSize) {
-			// DIMENSION BrowserWindow 350x556
-			mainWindowSize = new Dimension(350, 556);
+			// DIMENSION BrowserWindow 350x587
+			mainWindowSize = new Dimension(350, 587);
 		}
 		return mainWindowSize;
 	}
@@ -137,6 +137,7 @@ public class BrowserWindow extends AbstractJFrame {
 		    	browser.displayTitleAvatar();
 		    	browser.displayInfoAvatar();
 		    	browser.displayDocumentListAvatar();
+                browser.displayStatusAvatar();
 			}
 		});
 	}

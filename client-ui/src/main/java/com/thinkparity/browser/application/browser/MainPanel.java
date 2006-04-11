@@ -41,7 +41,8 @@ public class MainPanel extends AbstractJPanel {
 	 */
 	public MainPanel() {
 		super("MainPanel", Color.RED);
-		this.displayMap = new Hashtable<DisplayId, Display>(3, 1.0F);
+		this.displayMap = new Hashtable<DisplayId, Display>(
+                DisplayId.values().length, 1.0F);
 
 		initMainPanelComponents();
 	}
@@ -100,5 +101,6 @@ public class MainPanel extends AbstractJPanel {
 		add(DisplayFactory.create(DisplayId.TITLE));
 		add(DisplayFactory.create(DisplayId.INFO));
 		add(DisplayFactory.create(DisplayId.CONTENT));
+        add(DisplayFactory.create(DisplayId.STATUS));
 	}
 }

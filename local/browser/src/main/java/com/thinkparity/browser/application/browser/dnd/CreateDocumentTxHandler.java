@@ -115,7 +115,6 @@ public class CreateDocumentTxHandler extends TransferHandler {
         }
         if(didPass) {
             browser.fireDocumentsCreated(createdIds);
-            browser.setInfoMessage("Document.Created");
             return true;
         }
         else {

@@ -34,6 +34,10 @@ public class ButtonPanel extends AbstractJPanel {
 
 	private static final Icon CONTACTS_ROLLOVER_ICON;
 
+    private static final Icon HELP_ICON;
+
+    private static final Icon HELP_ROLLOVER_ICON;
+
 	private static final Icon MIN_ICON;
 
 	private static final Icon MIN_ROLLOVER_ICON;
@@ -51,7 +55,10 @@ public class ButtonPanel extends AbstractJPanel {
 		CONTACTS_ICON = ImageIOUtil.readIcon("ContactsButton.png");
 		CONTACTS_ROLLOVER_ICON = ImageIOUtil.readIcon("ContactsButtonRollover.png");
 
-		MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
+        HELP_ICON = ImageIOUtil.readIcon("HelpButton.png");
+        HELP_ROLLOVER_ICON = ImageIOUtil.readIcon("HelpButtonRollover.png");
+
+        MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
 		MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("MinimizeButtonRollover.png");
 	}
 
@@ -66,6 +73,9 @@ public class ButtonPanel extends AbstractJPanel {
 	 * 
 	 */
 	private JLabel contactsJLabel;
+
+    /** The help button. */
+	private JLabel helpJLabel;
 
 	/**
 	 * Handle to the container avatar.
@@ -150,6 +160,16 @@ public class ButtonPanel extends AbstractJPanel {
 				closeJLabel.setIcon(CLOSE_ICON);
 			}
 		});
+        helpJLabel = LabelFactory.create(HELP_ICON);
+        helpJLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(final MouseEvent e) {}
+            public void mouseEntered(final MouseEvent e) {
+                helpJLabel.setIcon(HELP_ROLLOVER_ICON);
+            }
+            public void mouseExited(final MouseEvent e) {
+                helpJLabel.setIcon(HELP_ICON);
+            }
+        });
 		minJLabel = LabelFactory.create(MIN_ICON);
 		minJLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent e) {
@@ -165,23 +185,27 @@ public class ButtonPanel extends AbstractJPanel {
 
 		final GridBagConstraints c = new GridBagConstraints();
 
-		c.anchor = GridBagConstraints.NORTHEAST;
-        c.insets.right = 50;
+        c.anchor = GridBagConstraints.NORTHEAST;
         c.weightx = 1;
-		c.weighty = 1;
-		add(contactsJLabel, c.clone());
+        c.weighty = 1;
+        add(helpJLabel, c.clone());
 
-		c.anchor = GridBagConstraints.NORTH;
-		c.insets.top = 6;
-		c.insets.left = 4;
-		c.insets.right = 2;
-		c.weightx = 0;
-		c.weighty = 0;
-		add(minJLabel, c.clone());
+        c.insets.left = 4;
+        c.weightx = 0;
+        c.weighty = 0;
+        add(contactsJLabel, c.clone());
 
-		c.insets.left = 0;
-		c.insets.right = 8;
-		add(closeJLabel, c.clone());
+        c.anchor = GridBagConstraints.NORTH;
+        c.insets.top = 6;
+
+        c.insets.left = 4;
+        c.insets.right = 2;
+        add(minJLabel, c.clone());
+
+        c.insets.left = 0;
+        c.insets.right = 8;
+        add(closeJLabel, c.clone());
+
 	}
 
 	/**

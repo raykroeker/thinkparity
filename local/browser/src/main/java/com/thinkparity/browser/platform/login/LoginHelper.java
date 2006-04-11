@@ -160,7 +160,7 @@ public class LoginHelper {
 			(LoginAvatar) getAvatar(AvatarId.PLATFORM_LOGIN);
 
 		if(null != px) { loginAvatar.addError(px); }
-		window.openAndWait(loginAvatar);
+        window.open(loginAvatar);
 		if(loginAvatar.isInputValid()) {
 			final String username = loginAvatar.extractUsername();
 			final String password = loginAvatar.extractPassword();

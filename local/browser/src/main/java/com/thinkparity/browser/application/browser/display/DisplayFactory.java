@@ -26,6 +26,8 @@ public class DisplayFactory {
 			return SINGLETON.createContent();
 		case INFO:
 			return SINGLETON.createInfo();
+        case STATUS:
+            return SINGLETON.createStatus();
 		case TITLE:
 			return SINGLETON.createTitle();
 		default: throw Assert.createUnreachable("Unknown display id:  " + id);
@@ -50,6 +52,9 @@ public class DisplayFactory {
 	 * 
 	 */
 	private Display info;
+
+	/** The status display. */
+    private Display status;
 
 	/**
 	 * Title display.
@@ -95,7 +100,7 @@ public class DisplayFactory {
 		return content;
 	}
 
-	/**
+    /**
 	 * Create the info display.
 	 * 
 	 * @return The info display.
@@ -109,7 +114,21 @@ public class DisplayFactory {
 		return info;
 	}
 
-	/**
+    /**
+     * Create a status display.
+     * 
+     * @return The status display.
+     */
+    private Display createStatus() {
+        if(null == status) {
+            status = new StatusDisplay();
+            // HEIGHT Status Display 27
+            applySize(status, 27);
+        }
+        return status;
+    }
+
+    /**
 	 * Create the title display.
 	 * 
 	 * @return The title display.

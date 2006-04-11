@@ -471,6 +471,9 @@ public class BrowserMainDocumentModel {
             browser.disableHistory();
         }
         else { browser.enableHistory(); }
+
+        if(isDocumentListFiltered()) { browser.fireFilterApplied(); }
+        else { browser.fireFilterRevoked(); }
     }
 
     /**

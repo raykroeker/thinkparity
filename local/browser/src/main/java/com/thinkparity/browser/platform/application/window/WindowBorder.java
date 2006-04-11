@@ -37,6 +37,13 @@ class WindowBorder {
                         "ConfirmDialogueBorderBottom.png",
                         "ConfirmDialogueBorderRight.png"));
 
+        // BORDER Login Dialogue
+        borderMap.put(AvatarId.PLATFORM_LOGIN,
+                new ImageBorder("LoginDialogueBorderTop.png",
+                        "LoginDialogueBorderLeft.png",
+                        "LoginDialogueBorderBottom.png",
+                        "LoginDialogueBorderRight.png"));
+
         // BORDER Send Dialog
         borderMap.put(AvatarId.SESSION_SEND_FORM,
                 new ImageBorder("SendDialogBorderTop.png",

@@ -5,12 +5,12 @@
  */
 package com.thinkparity.browser.platform.login.ui;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.CheckBoxFactory;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
@@ -39,7 +39,7 @@ public class LoginAvatar extends Avatar {
 	 * 
 	 */
 	public LoginAvatar() {
-		super("LoginAvatar", Color.WHITE);
+		super("LoginAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
 		initComponents();
 	}
 

@@ -13,10 +13,15 @@ import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
+ * An {@link AbstractJPanel} placed on the {@link Window} used to contain the
+ * window's title and any {@link Avatar}. This panel is not opaque; so all
+ * display properties are controlled by both the {@link WindowTitle} and the
+ * {@link Avatar}.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.7
  */
-public class WindowPanel extends AbstractJPanel {
+class WindowPanel extends AbstractJPanel {
 
 	/**
 	 * @see java.io.Serializable
@@ -41,22 +46,21 @@ public class WindowPanel extends AbstractJPanel {
 	 * 
 	 */
 	public WindowPanel() {
-            super("MainPanel");
-            this.ac = new GridBagConstraints();
-            this.ac.fill = GridBagConstraints.BOTH;
-            this.ac.weightx = 1;
-            this.ac.weighty = 1;
-            this.ac.gridy = 1;
-            this.jPanels = new LinkedList<AbstractJPanel>();
-            setLayout(new GridBagLayout());
-            setOpaque(false);
-            initComponents();
-	}
+	    super("MainPanel");
+        this.ac = new GridBagConstraints();
+        this.ac.fill = GridBagConstraints.BOTH;
+        this.ac.weightx = 1;
+        this.ac.weighty = 1;
+        this.ac.gridy = 1;
+        this.jPanels = new LinkedList<AbstractJPanel>();
+        setLayout(new GridBagLayout());
+        setOpaque(false);
+    }
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.AbstractJPanel#debugGeometry()
-	 * 
-	 */
+     * @see com.thinkparity.browser.javax.swing.AbstractJPanel#debugGeometry()
+     * 
+     */
 	public void debugGeometry() { super.debugGeometry(); }
 
 	/**
@@ -69,7 +73,7 @@ public class WindowPanel extends AbstractJPanel {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
-		add(new WindowTitleDecoration(), c.clone());
+		add(new WindowTitle(), c.clone());
 
 		jPanels.add(jPanel);
 		ac.gridy++;
@@ -99,12 +103,4 @@ public class WindowPanel extends AbstractJPanel {
 		ac.gridy--;
 		remove(avatar);
 	}
-
-	/**
-	 * Initialize the window components.
-	 * 
-	 * TODO Insert a title panel for all windows.
-	 *
-	 */
-	private void initComponents() {}
 }

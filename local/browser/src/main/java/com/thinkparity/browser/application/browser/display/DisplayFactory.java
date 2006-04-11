@@ -89,8 +89,8 @@ public class DisplayFactory {
 	private Display createContent() {
 		if(null == content) {
 			content = new ContentDisplay();
-			// HEIGHT ContentDisplay 459
-			applySize(content, 459);
+			// HEIGHT ContentDisplay 465
+			applySize(content, 465);
 		}
 		return content;
 	}

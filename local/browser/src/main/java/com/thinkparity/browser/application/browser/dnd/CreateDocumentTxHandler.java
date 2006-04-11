@@ -9,7 +9,6 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.Icon;
@@ -61,9 +60,6 @@ public class CreateDocumentTxHandler extends TransferHandler {
     /** The parity document interface. */
     private final DocumentModel dModel;
 
-    /** The transfer data flavor. */
-    private final DataFlavor javaFileListFlavor;
-
     /**
      * Create a CreateDocumentTxHandler.
      * 
@@ -72,7 +68,6 @@ public class CreateDocumentTxHandler extends TransferHandler {
         super();
         this.browser = browser;
         this.dModel = browser.getDocumentModel();
-        this.javaFileListFlavor = DataFlavor.javaFileListFlavor;
         this.logger = LoggerFactory.getLogger(getClass());
     }
 
@@ -95,22 +90,19 @@ public class CreateDocumentTxHandler extends TransferHandler {
     public boolean importData(final JComponent comp, final Transferable t) {
         if(!canImport(comp, t.getTransferDataFlavors())) { return false; }
 
-        List data = null;
-        try { data = (List) t.getTransferData(javaFileListFlavor); }
-        catch(final UnsupportedFlavorException ufx) {
-            logger.error(IMPORT_UFX, ufx);
-            return false;            
-        }
+        File[] files = null;
+        try { files = TxUtils.extractFiles(t); }
         catch(final IOException iox) {
             logger.error(IMPORT_IOX, iox);
-            return false;
+        }
+        catch(final UnsupportedFlavorException ufx) {
+            logger.error(IMPORT_UFX, ufx);
         }
 
         // create documents for each file transferred
         final Set<Long> createdIds = new HashSet<Long>();
         boolean didPass = true;
-        for(final Object datum : data) {
-            final File file = (File) datum;
+        for(final File file : files) {
             try {
                 final Document document =
                     dModel.create(file.getName(), null, file);

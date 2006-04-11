@@ -9,11 +9,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 
-import javax.swing.border.EtchedBorder;
+import javax.swing.BorderFactory;
 
 import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
-import com.thinkparity.browser.javax.swing.border.CustomEtechedBorder;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
@@ -31,7 +30,7 @@ public class History2Window extends AbstractJDialog {
 	private static Point calculateLocation(final BrowserWindow browserWindow, final Dimension hws) {
 		final Point bwl = browserWindow.getLocation();
 		final Dimension bws = browserWindow.getSize();
-		return new Point(bwl.x + bws.width, bwl.y + (bws.height - hws.height));
+		return new Point(bwl.x + bws.width, bwl.y + (bws.height - hws.height) - 45);
 	}
 
 	/**
@@ -42,12 +41,10 @@ public class History2Window extends AbstractJDialog {
 	 */
 	public History2Window(final BrowserWindow browserWindow, final Avatar avatar) {
 		super(browserWindow, Boolean.FALSE, "");
-		final Color c1 = new Color(196, 213, 255, 255);
-		final Color c2 = new Color(117, 130, 162, 255);
-		getRootPane().setBorder(new CustomEtechedBorder(EtchedBorder.RAISED, c1, c2));
-		setUndecorated(true);
+		getRootPane().setBorder(BorderFactory.createLineBorder(new Color(117, 130, 162, 255)));
+        setUndecorated(true);
 		setLayout(new GridBagLayout());
-		setSize(new Dimension(306, 490));
+        setSize(new Dimension(306, 430));
 		setLocation(calculateLocation(browserWindow, getSize()));
 		initComponents(avatar);
 	}
@@ -64,3 +61,4 @@ public class History2Window extends AbstractJDialog {
 		add(avatar, c.clone());
 	}
 }
+

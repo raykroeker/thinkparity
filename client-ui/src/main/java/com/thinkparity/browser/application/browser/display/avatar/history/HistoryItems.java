@@ -19,7 +19,6 @@ import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-import com.thinkparity.browser.javax.swing.border.MultiLineBorder;
 import com.thinkparity.browser.model.util.ArtifactUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
@@ -38,48 +37,26 @@ import com.thinkparity.model.xmpp.contact.Contact;
  */
 public class HistoryItems extends Avatar {
     
-    /**
-     * The cell renderer for active documents.
-     *
-     */
+    /** A cell renderer for active documents. */
     private static final HistoryItemCellRenderer CR_ACTIVE;
     
-    /**
-     * The cell renderer for closed documents.
-     *
-     */
+    /** A cell renderer for closed documents. */
     private static final HistoryItemCellRenderer CR_CLOSED;
 
-    private static final Color BC_1;
-
-    private static final Color BC_2;
-    
     static {
         CR_ACTIVE = new ActiveCellRenderer();
         CR_CLOSED = new ClosedCellRenderer();
-
-        BC_1 = new Color(137, 139, 142, 255);
-        BC_2 = new Color(238, 238, 238, 255);
     }
     
-    /**
-     * @see java.io.Serializable
-     *
-     */
+    /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
     
-    /**
-     * The history list's model.
-     *
-     */
+    /** The {@link JList}'s model. */
     private DefaultListModel historyModel;
     
-    /**
-     * Creates new form HistoryItems
-     */
+    /** Create a HistoryItems Avatar. */
     public HistoryItems() {
         super("DocumentHistory", Color.WHITE);
-        setBorder(new MultiLineBorder(new Color[] {BC_1, BC_2}));
         initComponents();
     }
     
@@ -171,18 +148,11 @@ public class HistoryItems extends Avatar {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JScrollPane historyListScrollPane;
-        javax.swing.JLabel infoJLabel;
 
-        infoJLabel = new javax.swing.JLabel();
         historyListScrollPane = ScrollPaneFactory.create();
         historyList = ListFactory.create();
 
         setLayout(new java.awt.GridBagLayout());
-
-        infoJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/HistoryInfoDisplay.png")));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        add(infoJLabel, gridBagConstraints);
 
         historyListScrollPane.setBorder(null);
         historyListScrollPane.setViewportView(historyList);
@@ -204,8 +174,9 @@ public class HistoryItems extends Avatar {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 2, 0, 2);
         add(historyListScrollPane, gridBagConstraints);

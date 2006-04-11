@@ -6,7 +6,6 @@
 
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import java.awt.Color;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +15,7 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.CheckBoxFactory;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
@@ -47,10 +47,7 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class SessionSendFormAvatar extends Avatar {
 
-    /**
-     *@see java.io.Serializable
-     *
-     */
+    /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
     
     /**
@@ -96,8 +93,7 @@ public class SessionSendFormAvatar extends Avatar {
      *
      */
     public SessionSendFormAvatar() {
-    	// COLOR Send Form Background
-		super("SessionSendForm", Color.WHITE);
+		super("SessionSendForm", BrowserConstants.DIALOGUE_BACKGROUND);
 		this.contactsModel = new DefaultListModel();
 		this.contactsSelectionModel = new DefaultListSelectionModel();
 		this.teamModel = new DefaultListModel();

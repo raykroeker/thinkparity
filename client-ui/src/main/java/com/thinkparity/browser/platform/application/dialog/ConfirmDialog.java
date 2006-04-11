@@ -5,17 +5,15 @@
  */
 package com.thinkparity.browser.platform.application.dialog;
 
-import java.awt.Dimension;
-
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.browser.application.browser.BrowserWindow;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
-import com.thinkparity.browser.application.browser.window.WindowFactory;
-import com.thinkparity.browser.application.browser.window.WindowId;
-import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.platform.application.window.Window;
+import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.browser.platform.util.State;
 
 /**
  * A generic confirmation dialog that uses a popup window to display a
@@ -24,89 +22,60 @@ import com.thinkparity.browser.platform.application.window.Window;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ConfirmDialog extends AbstractJPanel {
+public class ConfirmDialog extends Avatar {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    /**
-     * Display a confirmation dialog with custom confirm/deny text.
-     * 
-     * @param confirmMessage
-     *            The confirm message.
-     * @param confirmText
-     *            The confirm text.
-     * @param denyText
-     *            The deny text.
-     * @return True if the user confirmed; false otherwise.
-     */
-    public static Boolean confirm(final BrowserWindow browserWindow,
-            final String confirmMessageKey, final String confirmTextKey,
-            final String denyTextKey) {
-        final ConfirmDialog confirmDialog = new ConfirmDialog();
-        confirmDialog.setConfirmMessage(confirmMessageKey);
-        confirmDialog.setConfirmText(confirmTextKey);
-        confirmDialog.setDenyText(denyTextKey);
-        return doConfirm(browserWindow, confirmDialog);
-    }
+    /** The deny action default key. */
+    private static final String DENY_ACTION_DEFAULT_KEY = "DenyAction.Default";
 
-    /**
-     * Display a confirmation dialog.
-     * 
-     * @param confirmMessageKey
-     *            The confirm message.
-     * @return True if the user confirmed; false otherwise.
-     */
-    public static Boolean confirm(final BrowserWindow browserWindow,
-            final String confirmMessageKey) {
-        final ConfirmDialog confirmDialog = new ConfirmDialog();
-        confirmDialog.setConfirmMessage(confirmMessageKey);
-        return doConfirm(browserWindow, confirmDialog);
-    }
-
-    /**
-     * Display a confirmation dialog.
-     * 
-     * @param confirmMessageKey
-     *            The confirm message.
-     * @return True if the user confirmed; false otherwise.
-     */
-    public static Boolean confirm(final BrowserWindow browserWindow,
-            final String confirmMessageKey, final Object[] arguments) {
-        final ConfirmDialog confirmDialog = new ConfirmDialog();
-        confirmDialog.setConfirmMessage(confirmMessageKey, arguments);
-        return doConfirm(browserWindow, confirmDialog);
-    }
-
-    /**
-     * Display the confirmation dialog.
-     * 
-     * @param confirmDialog
-     *            The confirmation dialog.
-     * @return True if the user confirmed; false otherwise.
-     */
-    private static Boolean doConfirm(final BrowserWindow browserWindow,
-            final ConfirmDialog confirmDialog) {
-        final Window w = WindowFactory.create(WindowId.CONFIRM, browserWindow);
-        w.open(confirmDialog, new Dimension(300, 125));
-        return confirmDialog.didConfirm();
-    }
+    /** The confirm action default key. */
+    private static final String CONFIRM_ACTION_DEFAULT_KEY = "ConfirmAction.Default";
 
     /** Flag indicating whether or not the user confirmed. */
     private Boolean confirm;
 
     /** Creates new form ConfirmDialog */
-    private ConfirmDialog() {
-        super("ConfirmDialog");
+    public ConfirmDialog() {
+        super("ConfirmDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
     }
+
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
+     * 
+     */
+    public AvatarId getId() { return AvatarId.CONFIRM_DIALOGUE; }
+
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState()
+     * 
+     */
+    public State getState() { return null; }
+
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
+     * 
+     */
+    public void reload() {
+        reloadConfirmMessage();
+        reloadConfirmAction();
+        reloadDenyAction();
+    }
+
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
+     * 
+     */
+    public void setState(final State state) {}
 
     /**
      * Determine whether or not the user confirmed.
      * 
      * @return True if the user confirmed; false otherwise.
      */
-    private Boolean didConfirm() { return confirm; }
+    public Boolean didConfirm() { return confirm; }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -119,13 +88,14 @@ public class ConfirmDialog extends AbstractJPanel {
         denyJButton = ButtonFactory.create(getString("DenyButton"));
         confirmMessageJTextArea = TextFactory.createArea();
 
-        setBackground(new java.awt.Color(255, 255, 255));
+        confirmJButton.setText("!Yes!");
         confirmJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 confirmJButtonActionPerformed(e);
             }
         });
 
+        denyJButton.setText("!No!");
         denyJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 denyJButtonActionPerformed(e);
@@ -139,6 +109,7 @@ public class ConfirmDialog extends AbstractJPanel {
         confirmMessageJTextArea.setWrapStyleWord(true);
         confirmMessageJTextArea.setBorder(null);
         confirmMessageJTextArea.setFocusable(false);
+        confirmMessageJTextArea.setOpaque(false);
         confirmMessageJTextArea.setBorder(null);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
@@ -188,49 +159,6 @@ public class ConfirmDialog extends AbstractJPanel {
     }
 
     /**
-     * Set the confirmation message text.
-     * 
-     * @param confirmMessage
-     *            The confirmation message.
-     */
-    private void setConfirmMessage(final String confirmMessageKey) {
-        confirmMessageJTextArea.setText(getString(confirmMessageKey));
-    }
-
-    /**
-     * Set the confirmation message text.
-     * 
-     * @param confirmMessage
-     *            The confirmation message localization key.
-     * @param arguments
-     *            The localization message arguments.
-     */
-    private void setConfirmMessage(final String confirmMessageKey,
-            final Object[] arguments) {
-        confirmMessageJTextArea.setText(getString(confirmMessageKey, arguments));
-    }
-
-    /**
-     * Set the confirmation action text.
-     * 
-     * @param confirmText
-     *            The confirmation action text.
-     */
-    private void setConfirmText(final String confirmTextKey) {
-        confirmJButton.setText(getString(confirmTextKey));
-    }
-
-    /**
-     * Set the deny action text.
-     * 
-     * @param denyText
-     *            The deny action text.
-     */
-    private void setDenyText(final String denyTextKey) {
-        denyJButton.setText(getString(denyTextKey));
-    }
-
-    /**
      * Run the confirm action.
      * 
      * @param e
@@ -240,10 +168,91 @@ public class ConfirmDialog extends AbstractJPanel {
         confirm = Boolean.TRUE;
         disposeWindow();
     }//GEN-LAST:event_confirmJButtonActionPerformed
+    
+    /**
+     * Obtain the confirmation arguments from the input data.
+     * 
+     * @return The confirmation message arguments.
+     */
+    private Object[] getConfirmMessageArguments() {
+        return (Object[]) ((Data) input).get(DataKey.MESSAGE_ARGUMENTS);
+    }
+    
+    /**
+     * Obtain the confirmation action key from the input data.
+     * 
+     * @return The confirmation action key.
+     */
+    private String getConfirmActionKey() {
+        final String confirmKey =
+            (String) ((Data) input).get(DataKey.CONFIRM_ACTION_KEY);
+        if(null == confirmKey) { return CONFIRM_ACTION_DEFAULT_KEY; }
+        else { return confirmKey; }
+    }
+
+    /**
+     * Obtain the deny action key from the input data.
+     * 
+     * @return The confirmation action key.
+     */
+    private String getDenyActionKey() {
+        final String denyActionKey =
+            (String) ((Data) input).get(DataKey.DENY_ACTION_KEY);
+        if(null == denyActionKey) { return DENY_ACTION_DEFAULT_KEY; }
+        else { return denyActionKey; }
+    }
+
+    /**
+     * Obtain the confirmation message key from the input data.
+     * 
+     * @return The confirmation message key.
+     */
+    private String getConfirmMessageKey() {
+        return (String) ((Data) input).get(DataKey.MESSAGE_KEY);
+    }
+
+    /**
+     * Reload the confirm action (jbutton).
+     *
+     */
+    private void reloadConfirmAction() {
+        confirmJButton.setText(getString("ConfirmAction.Default"));
+        if(null != input) {
+            confirmJButton.setText(getString(getConfirmActionKey()));
+            
+        }
+    }
+
+    /**
+     * Reload the deny action (jbutton).
+     *
+     */
+    private void reloadDenyAction() {
+        denyJButton.setText(getString(DENY_ACTION_DEFAULT_KEY));
+        if(null != input) {
+            denyJButton.setText(getString(getDenyActionKey()));
+        }
+    }
+
+    /**
+     * Reload the confirmation message.
+     *
+     */
+    private void reloadConfirmMessage() {
+        confirmMessageJTextArea.setText(getString("ConfirmMessage.Empty"));
+        if(null != input) {
+            confirmMessageJTextArea.setText(getString(
+                    getConfirmMessageKey(),
+                    getConfirmMessageArguments()));
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton confirmJButton;
     private javax.swing.JTextArea confirmMessageJTextArea;
     private javax.swing.JButton denyJButton;
     // End of variables declaration//GEN-END:variables
+
+    /** Data keys. */
+    public enum DataKey { CONFIRM_ACTION_KEY, DENY_ACTION_KEY, MESSAGE_KEY, MESSAGE_ARGUMENTS }
 }

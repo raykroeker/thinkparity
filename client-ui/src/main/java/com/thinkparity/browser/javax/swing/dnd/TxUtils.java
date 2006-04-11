@@ -4,6 +4,16 @@
 package com.thinkparity.browser.javax.swing.dnd;
 
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
  * Swing drag'n'drop transfer utilities.
@@ -32,8 +42,28 @@ public class TxUtils {
         return SINGLETON.doesContainJavaFileList(transferFlavors);
     }
 
+    /**
+     * Extract a list of files from the transferable.
+     * 
+     * @param t
+     *            The dnd transferable.
+     * @return A list of files
+     * @throws IOException
+     * @throws UnsupportedFlavorException
+     */
+    public static File[] extractFiles(final Transferable t) throws IOException,
+            UnsupportedFlavorException {
+        return SINGLETON.doExtractFiles(t);
+    }
+
+    /** An apache logger. */
+    protected final Logger logger;
+
     /** Create a TxUtils [Singleton] */
-    private TxUtils() { super(); }
+    private TxUtils() {
+        super();
+        this.logger = LoggerFactory.getLogger(getClass());
+    }
 
     /**
      * Determine if the transfer flavors contains a java file list transfer
@@ -51,5 +81,34 @@ public class TxUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * Extract a list of files from the transferable.
+     * 
+     * @param t
+     *            The dnd transferable.
+     * @return A list of files
+     * @throws IOException
+     * @throws UnsupportedFlavorException
+     */
+    private File[] doExtractFiles(final Transferable t) throws IOException,
+            UnsupportedFlavorException {
+        final List data = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
+        final List<File> fileData = new LinkedList<File>();
+        File file;
+        for(final Object datum : data) {
+            file = (File) datum;
+            if(!file.exists()) {
+                logger.warn("[BROWSER2] [SWINGX] [DND] [EXTRACT FILES] [FILE DOESN'T EXIST]");
+                try { Thread.sleep(500); }
+                catch(final InterruptedException ix) { /* Do nothing. */ }
+                if(!file.exists()) {
+                    logger.warn("[BROWSER2] [SWINGX] [DND] [EXTRACT FILES] [FILE DOESN'T EXIST]");
+                }
+            }
+            fileData.add(file);
+        }
+        return fileData.toArray(new File[] {});
     }
 }

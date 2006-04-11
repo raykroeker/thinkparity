@@ -3,21 +3,18 @@
  */
 package com.thinkparity.browser.application.browser;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
+import com.thinkparity.browser.javax.swing.border.ImageBorder;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
@@ -28,13 +25,6 @@ import com.thinkparity.browser.util.NativeSkinUtil;
  * @version 1.1
  */
 public class BrowserWindow extends AbstractJFrame {
-
-	/**
-	 * The browser window border.
-	 * 
-	 * @see #getBorder()
-	 */
-	private static Border border;
 
 	/**
 	 * The window icon.
@@ -60,28 +50,14 @@ public class BrowserWindow extends AbstractJFrame {
 	}
 
 	/**
-	 * Obtain the border for the browser window.
-	 * 
-	 * @return The browser window border.
-	 */
-	public static Border getBorder() {
-		if(null == border) {
-			final Color c1 = new Color(196, 213, 255, 255);
-			final Color c2 = new Color(117, 130, 162, 255);
-			border = BorderFactory.createEtchedBorder(EtchedBorder.RAISED, c1, c2);
-		}
-		return border;
-	}
-
-	/**
 	 * Obtain the size of the main window.
 	 * 
 	 * @return The size of the main window.
 	 */
 	public static Dimension getMainWindowSize() {
 		if(null == mainWindowSize) {
-			// DIMENSION BrowserWindow 350x550
-			mainWindowSize = new Dimension(350, 550);
+			// DIMENSION BrowserWindow 350x556
+			mainWindowSize = new Dimension(350, 556);
 		}
 		return mainWindowSize;
 	}
@@ -114,7 +90,9 @@ public class BrowserWindow extends AbstractJFrame {
 		this.browser = browser;
 		// initialize the state
 		new BrowserWindowState(this);
-		getRootPane().setBorder(getBorder());
+		getRootPane().setBorder(new ImageBorder("MainWindowBorderTop.png",
+                "MainWindowBorderLeft.png", "MainWindowBorderBottom.png",
+        "MainWindowBorderRight.png"));
 		setIconImage(BROWSER_ICON);
 		setTitle(getString("Title"));
 		setUndecorated(true);

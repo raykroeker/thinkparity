@@ -3,12 +3,13 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
-import com.thinkparity.browser.application.browser.display.avatar.history.HistoryItems;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
+import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
 import com.thinkparity.browser.application.browser.display.avatar.contact.SearchPartner;
+import com.thinkparity.browser.application.browser.display.avatar.history.HistoryItems;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
+import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.login.ui.LoginAvatar;
 
@@ -108,6 +109,11 @@ public class AvatarFactory {
 		return browserTitle;
 	}
 
+    /** Create the confirmation dialogue avatar. */
+    private Avatar createConfirmDialogue() {
+        return new ConfirmDialog();
+    }
+
 	/**
 	 * Create the document history list avatar.
 	 * 
@@ -129,19 +135,21 @@ public class AvatarFactory {
 		return platformLogin;
 	}
 
-	/**
-	 * Create the session invite contact avatar.
-	 * 
-	 * @return The session invite contact avatar.
-	 */
-	private Avatar createSessionInvitePartner() {
-		final Avatar sessionInvitePartner = new InvitePartner();
-		return sessionInvitePartner;
+	private Avatar createSendVersion() {
+		final Avatar avatar = new SessionSendVersion();
+		avatar.setContentProvider(ProviderFactory.getSendVersionProvider());
+
+		return avatar;
 	}
 
-        private Avatar createSessionSearchPartner() {
-            final Avatar avatar = new SearchPartner();
-            return avatar;
+        /**
+         * Create the session invite contact avatar.
+         * 
+         * @return The session invite contact avatar.
+         */
+        private Avatar createSessionInvitePartner() {
+        	final Avatar sessionInvitePartner = new InvitePartner();
+        	return sessionInvitePartner;
         }
 
 	/**
@@ -155,6 +163,11 @@ public class AvatarFactory {
 		return sessionManageContacts;
 	}
 
+	private Avatar createSessionSearchPartner() {
+        final Avatar avatar = new SearchPartner();
+        return avatar;
+    }
+
 	/**
 	 * Create the session send form avatar.
 	 * 
@@ -166,13 +179,6 @@ public class AvatarFactory {
 			sessionSendForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
 		}
 		return sessionSendForm;
-	}
-
-	private Avatar createSendVersion() {
-		final Avatar avatar = new SessionSendVersion();
-		avatar.setContentProvider(ProviderFactory.getSendVersionProvider());
-
-		return avatar;
 	}
 
 	/**
@@ -194,6 +200,9 @@ public class AvatarFactory {
 		case BROWSER_TITLE:
 			avatar = createBrowserTitle();
 			break;
+        case CONFIRM_DIALOGUE:
+            avatar = createConfirmDialogue();
+            break;
 		case DOCUMENT_HISTORY3:
 			avatar = createDocumentHistory3List();
 			break;

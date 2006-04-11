@@ -14,12 +14,9 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.browser.application.browser.BrowserWindow;
-import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
-import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
@@ -40,10 +37,10 @@ public abstract class Window extends AbstractJDialog {
 	 */
 	protected WindowPanel windowPanel;
 
-	/**
-	 * A lookup for window sizes for avatars.
-	 * 
-	 */
+    /** A lookup for window borders. */
+	private final WindowBorder windowBorder;
+
+	/** A lookup for window sizes. */
 	private final WindowSize windowSize;
 
 	/**
@@ -57,63 +54,56 @@ public abstract class Window extends AbstractJDialog {
 		this((JFrame) owner, modal, l18nContext);
 	}
 
-	public Window(final JFrame owner, final Boolean modal,
+    public Window(final JFrame owner, final Boolean modal,
 			final String l18nContext) {
 		super(owner, modal, l18nContext);
+        this.windowBorder = new WindowBorder();
 		this.windowSize = new WindowSize();
-		getRootPane().setBorder(BrowserWindow.getBorder());
 		setTitle(getString("Title"));
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setUndecorated(true);
-	}
+	} 
 
-	/**
+    /**
 	 * Obtain the window id.
 	 * 
 	 * @return The window id.
 	 */
 	public abstract WindowId getId();
-
+   
 	/**
-	 * Open the window.
-	 *
-	 */
+     * Open an avatar in the window.
+     * 
+     * @param avatar
+     *            The avatar.
+     */
 	public void open(final Avatar avatar) {
         initComponents(avatar);
         debugGeometry();
         debugLookAndFeel();
+        getRootPane().setBorder(windowBorder.get(avatar.getId()));
         setSize(windowSize.get(avatar.getId()));
         setLocation(calculateLocation());
         invalidate();
         setVisible(true);
 	}
 
-    public void open(final AbstractJPanel jPanel, final Dimension windowSize) {
-        initComponents(jPanel);
-        debugGeometry();
-        debugLookAndFeel();
-        setSize(windowSize);
-        setLocation(calculateLocation());
-        invalidate();
-        setVisible(true);
-    }
-
 	/**
-	 * Open an avatar in the window.  Display 
-	 * @param avatar
-	 * @param errors
-	 */
-	public void openAndWait(final Avatar avatar) { openAndWait(avatar, windowSize.get(avatar.getId())); }
-
-    public void openAndWait(final AbstractJPanel jPanel, final Dimension size) {
+     * Open an avatar in the window; and wait for the window's closing before
+     * moving on.
+     * 
+     * @param avatar
+     *            The avatar.
+     */
+	public void openAndWait(final Avatar avatar) {
         this.addWindowListener(new WindowAdapter() {
-            public void windowClosed(final WindowEvent e) {
+            public void windowClosed(WindowEvent e) {
                 synchronized(Window.this) { Window.this.notifyAll(); }
             }
         });
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() { open(jPanel, size); }
+                public void run() { open(avatar); }
             });
         }
         catch(final InterruptedException ix) { throw new RuntimeException(ix); }
@@ -124,9 +114,9 @@ public abstract class Window extends AbstractJDialog {
                 throw new RuntimeException(ix);
             }
         }
-    }
+	}
 
-	/**
+    /**
 	 * Calculate the location for the window based upon its owner and its size.
 	 * 
 	 * @return The location of the window centered on the owner.
@@ -155,22 +145,17 @@ public abstract class Window extends AbstractJDialog {
 		}
 	}
 
-	protected Dimension calculateSize(final AvatarId avatarId) {
-		return windowSize.get(avatarId);
-	}
-
-    
+    /**
+     * Initialize the swing components on the window.
+     * 
+     * @param avatar
+     *            The avatar.
+     */
 	protected void initComponents(final Avatar avatar) {
 		avatar.reload();
-		initComponents((AbstractJPanel) avatar);
-	}
-
-    protected void initComponents(final AbstractJPanel jPanel) {
-        // FIXME The window functionality needs more sleep.
-        if(jPanel instanceof Avatar) { ((Avatar) jPanel).reload(); }
 
         windowPanel = new WindowPanel();
-        windowPanel.addPanel(jPanel);
+        windowPanel.addPanel(avatar);
 
         add(windowPanel);
     }

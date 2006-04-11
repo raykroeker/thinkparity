@@ -41,4 +41,8 @@ public interface BrowserConstants {
 
     public static final Color SelectionForeground =
         Color.BLACK;
+
+    /** The default dialogue background colour.  A light blue. */
+    public static final Color DIALOGUE_BACKGROUND =
+        new Color(237, 241, 244, 255);
 }

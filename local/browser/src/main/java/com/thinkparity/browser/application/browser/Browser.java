@@ -212,23 +212,29 @@ public class Browser extends AbstractApplication {
     /**
      * Open a confirmation dialog.
      * 
-     * @param confirmMessageKey
+     * @param messageKey
      *            The confirmation mesage localization key.
      * @return True if the user confirmed in the affirmative.
      */
-    public Boolean confirm(final String confirmMessageKey) {
-        return ConfirmDialog.confirm(mainWindow, confirmMessageKey);
+    public Boolean confirm(final String messageKey) {
+        final Data input = new Data(1);
+        input.set(ConfirmDialog.DataKey.MESSAGE_KEY, messageKey);
+        return confirm(input);
     }
 
     /**
      * Open a confirmation dialog.
      * 
-     * @param confirmMessageKey
+     * @param messageKey
      *            The confirmation mesage localization key.
      * @return True if the user confirmed in the affirmative.
      */
-    public Boolean confirm(final String confirmMessageKey, final Object[] arguments) {
-        return ConfirmDialog.confirm(mainWindow, confirmMessageKey, arguments);
+    public Boolean confirm(final String messageKey,
+            final Object[] messageArguments) {
+        final Data input = new Data(2);
+        input.set(ConfirmDialog.DataKey.MESSAGE_KEY, messageKey);
+        input.set(ConfirmDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
+        return confirm(input);
     }
 
     /**
@@ -237,7 +243,7 @@ public class Browser extends AbstractApplication {
      */
 	public void debugFilter() { getMainAvatar().debugFilter(); }
 
-	/**
+    /**
      * Disable the ability to display the history. Also; if the history window
      * is currently displayed; close it.
      * 
@@ -279,7 +285,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
 	}
 
-    /**
+	/**
 	 * Display the send form.
 	 *
 	 */
@@ -287,7 +293,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
 	}
 
-	/**
+    /**
      * Enable the history.
      * 
      */
@@ -313,7 +319,7 @@ public class Browser extends AbstractApplication {
 		notifyEnd();
 	}
 
-    /**
+	/**
 	 * Notify the application that a document has been created.
 	 * 
 	 * @param documentId
@@ -332,7 +338,7 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-	/**
+    /**
 	 * Notify the application that a document has been created.
 	 * 
 	 * @param documentId
@@ -455,7 +461,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public Long getSelectedDocumentId() { return session.getSelectedDocumentId(); }
 
-    /**
+	/**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
@@ -495,7 +501,7 @@ public class Browser extends AbstractApplication {
      */
     public Boolean isHistoryEnabled() { return historyEnabled; }
 
-	/**
+    /**
      * Check if the history is currently visible.
      * 
      * @return True if the history is visible; false otherwise.
@@ -547,14 +553,14 @@ public class Browser extends AbstractApplication {
 	 */
 	public void removeSearchFilter() { getMainAvatar().removeSearchFilter(); }
 
-    /**
+	/**
      * Remove the artifact state filter.
      * 
      * @see BrowserMainAvatar#removeStateFilter()
      */
     public void removeStateFilter() { getMainAvatar().removeStateFilter(); }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -614,7 +620,7 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.DOCUMENT_CLOSE, data);
 	}
 
-    /**
+	/**
 	 * Run the create document action.
 	 *
 	 */
@@ -624,7 +630,7 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-	/**
+    /**
      * Create a document.
      * 
      * @param file
@@ -726,7 +732,7 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.ARTIFACT_REQUEST_KEY, data);
 	}
 
-    /**
+	/**
      * Run a search for an artifact on the criteria.
      * 
      * @param criteria
@@ -757,7 +763,7 @@ public class Browser extends AbstractApplication {
         runSendArtifactVersion(artifactId, contacts, versionId);
     }
 
-	/**
+    /**
      * Run the send artifact version action.
      * 
      * @param artifactId
@@ -805,7 +811,7 @@ public class Browser extends AbstractApplication {
         getInfoAvatar().reload();
     }
 
-    /**
+	/**
      * Set an info message.
      * 
      * @param infoKey
@@ -838,7 +844,7 @@ public class Browser extends AbstractApplication {
 		notifyStart();
 	}
 
-	/**
+    /**
 	 * Toggle the history window.
 	 *
 	 */
@@ -900,6 +906,18 @@ public class Browser extends AbstractApplication {
 		mainWindow.dispatchEvent(
 				new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
 	}
+
+	/**
+     * Open a confirmation dialogue.
+     * 
+     * @param input
+     *            The dialogue's input.
+     * @return True if the user confirmed.
+     */
+    private Boolean confirm(final Data input) {
+        open(WindowId.CONFIRM, AvatarId.CONFIRM_DIALOGUE, input);
+        return getConfirmAvatar().didConfirm();
+    }
 
     /**
 	 * Display an avatar.
@@ -968,7 +986,7 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-	/**
+    /**
 	 * Obtain the action from the controller's cache. If the action does not
 	 * exist in the cache it is created and stored.
 	 * 
@@ -985,7 +1003,7 @@ public class Browser extends AbstractApplication {
 		return action;
 	}
 
-	/**
+    /**
 	 * Obtain the input for an avatar.
 	 * 
 	 * @param avatarId
@@ -995,6 +1013,14 @@ public class Browser extends AbstractApplication {
 	private Object getAvatarInput(final AvatarId avatarId) {
 		return avatarInputMap.get(avatarId);
 	}
+
+	/**
+     * Obtain the confirmation avatar.
+     * @return The confirmation avatar.
+     */
+    private ConfirmDialog getConfirmAvatar() {
+        return (ConfirmDialog) avatarRegistry.get(AvatarId.CONFIRM_DIALOGUE);
+    }
 
 	/**
      * Convenience method to obtain the info avatar.
@@ -1032,13 +1058,23 @@ public class Browser extends AbstractApplication {
 		catch(final Exception x) { throw new RuntimeException(x); }
 	}
 
-	private Boolean isMainWindowOpen() {
+    private Boolean isMainWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
 	private Boolean isMinimized() {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
+
+	private void open(final WindowId windowId,
+            final AvatarId avatarId, final Data input) {
+        final Window window = WindowFactory.create(windowId, mainWindow);
+
+        final Avatar avatar = getAvatar(avatarId);
+        avatar.setInput(input);
+
+        window.open(avatar);
+    }
 
 	/**
 	 * Open the main browser window.

@@ -166,7 +166,8 @@ public class ButtonPanel extends AbstractJPanel {
 		final GridBagConstraints c = new GridBagConstraints();
 
 		c.anchor = GridBagConstraints.NORTHEAST;
-		c.weightx = 1;
+        c.insets.right = 50;
+        c.weightx = 1;
 		c.weighty = 1;
 		add(contactsJLabel, c.clone());
 

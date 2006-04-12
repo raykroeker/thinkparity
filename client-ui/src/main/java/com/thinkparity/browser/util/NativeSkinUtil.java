@@ -59,7 +59,7 @@ public class NativeSkinUtil {
 	 * The native skin.
 	 * 
 	 */
-	private final NativeSkin nativeSkin;
+//	private final NativeSkin nativeSkin;
 
 	/**
 	 * Create a NativeSkinUtil [Singleton]
@@ -68,7 +68,7 @@ public class NativeSkinUtil {
 	private NativeSkinUtil() {
 		super();
 		this.logger = ModelLoggerFactory.getLogger(getClass());
-		this.nativeSkin = NativeSkin.getInstance();
+//		this.nativeSkin = NativeSkin.getInstance();
 		logger.info("[VERSION] " + NativeConstants.VERSION);
 	}
 

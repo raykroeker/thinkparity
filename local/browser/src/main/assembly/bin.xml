@@ -20,7 +20,7 @@
 			<outputDirectory>/browser2-1.0-SNAPSHOT/bin</outputDirectory>
 			<directory>target/classes/bin</directory>
 			<includes>
-				<include>*.cmd</include>
+				<include>*.exe</include>
 			</includes>
 		</fileSet>
 		<fileSet>

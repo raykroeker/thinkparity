@@ -21,31 +21,41 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
  */
 public class History2Window extends AbstractJDialog {
 
-	/**
-	 * @see java.io.Serializable
-	 * 
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-	private static Point calculateLocation(final BrowserWindow browserWindow, final Dimension hws) {
-		final Point bwl = browserWindow.getLocation();
-		final Dimension bws = browserWindow.getSize();
+    /**
+     * Calculate the location of the history window based upon the browser
+     * window.
+     * 
+     * @param The
+     *            parity owner.
+     * @param hws
+     *            The history window size.
+     * @return The history window location.
+     */
+	private static Point calculateLocation(final BrowserWindow owner,
+            final Dimension hws) {
+		final Point bwl = owner.getLocation();
+		final Dimension bws = owner.getSize();
 		return new Point(bwl.x + bws.width, bwl.y + (bws.height - hws.height) - 45);
 	}
 
 	/**
-	 * Create a HistoryWindow.
-	 * 
-	 * @param browserWindow
-	 *            The main browser window.
-	 */
-	public History2Window(final BrowserWindow browserWindow, final Avatar avatar) {
-		super(browserWindow, Boolean.FALSE, "");
+     * Create a History2Window.
+     * 
+     * @param browserWindow
+     *            The parity owner.
+     * @param avatar
+     *            The history avatar.
+     */
+	public History2Window(final BrowserWindow owner, final Avatar avatar) {
+		super(owner, Boolean.FALSE, "History2Window");
 		getRootPane().setBorder(BorderFactory.createLineBorder(new Color(117, 130, 162, 255)));
         setUndecorated(true);
 		setLayout(new GridBagLayout());
         setSize(new Dimension(306, 430));
-		setLocation(calculateLocation(browserWindow, getSize()));
+		setLocation(calculateLocation(owner, getSize()));
 		initComponents(avatar);
 	}
 

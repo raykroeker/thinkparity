@@ -21,6 +21,8 @@
                               <Component id="searchJButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="inviteJButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="98" max="32767" attributes="0"/>
+                              <Component id="closeJButton" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="contactsJScrollPane" alignment="1" pref="313" max="32767" attributes="0"/>
                       </Group>
@@ -48,6 +50,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="searchJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="inviteJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="closeJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" attributes="0">
@@ -116,6 +119,8 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;SearchButton&quot;));"/>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="removeJButton">
@@ -142,6 +147,17 @@
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;ViewButton&quot;));"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JButton" name="closeJButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="!Close!"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeJButtonActionPerformed"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create(getString(&quot;CloseButton&quot;));"/>
       </AuxValues>
     </Component>
   </SubComponents>

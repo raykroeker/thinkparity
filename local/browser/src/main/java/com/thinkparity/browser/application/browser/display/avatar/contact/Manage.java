@@ -6,15 +6,14 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.contact;
 
-import com.thinkparity.browser.application.browser.display.avatar.*;
-import java.awt.Color;
-
 import javax.swing.DefaultListModel;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.ListFactory;
+import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.session.ContactCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
@@ -44,8 +43,8 @@ public class Manage extends Avatar {
      * Creates new form Manage
      */
     public Manage() {
-	super("ManageContacts", Color.WHITE);
-	initComponents();
+        super("ManageContacts", BrowserConstants.DIALOGUE_BACKGROUND);
+        initComponents();
     }
 
     /**
@@ -74,6 +73,11 @@ public class Manage extends Avatar {
 
         reloadRemoveJButton();
         reloadViewJButton();
+
+        if(contactsJList.isSelectionEmpty()) {
+            searchJButton.requestFocusInWindow();
+        }
+        else { viewJButton.requestFocusInWindow(); }
     }
 
     /**
@@ -102,10 +106,10 @@ public class Manage extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JButton closeJButton;
         javax.swing.JScrollPane contactsJScrollPane;
         javax.swing.JLabel eaJLabel;
         javax.swing.JButton inviteJButton;
-        javax.swing.JButton searchJButton;
 
         eaJLabel = LabelFactory.create(getString("EmbeddedAssistance"));
         contactsJScrollPane = new javax.swing.JScrollPane();
@@ -114,6 +118,7 @@ public class Manage extends Avatar {
         searchJButton = ButtonFactory.create(getString("SearchButton"));
         removeJButton = ButtonFactory.create(getString("RemoveButton"));
         viewJButton = ButtonFactory.create(getString("ViewButton"));
+        closeJButton = ButtonFactory.create(getString("CloseButton"));
 
         contactsModel = new DefaultListModel();
         contactsJList.setModel(contactsModel);
@@ -150,6 +155,12 @@ public class Manage extends Avatar {
             }
         });
 
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -163,7 +174,9 @@ public class Manage extends Avatar {
                             .add(layout.createSequentialGroup()
                                 .add(searchJButton)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(inviteJButton))
+                                .add(inviteJButton)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 98, Short.MAX_VALUE)
+                                .add(closeJButton))
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -183,7 +196,8 @@ public class Manage extends Avatar {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(searchJButton)
-                            .add(inviteJButton)))
+                            .add(inviteJButton)
+                            .add(closeJButton)))
                     .add(layout.createSequentialGroup()
                         .add(viewJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -191,6 +205,10 @@ public class Manage extends Avatar {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void closeJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_closeJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_closeJButtonActionPerformed
 
     private void viewJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_viewJButtonActionPerformed
 // TODO add your handling code here:
@@ -244,6 +262,7 @@ public class Manage extends Avatar {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList contactsJList;
     private javax.swing.JButton removeJButton;
+    private javax.swing.JButton searchJButton;
     private javax.swing.JButton viewJButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -6,13 +6,13 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.session;
 
-import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.ListFactory;
@@ -50,7 +50,7 @@ public class SessionSendVersion extends Avatar {
      *
      */
     public SessionSendVersion() {
-        super("SendVersion", Color.WHITE);
+        super("SendVersion", BrowserConstants.DIALOGUE_BACKGROUND);
         this.teamModel = new DefaultListModel();
         initComponents();
     }

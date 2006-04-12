@@ -7,6 +7,8 @@ import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.platform.application.window.Window;
 
 /**
+ * A window to use for confirmation dialogues.
+ * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
@@ -18,9 +20,11 @@ public class ConfirmWindow extends Window {
     /**
      * Create a ConfirmWindow.
      * 
+     * @param owner
+     *            The parity owner.
      */
-    public ConfirmWindow(final BrowserWindow browserWindow) {
-        super(browserWindow, Boolean.TRUE, "ConfirmWindow");
+    public ConfirmWindow(final BrowserWindow owner) {
+        super(owner, Boolean.TRUE, "ConfirmWindow");
     }
 
     /**

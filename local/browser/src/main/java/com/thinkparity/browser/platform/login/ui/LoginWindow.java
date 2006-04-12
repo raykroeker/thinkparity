@@ -21,7 +21,10 @@ public class LoginWindow extends Window  {
 	/**
 	 * Create a LoginWindow.
 	 */
-	public LoginWindow() { super(null, Boolean.FALSE, "LoginWindow"); }
+	public LoginWindow() {
+        super(null, Boolean.FALSE, "LoginWindow");
+        applyEscapeListener();
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.window.Window#getId()

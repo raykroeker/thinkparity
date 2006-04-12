@@ -8,7 +8,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
@@ -21,16 +20,10 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
  */
 public abstract class Window extends AbstractJDialog {
 
-	/**
-	 * @see java.io.Serializable
-	 * 
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * The panel onto which all displays are dropped.
-	 * 
-	 */
+	/** The panel onto which all displays are dropped. */
 	protected WindowPanel windowPanel;
 
     /** A lookup for window borders. */
@@ -39,26 +32,25 @@ public abstract class Window extends AbstractJDialog {
 	/** A lookup for window sizes. */
 	private final WindowSize windowSize;
 
-	/**
-	 * Create a Window.
-	 * 
-	 * @param l18Context
-	 *            The localization context
-	 */
+    /**
+     * Create a parity Window.
+     * 
+     * @param owner
+     *            The window owner.
+     * @param modal
+     *            Whether or not to display a modal window.
+     * @param l18nContext
+     *            The localisation context.
+     */
 	public Window(final AbstractJFrame owner, final Boolean modal,
-			final String l18nContext) {
-		this((JFrame) owner, modal, l18nContext);
-	}
-
-    public Window(final JFrame owner, final Boolean modal,
-			final String l18nContext) {
-		super(owner, modal, l18nContext);
+            final String l18nContext) {
+        super(owner, modal, l18nContext);
         this.windowBorder = new WindowBorder();
-		this.windowSize = new WindowSize();
-		setTitle(getString("Title"));
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setUndecorated(true);
-	} 
+        this.windowSize = new WindowSize();
+        setTitle(getString("Title"));
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setUndecorated(true);
+    }
 
     /**
 	 * Obtain the window id.
@@ -83,6 +75,11 @@ public abstract class Window extends AbstractJDialog {
         invalidate();
         setVisible(true);
 	}
+
+    /** Apply an escape listener that will dispose of the window. */
+    protected void applyEscapeListener() {
+        new WindowCustodian().applyEscapeListener(this);
+    }
 
     /**
 	 * Calculate the location for the window based upon its owner and its size.
@@ -112,6 +109,9 @@ public abstract class Window extends AbstractJDialog {
 			return l;
 		}
 	}
+
+    /** Dispose of the window. */
+    protected void disposeWindow() { dispose(); }
 
     /**
      * Initialize the swing components on the window.

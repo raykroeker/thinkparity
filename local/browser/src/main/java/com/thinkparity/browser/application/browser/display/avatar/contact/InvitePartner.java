@@ -6,10 +6,10 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.contact;
 
-import java.awt.Color;
-
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentListener;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
@@ -37,8 +37,8 @@ public class InvitePartner extends Avatar {
      *
      */
     public InvitePartner() {
-	super("InvitePartner", Color.WHITE);
-	initComponents();
+        super("InvitePartner", BrowserConstants.DIALOGUE_BACKGROUND);
+        initComponents();
     }
     
     /**
@@ -76,6 +76,16 @@ public class InvitePartner extends Avatar {
         return Boolean.TRUE;
     }
 
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
+     * 
+     */
+    public void reload() {
+        reloadSendJButton();
+
+        sendJButton.requestFocusInWindow();
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -83,6 +93,7 @@ public class InvitePartner extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JButton cancelJButton;
         javax.swing.JLabel eaJLabel;
         javax.swing.JLabel emailJLabel;
         javax.swing.JLabel invitationJLabel;
@@ -97,6 +108,7 @@ public class InvitePartner extends Avatar {
         invitationJTextArea = TextFactory.createArea();
         invitationJLabel = LabelFactory.create(getString("InvitationLabel"));
         previewJButton = ButtonFactory.create(getString("PreviewButton"));
+        cancelJButton = ButtonFactory.create(getString("CancelButton"));
 
         emailJTextField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(final javax.swing.event.DocumentEvent e) {
@@ -137,6 +149,12 @@ public class InvitePartner extends Avatar {
             }
         });
 
+        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -152,14 +170,17 @@ public class InvitePartner extends Avatar {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(sendJButton)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(previewJButton))
                             .add(layout.createSequentialGroup()
                                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(previewJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(sendJButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -180,11 +201,20 @@ public class InvitePartner extends Avatar {
                         .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(sendJButton)
                     .add(previewJButton)
-                    .add(sendJButton))
+                    .add(cancelJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    private void disposeWindow() {
+        SwingUtilities.getWindowAncestor(this).dispose();
+    }
 
     private void previewJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_previewJButtonActionPerformed
 // TODO add your handling code here:

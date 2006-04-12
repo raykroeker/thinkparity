@@ -6,13 +6,12 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.contact;
 
-import java.awt.Color;
-
 import javax.swing.DefaultListModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentListener;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
-import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.ListFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
@@ -38,7 +37,7 @@ public class SearchPartner extends Avatar {
      * Creates new form SearchPartner
      */
     public SearchPartner() {
-        super("SearchPartner", Color.WHITE);
+        super("SearchPartner", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
     }
 
@@ -70,6 +69,11 @@ public class SearchPartner extends Avatar {
     public void reload() {
         reloadAddJButton();
         reloadSearchJButton();
+
+        if(contactsJList.isSelectionEmpty()) {
+            searchJButton.requestFocusInWindow();
+        }
+        else { addJButton.requestFocusInWindow(); }
     }
 
     /** This method is called from within the constructor to
@@ -79,17 +83,25 @@ public class SearchPartner extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        javax.swing.JButton closeJButton;
         javax.swing.JScrollPane contactsJScrollPane;
-        javax.swing.JLabel eaJLabel;
+        javax.swing.JTextArea eaJTextArea;
+        javax.swing.JScrollPane jScrollPane1;
+        javax.swing.JTextArea jTextArea1;
 
-        eaJLabel = LabelFactory.create(getString("EmbeddedAssistance"));
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         contactsJScrollPane = new javax.swing.JScrollPane();
         contactsJList = ListFactory.create();
         searchJTextField = TextFactory.create();
         searchJButton = ButtonFactory.create(getString("SearchButton"));
         addJButton = ButtonFactory.create(getString("AddButton"));
+        closeJButton = ButtonFactory.create(getString("CloseButton"));
+        eaJTextArea = TextFactory.createArea();
 
-        eaJLabel.setText("!Embedded Assistance!");
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
 
         contactsModel = new DefaultListModel();
         contactsJList.setModel(contactsModel);
@@ -114,19 +126,30 @@ public class SearchPartner extends Avatar {
             }
         });
 
-        searchJButton.setText("!Search!");
         searchJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 searchJButtonActionPerformed(e);
             }
         });
 
-        addJButton.setText("!Add!");
         addJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 addJButtonActionPerformed(e);
             }
         });
+
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
+            }
+        });
+
+        eaJTextArea.setColumns(20);
+        eaJTextArea.setLineWrap(true);
+        eaJTextArea.setRows(5);
+        eaJTextArea.setWrapStyleWord(true);
+        eaJTextArea.setOpaque(false);
+        eaJTextArea.setText(getString("EmbeddedAssistance"));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -135,39 +158,48 @@ public class SearchPartner extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
-                    .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, eaJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 357, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(searchJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                            .add(searchJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                            .add(closeJButton))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(searchJButton)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(addJButton)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(addJButton)
+                            .add(searchJButton))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(eaJLabel)
-                .add(6, 6, 6)
+                .add(eaJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(searchJButton)
                     .add(searchJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(addJButton)
-                        .add(127, 127, 127))
-                    .add(layout.createSequentialGroup()
-                        .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
-                        .addContainerGap())))
+                    .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 93, Short.MAX_VALUE)
+                    .add(addJButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(closeJButton)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void closeJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_closeJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_closeJButtonActionPerformed
 
     private void contactsJListValueChanged(javax.swing.event.ListSelectionEvent e) {//GEN-FIRST:event_contactsJListValueChanged
         reloadAddJButton();
     }//GEN-LAST:event_contactsJListValueChanged
+
+    private void disposeWindow() {
+        SwingUtilities.getWindowAncestor(this).dispose();
+    }
 
     private void reloadSearchJButton() {
         searchJButton.setEnabled(0 < searchJTextField.getText().length());

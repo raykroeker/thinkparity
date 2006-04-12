@@ -27,16 +27,6 @@ public class NativeSkinUtil {
 
 	static { singleton = new NativeSkinUtil(); }
 
-	/**
-	 * Apply a native skin to a parity window.
-	 * 
-	 * @param window
-	 *            The parity window.
-	 */
-//	public static void applyNativeSkin(final HistoryWindow historyWindow) {
-//		singleton.doApplyNativeSkin(historyWindow);
-//	}
-
 	public static void applyNativeSkin(final Window window) {}
 
 	/**
@@ -56,19 +46,12 @@ public class NativeSkinUtil {
 	private final Logger logger;
 
 	/**
-	 * The native skin.
-	 * 
-	 */
-//	private final NativeSkin nativeSkin;
-
-	/**
 	 * Create a NativeSkinUtil [Singleton]
 	 * 
 	 */
 	private NativeSkinUtil() {
 		super();
 		this.logger = ModelLoggerFactory.getLogger(getClass());
-//		this.nativeSkin = NativeSkin.getInstance();
 		logger.info("[VERSION] " + NativeConstants.VERSION);
 	}
 

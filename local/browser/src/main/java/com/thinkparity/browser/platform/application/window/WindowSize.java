@@ -48,13 +48,11 @@ class WindowSize {
 		// DIMENSION Platform Login Window 385x173
 		sizeMap.put(AvatarId.PLATFORM_LOGIN, new Dimension(385, 173));
 
-		// DIMENSION Add Contact Window 409x196
-		sizeMap.put(AvatarId.SESSION_ADD_CONTACT, new Dimension(520, 330));
-		// DIMENSION Invite Partner Window 409x196
+		// DIMENSION Invite Partner Dialogue 520x330
 		sizeMap.put(AvatarId.SESSION_INVITE_PARTNER, new Dimension(520, 330));
-		// DIMENSION Manage Contacts Window 520x321
+		// DIMENSION Manage Contacts Dialogue 520x330
 		sizeMap.put(AvatarId.SESSION_MANAGE_CONTACTS, new Dimension(520, 330));
-		// DIMENSION Search Partner
+		// DIMENSION Search Partner Dialogue 520x330
 		sizeMap.put(AvatarId.SESSION_SEARCH_PARTNER, new Dimension(520, 330));
 	}
 

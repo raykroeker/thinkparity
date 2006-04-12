@@ -44,12 +44,33 @@ class WindowBorder {
                         "LoginDialogueBorderBottom.png",
                         "LoginDialogueBorderRight.png"));
 
-        // BORDER Send Dialog
+        // BORDER Send Dialogue
         borderMap.put(AvatarId.SESSION_SEND_FORM,
                 new ImageBorder("SendDialogBorderTop.png",
                         "SendDialogBorderLeft.png",
                         "SendDialogBorderBottom.png",
                         "SendDialogBorderRight.png"));
+
+        // BORDER Manage Contacts Dialogue
+        borderMap.put(AvatarId.SESSION_MANAGE_CONTACTS,
+                new ImageBorder("ManageContactsDialogueBorderTop.png",
+                        "ManageContactsDialogueBorderLeft.png",
+                        "ManageContactsDialogueBorderBottom.png",
+                        "ManageContactsDialogueBorderRight.png"));
+
+        // BORDER Search Partner Dialogue
+        borderMap.put(AvatarId.SESSION_SEARCH_PARTNER,
+                new ImageBorder("SearchPartnerDialogueBorderTop.png",
+                        "SearchPartnerDialogueBorderLeft.png",
+                        "SearchPartnerDialogueBorderBottom.png",
+                        "SearchPartnerDialogueBorderRight.png"));
+
+        // BORDER Invite Partner Dialogue
+        borderMap.put(AvatarId.SESSION_INVITE_PARTNER,
+                new ImageBorder("InvitePartnerDialogueBorderTop.png",
+                        "InvitePartnerDialogueBorderLeft.png",
+                        "InvitePartnerDialogueBorderBottom.png",
+                        "InvitePartnerDialogueBorderRight.png"));
 
         // BORDER Default Avatar Border
         final Color highlight = new Color(153, 153, 153, 255);

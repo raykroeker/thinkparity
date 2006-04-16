@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.workspace;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -134,7 +133,9 @@ class PreferencesHelper {
 	 */
 	private void initPreferences() throws IOException {
 		if(!preferencesFile.exists()) {
-			Assert.assertTrue("init", preferencesFile.createNewFile());
+			Assert.assertTrue(
+                    "[LMODEL] [WORKSPACE] [INIT PREFS] [CANNOT CREATE PREFS FILE]",
+                    preferencesFile.createNewFile());
 			final Properties javaProperties = new Properties();
 			storePreferences(javaProperties);
 		}
@@ -152,13 +153,9 @@ class PreferencesHelper {
 			javaProperties.loadFromXML(new FileInputStream(preferencesFile));
 			return javaProperties;
 		}
-		catch(FileNotFoundException fnfx) {
-			fnfx.printStackTrace(System.err);
-			return null;
-		}
-		catch(IOException iox) {
-			iox.printStackTrace(System.err);
-			return null;
+		catch(final IOException iox) {
+            throw WorkspaceException.translate(
+                    "[LMODEL] [WORKSPACE] [LOAD PREFS] [IO ERROR]", iox);
 		}
 	}
 
@@ -172,11 +169,9 @@ class PreferencesHelper {
 		try {
 			javaProperties.storeToXML(new FileOutputStream(preferencesFile), "");
 		}
-		catch(FileNotFoundException fnfx) {
-			fnfx.printStackTrace(System.err);
-		}
-		catch(IOException iox) {
-			iox.printStackTrace(System.err);
+		catch(final IOException iox) {
+            throw WorkspaceException.translate(
+                    "[LMODEL] [WORKSPACE] [STORE PREFS] [IO ERROR]", iox);
 		}
 	}
 }

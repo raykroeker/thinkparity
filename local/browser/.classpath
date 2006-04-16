@@ -12,7 +12,7 @@
 	<classpathentry sourcepath="/M2_REPO/jivesoftware/smack/2.0.0/smack-2.0.0-sources.jar" kind="var" path="M2_REPO/jivesoftware/smack/2.0.0/smack-2.0.0.jar"/>
 	<classpathentry sourcepath="/M2_REPO/jivesoftware/smackx/2.0.0/smack-2.0.0-sources.jar" kind="var" path="M2_REPO/jivesoftware/smackx/2.0.0/smackx-2.0.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.3/commons-codec-1.3.jar"/>
-	<classpathentry sourcepath="/M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.src.jar" kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
+	<classpathentry sourcepath="/M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13-sources.jar" kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
 	<classpathentry kind="var" path="M2_REPO/net/java/javadesktop/swing-layout/1.0/swing-layout-1.0.jar"/>
 	<classpathentry sourcepath="/M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2-sources.jar" kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.2/hsqldb-1.8.0.2.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/l2fprod/l2fprod-6.2-sources.jar" kind="var" path="M2_REPO/com/l2fprod/nativeskin/6.2/nativeskin-6.2.jar"/>

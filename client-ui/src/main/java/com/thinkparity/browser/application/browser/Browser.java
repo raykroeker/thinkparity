@@ -26,7 +26,6 @@ import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAva
 import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.Status;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
-import com.thinkparity.browser.application.browser.window.History2Window;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.platform.Platform;
@@ -34,7 +33,12 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-import com.thinkparity.browser.platform.action.artifact.*;
+import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
+import com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests;
+import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
+import com.thinkparity.browser.platform.action.artifact.RequestKey;
+import com.thinkparity.browser.platform.action.artifact.Search;
+import com.thinkparity.browser.platform.action.artifact.SendVersion;
 import com.thinkparity.browser.platform.action.document.Close;
 import com.thinkparity.browser.platform.action.document.Create;
 import com.thinkparity.browser.platform.action.document.Delete;
@@ -57,7 +61,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.index.IndexHit;
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -113,14 +117,6 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	private EventDispatcher ed;
-
-	private History2Window history2Window;
-
-    /**
-     * Flag indicating whether or not history is enabled.
-     * 
-     */
-	private Boolean historyEnabled = Boolean.FALSE;
 
 	/**
 	 * The file chooser.
@@ -239,22 +235,12 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Debug the filter applied to the main list.
+     * Debug the main list.
      *
      */
-	public void debugFilter() { getMainAvatar().debugFilter(); }
+	public void debugMain() { getMainAvatar().debug(); }
 
-    /**
-     * Disable the ability to display the history. Also; if the history window
-     * is currently displayed; close it.
-     * 
-     */
-    public void disableHistory() {
-        historyEnabled = Boolean.FALSE;
-        if(isHistoryVisible()) { toggleHistory3Avatar(); }
-        getInfoAvatar().reload();
-    }
-
+    /** Display the contact search dialogue. */
 	public void displayContactSearch() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEARCH_PARTNER);
 	}
@@ -292,15 +278,6 @@ public class Browser extends AbstractApplication {
 	 */
 	public void displaySessionSendFormAvatar() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
-	}
-
-    /**
-     * Enable the history.
-     * 
-     */
-	public void enableHistory() {
-        historyEnabled = Boolean.TRUE;
-        getInfoAvatar().reload();
 	}
 
     /** Notify the application the filters are on. */
@@ -508,25 +485,6 @@ public class Browser extends AbstractApplication {
         return getMainAvatar().isFilterEnabled();
     }
 
-    /**
-     * Determine if the history is enabled.
-     * 
-     * @return True if the history is enabled; false otherwise.
-     * 
-     * @see #enableHistory()
-     * @see #disableHistory()
-     */
-    public Boolean isHistoryEnabled() { return historyEnabled; }
-
-    /**
-     * Check if the history is currently visible.
-     * 
-     * @return True if the history is visible; false otherwise.
-     */
-    public Boolean isHistoryVisible() {
-		return null != history2Window && history2Window.isVisible();
-	}
-
 	/**
 	 * Minimize the browser application.
 	 *
@@ -547,12 +505,6 @@ public class Browser extends AbstractApplication {
 		newL.y += l.y;
 		logger.debug(newL);
 		mainWindow.setLocation(newL);
-		if(null != history2Window && history2Window.isVisible()) {
-			final Point hl = history2Window.getLocation();
-			hl.x += l.x;
-			hl.y += l.y;
-			history2Window.setLocation(hl);
-		}
 	}
 
 	/**
@@ -766,18 +718,18 @@ public class Browser extends AbstractApplication {
      * 
      * @param artifactId
      *            The artifact id.
-     * @param contact
-     *            The contact to send to.
+     * @param user
+     *            The user to send to.
      * @param versionId
      *            The version id.
      * 
      * @see #runSendArtifactVersion(Long, List, Long)
      */
     public void runSendArtifactVersion(final Long artifactId,
-            final Contact contact, final Long versionId) {
-        final List<Contact> contacts = new LinkedList<Contact>();
-        contacts.add(contact);
-        runSendArtifactVersion(artifactId, contacts, versionId);
+            final User user, final Long versionId) {
+        final List<User> users = new LinkedList<User>();
+        users.add(user);
+        runSendArtifactVersion(artifactId, users, versionId);
     }
 
     /**
@@ -785,16 +737,16 @@ public class Browser extends AbstractApplication {
      * 
      * @param artifactId
      *            The artifact id.
-     * @param contacts
-     *            The contacts to send to.
+     * @param users
+     *            The users to send to.
      * @param versionId
      *            The version id.
      */
     public void runSendArtifactVersion(final Long artifactId,
-            final List<Contact> contacts, final Long versionId) {
+            final List<User> users, final Long versionId) {
         final Data data = new Data(3);
         data.set(SendVersion.DataKey.ARTIFACT_ID, artifactId);
-        data.set(SendVersion.DataKey.CONTACTS, contacts);
+        data.set(SendVersion.DataKey.USERS, users);
         data.set(SendVersion.DataKey.VERSION_ID, versionId);
         invoke(ActionId.ARTIFACT_SEND_VERSION, data);
     }
@@ -813,7 +765,6 @@ public class Browser extends AbstractApplication {
 	 */
 	public void selectDocument(final Long documentId) {
 		session.setSelectedDocumentId(documentId);
-		setInput(AvatarId.DOCUMENT_HISTORY3, documentId);
 		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 	}
 
@@ -868,29 +819,6 @@ public class Browser extends AbstractApplication {
 		notifyStart();
 	}
 
-    /**
-	 * Toggle the history window.
-	 *
-	 */
-	public void toggleHistory3Avatar() {
-	    if(null == history2Window) {
-			final Avatar avatar = getAvatar(AvatarId.DOCUMENT_HISTORY3);
-
-			if(null != getAvatarInput(AvatarId.DOCUMENT_HISTORY3))
-				avatar.setInput(getAvatarInput(AvatarId.DOCUMENT_HISTORY3));
-
-			history2Window = new History2Window(mainWindow, avatar);
-			history2Window.setVisible(true);
-
-			runApplyFlagSeen(getSelectedDocumentId());
-			fireDocumentUpdated(getSelectedDocumentId());
-		}
-		else {
-			history2Window.dispose();
-			history2Window = null;
-		}
-	}
-
 	/**
 	 * Display the document list.
 	 *
@@ -920,15 +848,7 @@ public class Browser extends AbstractApplication {
     	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
 	}
 
-	/**
-	 * Reload the document history list.
-	 *
-	 */
-	void reloadHistoryList() {
-		final Avatar avatar = getPlatform().getAvatarRegistry().get(AvatarId.DOCUMENT_HISTORY3);
-		if(null != avatar) { avatar.reload(); }
-	}
-
+    /** Close the main window. */
 	private void closeMainWindow() {
 		Assert.assertNotNull(
 				"Cannot close main window before it is open.", mainWindow);
@@ -1051,15 +971,6 @@ public class Browser extends AbstractApplication {
         return (ConfirmDialog) avatarRegistry.get(AvatarId.CONFIRM_DIALOGUE);
     }
 
-	/**
-     * Convenience method to obtain the info avatar.
-     * 
-     * @return The info avatar.
-     */
-    private BrowserInfoAvatar getInfoAvatar() {
-        return (BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO);
-    }
-
     /**
      * Convenience method to obtain the status avatar.
      * 
@@ -1124,18 +1035,6 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
-	 * Run the ApplyFlagSeen action.
-	 * 
-	 * @param documentId
-	 *            The document to apply the seen flag to.
-	 */
-	private void runApplyFlagSeen(final Long documentId) {
-		final Data data = new Data(1);
-		data.set(ApplyFlagSeen.DataKey.ARTIFACT_ID, documentId);
-		invoke(ActionId.ARTIFACT_APPLY_FLAG_SEEN, data);
-	}
-
-	/**
 	 * Set the input for an avatar. If the avatar is currently being displayed;
 	 * it will be set immediately; otherwise it will be stored in the local
 	 * hash; and set when the avatar is displayed.
@@ -1156,4 +1055,15 @@ public class Browser extends AbstractApplication {
 			avatar.setInput(input);
 		}
 	}
+
+        /**
+         * Obtain a logger for the class from the applilcation.
+         *
+         *
+         * @param clasz The class for which to obtain the logger.
+         * @return An apache logger.
+         */
+        public Logger getLogger(final Class clasz) {
+            return getPlatform().getLogger(clasz);
+        }
 }

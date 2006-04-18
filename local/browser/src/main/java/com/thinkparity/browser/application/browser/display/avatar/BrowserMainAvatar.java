@@ -4,9 +4,11 @@
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -18,22 +20,20 @@ import java.util.TooManyListenersException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.thinkparity.browser.application.browser.component.MenuFactory;
-import com.thinkparity.browser.application.browser.display.avatar.main.CellRenderer;
-import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
-import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
-import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.application.browser.dnd.UpdateDocumentTxHandler;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
+import com.thinkparity.browser.platform.util.SwingUtil;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.filter.Filter;
@@ -45,30 +45,29 @@ import com.thinkparity.model.parity.model.index.IndexHit;
  * the document list.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.25
  */
 public class BrowserMainAvatar extends Avatar {
 
-	private static final String ERROR_INIT_TMLX = "[BROWSER2] [APP] [B2] [MAIN LIST] [INIT] [TOO MANY DROP TARGET LISTENERS]";
+    /** The relative location of the "hot" zone in each cell. */
+    private static final Point CELL_NODE_LOCATION = new Point(10, 2);
 
-    /**
-	 * @see java.io.Serializable
-	 * 
-	 */
+    /** The size of the "hot" zone in each cell. */
+    private static final Dimension CELL_NODE_SIZE = new Dimension(20, 20);
+
+    /** A logger error statement. */
+	private static final String ERROR_INIT_TMLX =
+        "[BROWSER2] [APP] [B2] [MAIN LIST] [INIT] [TOO MANY DROP TARGET LISTENERS]";
+
+    /** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-    /**
-	 * The swing list.
-	 * 
-	 */
+    /** The swing JList. */
 	private JList jList;
-
-    /**
-     * The model for the documents in the list.
-     * 
-     */
+    
+    /** The model. */
     private final BrowserMainDocumentModel mainDocumentModel;
-
+    
     /**
      * The search filter.
      * 
@@ -76,17 +75,14 @@ public class BrowserMainAvatar extends Avatar {
      * @see #removeSearchFilter()
      */
     private Search searchFilter;
-    
-    /**
-	 * Create a BrowserMainAvatar.
-	 * 
-	 */
-	BrowserMainAvatar() {
-		super("BrowserMainAvatar", ScrollPolicy.NONE, Color.WHITE);
-		this.mainDocumentModel = new BrowserMainDocumentModel(getController());
-		setLayout(new GridBagLayout());
-		initComponents();
-	}
+
+    /** Create a BrowserMainAvatar. */
+    BrowserMainAvatar() {
+        super("BrowserMainAvatar", ScrollPolicy.NONE, Color.WHITE);
+        this.mainDocumentModel = new BrowserMainDocumentModel(getController());
+        setLayout(new GridBagLayout());
+        initComponents();
+    }
 
     /**
      * Apply a key holder filter to the main list.
@@ -128,55 +124,49 @@ public class BrowserMainAvatar extends Avatar {
         mainDocumentModel.applyStateFilter(state);
     }
 
-    /**
-     * Remove all non-search filters from the document list.
-     *
-     */
+    /** Clear all filters. */
     public void clearFilters() { mainDocumentModel.clearDocumentFilters(); }
+    
+    /** Debug the model. */
+    public void debug() { mainDocumentModel.debug(); }
 
     /**
-     * Debug the filter applied to the main list.
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
      *
      */
-    public void debugFilter() { mainDocumentModel.debug(); }
-
+    public AvatarId getId() { return AvatarId.BROWSER_MAIN; }
+    
     /**
-	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
-	 * 
-	 */
-	public AvatarId getId() { return AvatarId.BROWSER_MAIN; }
-
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState()
+     *
+     */
+    public State getState() { return null; }
+    
     /**
-	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState()
-	 * 
-	 */
-	public State getState() { return null; }
-
-	/**
      * Determine whether or not the filter is enabled.
-     * 
+     *
      * @return True if it is; false otherwise.
      */
     public Boolean isFilterEnabled() {
         return mainDocumentModel.isDocumentListFiltered();
     }
 
-    /**
-	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
-	 * 
-	 */
-	public void reload() {}
-
 	/**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
+     *
+     */
+    public void reload() {}
+
+    /**
      * Remove the key holder filter.
-     * 
+     *
      * @see #applyKeyHolderFilter(Boolean)
      */
-	public void removeKeyHolderFilter() {
+    public void removeKeyHolderFilter() {
         mainDocumentModel.removeKeyHolderFilters();
     }
 
-	/**
+    /**
      * Remove the search filter from the list.
      *
      * @see #applySearchFilter(List)
@@ -191,7 +181,7 @@ public class BrowserMainAvatar extends Avatar {
      * @see #applyStateFilter(ArtifactState)
      */
     public void removeStateFilter() { mainDocumentModel.removeStateFilters(); }
-
+    
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setContentProvider(com.thinkparity.browser.application.browser.display.provider.ContentProvider)
      * 
@@ -201,12 +191,12 @@ public class BrowserMainAvatar extends Avatar {
         // set initial selection
         if(0 < jList.getModel().getSize()) { jList.setSelectedIndex(0); }
     }
-
+    
     /**
-	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
-	 * 
-	 */
-	public void setState(final State state) {}
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
+     *
+     */
+    public void setState(final State state) {}
 
     /**
      * Synchronize the document in the list.
@@ -216,129 +206,131 @@ public class BrowserMainAvatar extends Avatar {
      * @param remote
      *            Indicates whether the sync is the result of a remote event
      */
-	public void syncDocument(final Long documentId, final Boolean remote) {
-        final DisplayDocument selectedDocument = getSelectedDocument();
-	    mainDocumentModel.syncDocument(documentId, remote);
+    public void syncDocument(final Long documentId, final Boolean remote) {
+        final MainCellDocument selectedDocument = getSelectedDocument();
+        mainDocumentModel.syncDocument(documentId, remote);
         if(mainDocumentModel.isDocumentVisible(selectedDocument))
             selectDocument(selectedDocument);
-	}
+    }
 
     /**
      * Synchronize the documents in the list.
-     * 
+     *
      * @param documentIds
      *            The document ids.
      * @param remote
      *            Indicates whether the sync is the result of a remove event.
      */
     public void syncDocuments(final Set<Long> documentIds, final Boolean remote) {
-        final DisplayDocument selectedDocument = getSelectedDocument();
+        final MainCellDocument selectedDocument = getSelectedDocument();
         mainDocumentModel.syncDocuments(documentIds, remote);
         if(mainDocumentModel.isDocumentVisible(selectedDocument))
             selectDocument(selectedDocument);
     }
 
-	private DisplayDocument getSelectedDocument() {
-        final ListItem li = (ListItem) jList.getSelectedValue();
-        if(li instanceof DocumentListItem) {
-            return ((DocumentListItem) li).getDisplayDocument();
+    /**
+     * Obtain the selected document from the list.
+     * 
+     * @return The selected document.
+     */
+    private MainCellDocument getSelectedDocument() {
+        final MainCell mc = (MainCell) jList.getSelectedValue();
+        if(mc instanceof MainCellDocument) {
+            return (MainCellDocument) mc;
         }
-        else { return null; }
+        return null;
     }
 
-    /** Flag for the drop target listener to use. */
-    private boolean canImportListItem;
-
     /**
-	 * Initialize the swing components.
-	 *
-	 */
-	private void initComponents() {
+     * Initialize the swing components.
+     *
+     */
+    private void initComponents() {
         // the list that resides on the browser's main avatar
-		// 	* is a single selection list
-		//	* spans the width of the entire avatar
-		// 	* uses a custom cell renderer
-		jList = new JList(mainDocumentModel.getListModel());
-		jList.setCellRenderer(new CellRenderer(getController(), jList));
+        // 	* is a single selection list
+        //	* spans the width of the entire avatar
+        // 	* uses a custom cell renderer
+        jList = new JList(mainDocumentModel.getListModel());
+        jList.setCellRenderer(new MainCellRenderer());
         jList.setDragEnabled(true);
-		// HEIGHT MainListCell 21
-		jList.setFixedCellHeight(21);
-		jList.setLayoutOrientation(JList.VERTICAL);
-		jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		jList.setTransferHandler(new UpdateDocumentTxHandler(getController(), jList));
-		jList.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent e) {
-				if(2 == e.getClickCount()) {
-					final Point p = e.getPoint();
-					final Integer listIndex = jList.locationToIndex(p);
-					jList.setSelectedIndex(listIndex);
-
-					// TODO Fix this
-					final ListItem listItem =
-						(ListItem) jList.getSelectedValue();
-					runOpenDocumentAction((Long) listItem.getProperty("documentId"));
-				}
-			}
-
-			public void mouseReleased(final MouseEvent e) {
-				if(e.isPopupTrigger()) {
-					final Point p = e.getPoint();
-					final Integer listIndex = jList.locationToIndex(p);
-					jList.setSelectedIndex(listIndex);
-
-					final ListItem listItem =
-						(ListItem) jList.getSelectedValue();
-					final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-					listItem.populateMenu(e, jPopupMenu);
-					jPopupMenu.show(jList, e.getX(), e.getY());
-				}
-			}
-		});
-		jList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(final ListSelectionEvent e) {
-				if(!e.getValueIsAdjusting()) {
-					final Integer selectedIndex = jList.getSelectedIndex();
-					if(-1 != selectedIndex) {
-						final ListItem item = (ListItem) jList.getSelectedValue();
-						item.fireSelection();
-                        canImportListItem = item.canImport();
-					}
-				}
-			}
-		});
+        jList.setLayoutOrientation(JList.VERTICAL);
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jList.setTransferHandler(new UpdateDocumentTxHandler(getController(), jList));
+        jList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(final MouseEvent e) {
+                if(2 == e.getClickCount()) {
+                    final Point p = e.getPoint();
+                    final Integer listIndex = jList.locationToIndex(p);
+                    jList.setSelectedIndex(listIndex);
+                    mainDocumentModel.triggerDoubleClick((MainCell) jList.getSelectedValue());
+                }
+                else if(1 == e.getClickCount()) {
+                    // first; we grab the index of the list item of the event
+                    // second; we grab the bounds of the list item's icon
+                    // third; we check to see that the icon was clicked and if it was
+                    //      we display the popup menu
+                    final Point p = e.getPoint();
+                    final Integer listIndex = jList.locationToIndex(p);
+                    if(listIndex == jList.getSelectedIndex()) {
+                        final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
+                        cellBounds.x += CELL_NODE_LOCATION.x;
+                        cellBounds.y += CELL_NODE_LOCATION.y;
+                        cellBounds.width = CELL_NODE_SIZE.width;
+                        cellBounds.height = CELL_NODE_SIZE.height;
+                        if(SwingUtil.regionContains(cellBounds, p)) {
+                            mainDocumentModel.triggerExpand((MainCell) jList.getSelectedValue());
+                        }
+                    }
+                }
+            }
+            public void mouseReleased(final MouseEvent e) {
+                if(e.isPopupTrigger()) {
+                    final Point p = e.getPoint();
+                    final Integer listIndex = jList.locationToIndex(p);
+                    jList.setSelectedIndex(listIndex);
+                    mainDocumentModel.triggerPopup((MainCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
+                }
+            }
+        });
+        jList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(final ListSelectionEvent e) {
+                if(!e.getValueIsAdjusting()) {
+                    mainDocumentModel.triggerSelection((MainCell) jList.getSelectedValue());
+                }
+            }
+        });
         try {
             jList.getDropTarget().addDropTargetListener(new DropTargetAdapter() {
-                public void drop(final DropTargetDropEvent dtde) {}
                 public void dragOver(final DropTargetDragEvent dtde) {
-                    if(!canImportListItem) { dtde.rejectDrag(); }
+                    mainDocumentModel.triggerDragOver((MainCell) jList.getSelectedValue(), dtde);
                 }
+                public void drop(final DropTargetDropEvent dtde) {}
             });
         }
         catch(final TooManyListenersException tmlx) {
             logger.error(ERROR_INIT_TMLX, tmlx);
+            throw new RuntimeException(tmlx);
         }
 
-		final JScrollPane jListScrollPane = new JScrollPane(jList);
+        final JScrollPane jListScrollPane = new JScrollPane(jList);
         jListScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
+        
         final GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
-		c.insets.left = c.insets.right = 2;
-		c.insets.top = c.insets.bottom = 1;
-		c.weightx = 1;
-		c.weighty = 1;
-		add(jListScrollPane, c.clone());
-	}
+        c.insets.left = c.insets.right = 2;
+        c.insets.top = c.insets.bottom = 1;
+        c.weightx = 1;
+        c.weighty = 1;
+        add(jListScrollPane, c.clone());
+    }
 
-	/**
-	 * Open the document.
-	 *
-	 */
-	private void runOpenDocumentAction(final Long documentId) {
-		getController().runOpenDocument(documentId);
-	}
-
-	private void selectDocument(final DisplayDocument displayDocument) {
-        jList.setSelectedValue(ListItem.create(displayDocument), true);
+    /**
+     * Select a document cell.
+     * 
+     * @param mcd
+     *            The document cell.
+     */
+    private void selectDocument(final MainCellDocument mcd) {
+        jList.setSelectedValue(mcd, true);
     }
 }

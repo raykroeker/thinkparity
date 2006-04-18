@@ -5,6 +5,7 @@ package com.thinkparity.browser.platform.application;
 
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.Saveable;
+import org.apache.log4j.Logger;
 
 /**
  * @author raykroeker@gmail.com
@@ -34,7 +35,15 @@ public interface Application extends Saveable {
 	 */
 	public ApplicationId getId();
 
-	/**
+        /**
+         * Obtain a logger for the class from the applilcation.
+         *
+         * @param clasz The class for which to obtain the logger.
+         * @return An apache logger.
+         */
+        public Logger getLogger(final Class clasz);
+
+        /**
 	 * Determine the application's current status.
 	 * 
 	 * @return The application's current status.

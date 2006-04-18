@@ -6,8 +6,10 @@ package com.thinkparity.browser.application.browser.display.provider.main;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
-import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
@@ -18,11 +20,14 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.sort.RemoteUpdatedOnComparator;
 import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -40,20 +45,24 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 
 	private final SingleContentProvider systemMessageProvider;
 
+    private final FlatContentProvider historyProvider;
+
 	private final FlatContentProvider systemMessagesProvider;
 
 	/**
-	 * Create a MainProvider.
-	 * 
-	 * @param artifactModel
-	 *            The parity artifact interface.
-	 * @param documentModel
-	 *            The parity document interface.
-	 * @param systemMessageModel
-	 *            The parity system message interface.
-	 */
+     * Create a MainProvider.
+     * 
+     * @param aModel
+     *            The parity artifact interface.
+     * @param dModel
+     *            The parity document interface.
+     * @param sModel
+     *            The parity session interface.
+     * @param systemMessageModel
+     *            The parity system message interface.
+     */
 	public MainProvider(final ArtifactModel artifactModel,
-            final DocumentModel dModel,
+            final DocumentModel dModel, final SessionModel sModel,
             final SystemMessageModel systemMessageModel) {
 		super();
 		this.documentProvider = new SingleContentProvider() {
@@ -82,7 +91,14 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			}
 
 		};
-		this.systemMessageProvider = new SingleContentProvider() {
+		this.historyProvider = new FlatContentProvider() {
+            public Object[] getElements(final Object input) {
+                final MainCellDocument mcd = (MainCellDocument) input;
+                try { return toDisplay(sModel, mcd, dModel.readHistory(mcd.getId())); }
+                catch(final ParityException px) { throw new RuntimeException(px); }
+            }
+        };
+        this.systemMessageProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
 				final Long systemMessageId = assertNotNullLong(
 						"The main provider's system message provider " +
@@ -113,7 +129,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.flatProviders = new FlatContentProvider[] {documentsProvider, systemMessagesProvider};
+		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider};
 		this.singleProviders = new SingleContentProvider[] {documentProvider, systemMessageProvider};
 	}
 
@@ -150,38 +166,69 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 	}
 
 	/**
-	 * Convert a list of documents and the system messages for that document
-	 * into a display document.
-	 * 
-	 * @param documents
-	 *            The documents.
-	 * @param systemMessageModel
-	 *            The parity system message interface.
-	 * @return The display documents.
-	 */
-	private DisplayDocument[] toDisplay(final Collection<Document> documents,
-			final ArtifactModel artifactModel) throws ParityException {
-		final List<DisplayDocument> display = new LinkedList<DisplayDocument>();
+     * Obtain a displayable version of a list of documents.
+     * 
+     * @param documents
+     *            The documents.
+     * @param aModel
+     *            The parity artifact interface.
+     * @return The displayable documents.
+     */
+	private MainCellDocument[] toDisplay(final Collection<Document> documents,
+            final ArtifactModel aModel) throws ParityException {
+		final List<MainCellDocument> display = new LinkedList<MainCellDocument>();
 
-		DisplayDocument dd;
 		for(final Document d : documents) {
-			dd = new DisplayDocument(d);
-			dd.setKeyRequests(artifactModel.readKeyRequests(d.getId()));
-
-			display.add(dd);
+			display.add(toDisplay(d, aModel));
 		}
-		return display.toArray(new DisplayDocument[] {});
+		return display.toArray(new MainCellDocument[] {});
 	}
 
-	private DisplayDocument toDisplay(final Document document,
-			final ArtifactModel artifactModel) throws ParityException {
+    /**
+     * Obtain the displable version of the document.
+     * 
+     * @param document
+     *            The document.
+     * @param aModel
+     *            The parity artifact interface.
+     * @return The displayable version of the document.
+     * @throws ParityException
+     */
+	private MainCellDocument toDisplay(final Document document,
+            final ArtifactModel aModel) throws ParityException {
 		if(null == document) { return null; }
 		else {
-			final DisplayDocument dd = new DisplayDocument(document);
-			
-			dd.setKeyRequests(artifactModel.readKeyRequests(document.getId()));
-
-			return dd;
+			final MainCellDocument mcd = new MainCellDocument(document);
+            mcd.setKeyRequests(aModel.readKeyRequests(document.getId()));
+			return mcd;
 		}
 	}
+
+    /**
+     * Convert a document and its history into a list of displayable history
+     * items.
+     * 
+     * @param sModel
+     *            The session model.
+     * @param document
+     *            A document.
+     * @param history
+     *            A document's history.
+     * @return A displayable history.
+     */
+	private MainCellHistoryItem[] toDisplay(final SessionModel sModel,
+            final MainCellDocument document,
+            final Collection<HistoryItem> history) {
+	    final List<MainCellHistoryItem> display = new LinkedList<MainCellHistoryItem>();
+        final Integer count = history.size();
+        Integer index = 0;
+        Set<User> dTeam;
+        for(final HistoryItem hi : history) {
+            try { dTeam = sModel.readArtifactTeam(document.getId()); }
+            catch(final ParityException px) { throw new RuntimeException(px); }
+            display.add(new MainCellHistoryItem(
+                    document, hi, dTeam, count, index++));
+        }
+        return display.toArray(new MainCellHistoryItem[] {});
+    }
 }

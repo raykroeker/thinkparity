@@ -11,9 +11,11 @@ import java.awt.Font;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public interface BrowserConstants {
+public final class BrowserConstants {
 
-    public static final String FONT_NAME = "Verdana";
+    public static final Float PHI = 1.618033988F;
+
+    private static final String FONT_NAME = "Tahoma";
 
 	public static final Font DefaultFont = new Font(FONT_NAME, Font.PLAIN, 11);
 
@@ -45,4 +47,12 @@ public interface BrowserConstants {
     /** The default dialogue background colour.  A light blue. */
     public static final Color DIALOGUE_BACKGROUND =
         new Color(237, 241, 244, 255);
+
+    public static final class Colours {
+        /** COLOR The colour of the separator for the cells in the main list. */
+        public static final Color MAIN_CELL_DEFAULT_BORDER1 = Color.WHITE;
+
+        /** COLOR The colour of the border for the cells in the main list. */
+        public static final Color MAIN_CELL_DEFAULT_BORDER2 = new Color(107, 111, 115, 255);
+    }
 }

@@ -17,8 +17,8 @@ import javax.swing.TransferHandler;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
-import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.javax.swing.dnd.TxUtils;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
@@ -109,20 +109,20 @@ public class UpdateDocumentTxHandler extends TransferHandler {
             return false;
         }
 
-        final ListItem li = (ListItem) jList.getSelectedValue();
-        if(li instanceof DocumentListItem) {
-            final DocumentListItem dli = (DocumentListItem) li;
+        final MainCell mc = (MainCell) jList.getSelectedValue();
+        if(mc instanceof MainCellDocument) {
+            final MainCellDocument mcd = (MainCellDocument) mc;
             try {
-                if(!dModel.isWorkingVersionEqual(dli.getDocumentId())) {
+                if(!dModel.isWorkingVersionEqual(mcd.getId())) {
                     if(application.confirm("ConfirmOverwriteWorking")) {
-                        dModel.updateWorkingVersion(dli.getDocumentId(), (File) data.iterator().next());
-                        application.fireDocumentUpdated(dli.getDocumentId());
+                        dModel.updateWorkingVersion(mcd.getId(), (File) data.iterator().next());
+                        application.fireDocumentUpdated(mcd.getId());
                         return true;
                     }
                 }
                 else {
-                    dModel.updateWorkingVersion(dli.getDocumentId(), (File) data.iterator().next());
-                    application.fireDocumentUpdated(dli.getDocumentId());
+                    dModel.updateWorkingVersion(mcd.getId(), (File) data.iterator().next());
+                    application.fireDocumentUpdated(mcd.getId());
                     return true;
                 }
             }

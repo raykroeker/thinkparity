@@ -77,6 +77,14 @@ public class SysApp extends AbstractApplication {
 	public ApplicationId getId() { return ApplicationId.SYS_APP; }
 
 	/**
+     * @see com.thinkparity.browser.platform.application.Application#getLogger(java.lang.Class)
+     * 
+     */
+    public Logger getLogger(final Class clasz) {
+        return getPlatform().getLogger(clasz);
+    }
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -178,7 +186,7 @@ public class SysApp extends AbstractApplication {
 		impl.notifyReceived(systemMessage);
 	}
 
-	/**
+    /**
 	 * Handle the system tray event.
 	 * 
 	 */

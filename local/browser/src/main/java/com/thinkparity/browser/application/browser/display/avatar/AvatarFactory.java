@@ -6,7 +6,6 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
 import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
 import com.thinkparity.browser.application.browser.display.avatar.contact.SearchPartner;
-import com.thinkparity.browser.application.browser.display.avatar.history.HistoryItems;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
@@ -115,17 +114,6 @@ public class AvatarFactory {
     }
 
 	/**
-	 * Create the document history list avatar.
-	 * 
-	 * @return The document history list avatar.
-	 */
-	private Avatar createDocumentHistory3List() {
-	    final Avatar a = new HistoryItems();
-	    a.setContentProvider(ProviderFactory.getHistoryProvider());
-	    return a;
-	}
-
-	/**
 	 * Create the platform login avatar.
 	 * 
 	 * @return The platform login avatar.
@@ -213,9 +201,6 @@ public class AvatarFactory {
         case CONFIRM_DIALOGUE:
             avatar = createConfirmDialogue();
             break;
-		case DOCUMENT_HISTORY3:
-			avatar = createDocumentHistory3List();
-			break;
 		case PLATFORM_LOGIN:
 			avatar = createPlatformLogin();
 			break;

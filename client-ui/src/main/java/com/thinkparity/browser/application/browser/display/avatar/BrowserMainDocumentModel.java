@@ -3,22 +3,24 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.awt.Component;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.event.MouseEvent;
+import java.util.*;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JPopupMenu;
 import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.display.avatar.main.DisplayDocument;
-import com.thinkparity.browser.application.browser.display.avatar.main.DocumentListItem;
-import com.thinkparity.browser.application.browser.display.avatar.main.ListItem;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -84,7 +86,10 @@ public class BrowserMainDocumentModel {
      * The set of all documents.
      * 
      */
-    private final List<DisplayDocument> documents;
+    private final List<MainCellDocument> documents;
+
+    /** A given document's history when it's expanded. */
+    private final List<MainCellHistoryItem> history;
 
     /**
      * The swing list model.
@@ -98,13 +103,13 @@ public class BrowserMainDocumentModel {
      * @see #syncDocument(Long, Boolean)
      * @see #syncDocuments()
      */
-    private final List<DisplayDocument> touchedDocuments;
+    private final List<MainCellDocument> touchedDocuments;
 
     /**
      * The set of all visible documents.
      * 
      */
-    private final List<DisplayDocument> visibleDocuments; 
+    private final List<MainCellDocument> visibleDocuments;
 
     /**
      * Create a BrowserMainDocumentModel.
@@ -114,11 +119,26 @@ public class BrowserMainDocumentModel {
         super();
         this.browser = browser;
         this.documentFilter = new FilterChain<Artifact>();
-        this.documents = new LinkedList<DisplayDocument>();
+        this.documents = new LinkedList<MainCellDocument>();
+        this.history = new LinkedList<MainCellHistoryItem>();
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
-        this.touchedDocuments = new LinkedList<DisplayDocument>();
-        this.visibleDocuments = new LinkedList<DisplayDocument>();
+        this.touchedDocuments = new LinkedList<MainCellDocument>();
+        this.visibleDocuments = new LinkedList<MainCellDocument>();
+    }
+
+    /**
+     * Determine whether or not the main cell is expanded.
+     * 
+     * @param mainCell
+     *            The cell.
+     * @return True if the cell is expanded; false otherwise.
+     */
+    public Boolean isExpanded(final MainCell mainCell) {
+        if(mainCell instanceof MainCellDocument) {
+            return ((MainCellDocument) mainCell).isExpanded();
+        }
+        else { return Boolean.FALSE; }
     }
 
     /**
@@ -198,16 +218,23 @@ public class BrowserMainDocumentModel {
      */
     void debug() {
         if(browser.getPlatform().isDebugMode()) {
+            // documents
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + documents.size() + " DOCUMENTS]");
-            for(final DisplayDocument dd : documents)
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dd.getDisplay() + "]");
+            for(final MainCellDocument mcd : documents)
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + mcd.getText() + "]");
+            // visible documents
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleDocuments.size() + " VISIBLE DOCUMENTS]");
-            for(final DisplayDocument dd : visibleDocuments)
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dd.getDisplay() + "]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + jListModel.size() + " LIST MODEL DOCUMENTS]");
+            for(final MainCellDocument mcd : visibleDocuments)
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + mcd.getText() + "]");
+            // history items
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + history.size() + " HISTORY ITEMS]");
+            for(final MainCellHistoryItem mchi : history) {
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + mchi.getText() + "]");
+            }
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + jListModel.size() + " LIST CELLS]");
             final Enumeration e = jListModel.elements();
             while(e.hasMoreElements())
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + ((ListItem) e.nextElement()).getName() + "]");
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + ((MainCell) e.nextElement()).getText() + "]");
             documentFilter.debug(logger);
         }
     }
@@ -248,7 +275,7 @@ public class BrowserMainDocumentModel {
      *            The display document.
      * @return True if the document is visible; false otherwise.
      */
-    Boolean isDocumentVisible(final DisplayDocument displayDocument) {
+    Boolean isDocumentVisible(final MainCellDocument displayDocument) {
         return visibleDocuments.contains(displayDocument);
     }
 
@@ -336,6 +363,73 @@ public class BrowserMainDocumentModel {
     }
 
     /**
+     * Trigger a double click event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    void triggerDoubleClick(final MainCell mainCell) {
+        debug();
+    }
+
+    /**
+     * Trigger a drag event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     * @param dtde
+     *            The drop target drag event.
+     */
+    void triggerDragOver(final MainCell mainCell, final DropTargetDragEvent dtde) {}
+
+    /**
+     * Trigger the expansion of the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    void triggerExpand(final MainCell mainCell) {
+        if(mainCell instanceof MainCellDocument) {
+            final MainCellDocument mcd =
+                (MainCellDocument) mainCell;
+            if(isExpanded(mcd)) { collapse(mcd); }
+            else { expand(mcd); }
+
+            syncDocuments();
+        }
+    }
+
+    /**
+     * Trigger a popup event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    void triggerPopup(final MainCell mainCell, final Component invoker, final MouseEvent e,
+            final int x, final int y) {
+        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+        if(mainCell instanceof MainCellDocument) {
+            new PopupDocument((MainCellDocument) mainCell).trigger(browser, jPopupMenu, e);
+        }
+        else if(mainCell instanceof MainCellHistoryItem) {
+            new PopupHistoryItem((MainCellHistoryItem) mainCell).trigger(browser, jPopupMenu, e);
+        }
+        jPopupMenu.show(invoker, x, y);
+    }
+
+    /**
+     * Trigger a selection event for the cell.
+     * 
+     * @param mainCell
+     *            The main cell.
+     */
+    void triggerSelection(final MainCell mainCell) {
+        if(mainCell instanceof MainCellDocument) {
+            browser.selectDocument(((MainCellDocument) mainCell).getId());
+        }
+    }
+
+    /**
      * Apply the specified filter.
      * 
      * @param filter
@@ -345,6 +439,34 @@ public class BrowserMainDocumentModel {
         if(!documentFilter.containsFilter(filter)) {
             documentFilter.addFilter(filter);
         }
+    }
+
+    /**
+     * Collapse the history.
+     * 
+     * @param mcd
+     *            The main cell document.
+     */
+    private void collapse(final MainCellDocument mcd) {
+        mcd.setExpanded(Boolean.FALSE);
+        MainCellHistoryItem mchi;
+        for(final Iterator<MainCellHistoryItem> i = history.iterator(); i.hasNext();) {
+            mchi = i.next();
+            if(mchi.getDocument().equals(mcd)) { i.remove(); }
+        }
+    }
+
+    /**
+     * Expand the history for the document.
+     * 
+     * @param mcd
+     *            The main cell document.
+     */
+    private void expand(final MainCellDocument mcd) {
+        mcd.setExpanded(Boolean.TRUE);
+        final MainCellHistoryItem[] mchiArray =
+            (MainCellHistoryItem[]) contentProvider.getElements(1, mcd);
+        for(final MainCellHistoryItem mchi : mchiArray) { history.add(mchi); }
     }
 
     /**
@@ -358,8 +480,9 @@ public class BrowserMainDocumentModel {
     private void initModel() {
         // read the documents from the provider into the list
         documents.clear();
-        final DisplayDocument[] ddArray = (DisplayDocument[]) contentProvider.getElements(0, null);
-        for(final DisplayDocument dd : ddArray) { documents.add(dd); }
+        final MainCellDocument[] mcdArray = (MainCellDocument[]) contentProvider.getElements(0, null);
+        for(final MainCellDocument mcd : mcdArray) { documents.add(mcd);
+        }
         syncDocuments();
     }
 
@@ -392,8 +515,8 @@ public class BrowserMainDocumentModel {
      */
     private void syncDocumentInternal(final Long documentId,
             final Boolean remote) {
-        final DisplayDocument displayDocument =
-            (DisplayDocument) contentProvider.getElement(0, documentId);
+        final MainCellDocument displayDocument =
+            (MainCellDocument) contentProvider.getElement(0, documentId);
         // if the display document is null; we can assume the document has been
         // deleted (it's not longer being created by the provider); so we find
         // the document and remove it
@@ -439,41 +562,43 @@ public class BrowserMainDocumentModel {
         visibleDocuments.addAll(documents);
         ModelFilterManager.filter(visibleDocuments, documentFilter);
         // sync visible documents with the swing list's model
-        ListItem li;
+        MainCell mc;
         for(int i = 0; i < visibleDocuments.size(); i++) {
-            li = ListItem.create(visibleDocuments.get(i));
-            if(!jListModel.contains(li)) {
-                jListModel.add(i, li);
+            mc = (MainCell) visibleDocuments.get(i);
+            if(!jListModel.contains(mc)) { jListModel.add(i, mc); }
+        }
+        final MainCell[] cells = new MainCell[jListModel.size()];
+        jListModel.copyInto(cells);
+        int visibleIndex;
+        for(int i = 0; i < cells.length; i++) {
+            mc = cells[i];
+            // remove documents that are no longer visible
+            if(!visibleDocuments.contains(mc))
+                jListModel.removeElement(mc);
+            // re-create the list item of those that have been touched
+            if(touchedDocuments.contains(mc)) {
+                visibleIndex = visibleDocuments.indexOf(mc);
+                jListModel.remove(i);
+                jListModel.add(visibleIndex, visibleDocuments.get(visibleIndex));
             }
         }
-        final ListItem[] modelItems = new ListItem[jListModel.size()];
-        jListModel.copyInto(modelItems);
-        DocumentListItem dli;
-        int visibleIndex;
-        for(int i = 0; i < modelItems.length; i++) {
-            li = modelItems[i];
-            if(li instanceof DocumentListItem) {
-                dli = (DocumentListItem) li;
-                // remove documents that are no longer visible
-                if(!visibleDocuments.contains(dli.getDisplayDocument()))
-                    jListModel.removeElement(li);
-
-                // re-create the list item of those that have been touched
-                if(touchedDocuments.contains(dli.getDisplayDocument())) {
-                    visibleIndex = visibleDocuments.indexOf(dli.getDisplayDocument());
-                    jListModel.remove(i);
-                    jListModel.add(visibleIndex, ListItem.create(visibleDocuments.get(visibleIndex)));
-                }
+        // insert the history
+        if(0 < history.size()) {
+            int index, prevIndex = 0;
+            int count = 0;
+            for(final MainCellHistoryItem mchi : history) {
+                index = jListModel.indexOf(mchi.getDocument());
+                if(index != prevIndex) { count = 0; }
+                jListModel.add(index + (++count), mchi);
+                prevIndex = index;
             }
         }
         touchedDocuments.clear();
-        if(1 > visibleDocuments.size()) {
-            browser.disableHistory();
-        }
-        else { browser.enableHistory(); }
 
         if(isDocumentListFiltered()) { browser.fireFilterApplied(); }
         else { browser.fireFilterRevoked(); }
+
+        debug();
     }
 
     /**

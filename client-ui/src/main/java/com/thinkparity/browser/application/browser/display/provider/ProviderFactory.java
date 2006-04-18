@@ -178,7 +178,7 @@ public class ProviderFactory {
 
 		this.historyProvider = new HistoryProvider(loggedInUser, dModel, sModel);
 		this.infoProvider = new InfoProvider(dModel, sModel);
-		this.mainProvider = new MainProvider(artifactModel, dModel, systemMessageModel);
+		this.mainProvider = new MainProvider(artifactModel, dModel, sModel, systemMessageModel);
 		this.manageContactsProvider = new ManageContactsProvider(sModel);
 		this.sendArtifactProvider = new SendArtifactProvider(dModel, sModel, loggedInUser);
 		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, loggedInUser);

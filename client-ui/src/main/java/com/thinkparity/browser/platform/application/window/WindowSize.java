@@ -39,8 +39,6 @@ class WindowSize {
 		sizeMap = new Hashtable<AvatarId, Object>(2, 1.0F);
         // DIMENSION Confirmation Dialogue 300x125
         sizeMap.put(AvatarId.CONFIRM_DIALOGUE, new Dimension(300, 125));
-		// DIMENSION History Window 130x484
-		sizeMap.put(AvatarId.DOCUMENT_HISTORY3, new Dimension(130, 512));
 		// DIMENSION Send Dialogue 405x308
 		sizeMap.put(AvatarId.SESSION_SEND_FORM, new Dimension(405, 265));
 		// DIMENSION Send Version Window 405x308

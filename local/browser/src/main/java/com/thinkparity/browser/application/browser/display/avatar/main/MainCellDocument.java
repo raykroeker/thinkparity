@@ -19,8 +19,9 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellI
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.Default;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.Expanded;
-import com.thinkparity.browser.model.util.ArtifactUtil;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
 
@@ -49,14 +50,23 @@ public class MainCellDocument extends Document implements MainCell {
         TEXT_MAX_LENGTH = 60;
     }
 
+    /** A flag indicating whether or not the document is closed. */
+    private Boolean closed = Boolean.FALSE;
+
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
     
     /** An image cache. */
     private final MainCellImageCache imageCache;
 
+    /** A flag indicating whether or not the user is the key holder. */
+    private Boolean keyHolder = Boolean.FALSE;
+
     /** The document's key requests. */
     private final List<KeyRequest> keyRequests;
+
+    /** A flag indicating whether or not the cell has been seen. */
+    private Boolean seen;
 
     /** A flag indicating whether or not the cell is urgent. */
     private Boolean urgent;
@@ -68,11 +78,15 @@ public class MainCellDocument extends Document implements MainCell {
         super(d.getCreatedBy(), d.getCreatedOn(), d.getDescription(),
                 d.getFlags(), d.getUniqueId(), d.getName(), d.getUpdatedBy(),
                 d.getUpdatedOn());
-        this.imageCache = new MainCellImageCache();
         setId(d.getId());
         setRemoteInfo(d.getRemoteInfo());
         setState(d.getState());
+
+        this.closed = getState() == ArtifactState.CLOSED;
+        this.imageCache = new MainCellImageCache();
+        this.keyHolder = contains(ArtifactFlag.KEY);
         this.keyRequests = new LinkedList<KeyRequest>();
+        this.seen = contains(ArtifactFlag.SEEN);
     }
     
     /**
@@ -172,7 +186,7 @@ public class MainCellDocument extends Document implements MainCell {
      * 
      */
     public Font getTextFont() {
-        if(hasBeenSeen()) { return BrowserConstants.DefaultFont; }
+        if(isSeen()) { return BrowserConstants.DefaultFont; }
         else { return BrowserConstants.DefaultFontBold; }
     }
 
@@ -205,18 +219,14 @@ public class MainCellDocument extends Document implements MainCell {
      * 
      * @return True if the document has been seen; false otherwise.
      */
-    public Boolean hasBeenSeen() {
-        return ArtifactUtil.hasBeenSeen(getId(), getType());
-    }
+    public Boolean isSeen() { return seen; }
 
     /**
      * Determine whether or not the document is closed.
      * 
      * @return True if the document is closed; false otherwise.
      */
-    public Boolean isClosed() {
-        return ArtifactUtil.isClosed(getId(), getType());
-    }
+    public Boolean isClosed() { return closed; }
 
     /**
      * Determine whether or not the cell is expanded.
@@ -230,7 +240,7 @@ public class MainCellDocument extends Document implements MainCell {
      * 
      * @return True if the user is the key holder.
      */
-    public Boolean isKeyHolder() { return ArtifactUtil.isKeyHolder(getId()); }
+    public Boolean isKeyHolder() { return keyHolder; }
 
     /**
      * Determine whether or not the document is urgent.

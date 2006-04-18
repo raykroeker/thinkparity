@@ -52,17 +52,16 @@ public class MenuItemFactory extends ComponentFactory {
 
     /**
      * Create a menu item.
-     * 
+     *
      * @param text
-     *            The menu item text.
+     *      The menu item text.
      * @param mnemonic
-     *            The menu item mnemonic.
+     *      The menu item mnemonic.
      * @param l
-     *            The menu item action listener.
+     *      The action listener.
      * @return The menu item.
      */
-    public static JMenuItem create(final String text, final Integer mnemonic,
-            final ActionListener l) {
+    public static JMenuItem create(final String text, final Integer mnemonic, final ActionListener l) {
         return SINGLETON.doCreate(text, mnemonic, l);
     }
 

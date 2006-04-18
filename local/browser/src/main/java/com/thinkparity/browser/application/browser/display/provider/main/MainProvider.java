@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.display.provider.main;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.sort.RemoteUpdatedOnComparator;
 import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -63,7 +65,8 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      */
 	public MainProvider(final ArtifactModel artifactModel,
             final DocumentModel dModel, final SessionModel sModel,
-            final SystemMessageModel systemMessageModel) {
+            final SystemMessageModel systemMessageModel,
+            final JabberId loggedInUserId) {
 		super();
 		this.documentProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
@@ -94,7 +97,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		this.historyProvider = new FlatContentProvider() {
             public Object[] getElements(final Object input) {
                 final MainCellDocument mcd = (MainCellDocument) input;
-                try { return toDisplay(sModel, mcd, dModel.readHistory(mcd.getId())); }
+                try { return toDisplay(sModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId())); }
                 catch(final ParityException px) { throw new RuntimeException(px); }
             }
         };
@@ -217,6 +220,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @return A displayable history.
      */
 	private MainCellHistoryItem[] toDisplay(final SessionModel sModel,
+            final JabberId loggedInUserId,
             final MainCellDocument document,
             final Collection<HistoryItem> history) {
 	    final List<MainCellHistoryItem> display = new LinkedList<MainCellHistoryItem>();
@@ -226,6 +230,9 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
         for(final HistoryItem hi : history) {
             try { dTeam = sModel.readArtifactTeam(document.getId()); }
             catch(final ParityException px) { throw new RuntimeException(px); }
+            for(final Iterator<User> i = dTeam.iterator(); i.hasNext();) {
+                if(i.next().getId().equals(loggedInUserId)) { i.remove(); }
+            }
             display.add(new MainCellHistoryItem(
                     document, hi, dTeam, count, index++));
         }

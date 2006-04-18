@@ -370,6 +370,7 @@ public class BrowserMainDocumentModel {
      */
     void triggerDoubleClick(final MainCell mainCell) {
         debug();
+        triggerExpand(mainCell);
     }
 
     /**
@@ -587,7 +588,11 @@ public class BrowserMainDocumentModel {
             int index, prevIndex = 0;
             int count = 0;
             for(final MainCellHistoryItem mchi : history) {
-                index = jListModel.indexOf(mchi.getDocument());
+                mc = mchi.getDocument();
+                // check to ensure the document passes the filter
+                if(!visibleDocuments.contains(mc)) { continue; }
+
+                index = jListModel.indexOf(mc);
                 if(index != prevIndex) { count = 0; }
                 jListModel.add(index + (++count), mchi);
                 prevIndex = index;

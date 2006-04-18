@@ -22,6 +22,11 @@ import javax.swing.border.Border;
  */
 public interface MainCell {
 
+    /**
+     * Determine whether or not the cell supports import.
+     *
+     * @return True if the cell supports import; false otherwise.
+     */
     public boolean canImport();
 
     /**

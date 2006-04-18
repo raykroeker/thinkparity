@@ -27,6 +27,11 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class PopupDocument implements Popup {
 
+    static {
+        // HACK
+        com.thinkparity.browser.application.browser.component.MenuItemFactory.create("", 0);
+    }
+
     /** The document main cell. */
     private final MainCellDocument document;
 

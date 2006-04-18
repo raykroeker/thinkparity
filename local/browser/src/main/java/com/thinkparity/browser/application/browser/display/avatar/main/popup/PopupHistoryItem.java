@@ -48,9 +48,8 @@ public class PopupHistoryItem implements Popup {
                 final Set<User> team = historyItem.getDocumentTeam();
                 if(0 < team.size()) {
                     final JMenu jMenu = MenuFactory.create(getString("SendVersion"));
-                    for(final User teamMember : team) {
+                    for(final User teamMember : team)
                         jMenu.add(new Send(application, teamMember));
-                    }
                     jPopupMenu.add(jMenu);
                 }
             }

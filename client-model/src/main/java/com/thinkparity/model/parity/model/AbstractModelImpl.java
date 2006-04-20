@@ -31,6 +31,8 @@ import com.thinkparity.model.parity.model.message.system.InternalSystemMessageMo
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.user.InternalUserModel;
+import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.util.l10n.ModelL18n;
@@ -308,36 +310,65 @@ public abstract class AbstractModelImpl {
 	protected Context getContext() { return context; }
 
 	/**
-	 * Obtain a handle to the project model.
+	 * Obtain a the parity document interface.
 	 * 
-	 * @return A handle to the project model.
+	 * @return The parity document interface.
 	 */
 	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
 
+    /**
+     * Obtain the internal parity artifact interface.
+     * 
+     * @return The internal parity artifact interface.
+     */
 	protected InternalArtifactModel getInternalArtifactModel() {
 		return ArtifactModel.getInternalModel(context);
 	}
 
-	protected InternalAuditModel getInternalAuditModel() {
+    /**
+     * Obtain the internal parity audit interface.
+     * 
+     * @return The internal parity audit interface.
+     */
+    protected InternalAuditModel getInternalAuditModel() {
 		return AuditModel.getInternalModel(context);
 	}
 
+    /**
+     * Obtain the internal parity document interface.
+     * 
+     * @return The internal parity document interface.
+     */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(context);
 	}
 
 	/**
-	 * Obtain an internal session model.
-	 * 
-	 * @return The internal session model.
-	 */
+     * Obtain the internal parity session interface.
+     * 
+     * @return The internal parity session interface.
+     */
 	protected InternalSessionModel getInternalSessionModel() {
 		return SessionModel.getInternalModel(getContext());
 	}
 
+    /**
+     * Obtain the internal parity system message interface.
+     * 
+     * @return The internal parity system message interface.
+     */
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
 		return SystemMessageModel.getInternalModel(context);
 	}
+
+    /**
+     * Obtain the internal parity user interface.
+     * 
+     * @return The internal parity user interface.
+     */
+    protected InternalUserModel getInternalUserModel() {
+        return UserModel.getInternalModel(context);
+    }
 
 	/**
 	 * Obtain the model's localization.

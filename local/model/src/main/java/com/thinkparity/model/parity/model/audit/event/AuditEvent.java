@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.audit.event;
 import java.util.Calendar;
 
 import com.thinkparity.model.parity.model.audit.AuditEventType;
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -14,9 +14,9 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public abstract class AuditEvent {
 
-	protected Long artifactId;
+    protected Long artifactId;
 
-	protected JabberId createdBy;
+	protected User createdBy;
 
 	protected Calendar createdOn;
 
@@ -38,9 +38,7 @@ public abstract class AuditEvent {
 	/**
 	 * @return Returns the createdBy.
 	 */
-	public JabberId getCreatedBy() {
-		return createdBy;
-	}
+	public User getCreatedBy() { return createdBy; }
 
 	/**
 	 * @return Returns the createdOn.
@@ -73,7 +71,7 @@ public abstract class AuditEvent {
 	/**
 	 * @param createdBy The createdBy to set.
 	 */
-	public void setCreatedBy(final JabberId createdBy) {
+	public void setCreatedBy(final User createdBy) {
 		this.createdBy = createdBy;
 	}
 
@@ -84,14 +82,14 @@ public abstract class AuditEvent {
 		this.createdOn = createdOn;
 	}
 
-	/**
+    /**
 	 * @param id The id to set.
 	 */
 	public void setId(Long auditEventId) {
 		this.id = auditEventId;
 	}
 
-	/**
+    /**
 	 * @param type The type to set.
 	 */
 	public void setType(AuditEventType type) {

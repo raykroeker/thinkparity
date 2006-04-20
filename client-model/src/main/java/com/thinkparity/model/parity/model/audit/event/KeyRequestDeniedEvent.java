@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 
 /**
@@ -12,7 +12,7 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class KeyRequestDeniedEvent extends AuditEvent {
 
-	private JabberId deniedBy;
+	private User deniedBy;
 
 	/**
 	 * Create a KeyRequestDeniedEvent.
@@ -23,15 +23,14 @@ public class KeyRequestDeniedEvent extends AuditEvent {
 	/**
 	 * @return Returns the deniedBy.
 	 */
-	public JabberId getDeniedBy() {
+	public User getDeniedBy() {
 		return deniedBy;
 	}
 
 	/**
 	 * @param deniedBy The deniedBy to set.
 	 */
-	public void setDeniedBy(JabberId deniedBy) {
+	public void setDeniedBy(final User deniedBy) {
 		this.deniedBy = deniedBy;
 	}
-
 }

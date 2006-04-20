@@ -71,8 +71,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppArtifactListener = new XMPPArtifactListener() {
-			public void confirmReceipt(final UUID uniqueId, final JabberId receivedBy) {
-                handleConfirmationReceipt(uniqueId, receivedBy);
+			public void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom) {
+                handleConfirmationReceipt(uniqueId, receivedFrom);
             }
 			public void teamMemberAdded(final UUID artifactUniqueId,
 					final Contact teamMember) {
@@ -403,8 +403,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      * @param receivedBy
      *            By whom the document was received.
      */
-    private void handleConfirmationReceipt(final UUID uniqueId, final JabberId receivedBy) {
-        try { SessionModelImpl.notifyConfirmationReceipt(uniqueId, receivedBy); }
+    private void handleConfirmationReceipt(final UUID uniqueId, final JabberId receivedFrom) {
+        try { SessionModelImpl.notifyConfirmationReceipt(uniqueId, receivedFrom); }
         catch(final ParityException px) { unexpectedOccured(px); }
         catch(final SmackException sx) { unexpectedOccured(sx); }
         catch(final RuntimeException rx) { unexpectedOccured(rx); }

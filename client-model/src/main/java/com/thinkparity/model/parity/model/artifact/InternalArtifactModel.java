@@ -46,10 +46,10 @@ public class InternalArtifactModel extends ArtifactModel {
      */
     public void auditConfirmationReceipt(final Long artifactId,
             final JabberId createdBy, final Calendar createdOn,
-            final JabberId receivedBy) {
+            final JabberId receivedFrom) throws ParityException {
         synchronized(getImplLock()) {
             getImpl().auditConfirmationReceipt(
-                    artifactId, createdBy, createdOn, receivedBy);
+                    artifactId, createdBy, createdOn, receivedFrom);
         }
     }
 
@@ -67,9 +67,10 @@ public class InternalArtifactModel extends ArtifactModel {
 	 */
 	public void auditKeyRequestDenied(final Long artifactId,
 			final JabberId createdBy, final Calendar createdOn,
-			final JabberId deniedBy) {
+			final JabberId deniedBy) throws ParityException {
 		synchronized(getImplLock()) {
-			getImpl().auditKeyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
+			getImpl().auditKeyRequestDenied(artifactId, createdBy, createdOn,
+                    deniedBy);
 		}
 	}
 

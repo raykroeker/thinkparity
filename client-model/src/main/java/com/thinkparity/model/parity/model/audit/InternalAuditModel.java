@@ -5,9 +5,11 @@ package com.thinkparity.model.parity.model.audit;
 
 import java.util.Collection;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -28,48 +30,63 @@ public class InternalAuditModel extends AuditModel {
 		context.assertContextIsValid();
 	}
 
-	public void audit(final ArchiveEvent archiveEvent) {
-		synchronized(getImplLock()) { getImpl().audit(archiveEvent); }
+	public void audit(final ArchiveEvent event, final JabberId createdBy)
+            throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
 	}
 
-	public void audit(final CloseEvent closeEvent) {
-		synchronized(getImplLock()) { getImpl().audit(closeEvent); }
+	public void audit(final CloseEvent event, final JabberId createdBy,
+            final JabberId closedBy) throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, closedBy); }
 	}
 
-    public void audit(final ConfirmationReceipt confirmationReceipt) {
-        synchronized(getImplLock()) { getImpl().audit(confirmationReceipt); }
+    public void audit(final ConfirmationReceipt event,
+            final JabberId createdBy, final JabberId receivedFrom)
+            throws ParityException {
+        synchronized(getImplLock()) { getImpl().audit(event, createdBy, receivedFrom); }
     }
 
-	public void audit(final CreateEvent createEvent) {
-		synchronized(getImplLock()) { getImpl().audit(createEvent); }
+	public void audit(final CreateEvent event, final JabberId createdBy)
+            throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
 	}
 
-	public void audit(final KeyRequestDeniedEvent event) {
-		synchronized(getImplLock()) { getImpl().audit(event); }
+	public void audit(final KeyRequestDeniedEvent event,
+            final JabberId createdBy, final JabberId deniedBy)
+            throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, deniedBy); }
 	}
 
-	public void audit(final KeyResponseDeniedEvent event) {
-		synchronized(getImplLock()) { getImpl().audit(event); }
+	public void audit(final KeyResponseDeniedEvent event,
+            final JabberId createdBy, final JabberId requestedBy)
+            throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, requestedBy); }
 	}
 
-	public void audit(final ReceiveEvent receiveEvent) {
-		synchronized(getImplLock()) { getImpl().audit(receiveEvent); }
+	public void audit(final ReceiveEvent event, final JabberId createdBy,
+            final JabberId receivedFrom) throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, receivedFrom); }
 	}
 
-	public void audit(final ReceiveKeyEvent receiveKeyEvent) {
-		synchronized(getImplLock()) { getImpl().audit(receiveKeyEvent); }
+	public void audit(final ReceiveKeyEvent event, final JabberId createdBy,
+            final JabberId receivedFrom) throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, receivedFrom); }
 	}
 
-	public void audit(final RequestKeyEvent requestKeyEvent) {
-		synchronized(getImplLock()) { getImpl().audit(requestKeyEvent); }
+	public void audit(final RequestKeyEvent event, final JabberId createdBy,
+            final JabberId requestedBy, final JabberId requestedFrom)
+            throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, requestedBy, requestedFrom); }
 	}
 
-	public void audit(final SendEvent sendEvent) {
-		synchronized(getImplLock()) { getImpl().audit(sendEvent); }
+	public void audit(final SendEvent event, final JabberId createdBy,
+            final JabberId sentTo) throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, sentTo); }
 	}
 
-	public void audit(final SendKeyEvent sendKeyEvent) {
-		synchronized(getImplLock()) { getImpl().audit(sendKeyEvent); }
+	public void audit(final SendKeyEvent event, final JabberId createdBy,
+            final JabberId sentTo) throws ParityException {
+		synchronized(getImplLock()) { getImpl().audit(event, createdBy, sentTo); }
 	}
 
 	public void delete(final Long artifactId) {

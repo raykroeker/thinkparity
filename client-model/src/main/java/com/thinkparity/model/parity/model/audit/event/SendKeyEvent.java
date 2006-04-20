@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 
 /**
@@ -14,7 +14,7 @@ public class SendKeyEvent extends AuditEvent {
 
 	private Long artifactVersionId;
 
-	private JabberId sentTo;
+	private User sentTo;
 
 	/**
 	 * Create a SendKeyEvent.
@@ -33,9 +33,7 @@ public class SendKeyEvent extends AuditEvent {
 	/**
 	 * @return Returns the sentTo.
 	 */
-	public JabberId getSentTo() {
-		return sentTo;
-	}
+	public User getSentTo() { return sentTo; }
 
 	/**
 	 * @param artifactVersionId The artifactVersionId to set.
@@ -47,7 +45,5 @@ public class SendKeyEvent extends AuditEvent {
 	/**
 	 * @param sentTo The sentTo to set.
 	 */
-	public void setSentTo(final JabberId sentTo) {
-		this.sentTo = sentTo;
-	}
+	public void setSentTo(final User sentTo) { this.sentTo = sentTo; }
 }

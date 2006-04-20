@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.session;
 import java.util.Calendar;
 import java.util.Collection;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
@@ -34,16 +35,13 @@ public class SessionModelAuditor extends AbstractAuditor {
 
 	void requestKey(final Long artifactId, final JabberId createdBy,
 			final Calendar createdOn, final JabberId requestedBy,
-			final JabberId requestedFrom) {
+			final JabberId requestedFrom) throws ParityException {
 		final RequestKeyEvent event = new RequestKeyEvent();
 		event.setArtifactId(artifactId);
-		event.setCreatedBy(createdBy);
-		event.setCreatedOn(createdOn);
-		event.setRequestedBy(requestedBy);
-		event.setRequestedFrom(requestedFrom);
+				event.setCreatedOn(createdOn);
 		event.setType(AuditEventType.REQUEST_KEY);
 
-		getInternalAuditModel().audit(event);
+		getInternalAuditModel().audit(event, createdBy, requestedBy, requestedFrom);
 	}
 
 	/**
@@ -60,18 +58,20 @@ public class SessionModelAuditor extends AbstractAuditor {
 	 * @param users
 	 *            The sent to list.
 	 */
-	void send(final Long artifactId, final Long artifactVersionId,
-			final JabberId sentBy, final Calendar sentOn,
-			final Collection<User> sentTo) {
+	void send(final Long artifactId, final Calendar createdOn,
+            final JabberId createdBy, final Long artifactVersionId,
+            final JabberId sentBy, final Calendar sentOn,
+            final Collection<User> sentTo) throws ParityException {
 		final SendEvent sendEvent = new SendEvent();
 		sendEvent.setArtifactId(artifactId);
 		sendEvent.setArtifactVersionId(artifactVersionId);
-		sendEvent.setCreatedBy(sentBy);
-		sendEvent.setCreatedOn(sentOn);
+		sendEvent.setCreatedOn(createdOn);
 		sendEvent.setType(AuditEventType.SEND);
-		for(final User u : sentTo) { sendEvent.add(u.getId()); }
 
-		getInternalAuditModel().audit(sendEvent);
+        // generate a new event for each user
+        for(final User u : sentTo) {
+            getInternalAuditModel().audit(sendEvent, createdBy, u.getId());
+		}
 	}
 
 	/**
@@ -88,17 +88,17 @@ public class SessionModelAuditor extends AbstractAuditor {
 	 * @param sentTo
 	 *            The user the key was sent to.
 	 */
-	void sendKey(final Long artifactId, final Long artifactVersionId,
-			final JabberId sentBy, final Calendar sentOn, final JabberId sentTo) {
+	void sendKey(final Long artifactId, final Calendar createdOn,
+            final JabberId createdBy, final Long artifactVersionId,
+            final JabberId sentBy, final Calendar sentOn, final JabberId sentTo)
+            throws ParityException {
 		final SendKeyEvent sendKeyEvent = new SendKeyEvent();
 		sendKeyEvent.setArtifactId(artifactId);
 		sendKeyEvent.setArtifactVersionId(artifactVersionId);
-		sendKeyEvent.setCreatedBy(sentBy);
 		sendKeyEvent.setCreatedOn(sentOn);
-		sendKeyEvent.setSentTo(sentTo);
 		sendKeyEvent.setType(AuditEventType.SEND_KEY);
 
-		getInternalAuditModel().audit(sendKeyEvent);
+		getInternalAuditModel().audit(sendKeyEvent, createdBy, sentTo);
 	}
 
 	/**
@@ -114,14 +114,13 @@ public class SessionModelAuditor extends AbstractAuditor {
 	 *            The key requestor.
 	 */
 	void keyResponseDenied(final Long artifactId, final JabberId createdBy,
-			final Calendar createdOn, final JabberId requestedBy) {
+            final Calendar createdOn, final JabberId requestedBy)
+            throws ParityException {
 		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
 		event.setArtifactId(artifactId);
-		event.setCreatedBy(createdBy);
 		event.setCreatedOn(createdOn);
-		event.setRequestedBy(requestedBy);
 		event.setType(AuditEventType.KEY_RESPONSE_DENIED);
 
-		getInternalAuditModel().audit(event);
+		getInternalAuditModel().audit(event, createdBy, requestedBy);
 	}
 }

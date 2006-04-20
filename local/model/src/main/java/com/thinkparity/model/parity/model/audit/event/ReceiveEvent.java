@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 
 
@@ -15,7 +15,7 @@ public class ReceiveEvent extends AuditEvent {
 
 	private Long artifactVersionId;
 
-	private JabberId receivedFrom;
+	private User receivedFrom;
 
 	/**
 	 * Create a ReceiveEvent.
@@ -34,7 +34,7 @@ public class ReceiveEvent extends AuditEvent {
 	/**
 	 * @return Returns the receivedFrom.
 	 */
-	public JabberId getReceivedFrom() { return receivedFrom; }
+	public User getReceivedFrom() { return receivedFrom; }
 
 	/**
 	 * @param artifactVersionId The artifactVersionId to set.
@@ -46,9 +46,7 @@ public class ReceiveEvent extends AuditEvent {
 	/**
 	 * @param receivedFrom The receivedFrom to set.
 	 */
-	public void setReceivedFrom(final JabberId receivedFrom) {
+	public void setReceivedFrom(final User receivedFrom) {
 		this.receivedFrom = receivedFrom;
 	}
-
-
 }

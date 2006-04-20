@@ -10,6 +10,7 @@ import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
+import com.thinkparity.model.parity.model.io.handler.UserIOHandler;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
@@ -64,6 +65,14 @@ public class HypersonicIOFactory extends IOFactory {
 	public SystemMessageIOHandler createSystemMessageHandler() {
 		return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.SystemMessageIOHandler();
 	}
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createUserIOHandler()
+     *
+     */
+    public UserIOHandler createUserIOHandler() {
+        return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.UserIOHandler();
+    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#initialize()

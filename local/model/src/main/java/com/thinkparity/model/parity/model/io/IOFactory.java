@@ -11,6 +11,7 @@ import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
+import com.thinkparity.model.parity.model.io.handler.UserIOHandler;
 import com.thinkparity.model.parity.model.io.pdf.fop.FOPIOFactory;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -101,6 +102,13 @@ public abstract class IOFactory {
 	 * @return A document history io handler.
 	 */
 	public abstract DocumentHistoryIOHandler createDocumentHistoryIOHandler();
+
+    /**
+     * Create a user io handler.
+     *
+     * @return A user io handler.
+     */
+    public abstract UserIOHandler createUserIOHandler();
 
 	/**
 	 * Initialize the io layer. Any directory\file creation should be done here.

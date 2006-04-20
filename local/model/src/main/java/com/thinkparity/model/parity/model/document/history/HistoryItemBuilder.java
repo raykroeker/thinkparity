@@ -3,12 +3,8 @@
  */
 package com.thinkparity.model.parity.model.document.history;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
@@ -16,7 +12,6 @@ import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -25,81 +20,6 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1
  */
 public class HistoryItemBuilder {
-
-	/**
-	 * Build a map of the user's id to their user info for all audit events.
-	 * 
-	 * @param auditEvents
-	 *            The list of audit events.
-	 * @return A map of the user ids to their user info.
-	 * @throws ParityException
-	 */
-	private static Map<JabberId, User> buildUserMap(
-			final Iterable<AuditEvent> auditEvents,
-			final InternalSessionModel iSModel) throws ParityException {
-		final Set<JabberId> jabberIds = new HashSet<JabberId>();
-		for(final AuditEvent auditEvent : auditEvents) {
-			switch(auditEvent.getType()) {
-			case ARCHIVE:
-			case CLOSE:
-			case CREATE:
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-						jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case KEY_REQUEST_DENIED:
-				if(!jabberIds.contains(((KeyRequestDeniedEvent) auditEvent).getDeniedBy()))
-					jabberIds.add(((KeyRequestDeniedEvent) auditEvent).getDeniedBy());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case KEY_RESPONSE_DENIED:
-				if(!jabberIds.contains(((KeyResponseDeniedEvent) auditEvent).getRequestedBy()))
-					jabberIds.add(((KeyResponseDeniedEvent) auditEvent).getRequestedBy());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case RECEIVE:
-				if(!jabberIds.contains(((ReceiveEvent) auditEvent).getReceivedFrom()))
-					jabberIds.add(((ReceiveEvent) auditEvent).getReceivedFrom());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case RECEIVE_KEY:
-				if(!jabberIds.contains(((ReceiveKeyEvent) auditEvent).getReceivedFrom()))
-					jabberIds.add(((ReceiveKeyEvent) auditEvent).getReceivedFrom());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case REQUEST_KEY:
-				if(!jabberIds.contains(((RequestKeyEvent) auditEvent).getRequestedBy()))
-					jabberIds.add(((RequestKeyEvent) auditEvent).getRequestedBy());
-				if(!jabberIds.contains(((RequestKeyEvent) auditEvent).getRequestedFrom()))
-					jabberIds.add(((RequestKeyEvent) auditEvent).getRequestedFrom());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case SEND:
-				for(final JabberId sentTo : ((SendEvent) auditEvent).getSentTo()) {
-					if(!jabberIds.contains(sentTo))
-						jabberIds.add(sentTo);
-				}
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			case SEND_KEY:
-				if(!jabberIds.contains(((SendKeyEvent) auditEvent).getSentTo()))
-					jabberIds.add(((SendKeyEvent) auditEvent).getSentTo());
-				if(!jabberIds.contains(auditEvent.getCreatedBy()))
-					jabberIds.add(auditEvent.getCreatedBy());
-				break;
-			default: Assert.assertUnreachable("");
-			}
-		}
-		final Set<User> users = iSModel.readUsers(jabberIds);
-		final Map<JabberId, User> userMap = new LinkedHashMap<JabberId, User>();
-		for(final User user : users) { userMap.put(user.getId(), user); }
-		return userMap;
-	}
 
 	/**
 	 * The document.
@@ -128,54 +48,46 @@ public class HistoryItemBuilder {
 	 * 
 	 * @param auditEvents
 	 *            A list of audit events.
-	 * @param iSModel
-	 *            An internal session model.
 	 * @return A list of history events.
 	 * @throws ParityException
 	 */
 	public List<HistoryItem> create(final Iterable<AuditEvent> auditEvents,
-			final InternalSessionModel iSModel) throws ParityException {
+            final JabberId loggedInUser) throws ParityException {
 		final List<HistoryItem> history = new LinkedList<HistoryItem>();
-		final Map<JabberId, User> auditUsers = buildUserMap(auditEvents, iSModel);
-		final JabberId loggedInUser = iSModel.getLoggedInUser().getId();
 		for(final AuditEvent auditEvent : auditEvents) {
-			history.add(create(loggedInUser, auditEvent, auditUsers));
+			history.add(create(auditEvent, loggedInUser));
 		}
 		return history;
 	}
 
 	/**
 	 * Create a history item.
-	 * @param document
-	 *            The document.
+	 * 
 	 * @param auditEvent
 	 *            The audit event.
-	 * @param sModel
-	 *            The session model.
 	 * 
 	 * @return This history item.
 	 */
-	private HistoryItem create(final JabberId loggedInUser,
-			final AuditEvent auditEvent,
-			final Map<JabberId, User> auditEventUsers) throws ParityException {
+	private HistoryItem create(final AuditEvent auditEvent,
+            final JabberId loggedInUser) throws ParityException {
 		switch(auditEvent.getType()) {
-		case ARCHIVE: return create(document, (ArchiveEvent) auditEvent, auditEventUsers);
-        case CONFIRM_RECEIPT: return create(document, (ConfirmationReceipt) auditEvent, auditEventUsers);
-		case CLOSE: return create(document, (CloseEvent) auditEvent, auditEventUsers);
-		case CREATE: return create(document, (CreateEvent) auditEvent, auditEventUsers);
-		case KEY_RESPONSE_DENIED: return create(document, (KeyResponseDeniedEvent) auditEvent, auditEventUsers);
-		case KEY_REQUEST_DENIED: return create(document, (KeyRequestDeniedEvent) auditEvent, auditEventUsers);
-		case RECEIVE: return create(document, (ReceiveEvent) auditEvent, auditEventUsers);
-		case RECEIVE_KEY: return create(document, (ReceiveKeyEvent) auditEvent, auditEventUsers);
-		case REQUEST_KEY: return create(loggedInUser, document, (RequestKeyEvent) auditEvent, auditEventUsers);
-		case SEND: return create(document, (SendEvent) auditEvent, auditEventUsers);
-		case SEND_KEY: return create(document, (SendKeyEvent) auditEvent, auditEventUsers);
+		case ARCHIVE: return create(document, (ArchiveEvent) auditEvent);
+        case CONFIRM_RECEIPT: return create(document, (ConfirmationReceipt) auditEvent);
+		case CLOSE: return create(document, (CloseEvent) auditEvent);
+		case CREATE: return create(document, (CreateEvent) auditEvent);
+		case KEY_RESPONSE_DENIED: return create(document, (KeyResponseDeniedEvent) auditEvent);
+		case KEY_REQUEST_DENIED: return create(document, (KeyRequestDeniedEvent) auditEvent);
+		case RECEIVE: return create(document, (ReceiveEvent) auditEvent);
+		case RECEIVE_KEY: return create(document, (ReceiveKeyEvent) auditEvent);
+		case REQUEST_KEY: return create(loggedInUser, document, (RequestKeyEvent) auditEvent);
+		case SEND: return create(document, (SendEvent) auditEvent);
+		case SEND_KEY: return create(document, (SendKeyEvent) auditEvent);
 		default:
 			throw Assert.createUnreachable("Unuspported audit event:  " + auditEvent.getType());
 		}
 	}
 
-	private HistoryItem create(final Document document, final ArchiveEvent event, final Map<JabberId, User> eventUsers) {
+	private HistoryItem create(final Document document, final ArchiveEvent event) {
 		final Object[] arguments = new Object[] {
 				event.getCreatedOn().getTime()
 		};
@@ -186,9 +98,9 @@ public class HistoryItemBuilder {
 		return item;
 	}
 
-	private HistoryItem create(final Document document, final CloseEvent event, final Map<JabberId, User> eventUsers) {
+	private HistoryItem create(final Document document, final CloseEvent event) {
 		final Object[] arguments = new Object[] {
-			getName(eventUsers.get(event.getClosedBy()))
+			getName(event.getClosedBy())
 		};
 		final HistoryItem close = new HistoryItem();
 		close.setDate(event.getCreatedOn());
@@ -197,7 +109,7 @@ public class HistoryItemBuilder {
 		return close;
 	}
 
-	private HistoryItem create(final Document document, final CreateEvent event, final Map<JabberId, User> eventUsers) {
+	private HistoryItem create(final Document document, final CreateEvent event) {
 		final HistoryItem create = new HistoryItem();
 		create.setDate(event.getCreatedOn());
 		create.setDocumentId(event.getArtifactId());
@@ -206,10 +118,9 @@ public class HistoryItemBuilder {
 	}
 
 	private HistoryItem create(final Document document,
-			final KeyRequestDeniedEvent event,
-			final Map<JabberId, User> eventUsers) {
+            final KeyRequestDeniedEvent event) {
 		final Object[] arguments = new Object[] {
-				getName(eventUsers.get(event.getDeniedBy()))
+				getName(event.getDeniedBy())
 		};
 		final HistoryItem item = new HistoryItem();
 		item.setDate(event.getCreatedOn());
@@ -220,10 +131,9 @@ public class HistoryItemBuilder {
 	}
 
 	private HistoryItem create(final Document document,
-			final KeyResponseDeniedEvent event,
-			final Map<JabberId, User> eventUsers) {
+            final KeyResponseDeniedEvent event) {
 		final Object[] arguments = new Object[] {
-				getName(eventUsers.get(event.getRequestedBy()))
+				getName(event.getRequestedBy())
 		};
 		final HistoryItem item = new HistoryItem();
 		item.setDate(event.getCreatedOn());
@@ -234,9 +144,9 @@ public class HistoryItemBuilder {
 		
 	}
 
-	private HistoryItem create(final Document document, final ReceiveEvent event, final Map<JabberId, User> eventUsers) {
+	private HistoryItem create(final Document document, final ReceiveEvent event) {
 		final Object[] arguments = new Object[] {
-			getName(eventUsers.get(event.getReceivedFrom()))
+			getName(event.getReceivedFrom())
 		};
 		final HistoryItem receive = new HistoryItem();
 		receive.setDate(event.getCreatedOn());
@@ -246,9 +156,10 @@ public class HistoryItemBuilder {
 		return receive;
 	}
 
-	private HistoryItem create(final Document document, final ReceiveKeyEvent event, final Map<JabberId, User> eventUsers) {
+	private HistoryItem create(final Document document,
+            final ReceiveKeyEvent event) {
 		final Object[] arguments = new Object[] {
-			getName(eventUsers.get(event.getReceivedFrom()))
+			getName(event.getReceivedFrom())
 		};
 		final HistoryItem receiveKey = new HistoryItem();
 		receiveKey.setDate(event.getCreatedOn());
@@ -257,25 +168,21 @@ public class HistoryItemBuilder {
 		return receiveKey;
 	}
 
-	private HistoryItem create(final JabberId loggedInUser, final Document document, final RequestKeyEvent event, final Map<JabberId, User> eventUsers) {
+	private HistoryItem create(final JabberId loggedInUser,
+            final Document document, final RequestKeyEvent event) {
 		final HistoryItem requestKey = new HistoryItem();
 		requestKey.setDate(event.getCreatedOn());
 		requestKey.setDocumentId(document.getId());
 
-		final Object[] arguments;
+		final Object[] arguments = new Object[] {
+		        getName(event.getRequestedBy()),
+		        getName(event.getRequestedFrom())
+		};
 		final String localKey;
-		if(event.getRequestedBy().equals(loggedInUser)) {
-			arguments = new Object[] {
-					getName(eventUsers.get(event.getRequestedBy())),
-					getName(eventUsers.get(event.getRequestedFrom()))
-			};
+		if(event.getRequestedBy().getId().equals(loggedInUser)) {
 			localKey = "eventText.REQUEST_KEY_BY";
 		}
-		else if(event.getRequestedFrom().equals(loggedInUser)) {
-			arguments = new Object[] {
-					getName(eventUsers.get(event.getRequestedBy())),
-					getName(eventUsers.get(event.getRequestedFrom()))
-			};
+		else if(event.getRequestedFrom().getId().equals(loggedInUser)) {
 			localKey = "eventText.REQUEST_KEY_FROM";			
 		}
 		else {
@@ -286,27 +193,8 @@ public class HistoryItemBuilder {
 		return requestKey;
 	}
 
-	private HistoryItem create(final Document document, final SendEvent event, final Map<JabberId, User> eventUsers) {
-		final StringBuffer sentToBuffer = new StringBuffer();
-		for(final JabberId jabberId : event.getSentTo()) {
-			if(1 > sentToBuffer.length()) {
-				sentToBuffer.append(
-					getString("eventText.SEND.TO.0",
-					new Object[] {
-						getName(eventUsers.get(jabberId))
-					}));
-			}
-			else {
-				sentToBuffer.append(
-					getString("eventText.SEND.TO.N",
-					new Object[] {
-						getName(eventUsers.get(jabberId))
-					}));
-			}
-		}
-		final Object[] arguments = new Object[] {
-			sentToBuffer.toString()
-		};
+	private HistoryItem create(final Document document, final SendEvent event) {
+		final Object[] arguments = new Object[] {getName(event.getSentTo())};
 		final HistoryItem send = new HistoryItem();
 		send.setDate(event.getCreatedOn());
 		send.setDocumentId(event.getArtifactId());
@@ -316,19 +204,17 @@ public class HistoryItemBuilder {
 	}
 
     private HistoryItem create(final Document document,
-            final ConfirmationReceipt event,
-            final Map<JabberId, User> eventUsers) {
+            final ConfirmationReceipt event) {
         final HistoryItem hi = new HistoryItem();
         hi.setDate(event.getCreatedOn());
         hi.setDocumentId(document.getId());
+        // TODO Create a history item for the confirmation receipt
         hi.setEvent(getString("", null));
         return hi;
     }
 
-	private HistoryItem create(final Document document, final SendKeyEvent event,final Map<JabberId, User> eventUsers) {
-		final Object[] arguments = new Object[] {
-			getName(eventUsers.get(event.getSentTo()))
-		};
+	private HistoryItem create(final Document document, final SendKeyEvent event) {
+		final Object[] arguments = new Object[] {getName(event.getSentTo())};
 		final HistoryItem sendKey = new SendKeyHistoryItem();
 		sendKey.setDate(event.getCreatedOn());
 		sendKey.setDocumentId(event.getArtifactId());

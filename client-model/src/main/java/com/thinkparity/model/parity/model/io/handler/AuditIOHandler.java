@@ -14,7 +14,7 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
  */
 public interface AuditIOHandler {
 	public void audit(final ArchiveEvent archiveEvent)
-			throws HypersonicException;
+            throws HypersonicException;
 	public void audit(final CloseEvent closeEvent) throws HypersonicException;
     public void audit(final ConfirmationReceipt confirmationReceipt)
             throws HypersonicException;

@@ -35,8 +35,8 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
 	public void auditRecieveKey(final Long artifactId,
-			final JabberId createdBy, final Calendar createdOn,
-			final JabberId receivedFrom) {
+            final JabberId createdBy, final Calendar createdOn,
+            final JabberId receivedFrom) throws ParityException {
 		synchronized(getImplLock()) {
 			getImpl().auditKeyRecieved(artifactId, createdBy, createdOn, receivedFrom);
 		}

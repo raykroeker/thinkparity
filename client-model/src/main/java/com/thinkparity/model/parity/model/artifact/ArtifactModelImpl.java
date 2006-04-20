@@ -119,8 +119,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void auditConfirmationReceipt(final Long artifactId,
             final JabberId createdBy, final Calendar createdOn,
-            final JabberId receivedBy) {
-        auditor.confirmationReceipt(artifactId, createdBy, createdOn, receivedBy);
+            final JabberId receivedFrom) throws ParityException {
+        auditor.confirmationReceipt(artifactId, createdBy, createdOn, receivedFrom);
     }
 
     /**
@@ -137,7 +137,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 */
 	void auditKeyRequestDenied(final Long artifactId,
 			final JabberId createdBy, final Calendar createdOn,
-			final JabberId deniedBy) {
+			final JabberId deniedBy) throws ParityException {
 		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 

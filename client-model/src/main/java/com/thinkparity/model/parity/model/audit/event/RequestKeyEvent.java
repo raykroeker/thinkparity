@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -11,9 +11,9 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class RequestKeyEvent extends AuditEvent {
 
-	private JabberId requestedBy;
+	private User requestedBy;
 
-	private JabberId requestedFrom;
+	private User requestedFrom;
 
 	/**
 	 * Create a RequestKeyEvent.
@@ -25,29 +25,28 @@ public class RequestKeyEvent extends AuditEvent {
 	/**
 	 * @return Returns the requestedBy.
 	 */
-	public JabberId getRequestedBy() {
+	public User getRequestedBy() {
 		return requestedBy;
 	}
 
 	/**
 	 * @return Returns the requestedFrom.
 	 */
-	public JabberId getRequestedFrom() {
+	public User getRequestedFrom() {
 		return requestedFrom;
 	}
 
 	/**
 	 * @param requestedBy The requestedBy to set.
 	 */
-	public void setRequestedBy(JabberId requestedBy) {
+	public void setRequestedBy(final User requestedBy) {
 		this.requestedBy = requestedBy;
 	}
 
 	/**
 	 * @param requestedFrom The requestedFrom to set.
 	 */
-	public void setRequestedFrom(JabberId requestedFrom) {
+	public void setRequestedFrom(final User requestedFrom) {
 		this.requestedFrom = requestedFrom;
 	}
-
 }

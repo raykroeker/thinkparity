@@ -11,7 +11,7 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum MetaDataType {
 
-	STRING(0), LONG(1), BOOLEAN(2), JABBER_ID(3);
+	STRING(0), LONG(1), BOOLEAN(2), JABBER_ID(3), USER_ID(4);
 
 	/**
 	 * Resolve the meta data type by it's id.
@@ -26,6 +26,7 @@ public enum MetaDataType {
 		case 1: return LONG;
 		case 2: return BOOLEAN;
 		case 3: return JABBER_ID;
+        case 4: return USER_ID;
 		default:
 			throw Assert.createUnreachable(
 					"Could not determine meta data type:  " + id);

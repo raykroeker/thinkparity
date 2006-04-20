@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 
 /**
@@ -12,7 +12,7 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class ReceiveKeyEvent extends AuditEvent {
 
-	private JabberId receivedFrom;
+	private User receivedFrom;
 
 	/**
 	 * Create a ReceiveKeyEvent.
@@ -24,14 +24,14 @@ public class ReceiveKeyEvent extends AuditEvent {
 	/**
 	 * @return Returns the receivedFrom.
 	 */
-	public JabberId getReceivedFrom() {
+	public User getReceivedFrom() {
 		return receivedFrom;
 	}
 
 	/**
 	 * @param receivedFrom The receivedFrom to set.
 	 */
-	public void setReceivedFrom(final JabberId receivedFrom) {
+	public void setReceivedFrom(final User receivedFrom) {
 		this.receivedFrom = receivedFrom;
 	}
 }

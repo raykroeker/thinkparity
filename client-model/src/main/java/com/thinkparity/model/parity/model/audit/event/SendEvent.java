@@ -3,10 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -16,20 +13,10 @@ public class SendEvent extends AuditEvent {
 
 	private Long artifactVersionId;
 
-	private final Set<JabberId> sentTo;
+	private User sentTo;
 
-	/**
-	 * Create a SendEvent.
-	 * 
-	 */
-	public SendEvent() {
-		super();
-		this.sentTo = new HashSet<JabberId>();
-	}
-
-	public boolean add(final JabberId username) {
-		return sentTo.add(username);
-	}
+	/** Create a SendEvent. */
+	public SendEvent() { super(); }
 
 	/**
 	 * @return Returns the artifactVersionId.
@@ -41,11 +28,7 @@ public class SendEvent extends AuditEvent {
 	/**
 	 * @return Returns the sentTo.
 	 */
-	public Set<JabberId> getSentTo() { return sentTo; }
-
-	public boolean remove(final String username) {
-		return sentTo.remove(username);
-	}
+	public User getSentTo() { return sentTo; }
 
 	/**
 	 * @param artifactVersionId The artifactVersionId to set.
@@ -53,4 +36,11 @@ public class SendEvent extends AuditEvent {
 	public void setArtifactVersionId(Long versionId) {
 		this.artifactVersionId = versionId;
 	}
+
+    /**
+     * @param sentTo The sentTo to set.
+     */
+    public void setSentTo(User sentTo) {
+        this.sentTo = sentTo;
+    }
 }

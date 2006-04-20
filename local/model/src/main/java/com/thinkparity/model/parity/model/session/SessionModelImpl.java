@@ -152,13 +152,13 @@ class SessionModelImpl extends AbstractModelImpl {
      *            From whom the artifact was received.
      */
     static void notifyConfirmationReceipt(final UUID uniqueId,
-            final JabberId receivedBy) throws ParityException, SmackException {
+            final JabberId receivedFrom) throws ParityException, SmackException {
         final Document d =
             DocumentModel.getInternalModel(sContext).get(uniqueId);
         final User currentUser;
         synchronized(xmppHelperLock) { currentUser =  xmppHelper.getUser(); }
         ArtifactModel.getInternalModel(sContext).auditConfirmationReceipt(
-                d.getId(), currentUser.getId(), currentDateTime(), receivedBy);
+                d.getId(), currentUser.getId(), currentDateTime(), receivedFrom);
     }
 
 	/**
@@ -927,8 +927,10 @@ class SessionModelImpl extends AbstractModelImpl {
                         vc.getDocumentContent().getContent());
 
 				// audit the send
-				auditor.send(dv.getArtifactId(), dv.getVersionId(),
-                        currentUserId(), currentDateTime(), users);
+                final Calendar currentDateTime = currentDateTime();
+				auditor.send(dv.getArtifactId(), currentDateTime,
+                        currentUserId(), dv.getVersionId(), currentUserId(),
+                        currentDateTime(), users);
 			}
 			catch(final SmackException sx) {
 				logger.error("Could not send document version.", sx);
@@ -1146,9 +1148,11 @@ class SessionModelImpl extends AbstractModelImpl {
 					// audit send key
 					final DocumentVersion dv = iDModel.getVersion(
 							version.getArtifactId(), version.getVersionId());
-					auditor.sendKey(dv.getArtifactId(), dv.getVersionId(),
-							xmppHelper.getUser().getId(), currentDateTime(),
-							requestedBy);
+                    final Calendar currentDateTime = currentDateTime();
+					auditor.sendKey(dv.getArtifactId(), currentDateTime,
+                            currentUserId(), dv.getVersionId(),
+                            currentUserId(), currentDateTime(),
+                            requestedBy);
 					break;
 				case DENY:
 					// send the declination to the server

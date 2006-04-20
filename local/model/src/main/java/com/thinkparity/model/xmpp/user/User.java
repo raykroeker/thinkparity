@@ -18,6 +18,9 @@ public class User {
 
 	static { SystemUser = new User("thinkparity"); }
 
+    /** The local user pk. */
+    private Long localId;
+
 	/**
 	 * The user's first name.
 	 * 
@@ -176,4 +179,8 @@ public class User {
 	public void setOrganization(final String organization) {
 		this.organization = organization;
 	}
+
+    public Long getLocalId() { return localId; }
+
+    public void setLocalId(final Long localId) { this.localId = localId; }
 }

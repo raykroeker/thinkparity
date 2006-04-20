@@ -263,7 +263,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The user the key was received from.
 	 */
 	void auditKeyRecieved(final Long artifactId, final JabberId createdBy,
-			final Calendar createdOn, final JabberId receivedFrom) {
+            final Calendar createdOn, final JabberId receivedFrom)
+            throws ParityException {
 		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
 
@@ -932,7 +933,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 				new HistoryItemBuilder(l18n, get(documentId));
 
 			final List<HistoryItem> history =
-				hib.create(iAModel.read(documentId), getInternalSessionModel());
+				hib.create(iAModel.read(documentId), currentUserId());
 			ModelSorter.sortHistoryItems(history, comparator);
 
 			return history;
@@ -988,8 +989,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 				// audit the receiving
 				final Document d = get(document.getId());
-				auditor.recieve(d.getId(), versionId, receivedFrom,
-                        currentUserId(), currentDateTime());
+                final Calendar currentDateTime = currentDateTime();
+				auditor.receive(d.getId(), currentDateTime, currentUserId(),
+                        versionId, receivedFrom, currentUserId(),
+                        currentDateTime);
 
                 // confirm the document receipt
                 final InternalArtifactModel iAModel = getInternalArtifactModel();
@@ -1016,8 +1019,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 				// audit the receiving
 				final Document d = get(document.getId());
-				auditor.recieve(d.getId(), versionId, receivedFrom,
-                        currentUserId(), currentDateTime());
+                final Calendar currentDateTime = currentDateTime();
+				auditor.receive(d.getId(), currentDateTime, currentUserId(),
+                        versionId, receivedFrom, currentUserId(),
+                        currentDateTime);
 
                 // confirm the document receipt
                 final InternalArtifactModel iAModel = getInternalArtifactModel();

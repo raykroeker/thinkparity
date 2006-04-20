@@ -203,6 +203,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		case BOOLEAN:
 			return Boolean.valueOf(session.getString(columnName));
 		case LONG:
+		case USER_ID:
 			return Long.valueOf(session.getString(columnName));
 		case STRING:
 			return session.getString(columnName);
@@ -292,6 +293,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 			session.setString(index, ((Boolean) value).toString());
 			break;
 		case LONG:
+        case USER_ID:
 			session.setString(index, ((Long) value).toString());
 			break;
 		case STRING:

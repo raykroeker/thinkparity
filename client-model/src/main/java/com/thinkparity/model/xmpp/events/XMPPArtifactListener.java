@@ -17,10 +17,10 @@ public interface XMPPArtifactListener {
     /**
      * Confirmation receipt that an artifact was received.
      * 
-     * @param receivedBy
-     *            By whom the artifact was received.
+     * @param receivedFrom
+     *            From whom the the confirmation was sent.
      */
-    public void confirmReceipt(final UUID uniqueId, final JabberId receivedBy);
+    public void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom);
 
 	public void teamMemberAdded(final UUID artifactUniqueId,
 			final Contact teamMember);

@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -15,7 +15,7 @@ public class CloseEvent extends AuditEvent {
 	 * Whom the artifact was closed by.
 	 * 
 	 */
-	private JabberId closedBy;
+	private User closedBy;
 
 	/**
 	 * Create a CloseEvent.
@@ -26,12 +26,12 @@ public class CloseEvent extends AuditEvent {
 	/**
 	 * @return Returns the closedBy.
 	 */
-	public JabberId getClosedBy() { return closedBy; }
+	public User getClosedBy() { return closedBy; }
 
 	/**
 	 * @param closedBy The closedBy to set.
 	 */
-	public void setClosedBy(final JabberId closedBy) {
+	public void setClosedBy(final User closedBy) {
 		this.closedBy = closedBy;
 	}
 }

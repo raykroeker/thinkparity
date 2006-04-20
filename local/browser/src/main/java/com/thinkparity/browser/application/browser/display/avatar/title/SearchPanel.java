@@ -135,7 +135,7 @@ public class SearchPanel extends AbstractJPanel {
 		final GridBagConstraints c = new GridBagConstraints();
 
 		c.anchor = GridBagConstraints.EAST;
-		c.insets.left = 275;
+		c.insets.left = 329;
 		add(searchLeftJLabel, c.clone());
 
 		c.anchor = GridBagConstraints.CENTER;

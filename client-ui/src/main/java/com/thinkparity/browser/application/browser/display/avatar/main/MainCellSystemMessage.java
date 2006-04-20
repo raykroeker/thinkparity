@@ -24,24 +24,10 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
 public class MainCellSystemMessage extends SystemMessage implements MainCell {
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getNodeIcon()
+     * Create a MainCellSystemMessage.
      */
-    public ImageIcon getNodeIcon() {
-        throw Assert.createNotYetImplemented("MainCellSystemMessage#getNodeIcon");
-    }
-
-    /**
-     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getNodeIconSelected()
-     */
-    public ImageIcon getNodeIconSelected() {
-        throw Assert.createNotYetImplemented("MainCellSystemMessage#getNodeIconSelected");
-    }
-
-    /**
-     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#populatePopupMenu(java.awt.event.MouseEvent, javax.swing.JPopupMenu)
-     */
-    public void populatePopupMenu(MouseEvent e, JPopupMenu jPopupMenu) {
-        throw Assert.createNotYetImplemented("MainCellSystemMessage#populatePopupMenu");
+    public MainCellSystemMessage() {
+        throw Assert.createNotYetImplemented("MainCellSystemMessage#<init>");
     }
 
     /**
@@ -56,13 +42,6 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
      */
     public void fireSelection() {
         throw Assert.createNotYetImplemented("MainCellSystemMessage#fireSelection");
-    }
-
-    /**
-     * Create a MainCellSystemMessage.
-     */
-    public MainCellSystemMessage() {
-        throw Assert.createNotYetImplemented("MainCellSystemMessage#<init>");
     }
 
     /**
@@ -81,6 +60,11 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
                 .createNotYetImplemented("MainCellSystemMessage#getBackgroundSelected");
     }
 
+    public Border getBorder() { return BorderFactory.createEmptyBorder(); }
+    public Border getBorderSelected() { return BorderFactory.createEmptyBorder(); }
+
+    public ImageIcon getIcon() { return null; }
+
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getInfoIcon()
      */
@@ -88,6 +72,22 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
         throw Assert
                 .createNotYetImplemented("MainCellSystemMessage#getInfoIcon");
     }
+
+    /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getNodeIcon()
+     */
+    public ImageIcon getNodeIcon() {
+        throw Assert.createNotYetImplemented("MainCellSystemMessage#getNodeIcon");
+    }
+
+    /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getNodeIconSelected()
+     */
+    public ImageIcon getNodeIconSelected() {
+        throw Assert.createNotYetImplemented("MainCellSystemMessage#getNodeIconSelected");
+    }
+
+    public ImageIcon getSelectedIcon() { return null; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getText()
@@ -112,6 +112,8 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
                 .createNotYetImplemented("MainCellSystemMessage#getTextForeground");
     }
 
+    public Float getTextInsetFactor() { return 1.0F; }
+
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getToolTip()
      */
@@ -119,9 +121,22 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
         throw Assert
                 .createNotYetImplemented("MainCellSystemMessage#getToolTip");
     }
-
-    public Border getBorder() { return BorderFactory.createEmptyBorder(); }
-    public Float getTextInsetFactor() { return 1.0F; }
-    public ImageIcon getIcon() { return null; }
-    public ImageIcon getSelectedIcon() { return null; }
+    /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#isGroupSelected()
+     */
+    public Boolean isGroupSelected() {
+        throw Assert.createNotYetImplemented("MainCellSystemMessage#isGroupSelected");
+    }
+    /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#populatePopupMenu(java.awt.event.MouseEvent, javax.swing.JPopupMenu)
+     */
+    public void populatePopupMenu(MouseEvent e, JPopupMenu jPopupMenu) {
+        throw Assert.createNotYetImplemented("MainCellSystemMessage#populatePopupMenu");
+    }
+    /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#setGroupSelected(java.lang.Boolean)
+     */
+    public void setGroupSelected(Boolean groupSelected) {
+        throw Assert.createNotYetImplemented("MainCellSystemMessage#setGroupSelected");
+    }
 }

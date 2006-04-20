@@ -130,8 +130,15 @@ public class Status extends Avatar {
         customJLabel = LabelFactory.create(getString("Empty"));
 
         setLayout(new java.awt.GridBagLayout());
-        setOpaque(false);
 
+        setOpaque(false);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                formMouseClicked(e);
+            }
+        });
+
+        connectionJLabel.setText("!Offline!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         add(connectionJLabel, gridBagConstraints);
@@ -142,6 +149,7 @@ public class Status extends Avatar {
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         add(jSeparator1, gridBagConstraints);
 
+        filterJLabel.setText("!Filter:  Off!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         add(filterJLabel, gridBagConstraints);
@@ -157,7 +165,14 @@ public class Status extends Avatar {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         add(customJLabel, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
+        if(2 == e.getClickCount()) {
+            if(e.isShiftDown()) { getController().debugMain(); }
+        }
+    }//GEN-LAST:event_formMouseClicked
 
     private void reloadConnection(final String messageKey,
             final Object[] messageArguments) {

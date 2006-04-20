@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
@@ -16,8 +17,6 @@ import javax.swing.border.Border;
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.HistoryItemIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.HistoryItemImage;
-import com.thinkparity.browser.javax.swing.border.LeftRightBorder;
-import com.thinkparity.browser.javax.swing.border.LeftBottomRightBorder;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
@@ -37,6 +36,9 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
 
     /** The document team. */
     private final Set<User> documentTeam;
+
+    /** A flag indicating the group selection status. */
+    private Boolean groupSelected = Boolean.FALSE;
 
     /** An image cache. */
     private final MainCellImageCache imageCache;
@@ -66,6 +68,13 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
         setEvent(historyItem.getEvent());
         setVersionId(historyItem.getVersionId());
     }
+
+    public void setGroupSelected(final Boolean groupSelected) {
+        this.groupSelected = groupSelected;
+    }
+
+    public Boolean isGroupSelected() { return groupSelected; }
+
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#canImport()
@@ -98,9 +107,14 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
      * 
      */
     public Border getBorder() {
-        if(isLastItem()) { return new LeftBottomRightBorder(new Color(107, 111, 115, 255));}
-        else { return new LeftRightBorder(new Color(107, 111, 115, 255)); }
+        return BorderFactory.createEmptyBorder();
     }
+
+    /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorderSelected()
+     *
+     */
+     public Border getBorderSelected() { return BorderFactory.createLineBorder(BrowserConstants.Colours.MAIN_CELL_DEFAULT_BORDER2); }
 
     /**
      * Obtain the document.
@@ -181,7 +195,7 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextInsetFactor()
      * 
      */
-    public Float getTextInsetFactor() { return BrowserConstants.PHI; }
+    public Float getTextInsetFactor() { return 3.0F; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getToolTip()

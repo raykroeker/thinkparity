@@ -17,8 +17,8 @@ import javax.swing.border.Border;
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.Default;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.Expanded;
+import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
+import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentGroupSelected;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -55,7 +55,10 @@ public class MainCellDocument extends Document implements MainCell {
 
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
-    
+
+    /** A flag indicating the group selection status. */
+    private Boolean groupSelected = Boolean.FALSE;
+
     /** An image cache. */
     private final MainCellImageCache imageCache;
 
@@ -88,7 +91,13 @@ public class MainCellDocument extends Document implements MainCell {
         this.keyRequests = new LinkedList<KeyRequest>();
         this.seen = contains(ArtifactFlag.SEEN);
     }
-    
+
+    public void setGroupSelected(final Boolean groupSelected) {
+        this.groupSelected = groupSelected;
+    }
+
+    public Boolean isGroupSelected() { return groupSelected; }
+
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#canImport()
      * 
@@ -129,10 +138,12 @@ public class MainCellDocument extends Document implements MainCell {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorder()
      * 
      */
-    public Border getBorder() {
-        if(isExpanded()) { return new Expanded(); }
-        else { return new Default(); }
-    }
+    public Border getBorder() { return new DocumentDefault(); }
+
+    /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorderSelected()
+     */
+    public Border getBorderSelected() { return new DocumentGroupSelected(); }
 
     /**
      * Obtain an info icon.
@@ -157,8 +168,7 @@ public class MainCellDocument extends Document implements MainCell {
      * 
      */
     public ImageIcon getNodeIcon() {
-        if(isExpanded()) { return imageCache.read(DocumentIcon.NODE_EXPANDED); }
-        else { return imageCache.read(DocumentIcon.NODE_DEFAULT); }
+        return imageCache.read(DocumentIcon.NODE_DEFAULT);
     }
 
     /**

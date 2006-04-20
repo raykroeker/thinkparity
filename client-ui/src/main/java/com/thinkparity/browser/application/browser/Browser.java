@@ -277,6 +277,7 @@ public class Browser extends AbstractApplication {
 	 *
 	 */
 	public void displaySessionSendFormAvatar() {
+        setInput(AvatarId.SESSION_SEND_FORM, session.getSelectedDocumentId());
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
 	}
 
@@ -503,7 +504,6 @@ public class Browser extends AbstractApplication {
 		final Point newL = mainWindow.getLocation();
 		newL.x += l.x;
 		newL.y += l.y;
-		logger.debug(newL);
 		mainWindow.setLocation(newL);
 	}
 
@@ -765,7 +765,6 @@ public class Browser extends AbstractApplication {
 	 */
 	public void selectDocument(final Long documentId) {
 		session.setSelectedDocumentId(documentId);
-		setInput(AvatarId.SESSION_SEND_FORM, documentId);
 	}
 
 	/**

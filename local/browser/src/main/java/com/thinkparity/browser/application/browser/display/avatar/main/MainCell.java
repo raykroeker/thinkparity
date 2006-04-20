@@ -51,6 +51,14 @@ public interface MainCell {
     public Border getBorder();
 
     /**
+     * Obtain the border to be installed around the edge of the main cell,
+     * when the cell is selected.
+     *
+     * @return A border
+     */
+    public Border getBorderSelected();
+
+    /**
      * Obtain an info icon.
      * 
      * @return An image icon.
@@ -117,4 +125,8 @@ public interface MainCell {
      */
     public void populatePopupMenu(final MouseEvent e,
             final JPopupMenu jPopupMenu);
+
+
+    public void setGroupSelected(final Boolean groupSelected);
+    public Boolean isGroupSelected();
 }

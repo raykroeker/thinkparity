@@ -73,10 +73,12 @@ class WindowPanel extends AbstractJPanel {
 		final GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
-		add(new WindowTitle(), c.clone());
+        // TMP.0 Remove the title bar of the dialogue windows
+		//add(new WindowTitle(), c.clone());
 
 		jPanels.add(jPanel);
-		ac.gridy++;
+        // TMP.0 Remove the title bar of the dialogue windows
+		//ac.gridy++;
 		add((Component) jPanel, ac.clone());
 	}
 

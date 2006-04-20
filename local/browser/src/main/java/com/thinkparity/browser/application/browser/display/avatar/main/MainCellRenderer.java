@@ -80,13 +80,14 @@ public class MainCellRenderer extends AbstractJPanel implements
         if(isSelected) {
             background = cell.getBackgroundSelected();
             nodeIconJLabel.setIcon(cell.getNodeIconSelected());
+            setBorder(cell.getBorderSelected());
         }
         else {
             background = cell.getBackground();
             nodeIconJLabel.setIcon(cell.getNodeIcon());
+            setBorder(cell.getBorder());
         }
 
-        setBorder(cell.getBorder());
 
         textJLabel.setFont(cell.getTextFont());
         textJLabel.setForeground(cell.getTextForeground());
@@ -135,6 +136,8 @@ public class MainCellRenderer extends AbstractJPanel implements
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g.create();
+        // we draw at y=1 because there is a single pixel white
+        // border at the top of every main cell
         try { g2.drawImage(background, getInsets().left, getInsets().top, this); }
         finally { g2.dispose(); }
     }

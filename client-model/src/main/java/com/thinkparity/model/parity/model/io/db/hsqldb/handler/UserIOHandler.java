@@ -52,7 +52,7 @@ public class UserIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.model.parity.model.io.handler.UserIOHandler#create(com.thinkparity.model.xmpp.user.User)
      */
-    public User create(final User user) {
+    public void create(final User user) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_CREATE);
@@ -70,7 +70,8 @@ public class UserIOHandler extends AbstractIOHandler implements
                 throw new HypersonicException("");
 
             user.setLocalId(userId);
-            return user;
+
+            session.commit();
         }
         catch(final HypersonicException hx) {
             session.rollback();

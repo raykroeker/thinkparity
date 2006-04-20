@@ -31,7 +31,7 @@ public class UserIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_BY_JABBER_ID =
         new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.FIRST_NAME,")
         .append("UI.LAST_NAME,UI.ORGANIZATION ")
-        .append("from USER inner join USER_INFO ")
+        .append("from USER U inner join USER_INFO UI ")
         .append("on U.USER_ID=UI.USER_ID ")
         .append("where U.JABBER_ID=?")
         .toString();
@@ -39,7 +39,7 @@ public class UserIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_BY_USER_ID =
         new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.FIRST_NAME,")
         .append("UI.LAST_NAME,UI.ORGANIZATION ")
-        .append("from USER inner join USER_INFO ")
+        .append("from USER U inner join USER_INFO UI ")
         .append("on U.USER_ID=UI.USER_ID ")
         .append("where U.USER_ID=?")
         .toString();

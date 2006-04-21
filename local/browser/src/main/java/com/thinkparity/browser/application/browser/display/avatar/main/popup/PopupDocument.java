@@ -3,13 +3,17 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.main.popup;
 
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.Toolkit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -18,8 +22,6 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellD
 
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.xmpp.JabberId;
-
-
 
 /**
  * @author raykroeker@gmail.com
@@ -90,28 +92,28 @@ public class PopupDocument implements Popup {
         }
 
         // DEBUG Document Menu Options
-//        if(e.isShiftDown()) {
-//            final Clipboard systemClipboard =
-//                Toolkit.getDefaultToolkit().getSystemClipboard();
-//            final ActionListener debugActionListener = new ActionListener() {
-//                public void actionPerformed(final ActionEvent e) {
-//                    final StringSelection stringSelection =
-//                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
-//                    systemClipboard.setContents(stringSelection, null);
-//                }
-//            };
-//            final JMenuItem idJMenuItem = new JMenuItem("Id:" + displayDocument.getId());
-//            idJMenuItem.putClientProperty("COPY_ME", displayDocument.getId());
-//            idJMenuItem.addActionListener(debugActionListener);
-//
-//            final JMenuItem uidJMenuItem = new JMenuItem("U Id:" + displayDocument.getUniqueId());
-//            uidJMenuItem.putClientProperty("COPY_ME", displayDocument.getUniqueId());
-//            uidJMenuItem.addActionListener(debugActionListener);
-//
-//            jPopupMenu.addSeparator();
-//            jPopupMenu.add(idJMenuItem);
-//            jPopupMenu.add(uidJMenuItem);
-//        }
+        if(e.isShiftDown()) {
+            final Clipboard systemClipboard =
+                Toolkit.getDefaultToolkit().getSystemClipboard();
+            final ActionListener debugActionListener = new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    final StringSelection stringSelection =
+                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+                    systemClipboard.setContents(stringSelection, null);
+                }
+            };
+            final JMenuItem idJMenuItem = new JMenuItem("Id - " + document.getId());
+            idJMenuItem.putClientProperty("COPY_ME", document.getId());
+            idJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem uidJMenuItem = new JMenuItem("Unique id - " + document.getUniqueId());
+            uidJMenuItem.putClientProperty("COPY_ME", document.getUniqueId());
+            uidJMenuItem.addActionListener(debugActionListener);
+
+            jPopupMenu.addSeparator();
+            jPopupMenu.add(idJMenuItem);
+            jPopupMenu.add(uidJMenuItem);
+        }
     }
 
     /**

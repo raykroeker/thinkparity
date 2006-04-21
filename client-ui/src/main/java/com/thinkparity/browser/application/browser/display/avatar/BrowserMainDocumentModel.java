@@ -73,9 +73,6 @@ public class BrowserMainDocumentModel {
     /** A list of all documents. */
     private final List<MainCellDocument> documents;
 
-    /** Visible document histories. */
-    private final Map<MainCellDocument, List<MainCellHistoryItem>> visibleHistory;
-
     /** The swing list model. */
     private final DefaultListModel jListModel;
 
@@ -89,6 +86,9 @@ public class BrowserMainDocumentModel {
 
     /** The set of all visible documents. */
     private final List<MainCellDocument> visibleDocuments;
+
+    /** Visible document histories. */
+    private final Map<MainCellDocument, List<MainCellHistoryItem>> visibleHistory;
 
     /**
      * Create a BrowserMainDocumentModel.
@@ -222,19 +222,6 @@ public class BrowserMainDocumentModel {
             }
             documentFilter.debug(logger);
         }
-    }
-
-    /**
-     * Obtain the number of visible history items.
-     *
-     * @return The number of visible history items.
-     */
-    private Integer visibleHistorySize() {
-        Integer size = 0;
-        for(final List<MainCellHistoryItem> l : visibleHistory.values()) {
-            size += l.size();
-        }
-        return size;
     }
 
     /**
@@ -389,8 +376,7 @@ public class BrowserMainDocumentModel {
      */
     void triggerExpand(final MainCell mainCell) {
         if(mainCell instanceof MainCellDocument) {
-            final MainCellDocument mcd =
-                (MainCellDocument) mainCell;
+            final MainCellDocument mcd = (MainCellDocument) mainCell;
             if(isExpanded(mcd)) { collapse(mcd); }
             else { expand(mcd); }
 
@@ -473,13 +459,36 @@ public class BrowserMainDocumentModel {
      */
     private void expand(final MainCellDocument mcd) {
         mcd.setExpanded(Boolean.TRUE);
-        final MainCellHistoryItem[] mchiArray =
-            (MainCellHistoryItem[]) contentProvider.getElements(1, mcd);
+        final MainCellHistoryItem[] mchiArray = readHistory(mcd);
         final List<MainCellHistoryItem> lmchi = visibleHistory.containsKey(mcd)
             ? visibleHistory.get(mcd)
             : new LinkedList<MainCellHistoryItem>();
         for(final MainCellHistoryItem mchi : mchiArray) { lmchi.add(mchi); }
         visibleHistory.put(mcd, lmchi);
+    }
+
+    /**
+     * Obtain the list of cells adhering to the document group.  This
+     * consists of the document; as well as all history cells.
+     *
+     */
+    private MainCell[] getAllCells() {
+        final MainCell[] allCells = new MainCell[jListModel.size()];
+        jListModel.copyInto(allCells);
+        return allCells;
+    }
+
+    /**
+     * Obtain the list of cells adhering to the document group.  This
+     * consists of the document; as well as all history cells.
+     *
+     */
+    private MainCell[] getDocumentGroup(final MainCell mainCell) {
+        final Set<MainCell> group = new HashSet<MainCell>();
+        group.add(mainCell);
+        if(visibleHistory.containsKey(mainCell))
+            group.addAll(visibleHistory.get(mainCell));
+        return group.toArray(new MainCell[] {});
     }
 
     /**
@@ -493,9 +502,31 @@ public class BrowserMainDocumentModel {
     private void initModel() {
         // read the documents from the provider into the list
         documents.clear();
-        final MainCellDocument[] mcdArray = (MainCellDocument[]) contentProvider.getElements(0, null);
+        final MainCellDocument[] mcdArray = readDocuments();
         for(final MainCellDocument mcd : mcdArray) { documents.add(mcd); }
         syncDocuments();
+    }
+
+    /**
+     * Read the documents from the provider.
+     * 
+     * @return The documents.
+     */
+    private MainCellDocument[] readDocuments() {
+        return (MainCellDocument[]) contentProvider.getElements(0, null);
+    }
+
+    /**
+     * Read the history for the document from the provider.
+     * 
+     * @param mainCellDocument
+     *            The document.
+     * @return The history.
+     */
+    private MainCellHistoryItem[] readHistory(
+            final MainCellDocument mainCellDocument) {
+        return (MainCellHistoryItem[]) contentProvider.getElements(
+                1, mainCellDocument);
     }
 
     /**
@@ -619,34 +650,23 @@ public class BrowserMainDocumentModel {
     }
 
     /**
+     * Obtain the number of visible history items.
+     *
+     * @return The number of visible history items.
+     */
+    private Integer visibleHistorySize() {
+        Integer size = 0;
+        for(final List<MainCellHistoryItem> l : visibleHistory.values()) {
+            size += l.size();
+        }
+        return size;
+    }
+
+    /**
      * Unique keys used in the {@link DOCUMENT_FILTERS} collection.
      * 
      */
     private enum DocumentFilterKey {
         KEY_HOLDER_FALSE, KEY_HOLDER_TRUE, SEARCH, STATE_ACTIVE, STATE_CLOSED
-    }
-
-    /**
-     * Obtain the list of cells adhering to the document group.  This
-     * consists of the document; as well as all history cells.
-     *
-     */
-    private MainCell[] getDocumentGroup(final MainCell mainCell) {
-        final Set<MainCell> group = new HashSet<MainCell>();
-        group.add(mainCell);
-        if(visibleHistory.containsKey(mainCell))
-            group.addAll(visibleHistory.get(mainCell));
-        return group.toArray(new MainCell[] {});
-    }
-
-    /**
-     * Obtain the list of cells adhering to the document group.  This
-     * consists of the document; as well as all history cells.
-     *
-     */
-    private MainCell[] getAllCells() {
-        final MainCell[] allCells = new MainCell[jListModel.size()];
-        jListModel.copyInto(allCells);
-        return allCells;
     }
 }

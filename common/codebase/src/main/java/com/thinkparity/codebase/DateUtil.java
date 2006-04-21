@@ -22,6 +22,358 @@ import java.util.Vector;
 public abstract class DateUtil {
 
 	/**
+	 * Obtain from a Calendar, the desired DateImage as a String.  The default
+	 * Locale will be used when obtaining the format.
+	 * @param calendar <code>java.util.Calendar</code>
+	 * @param dateImage <code>DateUtil$DateImage</code>
+	 * @return <code>java.lang.String</code>
+	 */
+	public static synchronized String format(
+		Calendar calendar,
+		DateImage dateImage) {
+		return format(calendar, dateImage, null);
+	}
+	
+	/**
+	 * Obtain from a Calendar, the desired DateImage as a String, using the Locale
+	 * to obtain the format.
+	 * @param calendar <code>java.util.Calendar</code>
+	 * @param dateImage <code>DateUtil$DateImage</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.lang.String</code>
+	 */
+	public static synchronized String format(
+		Calendar calendar,
+		DateImage dateImage,
+		Locale locale) {
+		if(null == calendar)
+			return null;
+		return getSimpleDateFormat(dateImage, locale).format(calendar.getTime());
+	}
+
+	public static synchronized String format(
+		Calendar calendar,
+		String image) {
+		return DateUtil.formatCalendar(calendar, image, null);
+	}
+
+	public static synchronized String format(
+		Calendar calendar,
+		String image,
+		Locale locale) {
+		return DateUtil.formatCalendar(calendar, image, locale);
+	}
+	
+	/**
+	 * Format the number of milliseconds from Jan 1, 1970 into a display format.
+	 * @param milliseconds <code>long</code>
+	 * @param dateImage <code>DateUtil$DateFormat</code>
+	 * @return <code>java.lang.String</code>
+	 */
+	public static synchronized String format(
+		long milliseconds,
+		DateImage dateImage) {
+		return format(milliseconds, dateImage, null);
+	}
+
+	/**
+	 * Format the number of milliseconds from Jan 1, 1970 into a display format.
+	 * @param milliseconds <code>long</code>
+	 * @param dateImage <code>DateUtil$DateFormat</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.lang.String</code>
+	 */
+	public static synchronized String format(
+		long milliseconds,
+		DateImage dateImage,
+		Locale locale) {
+		return getSimpleDateFormat(dateImage, locale).format(
+			getInstance(milliseconds, locale).getTime());
+	}
+
+	/**
+	 * Obtain a calendar initialized to the default TimeZone and Locale.
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance() {
+		return DateUtil.getInstance((TimeZone) null, (Locale) null);
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon the default TimeZone and Locale, then
+	 * set the time according to Date
+	 * @param date <code>java.util.Date</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance(Date date) {
+		return getInstance(date, null, null);
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon the Locale and default TimeZone, then
+	 * set the time according to Date
+	 * @param date <code>java.util.Date</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.util.Calendar</code>
+	 */	
+	public static synchronized Calendar getInstance(Date date, Locale locale) {
+		return getInstance(date, null, locale);
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon the TimeZone and default Locale, then
+	 * set the time according to Date
+	 * @param date <code>java.util.Date</code>
+	 * @param timeZone <code>java.util.TimeZone</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance(
+		Date date,
+		TimeZone timeZone) {
+		return getInstance(date, timeZone, null);
+	}	
+
+	/**
+	 * Obtain a Calendar instance based upon the TimeZone and Locale, then set the
+	 * time according to Date
+	 * @param date <code>java.util.Date</code>
+	 * @param timeZone <code>java.util.TimeZone</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance(
+		Date date,
+		TimeZone timeZone,
+		Locale locale) {
+		if(null == date)
+			return null;
+		Calendar calendar = getInstance(timeZone, locale);
+		calendar.setTime(date);
+		return calendar;
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon the default TimeZone and Locale, then
+	 * set the time according to milliseconds
+	 * @param milliseconds <code>long</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance(long milliseconds) {
+		return getInstance(milliseconds, null, null);
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon the Locale and default TimeZone, then
+	 * set the time according to milliseconds
+	 * @param milliseconds <code>long</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance(
+		long milliseconds,
+		Locale locale) {
+		return getInstance(milliseconds, null, locale);
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon the TimeZone and default Locale, then
+	 * set the time according to milliseconds
+	 * @param milliseconds <code>long</code>
+	 * @param timeZone <code>java.util.TimeZone</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance(
+		long milliseconds,
+		TimeZone timeZone) {
+		return getInstance(milliseconds, timeZone, null);
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon the TimeZone and Locale, then set the
+	 * time according to milliseconds
+	 * @param milliseconds <code>long</code>
+	 * @param timeZone <code>java.util.TimeZone</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	public static synchronized Calendar getInstance(
+		long milliseconds,
+		TimeZone timeZone,
+		Locale locale) {
+		Calendar calendar = getInstance(timeZone, locale);
+		calendar.setTimeInMillis(milliseconds);
+		return calendar;
+	}
+
+	/**
+	 * Determine whether or not calendar is the first day of the month.  This is done
+	 * by comparing the actual minimum value of the 
+	 * <code>java.util.Calendar.DAY_OF_MONTH</code> member against its 
+	 * value.
+	 * @param calendar <code>java.util.Calendar</code>
+	 * @return <code>boolean</code>
+	 */
+	public static synchronized boolean isFirstDayOfMonth(Calendar calendar) {
+		return calendar.getActualMinimum(java.util.Calendar.DAY_OF_MONTH)
+			== calendar.get(java.util.Calendar.DAY_OF_MONTH);
+	}
+
+	/**
+	 * Determine whether or not calendar is the first day of the week.  This is done 
+	 * by comparing the <code>java.util.Calendar.getFirstDayOfWeek()</code> 
+	 * value with the <code>java.util.Calendar.DAY_OF_WEEK</code> value
+	 * @param calendar <code>java.util.Calendar</code>
+	 * @return <code>boolean</code>
+	 */
+	public static synchronized boolean isFirstDayOfWeek(Calendar calendar) {
+		return calendar.getActualMinimum(java.util.Calendar.DAY_OF_WEEK)
+			== calendar.get(java.util.Calendar.DAY_OF_WEEK);
+	}
+
+	/**
+	 * Determine whether or not calendar is the last day of the month.  This is done 
+	 * by comparing the actual maximum value of the 
+	 * <code>java.util.Calendar.DAY_OF_MONTH</code> member against is value.
+	 * @param calendar <code>java.util.Calendar</code>
+	 * @return <code>boolean</code>
+	 */
+	public static synchronized boolean isLastDayOfMonth(Calendar calendar) {
+		return calendar.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+			== calendar.get(java.util.Calendar.DAY_OF_MONTH);
+	}
+	
+	/**
+	 * Determine whether or not calendar is the last day of the week.  This is done 
+	 * by comparing the <code>java.util.Calendar.getFirstDayOfWeek()</code>
+	 * value with the <code>java.util.Calendar.DAY_OF_WEEK</code> value plus 
+	 * the actual maximum of the same value.
+	 * @param calendar <code>java.util.Calendar</code>
+	 * @return <code>boolean</code>
+	 */
+	public static synchronized boolean isLastDayOfWeek(Calendar calendar) {
+		return calendar.getActualMaximum(java.util.Calendar.DAY_OF_WEEK)
+			== calendar.get(java.util.Calendar.DAY_OF_WEEK);
+	}
+	
+	/**
+     * Determine whether or not the dates occur on the same day.
+     * 
+     * @param c1
+     *            A calendar.
+     * @param c2
+     *            A calendar.
+     * @return True if the year/month/day all match.
+     */
+    public static Boolean isSameDay(final Calendar c1, final Calendar c2) {
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+            && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH)
+            && c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH);
+    }
+	
+	/**
+	 * Parse the string for a <code>java.util.Calendar</code> which matches 
+	 * dateImage.  Uses the default <code>java.util.TimeZone</code> and 
+	 * <code>java.util.Locale</code>
+	 * @param string <code>java.lang.String</code>
+	 * @param dateImage <code>DateUtil$DateImage</code>
+	 * @return <code>java.util.Calendar</code>
+	 * @throws ParseException
+	 */
+	public static synchronized Calendar parse(
+		String string,
+		DateImage dateImage)
+		throws ParseException {
+		return parse(string ,dateImage, null, null);
+	}
+
+    /**
+	 * Parse the string for a <code>java.util.Calendar</code> which matches 
+	 * dateImage.  Uses timeZone and the default <code>java.util.Locale</code>
+	 * @param string <code>java.lang.String</code>
+	 * @param dateImage <code>DateUtil$DateImage</code>
+	 * @return <code>java.util.Calendar</code>
+	 * @throws ParseException
+	 */
+	public static synchronized Calendar parse(
+		String string,
+		DateImage dateImage,
+		TimeZone timeZone)
+		throws ParseException {
+		return parse(string, dateImage, null, null);
+	}
+
+	/**
+	 * Parse the string for a <code>java.util.Calendar</code> which matches 
+	 * dateImage.  Uses timeZone and locale
+	 * @param string <code>java.lang.String</code>
+	 * @param dateImage <code>DateUtil$DateImage</code>
+	 * @param timeZone <code>java.util.TimeZone</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.util.Calendar</code>
+	 * @throws ParseException
+	 */
+	public static synchronized Calendar parse(
+		String string,
+		DateImage dateImage,
+		TimeZone timeZone,
+		Locale locale)
+		throws ParseException {
+		if(null == string)
+			return null;
+		return getInstance(getSimpleDateFormat(dateImage, locale).parse(string), timeZone, locale);
+	}
+
+	private static synchronized String formatCalendar(
+		Calendar calendar,
+		String image,
+		Locale locale) {
+		return getSimpleDateFormat(image, locale).format(calendar.getTime());
+	}
+
+	/**
+	 * Obtain a Calendar instance based upon a TimeZone and Locale.  If either are
+	 * not specified, the defaults will be used.
+	 * @param timeZone <code>java.util.TimeZone</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.util.Calendar</code>
+	 */
+	private static synchronized Calendar getInstance(
+		TimeZone timeZone,
+		Locale locale) {
+		if(null == locale)
+			locale = Locale.getDefault();
+		if(null == timeZone)
+			timeZone = TimeZone.getDefault();
+		return Calendar.getInstance(timeZone, locale);
+	}
+	
+	/**
+	 * Obtain a SimpleDateFormat to use for formatting a Date according to
+	 * DateImage.  If the Locale is not passed, the system default will be used.
+	 * @param dateImage <code>DateUtil$DateImage</code>
+	 * @param locale <code>java.util.Locale</code>
+	 * @return <code>java.text.SimpleDateFormat</code>
+	 */	
+	private static synchronized SimpleDateFormat getSimpleDateFormat(
+		DateImage dateImage,
+		Locale locale) {
+		return DateUtil.getSimpleDateFormat(dateImage.toString(), locale);
+	}
+
+	private static synchronized SimpleDateFormat getSimpleDateFormat(
+		String image,
+		Locale locale) {
+		if(null == locale)
+			locale = Locale.getDefault();
+		return new SimpleDateFormat(image, locale);
+	}
+	
+	/**
+	 * Create a new DateUtil [Singleton]
+	 */
+	private DateUtil() {super();}
+	
+	/**
 	 * <b>Title:</b>  DateImage
 	 * <br><b>Description:</b>  A discrete set of images used for
 	 * parsing dates.  To create a new image, used the following symbols:
@@ -53,19 +405,29 @@ public abstract class DateUtil {
 	 * @version 1.0.0
 	 */
 	public static final class DateImage extends Enum {
-		private static final long serialVersionUID = 1;
-
 		/**
-		 * 01 01 1900; 00:00:00
+		 * Sunday, January 1, 1900
 		 */
-		public static final DateImage OracleDateTime =
-			new DateImage("MM dd yyyy; HH:mm:ss");
+		public static final DateImage DayMonthYear =
+			new DateImage("EEEE, MMMM d, yyyy");
 
 		/**
 		 * 01
 		 */
 		public static final DateImage DayOfMonth = new DateImage("dd");
+
+		/**
+		 * 01.01.1900
+		 */
+		public static final DateImage FileSafeDate =
+			new DateImage("MM.dd.yyyy");
 		
+		/**
+		 * 01.01.1900_00.00.00
+		 */
+		public static final DateImage FileSafeDateTime =
+			new DateImage("MM.dd.yyyy_HH.mm.ss");
+
 		/**
 		 * 00:00
 		 */
@@ -76,13 +438,13 @@ public abstract class DateUtil {
 		 */
 		public static final DateImage HourMinuteSecond =
 			new DateImage("HH:mm:ss");
-
+	
 		/**
 		 * 00:00:00.000
 		 */
 		public static final DateImage HourMinuteSecondMilli =
 			new DateImage("HH:mm:ss.SSS");
-	
+		
 		/**
 		 * 1900-01-01 00:00:00.000
 		 */
@@ -90,55 +452,43 @@ public abstract class DateUtil {
 			new DateImage("yyyy-MM-dd HH:mm:ss.SSS");
 		
 		/**
-		 * 1
-		 */
-		public static final DateImage SingleDayOfMonth = new DateImage("d");
-		
-		/**
 		 * January 1900
 		 */
 		public static final DateImage MonthYear = new DateImage("MMMM yyyy");
-
-		/**
-		 * 19000101/0000000
-		 */
-		public static final DateImage SysLogDateTime =
-			new DateImage("yyyyMMdd/HHmmssSSS");
-
-		/**
-		 * 01.01.1900
-		 */
-		public static final DateImage FileSafeDate =
-			new DateImage("MM.dd.yyyy");
-
-		/**
-		 * 01.01.1900_00.00.00
-		 */
-		public static final DateImage FileSafeDateTime =
-			new DateImage("MM.dd.yyyy_HH.mm.ss");
-
-		/**
-		 * Sunday, January 1, 1900
-		 */
-		public static final DateImage DayMonthYear =
-			new DateImage("EEEE, MMMM d, yyyy");
 
 		/**
 		 * 1900-01-01
 		 */
 		public static final DateImage MySQLDate =
 			new DateImage("yyyy-MM-dd");
-		
-		/**
-		 * 00:00:00
-		 */
-		public static final DateImage MySQLTime = new DateImage("HH:mm:ss");
-		
+
 		/**
 		 * 1900-01-01 00:00:00
 		 */
 		public static final DateImage MySQLDateTime =
 			new DateImage("yyyy-MM-dd HH:mm:ss");
+
+		/**
+		 * 00:00:00
+		 */
+		public static final DateImage MySQLTime = new DateImage("HH:mm:ss");
+
+		/**
+		 * 01 01 1900; 00:00:00
+		 */
+		public static final DateImage OracleDateTime =
+			new DateImage("MM dd yyyy; HH:mm:ss");
+
+		/**
+		 * 1
+		 */
+		public static final DateImage SingleDayOfMonth = new DateImage("d");
+		
+		/**
+		 * 19000101/0000000
+		 */
+		public static final DateImage SysLogDateTime =
+			new DateImage("yyyyMMdd/HHmmssSSS");
 		
 		/**
 		 * 01-01-1900
@@ -150,17 +500,19 @@ public abstract class DateUtil {
 		 */
 		public static final DateImage WebDateTime =
 			new DateImage("MM-dd-yyyy hh:mm a");
-			
+		
 		/**
 		 * 12:00 AM
 		 */
 		public static final DateImage WebTime = new DateImage("hh:mm a");
-
+			
 		/**
 		 * 1900 01 01 00:00
 		 */
 		public static final DateImage YearMonthDayHourMinute =
 			new DateImage("yyyy MM dd HH:mm");
+
+		private static final long serialVersionUID = 1;
 		
 		/**
 		 * Create a custom date image at runtime.
@@ -189,7 +541,23 @@ public abstract class DateUtil {
 	 * @version 1.0.0
 	 */
 	public static final class DayOfWeek extends Enum {
-		private static final long serialVersionUID = 1;
+		/**
+		 * Friday
+		 */
+		public static final DayOfWeek Friday =
+			new DayOfWeek("Friday", "F", java.util.Calendar.FRIDAY);
+
+		/**
+		 * Monday
+		 */
+		public static final DayOfWeek Monday =
+			new DayOfWeek("Monday", "M", java.util.Calendar.MONDAY);
+
+		/**
+		 * Saturday
+		 */
+		public static final DayOfWeek Saturday =
+			new DayOfWeek("Saturday", "S", java.util.Calendar.SATURDAY);
 
 		/**
 		 * Sunday
@@ -198,10 +566,10 @@ public abstract class DateUtil {
 			new DayOfWeek("Sunday", "S", java.util.Calendar.SUNDAY);
 
 		/**
-		 * Monday
+		 * Thursday
 		 */
-		public static final DayOfWeek Monday =
-			new DayOfWeek("Monday", "M", java.util.Calendar.MONDAY);
+		public static final DayOfWeek Thursday =
+			new DayOfWeek("Thursday", "T", java.util.Calendar.THURSDAY);
 
 		/**
 		 * Tuesday
@@ -215,23 +583,7 @@ public abstract class DateUtil {
 		public static final DayOfWeek Wednesday =
 			new DayOfWeek("Wednesday", "W", java.util.Calendar.WEDNESDAY);
 
-		/**
-		 * Thursday
-		 */
-		public static final DayOfWeek Thursday =
-			new DayOfWeek("Thursday", "T", java.util.Calendar.THURSDAY);
-
-		/**
-		 * Friday
-		 */
-		public static final DayOfWeek Friday =
-			new DayOfWeek("Friday", "F", java.util.Calendar.FRIDAY);
-
-		/**
-		 * Saturday
-		 */
-		public static final DayOfWeek Saturday =
-			new DayOfWeek("Saturday", "S", java.util.Calendar.SATURDAY);
+		private static final long serialVersionUID = 1;
 
 		/**
 		 * Find by <code>java.util.Calendar.DAY_OF_WEEK</code> variable.
@@ -282,341 +634,4 @@ public abstract class DateUtil {
 		public int getCalendarDayOfWeek() {return calendarDayOfWeek;}
 
 	}
-
-	/**
-	 * Obtain from a Calendar, the desired DateImage as a String, using the Locale
-	 * to obtain the format.
-	 * @param calendar <code>java.util.Calendar</code>
-	 * @param dateImage <code>DateUtil$DateImage</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.lang.String</code>
-	 */
-	public static synchronized String format(
-		Calendar calendar,
-		DateImage dateImage,
-		Locale locale) {
-		if(null == calendar)
-			return null;
-		return getSimpleDateFormat(dateImage, locale).format(calendar.getTime());
-	}
-
-	public static synchronized String format(
-		Calendar calendar,
-		String image) {
-		return DateUtil.formatCalendar(calendar, image, null);
-	}
-	
-	public static synchronized String format(
-		Calendar calendar,
-		String image,
-		Locale locale) {
-		return DateUtil.formatCalendar(calendar, image, locale);
-	}
-
-	/**
-	 * Obtain from a Calendar, the desired DateImage as a String.  The default
-	 * Locale will be used when obtaining the format.
-	 * @param calendar <code>java.util.Calendar</code>
-	 * @param dateImage <code>DateUtil$DateImage</code>
-	 * @return <code>java.lang.String</code>
-	 */
-	public static synchronized String format(
-		Calendar calendar,
-		DateImage dateImage) {
-		return format(calendar, dateImage, null);
-	}
-
-	/**
-	 * Format the number of milliseconds from Jan 1, 1970 into a display format.
-	 * @param milliseconds <code>long</code>
-	 * @param dateImage <code>DateUtil$DateFormat</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.lang.String</code>
-	 */
-	public static synchronized String format(
-		long milliseconds,
-		DateImage dateImage,
-		Locale locale) {
-		return getSimpleDateFormat(dateImage, locale).format(
-			getInstance(milliseconds, locale).getTime());
-	}
-
-	/**
-	 * Format the number of milliseconds from Jan 1, 1970 into a display format.
-	 * @param milliseconds <code>long</code>
-	 * @param dateImage <code>DateUtil$DateFormat</code>
-	 * @return <code>java.lang.String</code>
-	 */
-	public static synchronized String format(
-		long milliseconds,
-		DateImage dateImage) {
-		return format(milliseconds, dateImage, null);
-	}
-
-	/**
-	 * Obtain a calendar initialized to the default TimeZone and Locale.
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance() {
-		return DateUtil.getInstance((TimeZone) null, (Locale) null);
-	}
-
-	/**
-	 * Obtain a Calendar instance based upon the default TimeZone and Locale, then
-	 * set the time according to Date
-	 * @param date <code>java.util.Date</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance(Date date) {
-		return getInstance(date, null, null);
-	}	
-
-	/**
-	 * Obtain a Calendar instance based upon the Locale and default TimeZone, then
-	 * set the time according to Date
-	 * @param date <code>java.util.Date</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.util.Calendar</code>
-	 */	
-	public static synchronized Calendar getInstance(Date date, Locale locale) {
-		return getInstance(date, null, locale);
-	}
-
-	/**
-	 * Obtain a Calendar instance based upon the TimeZone and default Locale, then
-	 * set the time according to Date
-	 * @param date <code>java.util.Date</code>
-	 * @param timeZone <code>java.util.TimeZone</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance(
-		Date date,
-		TimeZone timeZone) {
-		return getInstance(date, timeZone, null);
-	}
-
-	/**
-	 * Obtain a Calendar instance based upon the TimeZone and Locale, then set the
-	 * time according to Date
-	 * @param date <code>java.util.Date</code>
-	 * @param timeZone <code>java.util.TimeZone</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance(
-		Date date,
-		TimeZone timeZone,
-		Locale locale) {
-		if(null == date)
-			return null;
-		Calendar calendar = getInstance(timeZone, locale);
-		calendar.setTime(date);
-		return calendar;
-	}
-
-	/**
-	 * Obtain a Calendar instance based upon the TimeZone and Locale, then set the
-	 * time according to milliseconds
-	 * @param milliseconds <code>long</code>
-	 * @param timeZone <code>java.util.TimeZone</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance(
-		long milliseconds,
-		TimeZone timeZone,
-		Locale locale) {
-		Calendar calendar = getInstance(timeZone, locale);
-		calendar.setTimeInMillis(milliseconds);
-		return calendar;
-	}
-
-	/**
-	 * Obtain a Calendar instance based upon the TimeZone and default Locale, then
-	 * set the time according to milliseconds
-	 * @param milliseconds <code>long</code>
-	 * @param timeZone <code>java.util.TimeZone</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance(
-		long milliseconds,
-		TimeZone timeZone) {
-		return getInstance(milliseconds, timeZone, null);
-	}
-
-	/**
-	 * Obtain a Calendar instance based upon the Locale and default TimeZone, then
-	 * set the time according to milliseconds
-	 * @param milliseconds <code>long</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance(
-		long milliseconds,
-		Locale locale) {
-		return getInstance(milliseconds, null, locale);
-	}
-
-	/**
-	 * Obtain a Calendar instance based upon the default TimeZone and Locale, then
-	 * set the time according to milliseconds
-	 * @param milliseconds <code>long</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	public static synchronized Calendar getInstance(long milliseconds) {
-		return getInstance(milliseconds, null, null);
-	}
-
-	/**
-	 * Determine whether or not calendar is the first day of the month.  This is done
-	 * by comparing the actual minimum value of the 
-	 * <code>java.util.Calendar.DAY_OF_MONTH</code> member against its 
-	 * value.
-	 * @param calendar <code>java.util.Calendar</code>
-	 * @return <code>boolean</code>
-	 */
-	public static synchronized boolean isFirstDayOfMonth(Calendar calendar) {
-		return calendar.getActualMinimum(java.util.Calendar.DAY_OF_MONTH)
-			== calendar.get(java.util.Calendar.DAY_OF_MONTH);
-	}
-	
-	/**
-	 * Determine whether or not calendar is the first day of the week.  This is done 
-	 * by comparing the <code>java.util.Calendar.getFirstDayOfWeek()</code> 
-	 * value with the <code>java.util.Calendar.DAY_OF_WEEK</code> value
-	 * @param calendar <code>java.util.Calendar</code>
-	 * @return <code>boolean</code>
-	 */
-	public static synchronized boolean isFirstDayOfWeek(Calendar calendar) {
-		return calendar.getActualMinimum(java.util.Calendar.DAY_OF_WEEK)
-			== calendar.get(java.util.Calendar.DAY_OF_WEEK);
-	}
-	
-	/**
-	 * Determine whether or not calendar is the last day of the month.  This is done 
-	 * by comparing the actual maximum value of the 
-	 * <code>java.util.Calendar.DAY_OF_MONTH</code> member against is value.
-	 * @param calendar <code>java.util.Calendar</code>
-	 * @return <code>boolean</code>
-	 */
-	public static synchronized boolean isLastDayOfMonth(Calendar calendar) {
-		return calendar.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
-			== calendar.get(java.util.Calendar.DAY_OF_MONTH);
-	}
-	
-	/**
-	 * Determine whether or not calendar is the last day of the week.  This is done 
-	 * by comparing the <code>java.util.Calendar.getFirstDayOfWeek()</code>
-	 * value with the <code>java.util.Calendar.DAY_OF_WEEK</code> value plus 
-	 * the actual maximum of the same value.
-	 * @param calendar <code>java.util.Calendar</code>
-	 * @return <code>boolean</code>
-	 */
-	public static synchronized boolean isLastDayOfWeek(Calendar calendar) {
-		return calendar.getActualMaximum(java.util.Calendar.DAY_OF_WEEK)
-			== calendar.get(java.util.Calendar.DAY_OF_WEEK);
-	}
-	
-	/**
-	 * Parse the string for a <code>java.util.Calendar</code> which matches 
-	 * dateImage.  Uses the default <code>java.util.TimeZone</code> and 
-	 * <code>java.util.Locale</code>
-	 * @param string <code>java.lang.String</code>
-	 * @param dateImage <code>DateUtil$DateImage</code>
-	 * @return <code>java.util.Calendar</code>
-	 * @throws ParseException
-	 */
-	public static synchronized Calendar parse(
-		String string,
-		DateImage dateImage)
-		throws ParseException {
-		return parse(string ,dateImage, null, null);
-	}
-
-	/**
-	 * Parse the string for a <code>java.util.Calendar</code> which matches 
-	 * dateImage.  Uses timeZone and the default <code>java.util.Locale</code>
-	 * @param string <code>java.lang.String</code>
-	 * @param dateImage <code>DateUtil$DateImage</code>
-	 * @return <code>java.util.Calendar</code>
-	 * @throws ParseException
-	 */
-	public static synchronized Calendar parse(
-		String string,
-		DateImage dateImage,
-		TimeZone timeZone)
-		throws ParseException {
-		return parse(string, dateImage, null, null);
-	}
-
-	/**
-	 * Parse the string for a <code>java.util.Calendar</code> which matches 
-	 * dateImage.  Uses timeZone and locale
-	 * @param string <code>java.lang.String</code>
-	 * @param dateImage <code>DateUtil$DateImage</code>
-	 * @param timeZone <code>java.util.TimeZone</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.util.Calendar</code>
-	 * @throws ParseException
-	 */
-	public static synchronized Calendar parse(
-		String string,
-		DateImage dateImage,
-		TimeZone timeZone,
-		Locale locale)
-		throws ParseException {
-		if(null == string)
-			return null;
-		return getInstance(getSimpleDateFormat(dateImage, locale).parse(string), timeZone, locale);
-	}
-	
-	/**
-	 * Obtain a Calendar instance based upon a TimeZone and Locale.  If either are
-	 * not specified, the defaults will be used.
-	 * @param timeZone <code>java.util.TimeZone</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.util.Calendar</code>
-	 */
-	private static synchronized Calendar getInstance(
-		TimeZone timeZone,
-		Locale locale) {
-		if(null == locale)
-			locale = Locale.getDefault();
-		if(null == timeZone)
-			timeZone = TimeZone.getDefault();
-		return Calendar.getInstance(timeZone, locale);
-	}
-
-	private static synchronized String formatCalendar(
-		Calendar calendar,
-		String image,
-		Locale locale) {
-		return getSimpleDateFormat(image, locale).format(calendar.getTime());
-	}
-	
-	/**
-	 * Obtain a SimpleDateFormat to use for formatting a Date according to
-	 * DateImage.  If the Locale is not passed, the system default will be used.
-	 * @param dateImage <code>DateUtil$DateImage</code>
-	 * @param locale <code>java.util.Locale</code>
-	 * @return <code>java.text.SimpleDateFormat</code>
-	 */	
-	private static synchronized SimpleDateFormat getSimpleDateFormat(
-		DateImage dateImage,
-		Locale locale) {
-		return DateUtil.getSimpleDateFormat(dateImage.toString(), locale);
-	}
-	
-	private static synchronized SimpleDateFormat getSimpleDateFormat(
-		String image,
-		Locale locale) {
-		if(null == locale)
-			locale = Locale.getDefault();
-		return new SimpleDateFormat(image, locale);
-	}
-	
-	/**
-	 * Create a new DateUtil [Singleton]
-	 */
-	private DateUtil() {super();}
 }

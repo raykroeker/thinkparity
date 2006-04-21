@@ -9,6 +9,7 @@ import org.jivesoftware.smack.packet.IQ;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.model.smack.provider.IQParityProvider;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -56,9 +57,12 @@ public class IQConfirmReceiptProvider extends IQParityProvider {
                 iq.setArtifactUUID(UUID.fromString(parser.getText()));
                 parser.next();
             }
-            else if(XmlPullParser.END_TAG == eventType && "uuid".equals(name)) {
-                isComplete = Boolean.TRUE;
+            else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
+                parser.next();
+                iq.setRecievedFrom(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
+                parser.next();
             }
+            else { isComplete = Boolean.TRUE; }
         }
         return iq;
     }

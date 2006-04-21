@@ -9,7 +9,7 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
-import com.thinkparity.model.parity.model.audit.event.ConfirmationReceipt;
+import com.thinkparity.model.parity.model.audit.event.SendEventConfirmation;
 import com.thinkparity.model.parity.model.audit.event.KeyRequestDeniedEvent;
 import com.thinkparity.model.xmpp.JabberId;
 
@@ -43,10 +43,10 @@ class ArtifactModelAuditor extends AbstractAuditor {
      */
     void confirmationReceipt(final Long artifactId, final JabberId createdBy,
             final Calendar createdOn, final JabberId receivedFrom) throws ParityException {
-        final ConfirmationReceipt event = new ConfirmationReceipt();
+        final SendEventConfirmation event = new SendEventConfirmation();
         event.setArtifactId(artifactId);
         event.setCreatedOn(createdOn);
-        event.setType(AuditEventType.CONFIRM_RECEIPT);
+        event.setType(AuditEventType.SEND_CONFIRMATION);
 
         getInternalAuditModel().audit(event, createdBy, receivedFrom);
     }

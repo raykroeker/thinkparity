@@ -5,11 +5,17 @@ package com.thinkparity.model.parity.model.document.history;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
+import org.apache.log4j.Logger;
+
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
 
+import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.xmpp.JabberId;
@@ -21,19 +27,16 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class HistoryItemBuilder {
 
-	/**
-	 * The document.
-	 * 
-	 */
+	/** The parity document. */
 	private final Document document;
 
-	/**
-	 * Localization.
-	 * 
-	 */
+	/** A localization wrapper. */
 	private final L18n l18n;
 
-	/**
+    /** An apache logger. */
+    protected final Logger logger;
+
+    /**
 	 * Create a HistoryItemBuilder.
 	 * 
 	 */
@@ -41,51 +44,93 @@ public class HistoryItemBuilder {
 		super();
 		this.l18n = l18n;
 		this.document = document;
+        this.logger = ModelLoggerFactory.getLogger(getClass());
 	}
 
 	/**
-	 * Create the history for the list of audit events.
-	 * 
-	 * @param auditEvents
-	 *            A list of audit events.
-	 * @return A list of history events.
-	 * @throws ParityException
-	 */
-	public List<HistoryItem> create(final Iterable<AuditEvent> auditEvents,
+     * Build the history of a document for its audit events.
+     * 
+     * @param iAuditEvents
+     *            An iterable of audit events.
+     * @return The history.
+     * @throws ParityException
+     */
+	public List<HistoryItem> build(final List<AuditEvent> auditEvents,
             final JabberId loggedInUser) throws ParityException {
 		final List<HistoryItem> history = new LinkedList<HistoryItem>();
-		for(final AuditEvent auditEvent : auditEvents) {
-			history.add(create(auditEvent, loggedInUser));
+
+		final ListIterator<AuditEvent> li = auditEvents.listIterator();
+        AuditEvent auditEvent;
+        while(li.hasNext()) {
+            auditEvent = li.next();
+            switch(auditEvent.getType()) {
+            case ARCHIVE:
+                history.add(create(document, (ArchiveEvent) auditEvent));
+                break;
+            case CLOSE:
+                history.add(create(document, (CloseEvent) auditEvent));
+                break;
+            case CREATE:
+                history.add(create(document, (CreateEvent) auditEvent));
+                break;
+            case KEY_RESPONSE_DENIED:
+                history.add(create(document, (KeyResponseDeniedEvent) auditEvent));
+                break;
+            case KEY_REQUEST_DENIED:
+                history.add(create(document, (KeyRequestDeniedEvent) auditEvent));
+                break;
+            case RECEIVE:
+                history.add(create(document, (ReceiveEvent) auditEvent));
+                break;
+            case RECEIVE_KEY:
+                history.add(create(document, (ReceiveKeyEvent) auditEvent));
+                break;
+            case REQUEST_KEY:
+                history.add(create(loggedInUser, document, (RequestKeyEvent) auditEvent));
+                break;
+            case SEND:
+                final SendEvent sendEvent = (SendEvent) auditEvent;
+                final SendEventConfirmation confirmEvent =
+                    findConfirmation(auditEvents.listIterator(li.nextIndex()), sendEvent);
+                history.add(create(document, sendEvent, confirmEvent));
+                break;
+            case SEND_CONFIRMATION:
+                // we do nothing
+                break;
+            case SEND_KEY:
+                history.add(create(document, (SendKeyEvent) auditEvent));
+                break;
+            default:
+                logger.warn("[LMODEL] [DOCUMENT] [BUILD HISTORY] [UNSUPPORTED AUDIT EVENT {0}]");
+            }
 		}
 		return history;
 	}
 
 	/**
-	 * Create a history item.
-	 * 
-	 * @param auditEvent
-	 *            The audit event.
-	 * 
-	 * @return This history item.
-	 */
-	private HistoryItem create(final AuditEvent auditEvent,
-            final JabberId loggedInUser) throws ParityException {
-		switch(auditEvent.getType()) {
-		case ARCHIVE: return create(document, (ArchiveEvent) auditEvent);
-        case CONFIRM_RECEIPT: return create(document, (ConfirmationReceipt) auditEvent);
-		case CLOSE: return create(document, (CloseEvent) auditEvent);
-		case CREATE: return create(document, (CreateEvent) auditEvent);
-		case KEY_RESPONSE_DENIED: return create(document, (KeyResponseDeniedEvent) auditEvent);
-		case KEY_REQUEST_DENIED: return create(document, (KeyRequestDeniedEvent) auditEvent);
-		case RECEIVE: return create(document, (ReceiveEvent) auditEvent);
-		case RECEIVE_KEY: return create(document, (ReceiveKeyEvent) auditEvent);
-		case REQUEST_KEY: return create(loggedInUser, document, (RequestKeyEvent) auditEvent);
-		case SEND: return create(document, (SendEvent) auditEvent);
-		case SEND_KEY: return create(document, (SendKeyEvent) auditEvent);
-		default:
-			throw Assert.createUnreachable("Unuspported audit event:  " + auditEvent.getType());
-		}
-	}
+     * Find and the confirmation event belonging to the send event.
+     * 
+     * @param liAuditEvent
+     *            A list iterator for the audit events.
+     * @param sendEvent
+     *            The send event to target.
+     * @return The confirmation event corresponding to the send event; or null
+     *         if the event does not exist.
+     */
+    private SendEventConfirmation findConfirmation(
+            final ListIterator<AuditEvent> liAuditEvent,
+            final SendEvent sendEvent) {
+        AuditEvent auditEvent;
+        while(liAuditEvent.hasNext()) {
+            auditEvent = liAuditEvent.next();
+            if(AuditEventType.SEND_CONFIRMATION == auditEvent.getType()) {
+                if(((SendEventConfirmation) auditEvent).getConfirmedBy().equals(sendEvent.getSentTo())) {
+                    return (SendEventConfirmation) auditEvent;
+                }
+            }
+        }
+        return null;
+    }
 
 	private HistoryItem create(final Document document, final ArchiveEvent event) {
 		final Object[] arguments = new Object[] {
@@ -193,25 +238,35 @@ public class HistoryItemBuilder {
 		return requestKey;
 	}
 
-	private HistoryItem create(final Document document, final SendEvent event) {
-		final Object[] arguments = new Object[] {getName(event.getSentTo())};
+	private HistoryItem create(final Document document, final SendEvent sendEvent,
+            final SendEventConfirmation confirmEvent) {
 		final HistoryItem send = new HistoryItem();
-		send.setDate(event.getCreatedOn());
-		send.setDocumentId(event.getArtifactId());
-		send.setEvent(getString("eventText.SEND", arguments));
-		send.setVersionId(event.getArtifactVersionId());
+		send.setDate(sendEvent.getCreatedOn());
+		send.setDocumentId(sendEvent.getArtifactId());
+
+        // use different language if there exists a send confirmation
+		final Object[] arguments;
+        if(null == confirmEvent) {
+            arguments = new Object[] {getName(sendEvent.getSentTo())};
+            send.setEvent(getString("eventText.SEND", arguments));
+        }
+        else {
+            arguments = new Object[] {
+                getName(sendEvent.getSentTo()),
+                confirmEvent.getCreatedOn().getTime()
+            };
+            if(DateUtil.isSameDay(
+                    sendEvent.getCreatedOn(), confirmEvent.getCreatedOn())) {
+                send.setEvent(getString("eventText.SEND_CONFIRMED_SAME_DAY", arguments));
+            }
+            else {
+                send.setEvent(getString("eventText.SEND_CONFIRMED", arguments));
+            }
+        }
+
+        send.setVersionId(sendEvent.getArtifactVersionId());
 		return send;
 	}
-
-    private HistoryItem create(final Document document,
-            final ConfirmationReceipt event) {
-        final HistoryItem hi = new HistoryItem();
-        hi.setDate(event.getCreatedOn());
-        hi.setDocumentId(document.getId());
-        // TODO Create a history item for the confirmation receipt
-        hi.setEvent(getString("", null));
-        return hi;
-    }
 
 	private HistoryItem create(final Document document, final SendKeyEvent event) {
 		final Object[] arguments = new Object[] {getName(event.getSentTo())};

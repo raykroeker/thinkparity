@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
@@ -54,14 +54,14 @@ class AuditModelImpl extends AbstractModelImpl {
 		auditIO.audit(event);
 	}
 
-    void audit(final ConfirmationReceipt event, final JabberId createdBy,
+    void audit(final SendEventConfirmation event, final JabberId createdBy,
             final JabberId receivedFrom) throws ParityException {
         logger.info("[LMODEL] [AUDIT] [AUDIT CONFIRMATION RECEIPT]");
         logger.debug(event);
         logger.debug(createdBy);
         logger.debug(receivedFrom);
         event.setCreatedBy(lookupUser(createdBy));
-        event.setReceivedFrom(lookupUser(receivedFrom));
+        event.setConfirmedBy(lookupUser(receivedFrom));
         auditIO.audit(event);
     }
 
@@ -159,7 +159,7 @@ class AuditModelImpl extends AbstractModelImpl {
 		auditIO.delete(artifactId);
 	}
 
-	Collection<AuditEvent> read(final Long artifactId) {
+	List<AuditEvent> read(final Long artifactId) {
 		logger.info("[LMODEL] [AUDIT] [READ]");
 		logger.debug(artifactId);
 		return auditIO.list(artifactId);

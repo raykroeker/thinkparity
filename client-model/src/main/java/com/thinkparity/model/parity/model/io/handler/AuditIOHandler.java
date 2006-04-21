@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.io.handler;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
@@ -13,21 +13,21 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
  * @version 1.1
  */
 public interface AuditIOHandler {
-	public void audit(final ArchiveEvent archiveEvent)
+	public void audit(final ArchiveEvent event)
             throws HypersonicException;
-	public void audit(final CloseEvent closeEvent) throws HypersonicException;
-    public void audit(final ConfirmationReceipt confirmationReceipt)
-            throws HypersonicException;
-	public void audit(final CreateEvent createEvent) throws HypersonicException;
+	public void audit(final CloseEvent event) throws HypersonicException;
+    public void audit(final CreateEvent event) throws HypersonicException;
 	public void audit(final KeyRequestDeniedEvent event) throws HypersonicException;
 	public void audit(final KeyResponseDeniedEvent event) throws HypersonicException;
-	public void audit(final ReceiveEvent receiveEvent) throws HypersonicException;
-	public void audit(final ReceiveKeyEvent receiveKeyEvent) throws HypersonicException;
-	public void audit(final RequestKeyEvent requestKeyEvent)
+	public void audit(final ReceiveEvent event) throws HypersonicException;
+	public void audit(final ReceiveKeyEvent event) throws HypersonicException;
+	public void audit(final RequestKeyEvent event)
 			throws HypersonicException;
-	public void audit(final SendEvent sendEvent) throws HypersonicException;
-	public void audit(final SendKeyEvent sendKeyEvent) throws HypersonicException;
+	public void audit(final SendEvent event) throws HypersonicException;
+	public void audit(final SendEventConfirmation event)
+            throws HypersonicException;
+	public void audit(final SendKeyEvent event) throws HypersonicException;
 	public void delete(final Long artifactId) throws HypersonicException;
-	public Collection<AuditEvent> list(final Long artifactId)
+	public List<AuditEvent> list(final Long artifactId)
 			throws HypersonicException;
 }

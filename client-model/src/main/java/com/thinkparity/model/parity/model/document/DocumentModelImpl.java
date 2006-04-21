@@ -933,7 +933,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 				new HistoryItemBuilder(l18n, get(documentId));
 
 			final List<HistoryItem> history =
-				hib.create(iAModel.read(documentId), currentUserId());
+				hib.build(iAModel.read(documentId), currentUserId());
 			ModelSorter.sortHistoryItems(history, comparator);
 
 			return history;

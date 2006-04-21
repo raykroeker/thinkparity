@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.audit;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
@@ -40,7 +40,7 @@ public class InternalAuditModel extends AuditModel {
 		synchronized(getImplLock()) { getImpl().audit(event, createdBy, closedBy); }
 	}
 
-    public void audit(final ConfirmationReceipt event,
+    public void audit(final SendEventConfirmation event,
             final JabberId createdBy, final JabberId receivedFrom)
             throws ParityException {
         synchronized(getImplLock()) { getImpl().audit(event, createdBy, receivedFrom); }
@@ -93,7 +93,7 @@ public class InternalAuditModel extends AuditModel {
 		synchronized(getImplLock()) { getImpl().delete(artifactId); }
 	}
 
-	public Collection<AuditEvent> read(final Long artifactId) {
+	public List<AuditEvent> read(final Long artifactId) {
 		synchronized(getImplLock()) { return getImpl().read(artifactId); }
 	}
 }

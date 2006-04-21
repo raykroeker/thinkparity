@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -148,27 +147,6 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-     * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ConfirmationReceipt)
-     */
-    public void audit(final ConfirmationReceipt event)
-            throws HypersonicException {
-        final Session session = openSession();
-        try {
-            audit(session, event);
-
-            auditMetaData(session, event,
-                    MetaDataType.USER_ID, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
-
-            session.commit();
-        }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
-    }
-
-	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.CreateEvent)
 	 * 
 	 */
@@ -184,7 +162,6 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
-
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.KeyRequestDeniedEvent)
@@ -227,6 +204,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
+
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ReceiveEvent)
@@ -316,6 +294,27 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+     * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.SendEventConfirmation)
+     */
+    public void audit(final SendEventConfirmation event)
+            throws HypersonicException {
+        final Session session = openSession();
+        try {
+            audit(session, event);
+
+            auditMetaData(session, event,
+                    MetaDataType.USER_ID, MetaDataKey.CONFIRMED_BY, event.getConfirmedBy().getLocalId());
+
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.SendKeyEvent)
 	 * 
 	 */
@@ -378,13 +377,13 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#list(java.lang.Long)
 	 */
-	public Collection<AuditEvent> list(Long artifactId) throws HypersonicException {
+	public List<AuditEvent> list(Long artifactId) throws HypersonicException {
 		final Session session = openSession();
 		try {
 			session.prepareStatement(SQL_READ_BY_ARTIFACT_ID);
 			session.setLong(1, artifactId);
 			session.executeQuery();
-			final Collection<AuditEvent> events = new LinkedList<AuditEvent>();
+			final List<AuditEvent> events = new LinkedList<AuditEvent>();
 			while(session.nextResult()) { events.add(extract(session)); }
 			return events;
 		}
@@ -453,8 +452,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			return extractArchive(session);
 		case CLOSE:
 			return extractClose(session);
-        case CONFIRM_RECEIPT:
-            return extractConfirmationReceipt(session);
+        case SEND_CONFIRMATION:
+            return extractSendConfirmation(session);
 		case CREATE:
 			return extractCreate(session);
 		case KEY_RESPONSE_DENIED:
@@ -500,16 +499,16 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return closeEvent;
 	}
 
-    private ConfirmationReceipt extractConfirmationReceipt(final Session session) {
-        final ConfirmationReceipt event = new ConfirmationReceipt();
+    private SendEventConfirmation extractSendConfirmation(final Session session) {
+        final SendEventConfirmation event = new SendEventConfirmation();
         event.setArtifactId(session.getLong("ARTIFACT_ID"));
         event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
         event.setCreatedOn(session.getCalendar("CREATED_ON"));
         event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
         event.setType(session.getAuditEventTypeFromInteger("ARTIFACT_AUDIT_TYPE_ID"));
 
-        final MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.RECEIVED_FROM);
-        event.setReceivedFrom(userIO.read((Long) metaData[0].getValue()));
+        final MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.CONFIRMED_BY);
+        event.setConfirmedBy(userIO.read((Long) metaData[0].getValue()));
 
         return event;
     }
@@ -675,5 +674,5 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-    private enum MetaDataKey { CLOSED_BY, DENIED_BY, RECEIVED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO }
+    private enum MetaDataKey { CLOSED_BY, CONFIRMED_BY, DENIED_BY, RECEIVED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO }
 }

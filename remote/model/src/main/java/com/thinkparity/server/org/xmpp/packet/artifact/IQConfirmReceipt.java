@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.artifact.ArtifactModel;
+import com.thinkparity.server.org.dom4j.ElementBuilder;
+import com.thinkparity.server.org.dom4j.ElementName;
 import com.thinkparity.server.org.dom4j.NamespaceName;
 import com.thinkparity.server.org.xmpp.packet.IQParity.Action;
 
@@ -28,5 +30,15 @@ public class IQConfirmReceipt extends IQArtifact {
      */
     public IQConfirmReceipt() {
         super(Action.ARTIFACTCONFIRMRECEIPT, NamespaceName.IQ_ARTIFACT_CONFIRM_RECEIPT);
+    }
+
+    /**
+     * Set the confirmed by jabber id.
+     * 
+     * @param confirmedBy
+     *            The confirmed by jabber id.
+     */
+    public void setConfirmedBy(final JabberId confirmedBy) {
+        ElementBuilder.addElement(rootElement, ElementName.JID, confirmedBy);
     }
 }

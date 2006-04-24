@@ -6,6 +6,12 @@
 	<version>1.0-SNAPSHOT</version>
 	<url>http://thinkparity.dyndns.org</url>
 
+    <parent>
+        <artifactId>parity</artifactId>
+        <groupId>com.thinkparity.parity</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
 	<artifactId>codebase</artifactId>
 	<name>thinkParity - Codebase</name>
 	<packaging>jar</packaging>
@@ -13,34 +19,8 @@
 	<scm>
 		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:codebase</connection>
 		<tag>v1_0</tag>
+		<url>http://tpdev.thinkparity.com/viewcvs</url>
 	</scm>
-
-	<ciManagement>
-		<system>continuum</system>
-		<url>http://tpdev.thinkparity.com:8080/continuum</url>
-	</ciManagement>
-
-	<issueManagement>
-		<system>Trac</system>
-		<url>http://tpdev.thinkparity.com/trac/parity</url>
-	</issueManagement>
-
-	<developers>
-		<developer>
-			<id>raymond</id>
-			<name>Raymond Kroeker</name>
-			<email>raykroeker@gmail.com</email>
-			<url>http://www.raykroeker.com</url>
-			<organization>thinkParity.com</organization>
-			<organizationUrl>http://thinkparity.dyndns.org</organizationUrl>
-			<roles>
-				<role>Architect</role>
-				<role>Engineer</role>
-			</roles>
-			<timezone>-8</timezone>
-			<properties/>
-		</developer>
-	</developers>
 
 	<dependencies>
 		<dependency>
@@ -65,18 +45,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>

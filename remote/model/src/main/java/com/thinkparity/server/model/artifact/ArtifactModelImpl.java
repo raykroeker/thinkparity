@@ -206,6 +206,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 
         final IQConfirmReceipt iq = new IQConfirmReceipt();
         iq.setUniqueId(uniqueId);
+        iq.setConfirmedBy(session.getJabberId());
         iq.setFrom(session.getJID());
         iq.setTo(receivedFrom.getJID());
 

@@ -12,6 +12,7 @@ import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import com.thinkparity.server.JabberId;
 
 
 /**
@@ -32,6 +33,24 @@ public class ElementBuilder {
         try { e2.setText(Base64.encode(CompressionUtil.compress(elementValue, Level.Nine))); }
         catch(final IOException iox) { throw new RuntimeException(iox); }
         return e2;
+    }
+
+    /**
+     * Add an element to the parent. The element value is a jabber id.
+     * 
+     * @param parentElement
+     *            The parent element.
+     * @param elementName
+     *            The element name.
+     * @param elementValue
+     *            The element value.
+     * @return The new element.
+     */
+    public static Element addElement(final Element parentElement,
+            final ElementName elementName, final JabberId elementValue) {
+        final Element element = parentElement.addElement(elementName.getName());
+        element.setText(elementValue.getQualifiedJabberId());
+        return element;
     }
 
     public static Element addElement(final Element parentElement,

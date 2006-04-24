@@ -13,43 +13,82 @@ import com.thinkparity.codebase.config.ConfigFactory;
  * @author raykroeker@gmail.com
  * @version 1.2.2.4
  */
-public abstract class Version {
+public class Version {
+
+	/** A singleton instance. */
+	private static final Version SINGLETON;
+
+	static { SINGLETON = new Version(ConfigFactory.newInstance(Version.class)); }
 
 	/**
-	 * Handle to the version config file
-	 * @see Version#configLock
-	 */
-	private static final Config config;
-
-	/**
-	 * Synchronization lock for config.
-	 * @see Version#config
-	 */
-	private static final Object configLock;
-
-	static {
-		config = ConfigFactory.newInstance(Version.class);
-		configLock = new Object();
-	}
-
-	/**
-	 * Obtain the build id of the codebase.
+	 * Obtain the build id.
 	 * 
-	 * @return The build id.
+	 * @return A build id string.
 	 */
-	public static String getBuildId() { return config.getProperty("buildId"); }
+    public static String getBuildId() { return SINGLETON.doGetBuildId(); }
+
+    /**
+     * Obtain the operating mode.
+     *
+     * @return An operating mode.
+     */
+    public static Mode getMode() { return SINGLETON.doGetMode(); }
 
 	/**
-	 * Obtain the name of the codebase.
+	 * Obtain the name.
 	 * 
-	 * @return The name.
+	 * @return A name string.
 	 */
-	public static String getName() { return config.getProperty("name"); }
+	public static  String getName() { return SINGLETON.doGetName(); }
 
 	/**
-	 * Obtain the version of the codebase.
+	 * Obtain the version.
 	 * 
-	 * @return The version
+	 * @return A version string.
 	 */
-	public static String getVersion() {return config.getProperty("version"); }
+    public static  String getVersion() { return SINGLETON.doGetVersion(); }
+
+    /** The version properties file. */
+    private final Config config;
+
+    /**
+     * Create a Version.
+     *
+     * @param config
+     *      A version properties file.
+     */
+    protected Version(final Config config) {
+        super();
+        this.config = config;
+    }
+
+	/**
+	 * Obtain the build id.
+	 * 
+	 * @return A build id string.
+	 */
+	protected String doGetBuildId() { return config.getProperty("com.thinkparity.parity.buildId"); }
+
+    /**
+     * Obtain the operating mode.
+     *
+     * @return An operating mode.
+     */
+    protected Mode doGetMode() {
+        return Mode.valueOf(config.getProperty("com.thinkparity.parity.mode"));
+    }
+
+	/**
+	 * Obtain the name.
+	 * 
+	 * @return A name string.
+	 */
+	protected String doGetName() { return config.getProperty("com.thinkparity.parity.name"); }
+
+	/**
+	 * Obtain the version.
+	 * 
+	 * @return A version string.
+	 */
+	protected String doGetVersion() {return config.getProperty("com.thinkparity.parity.version"); }
 }

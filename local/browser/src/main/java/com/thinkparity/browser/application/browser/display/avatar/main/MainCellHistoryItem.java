@@ -69,18 +69,24 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
         setVersionId(historyItem.getVersionId());
     }
 
-    public void setGroupSelected(final Boolean groupSelected) {
-        this.groupSelected = groupSelected;
-    }
-
-    public Boolean isGroupSelected() { return groupSelected; }
-
-
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#canImport()
      * 
      */
     public boolean canImport() { return false; }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     * 
+     */
+    public boolean equals(final Object obj) {
+        if(null != obj && obj instanceof MainCellHistoryItem) {
+            return ((MainCellHistoryItem) obj).index.equals(index) &&
+                ((MainCellHistoryItem) obj).document.equals(document);
+        }
+        return false;
+    }
+
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBackground()
@@ -203,11 +209,23 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
     public String getToolTip() { return null; }
 
     /**
+     * @see java.lang.Object#hashCode()
+     * 
+     */
+    public int hashCode() { return index.hashCode() & document.hashCode(); }
+
+    public Boolean isGroupSelected() { return groupSelected; }
+
+    /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#populatePopupMenu(java.awt.event.MouseEvent,
      *      javax.swing.JPopupMenu)
      * 
      */
     public void populatePopupMenu(MouseEvent e, JPopupMenu jPopupMenu) {}
+
+    public void setGroupSelected(final Boolean groupSelected) {
+        this.groupSelected = groupSelected;
+    }
 
     /**
      * Determine whether or not this item is the last item.

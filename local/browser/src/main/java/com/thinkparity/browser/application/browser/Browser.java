@@ -59,6 +59,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.user.User;
@@ -314,19 +315,28 @@ public class Browser extends AbstractApplication {
 	 * @param documentId
 	 *            The document id.
 	 */
-	public void fireDocumentCreated(final Long documentId) {
+	public void fireDocumentCreated(final Long documentId, final Boolean remote) {
         setCustomStatusMessage("DocumentCreated");
 		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
-			}
-		});
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, Boolean.FALSE);
-			}
+			public void run() { getMainAvatar().syncDocument(documentId, remote); }
 		});
 	}
+
+    /**
+     * Notify the application a document has been closed.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param remote
+     *            True if the closing was the result of a remote event; false if
+     *            the closing was a local event.
+     */
+    public void fireDocumentClosed(final Long documentId, final Boolean remote) {
+        setCustomStatusMessage("DocumentClosed");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getMainAvatar().syncDocument(documentId, remote); }
+        });
+    }
 
     /**
 	 * Notify the application that a document has been created.
@@ -357,6 +367,11 @@ public class Browser extends AbstractApplication {
      */
 	public void fireDocumentReceived(final Long documentId) {
         setCustomStatusMessage("DocumentReceived");
+
+        // flag it as not having been seen
+        final ArtifactModel aModel = getArtifactModel();
+        aModel.removeFlagSeen(documentId);
+
 		// refresh the document main list
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

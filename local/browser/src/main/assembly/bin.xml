@@ -46,7 +46,7 @@
 			<includes>
 				<include>com.thinkparity.parity:browser2-startup</include>
 				<include>com.thinkparity.parity:codebase</include>
-				<include>com.thinkparity.parity:model</include>
+				<include>com.thinkparity.parity:lModel</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>
@@ -55,7 +55,7 @@
 			<excludes>
 				<exclude>com.thinkparity.parity:browser2-startup</exclude>
 				<exclude>com.thinkparity.parity:codebase</exclude>
-				<exclude>com.thinkparity.parity:model</exclude>
+				<exclude>com.thinkparity.parity:lModel</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

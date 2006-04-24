@@ -3,12 +3,11 @@
  */
 package com.thinkparity.browser.application.system;
 
-import com.thinkparity.model.parity.api.events.CloseEvent;
-import com.thinkparity.model.parity.api.events.DeleteEvent;
+import com.thinkparity.model.parity.api.events.DocumentAdapter;
+import com.thinkparity.model.parity.api.events.DocumentEvent;
+import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.api.events.SystemMessageEvent;
 import com.thinkparity.model.parity.api.events.SystemMessageListener;
-import com.thinkparity.model.parity.api.events.UpdateEvent;
-import com.thinkparity.model.parity.api.events.UpdateListener;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
@@ -19,22 +18,13 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
  */
 class EventDispatcher {
 
-	/**
-	 * Listens for document update events.
-	 * 
-	 */
-	private UpdateListener documentUpdateListener;
+	/** The document listener. */
+	private DocumentListener documentListener;
 
-	/**
-	 * Listens for new system messages.
-	 * 
-	 */
+	/** The system message listener. */
 	private SystemMessageListener systemMessageListener;
 
-	/**
-	 * The system application.
-	 * 
-	 */
+	/** The application. */
 	private final SysApp sysApp;
 
 	/**
@@ -49,16 +39,16 @@ class EventDispatcher {
 	}
 
 	void end() {
-		sysApp.getDocumentModel().removeListener(documentUpdateListener);
-		documentUpdateListener = null;
+		sysApp.getDocumentModel().removeListener(documentListener);
+		documentListener = null;
 
 		sysApp.getSystemMessageModel().removeListener(systemMessageListener);
 		systemMessageListener = null;
 	}
 
 	void start() {
-		documentUpdateListener = createDocumentUpdateListener();
-		sysApp.getDocumentModel().addListener(documentUpdateListener);
+		documentListener = createDocumentListener();
+		sysApp.getDocumentModel().addListener(documentListener);
 
 		systemMessageListener = createSystemMessageListener();
 		sysApp.getSystemMessageModel().addListener(systemMessageListener);
@@ -69,12 +59,10 @@ class EventDispatcher {
 	 * 
 	 * @return The creation listener.
 	 */
-	private UpdateListener createDocumentUpdateListener() {
-		return new UpdateListener() {
-			public void objectClosed(final CloseEvent closeEvent) {}
-			public void objectDeleted(final DeleteEvent deleteEvent) {}
-			public void objectReceived(final UpdateEvent updateEvent) {
-				sysApp.notifyReceived(updateEvent.getSource());
+	private DocumentListener createDocumentListener() {
+		return new DocumentAdapter() {
+			public void documentUpdated(final DocumentEvent e) {
+                if(e.isRemote()) { sysApp.notifyReceived(e.getDocument()); }
 			}
 		};
 	}

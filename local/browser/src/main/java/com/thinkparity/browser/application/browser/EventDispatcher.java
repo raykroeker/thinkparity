@@ -4,7 +4,6 @@
 package com.thinkparity.browser.application.browser;
 
 import com.thinkparity.model.parity.api.events.*;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
@@ -21,17 +20,8 @@ class EventDispatcher {
 	 */
 	protected final Browser browser;
 
-	/**
-	 * The parity document creation event listener.
-	 * 
-	 */
-	private CreationListener documentCreationListener;
-
-	/**
-	 * The parity document update event listener.
-	 * 
-	 */
-	private UpdateListener documentUpdateListener;
+	/** The document listener. */
+	private DocumentListener documentListener;
 
 	/**
 	 * The parity session key event listener.
@@ -65,12 +55,9 @@ class EventDispatcher {
 	 *
 	 */
 	void end() {
-		browser.getDocumentModel().removeListener(documentCreationListener);
-		documentCreationListener = null;
+		browser.getDocumentModel().removeListener(documentListener);
+		documentListener = null;
 		
-		browser.getDocumentModel().removeListener(documentUpdateListener);
-		documentUpdateListener = null;
-
 		browser.getSessionModel().removeListener(sessionKeyListener);
 		sessionKeyListener = null;
 
@@ -86,11 +73,8 @@ class EventDispatcher {
 	 *
 	 */
 	void start() {
-		documentCreationListener = createDocumentModelCreationListener();
-		browser.getDocumentModel().addListener(documentCreationListener);
-		
-		documentUpdateListener = createDocumentModelUpdateListener();
-		browser.getDocumentModel().addListener(documentUpdateListener);
+		documentListener = createDocumentListener();
+		browser.getDocumentModel().addListener(documentListener);
 
 		sessionKeyListener = createSessionModelKeyListener();
 		browser.getSessionModel().addListener(sessionKeyListener);
@@ -102,24 +86,24 @@ class EventDispatcher {
 		browser.getSystemMessageModel().addListener(systemMessageListener);
 	}
 
-	private CreationListener createDocumentModelCreationListener() {
-		return new CreationListener() {
-			public void objectCreated(final CreationEvent e) {}
-			public void objectVersionCreated(final VersionCreationEvent e) {}
-		};
-	}
-
-	private UpdateListener createDocumentModelUpdateListener() {
-		return new UpdateListener() {
-			public void objectClosed(final CloseEvent e) {
-				final Artifact artifact = (Artifact) e.getSource();
-				browser.getArtifactModel().removeFlagSeen(artifact.getId());
-				browser.fireDocumentUpdated(artifact.getId());
-			}
-			public void objectDeleted(final DeleteEvent e) {}
-			public void objectReceived(final UpdateEvent e) {
-				browser.fireDocumentReceived(((Artifact) e.getSource()).getId());
-			}
+	private DocumentListener createDocumentListener() {
+		return new DocumentAdapter() {
+            public void documentCreated(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentCreated(e.getDocument().getId(), Boolean.TRUE);
+                }
+            }
+            public void documentClosed(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.getArtifactModel().removeFlagSeen(e.getDocument().getId());
+                    browser.fireDocumentUpdated(e.getDocument().getId());
+                }
+            }
+            public void documentUpdated(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentUpdated(e.getDocument().getId());
+                }
+            }
 		};
 	}
 

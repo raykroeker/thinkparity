@@ -139,4 +139,27 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
     public void setGroupSelected(Boolean groupSelected) {
         throw Assert.createNotYetImplemented("MainCellSystemMessage#setGroupSelected");
     }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     * 
+     */
+    public boolean equals(final Object obj) {
+        if(null != obj && obj instanceof MainCellSystemMessage) {
+            return ((MainCellSystemMessage) obj).getId().equals(getId());
+        }
+        return false;
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     * 
+     */
+    public int hashCode() { return getId().hashCode(); }
+
+    /**
+     * @see java.lang.Object#toString()
+     * 
+     */
+    public String toString() { return super.toString(); }
 }

@@ -118,7 +118,7 @@ public class Browser2Platform implements Platform {
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
 		this.windowRegistry = new WindowRegistry();
-		this.mode = Mode.DEBUG;
+		this.mode = Mode.DEVELOPMENT;
 		this.modelFactory = ModelFactory.getInstance();
 		this.preferences = modelFactory.getPreferences(getClass());
 		this.workspace = modelFactory.getWorkspace(getClass());
@@ -180,14 +180,14 @@ public class Browser2Platform implements Platform {
 	 * @see com.thinkparity.browser.platform.Platform#isDebugMode()
 	 * 
 	 */
-	public Boolean isDebugMode() { return mode == Mode.DEBUG; }
+	public Boolean isDebugMode() { return mode == Mode.DEVELOPMENT; }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Platform#isTestMode()
 	 */
 	public Boolean isTestMode() {
 		if(isDebugMode()) { return Boolean.TRUE; }
-		return mode == Mode.TEST;
+		return mode == Mode.TESTING;
 	}
 
 	/**
@@ -295,5 +295,5 @@ public class Browser2Platform implements Platform {
 	 * Discrete modes the platform is capable of running in.
 	 * 
 	 */
-	private enum Mode { DEBUG, PRODUCTION, TEST }
+	private enum Mode { DEVELOPMENT, PRODUCTION, TESTING }
 }

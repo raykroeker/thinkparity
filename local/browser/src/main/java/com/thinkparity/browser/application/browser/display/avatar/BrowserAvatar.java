@@ -47,8 +47,6 @@ public abstract class BrowserAvatar extends Avatar {
 	 *            A location to move the window to relative to where it was.
 	 */
 	protected void moveBrowserWindow(final Point l) {
-		logger.info("[BROWSER2] [APP] [BROWSER2] [MOVE BROWSER WINDOW]");
-		logger.debug(l);
-		getBrowser().moveBrowserWindow(l);
+        getBrowser().moveBrowserWindow(l);
 	}
 }

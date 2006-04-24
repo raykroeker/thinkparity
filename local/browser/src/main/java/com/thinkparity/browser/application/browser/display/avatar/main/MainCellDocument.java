@@ -92,18 +92,18 @@ public class MainCellDocument extends Document implements MainCell {
         this.seen = contains(ArtifactFlag.SEEN);
     }
 
-    public void setGroupSelected(final Boolean groupSelected) {
-        this.groupSelected = groupSelected;
-    }
-
-    public Boolean isGroupSelected() { return groupSelected; }
-
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#canImport()
      * 
      */
     public boolean canImport() { return isKeyHolder(); }
-    
+
+    /**
+     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     * 
+     */
+    public boolean equals(final Object obj) { return super.equals(obj); }
+
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#fireSelection()
      * 
@@ -121,7 +121,7 @@ public class MainCellDocument extends Document implements MainCell {
         else if(isUrgent()) { return imageCache.read(DocumentImage.BG_URGENT); }
         else { return imageCache.read(DocumentImage.BG_DEFAULT); }
     }
-
+    
     /**
      * Obtain the background image for a selected cell.
      * 
@@ -179,7 +179,7 @@ public class MainCellDocument extends Document implements MainCell {
         if(isExpanded()) { return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED); }
         else { return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT); }
     }
-    
+
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getText()
      * 
@@ -190,7 +190,7 @@ public class MainCellDocument extends Document implements MainCell {
         }
         else { return getName(); }
     }
-
+    
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextFont()
      * 
@@ -225,11 +225,10 @@ public class MainCellDocument extends Document implements MainCell {
     }
 
     /**
-     * Determine whether or not the document cell has been seen.
+     * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
      * 
-     * @return True if the document has been seen; false otherwise.
      */
-    public Boolean isSeen() { return seen; }
+    public int hashCode() { return super.hashCode(); }
 
     /**
      * Determine whether or not the document is closed.
@@ -245,12 +244,21 @@ public class MainCellDocument extends Document implements MainCell {
      */
     public Boolean isExpanded() { return expanded; }
 
+    public Boolean isGroupSelected() { return groupSelected; }
+
     /**
      * Determine whether or not the user is the document's key holder.
      * 
      * @return True if the user is the key holder.
      */
     public Boolean isKeyHolder() { return keyHolder; }
+
+    /**
+     * Determine whether or not the document cell has been seen.
+     * 
+     * @return True if the document has been seen; false otherwise.
+     */
+    public Boolean isSeen() { return seen; }
 
     /**
      * Determine whether or not the document is urgent.
@@ -273,6 +281,10 @@ public class MainCellDocument extends Document implements MainCell {
      *            The expanded flag.
      */
     public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
+
+    public void setGroupSelected(final Boolean groupSelected) {
+        this.groupSelected = groupSelected;
+    }
 
     /**
      * Set the document's key requests. This will affect the urgent status of

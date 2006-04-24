@@ -53,6 +53,8 @@ public class Close extends AbstractAction {
 			getDocumentModel().close(documentId);
 			getArtifactModel().applyFlagSeen(documentId);
 		}
+
+        browser.fireDocumentClosed(documentId, Boolean.FALSE);
 	}
 
 	/**

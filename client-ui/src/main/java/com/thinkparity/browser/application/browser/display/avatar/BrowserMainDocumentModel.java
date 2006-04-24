@@ -70,25 +70,20 @@ public class BrowserMainDocumentModel {
     /** The filter that is used to filter documents to produce visibleDocuments. */
     private final FilterChain<Artifact> documentFilter;
 
+    /** A map of documents to their history. */
+    private final Map<MainCellDocument, List<MainCellHistoryItem>> documentHistory;
+
     /** A list of all documents. */
     private final List<MainCellDocument> documents;
 
     /** The swing list model. */
     private final DefaultListModel jListModel;
 
-    /**
-     * The list of all updated documents.
-     * 
-     * @see #syncDocument(Long, Boolean)
-     * @see #syncDocuments()
-     */
-    private final List<MainCellDocument> touchedDocuments;
+    /** A list of "dirty" cells. */
+    private final List<MainCell> dirtyCells;
 
-    /** The set of all visible documents. */
-    private final List<MainCellDocument> visibleDocuments;
-
-    /** Visible document histories. */
-    private final Map<MainCellDocument, List<MainCellHistoryItem>> visibleHistory;
+    /** The set of all visible cells. */
+    private final List<MainCell> visibleCells;
 
     /**
      * Create a BrowserMainDocumentModel.
@@ -99,11 +94,11 @@ public class BrowserMainDocumentModel {
         this.browser = browser;
         this.documentFilter = new FilterChain<Artifact>();
         this.documents = new LinkedList<MainCellDocument>();
-        this.visibleHistory = new Hashtable<MainCellDocument, List<MainCellHistoryItem>>(10, 0.65F);
+        this.documentHistory = new Hashtable<MainCellDocument, List<MainCellHistoryItem>>(10, 0.65F);
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
-        this.touchedDocuments = new LinkedList<MainCellDocument>();
-        this.visibleDocuments = new LinkedList<MainCellDocument>();
+        this.dirtyCells = new LinkedList<MainCell>();
+        this.visibleCells = new LinkedList<MainCell>();
     }
 
     /**
@@ -133,7 +128,7 @@ public class BrowserMainDocumentModel {
         applyDocumentFilter(keyHolder
                 ? DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_TRUE)
                         : DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_FALSE));
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -149,7 +144,7 @@ public class BrowserMainDocumentModel {
         search.setResults(searchResult);
 
         applyDocumentFilter(search);
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -163,11 +158,11 @@ public class BrowserMainDocumentModel {
     void applyStateFilter(final ArtifactState state) {
         if(ArtifactState.ACTIVE == state) {
             applyDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_ACTIVE));
-            syncDocuments();
+            syncModel();
         }
         else if(ArtifactState.CLOSED == state) {
             applyDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_CLOSED));
-            syncDocuments();
+            syncModel();
         }
         else {
             Assert.assertUnreachable(
@@ -188,7 +183,7 @@ public class BrowserMainDocumentModel {
             if(filterKey == DocumentFilterKey.SEARCH) { continue; }
             documentFilter.removeFilter(DOCUMENT_FILTERS.get(filterKey));
         }
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -197,27 +192,41 @@ public class BrowserMainDocumentModel {
      */
     void debug() {
         if(browser.getPlatform().isDebugMode()) {
-            // documents
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + documents.size() + " DOCUMENTS]");
-            for(final MainCellDocument mcd : documents)
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + mcd.getText() + "]");
-            // visible documents
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleDocuments.size() + " VISIBLE DOCUMENTS]");
-            for(final MainCellDocument mcd : visibleDocuments)
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + mcd.getText() + "]");
-            // history items
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleHistorySize() + " HISTORY ITEMS]");
-            for(final List<MainCellHistoryItem> l : visibleHistory.values()) {
-                for(final MainCellHistoryItem mchi : l) {
-                    logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + mchi.getText() + "]");
+            Integer historyItems = 0;
+            for(final MainCellDocument mcd : documents) {
+                historyItems += documentHistory.get(mcd).size();
+            }
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + historyItems + " HISTORY EVENTS]");
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dirtyCells.size() + " DIRTY CELLS]");
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + jListModel.size() + " MODEL ELEMENTS]");
+
+            // documents
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [DOCUMENTS (" + documents.size() + ")]");
+            for(final MainCellDocument mcd : documents) {
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mcd.getText() + "]");
+            }
+            // history
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [HISTORY EVENTS (" + historyItems + ")]");
+            for(final MainCellDocument mcd : documents) {
+                for(final MainCellHistoryItem mchi : documentHistory.get(mcd)) {
+                    logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mchi.getText() + "]");
                 }
             }
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + jListModel.size() + " LIST CELLS]");
+            // visible cells
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [VISIBLE CELLS (" + visibleCells.size() + ")]");
+            for(final MainCell mc : visibleCells) {
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
+            }
+            
+            // list elements
             final Enumeration e = jListModel.elements();
             MainCell mc;
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [MODEL ELEMENTS (" + jListModel.size() + ")]");
             while(e.hasMoreElements()) {
                 mc = (MainCell) e.nextElement();
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + mc.getText() + "] ["
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "] ["
                     + mc.isGroupSelected() + "]");
             }
             documentFilter.debug(logger);
@@ -260,8 +269,8 @@ public class BrowserMainDocumentModel {
      *            The display document.
      * @return True if the document is visible; false otherwise.
      */
-    Boolean isDocumentVisible(final MainCellDocument displayDocument) {
-        return visibleDocuments.contains(displayDocument);
+    Boolean isDocumentVisible(final MainCellDocument mainCellDocument) {
+        return visibleCells.contains(mainCellDocument);
     }
 
     /**
@@ -272,7 +281,7 @@ public class BrowserMainDocumentModel {
     void removeKeyHolderFilters() {
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_FALSE));
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_TRUE));
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -282,7 +291,7 @@ public class BrowserMainDocumentModel {
      */
     void removeSearchFilter() {
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.SEARCH));
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -293,7 +302,7 @@ public class BrowserMainDocumentModel {
     void removeStateFilters() {
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_ACTIVE));
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_CLOSED));
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -323,7 +332,7 @@ public class BrowserMainDocumentModel {
      */
     void syncDocument(final Long documentId, final Boolean remote) {
         syncDocumentInternal(documentId, remote);
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -338,13 +347,13 @@ public class BrowserMainDocumentModel {
      *            Whether or not the reload is the result of a remote event or
      *            not.
      * @see #syncDocumentInternal(Long, Boolean)
-     * @see #syncDocuments()
+     * @see #syncModel()
      */
     void syncDocuments(final Set<Long> documentIds, final Boolean remote) {
         for(final Long documentId : documentIds) {
             syncDocumentInternal(documentId, remote);
         }
-        syncDocuments();
+        syncModel();
     }
 
     /**
@@ -380,7 +389,7 @@ public class BrowserMainDocumentModel {
             if(isExpanded(mcd)) { collapse(mcd); }
             else { expand(mcd); }
 
-            syncDocuments();
+            syncModel();
         }
     }
 
@@ -437,6 +446,17 @@ public class BrowserMainDocumentModel {
     }
 
     /**
+     * Perform a shallow clone of the documents list.
+     * 
+     * @return A copy of the documents list.
+     */
+    private List<MainCellDocument> cloneDocuments() {
+        final List<MainCellDocument> clone = new LinkedList<MainCellDocument>();
+        clone.addAll(documents);
+        return clone;
+    }
+
+    /**
      * Collapse the history.
      * 
      * @param mcd
@@ -444,11 +464,8 @@ public class BrowserMainDocumentModel {
      */
     private void collapse(final MainCellDocument mcd) {
         mcd.setExpanded(Boolean.FALSE);
-        MainCellHistoryItem mchi;
-        for(final Iterator<MainCellHistoryItem> i = visibleHistory.get(mcd).iterator(); i.hasNext();) {
-            mchi = i.next();
-            if(mchi.getDocument().equals(mcd)) { i.remove(); }
-        }
+
+        syncModel();
     }
 
     /**
@@ -459,12 +476,8 @@ public class BrowserMainDocumentModel {
      */
     private void expand(final MainCellDocument mcd) {
         mcd.setExpanded(Boolean.TRUE);
-        final MainCellHistoryItem[] mchiArray = readHistory(mcd);
-        final List<MainCellHistoryItem> lmchi = visibleHistory.containsKey(mcd)
-            ? visibleHistory.get(mcd)
-            : new LinkedList<MainCellHistoryItem>();
-        for(final MainCellHistoryItem mchi : mchiArray) { lmchi.add(mchi); }
-        visibleHistory.put(mcd, lmchi);
+
+        syncModel();
     }
 
     /**
@@ -486,8 +499,8 @@ public class BrowserMainDocumentModel {
     private MainCell[] getDocumentGroup(final MainCell mainCell) {
         final Set<MainCell> group = new HashSet<MainCell>();
         group.add(mainCell);
-        if(visibleHistory.containsKey(mainCell))
-            group.addAll(visibleHistory.get(mainCell));
+        if(documentHistory.containsKey(mainCell))
+            group.addAll(documentHistory.get(mainCell));
         return group.toArray(new MainCell[] {});
     }
 
@@ -496,15 +509,28 @@ public class BrowserMainDocumentModel {
      * <ol>
      * <li>Load the documents from the provider.
      * <li>Load the history from the provider.
-     * <li>Synchronize the data with the display.
+     * <li>Synchronize the data with the model.
      * <ol>
      */
     private void initModel() {
         // read the documents from the provider into the list
         documents.clear();
-        final MainCellDocument[] mcdArray = readDocuments();
-        for(final MainCellDocument mcd : mcdArray) { documents.add(mcd); }
-        syncDocuments();
+        documents.addAll(readDocuments());
+        for(final MainCellDocument mcd : documents) {
+            documentHistory.put(mcd, readHistory(mcd));
+        }
+        syncModel();
+    }
+
+    /**
+     * Read a document from the provider.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return The document.
+     */
+    private MainCellDocument readDocument(final Long documentId) {
+        return (MainCellDocument) contentProvider.getElement(0, documentId);
     }
 
     /**
@@ -512,8 +538,12 @@ public class BrowserMainDocumentModel {
      * 
      * @return The documents.
      */
-    private MainCellDocument[] readDocuments() {
-        return (MainCellDocument[]) contentProvider.getElements(0, null);
+    private List<MainCellDocument> readDocuments() {
+        final List<MainCellDocument> l = new LinkedList<MainCellDocument>();
+        final MainCellDocument[] a =
+                (MainCellDocument[]) contentProvider.getElements(0, null);
+        for(final MainCellDocument mcd : a) { l.add(mcd); }
+        return l;
     }
 
     /**
@@ -523,10 +553,13 @@ public class BrowserMainDocumentModel {
      *            The document.
      * @return The history.
      */
-    private MainCellHistoryItem[] readHistory(
+    private List<MainCellHistoryItem> readHistory(
             final MainCellDocument mainCellDocument) {
-        return (MainCellHistoryItem[]) contentProvider.getElements(
-                1, mainCellDocument);
+        final List<MainCellHistoryItem> l = new LinkedList<MainCellHistoryItem>();
+        final MainCellHistoryItem[] a =
+                (MainCellHistoryItem[]) contentProvider.getElements(1, mainCellDocument);
+        for(final MainCellHistoryItem mchi : a) { l.add(mchi); }
+        return l;
     }
 
     /**
@@ -554,112 +587,113 @@ public class BrowserMainDocumentModel {
      *            not.
      * 
      * @see #syncDocument(Long, Boolean)
-     * @see #syncDocuments()
+     * @see #syncModel()
      */
     private void syncDocumentInternal(final Long documentId,
             final Boolean remote) {
-        final MainCellDocument displayDocument =
-            (MainCellDocument) contentProvider.getElement(0, documentId);
-        // if the display document is null; we can assume the document has been
+        final MainCellDocument mainCellDocument = readDocument(documentId);
+
+        // if the document is null; we can assume the document has been
         // deleted (it's not longer being created by the provider); so we find
         // the document and remove it
-        if(null == displayDocument) {
+        if(null == mainCellDocument) {
             for(int i = 0; i < documents.size(); i++) {
                 if(documents.get(i).getId().equals(documentId)) {
                     documents.remove(i);
                     break;
                 }
             }
-        }
-        else {
-            // if the document is in the list; we need to remove it;
-            // and re-add it.
-            if(documents.contains(displayDocument)) {
-                final int index = documents.indexOf(displayDocument);
-                documents.remove(index);
-
-                // if the reload is not the result of a remote event; put it back
-                // where it was; otherwise move it to the top
-                if(remote) {
-                    documents.add(0, displayDocument);
-                    touchedDocuments.add(displayDocument);
-                }
-                else {
-                    documents.add(index, displayDocument);
-                    touchedDocuments.add(displayDocument);
+            final MainCellDocument[] historyKeys =
+                (MainCellDocument[]) documentHistory.keySet().toArray(new MainCellDocument[] {});
+            for(int i = 0; i < historyKeys.length; i++) {
+                if(historyKeys[i].getId().equals(documentId)) {
+                    documentHistory.remove(historyKeys[i]);
+                    break;
                 }
             }
-            // if it's not in the list; just add it to the top
-            else { documents.add(0, displayDocument); }
+        }
+        // the document is not null; therefore it is either new; or updated
+        else {
+
+            // the document is new
+            if(!documents.contains(mainCellDocument)) {
+                documents.add(0, mainCellDocument);
+                documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
+            }
+            // the document has been updated
+            else {
+                final int index = documents.indexOf(mainCellDocument);
+                documents.remove(index);
+
+                // if the reload is the result of a remote event add the document
+                // at the top of the list; otherwise add it in the same location
+                // it previously existed
+                if(remote) { documents.add(0, mainCellDocument); }
+                else { documents.add(index, mainCellDocument); }
+                documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
+
+                dirtyCells.add(mainCellDocument);
+                dirtyCells.addAll(documentHistory.get(mainCellDocument));
+            }
         }
     }
 
     /**
-     * Synchronize the document list with the list of visible documents and
-     * the list model.
+     * Filter the list of documents. Update the visible cell list with documents
+     * as well as the history. Update the model with the visible cell list.
      * 
      */
-    private void syncDocuments() {
-        // sync the documents with the visible documents
-        visibleDocuments.clear();
-        visibleDocuments.addAll(documents);
-        ModelFilterManager.filter(visibleDocuments, documentFilter);
-        // sync visible documents with the swing list's model
-        MainCell mc;
-        for(int i = 0; i < visibleDocuments.size(); i++) {
-            mc = (MainCell) visibleDocuments.get(i);
-            if(!jListModel.contains(mc)) { jListModel.add(i, mc); }
-        }
-        final MainCell[] cells = new MainCell[jListModel.size()];
-        jListModel.copyInto(cells);
-        int visibleIndex;
-        for(int i = 0; i < cells.length; i++) {
-            mc = cells[i];
-            // remove documents that are no longer visible
-            if(!visibleDocuments.contains(mc))
-                jListModel.removeElement(mc);
-            // re-create the list item of those that have been touched
-            if(touchedDocuments.contains(mc)) {
-                visibleIndex = visibleDocuments.indexOf(mc);
-                jListModel.remove(i);
-                jListModel.add(visibleIndex, visibleDocuments.get(visibleIndex));
-            }
-        }
-        // insert the history
-        if(0 < visibleHistorySize()) {
-            int index, prevIndex = 0;
-            int count = 0;
-            for(final MainCellDocument mcd : visibleHistory.keySet()) {
-                // if the document isn't visible; neither is the history
-                if(!visibleDocuments.contains(mcd)) { continue; }
+    private void syncModel() {
+        debug();
 
-                for(final MainCellHistoryItem mchi : visibleHistory.get(mcd)) {
-                    index = jListModel.indexOf(mcd);
-                    if(index != prevIndex) { count = 0; }
-                    jListModel.add(index + (++count), mchi);
-                    prevIndex = index;
+        // filter documents
+        final List<MainCellDocument> filteredDocuments = cloneDocuments();
+        ModelFilterManager.filter(filteredDocuments, documentFilter);
+        // update all visible cells
+        visibleCells.clear();
+        for(final MainCellDocument mcd : filteredDocuments) {
+            visibleCells.add(mcd);
+            if(mcd.isExpanded())
+                visibleCells.addAll(documentHistory.get(mcd));
+        }
+
+        // add visible cells not in the model; as well as update cell
+        // locations
+        for(final MainCell mc : visibleCells) {
+            if(!jListModel.contains(mc)) {
+                jListModel.add(visibleCells.indexOf(mc), mc);
+            }
+            else {
+                if(jListModel.indexOf(mc) != visibleCells.indexOf(mc)) {
+                    jListModel.removeElement(mc);
+                    jListModel.add(visibleCells.indexOf(mc), mc);
                 }
             }
         }
-        touchedDocuments.clear();
+
+        // prune cells
+        final MainCell[] mcModel = new MainCell[jListModel.size()];
+        jListModel.copyInto(mcModel);
+        for(final MainCell mc : mcModel) {
+            if(!visibleCells.contains(mc)) { jListModel.removeElement(mc); }
+        }
+
+        // update dirty cells
+        final Iterator<MainCell> iDirty = dirtyCells.iterator();
+        MainCell mcDirty;
+        while(iDirty.hasNext()) {
+            mcDirty = iDirty.next();
+            if(jListModel.contains(mcDirty)) {  // might not contain history cells
+                jListModel.removeElement(mcDirty);
+                jListModel.add(visibleCells.indexOf(mcDirty), mcDirty);
+                iDirty.remove();
+            }
+        }
 
         if(isDocumentListFiltered()) { browser.fireFilterApplied(); }
         else { browser.fireFilterRevoked(); }
 
         debug();
-    }
-
-    /**
-     * Obtain the number of visible history items.
-     *
-     * @return The number of visible history items.
-     */
-    private Integer visibleHistorySize() {
-        Integer size = 0;
-        for(final List<MainCellHistoryItem> l : visibleHistory.values()) {
-            size += l.size();
-        }
-        return size;
     }
 
     /**

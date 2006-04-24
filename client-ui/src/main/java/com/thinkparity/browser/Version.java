@@ -5,49 +5,53 @@ package com.thinkparity.browser;
 
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
+import com.thinkparity.codebase.Mode;
 
 /**
  * Version
  * @author raykroeker@gmail.com
  * @version 1.0.0
  */
-public class Version {
+public class Version extends com.thinkparity.codebase.Version {
+
+    /** The singleton instance. */
+    private static final Version SINGLETON;
+
+	static { SINGLETON = new Version(ConfigFactory.newInstance(Version.class)); }
+
+    /**
+     * Create a Version.
+     *
+     * @param config
+     *      The version properties.
+     */
+    private Version(final Config config) { super(config); }
 
 	/**
-	 * Handle to the version config file
-	 * @see Version#configLock
-	 */
-	private static final Config config;
-
-	/**
-	 * Synchronization lock for config.
-	 * @see Version#config
-	 */
-	private static final Object configLock;
-
-	static {
-		config = ConfigFactory.newInstance(Version.class);
-		configLock = new Object();
-	}
-
-	/**
-	 * Obtain the build id of the codebase.
+	 * Obtain the build id.
 	 * 
-	 * @return The build id.
+	 * @return A build id string.
 	 */
-	public static String getBuildId() { return config.getProperty("buildId"); }
+    public static String getBuildId() { return SINGLETON.doGetBuildId(); }
+
+    /**
+     * Obtain the operating mode.
+     *
+     * @return An operating mode.
+     */
+    public static Mode getMode() { return SINGLETON.doGetMode(); }
 
 	/**
-	 * Obtain the NAME of the codebase.
+	 * Obtain the name.
 	 * 
-	 * @return The NAME.
+	 * @return A name string.
 	 */
-	public static String getName() { return config.getProperty("name"); }
+	public static  String getName() { return SINGLETON.doGetName(); }
 
 	/**
-	 * Obtain the version of the codebase.
+	 * Obtain the version.
 	 * 
-	 * @return The version
+	 * @return A version string.
 	 */
-	public static String getVersion() {return config.getProperty("version"); }
+    public static  String getVersion() { return SINGLETON.doGetVersion(); }
 }

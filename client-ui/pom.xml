@@ -6,8 +6,14 @@
 	<version>1.0-SNAPSHOT</version>
 	<url>http://thinkparity.dyndns.org</url>
 
-	<artifactId>browser2</artifactId>
-	<name>thinkParity - Browser2</name>
+    <parent>
+        <artifactId>parity</artifactId>
+        <groupId>com.thinkparity.parity</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+	<artifactId>lBrowser</artifactId>
+	<name>thinkParity - Local Browser</name>
 	<packaging>jar</packaging>
 
 	<scm>
@@ -15,30 +21,6 @@
 		<tag>v1_0</tag>
 		<url>http://tpdev.thinkparity.com/viewcvs</url>
 	</scm>
-
-	<ciManagement>
-		<system>continuum</system>
-		<url>http://tpdev.thinkparity.com:8080/continuum</url>
-	</ciManagement>
-
-	<issueManagement>
-		<system>Trac</system>
-		<url>http://tpdev.thinkparity.com/trac/parity</url>
-	</issueManagement>
-
-	<developers>
-		<developer>
-			<id>raymond</id>
-			<name>Raymond Kroeker</name>
-			<email>raykroeker@gmail.com</email>
-			<url>http://www.raykroeker.com</url>
-			<organization>thinkParity.com Solutions</organization>
-			<organizationUrl>http://thinkparity.dyndns.org</organizationUrl>
-			<roles/>
-			<timezone>-8</timezone>
-			<properties/>
-		</developer>
-	</developers>
 
 	<dependencies>
 		<dependency>
@@ -50,7 +32,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
-			<artifactId>model</artifactId>
+			<artifactId>lModel</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 			<type>jar</type>
@@ -86,7 +68,7 @@
 
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
-			<artifactId>browser2-startup</artifactId>
+			<artifactId>lBrowserStartup</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>runtime</scope>
 			<type>jar</type>
@@ -94,21 +76,13 @@
 	</dependencies>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
 				<version>2.0-beta-1</version>
 				<configuration>
 					<descriptor>src/main/assembly/bin.xml</descriptor>
+                    <finalName>${artifactId}-${version}</finalName>
 					<outputDirectory>target</outputDirectory>
 					<workDirectory>target/assembly/work</workDirectory>
 				</configuration>

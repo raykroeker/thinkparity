@@ -58,7 +58,7 @@ public class Create extends AbstractAction {
 		final Document document =
 			getDocumentModel().create(file.getName(), file.getName(), file);
 
-		browser.fireDocumentCreated(document.getId());
+		browser.fireDocumentCreated(document.getId(), Boolean.FALSE);
 	}
 
 	public enum DataKey { FILE }

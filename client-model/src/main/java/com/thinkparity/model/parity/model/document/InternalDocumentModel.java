@@ -18,7 +18,7 @@ import com.thinkparity.model.xmpp.JabberId;
  * @version 1.1
  */
 public class InternalDocumentModel extends DocumentModel implements
-		InternalModel {
+        InternalModel {
 
 	/**
 	 * Create a InternalDocumentModel.
@@ -46,6 +46,24 @@ public class InternalDocumentModel extends DocumentModel implements
 			throws ParityException {
 		synchronized(getImplLock()) { getImpl().close(documentUniqueId, closedBy); }
 	}
+
+
+    /**
+     * Confirm that the document sent previously has been received by the
+     * specified user.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param confirmedBy
+     *            To whom the document was sent.
+     * @throws ParityException
+     */
+    public void confirmSend(final Long documentId, final JabberId confirmedBy)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().confirmSend(documentId, confirmedBy);
+        }
+    }
 
 	/**
 	 * Obtain a document with a specified id.

@@ -152,13 +152,10 @@ class SessionModelImpl extends AbstractModelImpl {
      *            From whom the artifact was received.
      */
     static void notifyConfirmationReceipt(final UUID uniqueId,
-            final JabberId receivedFrom) throws ParityException, SmackException {
-        final Document d =
-            DocumentModel.getInternalModel(sContext).get(uniqueId);
-        final User currentUser;
-        synchronized(xmppHelperLock) { currentUser =  xmppHelper.getUser(); }
-        ArtifactModel.getInternalModel(sContext).auditConfirmationReceipt(
-                d.getId(), currentUser.getId(), currentDateTime(), receivedFrom);
+            final JabberId confirmedBy) throws ParityException, SmackException {
+        final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
+        final Document d = iDModel.get(uniqueId);
+        iDModel.confirmSend(d.getId(), confirmedBy);
     }
 
 	/**

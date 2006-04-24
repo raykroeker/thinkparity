@@ -19,12 +19,8 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.events.CreationEvent;
-import com.thinkparity.model.parity.api.events.CreationListener;
-import com.thinkparity.model.parity.api.events.DeleteEvent;
-import com.thinkparity.model.parity.api.events.UpdateEvent;
-import com.thinkparity.model.parity.api.events.UpdateListener;
-import com.thinkparity.model.parity.api.events.VersionCreationEvent;
+import com.thinkparity.model.parity.api.events.DocumentEvent;
+import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.L18nContext;
 import com.thinkparity.model.parity.model.artifact.Artifact;
@@ -61,19 +57,8 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 class DocumentModelImpl extends AbstractModelImpl {
 
-    /**
-	 * List of listeners to notify when a document is created or received.
-	 * 
-	 * @see DocumentModelImpl#creationListenersLock
-	 */
-	private static final Collection<CreationListener> creationListeners;
-
-    /**
-	 * Synchronization lock for the creation listeners.
-	 * 
-	 * @see DocumentModelImpl#creationListeners
-	 */
-	private static final Object creationListenersLock;
+    /** A list of document listeners. */
+	private static final List<DocumentListener> LISTENERS = new LinkedList<DocumentListener>();
 
     /** A method id. */
     private static final String LOG_UWV = "[LMODEL] [DOCUMENT] [UPDATE WORKING VERSION] ";
@@ -93,70 +78,32 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/** A logger info statement. */
     private static final String LOG_UWV_INFO = LOG_UWV;
 
-	/**
-	 * List of listeners to notify when a document has been updated.
-	 * 
-	 * @see DocumentModelImpl#updateListenersLock
-	 */
-	private static final Collection<UpdateListener> updateListeners;
-
-	/**
-	 * Synchronization lock for the update listeners.
-	 * 
-	 * @see DocumentModelImpl#updateListeners
-	 */
-	private static final Object updateListenersLock;
-
-	static {
-		// initialize the creation event listeners
-		creationListeners = new Vector<CreationListener>(7);
-		creationListenersLock = new Object();
-		// initialize the update event listeners
-		updateListeners = new Vector<UpdateListener>(7);
-		updateListenersLock = new Object();
-	}
-
-	/**
-	 * The document model auditor.
-	 * 
-	 */
+	/** A document auditor. */
 	private final DocumentModelAuditor auditor;
 
-	/**
-	 * Default sort comparator for documents.
-	 * 
-	 */
+	/** The default document comparator. */
 	private final Comparator<Artifact> defaultComparator;
 
-	/**
-	 * Default history item comparator.
-	 * 
-	 */
+	/** The default document history comparator. */
 	private Comparator<HistoryItem> defaultHistoryItemComparator;
 
-	/**
-	 * Default sort comparator for document versions.
-	 * 
-	 * @see #getDefaultHistoryItemComparator()
-	 */
+	/** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
-	/**
-	 * Document history i\o.
-	 * 
-	 */
+	/** A document history reader/writer. */
 	private final DocumentHistoryIOHandler documentHistoryIO;
 
-	/**
-	 * Document xml input\output.
-	 */
+	/** A document reader/writer. */
 	private final DocumentIOHandler documentIO;
 
-	/**
-	 * Responsible for indexing documents.
-	 * 
-	 */
+	/** A document indexor. */
 	private final DocumentIndexor indexor;
+
+    /** A document event generator for local events. */
+    private final DocumentModelEventGenerator localEventGen;
+
+    /** A document event generator for remote events. */
+    private final DocumentModelEventGenerator remoteEventGen;
 
 	/**
 	 * Create a DocumentModelImpl
@@ -174,6 +121,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		this.documentIO = IOFactory.getDefault().createDocumentHandler();
 		this.documentHistoryIO = IOFactory.getPDF().createDocumentHistoryIOHandler();
 		this.indexor = new DocumentIndexor(getContext());
+        this.localEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.LOCAL);
+        this.remoteEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.REMOTE);
 	}
 
 	/**
@@ -186,37 +135,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 		getInternalArtifactModel().acceptKeyRequest(keyRequestId);
 	}
 
-	/**
-	 * @see DocumentModel#addListener(CreationListener)
-	 * @param listener
-	 *            The listener to add.
-	 */
-	void addListener(final CreationListener listener) {
-		logger.info("addCreationListener(CreationListener)");
-		logger.debug(listener);
-		Assert.assertNotNull("addCreationListener(CreationListener)", listener);
-		synchronized (DocumentModelImpl.creationListenersLock) {
-			Assert.assertNotTrue(
-					"addCreationListener(CreationListener)",
-					DocumentModelImpl.creationListeners.contains(listener));
-			DocumentModelImpl.creationListeners.add(listener);
-		}
-	}
-
-	/**
-	 * Add a document update event listener.
-	 * 
-	 * @param listener
-	 *            The listener to add.
-	 */
-	void addListener(final UpdateListener listener) {
-		logger.info("addUpdateListener(UpdateListener)");
-		logger.debug(listener);
-		Assert.assertNotNull("addUpdateListener(UpdateListener)", listener);
-		synchronized (DocumentModelImpl.updateListenersLock) {
-			Assert.assertNotTrue("Update listener already registered.",
-					DocumentModelImpl.updateListeners.contains(listener));
-			DocumentModelImpl.updateListeners.add(listener);
+    /**
+     * Add a document listener.  If the listener is already registered
+     * nothing is done.
+     *
+     * @param l
+     *      The document listener.
+     */
+	void addListener(final DocumentListener l) {
+		logger.info("[LMODEL] [DOCUMENT] [ADD LISTENER]");
+		logger.debug(l);
+		Assert.assertNotNull("[LMODEL] [DOCUMENT] [ADD LISTENER] [NULL LISTENER]", l);
+		synchronized (DocumentModelImpl.LISTENERS) {
+			if(DocumentModelImpl.LISTENERS.contains(l)) { return; }
+			DocumentModelImpl.LISTENERS.add(l);
 		}
 	}
 
@@ -247,8 +179,29 @@ class DocumentModelImpl extends AbstractModelImpl {
 		auditor.archive(documentId, currentUserId(), currentDateTime());
 
 		// 2  Archive History
-		return documentHistoryIO.archive(documentId, readHistory(documentId));
+		final File archive = documentHistoryIO.archive(documentId, readHistory(documentId));
+
+        // fire event
+        notifyDocumentArchived(get(documentId), localEventGen);
+
+        return archive;
 	}
+
+    /**
+     * Fire the document archived listener event.
+     *
+     * @param document
+     *      A document,
+     * @param eventGen
+     *      The event generator.
+     */
+    private void notifyDocumentArchived(final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(LISTENERS) {
+            for(final DocumentListener l : LISTENERS) {
+                l.documentArchived(eventGen.generate(document));
+            }
+        }
+    }
 
 	/**
 	 * Audit a key received event.
@@ -302,7 +255,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			auditor.close(d.getId(), currentUserId(), d.getUpdatedOn(), currentUserId());
 
 			// fire event
-			notifyUpdate_objectClosed(d);
+			notifyDocumentClosed(d, localEventGen);
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentId, rx);
@@ -334,13 +287,30 @@ class DocumentModelImpl extends AbstractModelImpl {
 			auditor.close(d.getId(), closedBy, d.getUpdatedOn(), currentUserId());
 
 			// fire event
-			notifyUpdate_objectClosed(d);
+			notifyDocumentClosed(document, remoteEventGen);
 		}
 		catch(final RuntimeException rx) {
 			logger.error("Cannot close document:  " + documentUniqueId, rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
+
+    /**
+     * Confirm that the document sent previously has been received by the
+     * specified user.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param confirmedBy
+     *            To whom the document was sent.
+     * @throws ParityException
+     */
+    void confirmSend(final Long documentId, final JabberId confirmedBy)
+            throws ParityException {
+        // audit the receipt
+        getInternalArtifactModel().auditConfirmationReceipt(
+                documentId, currentUserId(), currentDateTime(), confirmedBy);
+    }
 
 	/**
 	 * Import a document. This will take a name, description and location of a
@@ -396,30 +366,30 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final LocalFile localFile = getLocalFile(document);
 			localFile.write(contentBytes);
 
-			// flag the document as having been seen.
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.applyFlagKey(document.getId());
+            // flag the document with the key
+            final InternalArtifactModel iAModel = getInternalArtifactModel();
+            iAModel.applyFlagKey(document.getId());
 
-			// create the remote info row
-			iAModel.createRemoteInfo(document.getId(), currentUserId(), now);
-
-			// fire a creation event
-			final Document d = get(document.getId());
-			notifyCreation_objectCreated(d);
+            // create the remote info row
+			getInternalArtifactModel().createRemoteInfo(
+                document.getId(), currentUserId(), now);
 
 			// audit the creation
-			auditor.create(d.getId(), currentUserId(), d.getCreatedOn());
+			auditor.create(document.getId(), currentUserId(), document.getCreatedOn());
 
 			// index the creation
-			indexor.create(d.getId(), d.getName());
-			return d;
+			indexor.create(document.getId(), document.getName());
+
+            // fire event
+			notifyDocumentCreated(get(document.getId()), localEventGen);
+			return get(document.getId());
 		}
-		catch(IOException iox) {
-			logger.error("createDocument(Document)", iox);
+		catch(final IOException iox) {
+			logger.error("[LMODEL] [DOCUMENT] [CREATE] [IO ERROR]", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
-		catch(RuntimeException rx) {
-			logger.error("createDocument(Document)", rx);
+		catch(final RuntimeException rx) {
+			logger.error("[LMODEL] [DOCUMENT] [CREATE] [UNEXPECTED ERROR]", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -492,16 +462,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 			content.setChecksum(localFile.getFileChecksum());
 			documentIO.updateContent(content);
 
-			// fire the object version event notification
-			notifyCreation_objectVersionCreated(version);
 			return version;
 		}
-		catch(IOException iox) {
-			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", iox);
+		catch(final IOException iox) {
+			logger.error("[LMODEL] [DOCUMENT] [CREATE VERSION] [IO ERROR]", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
-		catch(RuntimeException rx) {
-			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", rx);
+		catch(final RuntimeException rx) {
+			logger.error("[LMODEL] [DOCUMENT] [CREATE VERSION] [UNEXPECTED ERROR]", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -559,11 +527,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// delete the index
 			indexor.delete(documentId);
 
-			// notify
-			notifyUpdate_objectDeleted(document);
+			// fire event
+			notifyDocumentDeleted(document, localEventGen);
 		}
-		catch(RuntimeException rx) {
-			logger.error("delete(UUID)", rx);
+		catch(final RuntimeException rx) {
+			logger.error("[LMODEL] [DOCUMENT] [DELETE] [UNEXPECTED ERROR]", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -998,8 +966,8 @@ class DocumentModelImpl extends AbstractModelImpl {
                 final InternalArtifactModel iAModel = getInternalArtifactModel();
                 iAModel.confirmReceipt(receivedFrom, document.getId());
 
-                // notify
-				notifyUpdate_objectReceived(d);
+                // fire event
+				notifyDocumentCreated(document, remoteEventGen);
 			}
 			else {
 				final DocumentVersion version =
@@ -1028,8 +996,8 @@ class DocumentModelImpl extends AbstractModelImpl {
                 final InternalArtifactModel iAModel = getInternalArtifactModel();
                 iAModel.confirmReceipt(receivedFrom, document.getId());
 
-				// notify if this is a new version
-				if(null == version) { notifyUpdate_objectReceived(d); }
+				// fire event
+				if(null == version) { notifyDocumentUpdated(document, remoteEventGen); }
 			}
 		}
 		catch(IOException iox) {
@@ -1043,39 +1011,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Remove a document creation event listener.
+	 * Remove a document listener.
 	 * 
-	 * @param listener
-	 *            The listener to remove.
+	 * @param l
+	 *        A document listener.
 	 */
-	void removeListener(final CreationListener listener) {
-		logger.info("removeCreationListener(CreationListener)");
-		logger.debug(listener);
-		Assert.assertNotNull(
-				"removeCreationListener(CreationListener)", listener);
-		synchronized(DocumentModelImpl.creationListenersLock) {
-			Assert.assertTrue(
-					"removeCreationListener(CreationListener)",
-					DocumentModelImpl.creationListeners.contains(listener));
-			DocumentModelImpl.creationListeners.remove(listener);
-		}
-	}
-
-	/**
-	 * Remove a document update event listener.
-	 * 
-	 * @param listener
-	 *            The listener to remove.
-	 */
-	void removeListener(final UpdateListener listener) {
-		logger.info("removeUpdateListener(UpdateListener)");
-		logger.debug(listener);
-		Assert.assertNotNull("removeUpdateListener(UpdateListener)", listener);
-		synchronized (DocumentModelImpl.updateListenersLock) {
-			Assert.assertTrue(
-					"removeUpdateListener(UpdateListener)",
-					DocumentModelImpl.updateListeners.contains(listener));
-			DocumentModelImpl.updateListeners.remove(listener);
+	void removeListener(final DocumentListener l) {
+		logger.info("[LMODEL] [DOCUMENT] [REMOVE LISTENER]");
+		logger.debug(l);
+		Assert.assertNotNull("[LMODEL] [DOCUMENT] [REMOVE LISTENER] [NULL LISTENER]", l);
+		synchronized(DocumentModelImpl.LISTENERS) {
+            if(!DocumentModelImpl.LISTENERS.contains(l)) { return; }
+			DocumentModelImpl.LISTENERS.remove(l);
 		}
 	}
 
@@ -1083,10 +1030,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [REQUEST KEY]");
 		logger.debug(documentId);
-
-		// remove seen flag
-		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		iAModel.removeFlagSeen(documentId);
 
 		// create system message
 		final InternalSystemMessageModel iSMModel = getInternalSystemMessageModel();
@@ -1096,6 +1039,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 		final Document d = get(documentId);
 		d.setUpdatedOn(currentDateTime());
 		documentIO.update(d);
+
+        // fire event
+        notifyKeyRequested(d, remoteEventGen);
 	}
 
 	/**
@@ -1259,7 +1205,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	private void insertVersion(final Long documentId,
 			final DocumentVersion version,
 			final DocumentVersionContent versionContent) throws ParityException {
-		logger.info("insertVersion(Long,DocumentVersion,DocumentVersionContent)");
+		logger.info("[LMODEL] [DOCUMENT] [INSERT VERSION");
 		logger.debug(documentId);
 		logger.debug(version);
 		logger.debug(versionContent);
@@ -1273,16 +1219,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final LocalFile versionFile = getLocalFile(document, version);
 			versionFile.write(versionContent.getDocumentContent().getContent());
 			versionFile.lock();
-
-			// fire the object version event notification
-			notifyCreation_objectVersionCreated(version);
 		}
-		catch(IOException iox) {
-			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", iox);
+		catch(final IOException iox) {
+			logger.error("[LMODEL] [DOCUMENT] [INSERT VERSION] [IO ERROR]", iox);
 			throw ParityErrorTranslator.translate(iox);
 		}
-		catch(RuntimeException rx) {
-			logger.error("createVersion(Document,DocumentAction,DocumentActionData)", rx);
+		catch(final RuntimeException rx) {
+			logger.error("[LMODEL] [DOCUMENT] [INSERT VERSION] [UNEXPECTED ERROR]", rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -1301,76 +1244,81 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Fire the objectCreated event for all of the creation listeners.
+	 * Fire document created.
 	 * 
 	 * @param document
-	 *            The document to use as the event source.
-	 * @see CreationListener#objectCreated(CreationEvent)
+     *      A document.
+     * @param eventGen
+     *      The event generator.
 	 */
-	private void notifyCreation_objectCreated(final Document document) {
-		synchronized(DocumentModelImpl.creationListenersLock) {
-			for(CreationListener listener : DocumentModelImpl.creationListeners) {
-				listener.objectCreated(new CreationEvent(document));
+	private void notifyDocumentCreated(final Document document, final DocumentModelEventGenerator eventGen) {
+		synchronized(DocumentModelImpl.LISTENERS) {
+			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+				l.documentCreated(eventGen.generate(document));
+			}
+		}
+	}
+
+    /**
+     * Fire key requested.
+     *
+     * @param document
+     *      A document
+     * @param eventGen
+     *      The event generator.
+     */
+    private void notifyKeyRequested(final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.keyRequested(eventGen.generate(document));
+            }
+        }
+    }
+
+	/**
+	 * Fire document closed.
+	 * 
+	 * @param document
+     *      A document.
+     * @param eventGen
+     *      The event generator.
+	 */
+	private void notifyDocumentClosed(final Document document, final DocumentModelEventGenerator eventGen) {
+		synchronized(DocumentModelImpl.LISTENERS) {
+			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+				l.documentClosed(eventGen.generate(document));
 			}
 		}
 	}
 
 	/**
-	 * Fire the objectVersionCreated event for all of the creation listeners.
+	 * Fire document deleted event.
 	 * 
-	 * @param documentVersion
-	 *            The document version to use as the event source.
-	 * @see CreationListener#objectVersionCreated(VersionCreationEvent)
+	 * @param document
+     *      The document.
+     * @param eventGen
+     *      The event generator.
 	 */
-	private void notifyCreation_objectVersionCreated(
-			final DocumentVersion documentVersion) {
-		synchronized (DocumentModelImpl.creationListenersLock) {
-			for (CreationListener listener : DocumentModelImpl.creationListeners) {
-				listener.objectVersionCreated(new VersionCreationEvent(
-						documentVersion));
+	private void notifyDocumentDeleted(final Document document, final DocumentModelEventGenerator eventGen) {
+		synchronized(DocumentModelImpl.LISTENERS) {
+			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+				l.documentDeleted(eventGen.generate(document));
 			}
 		}
 	}
 
 	/**
-	 * Fire the object closed event.
+	 * Fire document updated.
 	 * 
 	 * @param document
-	 *            The document that was closed.
+     *      A document.
+	 * @param eventGen
+     *      The event generator.
 	 */
-	private void notifyUpdate_objectClosed(final Document document) {
-		synchronized(updateListenersLock) {
-			for(final UpdateListener l : updateListeners) {
-				l.objectClosed(new com.thinkparity.model.parity.api.events.CloseEvent(document));
-			}
-		}
-	}
-
-	/**
-	 * Fire the object deleted event for all of the update listeners.
-	 * 
-	 * @param document
-	 *            The document that was deleted.
-	 */
-	private void notifyUpdate_objectDeleted(final Document document) {
-		synchronized(DocumentModelImpl.updateListeners) {
-			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
-				listener.objectDeleted(new DeleteEvent(document));
-			}
-		}
-	}
-
-	/**
-	 * Fire the objectReceived event for all update listeners.
-	 * 
-	 * @param document
-	 *            The document to use as the event source.
-	 * @see UpdateListener#objectReceived(UpdateEvent)
-	 */
-	private void notifyUpdate_objectReceived(final Document document) {
-		synchronized(DocumentModelImpl.updateListenersLock) {
-			for(UpdateListener listener : DocumentModelImpl.updateListeners) {
-				listener.objectReceived(new UpdateEvent(document));
+	private void notifyDocumentUpdated(final Document document, final DocumentModelEventGenerator eventGen) {
+		synchronized(DocumentModelImpl.LISTENERS) {
+			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+				l.documentUpdated(eventGen.generate(document));
 			}
 		}
 	}

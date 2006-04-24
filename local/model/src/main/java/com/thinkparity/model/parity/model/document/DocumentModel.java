@@ -10,8 +10,7 @@ import java.util.Comparator;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.events.CreationListener;
-import com.thinkparity.model.parity.api.events.UpdateListener;
+import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
@@ -76,23 +75,15 @@ public class DocumentModel {
 		this.implLock = new Object();
 	}
 
-	/**
-	 * Add a creation listener for documents.
-	 * 
-	 * @param listener
-	 *            The creation listener to add.
-	 */
-	public void addListener(final CreationListener listener) {
-		synchronized(implLock) { impl.addListener(listener); }
-	}
-	/**
-	 * Add a an update listener for documents.
-	 * 
-	 * @param listener
-	 *            The update listener to add.
-	 */
-	public void addListener(final UpdateListener listener) {
-		synchronized(implLock) { impl.addListener(listener); }
+    /**
+     * Add a document listener.  If the listener is already registered
+     * nothing is done.
+     *
+     * @param l
+     *      The document listener.
+     */
+	public void addListener(final DocumentListener l) {
+		synchronized(implLock) { impl.addListener(l); }
 	}
 
 	/**
@@ -418,23 +409,13 @@ public class DocumentModel {
     }
 
 	/**
-	 * Remove a creation listener.
+	 * Remove a document listener.
 	 * 
-	 * @param listener
-	 *            The creation listener to remove.
+	 * @param l
+	 *        The document listener.
 	 */
-	public void removeListener(final CreationListener listener) {
-		synchronized(implLock) { impl.removeListener(listener); }
-	}
-
-	/**
-	 * Remove an update listener.
-	 * 
-	 * @param listener
-	 *            The update listener to remove.
-	 */
-	public void removeListener(final UpdateListener listener) {
-		synchronized(implLock) { impl.removeListener(listener); }
+	public void removeListener(final DocumentListener l) {
+		synchronized(implLock) { impl.removeListener(l); }
 	}
 
     /**

@@ -4,30 +4,22 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.thinkparity.parity</groupId>
 	<url>http://thinkparity.dyndns.org</url>
-	
-	<artifactId>model</artifactId>
-	<name>thinkParity - lModel</name>
+
+     <parent>
+        <artifactId>parity</artifactId>
+        <groupId>com.thinkparity.parity</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+	<artifactId>lModel</artifactId>
+	<name>thinkParity - Local Model</name>
 	<version>1.0-SNAPSHOT</version>
 
 	<scm>
 		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:model</connection>
+		<tag>v1_0</tag>
+		<url>http://tpdev.thinkparity.com/viewcvs</url>
 	</scm>
-
-	<ciManagement>
-		<system>continuum</system>
-	</ciManagement>
-
-	<developers>
-		<developer>
-			<id>raymond</id>
-			<name>Raymond Kroeker</name>
-			<email>raykroeker@gmail.com</email>
-			<url>http://www.raykroeker.com</url>
-			<organization>thinkParity.com Solutions</organization>
-			<organizationUrl>http://thinkparity.dyndns.org</organizationUrl>
-			<timezone>-8</timezone>
-		</developer>
-	</developers>
 
 	<pluginRepositories>
 		<pluginRepository>
@@ -41,23 +33,6 @@
 			</releases>
 		</pluginRepository>
 	</pluginRepositories>
-
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>surefire-report-maven-plugin</artifactId>
-				<version>2.0-beta-2-SNAPSHOT</version>
-			</plugin>
-		</plugins>
-	</build>
 
 	<dependencies>
 		<dependency>
@@ -131,4 +106,14 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+    <build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>surefire-report-maven-plugin</artifactId>
+				<version>2.0-beta-2-SNAPSHOT</version>
+			</plugin>
+		</plugins>
+	</build>
 </project>

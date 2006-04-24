@@ -5,38 +5,54 @@ package com.thinkparity.model;
 
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
+import com.thinkparity.codebase.Mode;
 
 /**
- * The lModel version info.
+ * The Local Model's version info.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@thinkparity.com
  * @version 1.1
  */
-public class Version {
+public class Version extends com.thinkparity.codebase.Version {
 
-	/** Version.properties */
-	private static final Config config;
+    /** The singleton instance. */
+    private static final Version SINGLETON;
 
-	static { config = ConfigFactory.newInstance(Version.class); }
+	static { SINGLETON = new Version(ConfigFactory.newInstance(Version.class)); }
 
-	/**
-     * Obtain the build id.
-     * 
-     * @return The build id.
+    /**
+     * Create a Version.
+     *
+     * @param config
+     *      The version properties.
      */
-	public static String getBuildId() { return config.getProperty("buildId"); }
+    private Version(final Config config) { super(config); }
 
 	/**
-     * Obtain the library name.
-     * 
-     * @return The library name.
-     */
-	public static String getName() { return config.getProperty("name"); }
-
-	/**
-	 * Obtain the library version.
+	 * Obtain the build id.
 	 * 
-	 * @return The library version.
+	 * @return A build id string.
 	 */
-	public static String getVersion() {return config.getProperty("version"); }
+    public static String getBuildId() { return SINGLETON.doGetBuildId(); }
+
+    /**
+     * Obtain the operating mode.
+     *
+     * @return An operating mode.
+     */
+    public static Mode getMode() { return SINGLETON.doGetMode(); }
+
+	/**
+	 * Obtain the name.
+	 * 
+	 * @return A name string.
+	 */
+	public static  String getName() { return SINGLETON.doGetName(); }
+
+	/**
+	 * Obtain the version.
+	 * 
+	 * @return A version string.
+	 */
+    public static  String getVersion() { return SINGLETON.doGetVersion(); }
 }

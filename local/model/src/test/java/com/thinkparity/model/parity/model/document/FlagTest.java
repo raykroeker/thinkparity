@@ -30,16 +30,13 @@ public class FlagTest extends DocumentTestCase {
 	public FlagTest() { super("testFlags"); }
 
 	public void testFlags() {
-		try {
-			Collection<ArtifactFlag> flags;
-			for(Fixture datum : data) {
-				flags = datum.document.getFlags();
+        Collection<ArtifactFlag> flags;
+        for(Fixture datum : data) {
+            flags = datum.document.getFlags();
 
-				assertNotNull(flags);
-				assertTrue(flags.contains(ArtifactFlag.KEY));
-			}
-		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
+            assertNotNull(flags);
+            assertTrue(flags.contains(ArtifactFlag.KEY));
+        }
 	}
 
 	/**

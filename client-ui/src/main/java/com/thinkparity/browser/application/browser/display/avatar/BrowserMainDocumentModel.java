@@ -623,6 +623,10 @@ public class BrowserMainDocumentModel {
             // the document has been updated
             else {
                 final int index = documents.indexOf(mainCellDocument);
+
+                // preserve expand\collapse state
+                mainCellDocument.setExpanded(documents.get(index).isExpanded());
+
                 documents.remove(index);
 
                 // if the reload is the result of a remote event add the document

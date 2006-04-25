@@ -106,7 +106,7 @@ class EventDispatcher {
             }
             public void documentUpdated(final DocumentEvent e) {
                 if(e.isRemote()) {
-                    browser.fireDocumentUpdated(e.getDocument().getId());
+                    browser.fireDocumentUpdated(e.getDocument().getId(), Boolean.TRUE);
                 }
             }
 		};

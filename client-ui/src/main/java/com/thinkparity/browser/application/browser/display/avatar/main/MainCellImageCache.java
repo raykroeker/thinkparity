@@ -244,6 +244,7 @@ public class MainCellImageCache {
     enum HistoryItemIcon {
 
         INFO_DEFAULT("Invisible20x20.png"),
+        INFO_PENDING("MainCellInfoPending.png"),
 
         NODE_DEFAULT("Invisible12x12.png"),
         NODE_DEFAULT_SELECTED("Invisible12x12.png");

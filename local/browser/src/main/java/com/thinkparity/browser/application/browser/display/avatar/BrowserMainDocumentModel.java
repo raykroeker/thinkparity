@@ -341,15 +341,15 @@ public class BrowserMainDocumentModel {
      * updated in the list. If it cannot be found; it will be removed from the
      * list.
      * 
-     * @param documentId
-     *            The document id.
+     * @param documentIds
+     *            The document ids.
      * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
      * @see #syncDocumentInternal(Long, Boolean)
      * @see #syncModel()
      */
-    void syncDocuments(final Set<Long> documentIds, final Boolean remote) {
+    void syncDocuments(final List<Long> documentIds, final Boolean remote) {
         for(final Long documentId : documentIds) {
             syncDocumentInternal(documentId, remote);
         }

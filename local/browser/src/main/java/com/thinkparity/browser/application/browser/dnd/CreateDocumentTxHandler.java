@@ -8,8 +8,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -100,7 +100,7 @@ public class CreateDocumentTxHandler extends TransferHandler {
         }
 
         // create documents for each file transferred
-        final Set<Long> createdIds = new HashSet<Long>();
+        final List<Long> createdIds = new LinkedList<Long>();
         boolean didPass = true;
         for(final File file : files) {
             try {

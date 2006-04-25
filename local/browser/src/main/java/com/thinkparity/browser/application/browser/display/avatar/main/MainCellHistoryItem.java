@@ -67,6 +67,7 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
         setDocumentId(historyItem.getDocumentId());
         setEvent(historyItem.getEvent());
         setVersionId(historyItem.getVersionId());
+        setPending(historyItem.isPending());
     }
 
     /**
@@ -141,7 +142,8 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
      * 
      */
     public ImageIcon getInfoIcon() {
-        return imageCache.read(HistoryItemIcon.INFO_DEFAULT);
+        if(isPending()) { return imageCache.read(HistoryItemIcon.INFO_PENDING); }
+        else { return imageCache.read(HistoryItemIcon.INFO_DEFAULT); }
     }
 
     /**

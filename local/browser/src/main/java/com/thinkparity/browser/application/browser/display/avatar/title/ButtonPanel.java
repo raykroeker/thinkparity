@@ -190,7 +190,7 @@ public class ButtonPanel extends AbstractJPanel {
         c.weighty = 1;
         add(helpJLabel, c.clone());
 
-        c.insets.left = 4;
+        c.insets.left = 0;
         c.weightx = 0;
         c.weighty = 0;
         add(contactsJLabel, c.clone());
@@ -198,7 +198,7 @@ public class ButtonPanel extends AbstractJPanel {
         c.anchor = GridBagConstraints.NORTH;
         c.insets.top = 6;
 
-        c.insets.left = 4;
+        c.insets.left = 12;
         c.insets.right = 2;
         add(minJLabel, c.clone());
 

@@ -88,6 +88,11 @@ class EventDispatcher {
 
 	private DocumentListener createDocumentListener() {
 		return new DocumentAdapter() {
+            public void confirmationReceived(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentConfirmationReceived(e.getDocument().getId());
+                }
+            }
             public void documentCreated(final DocumentEvent e) {
                 if(e.isRemote()) {
                     browser.fireDocumentCreated(e.getDocument().getId(), Boolean.TRUE);

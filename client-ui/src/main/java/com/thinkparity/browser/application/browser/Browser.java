@@ -10,7 +10,6 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -339,6 +338,18 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Notify the application a document confirmation has been received.
+     *
+     * @param documentId
+     *      The document id.
+     */
+    public void fireDocumentConfirmationReceived(final Long documentId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getMainAvatar().syncDocument(documentId, Boolean.FALSE); }
+        });
+    }
+
+    /**
 	 * Notify the application that a document has been created.
 	 * 
 	 * @param documentId
@@ -386,7 +397,7 @@ public class Browser extends AbstractApplication {
      * @param documentIds
      *            The document ids.
      */
-    public void fireDocumentsCreated(final Set<Long> documentIds) {
+    public void fireDocumentsCreated(final List<Long> documentIds) {
         if(documentIds.size() > 1) { setCustomStatusMessage("DocumentsCreated"); }
         else { setCustomStatusMessage("DocumentCreated"); }
         SwingUtilities.invokeLater(new Runnable() {

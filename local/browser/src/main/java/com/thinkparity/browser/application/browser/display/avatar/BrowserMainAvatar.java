@@ -15,7 +15,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Set;
 import java.util.TooManyListenersException;
 
 import javax.swing.BorderFactory;
@@ -221,7 +220,7 @@ public class BrowserMainAvatar extends Avatar {
      * @param remote
      *            Indicates whether the sync is the result of a remove event.
      */
-    public void syncDocuments(final Set<Long> documentIds, final Boolean remote) {
+    public void syncDocuments(final List<Long> documentIds, final Boolean remote) {
         final MainCellDocument selectedDocument = getSelectedDocument();
         mainDocumentModel.syncDocuments(documentIds, remote);
         if(mainDocumentModel.isDocumentVisible(selectedDocument))

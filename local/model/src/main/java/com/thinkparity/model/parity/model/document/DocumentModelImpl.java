@@ -310,6 +310,8 @@ class DocumentModelImpl extends AbstractModelImpl {
         // audit the receipt
         getInternalArtifactModel().auditConfirmationReceipt(
                 documentId, currentUserId(), currentDateTime(), confirmedBy);
+        // fire event
+        notifyConfirmationReceived(get(documentId), remoteEventGen);
     }
 
 	/**
@@ -1242,6 +1244,22 @@ class DocumentModelImpl extends AbstractModelImpl {
 			documentIO.getLatestVersion(version.getArtifactId());
 		return latestLocalVersion.getVersionId().equals(version.getVersionId());
 	}
+
+    /**
+     * Fire confirmation received.
+     *
+     * @param document
+     *      A document
+     * @param eventGen
+     *      The event generator.
+     */
+    private void notifyConfirmationReceived(final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.confirmationReceived(eventGen.generate(document));
+            }
+        }
+    }
 
 	/**
 	 * Fire document created.

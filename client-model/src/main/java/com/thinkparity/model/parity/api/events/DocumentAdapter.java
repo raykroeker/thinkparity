@@ -12,6 +12,14 @@ package com.thinkparity.model.parity.api.events;
 public class DocumentAdapter implements DocumentListener {
 
     /**
+     * A send confirmation has been received.
+     *
+     * @param e
+     *      A document event.
+     */
+     public void confirmationReceived(final DocumentEvent e) {}
+
+    /**
      * A document has been archived.
      *
      * @param e

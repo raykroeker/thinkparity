@@ -140,6 +140,7 @@ public class HistoryItemBuilder {
 		item.setDate(event.getCreatedOn());
 		item.setDocumentId(document.getId());
 		item.setEvent(getString("eventText.ARCHIVE", arguments));
+        item.setPending(Boolean.FALSE);
 		return item;
 	}
 
@@ -147,19 +148,21 @@ public class HistoryItemBuilder {
 		final Object[] arguments = new Object[] {
 			getName(event.getClosedBy())
 		};
-		final HistoryItem close = new HistoryItem();
-		close.setDate(event.getCreatedOn());
-		close.setDocumentId(event.getArtifactId());
-		close.setEvent(getString("eventText.CLOSE", arguments));
-		return close;
+		final HistoryItem item = new HistoryItem();
+		item.setDate(event.getCreatedOn());
+		item.setDocumentId(event.getArtifactId());
+		item.setEvent(getString("eventText.CLOSE", arguments));
+        item.setPending(Boolean.FALSE);
+		return item;
 	}
 
 	private HistoryItem create(final Document document, final CreateEvent event) {
-		final HistoryItem create = new HistoryItem();
-		create.setDate(event.getCreatedOn());
-		create.setDocumentId(event.getArtifactId());
-		create.setEvent(getString("eventText.CREATE"));
-		return create;
+		final HistoryItem item = new HistoryItem();
+		item.setDate(event.getCreatedOn());
+		item.setDocumentId(event.getArtifactId());
+		item.setEvent(getString("eventText.CREATE"));
+        item.setPending(Boolean.FALSE);
+		return item;
 	}
 
 	private HistoryItem create(final Document document,
@@ -171,7 +174,7 @@ public class HistoryItemBuilder {
 		item.setDate(event.getCreatedOn());
 		item.setDocumentId(event.getArtifactId());
 		item.setEvent(getString("eventText.KEY_REQUEST_DENIED", arguments));
-
+        item.setPending(Boolean.FALSE);
 		return item;
 	}
 
@@ -184,21 +187,21 @@ public class HistoryItemBuilder {
 		item.setDate(event.getCreatedOn());
 		item.setDocumentId(event.getArtifactId());
 		item.setEvent(getString("eventText.KEY_RESPONSE_DENIED", arguments));
-
+        item.setPending(Boolean.FALSE);
 		return item;
-		
 	}
 
 	private HistoryItem create(final Document document, final ReceiveEvent event) {
 		final Object[] arguments = new Object[] {
 			getName(event.getReceivedFrom())
 		};
-		final HistoryItem receive = new HistoryItem();
-		receive.setDate(event.getCreatedOn());
-		receive.setDocumentId(event.getArtifactId());
-		receive.setEvent(getString("eventText.RECEIVE", arguments));
-		receive.setVersionId(event.getArtifactVersionId());
-		return receive;
+		final HistoryItem item = new HistoryItem();
+		item.setDate(event.getCreatedOn());
+		item.setDocumentId(event.getArtifactId());
+		item.setEvent(getString("eventText.RECEIVE", arguments));
+		item.setVersionId(event.getArtifactVersionId());
+        item.setPending(Boolean.FALSE);
+		return item;
 	}
 
 	private HistoryItem create(final Document document,
@@ -206,18 +209,19 @@ public class HistoryItemBuilder {
 		final Object[] arguments = new Object[] {
 			getName(event.getReceivedFrom())
 		};
-		final HistoryItem receiveKey = new HistoryItem();
-		receiveKey.setDate(event.getCreatedOn());
-		receiveKey.setDocumentId(event.getArtifactId());
-		receiveKey.setEvent(getString("eventText.RECEIVE_KEY", arguments));
-		return receiveKey;
+		final HistoryItem item = new HistoryItem();
+		item.setDate(event.getCreatedOn());
+		item.setDocumentId(event.getArtifactId());
+		item.setEvent(getString("eventText.RECEIVE_KEY", arguments));
+        item.setPending(Boolean.FALSE);
+		return item;
 	}
 
 	private HistoryItem create(final JabberId loggedInUser,
             final Document document, final RequestKeyEvent event) {
-		final HistoryItem requestKey = new HistoryItem();
-		requestKey.setDate(event.getCreatedOn());
-		requestKey.setDocumentId(document.getId());
+		final HistoryItem item = new HistoryItem();
+		item.setDate(event.getCreatedOn());
+		item.setDocumentId(document.getId());
 
 		final Object[] arguments = new Object[] {
 		        getName(event.getRequestedBy()),
@@ -234,21 +238,24 @@ public class HistoryItemBuilder {
 			throw Assert.createUnreachable(
 					"Request key event contains neither by\\from user.");
 		}
-		requestKey.setEvent(getString(localKey, arguments));
-		return requestKey;
+		item.setEvent(getString(localKey, arguments));
+        item.setPending(Boolean.FALSE);
+		return item;
 	}
 
 	private HistoryItem create(final Document document, final SendEvent sendEvent,
             final SendEventConfirmation confirmEvent) {
-		final HistoryItem send = new HistoryItem();
-		send.setDate(sendEvent.getCreatedOn());
-		send.setDocumentId(sendEvent.getArtifactId());
+		final HistoryItem item = new HistoryItem();
+		item.setDate(sendEvent.getCreatedOn());
+		item.setDocumentId(sendEvent.getArtifactId());
+        item.setPending(Boolean.FALSE);
 
         // use different language if there exists a send confirmation
 		final Object[] arguments;
         if(null == confirmEvent) {
             arguments = new Object[] {getName(sendEvent.getSentTo())};
-            send.setEvent(getString("eventText.SEND", arguments));
+            item.setEvent(getString("eventText.SEND", arguments));
+            item.setPending(Boolean.TRUE);
         }
         else {
             arguments = new Object[] {
@@ -257,25 +264,25 @@ public class HistoryItemBuilder {
             };
             if(DateUtil.isSameDay(
                     sendEvent.getCreatedOn(), confirmEvent.getCreatedOn())) {
-                send.setEvent(getString("eventText.SEND_CONFIRMED_SAME_DAY", arguments));
+                item.setEvent(getString("eventText.SEND_CONFIRMED_SAME_DAY", arguments));
             }
             else {
-                send.setEvent(getString("eventText.SEND_CONFIRMED", arguments));
+                item.setEvent(getString("eventText.SEND_CONFIRMED", arguments));
             }
         }
-
-        send.setVersionId(sendEvent.getArtifactVersionId());
-		return send;
+        item.setVersionId(sendEvent.getArtifactVersionId());
+		return item;
 	}
 
 	private HistoryItem create(final Document document, final SendKeyEvent event) {
 		final Object[] arguments = new Object[] {getName(event.getSentTo())};
-		final HistoryItem sendKey = new SendKeyHistoryItem();
-		sendKey.setDate(event.getCreatedOn());
-		sendKey.setDocumentId(event.getArtifactId());
-		sendKey.setVersionId(event.getArtifactVersionId());
-		sendKey.setEvent(getString("eventText.SEND_KEY", arguments));
-		return sendKey;
+		final HistoryItem item = new SendKeyHistoryItem();
+		item.setDate(event.getCreatedOn());
+		item.setDocumentId(event.getArtifactId());
+		item.setVersionId(event.getArtifactVersionId());
+		item.setEvent(getString("eventText.SEND_KEY", arguments));
+        item.setPending(Boolean.FALSE);
+		return item;
 	}
 
 	private String getName(final User user) {

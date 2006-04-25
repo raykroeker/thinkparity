@@ -18,36 +18,22 @@ import java.util.Calendar;
  */
 public class HistoryItem {
 
-	/**
-	 * The date and time this history item occured.
-	 * 
-	 */
+	/** The event date and time. */
 	private Calendar date;
 
-	/**
-	 * The document id this history item is linked to.
-	 * 
-	 */
+	/** The document id. */
 	private Long documentId;
 
-	/**
-	 * The event information of the history item. This is localized text
-	 * describing the history item in detail.
-	 * 
-	 */
+	/** The event text. */
 	private String event;
 
-	/**
-	 * The version id of the document linked to this history item.  This
-	 * value is optional.
-	 * 
-	 */
+	/** The document version id. */
 	private Long versionId;
 
-	/**
-	 * Create a HistoryItem.
-	 * 
-	 */
+    /** Flag indicating the pending state of this event. */
+    private Boolean pending;
+
+	/** Create a HistoryItem. */
 	protected HistoryItem() { super(); }
 
 	/**
@@ -77,6 +63,13 @@ public class HistoryItem {
 	 * @return The history item's version id.
 	 */
 	public Long getVersionId() { return versionId; }
+
+    /**
+     * Determine whether or not this event is pending.
+     *
+     * @return True if pending; false otherwise.
+     */
+    public Boolean isPending() { return pending; }
 
 	/**
 	 * Determine whether or not the version id has been set.
@@ -122,4 +115,14 @@ public class HistoryItem {
 	public void setEvent(final String event) {
 		this.event = event;
 	}
+
+    /**
+     * Set the pending state.
+     *
+     * @param pending
+     *      True if the item is pending; false otherwise.
+     */
+    public void setPending(final Boolean pending) {
+        this.pending = pending;
+    }
 }

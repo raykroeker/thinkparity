@@ -44,7 +44,7 @@ public class ImageIOUtil {
 	 * @return The buffered image.
 	 */
 	public static BufferedImage read(final String imageName) {
-		logger.info("[JAVAX] [IMAGE IO] [READ BUFFERED IMAGE]");
+		logger.info("[LBROWSER] [PLATFORM] [UTIL] [IMAGE IO UTIL] [READ BUFFERED IMAGE]");
 		logger.debug(imageName);
 		return read(ResourceUtil.getURL("images/" + imageName));
 	}
@@ -57,7 +57,7 @@ public class ImageIOUtil {
 	 * @return The image icon.
 	 */
 	public static ImageIcon readIcon(final String imageName) {
-		logger.info("[JAVAX] [IMAGE IO] [READ ICON]");
+		logger.info("[LBROWSER] [PLATFORM] [UTIL] [IMAGE IO UTIL] [READ ICON]");
 		logger.debug(imageName);
 		return new ImageIcon(ResourceUtil.getURL("images/" + imageName));
 	}

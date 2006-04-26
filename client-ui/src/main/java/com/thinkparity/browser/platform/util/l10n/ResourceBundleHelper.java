@@ -59,7 +59,7 @@ public class ResourceBundleHelper {
 		this.bundle = bundle;
 		this.l18Context = l18Context;
 		this.logger = LoggerFactory.getLogger(getClass());
-		logger.info("[PLATFORM] [L18N] [INIT]");
+		logger.info("[PLATFORM] [UTIL] [L18N] [INIT]");
 		logger.debug(l18Context);
 	}
 

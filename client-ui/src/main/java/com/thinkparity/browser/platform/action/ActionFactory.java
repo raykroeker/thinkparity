@@ -4,6 +4,7 @@
 package com.thinkparity.browser.platform.action;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.platform.Platform;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -33,15 +34,25 @@ public class ActionFactory {
 		synchronized(singletonLock) { return singleton.doCreateAction(actionId); }
 	}
 
-	public static AbstractAction createAction(final ActionId actionId, final Browser browser) {
-		synchronized(singletonLock) { return singleton.doCreateAction(actionId, browser); }
-	}
+    public static AbstractAction createAction(final ActionId actionId, final Browser browser) {
+        synchronized(singletonLock) { return singleton.doCreateAction(actionId, browser); }
+    }
+
+    public static AbstractAction createAction(final ActionId actionId, final Platform platform) {
+        synchronized(singletonLock) { return singleton.doCreateAction(actionId, platform); }
+    }
+
+	/** The action registry. */
+    private final ActionRegistry actionRegistry;
 
 	/**
 	 * Create a ActionFactory [Singleton, Factory]
 	 * 
 	 */
-	private ActionFactory() { super(); }
+	private ActionFactory() {
+        super();
+        this.actionRegistry = new ActionRegistry();
+    }
 
 	/**
 	 * Create a new instance of a named action.
@@ -52,14 +63,16 @@ public class ActionFactory {
 	 */
 	private AbstractAction doCreateAction(final ActionId actionId) {
 		switch(actionId) {
+        case APPLICATION_QUIT:
+            return new com.thinkparity.browser.platform.action.QuitApplication();
 		case ARTIFACT_APPLY_FLAG_SEEN:
 			return new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen();
-		default:
+        default:
 			throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
 		}
 	}
 
-	/**
+    /**
 	 * Create an action for the browser application.
 	 * 
 	 * @param actionId
@@ -102,4 +115,30 @@ public class ActionFactory {
 			return doCreateAction(actionId);
 		}
 	}
+
+    /**
+     * Create a platform action.
+     * 
+     * @param actionId
+     *            The action id.
+     * @param platform
+     *            The platform.
+     * @return The action.
+     */
+    private AbstractAction doCreateAction(final ActionId actionId, final Platform platform) {
+        final AbstractAction action;
+        switch(actionId) {
+        case PLATFORM_QUIT:
+            action = new com.thinkparity.browser.platform.action.QuitPlatform(platform);
+            break;
+        case RESTORE_BROWSER:
+            action = new com.thinkparity.browser.platform.action.application.system.RestoreBrower(platform);
+            break;
+        default:
+            throw Assert.createUnreachable(
+                    "[LBROWSER] [PLATFORM] [ACTION] [CREATE ACTION]");
+        }
+        actionRegistry.put(action);
+        return action;
+    }
 }

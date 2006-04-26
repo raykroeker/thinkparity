@@ -80,13 +80,12 @@ public class MainCellRenderer extends AbstractJPanel implements
         if(isSelected) {
             background = cell.getBackgroundSelected();
             nodeIconJLabel.setIcon(cell.getNodeIconSelected());
-            setBorder(cell.getBorderSelected());
         }
         else {
             background = cell.getBackground();
             nodeIconJLabel.setIcon(cell.getNodeIcon());
-            setBorder(cell.getBorder());
         }
+        setBorder(cell.getBorder());
 
 
         textJLabel.setFont(cell.getTextFont());

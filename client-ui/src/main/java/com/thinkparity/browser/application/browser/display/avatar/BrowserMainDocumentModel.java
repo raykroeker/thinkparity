@@ -82,7 +82,10 @@ public class BrowserMainDocumentModel {
     /** A list of "dirty" cells. */
     private final List<MainCell> dirtyCells;
 
-    /** The set of all visible cells. */
+    /** The list of cells that are pseudo selected. */
+    private final List<MainCell> pseudoSelection;
+    
+    /** A list of all visible cells. */
     private final List<MainCell> visibleCells;
 
     /**
@@ -98,6 +101,7 @@ public class BrowserMainDocumentModel {
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
         this.dirtyCells = new LinkedList<MainCell>();
+        this.pseudoSelection = new LinkedList<MainCell>();
         this.visibleCells = new LinkedList<MainCell>();
     }
 
@@ -219,15 +223,18 @@ public class BrowserMainDocumentModel {
             for(final MainCell mc : visibleCells) {
                 logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
             }
-            
+            // pseudo selection
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [PSEUDO SELECTION (" + pseudoSelection.size() + ")]");
+            for(final MainCell mc : pseudoSelection) {
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
+            }
             // list elements
             final Enumeration e = jListModel.elements();
             MainCell mc;
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [MODEL ELEMENTS (" + jListModel.size() + ")]");
             while(e.hasMoreElements()) {
                 mc = (MainCell) e.nextElement();
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "] ["
-                    + mc.isGroupSelected() + "]");
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "] [" + (mc.isPseudoSelected() ? "PSEUDO SELECTED" : "") + "]");
             }
             documentFilter.debug(logger);
         }
@@ -386,8 +393,14 @@ public class BrowserMainDocumentModel {
     void triggerExpand(final MainCell mainCell) {
         if(mainCell instanceof MainCellDocument) {
             final MainCellDocument mcd = (MainCellDocument) mainCell;
-            if(isExpanded(mcd)) { collapse(mcd); }
-            else { expand(mcd); }
+            if(isExpanded(mcd)) {
+                collapse(mcd);
+                pseudoUnselectAll(documentHistory.get(mcd));
+            }
+            else {
+                expand(mcd);
+                pseudoSelectAll(documentHistory.get(mcd));
+            }
 
             syncModel();
         }
@@ -418,19 +431,41 @@ public class BrowserMainDocumentModel {
      *            The main cell.
      */
     void triggerSelection(final MainCell mainCell) {
+        pseudoSelection.clear();
+
         if(mainCell instanceof MainCellDocument) {
-            browser.selectDocument(((MainCellDocument) mainCell).getId());
+            final MainCellDocument mcd = (MainCellDocument) mainCell;
+            browser.selectDocument(mcd.getId());
+
+            pseudoSelect(mcd);
+            // this means that expand and collapse need to
+            // update the selection as well
+            if(mcd.isExpanded())
+                pseudoSelectAll(documentHistory.get(mcd));
         }
-        // set group selection
-        if(mainCell instanceof MainCellDocument ||
-            mainCell instanceof MainCellHistoryItem) {
-            for(final MainCell mc : getAllCells()) {
-                mc.setGroupSelected(Boolean.FALSE);
-            }
-            for(final MainCell mc : getDocumentGroup(mainCell)) {
-                mc.setGroupSelected(Boolean.TRUE);
-            }
+        else if(mainCell instanceof MainCellHistoryItem) {
+            final MainCellHistoryItem mchi = (MainCellHistoryItem) mainCell;
+
+            pseudoSelect(mchi.getDocument());
+            pseudoSelectAll(documentHistory.get(mchi.getDocument()));
         }
+        syncModel();
+    }
+
+    private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
+        for(final MainCell mc : mainCells) { pseudoUnselect(mc); }
+    }
+
+    private void pseudoUnselect(final MainCell mainCell) {
+        pseudoSelection.remove(mainCell);
+    }
+
+    private void pseudoSelect(final MainCell mainCell) {
+        pseudoSelection.add(mainCell);
+    }
+
+    private void pseudoSelectAll(final List<? extends MainCell> mainCells) {
+        for(final MainCell mc : mainCells) { pseudoSelect(mc); }
     }
 
     /**
@@ -476,7 +511,6 @@ public class BrowserMainDocumentModel {
      */
     private void expand(final MainCellDocument mcd) {
         mcd.setExpanded(Boolean.TRUE);
-
         syncModel();
     }
 
@@ -659,6 +693,13 @@ public class BrowserMainDocumentModel {
             visibleCells.add(mcd);
             if(mcd.isExpanded())
                 visibleCells.addAll(documentHistory.get(mcd));
+        }
+
+        // update pseudo selection
+        int mcIndex;
+        for(final MainCell mc : visibleCells) {
+            if(pseudoSelection.contains(mc)) { mc.setPseudoSelected(Boolean.TRUE); }
+            else { mc.setPseudoSelected(Boolean.FALSE); }
         }
 
         // add visible cells not in the model; as well as update cell

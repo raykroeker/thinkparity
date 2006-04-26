@@ -18,6 +18,7 @@ import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
+import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentGroupExpanded;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentGroupSelected;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
@@ -56,9 +57,6 @@ public class MainCellDocument extends Document implements MainCell {
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
 
-    /** A flag indicating the group selection status. */
-    private Boolean groupSelected = Boolean.FALSE;
-
     /** An image cache. */
     private final MainCellImageCache imageCache;
 
@@ -67,6 +65,9 @@ public class MainCellDocument extends Document implements MainCell {
 
     /** The document's key requests. */
     private final List<KeyRequest> keyRequests;
+    
+    /** Indicates whether or not the document is pseudo selected. */
+    private Boolean pseudoSelected;
 
     /** A flag indicating whether or not the cell has been seen. */
     private Boolean seen;
@@ -89,6 +90,7 @@ public class MainCellDocument extends Document implements MainCell {
         this.imageCache = new MainCellImageCache();
         this.keyHolder = contains(ArtifactFlag.KEY);
         this.keyRequests = new LinkedList<KeyRequest>();
+        this.pseudoSelected = Boolean.FALSE;
         this.seen = contains(ArtifactFlag.SEEN);
     }
 
@@ -138,12 +140,14 @@ public class MainCellDocument extends Document implements MainCell {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorder()
      * 
      */
-    public Border getBorder() { return new DocumentDefault(); }
-
-    /**
-     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorderSelected()
-     */
-    public Border getBorderSelected() { return new DocumentGroupSelected(); }
+    public Border getBorder() {
+        //if(isPseudoSelected()) {
+        //   if(isExpanded()) { return new DocumentGroupExpanded(); }
+        //    else { return new DocumentGroupSelected(); }
+        //}
+        //else { return new DocumentDefault(); }
+        return new DocumentDefault();
+    }
 
     /**
      * Obtain an info icon.
@@ -244,8 +248,6 @@ public class MainCellDocument extends Document implements MainCell {
      */
     public Boolean isExpanded() { return expanded; }
 
-    public Boolean isGroupSelected() { return groupSelected; }
-
     /**
      * Determine whether or not the user is the document's key holder.
      * 
@@ -268,23 +270,12 @@ public class MainCellDocument extends Document implements MainCell {
     public Boolean isUrgent() { return urgent; }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#populatePopupMenu(java.awt.event.MouseEvent,
-     *      javax.swing.JPopupMenu)
-     * 
-     */
-    public void populatePopupMenu(MouseEvent e, JPopupMenu jPopupMenu) {}
-
-    /**
      * Set the expanded flag.
      * 
      * @param expanded
      *            The expanded flag.
      */
     public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
-
-    public void setGroupSelected(final Boolean groupSelected) {
-        this.groupSelected = groupSelected;
-    }
 
     /**
      * Set the document's key requests. This will affect the urgent status of
@@ -298,4 +289,9 @@ public class MainCellDocument extends Document implements MainCell {
         this.keyRequests.clear();
         this.keyRequests.addAll(keyRequests);
     }
+
+    public void setPseudoSelected(final Boolean pseudoSelected) {
+        this.pseudoSelected = pseudoSelected;
+    }
+    public Boolean isPseudoSelected() { return pseudoSelected; }
 }

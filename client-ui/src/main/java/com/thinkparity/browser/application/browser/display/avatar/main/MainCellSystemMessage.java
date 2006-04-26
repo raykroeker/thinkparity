@@ -140,6 +140,10 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
         throw Assert.createNotYetImplemented("MainCellSystemMessage#setGroupSelected");
     }
 
+    public void setPseudoSelected(final Boolean pseudoSelected) {
+        throw Assert.createNotYetImplemented("MainCellSystemMessage#setGroupSelected");
+    }
+
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      * 
@@ -162,4 +166,6 @@ public class MainCellSystemMessage extends SystemMessage implements MainCell {
      * 
      */
     public String toString() { return super.toString(); }
+
+    public Boolean isPseudoSelected() { throw Assert.createNotYetImplemented("isPseudoSelected()"); }
 }

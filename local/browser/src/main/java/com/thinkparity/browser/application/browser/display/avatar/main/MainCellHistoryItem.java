@@ -5,20 +5,16 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.HistoryItemIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.HistoryItemImage;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.HistoryItemPseudoBorder;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.HistoryItemLastPseudoBorder;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
@@ -29,9 +25,6 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1
  */
 public class MainCellHistoryItem extends HistoryItem implements MainCell {
-
-    /** The history item count. */
-    private final Integer count;
 
     /** The history item's document. */
     private final MainCellDocument document;
@@ -48,9 +41,6 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
     /** Localisation access. */
     private final MainCellL18n l18n;
 
-    /** Indicates whether or not the document is pseudo selected. */
-    private Boolean pseudoSelected;
-
     /**
      * Create a MainCellHistoryItem.
      * 
@@ -61,11 +51,9 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
         super();
         this.document = document;
         this.documentTeam = documentTeam;
-        this.count = count;
         this.imageCache = new MainCellImageCache();
         this.index = index;
         this.l18n = new MainCellL18n("HistoryListItem");
-        this.pseudoSelected = Boolean.FALSE;
         setDate(historyItem.getDate());
         setDocumentId(historyItem.getDocumentId());
         setEvent(historyItem.getEvent());
@@ -116,14 +104,7 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorder()
      * 
      */
-    public Border getBorder() {
-        //if(isPseudoSelected()) {
-        //    if(isLastItem()) { return new HistoryItemLastPseudoBorder(); }
-        //    else { return new HistoryItemPseudoBorder(); }
-        //}
-        //else { return null; }
-        return null;
-    }
+    public Border getBorder() { return null; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorderSelected()
@@ -223,16 +204,4 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
      * 
      */
     public int hashCode() { return index.hashCode() & document.hashCode(); }
-
-    /**
-     * Determine whether or not this item is the last item.
-     *
-     * @return True if this is the last item; false otherwise.
-     */
-    private Boolean isLastItem() { return index == count - 1; }
-
-    public void setPseudoSelected(final Boolean pseudoSelected) {
-        this.pseudoSelected = pseudoSelected;
-    }
-    public Boolean isPseudoSelected() { return pseudoSelected; }
 }

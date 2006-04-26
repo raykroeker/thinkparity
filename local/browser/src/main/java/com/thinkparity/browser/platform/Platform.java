@@ -18,10 +18,17 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
  * @version 1.1
  */
 public interface Platform extends ApplicationListener {
+
+    /**
+     * End the platform.
+     *
+     */
+    public void end();
+
 	public AvatarRegistry getAvatarRegistry();
 	public Logger getLogger(final Class clasz);
 	public ModelFactory getModelFactory();
-	public Browser2PlatformPersistence getPersistence();
+	public BrowserPlatformPersistence getPersistence();
 	public Preferences getPreferences();
 	public WindowRegistry getWindowRegistry();
 
@@ -51,8 +58,8 @@ public interface Platform extends ApplicationListener {
 	 */
 	public Boolean isTestMode();
 
-	/**
-	 * Restore an application from hibernation.
+    /**
+	 * RestoreBrower an application from hibernation.
 	 * 
 	 * @param applicationId
 	 *            The application id.

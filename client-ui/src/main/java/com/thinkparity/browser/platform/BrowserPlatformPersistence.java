@@ -10,7 +10,7 @@ import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Browser2PlatformPersistence {
+public class BrowserPlatformPersistence {
 
 	/**
 	 * The platform's persistence.
@@ -25,11 +25,11 @@ public class Browser2PlatformPersistence {
 	private final Platform platform;
 
 	/**
-	 * Create a Browser2PlatformPersistence.
+	 * Create a BrowserPlatformPersistence.
 	 */
-	Browser2PlatformPersistence(final Platform platform) {
+	BrowserPlatformPersistence(final Platform platform) {
 		super();
-		this.persistence = PersistenceFactory.getPersistence(Browser2Platform.class);
+		this.persistence = PersistenceFactory.getPersistence(BrowserPlatform.class);
 		this.platform = platform;
 	}
 

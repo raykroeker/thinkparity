@@ -5,11 +5,9 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
-import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
 /**
@@ -106,7 +104,4 @@ public interface MainCell {
      * @return A string.
      */
     public String getToolTip();
-
-    public void setPseudoSelected(final Boolean pseudoSelected);
-    public Boolean isPseudoSelected();
 }

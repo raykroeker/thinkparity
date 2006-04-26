@@ -70,6 +70,7 @@ class SysAppImpl extends Thread {
 	public synchronized void start() {
 		running = Boolean.TRUE;
 		sysTray = new SysTray(sysApp);
+        sysTray.install();
 		super.start();
 	}
 
@@ -153,11 +154,6 @@ class SysAppImpl extends Thread {
 	 */
 	private void processQueue() {
 		sysApp.logger.info("[BROWSER2] [APP] [SYS] [IMPL] [QUEUE:" + getQueueTotal()  + "]");
-		if(0 < getQueueTotal()) {
-			if(!sysTray.isInstalled()) { sysTray.install(); }
-		}
-		else {
-			if(sysTray.isInstalled()) { sysTray.unInstall(); }
-		}
+        sysTray.setQueueCount(queueItems);
 	}
 }

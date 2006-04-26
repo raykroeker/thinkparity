@@ -4,7 +4,6 @@
 package com.thinkparity.browser.application.browser;
 
 import java.awt.Point;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -204,7 +203,7 @@ public class Browser extends AbstractApplication {
 	 * Close the main window.
 	 *
 	 */
-	public void close() { getPlatform().hibernate(getId()); }
+	public void hibernate() { getPlatform().hibernate(getId()); }
 
     /**
      * Open a confirmation dialog.
@@ -296,7 +295,7 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	public void end(final Platform platform) {
-		logger.info("[BROWSER2] [APP] [B2] [END]");
+		logger.info("[LBROWSER] [APPLICATION] [BROWSER] [END]");
 		assertStatusChange(ApplicationStatus.ENDING);
 
 		ed.end();
@@ -877,8 +876,7 @@ public class Browser extends AbstractApplication {
 	private void closeMainWindow() {
 		Assert.assertNotNull(
 				"Cannot close main window before it is open.", mainWindow);
-		mainWindow.dispatchEvent(
-				new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
+        mainWindow.dispose();
 	}
 
 	/**

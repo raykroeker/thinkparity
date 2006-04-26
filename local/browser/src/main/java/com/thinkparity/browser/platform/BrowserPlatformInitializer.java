@@ -24,7 +24,7 @@ import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Browser2PlatformInitializer {
+public class BrowserPlatformInitializer {
 
 	/**
 	 * Initialize the browser2 platform.
@@ -36,7 +36,7 @@ public class Browser2PlatformInitializer {
         initializePropertyParityWorkspace();
 
 		final Logger logger =
-            LoggerFactory.getLogger(Browser2PlatformInitializer.class);
+            LoggerFactory.getLogger(BrowserPlatformInitializer.class);
         logger.info("[BROWSER2] [PLATFORM] [INIT]");
 
         // init model
@@ -46,7 +46,7 @@ public class Browser2PlatformInitializer {
     		mFactory.initialize();
 
             final Preferences preferences =
-                mFactory.getPreferences(Browser2PlatformInitializer.class);
+                mFactory.getPreferences(BrowserPlatformInitializer.class);
             final File root;
             switch(OSUtil.getOS()) {
             case WINDOWS_XP:

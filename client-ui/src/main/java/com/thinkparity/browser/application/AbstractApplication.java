@@ -37,10 +37,7 @@ import com.thinkparity.model.parity.model.session.SessionModel;
  */
 public abstract class AbstractApplication implements Application {
 
-	/**
-	 * Application listeners.
-	 * 
-	 */
+	/** Application listeners. */
 	private static final Map<Class, Set<ApplicationListener>> APPLICATION_LISTENERS;
 
 	static {
@@ -53,24 +50,16 @@ public abstract class AbstractApplication implements Application {
 	 */
 	protected final L18n l18n;
 
-	/**
-	 * An apache logger.
-	 * 
-	 */
+	/** An apache logger. */
 	protected final Logger logger;
 
+    /** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
-	/**
-	 * Provides preferences persistence for the application.
-	 * 
-	 */
+	/** Application persistence. */
 	private final Persistence persistence;
 
-	/**
-	 * The platform.
-	 * 
-	 */
+	/** The browser platform. */
 	private final Platform platform;
 
 	/**
@@ -102,11 +91,12 @@ public abstract class AbstractApplication implements Application {
 	 * 
 	 */
 	public void addListener(final ApplicationListener l) {
-		Assert.assertNotNull("Cannot add a null listener.", l);
+		Assert.assertNotNull(
+                "[LBROWSER] [PLATFORM] [APPLICATION] [ADD LISTENER] [CANNOT ADD NULL LISTENER]", l);
 		synchronized(APPLICATION_LISTENERS) {
 			final Set<ApplicationListener> listeners = getListeners();
 			Assert.assertNotTrue(
-					"Cannot re-add a listener.",
+					"[LBROWSER] [PLATFORM] [APPLICATION] [ADD LISTENER] [CANNOT RE-ADD LISTENER]",
 					listeners.contains(l));
 			listeners.add(l);
 			APPLICATION_LISTENERS.put(getClass(), listeners);

@@ -5,21 +5,17 @@ package com.thinkparity.browser.application.browser.display.avatar.main;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
-import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentGroupExpanded;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentGroupSelected;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -65,9 +61,6 @@ public class MainCellDocument extends Document implements MainCell {
 
     /** The document's key requests. */
     private final List<KeyRequest> keyRequests;
-    
-    /** Indicates whether or not the document is pseudo selected. */
-    private Boolean pseudoSelected;
 
     /** A flag indicating whether or not the cell has been seen. */
     private Boolean seen;
@@ -90,7 +83,6 @@ public class MainCellDocument extends Document implements MainCell {
         this.imageCache = new MainCellImageCache();
         this.keyHolder = contains(ArtifactFlag.KEY);
         this.keyRequests = new LinkedList<KeyRequest>();
-        this.pseudoSelected = Boolean.FALSE;
         this.seen = contains(ArtifactFlag.SEEN);
     }
 
@@ -140,14 +132,7 @@ public class MainCellDocument extends Document implements MainCell {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorder()
      * 
      */
-    public Border getBorder() {
-        //if(isPseudoSelected()) {
-        //   if(isExpanded()) { return new DocumentGroupExpanded(); }
-        //    else { return new DocumentGroupSelected(); }
-        //}
-        //else { return new DocumentDefault(); }
-        return new DocumentDefault();
-    }
+    public Border getBorder() { return new DocumentDefault(); }
 
     /**
      * Obtain an info icon.
@@ -289,9 +274,4 @@ public class MainCellDocument extends Document implements MainCell {
         this.keyRequests.clear();
         this.keyRequests.addAll(keyRequests);
     }
-
-    public void setPseudoSelected(final Boolean pseudoSelected) {
-        this.pseudoSelected = pseudoSelected;
-    }
-    public Boolean isPseudoSelected() { return pseudoSelected; }
 }

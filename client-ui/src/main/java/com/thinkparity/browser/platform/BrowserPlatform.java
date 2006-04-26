@@ -5,6 +5,7 @@ package com.thinkparity.browser.platform;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.Version;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.application.Application;
@@ -15,6 +16,7 @@ import com.thinkparity.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.browser.platform.login.LoginHelper;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
+import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -26,15 +28,15 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class Browser2Platform implements Platform {
+public class BrowserPlatform implements Platform {
 
 	/**
 	 * The singleton instance of the platform.
 	 * 
 	 */
-	private static Browser2Platform b2Platform;
+	private static BrowserPlatform b2Platform;
 
-	static { Browser2PlatformInitializer.initialize(); }
+	static { BrowserPlatformInitializer.initialize(); }
 
 	/**
 	 * Start the B2 platform.
@@ -46,7 +48,7 @@ public class Browser2Platform implements Platform {
 		Assert.assertIsNull(
 				"Cannot start the platform more than once.",
 				b2Platform);
-		b2Platform = new Browser2Platform();
+		b2Platform = new BrowserPlatform();
 		b2Platform.doStart();
 	}
 
@@ -75,12 +77,6 @@ public class Browser2Platform implements Platform {
 	private final LoginHelper loginHelper;
 
 	/**
-	 * The platform's mode of operation.
-	 * 
-	 */
-	private final Mode mode;
-
-	/**
 	 * The parity model factory.
 	 * 
 	 */
@@ -90,7 +86,7 @@ public class Browser2Platform implements Platform {
 	 * The platform settings.
 	 * 
 	 */
-	private final Browser2PlatformPersistence persistence;
+	private final BrowserPlatformPersistence persistence;
 
 	/**
 	 * The parity preferences.
@@ -111,21 +107,20 @@ public class Browser2Platform implements Platform {
 	private final Workspace workspace;
 
 	/**
-	 * Create a Browser2Platform [Singleton]
+	 * Create a BrowserPlatform [Singleton]
 	 * 
 	 */
-	private Browser2Platform() {
+	private BrowserPlatform() {
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
 		this.windowRegistry = new WindowRegistry();
-		this.mode = Mode.DEVELOPMENT;
 		this.modelFactory = ModelFactory.getInstance();
 		this.preferences = modelFactory.getPreferences(getClass());
 		this.workspace = modelFactory.getWorkspace(getClass());
 
 		this.logger = LoggerFactory.getLogger(getClass());
 		this.loginHelper = new LoginHelper(this);
-		this.persistence = new Browser2PlatformPersistence(this);
+		this.persistence = new BrowserPlatformPersistence(this);
 	}
 
 	/**
@@ -152,7 +147,7 @@ public class Browser2Platform implements Platform {
 	 * @see com.thinkparity.browser.platform.Platform#getPersistence()
 	 * 
 	 */
-	public Browser2PlatformPersistence getPersistence() {
+	public BrowserPlatformPersistence getPersistence() {
 		return persistence;
 	}
 
@@ -180,14 +175,14 @@ public class Browser2Platform implements Platform {
 	 * @see com.thinkparity.browser.platform.Platform#isDebugMode()
 	 * 
 	 */
-	public Boolean isDebugMode() { return mode == Mode.DEVELOPMENT; }
+	public Boolean isDebugMode() { return Version.getMode() == Mode.DEVELOPMENT; }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Platform#isTestMode()
 	 */
 	public Boolean isTestMode() {
 		if(isDebugMode()) { return Boolean.TRUE; }
-		return mode == Mode.TESTING;
+		return Version.getMode() == Mode.TESTING;
 	}
 
 	/**
@@ -195,12 +190,8 @@ public class Browser2Platform implements Platform {
 	 * 
 	 */
 	public void notifyEnd(final Application application) {
-		logger.info("[BROWSER2] [PLATFORM] [APPLICATION ENDED]");
-		Assert.assertTrue(
-				"Application not found:  " + application.getId(),
-				applicationRegistry.contains(application.getId()));
-
-		applicationRegistry.erase(application.getId());
+        logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION END]");
+        logger.debug(application.getId());
 	}
 
 	/**
@@ -208,10 +199,8 @@ public class Browser2Platform implements Platform {
 	 * 
 	 */
 	public void notifyHibernate(final Application application) {
-		logger.info("[BROWSER2] [PLATFORM] [APPLICATION HIBERNATING]");
-		if(ApplicationId.BROWSER2 == application.getId()) {
-			restore(ApplicationId.SYS_APP);
-		}
+		logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION HIBERNATE]");
+        logger.debug(application.getId());
 	}
 
 	/**
@@ -219,7 +208,8 @@ public class Browser2Platform implements Platform {
 	 * 
 	 */
 	public void notifyRestore(final Application application) {
-		logger.info("[BROWSER2] [PLATFORM] [APPLICATION RESTORED]");
+        logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION RESTORE]");
+        logger.debug(application.getId());
 	}
 
 	/**
@@ -227,10 +217,8 @@ public class Browser2Platform implements Platform {
 	 * 
 	 */
 	public void notifyStart(final Application application) {
-		logger.info("[BROWSER2] [PLATFORM] [APPLICATION STARTED]");
-		if(ApplicationId.SYS_APP == application.getId()) {
-			hibernate(application.getId());
-		}
+        logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION START]");
+        logger.debug(application.getId());
 	}
 
 	/**
@@ -247,24 +235,11 @@ public class Browser2Platform implements Platform {
 	 *
 	 */
 	private void doStart() {
+	    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
 		login();
 		if(isLoggedIn()) {
-			startApplication(ApplicationId.SYS_APP);
-			startApplication(ApplicationId.BROWSER2);
+            ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
 		}
-	}
-
-	/**
-	 * Check the registry for the application; and if it does not yet exist;
-	 * create it.
-	 * 
-	 * @param id
-	 *            The application id.
-	 * @return The pplication.
-	 */
-	private Application getApplication(final ApplicationId id) {
-		if(applicationRegistry.contains(id)) { return applicationRegistry.get(id); }
-		else { return ApplicationFactory.create(this, id); }
 	}
 
 	/**
@@ -281,19 +256,14 @@ public class Browser2Platform implements Platform {
 	 */
 	private void login() { loginHelper.login(); }
 
-	/**
-	 * Get the application an start it.
-	 * 
-	 * @param applicationId
-	 *            The application id.
-	 */
-	private void startApplication(final ApplicationId id) {
-		getApplication(id).start(this);
-	}
-
-	/**
-	 * Discrete modes the platform is capable of running in.
-	 * 
-	 */
-	private enum Mode { DEVELOPMENT, PRODUCTION, TESTING }
+    /**
+     * @see com.thinkparity.browser.platform.Platform#end()
+     * 
+     */
+    public void end() {
+        for(final ApplicationId id : ApplicationId.values()) {
+            applicationRegistry.get(id).end(this);
+        }
+        System.exit(0);
+    }
 }

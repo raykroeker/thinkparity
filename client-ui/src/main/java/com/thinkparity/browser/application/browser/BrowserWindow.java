@@ -5,6 +5,8 @@ package com.thinkparity.browser.application.browser;
 
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
@@ -90,13 +92,17 @@ public class BrowserWindow extends AbstractJFrame {
 		this.browser = browser;
 		// initialize the state
 		new BrowserWindowState(this);
-		getRootPane().setBorder(new ImageBorder("MainWindowBorderTop.png",
-                "MainWindowBorderLeft.png", "MainWindowBorderBottom.png",
-        "MainWindowBorderRight.png"));
+		getRootPane().setBorder(new ImageBorder(
+                "MainWindowBorderTop.png", "MainWindowBorderLeft.png",
+                "MainWindowBorderBottom.png", "MainWindowBorderRight.png"));
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(final WindowEvent e) {
+                browser.hibernate();
+            }});
 		setIconImage(BROWSER_ICON);
 		setTitle(getString("Title"));
 		setUndecorated(true);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setResizable(false);
 		setSize(BrowserWindow.getMainWindowSize());
 		applyNativeSkin();

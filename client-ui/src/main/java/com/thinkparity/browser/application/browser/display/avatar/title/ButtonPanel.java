@@ -111,8 +111,7 @@ public class ButtonPanel extends AbstractJPanel {
 	 *
 	 */
 	private void closeJLabelMouseClicked(final MouseEvent e) {
-		if(e.isShiftDown()) { getBrowser().end(getBrowser().getPlatform()); }
-		else { getBrowser().close(); }
+		getBrowser().hibernate();
 		closeJLabel.setIcon(CLOSE_ICON);
 	}
 

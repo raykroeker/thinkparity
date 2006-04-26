@@ -277,6 +277,7 @@ public class BrowserMainAvatar extends Avatar {
                         cellBounds.width = CELL_NODE_SIZE.width;
                         cellBounds.height = CELL_NODE_SIZE.height;
                         if(SwingUtil.regionContains(cellBounds, p)) {
+                            jList.setSelectedIndex(listIndex);
                             mainDocumentModel.triggerExpand((MainCell) jList.getSelectedValue());
                         }
                     }

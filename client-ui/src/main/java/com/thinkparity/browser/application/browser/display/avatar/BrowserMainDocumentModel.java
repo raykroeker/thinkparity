@@ -234,7 +234,7 @@ public class BrowserMainDocumentModel {
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [MODEL ELEMENTS (" + jListModel.size() + ")]");
             while(e.hasMoreElements()) {
                 mc = (MainCell) e.nextElement();
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "] [" + (mc.isPseudoSelected() ? "PSEUDO SELECTED" : "") + "]");
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
             }
             documentFilter.debug(logger);
         }
@@ -449,7 +449,6 @@ public class BrowserMainDocumentModel {
             pseudoSelect(mchi.getDocument());
             pseudoSelectAll(documentHistory.get(mchi.getDocument()));
         }
-        syncModel();
     }
 
     private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
@@ -512,30 +511,6 @@ public class BrowserMainDocumentModel {
     private void expand(final MainCellDocument mcd) {
         mcd.setExpanded(Boolean.TRUE);
         syncModel();
-    }
-
-    /**
-     * Obtain the list of cells adhering to the document group.  This
-     * consists of the document; as well as all history cells.
-     *
-     */
-    private MainCell[] getAllCells() {
-        final MainCell[] allCells = new MainCell[jListModel.size()];
-        jListModel.copyInto(allCells);
-        return allCells;
-    }
-
-    /**
-     * Obtain the list of cells adhering to the document group.  This
-     * consists of the document; as well as all history cells.
-     *
-     */
-    private MainCell[] getDocumentGroup(final MainCell mainCell) {
-        final Set<MainCell> group = new HashSet<MainCell>();
-        group.add(mainCell);
-        if(documentHistory.containsKey(mainCell))
-            group.addAll(documentHistory.get(mainCell));
-        return group.toArray(new MainCell[] {});
     }
 
     /**
@@ -683,7 +658,6 @@ public class BrowserMainDocumentModel {
      */
     private void syncModel() {
         debug();
-
         // filter documents
         final List<MainCellDocument> filteredDocuments = cloneDocuments();
         ModelFilterManager.filter(filteredDocuments, documentFilter);
@@ -693,13 +667,6 @@ public class BrowserMainDocumentModel {
             visibleCells.add(mcd);
             if(mcd.isExpanded())
                 visibleCells.addAll(documentHistory.get(mcd));
-        }
-
-        // update pseudo selection
-        int mcIndex;
-        for(final MainCell mc : visibleCells) {
-            if(pseudoSelection.contains(mc)) { mc.setPseudoSelected(Boolean.TRUE); }
-            else { mc.setPseudoSelected(Boolean.FALSE); }
         }
 
         // add visible cells not in the model; as well as update cell

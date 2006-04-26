@@ -228,7 +228,11 @@ public class LoginAvatar extends Avatar {
 		final StringBuffer buffer =
 			new StringBuffer(getPreferences().getServerHost())
 			.append(":")
-			.append(getPreferences().getServerPort());
+			.append(getPreferences().getServerPort())
+            .append(" ")
+            .append(com.thinkparity.browser.Version.getVersion())
+            .append(" ")
+            .append(com.thinkparity.browser.Version.getBuildId());
 		infoJLabel.setText(buffer.toString());
 		final javax.swing.Timer timer = new javax.swing.Timer(3 * 1000, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {

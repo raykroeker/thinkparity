@@ -6,10 +6,10 @@
 <JVMSearchPath>jdkpath</JVMSearchPath>
 <JVMSearchPath>exepath</JVMSearchPath>
 <JVMSearchPath>jview</JVMSearchPath>
-<classPath>..\core\browser2-startup-1.0-SNAPSHOT.jar</classPath>
-<classPath>..\core\browser2-1.0-SNAPSHOT.jar</classPath>
+<classPath>..\core\lBrowserStartup-1.0-SNAPSHOT.jar</classPath>
+<classPath>..\core\lBrowser-1.0-SNAPSHOT.jar</classPath>
 <classPath>..\core\codebase-1.0-SNAPSHOT.jar</classPath>
-<classPath>..\core\model-1.0-SNAPSHOT.jar</classPath>
+<classPath>..\core\lModel-1.0-SNAPSHOT.jar</classPath>
 <classPath>..\lib\xpp3-1.1.3.3.jar</classPath>
 <classPath>..\lib\xstream-1.1.2.jar</classPath>
 <classPath>..\lib\smack-2.0.0.jar</classPath>

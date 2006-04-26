@@ -19,39 +19,23 @@ import java.util.Map;
  */
 public class ApplicationRegistry {
 
-	/**
-	 * A map containing application ids pointing to applications.
-	 * 
-	 */
+	/** An application registry. */
 	private static final Map<ApplicationId, Object> REGISTRY;
 
 	static { REGISTRY = new HashMap<ApplicationId, Object>(2, 1.0F); }
 
-	/**
-	 * Create an ApplicationRegistry.
-	 * 
-	 */
+	/** Create an ApplicationRegistry. */
 	public ApplicationRegistry() { super(); }
 
 	/**
-	 * Query whether or not the registry contains the application.
-	 * 
-	 * @param id
-	 *            The application id.
-	 * @return The application.
-	 */
+     * Query whether or not the registry contains the application.
+     * 
+     * @param id
+     *            An application id.
+     * @return The application.
+     */
 	public Boolean contains(final ApplicationId id) {
 		synchronized(REGISTRY) { return REGISTRY.containsKey(id); }
-	}
-
-	/**
-	 * Erase an application from the registry.
-	 * 
-	 * @param id
-	 *            The application to erase.
-	 */
-	public void erase(final ApplicationId id) {
-		synchronized(REGISTRY) { REGISTRY.remove(id); }
 	}
 
 	/**
@@ -68,8 +52,8 @@ public class ApplicationRegistry {
 	/**
 	 * Obtain the current status of the application.
 	 * 
-	 * @param id
-	 *            The application id.
+     * @param id
+     *            An application id.
 	 * @return The application status.
 	 */
 	public ApplicationStatus getStatus(final ApplicationId id) {
@@ -79,13 +63,23 @@ public class ApplicationRegistry {
 	}
 
 	/**
+     * Remove an application from the registry.
+     * 
+     * @param id
+     *            An application id.
+     */
+	public void remove(final ApplicationId id) {
+		synchronized(REGISTRY) { REGISTRY.remove(id); }
+	}
+
+	/**
 	 * Regiser an application.
 	 * 
 	 * @param application
 	 *            The application.
 	 * @return The previously registered instance.
 	 */
-	void register(final Application application) {
+	void put(final Application application) {
 		synchronized(REGISTRY) { REGISTRY.put(application.getId(), application); }
 	}
 }

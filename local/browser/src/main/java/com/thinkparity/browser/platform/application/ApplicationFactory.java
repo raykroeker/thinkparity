@@ -102,8 +102,8 @@ public class ApplicationFactory {
 	 */
 	private void register(final Application application) {
 		Assert.assertNotTrue(
-				"Application " + application.getId() + " has already been registered.",
+				"[LBROWSER] [PLATFORM] [APP FACTORY] [APPLICATION ALREADY REGISTERED]",
 				registry.contains(application.getId()));
-		registry.register(application);
+		registry.put(application);
 	}
 }

@@ -49,7 +49,11 @@ public class BrowserPlatform implements Platform {
 				"Cannot start the platform more than once.",
 				b2Platform);
 		b2Platform = new BrowserPlatform();
-		b2Platform.doStart();
+		try { b2Platform.doStart(); }
+        catch(final Throwable t) {
+            LoggerFactory.getLogger(BrowserPlatform.class).fatal("[LBROWSER] [PLATFORM] [FATAL ERROR]", t);
+            System.exit(1);
+        }
 	}
 
 	/**
@@ -262,8 +266,8 @@ public class BrowserPlatform implements Platform {
      */
     public void end() {
         for(final ApplicationId id : ApplicationId.values()) {
-            applicationRegistry.get(id).end(this);
+            if(applicationRegistry.contains(id))
+                applicationRegistry.get(id).end(this);
         }
-        System.exit(0);
     }
 }

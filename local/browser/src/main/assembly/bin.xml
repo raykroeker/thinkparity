@@ -10,28 +10,28 @@
 
 	<fileSets>
 		<fileSet>
-			<outputDirectory>browser2-1.0-SNAPSHOT</outputDirectory>
+			<outputDirectory>lBrowser-1.0-SNAPSHOT</outputDirectory>
 			<includes>
 				<include>README.txt</include>
 				<include>LICENSE.txt</include>
 			</includes>
 		</fileSet>
 		<fileSet>
-			<outputDirectory>/browser2-1.0-SNAPSHOT/bin</outputDirectory>
+			<outputDirectory>lBrowser-1.0-SNAPSHOT/bin</outputDirectory>
 			<directory>target/classes/bin</directory>
 			<includes>
 				<include>*.exe</include>
 			</includes>
 		</fileSet>
 		<fileSet>
-			<outputDirectory>browser2-1.0-SNAPSHOT/core</outputDirectory>
+			<outputDirectory>lBrowser-1.0-SNAPSHOT/core</outputDirectory>
 			<directory>target</directory>
 			<includes>
 				<include>*.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
-			<outputDirectory>browser2-1.0-SNAPSHOT/lib/win32</outputDirectory>
+			<outputDirectory>lBrowser-1.0-SNAPSHOT/lib/win32</outputDirectory>
 			<directory>src/main/lib/win32</directory>
 			<includes>
 				<include>*.dll</include>
@@ -41,7 +41,7 @@
 
 	<dependencySets>
 		<dependencySet>
-			<outputDirectory>/browser2-1.0-SNAPSHOT/core</outputDirectory>
+			<outputDirectory>lBrowser-1.0-SNAPSHOT/core</outputDirectory>
 			<scope>runtime</scope>
 			<includes>
 				<include>com.thinkparity.parity:lBrowserStartup</include>
@@ -50,7 +50,7 @@
 			</includes>
 		</dependencySet>
 		<dependencySet>
-			<outputDirectory>browser2-1.0-SNAPSHOT/lib</outputDirectory>
+			<outputDirectory>lBrowser-1.0-SNAPSHOT/lib</outputDirectory>
 			<scope>runtime</scope>
 			<excludes>
 				<exclude>com.thinkparity.parity:lBrowserStartup</exclude>

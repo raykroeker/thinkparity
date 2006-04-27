@@ -30,6 +30,10 @@
 <name>parity.workspace</name>
 <value>%APPDATA%\Parity Software\Parity.sTrimnell</value>
 </javaProperties>
+<javaProperties>
+<name>java.library.path</name>
+<value>..\lib\win32</value>
+</javaProperties>
 <mainClassName>com.thinkparity.browser2.startup.Browser2</mainClassName>
 <maximumMemoryHeap>-1</maximumMemoryHeap>
 <maximumVersion></maximumVersion>

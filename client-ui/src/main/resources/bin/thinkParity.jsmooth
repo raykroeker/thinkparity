@@ -26,6 +26,10 @@
 <executableName>thinkParity.exe</executableName>
 <iconLocation>..\..\classes\images\ThinkParity32x32.png</iconLocation>
 <initialMemoryHeap>-1</initialMemoryHeap>
+<javaProperties>
+<name>java.library.path</name>
+<value>..\lib\win32</value>
+</javaProperties>
 <mainClassName>com.thinkparity.browser2.startup.Browser2</mainClassName>
 <maximumMemoryHeap>-1</maximumMemoryHeap>
 <maximumVersion></maximumVersion>

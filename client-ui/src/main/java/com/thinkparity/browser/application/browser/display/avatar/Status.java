@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
@@ -120,14 +121,14 @@ public class Status extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-        javax.swing.JSeparator jSeparator1;
-        javax.swing.JSeparator jSeparator2;
+        javax.swing.JLabel separator1JLabel;
+        javax.swing.JLabel separator2JLabel;
 
-        connectionJLabel = LabelFactory.create(getString("Empty"));
-        jSeparator1 = new javax.swing.JSeparator();
-        filterJLabel = LabelFactory.create(getString("Empty"));
-        jSeparator2 = new javax.swing.JSeparator();
-        customJLabel = LabelFactory.create(getString("Empty"));
+        connectionJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.SmallFont);
+        separator1JLabel = new javax.swing.JLabel();
+        filterJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.SmallFont);
+        separator2JLabel = new javax.swing.JLabel();
+        customJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.SmallFont);
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -140,30 +141,28 @@ public class Status extends Avatar {
 
         connectionJLabel.setText("!Offline!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(3, 4, 0, 4);
         add(connectionJLabel, gridBagConstraints);
 
-        jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
-        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        add(jSeparator1, gridBagConstraints);
+        separator1JLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/StatusVSeparator.png")));
+gridBagConstraints = new java.awt.GridBagConstraints();
+gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
+        add(separator1JLabel,gridBagConstraints);
 
         filterJLabel.setText("!Filter:  Off!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(3, 4, 0, 4);
         add(filterJLabel, gridBagConstraints);
 
-        jSeparator2.setForeground(new java.awt.Color(0, 0, 0));
-        jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        add(jSeparator2, gridBagConstraints);
+        separator2JLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/StatusVSeparator.png")));
+gridBagConstraints = new java.awt.GridBagConstraints();
+gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
+        add(separator2JLabel,gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
+        gridBagConstraints.insets = new java.awt.Insets(3, 4, 0, 4);
         add(customJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
@@ -171,6 +170,9 @@ public class Status extends Avatar {
     private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
         if(2 == e.getClickCount()) {
             if(e.isShiftDown()) { getController().debugMain(); }
+            else {
+                getController().toggleStatusImage();
+            }
         }
     }//GEN-LAST:event_formMouseClicked
 

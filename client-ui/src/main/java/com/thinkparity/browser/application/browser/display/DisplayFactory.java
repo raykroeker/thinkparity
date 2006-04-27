@@ -94,8 +94,8 @@ public class DisplayFactory {
 	private Display createContent() {
 		if(null == content) {
 			content = new ContentDisplay();
-			// HEIGHT ContentDisplay 465
-			applySize(content, 465);
+			// HEIGHT ContentDisplay 472
+			applySize(content, 472);
 		}
 		return content;
 	}
@@ -122,8 +122,8 @@ public class DisplayFactory {
     private Display createStatus() {
         if(null == status) {
             status = new StatusDisplay();
-            // HEIGHT Status Display 27
-            applySize(status, 27);
+            // HEIGHT Status Display 20
+            applySize(status, 20);
         }
         return status;
     }

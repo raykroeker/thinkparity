@@ -1079,14 +1079,18 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-        /**
-         * Obtain a logger for the class from the applilcation.
-         *
-         *
-         * @param clasz The class for which to obtain the logger.
-         * @return An apache logger.
-         */
-        public Logger getLogger(final Class clasz) {
-            return getPlatform().getLogger(clasz);
-        }
+    /**
+     * Obtain a logger for the class from the applilcation.
+     *
+     *
+     * @param clasz The class for which to obtain the logger.
+     * @return An apache logger.
+     */
+    public Logger getLogger(final Class clasz) {
+        return getPlatform().getLogger(clasz);
+    }
+
+    public void toggleStatusImage() {
+        ((com.thinkparity.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
+    }
 }

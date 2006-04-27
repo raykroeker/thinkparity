@@ -20,31 +20,45 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  */
 public class StatusDisplay extends Display {
 
-    /** The source colour of the gradient. */
+    /** The status display background image. */
     private static final BufferedImage BG_IMAGE;
+
+    /** An alternate background image. */
+    private static final BufferedImage BG_IMAGE_ALT;
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    static { BG_IMAGE = ImageIOUtil.read("StatusDisplay.png"); }
+    static {
+        BG_IMAGE = ImageIOUtil.read("StatusDisplay.png");
+        BG_IMAGE_ALT = ImageIOUtil.read("StatusDisplay_Alternate.png");
+    }
+
+    /** The current background image. */
+    private BufferedImage backgroundImage;
 
     /** Create a StatusDisplay. */
     public StatusDisplay() {
         super("StatusDisplay", Color.WHITE);
-        // BORDER Status Bar Multiline Top 137,139,142,255 1; 238,238,238,255 1; 
-        setBorder(new MultiLineBorder(new Color[] {new Color(137, 139, 142, 255), new Color(238, 238, 238, 255)}));
+        this.backgroundImage = BG_IMAGE;
     }
 
-    /**
-     * @see com.thinkparity.browser.platform.application.display.Display#getId()
-     * 
-     */
+    public void toggleImage() {
+        if(backgroundImage.equals(BG_IMAGE)) {
+            backgroundImage = BG_IMAGE_ALT;
+        }
+        else { backgroundImage = BG_IMAGE; }
+
+        repaint();
+    }
+
+    /** @see com.thinkparity.browser.platform.application.display.Display#getId() */
     public DisplayId getId() { return DisplayId.STATUS; }
 
     /** @see javax.swing.JComponent#paintComponent(java.awt.Graphics) */
     protected void paintComponent(final Graphics g) {
         final Graphics2D g2 = (Graphics2D) g.create();
-        try { g2.drawImage(BG_IMAGE, getInsets().left, getInsets().top, this); }
+        try { g2.drawImage(backgroundImage, getInsets().left, getInsets().top, this); }
         finally { g2.dispose(); }
     }
 }

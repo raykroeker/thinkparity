@@ -232,7 +232,9 @@ public class LoginAvatar extends Avatar {
             .append(" ")
             .append(com.thinkparity.browser.Version.getVersion())
             .append(" ")
-            .append(com.thinkparity.browser.Version.getBuildId());
+            .append(com.thinkparity.browser.Version.getBuildId())
+            .append(" ")
+            .append(com.thinkparity.browser.Version.getMode());
 		infoJLabel.setText(buffer.toString());
 		final javax.swing.Timer timer = new javax.swing.Timer(3 * 1000, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {

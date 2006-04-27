@@ -48,6 +48,7 @@ import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Implementation of the document model interface.
@@ -1043,7 +1044,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.update(d);
 
         // fire event
-        notifyKeyRequested(d, remoteEventGen);
+        notifyKeyRequested(getInternalSessionModel().readUser(requestedBy),
+                d, remoteEventGen);
 	}
 
 	/**
@@ -1279,16 +1281,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 
     /**
      * Fire key requested.
-     *
+     * 
+     * @param user
+     *            A user.
      * @param document
-     *      A document
+     *            A document
      * @param eventGen
-     *      The event generator.
+     *            The event generator.
      */
-    private void notifyKeyRequested(final Document document, final DocumentModelEventGenerator eventGen) {
+    private void notifyKeyRequested(final User user, final Document document,
+            final DocumentModelEventGenerator eventGen) {
         synchronized(DocumentModelImpl.LISTENERS) {
             for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-                l.keyRequested(eventGen.generate(document));
+                l.keyRequested(eventGen.generate(user, document));
             }
         }
     }

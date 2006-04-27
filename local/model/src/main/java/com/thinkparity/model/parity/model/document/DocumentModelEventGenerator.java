@@ -5,6 +5,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import com.thinkparity.model.parity.api.events.DocumentEvent;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * A convenience class used to create events for the document listener.
@@ -40,14 +41,43 @@ class DocumentModelEventGenerator {
 
     /**
      * Generate a document event for a document version.
-     *
+     * 
      * @param document
-     *      A document
+     *            A document
      * @param documentVersion
-     *      A document version.
+     *            A document version.
      * @return A document event.
      */
     DocumentEvent generate(final Document document, final DocumentVersion documentVersion) {
         return new DocumentEvent(source, document, documentVersion);
     }
+
+    /**
+     * Generate a document event.
+     * 
+     * @param user
+     *            A user.
+     * @param document
+     *            A document.
+     * @return A document event.
+     */
+    DocumentEvent generate(final User user, final Document document) {
+        return new DocumentEvent(source, user, document);
+    }
+
+    /**
+     * Generate a document event for a document version.
+     * 
+     * @param user
+     *            A user.
+     * @param document
+     *            A document
+     * @param documentVersion
+     *            A document version.
+     * @return A document event.
+     */
+   DocumentEvent generate(final User user, final Document document,
+            final DocumentVersion documentVersion) {
+       return new DocumentEvent(source, user, document, documentVersion);
+   }
 }

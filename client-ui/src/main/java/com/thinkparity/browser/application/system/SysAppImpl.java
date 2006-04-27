@@ -3,9 +3,12 @@
  */
 package com.thinkparity.browser.application.system;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.thinkparity.browser.application.system.tray.SysTray;
+import com.thinkparity.browser.application.system.tray.SysTrayNotification;
+
 
 
 /**
@@ -25,7 +28,7 @@ class SysAppImpl extends Thread {
 	 * Queue of pending new/updated artifacts\versions\system messages.
 	 * 
 	 */
-	private Integer queueItems = 0;
+	private final List<SysTrayNotification> queue;
 
 	/**
 	 * The system application.
@@ -42,6 +45,7 @@ class SysAppImpl extends Thread {
 	SysAppImpl(final SysApp sysApp) {
 		super("[BROWSER2] [APP] [SYS] [THREAD]");
 		this.sysApp = sysApp;
+        this.queue = new LinkedList<SysTrayNotification>();
 	}
 
 	/**
@@ -69,8 +73,10 @@ class SysAppImpl extends Thread {
 	 */
 	public synchronized void start() {
 		running = Boolean.TRUE;
+
 		sysTray = new SysTray(sysApp);
         sysTray.install();
+
 		super.start();
 	}
 
@@ -80,7 +86,11 @@ class SysAppImpl extends Thread {
 	 */
 	void end() {
 		running = Boolean.FALSE;
-		synchronized(this) { notifyAll(); }
+
+        sysTray.unInstall();
+        sysTray = null;
+
+        synchronized(this) { notifyAll(); }
 	}
 
 	String getString(final String localKey) {
@@ -97,35 +107,9 @@ class SysAppImpl extends Thread {
 	 * @param artifact
 	 *            The artifact.
 	 */
-	void notifyReceived(final Artifact artifact) {
+	void fireNotification(final SysTrayNotification notification) {
 		synchronized(this) {
-			queueItems++;
-			notifyAll();
-		}
-	}
-
-	/**
-	 * Notification that an artifact version has been received.
-	 * 
-	 * @param artifactVersion
-	 *            The artifact.
-	 */
-	void notifyReceived(final ArtifactVersion artifactVersion) {
-		synchronized(this) {
-			queueItems++;
-			notifyAll();
-		}
-	}
-
-	/**
-	 * Notification that a system message has been received.
-	 * 
-	 * @param systemMessage
-	 *            The system message.
-	 */
-	void notifyReceived(final SystemMessage systemMessage) {
-		synchronized(this) {
-			queueItems++;
+			queue.add(notification);
 			notifyAll();
 		}
 	}
@@ -136,7 +120,7 @@ class SysAppImpl extends Thread {
 	 */
 	void resetQueue() {
 		synchronized(this) {
-			queueItems = 0;
+			queue.clear();
 			notifyAll();
 		}
 	}
@@ -146,14 +130,18 @@ class SysAppImpl extends Thread {
 	 * 
 	 * @return The total number of queued artifacts and artifact versions.
 	 */
-	private Integer getQueueTotal() { return queueItems; }
+	private Integer getQueueTotal() { return queue.size(); }
 
 	/**
 	 * Process pending queue events.
 	 *
 	 */
 	private void processQueue() {
-		sysApp.logger.info("[BROWSER2] [APP] [SYS] [IMPL] [QUEUE:" + getQueueTotal()  + "]");
-        sysTray.setQueueCount(queueItems);
+		sysApp.logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [PROCESS QUEUE (" + getQueueTotal()  + ")]");
+        if(0 < getQueueTotal()) {
+            for(final SysTrayNotification notification : queue) {
+                sysTray.display(notification);
+            }
+        }
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Mar 18, 2006
  */
-package com.thinkparity.browser.application.system;
+package com.thinkparity.browser.application.system.tray;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,14 +11,14 @@ import javax.swing.Icon;
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
 
+import com.thinkparity.browser.application.system.SysApp;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
-
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class SysTray {
+public class SysTray {
 
 	/**
 	 * Read the system tray icon.
@@ -48,15 +48,19 @@ class SysTray {
 	 * @param sysApp
 	 *            The system application.
 	 */
-	SysTray(final SysApp sysApp) {
+	public SysTray(final SysApp sysApp) {
 		super();
         this.menuBuilder = new MenuBuilder(sysApp);
 		this.isInstalled = Boolean.FALSE;
 		this.sysApp = sysApp;
 	}
 
+    public void display(final SysTrayNotification notification) {
+        displayInfo(notification);
+    }
+
     /** Install the system tray.*/
-	void install() {
+	public void install() {
 		systemTrayIcon = new TrayIcon(readTrayIcon());
 		systemTrayIcon.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
@@ -69,6 +73,15 @@ class SysTray {
 		systemTray  = SystemTray.getDefaultSystemTray();
 		systemTray.addTrayIcon(systemTrayIcon);
 		isInstalled = Boolean.TRUE;
+	}
+
+    /** Uninstall the system tray. */
+	public void unInstall() {
+		systemTray.removeTrayIcon(systemTrayIcon);
+		systemTrayIcon = null;
+		systemTray = null;
+
+		isInstalled = Boolean.FALSE;
 	}
 
     /**
@@ -90,14 +103,11 @@ class SysTray {
         else { systemTrayIcon.setCaption(getCaptionN(queueCount)); }
     }
 
-    /** Uninstall the system tray. */
-	void unInstall() {
-		systemTray.removeTrayIcon(systemTrayIcon);
-		systemTrayIcon = null;
-		systemTray = null;
-
-		isInstalled = Boolean.FALSE;
-	}
+    private void displayInfo(final SysTrayNotification notification) {
+        systemTrayIcon.displayMessage(
+                sysApp.getString("Notification.InfoCaption"),
+                notification.getMessage(), TrayIcon.INFO_MESSAGE_TYPE);
+    }
 
     private String getCaption0() {
         return sysApp.getString("TRAY_CAPTION.0");

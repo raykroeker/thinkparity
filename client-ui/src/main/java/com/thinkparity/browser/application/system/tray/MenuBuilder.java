@@ -1,7 +1,7 @@
 /*
  * Apr 26, 2006
  */
-package com.thinkparity.browser.application.system;
+package com.thinkparity.browser.application.system.tray;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +11,7 @@ import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
+import com.thinkparity.browser.application.system.SysApp;
 
 /**
  * The menu builder for the system application.

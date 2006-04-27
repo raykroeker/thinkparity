@@ -21,11 +21,11 @@ class EventDispatcher {
 	/** The document listener. */
 	private DocumentListener documentListener;
 
-	/** The system message listener. */
-	private SystemMessageListener systemMessageListener;
-
 	/** The application. */
 	private final SysApp sysApp;
+
+	/** The system message listener. */
+	private SystemMessageListener systemMessageListener;
 
 	/**
 	 * Create an EventDispatcher.
@@ -61,9 +61,22 @@ class EventDispatcher {
 	 */
 	private DocumentListener createDocumentListener() {
 		return new DocumentAdapter() {
-			public void documentUpdated(final DocumentEvent e) {
-                if(e.isRemote()) { sysApp.notifyReceived(e.getDocument()); }
+            public void documentClosed(final DocumentEvent e) {
+                if(e.isRemote())
+                    sysApp.fireDocumentClosed(e.getDocument());
+            }
+            public void documentCreated(final DocumentEvent e) {
+                if(e.isRemote())
+                    sysApp.fireDocumentCreated(e.getDocument());
+            }
+            public void documentUpdated(final DocumentEvent e) {
+                if(e.isRemote())
+                    sysApp.fireDocumentUpdated(e.getDocument());
 			}
+            public void keyRequested(final DocumentEvent e) {
+                if(e.isRemote())
+                    sysApp.fireDocumentKeyRequested(null, e.getDocument());
+            }
 		};
 	}
 
@@ -76,7 +89,7 @@ class EventDispatcher {
 		return new SystemMessageListener() {
 			public void systemMessageCreated(
 					final SystemMessageEvent systemMessageEvent) {
-				sysApp.notifyReceived((SystemMessage) systemMessageEvent.getSource());
+				sysApp.fireSystemMessageCreated((SystemMessage) systemMessageEvent.getSource());
 			}
 		};
 	}

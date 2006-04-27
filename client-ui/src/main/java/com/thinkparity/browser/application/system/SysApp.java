@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.AbstractApplication;
+import com.thinkparity.browser.application.system.tray.SysTrayNotification;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -15,14 +16,15 @@ import com.thinkparity.browser.platform.action.ActionRegistry;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
 import com.thinkparity.browser.platform.util.State;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -58,6 +60,9 @@ public class SysApp extends AbstractApplication {
 		this.logger = platform.getLogger(getClass());
 	}
 
+	/** Display the about dialogue. */
+    public void displayAbout() {}
+
 	/**
 	 * @see com.thinkparity.browser.platform.application.Application#end(com.thinkparity.browser.platform.Platform)
 	 * 
@@ -87,6 +92,14 @@ public class SysApp extends AbstractApplication {
     public Logger getLogger(final Class clasz) {
         return getPlatform().getLogger(clasz);
     }
+
+	public String getString(final String localKey) {
+		return super.getString(localKey);
+	}
+
+	public String getString(final String localKey, final Object[] arguments) {
+		return super.getString(localKey, arguments);
+	}
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate(com.thinkparity.browser.platform.Platform)
@@ -128,7 +141,23 @@ public class SysApp extends AbstractApplication {
 		throw Assert.createNotYetImplemented("System#restoreState");
 	}
 
-	/**
+	/** Run the exit platform action. */
+    public void runExitPlatform() {
+        if(!actionRegistry.contains(ActionId.PLATFORM_QUIT))
+            ActionFactory.createAction(ActionId.PLATFORM_QUIT, getPlatform());
+
+        run(ActionId.PLATFORM_QUIT, new Data(0));
+    }
+
+    /** Run the restore browser action. */
+	public void runRestoreBrowser() {
+        if(!actionRegistry.contains(ActionId.RESTORE_BROWSER))
+            ActionFactory.createAction(ActionId.RESTORE_BROWSER, getPlatform());
+
+        runLater(ActionId.RESTORE_BROWSER, new Data(0));
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
@@ -136,7 +165,7 @@ public class SysApp extends AbstractApplication {
 		throw Assert.createNotYetImplemented("System#saveState");
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#start(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -152,61 +181,92 @@ public class SysApp extends AbstractApplication {
 		notifyStart();
 	}
 
-	protected String getString(final String localKey) {
-		return super.getString(localKey);
-	}
-
-	protected String getString(final String localKey, final Object[] arguments) {
-		return super.getString(localKey, arguments);
-	}
-
-	/** Display the about dialogue. */
-    void displayAbout() {}
-
     /**
-	 * Notification that an artifact has been received.
-	 * 
-	 * @param artifact
-	 *            The artifact.
-	 */
-	void notifyReceived(final Artifact artifact) {
-		impl.notifyReceived(artifact);
-	}
-
-    /**
-	 * Notification that an artifact version has been received.
-	 * 
-	 * @param artifactVersion
-	 *            The artifact version.
-	 */
-	void notifyReceived(final ArtifactVersion artifactVersion) {
-		impl.notifyReceived(artifactVersion);
-	}
-
-    /**
-	 * Notification that a system message was created.
-	 * 
-	 * @param systemMessage
-	 *            The system message.
-	 */
-	void notifyReceived(final SystemMessage systemMessage) {
-		impl.notifyReceived(systemMessage);
-	}
-
-    /** Run the exit platform action. */
-    void runExitPlatform() {
-        if(!actionRegistry.contains(ActionId.PLATFORM_QUIT))
-            ActionFactory.createAction(ActionId.PLATFORM_QUIT, getPlatform());
-
-        run(ActionId.PLATFORM_QUIT, new Data(0));
+     * Notify a document key has been closed.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentClosed(final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentClosedMessage",
+                new Object[] {document.getName()}));
     }
 
-    /** Run the restore browser action. */
-	void runRestoreBrowser() {
-        if(!actionRegistry.contains(ActionId.RESTORE_BROWSER))
-            ActionFactory.createAction(ActionId.RESTORE_BROWSER, getPlatform());
+    /**
+     * Notify a document key has created.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentCreated(final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentCreatedMessage",
+                new Object[] {document.getName()}));
+    }
 
-        runLater(ActionId.RESTORE_BROWSER, new Data(0));
+    /**
+     * Notify a document key has been requested.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentKeyRequested(final User user, final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentKeyRequestedMessage",
+                new Object[] {getName(user), document.getName()}));
+    }
+
+    private String getName(final User user) {
+        return "";
+    }
+
+    /**
+     * Notify a document has been updated.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentUpdated(final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentUpdatedMessage",
+                new Object[] {document.getName()}));
+    }
+
+    /**
+     * Notify a system message has been created.
+     * 
+     * @param systemMessage
+     *            The system message.
+     */
+    void fireSystemMessageCreated(final SystemMessage systemMessage) {
+        fireNotification(getString(
+                "Notification.SystemMessageCreatedMessage",
+                new Object[] {systemMessage}));
+    }
+
+    /**
+     * Notify an update.
+     * 
+     * @param notificationMessage
+     *            The notification message.
+     */
+    private void fireNotification(final String notificationMessage) {
+        if(!isBrowserRunning()) {
+            final SysTrayNotification notification = new SysTrayNotification();
+            notification.setMessage(notificationMessage);
+            impl.fireNotification(notification);
+        }
+    }
+
+    /**
+     * Determine whether or not the browser application is running.
+     * 
+     * @return True if the browser is running; false otherwise.
+     */
+    private Boolean isBrowserRunning() {
+        return ApplicationStatus.RUNNING ==
+            applicationRegistry.getStatus(ApplicationId.BROWSER2);
     }
 
     /**

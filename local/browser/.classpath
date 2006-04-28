@@ -17,6 +17,6 @@
 	<classpathentry sourcepath="/M2_REPO/com/l2fprod/l2fprod-6.2-sources.jar" kind="var" path="M2_REPO/com/l2fprod/nativeskin/6.2/nativeskin-6.2.jar"/>
 	<classpathentry sourcepath="/M2_REPO/lucene/lucene/1.9.1/lucene-1.9.1-sources.jar" kind="var" path="M2_REPO/lucene/lucene/1.9.1/lucene-1.9.1.jar"/>
 	<classpathentry sourcepath="/M2_REPO/net/java/jdic/0.9.1/jdic-0.9.1-src.jar" kind="var" path="M2_REPO/net/java/jdic/0.9.1/jdic-0.9.1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/thinkparity/parity/lModel/1.0-SNAPSHOT/lModel-1.0-SNAPSHOT.jar"/>
+	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/lModel/1.0-SNAPSHOT/lModel-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/lModel/1.0-SNAPSHOT/lModel-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

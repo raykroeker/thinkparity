@@ -153,7 +153,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * @param documentId
 	 * @return
 	 * @throws ParityException
@@ -188,22 +188,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         return archive;
 	}
 
-    /**
-     * Fire the document archived listener event.
-     *
-     * @param document
-     *      A document,
-     * @param eventGen
-     *      The event generator.
-     */
-    private void notifyDocumentArchived(final Document document, final DocumentModelEventGenerator eventGen) {
-        synchronized(LISTENERS) {
-            for(final DocumentListener l : LISTENERS) {
-                l.documentArchived(eventGen.generate(document));
-            }
-        }
-    }
-
 	/**
 	 * Audit a key received event.
 	 * 
@@ -222,7 +206,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
 
-	/**
+    /**
 	 * Close a document.
 	 * 
 	 * @param documentId
@@ -296,7 +280,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Confirm that the document sent previously has been received by the
      * specified user.
      * 
@@ -397,7 +381,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Create a new document version based upon an existing document. This will
 	 * check the cache for updates to the document, write the updates to the
 	 * document, then create a new version based upon that document.
@@ -674,6 +658,74 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
+
+	/**
+     * A key request for a document was accepted.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param acceptedBy
+     *            By whom the request was accepted.
+     * @throws ParityException
+     */
+    void keyRequestAccepted(final Long documentId, final JabberId acceptedBy)
+            throws ParityException {
+        // unlock
+        unlock(documentId);
+
+        // apply key flag
+        final InternalArtifactModel iAModel = getInternalArtifactModel();
+        iAModel.applyFlagKey(documentId);
+        // remove seen flag
+        iAModel.removeFlagSeen(documentId);
+
+        // update the remote info row
+        final Calendar currentDateTime = currentDateTime();
+        iAModel.updateRemoteInfo(documentId, acceptedBy, currentDateTime);
+
+        // create system message
+        getInternalSystemMessageModel().
+            createKeyResponse(documentId, Boolean.TRUE, acceptedBy);
+
+        // audit receive key
+        auditKeyRecieved(documentId, currentUserId(), currentDateTime, acceptedBy);
+
+        // fire the key request accepted event
+        notifyKeyRequestAccepted(readUser(acceptedBy), get(documentId), remoteEventGen);
+    }
+
+    /**
+     * A key request for a document was declined.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param declinedBy
+     *            By whom the request was declined.
+     * @throws ParityException
+     */
+    void keyRequestDeclined(final Long documentId, final JabberId declinedBy)
+            throws ParityException {
+        final Calendar currentDateTime = currentDateTime();
+
+        // remove seen flag
+        final InternalArtifactModel iAModel = getInternalArtifactModel();
+        iAModel.removeFlagSeen(documentId);
+
+        // update the remote info row
+        iAModel.updateRemoteInfo(documentId, declinedBy, currentDateTime);
+
+        // create system message
+        getInternalSystemMessageModel().
+            createKeyResponse(documentId, Boolean.FALSE, declinedBy);
+
+        // audit key request denied
+        iAModel.auditKeyRequestDenied(documentId, currentUserId(),
+                currentDateTime, declinedBy);
+
+        // fire the key request declined event
+        notifyKeyRequestDeclined(
+                readUser(declinedBy), get(documentId), remoteEventGen);
+    }
 
 	/**
 	 * Obtain a list of documents.
@@ -1044,9 +1096,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.update(d);
 
         // fire event
-        notifyKeyRequested(getInternalSessionModel().readUser(requestedBy),
-                d, remoteEventGen);
+        notifyKeyRequested(readUser(requestedBy), d, remoteEventGen);
 	}
+
+    private User readUser(final JabberId jabberId) throws ParityException {
+        return getInternalSessionModel().readUser(jabberId);
+    }
 
 	/**
 	 * Unlock a document.
@@ -1075,7 +1130,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    void updateIndex(final Long documentId) throws ParityException {
+	void updateIndex(final Long documentId) throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [UPDATE INDEX]");
 		logger.debug(documentId);
 		indexor.delete(documentId);
@@ -1143,7 +1198,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 				format("Cannot write archive output directory [{0}]", aod), aod.canWrite());
 	}
 
-	/**
+    /**
      * Create an input stream from the input file.
      * 
      * @param inputFile
@@ -1247,7 +1302,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return latestLocalVersion.getVersionId().equals(version.getVersionId());
 	}
 
-    /**
+	/**
      * Fire confirmation received.
      *
      * @param document
@@ -1263,37 +1318,18 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
-	 * Fire document created.
-	 * 
-	 * @param document
-     *      A document.
+    /**
+     * Fire the document archived listener event.
+     *
+     * @param document
+     *      A document,
      * @param eventGen
      *      The event generator.
-	 */
-	private void notifyDocumentCreated(final Document document, final DocumentModelEventGenerator eventGen) {
-		synchronized(DocumentModelImpl.LISTENERS) {
-			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-				l.documentCreated(eventGen.generate(document));
-			}
-		}
-	}
-
-    /**
-     * Fire key requested.
-     * 
-     * @param user
-     *            A user.
-     * @param document
-     *            A document
-     * @param eventGen
-     *            The event generator.
      */
-    private void notifyKeyRequested(final User user, final Document document,
-            final DocumentModelEventGenerator eventGen) {
-        synchronized(DocumentModelImpl.LISTENERS) {
-            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-                l.keyRequested(eventGen.generate(user, document));
+    private void notifyDocumentArchived(final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(LISTENERS) {
+            for(final DocumentListener l : LISTENERS) {
+                l.documentArchived(eventGen.generate(document));
             }
         }
     }
@@ -1314,7 +1350,23 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
+	 * Fire document created.
+	 * 
+	 * @param document
+     *      A document.
+     * @param eventGen
+     *      The event generator.
+	 */
+	private void notifyDocumentCreated(final Document document, final DocumentModelEventGenerator eventGen) {
+		synchronized(DocumentModelImpl.LISTENERS) {
+			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+				l.documentCreated(eventGen.generate(document));
+			}
+		}
+	}
+
+    /**
 	 * Fire document deleted event.
 	 * 
 	 * @param document
@@ -1345,6 +1397,63 @@ class DocumentModelImpl extends AbstractModelImpl {
 			}
 		}
 	}
+
+	/**
+     * Fire key request accepted.
+     * 
+     * @param user
+     *            A user.
+     * @param document
+     *            A document.
+     * @param eventGen
+     *            The event generator.
+     */
+    private void notifyKeyRequestAccepted(final User user,
+            final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.keyRequestAccepted(eventGen.generate(user, document));
+            }
+        }
+    }
+
+    /**
+     * Fire key request declined.
+     * 
+     * @param user
+     *            A user.
+     * @param document
+     *            A document.
+     * @param eventGen
+     *            The event generator.
+     */
+    private void notifyKeyRequestDeclined(final User user,
+            final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.keyRequestDeclined(eventGen.generate(user, document));
+            }
+        }
+    }
+
+	/**
+     * Fire key requested.
+     * 
+     * @param user
+     *            A user.
+     * @param document
+     *            A document
+     * @param eventGen
+     *            The event generator.
+     */
+    private void notifyKeyRequested(final User user, final Document document,
+            final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.keyRequested(eventGen.generate(user, document));
+            }
+        }
+    }
 
 	/**
 	 * This is the first time this particular document has been recieved. We

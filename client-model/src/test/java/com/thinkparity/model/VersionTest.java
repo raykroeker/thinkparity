@@ -3,13 +3,8 @@
  */
 package com.thinkparity.model;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
-
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.NotOfTypeAssertion;
 
 /**
  * @author raykroeker@gmail.com

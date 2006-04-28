@@ -77,6 +77,37 @@ public class InternalDocumentModel extends DocumentModel implements
 		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
 	}
 
+    /**
+     * A key request for a document was accepted.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param acceptedBy
+     *            By whom the request was accepted.
+     * @throws ParityException
+     */
+	public void keyRequestAccepted(final Long documentId,
+            final JabberId acceptedBy) throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().keyRequestAccepted(documentId, acceptedBy);
+        }
+    }
+
+    /**
+     * A key request for a document was declined.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param declinedBy
+     *            By whom the request was declined.
+     * @throws ParityException
+     */
+	public void keyRequestDeclined(final Long documentId, final JabberId declinedBy) throws ParityException {
+	    synchronized(getImplLock()) {
+            getImpl().keyRequestDeclined(documentId, declinedBy);
+        }
+    }
+
 	/**
 	 * Lock a document.
 	 * 
@@ -88,7 +119,7 @@ public class InternalDocumentModel extends DocumentModel implements
 		synchronized(getImplLock()) { getImpl().lock(documentId); }
 	}
 
-	/**
+    /**
 	 * Use the document model to receive a document from another parity user.
 	 * 
 	 * @param xmppDocument

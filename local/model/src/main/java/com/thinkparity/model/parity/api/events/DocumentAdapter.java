@@ -60,7 +60,23 @@ public class DocumentAdapter implements DocumentListener {
     public void documentUpdated(final DocumentEvent e) {}
 
     /**
-     * A document key request has been generated.
+     * A document key request has been accepted.
+     * 
+     * @param e
+     *            The document event.
+     */
+    public void keyRequestAccepted(final DocumentEvent e) {}
+
+    /**
+     * A document key request has been declined.
+     * 
+     * @param e
+     *            The document event.
+     */
+    public void keyRequestDeclined(final DocumentEvent e) {}
+
+    /**
+     * A document key has been requested.
      *
      * @param e
      *      The document event.

@@ -4,7 +4,7 @@
 package com.thinkparity.browser.platform.application;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.system.SysApp;
+import com.thinkparity.browser.application.system.SystemApplication;
 import com.thinkparity.browser.platform.Platform;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -67,7 +67,7 @@ public class ApplicationFactory {
 	 * @return The session application.
 	 */
 	private Application createSysApp(final Platform platform) {
-		final Application sysApp = new SysApp(platform);
+		final Application sysApp = new SystemApplication(platform);
 		sysApp.addListener(platform);
 		return sysApp;
 	}

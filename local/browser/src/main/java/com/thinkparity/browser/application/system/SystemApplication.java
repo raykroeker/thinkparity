@@ -8,15 +8,14 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.AbstractApplication;
-import com.thinkparity.browser.application.system.tray.SysTrayNotification;
+import com.thinkparity.browser.application.system.tray.TrayNotification;
+import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.ActionRegistry;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.ApplicationId;
-import com.thinkparity.browser.platform.application.ApplicationRegistry;
-import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
 import com.thinkparity.browser.platform.util.State;
 
@@ -30,7 +29,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class SysApp extends AbstractApplication {
+public class SystemApplication extends AbstractApplication {
 
 	/** An apache logger. */
 	final Logger logger;
@@ -38,14 +37,11 @@ public class SysApp extends AbstractApplication {
 	/** The action registry. */
     private final ActionRegistry actionRegistry;
 
-	/** The application registry. */
-    private final ApplicationRegistry applicationRegistry;
-
 	/** The event dispatcher. */
 	private EventDispatcher ed;
 
 	/** The application impl. */
-	private SysAppImpl impl;
+	private SystemApplicationImpl impl;
 
 	/**
 	 * Create a System.
@@ -53,10 +49,9 @@ public class SysApp extends AbstractApplication {
 	 * @param platform
 	 *            The platform.
 	 */
-	public SysApp(final Platform platform) {
+	public SystemApplication(final Platform platform) {
 		super(platform, L18nContext.SYS_APP);
         this.actionRegistry = new ActionRegistry();
-        this.applicationRegistry = new ApplicationRegistry();
 		this.logger = platform.getLogger(getClass());
 	}
 
@@ -124,7 +119,7 @@ public class SysApp extends AbstractApplication {
 	public void restore(final Platform platform) {
 		logger.info("[BROWSER2] [APP] [SYS] [RESTORE]");
 
-		impl = new SysAppImpl(this);
+		impl = new SystemApplicationImpl(this);
 		impl.start();
 
 		ed = new EventDispatcher(this);
@@ -172,7 +167,7 @@ public class SysApp extends AbstractApplication {
 	public void start(final Platform platform) {
 		logger.info("[BROWSER2] [APP] [SYS] [START]");
 
-		impl = new SysAppImpl(this);
+		impl = new SystemApplicationImpl(this);
 		impl.start();
 
 		ed = new EventDispatcher(this);
@@ -217,10 +212,29 @@ public class SysApp extends AbstractApplication {
                 new Object[] {getName(user), document.getName()}));
     }
 
-    private String getName(final User user) {
-        return "";
+    /**
+     * Notify a document key request has been accepted.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentKeyRequestAccepted(final User user, final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentKeyRequestAcceptedMessage",
+                new Object[] {getName(user), document.getName()}));
     }
 
+    /**
+     * Notify a document key request has been accepted.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentKeyRequestDeclined(final User user, final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentKeyRequestDeclinedMessage",
+                new Object[] {getName(user), document.getName()}));
+    }
     /**
      * Notify a document has been updated.
      * 
@@ -252,22 +266,12 @@ public class SysApp extends AbstractApplication {
      *            The notification message.
      */
     private void fireNotification(final String notificationMessage) {
-        if(!isBrowserRunning()) {
-            final SysTrayNotification notification = new SysTrayNotification();
-            notification.setMessage(notificationMessage);
-            impl.fireNotification(notification);
-        }
+        final TrayNotification notification = new TrayNotification();
+        notification.setMessage(notificationMessage);
+        impl.fireNotification(notification);
     }
 
-    /**
-     * Determine whether or not the browser application is running.
-     * 
-     * @return True if the browser is running; false otherwise.
-     */
-    private Boolean isBrowserRunning() {
-        return ApplicationStatus.RUNNING ==
-            applicationRegistry.getStatus(ApplicationId.BROWSER2);
-    }
+    private String getName(final User user) { return ModelUtil.getName(user); }
 
     /**
      * Run an action.
@@ -298,11 +302,11 @@ public class SysApp extends AbstractApplication {
      * @param data
      *            The action data.
      * @see SwingUtilities#invokeLater(java.lang.Runnable)
-     * @see SysApp#run(ActionId, Data)
+     * @see SystemApplication#run(ActionId, Data)
      */
     private void runLater(final ActionId actionId, final Data data) {
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { SysApp.this.run(actionId, data); }
+            public void run() { SystemApplication.this.run(actionId, data); }
         });
     }
 }

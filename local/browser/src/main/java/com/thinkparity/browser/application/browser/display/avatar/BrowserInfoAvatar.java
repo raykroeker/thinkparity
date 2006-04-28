@@ -17,6 +17,7 @@ import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.application.browser.display.provider.CompositeSingleContentProvider;
 import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
+import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
@@ -298,17 +299,7 @@ public class BrowserInfoAvatar extends Avatar {
             reloadTimer.start();
         }
         else if(isTestMode()) {
-			final Contact contact = getContact();
-
-			final Object[] infoParityUserArguments = new Object[] {
-					contact.getFirstName(),
-					contact.getLastName(),
-					contact.getOrganization()
-			};
-			final StringBuffer buffer =
-				new StringBuffer(getString("Info.Contact", infoParityUserArguments))
-				.append(infoJLabel.getText());
-			infoJLabel.setText(buffer.toString());
+			infoJLabel.setText(ModelUtil.getName(getContact()));
 		}
 	}
 }

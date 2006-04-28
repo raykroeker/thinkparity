@@ -3,7 +3,7 @@
  */
 package com.thinkparity.browser.application.system.sesmon;
 
-import com.thinkparity.browser.application.system.SysApp;
+import com.thinkparity.browser.application.system.SystemApplication;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -19,7 +19,7 @@ public class SessionMonitor {
 	 * The system application.
 	 * 
 	 */
-	private final SysApp sysApp;
+	private final SystemApplication sysApp;
 
 	/**
 	 * The parity session listener.
@@ -33,7 +33,7 @@ public class SessionMonitor {
 	 * @param sysApp
 	 *            The system application.
 	 */
-	public SessionMonitor(final SysApp sysApp) {
+	public SessionMonitor(final SystemApplication sysApp) {
 		super();
 		this.sysApp = sysApp;
 	}

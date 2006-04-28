@@ -48,7 +48,7 @@ abstract class ComponentFactory {
 	 *            The component.
 	 */
 	protected void applyDefaultFont(final Component component) {
-		applyFont(component, BrowserConstants.DefaultFont);
+		applyFont(component, BrowserConstants.Fonts.DefaultFont);
 	}
 
 	/**

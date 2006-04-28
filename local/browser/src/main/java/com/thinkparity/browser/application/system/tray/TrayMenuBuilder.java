@@ -11,27 +11,30 @@ import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
-import com.thinkparity.browser.application.system.SysApp;
+import com.thinkparity.browser.application.system.SystemApplication;
 
 /**
- * The menu builder for the system application.
+ * A menu builder for the system application tray.
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class MenuBuilder {
+class TrayMenuBuilder {
 
     /** System application. */
-    private final SysApp application;
+    private final SystemApplication application;
 
-    /**
-     * Create a MenuBuilder.
-     */
-    MenuBuilder(final SysApp application) {
+    /** Create a TrayMenuBuilder. */
+    TrayMenuBuilder(final SystemApplication application) {
         super();
         this.application = application;
     }
 
+    /**
+     * Create the system tray popup menu.
+     * 
+     * @return The system tray popup menu.
+     */
     JPopupMenu createPopup() {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         jPopupMenu.add(createMenuItem(
@@ -58,6 +61,15 @@ class MenuBuilder {
         return jPopupMenu;
     }
 
+    /**
+     * Create a menu item.
+     * 
+     * @param textKey
+     *            The text key.
+     * @param l
+     *            The action listener.
+     * @return The menu item.
+     */
     private JMenuItem createMenuItem(final String textKey,
             final ActionListener l) {
         return MenuItemFactory.create(
@@ -73,5 +85,7 @@ class MenuBuilder {
      *      The local context key.
      * @return Localised text.
      */
-    private String getString(final String localKey) { return application.getString(localKey); }
+    private String getString(final String localKey) {
+        return application.getString(localKey);
+    }
 }

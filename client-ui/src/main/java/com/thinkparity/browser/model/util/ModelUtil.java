@@ -52,9 +52,9 @@ public class ModelUtil {
 
 	private String doGetName(final User user) {
 		if(isSetFirstAndLastName(user)) {
-			return new StringBuffer(user.getLastName())
-				.append(Separator.CommaSpace)
-				.append(user.getFirstName())
+			return new StringBuffer(user.getFirstName())
+                .append(Separator.Space)
+                .append(user.getLastName())
 				.toString();
 		}
 		else if(isSetFirstName(user)) { return user.getFirstName(); }

@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser;
 
 import java.awt.Point;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -87,11 +88,8 @@ public class Browser extends AbstractApplication {
 	 */
 	public static Browser getInstance() { return INSTANCE; }
 
-	/**
-	 * Apache logger.
-	 * 
-	 */
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	/** An apache logger. */
+	protected final Logger logger;
 
 	/**
 	 * Cache of all of the actions.
@@ -153,6 +151,7 @@ public class Browser extends AbstractApplication {
 		this.actionCache = new Hashtable<ActionId, Object>(ActionId.values().length, 1.0F);
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
 		this.avatarRegistry = new AvatarRegistry();
+		this.logger = LoggerFactory.getLogger(getClass());
 		this.session= new BrowserSession(this);
 		this.state = new BrowserState(this);
 	}
@@ -301,7 +300,7 @@ public class Browser extends AbstractApplication {
 		ed.end();
 		ed = null;
 
-		if(isMainWindowOpen()) { closeMainWindow(); }
+		if(isBrowserWindowOpen()) { disposeBrowserWindow(); }
 
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
@@ -495,7 +494,7 @@ public class Browser extends AbstractApplication {
 	public void hibernate(final Platform platform) {
 		assertStatusChange(ApplicationStatus.HIBERNATING);
 
-		closeMainWindow();
+		disposeBrowserWindow();
 
 		setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
@@ -516,7 +515,7 @@ public class Browser extends AbstractApplication {
 	 *
 	 */
 	public void minimize() {
-		if(!isMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
+		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
 	}
 
 	/**
@@ -872,12 +871,21 @@ public class Browser extends AbstractApplication {
     	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
 	}
 
-    /** Close the main window. */
-	private void closeMainWindow() {
-		Assert.assertNotNull(
-				"Cannot close main window before it is open.", mainWindow);
+    /** Dispose the main window. */
+    private void disposeBrowserWindow() {
+        Assert.assertNotNull(
+                "[LBROWSER] [APPLICATION] [BROWSER] [DISPOSE BROWSER WINDOW] [BROWSER WINDOW IS NULL]",
+                mainWindow);
         mainWindow.dispose();
-	}
+    }
+
+    /** Close the main window. */
+    public void closeBrowserWindow() {
+        Assert.assertNotNull(
+                "[LBROWSER] [APPLICATION] [BROWSER] [CLOSE BROWSER WINDOW] [BROWSER WINDOW IS NULL]",
+                mainWindow);
+        mainWindow.dispatchEvent(new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
+    }
 
 	/**
      * Open a confirmation dialogue.
@@ -1030,11 +1038,11 @@ public class Browser extends AbstractApplication {
 		catch(final Exception x) { throw new RuntimeException(x); }
 	}
 
-    private Boolean isMainWindowOpen() {
+    private Boolean isBrowserWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
-	private Boolean isMinimized() {
+	private Boolean isBrowserWindowMinimized() {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
 

@@ -185,8 +185,8 @@ public class MainCellDocument extends Document implements MainCell {
      * 
      */
     public Font getTextFont() {
-        if(isSeen()) { return BrowserConstants.DefaultFont; }
-        else { return BrowserConstants.DefaultFontBold; }
+        if(isSeen()) { return BrowserConstants.Fonts.DefaultFont; }
+        else { return BrowserConstants.Fonts.DefaultFontBold; }
     }
 
     /**

@@ -22,7 +22,7 @@ class EventDispatcher {
 	private DocumentListener documentListener;
 
 	/** The application. */
-	private final SysApp sysApp;
+	private final SystemApplication sysApp;
 
 	/** The system message listener. */
 	private SystemMessageListener systemMessageListener;
@@ -33,11 +33,16 @@ class EventDispatcher {
 	 * @param sysApp
 	 *            The system application.
 	 */
-	EventDispatcher(final SysApp sysApp) {
+	EventDispatcher(final SystemApplication sysApp) {
 		super();
 		this.sysApp = sysApp;
 	}
 
+    /**
+     * End the event dispatcher. This will remove the document and system
+     * message listeners.
+     * 
+     */
 	void end() {
 		sysApp.getDocumentModel().removeListener(documentListener);
 		documentListener = null;
@@ -46,6 +51,11 @@ class EventDispatcher {
 		systemMessageListener = null;
 	}
 
+    /**
+     * Start the event dispatcher. This registers a document and system message
+     * listener.
+     * 
+     */
 	void start() {
 		documentListener = createDocumentListener();
 		sysApp.getDocumentModel().addListener(documentListener);
@@ -73,9 +83,17 @@ class EventDispatcher {
                 if(e.isRemote())
                     sysApp.fireDocumentUpdated(e.getDocument());
 			}
+            public void keyRequestAccepted(final DocumentEvent e) {
+                if(e.isRemote())
+                    sysApp.fireDocumentKeyRequestAccepted(e.getUser(), e.getDocument());
+            }
+            public void keyRequestDeclined(final DocumentEvent e) {
+                if(e.isRemote())
+                    sysApp.fireDocumentKeyRequestDeclined(e.getUser(), e.getDocument());
+            }
             public void keyRequested(final DocumentEvent e) {
                 if(e.isRemote())
-                    sysApp.fireDocumentKeyRequested(null, e.getDocument());
+                    sysApp.fireDocumentKeyRequested(e.getUser(), e.getDocument());
             }
 		};
 	}

@@ -124,11 +124,11 @@ public class Status extends Avatar {
         javax.swing.JLabel separator1JLabel;
         javax.swing.JLabel separator2JLabel;
 
-        connectionJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.SmallFont);
+        connectionJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.SmallFont);
         separator1JLabel = new javax.swing.JLabel();
-        filterJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.SmallFont);
+        filterJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.SmallFont);
         separator2JLabel = new javax.swing.JLabel();
-        customJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.SmallFont);
+        customJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.SmallFont);
 
         setLayout(new java.awt.GridBagLayout());
 

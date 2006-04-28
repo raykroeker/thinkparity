@@ -3,11 +3,12 @@
  */
 package com.thinkparity.browser.application.system;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.thinkparity.browser.application.system.tray.SysTray;
-import com.thinkparity.browser.application.system.tray.SysTrayNotification;
+import com.thinkparity.browser.application.system.tray.Tray;
+import com.thinkparity.browser.application.system.tray.TrayNotification;
 
 
 
@@ -15,7 +16,7 @@ import com.thinkparity.browser.application.system.tray.SysTrayNotification;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class SysAppImpl extends Thread {
+class SystemApplicationImpl extends Thread {
 
 	/**
 	 * Flag indicating the current running state.
@@ -28,24 +29,24 @@ class SysAppImpl extends Thread {
 	 * Queue of pending new/updated artifacts\versions\system messages.
 	 * 
 	 */
-	private final List<SysTrayNotification> queue;
+	private final List<TrayNotification> queue;
 
 	/**
 	 * The system application.
 	 * 
 	 */
-	private final SysApp sysApp;
+	private final SystemApplication sysApp;
 
 	/**
 	 * The system tray functionality.
 	 * 
 	 */
-	private SysTray sysTray;
+	private Tray sysTray;
 
-	SysAppImpl(final SysApp sysApp) {
+	SystemApplicationImpl(final SystemApplication sysApp) {
 		super("[BROWSER2] [APP] [SYS] [THREAD]");
 		this.sysApp = sysApp;
-        this.queue = new LinkedList<SysTrayNotification>();
+        this.queue = new LinkedList<TrayNotification>();
 	}
 
 	/**
@@ -59,11 +60,15 @@ class SysAppImpl extends Thread {
 			catch(final InterruptedException ix) {
 				sysApp.logger.info("[BROWSER2] [APP] [SYS] [IMPL] [INTERRUPTED]");
 			}
-			try { processQueue(); }
-			catch(final RuntimeException rx) {
-				sysApp.logger.error("[BROWSER2] [APP] [SYS] [IMPL RUNNING]", rx);
-				throw rx;
-			}
+            // do not try to process the queue if after waking up
+            // we are no longer running
+            if(running) {
+    			try { processQueue(); }
+    			catch(final RuntimeException rx) {
+    				sysApp.logger.error("[BROWSER2] [APP] [SYS] [IMPL RUNNING]", rx);
+    				throw rx;
+    			}
+            }
 		}
 	}
 
@@ -74,7 +79,7 @@ class SysAppImpl extends Thread {
 	public synchronized void start() {
 		running = Boolean.TRUE;
 
-		sysTray = new SysTray(sysApp);
+		sysTray = new Tray(sysApp);
         sysTray.install();
 
 		super.start();
@@ -107,7 +112,7 @@ class SysAppImpl extends Thread {
 	 * @param artifact
 	 *            The artifact.
 	 */
-	void fireNotification(final SysTrayNotification notification) {
+	void fireNotification(final TrayNotification notification) {
 		synchronized(this) {
 			queue.add(notification);
 			notifyAll();
@@ -139,8 +144,11 @@ class SysAppImpl extends Thread {
 	private void processQueue() {
 		sysApp.logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [PROCESS QUEUE (" + getQueueTotal()  + ")]");
         if(0 < getQueueTotal()) {
-            for(final SysTrayNotification notification : queue) {
+            TrayNotification notification;
+            for(final Iterator<TrayNotification> i = queue.iterator(); i.hasNext();) {
+                notification = i.next();
                 sysTray.display(notification);
+                i.remove();
             }
         }
 	}

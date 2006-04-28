@@ -8,14 +8,14 @@ package com.thinkparity.browser.application.system.tray;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class SysTrayNotification {
+public class TrayNotification {
 
     private String message;
 
     /**
-     * Create a SysTrayNotification.
+     * Create a TrayNotification.
      */
-    public SysTrayNotification() { super(); }
+    public TrayNotification() { super(); }
 
     /**
      * @return Returns the message.

@@ -111,7 +111,7 @@ public class ButtonPanel extends AbstractJPanel {
 	 *
 	 */
 	private void closeJLabelMouseClicked(final MouseEvent e) {
-		getBrowser().hibernate();
+		getBrowser().closeBrowserWindow();
 		closeJLabel.setIcon(CLOSE_ICON);
 	}
 
@@ -187,12 +187,12 @@ public class ButtonPanel extends AbstractJPanel {
         c.anchor = GridBagConstraints.NORTHEAST;
         c.weightx = 1;
         c.weighty = 1;
-        add(helpJLabel, c.clone());
+        add(contactsJLabel, c.clone());
 
         c.insets.left = 0;
         c.weightx = 0;
         c.weighty = 0;
-        add(contactsJLabel, c.clone());
+        add(helpJLabel, c.clone());
 
         c.anchor = GridBagConstraints.NORTH;
         c.insets.top = 6;

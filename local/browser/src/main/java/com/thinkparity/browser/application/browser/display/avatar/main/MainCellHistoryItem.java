@@ -180,7 +180,7 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextFont()
      * 
      */
-    public Font getTextFont() { return BrowserConstants.SmallFont; }
+    public Font getTextFont() { return BrowserConstants.Fonts.SmallFont; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextForeground()

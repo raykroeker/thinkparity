@@ -7,8 +7,8 @@ import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
+import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
 /**
  * This class is responsible for maintaining the browser's state between
@@ -63,7 +63,7 @@ public class BrowserWindowState {
 	 */
 	private void addListeners() {
 		jFrame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
+			public void windowClosing(final WindowEvent e) {
 				jFramePersistence.set(
 						PersistenceKey.LOCATION.toString(), jFrame.getLocation());
 			}

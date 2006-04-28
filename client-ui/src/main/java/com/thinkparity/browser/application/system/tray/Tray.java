@@ -11,14 +11,14 @@ import javax.swing.Icon;
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
 
-import com.thinkparity.browser.application.system.SysApp;
+import com.thinkparity.browser.application.system.SystemApplication;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class SysTray {
+public class Tray {
 
 	/**
 	 * Read the system tray icon.
@@ -31,10 +31,10 @@ public class SysTray {
 	private Boolean isInstalled;
 
     /** A menu builder for the system tray application. */
-    private final MenuBuilder menuBuilder;
+    private final TrayMenuBuilder menuBuilder;
 
     /** The system application. */
-	private final SysApp sysApp;
+	private final SystemApplication sysApp;
 
     /** The system tray. */
 	private SystemTray systemTray;
@@ -43,19 +43,26 @@ public class SysTray {
 	private TrayIcon systemTrayIcon;
 
     /**
-	 * Create a SysTray.
+	 * Create a Tray.
 	 * 
 	 * @param sysApp
 	 *            The system application.
 	 */
-	public SysTray(final SysApp sysApp) {
+	public Tray(final SystemApplication sysApp) {
 		super();
-        this.menuBuilder = new MenuBuilder(sysApp);
+        this.menuBuilder = new TrayMenuBuilder(sysApp);
 		this.isInstalled = Boolean.FALSE;
 		this.sysApp = sysApp;
 	}
 
-    public void display(final SysTrayNotification notification) {
+    /**
+     * Display a notification.
+     * 
+     * @param notification
+     *            The tray notification.
+     */
+    public void display(final TrayNotification notification) {
+        setCaption(notification);
         displayInfo(notification);
     }
 
@@ -92,32 +99,24 @@ public class SysTray {
 	Boolean isInstalled() { return isInstalled; }
 
     /**
-     * Set the current queue count.
+     * Display an informational notification.
      * 
-     * @param queueCount
-     *            The queue count.
+     * @param notification
+     *            The notification.
      */
-    void setQueueCount(final Integer queueCount) {
-        if(0 == queueCount) { systemTrayIcon.setCaption(getCaption0()); }
-        else if(1 == queueCount) { systemTrayIcon.setCaption(getCaption1()); }
-        else { systemTrayIcon.setCaption(getCaptionN(queueCount)); }
-    }
-
-    private void displayInfo(final SysTrayNotification notification) {
+    private void displayInfo(final TrayNotification notification) {
         systemTrayIcon.displayMessage(
                 sysApp.getString("Notification.InfoCaption"),
                 notification.getMessage(), TrayIcon.INFO_MESSAGE_TYPE);
     }
 
-    private String getCaption0() {
-        return sysApp.getString("TRAY_CAPTION.0");
-    }
-
-    private String getCaption1() {
-        return sysApp.getString("TRAY_CAPTION.1");
-    }
-
-    private String getCaptionN(final Integer queueCount) {
-        return sysApp.getString("TRAY_CAPTION.N", new Object[] {queueCount});
+    /**
+     * Set the system tray icon caption.
+     * 
+     * @param notification
+     *            The notification.
+     */
+    private void setCaption(final TrayNotification notification) {
+        systemTrayIcon.setCaption(notification.getMessage());
     }
 }

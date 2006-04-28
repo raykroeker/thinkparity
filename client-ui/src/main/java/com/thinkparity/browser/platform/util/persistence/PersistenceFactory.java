@@ -13,10 +13,11 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
+import com.thinkparity.browser.model.ModelFactory;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -24,79 +25,57 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public class PersistenceFactory {
 
-	/**
-	 * Singleton implementation.
-	 * 
-	 */
-	private static final PersistenceFactory singleton;
+	/** Singleton implementation. */
+	private static final PersistenceFactory SINGLETON;
+
+	static { SINGLETON = new PersistenceFactory(); }
 
 	/**
-	 * Singleton synchronzation lock.
-	 * 
-	 */
-	private static final Object singletonLock;
-
-	static {
-		singleton = new PersistenceFactory(WorkspaceModel.getModel().getWorkspace());
-		singletonLock = new Object();
-	}
-
-	/**
-	 * Obtain a handle to a persistence helper for a class.
-	 * 
-	 * @param clasz
-	 *            The class.
-	 * @return The persistence helper.
-	 */
+     * Obtain a parity persistence interface.
+     * 
+     * @param clasz
+     *            A class.
+     * @return The parity persistence interface.
+     */
 	public static Persistence getPersistence(final Class clasz) {
-		synchronized(singletonLock) { return singleton.getHelper(clasz); }
+		synchronized(SINGLETON) { return SINGLETON.doGetPersistence(clasz); }
 	}
 
-	/**
-	 * A cache of persistence helpers.
-	 * 
-	 */
+	/** A cache of persistence helpers. */
 	private final Map<Class, Persistence> cache;
 
-	/**
-	 * The parity workspace.
-	 * 
-	 */
-	private final Workspace workspace;
+	/** The properties. */
+    private final Properties javaProperties;
 
-	/**
-	 * Create a PersistenceFactory. This singleton factory doles out
-	 * custom persitence helpers for classes in the browser.
-	 * 
-	 * @param workspace
-	 *            The parity model workspace.
-	 */
-	private PersistenceFactory(final Workspace workspace) {
+	/** Create a PersistenceFactory. */
+	private PersistenceFactory() {
 		super();
+        final ModelFactory modelFactory = ModelFactory.getInstance();
+        final Workspace workspace = modelFactory.getWorkspace(PersistenceFactory.class);
+
 		this.cache = new Hashtable<Class, Persistence>(7, 0.75F);
-		this.workspace = workspace;
-	}
+		this.javaProperties = load(workspace, getFile(workspace));
+
+		// save the preferences on shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() { store(workspace); }
+        });
+    }
 
 	/**
-	 * Create a persistence helper backed by java preferences for a given class.
-	 * 
-	 * @param clasz
-	 *            The class.
-	 * @return The persistence helper.
-	 */
-	private Persistence createHelper(final Class clasz) {
-		final File javaFile = getFile(clasz);
-		final Properties javaProperties = load(javaFile);
-		// save the preferences on shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() { store(javaProperties, javaFile); }
-		});
+     * Create the persistence backed by java preferences for a given class.
+     * 
+     * @param clasz
+     *            A class.
+     * @return The persistence.
+     */
+	private Persistence createPersistence(final Class clasz) {
 		return new Persistence() {
+            /** A context for the properties. */
+            private final String context = clasz.getName();
+
 			public Boolean get(final String key, final Boolean defaultValue) {
 				return Boolean.parseBoolean(get(key, defaultValue.toString()));
-			}
-			public void set(String key, Boolean value) {
-				set(key, value.toString());
 			}
 			public Dimension get(String key, Dimension defaultValue) {
 				return new Dimension(
@@ -113,48 +92,63 @@ public class PersistenceFactory {
 						get(key + ".y", defaultValue.y));
 			}
 			public String get(String key, String defaultValue) {
-				return javaProperties.getProperty(key, defaultValue);
+				return javaProperties.getProperty(context + "." + key, defaultValue);
+			}
+			public void set(String key, Boolean value) {
+				set(key, value.toString());
 			}
 			public void set(String key, Dimension value) {
 				set(key + ".height", value.height);
 				set(key + ".width", value.width);
 			}
 			public void set(String key, int value) {
-				javaProperties.setProperty(key, String.valueOf(value));
+				javaProperties.setProperty(context + "." + key, String.valueOf(value));
 			}
 			public void set(String key, Point value) {
 				set(key + ".x", value.x);
 				set(key + ".y", value.y);
 			}
 			public void set(String key, String value) {
-				javaProperties.setProperty(key, value);
+				javaProperties.setProperty(context + "." + key, value);
 			}
 		};
 	}
 
 	/**
+     * Obtain the persistence for a given class.
+     * 
+     * @param clasz
+     *            The class.
+     * @return The persistence.
+     */
+	private Persistence doGetPersistence(final Class clasz) {
+	    if(cache.containsKey(clasz)) { return cache.get(clasz); }
+        else { return createPersistence(clasz); }
+	}
+
+    /**
 	 * Obtain the java file use by the class to persist.
 	 * 
-	 * @param clasz
-	 *            The class.
 	 * @return The java file.
 	 */
-	private File getFile(final Class clasz) {
-		return new File(
-				workspace.getWorkspaceURL().getFile(), clasz.getName() + ".xml");
+	private File getFile(final Workspace workspace) {
+		return new File(workspace.getWorkspaceURL().getFile(), "thinkParity.properties");
 	}
 
-	private Persistence getHelper(final Class clasz) {
-		Persistence helper = cache.get(clasz);
-		if(null != helper) { return helper; }
-		else { return createHelper(clasz); }
-	}
-
-	private void init(final File persistenceFile) throws IOException {
+    /**
+     * Initialize the persistence file.
+     * 
+     * @param persistenceFile
+     *            The persistence file.
+     * @throws IOException
+     */
+	private void init(final Workspace workspace, final File persistenceFile)
+            throws IOException {
 		if(!persistenceFile.exists()) {
-			Assert.assertTrue("init", persistenceFile.createNewFile());
-			final Properties javaProperties = new Properties();
-			store(javaProperties, persistenceFile);
+			Assert.assertTrue(
+                    "[LBROWSER] [PLATFORM] [UTIL] [PERSISTENCE FACTORY INIT] [CANNOT CREATE PERSISTENCE FILE]",
+                    persistenceFile.createNewFile());
+			store(workspace);
 		}
 	}
 
@@ -163,26 +157,24 @@ public class PersistenceFactory {
 	 * 
 	 * @return The java properties.
 	 */
-	private Properties load(final File persistenceFile) {
-		try { init(persistenceFile); }
+	private Properties load(final Workspace workspace,
+            final File persistenceFile) {
+		try { init(workspace, persistenceFile); }
 		catch(final IOException iox) { throw new RuntimeException(iox); }
 		final Properties javaProperties = new Properties();
-		try { javaProperties.loadFromXML(new FileInputStream(persistenceFile)); }
+		try { javaProperties.load(new FileInputStream(persistenceFile)); }
 		catch(final IOException iox) { throw new RuntimeException(iox); }
 		return javaProperties;
 	}
 
 	/**
-	 * Store the java properties to the preferences file.
-	 * 
-	 * @param javaProperties
-	 *            The java properties to store.
-	 */
-	private void store(final Properties javaProperties,
-			final File persistenceFile) {
-		try {
-			javaProperties.storeToXML(new FileOutputStream(persistenceFile), "");
-		}
+     * Store the java properties to the preferences file.
+     * 
+     * @param workspace
+     *            The parity workspace.
+     */
+	private void store(final Workspace workspace) {
+		try { javaProperties.store(new FileOutputStream(getFile(workspace)), ""); }
 		catch(final IOException iox) { throw new RuntimeException(iox); }
 	}
 }

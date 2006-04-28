@@ -1,10 +1,11 @@
-/*
+ /*
  * Dec 30, 2005
  */
 package com.thinkparity.browser.application.browser;
 
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -20,6 +21,8 @@ import com.thinkparity.browser.javax.swing.border.ImageBorder;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+import com.thinkparity.browser.platform.util.persistence.Persistence;
+import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.browser.util.NativeSkinUtil;
 
 /**
@@ -28,10 +31,7 @@ import com.thinkparity.browser.util.NativeSkinUtil;
  */
 public class BrowserWindow extends AbstractJFrame {
 
-	/**
-	 * The window icon.
-	 * 
-	 */
+	/** The window icon. */
 	private static final BufferedImage BROWSER_ICON;
 
 	/**
@@ -41,15 +41,10 @@ public class BrowserWindow extends AbstractJFrame {
 	 */
 	private static Dimension mainWindowSize;
 
-	/**
-	 * @see java.io.Serializable
-	 * 
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-	static {
-		BROWSER_ICON = ImageIOUtil.read("ThinkParity32x32.png");
-	}
+	static { BROWSER_ICON = ImageIOUtil.read("ThinkParity32x32.png"); }
 
 	/**
 	 * Obtain the size of the main window.
@@ -64,22 +59,16 @@ public class BrowserWindow extends AbstractJFrame {
 		return mainWindowSize;
 	}
 
-	/**
-	 * Handle to an apache logger.
-	 * 
-	 */
-	public final Logger logger = LoggerFactory.getLogger(getClass());
-
-	/**
-	 * Main panel.
-	 * 
-	 */
+	/** The main panel. */
 	public MainPanel mainPanel;
 
-	/**
-	 * The browser application.
-	 * 
-	 */
+    /** An apache logger. */
+	protected final Logger logger;
+
+	/** A parity persistence. */
+    protected final Persistence persistence;
+
+	/** The browser application. */
 	private final Browser browser;
 
 	/**
@@ -90,26 +79,29 @@ public class BrowserWindow extends AbstractJFrame {
 	BrowserWindow(final Browser browser) throws HeadlessException {
 		super("BrowserWindow");
 		this.browser = browser;
-		// initialize the state
-		new BrowserWindowState(this);
+		this.logger = LoggerFactory.getLogger(getClass());
+        this.persistence = PersistenceFactory.getPersistence(getClass());
 		getRootPane().setBorder(new ImageBorder(
                 "MainWindowBorderTop.png", "MainWindowBorderLeft.png",
                 "MainWindowBorderBottom.png", "MainWindowBorderRight.png"));
         addWindowListener(new WindowAdapter() {
             public void windowClosing(final WindowEvent e) {
+                persist();
                 browser.hibernate();
             }});
 		setIconImage(BROWSER_ICON);
 		setTitle(getString("Title"));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        final Point location = persistence.get("location", new Point(100, 100));
+        setLocation(location.x, location.y);
 		setResizable(false);
 		setSize(BrowserWindow.getMainWindowSize());
 		applyNativeSkin();
 		initComponents();
 	}
 
-	/**
+    /**
 	 * Obtain a display.
 	 * 
 	 * @param displayId
@@ -162,4 +154,9 @@ public class BrowserWindow extends AbstractJFrame {
 		mainPanel = new MainPanel();
 		add(mainPanel);
 	}
+
+	/** Persist any window state. */
+    private void persist() {
+        persistence.set("location", getLocation());
+    }
 }

@@ -207,7 +207,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
     /**
-	 * Close a document.
+	 * Close a document locally.
 	 * 
 	 * @param documentId
 	 *            The document id.
@@ -217,12 +217,26 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *             <li>If the logged in user is not the key holder.
 	 *             </ul>
 	 * @throws ParityException
+     * @see DocumentModel#close(java.lang.Long)
 	 */
 	void close(final Long documentId) throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [CLOSE]");
 		logger.debug(documentId);
 		assertLoggedInUserIsKeyHolder(documentId);
 		try {
+            // check if a new version is needed
+            final DocumentVersion version;
+            if(isWorkingVersionEqual(documentId)) {
+                version = readLatestVersion(documentId);
+            }
+            else { version = createVersion(documentId); }
+
+            // send new version
+            final InternalSessionModel iSModel = getInternalSessionModel();
+            final Collection<User> users = new Vector<User>(1);
+            users.addAll(iSModel.readArtifactTeam(documentId));
+            iSModel.send(users, documentId, version.getVersionId());
+            
 			// close the document
 			final Document document = get(documentId);
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
@@ -232,7 +246,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			lock(documentId);
 
 			// send the closeure to the server
-			final InternalSessionModel iSModel = getInternalSessionModel();
 			iSModel.sendClose(documentId);
 
 			// audit the closeure
@@ -243,18 +256,30 @@ class DocumentModelImpl extends AbstractModelImpl {
 			notifyDocumentClosed(d, localEventGen);
 		}
 		catch(final RuntimeException rx) {
-			logger.error("Cannot close document:  " + documentId, rx);
+			logger.error("[LMODEL] [DOCUMENT] [CLOSE] [UNKNOWN ERROR]", rx);
+            logger.error(documentId);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
 
-	void close(final UUID documentUniqueId, final JabberId closedBy)
-			throws ParityException {
+    /**
+     * Close a document after it has been closed remotely.
+     *
+     * @param uniqueId
+     *      The document unique id.
+     * @param closedBy
+     *      By whom the document was closed.
+     *
+     * @throws ParityException
+     * @see InternalDocumentModel#close(java.util.UUID,JabberId)
+     */
+	void close(final UUID uniqueId, final JabberId closedBy)
+        throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [CLOSE BY REQUEST]");
-		logger.debug(documentUniqueId);
+		logger.debug(uniqueId);
 		logger.debug(closedBy);
 		try {
-			final Document document = get(documentUniqueId);
+			final Document document = get(uniqueId);
 
 			// close the document
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
@@ -275,7 +300,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			notifyDocumentClosed(document, remoteEventGen);
 		}
 		catch(final RuntimeException rx) {
-			logger.error("Cannot close document:  " + documentUniqueId, rx);
+			logger.error("[LMODEL] [DOCUMENT] [CLOSE] [UNKNOWN ERROR]", rx);
+            logger.error(uniqueId);
+            logger.error(closedBy);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}

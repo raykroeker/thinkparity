@@ -14,10 +14,7 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
  */
 class EventDispatcher {
 
-	/**
-	 * The browser.
-	 * 
-	 */
+	/** The browser application. */
 	protected final Browser browser;
 
 	/** The document listener. */
@@ -93,21 +90,37 @@ class EventDispatcher {
                     browser.fireDocumentConfirmationReceived(e.getDocument().getId());
                 }
             }
-            public void documentCreated(final DocumentEvent e) {
-                if(e.isRemote()) {
-                    browser.fireDocumentCreated(e.getDocument().getId(), Boolean.TRUE);
-                }
-            }
             public void documentClosed(final DocumentEvent e) {
                 if(e.isRemote()) {
                     browser.getArtifactModel().removeFlagSeen(e.getDocument().getId());
                     browser.fireDocumentUpdated(e.getDocument().getId());
                 }
             }
+            public void documentCreated(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentCreated(e.getDocument().getId(), Boolean.TRUE);
+                }
+            }
             public void documentUpdated(final DocumentEvent e) {
                 if(e.isRemote()) {
                     browser.fireDocumentUpdated(e.getDocument().getId(), Boolean.TRUE);
                 }
+            }
+            public void keyRequestAccepted(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentUpdated(e.getDocument().getId(), e.isRemote());
+                }
+            }
+            public void keyRequestDeclined(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentUpdated(e.getDocument().getId(), e.isRemote());
+                }
+            }
+            public void keyRequested(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentUpdated(e.getDocument().getId(), e.isRemote());
+                }
+
             }
 		};
 	}

@@ -71,46 +71,70 @@ public class PersistenceFactory {
      */
 	private Persistence createPersistence(final Class clasz) {
 		return new Persistence() {
-            /** A context for the properties. */
+
+            /** A context for keys. */
             private final String context = clasz.getName();
 
-			public Boolean get(final String key, final Boolean defaultValue) {
+            public Boolean get(final String key, final Boolean defaultValue) {
 				return Boolean.parseBoolean(get(key, defaultValue.toString()));
 			}
+
 			public Dimension get(String key, Dimension defaultValue) {
 				return new Dimension(
 						get(key + ".width", defaultValue.width),
 						get(key + ".height", defaultValue.height));
 			}
+
 			public int get(final String key, final int defaultValue) {
-				try { return Integer.parseInt(javaProperties.getProperty(key, String.valueOf(defaultValue))); }
+				try {
+                    return Integer.parseInt(
+                            javaProperties.getProperty(
+                                    contextualize(key),
+                                    String.valueOf(defaultValue)));
+                }
 				catch(final NumberFormatException nfx) { return defaultValue; }
 			}
+
 			public Point get(String key, Point defaultValue) {
 				return new Point(
 						get(key + ".x", defaultValue.x),
 						get(key + ".y", defaultValue.y));
 			}
+
 			public String get(String key, String defaultValue) {
-				return javaProperties.getProperty(context + "." + key, defaultValue);
+				return javaProperties.getProperty(contextualize(key), defaultValue);
 			}
+
 			public void set(String key, Boolean value) {
 				set(key, value.toString());
 			}
+
 			public void set(String key, Dimension value) {
 				set(key + ".height", value.height);
 				set(key + ".width", value.width);
 			}
-			public void set(String key, int value) {
-				javaProperties.setProperty(context + "." + key, String.valueOf(value));
+
+            public void set(String key, int value) {
+				javaProperties.setProperty(contextualize(key), String.valueOf(value));
 			}
+
 			public void set(String key, Point value) {
 				set(key + ".x", value.x);
 				set(key + ".y", value.y);
 			}
+
 			public void set(String key, String value) {
-				javaProperties.setProperty(context + "." + key, value);
+				javaProperties.setProperty(contextualize(key), value);
 			}
+
+			/**
+             * Contextualize the java property key.
+             * @param key The java property key.
+             * @return A context sensitive key.
+             */
+            private String contextualize(final String key) {
+                return context + "." + key;
+            }
 		};
 	}
 

@@ -145,10 +145,12 @@ class SystemApplicationImpl extends Thread {
 		sysApp.logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [PROCESS QUEUE (" + getQueueTotal()  + ")]");
         if(0 < getQueueTotal()) {
             TrayNotification notification;
-            for(final Iterator<TrayNotification> i = queue.iterator(); i.hasNext();) {
-                notification = i.next();
-                sysTray.display(notification);
-                i.remove();
+            synchronized(this) {
+                for(final Iterator<TrayNotification> i = queue.iterator(); i.hasNext();) {
+                    notification = i.next();
+                    sysTray.display(notification);
+                    i.remove();
+                }
             }
         }
 	}

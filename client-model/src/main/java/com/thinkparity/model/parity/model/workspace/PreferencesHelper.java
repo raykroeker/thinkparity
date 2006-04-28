@@ -155,7 +155,7 @@ class PreferencesHelper {
 		}
 		catch(final IOException iox) {
             throw WorkspaceException.translate(
-                    "[LMODEL] [WORKSPACE] [LOAD PREFS] [IO ERROR]", iox);
+                    "[LMODEL] [WORKSPACE] [PREFS] [LOAD PREFS] [IO ERROR]", iox);
 		}
 	}
 
@@ -171,7 +171,7 @@ class PreferencesHelper {
 		}
 		catch(final IOException iox) {
             throw WorkspaceException.translate(
-                    "[LMODEL] [WORKSPACE] [STORE PREFS] [IO ERROR]", iox);
+                    "[LMODEL] [WORKSPACE] [PREFS] [STORE PREFS] [IO ERROR]", iox);
 		}
 	}
 }

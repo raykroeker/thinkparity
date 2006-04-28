@@ -52,13 +52,14 @@ public class PersistenceFactory {
 		super();
         final ModelFactory modelFactory = ModelFactory.getInstance();
         final Workspace workspace = modelFactory.getWorkspace(PersistenceFactory.class);
+        final File file = getFile(workspace);
 
 		this.cache = new Hashtable<Class, Persistence>(7, 0.75F);
-		this.javaProperties = load(workspace, getFile(workspace));
+		this.javaProperties = load(file);
 
 		// save the preferences on shutdown
         Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() { store(workspace); }
+            public void run() { store(javaProperties, file); }
         });
     }
 
@@ -160,45 +161,48 @@ public class PersistenceFactory {
 	}
 
     /**
-     * Initialize the persistence file.
+     * Initialize a file.
      * 
-     * @param persistenceFile
-     *            The persistence file.
+     * @param file
+     *            The file.
      * @throws IOException
      */
-	private void init(final Workspace workspace, final File persistenceFile)
-            throws IOException {
-		if(!persistenceFile.exists()) {
+	private void init(final File file) throws IOException {
+		if(!file.exists()) {
 			Assert.assertTrue(
                     "[LBROWSER] [PLATFORM] [UTIL] [PERSISTENCE FACTORY INIT] [CANNOT CREATE PERSISTENCE FILE]",
-                    persistenceFile.createNewFile());
-			store(workspace);
+                    file.createNewFile());
 		}
 	}
 
 	/**
-	 * Load the java properties from the preferences file.
-	 * 
-	 * @return The java properties.
-	 */
-	private Properties load(final Workspace workspace,
-            final File persistenceFile) {
-		try { init(workspace, persistenceFile); }
+     * Load properties.
+     * 
+     * @param file
+     *            The file.
+     * @return The properties.
+     */
+	private Properties load(final File file) {
+		try { init(file); }
 		catch(final IOException iox) { throw new RuntimeException(iox); }
-		final Properties javaProperties = new Properties();
-		try { javaProperties.load(new FileInputStream(persistenceFile)); }
+
+        final Properties properties = new Properties();
+		try { properties.load(new FileInputStream(file)); }
 		catch(final IOException iox) { throw new RuntimeException(iox); }
-		return javaProperties;
+
+        return properties;
 	}
 
-	/**
-     * Store the java properties to the preferences file.
+    /**
+     * Store properties.
      * 
-     * @param workspace
-     *            The parity workspace.
+     * @param properties
+     *            The properties.
+     * @param file
+     *            The file.
      */
-	private void store(final Workspace workspace) {
-		try { javaProperties.store(new FileOutputStream(getFile(workspace)), ""); }
+	private void store(final Properties properties, final File file) {
+		try { properties.store(new FileOutputStream(file), ""); }
 		catch(final IOException iox) { throw new RuntimeException(iox); }
 	}
 }

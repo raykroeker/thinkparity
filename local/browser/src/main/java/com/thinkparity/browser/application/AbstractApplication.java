@@ -14,6 +14,7 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.platform.Platform;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.ApplicationListener;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
@@ -337,4 +338,10 @@ public abstract class AbstractApplication implements Application {
 		else { listeners = new HashSet<ApplicationListener>(); }
 		return listeners;
 	}
+
+    /** @see com.thinkparity.browser.platform.application.Application#isOnline() */
+    public Boolean isOnline() { return platform.isOnline(); }
+
+    /** @see com.thinkparity.browser.platform.application.Application#getConnectionStatus() */
+    public Connection getConnectionStatus() { return platform.getConnectionStatus(); }
 }

@@ -34,7 +34,7 @@ public class Tray {
     private final TrayMenuBuilder menuBuilder;
 
     /** The system application. */
-	private final SystemApplication sysApp;
+	private final SystemApplication systemApplication;
 
     /** The system tray. */
 	private SystemTray systemTray;
@@ -45,14 +45,14 @@ public class Tray {
     /**
 	 * Create a Tray.
 	 * 
-	 * @param sysApp
+	 * @param systemApplication
 	 *            The system application.
 	 */
-	public Tray(final SystemApplication sysApp) {
+	public Tray(final SystemApplication systemApplication) {
 		super();
-        this.menuBuilder = new TrayMenuBuilder(sysApp);
+        this.menuBuilder = new TrayMenuBuilder(systemApplication);
 		this.isInstalled = Boolean.FALSE;
-		this.sysApp = sysApp;
+		this.systemApplication = systemApplication;
 	}
 
     /**
@@ -71,7 +71,10 @@ public class Tray {
 		systemTrayIcon = new TrayIcon(readTrayIcon());
 		systemTrayIcon.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-                sysApp.runRestoreBrowser();
+                if(systemApplication.isBrowserRunning())
+                    systemApplication.runMoveBrowserToFront();
+                else
+                    systemApplication.runRestoreBrowser();
 			}
 		});
         systemTrayIcon.setPopupMenu(menuBuilder.createPopup());
@@ -80,7 +83,30 @@ public class Tray {
 		systemTray  = SystemTray.getDefaultSystemTray();
 		systemTray.addTrayIcon(systemTrayIcon);
 		isInstalled = Boolean.TRUE;
-	}
+
+        updateMenu();
+	}                                                                   
+
+    /** Update the menu for the system tray. */
+    public void updateMenu() { updateMenu(systemApplication.isOnline()); }
+
+    /**
+     * Update the menu for the system tray.
+     *
+     * @param isOnline
+     *      A flag indicating whether or not the application is
+     *      online.
+     */
+    public void updateMenu(final Boolean isOnline) {
+        if(isOnline) {
+            menuBuilder.login.setEnabled(false);
+            menuBuilder.logout.setEnabled(true);
+        }
+        else {
+            menuBuilder.login.setEnabled(true);
+            menuBuilder.logout.setEnabled(false);
+        }
+    }
 
     /** Uninstall the system tray. */
 	public void unInstall() {
@@ -106,7 +132,7 @@ public class Tray {
      */
     private void displayInfo(final TrayNotification notification) {
         systemTrayIcon.displayMessage(
-                sysApp.getString("Notification.InfoCaption"),
+                systemApplication.getString("Notification.InfoCaption"),
                 notification.getMessage(), TrayIcon.INFO_MESSAGE_TYPE);
     }
 

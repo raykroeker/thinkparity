@@ -83,6 +83,8 @@ public class ActionFactory {
 	 */
 	private AbstractAction doCreateAction(final ActionId actionId, final Browser browser) {
 		switch(actionId) {
+        case CREATE_DOCUMENTS:
+            return new com.thinkparity.browser.platform.action.document.CreateDocuments(browser);
 		case ARTIFACT_ACCEPT_KEY_REQUEST:
 			return new com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest(browser);
 		case ARTIFACT_DECLINE_KEY_REQUEST:
@@ -128,8 +130,17 @@ public class ActionFactory {
     private AbstractAction doCreateAction(final ActionId actionId, final Platform platform) {
         final AbstractAction action;
         switch(actionId) {
+        case PLATFORM_LOGIN:
+            action = new com.thinkparity.browser.platform.action.Login(platform);
+            break;
+        case PLATFORM_LOGOUT:
+            action = new com.thinkparity.browser.platform.action.Logout(platform);
+            break;
         case PLATFORM_QUIT:
             action = new com.thinkparity.browser.platform.action.QuitPlatform(platform);
+            break;
+        case MOVE_BROWSER_TO_FRONT:
+            action = new com.thinkparity.browser.platform.action.application.system.MoveBrowserToFront(platform);
             break;
         case RESTORE_BROWSER:
             action = new com.thinkparity.browser.platform.action.application.system.RestoreBrower(platform);

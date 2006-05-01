@@ -8,47 +8,37 @@ import com.thinkparity.browser.application.browser.display.provider.SingleConten
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
+ * Provider for the info bar.
+ *
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class InfoProvider extends CompositeSingleContentProvider {
 
-	/**
-	 * A contact provider.
-	 * 
-	 */
-	private final SingleContentProvider contactProvider;
+	/** A user provider. */
+	private final SingleContentProvider userProvider;
 
-	/**
-	 * A document count provider.
-	 * 
-	 */
+	/** A document count provider. */
 	private final SingleContentProvider countProvider;
 
-	/**
-	 * A list of the single providers.
-	 * 
-	 */
+	/** An array of single providers. */
 	private final SingleContentProvider[] singleProviders;
 
 	/**
      * Create a InfoProvider.
      * 
+     * @param localUser
+     *            The local user.
      * @param dModel
-     *            The parity document interface.
-     * @param sModel
-     *            The parity session interface.
+     *            The parity document  interface.
      */
-	public InfoProvider(final DocumentModel dModel, final SessionModel sModel) {
+	public InfoProvider(final User localUser, final DocumentModel dModel) {
 		super();
-		this.contactProvider = new SingleContentProvider() {
-			public Object getElement(final Object input) {
-				try { return sModel.readContact(); }
-				catch(final ParityException px) { throw new RuntimeException(px); }
-			}
+		this.userProvider = new SingleContentProvider() {
+			public Object getElement(final Object input) { return localUser; }
 		};
 		this.countProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
@@ -58,7 +48,7 @@ public class InfoProvider extends CompositeSingleContentProvider {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.singleProviders = new SingleContentProvider[] {countProvider, contactProvider};
+		this.singleProviders = new SingleContentProvider[] {countProvider, userProvider};
 	}
 
 	/**

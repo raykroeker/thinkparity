@@ -20,28 +20,21 @@ class EventDispatcher {
 	/** The document listener. */
 	private DocumentListener documentListener;
 
-	/**
-	 * The parity session key event listener.
-	 * 
-	 */
+	/** The parity session key event listener. */
 	private KeyListener sessionKeyListener;
 
-	/**
-	 * The parity session event listener.
-	 * 
-	 */
+	/** The parity session event listener.*/
 	private SessionListener sessionSessionListener;
 
-	/**
-	 * The parity system message event listener.
-	 * 
-	 */
+	/** The parity system message event listener. */
 	private SystemMessageListener systemMessageListener;
 
 	/**
-	 * Create an EventDispatcher.
-	 * 
-	 */
+     * Create an EventDispatcher.
+     * 
+     * @param browser
+     *            The browser application.
+     */
 	EventDispatcher(final Browser browser) {
 		super();
 		this.browser = browser;
@@ -83,6 +76,11 @@ class EventDispatcher {
 		browser.getSystemMessageModel().addListener(systemMessageListener);
 	}
 
+    /**
+     * Create a document listener.
+     * 
+     * @return A document listener.
+     */
 	private DocumentListener createDocumentListener() {
 		return new DocumentAdapter() {
             public void confirmationReceived(final DocumentEvent e) {
@@ -139,10 +137,15 @@ class EventDispatcher {
 		};
 	}
 
+    /**
+     * Create a session listener.
+     * 
+     * @return A session listener.
+     */
 	private SessionListener createSessionModelSessionListener() {
 		return new SessionListener() {
-			public void sessionEstablished() {}
-			public void sessionTerminated() {}
+			public void sessionEstablished() { browser.fireSessionEstablished(); }
+			public void sessionTerminated() { browser.fireSessionTerminated(); }
 			public void sessionTerminated(final Throwable cause) {
 				sessionTerminated();
 			}

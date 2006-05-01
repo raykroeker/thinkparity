@@ -16,6 +16,8 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.ActionRegistry;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.ApplicationId;
+import com.thinkparity.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
 import com.thinkparity.browser.platform.util.State;
 
@@ -37,6 +39,9 @@ public class SystemApplication extends AbstractApplication {
 	/** The action registry. */
     private final ActionRegistry actionRegistry;
 
+	/** The application registry. */
+    private final ApplicationRegistry applicationRegistry;
+
 	/** The event dispatcher. */
 	private EventDispatcher ed;
 
@@ -52,6 +57,7 @@ public class SystemApplication extends AbstractApplication {
 	public SystemApplication(final Platform platform) {
 		super(platform, L18nContext.SYS_APP);
         this.actionRegistry = new ActionRegistry();
+        this.applicationRegistry = new ApplicationRegistry();
 		this.logger = platform.getLogger(getClass());
 	}
 
@@ -113,6 +119,16 @@ public class SystemApplication extends AbstractApplication {
 	}
 
 	/**
+     * Determine whether or not the browser is running.
+     * 
+     * @return True if the browser is running false otherwise.
+     */
+    public Boolean isBrowserRunning() {
+        return ApplicationStatus.RUNNING ==
+            applicationRegistry.getStatus(ApplicationId.BROWSER2);
+    }
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -128,7 +144,7 @@ public class SystemApplication extends AbstractApplication {
 		notifyRestore();
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.Saveable#restoreState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
@@ -136,12 +152,36 @@ public class SystemApplication extends AbstractApplication {
 		throw Assert.createNotYetImplemented("System#restoreState");
 	}
 
-	/** Run the exit platform action. */
+    /** Run the exit platform action. */
     public void runExitPlatform() {
         if(!actionRegistry.contains(ActionId.PLATFORM_QUIT))
             ActionFactory.createAction(ActionId.PLATFORM_QUIT, getPlatform());
 
         run(ActionId.PLATFORM_QUIT, new Data(0));
+    }
+
+    /** Run the login action. */
+    public void runLogin() {
+        if(!actionRegistry.contains(ActionId.PLATFORM_LOGIN))
+            ActionFactory.createAction(ActionId.PLATFORM_LOGIN, getPlatform());
+
+        run(ActionId.PLATFORM_LOGIN, new Data(0));
+    }
+
+    /** Run the logout action. */
+    public void runLogout() {
+        if(!actionRegistry.contains(ActionId.PLATFORM_LOGOUT))
+            ActionFactory.createAction(ActionId.PLATFORM_LOGOUT, getPlatform());
+
+        run(ActionId.PLATFORM_LOGOUT, new Data(0));
+    }
+
+    /** Run the move to front action. */
+    public void runMoveBrowserToFront() {
+        if(!actionRegistry.contains(ActionId.MOVE_BROWSER_TO_FRONT))
+            ActionFactory.createAction(ActionId.MOVE_BROWSER_TO_FRONT, getPlatform());
+
+        runLater(ActionId.MOVE_BROWSER_TO_FRONT, new Data(0));
     }
 
     /** Run the restore browser action. */
@@ -201,18 +241,6 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Notify a document key has been requested.
-     * 
-     * @param document
-     *            The document.
-     */
-    void fireDocumentKeyRequested(final User user, final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentKeyRequestedMessage",
-                new Object[] {getName(user), document.getName()}));
-    }
-
-    /**
      * Notify a document key request has been accepted.
      * 
      * @param document
@@ -235,6 +263,18 @@ public class SystemApplication extends AbstractApplication {
                 "Notification.DocumentKeyRequestDeclinedMessage",
                 new Object[] {getName(user), document.getName()}));
     }
+
+    /**
+     * Notify a document key has been requested.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentKeyRequested(final User user, final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentKeyRequestedMessage",
+                new Object[] {getName(user), document.getName()}));
+    }
     /**
      * Notify a document has been updated.
      * 
@@ -246,6 +286,10 @@ public class SystemApplication extends AbstractApplication {
                 "Notification.DocumentUpdatedMessage",
                 new Object[] {document.getName()}));
     }
+
+    void fireSessionEstablished() { impl.fireUpdateTrayMenu(Boolean.TRUE); }
+
+    void fireSessionTerminated() { impl.fireUpdateTrayMenu(Boolean.FALSE); }
 
     /**
      * Notify a system message has been created.

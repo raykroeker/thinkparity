@@ -4,6 +4,7 @@
 package com.thinkparity.browser.platform.application;
 
 import com.thinkparity.browser.platform.Platform;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.Saveable;
 import org.apache.log4j.Logger;
 
@@ -18,15 +19,24 @@ public interface Application extends Saveable {
 	 * status change events.
 	 * 
 	 * @param l
-	 *            The application listener.
+     *      The application listener.
 	 */
 	public void addListener(final ApplicationListener l);
 
 	/**
 	 * End the application.
 	 *
+     * @param platform
+     *      The platform.
 	 */
 	public void end(final Platform platform);
+
+    /**
+     * Obtain the current connection status.
+     *
+     * @return The connection status.
+     */
+    public Connection getConnectionStatus();
 
 	/**
 	 * Obtain the application id.
@@ -35,15 +45,16 @@ public interface Application extends Saveable {
 	 */
 	public ApplicationId getId();
 
-        /**
-         * Obtain a logger for the class from the applilcation.
-         *
-         * @param clasz The class for which to obtain the logger.
-         * @return An apache logger.
-         */
-        public Logger getLogger(final Class clasz);
+    /**
+     * Obtain a logger for the class from the applilcation.
+     *
+     * @param clasz
+     *      The class for which to obtain the logger.
+     * @return An apache logger.
+     */
+    public Logger getLogger(final Class clasz);
 
-        /**
+    /**
 	 * Determine the application's current status.
 	 * 
 	 * @return The application's current status.
@@ -53,8 +64,17 @@ public interface Application extends Saveable {
 	/**
 	 * Hibernate the application.
 	 *
+     * @param platform
+     *      The platform.
 	 */
 	public void hibernate(final Platform platform);
+
+    /**
+     * Determine whether or not the application is online.
+     *
+     * @return True if the application is online; false otherwise.
+     */
+    public Boolean isOnline();
 
 	/**
 	 * Add a listener to the application. The listener is used to generate
@@ -68,12 +88,16 @@ public interface Application extends Saveable {
 	/**
 	 * Restore the application from hibernation.
 	 *
+     * @param platform
+     *      The platform.
 	 */
 	public void restore(final Platform platform);
 
 	/**
 	 * Start the application.
 	 *
+     * @param platform
+     *      The platform.
 	 */
 	public void start(final Platform platform);
 }

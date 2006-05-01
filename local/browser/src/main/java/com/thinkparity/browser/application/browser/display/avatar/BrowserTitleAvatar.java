@@ -11,8 +11,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.application.browser.display.avatar.title.ButtonPanel;
+import com.thinkparity.browser.application.browser.display.avatar.title.ButtonPanel2;
 import com.thinkparity.browser.application.browser.display.avatar.title.SearchPanel;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.util.State;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * The title avatar contains the {@link ButtonPanel} (contacts, minimize, close)
@@ -21,7 +25,7 @@ import com.thinkparity.browser.platform.util.State;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class BrowserTitleAvatar extends BrowserAvatar {
+public class BrowserTitleAvatar extends BrowserAvatar {
 
 	/**
 	 * @see java.io.Serializable
@@ -34,6 +38,9 @@ class BrowserTitleAvatar extends BrowserAvatar {
 	 * 
 	 */
 	private final MouseInputAdapter mouseInputAdapter;
+   
+    /** The title button panel [contacts, help, min, close]. */
+    private final ButtonPanel2 buttonPanel;
 
 	/**
 	 * Create a BrowserTitleAvatar.
@@ -54,6 +61,7 @@ class BrowserTitleAvatar extends BrowserAvatar {
 				offsetY = e.getPoint().y;
 			}
 		};
+		this.buttonPanel = new ButtonPanel2(this, mouseInputAdapter);
 		addMouseListener(mouseInputAdapter);
 		addMouseMotionListener(mouseInputAdapter);
 		setLayout(new GridBagLayout());
@@ -73,6 +81,20 @@ class BrowserTitleAvatar extends BrowserAvatar {
 	 */
 	public State getState() { return null; }
 
+    /**
+     * Reload the connection status.
+     * 
+     * @param connection
+     *            The connection status.
+     */
+    public void reloadConnectionStatus(final Connection connection) {
+        if(connection == Connection.OFFLINE) {
+            buttonPanel.reloadConnectionStatus(connection);
+        }
+        else if(connection == Connection.ONLINE) {}
+        else { Assert.assertUnreachable(""); }
+    }
+
 	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
 	 * 
@@ -88,7 +110,7 @@ class BrowserTitleAvatar extends BrowserAvatar {
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
 		c.weighty = 0.5;
-		add(new ButtonPanel(this, mouseInputAdapter), c.clone());
+		add(buttonPanel, c.clone());
 
 		c.gridy = 1;
 		add(new SearchPanel(this, mouseInputAdapter), c.clone());

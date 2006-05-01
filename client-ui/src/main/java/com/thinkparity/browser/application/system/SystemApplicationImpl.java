@@ -31,16 +31,10 @@ class SystemApplicationImpl extends Thread {
 	 */
 	private final List<TrayNotification> queue;
 
-	/**
-	 * The system application.
-	 * 
-	 */
+	/** The system application. */
 	private final SystemApplication sysApp;
 
-	/**
-	 * The system tray functionality.
-	 * 
-	 */
+	/** The system tray functionality. */
 	private Tray sysTray;
 
 	SystemApplicationImpl(final SystemApplication sysApp) {
@@ -129,6 +123,16 @@ class SystemApplicationImpl extends Thread {
 			notifyAll();
 		}
 	}
+
+    /** Set the menu for the system tray. */
+    void fireUpdateTrayMenu() {
+        synchronized(this) { sysTray.updateMenu(); }
+    }
+
+    /** Set the menu for the system tray. */
+    void fireUpdateTrayMenu(final Boolean isOnline) {
+        synchronized(this) { sysTray.updateMenu(isOnline); }
+    }
 
 	/**
 	 * Obtain the total number of queued events.

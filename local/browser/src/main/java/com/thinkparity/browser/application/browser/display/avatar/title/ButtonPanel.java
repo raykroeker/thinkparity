@@ -17,8 +17,11 @@ import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -105,6 +108,28 @@ public class ButtonPanel extends AbstractJPanel {
         CopyActionEnforcer.applyEnforcer(this);
 		initComponents();
 	}
+
+    /**
+     * Reload the connection status.
+     * 
+     * @param connection
+     *            The connection status.
+     */
+    public void reloadConnectionStatus(final Connection connection) {
+        if(connection == Connection.OFFLINE) {
+            remove(contactsJLabel);
+        }
+        else if(connection == Connection.ONLINE) {
+            final GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.NORTHEAST;
+            c.weightx = 1;
+            c.weighty = 1;
+            add(contactsJLabel, c.clone());
+        }
+        else {
+            Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [DISPLAY] [AVATAR] [BUTTON PANEL] [RELOAD CONNECTION STATUS] [UNREACHABLE SWITCH CASE");
+        }
+    }
 
 	/**
 	 * Close the browser.

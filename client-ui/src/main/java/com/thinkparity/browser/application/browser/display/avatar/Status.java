@@ -27,16 +27,65 @@ public class Status extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel connectionJLabel;
+
+    private javax.swing.JLabel customJLabel;
+
+    private javax.swing.JLabel filterJLabel;
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form Status */
     public Status() {
         super("Status", ScrollPolicy.NONE, Color.WHITE);
         initComponents();
 
         // HACK  I know this isn't always going to be the case.
-        reloadStatusMessage(Area.CONNECTION, "ConnectionOnline");
+        reloadStatusMessage(Area.CONNECTION, getConnectionKey());
         reloadStatusMessage(Area.FILTER, "FilterOff");
     }
 
+    /**
+     * Obtain the avatar id.
+     * 
+     * 
+     * @return The avatar id.
+     */
+    public AvatarId getId() { return AvatarId.STATUS; }
+    
+    /**
+     * Obtain the avatar's state information.
+     * 
+     * 
+     * @return The avatar's state information.
+     */
+    public State getState() { return null; }
+
+    /**
+     * Reload a status message.
+     * 
+     * @param area
+     *            The status area.
+     * @param messageKey
+     *            The message key.
+     * @param messageArguments
+     *            The message arguments.
+     */
+    public void reloadStatusMessage(final Area area, final String messageKey) {
+        switch(area) {
+        case CONNECTION:
+            reloadConnection(messageKey);
+            break;
+        case FILTER:
+            reloadFilter(messageKey);
+            break;
+        case CUSTOM:
+            reloadCustom(messageKey);
+            break;
+        default:  Assert.assertUnreachable("");
+        }
+    }
+    
     /**
      * Reload a status message.
      * 
@@ -64,39 +113,6 @@ public class Status extends Avatar {
     }
 
     /**
-     * Reload a status message.
-     * 
-     * @param area
-     *            The status area.
-     * @param messageKey
-     *            The message key.
-     * @param messageArguments
-     *            The message arguments.
-     */
-    public void reloadStatusMessage(final Area area, final String messageKey) {
-        switch(area) {
-        case CONNECTION:
-            reloadConnection(messageKey);
-            break;
-        case FILTER:
-            reloadFilter(messageKey);
-            break;
-        case CUSTOM:
-            reloadCustom(messageKey);
-            break;
-        default:  Assert.assertUnreachable("");
-        }
-    }
-
-    /**
-     * Obtain the avatar's state information.
-     * 
-     * 
-     * @return The avatar's state information.
-     */
-    public State getState() { return null; }
-    
-    /**
      * Set the avatar state.
      * 
      * 
@@ -105,14 +121,25 @@ public class Status extends Avatar {
      */
     public void setState(final State state) {}
 
+    private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
+        if(2 == e.getClickCount()) {
+            if(e.isShiftDown()) { getController().debugMain(); }
+            else {
+                getController().toggleStatusImage();
+            }
+        }
+    }//GEN-LAST:event_formMouseClicked
+
     /**
-     * Obtain the avatar id.
+     * Determine the connection key based upon the online state.
      * 
-     * 
-     * @return The avatar id.
+     * @return The message key for the connection status message.
      */
-    public AvatarId getId() { return AvatarId.STATUS; }
-    
+    private String getConnectionKey() {
+        return getController().isOnline()
+                ? "ConnectionOnline" : "ConnectionOffline";
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -167,27 +194,13 @@ gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
-        if(2 == e.getClickCount()) {
-            if(e.isShiftDown()) { getController().debugMain(); }
-            else {
-                getController().toggleStatusImage();
-            }
-        }
-    }//GEN-LAST:event_formMouseClicked
-
-    private void reloadConnection(final String messageKey,
-            final Object[] messageArguments) {
-        connectionJLabel.setText(getString(messageKey, messageArguments));
-    }
-
     private void reloadConnection(final String messageKey) {
         connectionJLabel.setText(getString(messageKey));
     }
-
-    private void reloadCustom(final String messageKey,
+    
+    private void reloadConnection(final String messageKey,
             final Object[] messageArguments) {
-        customJLabel.setText(getString("Custom." + messageKey, messageArguments));
+        connectionJLabel.setText(getString(messageKey, messageArguments));
     }
 
     private void reloadCustom(final String messageKey) {
@@ -200,21 +213,18 @@ gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
         t.setRepeats(false);
         t.start();
     }
-    
+
+    private void reloadCustom(final String messageKey,
+            final Object[] messageArguments) {
+        customJLabel.setText(getString("Custom." + messageKey, messageArguments));
+    }
+    private void reloadFilter(final String messageKey) {
+        filterJLabel.setText(getString(messageKey));
+    }
     private void reloadFilter(final String messageKey,
             final Object[] messageArguments) {
         filterJLabel.setText(getString(messageKey, messageArguments));
     }
 
-    private void reloadFilter(final String messageKey) {
-        filterJLabel.setText(getString(messageKey));
-    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel connectionJLabel;
-    private javax.swing.JLabel customJLabel;
-    private javax.swing.JLabel filterJLabel;
-    // End of variables declaration//GEN-END:variables
-
-    public enum Area { CONNECTION, FILTER, CUSTOM }
+    public enum Area { CONNECTION, CUSTOM, FILTER }
 }

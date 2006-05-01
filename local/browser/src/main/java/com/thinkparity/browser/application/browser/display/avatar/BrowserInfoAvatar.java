@@ -23,7 +23,7 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Displays the browser's info panel. This avatar contains the sort button and
@@ -163,8 +163,8 @@ public class BrowserInfoAvatar extends Avatar {
      * 
      * @return The contact.
      */
-	private Contact getContact() {
-		return (Contact) ((CompositeSingleContentProvider) contentProvider).getElement(1, null);
+	private User readLocalUser() {
+		return (User) ((CompositeSingleContentProvider) contentProvider).getElement(1, null);
 	}
 
 	/**
@@ -299,7 +299,7 @@ public class BrowserInfoAvatar extends Avatar {
             reloadTimer.start();
         }
         else if(isTestMode()) {
-			infoJLabel.setText(ModelUtil.getName(getContact()));
-		}
+            infoJLabel.setText(ModelUtil.getName(readLocalUser()));
+        }
 	}
 }

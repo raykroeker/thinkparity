@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
@@ -20,10 +19,6 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.javax.swing.dnd.TxUtils;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
-import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * A document transfer handler for drag'n'drop. The tx handler has the ability
@@ -40,13 +35,10 @@ public class CreateDocumentTxHandler extends TransferHandler {
     private static final String IMPORT_IOX = "[BROWSER2] [APP] [B2] [IMPORT DATA] [IO ERROR]";
 
     /** An apache logger error statement. */
-    private static final String IMPORT_PX = "[BROWSER2] [APP] [B2] [IMPORT DATA] [PARITY ERROR]";
+    private static final String IMPORT_X = "[BROWSER2] [APP] [B2] [IMPORT DATA] [ERROR]";
 
     /** An apache logger error statement. */
     private static final String IMPORT_UFX = "[BROWSER2] [APP] [B2] [IMPORT DATA] [UNSUPPORTED DATA FORMAT]";
-
-    /** An apache logger error statement. */
-    private static final String IMPORT_UNDO_PX = "[BROWSER2] [APP] [B2] [IMPORT DATA] [UNDO PARITY ERROR]";
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
@@ -57,9 +49,6 @@ public class CreateDocumentTxHandler extends TransferHandler {
     /** The browser application. */
     private final Browser browser;
 
-    /** The parity document interface. */
-    private final DocumentModel dModel;
-
     /**
      * Create a CreateDocumentTxHandler.
      * 
@@ -67,7 +56,6 @@ public class CreateDocumentTxHandler extends TransferHandler {
     public CreateDocumentTxHandler(final Browser browser) {
         super();
         this.browser = browser;
-        this.dModel = browser.getDocumentModel();
         this.logger = LoggerFactory.getLogger(getClass());
     }
 
@@ -97,43 +85,20 @@ public class CreateDocumentTxHandler extends TransferHandler {
         }
         catch(final UnsupportedFlavorException ufx) {
             logger.error(IMPORT_UFX, ufx);
+            return false;
         }
 
         // create documents for each file transferred
-        final List<Long> createdIds = new LinkedList<Long>();
-        boolean didPass = true;
-        for(final File file : files) {
-            try {
-                final Document document =
-                    dModel.create(file.getName(), null, file);
-                createdIds.add(document.getId());
-            }
-            catch(final ParityException px) {
-                logger.error(IMPORT_PX, px);
-                didPass = false;
-            }
-        }
-        if(didPass) {
-            browser.fireDocumentsCreated(createdIds);
-            return true;
-        }
-        else {
-            // try to undo the created docs
-            for(final Long id : createdIds) {
-                try { dModel.delete(id); }
-                catch(final ParityException px) {
-                    logger.error(IMPORT_UNDO_PX, px);
-                }
-            }
+        final List<File> fileList = new LinkedList<File>();
+
+        for(final File file : files) { fileList.add(file); }
+
+        try { browser.runCreateDocuments(fileList); }
+        catch(final Exception x) {
+            logger.error(IMPORT_X, x);
             return false;
         }
-    }
 
-    /**
-     * @see javax.swing.TransferHandler#getVisualRepresentation(java.awt.datatransfer.Transferable)
-     */
-    @Override
-    public Icon getVisualRepresentation(Transferable t) {
-        return null;
+        return true;
     }
 }

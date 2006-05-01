@@ -57,6 +57,7 @@ public class Create extends AbstractAction {
 		final File file = (File) data.get(DataKey.FILE);
 		final Document document =
 			getDocumentModel().create(file.getName(), file.getName(), file);
+        getArtifactModel().applyFlagSeen(document.getId());
 
 		browser.fireDocumentCreated(document.getId(), Boolean.FALSE);
 	}

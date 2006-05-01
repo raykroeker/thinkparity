@@ -18,11 +18,13 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -88,100 +90,70 @@ public class ProviderFactory {
 		return singleton.doGetSendVersionProvider();
 	}
 
-	/**
-	 * The parity artifact interface.
-	 * 
-	 */
+	/** The parity artifact interface. */
 	protected final ArtifactModel artifactModel;
 
-	/**
-	 * Document model api.
-	 * 
-	 */
+	/** The parity document interface. */
 	protected final DocumentModel dModel;
 
-	/**
-	 * An apache logger.
-	 * 
-	 */
+	/** An apache logger. */
 	protected final Logger logger;
 
-	/**
-	 * Session model api.
-	 * 
-	 */
+	/** The parity session interface. */
 	protected final SessionModel sModel;
 
-	/**
-	 * System message interface.
-	 * 
-	 */
+	/** The parity system message interface. */
 	protected final SystemMessageModel systemMessageModel;
 
-	/**
-	 * The document history provider.
-	 * 
-	 */
+	/** The document history provider. */
 	private final ContentProvider historyProvider;
 
-	/**
-	 * The info pane provider.
-	 * 
-	 */
+	/** The info pane provider. */
 	private final ContentProvider infoProvider;
 
-	/**
-	 * The user in the parity prefferences.
-	 * 
-	 */
-	private final JabberId loggedInUser;
+	/** The local user id. */
+	private final JabberId localUserId;
 
-	/**
-	 * The main provider. Is a composite provider consisting of a document
-	 * list provider as well as a message list provider.
-	 * 
-	 */
+    /** The local user. */
+    private final User localUser;
+
+	/** The main provider. */
 	private final ContentProvider mainProvider;
 
-	/**
-	 * Manage contacts provider.
-	 * 
-	 */
+	/** The contacts provider. */
 	private final ContentProvider manageContactsProvider;
 
-	/**
-	 * Send artifact provider.
-	 * 
-	 */
+	/** The send artifact provider. */
 	private final ContentProvider sendArtifactProvider;
 
-	/**
-	 * Send artifact version provider.
-	 * 
-	 */
+	/** The Send artifact version provider. */
 	private final ContentProvider sendVersionProvider;
 
-	/**
-	 * Create a ProviderFactory.
-	 * 
-	 */
+    /** The parity user interface. */
+    private final UserModel uModel;
+
+	/** Create a ProviderFactory. */
+    // PATTERM Singleton,Factory
 	private ProviderFactory() {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
 		this.dModel = modelFactory.getDocumentModel(getClass());
 		this.logger = ModelLoggerFactory.getLogger(getClass());
-		this.loggedInUser =
-			JabberIdBuilder.parseUsername(preferences.getUsername());
 		this.sModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
+        this.uModel = modelFactory.getUserModel(getClass());
 
-		this.historyProvider = new HistoryProvider(loggedInUser, dModel, sModel);
-		this.infoProvider = new InfoProvider(dModel, sModel);
-		this.mainProvider = new MainProvider(artifactModel, dModel, sModel, systemMessageModel, loggedInUser);
+        this.localUserId =
+            JabberIdBuilder.parseUsername(preferences.getUsername());
+        this.localUser = uModel.read(localUserId);
+
+		this.historyProvider = new HistoryProvider(localUserId, dModel, sModel);
+		this.infoProvider = new InfoProvider(localUser, dModel);
+		this.mainProvider = new MainProvider(artifactModel, dModel, sModel, systemMessageModel, localUserId);
 		this.manageContactsProvider = new ManageContactsProvider(sModel);
-		this.sendArtifactProvider = new SendArtifactProvider(dModel, sModel, loggedInUser);
-		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, loggedInUser);
+		this.sendArtifactProvider = new SendArtifactProvider(dModel, sModel, localUserId);
+		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, localUserId);
 	}
 
 	/**

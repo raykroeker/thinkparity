@@ -6,6 +6,8 @@ package com.thinkparity.browser.application.system.tray;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -24,10 +26,32 @@ class TrayMenuBuilder {
     /** System application. */
     private final SystemApplication application;
 
+    final Action login;
+
+    final Action logout;
+
     /** Create a TrayMenuBuilder. */
     TrayMenuBuilder(final SystemApplication application) {
         super();
         this.application = application;
+        this.login = new AbstractAction(getString("Menu.Login")) {
+
+            private static final long serialVersionUID = 1;
+
+            public void actionPerformed(final ActionEvent e) {
+                application.runLogin();
+            }
+        };
+        this.login.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.LoginMnemonic").charAt(0)));
+        this.logout = new AbstractAction(getString("Menu.Logout")) {
+
+            private static final long serialVersionUID = 1;
+
+            public void actionPerformed(final ActionEvent e) {
+                application.runLogout();
+            }
+        };
+        this.logout.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.LogoutMnemonic").charAt(0)));
     }
 
     /**
@@ -43,6 +67,9 @@ class TrayMenuBuilder {
                     public void actionPerformed(final ActionEvent e) {
                         application.runRestoreBrowser();
                     }}));
+        jPopupMenu.addSeparator();
+        jPopupMenu.add(login);
+        jPopupMenu.add(logout);
         jPopupMenu.add(createMenuItem(
                 "Menu.About",
                 new ActionListener() {
@@ -58,6 +85,7 @@ class TrayMenuBuilder {
                         application.runExitPlatform();
                     }
                 }));
+
         return jPopupMenu;
     }
 

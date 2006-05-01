@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.system;
 import com.thinkparity.model.parity.api.events.DocumentAdapter;
 import com.thinkparity.model.parity.api.events.DocumentEvent;
 import com.thinkparity.model.parity.api.events.DocumentListener;
+import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.api.events.SystemMessageEvent;
 import com.thinkparity.model.parity.api.events.SystemMessageListener;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
@@ -22,7 +23,10 @@ class EventDispatcher {
 	private DocumentListener documentListener;
 
 	/** The application. */
-	private final SystemApplication sysApp;
+	private final SystemApplication systemApplication;
+
+    /** The session listener. */
+    private SessionListener sessionListener;
 
 	/** The system message listener. */
 	private SystemMessageListener systemMessageListener;
@@ -33,9 +37,9 @@ class EventDispatcher {
 	 * @param sysApp
 	 *            The system application.
 	 */
-	EventDispatcher(final SystemApplication sysApp) {
+	EventDispatcher(final SystemApplication systemApplication) {
 		super();
-		this.sysApp = sysApp;
+		this.systemApplication = systemApplication;
 	}
 
     /**
@@ -44,10 +48,13 @@ class EventDispatcher {
      * 
      */
 	void end() {
-		sysApp.getDocumentModel().removeListener(documentListener);
+		systemApplication.getDocumentModel().removeListener(documentListener);
 		documentListener = null;
 
-		sysApp.getSystemMessageModel().removeListener(systemMessageListener);
+        systemApplication.getSessionModel().removeListener(sessionListener);
+        sessionListener = null;
+
+		systemApplication.getSystemMessageModel().removeListener(systemMessageListener);
 		systemMessageListener = null;
 	}
 
@@ -58,10 +65,13 @@ class EventDispatcher {
      */
 	void start() {
 		documentListener = createDocumentListener();
-		sysApp.getDocumentModel().addListener(documentListener);
+		systemApplication.getDocumentModel().addListener(documentListener);
+
+        sessionListener = createSessionListener();
+        systemApplication.getSessionModel().addListener(sessionListener);
 
 		systemMessageListener = createSystemMessageListener();
-		sysApp.getSystemMessageModel().addListener(systemMessageListener);
+		systemApplication.getSystemMessageModel().addListener(systemMessageListener);
 	}
 
 	/**
@@ -73,30 +83,44 @@ class EventDispatcher {
 		return new DocumentAdapter() {
             public void documentClosed(final DocumentEvent e) {
                 if(e.isRemote())
-                    sysApp.fireDocumentClosed(e.getDocument());
+                    systemApplication.fireDocumentClosed(e.getDocument());
             }
             public void documentCreated(final DocumentEvent e) {
                 if(e.isRemote())
-                    sysApp.fireDocumentCreated(e.getDocument());
+                    systemApplication.fireDocumentCreated(e.getDocument());
             }
             public void documentUpdated(final DocumentEvent e) {
                 if(e.isRemote())
-                    sysApp.fireDocumentUpdated(e.getDocument());
+                    systemApplication.fireDocumentUpdated(e.getDocument());
 			}
             public void keyRequestAccepted(final DocumentEvent e) {
                 if(e.isRemote())
-                    sysApp.fireDocumentKeyRequestAccepted(e.getUser(), e.getDocument());
+                    systemApplication.fireDocumentKeyRequestAccepted(e.getUser(), e.getDocument());
             }
             public void keyRequestDeclined(final DocumentEvent e) {
                 if(e.isRemote())
-                    sysApp.fireDocumentKeyRequestDeclined(e.getUser(), e.getDocument());
+                    systemApplication.fireDocumentKeyRequestDeclined(e.getUser(), e.getDocument());
             }
             public void keyRequested(final DocumentEvent e) {
                 if(e.isRemote())
-                    sysApp.fireDocumentKeyRequested(e.getUser(), e.getDocument());
+                    systemApplication.fireDocumentKeyRequested(e.getUser(), e.getDocument());
             }
 		};
 	}
+
+    private SessionListener createSessionListener() {
+        return new SessionListener() {
+            public void sessionEstablished() {
+                systemApplication.fireSessionEstablished();
+            }
+            public void sessionTerminated() {
+                systemApplication.fireSessionTerminated();
+            }
+            public void sessionTerminated(final Throwable t) {
+                systemApplication.fireSessionTerminated();
+            }
+        };
+    }
 
 	/**
 	 * Create a system message listener.
@@ -107,7 +131,7 @@ class EventDispatcher {
 		return new SystemMessageListener() {
 			public void systemMessageCreated(
 					final SystemMessageEvent systemMessageEvent) {
-				sysApp.fireSystemMessageCreated((SystemMessage) systemMessageEvent.getSource());
+				systemApplication.fireSystemMessageCreated((SystemMessage) systemMessageEvent.getSource());
 			}
 		};
 	}

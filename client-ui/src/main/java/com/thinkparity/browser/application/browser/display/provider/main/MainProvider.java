@@ -97,7 +97,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		this.historyProvider = new FlatContentProvider() {
             public Object[] getElements(final Object input) {
                 final MainCellDocument mcd = (MainCellDocument) input;
-                try { return toDisplay(sModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId())); }
+                try { return toDisplay(artifactModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId())); }
                 catch(final ParityException px) { throw new RuntimeException(px); }
             }
         };
@@ -219,7 +219,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      *            A document's history.
      * @return A displayable history.
      */
-	private MainCellHistoryItem[] toDisplay(final SessionModel sModel,
+	private MainCellHistoryItem[] toDisplay(final ArtifactModel aModel,
             final JabberId loggedInUserId,
             final MainCellDocument document,
             final Collection<HistoryItem> history) {
@@ -228,8 +228,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
         Integer index = 0;
         Set<User> dTeam;
         for(final HistoryItem hi : history) {
-            try { dTeam = sModel.readArtifactTeam(document.getId()); }
-            catch(final ParityException px) { throw new RuntimeException(px); }
+            dTeam = aModel.readTeam(document.getId());
             for(final Iterator<User> i = dTeam.iterator(); i.hasNext();) {
                 if(i.next().getId().equals(loggedInUserId)) { i.remove(); }
             }

@@ -19,6 +19,9 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
  */
 public interface Platform extends ApplicationListener {
 
+    /** Connection status. */
+    public enum Connection { OFFLINE, ONLINE }
+
     /**
      * End the platform.
      *
@@ -26,6 +29,14 @@ public interface Platform extends ApplicationListener {
     public void end();
 
 	public AvatarRegistry getAvatarRegistry();
+
+    /**
+     * Obtain the current connection status.
+     *
+     * @return The connection status.
+     */
+    public Connection getConnectionStatus();
+
 	public Logger getLogger(final Class clasz);
 	public ModelFactory getModelFactory();
 	public BrowserPlatformPersistence getPersistence();
@@ -48,6 +59,13 @@ public interface Platform extends ApplicationListener {
 	 * @see #isTestMode()
 	 */
 	public Boolean isDebugMode();
+
+    /**
+     * Determine whether or not the platform is online.
+     *
+     * @return True if the application is online; false otherwise.
+     */
+    public Boolean isOnline();
 
 	/**
 	 * Indicates whether or not the platform is running in test mode.

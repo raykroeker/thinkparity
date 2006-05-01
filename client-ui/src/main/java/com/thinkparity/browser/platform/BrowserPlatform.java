@@ -30,28 +30,25 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  */
 public class BrowserPlatform implements Platform {
 
-	/**
-	 * The singleton instance of the platform.
-	 * 
-	 */
-	private static BrowserPlatform b2Platform;
+	/** The singleton instance. */
+	private static BrowserPlatform SINGLETON;
 
 	static { BrowserPlatformInitializer.initialize(); }
 
 	/**
-	 * Start the B2 platform.
+	 * Start the platform.
 	 * 
 	 * @param args
 	 *            Startup arguments.
 	 */
 	public static void start(final String[] args) {
 		Assert.assertIsNull(
-				"Cannot start the platform more than once.",
-				b2Platform);
-		b2Platform = new BrowserPlatform();
-		try { b2Platform.doStart(); }
+				"[LBROWSER] [PLATFORM] [START] [ALREADY STARTED]]",
+				SINGLETON);
+		SINGLETON = new BrowserPlatform();
+		try { SINGLETON.doStart(); }
         catch(final Throwable t) {
-            LoggerFactory.getLogger(BrowserPlatform.class).fatal("[LBROWSER] [PLATFORM] [FATAL ERROR]", t);
+            LoggerFactory.getLogger(BrowserPlatform.class).fatal("[LBROWSER] [PLATFORM] [UNKNOWN ERROR]", t);
             System.exit(1);
         }
 	}
@@ -175,15 +172,13 @@ public class BrowserPlatform implements Platform {
 		applicationRegistry.get(applicationId).hibernate(this);
 	}
 
-	/**
-	 * @see com.thinkparity.browser.platform.Platform#isDebugMode()
-	 * 
-	 */
+	/** @see com.thinkparity.browser.platform.Platform#isDebugMode() */
 	public Boolean isDebugMode() { return Version.getMode() == Mode.DEVELOPMENT; }
 
-	/**
-	 * @see com.thinkparity.browser.platform.Platform#isTestMode()
-	 */
+    /** @see com.thinkparity.browser.platform.Platform#isOnline() */
+    public Boolean isOnline() { return isLoggedIn(); }
+
+	/** @see com.thinkparity.browser.platform.Platform#isTestMode() */
 	public Boolean isTestMode() {
 		if(isDebugMode()) { return Boolean.TRUE; }
 		return Version.getMode() == Mode.TESTING;
@@ -234,17 +229,25 @@ public class BrowserPlatform implements Platform {
 		applicationRegistry.get(applicationId).restore(this);
 	}
 
-	/**
-	 * Start the browser platform.
-	 *
-	 */
+	/** Start the  platform. */
 	private void doStart() {
+        if(!isFirstRun()) { firstRun(); }
 	    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
-		login();
-		if(isLoggedIn()) {
-            ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
-		}
+	    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
 	}
+
+    /**
+     * Determine if this is the first time the platform has been run.
+     *
+     * @return True if this is the first run of the platform.
+     */
+    private Boolean isFirstRun() { return null != preferences.getLastRun(); }
+
+    /** Perform first run initialization. */
+    private void firstRun() {
+        login();
+        if(!isLoggedIn()) { System.exit(0); }
+    }
 
 	/**
 	 * Determine whether or not the user is logged in.
@@ -269,5 +272,10 @@ public class BrowserPlatform implements Platform {
             if(applicationRegistry.contains(id))
                 applicationRegistry.get(id).end(this);
         }
+    }
+
+    public Connection getConnectionStatus() {
+        if(isLoggedIn()) { return Connection.ONLINE; }
+        else { return Connection.OFFLINE; }
     }
 }

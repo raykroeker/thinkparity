@@ -7,6 +7,8 @@ import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -14,22 +16,39 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public class UserModel extends AbstractModel {
 
+    /**
+     * Obtain the parity user interface.
+     *
+     * @return The parity user interface.
+     */
     public static UserModel getModel() {
         final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
         return new UserModel(workspace);
     }
 
+    /**
+     * Obtain the parity internal user interface.
+     *
+     * @param context
+     *      The parity calling context.
+     * @return The parity internal user interface.
+     */
     public static InternalUserModel getInternalModel(final Context context) {
         final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
         return new InternalUserModel(workspace, context);
     }
 
+    /** The model implementation. */
     private final UserModelImpl impl;
 
+    /** The impl synchronization lock. */
     private final Object implLock;
 
     /**
      * Create a UserModel.
+     *
+     * @param workspace
+     *      The parity workspace.
      */
     protected UserModel(final Workspace workspace) {
         super();
@@ -37,7 +56,28 @@ public class UserModel extends AbstractModel {
         this.implLock = new Object();
     }
 
+    /**
+     * Obtain the model implementation.
+     *
+     * @return The model implementation.
+     */
     protected UserModelImpl getImpl() { return impl; }
 
+    /**
+     * Obtain the impl synchronization lock.
+     *
+     * @return The impl synchronization lock.
+     */
     protected Object getImplLock() { return implLock; }
+
+    /**
+     * Read a user.
+     *
+     * @param jabberId
+     *      The user's jabber id.
+     * @return The user.
+     */
+    public User read(final JabberId jabberId) {
+        synchronized(getImplLock()) { return getImpl().read(jabberId); }
+    }
 }

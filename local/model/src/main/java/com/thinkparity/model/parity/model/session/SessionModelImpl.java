@@ -33,13 +33,10 @@ import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
- * SessionModelImpl
+ * The implementation of the parity session interface.
+ *
  * @author raykroeker@gmail.com
  * @version 1.1
- * 
- * TODO Updates\new documents are BOLD - Includes receive of history items as 
- * well as ownership request; send ownership.  This means the SEEN flag must be
- * removed once a request\request response has been processed.
  */
 class SessionModelImpl extends AbstractModelImpl {
 
@@ -305,11 +302,11 @@ class SessionModelImpl extends AbstractModelImpl {
      *            The new team member.
      * @throws ParityException
      */
-	static void notifyTeamMemberAdded(final UUID artifactUniqueId,
+	static void notifyTeamMemberAdded(final UUID uniqueId,
 			final Contact teamMember) throws ParityException {
 		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
-		final Document d = iDModel.get(artifactUniqueId);
-		iDModel.updateIndex(d.getId());
+		final Document d = iDModel.get(uniqueId);
+        iDModel.addTeamMember(d.getId(), teamMember.getId());
 	}
 
 	/**
@@ -321,11 +318,11 @@ class SessionModelImpl extends AbstractModelImpl {
      *            The team member.
      * @throws ParityException
      */
-	static void notifyTeamMemberRemoved(final UUID artifactUniqueId,
+	static void notifyTeamMemberRemoved(final UUID uniqueId,
 			final Contact teamMember) throws ParityException {
 		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
-		final Document d = iDModel.get(artifactUniqueId);
-		iDModel.updateIndex(d.getId());
+		final Document d = iDModel.get(uniqueId);
+		iDModel.removeTeamMember(d.getId(), teamMember.getId());
 	}
 
 	/**
@@ -596,7 +593,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void login(final String username, final String password) throws ParityException {
-		logger.info("login(String,String)");
+		logger.info("[LMODEL] [SESSION] [LOGIN]");
 		logger.debug(username);
 		logger.debug(mask(password));
 		final String host = preferences.getServerHost();
@@ -615,15 +612,20 @@ class SessionModelImpl extends AbstractModelImpl {
 				// set the username@host in the preferences
 				if(!preferences.isSetUsername()) {
 					preferences.setUsername(username);
+                    getInternalUserModel().create(xmppHelper.getUser().getId());
 				}
 				xmppHelper.processOfflineQueue();
 			}
-			catch(SmackException sx) {
-				logger.error("login(String,String)", sx);
+			catch(final SmackException sx) {
+				logger.error("[LMODEL] [SESSION] [LOGIN] [XMPP ERROR])", sx);
+                logger.error(username);
+                logger.error(mask(password));
 				throw ParityErrorTranslator.translate(sx);
 			}
-			catch(RuntimeException rx) {
-				logger.error("login(String,String)", rx);
+			catch(final RuntimeException rx) {
+				logger.error("[LMODEL] [SESSION] [LOGIN] [UNKNOWN ERROR])", rx);
+                logger.error(username);
+                logger.error(mask(password));
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}

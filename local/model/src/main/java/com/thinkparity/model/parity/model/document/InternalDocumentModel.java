@@ -34,6 +34,22 @@ public class InternalDocumentModel extends DocumentModel implements
 		context.assertContextIsValid();
 	}
 
+	/**
+     * Add a team member to the document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param jabberId
+     *            The team member.
+     * @throws ParityException
+     */
+    public void addTeamMember(final Long documentId, final JabberId jabberId)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().addTeamMember(documentId, jabberId);
+        }
+    }
+
 	public void auditRecieveKey(final Long artifactId,
             final JabberId createdBy, final Calendar createdOn,
             final JabberId receivedFrom) throws ParityException {
@@ -42,13 +58,13 @@ public class InternalDocumentModel extends DocumentModel implements
 		}
 	}
 
-	public void close(final UUID documentUniqueId, final JabberId closedBy)
+
+    public void close(final UUID documentUniqueId, final JabberId closedBy)
 			throws ParityException {
 		synchronized(getImplLock()) { getImpl().close(documentUniqueId, closedBy); }
 	}
 
-
-    /**
+	/**
      * Confirm that the document sent previously has been received by the
      * specified user.
      * 
@@ -65,7 +81,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-	/**
+    /**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentUniqueId
@@ -93,7 +109,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-    /**
+	/**
      * A key request for a document was declined.
      * 
      * @param documentId
@@ -108,7 +124,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-	/**
+    /**
 	 * Lock a document.
 	 * 
 	 * @param documentId
@@ -119,7 +135,7 @@ public class InternalDocumentModel extends DocumentModel implements
 		synchronized(getImplLock()) { getImpl().lock(documentId); }
 	}
 
-    /**
+	/**
 	 * Use the document model to receive a document from another parity user.
 	 * 
 	 * @param xmppDocument
@@ -142,6 +158,22 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
 	/**
+     * Remove a team member from the document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param jabberId
+     *            The team member.
+     * @throws ParityException
+     */
+    public void removeTeamMember(final Long documentId, final JabberId jabberId)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().removeTeamMember(documentId, jabberId);
+        }
+    }
+
+    /**
 	 * Unlock a document.
 	 * 
 	 * @param documentId
@@ -150,15 +182,5 @@ public class InternalDocumentModel extends DocumentModel implements
 	 */
 	public void unlock(final Long documentId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().unlock(documentId); }
-	}
-
-	/**
-     * Update the index for a document.
-     * 
-     * @param documentId
-     *            The document id.
-     */
-	public void updateIndex(final Long documentId) throws ParityException {
-		synchronized(getImplLock()) { getImpl().updateIndex(documentId); }
 	}
 }

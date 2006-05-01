@@ -5,10 +5,12 @@ package com.thinkparity.model.parity.model.io.handler;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -31,7 +33,19 @@ public interface ArtifactIOHandler {
 			final JabberId updatedBy, final Calendar updatedOn)
 			throws HypersonicException;
 
-	/**
+    /**
+     * Create an artifact team relationship.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param userId
+     *            The user id.
+     * @throws HypersonicException
+     */
+    public void createTeamRel(final Long artifactId, final Long userId)
+            throws HypersonicException;
+
+    /**
      * Delete the remote info for the artifact.
      * 
      * @param artifactId
@@ -40,6 +54,18 @@ public interface ArtifactIOHandler {
      */
 	public void deleteRemoteInfo(final Long artifactId)
 			throws HypersonicException;
+
+	/**
+     * Delete an artifact team relationship.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param userId
+     *            The user id.
+     * @throws HypersonicException
+     */
+    public void deleteTeamRel(final Long artifactId, final Long userId)
+            throws HypersonicException;
 
 	/**
 	 * Obtain a list of all flags for an artifact.
@@ -51,6 +77,17 @@ public interface ArtifactIOHandler {
 	 */
 	public List<ArtifactFlag> getFlags(final Long artifactId)
 			throws HypersonicException;
+
+    /**
+     * Read the team for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return The team.
+     * @throws HypersonicException
+     */
+    public Set<User> readTeamRel(final Long artifactId)
+            throws HypersonicException;
 
 	/**
 	 * Set the flags for the artifact.

@@ -1157,7 +1157,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	void updateIndex(final Long documentId) throws ParityException {
+    /**
+     * Update the index info for the document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @throws ParityException
+     */
+	private void updateIndex(final Long documentId) throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [UPDATE INDEX]");
 		logger.debug(documentId);
 		indexor.delete(documentId);
@@ -1602,4 +1609,46 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// update remote info
 		iAModel.updateRemoteInfo(documentId, receivedFrom, currentDateTime);
 	}
+
+    /**
+     * Add a team member to the document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param jabberId
+     *            The team member.
+     * @throws ParityException
+     */
+    void addTeamMember(final Long documentId, final JabberId jabberId)
+            throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
+        logger.debug(documentId);
+        logger.debug(jabberId);
+        // save the new team member locally
+        getInternalArtifactModel().addTeamMember(documentId, jabberId);
+
+        // re-index
+        updateIndex(documentId);
+    }
+
+    /**
+     * Remove a team member from the document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param jabberId
+     *            The team member.
+     * @throws ParityException
+     */
+    void removeTeamMember(final Long documentId, final JabberId jabberId)
+            throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [REMOVE TEAM MEMBER]");
+        logger.debug(documentId);
+        logger.debug(jabberId);
+        // remove the team member locally
+        getInternalArtifactModel().removeTeamMember(documentId, jabberId);
+
+        // re-index
+        updateIndex(documentId);
+    }
 }

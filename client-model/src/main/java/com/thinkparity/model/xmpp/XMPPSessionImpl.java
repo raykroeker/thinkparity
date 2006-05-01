@@ -24,7 +24,6 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
-import com.thinkparity.model.smack.SmackConnectionListener;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.*;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -120,13 +119,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		this.xmppContact = new XMPPContact(this);
 		this.xmppUser = new XMPPUser(this);
 
-		XMPPConnection.addConnectionListener((ConnectionEstablishedListener) new SmackConnectionListener() {
-			public void connectionClosed() {
-				doNotifyConnectionClosed();
-			}
-			public void connectionClosedOnError(final Exception e) {
-				doNotifyConnectionClosedOnError(e);
-			}
+		XMPPConnection.addConnectionListener(new ConnectionEstablishedListener() {
 			public void connectionEstablished(final XMPPConnection connection) {
 				doNotifyConnectionEstablished(connection);
 			}
@@ -317,6 +310,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			}
 			else { smackXMPPConnection = new SSLXMPPConnection(host, port); }
 
+            // connection termination
+			smackXMPPConnection.addConnectionListener(new ConnectionListener() {
+			    public void connectionClosed() { doNotifyConnectionClosed(); }
+			    public void connectionClosedOnError(final Exception e) {
+			        doNotifyConnectionClosedOnError(e);
+			    }
+			});
 			// packet debugger
 			smackXMPPConnection.addPacketListener(
 					new PacketListener() {

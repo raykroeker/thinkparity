@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.user;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
+import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
@@ -13,7 +14,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class InternalUserModel extends UserModel {
+public class InternalUserModel extends UserModel implements InternalModel {
 
     /**
      * Create a InternalUserModel.
@@ -23,14 +24,25 @@ public class InternalUserModel extends UserModel {
         context.assertContextIsValid();
     }
 
+    /**
+     * Read a user.
+     *
+     * @param userId
+     *      A user id.
+     * @return A user.
+     */
     public User read(final Long userId) {
         synchronized(getImplLock()) { return getImpl().read(userId); }
     }
 
-    public User read(final JabberId jabberId) {
-        synchronized(getImplLock()) { return getImpl().read(jabberId); }
-    }
-
+    /**
+     * Create a user.  This api will download the user's info as set
+     * on the server and save it to the database.
+     *
+     * @param jabberId
+     *      The user's jabber id.
+     * @return The user.
+     */
     public User create(final JabberId jabberId) throws ParityException {
         synchronized(getImplLock()) { return getImpl().create(jabberId); }
     }

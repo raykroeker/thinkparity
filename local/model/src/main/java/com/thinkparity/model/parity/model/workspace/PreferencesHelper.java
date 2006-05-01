@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.ModelConstants;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -59,28 +60,46 @@ class PreferencesHelper {
 		final Properties javaProperties = loadPreferences();
 		// save the preferences on shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread("thinkParity - Save Preferences") {
-			public void run() { storePreferences(javaProperties); }
+			public void run() {
+                setLastRun(javaProperties);
+                storePreferences(javaProperties);
+            }
 		});
 
 		return new Preferences() {
+
 			public void clearPassword() {
-				javaProperties.remove("parity.password");
+				javaProperties.remove(ModelConstants.Preferences.Properties.PASSWORD);
 			}
+
 			public File getArchiveOutputDirectory() {
 				final String archiveOutputDirectory =
 					javaProperties.getProperty("parity.archive.directory", null);
 				if(null == archiveOutputDirectory) { return null; }
 				else { return new File(archiveOutputDirectory); }
 			}
+
+            public Long getLastRun() {
+                final String lastRun = javaProperties.getProperty(ModelConstants.Preferences.Properties.LAST_RUN);
+                if(null == lastRun) { return null; }
+                else {
+                    try { return Long.parseLong(lastRun); }
+                    catch(final NumberFormatException nfx) { throw new RuntimeException(nfx); }
+                }
+            }
+
 			public Locale getLocale() { return Locale.getDefault(); }
+
 			public String getPassword() {
 				return javaProperties.getProperty("parity.password");
 			}
+
 			public String getServerHost() {
 				final String override = System.getProperty("parity.serverhost");
 				if(null != override && 0 < override.length()) { return override; }
 				else { return "thinkparity.dyndns.org"; }
 			}
+
 			public Integer getServerPort() {
 				final Integer override = Integer.getInteger("parity.serverport");
 				if(null != override) { return override; }
@@ -89,35 +108,43 @@ class PreferencesHelper {
 					else { return 5223; }
 				}
 			}
-			public User getSystemUser() {
-				return User.SystemUser;
-			}
+
+			public User getSystemUser() { return User.SystemUser; }
+
 			public String getUsername() {
 				return javaProperties.getProperty("parity.username", null);
 			}
+
 			public Boolean isSetArchiveOutputDirectory() {
 				return null != getArchiveOutputDirectory();
 			}
+
 			public Boolean isSetLocale() { return Boolean.TRUE; }
+
 			public Boolean isSetUsername() {
 				final String username = getUsername();
 				return (null != username && 0 < username.length());
 			}
+
 			public void setArchiveOutputDirectory(
 					final File archiveOutputDirectory) {
 				javaProperties.setProperty(
 						"parity.archive.directory",
 						archiveOutputDirectory.getAbsolutePath());
 			}
+
 			public void setLocale(final Locale locale) {}
+
 			public void setPassword(final String password) {
 				Assert.assertNotTrue(ASSERT_NOT_IS_SET_PASSWORD, isSetPassword());
 				javaProperties.setProperty("parity.password", password);
 			}
+
 			public void setUsername(final String username) {
 				Assert.assertNotTrue(ASSERT_NOT_IS_SET_USERNAME, isSetUsername());
 				javaProperties.setProperty("parity.username", username);
 			}
+
 			private Boolean isSetPassword() {
 				final String password = getPassword();
 				return (null != password && 0 < password.length());
@@ -174,4 +201,11 @@ class PreferencesHelper {
                     "[LMODEL] [WORKSPACE] [PREFS] [STORE PREFS] [IO ERROR]", iox);
 		}
 	}
+
+    /** Set a last run timestamp in the properties. */
+    private void setLastRun(final Properties javaProperties) {
+        javaProperties.setProperty(
+            ModelConstants.Preferences.Properties.LAST_RUN,
+            String.valueOf(System.currentTimeMillis()));
+    }
 }

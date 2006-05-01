@@ -24,11 +24,11 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.index.lucene.DocumentBuilder;
 import com.thinkparity.model.parity.model.index.lucene.FieldBuilder;
 import com.thinkparity.model.parity.model.index.lucene.QueryHit;
 import com.thinkparity.model.parity.model.index.lucene.Searcher;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -127,8 +127,8 @@ class IndexModelImpl extends AbstractModelImpl {
 		}
 		logger.debug("[LMODEL] [INDEX] [CREATE DOCUMENT INDEX] [DOCUMENT NAME VALUE] [" + documentNameValue + "]");
 
-		final InternalSessionModel iSModel = getInternalSessionModel();
-		final Set<User> documentTeam = iSModel.readArtifactTeam(documentId);
+		final InternalArtifactModel iAModel = getInternalArtifactModel();
+		final Set<User> documentTeam = iAModel.readTeam(documentId);
 
 		final DocumentBuilder db = new DocumentBuilder(6);
 		db.append(IDX_ARTIFACT_ID.setValue(documentId).toField())

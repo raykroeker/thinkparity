@@ -4,11 +4,13 @@
 package com.thinkparity.model.parity.model.artifact;
 
 import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -129,6 +131,17 @@ public class ArtifactModel extends AbstractModel {
 			throws ParityException {
 		synchronized(implLock) { return impl.readKeyRequests(documentId); }
 	}
+
+    /**
+     * Read the team for the artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return The artifact team.
+     */
+    public Set<User> readTeam(final Long artifactId) {
+        synchronized(getImplLock()) { return getImpl().readTeam(artifactId); }
+    }
 
 	/**
 	 * Remove the seen flag from the artifact.

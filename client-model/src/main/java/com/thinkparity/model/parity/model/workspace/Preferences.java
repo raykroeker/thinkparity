@@ -29,6 +29,8 @@ public interface Preferences {
 
 	public String getUsername();
 
+    public Long getLastRun();
+
 	public Boolean isSetArchiveOutputDirectory();
 
 	public Boolean isSetLocale();

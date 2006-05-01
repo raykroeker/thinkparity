@@ -5,12 +5,14 @@ package com.thinkparity.model.parity.model.artifact;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -31,11 +33,27 @@ public class InternalArtifactModel extends ArtifactModel {
 		context.assertContextIsValid();
 	}
 
+	/**
+     * Add a team member to the artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param jabberId
+     *            The jabber id.
+     * @throws ParityException
+     */
+    public void addTeamMember(final Long artifactId, final JabberId jabberId)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().addTeamMember(artifactId, jabberId);
+        }
+    }
+
 	public void applyFlagKey(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().applyFlagKey(artifactId); }
 	}
 
-	/**
+    /**
      * Audit the confirmation receipt of the artifact.
      * 
      * @param artifactId
@@ -74,7 +92,7 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-    /**
+	/**
      * Confirm the reciept of an artifact.
      * 
      * @param receivedFrom
@@ -133,9 +151,24 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-	public void removeFlagKey(final Long artifactId) {
+    public void removeFlagKey(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
 	}
+
+    /**
+     * Remove a team member from the artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param jabberId
+     *            The jabber id.
+     * @throws ParityException
+     */
+    public void removeTeamMember(final Long artifactId, final JabberId jabberId) {
+        synchronized(getImplLock()) {
+            getImpl().removeTeamMember(artifactId, jabberId);
+        }
+    }
 
     /**
      * Update the artifact's remote info.

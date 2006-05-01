@@ -120,7 +120,19 @@ public class UserIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    private User extractUser(final Session session) {
+    /**
+     * Extract a user from a database session.  The fields required are:<ul>
+     * <li>FIRST_NAME - <code>java.lang.String</code>
+     * <li>JABBER_ID - <code>com.thinkparity.model.xmpp.JabberId</code>
+     * <li>LAST_NAME - <code>java.lang.String</code>
+     * <li>USER_ID - <code>java.lang.Long</code>
+     * <li>ORGANIZATION - <code>java.lang.String</code></ul>
+     * 
+     * @param session
+     *            The database session.
+     * @return A user.
+     */
+    User extractUser(final Session session) {
         final User u = new User();
         u.setFirstName(session.getString("FIRST_NAME"));
         u.setId(session.getQualifiedUsername("JABBER_ID"));

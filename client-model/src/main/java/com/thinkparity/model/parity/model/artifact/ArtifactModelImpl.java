@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.artifact;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.TrueAssertion;
@@ -20,9 +21,11 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.KeyResponse;
+import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -251,6 +254,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return requests;
 	}
 
+    /**
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return The artifact team.
+     */
+    Set<User> readTeam(final Long artifactId) {
+        logger.info("[LMODEL] [ARTIFACT] [READ TEAM]");
+        return artifactIO.readTeamRel(artifactId);
+    }
+
 	/**
 	 * Remove the key flag.
 	 * 
@@ -355,4 +370,25 @@ class ArtifactModelImpl extends AbstractModelImpl {
 					+ "] has no flag [" + flag + "].");
 		}
 	}
+
+    void addTeamMember(final Long artifactId, final JabberId jabberId) throws ParityException {
+        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
+        logger.debug(artifactId);
+        logger.debug(jabberId);
+        final InternalUserModel iUModel = getInternalUserModel();
+        User user = iUModel.read(jabberId);
+        if(null == user) { user = iUModel.create(jabberId); }
+
+        artifactIO.createTeamRel(artifactId, user.getLocalId());
+    }
+
+    void removeTeamMember(final Long artifactId, final JabberId jabberId) {
+        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
+        logger.debug(artifactId);
+        logger.debug(jabberId);
+        final InternalUserModel iUModel = getInternalUserModel();
+        final User user = iUModel.read(jabberId);
+
+        artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+    }
 }

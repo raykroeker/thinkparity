@@ -17,8 +17,11 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
+import com.thinkparity.browser.platform.Platform.Connection;
 
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.xmpp.JabberId;
@@ -34,6 +37,9 @@ public class PopupDocument implements Popup {
         com.thinkparity.browser.application.browser.component.MenuItemFactory.create("", 0);
     }
 
+    /** The connection status. */
+    private final Connection connection;
+
     /** The document main cell. */
     private final MainCellDocument document;
 
@@ -46,8 +52,9 @@ public class PopupDocument implements Popup {
      * @param document
      *            The document main cell.
      */
-    public PopupDocument(final MainCellDocument document) {
+    public PopupDocument(final MainCellDocument document, final Connection connection) {
         super();
+        this.connection = connection;
         this.document = document;
         this.l18n = new PopupL18n("DocumentListItem");
     }
@@ -57,6 +64,22 @@ public class PopupDocument implements Popup {
      * 
      */
     public void trigger(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
+        if(Connection.ONLINE == connection) { triggerOnline(application, jPopupMenu, e); }
+        else if(Connection.OFFLINE == connection) { triggerOffline(application, jPopupMenu, e); }
+        else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [DOCUMENT POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]"); }
+    }
+
+    /**
+     * Trigger a document popup when the user is online.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The popup menu to populate.
+     * @param e
+     *      The source mouse event
+     */
+    private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         if(document.isUrgent()) {
             final List<KeyRequest> keyRequests = document.getKeyRequests();
             if(keyRequests.size() >= 1) {
@@ -114,6 +137,20 @@ public class PopupDocument implements Popup {
             jPopupMenu.add(idJMenuItem);
             jPopupMenu.add(uidJMenuItem);
         }
+    }
+
+    /**
+     * Trigger a document popup when the user is offline.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The popup menu to populate.
+     * @param e
+     *      The source mouse event
+     */
+    private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
+        jPopupMenu.add(new Open(application));
     }
 
     /**

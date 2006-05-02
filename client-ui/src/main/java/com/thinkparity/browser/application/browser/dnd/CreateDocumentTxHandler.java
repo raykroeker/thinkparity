@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.javax.swing.dnd.TxUtils;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
@@ -65,8 +66,13 @@ public class CreateDocumentTxHandler extends TransferHandler {
      */
     public boolean canImport(final JComponent comp,
             final DataFlavor[] transferFlavors) {
+        logger.info("[LBROWSER] [APPLICATION] [BROWSER] [DND] [CREATE TX] [CAN IMPORT]");
         logger.debug(comp.getClass().getSimpleName());
-        if(TxUtils.containsJavaFileList(transferFlavors)) { return true; }
+        if(TxUtils.containsJavaFileList(transferFlavors)) {
+            if(Connection.ONLINE == browser.getConnectionStatus()) {
+                return true;
+            }
+        }
         return false;
     }
 

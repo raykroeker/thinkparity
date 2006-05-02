@@ -8,11 +8,16 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 
+import org.apache.log4j.Logger;
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
 
 import com.thinkparity.browser.application.system.SystemApplication;
+import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -42,6 +47,9 @@ public class Tray {
     /** The system tray icon. */
 	private TrayIcon systemTrayIcon;
 
+    /** An apache logger. */
+    protected final Logger logger;
+
     /**
 	 * Create a Tray.
 	 * 
@@ -50,6 +58,7 @@ public class Tray {
 	 */
 	public Tray(final SystemApplication systemApplication) {
 		super();
+        this.logger = LoggerFactory.getLogger(getClass());
         this.menuBuilder = new TrayMenuBuilder(systemApplication);
 		this.isInstalled = Boolean.FALSE;
 		this.systemApplication = systemApplication;
@@ -84,28 +93,39 @@ public class Tray {
 		systemTray.addTrayIcon(systemTrayIcon);
 		isInstalled = Boolean.TRUE;
 
-        updateMenu();
-	}                                                                   
-
-    /** Update the menu for the system tray. */
-    public void updateMenu() { updateMenu(systemApplication.isOnline()); }
+        reloadConnectionStatus(systemApplication.getConnectionStatus());
+	}
 
     /**
-     * Update the menu for the system tray.
+     * Reload the connection information.
      *
-     * @param isOnline
-     *      A flag indicating whether or not the application is
-     *      online.
+     * @param cx
+     *      The platform connection.
      */
-    public void updateMenu(final Boolean isOnline) {
-        if(isOnline) {
-            menuBuilder.login.setEnabled(false);
-            menuBuilder.logout.setEnabled(true);
-        }
-        else {
-            menuBuilder.login.setEnabled(true);
-            menuBuilder.logout.setEnabled(false);
-        }
+    public void reloadConnectionStatus(final Platform.Connection cx) {
+        logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [RELOAD CONNECTION]");
+        logger.debug(cx);
+        if(Platform.Connection.OFFLINE == cx) { updateMenuOffline(); }
+        else if(Platform.Connection.ONLINE == cx) { updateMenuOnline(); }
+        else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [RELOAD CONNECTION]"); }
+    }
+
+    /** Update the offline menu. */
+    private void updateMenuOffline() {
+        logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [UPDATE MENU OFFLINE]");
+        menuBuilder.editProfile.setEnabled(false);
+        menuBuilder.logout.setEnabled(false);
+
+        menuBuilder.login.setEnabled(true);
+    }
+
+    /** Update the online menu. */
+    private void updateMenuOnline() {
+        logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [UPDATE MENU ONLINE]");
+        menuBuilder.editProfile.setEnabled(true);
+        menuBuilder.logout.setEnabled(true);
+
+        menuBuilder.login.setEnabled(false);
     }
 
     /** Uninstall the system tray. */

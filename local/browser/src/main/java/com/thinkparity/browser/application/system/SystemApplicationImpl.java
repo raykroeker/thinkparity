@@ -9,8 +9,7 @@ import java.util.List;
 
 import com.thinkparity.browser.application.system.tray.Tray;
 import com.thinkparity.browser.application.system.tray.TrayNotification;
-
-
+import com.thinkparity.browser.platform.Platform;
 
 /**
  * @author raykroeker@gmail.com
@@ -125,13 +124,8 @@ class SystemApplicationImpl extends Thread {
 	}
 
     /** Set the menu for the system tray. */
-    void fireUpdateTrayMenu() {
-        synchronized(this) { sysTray.updateMenu(); }
-    }
-
-    /** Set the menu for the system tray. */
-    void fireUpdateTrayMenu(final Boolean isOnline) {
-        synchronized(this) { sysTray.updateMenu(isOnline); }
+    void reloadConnectionStatus(final Platform.Connection cx) {
+        synchronized(this) { sysTray.reloadConnectionStatus(cx); }
     }
 
 	/**

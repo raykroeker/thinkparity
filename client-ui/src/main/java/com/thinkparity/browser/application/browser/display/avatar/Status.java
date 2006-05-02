@@ -151,9 +151,9 @@ public class Status extends Avatar {
         javax.swing.JLabel separator1JLabel;
         javax.swing.JLabel separator2JLabel;
 
-        connectionJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.SmallFont);
+        connectionJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.StatusBar);
         separator1JLabel = new javax.swing.JLabel();
-        filterJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.SmallFont);
+        filterJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.StatusBar);
         separator2JLabel = new javax.swing.JLabel();
         customJLabel = LabelFactory.create(getString("Empty"), BrowserConstants.Fonts.SmallFont);
 

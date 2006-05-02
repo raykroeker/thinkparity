@@ -88,11 +88,7 @@ public class BrowserTitleAvatar extends BrowserAvatar {
      *            The connection status.
      */
     public void reloadConnectionStatus(final Connection connection) {
-        if(connection == Connection.OFFLINE) {
-            buttonPanel.reloadConnectionStatus(connection);
-        }
-        else if(connection == Connection.ONLINE) {}
-        else { Assert.assertUnreachable(""); }
+        buttonPanel.reloadConnectionStatus(connection);
     }
 
 	/**

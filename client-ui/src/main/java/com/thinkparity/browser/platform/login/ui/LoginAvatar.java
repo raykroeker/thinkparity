@@ -59,9 +59,7 @@ public class LoginAvatar extends Avatar {
 		return Boolean.TRUE;
 	}
 
-	public Boolean extractSavePassword() {
-		return SwingUtil.extract(savePasswordJCheckBox);
-	}
+	public Boolean extractSavePassword() { return Boolean.FALSE; }
 
 	public String extractPassword() {
 		return SwingUtil.extract(passwordJPasswordField);
@@ -90,7 +88,7 @@ public class LoginAvatar extends Avatar {
 		}
 		else { usernameJTextField.setEnabled(true); }
 		if(containsErrors()) {
-			infoJLabel.setText(extractErrorMessage());
+			//infoJLabel.setText(extractErrorMessage());
 			clearErrors();
 		}
 	}
@@ -116,7 +114,9 @@ public class LoginAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         javax.swing.JButton cancelJButton;
+        java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JButton loginJButton;
+        javax.swing.JLabel paddingJLabel;
         javax.swing.JLabel passwordJLabel;
         javax.swing.JLabel usernameJLabel;
 
@@ -124,10 +124,23 @@ public class LoginAvatar extends Avatar {
         usernameJTextField = TextFactory.create();
         passwordJLabel = LabelFactory.create(getString("PasswordLabel"));
         passwordJPasswordField = TextFactory.createPassword();
-        savePasswordJCheckBox = CheckBoxFactory.create(getString("SavePasswordCheckBox"));
         loginJButton = ButtonFactory.create(getString("LoginButton"));
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
-        infoJLabel = LabelFactory.create();
+        paddingJLabel = new javax.swing.JLabel();
+
+        setLayout(new java.awt.GridBagLayout());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(22, 11, 3, 3);
+        add(usernameJLabel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(22, 3, 3, 22);
+        add(usernameJTextField, gridBagConstraints);
 
         passwordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -135,15 +148,26 @@ public class LoginAvatar extends Avatar {
             }
         });
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(3, 11, 0, 3);
+        add(passwordJLabel, gridBagConstraints);
+
         passwordJPasswordField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 passwordJPasswordFieldActionPerformed(e);
             }
         });
 
-        savePasswordJCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        savePasswordJCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        savePasswordJCheckBox.setOpaque(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(3, 3, 0, 22);
+        add(passwordJPasswordField, gridBagConstraints);
 
         loginJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -151,56 +175,36 @@ public class LoginAvatar extends Avatar {
             }
         });
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 3);
+        add(loginJButton, gridBagConstraints);
+
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 cancelJButtonActionPerformed(e);
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(usernameJLabel)
-                            .add(passwordJLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(savePasswordJCheckBox)
-                            .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE)
-                            .add(usernameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE)))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(cancelJButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(loginJButton))
-                    .add(infoJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(usernameJLabel)
-                    .add(usernameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordJLabel)
-                    .add(passwordJPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(savePasswordJCheckBox)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(infoJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(loginJButton)
-                    .add(cancelJButton))
-                .addContainerGap())
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(11, 3, 0, 22);
+        add(cancelJButton, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(paddingJLabel, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void passwordJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_passwordJLabelMouseClicked
@@ -222,7 +226,7 @@ public class LoginAvatar extends Avatar {
 	    if(isInputValid()) { SwingUtilities.getWindowAncestor(this).dispose(); }
 	}//GEN-LAST:event_loginJButtonActionPerformed
 
-	private void hideConnectionInfo() { infoJLabel.setText(""); }
+	private void hideConnectionInfo() { /*infoJLabel.setText("");*/ }
 
 	private void showConnectionInfo() {
 		final StringBuffer buffer =
@@ -235,7 +239,7 @@ public class LoginAvatar extends Avatar {
             .append(com.thinkparity.browser.Version.getBuildId())
             .append(" ")
             .append(com.thinkparity.browser.Version.getMode());
-		infoJLabel.setText(buffer.toString());
+		//infoJLabel.setText(buffer.toString());
 		final javax.swing.Timer timer = new javax.swing.Timer(3 * 1000, new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				hideConnectionInfo();
@@ -246,9 +250,7 @@ public class LoginAvatar extends Avatar {
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel infoJLabel;
     private javax.swing.JPasswordField passwordJPasswordField;
-    private javax.swing.JCheckBox savePasswordJCheckBox;
     private javax.swing.JTextField usernameJTextField;
     // End of variables declaration//GEN-END:variables
 }

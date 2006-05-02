@@ -12,9 +12,12 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
+import com.thinkparity.browser.platform.Platform.Connection;
 
 import com.thinkparity.model.xmpp.user.User;
 
@@ -24,6 +27,9 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class PopupHistoryItem implements Popup {
 
+    /** The connection status. */
+    private final Connection connection;
+
     /** The history item. */
     private final MainCellHistoryItem historyItem;
 
@@ -31,8 +37,9 @@ public class PopupHistoryItem implements Popup {
     private final PopupL18n l18n;
 
     /** Create a PopupHistoryItem. */
-    public PopupHistoryItem(final MainCellHistoryItem historyItem) {
+    public PopupHistoryItem(final MainCellHistoryItem historyItem, final Connection connection) {
         super();
+        this.connection = connection;
         this.historyItem = historyItem;
         this.l18n = new PopupL18n("HistoryListItem");
     }
@@ -41,6 +48,38 @@ public class PopupHistoryItem implements Popup {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.popup.Popup#trigger(com.thinkparity.browser.application.browser.Browser, javax.swing.JPopupMenu, java.awt.event.MouseEvent)
      */
     public void trigger(final Browser application, final JPopupMenu jPopupMenu,
+            final MouseEvent e) {
+        if(Connection.ONLINE == connection) { triggerOnline(application, jPopupMenu, e); }
+        else if(Connection.OFFLINE == connection) { triggerOffline(application, jPopupMenu, e); }
+        else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [HISTORY ITEM POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]"); }
+    }
+
+    /**
+     * Trigger the history item popup when offline.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The JPopupMenu to populate.
+     * @param e
+     *      The source event.
+     */
+    private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu,
+            final MouseEvent e) {
+        jPopupMenu.add(new OpenVersion(application));
+    }
+
+    /**
+     * Trigger the history item popup when online.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The JPopupMenu to populate.
+     * @param e
+     *      The source event.
+     */
+    private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu,
             final MouseEvent e) {
         if(historyItem.isSetVersionId()) {
             jPopupMenu.add(new OpenVersion(application));

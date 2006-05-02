@@ -20,6 +20,7 @@ import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.javax.swing.dnd.TxUtils;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
@@ -84,7 +85,11 @@ public class UpdateDocumentTxHandler extends TransferHandler {
         // when updating a document; only 1 file must be imported
         if(1 == transferFlavors.length) {
             if(TxUtils.containsJavaFileList(transferFlavors)) {
-                if(!jList.isSelectionEmpty()) { return true; }
+                if(!jList.isSelectionEmpty()) {
+                    if(Connection.ONLINE == application.getConnectionStatus()) {
+                        return true;
+                    }
+                }
             }
         }
         return false;

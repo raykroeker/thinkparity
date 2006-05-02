@@ -429,6 +429,7 @@ public class Browser extends AbstractApplication {
     public void fireSessionEstablished() {
         getStatusAvatar().reloadStatusMessage(
                 Status.Area.CONNECTION, "ConnectionOnline");
+        getTitleAvatar().reloadConnectionStatus(Connection.ONLINE);
     }
 
     /** Notify the session has been terminated. */

@@ -44,7 +44,7 @@ class WindowSize {
 		// DIMENSION Send Version Window 405x308
 		sizeMap.put(AvatarId.SESSION_SEND_VERSION, new Dimension(405, 308));
 		// DIMENSION Platform Login Window 385x173
-		sizeMap.put(AvatarId.PLATFORM_LOGIN, new Dimension(385, 173));
+		sizeMap.put(AvatarId.PLATFORM_LOGIN, new Dimension(358, 129));
 
 		// DIMENSION Invite Partner Dialogue 520x330
 		sizeMap.put(AvatarId.SESSION_INVITE_PARTNER, new Dimension(520, 330));

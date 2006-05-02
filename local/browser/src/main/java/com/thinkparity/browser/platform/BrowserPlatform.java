@@ -234,6 +234,8 @@ public class BrowserPlatform implements Platform {
         if(!isFirstRun()) { firstRun(); }
 	    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
 	    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
+        // login after the browser is launched
+        if(!isLoggedIn()) { login(); }
 	}
 
     /**

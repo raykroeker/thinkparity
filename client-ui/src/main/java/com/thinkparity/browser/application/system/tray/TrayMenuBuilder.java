@@ -26,31 +26,59 @@ class TrayMenuBuilder {
     /** System application. */
     private final SystemApplication application;
 
+    /** The about action. */
+    final Action about;
+
+    /** The browser action. */
+    final Action browser;
+
+    /** The edit profile action. */
+    final Action editProfile;
+
+    /** The exit action. */
+    final Action exit;
+
+    /** The login action. */
     final Action login;
 
+    /** The logout action. */
     final Action logout;
 
     /** Create a TrayMenuBuilder. */
     TrayMenuBuilder(final SystemApplication application) {
         super();
         this.application = application;
-        this.login = new AbstractAction(getString("Menu.Login")) {
-
+        this.about = new AbstractAction(getString("Menu.About")) {
             private static final long serialVersionUID = 1;
-
+            public void actionPerformed(final ActionEvent e) {
+                application.displayAbout();
+            }};
+        this.browser = new AbstractAction(getString("Menu.Browser")) {
+            private static final long serialVersionUID = 1;
+            public void actionPerformed(final ActionEvent e) {
+                application.runRestoreBrowser();
+            }};
+        this.editProfile = new AbstractAction(getString("Menu.EditProfile")) {
+            private static final long serialVersionUID = 1;
+            public void actionPerformed(final ActionEvent e) {
+            }};
+        this.exit = new AbstractAction(getString("Menu.Exit")) {
+            private static final long serialVersionUID = 1;
+            public void actionPerformed(final ActionEvent e) {
+                application.runExitPlatform();
+            }};
+        this.editProfile.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.EditProfileMnemonic").charAt(0)));
+        this.login = new AbstractAction(getString("Menu.Login")) {
+            private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
                 application.runLogin();
-            }
-        };
+            }};
         this.login.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.LoginMnemonic").charAt(0)));
         this.logout = new AbstractAction(getString("Menu.Logout")) {
-
             private static final long serialVersionUID = 1;
-
             public void actionPerformed(final ActionEvent e) {
                 application.runLogout();
-            }
-        };
+            }};
         this.logout.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.LogoutMnemonic").charAt(0)));
     }
 
@@ -61,30 +89,14 @@ class TrayMenuBuilder {
      */
     JPopupMenu createPopup() {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        jPopupMenu.add(createMenuItem(
-                "Menu.Browser",
-                new ActionListener() {
-                    public void actionPerformed(final ActionEvent e) {
-                        application.runRestoreBrowser();
-                    }}));
+        jPopupMenu.add(browser);
+        jPopupMenu.add(editProfile);
         jPopupMenu.addSeparator();
         jPopupMenu.add(login);
         jPopupMenu.add(logout);
-        jPopupMenu.add(createMenuItem(
-                "Menu.About",
-                new ActionListener() {
-                    public void actionPerformed(final ActionEvent e) {
-                        application.displayAbout();
-                    }
-                }));
+        jPopupMenu.add(about);
         jPopupMenu.addSeparator();
-        jPopupMenu.add(createMenuItem(
-                "Menu.Exit",
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        application.runExitPlatform();
-                    }
-                }));
+        jPopupMenu.add(exit);
 
         return jPopupMenu;
     }

@@ -51,18 +51,22 @@ public final class BrowserConstants {
     /** Browser Fonts */
     public static final class Fonts {
 
-        private static final String FONT_NAME = "MyriadWeb.ttf";
+        private static final String FONT_NAME = "Lucida Grande.ttf";
 
         /** The default font. */
         public static final Font DefaultFont =
-            FontIOUtil.derive(FONT_NAME, 12.0F);
+            FontIOUtil.derive(FONT_NAME, 11.0F);
 
         /** The default bold font. */
         public static final Font DefaultFontBold =
-            FontIOUtil.derive(FONT_NAME, 12.0F, Font.BOLD);
+            FontIOUtil.derive(FONT_NAME, 11.0F, Font.BOLD);
 
         /** The small font. */
         public static final Font SmallFont =
-            FontIOUtil.derive(FONT_NAME, 10.0F, Font.PLAIN);
+            FontIOUtil.derive(FONT_NAME, 10.0F);
+
+        /** The status bar font. */
+        public static final Font StatusBar =
+            FontIOUtil.derive(FONT_NAME, 11.0F);
     }
 }

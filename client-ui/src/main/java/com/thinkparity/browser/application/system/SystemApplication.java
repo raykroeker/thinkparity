@@ -287,9 +287,15 @@ public class SystemApplication extends AbstractApplication {
                 new Object[] {document.getName()}));
     }
 
-    void fireSessionEstablished() { impl.fireUpdateTrayMenu(Boolean.TRUE); }
+    /** Notify the session has been established. */
+    void fireSessionEstablished() {
+        impl.reloadConnectionStatus(Platform.Connection.ONLINE);
+    }
 
-    void fireSessionTerminated() { impl.fireUpdateTrayMenu(Boolean.FALSE); }
+    /** Notify the session has been terminated. */
+    void fireSessionTerminated() {
+        impl.reloadConnectionStatus(Platform.Connection.OFFLINE);
+    }
 
     /**
      * Notify a system message has been created.

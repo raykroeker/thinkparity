@@ -38,7 +38,7 @@ public class BrowserPlatformPersistence {
 	 * 
 	 * @return True if it is set; false otherwise.
 	 */
-	public Boolean isSetAutoLogin() {
+	public Boolean doAutoLogin() {
 		return persistence.get("autoLogin", Boolean.FALSE);
 	}
 
@@ -48,9 +48,7 @@ public class BrowserPlatformPersistence {
 	 * @param password
 	 *            The password to auto-login with.
 	 */
-	public void setAutoLogin(final String password) {
-		persistence.set("autoLogin", Boolean.TRUE);
-		platform.getPreferences().clearPassword();
-		platform.getPreferences().setPassword(password);
+	public void setAutoLogin(final Boolean autoLogin) {
+		persistence.set("autoLogin", autoLogin);
 	}
 }

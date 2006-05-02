@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -28,6 +29,9 @@ class TrayMenuBuilder {
 
     /** The about action. */
     final Action about;
+
+    /** The auto-login action. */
+    final Action autoLogin;
 
     /** The browser action. */
     final Action browser;
@@ -53,27 +57,42 @@ class TrayMenuBuilder {
             public void actionPerformed(final ActionEvent e) {
                 application.displayAbout();
             }};
+        this.about.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.AboutMnemonic").charAt(0)));
+
+        this.autoLogin = new AbstractAction(getString("Menu.AutoLogin")) {
+            private static final long serialVersionUID = 1;
+            public void actionPerformed(final ActionEvent e) {
+                application.setAutoLogin(((JCheckBoxMenuItem) e.getSource()).isSelected());
+            }};
+        this.autoLogin.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.AutoLoginMnemonic").charAt(0)));
+
         this.browser = new AbstractAction(getString("Menu.Browser")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
                 application.runRestoreBrowser();
             }};
+        this.browser.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.BrowserMnemonic").charAt(0)));
+            
         this.editProfile = new AbstractAction(getString("Menu.EditProfile")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
             }};
+        this.editProfile.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.EditProfileMnemonic").charAt(0)));
+
         this.exit = new AbstractAction(getString("Menu.Exit")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
                 application.runExitPlatform();
             }};
-        this.editProfile.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.EditProfileMnemonic").charAt(0)));
+        this.exit.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.ExitMnemonic").charAt(0)));
+
         this.login = new AbstractAction(getString("Menu.Login")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
                 application.runLogin();
             }};
         this.login.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.LoginMnemonic").charAt(0)));
+
         this.logout = new AbstractAction(getString("Menu.Logout")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
@@ -93,6 +112,9 @@ class TrayMenuBuilder {
         jPopupMenu.add(editProfile);
         jPopupMenu.addSeparator();
         jPopupMenu.add(login);
+        final JCheckBoxMenuItem jCheckBoxMenuItem = new JCheckBoxMenuItem(autoLogin);
+        jCheckBoxMenuItem.setSelected(application.doAutoLogin());
+        jPopupMenu.add(jCheckBoxMenuItem);
         jPopupMenu.add(logout);
         jPopupMenu.add(about);
         jPopupMenu.addSeparator();

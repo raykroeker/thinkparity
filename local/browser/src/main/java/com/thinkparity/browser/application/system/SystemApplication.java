@@ -193,6 +193,25 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Set the auto login preference.
+     *
+     * @param autoLogin
+     *      True to auto login; false to manually login.
+     */
+    public void setAutoLogin(final Boolean autoLogin) {
+        getPlatform().getPersistence().setAutoLogin(autoLogin);
+    }
+
+    /**
+     * Get the auto login preference.
+     *
+     * @return True if auto login is set; false otherwise.
+     */
+    public Boolean doAutoLogin() {
+        return getPlatform().getPersistence().doAutoLogin();
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */

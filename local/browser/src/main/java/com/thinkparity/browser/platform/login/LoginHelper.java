@@ -71,7 +71,7 @@ public class LoginHelper {
 	 * 
 	 */
 	public void login() {
-		if(isSetAutoLogin()) { autoLogin(); }
+		if(doAutoLogin()) { autoLogin(); }
 		else { manualLogin(); }
 	}
 
@@ -81,7 +81,7 @@ public class LoginHelper {
 	 */
 	private void autoLogin() {
 		login(platform.getPreferences().getUsername(),
-				platform.getPreferences().getPassword(), Boolean.TRUE); 
+				platform.getPreferences().getPassword()); 
 	}
 
 	/**
@@ -115,8 +115,9 @@ public class LoginHelper {
 	 * 
 	 * @return Return true if auto-login is set; false otherwise.
 	 */
-	private Boolean isSetAutoLogin() {
-		return platform.getPersistence().isSetAutoLogin();
+	private Boolean doAutoLogin() {
+		return platform.getPersistence().doAutoLogin() &&
+                platform.getPreferences().isSetPassword();
 	}
 
 	/**
@@ -126,15 +127,17 @@ public class LoginHelper {
 	 *            The username.
 	 * @param password
 	 *            The password.
-	 * @param savePassword
+	 * @param doAutoLogin
 	 *            The savePassword flag.
 	 */
-	private void login(final String username, final String password,
-			final Boolean savePassword) {
+	private void login(final String username, final String password) {
 		try {
-			sessionModel.login(username, password);
-			if(savePassword) { platform.getPersistence().setAutoLogin(password); }
-		}
+            platform.getPreferences().clearPassword();
+            sessionModel.login(username, password);
+            if(platform.getPersistence().doAutoLogin()) {
+                platform.getPreferences().setPassword(password);
+            }
+        }
 		catch(final ParityException px) {
 			platform.getLogger(getClass()).error("Could not login.", px);
 		}
@@ -164,8 +167,7 @@ public class LoginHelper {
 		if(loginAvatar.isInputValid()) {
 			final String username = loginAvatar.extractUsername();
 			final String password = loginAvatar.extractPassword();
-			final Boolean savePassword = loginAvatar.extractSavePassword();
-			login(username, password, savePassword);
+			login(username, password);
 		}
 	}
 }

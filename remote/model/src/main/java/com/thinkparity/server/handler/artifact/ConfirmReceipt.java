@@ -1,5 +1,6 @@
 /*
- * Apr 8, 2006
+ * Created On: Apr 8, 2006
+ * $Id$
  */
 package com.thinkparity.server.handler.artifact;
 
@@ -33,7 +34,7 @@ public class ConfirmReceipt extends IQHandler {
             throws ParityServerModelException, UnauthorizedException {
         logger.info("[RMODEL] [ARTIFACT] [CONFIRM RECEIPT]");
         final ArtifactModel artifactModel = getArtifactModel(session);
-        artifactModel.confirmReceipt(extractUniqueId(iq), extractJabberId(iq));
+        artifactModel.confirmReceipt(extractUniqueId(iq), extractVersionId(iq), extractJabberId(iq));
         return createResult(iq);
     }
 }

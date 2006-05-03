@@ -1,5 +1,6 @@
 /*
- * Nov 29, 2005
+ * Created On: Nov 29, 2005
+ * $Id$
  */
 package com.thinkparity.server.model.artifact;
 
@@ -80,13 +81,17 @@ public class ArtifactModel extends AbstractModel {
      * 
      * @param uniqueId
      *            The artifact unique id.
+     * @param versionId
+     *            The artifact version id.
      * @param receivedFrom
      *            The original sender of the artifact.
      * @throws ParityServerModelException
      */
-    public void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom)
-            throws ParityServerModelException {
-        synchronized(implLock) { impl.confirmReceipt(uniqueId, receivedFrom); }
+    public void confirmReceipt(final UUID uniqueId, final Long versionId,
+            final JabberId receivedFrom) throws ParityServerModelException {
+        synchronized(implLock) {
+            impl.confirmReceipt(uniqueId, versionId, receivedFrom);
+        }
     }
 
     /**

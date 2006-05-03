@@ -1,5 +1,6 @@
 /*
- * Nov 29, 2005
+ * Created On: Nov 29, 2005
+ * $Id$
  */
 package com.thinkparity.server.model.artifact;
 
@@ -198,14 +199,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The original sender of the document.
      * @throws ParityServerModelException
      */
-	void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom)
-            throws ParityServerModelException {
+	void confirmReceipt(final UUID uniqueId, final Long versionId,
+            final JabberId receivedFrom) throws ParityServerModelException {
 	    logger.info("[RMODEL] [ARTIFACT] [CONFIRM RECEIPT]");
         logger.debug(uniqueId);
+        logger.debug(versionId);
         logger.debug(receivedFrom);
 
         final IQConfirmReceipt iq = new IQConfirmReceipt();
         iq.setUniqueId(uniqueId);
+        iq.setVersionId(versionId);
         iq.setConfirmedBy(session.getJabberId());
         iq.setFrom(session.getJID());
         iq.setTo(receivedFrom.getJID());

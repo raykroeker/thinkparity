@@ -1,5 +1,6 @@
 /*
- * Apr 17, 2006
+ * Created On: Apr 17, 2006
+ * $Id$
  */
 package com.thinkparity.browser.application.browser.display.avatar.main.popup;
 
@@ -81,18 +82,7 @@ public class PopupHistoryItem implements Popup {
      */
     private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu,
             final MouseEvent e) {
-        if(historyItem.isSetVersionId()) {
-            jPopupMenu.add(new OpenVersion(application));
-            if(!historyItem.getDocument().isClosed()) {
-                final Set<User> team = historyItem.getDocumentTeam();
-                if(0 < team.size()) {
-                    final JMenu jMenu = MenuFactory.create(getString("SendVersion"));
-                    for(final User teamMember : team)
-                        jMenu.add(new Send(application, teamMember));
-                    jPopupMenu.add(jMenu);
-                }
-            }
-        }
+        jPopupMenu.add(new OpenVersion(application));
     }
 
     /**
@@ -136,24 +126,6 @@ public class PopupHistoryItem implements Popup {
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runOpenDocumentVersion(historyItem.getDocumentId(), historyItem.getVersionId());
-                }
-            });
-        }
-    }
-
-    /** A send {@link JMenuItem}. */
-    private class Send extends JMenuItem {
-
-        /** @see java.io.Serializable */
-        private static final long serialVersionUID = 1;
-
-        private Send(final Browser application, final User teamMember) {
-            super(getString("SendVersion.TeamMember", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}), getString("SendVersion.TeamMemberMnemonic", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}).charAt(0));
-            addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    application.runSendArtifactVersion(
-                            historyItem.getDocumentId(),
-                            teamMember, historyItem.getVersionId());
                 }
             });
         }

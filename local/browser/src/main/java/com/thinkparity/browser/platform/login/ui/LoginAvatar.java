@@ -5,14 +5,10 @@
  */
 package com.thinkparity.browser.platform.login.ui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
-import com.thinkparity.browser.application.browser.component.CheckBoxFactory;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
@@ -87,23 +83,11 @@ public class LoginAvatar extends Avatar {
 			usernameJTextField.setEnabled(false);
 		}
 		else { usernameJTextField.setEnabled(true); }
+        passwordJPasswordField.setText("");
 		if(containsErrors()) {
 			//infoJLabel.setText(extractErrorMessage());
 			clearErrors();
 		}
-	}
-
-	/**
-	 * Extract an error message from the list of errors.
-	 * 
-	 * @return A localized error message.
-	 */
-	private String extractErrorMessage() {
-		final StringBuffer buffer = new StringBuffer();
-		for(final Throwable t : getErrors()) {
-			buffer.append(getString(t.getMessage()));
-		}
-		return buffer.toString();
 	}
 
 	/**
@@ -208,9 +192,6 @@ public class LoginAvatar extends Avatar {
     }// </editor-fold>//GEN-END:initComponents
 
     private void passwordJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_passwordJLabelMouseClicked
-    	if(2 == e.getClickCount()) {
-    		if(e.isShiftDown()) { showConnectionInfo(); }
-    	}
     }//GEN-LAST:event_passwordJLabelMouseClicked
 
 	private void passwordJPasswordFieldActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_passwordJPasswordFieldActionPerformed
@@ -225,29 +206,6 @@ public class LoginAvatar extends Avatar {
 	private void loginJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_loginJButtonActionPerformed
 	    if(isInputValid()) { SwingUtilities.getWindowAncestor(this).dispose(); }
 	}//GEN-LAST:event_loginJButtonActionPerformed
-
-	private void hideConnectionInfo() { /*infoJLabel.setText("");*/ }
-
-	private void showConnectionInfo() {
-		final StringBuffer buffer =
-			new StringBuffer(getPreferences().getServerHost())
-			.append(":")
-			.append(getPreferences().getServerPort())
-            .append(" ")
-            .append(com.thinkparity.browser.Version.getVersion())
-            .append(" ")
-            .append(com.thinkparity.browser.Version.getBuildId())
-            .append(" ")
-            .append(com.thinkparity.browser.Version.getMode());
-		//infoJLabel.setText(buffer.toString());
-		final javax.swing.Timer timer = new javax.swing.Timer(3 * 1000, new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				hideConnectionInfo();
-			}
-		});
-		timer.setRepeats(false);
-		timer.start();
-	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPasswordField passwordJPasswordField;

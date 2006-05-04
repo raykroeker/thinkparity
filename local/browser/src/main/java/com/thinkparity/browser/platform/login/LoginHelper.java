@@ -11,7 +11,6 @@ import com.thinkparity.browser.application.browser.window.WindowId;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
-import com.thinkparity.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.browser.platform.login.ui.LoginAvatar;
 
 import com.thinkparity.model.parity.ParityException;
@@ -42,20 +41,16 @@ public class LoginHelper {
 	private final SessionModel sessionModel;
 
 	/**
-	 * The window registry.
-	 * 
-	 */
-	private final WindowRegistry windowRegistry;
-
-	/**
 	 * Create a LoginHelper.
+     * 
+     * @param platform
+     *      The parity platform.
 	 */
 	public LoginHelper(final Platform platform) {
 		super();
 		this.platform = platform;
 		this.sessionModel = platform.getModelFactory().getSessionModel(getClass());
 		this.avatarRegistry = platform.getAvatarRegistry();
-		this.windowRegistry = platform.getWindowRegistry();
 	}
 
 	/**
@@ -95,19 +90,6 @@ public class LoginHelper {
 	private Avatar getAvatar(final AvatarId id) {
 		if(avatarRegistry.contains(id)) { return avatarRegistry.get(id); }
 		else { return AvatarFactory.create(AvatarId.PLATFORM_LOGIN); }
-	}
-
-	/**
-	 * Check the registry for the window; and if it does not yet exist; create
-	 * id.
-	 * 
-	 * @param id
-	 *            The window id.
-	 * @return The window.
-	 */
-	private Window getWindow(final WindowId id) {
-		if(windowRegistry.contains(id)) { return windowRegistry.get(id); }
-		else { return WindowFactory.create(id); }
 	}
 
 	/**
@@ -157,10 +139,11 @@ public class LoginHelper {
 	 *            The previous login error.
 	 */
 	private void manualLogin(final ParityException px) {
-		final Window window = getWindow(WindowId.PLATFORM_LOGIN);
+		final Window window = WindowFactory.create(WindowId.PLATFORM_LOGIN);
 
 		final LoginAvatar loginAvatar =
 			(LoginAvatar) getAvatar(AvatarId.PLATFORM_LOGIN);
+        loginAvatar.reload();
 
 		if(null != px) { loginAvatar.addError(px); }
         window.open(loginAvatar);

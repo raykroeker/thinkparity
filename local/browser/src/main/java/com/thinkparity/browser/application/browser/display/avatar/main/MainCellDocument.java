@@ -17,10 +17,12 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellI
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * An extension of a document that allows the {@link MainCellRenderer} to display
@@ -50,6 +52,9 @@ public class MainCellDocument extends Document implements MainCell {
     /** A flag indicating whether or not the document is closed. */
     private Boolean closed = Boolean.FALSE;
 
+    /** The parity document interface. */
+    private DocumentModel dModel;
+
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
 
@@ -71,7 +76,7 @@ public class MainCellDocument extends Document implements MainCell {
     /**
      * Create a MainCellDocument.
      */
-    public MainCellDocument(final Document d) {
+    public MainCellDocument(final Document d, final DocumentModel dModel) {
         super(d.getCreatedBy(), d.getCreatedOn(), d.getDescription(),
                 d.getFlags(), d.getUniqueId(), d.getName(), d.getUpdatedBy(),
                 d.getUpdatedOn());
@@ -80,6 +85,7 @@ public class MainCellDocument extends Document implements MainCell {
         setState(d.getState());
 
         this.closed = getState() == ArtifactState.CLOSED;
+        this.dModel = dModel;
         this.imageCache = new MainCellImageCache();
         this.keyHolder = contains(ArtifactFlag.KEY);
         this.keyRequests = new LinkedList<KeyRequest>();
@@ -273,5 +279,16 @@ public class MainCellDocument extends Document implements MainCell {
         urgent = keyRequests.size() > 0;
         this.keyRequests.clear();
         this.keyRequests.addAll(keyRequests);
+    }
+
+    /**
+     * Determine whether or not the working version has been modified.
+     *
+     * @return True if the working version has not been modified; false
+     * otherwise.
+     */
+    public Boolean isWorkingVersionEqual() {
+        try { return dModel.isWorkingVersionEqual(getId()); }
+        catch(final ParityException px) { throw new RuntimeException(px); }
     }
 }

@@ -16,8 +16,6 @@ import com.thinkparity.browser.application.browser.display.avatar.title.SearchPa
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.util.State;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 /**
  * The title avatar contains the {@link ButtonPanel} (contacts, minimize, close)
  * and the {@link SearchPanel} for the browser.

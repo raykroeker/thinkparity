@@ -30,6 +30,13 @@ class WindowBorder {
     static {
         borderMap = new Hashtable<AvatarId, Object>(1, 1.0F);
 
+        // BORDER Add New Team Member
+        borderMap.put(AvatarId.ADD_TEAM_MEMBER,
+                new ImageBorder("AddNewTeamMemberDialogBorderTop.png",
+                        "AddNewTeamMemberDialogBorderLeft.png",
+                        "AddNewTeamMemberDialogBorderBottom.png",
+                        "AddNewTeamMemberDialogBorderRight.png"));
+
         // BORDER Confirm Dialogue
         borderMap.put(AvatarId.CONFIRM_DIALOGUE,
                 new ImageBorder("ConfirmDialogueBorderTop.png",

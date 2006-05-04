@@ -40,12 +40,7 @@ import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.RequestKey;
 import com.thinkparity.browser.platform.action.artifact.Search;
 import com.thinkparity.browser.platform.action.artifact.SendVersion;
-import com.thinkparity.browser.platform.action.document.Close;
-import com.thinkparity.browser.platform.action.document.Create;
-import com.thinkparity.browser.platform.action.document.CreateDocuments;
-import com.thinkparity.browser.platform.action.document.Delete;
-import com.thinkparity.browser.platform.action.document.Open;
-import com.thinkparity.browser.platform.action.document.OpenVersion;
+import com.thinkparity.browser.platform.action.document.*;
 import com.thinkparity.browser.platform.action.session.AcceptInvitation;
 import com.thinkparity.browser.platform.action.session.DeclineInvitation;
 import com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage;
@@ -64,6 +59,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.index.IndexHit;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -273,15 +269,6 @@ public class Browser extends AbstractApplication {
 	 */
 	public void displaySessionManageContacts() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
-	}
-
-	/**
-	 * Display the send form.
-	 *
-	 */
-	public void displaySessionSendFormAvatar() {
-        setInput(AvatarId.SESSION_SEND_FORM, session.getSelectedDocumentId());
-		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_FORM);
 	}
 
     /**
@@ -623,6 +610,35 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.SESSION_ACCEPT_INVITATION, data);
 	}
 
+    /** Add a team member to the selected document. */
+    public void runAddNewDocumentTeamMember() {
+        runAddNewDocumentTeamMember(session.getSelectedDocumentId(), null);
+    }
+
+    /**
+     * Add a team member to the selected document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param jabberIds
+     *            The jabber ids.
+     */
+    public void runAddNewDocumentTeamMember(final Long documentId,
+            final List<JabberId> jabberIds) {
+        final Data data = new Data(2);
+        data.set(AddNewTeamMember.DataKey.DOCUMENT_ID, documentId);
+        if(null != jabberIds)
+            data.set(AddNewTeamMember.DataKey.JABBER_IDS, jabberIds);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { invoke(ActionId.ADD_TEAM_MEMBER, data); }
+        });
+    }
+
+    public void displayAddNewDocumentTeamMember(final Long documentId) {
+        setInput(AvatarId.ADD_TEAM_MEMBER, documentId);
+        displayAvatar(WindowId.POPUP, AvatarId.ADD_TEAM_MEMBER);
+    }
+
 	/**
 	 * Run the accept key action.
 	 * 
@@ -658,6 +674,15 @@ public class Browser extends AbstractApplication {
 		    runCreateDocument(jFileChooser.getSelectedFile());
 		}
 	}
+
+    /** Publish the selected document. */
+    public void runPublishDocument() {
+        final Data data = new Data(1);
+        data.set(Publish.DataKey.DOCUMENT_ID, session.getSelectedDocumentId());
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { invoke(ActionId.PUBLISH_DOCUMENT, data); }
+        });
+    }
 
 	/**
      * Create a document.

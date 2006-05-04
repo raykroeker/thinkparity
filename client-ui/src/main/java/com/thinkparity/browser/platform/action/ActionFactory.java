@@ -83,6 +83,10 @@ public class ActionFactory {
 	 */
 	private AbstractAction doCreateAction(final ActionId actionId, final Browser browser) {
 		switch(actionId) {
+        case ADD_TEAM_MEMBER:
+            return new com.thinkparity.browser.platform.action.document.AddNewTeamMember(browser);
+        case PUBLISH_DOCUMENT:
+            return new com.thinkparity.browser.platform.action.document.Publish(browser);
         case CREATE_DOCUMENTS:
             return new com.thinkparity.browser.platform.action.document.CreateDocuments(browser);
 		case ARTIFACT_ACCEPT_KEY_REQUEST:

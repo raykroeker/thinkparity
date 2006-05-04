@@ -165,7 +165,7 @@ public class SystemApplication extends AbstractApplication {
         if(!actionRegistry.contains(ActionId.PLATFORM_LOGIN))
             ActionFactory.createAction(ActionId.PLATFORM_LOGIN, getPlatform());
 
-        run(ActionId.PLATFORM_LOGIN, new Data(0));
+        runLater(ActionId.PLATFORM_LOGIN, new Data(0));
     }
 
     /** Run the logout action. */

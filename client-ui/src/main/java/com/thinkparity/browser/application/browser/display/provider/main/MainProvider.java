@@ -73,7 +73,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				final Long documentId = (Long) input;
 				try {
 					final Document document = dModel.get(documentId);
-                    return toDisplay(document, artifactModel);
+                    return toDisplay(document, artifactModel, dModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -88,7 +88,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 						new RemoteUpdatedOnComparator(Boolean.FALSE);
 					sort.add(new UpdatedOnComparator(Boolean.FALSE));
 
-					return toDisplay(dModel.list(sort), artifactModel);
+					return toDisplay(dModel.list(sort), artifactModel, dModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -178,11 +178,12 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @return The displayable documents.
      */
 	private MainCellDocument[] toDisplay(final Collection<Document> documents,
-            final ArtifactModel aModel) throws ParityException {
+            final ArtifactModel aModel, final DocumentModel dModel)
+            throws ParityException {
 		final List<MainCellDocument> display = new LinkedList<MainCellDocument>();
 
 		for(final Document d : documents) {
-			display.add(toDisplay(d, aModel));
+			display.add(toDisplay(d, aModel, dModel));
 		}
 		return display.toArray(new MainCellDocument[] {});
 	}
@@ -198,10 +199,11 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @throws ParityException
      */
 	private MainCellDocument toDisplay(final Document document,
-            final ArtifactModel aModel) throws ParityException {
+            final ArtifactModel aModel, final DocumentModel dModel)
+            throws ParityException {
 		if(null == document) { return null; }
 		else {
-			final MainCellDocument mcd = new MainCellDocument(document);
+			final MainCellDocument mcd = new MainCellDocument(document, dModel);
             mcd.setKeyRequests(aModel.readKeyRequests(document.getId()));
 			return mcd;
 		}

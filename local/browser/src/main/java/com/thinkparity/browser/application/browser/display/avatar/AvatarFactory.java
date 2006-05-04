@@ -189,6 +189,10 @@ public class AvatarFactory {
 	private Avatar doCreate(final AvatarId id) {
 		final Avatar avatar;
 		switch(id) {
+        case ADD_TEAM_MEMBER:
+            avatar = new com.thinkparity.browser.application.browser.display.avatar.document.AddNewTeamMember();
+            avatar.setContentProvider(ProviderFactory.getSendArtifactProvider());
+            break;
 		case BROWSER_INFO:
 			avatar = createBrowserInfo();
 			break;

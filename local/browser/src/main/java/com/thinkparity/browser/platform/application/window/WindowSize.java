@@ -52,6 +52,9 @@ class WindowSize {
 		sizeMap.put(AvatarId.SESSION_MANAGE_CONTACTS, new Dimension(520, 330));
 		// DIMENSION Search Partner Dialogue 520x330
 		sizeMap.put(AvatarId.SESSION_SEARCH_PARTNER, new Dimension(520, 330));
+        // DIMENSION Add Team Member
+//        sizeMap.put(AvatarId.ADD_TEAM_MEMBER, new Dimension(392 + 8, 393 + 8));
+        sizeMap.put(AvatarId.ADD_TEAM_MEMBER, new Dimension(392 + 8, 233 + 8));
 	}
 
 	/**

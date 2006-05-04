@@ -4,16 +4,13 @@
 package com.thinkparity.browser.application.system.tray;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
-import com.thinkparity.browser.application.browser.component.MenuItemFactory;
 import com.thinkparity.browser.application.system.SystemApplication;
 
 /**
@@ -121,23 +118,6 @@ class TrayMenuBuilder {
         jPopupMenu.add(exit);
 
         return jPopupMenu;
-    }
-
-    /**
-     * Create a menu item.
-     * 
-     * @param textKey
-     *            The text key.
-     * @param l
-     *            The action listener.
-     * @return The menu item.
-     */
-    private JMenuItem createMenuItem(final String textKey,
-            final ActionListener l) {
-        return MenuItemFactory.create(
-                getString(textKey),
-                new Integer(getString(textKey + "Mnemonic").charAt(0)),
-                l);
     }
 
     /**

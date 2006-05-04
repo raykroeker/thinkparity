@@ -97,22 +97,15 @@ public class PopupDocument implements Popup {
             }
         }
         jPopupMenu.add(new Open(application));
-        if(document.isClosed()) {
-            jPopupMenu.addSeparator();
-            jPopupMenu.add(new Delete(application));
+        jPopupMenu.add(new AddNewTeamMember(application));
+        if(document.isKeyHolder()) {
+            if(!document.isWorkingVersionEqual())
+                jPopupMenu.add(new Publish(application));
         }
-        else {
-            jPopupMenu.add(new Send(application));
-            if(document.isKeyHolder()) {
-                jPopupMenu.addSeparator();
-                jPopupMenu.add(new Close(application));
-            }
-            else {
-                jPopupMenu.add(new RequestKey(application));
-                jPopupMenu.addSeparator();
-                jPopupMenu.add(new Delete(application));
-            }
-        }
+        else { jPopupMenu.add(new RequestKey(application)); }
+        jPopupMenu.add(new Close(application));
+        jPopupMenu.addSeparator();
+        jPopupMenu.add(new Delete(application));
 
         // DEBUG Document Menu Options
         if(e.isShiftDown()) {
@@ -200,6 +193,28 @@ public class PopupDocument implements Popup {
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runAcceptKeyRequest(document.getId(), keyRequestId);
+                }
+            });
+        }
+    }
+
+    /** An add team member {@link JMenuItem}. */
+    private class AddNewTeamMember extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create an AddTeamMember JMenuItem.
+         *
+         * @param application
+         *      The browser application.
+         */
+        private AddNewTeamMember(final Browser application) {
+            super(getString("AddTeamMember"), getString("AddTeamMemberMnemonic").charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runAddNewDocumentTeamMember();
                 }
             });
         }
@@ -315,8 +330,8 @@ public class PopupDocument implements Popup {
         }
     }
 
-    /** A send {@link JMenuItem}. */
-    private class Send extends JMenuItem {
+    /** A publish {@link JMenuItem}. */
+    private class Publish extends JMenuItem {
 
         /** @see java.io.Serializable */
         private static final long serialVersionUID = 1;
@@ -327,11 +342,11 @@ public class PopupDocument implements Popup {
          * @param application
          *            The browser application.
          */
-        private Send(final Browser application) {
-            super(getString("Send"), getString("SendMnemonic").charAt(0));
+        private Publish(final Browser application) {
+            super(getString("Publish"), getString("PublishMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.displaySessionSendFormAvatar();
+                    application.runPublishDocument();
                 }
             });
         }

@@ -5,14 +5,12 @@ package com.thinkparity.model.parity.model.artifact;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -63,11 +61,12 @@ public class InternalArtifactModel extends ArtifactModel {
      * @throws ParityException
      */
     public void auditConfirmationReceipt(final Long artifactId,
-            final JabberId createdBy, final Calendar createdOn,
-            final JabberId receivedFrom) throws ParityException {
+            final Long versionId, final JabberId createdBy,
+            final Calendar createdOn, final JabberId receivedFrom)
+            throws ParityException {
         synchronized(getImplLock()) {
             getImpl().auditConfirmationReceipt(
-                    artifactId, createdBy, createdOn, receivedFrom);
+                    artifactId, versionId, createdBy, createdOn, receivedFrom);
         }
     }
 
@@ -92,18 +91,23 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-	/**
+    /**
      * Confirm the reciept of an artifact.
      * 
      * @param receivedFrom
      *            From whom the artifact was received.
      * @param artifactId
      *            The artifact id.
+     * @param artifactVersionId
+     *            The artifact version id.
+     * @throws ParityException
+     * @throws SmackException
      */
 	public void confirmReceipt(final JabberId receivedFrom,
-            final Long artifactId) throws ParityException, SmackException {
+            final Long artifactId, final Long artifactVersionId)
+            throws ParityException, SmackException {
 	    synchronized(getImplLock()) {
-            getImpl().confirmReceipt(receivedFrom, artifactId);
+            getImpl().confirmReceipt(receivedFrom, artifactId, artifactVersionId);
         }
     }
 

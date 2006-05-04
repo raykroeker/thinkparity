@@ -13,18 +13,22 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
  * @version 1.1
  */
 public interface AuditIOHandler {
+    public void audit(final AddTeamMemberEvent event) throws HypersonicException;
+    public void audit(final AddTeamMemberConfirmEvent event) throws HypersonicException;
 	public void audit(final ArchiveEvent event)
             throws HypersonicException;
 	public void audit(final CloseEvent event) throws HypersonicException;
     public void audit(final CreateEvent event) throws HypersonicException;
+    public void audit(final CreateRemoteEvent event) throws HypersonicException;
 	public void audit(final KeyRequestDeniedEvent event) throws HypersonicException;
 	public void audit(final KeyResponseDeniedEvent event) throws HypersonicException;
+	public void audit(final PublishEvent event) throws HypersonicException;
 	public void audit(final ReceiveEvent event) throws HypersonicException;
 	public void audit(final ReceiveKeyEvent event) throws HypersonicException;
 	public void audit(final RequestKeyEvent event)
 			throws HypersonicException;
 	public void audit(final SendEvent event) throws HypersonicException;
-	public void audit(final SendEventConfirmation event)
+	public void audit(final SendConfirmEvent event)
             throws HypersonicException;
 	public void audit(final SendKeyEvent event) throws HypersonicException;
 	public void delete(final Long artifactId) throws HypersonicException;

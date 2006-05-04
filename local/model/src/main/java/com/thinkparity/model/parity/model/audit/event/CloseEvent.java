@@ -3,35 +3,35 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
+ * This event is recorded when an artifact is closed.
+ *
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class CloseEvent extends AuditEvent {
 
-	/**
-	 * Whom the artifact was closed by.
-	 * 
-	 */
+	/** By whom the artifact was closed. */
 	private User closedBy;
 
-	/**
-	 * Create a CloseEvent.
-	 * 
-	 */
-	public CloseEvent() { super(); }
+	/** Create CloseEvent. */
+	public CloseEvent() { super(AuditEventType.CLOSE); }
 
 	/**
-	 * @return Returns the closedBy.
+     * Obtain the closed by user.
+     *
+	 * @return A user.
 	 */
 	public User getClosedBy() { return closedBy; }
 
 	/**
-	 * @param closedBy The closedBy to set.
+     * Set the closed by user.
+     *
+	 * @param closedBy
+     *      A user.
 	 */
-	public void setClosedBy(final User closedBy) {
-		this.closedBy = closedBy;
-	}
+	public void setClosedBy(final User closedBy) { this.closedBy = closedBy; }
 }

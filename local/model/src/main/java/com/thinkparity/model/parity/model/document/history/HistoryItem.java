@@ -33,6 +33,9 @@ public class HistoryItem {
     /** Flag indicating the pending state of this event. */
     private Boolean pending;
 
+    /** The history item id. */
+    private Long id;
+
 	/** Create a HistoryItem. */
 	protected HistoryItem() { super(); }
 
@@ -56,6 +59,13 @@ public class HistoryItem {
 	 * @return The history item document id.
 	 */
 	public Long getDocumentId() { return documentId; }
+
+    /**
+     * Obtain the history item id.
+     *
+     * @return The history item id.
+     */
+    public Long getId() { return id; }
 
 	/**
 	 * Obtain the history item's version id.
@@ -85,6 +95,14 @@ public class HistoryItem {
 	 * 	The event date.
 	 */
 	public void setDate(final Calendar date) { this.date = date; }
+
+    /**
+     * Set the history item id.
+     *
+     * @param id
+     *      The history item id.
+     */
+    public void setId(final Long id) { this.id = id; }
 
 	/**
 	 * Set the history item's document id.

@@ -1,5 +1,6 @@
 /*
- * Apr 8, 2006
+ * Created On: Apr 8, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.audit.event;
 
@@ -13,16 +14,13 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class SendEventConfirmation extends AuditEvent {
+public class SendConfirmEvent extends AuditVersionEvent {
 
     /** Send confirmed by. */
     private User confirmedBy;
 
-    /** Create a SendEventConfirmation. */
-    public SendEventConfirmation() {
-        super();
-        setType(AuditEventType.SEND_CONFIRMATION);
-    }
+    /** Create SendConfirmEvent. */
+    public SendConfirmEvent() { super(AuditEventType.SEND_CONFIRM); }
 
     /**
      * Obtain the confirmed by user.

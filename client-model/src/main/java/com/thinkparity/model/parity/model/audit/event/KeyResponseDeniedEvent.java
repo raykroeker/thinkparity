@@ -1,34 +1,41 @@
 /*
- * Mar 21, 2006
+ * Created On: Mar 21, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.audit.event;
 
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
+ * This event is recorded when a key request is denied.
+ *
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class KeyResponseDeniedEvent extends AuditEvent {
 
+    /** From whom the key request was issued. */
 	private User requestedBy;
 
-	/**
-	 * Create a KeyResponseDeniedEvent.
-	 */
-	public KeyResponseDeniedEvent() { super(); }
+	/** Create KeyResponseDeniedEvent. */
+	public KeyResponseDeniedEvent() { 
+        super(AuditEventType.KEY_RESPONSE_DENIED);
+    }
 
 	/**
-	 * @return Returns the requestedBy.
+     * Obtain the requested by user.
+     *
+	 * @return A user.
 	 */
-	public User getRequestedBy() {
-		return requestedBy;
-	}
+	public User getRequestedBy() { return requestedBy; }
 
 	/**
-	 * @param requestedBy The requestedBy to set.
+     * Set the requested by user.
+     *
+	 * @param requestedBy A user.
 	 */
 	public void setRequestedBy(final User requestedBy) {
-		this.requestedBy = requestedBy;
+        this.requestedBy = requestedBy;
 	}
 }

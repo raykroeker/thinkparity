@@ -105,20 +105,23 @@ class XMPPArtifact {
 	}
 
 	/**
-	 * Confirm artifact receipt.
-	 * 
-	 * @param receivedFrom
-	 *            From whom the artifact was received.
-	 * @param uniqueId
-	 *            The artifact unique id.
-	 */
-	void confirmReceipt(final JabberId receivedFrom, final UUID uniqueId)
-            throws SmackException {
+     * Confirm artifact receipt.
+     * 
+     * @param receivedFrom
+     *            From whom the artifact was received.
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param versionId
+     *            The artifact version id.
+     */
+	void confirmReceipt(final JabberId receivedFrom, final UUID uniqueId,
+            final Long versionId) throws SmackException {
 	    logger.info("[LMODEL] [XMPP] [CONFIRM ARTIFACT RECEIPT]");
 	    logger.debug(receivedFrom);
 	    logger.debug(uniqueId);
         final IQConfirmArtifactReceipt iq = new IQConfirmArtifactReceipt();
         iq.setArtifactUUID(uniqueId);
+        iq.setArtifactVersionId(versionId);
         iq.setRecievedFrom(receivedFrom);
         iq.setType(IQ.Type.SET);
         xmppCore.sendAndConfirmPacket(iq);
@@ -158,10 +161,11 @@ class XMPPArtifact {
      *            The confirmation packet.
      */
     private void notifyArtifactConfirmation(
-            IQConfirmArtifactReceipt confirmationPacket) {
+            final IQConfirmArtifactReceipt packet) {
         synchronized(listeners) {
             for(final XMPPArtifactListener l : listeners) {
-                l.confirmReceipt(confirmationPacket.getArtifactUUID(), confirmationPacket.getFromJabberId());
+                l.confirmReceipt(packet.getArtifactUUID(),
+                        packet.getArtifactVersionId(), packet.getFromJabberId());
             }
         }
     }

@@ -1,50 +1,37 @@
 /*
- * Feb 21, 2006
+ * Created On: Feb 21, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.audit.event;
 
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.xmpp.user.User;
 
-
-
 /**
+ * This event is recorded when a document is received.
+ *
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ReceiveEvent extends AuditEvent {
+public class ReceiveEvent extends AuditVersionEvent {
 
-	private Long artifactVersionId;
-
+    /** From whom the document was received. */
 	private User receivedFrom;
 
-	/**
-	 * Create a ReceiveEvent.
-	 */
-	public ReceiveEvent() {
-		super();
-	}
+	/** Create  ReceiveEvent. */
+	public ReceiveEvent() { super(AuditEventType.RECEIVE); }
 
 	/**
-	 * @return Returns the artifactVersionId.
-	 */
-	public Long getArtifactVersionId() {
-		return artifactVersionId;
-	}
-
-	/**
-	 * @return Returns the receivedFrom.
+     * Obtain the received from user.
+     *
+	 * @return A user.
 	 */
 	public User getReceivedFrom() { return receivedFrom; }
 
 	/**
-	 * @param artifactVersionId The artifactVersionId to set.
-	 */
-	public void setArtifactVersionId(Long artifactVersionId) {
-		this.artifactVersionId = artifactVersionId;
-	}
-
-	/**
-	 * @param receivedFrom The receivedFrom to set.
+     * Set the received from user.
+     *
+	 * @param receivedFrom A user.
 	 */
 	public void setReceivedFrom(final User receivedFrom) {
 		this.receivedFrom = receivedFrom;

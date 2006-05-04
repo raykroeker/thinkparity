@@ -70,7 +70,7 @@ public class CreateTest extends DocumentTestCase {
 			description = name;
 			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(testFile));
 			data.add(new Fixture(description, testFile,
-					documentContentChecksum, documentModel, 0, name));
+					documentContentChecksum, documentModel, 1, name));
 		}
 	}
 

@@ -1,5 +1,6 @@
 /*
- * Mar 30, 2006
+ * Created On:  Mar 30, 2006
+ * $Id$
  */
 package com.thinkparity.model.xmpp.events;
 
@@ -15,12 +16,17 @@ import com.thinkparity.model.xmpp.contact.Contact;
 public interface XMPPArtifactListener {
 
     /**
-     * Confirmation receipt that an artifact was received.
-     * 
+     * Confirm that an artifact was received.
+     *
+     * @param uniqueId
+     *      The artifact unique id.
+     * @param versionId
+     *      The artifact version id.
      * @param receivedFrom
-     *            From whom the the confirmation was sent.
+     *      From whom the the confirmation was sent.
      */
-    public void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom);
+    public void confirmReceipt(final UUID uniqueId, final Long verionId,
+            final JabberId receivedFrom);
 
 	public void teamMemberAdded(final UUID artifactUniqueId,
 			final Contact teamMember);

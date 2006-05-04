@@ -1,7 +1,14 @@
 /*
- * Feb 14, 2006
+ * Created On: Feb 14, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.document;
+
+import java.io.File;
+
+import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.DateUtil.DateImage;
+import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.model.parity.model.ModelTestCase;
 
@@ -38,4 +45,16 @@ public abstract class DocumentTestCase extends ModelTestCase {
 
 		super.tearDown();
 	}
+
+    protected void modifyDocument(final Long documentId) throws Exception {
+        final String prefix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
+        final String suffix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
+        final File tempFile = File.createTempFile(prefix, suffix);
+        tempFile.deleteOnExit();
+
+        FileUtil.writeBytes(tempFile,
+                ("jUnit Test MOD " +
+                DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
+        getDocumentModel().updateWorkingVersion(documentId, tempFile);
+    }
 }

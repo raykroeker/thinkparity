@@ -8,9 +8,8 @@ import java.util.Calendar;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.audit.AuditEventType;
-import com.thinkparity.model.parity.model.audit.event.SendEventConfirmation;
 import com.thinkparity.model.parity.model.audit.event.KeyRequestDeniedEvent;
+import com.thinkparity.model.parity.model.audit.event.SendConfirmEvent;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -41,12 +40,14 @@ class ArtifactModelAuditor extends AbstractAuditor {
      * @param receivedBy
      *            The recipient of the artifact.
      */
-    void confirmationReceipt(final Long artifactId, final JabberId createdBy,
-            final Calendar createdOn, final JabberId receivedFrom) throws ParityException {
-        final SendEventConfirmation event = new SendEventConfirmation();
+    void confirmationReceipt(final Long artifactId,
+            final Long artifactVersionId, final JabberId createdBy,
+            final Calendar createdOn, final JabberId receivedFrom)
+            throws ParityException {
+        final SendConfirmEvent event = new SendConfirmEvent();
         event.setArtifactId(artifactId);
+        event.setArtifactVersionId(artifactVersionId);
         event.setCreatedOn(createdOn);
-        event.setType(AuditEventType.SEND_CONFIRMATION);
 
         getInternalAuditModel().audit(event, createdBy, receivedFrom);
     }
@@ -69,7 +70,6 @@ class ArtifactModelAuditor extends AbstractAuditor {
 		final KeyRequestDeniedEvent event = new KeyRequestDeniedEvent();
 		event.setArtifactId(artifactId);
 		event.setCreatedOn(createdOn);
-		event.setType(AuditEventType.KEY_REQUEST_DENIED);
 
 		getInternalAuditModel().audit(event, createdBy, deniedBy);
 	}

@@ -35,6 +35,14 @@ public class ComparatorBuilder {
 		return new NameComparator(isAscending);
 	}
 
+    public Comparator<HistoryItem> createIdAscending() {
+        return new HistoryItemIdComparator(Boolean.TRUE);
+    }
+
+    public Comparator<HistoryItem> createIdDescending() {
+        return new HistoryItemIdComparator(Boolean.FALSE);
+    }
+
 	public Comparator<HistoryItem> createDateAscending() {
 		return new HistoryItemDateComparator(Boolean.TRUE);
 	}

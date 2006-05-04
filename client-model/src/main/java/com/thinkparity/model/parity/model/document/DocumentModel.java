@@ -20,15 +20,13 @@ import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
- * DocumentModel
+ * The parity document interface.
+ *
  * @author raykroeker@gmail.com
- * @version 1.5.2.17
- * 
- * TODO The history should highlight updates\new versions as well as the document
- * list.
- *    - ie the versions should also contain flags
+ * @version 
  */
 public class DocumentModel {
 
@@ -85,6 +83,20 @@ public class DocumentModel {
 	public void addListener(final DocumentListener l) {
 		synchronized(implLock) { impl.addListener(l); }
 	}
+
+
+    /**
+     * Add a user to the document team.  This will iterate all
+     * versions of a document and send them to a user.
+     *
+     * @param documentId
+     *      The document id.
+     * @param jabberId
+     *      The user id to add.
+     */
+    public void addNewTeamMember(final Long documentId, final JabberId jabberId) throws ParityException {
+        synchronized(implLock) { impl.addNewTeamMember(documentId, jabberId); }
+    }
 
 	/**
 	 * Archive a document.
@@ -417,6 +429,22 @@ public class DocumentModel {
 	public void removeListener(final DocumentListener l) {
 		synchronized(implLock) { impl.removeListener(l); }
 	}
+
+    /**
+     * Publish a document.  Publishing a document involves the following
+     * process:<ol>
+     *  <li>Check if the working version differs from the latest version. If<ul>
+     *      <li>True:  Create a new version.
+     *      <li>False:  Do nothing.
+     *  <li>Send the latest version to all team members.
+     * </ol>
+     *
+     * @param documentId
+     *      The document id.
+     */
+    public void publish(final Long documentId) throws ParityException {
+        synchronized(implLock) { impl.publish(documentId); }
+    }
 
     /**
      * Update the working version of a document.

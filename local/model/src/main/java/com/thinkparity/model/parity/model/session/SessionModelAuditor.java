@@ -39,7 +39,6 @@ public class SessionModelAuditor extends AbstractAuditor {
 		final RequestKeyEvent event = new RequestKeyEvent();
 		event.setArtifactId(artifactId);
 				event.setCreatedOn(createdOn);
-		event.setType(AuditEventType.REQUEST_KEY);
 
 		getInternalAuditModel().audit(event, createdBy, requestedBy, requestedFrom);
 	}
@@ -66,7 +65,6 @@ public class SessionModelAuditor extends AbstractAuditor {
 		sendEvent.setArtifactId(artifactId);
 		sendEvent.setArtifactVersionId(artifactVersionId);
 		sendEvent.setCreatedOn(createdOn);
-		sendEvent.setType(AuditEventType.SEND);
 
         // generate a new event for each user
         for(final User u : sentTo) {
@@ -96,7 +94,6 @@ public class SessionModelAuditor extends AbstractAuditor {
 		sendKeyEvent.setArtifactId(artifactId);
 		sendKeyEvent.setArtifactVersionId(artifactVersionId);
 		sendKeyEvent.setCreatedOn(sentOn);
-		sendKeyEvent.setType(AuditEventType.SEND_KEY);
 
 		getInternalAuditModel().audit(sendKeyEvent, createdBy, sentTo);
 	}
@@ -119,7 +116,6 @@ public class SessionModelAuditor extends AbstractAuditor {
 		final KeyResponseDeniedEvent event = new KeyResponseDeniedEvent();
 		event.setArtifactId(artifactId);
 		event.setCreatedOn(createdOn);
-		event.setType(AuditEventType.KEY_RESPONSE_DENIED);
 
 		getInternalAuditModel().audit(event, createdBy, requestedBy);
 	}

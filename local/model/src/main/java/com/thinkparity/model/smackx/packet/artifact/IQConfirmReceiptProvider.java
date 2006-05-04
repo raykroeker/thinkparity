@@ -57,6 +57,11 @@ public class IQConfirmReceiptProvider extends IQParityProvider {
                 iq.setArtifactUUID(UUID.fromString(parser.getText()));
                 parser.next();
             }
+            else if(XmlPullParser.START_TAG == eventType && "versionid".equals(name)) {
+                parser.next();
+                iq.setArtifactVersionId(Long.parseLong(parser.getText()));
+                parser.next();
+            }
             else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
                 parser.next();
                 iq.setRecievedFrom(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));

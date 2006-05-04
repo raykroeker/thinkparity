@@ -1,5 +1,6 @@
 /*
- * Feb 22, 2006
+ * Created On: Feb 22, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -9,9 +10,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.CollectionsUtil;
 
-import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
-import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -63,13 +62,13 @@ public class ReadHistoryTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new LinkedList<Fixture>();
-		final SessionModel sModel = getSessionModel();
 		final DocumentModel dModel = getDocumentModel();
 
 		Document d;
 		for(final File file : getInputFiles()) {
 			d = dModel.create(file.getName(), file.getName(), file);
-			sModel.send(ModelTestUser.getJUnitBuddy0().getJabberId(), d.getId());
+            modifyDocument(d.getId());
+			dModel.publish(d.getId());
 			dModel.close(d.getId());
 			data.add(new Fixture(dModel, d.getId()));
 		}

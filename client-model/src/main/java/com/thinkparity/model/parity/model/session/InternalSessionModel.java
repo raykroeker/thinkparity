@@ -43,9 +43,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            The artifact unique id.
      */
     public void confirmArtifactReceipt(final JabberId receivedFrom,
-            final UUID uniqueId) throws SmackException {
+            final UUID uniqueId, final Long versionId) throws SmackException {
         synchronized(getImplLock()) {
-            getImpl().confirmArtifactReceipt(receivedFrom, uniqueId);
+            getImpl().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
         }
     }
 

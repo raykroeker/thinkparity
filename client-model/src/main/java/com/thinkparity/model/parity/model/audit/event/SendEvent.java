@@ -3,44 +3,36 @@
  */
 package com.thinkparity.model.parity.model.audit.event;
 
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
+ * This event is recorded when an artifact version is sent.
+ *
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class SendEvent extends AuditEvent {
+public class SendEvent extends AuditVersionEvent {
 
-	private Long artifactVersionId;
-
+    /** To whom the artifact was sent. */
 	private User sentTo;
 
 	/** Create a SendEvent. */
-	public SendEvent() { super(); }
+	public SendEvent() {
+        super(AuditEventType.SEND);
+    }
 
 	/**
-	 * @return Returns the artifactVersionId.
-	 */
-	public Long getArtifactVersionId() {
-		return artifactVersionId;
-	}
-
-	/**
-	 * @return Returns the sentTo.
+     * Obtain the sent to user.
+     *
+	 * @return A user.
 	 */
 	public User getSentTo() { return sentTo; }
 
-	/**
-	 * @param artifactVersionId The artifactVersionId to set.
-	 */
-	public void setArtifactVersionId(Long versionId) {
-		this.artifactVersionId = versionId;
-	}
-
     /**
-     * @param sentTo The sentTo to set.
+     * Set the sent to user.
+     *
+     * @param sentTo A user.
      */
-    public void setSentTo(User sentTo) {
-        this.sentTo = sentTo;
-    }
+    public void setSentTo(final User sentTo) { this.sentTo = sentTo; }
 }

@@ -149,10 +149,11 @@ class SessionModelImpl extends AbstractModelImpl {
      *            From whom the artifact was received.
      */
     static void notifyConfirmationReceipt(final UUID uniqueId,
-            final JabberId confirmedBy) throws ParityException, SmackException {
+            final Long versionId, final JabberId confirmedBy)
+            throws ParityException, SmackException {
         final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
         final Document d = iDModel.get(uniqueId);
-        iDModel.confirmSend(d.getId(), confirmedBy);
+        iDModel.confirmSend(d.getId(), versionId, confirmedBy);
     }
 
 	/**
@@ -431,15 +432,16 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The artifact unique id.
 	 */
 	void confirmArtifactReceipt(final JabberId receivedFrom,
-	        final UUID uniqueId) throws SmackException {
+	        final UUID uniqueId, final Long versionId) throws SmackException {
 	    logger.info("[LMODEL] [SESSION] [CONFIRM ARTIFACT RECEIPT]");
 	    logger.debug(receivedFrom);
 	    logger.debug(uniqueId);
+        logger.debug(versionId);
 	    synchronized(xmppHelper) {
 	        assertIsLoggedIn(
 	                "[LMODEL] [SESSION] [CONFIRM ARTIFACT RECEIPT]",
 	                xmppHelper);
-	        xmppHelper.confirmArtifactReceipt(receivedFrom, uniqueId);
+	        xmppHelper.confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
 	    }
 	}
 
@@ -855,7 +857,7 @@ class SessionModelImpl extends AbstractModelImpl {
                 final Calendar currentDateTime = currentDateTime();
 				auditor.send(dv.getArtifactId(), currentDateTime,
                         currentUserId(), dv.getVersionId(), currentUserId(),
-                        currentDateTime(), users);
+                        currentDateTime, users);
 			}
 			catch(final SmackException sx) {
 				logger.error("Could not send document version.", sx);
@@ -877,7 +879,9 @@ class SessionModelImpl extends AbstractModelImpl {
 
 	void send(final List<JabberId> jabberIds, final Long documentId)
 			throws ParityException {
-		assertLoggedInUserIsKeyHolder(documentId);
+        assertOnline("[LMODEL] [SESSION] [SEND] [USER IS NOT ONLINE]");
+        assertIsKeyHolder(
+                "[LMODEL] [SESSION] [SEND] [USER IS NOT KEYHOLDER]", documentId);
 
 		final InternalDocumentModel iDModel = getInternalDocumentModel();
 		final DocumentVersion version;
@@ -903,9 +907,11 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void sendClose(final Long artifactId) throws ParityException {
-		logger.info("sendClose(Long)");
+		logger.info("[LMODEL] [SESSION] [SEND CLOSE]");
 		logger.debug(artifactId);
-		assertLoggedInUserIsKeyHolder(artifactId);
+        assertOnline("[LMODEL] [SESSION] [SEND CLOSE] [USER IS NOT ONLINE]");
+        assertIsKeyHolder(
+                "[LMODEL] [SESSION] [SEND CLOSE] [USER IS NOT KEYHOLDER]", artifactId);
 		synchronized(xmppHelper) {
 			try {
 				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
@@ -1034,7 +1040,11 @@ class SessionModelImpl extends AbstractModelImpl {
 		logger.debug(documentId);
 		logger.debug(requestedBy);
 		logger.debug(keyResponse);
-		assertLoggedInUserIsKeyHolder(documentId);
+        assertOnline(
+                "[LMODEL] [SESSION] [SEND KEY RESPONSE] [USER IS NOT ONLINE]");
+        assertIsKeyHolder(
+                "[LMODEL] [SESSION] [SEND KEY RESPONSE] [USER IS NOT KEYHOLDER]",
+                documentId);
 		synchronized(SessionModelImpl.xmppHelperLock) {
 			try {
 				// NOTE This should be refactored when the session can be changed.
@@ -1047,17 +1057,9 @@ class SessionModelImpl extends AbstractModelImpl {
 				// want to send the latest version to the requesting user
 				switch(keyResponse) {
 				case ACCEPT:
-					// check if a new version is needed
-					final DocumentVersion version;
-					if(iDModel.isWorkingVersionEqual(documentId)) {
-						version = iDModel.readLatestVersion(documentId);
-					}
-					else { version = iDModel.createVersion(documentId); }
-
-					// send new version
-					final Collection<User> users = new Vector<User>(1);
-					users.add(requestedByUser);
-					send(users, documentId, version.getVersionId());
+					// publish the document
+                    if(!iDModel.isWorkingVersionEqual(documentId))
+                        iDModel.publish(documentId);
 
                     // send the key change to the server
 					xmppHelper.sendKeyResponse(
@@ -1071,8 +1073,7 @@ class SessionModelImpl extends AbstractModelImpl {
 					iDModel.lock(documentId);
 
 					// audit send key
-					final DocumentVersion dv = iDModel.getVersion(
-							version.getArtifactId(), version.getVersionId());
+					final DocumentVersion dv = iDModel.readLatestVersion(documentId);
                     final Calendar currentDateTime = currentDateTime();
 					auditor.sendKey(dv.getArtifactId(), currentDateTime,
                             currentUserId(), dv.getVersionId(),

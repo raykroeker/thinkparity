@@ -52,6 +52,14 @@ public class DocumentAdapter implements DocumentListener {
     public void documentDeleted(final DocumentEvent e) {}
 
     /**
+     * A document has been published.
+     *
+     * @param e
+     *      The document event.
+     */
+    public void documentPublished(final DocumentEvent e) {}
+
+    /**
      * A document has been udpated.
      *
      * @param e
@@ -82,4 +90,12 @@ public class DocumentAdapter implements DocumentListener {
      *      The document event.
      */
     public void keyRequested(final DocumentEvent e) {}
+
+    /**
+     * A user has been added to the team.
+     *
+     * @param e
+     *      The document event.
+     */
+    public void teamMemberAdded(final DocumentEvent e) {}
 }

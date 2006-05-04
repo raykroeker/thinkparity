@@ -215,12 +215,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
 	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#confirmArtifactReceipt(com.thinkparity.model.xmpp.JabberId,
-     *      java.util.UUID)
+     *      java.util.UUID, java.lang.Long)
      * 
      */
     public void confirmArtifactReceipt(final JabberId receivedFrom,
-            final UUID uniqueId) throws SmackException {
-        xmppArtifact.confirmReceipt(receivedFrom, uniqueId);
+            final UUID uniqueId, final Long versionId) throws SmackException {
+        xmppArtifact.confirmReceipt(receivedFrom, uniqueId, versionId);
     }
 
 	/**

@@ -36,13 +36,13 @@ public class HypersonicUtil {
 
 		final WorkspaceModel workspaceModel = WorkspaceModel.getModel();
 		final Workspace workspace = workspaceModel.getWorkspace();
-		connectionURL = new StringBuffer("jdbc:hsqldb:file:")
-			.append(workspace.getDataDirectory())
-			.append(File.separator)
-			.append(IParityModelConstants.DIRECTORY_NAME_DB_DATA)
-			.append(File.separator)
-			.append(IParityModelConstants.FILE_NAME_DB_DATA)
-			.toString();
+        connectionURL = new StringBuffer("jdbc:hsqldb:file:")
+            .append(workspace.getDataDirectory())
+            .append(File.separator)
+            .append(IParityModelConstants.DIRECTORY_NAME_DB_DATA)
+            .append(File.separator)
+            .append(IParityModelConstants.FILE_NAME_DB_DATA)
+            .toString();
 		connectionInfo = new Properties();
 		connectionInfo.setProperty("user", "sa");
 		connectionInfo.setProperty("password", "");

@@ -94,7 +94,7 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void confirmArtifactReceipt(final JabberId receivedFrom,
-            final UUID uniqueId) throws SmackException;
+            final UUID uniqueId, final Long versionId) throws SmackException;
 
     /**
      * Create an artifact

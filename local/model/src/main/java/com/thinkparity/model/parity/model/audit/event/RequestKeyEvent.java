@@ -1,8 +1,10 @@
 /*
- * Mar 3, 2006
+ * Created On: Mar 3, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.audit.event;
 
+import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -11,40 +13,42 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class RequestKeyEvent extends AuditEvent {
 
+    /** By whom the key was requested. */
 	private User requestedBy;
 
+    /** From whom the key was requested. */
 	private User requestedFrom;
 
-	/**
-	 * Create a RequestKeyEvent.
-	 */
-	public RequestKeyEvent() {
-		super();
-	}
+	/** Create RequestKeyEvent. */
+	public RequestKeyEvent() { super(AuditEventType.REQUEST_KEY); }
 
 	/**
-	 * @return Returns the requestedBy.
+     * Obtain the requested by user.
+     *
+	 * @return A user.
 	 */
-	public User getRequestedBy() {
-		return requestedBy;
-	}
+	public User getRequestedBy() { return requestedBy; }
 
 	/**
-	 * @return Returns the requestedFrom.
+     * Obtain the requested from user.
+     *
+	 * @return A user.
 	 */
-	public User getRequestedFrom() {
-		return requestedFrom;
-	}
+	public User getRequestedFrom() { return requestedFrom; }
 
 	/**
-	 * @param requestedBy The requestedBy to set.
+     * Set the requested by user.
+     *
+	 * @param requestedBy A user.
 	 */
 	public void setRequestedBy(final User requestedBy) {
 		this.requestedBy = requestedBy;
 	}
 
 	/**
-	 * @param requestedFrom The requestedFrom to set.
+     * Set the requested from user.
+     *
+	 * @param requestedFrom A user.
 	 */
 	public void setRequestedFrom(final User requestedFrom) {
 		this.requestedFrom = requestedFrom;

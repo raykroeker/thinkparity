@@ -1,5 +1,6 @@
 /*
- * Apr 8, 2006
+ * Created On:  Apr 8, 2006
+ * $Id$
  */
 package com.thinkparity.model.smackx.packet.artifact;
 
@@ -11,6 +12,9 @@ import com.thinkparity.model.xmpp.JabberId;
  * @version 1.1
  */
 public class IQConfirmArtifactReceipt extends IQArtifact {
+
+    /** The artifact version id. */
+    private Long artifactVersionId;
 
     private JabberId recievedFrom;
 
@@ -27,12 +31,20 @@ public class IQConfirmArtifactReceipt extends IQArtifact {
     }
 
     /**
+     * @return Returns the artifactVersionId.
+     */
+    public Long getArtifactVersionId() {
+        return artifactVersionId;
+    }
+
+    /**
      * @see com.thinkparity.model.smackx.packet.IQArtifact#getChildElementXML()
      * 
      */
     public String getChildElementXML() {
         return new StringBuffer(startQueryXML())
             .append(getArtifactUUIDXML())
+            .append(getArtifactVersionIdXML())
             .append(getReceivedFromXML())
             .append(finishQueryXML())
             .toString();
@@ -46,10 +58,24 @@ public class IQConfirmArtifactReceipt extends IQArtifact {
     }
 
     /**
+     * @param artifactVersionId The artifactVersionId to set.
+     */
+    public void setArtifactVersionId(Long artifactVersionId) {
+        this.artifactVersionId = artifactVersionId;
+    }
+
+    /**
      * @param recievedFrom The recievedFrom to set.
      */
     public void setRecievedFrom(JabberId recievedFrom) {
         this.recievedFrom = recievedFrom;
+    }
+
+    private String getArtifactVersionIdXML() {
+        return new StringBuffer("<versionid>")
+            .append(artifactVersionId)
+            .append("</versionid>")
+            .toString();
     }
 
     private String getReceivedFromXML() {

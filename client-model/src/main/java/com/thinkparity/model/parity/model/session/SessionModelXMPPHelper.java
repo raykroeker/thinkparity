@@ -71,8 +71,9 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppArtifactListener = new XMPPArtifactListener() {
-			public void confirmReceipt(final UUID uniqueId, final JabberId receivedFrom) {
-                handleConfirmationReceipt(uniqueId, receivedFrom);
+			public void confirmReceipt(final UUID uniqueId,
+                    final Long versionId, final JabberId receivedFrom) {
+                handleConfirmationReceipt(uniqueId, versionId, receivedFrom);
             }
 			public void teamMemberAdded(final UUID artifactUniqueId,
 					final Contact teamMember) {
@@ -151,10 +152,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      *            From whom the artifact was received.
      * @param uniqueId
      *            The artifact unique id.
+     * @param versionId
+     *            The artifact version id.
      */
-    void confirmArtifactReceipt(final JabberId receivedFrom, final UUID uniqueId)
+    void confirmArtifactReceipt(final JabberId receivedFrom,
+            final UUID uniqueId, final Long versionId)
             throws SmackException {
-       xmppSession.confirmArtifactReceipt(receivedFrom, uniqueId);
+       xmppSession.confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
     }
 
     /**
@@ -400,11 +404,19 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     /**
      * Event handler for confirmation receipts.
      * 
-     * @param receivedBy
-     *            By whom the document was received.
+     * @param uniqueId
+     *      The document unique id.
+     * @param versionId
+     *      The document version id.
+     * @param receivedFrom
+     *      From whom the confirmation was sent.
      */
-    private void handleConfirmationReceipt(final UUID uniqueId, final JabberId receivedFrom) {
-        try { SessionModelImpl.notifyConfirmationReceipt(uniqueId, receivedFrom); }
+    private void handleConfirmationReceipt(final UUID uniqueId,
+            final Long versionId, final JabberId receivedFrom) {
+        try {
+            SessionModelImpl.notifyConfirmationReceipt(
+                    uniqueId, versionId, receivedFrom);
+        }
         catch(final ParityException px) { unexpectedOccured(px); }
         catch(final SmackException sx) { unexpectedOccured(sx); }
         catch(final RuntimeException rx) { unexpectedOccured(rx); }

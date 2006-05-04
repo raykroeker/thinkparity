@@ -69,15 +69,18 @@ public class InternalDocumentModel extends DocumentModel implements
      * specified user.
      * 
      * @param documentId
-     *            The document id.
+     *      The document id.
+     * @param versionId
+     *      The document version id.
      * @param confirmedBy
-     *            To whom the document was sent.
+     *      To whom the document was sent.
      * @throws ParityException
      */
-    public void confirmSend(final Long documentId, final JabberId confirmedBy)
+    public void confirmSend(final Long documentId, final Long versionId,
+            final JabberId confirmedBy)
             throws ParityException {
         synchronized(getImplLock()) {
-            getImpl().confirmSend(documentId, confirmedBy);
+            getImpl().confirmSend(documentId, versionId, confirmedBy);
         }
     }
 

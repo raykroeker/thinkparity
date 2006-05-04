@@ -1,5 +1,6 @@
 /*
- * Mar 6, 2005
+ * Created On:  Sun Mar 06, 2005
+ * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -154,6 +155,43 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Add a user to the document team.  This will iterate all
+     * versions of a document and send them to a user.
+     *
+     * @param documentId
+     *      The document id.
+     * @param jabberId
+     *      The user id to add.
+     */
+    void addNewTeamMember(final Long documentId, final JabberId teamMember)
+            throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
+        logger.debug(documentId);
+        logger.debug(teamMember);
+        assertOnline("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [NOT ONLINE]");
+
+        // the user is not yet a team member; hence the user info must come
+        // from the session model and not the user model
+        final User user = getInternalSessionModel().readUser(teamMember);
+        final Set<User> teamUsers = getInternalArtifactModel().readTeam(documentId);
+        Assert.assertNotTrue(
+                "[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [USER ALREADY TEAM MEMBER]",
+                teamUsers.contains(user));
+
+        // audit
+        auditor.addTeamMember(
+                documentId, currentUserId(), currentDateTime(), teamMember);
+
+        // send each version
+        final Collection<DocumentVersion> versions = listVersions(documentId);
+        final Set<User> users = new HashSet<User>();
+        users.add(user);
+        for(final DocumentVersion version : versions) {
+            getInternalSessionModel().send(users, documentId, version.getVersionId());
+        }
+    }
+
+    /**
 	 * @param documentId
 	 * @return
 	 * @throws ParityException
@@ -222,21 +260,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	void close(final Long documentId) throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [CLOSE]");
 		logger.debug(documentId);
-		assertLoggedInUserIsKeyHolder(documentId);
+        assertOnline("[LMODEL] [DOCUMENT] [CLOSE] [USER IS NOT ONLINE]");
+        assertIsKeyHolder("[LMODEL] [DOCUMENT] [CLOSE] [USER IS NOT KEYHOLDER]", documentId);
 		try {
-            // check if a new version is needed
-            final DocumentVersion version;
-            if(isWorkingVersionEqual(documentId)) {
-                version = readLatestVersion(documentId);
-            }
-            else { version = createVersion(documentId); }
+            // publish if required
+            if(!isWorkingVersionEqual(documentId)) { publish(documentId); }
 
-            // send new version
-            final InternalSessionModel iSModel = getInternalSessionModel();
-            final Collection<User> users = new Vector<User>(1);
-            users.addAll(iSModel.readArtifactTeam(documentId));
-            iSModel.send(users, documentId, version.getVersionId());
-            
 			// close the document
 			final Document document = get(documentId);
 			assertStateTransition(document.getState(), ArtifactState.CLOSED);
@@ -245,10 +274,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// lock the document
 			lock(documentId);
 
-			// send the closeure to the server
-			iSModel.sendClose(documentId);
+			// send the closure to the server
+			getInternalSessionModel().sendClose(documentId);
 
-			// audit the closeure
+			// audit the closure
 			final Document d = get(documentId);
 			auditor.close(d.getId(), currentUserId(), d.getUpdatedOn(), currentUserId());
 
@@ -317,13 +346,14 @@ class DocumentModelImpl extends AbstractModelImpl {
      *            To whom the document was sent.
      * @throws ParityException
      */
-    void confirmSend(final Long documentId, final JabberId confirmedBy)
-            throws ParityException {
+    void confirmSend(final Long documentId, final Long versionId,
+            final JabberId confirmedBy) throws ParityException {
         // audit the receipt
-        getInternalArtifactModel().auditConfirmationReceipt(
-                documentId, currentUserId(), currentDateTime(), confirmedBy);
+        getInternalArtifactModel().auditConfirmationReceipt(documentId,
+                versionId, currentUserId(), currentDateTime(), confirmedBy);
         // fire event
-        notifyConfirmationReceived(get(documentId), remoteEventGen);
+        notifyConfirmationReceived(get(documentId),
+                getVersion(documentId, versionId), remoteEventGen);
     }
 
 	/**
@@ -346,8 +376,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(name);
 		logger.debug(description);
 		logger.debug(file);
+		assertOnline("[LMODEL] [DOCUMENT] [CREATE] [USER IS NOT ONLINE]");
 		assertCanCreateArtifacts();
-		assertIsSessionValid();
 		Assert.assertTrue(
 				// TODO Centralize business rules about document creation.
 				"File \"" + file.getAbsolutePath() + "\" does not exist.",
@@ -379,6 +409,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// create the local file
 			final LocalFile localFile = getLocalFile(document);
 			localFile.write(contentBytes);
+
+            // create a version
+            createVersion(document.getId());
 
             // flag the document with the key
             final InternalArtifactModel iAModel = getInternalArtifactModel();
@@ -431,9 +464,12 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *             If the logged in user is not the key holder.
 	 */
 	DocumentVersion createVersion(final Long documentId) throws ParityException {
-		logger.info("createVersion(Long)");
+		logger.info("[LMODEL] [DOCUMENT] [CREATE VERSION]");
 		logger.debug(documentId);
-		assertLoggedInUserIsKeyHolder(documentId);
+        assertOnline("[LMODEL] [DOCUMENT] [CREATE VERSION] [USER IS NOT ONLINE]");
+        assertIsKeyHolder(
+                "[LMODEL] [DOCUMENT] [CREATE VERSION] [USER IS NOT KEYHOLDER]",
+                documentId);
 		try {
 			final Document document = get(documentId);
 			final DocumentContent content = getContent(documentId);
@@ -506,7 +542,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void delete(final Long documentId) throws ParityException {
-		logger.info("delete(Long)");
+		logger.info("[LMODEL] [DOCUMENT] [DELETE]");
 		logger.debug(documentId);
 		try {
 			final Document document = get(documentId);
@@ -515,7 +551,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			// if the document is not closed ensure the user is not the
 			// key holder
 			if(ArtifactState.CLOSED != document.getState())
-				assertLoggedInUserIsNotKeyHolder(documentId);
+                assertIsNotKeyHolder(
+                        "[LMODEL] [DOCUMENT] [DELETE] [USER IS NOT KEYHOLDER]",
+                        documentId);
 			
 			// delete the document remotely
 			final InternalSessionModel iSModel = getInternalSessionModel();
@@ -531,6 +569,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 				getLocalFile(document, version).delete();
 				documentIO.deleteVersion(documentId, version.getVersionId());
 			}
+
+            // delete the team locally
+            final InternalArtifactModel iArtifactModel =
+                    getInternalArtifactModel();
+            final Set<User> team = iArtifactModel.readTeam(documentId);
+            for(final User teamMember : team) {
+                iArtifactModel.removeTeamMember(
+                        documentId, teamMember.getId());
+            }
 
 			// delete the document locally
 			final LocalFile localFile = getLocalFile(document);
@@ -656,7 +703,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	Boolean isWorkingVersionEqual(final Long documentId)
 			throws ParityException {
-		logger.info("isWorkingVersionDifferent(Long)");
+		logger.info("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL]");
 		logger.debug(documentId);
 		try {
 			final Document document = get(documentId);
@@ -677,11 +724,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 			}
 		}
 		catch(final IOException iox) {
-			logger.error("Could not determine working version delta:  " + documentId, iox);
+			logger.error("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL] [IO ERROR]", iox);
+            logger.error(documentId);
 			throw ParityErrorTranslator.translate(iox);
 		}
 		catch(final RuntimeException rx) {
-			logger.error("Could not determine working version delta:  " + documentId, rx);
+			logger.error("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL] [UNKNOWN ERROR]", rx);
+            logger.error(documentId);
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
@@ -979,8 +1028,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		try {
 			final InternalAuditModel iAModel = getInternalAuditModel();
 
-			final HistoryItemBuilder hib =
-				new HistoryItemBuilder(l18n, get(documentId));
+			final HistoryItemBuilder hib = new HistoryItemBuilder(l18n);
 
 			final List<HistoryItem> history =
 				hib.build(iAModel.read(documentId), currentUserId());
@@ -1037,16 +1085,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 					iAModel.applyFlagKey(document.getId());
 				}
 
-				// audit the receiving
 				final Document d = get(document.getId());
                 final Calendar currentDateTime = currentDateTime();
-				auditor.receive(d.getId(), currentDateTime, currentUserId(),
+				// audit create
+				auditor.createRemote(
+                        d.getId(), currentUserId(), currentDateTime,
+                        receivedFrom);
+                // audit receive
+                auditor.receive(d.getId(), currentDateTime, currentUserId(),
                         versionId, receivedFrom, currentUserId(),
                         currentDateTime);
 
                 // confirm the document receipt
                 final InternalArtifactModel iAModel = getInternalArtifactModel();
-                iAModel.confirmReceipt(receivedFrom, document.getId());
+                iAModel.confirmReceipt(receivedFrom, document.getId(), versionId);
 
                 // fire event
 				notifyDocumentCreated(document, remoteEventGen);
@@ -1076,7 +1128,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 
                 // confirm the document receipt
                 final InternalArtifactModel iAModel = getInternalArtifactModel();
-                iAModel.confirmReceipt(receivedFrom, document.getId());
+                iAModel.confirmReceipt(receivedFrom, document.getId(), versionId);
 
 				// fire event
 				if(null == version) { notifyDocumentUpdated(document, remoteEventGen); }
@@ -1128,6 +1180,46 @@ class DocumentModelImpl extends AbstractModelImpl {
 
     private User readUser(final JabberId jabberId) throws ParityException {
         return getInternalSessionModel().readUser(jabberId);
+    }
+
+    /**
+     * Publish a document.  Publishing a document involves the following
+     * process:<ol>
+     *  <li>Check if the working version differs from the latest version. If<ul>
+     *      <li>True:  Create a new version.
+     *      <li>False:  Do nothing.
+     *  <li>Send the latest version to all team members.
+     * </ol>
+     *
+     * @param documentId
+     *      The document id.
+     */
+    void publish(final Long documentId) throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [SEND]");
+        logger.debug(documentId);
+        assertOnline("[LMODEL] [DOCUMENT] [SEND] [USER IS NOT ONLINE]");
+        assertIsKeyHolder("[LMODEL] [DOCUMENT] [SEND] [USER IS NOT KEYHOLDER]", documentId);
+        // we assume here that we are publishing a new version
+        Assert.assertNotTrue(
+                "[LMODEL] [DOCUMENT] [SEND] [WORKING VERSION EQUALS LATEST VERSION]",
+                isWorkingVersionEqual(documentId));
+
+        final DocumentVersion version = createVersion(documentId);
+
+        // read the team
+        final Set<User> teamUsers = getInternalArtifactModel().readTeam(documentId);
+        teamUsers.remove(currentUser());
+
+        // audit
+        auditor.publish(documentId, version.getVersionId(),
+                currentDateTime(), currentUserId());
+
+        // send to the team
+        getInternalSessionModel().send(teamUsers, documentId, version.getVersionId());
+
+        // fire event
+        notifyDocumentPublished(get(documentId),
+                getVersion(documentId, version.getVersionId()), localEventGen);
     }
 
 	/**
@@ -1184,7 +1276,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	    logger.info(LOG_UWV_INFO);
         logger.debug(documentId);
         logger.debug(updateFile);
-        assertLoggedInUserIsKeyHolder(documentId);
+        assertOnline(LOG_UWV_INFO + " [USER IS NOT ONLINE]");
+        assertIsKeyHolder(LOG_UWV_INFO + " [USER IS NOT KEYHOLDER]", documentId);
         final LocalFile localFile = getLocalFile(get(documentId));
         InputStream is = null;
         try {
@@ -1262,7 +1355,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	private Comparator<HistoryItem> getDefaultHistoryItemComparator() {
 		if(null == defaultHistoryItemComparator) {
-			defaultHistoryItemComparator = new ComparatorBuilder().createDateDescending();
+			defaultHistoryItemComparator = new ComparatorBuilder().createIdDescending();
 		}
 		return defaultHistoryItemComparator;
 	}
@@ -1344,10 +1437,12 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @param eventGen
      *      The event generator.
      */
-    private void notifyConfirmationReceived(final Document document, final DocumentModelEventGenerator eventGen) {
+    private void notifyConfirmationReceived(final Document document,
+            final DocumentVersion version,
+            final DocumentModelEventGenerator eventGen) {
         synchronized(DocumentModelImpl.LISTENERS) {
             for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-                l.confirmationReceived(eventGen.generate(document));
+                l.confirmationReceived(eventGen.generate(document, version));
             }
         }
     }
@@ -1401,7 +1496,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
     /**
-	 * Fire document deleted event.
+	 * Fire document deleted.
 	 * 
 	 * @param document
      *      The document.
@@ -1415,6 +1510,24 @@ class DocumentModelImpl extends AbstractModelImpl {
 			}
 		}
 	}
+
+    /**
+     * Fire document published.
+     *
+     * @param document
+     *      The document.
+     * @param eventGen
+     *      The event generator.
+     */
+    private void notifyDocumentPublished(final Document document,
+            final DocumentVersion version,
+            final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.documentPublished(eventGen.generate(document, version));
+            }
+        }
+    }
 
 	/**
 	 * Fire document updated.
@@ -1485,6 +1598,25 @@ class DocumentModelImpl extends AbstractModelImpl {
         synchronized(DocumentModelImpl.LISTENERS) {
             for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
                 l.keyRequested(eventGen.generate(user, document));
+            }
+        }
+    }
+
+    /**
+     * Fire team member added.
+     *
+     * @param user
+     *      A user.
+     * @param document
+     *      A document
+     * @param eventGen
+     *      The event generator.
+     */
+    private void notifyTeamMemberAdded(final User user, final Document document,
+            final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.teamMemberAdded(eventGen.generate(user, document));
             }
         }
     }
@@ -1619,16 +1751,23 @@ class DocumentModelImpl extends AbstractModelImpl {
      *            The team member.
      * @throws ParityException
      */
-    void addTeamMember(final Long documentId, final JabberId jabberId)
+    void addTeamMember(final Long documentId, final JabberId teamMember)
             throws ParityException {
         logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
         logger.debug(documentId);
-        logger.debug(jabberId);
+        logger.debug(teamMember);
         // save the new team member locally
-        getInternalArtifactModel().addTeamMember(documentId, jabberId);
+        getInternalArtifactModel().addTeamMember(documentId, teamMember);
 
         // re-index
         updateIndex(documentId);
+
+        // audit
+        auditor.confirmAddTeamMember(
+                documentId, currentUserId(), currentDateTime(), teamMember);
+        // fire event
+        notifyTeamMemberAdded(
+                readUser(teamMember), get(documentId), remoteEventGen);
     }
 
     /**

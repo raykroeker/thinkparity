@@ -120,10 +120,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            By whom the artifact was received.
      * @throws ParityException
      */
-    void auditConfirmationReceipt(final Long artifactId,
+    void auditConfirmationReceipt(final Long artifactId, final Long versionId,
             final JabberId createdBy, final Calendar createdOn,
             final JabberId receivedFrom) throws ParityException {
-        auditor.confirmationReceipt(artifactId, createdBy, createdOn, receivedFrom);
+        auditor.confirmationReceipt(artifactId, versionId, createdBy,
+                createdOn, receivedFrom);
     }
 
     /**
@@ -151,11 +152,14 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            From whom the artifact was received.
      * @param artifactId
      *            The artifact id.
+     * @param versionId
+     *            The artifact version id.
      */
-    void confirmReceipt(final JabberId receivedFrom, final Long artifactId)
-            throws ParityException, SmackException {
+    void confirmReceipt(final JabberId receivedFrom, final Long artifactId,
+            final Long versionId) throws ParityException,
+            SmackException {
         final UUID uniqueId = getArtifactUniqueId(artifactId);
-        getInternalSessionModel().confirmArtifactReceipt(receivedFrom, uniqueId);
+        getInternalSessionModel().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
     }
 
     /**

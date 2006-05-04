@@ -1,5 +1,6 @@
 /*
- * Aug 6, 2005
+ * Created On: Aug 6, 2005
+ * $Id$
  */
 package com.thinkparity.model.parity.model;
 
@@ -9,10 +10,8 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
-import com.thinkparity.codebase.assertion.TrueAssertion;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 
@@ -148,57 +147,43 @@ public abstract class AbstractModelImpl {
 		Assert.assertTrue(ASSERT_IS_SET_USERNAME, preferences.isSetUsername());
 	}
 
-	/**
-	 * Ensure that the user's parity session is valid.
-	 *
-	 */
-	protected void assertIsSessionValid() {
-		final SessionModel sessionModel = getSessionModel();
-		Assert.assertTrue(
-				"Current session is not valid:  " +
-					StackUtil.getCallerClassAndMethodName(),
-				sessionModel.isLoggedIn());
-	}
+    /**
+     * Assert the user is the key holder. An assertion that the user is online
+     * is also made.
+     * 
+     * @param assertion
+     *            The assertion message.
+     * @param artifactId
+     *            The artifact id.
+     */
+    protected void assertIsKeyHolder(final String assertion,
+            final Long artifactId) throws ParityException {
+        Assert.assertTrue(assertion, isOnline());
+        Assert.assertTrue(assertion, isKeyHolder(artifactId));
+    }
 
-	/**
-	 * Assert that the logged in user is the key holder for the artifact id.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             <li>If the logged in user is not the key holder.
-	 *             </ul>
-	 * @throws ParityException
-	 */
-	protected void assertLoggedInUserIsKeyHolder(final Long artifactId)
-			throws ParityException {
-		final InternalSessionModel iSModel = getInternalSessionModel();
-		Assert.assertTrue("Logged in user is not the key holder.",
-				iSModel.isLoggedInUserKeyHolder(artifactId));
-	}
+    /**
+     * Determine whether or not the logged in user is the artifact key holder.
+     *
+     * @param artifactId
+     *      The artifact id.
+     * @return True if the user is the keyholder; false otherwise.
+     */
+    protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
+        return getInternalSessionModel().isLoggedInUserKeyHolder(artifactId);
+    }
 
-	/**
-	 * Assert that the logged in user is not the key holder.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             </ul>
-	 * @throws ParityException
-	 * @throws TrueAssertion
-	 *             <ul>
-	 *             <li>If the user is the key holder.
-	 *             </ul>
-	 */
-	protected void assertLoggedInUserIsNotKeyHolder(final Long artifactId)
-			throws NotTrueAssertion, ParityException, TrueAssertion {
-		final InternalSessionModel iSModel = getInternalSessionModel();
-		Assert.assertNotTrue("Logged in user is the key holder.",
-				iSModel.isLoggedInUserKeyHolder(artifactId));
+    /**
+     * Assert that the logged in user is not the key holder.
+     * 
+     * @param assertion
+     *            The assertion message.
+     * @param artifactId
+     *            The artifact id.
+     */
+	protected void assertIsNotKeyHolder(final String assertion,
+            final Long artifactId) throws ParityException {
+		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
 	/**
@@ -208,6 +193,25 @@ public abstract class AbstractModelImpl {
 	protected void assertNYI() {
 		Assert.assertNotYetImplemented("The calling method has not yet been implemented.");
 	}
+
+	/**
+     * Assert the user is online.
+     *
+     * @param assertion
+     *      The assertion message.
+     */
+    protected void assertOnline(final String assertion) {
+        Assert.assertTrue(assertion, isOnline());
+    }
+
+    /**
+     * Determine whether or not the user is online.
+     *
+     * @return True if the user is online; false otherwise.
+     */
+    protected Boolean isOnline() {
+        return getInternalSessionModel().isLoggedIn();
+    }
 
 	/**
 	 * Assert that the state transition from currentState to newState can be
@@ -264,6 +268,16 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+     * Obtain the current user.
+     *
+     * @return The current user.
+     */
+    protected User currentUser() throws ParityException {
+        assertOnline("[LMODEL] [ABSTRACTION] [CURRENT USER] [NOT ONLINE]");
+        return getInternalSessionModel().getLoggedInUser();
+    }
+
+    /**
 	 * Obtain the current user id.
 	 * 
 	 * @return The jabber id of the current user.

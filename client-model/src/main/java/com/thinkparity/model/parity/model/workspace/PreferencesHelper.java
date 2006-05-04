@@ -145,7 +145,7 @@ class PreferencesHelper {
 				javaProperties.setProperty("parity.username", username);
 			}
 
-			private Boolean isSetPassword() {
+			public Boolean isSetPassword() {
 				final String password = getPassword();
 				return (null != password && 0 < password.length());
 			}

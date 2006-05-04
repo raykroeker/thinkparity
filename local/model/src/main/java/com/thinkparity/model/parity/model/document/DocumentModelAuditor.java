@@ -1,5 +1,6 @@
 /*
- * Feb 21, 2006
+ * Created On:  Feb 21, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -8,12 +9,7 @@ import java.util.Calendar;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.audit.AuditEventType;
-import com.thinkparity.model.parity.model.audit.event.ArchiveEvent;
-import com.thinkparity.model.parity.model.audit.event.CloseEvent;
-import com.thinkparity.model.parity.model.audit.event.CreateEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveEvent;
-import com.thinkparity.model.parity.model.audit.event.ReceiveKeyEvent;
+import com.thinkparity.model.parity.model.audit.event.*;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -28,16 +24,13 @@ class DocumentModelAuditor extends AbstractAuditor {
 	 * @param context
 	 *            The parity context.
 	 */
-	DocumentModelAuditor(final Context context) {
-		super(context);
-	}
+	DocumentModelAuditor(final Context context) { super(context); }
 
 	void archive(final Long artifactId, final JabberId createdBy,
             final Calendar createdOn) throws ParityException {
 		final ArchiveEvent event = new ArchiveEvent();
 		event.setArtifactId(artifactId);
-				event.setCreatedOn(createdOn);
-		event.setType(AuditEventType.ARCHIVE);
+        event.setCreatedOn(createdOn);
 
 		getInternalAuditModel().audit(event, createdBy);
 	}
@@ -48,7 +41,6 @@ class DocumentModelAuditor extends AbstractAuditor {
 		final CloseEvent closeEvent = new CloseEvent();
 		closeEvent.setArtifactId(documentId);
 		closeEvent.setCreatedOn(closedOn);
-		closeEvent.setType(AuditEventType.CLOSE);
 
 		getInternalAuditModel().audit(closeEvent, createdBy, closedBy);
 	}
@@ -58,10 +50,30 @@ class DocumentModelAuditor extends AbstractAuditor {
 		final CreateEvent createEvent = new CreateEvent();
 		createEvent.setArtifactId(documentId);
 		createEvent.setCreatedOn(createdOn);
-		createEvent.setType(AuditEventType.CREATE);
 
 		getInternalAuditModel().audit(createEvent, createdBy);
 	}
+
+    void createRemote(final Long documentId, final JabberId createdBy,
+            final Calendar createdOn, final JabberId receivedFrom)
+            throws ParityException {
+        final CreateRemoteEvent event = new CreateRemoteEvent();
+        event.setArtifactId(documentId);
+        event.setCreatedOn(createdOn);
+
+        getInternalAuditModel().audit(event, createdBy, receivedFrom);
+    }
+
+    void publish(final Long artifactId, final Long versionId,
+            final Calendar createdOn, final JabberId createdBy)
+            throws ParityException {
+        final PublishEvent event = new PublishEvent();
+        event.setArtifactId(artifactId);
+        event.setArtifactVersionId(versionId);
+        event.setCreatedOn(createdOn);
+
+        getInternalAuditModel().audit(event, createdBy);
+    }
 
 	void receive(final Long artifactId, final Calendar createdOn,
             final JabberId createdBy, final Long artifactVersionId,
@@ -71,7 +83,6 @@ class DocumentModelAuditor extends AbstractAuditor {
 		receiveEvent.setArtifactId(artifactId);
 		receiveEvent.setArtifactVersionId(artifactVersionId);
 		receiveEvent.setCreatedOn(createdOn);
-		receiveEvent.setType(AuditEventType.RECEIVE);
 
 		getInternalAuditModel().audit(receiveEvent, createdBy, receivedFrom);
 	}
@@ -81,9 +92,28 @@ class DocumentModelAuditor extends AbstractAuditor {
             throws ParityException {
 		final ReceiveKeyEvent event = new ReceiveKeyEvent();
 		event.setArtifactId(artifactId);
-				event.setCreatedOn(createdOn);
-		event.setType(AuditEventType.RECEIVE_KEY);
+        event.setCreatedOn(createdOn);
 
 		getInternalAuditModel().audit(event, createdBy, receivedFrom);
 	}
+
+    void addTeamMember(final Long artifactId, final JabberId createdBy,
+            final Calendar createdOn, final JabberId teamMember)
+            throws ParityException {
+        final AddTeamMemberEvent event = new AddTeamMemberEvent();
+        event.setArtifactId(artifactId);
+        event.setCreatedOn(createdOn);
+
+        getInternalAuditModel().audit(event, createdBy, teamMember);
+    }
+
+    void confirmAddTeamMember(final Long artifactId, final JabberId createdBy,
+            final Calendar createdOn, final JabberId teamMember)
+            throws ParityException {
+        final AddTeamMemberConfirmEvent event = new AddTeamMemberConfirmEvent();
+        event.setArtifactId(artifactId);
+        event.setCreatedOn(createdOn);
+
+        getInternalAuditModel().audit(event, createdBy, teamMember);
+    }
 }

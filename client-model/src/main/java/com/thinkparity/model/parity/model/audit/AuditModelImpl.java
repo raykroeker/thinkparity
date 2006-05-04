@@ -34,6 +34,28 @@ class AuditModelImpl extends AbstractModelImpl {
 		this.auditIO = IOFactory.getDefault().createAuditHandler();
 	}
 
+    void audit(final AddTeamMemberEvent event, final JabberId createdBy,
+            final JabberId teamMember) throws ParityException {
+        logger.info("[LMODEL] [AUDIT] [AUDIT TEAM MEMBER ADDED]");
+        logger.debug(event);
+        logger.debug(createdBy);
+        logger.debug(teamMember);
+        event.setCreatedBy(lookupUser(createdBy));
+        event.setTeamMember(lookupUser(teamMember));
+        auditIO.audit(event);
+    }
+
+    void audit(final AddTeamMemberConfirmEvent event, final JabberId createdBy,
+            final JabberId teamMember) throws ParityException {
+        logger.info("[LMODEL] [AUDIT] [AUDIT CONFIRM TEAM MEMBER ADDED]");
+        logger.debug(event);
+        logger.debug(createdBy);
+        logger.debug(teamMember);
+        event.setCreatedBy(lookupUser(createdBy));
+        event.setTeamMember(lookupUser(teamMember));
+        auditIO.audit(event);
+    }
+
 	void audit(final ArchiveEvent event, final JabberId createdBy)
             throws ParityException {
 		logger.info("[LMODEL] [AUDIT] [AUDIT ARCHIVE]");
@@ -54,7 +76,7 @@ class AuditModelImpl extends AbstractModelImpl {
 		auditIO.audit(event);
 	}
 
-    void audit(final SendEventConfirmation event, final JabberId createdBy,
+    void audit(final SendConfirmEvent event, final JabberId createdBy,
             final JabberId receivedFrom) throws ParityException {
         logger.info("[LMODEL] [AUDIT] [AUDIT CONFIRMATION RECEIPT]");
         logger.debug(event);
@@ -71,6 +93,17 @@ class AuditModelImpl extends AbstractModelImpl {
         logger.debug(event);
         logger.debug(createdBy);
         event.setCreatedBy(lookupUser(createdBy));
+		auditIO.audit(event);
+	}
+
+	void audit(final CreateRemoteEvent event, final JabberId createdBy,
+            final JabberId receivedFrom) throws ParityException {
+		logger.info("[LMODEL] [AUDIT] [AUDIT CREATE REMOTE]");
+        logger.debug(event);
+        logger.debug(createdBy);
+        logger.debug(receivedFrom);
+        event.setCreatedBy(lookupUser(createdBy));
+        event.setReceivedFrom(lookupUser(receivedFrom));
 		auditIO.audit(event);
 	}
 
@@ -95,6 +128,15 @@ class AuditModelImpl extends AbstractModelImpl {
         event.setRequestedBy(lookupUser(requestedBy));
 		auditIO.audit(event);
 	}
+
+    void audit(final PublishEvent event, final JabberId createdBy)
+            throws ParityException {
+        logger.info("[LMODEL] [AUDIT] [AUDIT PUBLISH]");
+        logger.debug(event);
+        logger.debug(createdBy);
+        event.setCreatedBy(lookupUser(createdBy));
+        auditIO.audit(event);
+    }
 
 	void audit(final ReceiveEvent event, final JabberId createdBy,
             final JabberId receivedFrom) throws ParityException {

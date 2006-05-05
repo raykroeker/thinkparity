@@ -136,7 +136,8 @@ class SessionModelImpl extends AbstractModelImpl {
 	static void notifyArtifactClosed(final UUID artifactUniqueId,
 			final JabberId artifactClosedBy) throws ParityException {
 		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
-		iDModel.close(artifactUniqueId, artifactClosedBy);
+        final Document d = iDModel.get(artifactUniqueId);
+		iDModel.handleClose(d.getId(), artifactClosedBy);
 	}
 
     /**
@@ -958,7 +959,9 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send a delete packet to the parity server.
+	 * Send a delete packet to the parity server.  Note that sendDelete is a
+     * misnomer.  It deletes the current user's subscription adn only flags the
+     * remote document as deleted once all subscriptions have been removed.
 	 * 
 	 * @param artifactId
 	 *            The artifact id.

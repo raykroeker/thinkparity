@@ -245,95 +245,121 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
     /**
-	 * Close a document locally.
-	 * 
+	 * Close a document.  Execute one of two close scenarios; audit the closure
+     * then fire a close event.
+     *
 	 * @param documentId
 	 *            The document id.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             <li>If the logged in user is not the key holder.
-	 *             </ul>
 	 * @throws ParityException
-     * @see DocumentModel#close(java.lang.Long)
 	 */
 	void close(final Long documentId) throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [CLOSE]");
 		logger.debug(documentId);
         assertOnline("[LMODEL] [DOCUMENT] [CLOSE] [USER IS NOT ONLINE]");
-        assertIsKeyHolder("[LMODEL] [DOCUMENT] [CLOSE] [USER IS NOT KEYHOLDER]", documentId);
-		try {
-            // publish if required
-            if(!isWorkingVersionEqual(documentId)) { publish(documentId); }
 
-			// close the document
-			final Document document = get(documentId);
-			assertStateTransition(document.getState(), ArtifactState.CLOSED);
-			documentIO.updateState(document.getId(), ArtifactState.CLOSED);
+        // close
+        if(isKeyHolder(documentId)) { closeAsKeyHolder(documentId); }
+        else { closeAsNonKeyHolder(documentId); }
 
-			// lock the document
-			lock(documentId);
+        // audit
+        auditor.close(
+                documentId, currentUserId(), currentDateTime(), currentUserId());
 
-			// send the closure to the server
-			getInternalSessionModel().sendClose(documentId);
+        // fire event
+		notifyDocumentClosed(get(documentId), localEventGen);
+    }
 
-			// audit the closure
-			final Document d = get(documentId);
-			auditor.close(d.getId(), currentUserId(), d.getUpdatedOn(), currentUserId());
+    /**
+     * Close the document as a non key holder.  Here we update the document
+     * state; delete the local team information; lock the document; delete
+     * the remote subscription for the current user.
+     *
+     * @param documentId
+     *      A document id.
+     */
+    private void closeAsNonKeyHolder(final Long documentId) throws ParityException {
+        assertIsNotKeyHolder(
+                "[LMODEL] [DOCUMENT] [CLOSE AS NON KEYHOLDER] [USER IS KEYHOLDER]",
+                documentId);
+        assertWorkingVersionIsEqual(
+                "[LMODEL] [DOCUMENT] [CLOSE AS NON KEYHOLDER] [WORKING VERSION MODIFIED]",
+                documentId);
 
-			// fire event
-			notifyDocumentClosed(d, localEventGen);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[LMODEL] [DOCUMENT] [CLOSE] [UNKNOWN ERROR]", rx);
-            logger.error(documentId);
-			throw ParityErrorTranslator.translate(rx);
-		}
+        // update state
+        final Document d = get(documentId);
+        assertStateTransition(d.getState(), ArtifactState.CLOSED);
+        documentIO.updateState(d.getId(), ArtifactState.CLOSED);
+
+        // delete local team info
+        getInternalArtifactModel().deleteTeam(documentId);
+
+        // lock
+        lock(documentId);
+
+        // delete remote team subscription
+        final InternalSessionModel iSModel = getInternalSessionModel();
+        iSModel.sendDelete(documentId);
+    }
+
+    /**
+     * Close the document as a key holder.   Here we update the document
+     * state; delete the local team information; lock the document; send a close
+     * message to the rest of the team; delete the remote subscription for the
+     * current user.
+     *
+     * @param documentId
+     *      A document id.
+     */
+    private void closeAsKeyHolder(final Long documentId) throws ParityException {
+        assertIsKeyHolder("[LMODEL] [DOCUMENT] [CLOSE AS KEYHOLDER] [USER IS NOT KEYHOLDER]", documentId);
+        // update state
+        final Document d = get(documentId);
+        assertStateTransition(d.getState(), ArtifactState.CLOSED);
+        documentIO.updateState(d.getId(), ArtifactState.CLOSED);
+
+        // delete local team info
+        getInternalArtifactModel().deleteTeam(documentId);
+
+        // lock
+        lock(documentId);
+
+		// send the closure to the server
+        getInternalSessionModel().sendClose(documentId);
+
+        // delete remote team subscription
+        final InternalSessionModel iSModel = getInternalSessionModel();
+        iSModel.sendDelete(documentId);
 	}
 
     /**
-     * Close a document after it has been closed remotely.
+     * Handle a close request from the remote model.
      *
-     * @param uniqueId
-     *      The document unique id.
+     * @param documentId
+     *      A document id.
      * @param closedBy
-     *      By whom the document was closed.
+     *      A jabber id.
      *
      * @throws ParityException
-     * @see InternalDocumentModel#close(java.util.UUID,JabberId)
      */
-	void close(final UUID uniqueId, final JabberId closedBy)
-        throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [CLOSE BY REQUEST]");
-		logger.debug(uniqueId);
+	void handleClose(final Long documentId, final JabberId closedBy)
+            throws ParityException {
+		logger.info("[LMODEL] [DOCUMENT] [HANDLE CLOSE]");
+		logger.debug(documentId);
 		logger.debug(closedBy);
-		try {
-			final Document document = get(uniqueId);
+        final Calendar currentDateTime = currentDateTime();
 
-			// close the document
-			assertStateTransition(document.getState(), ArtifactState.CLOSED);
-			documentIO.updateState(document.getId(), ArtifactState.CLOSED);
+        // update remote info
+        getInternalArtifactModel().updateRemoteInfo(
+                documentId, closedBy, currentDateTime);
 
-			// lock the document
-			lock(document.getId());
+        // close
+        closeAsNonKeyHolder(documentId);
 
-			// update the remote info row
-			final InternalArtifactModel iAModel = getInternalArtifactModel();
-			iAModel.updateRemoteInfo(document.getId(), closedBy, currentDateTime());
+        // audit
+		auditor.close(documentId, closedBy, currentDateTime, currentUserId());
 
-			// audit the closure
-			final Document d = get(document.getId());
-			auditor.close(d.getId(), closedBy, d.getUpdatedOn(), currentUserId());
-
-			// fire event
-			notifyDocumentClosed(document, remoteEventGen);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[LMODEL] [DOCUMENT] [CLOSE] [UNKNOWN ERROR]", rx);
-            logger.error(uniqueId);
-            logger.error(closedBy);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		// fire event
+        notifyDocumentClosed(get(documentId), remoteEventGen);
 	}
 
 	/**
@@ -418,10 +444,12 @@ class DocumentModelImpl extends AbstractModelImpl {
             iAModel.applyFlagKey(document.getId());
 
             // create the remote info row
-			getInternalArtifactModel().createRemoteInfo(
-                document.getId(), currentUserId(), now);
+			iAModel.createRemoteInfo(document.getId(), currentUserId(), now);
 
-			// audit the creation
+            // add team member
+            iAModel.addTeamMember(document.getId(), currentUserId());
+
+            // audit the creation
 			auditor.create(document.getId(), currentUserId(), document.getCreatedOn());
 
 			// index the creation
@@ -544,57 +572,35 @@ class DocumentModelImpl extends AbstractModelImpl {
 	void delete(final Long documentId) throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [DELETE]");
 		logger.debug(documentId);
-		try {
-			final Document document = get(documentId);
-			assertStateTransition(document.getState(), ArtifactState.DELETED);
+        assertOnline("[LMODEL] [DOCUMENT] [DELETE] [USER IS NOT ONLINE]");
 
-			// if the document is not closed ensure the user is not the
-			// key holder
-			if(ArtifactState.CLOSED != document.getState())
-                assertIsNotKeyHolder(
-                        "[LMODEL] [DOCUMENT] [DELETE] [USER IS NOT KEYHOLDER]",
-                        documentId);
-			
-			// delete the document remotely
-			final InternalSessionModel iSModel = getInternalSessionModel();
-			iSModel.sendDelete(documentId);
+        // update state
+        final Document d = get(documentId);
+        assertStateTransition(d.getState(), ArtifactState.DELETED);
+        documentIO.updateState(d.getId(), ArtifactState.DELETED);
 
-			// delete the audit info
-			final InternalAuditModel iAModel = getInternalAuditModel();
-			iAModel.delete(documentId);
+        // delete audit
+        final InternalAuditModel iAModel = getInternalAuditModel();
+        iAModel.delete(documentId);
 
-			// delete the versions locally
-			final Collection<DocumentVersion> versions = listVersions(documentId);
-			for(final DocumentVersion version : versions) {
-				getLocalFile(document, version).delete();
-				documentIO.deleteVersion(documentId, version.getVersionId());
-			}
+        // delete versions
+        final Collection<DocumentVersion> versions = listVersions(documentId);
+		for(final DocumentVersion version : versions) {
+            getLocalFile(d, version).delete();
+			documentIO.deleteVersion(documentId, version.getVersionId());
+        }
 
-            // delete the team locally
-            final InternalArtifactModel iArtifactModel =
-                    getInternalArtifactModel();
-            final Set<User> team = iArtifactModel.readTeam(documentId);
-            for(final User teamMember : team) {
-                iArtifactModel.removeTeamMember(
-                        documentId, teamMember.getId());
-            }
+        // delete  index
+        indexor.delete(documentId);
 
-			// delete the document locally
-			final LocalFile localFile = getLocalFile(document);
-			localFile.delete();
-			localFile.deleteParent();
-			documentIO.delete(documentId);
+        // delete document
+        final LocalFile localFile = getLocalFile(d);
+		localFile.delete();
+		localFile.deleteParent();
+		documentIO.delete(documentId);
 
-			// delete the index
-			indexor.delete(documentId);
-
-			// fire event
-			notifyDocumentDeleted(document, localEventGen);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[LMODEL] [DOCUMENT] [DELETE] [UNEXPECTED ERROR]", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+        // fire event
+		notifyDocumentDeleted(null, localEventGen);
 	}
 
 	/**
@@ -1326,6 +1332,18 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Assert the working version is equal to the latest version of a document.
+     *
+     * @param documentId
+     *      A document id.
+     * @see DocumentModelImpl#isWorkingVersionEqual(java.lang.Long)
+     */
+    private void assertWorkingVersionIsEqual(final String assertion,
+            final Long documentId) throws ParityException {
+        Assert.assertTrue(assertion, isWorkingVersionEqual(documentId));
+    }
+
+    /**
      * Create an input stream from the input file.
      * 
      * @param inputFile
@@ -1663,6 +1681,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 
 		// send a subscription request
 		getInternalSessionModel().sendSubscribe(document);
+		
+		// add team member
+		iAModel.addTeamMember(document.getId(), currentUserId());
 
 		// index the creation
 		indexor.create(document.getId(), document.getName());

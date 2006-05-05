@@ -386,6 +386,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.createTeamRel(artifactId, user.getLocalId());
     }
 
+    void deleteTeam(final Long artifactId) {
+        logger.info("[LMODEL] [ARTIFACT] [DELETE TEAM]");
+        logger.debug(artifactId);
+        artifactIO.deleteTeamRel(artifactId);
+    }
+
     void removeTeamMember(final Long artifactId, final JabberId jabberId) {
         logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
         logger.debug(artifactId);

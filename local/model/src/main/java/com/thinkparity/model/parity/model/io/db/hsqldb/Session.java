@@ -215,6 +215,14 @@ public class Session {
 		finally { close(resultSet); }
 	}
 
+    public Integer getInteger(final String columnName) {
+        assertOpen("[LMODEL] [IO] [HSQL] [GET INTEGER]");
+        assertOpenResult("[LMODEL] [IO] [HSQL] [GET INTEGER]");
+        debugSql(columnName);
+        try { return resultSet.getInt(columnName); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
 	public Long getLong(final String columnName) {
 		assertOpen("getLong(String)");
 		assertOpenResult("getLong(String)");

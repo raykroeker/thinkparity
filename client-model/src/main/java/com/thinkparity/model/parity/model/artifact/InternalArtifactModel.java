@@ -140,6 +140,18 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
+    /**
+     * Delete the team in its entirety.
+     *
+     * @param artifactId
+     *      An artifact id.
+     * @see InternalArtifactModel#addTeamMember(java.lang.Long,com.thinkparity.model.xmpp.JabberId)
+     * @see InternalArtifactModel#removeTeamMember(java.lang.Long,com.thinkparity.model.xmpp.JabberId)
+     */
+    public void deleteTeam(final Long artifactId) {
+        synchronized(getImplLock()) { getImpl().deleteTeam(artifactId); }
+    }
+
 	/**
 	 * Obtain all pending key requests for the artifact.
 	 * 

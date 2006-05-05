@@ -1,5 +1,5 @@
 /*
- * Created On: Feb 21, 2006
+ * Created On: Fri May 05 2006 09:36 PDT
  * $Id$
  */
 package com.thinkparity.model.parity.model.document;
@@ -15,29 +15,30 @@ import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.session.KeyResponse;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
- * Test the parity document interface close api.
+ * Test the parity document implementation handle close api.
  *
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class CloseTest extends DocumentTestCase {
+public class HandleCloseTest extends DocumentTestCase {
 
     /** The test data. */
 	private List<Fixture> data;
 	
-	/** Create CloseTest. */
-	public CloseTest() { super("[LMODEL] [DOCUMENT] [CLOSE TEST]"); }
+	/** Create HandleCloseTest. */
+	public HandleCloseTest() { super("[LMODEL] [DOCUMENT] [HANDLE CLOSE TEST]"); }
 
     /** Test the parity document interface close api. */ 
-	public void testClose() {
-        testLogger.info("[LMODEL] [DOCUMENT] [TEST CLOSE]");
+	public void testHandleClose() {
+        testLogger.info("[LMODEL] [DOCUMENT] [TEST HANDLE CLOSE]");
         Document document;
         Set<User> team;
         for(final Fixture datum : data) {
-            try { datum.dModel.close(datum.documentId); }
+            try { datum.dMImpl.handleClose(datum.documentId, datum.closedBy); }
             catch(final ParityException px) { fail(createFailMessage(px)); }
 
             document = null;
@@ -61,25 +62,18 @@ public class CloseTest extends DocumentTestCase {
 		data = new LinkedList<Fixture>();
         final ArtifactModel aModel = getArtifactModel();
 		final DocumentModel dModel = getDocumentModel();
+		final DocumentModelImpl dMImpl = getImpl();
         final SessionModel sModel = getSessionModel();
         final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitBuddy0();
 
-        // 2 scenarios
-        // 0:  i am the document key holder
+        // 1 scenario
         final File file0 = getInputFiles()[0];
         final Document d0 = dModel.create(file0.getName(), file0.getName(), file0);
         addTeam(d0);
         modifyDocument(d0);
         dModel.publish(d0.getId());
-        data.add(new Fixture(aModel, dModel, d0.getId()));
-        // 1:  i am not the document key holder
-        final File file1 = getInputFiles()[1];
-        final Document d1 = dModel.create(file1.getName(), file1.getName(), file1);
-        addTeam(d1);
-        modifyDocument(d1);
-        dModel.publish(d1.getId());
-        sModel.sendKeyResponse(d1.getId(), jUnitBuddy0.getJabberId(), KeyResponse.ACCEPT);
-        data.add(new Fixture(aModel, dModel, d1.getId()));
+        sModel.sendKeyResponse(d0.getId(), jUnitBuddy0.getJabberId(), KeyResponse.ACCEPT);
+        data.add(new Fixture(aModel, jUnitBuddy0.getJabberId(), dMImpl, dModel, d0.getId()));
 	}
 
 	/**
@@ -94,12 +88,17 @@ public class CloseTest extends DocumentTestCase {
 
 	private class Fixture {
         private final ArtifactModel aModel;
-		private final DocumentModel dModel;
+        private final JabberId closedBy;
+		private final DocumentModelImpl dMImpl;
+        private final DocumentModel dModel;
 		private final Long documentId;
-		private Fixture(final ArtifactModel aModel, final DocumentModel dModel,
+		private Fixture(final ArtifactModel aModel, final JabberId closedBy,
+                final DocumentModelImpl dMImpl, final DocumentModel dModel,
                 final Long documentId) {
             this.aModel = aModel;
-			this.dModel = dModel;
+            this.closedBy = closedBy;
+			this.dMImpl = dMImpl;
+            this.dModel = dModel;
 			this.documentId = documentId;
 		}
 	}

@@ -55,6 +55,15 @@ public interface ArtifactIOHandler {
 	public void deleteRemoteInfo(final Long artifactId)
 			throws HypersonicException;
 
+    /**
+     * Delete an artifact team relationship in its entirety.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @throws HypersonicException
+     */
+    public void deleteTeamRel(final Long artifactId) throws HypersonicException;
+
 	/**
      * Delete an artifact team relationship.
      * 

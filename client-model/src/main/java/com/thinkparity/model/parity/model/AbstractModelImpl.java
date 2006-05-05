@@ -230,8 +230,8 @@ public abstract class AbstractModelImpl {
 		case ACTIVE:
 			// i can close it or delete it
 			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, new ArtifactState[] {ArtifactState.CLOSED, ArtifactState.DELETED}),
-						ArtifactState.CLOSED == intendedState || ArtifactState.DELETED == intendedState);
+					formatAssertion(currentState, intendedState, new ArtifactState[] {ArtifactState.CLOSED}),
+						ArtifactState.CLOSED == intendedState);
 			break;
 		case CLOSED:
 			// i can delete it

@@ -6,6 +6,7 @@ package com.thinkparity.model;
 import java.io.File;
 import java.io.IOException;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -57,6 +58,10 @@ public abstract class ModelTestCase extends TestCase {
 		super(name);
 		// TODO Auto-generated constructor stub
 	}
+
+    protected ArtifactModel getArtifactModel() {
+        return ArtifactModel.getModel();
+    }
 
 	protected DocumentModel getDocumentModel() {
 		if(null == documentModel) {

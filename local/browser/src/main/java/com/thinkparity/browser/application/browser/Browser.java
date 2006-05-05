@@ -816,42 +816,19 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.ARTIFACT_SEARCH, data);
 	}
 
-	/**
-     * Run the send artifact version action.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param users
-     *            The users to send to.
-     * @param versionId
-     *            The version id.
+    /**
+     * Run the send key action for a document.
+     *
+     * @param documentId
+     *      A document id.
+     * @param userId
+     *      A user id.
      */
-    public void runSendArtifactVersion(final Long artifactId,
-            final List<User> users, final Long versionId) {
-        final Data data = new Data(3);
-        data.set(SendVersion.DataKey.ARTIFACT_ID, artifactId);
-        data.set(SendVersion.DataKey.USERS, users);
-        data.set(SendVersion.DataKey.VERSION_ID, versionId);
-        invoke(ActionId.ARTIFACT_SEND_VERSION, data);
-    }
-
-	/**
-     * Run the send artifact version action.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param user
-     *            The user to send to.
-     * @param versionId
-     *            The version id.
-     * 
-     * @see #runSendArtifactVersion(Long, List, Long)
-     */
-    public void runSendArtifactVersion(final Long artifactId,
-            final User user, final Long versionId) {
-        final List<User> users = new LinkedList<User>();
-        users.add(user);
-        runSendArtifactVersion(artifactId, users, versionId);
+    public void runSendDocumentKey(final Long documentId, final JabberId userId) {
+        final Data data = new Data(2);
+        data.set(SendKey.DataKey.DOCUMENT_ID, documentId);
+        data.set(SendKey.DataKey.USER_ID, userId);
+        invoke(ActionId.DOCUMENT_SEND_KEY, data);
     }
 
     /**

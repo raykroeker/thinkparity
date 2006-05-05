@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
@@ -23,6 +24,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * An extension of a document that allows the {@link MainCellRenderer} to display
@@ -70,13 +72,18 @@ public class MainCellDocument extends Document implements MainCell {
     /** A flag indicating whether or not the cell has been seen. */
     private Boolean seen;
 
+    /** The document team. */
+    private final Set<User> team;
+
+
     /** A flag indicating whether or not the cell is urgent. */
     private Boolean urgent;
 
     /**
      * Create a MainCellDocument.
      */
-    public MainCellDocument(final Document d, final DocumentModel dModel) {
+    public MainCellDocument(final DocumentModel dModel, final Document d,
+            final Set<User> team) {
         super(d.getCreatedBy(), d.getCreatedOn(), d.getDescription(),
                 d.getFlags(), d.getUniqueId(), d.getName(), d.getUpdatedBy(),
                 d.getUpdatedOn());
@@ -90,6 +97,7 @@ public class MainCellDocument extends Document implements MainCell {
         this.keyHolder = contains(ArtifactFlag.KEY);
         this.keyRequests = new LinkedList<KeyRequest>();
         this.seen = contains(ArtifactFlag.SEEN);
+        this.team = team;
     }
 
     /**
@@ -291,4 +299,11 @@ public class MainCellDocument extends Document implements MainCell {
         try { return dModel.isWorkingVersionEqual(getId()); }
         catch(final ParityException px) { throw new RuntimeException(px); }
     }
+
+    /**
+     * Obtain the team.
+     *
+     * @return A set of users.
+     */
+    public Set<User> getTeam() { return team; }
 }

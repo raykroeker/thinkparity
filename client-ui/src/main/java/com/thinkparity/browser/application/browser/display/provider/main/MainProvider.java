@@ -73,7 +73,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				final Long documentId = (Long) input;
 				try {
 					final Document document = dModel.get(documentId);
-                    return toDisplay(document, artifactModel, dModel);
+                    return toDisplay(document, artifactModel, dModel, loggedInUserId);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -88,7 +88,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 						new RemoteUpdatedOnComparator(Boolean.FALSE);
 					sort.add(new UpdatedOnComparator(Boolean.FALSE));
 
-					return toDisplay(dModel.list(sort), artifactModel, dModel);
+					return toDisplay(dModel.list(sort), artifactModel, dModel, loggedInUserId);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -178,12 +178,12 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @return The displayable documents.
      */
 	private MainCellDocument[] toDisplay(final Collection<Document> documents,
-            final ArtifactModel aModel, final DocumentModel dModel)
-            throws ParityException {
+            final ArtifactModel aModel, final DocumentModel dModel,
+            final JabberId localUserId) throws ParityException {
 		final List<MainCellDocument> display = new LinkedList<MainCellDocument>();
 
 		for(final Document d : documents) {
-			display.add(toDisplay(d, aModel, dModel));
+			display.add(toDisplay(d, aModel, dModel, localUserId));
 		}
 		return display.toArray(new MainCellDocument[] {});
 	}
@@ -199,11 +199,12 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @throws ParityException
      */
 	private MainCellDocument toDisplay(final Document document,
-            final ArtifactModel aModel, final DocumentModel dModel)
+            final ArtifactModel aModel, final DocumentModel dModel, final JabberId localUserId)
             throws ParityException {
 		if(null == document) { return null; }
 		else {
-			final MainCellDocument mcd = new MainCellDocument(document, dModel);
+			final MainCellDocument mcd = new MainCellDocument(
+                    dModel, document, readTeam(aModel, document.getId(), localUserId));
             mcd.setKeyRequests(aModel.readKeyRequests(document.getId()));
 			return mcd;
 		}
@@ -222,21 +223,26 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @return A displayable history.
      */
 	private MainCellHistoryItem[] toDisplay(final ArtifactModel aModel,
-            final JabberId loggedInUserId,
+            final JabberId localUserId,
             final MainCellDocument document,
             final Collection<HistoryItem> history) {
 	    final List<MainCellHistoryItem> display = new LinkedList<MainCellHistoryItem>();
         final Integer count = history.size();
         Integer index = 0;
-        Set<User> dTeam;
         for(final HistoryItem hi : history) {
-            dTeam = aModel.readTeam(document.getId());
-            for(final Iterator<User> i = dTeam.iterator(); i.hasNext();) {
-                if(i.next().getId().equals(loggedInUserId)) { i.remove(); }
-            }
             display.add(new MainCellHistoryItem(
-                    document, hi, dTeam, count, index++));
+                    document, hi, readTeam(aModel, document.getId(), localUserId), count, index++));
         }
         return display.toArray(new MainCellHistoryItem[] {});
+    }
+
+    private Set<User> readTeam(final ArtifactModel aModel,
+            final Long documentId, final JabberId localUserId) {
+        final Set<User> team = aModel.readTeam(documentId);
+        logger.debug("[] [TEAM SIZE (" + team.size() + "]");
+        for(final Iterator<User> i = team.iterator(); i.hasNext();) {
+            if(i.next().getId().equals(localUserId)) { i.remove(); }
+        }
+        return team;
     }
 }

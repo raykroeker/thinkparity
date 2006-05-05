@@ -11,6 +11,7 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -50,7 +51,11 @@ public class Close extends AbstractAction {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Document document = getDocumentModel().get(documentId);
 		if(browser.confirm("DocumentClose.ConfirmClosureMessage", new Object[] {document.getName()})) {
-			getDocumentModel().close(documentId);
+            final DocumentModel dModel = getDocumentModel();
+            if(!dModel.isWorkingVersionEqual(documentId))   // assumes that if they're different
+                dModel.publish(documentId);                 // i am the keyholder
+
+			dModel.close(documentId);
 			getArtifactModel().applyFlagSeen(documentId);
 		}
 

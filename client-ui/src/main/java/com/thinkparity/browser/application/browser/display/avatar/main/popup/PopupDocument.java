@@ -14,17 +14,20 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.platform.Platform.Connection;
 
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -101,6 +104,15 @@ public class PopupDocument implements Popup {
         if(document.isKeyHolder()) {
             if(!document.isWorkingVersionEqual())
                 jPopupMenu.add(new Publish(application));
+
+            final Set<User> team = document.getTeam(); 	 
+            System.out.println("[LBROWSER] [APPLICATION] [BROWSER] [DISPLAY] [AVATAR] [POPUP DOCUMENT] [TRIGGER ONLINE] [TEAM SIZE] [" + team.size() + "]");
+            if(0 < team.size()) { 	 
+                final JMenu jMenu = MenuFactory.create(getString("SendKey")); 	 
+                for(final User teamMember : team) 	 
+                    jMenu.add(new SendKey(application, teamMember)); 	 
+                jPopupMenu.add(jMenu); 	 
+            }
         }
         else { jPopupMenu.add(new RequestKey(application)); }
         jPopupMenu.add(new Close(application));
@@ -325,6 +337,23 @@ public class PopupDocument implements Popup {
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runRequestKey(document.getId());
+                }
+            });
+        }
+    }
+
+    /** A send key {@link JMenuItem}. */ 	 
+    private class SendKey extends JMenuItem { 	 
+
+        /** @see java.io.Serializable */ 	 
+        private static final long serialVersionUID = 1; 	 
+
+        private SendKey(final Browser application, final User teamMember) {
+            super(getString("SendKey.TeamMember", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}), getString("SendKey.TeamMemberMnemonic", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}).charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runSendDocumentKey(
+                        document.getId(), teamMember.getId());
                 }
             });
         }

@@ -66,6 +66,8 @@ public class ReadContactsTest extends ModelTestCase {
 
 		final Set<JabberId> contactIds = new HashSet<JabberId>();
         contactIds.add(ModelTestUser.getX().getJabberId());
+        contactIds.add(ModelTestUser.getY().getJabberId());
+        contactIds.add(ModelTestUser.getZ().getJabberId());
 
 		data.add(new Fixture(contactIds.size(), contactIds, sessionModel));
 	}

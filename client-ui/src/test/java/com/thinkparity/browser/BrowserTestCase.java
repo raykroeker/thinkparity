@@ -3,14 +3,16 @@
  */
 package com.thinkparity.browser;
 
+import com.raykroeker.junitx.TestCase;
+
 /**
+ * The local browser test case abstraction.
+ *
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class BrowserTestCase {
+public abstract class BrowserTestCase extends TestCase {
 
-	/**
-	 * Create a BrowserTestCase.
-	 */
-	public BrowserTestCase() { super(); }
+	/** Create BrowserTestCase. */
+	protected BrowserTestCase(final String name) { super(name); }
 }

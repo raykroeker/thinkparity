@@ -67,6 +67,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.raykroeker</groupId>
+			<artifactId>jUnitX</artifactId>
+			<version>1.0.1</version>
+			<type>jar</type>
+			<scope>test</scope>
+		</dependency>
+
+
+		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>lBrowserStartup</artifactId>
 			<version>1.0-SNAPSHOT</version>

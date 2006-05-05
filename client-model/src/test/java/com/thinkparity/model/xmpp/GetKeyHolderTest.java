@@ -53,7 +53,7 @@ public class GetKeyHolderTest extends XMPPTestCase {
 		final ModelTestUser jUnit = ModelTestUser.getJUnit();
 		final User jUnitUser = new User(jUnit.getJabberId());
 
-		final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitBuddy0();
+		final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitX();
 		final User jUnitBuddy0User = new User(jUnitBuddy0.getJabberId());
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();

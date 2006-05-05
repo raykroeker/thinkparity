@@ -69,7 +69,7 @@ public class IsWorkingVersionEqualTest extends DocumentTestCase {
                 isEqual = Boolean.FALSE;
             }
             else {
-                sModel.send(ModelTestUser.getJUnitBuddy0().getJabberId(), d.getId());
+                sModel.send(ModelTestUser.getJUnitX().getJabberId(), d.getId());
                 isEqual = Boolean.TRUE;
             }
             data.add(new Fixture(d.getId(), dModel, isEqual));

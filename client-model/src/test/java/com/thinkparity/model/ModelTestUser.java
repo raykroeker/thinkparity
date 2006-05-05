@@ -19,10 +19,21 @@ public class ModelTestUser {
 		return new ModelTestUser(
 				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit");
 	}
-	public static ModelTestUser getJUnitBuddy0() {
+
+    public static ModelTestUser getX() {
 		return new ModelTestUser(
-				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit.0");
+				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit.x");
 	}
+
+    public static ModelTestUser getY() {
+        return new ModelTestUser(
+                "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.y");
+    }
+
+    public static ModelTestUser getZ() {
+        return new ModelTestUser(
+                "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.z");
+    }
 
 	private final String password;
 	private final String resource;

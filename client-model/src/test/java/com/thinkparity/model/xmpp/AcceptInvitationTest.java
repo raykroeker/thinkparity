@@ -44,7 +44,7 @@ public class AcceptInvitationTest extends XMPPTestCase {
         super.setUp();
         data = new HashSet<Fixture>();
 
-        final JabberId jabberId = ModelTestUser.getJUnitX().getJabberId();
+        final JabberId jabberId = ModelTestUser.getX().getJabberId();
 
         data.add(new Fixture(jabberId, getSession()));
     }

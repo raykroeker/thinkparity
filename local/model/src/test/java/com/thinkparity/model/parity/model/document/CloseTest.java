@@ -62,7 +62,7 @@ public class CloseTest extends DocumentTestCase {
         final ArtifactModel aModel = getArtifactModel();
 		final DocumentModel dModel = getDocumentModel();
         final SessionModel sModel = getSessionModel();
-        final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitBuddy0();
+        final ModelTestUser userX = ModelTestUser.getX();
 
         // 2 scenarios
         // 0:  i am the document key holder
@@ -78,7 +78,7 @@ public class CloseTest extends DocumentTestCase {
         addTeam(d1);
         modifyDocument(d1);
         dModel.publish(d1.getId());
-        sModel.sendKeyResponse(d1.getId(), jUnitBuddy0.getJabberId(), KeyResponse.ACCEPT);
+        sModel.sendKeyResponse(d1.getId(), userX.getJabberId(), KeyResponse.ACCEPT);
         data.add(new Fixture(aModel, dModel, d1.getId()));
 	}
 

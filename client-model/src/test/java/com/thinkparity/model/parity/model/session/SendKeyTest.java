@@ -48,7 +48,7 @@ public class SendKeyTest extends ModelTestCase {
 		final SessionModel sessionModel = getSessionModel();
 
 		login();
-		final ModelTestUser jUnitTestUser = ModelTestUser.getJUnitX();
+		final ModelTestUser jUnitTestUser = ModelTestUser.getX();
 		final JabberId jabberId = jUnitTestUser.getJabberId();
 		Document d;
 		for(final File inputFile : getInputFiles()) {

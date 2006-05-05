@@ -64,7 +64,7 @@ public class HandleCloseTest extends DocumentTestCase {
 		final DocumentModel dModel = getDocumentModel();
 		final DocumentModelImpl dMImpl = getImpl();
         final SessionModel sModel = getSessionModel();
-        final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitBuddy0();
+        final ModelTestUser userX = ModelTestUser.getX();
 
         // 1 scenario
         final File file0 = getInputFiles()[0];
@@ -72,8 +72,8 @@ public class HandleCloseTest extends DocumentTestCase {
         addTeam(d0);
         modifyDocument(d0);
         dModel.publish(d0.getId());
-        sModel.sendKeyResponse(d0.getId(), jUnitBuddy0.getJabberId(), KeyResponse.ACCEPT);
-        data.add(new Fixture(aModel, jUnitBuddy0.getJabberId(), dMImpl, dModel, d0.getId()));
+        sModel.sendKeyResponse(d0.getId(), userX.getJabberId(), KeyResponse.ACCEPT);
+        data.add(new Fixture(aModel, userX.getJabberId(), dMImpl, dModel, d0.getId()));
 	}
 
 	/**

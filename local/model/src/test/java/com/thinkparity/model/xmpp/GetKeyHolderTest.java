@@ -53,8 +53,7 @@ public class GetKeyHolderTest extends XMPPTestCase {
 		final ModelTestUser jUnit = ModelTestUser.getJUnit();
 		final User jUnitUser = new User(jUnit.getJabberId());
 
-		final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitX();
-		final User jUnitBuddy0User = new User(jUnitBuddy0.getJabberId());
+		final ModelTestUser userX = ModelTestUser.getX();
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
@@ -66,18 +65,18 @@ public class GetKeyHolderTest extends XMPPTestCase {
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jUnitBuddy0User);
-		data.add(new Fixture(artifactUniqueId, jUnitBuddy0User, session));
+		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getUser());
+		data.add(new Fixture(artifactUniqueId, userX.getUser(), session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jUnitBuddy0User);
-		data.add(new Fixture(artifactUniqueId, jUnitBuddy0User, session));
+		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getUser());
+		data.add(new Fixture(artifactUniqueId, userX.getUser(), session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jUnitBuddy0User);
-		data.add(new Fixture(artifactUniqueId, jUnitBuddy0User, session));
+		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getUser());
+		data.add(new Fixture(artifactUniqueId, userX.getUser(), session));
 	}
 
 	/**

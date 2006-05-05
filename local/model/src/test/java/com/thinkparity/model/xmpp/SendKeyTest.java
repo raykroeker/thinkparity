@@ -42,7 +42,7 @@ public class SendKeyTest extends XMPPTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		final XMPPSession session = getSession();
-		final User user = ModelTestUser.getJUnitX().getUser();
+		final User user = ModelTestUser.getX().getUser();
 		data = new LinkedList<Fixture>();
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();

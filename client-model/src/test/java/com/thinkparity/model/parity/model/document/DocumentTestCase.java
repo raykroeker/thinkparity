@@ -56,8 +56,8 @@ public abstract class DocumentTestCase extends ModelTestCase {
     }
 
     protected void addTeam(final Long documentId) throws Exception {
-        final ModelTestUser jUnitBuddy0 = ModelTestUser.getJUnitBuddy0();
-        getDocumentModel().addNewTeamMember(documentId, jUnitBuddy0.getJabberId());
+        final ModelTestUser userX = ModelTestUser.getX();
+        getDocumentModel().addNewTeamMember(documentId, userX.getJabberId());
     }
 
     protected void modifyDocument(final Document document) throws Exception {

@@ -466,7 +466,8 @@ public class BrowserMainDocumentModel {
     }
 
     private void pseudoSelectAll(final List<? extends MainCell> mainCells) {
-        for(final MainCell mc : mainCells) { pseudoSelect(mc); }
+        if(null == mainCells) { logger.warn("[LBROWSER] [APPLICATION] [BROWSER] [MAIN] [CANNOT PSEUDO SELECT NULL]"); }
+        else { for(final MainCell mc : mainCells) { pseudoSelect(mc); } }
     }
 
     /**

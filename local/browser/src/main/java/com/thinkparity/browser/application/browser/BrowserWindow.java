@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -125,19 +126,23 @@ public class BrowserWindow extends AbstractJFrame {
 	 * @return The main window.
 	 */
 	void open() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				setVisible(true);
-				applyRenderingHints();
-				debugGeometry();
-				debugLookAndFeel();
-
-		    	browser.displayTitleAvatar();
-		    	browser.displayInfoAvatar();
-		    	browser.displayDocumentListAvatar();
-                browser.displayStatusAvatar();
-			}
-		});
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                    setVisible(true);
+                    applyRenderingHints();
+                    debugGeometry();
+                    debugLookAndFeel();
+    
+                    browser.displayTitleAvatar();
+                    browser.displayInfoAvatar();
+                    browser.displayDocumentListAvatar();
+                    browser.displayStatusAvatar();
+                }
+            });
+        }
+        catch(final InterruptedException ix) { throw new RuntimeException(ix); }
+        catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
 	}
 
 	/**

@@ -78,6 +78,14 @@ public class Tray {
     /** Install the system tray.*/
 	public void install() {
 		systemTrayIcon = new TrayIcon(readTrayIcon());
+        systemTrayIcon.addBalloonActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent e) {
+                if(systemApplication.isBrowserRunning())
+                    systemApplication.runMoveBrowserToFront();
+                else
+                    systemApplication.runRestoreBrowser();
+			}
+		});
 		systemTrayIcon.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
                 if(systemApplication.isBrowserRunning())

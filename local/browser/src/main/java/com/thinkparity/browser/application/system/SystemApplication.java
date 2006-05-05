@@ -306,6 +306,20 @@ public class SystemApplication extends AbstractApplication {
                 new Object[] {document.getName()}));
     }
 
+    /**
+     * Notify a document team member has been added.
+     *
+     * @param user
+     *      A user.
+     * @param document
+     *      A document.
+     */
+    void fireDocumentTeamMemberAdded(final User user, final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentTeamMemberAddedMessage",
+                new Object[] {getName(user), document.getName()}));
+    }
+
     /** Notify the session has been established. */
     void fireSessionEstablished() {
         impl.reloadConnectionStatus(Platform.Connection.ONLINE);

@@ -95,8 +95,8 @@ public class PopupDocument implements Popup {
                         requestedBySet.add(keyRequest.getRequestedBy());
                     }
                 }
-                jPopupMenu.addSeparator();
                 jPopupMenu.add(new DeclineAllKeyRequests(application));
+                jPopupMenu.addSeparator();
             }
         }
         jPopupMenu.add(new Open(application));

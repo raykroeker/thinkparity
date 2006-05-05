@@ -105,6 +105,11 @@ class EventDispatcher {
                 if(e.isRemote())
                     systemApplication.fireDocumentKeyRequested(e.getUser(), e.getDocument());
             }
+            public void teamMemberAdded(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    systemApplication.fireDocumentTeamMemberAdded(e.getUser(), e.getDocument());
+                }
+            }
 		};
 	}
 

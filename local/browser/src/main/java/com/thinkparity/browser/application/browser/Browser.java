@@ -392,6 +392,19 @@ public class Browser extends AbstractApplication {
         });
     }
 
+    /**
+     * Notify the application a team member has been added to the document.
+     *
+     * @param documentId
+     *      A document id.
+     */
+    public void fireDocumentTeamMemberAdded(final Long documentId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getMainAvatar().syncDocument(documentId, Boolean.TRUE); }
+        });
+        fireDocumentUpdated(documentId, Boolean.TRUE);
+    }
+
 	/**
 	 * Notify the application that a document has in some way been updated.
 	 * 

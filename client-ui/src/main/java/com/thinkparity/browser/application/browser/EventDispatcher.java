@@ -120,6 +120,11 @@ class EventDispatcher {
                 }
 
             }
+            public void teamMemberAdded(final DocumentEvent e) {
+                if(e.isRemote()) {
+                    browser.fireDocumentTeamMemberAdded(e.getDocument().getId());
+                }
+            }
 		};
 	}
 

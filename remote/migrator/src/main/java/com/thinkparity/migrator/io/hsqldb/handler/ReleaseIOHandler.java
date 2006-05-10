@@ -42,8 +42,14 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
         .append("where R.RELEASE_NAME=?")
         .toString();
 
+    /** The library io implementation. */
+    private final LibraryIOHandler libraryIO;
+
     /** Create ReleaseIOHandler. */
-    public ReleaseIOHandler() { super(); }
+    public ReleaseIOHandler() {
+        super();
+        this.libraryIO = new LibraryIOHandler();
+    }
 
     /**
      * @see com.thinkparity.migrator.io.handler.ReleaseIOHandler#create(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
@@ -121,7 +127,10 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
         release.setName(session.getString("RELEASE_NAME"));
         release.setVersion(session.getString("RELEASE_VERSION"));
 
-        
+        while(session.nextResult()) {
+            release.addLibrary(libraryIO.extractLibrary(session));
+        }
+
         return release;
     }
 }

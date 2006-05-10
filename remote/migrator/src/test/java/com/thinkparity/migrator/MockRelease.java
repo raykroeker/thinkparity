@@ -4,6 +4,8 @@
  */
 package com.thinkparity.migrator;
 
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * @author raymond@thinkparity.com
@@ -17,14 +19,29 @@ public class MockRelease extends Release {
         return new MockRelease(testCase, RELEASE_SEQ++);
     }
 
+    private final List<MockLibrary> mockLibraries;
+
     private MockRelease(final MigratorTestCase testCase, final Long releaseId) {
         super();
-        this.setArtifactId("rMigrator");
-        this.setGroupId("com.thinkparity.parity");
-        this.setId(releaseId);
-        this.setName("TMOCKRELEASE-" + releaseId);
-        this.setVersion("1.0");
-        this.addLibrary(MockLibrary.create(testCase));
-        this.addLibrary(MockLibrary.createNative(testCase));
+        this.mockLibraries = new LinkedList<MockLibrary>();
+        setArtifactId("rMigrator");
+        setGroupId("com.thinkparity.parity");
+        setId(releaseId);
+        setName("TMOCKRELEASE-" + releaseId);
+        setVersion("1.0." + System.currentTimeMillis());
+        addLibrary(MockLibrary.create(testCase));
+        addLibrary(MockLibrary.createNative(testCase));
     }
+
+    public void addLibrary(final MockLibrary mockLibrary) {
+        super.addLibrary(mockLibrary);
+        this.mockLibraries.add(mockLibrary);
+    }
+
+    public void removeLibrary(final MockLibrary mockLibrary) {
+        super.removeLibrary(mockLibrary);
+        this.mockLibraries.remove(mockLibrary);
+    }
+
+    public List<MockLibrary> getMockLibraries() { return mockLibraries; }
 }

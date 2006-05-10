@@ -34,7 +34,10 @@ public class ReadBytesTest extends MigratorTestCase {
             bytes = datum.lModel.readBytes(datum.libraryId);
 
             assertNotNull("[RMIGRATOR] [LIBRARY] [READ  BYTES TEST] [LIBRARY BYTES ARE NULL]", bytes);
-            assertEquals("[RMIGRATOR] [LIBRARY] [READ BYTES TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eBytes, bytes);
+            assertEquals("[RMIGRATOR] [LIBRARY] [READ BYTES TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eBytes.length, bytes.length);
+            for(int i = 0; i < datum.eBytes.length; i++) {
+                assertEquals("[RMIGRATOR] [LIBRARY] [READ BYTES TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eBytes[i], bytes[i]);
+            }
         }
     }
 
@@ -48,6 +51,7 @@ public class ReadBytesTest extends MigratorTestCase {
         final MockLibrary eLibrary = MockLibrary.create(this);
         lModel.create(eLibrary.getArtifactId(), eLibrary.getGroupId(),
             eLibrary.getType(), eLibrary.getVersion());
+        lModel.createBytes(eLibrary.getId(), eLibrary.getBytes());
         final Byte[] eBytes = eLibrary.getBytes();
         data.add(new Fixture(eBytes, lModel, eLibrary.getId()));
     }

@@ -8,7 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.migrator.MigratorTestCase;
+import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.MockLibrary;
+import com.thinkparity.migrator.MockRelease;
 import com.thinkparity.migrator.Release;
+import com.thinkparity.migrator.model.library.LibraryModel;
 
 /**
  * Test the parity release interface's read api.
@@ -30,7 +34,7 @@ public class ReadTest extends MigratorTestCase {
     public void testRead() {
         Release release;
         for(final Fixture datum : data) {
-            release = datum.rModel.read(datum.releaseId);
+            release = datum.rModel.read(datum.releaseName);
 
             assertNotNull("[RMIGRATOR] [RELEASE] [READ TEST] [RELEASE IS NULL]", release);
             assertEquals("[RMIGRATOR] [RELEASE] [READ TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", datum.eRelease, release);
@@ -40,16 +44,20 @@ public class ReadTest extends MigratorTestCase {
     /** @see junit.framework.TestCase#setUp() */
     protected void setUp() throws Exception {
         super.setUp();
+        final LibraryModel lModel = getLibraryModel(getClass());
         final ReleaseModel rModel = getReleaseModel(getClass());
         data = new LinkedList<Fixture>();
 
         // 1 scenario
-        final Release eRelease = new Release();
-        eRelease.setArtifactId("");
-        eRelease.setGroupId("");
-        eRelease.setVersion("");
-        final String releaseId = "";
-        data.add(new Fixture(eRelease, rModel, releaseId));
+        final MockRelease eRelease = MockRelease.create(this);
+        for(final MockLibrary library : eRelease.getMockLibraries()) {
+            lModel.create(library.getArtifactId(), library.getGroupId(),
+                library.getType(), library.getVersion());
+            lModel.createBytes(library.getId(), library.getBytes());
+        }
+        rModel.create(eRelease.getArtifactId(), eRelease.getGroupId(),
+                eRelease.getName(), eRelease.getVersion(), eRelease.getLibraries());
+        data.add(new Fixture(eRelease, rModel, eRelease.getName()));
     }
 
     /** @see junit.framework.TestCase#tearDown() */
@@ -60,12 +68,12 @@ public class ReadTest extends MigratorTestCase {
     private class Fixture {
         private final Release eRelease;
         private final ReleaseModel rModel;
-        private final String releaseId;
+        private final String releaseName;
         private Fixture(final Release eRelease, final ReleaseModel rModel,
-                final String releaseId) {
+                final String releaseName) {
             this.eRelease = eRelease;
             this.rModel = rModel;
-            this.releaseId = releaseId;
+            this.releaseName = releaseName;
         }
     }
 }

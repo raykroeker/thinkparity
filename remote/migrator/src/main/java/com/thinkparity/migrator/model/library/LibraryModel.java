@@ -74,7 +74,7 @@ public class LibraryModel extends AbstractModel {
      * @param bytes
      *      A library bytes.
      */
-    void createBytes(final Long libraryId, final Byte[] bytes) {
+    public void createBytes(final Long libraryId, final Byte[] bytes) {
         synchronized(implLock) { impl.createBytes(libraryId, bytes); }
     }
 

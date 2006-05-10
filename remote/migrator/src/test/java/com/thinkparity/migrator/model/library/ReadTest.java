@@ -48,10 +48,14 @@ public class ReadTest extends MigratorTestCase {
         
         // 1:  java library
         final Library eLibrary0 = MockLibrary.create(this);
+        lModel.create(eLibrary0.getArtifactId(), eLibrary0.getGroupId(),
+                eLibrary0.getType(), eLibrary0.getVersion());
         data.add(new Fixture(eLibrary0, lModel, eLibrary0.getId()));
 
         // 2:  native library
         final Library eLibrary1 = MockLibrary.createNative(this);
+        lModel.create(eLibrary1.getArtifactId(), eLibrary1.getGroupId(),
+                eLibrary1.getType(), eLibrary1.getVersion());
         data.add(new Fixture(eLibrary1, lModel, eLibrary1.getId()));
     }
 

@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.thinkparity.parity</groupId>
+	<version>1.0-SNAPSHOT</version>
+	<url>http://thinkparity.dyndns.org</url>
+
+    <parent>
+        <artifactId>parity</artifactId>
+        <groupId>com.thinkparity.parity</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+	<artifactId>rMigrator</artifactId>
+	<name>thinkParity - Remote Migrator</name>
+	<packaging>jar</packaging>
+
+	<scm>
+		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:cMigrator</connection>
+		<tag>v1_0</tag>
+		<url>http://tpdev.thinkparity.com/viewcvs</url>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.thinkparity.parity</groupId>
+			<artifactId>codebase</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.thinkparity.parity</groupId>
+			<artifactId>cMigrator</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.2</version>
+			<type>jar</type>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.raykroeker</groupId>
+			<artifactId>jUnitX</artifactId>
+			<version>1.0.1</version>
+			<type>jar</type>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

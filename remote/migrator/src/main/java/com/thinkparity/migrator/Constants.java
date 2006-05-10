@@ -1,0 +1,17 @@
+package com.thinkparity.migrator;
+
+
+/**
+ * @author raymond@thinkparity.com
+ * @version 1.1
+ */
+public final class Constants {
+
+    /** Create Constants. */
+    private Constants() { super(); }
+
+    /** Miscellaneous constants. */
+    public static class Sundry {
+        public static final String CLIENT_RESOURCE = "parity";
+    }
+}

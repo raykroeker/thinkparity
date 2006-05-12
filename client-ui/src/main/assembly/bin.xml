@@ -29,7 +29,10 @@
 			<includes>
 				<include>*.jar</include>
 			</includes>
-		</fileSet>
+            <excludes>
+                <exclude>*-sources.jar</exclude>
+            </excludes>
+       </fileSet>
 		<fileSet>
 			<outputDirectory>lBrowser-1.0-SNAPSHOT/lib/win32</outputDirectory>
 			<directory>src/main/lib/win32</directory>

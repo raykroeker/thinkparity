@@ -4,8 +4,8 @@
  */
 package com.thinkparity.migrator;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author raymond@thinkparity.com
@@ -38,10 +38,16 @@ public class MockRelease extends Release {
         this.mockLibraries.add(mockLibrary);
     }
 
+    public List<Long> getLibraryIds() {
+        final List<Long> libraryIds = new LinkedList<Long>();
+        for(final Library library : getLibraries()) { libraryIds.add(library.getId()); }
+        return libraryIds;
+    }
+
+    public List<MockLibrary> getMockLibraries() { return mockLibraries; }
+
     public void removeLibrary(final MockLibrary mockLibrary) {
         super.removeLibrary(mockLibrary);
         this.mockLibraries.remove(mockLibrary);
     }
-
-    public List<MockLibrary> getMockLibraries() { return mockLibraries; }
 }

@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
-
 import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.model.release.ReleaseModel;
 
@@ -35,15 +34,15 @@ public abstract class MigratorTestCase extends TestCase {
      */
     protected MigratorTestCase(final String name) { super(name); }
 
+    protected File[] getInputFiles() throws IOException {
+        return super.getInputFiles();
+    }
+
     protected LibraryModel getLibraryModel(final Class clasz) {
         return LibraryModel.getModel();
     }
 
     protected ReleaseModel getReleaseModel(final Class clasz) {
         return ReleaseModel.getModel();
-    }
-
-    protected File[] getInputFiles() throws IOException {
-        return super.getInputFiles();
     }
 }

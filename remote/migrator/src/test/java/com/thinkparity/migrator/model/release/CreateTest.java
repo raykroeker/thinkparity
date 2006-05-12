@@ -32,7 +32,6 @@ public class CreateTest extends MigratorTestCase {
     /** Test the create api. */
     public void testCreate() {
         Release release;
-        List<Library> libraries;
         for(final Fixture datum : data) {
             release = datum.rModel.create(datum.artifactId, datum.groupId, datum.name, datum.version, datum.libraries);
 

@@ -6,8 +6,6 @@ package com.thinkparity.migrator;
 
 import java.io.IOException;
 
-import com.raykroeker.junitx.TestCase;
-
 import com.thinkparity.codebase.FileUtil;
 
 /**

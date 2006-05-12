@@ -7,7 +7,6 @@ package com.thinkparity.migrator.model.library;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MigratorTestCase;
 import com.thinkparity.migrator.MockLibrary;
 

@@ -31,7 +31,9 @@ public class CreateTest extends MigratorTestCase {
     public void testCreate() {
         Library library;
         for(final Fixture datum : data) {
+            testLogger.debug(datum.eLibrary.getId());
             library = datum.lModel.create(datum.artifactId, datum.groupId, datum.type, datum.version);
+            testLogger.debug(library.getId());
 
             assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY IS NULL]", library);
             assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY DOES NOT EQUAL EXPECTATION]", datum.eLibrary, library);

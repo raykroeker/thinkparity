@@ -2,12 +2,12 @@
 <plugin>
     <class>com.thinkparity.server.ParityServer</class>
 
-    <name>Parity Software Inc:  Parity Server</name>
-    <description>Parity Software Inc:  Parity Server</description>
-    <author>Parity Software Inc.</author>
+    <name>thinkParity Solutions Inc:  Remote Model</name>
+    <description>Provides the core remote functionality for the thinkParity platform.</description>
+    <author>thinkParity Solutions Inc.</author>
     <version>1.0</version>
     <date>11/25/2005</date>
-    <url>http://thinkparity.dydns.org/messenger/plugin/registry</url>
+    <url>http://www.thinkparity.com</url>
     <minServerVersion>2.3.1</minServerVersion>
 
 </plugin>

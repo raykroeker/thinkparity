@@ -12,16 +12,22 @@ import java.util.List;
  */
 public class Release {
 
+    /** The artifact id. */
     private String artifactId;
 
+    /** The group id. */
     private String groupId;
 
+    /** The id. */
     private Long id;
 
+    /** The libraries. */
     private final List<Library> libraries;
 
+    /** The name. */
     private String name;
 
+    /** The version. */
     private String version;
 
     /** Create Release. */
@@ -30,9 +36,30 @@ public class Release {
         this.libraries = new LinkedList<Library>();
     }
 
-    public boolean addLibrary(final Library library) {
-        return this.libraries.add(library);
+    /**
+     * Add all libraries.
+     * 
+     * @param libraries
+     *            A list of libraries.
+     * @return True if the list is modified.
+     */
+    public boolean addAllLibraries(final List<Library> libraries) {
+        return this.libraries.addAll(libraries);
     }
+
+    /**
+     * Add a library.
+     * 
+     * @param library
+     *            A library.
+     * @return True if the library is modified.
+     */
+    public boolean addLibrary(final Library library) {
+        return libraries.add(library);
+    }
+
+    /** Clear the list of libraries. */
+    public void clearLibraries() { libraries.clear(); }
 
     /** @see java.lang.Object#equals(java.lang.Object) */
     public boolean equals(final Object obj) {
@@ -87,8 +114,24 @@ public class Release {
     /** @see java.lang.Object#hashCode() */
     public int hashCode() { return id.hashCode(); }
 
+    /**
+     * Remove all libraries.
+     * 
+     * @param libraries
+     *            A list of libraries.
+     * @return True if the list has been modified.
+     */
+    public boolean removeAllLibraries(final List<Library> libraries) {
+        return this.libraries.removeAll(libraries);
+    }
+
+    /**
+     * Remove a library.
+     * @param library A library.
+     * @return True if the library list has been modified.
+     */
     public boolean removeLibrary(final Library library) {
-        return this.libraries.remove(library);
+        return libraries.remove(library);
     }
 
     /**
@@ -131,5 +174,4 @@ public class Release {
      *            A version string.
      */
     public void setVersion(final String version) { this.version = version; }
-
 }

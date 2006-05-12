@@ -9,8 +9,8 @@ import com.thinkparity.migrator.io.hsqldb.HypersonicException;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
 import com.thinkparity.migrator.io.md.MetaData;
 import com.thinkparity.migrator.io.md.MetaDataType;
-import com.thinkparity.migrator.xmpp.JabberId;
-import com.thinkparity.migrator.xmpp.JabberIdBuilder;
+import com.thinkparity.migrator.util.JabberId;
+import com.thinkparity.migrator.util.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com

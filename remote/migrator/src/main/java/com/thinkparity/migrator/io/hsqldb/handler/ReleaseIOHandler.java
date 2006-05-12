@@ -4,6 +4,10 @@
  */
 package com.thinkparity.migrator.io.hsqldb.handler;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Release;
 import com.thinkparity.migrator.io.hsqldb.HypersonicException;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
@@ -40,6 +44,18 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
         .append("inner join RELEASE_LIBRARY_REL RLR on R.RELEASE_ID = RLR.RELEASE_ID ")
         .append("inner join LIBRARY L on RLR.LIBRARY_ID = L.LIBRARY_ID ")
         .append("where R.RELEASE_NAME=?")
+        .toString();
+
+    /** Sql to read the libraries for a release. */
+    private static final String SQL_READ_LIBRARIES =
+        new StringBuffer("select L.LIBRARY_ARTIFACT_ID,L.LIBRARY_GROUP_ID,")
+        .append("L.LIBRARY_ID,L.LIBRARY_TYPE_ID,L.LIBRARY_VERSION ")
+        .append("from LIBRARY L ")
+        .append("inner join RELEASE_LIBRARY_REL RLR ")
+        .append("on L.LIBRARY_ID = RLR.LIBRARY_ID ")
+        .append("inner join RELEASE R ")
+        .append("on R.RELEASE_ID = RLR.RELEASE_ID ")
+        .append("where R.RELEASE_ID=?")
         .toString();
 
     /** The library io implementation. */
@@ -127,10 +143,21 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
         release.setName(session.getString("RELEASE_NAME"));
         release.setVersion(session.getString("RELEASE_VERSION"));
 
-        while(session.nextResult()) {
-            release.addLibrary(libraryIO.extractLibrary(session));
-        }
+        release.addAllLibraries(readLibraries(session, release.getId()));
 
         return release;
+    }
+
+    private List<Library> readLibraries(final HypersonicSession session,
+            final Long releaseId) {
+        session.prepareStatement(SQL_READ_LIBRARIES);
+        session.setLong(1, releaseId);
+        session.executeQuery();
+
+        final List<Library> libraries = new LinkedList<Library>();
+        while(session.nextResult()) {
+            libraries.add(libraryIO.extractLibrary(session));
+        }
+        return libraries;
     }
 }

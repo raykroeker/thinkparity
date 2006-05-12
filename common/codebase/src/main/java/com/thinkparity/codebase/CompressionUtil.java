@@ -59,8 +59,8 @@ public class CompressionUtil {
 	 * @return A compressed representation of the bytes.
 	 * @throws IOException
 	 */
-	public static synchronized byte[] compress(final byte[] bytes,
-			final Level level) throws IOException {
+	public static byte[] compress(final byte[] bytes, final Level level)
+            throws IOException {
 		final Deflater deflater = new Deflater();
 		deflater.setLevel(level.getLevel());
 		deflater.setInput(bytes);

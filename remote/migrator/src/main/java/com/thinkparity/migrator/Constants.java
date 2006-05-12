@@ -16,5 +16,7 @@ public final class Constants {
     /** Miscellaneous constants. */
     public static class Sundry {
         public static final String CLIENT_RESOURCE = "parity";
+
+        public static final String LOG4J_FILE = "rMigrator.html";
     }
 }

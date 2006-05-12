@@ -3,7 +3,6 @@
 	<classpathentry output="target/classes" kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/filters"/>
 	<classpathentry output="target/classes" kind="src" path="src/main/resources"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry output="target/test-classes" kind="src" path="src/test/java"/>
 	<classpathentry output="target/test-classes" kind="src" path="src/test/resources"/>
 	<classpathentry sourcepath="/M2_REPO/com/raykroeker/jUnitX/1.0.1/jUnitX-1.0.1-sources.jar" kind="var" path="M2_REPO/com/raykroeker/jUnitX/1.0.1/jUnitX-1.0.1.jar"/>
@@ -11,5 +10,7 @@
 	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/cMigrator/1.0-SNAPSHOT/cMigrator-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/cMigrator/1.0-SNAPSHOT/cMigrator-1.0-SNAPSHOT.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
 	<classpathentry sourcepath="/M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13-sources.jar" kind="var" path="M2_REPO/log4j/log4j/1.2.13/log4j-1.2.13.jar"/>
+	<classpathentry sourcepath="/M2_REPO/jivesoftware/messenger/2.3.1/messenger-2.3.1-sources.jar" kind="var" path="M2_REPO/jivesoftware/messenger/2.3.1/messenger-2.3.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_06 - sys libs"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1,9 +1,12 @@
 /*
- * Apr 9, 2004
+ * Created On: Apr 9, 2004
+ * $Id$
  */
 package com.thinkparity.codebase.config;
 
 import java.io.File;
+
+import com.thinkparity.codebase.ResourceUtil;
 
 /**
  * <b>Title:</b>  ConfigFactory
@@ -14,11 +17,6 @@ import java.io.File;
  */
 public abstract class ConfigFactory {
 
-	/**
-	 * Create a new ConfigFactory [Singleton]
-	 */
-	private ConfigFactory() {super();}
-	
 	public static synchronized Config newInstance() {return new Config();}
 	
 	public static synchronized Config newInstance(Class clasz) {
@@ -28,17 +26,30 @@ public abstract class ConfigFactory {
 	public static synchronized Config newInstance(Class clasz, Config defaultConfig) {
 		return new Config(clasz, defaultConfig);
 	}
-
+	
 	public static synchronized Config newInstance(Config defaultConfig) {
 		return new Config(defaultConfig);
 	}
-	
+
 	public static synchronized Config newInstance(File file) {
 		return new Config(file);
 	}
-
+	
 	public static synchronized Config newInstance(File file, Config defaultConfig) {
 		return new Config(file, defaultConfig);
 	}
-	
+
+	public static Config newInstance(final String resourcePath) {
+        return new Config(ResourceUtil.getURL(resourcePath));
+    }
+
+    public static Config newInstance(final String resourcePath,
+            final Config defaultConfig) {
+        return new Config(ResourceUtil.getURL(resourcePath), defaultConfig);
+    }
+
+    /**
+	 * Create a new ConfigFactory [Singleton]
+	 */
+	private ConfigFactory() {super();}
 }

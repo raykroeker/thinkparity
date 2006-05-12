@@ -1,5 +1,6 @@
 /*
- * May 9, 2006
+ * Created On:  May 9, 2006
+ * $Id$
  */
 package com.thinkparity.migrator.model.release;
 
@@ -12,8 +13,12 @@ import com.thinkparity.migrator.io.handler.ReleaseIOHandler;
 import com.thinkparity.migrator.model.AbstractModelImpl;
 
 /**
+ * The release model implementation.  Contains the business logic for creating
+ * and reading the releases available.
+ *
  * @author raymond@thinkparity.com
  * @version 1.1
+ * @tpc.model framework="remote"
  */
 class ReleaseModelImpl extends AbstractModelImpl {
 
@@ -32,6 +37,7 @@ class ReleaseModelImpl extends AbstractModelImpl {
      * @param releaseName
      *            The release name.
      * @return The release.
+     * @tpc.model.api visiblity="public"
      */
     Release read(final String releaseName) {
         logger.info("[RMIGRATOR] [RELEASE] [READ]");

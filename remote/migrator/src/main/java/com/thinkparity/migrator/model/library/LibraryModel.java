@@ -73,6 +73,8 @@ public class LibraryModel extends AbstractModel {
      *      A library id.
      * @param bytes
      *      A library bytes.
+     *      
+     * @xmpp.model.api
      */
     public void createBytes(final Long libraryId, final Byte[] bytes) {
         synchronized(implLock) { impl.createBytes(libraryId, bytes); }

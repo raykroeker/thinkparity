@@ -15,18 +15,19 @@ import com.thinkparity.migrator.io.hsqldb.HypersonicSessionManager;
  */
 public class HypersonicValidator {
 
-	/**
-	 * The database directory.
-	 * 
-	 */
-	private final File databaseDirectory;
+	/** The database directory. */
+	private final File dbDirectory;
+
+    /** The database file. */
+    private final File dbFile;
 
 	/**
 	 * Create a HypersonicValidator.
 	 */
 	public HypersonicValidator() {
 		super();
-		this.databaseDirectory = new File("C:\\", "db");
+        this.dbFile = new File(System.getProperty("hsqldb.file"));
+		this.dbDirectory = dbFile.getParentFile();
 	}
 
 	public void validate() throws HypersonicException {
@@ -36,11 +37,9 @@ public class HypersonicValidator {
 	}
 
 	private void validateDatabaseDirectory() {
-		if(!databaseDirectory.exists())
-			if(!databaseDirectory.mkdir())
-				throw new HypersonicException(
-						"Could not create database directory:  " +
-						databaseDirectory.getAbsolutePath());
+		if(!dbDirectory.exists())
+			if(!dbDirectory.mkdir())
+				throw new HypersonicException("[RMIGRATOR] [HSQL IO] [VALIDATE DB]");
 	}
 
 	private void validateSession() {

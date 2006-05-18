@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -556,6 +558,19 @@ public abstract class StringUtil {
 			null == search ? null : search.toString(),
 			null == find ? null : find.toString(),
 			null == replace ? null : replace.toString());
+    }
+
+    /**
+     * Print the stack trace of the throwable to a string and return it.
+     *
+     * @param t
+     *      A throwable.
+     * @return A printed stack trace.
+     */
+    public static String printStackTrace(final Throwable t) {
+        final StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
     }
 
 	/**

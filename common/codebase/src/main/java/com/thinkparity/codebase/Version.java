@@ -41,6 +41,13 @@ public class Version {
 	 */
 	public static  String getName() { return SINGLETON.doGetName(); }
 
+    /**
+     * Obtain the release id.
+     *
+     * @return A release id.
+     */
+    public static String getReleaseId() { return SINGLETON.doGetReleaseId(); }
+
 	/**
 	 * Obtain the version.
 	 * 
@@ -70,6 +77,22 @@ public class Version {
 	protected String doGetBuildId() { return config.getProperty("com.thinkparity.parity.buildId"); }
 
     /**
+     * Obtain an apache info log statement.
+     * 
+     * @return A log message.
+     */
+    protected String doGetInfo() {
+        return new StringBuffer("BuildId:")
+                .append(doGetBuildId())
+                .append(",Mode:")
+                .append(doGetMode().toString())
+                .append(",Name:")
+                .append(doGetName())
+                .append(",Version:")
+                .append(doGetVersion()).toString();
+    }
+
+	/**
      * Obtain the operating mode.
      *
      * @return An operating mode.
@@ -85,10 +108,17 @@ public class Version {
 	 */
 	protected String doGetName() { return config.getProperty("com.thinkparity.parity.name"); }
 
-	/**
+    /**
+     * Obtain the release id.
+     *
+     * @return A release id.
+     */
+    protected String doGetReleaseId() { return config.getProperty("com.thinkparity.parity.releaseId"); }
+
+    /**
 	 * Obtain the version.
 	 * 
 	 * @return A version string.
 	 */
-	protected String doGetVersion() {return config.getProperty("com.thinkparity.parity.version"); }
+	protected String doGetVersion() { return config.getProperty("com.thinkparity.parity.version"); }
 }

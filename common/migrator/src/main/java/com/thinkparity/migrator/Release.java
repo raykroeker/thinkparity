@@ -61,6 +61,15 @@ public class Release {
     /** Clear the list of libraries. */
     public void clearLibraries() { libraries.clear(); }
 
+    /**
+     * Determine if this release contains a library.
+     *
+     * @return True if this release contains the library; false otherwise.
+     */
+    public boolean containsLibrary(final Library library) {
+        return libraries.contains(library);
+    }
+
     /** @see java.lang.Object#equals(java.lang.Object) */
     public boolean equals(final Object obj) {
         if(null != obj && obj instanceof Release) {

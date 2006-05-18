@@ -67,7 +67,7 @@ abstract class AbstractIOHandler {
 		return metaDataIO;
 	}
 
-	/**
+    /**
 	 * Open a database session.
 	 * 
 	 * @return The database session.

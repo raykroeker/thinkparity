@@ -6,6 +6,9 @@ package com.thinkparity.model;
 import java.io.File;
 import java.io.IOException;
 
+import com.thinkparity.codebase.Mode;
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
@@ -14,6 +17,7 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
+import com.thoughtworks.xstream.XStream.InitializationException;
 
 /**
  * @author raykroeker@gmail.com
@@ -31,7 +35,15 @@ public abstract class ModelTestCase extends TestCase {
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
 		// set staging system
-		System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
+        if(Mode.DEVELOPMENT == Version.getMode()) {
+            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
+        }
+        else if(Mode.TESTING == Version.getMode()) {
+            System.setProperty("parity.serverhost", "rk-mobile.raykroeker.com");
+        }
+        else if(Mode.PRODUCTION == Version.getMode()) {}
+        else { Assert.assertUnreachable("[RMODEL] [TEST INIT] [UNKNOWN OP MODE]"); }
+
 		// set archive directory
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();

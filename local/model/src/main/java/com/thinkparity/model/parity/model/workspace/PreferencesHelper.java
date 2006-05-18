@@ -12,7 +12,7 @@ import java.util.Properties;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.ModelConstants;
+import com.thinkparity.model.Constants;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -69,7 +69,7 @@ class PreferencesHelper {
 		return new Preferences() {
 
 			public void clearPassword() {
-				javaProperties.remove(ModelConstants.Preferences.Properties.PASSWORD);
+				javaProperties.remove(Constants.Preferences.Properties.PASSWORD);
 			}
 
 			public File getArchiveOutputDirectory() {
@@ -80,7 +80,7 @@ class PreferencesHelper {
 			}
 
             public Long getLastRun() {
-                final String lastRun = javaProperties.getProperty(ModelConstants.Preferences.Properties.LAST_RUN);
+                final String lastRun = javaProperties.getProperty(Constants.Preferences.Properties.LAST_RUN);
                 if(null == lastRun) { return null; }
                 else {
                     try { return Long.parseLong(lastRun); }
@@ -205,7 +205,7 @@ class PreferencesHelper {
     /** Set a last run timestamp in the properties. */
     private void setLastRun(final Properties javaProperties) {
         javaProperties.setProperty(
-            ModelConstants.Preferences.Properties.LAST_RUN,
+            Constants.Preferences.Properties.LAST_RUN,
             String.valueOf(System.currentTimeMillis()));
     }
 }

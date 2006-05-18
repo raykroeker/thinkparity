@@ -24,6 +24,8 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
+import com.thinkparity.migrator.Library;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -445,7 +447,15 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final MetaDataType type) {
+    public void setTypeAsInteger(final Integer index, final Library.Type type) {
+        assertOpen("setTypeAsInteger(Integer,Library.Type)");
+        assertPreparedStatement("setTypeAsInteger(Integer,Library.Type)");
+        debugSql(null == type ? null : type.getId(), index);
+        try { preparedStatement.setInt(index, type.getId()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
+    public void setTypeAsInteger(final Integer index, final MetaDataType type) {
 		assertOpen("setTypeAsInteger(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,MetaDataType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -485,7 +495,15 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsString(final Integer index, final MetaDataType type) {
+    public void setTypeAsString(final Integer index, final Library.Type type) {
+        assertOpen("setType(Integer,Library.Type)");
+        assertPreparedStatement("setTypeString(Integer,Library.Type)");
+        debugSql(null == type ? null : type.toString(), index);
+        try { preparedStatement.setString(index, type.toString()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
+    public void setTypeAsString(final Integer index, final MetaDataType type) {
 		assertOpen("setType(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeString(Integer,MetaDataType)");
 		debugSql(null == type ? null : type.toString(), index);

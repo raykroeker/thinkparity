@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
+import com.thinkparity.model.Constants;
 import com.thinkparity.model.Version;
 import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
@@ -22,6 +23,8 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Table;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
+
+import com.thinkparity.migrator.Library;
 
 /**
  * @author raykroeker@gmail.com
@@ -41,13 +44,15 @@ class HypersonicMigrator {
 
 	private static final String INSERT_SEED_ARTIFACT_TYPE;
 
+	private static final String INSERT_SEED_LIBRARY_TYPE;
+
 	private static final String INSERT_SEED_META_DATA_TYPE;
 
 	private static final String INSERT_SEED_SYSTEM_MESSAGE_TYPE;
 
 	private static final String INSERT_SEED_VERSION;
 
-	private static final String READ_META_DATA_VERSION;
+	private static final String READ_META_DATA_RELEASE_ID;
 
 	static {
 		// sql statements
@@ -71,6 +76,11 @@ class HypersonicMigrator {
 				CONFIG.getProperty("CreateArtifactAudit"),
 				CONFIG.getProperty("CreateArtifactAuditMetaData"),
 				CONFIG.getProperty("CreateArtifactAuditVersion"),
+                CONFIG.getProperty("CreateLibraryType"),
+				CONFIG.getProperty("CreateLibrary"),
+				CONFIG.getProperty("CreateLibraryBytes"),
+                CONFIG.getProperty("CreateRelease"),
+                CONFIG.getProperty("CreateReleaseLibraryRel"),
 				CONFIG.getProperty("CreateSystemMessageType"),
 				CONFIG.getProperty("CreateSystemMessage"),
 				CONFIG.getProperty("CreateSystemMessageMetaData"),
@@ -93,9 +103,11 @@ class HypersonicMigrator {
 
 		INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
 
+        INSERT_SEED_LIBRARY_TYPE = CONFIG.getProperty("InsertSeedLibraryType");
+
 		INSERT_SEED_SYSTEM_MESSAGE_TYPE = CONFIG.getProperty("InsertSeedSystemMessageType");
 
-		READ_META_DATA_VERSION = CONFIG.getProperty("ReadMetaDataVersion");
+		READ_META_DATA_RELEASE_ID = CONFIG.getProperty("ReadMetaDataReleaseId");
 	}
 
 	protected final Logger logger;
@@ -137,13 +149,13 @@ class HypersonicMigrator {
 		else {
 			final Session session = SessionManager.openSession();
 			try {
-				session.prepareStatement(READ_META_DATA_VERSION);
-				session.setLong(1, 1000L);
+				session.prepareStatement(READ_META_DATA_RELEASE_ID);
+                session.setLong(1, Constants.MetaData.RELEASE_ID_PK);
 				session.setTypeAsInteger(2, MetaDataType.STRING);
-				session.setString(3, "VERSION");
+				session.setString(3, Constants.MetaData.RELEASE_ID_KEY);
 				session.executeQuery();
 				session.nextResult();
-				return session.getString("VALUE");
+                return session.getString("VALUE");
 			}
 			finally { session.close(); }
 		}
@@ -180,8 +192,8 @@ class HypersonicMigrator {
 
 		session.prepareStatement(INSERT_SEED_VERSION);
 		session.setTypeAsInteger(1, MetaDataType.STRING);
-		session.setString(2, "VERSION");
-		session.setString(3, Version.getBuildId());
+		session.setString(2, Constants.MetaData.RELEASE_ID_KEY);
+		session.setString(3, Version.getReleaseId());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException(
 					"Could not insert version seed.");
@@ -230,6 +242,15 @@ class HypersonicMigrator {
 				throw new HypersonicException(
 						"Could not insert system message type seed data:  " + smt);
 		}
+
+        session.prepareStatement(INSERT_SEED_LIBRARY_TYPE);
+        for(final Library.Type type : Library.Type.values()) {
+            session.setTypeAsInteger(1, type);
+            session.setTypeAsString(2, type);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not insert library type seed data:  " + type);
+        }
 	}
 
 	private void migrateSchema(final String fromVersionId,

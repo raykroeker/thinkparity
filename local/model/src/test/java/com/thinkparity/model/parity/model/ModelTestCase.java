@@ -15,6 +15,10 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
+import com.thinkparity.model.parity.model.library.InternalLibraryModel;
+import com.thinkparity.model.parity.model.library.LibraryModel;
+import com.thinkparity.model.parity.model.release.InternalReleaseModel;
+import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -55,6 +59,10 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	}
 
 	private InternalDocumentModel iDocumentModel;
+
+    private InternalLibraryModel ilModel;
+
+    private InternalReleaseModel irModel;
 
 	/**
 	 * The parity preferences.
@@ -127,12 +135,26 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         return modFiles;
     }
 
-	protected InternalDocumentModel getInternalDocumentModel() {
-		if(null == iDocumentModel) {
-			return DocumentModel.getInternalModel(new Context(getClass()));
-		}
-		return iDocumentModel;
-	}
+    protected InternalDocumentModel getInternalDocumentModel() {
+        if(null == iDocumentModel) {
+            return DocumentModel.getInternalModel(new Context(getClass()));
+        }
+        return iDocumentModel;
+    }
+
+    protected InternalLibraryModel getInternalLibraryModel() {
+        if(null == ilModel) {
+            ilModel = LibraryModel.getInternalModel(new Context(getClass()));
+        }
+        return ilModel;
+    }
+
+    protected InternalReleaseModel getInternalReleaseModel() {
+        if(null == irModel) {
+            irModel = ReleaseModel.getInternalModel(new Context(getClass()));
+        }
+        return irModel;
+    }
 
 	/**
 	 * Obtain the parity preferences.

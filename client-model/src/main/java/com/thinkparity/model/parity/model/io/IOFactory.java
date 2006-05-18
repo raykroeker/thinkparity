@@ -6,13 +6,9 @@ package com.thinkparity.model.parity.model.io;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicIOFactory;
-import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
-import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
-import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
-import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
-import com.thinkparity.model.parity.model.io.handler.UserIOHandler;
+import com.thinkparity.model.parity.model.io.handler.*;
 import com.thinkparity.model.parity.model.io.pdf.fop.FOPIOFactory;
+import com.thinkparity.model.parity.model.io.xmpp.XMPPIOFactory;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -27,12 +23,7 @@ public abstract class IOFactory {
 
 	private static IOFactory pdfIOFactory;
 
-	public static IOFactory getPDF() {
-		if(null == pdfIOFactory) {
-			pdfIOFactory = new FOPIOFactory(getWorkspace());
-		}
-		return pdfIOFactory;
-	}
+    private static IOFactory xmppIOFactory;
 
 	public static IOFactory getDefault() {
 		if(null == ioFactory) {
@@ -48,6 +39,20 @@ public abstract class IOFactory {
 		}
 		return ioFactory;
 	}
+
+    public static IOFactory getPDF() {
+		if(null == pdfIOFactory) {
+			pdfIOFactory = new FOPIOFactory(getWorkspace());
+		}
+		return pdfIOFactory;
+	}
+
+	public static IOFactory getXMPP() {
+        if(null == xmppIOFactory) {
+            xmppIOFactory = new XMPPIOFactory(getWorkspace());
+        }
+        return xmppIOFactory;
+    }
 
 	private static Workspace getWorkspace() {
 		return WorkspaceModel.getModel().getWorkspace();
@@ -89,19 +94,33 @@ public abstract class IOFactory {
 	 */
 	public abstract DocumentIOHandler createDocumentHandler();
 
+    /**
+	 * Create a document history io handler.
+	 * 
+	 * @return A document history io handler.
+	 */
+	public abstract DocumentHistoryIOHandler createDocumentHistoryIOHandler();
+
+    /**
+     * Create a library io handler.
+     * 
+     * @return A library io handler.
+     */
+    public abstract LibraryIOHandler createLibraryHandler();
+
+	/**
+     * Create a release io handler.
+     * 
+     * @return A release io handler.
+     */
+    public abstract ReleaseIOHandler createReleaseHandler();
+
 	/**
 	 * Create a system message io handler.
 	 * 
 	 * @return The system message io handler.
 	 */
 	public abstract SystemMessageIOHandler createSystemMessageHandler();
-
-	/**
-	 * Create a document history io handler.
-	 * 
-	 * @return A document history io handler.
-	 */
-	public abstract DocumentHistoryIOHandler createDocumentHistoryIOHandler();
 
     /**
      * Create a user io handler.

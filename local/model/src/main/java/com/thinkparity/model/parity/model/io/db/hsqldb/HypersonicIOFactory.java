@@ -3,14 +3,11 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.db.hsqldb.util.HypersonicValidator;
-import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
-import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
-import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
-import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
-import com.thinkparity.model.parity.model.io.handler.UserIOHandler;
+import com.thinkparity.model.parity.model.io.handler.*;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
@@ -28,7 +25,7 @@ public class HypersonicIOFactory extends IOFactory {
 		new HypersonicValidator(workspace).validate();
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createArtifactHandler()
 	 * 
 	 */
@@ -36,7 +33,7 @@ public class HypersonicIOFactory extends IOFactory {
 		return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ArtifactIOHandler();
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createAuditHandler()
 	 * 
 	 */
@@ -57,6 +54,20 @@ public class HypersonicIOFactory extends IOFactory {
 	 * 
 	 */
 	public DocumentHistoryIOHandler createDocumentHistoryIOHandler() { return null; }
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createLibraryHandler()
+     */
+    public LibraryIOHandler createLibraryHandler() {
+        throw Assert.createNotYetImplemented("HypersonicIOFactory#createLibraryHandler");
+    }
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createReleaseHandler()
+     */
+    public ReleaseIOHandler createReleaseHandler() {
+        throw Assert.createNotYetImplemented("HypersonicIOFactory#createReleaseHandler");
+    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createSystemMessageHandler()

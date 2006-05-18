@@ -3,13 +3,10 @@
  */
 package com.thinkparity.model.parity.model.io.pdf.fop;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.io.IOFactory;
-import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.model.parity.model.io.handler.AuditIOHandler;
-import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
-import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
-import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
-import com.thinkparity.model.parity.model.io.handler.UserIOHandler;
+import com.thinkparity.model.parity.model.io.handler.*;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -19,10 +16,7 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  */
 public class FOPIOFactory extends IOFactory {
 
-	/**
-	 * The parity preferences.
-	 * 
-	 */
+	/** The parity preferences. */
 	private final Preferences preferences;
 
 	/**
@@ -61,6 +55,22 @@ public class FOPIOFactory extends IOFactory {
 	}
 
 	/**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createLibraryHandler()
+     */
+    @Override
+    public LibraryIOHandler createLibraryHandler() {
+        throw Assert.createNotYetImplemented("FOPIOFactory#createLibraryHandler");
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createReleaseHandler()
+     */
+    @Override
+    public ReleaseIOHandler createReleaseHandler() {
+        throw Assert.createNotYetImplemented("FOPIOFactory#createReleaseHandler");
+    }
+
+	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createSystemMessageHandler()
 	 * 
 	 */
@@ -68,7 +78,7 @@ public class FOPIOFactory extends IOFactory {
 
     public UserIOHandler createUserIOHandler() { return null; }
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#initialize()
 	 * 
 	 */

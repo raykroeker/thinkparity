@@ -4,8 +4,6 @@
  */
 package com.thinkparity.migrator.controller;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,8 +13,11 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
 
+import com.thinkparity.codebase.StringUtil;
+
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.LoggerFactory;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.model.release.ReleaseModel;
 import com.thinkparity.migrator.util.IQReader;
@@ -50,7 +51,9 @@ public abstract class AbstractController extends
 	 */
 	protected AbstractController(final String action) {
 		super(action);
-		this.info = new IQHandlerInfo("query", "jabber:iq:parity");
+		this.info = new IQHandlerInfo(
+                Xml.NAME,
+                Xml.NAMESPACE + ":" + action);
         this.logger = LoggerFactory.getLogger(getClass());
 	}
 
@@ -59,14 +62,24 @@ public abstract class AbstractController extends
 
     /** @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ) */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
+        logger.info("[RMIGRATOR] [CONTROLLER] [HANDLE IQ]");
+        logger.debug(iq.toXML());
         iqReader = new IQReader(iq);
 
-        final IQ response = createResponse(iq);
+//        final IQ response = createResponse(iq);
+//        iqWriter = new IQWriter(response);
+        
+        final IQ response = IQ.createResultIQ(iq);
+        response.setChildElement(info.getName(), Xml.RESPONSE_NAMESPACE);
         iqWriter = new IQWriter(response);
 
         try { service(); }
-        catch(final Exception x) { return createErrorResponse(iq, x); }
+        catch(final Throwable t) {
+            logger.error("[RMIGRATOR] [CONTROLLER] [UNKNOWN ERROR]", t);
+            return createErrorResponse(iq, t);
+        }
 
+        logger.debug(response.toXML());
         return response;
     }
 
@@ -164,12 +177,12 @@ public abstract class AbstractController extends
      * @param value
      *            The element value.
      */
-    protected void writeByteArray(final String name, final Byte[] value) {
-        iqWriter.writeByteArray(name, value);
+    protected void writeBytes(final String name, final Byte[] value) {
+        iqWriter.writeBytes(name, value);
     }
 
     /**
-     * Write library ids to the response query.
+     * Write libraries to the response query.
      * 
      * @param parentName
      *            The parent element name.
@@ -178,13 +191,9 @@ public abstract class AbstractController extends
      * @param libraries
      *            The element value.
      */
-    protected void writeLibraryIds(final String parentName, final String name,
+    protected void writeLibraries(final String parentName, final String name,
             final List<Library> libraries) {
-        final List<Long> libraryIds = new LinkedList<Long>();
-        for(final Library library : libraries) {
-            libraryIds.add(library.getId());
-        }
-        iqWriter.writeLongs(parentName, name, libraryIds);
+        iqWriter.writeLibraries(parentName, name, libraries);
     }
 
     /**
@@ -232,16 +241,30 @@ public abstract class AbstractController extends
      *            The error.
      * @return The error response.
      */
-    private IQ createErrorResponse(final IQ iq, final Exception x) {
-        final StringWriter sw = new StringWriter();
-        x.printStackTrace(new PrintWriter(sw));
+    private IQ createErrorResponse(final IQ iq, final Throwable t) {
+        final IQ errorResult = IQ.createResultIQ(iq);
 
-        final IQ errorResponse = new IQ(IQ.Type.error, iq.getID());
-        errorResponse.setChildElement("query", "jabber:iq:parity");
-        errorResponse.setError(new PacketError(
+        final PacketError packetError = new PacketError(
                 PacketError.Condition.internal_server_error,
-                PacketError.Type.cancel, sw.toString()));
-        return errorResponse;
+                PacketError.Type.cancel, StringUtil.printStackTrace(t));
+
+		errorResult.setError(packetError);
+        return errorResult;
+    }
+
+    /**
+     * Create an iq.
+     * 
+     * @param type
+     *            The query type.
+     * @param packetId
+     *            The request query id.
+     * @return A response query.
+     */
+    private IQ createIQ(final IQ iq) {
+        final IQ resultIQ = IQ.createResultIQ(iq);
+        resultIQ.setChildElement(info.getName(), info.getNamespace());
+        return resultIQ;
     }
 
     /**
@@ -250,8 +273,7 @@ public abstract class AbstractController extends
      * @return The response.
      */
     private IQ createResponse(final IQ iq) {
-        final IQ response = new IQ(IQ.Type.result, iq.getID());
-        response.setChildElement("query", "jabber:iq:parity");
+        final IQ response = createIQ(iq);
         return response;
     }
 }

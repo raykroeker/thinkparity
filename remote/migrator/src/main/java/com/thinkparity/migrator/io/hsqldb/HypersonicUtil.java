@@ -128,7 +128,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	private void doCheckpoint() throws HypersonicException {
-		logger.info("Issuing checkpoint.");
+		logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [CHECKPOINT]");
 		final HypersonicSession session = HypersonicSessionManager.openSession();
 		try { session.execute("CHECKPOINT DEFRAG"); }
 		finally { session.close(); }
@@ -140,7 +140,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	private void doCompact() throws HypersonicException {
-		logger.info("Issuing hypersonic compact.");
+		logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [COMPACT]");
 		final HypersonicSession session = HypersonicSessionManager.openSession();
 		try { session.execute("SHUTDOWN COMPACT"); }
 		finally { session.close(); }
@@ -167,7 +167,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	private void doRegisterDriver() throws HypersonicException {
-		logger.info("Registering the hypersonic driver.");
+		logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [REGISTER DRIVER]");
 		if(!isDriverRegistered) {
 			try {
 				Class.forName("org.hsqldb.jdbcDriver");
@@ -177,7 +177,9 @@ public class HypersonicUtil {
 				throw new HypersonicException(cnfx);
 			}
 		}
-		else { logger.warn("Hypersonic driver already registered."); }
+		else {
+            logger.warn("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [REGISTER DRIVER] [DRIVER ALREADY REGISTERED]");
+        }
 	}
 
 	/**
@@ -186,7 +188,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	private void doSetInitialProperties() throws HypersonicException {
-		logger.info("Setting initial hypersonic properties.");
+		logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [SET INITIAL PROPERTIES]");
 		if(!isInitalPropertiesSet) {
 			// set custom hypersonic settings
 			final HypersonicSession session = HypersonicSessionManager.openSession();
@@ -200,7 +202,7 @@ public class HypersonicUtil {
 			isInitalPropertiesSet = Boolean.TRUE;
 		}
 		else {
-			logger.warn("Initial hypersonic properties have already been set.");
+			logger.warn("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [SET INITIAL PROPERTIES] [INITIAL PROPERTIES ALREADY SET]");
 		}
 	}
 }

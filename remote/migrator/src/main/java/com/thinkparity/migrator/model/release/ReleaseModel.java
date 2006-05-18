@@ -56,8 +56,17 @@ public class ReleaseModel extends AbstractModel {
      *            The release name.
      * @return The release.
      */
-    public Release read(final String releaseName) {
-        synchronized(implLock) { return impl.read(releaseName); }
+    public Release read(final String name) {
+        synchronized(implLock) { return impl.read(name); }
+    }
+
+    /**
+     * Read the latest release.
+     *
+     * @return A release.
+     */
+    public Release readLatest() {
+        synchronized(implLock) { return impl.readLatest(); }
     }
 
     /**

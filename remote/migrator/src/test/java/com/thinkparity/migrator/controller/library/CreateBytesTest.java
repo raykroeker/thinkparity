@@ -8,6 +8,7 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.migrator.MockLibrary;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
 import com.thinkparity.migrator.controller.MockIQ;
 import com.thinkparity.migrator.model.library.LibraryModel;
@@ -43,8 +44,8 @@ public class CreateBytesTest extends ControllerTestCase {
                 mockLibrary.getType(), mockLibrary.getVersion());
 
         final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeLong("libraryId", mockLibrary.getId());
-        mockIQ.writeByteArray("bytes", mockLibrary.getBytes());
+        mockIQ.writeLong(Xml.Library.ID, mockLibrary.getId());
+        mockIQ.writeBytes(Xml.Library.BYTES, mockLibrary.getBytes());
         data = new Fixture(new CreateBytes(), mockIQ);
     }
 

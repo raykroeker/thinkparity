@@ -4,8 +4,6 @@
  */
 package com.thinkparity.migrator.controller.release;
 
-import java.util.List;
-
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
@@ -13,6 +11,7 @@ import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MockLibrary;
 import com.thinkparity.migrator.MockRelease;
 import com.thinkparity.migrator.Release;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
 import com.thinkparity.migrator.controller.MockIQ;
 import com.thinkparity.migrator.model.library.LibraryModel;
@@ -45,15 +44,12 @@ public class CreateTest extends ControllerTestCase {
 
         final IQReader iqReader = new IQReader(response);
         final Release release = new Release();
-        release.setArtifactId(iqReader.readString("artifactId"));
-        release.setGroupId(iqReader.readString("groupId"));
-        release.setId(iqReader.readLong("id"));
-        release.setName(iqReader.readString("name"));
-        release.setVersion(iqReader.readString("version"));
-        final List<Long> libraryIds = iqReader.readLongs("libraryIds", "libraryId");
-        for(final Long libraryId : libraryIds) {
-            release.addLibrary(data.lModel.read(libraryId));
-        }
+        release.setArtifactId(iqReader.readString(Xml.Release.ARTIFACT_ID));
+        release.setGroupId(iqReader.readString(Xml.Release.GROUP_ID));
+        release.setId(iqReader.readLong(Xml.Release.ID));
+        release.addAllLibraries(iqReader.readLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY));
+        release.setName(iqReader.readString(Xml.Release.NAME));
+        release.setVersion(iqReader.readString(Xml.Release.VERSION));
 
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", data.eRelease, release);
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ARTIFACT ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getArtifactId(), release.getArtifactId());
@@ -84,7 +80,7 @@ public class CreateTest extends ControllerTestCase {
         mockIQ.writeString("version", mockRelease.getVersion());
         mockIQ.writeString("name", mockRelease.getName());
         mockIQ.writeLongs("libraryIds", "libraryId", mockRelease.getLibraryIds());
-        data = new Fixture(new Create(), lModel, mockRelease, mockIQ);
+        data = new Fixture(new Create(), mockRelease, mockIQ);
     }
 
     /** Tear down the test data. */
@@ -94,13 +90,10 @@ public class CreateTest extends ControllerTestCase {
     private class Fixture {
         private final Create create;
         private final Release eRelease;
-        private final LibraryModel lModel;
         private final IQ iq;
-        private Fixture(final Create create, final LibraryModel lModel,
-                final Release eRelease, final IQ iq) {
+        private Fixture(final Create create, final Release eRelease, final IQ iq) {
             this.create = create;
             this.eRelease = eRelease;
-            this.lModel = lModel;
             this.iq = iq;
         }
     }

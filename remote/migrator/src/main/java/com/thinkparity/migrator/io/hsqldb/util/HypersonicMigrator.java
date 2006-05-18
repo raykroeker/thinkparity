@@ -4,11 +4,13 @@
 package com.thinkparity.migrator.io.hsqldb.util;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
+import com.thinkparity.codebase.Mode;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.LoggerFactory;
@@ -35,6 +37,14 @@ class HypersonicMigrator {
 
     private static final String INSERT_SEED_VERSION;
 
+    private static final String INSERT_TEST_DATA_LIBRARY;
+
+    private static final String INSERT_TEST_DATA_LIBRARY_BYTES;
+
+    private static final String INSERT_TEST_DATA_RELEASE;
+
+    private static final String INSERT_TEST_DATA_RELEASE_LIBRARY_REL;
+
 	private static final String READ_META_DATA_VERSION;
 
 	static {
@@ -56,6 +66,14 @@ class HypersonicMigrator {
         INSERT_SEED_META_DATA_TYPE = CONFIG.getProperty("InsertSeedMetaDataType");
 		
 		INSERT_SEED_VERSION = CONFIG.getProperty("InsertSeedVersion");
+
+        INSERT_TEST_DATA_LIBRARY = CONFIG.getProperty("InsertTestDataLibrary");
+
+        INSERT_TEST_DATA_LIBRARY_BYTES = CONFIG.getProperty("InsertTestDataLibraryBytes");
+
+        INSERT_TEST_DATA_RELEASE = CONFIG.getProperty("InsertTestDataRelease");
+
+        INSERT_TEST_DATA_RELEASE_LIBRARY_REL = CONFIG.getProperty("InsertTestDataReleaseLibraryRel");
 
 		READ_META_DATA_VERSION = CONFIG.getProperty("ReadMetaDataVersion");
 	}
@@ -120,6 +138,9 @@ class HypersonicMigrator {
 		try {
 			createSchema(session);
 			insertSeedData(session);
+            if(Mode.DEVELOPMENT == Version.getMode()) {
+                insertTestData(session);
+            }
 			session.commit();
 		}
 		catch(final HypersonicException hx) {
@@ -137,7 +158,7 @@ class HypersonicMigrator {
 			session.setTypeAsString(2, mdt);
 			if(1 != session.executeUpdate())
 				throw new HypersonicException(
-						"Could not insert meta data seed data:  " + mdt);
+						"[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [INSERT SEED DATA] [CANNOT INSERT META DATA SEED DATA]");
 		}
 
 		session.prepareStatement(INSERT_SEED_VERSION);
@@ -146,7 +167,7 @@ class HypersonicMigrator {
 		session.setString(3, Version.getBuildId());
 		if(1 != session.executeUpdate())
 			throw new HypersonicException(
-					"Could not insert version seed.");
+                    "[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT VERSION META DATA]");
 
         session.prepareStatement(INSERT_SEED_LIBRARY_TYPE);
         for(final Library.Type t : Library.Type.values()) {
@@ -154,9 +175,97 @@ class HypersonicMigrator {
             session.setTypeAsString(2, t);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
-                        "[RMIGRATOR] [IO] [INSERT SEED DATA] [LIBRARY TYPE]");
+                        "[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT LIBRARY TYPE SEED DATA]");
         }
 	}
+
+    /**
+     * Insert test data.  This will insert a single dummy release with
+     * dummy libraries.
+     *
+     * @param session
+     *      A database session.
+     */
+    private void insertTestData(final HypersonicSession session) {
+        final List<Long> libraryIds = new ArrayList<Long>();
+        libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
+                "com.thinkparity.parity", "tJavaLibrary", "1.0.0",
+                "com.thinkparity.parity:tJavaLibrary:1.0.0".getBytes()));
+        libraryIds.add(insertTestDataLibrary(session, Library.Type.NATIVE,
+                "com.thinkparity.parity", "tNativeLibrary", "1.0.0",
+                "com.thinkparity.parity:tJavaLibrary:1.0.0".getBytes()));
+        insertTestDataRelease(session, "TEST 2006 05 13",
+                "com.thinkparity.parity", "tRelease", "1.0.0", libraryIds);
+    }
+
+    /**
+     * Insert a test library into the database.
+     *
+     * @param type
+     *      A library type.
+     * @param groupId
+     *      A group id.
+     * @param artifactId
+     *      An artifact id.
+     * @param version
+     *      A version.
+     * @param bytes
+     *      A byte array.
+     */
+    private Long insertTestDataLibrary(final HypersonicSession session,
+            final Library.Type type, final String groupId,
+            final String artifactId, final String version, final byte[] bytes) {
+        session.prepareStatement(INSERT_TEST_DATA_LIBRARY);
+        session.setTypeAsInteger(1, type);
+        session.setString(2, groupId);
+        session.setString(3, artifactId);
+        session.setString(4, version);
+        if(1 != session.executeUpdate())
+            throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT LIBRARY TEST DATA]");
+        final Long libraryId = session.getIdentity();
+        session.prepareStatement(INSERT_TEST_DATA_LIBRARY_BYTES);
+        session.setLong(1, libraryId);
+        session.setBytes(2, bytes);
+        if(1 != session.executeUpdate())
+            throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT LIBRARY BYTES TEST DATA");
+
+        return libraryId;
+    }
+
+    /**
+     * Insert a test release into the databse.
+     *
+     * @param session
+     *      A database session.
+     * @param groupId
+     *      A group id.
+     * @param artifactId
+     *      An artifact id.
+     * @param version
+     *      A version.
+     * @param libraryIds
+     *      Library ids.
+     */
+    private void insertTestDataRelease(final HypersonicSession session,
+            final String name, final String groupId, final String artifactId,
+            final String version, final List<Long> libraryIds) {
+        session.prepareStatement(INSERT_TEST_DATA_RELEASE);
+        session.setString(1, name);
+        session.setString(2, groupId);
+        session.setString(3, artifactId);
+        session.setString(4, version);
+        if(1 != session.executeUpdate())
+            throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT RELEASE TEST DATA]");
+        final Long releaseId = session.getIdentity();
+
+        session.prepareStatement(INSERT_TEST_DATA_RELEASE_LIBRARY_REL);
+        session.setLong(1, releaseId);
+        for(final Long libraryId : libraryIds) {
+            session.setLong(2, libraryId);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT RELEASE LIBRARY REL TEST DATA]");
+        }
+    }
 
 	private void migrateSchema(final String fromVersionId,
 			final String toVersionId) {}

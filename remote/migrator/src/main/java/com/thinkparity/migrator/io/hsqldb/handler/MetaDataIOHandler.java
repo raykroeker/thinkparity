@@ -107,17 +107,17 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	 * @see com.thinkparity.model.parity.model.io.handler.MetaDataIOHandler#read(java.lang.Long)
 	 */
 	public MetaData read(final Long metaDataId) throws HypersonicException {
-		final HypersonicSession HypersonicSession = openSession();
+		final HypersonicSession session = openSession();
 		try {
-			final MetaData metaData = read(HypersonicSession, metaDataId);
-			HypersonicSession.commit();
+			final MetaData metaData = read(session, metaDataId);
+            session.commit();
 			return metaData;
 		}
 		catch(final HypersonicException hx) {
-			HypersonicSession.rollback();
+            session.rollback();
 			throw hx;
 		}
-		finally { HypersonicSession.close(); }
+		finally { session.close(); }
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		HypersonicSession.setString(2, metaDataKey.toString());
 		setValue(HypersonicSession, 3, metaDataType, metaDataValue);
 		if(1 != HypersonicSession.executeUpdate())
-			throw new HypersonicException("Could not create meta data:  " + metaDataKey);
+			throw new HypersonicException("[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [META DATA] [CREATE] [COULD NOT CREATE META DATA]");
 		return HypersonicSession.getIdentity();
 	}
 
@@ -181,7 +181,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		HypersonicSession.prepareStatement(SQL_DELETE);
 		HypersonicSession.setLong(1, metaDataId);
 		if(1 != HypersonicSession.executeUpdate())
-			throw new HypersonicException("Could not delete meta data.");
+			throw new HypersonicException("[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [META DATA] [DELETE] [COULD NOT DELETE META DATA]");
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		case JABBER_ID:
 			return JabberIdBuilder.parseQualifiedUsername(HypersonicSession.getString(columnName));
 		default:
-			throw Assert.createUnreachable("Unknown meta data type:  " + metaDataType);
+			throw Assert.createUnreachable("[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [META DATA] [EXTRACT VALUE] [UNKNOWN META DATA TYPE]");
 		}
 	}
 
@@ -253,7 +253,7 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		HypersonicSession.setString(2, metaDataKey);
 		setValue(HypersonicSession, 3, metaDataType, metaDataValue);
 		if(1 != HypersonicSession.executeUpdate())
-			throw new HypersonicException("Coudl not update meta data.");
+			throw new HypersonicException("[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [META DATA] [UPDATE] [COULD NOT UPDATE META DATA]");
 	}
 
 	/**
@@ -302,7 +302,8 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 		case JABBER_ID:
 			HypersonicSession.setQualifiedUsername(index, (JabberId) value);
 			break;
-		default: Assert.assertUnreachable("Unknown meta data type:  " + metaDataType);
+		default:
+            Assert.assertUnreachable("[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [META DATA] [SET VALUE] [UNKNOWN META DATA TYPE]");
 		}
 	}
 

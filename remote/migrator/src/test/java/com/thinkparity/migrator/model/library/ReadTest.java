@@ -31,7 +31,13 @@ public class ReadTest extends MigratorTestCase {
     public void testRead() {
         Library library;
         for(final Fixture datum : data) {
-            library = datum.lModel.read(datum.libraryId);
+            if(null != datum.libraryId) {
+                library = datum.lModel.read(datum.libraryId);
+            }
+            else {
+                library = datum.lModel.read(datum.artifactId, datum.groupId,
+                        datum.type, datum.version);
+            }
 
             assertNotNull("[RMIGRATOR] [LIBRARY] [READ TEST] [LIBRARY IS NULL]", library);
             assertEquals("[RMIGRATOR] [LIBRARY] [READ TEST] [LIBRARY DOES NOT EQUAL EXPECTATION]", datum.eLibrary, library);
@@ -51,6 +57,9 @@ public class ReadTest extends MigratorTestCase {
         lModel.create(eLibrary0.getArtifactId(), eLibrary0.getGroupId(),
                 eLibrary0.getType(), eLibrary0.getVersion());
         data.add(new Fixture(eLibrary0, lModel, eLibrary0.getId()));
+        data.add(new Fixture(eLibrary0.getArtifactId(), eLibrary0,
+                eLibrary0.getGroupId(), lModel, eLibrary0.getType(),
+                eLibrary0.getVersion()));
 
         // 2:  native library
         final Library eLibrary1 = MockLibrary.createNative(this);
@@ -68,14 +77,33 @@ public class ReadTest extends MigratorTestCase {
     }
 
     private class Fixture {
+        private final String artifactId;
         private final Library eLibrary;
+        private final String groupId;
         private final Long libraryId;
         private final LibraryModel lModel;
+        private final Library.Type type;
+        private final String version;
+        private Fixture(final String artifactId, final Library eLibrary,
+                final String groupId, final LibraryModel lModel,
+                final Library.Type type, final String version) {
+            this.artifactId = artifactId;
+            this.eLibrary = eLibrary;
+            this.groupId = groupId;
+            this.lModel = lModel;
+            this.type = type;
+            this.libraryId = null;
+            this.version = version;
+        }
         private Fixture(final Library eLibrary, final LibraryModel lModel,
                 final Long libraryId) {
+            this.artifactId = null;
             this.eLibrary = eLibrary;
+            this.groupId = null;
             this.lModel = lModel;
+            this.type = null;
             this.libraryId = libraryId;
+            this.version = null;
         }
     }
 }

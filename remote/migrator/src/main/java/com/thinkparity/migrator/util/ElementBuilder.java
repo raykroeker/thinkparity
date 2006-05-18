@@ -11,6 +11,9 @@ import org.dom4j.Element;
 
 import com.thinkparity.codebase.CompressionUtil;
 
+import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Constants.Xml;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -30,10 +33,10 @@ public class ElementBuilder {
      */
     public static Element addElement(final Element parent, final String name,
             final Byte[] value) {
-        final Element element = parent.addElement(name);
-        try { element.setText(encode(compress(value))); }
+        try {
+            return addElement(parent, name, Byte[].class, encode(compress(value)));
+        }
         catch(final IOException iox) { throw new RuntimeException(iox); }
-        return element;
     }
 
     /**
@@ -49,7 +52,23 @@ public class ElementBuilder {
      */
     public static Element addElement(final Element parent, final String name,
             final JabberId value) {
-        return addElement(parent, name, value.getQualifiedJabberId());
+        return addElement(parent, name, JabberId.class, value.getQualifiedJabberId());
+    }
+
+    /**
+     * Add a library type element.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     * @return The element.
+     */
+    public static Element addElement(final Element parent, final String name,
+            final Library.Type value) {
+        return addElement(parent, name, Library.Type.class, value.toString());
     }
 
     /**
@@ -63,10 +82,11 @@ public class ElementBuilder {
      *            A long.
      * @return The element.
      */
-    public static Element addElement(final Element parentElement,
+    public static Element addElement(final Element parent,
             final String name, final Long value) {
-        return addElement(parentElement, name, value.toString());
+        return addElement(parent, name, Long.class, value.toString());
     }
+
     /**
      * Add a string value.
      * 
@@ -80,9 +100,7 @@ public class ElementBuilder {
      */
 	public static Element addElement(final Element parent, final String name,
             final String value) {
-        final Element element = parent.addElement(name);
-        element.setText(value);
-        return element;
+        return addElement(parent, name, String.class, value);
     }
 
     /**
@@ -98,7 +116,7 @@ public class ElementBuilder {
      */
     public static Element addElement(final Element parent, final String name,
             final UUID value) {
-        return addElement(parent, name, value.toString());
+        return addElement(parent, name, UUID.class, value.toString());
     }
 
     /**
@@ -112,12 +130,76 @@ public class ElementBuilder {
      *            A long.
      * @return The root element added.
      */
-    public static Element addElements(final Element parentElement,
+    public static Element addElements(final Element parent,
             final String parentName, final String name, final List<Long> values) {
-        final Element element = parentElement.addElement(parentName);
-        for(final Long value : values) {
-            ElementBuilder.addElement(element, name, value.toString());
+        final Element element = addElement(parent, parentName, List.class);
+
+        for(final Long value : values) { addElement(element, name, value); }
+
+        return element;
+    }
+
+    /**
+     * Add a list of library values.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param name
+     *            The element name.
+     * @param value
+     *            A long.
+     * @return The root element added.
+     */
+    public static Element addLibraryElements(final Element parent,
+            final String parentName, final String name, final List<Library> values) {
+        final Element element = addElement(parent, parentName, List.class);
+
+        Element libraryElement;
+        for(final Library value : values) {
+            libraryElement = addElement(element, Xml.Library.LIBRARY, Library.class);
+
+            addElement(libraryElement, Xml.Library.ARTIFACT_ID, value.getArtifactId());
+            addElement(libraryElement, Xml.Library.GROUP_ID, value.getGroupId());
+            addElement(libraryElement, Xml.Library.ID, value.getId());
+            addElement(libraryElement, Xml.Library.TYPE, value.getType());
+            addElement(libraryElement, Xml.Library.VERSION, value.getVersion());
         }
+
+        return element;
+    }
+    /**
+     * Add a typed element to the parent.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param name
+     *            The element name.
+     * @return The element.
+     */
+    private static Element addElement(final Element parent, final String name,
+            final Class type) {
+        final Element element = parent.addElement(name);
+        element.addAttribute("javaType", type.getName());
+        return element;
+    }
+
+    /**
+     * Add a typed element to the parent.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param name
+     *            The element name.
+     * @param type
+     *            The element type.
+     * @param value
+     *            The element value.
+     * @return The element.
+     */
+    private static Element addElement(final Element parent, final String name,
+            final Class type, final String value) {
+        final Element element = addElement(parent, name, type);
+        element.setText(value);
         return element;
     }
 

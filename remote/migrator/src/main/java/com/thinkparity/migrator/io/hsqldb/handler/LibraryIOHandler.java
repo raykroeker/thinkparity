@@ -38,6 +38,16 @@ public class LibraryIOHandler extends AbstractIOHandler implements
         .append("where L.LIBRARY_ID=?")
         .toString();
 
+    private static final String SQL_READ_BY_ARTIFACT_ID_GROUP_ID_TYPE_VERSION =
+        new StringBuffer("select L.LIBRARY_ID,L.LIBRARY_TYPE_ID,")
+        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION ")
+        .append("from LIBRARY L ")
+        .append("where L.LIBRARY_ARTIFACT_ID=? ")
+        .append("and L.LIBRARY_GROUP_ID=? ")
+        .append("and L.LIBRARY_TYPE_ID=? ")
+        .append("and L.LIBRARY_VERSION=?")
+        .toString();
+
     /** Sel to read a library's bytes. */
     private static final String SQL_READ_BYTES =
         new StringBuffer("select LB.LIBRARY_BYTES ")
@@ -63,7 +73,7 @@ public class LibraryIOHandler extends AbstractIOHandler implements
             session.setString(4, version);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
-                        "[RMIGRATOR] [LIBRARY] [IO] [CREATE] [COULD NOT EXECUTE UPDATE]");
+                        "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [LIBRARY] [CREATE] [COULD NOT EXECUTE UPDATE]");
 
             session.commit();
             return session.getIdentity();
@@ -88,7 +98,7 @@ public class LibraryIOHandler extends AbstractIOHandler implements
             session.setBytes(2, smallBytes);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
-                        "[RMIGRATOR] [LIBRARY] [IO] [CREATE BYTES] [COULD NOT EXECUTE UPDATE]");
+                        "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [LIBRARY] [CREATE BYTES] [COULD NOT EXECUTE UPDATE]");
 
             session.commit();
         }
@@ -108,6 +118,29 @@ public class LibraryIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_READ);
             session.setLong(1, libraryId);
+            session.executeQuery();
+
+            if(session.nextResult()) { return extractLibrary(session); }
+            else { return null; }
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /** @see com.thinkparity.migrator.io.handler.LibraryIOHandler#read(java.lang.String, java.lang.String, com.thinkparity.migrator.Library.Type, java.lang.String) */
+    public Library read(final String artifactId, final String groupId,
+            final Library.Type type, final String version)
+            throws HypersonicException {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_ARTIFACT_ID_GROUP_ID_TYPE_VERSION);
+            session.setString(1, artifactId);
+            session.setString(2, groupId);
+            session.setTypeAsInteger(3, type);
+            session.setString(4, version);
             session.executeQuery();
 
             if(session.nextResult()) { return extractLibrary(session); }

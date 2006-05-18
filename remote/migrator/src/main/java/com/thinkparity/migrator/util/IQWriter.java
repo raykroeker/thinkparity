@@ -36,7 +36,7 @@ public class IQWriter {
      * @param bytes
      *            The element value.
      */
-    public void writeByteArray(final String name, final Byte[] bytes) {
+    public void writeBytes(final String name, final Byte[] bytes) {
         ElementBuilder.addElement(iq.getChildElement(), name, bytes);
     }
 
@@ -45,12 +45,12 @@ public class IQWriter {
      * 
      * @param name
      *            The element name.
-     * @param libraryType
+     * @param value
      *            The element value.
      */
     public void writeLibraryType(final String name,
-            final Library.Type libraryType) {
-        ElementBuilder.addElement(iq.getChildElement(), name, libraryType.toString());
+            final Library.Type value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**
@@ -76,6 +76,21 @@ public class IQWriter {
     public void writeLongs(final String parentName, final String name,
             final List<Long> values) {
         ElementBuilder.addElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    /**
+     * Write a list of library values.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param libraries
+     *            The element values.
+     */
+    public void writeLibraries(final String parentName, final String name,
+            final List<Library> libraries) {
+        ElementBuilder.addLibraryElements(iq.getChildElement(), parentName, name, libraries);
     }
 
     /**

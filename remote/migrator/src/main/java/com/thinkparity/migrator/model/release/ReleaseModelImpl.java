@@ -39,10 +39,20 @@ class ReleaseModelImpl extends AbstractModelImpl {
      * @return The release.
      * @tpc.model.api visiblity="public"
      */
-    Release read(final String releaseName) {
-        logger.info("[RMIGRATOR] [RELEASE] [READ]");
-        logger.debug(releaseName);
-        return releaseIO.read(releaseName);
+    Release read(final String name) {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ]");
+        logger.debug(name);
+        return releaseIO.read(name);
+    }
+
+    /**
+     * Read the latest release.
+     *
+     * @return A release.
+     */
+    Release readLatest() {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ LATEST]");
+        return releaseIO.readLatest();
     }
 
     /**
@@ -63,7 +73,7 @@ class ReleaseModelImpl extends AbstractModelImpl {
     Release create(final String artifactId, final String groupId,
             final String name, final String version,
             final List<Library> libraries) {
-        logger.info("[RMIGRATOR] [RELEASE] [CREATE RELEASE]");
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [CREATE RELEASE]");
         logger.debug(artifactId);
         logger.debug(groupId);
         logger.debug(name);
@@ -72,8 +82,6 @@ class ReleaseModelImpl extends AbstractModelImpl {
         final Long releaseId = releaseIO.create(artifactId, groupId, name, version);
         for(final Library library : libraries)
             releaseIO.createLibraryRel(releaseId, library.getId());
-
         return read(name);
     }
-
 }

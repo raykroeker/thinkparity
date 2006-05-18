@@ -37,8 +37,8 @@ public class MockIQ extends IQ {
         setChildElement("query", "jabber:iq:parity");
     }
 
-    public void writeByteArray(final String name, final Byte[] value) {
-        writer.writeByteArray(name, value);
+    public void writeBytes(final String name, final Byte[] value) {
+        writer.writeBytes(name, value);
     }
 
     public void writeLibraryType(final String name,

@@ -5,6 +5,7 @@
 package com.thinkparity.migrator;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,7 +16,8 @@ import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.container.PluginManager;
 import org.jivesoftware.messenger.handler.IQHandler;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
+import com.thinkparity.migrator.io.hsqldb.HypersonicSessionManager;
 
 /**
  * The migrator plugin.
@@ -51,14 +53,10 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
     public void initializePlugin(final PluginManager manager,
             final File pluginDirectory) {
         initializePluginLogging(pluginDirectory);
+        initializePluginDatabase(pluginDirectory);
         initializeControllers();
 
-        final StringBuffer buffer = new StringBuffer()
-            .append(Version.getBuildId()).append(Separator.FullColon)
-            .append(Version.getMode()).append(Separator.FullColon)
-            .append(Version.getName()).append(Separator.FullColon)
-            .append(Version.getVersion()).append(Separator.FullColon);
-        logger.info(buffer);
+        logger.info(Version.toInfo());
     }
 
     /** Destroy all of the migrator controllers. */
@@ -83,15 +81,20 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
     private void initializeController(final String controllerName) {
         try { controllers.add((IQHandler) Class.forName(controllerName).newInstance()); }
         catch(final ClassNotFoundException cnfx) {
-            logger.fatal("[RMIGRATOR] [INIT] [INIT CONTROLLER]", cnfx);
+            logger.fatal("[RMIGRATOR] [PLUGIN] [INIT CONTROLLER]", cnfx);
         }
         catch(final IllegalAccessException iax) {
-            logger.fatal("[RMIGRATOR] [INIT] [INIT CONTROLLER]", iax);
+            logger.fatal("[RMIGRATOR] [PLUGIN] [INIT CONTROLLER]", iax);
         }
         catch(final InstantiationException ix) {
-            logger.fatal("[RMIGRATOR] [INIT] [INIT CONTROLLER]", ix);
+            logger.fatal("[RMIGRATOR] [PLUGIN] [INIT CONTROLLER]", ix);
         }
-        iqRouter.addHandler(controllers.get(controllers.size() - 1));
+        final IQHandler controller = controllers.get(controllers.size() - 1);
+        iqRouter.addHandler(controller);
+        final String info = MessageFormat.format(
+                "[RMIGRATOR] [PLUGIN] [INIT CONTROLLER] [{0} REGISTERED]",
+                new Object[] {controller.getInfo().getNamespace()});
+        logger.info(info);
     }
 
     /** Initialize all of the migrator controllers. */
@@ -103,7 +106,21 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
             initializeController("com.thinkparity.migrator.controller.library.ReadBytes");
             initializeController("com.thinkparity.migrator.controller.release.Create");
             initializeController("com.thinkparity.migrator.controller.release.Read");
+            initializeController("com.thinkparity.migrator.controller.release.ReadLatest");
         }
+    }
+
+    private void initializePluginDatabase(final File pluginDirectory) {
+        final File databaseDirectory =
+                new File(pluginDirectory, Constants.Database.DIRECTORY);
+        final File databaseFile =
+                new File(databaseDirectory, Constants.Database.FILE);
+        System.setProperty("hsqldb.file", databaseFile.getAbsolutePath());
+
+        // opening and closing a session will cause the db layer to initialize
+        final HypersonicSession session =
+            HypersonicSessionManager.openSession();
+        session.close();
     }
 
     /**

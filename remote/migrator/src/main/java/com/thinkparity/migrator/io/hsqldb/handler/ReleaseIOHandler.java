@@ -35,15 +35,18 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
         .toString();
 
     /** Sql to read a release. */
-    private static final String SQL_READ_BY_NAME =
+    private static final String SQL_READ =
         new StringBuffer("select R.RELEASE_ID,R.RELEASE_NAME,")
-        .append("R.RELEASE_GROUP_ID,R.RELEASE_ARTIFACT_ID,R.RELEASE_VERSION,")
-        .append("L.LIBRARY_ID,L.LIBRARY_TYPE_ID,L.LIBRARY_GROUP_ID,")
-        .append("L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION ")
+        .append("R.RELEASE_GROUP_ID,R.RELEASE_ARTIFACT_ID,R.RELEASE_VERSION ")
         .append("from RELEASE R ")
-        .append("inner join RELEASE_LIBRARY_REL RLR on R.RELEASE_ID = RLR.RELEASE_ID ")
-        .append("inner join LIBRARY L on RLR.LIBRARY_ID = L.LIBRARY_ID ")
         .append("where R.RELEASE_NAME=?")
+        .toString();
+
+    /** Sql to read the latest release name. */
+    private static final String SQL_READ_LATEST =
+        new StringBuffer("select R.RELEASE_NAME ")
+        .append("from RELEASE R ")
+        .append("where R.RELEASE_ID = (select MAX(R2.RELEASE_ID) from RELEASE R2)")
         .toString();
 
     /** Sql to read the libraries for a release. */
@@ -81,7 +84,7 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
             session.setString(4, version);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
-                        "[RMIGRATOR] [RELEASE] [IO] [CREATE] [COULD NOT EXECUTE UPDATE]");
+                        "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [RELEASE] [CREATE] [COULD NOT EXECUTE UPDATE]");
 
             session.commit();
             return session.getIdentity();
@@ -96,7 +99,7 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.migrator.io.handler.ReleaseIOHandler#createLibraryRel(java.lang.Long, java.lang.Long)
      */
-    public void createLibraryRel(Long releaseId, Long libraryId) throws HypersonicException {
+    public void createLibraryRel(final Long releaseId, final Long libraryId) throws HypersonicException {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_LIBRARY_REL);
@@ -104,7 +107,7 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
             session.setLong(2, libraryId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
-                        "[RMIGRATOR] [RELEASE] [IO] [CREATE LIBRARY REL] [COULD NOT EXECUTE UPDATE]");
+                        "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [RELEASE] [CREATE LIBRARY REL] [COULD NOT EXECUTE UPDATE]");
 
             session.commit();
         }
@@ -121,7 +124,7 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
     public Release read(final String releaseName) throws HypersonicException {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_BY_NAME);
+            session.prepareStatement(SQL_READ);
             session.setString(1, releaseName);
             session.executeQuery();
 
@@ -132,6 +135,22 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
             session.rollback();
             throw hx;
         }
+        finally { session.close(); }
+    }
+
+    /** @see com.thinkparity.migrator.io.handler.ReleaseIOHandler#readLatest() */
+    public Release readLatest() throws HypersonicException {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_LATEST);
+            session.executeQuery();
+
+            if(session.nextResult()) {
+                return read(session.getString("RELEASE_NAME"));
+            }
+            else { return null; }
+        }
+        catch(final HypersonicException hx) { throw hx; }
         finally { session.close(); }
     }
 

@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Release;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.AbstractController;
 
 /**
@@ -21,17 +22,18 @@ public class Create extends AbstractController {
 
     /** @see com.thinkparity.migrator.controller.AbstractController#service() */
     public void service() {
-        logger.info("[RMIGRATOR] [RELEASE] [CREATE]");
-        final Release release = create(readString("artifactId"),
-                readString("groupId"), readString("name"),
-                readString("version"), readLibraryIds("libraryIds", "libraryId"));
+        logger.info("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE]");
+        final Release release = create(readString(Xml.Release.ARTIFACT_ID),
+                readString(Xml.Release.GROUP_ID), readString(Xml.Release.NAME),
+                readString(Xml.Release.VERSION),
+                readLibraryIds(Xml.Release.LIBRARY_IDS, Xml.Release.LIBRARY_ID));
 
-        writeString("artifactId", release.getArtifactId());
-        writeString("groupId", release.getGroupId());
-        writeLong("id", release.getId());
-        writeLibraryIds("libraryIds", "libraryId", release.getLibraries());
-        writeString("name", release.getName());
-        writeString("version", release.getVersion());
+        writeString(Xml.Release.ARTIFACT_ID, release.getArtifactId());
+        writeString(Xml.Release.GROUP_ID, release.getGroupId());
+        writeLong(Xml.Release.ID, release.getId());
+        writeLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY, release.getLibraries());
+        writeString(Xml.Release.NAME, release.getName());
+        writeString(Xml.Release.VERSION, release.getVersion());
     }
 
     /**

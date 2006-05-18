@@ -4,15 +4,19 @@
  */
 package com.thinkparity.migrator.controller.library;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.xmpp.packet.IQ;
+
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MockLibrary;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
 import com.thinkparity.migrator.controller.MockIQ;
 import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.util.IQReader;
-
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-import org.xmpp.packet.IQ;
 
 /**
  * A test for the library read controller's handle iq api.
@@ -23,7 +27,7 @@ import org.xmpp.packet.IQ;
 public class ReadTest extends ControllerTestCase {
 
     /** The test data. */
-    private Fixture data;
+    private Map<String, Fixture> data;
 
     /** Create ReadTest. */
     public ReadTest() {
@@ -31,9 +35,41 @@ public class ReadTest extends ControllerTestCase {
     }
 
     /** Test the handle IQ api. */
-    public void testHandleIQ() {
+    public void testHandleIQScenario1() { testHandleIQ(data.get("Scenario1")); }
+
+    /** Test the handle IQ api. */
+    public void testHandleIQScenario2() { testHandleIQ(data.get("Scenario2")); }
+
+    /** Set up the test data. */
+    protected void setUp() throws Exception {
+        data = new HashMap<String, Fixture>(2, 1.0F);
+        final LibraryModel lModel = getLibraryModel(getClass());
+
+        final MockLibrary mockLibrary = MockLibrary.create(this);
+        lModel.create(mockLibrary.getArtifactId(), mockLibrary.getGroupId(),
+                mockLibrary.getType(), mockLibrary.getVersion());
+
+        MockIQ mockIQ = MockIQ.createGet();
+        mockIQ.writeLong(Xml.Library.ID, mockLibrary.getId());
+        data.put("Scenario1", new Fixture(mockLibrary, new Read(), mockIQ));
+
+        mockIQ = MockIQ.createGet();
+        mockIQ.writeString(Xml.Library.ARTIFACT_ID, mockLibrary.getArtifactId());
+        mockIQ.writeString(Xml.Library.GROUP_ID, mockLibrary.getGroupId());
+        mockIQ.writeLibraryType(Xml.Library.TYPE, mockLibrary.getType());
+        mockIQ.writeString(Xml.Library.VERSION, mockLibrary.getVersion());
+        data.put("Scenario2", new Fixture(mockLibrary, new Read(), mockIQ));
+    }
+
+    /** Tear down the test data. */
+    protected void tearDown() throws Exception {
+        data.clear();
+        data = null;
+    }
+
+    private void testHandleIQ(final Fixture datum) {
         IQ response = null;
-        try { response = data.read.handleIQ(data.iq); }
+        try { response = datum.read.handleIQ(datum.iq); }
         catch(final UnauthorizedException ux) { fail(createFailMessage(ux)); }
 
         assertNotNull("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [RESPONSE IS NULL]", response);
@@ -41,41 +77,25 @@ public class ReadTest extends ControllerTestCase {
 
         final IQReader iqReader = new IQReader(response);
         final Library library = new Library();
-        library.setArtifactId(iqReader.readString("artifactId"));
-        library.setGroupId(iqReader.readString("groupId"));
-        library.setId(iqReader.readLong("id"));
-        library.setType(iqReader.readLibraryType("type"));
-        library.setVersion(iqReader.readString("version"));
+        library.setArtifactId(iqReader.readString(Xml.Library.ARTIFACT_ID));
+        library.setGroupId(iqReader.readString(Xml.Library.GROUP_ID));
+        library.setId(iqReader.readLong(Xml.Library.ID));
+        library.setType(iqReader.readLibraryType(Xml.Library.TYPE));
+        library.setVersion(iqReader.readString(Xml.Library.VERSION));
 
         assertNotNull("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY IS NULL]", library);
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY DOES NOT MATCH EXPECTATION]", library.getArtifactId(), data.eLibrary.getArtifactId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY GROUP ID DOES NOT MATCH EXPECTATION]", library.getGroupId(), data.eLibrary.getGroupId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY ID DOES NOT MATCH EXPECTATION]", library.getId(), data.eLibrary.getId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY TYPE DOES NOT MATCH EXPECTATION]", library.getType(), data.eLibrary.getType());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY VERSION DOES NOT MATCH EXPECTATION]", library.getVersion(), data.eLibrary.getVersion());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY DOES NOT MATCH EXPECTATION]", library.getArtifactId(), datum.eLibrary.getArtifactId());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY GROUP ID DOES NOT MATCH EXPECTATION]", library.getGroupId(), datum.eLibrary.getGroupId());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY ID DOES NOT MATCH EXPECTATION]", library.getId(), datum.eLibrary.getId());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY TYPE DOES NOT MATCH EXPECTATION]", library.getType(), datum.eLibrary.getType());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY VERSION DOES NOT MATCH EXPECTATION]", library.getVersion(), datum.eLibrary.getVersion());
     }
-
-    /** Set up the test data. */
-    protected void setUp() throws Exception {
-        final LibraryModel lModel = getLibraryModel(getClass());
-
-        final MockLibrary mockLibrary = MockLibrary.create(this);
-        lModel.create(mockLibrary.getArtifactId(), mockLibrary.getGroupId(),
-                mockLibrary.getType(), mockLibrary.getVersion());
-
-        final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeLong("libraryId", mockLibrary.getId());
-        data = new Fixture(mockLibrary, new Read(), mockIQ);
-    }
-
-    /** Tear down the test data. */
-    protected void tearDown() throws Exception { data = null; }
 
     /** The test data fixture. */
     private class Fixture {
         private final Library eLibrary;
-        private final Read read;
         private final IQ iq;
+        private final Read read;
         private Fixture(final Library eLibrary, final Read read, final IQ iq) {
             this.eLibrary = eLibrary;
             this.read = read;

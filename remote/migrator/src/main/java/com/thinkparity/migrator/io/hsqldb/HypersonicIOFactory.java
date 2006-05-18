@@ -6,7 +6,6 @@ package com.thinkparity.migrator.io.hsqldb;
 import com.thinkparity.migrator.io.IOFactory;
 import com.thinkparity.migrator.io.handler.LibraryIOHandler;
 import com.thinkparity.migrator.io.handler.ReleaseIOHandler;
-import com.thinkparity.migrator.io.hsqldb.util.HypersonicValidator;
 
 /**
  * @author raykroeker@gmail.com
@@ -18,10 +17,7 @@ public class HypersonicIOFactory extends IOFactory {
 	 * Create a HypersonicIOFactory [Concrete Factory]
 	 * 
 	 */
-	public HypersonicIOFactory() {
-		super();
-		new HypersonicValidator().validate();
-	}
+	public HypersonicIOFactory() { super(); }
 
     /**
      * @see com.thinkparity.migrator.io.IOFactory#createLibraryHandler()

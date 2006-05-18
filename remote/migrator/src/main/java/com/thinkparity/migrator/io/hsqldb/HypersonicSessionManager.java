@@ -13,6 +13,7 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.migrator.LoggerFactory;
+import com.thinkparity.migrator.io.hsqldb.util.HypersonicValidator;
 import com.thinkparity.migrator.io.md.MetaData;
 import com.thinkparity.migrator.io.md.MetaDataType;
 
@@ -35,12 +36,13 @@ public class HypersonicSessionManager {
 		sessions = new Vector<HypersonicSession>();
 		HypersonicUtil.registerDriver();
 		HypersonicUtil.setInitialProperties();
-		Runtime.getRuntime().addShutdownHook(new Thread("thinkParity - Shutdown Database") {
+        HypersonicValidator.validate();
+		Runtime.getRuntime().addShutdownHook(new Thread("[RMIGRATOR] [IO] [HYPERSONIC SESSION MANAGER] [SHUTDOWN]") {
 			public void run() {
 				// remove abandoned sessions
 				final Logger logger = LoggerFactory.getLogger(HypersonicSessionManager.class);
 				synchronized(sessions) {
-					logger.warn("Number of abandoned sessions:  " + sessions.size());
+					logger.warn("[RMIGRATOR] [IO] [HYPERSONIC SESSION MANAGER] [ABANDONED SESSIONS] [" + sessions.size() + "]");
 					for(final HypersonicSession session : sessions) {
 						logger.warn(session.getId());
 						session.close();

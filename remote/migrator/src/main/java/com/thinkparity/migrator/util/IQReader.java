@@ -16,6 +16,7 @@ import org.xmpp.packet.IQ;
 import com.thinkparity.codebase.CompressionUtil;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Constants.Xml;
 
 public class IQReader {
 
@@ -41,6 +42,29 @@ public class IQReader {
             catch(final DataFormatException dfx) { throw new RuntimeException(dfx); }
             catch(final IOException iox) { throw new RuntimeException(iox); }
         }
+    }
+
+    public List<Library> readLibraries(final String parentName, final String name) {
+        final Element element = iq.getChildElement().element(parentName);
+        if(null == element) { return null; }
+
+        final Iterator iChildren = element.elementIterator(name);
+        final List<Library> libraries = new LinkedList<Library>();
+        Element libraryElement;
+        Library library;
+        while(iChildren.hasNext()) {
+            libraryElement = (Element) iChildren.next();
+
+            library = new Library();
+            library.setArtifactId((String) libraryElement.element(Xml.Library.ARTIFACT_ID).getData());
+            library.setGroupId((String) libraryElement.element(Xml.Library.GROUP_ID).getData());
+            library.setId(Long.valueOf((String) libraryElement.element(Xml.Library.ID).getData()));
+            library.setType(Library.Type.valueOf((String) libraryElement.element(Xml.Library.TYPE).getData()));
+            library.setVersion((String) libraryElement.element(Xml.Library.VERSION).getData());
+ 
+            libraries.add(library);
+        }
+        return libraries;
     }
 
     /**

@@ -4,6 +4,7 @@
  */
 package com.thinkparity.migrator.controller.library;
 
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.AbstractController;
 
 /**
@@ -19,8 +20,8 @@ public final class ReadBytes extends AbstractController {
 
     /** @see com.thinkparity.migrator.controller.AbstractController#service() */
     public void service() {
-        logger.info("[RMIGRATOR] [LIBRARY] [READ BYTES]");
-        writeByteArray("bytes", readBytes(readLong("libraryId")));
+        logger.info("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ BYTES]");
+        writeBytes(Xml.Library.BYTES, readBytes(readLong(Xml.Library.ID)));
     }
 
     /**

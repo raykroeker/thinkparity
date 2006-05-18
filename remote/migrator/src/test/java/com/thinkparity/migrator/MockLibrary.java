@@ -14,7 +14,7 @@ import com.thinkparity.codebase.FileUtil;
  */
 public class MockLibrary extends Library {
 
-    private static Long LIBRARY_SEQ = 2000L;
+    private static Long LIBRARY_SEQ = 2002L;
 
     public static MockLibrary create(final MigratorTestCase testCase) {
         return new MockLibrary(testCase, LIBRARY_SEQ++, Type.JAVA);
@@ -34,7 +34,7 @@ public class MockLibrary extends Library {
         setGroupId("com.thinkparity.parity");
         setId(libraryId);
         setType(type);
-        setVersion("1.0." + System.currentTimeMillis());
+        setVersion("1.0." + libraryId);
     }
 
     public Byte[] getBytes() { return bytes; }

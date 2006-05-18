@@ -4,12 +4,13 @@
  */
 package com.thinkparity.migrator.controller.library;
 
+import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.xmpp.packet.IQ;
+
+import com.thinkparity.migrator.Constants;
 import com.thinkparity.migrator.MockLibrary;
 import com.thinkparity.migrator.controller.ControllerTestCase;
 import com.thinkparity.migrator.controller.MockIQ;
-
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-import org.xmpp.packet.IQ;
 
 /**
  * A test for the library create controller's handle iq api.
@@ -37,10 +38,10 @@ public class CreateTest extends ControllerTestCase {
     protected void setUp() throws Exception {
         final MockLibrary mockLibrary = MockLibrary.create(this);
         final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeString("artifactId", mockLibrary.getArtifactId());
-        mockIQ.writeString("groupId", mockLibrary.getGroupId());
-        mockIQ.writeLibraryType("type", mockLibrary.getType());
-        mockIQ.writeString("version", mockLibrary.getVersion());
+        mockIQ.writeString(Constants.Xml.Library.ARTIFACT_ID, mockLibrary.getArtifactId());
+        mockIQ.writeString(Constants.Xml.Library.GROUP_ID, mockLibrary.getGroupId());
+        mockIQ.writeLibraryType(Constants.Xml.Library.TYPE, mockLibrary.getType());
+        mockIQ.writeString(Constants.Xml.Library.VERSION, mockLibrary.getVersion());
         data = new Fixture(new Create(), mockIQ);
     }
 

@@ -39,7 +39,7 @@ class LibraryModelImpl extends AbstractModelImpl {
      */
     Library create(final String artifactId, final String groupId,
             final Library.Type type, final String version) {
-        logger.info("[RMIGRATOR] [LIBRARY] [CREATE]");
+        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [CREATE]");
         logger.debug(artifactId);
         logger.debug(groupId);
         logger.debug(type);
@@ -57,7 +57,7 @@ class LibraryModelImpl extends AbstractModelImpl {
      *      A library bytes.
      */
     void createBytes(final Long libraryId, final Byte[] bytes) {
-        logger.info("[RMIGRATOR] [LIBRARY] [CREATE BYTES]");
+        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [CREATE BYTES]");
         logger.debug(libraryId);
         logger.debug(bytes);
         libraryIO.createBytes(libraryId, bytes);
@@ -71,9 +71,32 @@ class LibraryModelImpl extends AbstractModelImpl {
      * @return A library.
      */
     Library read(final Long libraryId) {
-        logger.info("[RMIGRATOR] [LIBRARY] [READ]");
+        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [READ]");
         logger.debug(libraryId);
         return libraryIO.read(libraryId);
+    }
+
+    /**
+     * Read a library.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param groupId
+     *            A group id.
+     * @param type
+     *            A type.
+     * @param version
+     *            A version.
+     * @return A library.
+     */
+    Library read(final String artifactId, final String groupId,
+            final Library.Type type, final String version) {
+        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [READ]");
+        logger.debug(artifactId);
+        logger.debug(groupId);
+        logger.debug(type);
+        logger.debug(version);
+        return libraryIO.read(artifactId, groupId, type, version);
     }
 
     /**
@@ -83,7 +106,7 @@ class LibraryModelImpl extends AbstractModelImpl {
      *      A library id.
      */
     Byte[] readBytes(final Long libraryId) {
-        logger.info("[RMIGRATOR] [LIBRARY] [READ  BYTES]");
+        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [READ  BYTES]");
         logger.debug(libraryId);
         return libraryIO.readBytes(libraryId);
     }

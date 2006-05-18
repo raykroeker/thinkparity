@@ -70,7 +70,7 @@ public class HypersonicSession {
 	}
 
 	public void close() {
-		assertOpen("Cannot close a closed session.");
+		assertOpen("[CLOSE]");
 		try {
 			close(preparedStatement, resultSet);
 			connection.close();
@@ -80,7 +80,7 @@ public class HypersonicSession {
 	}
 
 	public void commit() {
-		assertOpen("commit()");
+		assertOpen("[COMMIT]");
 		try { connection.commit(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
@@ -96,7 +96,7 @@ public class HypersonicSession {
 	}
 
 	public void execute(final String sql) {
-		assertOpen("execute(String)");
+		assertOpen("[EXECUTE]");
 		debugSql(sql);
 		try {
 			final Statement s = connection.createStatement();
@@ -110,7 +110,7 @@ public class HypersonicSession {
 	}
 
 	public void execute(final String[] sql) {
-		assertOpen("execute(String[]");
+		assertOpen("[EXECUTE]");
 		debug(sql);
 		Statement statement = null;
 		try {
@@ -133,29 +133,29 @@ public class HypersonicSession {
 	 * @see #nextResult()
 	 */
 	public void executeQuery() {
-		assertOpen("Cannot execute query if the session is not open.");
-		assertPreparedStatement("Cannot execute query if the statement is not prepared.");
+		assertOpen("[EXECUTE QUERY]");
+		assertPreparedStatement("[EXECUTE QUERY]");
 		try { resultSet = preparedStatement.executeQuery(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public int executeUpdate() {
-		assertOpen("executeUpdate()");
-		assertPreparedStatement("executeUpdate()");
+		assertOpen("[EXECUTE UPDATE]");
+		assertPreparedStatement("[EXECUTE UPDATE]");
 		try { return preparedStatement.executeUpdate(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public byte[] getBytes(final String columnName) {
-		assertOpen("getBytes(String)");
-		assertOpenResult("getBytes(String)");
+		assertOpen("[GET BYTES]");
+		assertOpenResult("[GET BYTES]");
 		try { return resultSet.getBytes(columnName); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public Calendar getCalendar(final String columnName) {
-		assertOpen("getCalendar(String)");
-		assertOpenResult("getCalendar(String)");
+		assertOpen("[GET CALENDAR]");
+		assertOpenResult("[GET CALENDAR]");
 		try {
 			final Calendar calendar = DateUtil.getInstance();
 			final Timestamp timestamp = resultSet.getTimestamp(columnName, calendar);
@@ -187,40 +187,40 @@ public class HypersonicSession {
 	}
 
     public Integer getInteger(final String columnName) {
-        assertOpen("[LMODEL] [IO] [HSQL] [GET INTEGER]");
-        assertOpenResult("[LMODEL] [IO] [HSQL] [GET INTEGER]");
+        assertOpen("[GET INTEGER]");
+        assertOpenResult("[GET INTEGER]");
         debugSql(columnName);
         try { return resultSet.getInt(columnName); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public Long getLong(final String columnName) {
-		assertOpen("getLong(String)");
-		assertOpenResult("getLong(String)");
-		debugSql(columnName);
-		try { return resultSet.getLong(columnName); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-	}
-
-	public MetaDataType getMetaDataTypeFromInteger(final String columnName) {
-		assertOpen("getMetaDataTypeFromInteger(String)");
-		assertOpenResult("getMetaDataTypeFromInteger(String)");
-		debugSql(columnName);
-		try { return MetaDataType.fromId(resultSet.getInt(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-	}
-
-    public Library.Type getLibraryTypeFromInteger(final String columnName) {
-        assertOpen("getLibraryTypeFromInteger(String)");
-        assertOpenResult("getLibraryTypeFromInteger(String)");
+	public Library.Type getLibraryTypeFromInteger(final String columnName) {
+        assertOpen("[GET LIBRARY TYPE FROM INTEGER]");
+        assertOpenResult("[GET LIBRARY TYPE FROM INTEGER]");
         debugSql(columnName);
         try { return Library.Type.fromId(resultSet.getInt(columnName)); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
+	public Long getLong(final String columnName) {
+		assertOpen("[GET LONG]");
+		assertOpenResult("[GET LONG]");
+		debugSql(columnName);
+		try { return resultSet.getLong(columnName); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
+    public MetaDataType getMetaDataTypeFromInteger(final String columnName) {
+		assertOpen("[GET META DATA TYPE FROM INTEGER]");
+		assertOpenResult("[GET META DATA TYPE FROM INTEGER]");
+		debugSql(columnName);
+		try { return MetaDataType.fromId(resultSet.getInt(columnName)); }
+		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+	}
+
 	public JabberId getQualifiedUsername(final String columnName) {
-		assertOpen("Cannot get values if the session is not open.");
-		assertOpenResult("Cannot get values if the result is not open.");
+		assertOpen("[GET QUALIFIED USERNAME]");
+		assertOpenResult("[GET QUALIFIED USERNAME]");
 		debugSql(columnName);
 		try {
 			final String qualifiedUsername = resultSet.getString(columnName);
@@ -232,8 +232,8 @@ public class HypersonicSession {
 	}
 
 	public String getString(final String columnName) {
-		assertOpen("getString(String)");
-		assertOpenResult("getString(String)");
+		assertOpen("[GET STRING]");
+		assertOpenResult("[GET STRING]");
 		debugSql(columnName);
 		try { return resultSet.getString(columnName); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
@@ -246,14 +246,14 @@ public class HypersonicSession {
 	public int hashCode() { return id.hashCode(); }
 
     public boolean nextResult() {
-		assertOpen("nextResult()");
-		assertOpenResult("nextResult()");
+		assertOpen("[NEXT RESULT]");
+		assertOpenResult("[NEXT RESULT]");
 		try { return resultSet.next(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public PreparedStatement prepareStatement(final String sql) {
-		assertOpen("prepareStatement(String)");
+		assertOpen("[PREPARE STATEMENT]");
 		debugSql(sql);
 		try {
 			preparedStatement = connection.prepareStatement(sql);
@@ -263,22 +263,22 @@ public class HypersonicSession {
 	}
 
 	public void rollback() {
-		assertOpen("rollbackSession()");
+		assertOpen("[ROLLBACK]");
 		try { connection.commit(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public void setBytes(final Integer index, final byte[] bytes) {
-		assertOpen("setBytes(Integer,Byte[])");
-		assertPreparedStatement("setBytes(Integer,Byte[])");
+		assertOpen("[SET BYTES]");
+		assertPreparedStatement("[SET BYTES]");
 		debugSql(bytes, index);
 		try { preparedStatement.setBytes(index, bytes); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public void setCalendar(final Integer index, final Calendar calendar) {
-		assertOpen("setCalendar(Integer,Calendar)");
-		assertPreparedStatement("setCalendar(Integer,Calendar)");
+		assertOpen("[SET CALENDAR]");
+		assertPreparedStatement("[SET CALENDAR]");
 		debugSql(calendar, index);
 		try {
 			preparedStatement.setTimestamp(index,
@@ -288,24 +288,24 @@ public class HypersonicSession {
 	}
 
 	public void setInt(final Integer index, final Integer integer) {
-		assertOpen("setInt(Integer,Integer)");
-		assertPreparedStatement("setInt(Integer,Integer)");
+		assertOpen("[SET INT]");
+		assertPreparedStatement("[SET INT]");
 		debugSql(integer, index);
 		try { preparedStatement.setInt(index, integer); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public void setLong(final Integer index, final Long longInteger) {
-		assertOpen("setLong(Integer,Long)");
-		assertPreparedStatement("setLong(Integer,Long)");
+		assertOpen("[SET LONG]");
+		assertPreparedStatement("[SET LONG]");
 		debugSql(longInteger, index);
 		try { preparedStatement.setLong(index, longInteger); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public void setMetaDataAsString(final Integer index, final MetaData metaData) {
-		assertOpen("setMetaDataAsString(Integer,MetaData)");
-		assertPreparedStatement("setMetaDataAsString(Integer,MetaData)");
+		assertOpen("[SET META DATA AS STRING]");
+		assertPreparedStatement("[SET META DATA AS STRING]");
 		debugSql(null == metaData ? null : metaData.toString(), index);
 		try { preparedStatement.setString(index, metaData.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
@@ -313,16 +313,16 @@ public class HypersonicSession {
 
 	public void setQualifiedUsername(final Integer index,
 			final JabberId jabberId) {
-		assertOpen("Database session is not open.");
-		assertPreparedStatement("Prepared statement has not been set.");
+		assertOpen("[SET QUALIFIED USERNAME]");
+		assertPreparedStatement("[SET QUALIFIED USERNAME]");
 		debugSql(jabberId, index);
 		try { preparedStatement.setString(index, jabberId.getQualifiedUsername()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public void setString(final Integer index, final String string) {
-		assertOpen("setString(Integer,String)");
-		assertPreparedStatement("setString(Integer,String)");
+		assertOpen("[SET STRING]");
+		assertPreparedStatement("[SET STRING]");
 		debugSql(string, index);
 		try { preparedStatement.setString(index, string); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
@@ -330,40 +330,40 @@ public class HypersonicSession {
 
 
     public void setTypeAsInteger(final Integer index, final Library.Type type) {
-        assertOpen("setTypeAsInteger(Integer,Library.Type)");
-        assertPreparedStatement("setTypeAsInteger(Integer,Library.Type)");
+        assertOpen("[SET TYPE AS INTEGER]");
+        assertPreparedStatement("[SET TYPE AS INTEGER]");
         debugSql(null == type ? null : type.getId(), index);
         try { preparedStatement.setInt(index, type.getId()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
     public void setTypeAsInteger(final Integer index, final MetaDataType type) {
-        assertOpen("setTypeAsInteger(Integer,MetaDataType)");
-        assertPreparedStatement("setTypeAsInteger(Integer,MetaDataType)");
+        assertOpen("[SET TYPE AS INTEGER]");
+        assertPreparedStatement("[SET TYPE AS INTEGER]");
         debugSql(null == type ? null : type.getId(), index);
         try { preparedStatement.setInt(index, type.getId()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
 	public void setTypeAsString(final Integer index, final Enum<?> type) {
-		assertOpen("setTypeAsString(Integer,Enum<?>)");
-		assertPreparedStatement("setTypeString(Integer,Enum<?>)");
+		assertOpen("[SET TYPE AS STRING]");
+		assertPreparedStatement("[SET TYPE AS STRING]");
 		debugSql(null == type ? null : type.toString(), index);
 		try { preparedStatement.setString(index, type.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
     public void setTypeAsString(final Integer index, final Library.Type type) {
-        assertOpen("setType(Integer,Library.Type)");
-        assertPreparedStatement("setTypeString(Integer,Library.Type)");
+        assertOpen("[SET TYPE AS STRING]");
+        assertPreparedStatement("[SET TYPE AS STRING]");
         debugSql(null == type ? null : type.toString(), index);
         try { preparedStatement.setString(index, type.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
     public void setTypeAsString(final Integer index, final MetaDataType type) {
-        assertOpen("setType(Integer,MetaDataType)");
-        assertPreparedStatement("setTypeString(Integer,MetaDataType)");
+        assertOpen("[SET TYPE AS STRING]");
+        assertPreparedStatement("[SET TYPE AS STRING]");
         debugSql(null == type ? null : type.toString(), index);
         try { preparedStatement.setString(index, type.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
@@ -377,26 +377,28 @@ public class HypersonicSession {
 	 * @throws HypersonicException
 	 */
 	DatabaseMetaData getMetaData() throws HypersonicException {
-		assertOpen("getMetaData");
+		assertOpen("[GET META DATA]");
 		try { return connection.getMetaData(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	private void assertOpen(final String caller) {
+	private void assertOpen(final String assertion) {
 		if(null == connection) {
-			throw new HypersonicException("HypersonicSession is closed:  " + caller);
+			throw new HypersonicException(
+                    "[RMIGRATOR] [IO] [HYPERSONIC SESSION] " + assertion + " [CONNECTION IS NULL]");
 		}
 	}
 
-
-	private void assertOpenResult(final String caller) {
+	private void assertOpenResult(final String assertion) {
 		if(null == resultSet)
-			throw new HypersonicException("Result is closed:  " + caller);
+			throw new HypersonicException(
+                    "[RMIGRATOR] [IO] [HYPERSONIC SESSION] " + assertion + " [RESULT IS NULL]");
 	}
 
-	private void assertPreparedStatement(final String caller) {
+	private void assertPreparedStatement(final String assertion) {
 		if(null == preparedStatement)
-			throw new HypersonicException("Prepared statement is null:  " + caller);
+			throw new HypersonicException(
+                    "[RMIGRATOR] [IO] [HYPERSONIC SESSION] " + assertion + " [STATEMENT IS NULL]");
 	}
 
 	private void close(final ResultSet resultSet) {
@@ -447,7 +449,7 @@ public class HypersonicSession {
 	}
 
 	private void debugSql(final String sql, final Integer sqlIndex) {
-		final StringBuffer message = new StringBuffer("[LMODEL] [IO] [HSQLDB] [SQL] ");
+		final StringBuffer message = new StringBuffer("[RMIGRATOR] [IO] [HYPERSONIC SESSION] [SQL] ");
 		if(null != sqlIndex) {
 			message.append("[")
 				.append(sqlIndex)
@@ -457,7 +459,7 @@ public class HypersonicSession {
 	}
 
 	private ResultSet list(final String sql) {
-		assertOpen("list(String)");
+		assertOpen("[LIST]");
 		debugSql(sql);
 		Statement statement = null;
 		try {

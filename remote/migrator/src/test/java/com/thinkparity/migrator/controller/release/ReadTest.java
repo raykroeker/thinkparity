@@ -4,7 +4,8 @@
  */
 package com.thinkparity.migrator.controller.release;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
@@ -13,6 +14,7 @@ import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MockLibrary;
 import com.thinkparity.migrator.MockRelease;
 import com.thinkparity.migrator.Release;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
 import com.thinkparity.migrator.controller.MockIQ;
 import com.thinkparity.migrator.model.library.LibraryModel;
@@ -28,17 +30,19 @@ import com.thinkparity.migrator.util.IQReader;
 public class ReadTest extends ControllerTestCase {
 
     /** The test data. */
-    private Fixture data;
+    private Map<String, Fixture> data;
 
     /** Create CreateTest. */
     public ReadTest() {
-        super("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST]");
+        super("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST]");
     }
 
     /** Test the handle IQ api. */
     public void testHandleIQ() {
+        final Fixture datum = data.get("testHandleIQ");
+
         IQ response = null;
-        try { response = data.read.handleIQ(data.iq); }
+        try { response = datum.read.handleIQ(datum.iq); }
         catch(final UnauthorizedException ux) { fail(createFailMessage(ux)); }
 
         assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [RESPONSE IS NULL]", response);
@@ -46,27 +50,44 @@ public class ReadTest extends ControllerTestCase {
 
         final IQReader iqReader = new IQReader(response);
         final Release release = new Release();
-        release.setArtifactId(iqReader.readString("artifactId"));
-        release.setGroupId(iqReader.readString("groupId"));
-        release.setId(iqReader.readLong("id"));
-        release.setName(iqReader.readString("name"));
-        release.setVersion(iqReader.readString("version"));
-        final List<Long> libraryIds = iqReader.readLongs("libraryIds", "libraryId");
-        for(final Long libraryId : libraryIds) {
-            release.addLibrary(data.lModel.read(libraryId));
-        }
+        release.setArtifactId(iqReader.readString(Xml.Release.ARTIFACT_ID));
+        release.setGroupId(iqReader.readString(Xml.Release.GROUP_ID));
+        release.setId(iqReader.readLong(Xml.Release.ID));
+        release.addAllLibraries(iqReader.readLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY));
+        release.setName(iqReader.readString(Xml.Release.NAME));
+        release.setVersion(iqReader.readString(Xml.Release.VERSION));
 
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", data.eRelease, release);
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ARTIFACT ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getArtifactId(), release.getArtifactId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE GROUP ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getGroupId(), release.getGroupId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getId(), release.getId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE VERSION DOES NOT EQUAL EXPECTATION]", data.eRelease.getVersion(), release.getVersion());
-        for(final Library library : data.eRelease.getLibraries()) {
+        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", datum.eRelease, release);
+        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ARTIFACT ID DOES NOT EQUAL EXPECTATION]", datum.eRelease.getArtifactId(), release.getArtifactId());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE GROUP ID DOES NOT EQUAL EXPECTATION]", datum.eRelease.getGroupId(), release.getGroupId());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ID DOES NOT EQUAL EXPECTATION]", datum.eRelease.getId(), release.getId());
+        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE VERSION DOES NOT EQUAL EXPECTATION]", datum.eRelease.getVersion(), release.getVersion());
+        for(final Library library : datum.eRelease.getLibraries()) {
             assertTrue("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE LIBRARES DO NOT CONTAIN EXPECTATION]", release.getLibraries().contains(library));
         }
         for(final Library library : release.getLibraries()) {
-            assertTrue("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE EXPECTATION LIBRARIES DO NOT CONTAIN LIBRARY]", data.eRelease.getLibraries().contains(library));
+            assertTrue("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE EXPECTATION LIBRARIES DO NOT CONTAIN LIBRARY]", datum.eRelease.getLibraries().contains(library));
         }
+    }
+   
+    /** Test the handle iq api when using a release name that does not exist. */
+    public void testHandleIQNullResult() {
+        final Fixture datum = data.get("testHandleIQNullResult");
+
+        IQ response = null;
+        try { response = datum.read.handleIQ(datum.iq); }
+        catch(final UnauthorizedException ux) { fail(createFailMessage(ux)); }
+
+        assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [TEST NULL RESULT] [RESPONSE NULL]", response);
+        if(didFail(response)) { fail(createFailMessage(response)); }
+
+        final IQReader iqReader = new IQReader(response);
+        assertNull(iqReader.readString(Xml.Release.ARTIFACT_ID));
+        assertNull(iqReader.readString(Xml.Release.GROUP_ID));
+        assertNull(iqReader.readLong(Xml.Release.ID));
+        assertNull(iqReader.readLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY));
+        assertNull(iqReader.readString(Xml.Release.NAME));
+        assertNull(iqReader.readString(Xml.Release.VERSION));
     }
 
     /** Set up the test data. */
@@ -85,10 +106,15 @@ public class ReadTest extends ControllerTestCase {
                 mockRelease.getName(), mockRelease.getVersion(),
                 mockRelease.getLibraries());
 
+        // 2 scenarios
+        data = new HashMap<String, Fixture>(2, 1.0F);
 
         final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeString("releaseName", mockRelease.getName());
-        data = new Fixture(new Read(), lModel, mockRelease, mockIQ);
+        mockIQ.writeString(Xml.Release.NAME, mockRelease.getName());
+        // 0:  the positive use-case
+        data.put("testHandleIQ", new Fixture(new Read(), mockRelease, mockIQ));
+        // 1:  no release is expected; no name is provided in the query
+        data.put("testHandleIQNullResult", new Fixture(new Read(), null, MockIQ.createGet()));
     }
 
     /** Tear down the test data. */
@@ -98,13 +124,10 @@ public class ReadTest extends ControllerTestCase {
     private class Fixture {
         private final Read read;
         private final Release eRelease;
-        private final LibraryModel lModel;
         private final IQ iq;
-        private Fixture(final Read read, final LibraryModel lModel,
-                final Release eRelease, final IQ iq) {
+        private Fixture(final Read read, final Release eRelease, final IQ iq) {
             this.read = read;
             this.eRelease = eRelease;
-            this.lModel = lModel;
             this.iq = iq;
         }
     }

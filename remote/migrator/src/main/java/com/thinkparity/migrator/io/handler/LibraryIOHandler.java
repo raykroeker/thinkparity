@@ -53,6 +53,24 @@ public interface LibraryIOHandler {
     public Library read(final Long libraryId) throws HypersonicException;
 
     /**
+     * Read a library.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param groupId
+     *            A group id.
+     * @param type
+     *            A type.
+     * @param version
+     *            A version.
+     * @return A library.
+     * @throws HypersonicException
+     */
+    public Library read(final String artifactId, final String groupId,
+            final Library.Type type, final String version)
+            throws HypersonicException;
+
+    /**
      * Read a library's bytes.
      *
      * @param libraryId

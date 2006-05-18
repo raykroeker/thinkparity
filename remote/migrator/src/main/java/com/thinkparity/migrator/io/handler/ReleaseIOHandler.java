@@ -51,4 +51,12 @@ public interface ReleaseIOHandler {
      * @throws HypersonicException
      */
     public Release read(final String releaseName) throws HypersonicException;
+
+   /**
+     * Read the latest release.
+     * 
+     * @return The release.
+     * @throws HypersonicException
+     */
+    public Release readLatest() throws HypersonicException;
 }

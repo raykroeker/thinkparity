@@ -5,6 +5,7 @@
 package com.thinkparity.migrator.controller.release;
 
 import com.thinkparity.migrator.Release;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.AbstractController;
 
 /**
@@ -18,15 +19,17 @@ public class Read extends AbstractController {
 
     /** @see com.thinkparity.migrator.controller.AbstractController#service() */
     public void service() {
-        logger.info("[RMIGRATOR] [RELEASE] [READ]");
-        final Release release = read(readString("releaseName"));
+        logger.info("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ]");
+        final Release release = read(readString(Xml.Release.NAME));
 
-        writeString("artifactId", release.getArtifactId());
-        writeString("groupId", release.getGroupId());
-        writeLong("id", release.getId());
-        writeLibraryIds("libraryIds", "libraryId", release.getLibraries());
-        writeString("name", release.getName());
-        writeString("version", release.getVersion());
+        if(null != release) {
+            writeString(Xml.Release.ARTIFACT_ID, release.getArtifactId());
+            writeString(Xml.Release.GROUP_ID, release.getGroupId());
+            writeLong(Xml.Release.ID, release.getId());
+            writeLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY, release.getLibraries());
+            writeString(Xml.Release.NAME, release.getName());
+            writeString(Xml.Release.VERSION, release.getVersion());
+        }
     }
 
     /**

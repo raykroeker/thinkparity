@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class MockRelease extends Release {
 
-    private static Long RELEASE_SEQ = 3000L;
+    private static Long RELEASE_SEQ = 3001L;
 
     public static MockRelease create(final MigratorTestCase testCase) {
         return new MockRelease(testCase, RELEASE_SEQ++);

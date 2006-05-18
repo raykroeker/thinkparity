@@ -8,6 +8,7 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.migrator.MockLibrary;
+import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
 import com.thinkparity.migrator.controller.MockIQ;
 import com.thinkparity.migrator.model.library.LibraryModel;
@@ -39,7 +40,7 @@ public class ReadBytesTest extends ControllerTestCase {
         if(didFail(response)) { fail(createFailMessage(response)); }
 
         final IQReader iqReader = new IQReader(response);
-        final Byte[] bytes = iqReader.readByteArray("bytes");
+        final Byte[] bytes = iqReader.readByteArray(Xml.Library.BYTES);
         assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [BYTES ARE NULL]", bytes);
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [BYTE LENGTH IS NOT EQUAL TO EXPECTATION]", data.eBytes.length, bytes.length);
         for(int i = 0; i < bytes.length; i++) {
@@ -57,7 +58,7 @@ public class ReadBytesTest extends ControllerTestCase {
         lModel.createBytes(mockLibrary.getId(), mockLibrary.getBytes());
 
         final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeLong("libraryId", mockLibrary.getId());
+        mockIQ.writeLong(Xml.Library.ID, mockLibrary.getId());
         data = new Fixture(mockLibrary.getBytes(), new ReadBytes(), mockIQ);
     }
 

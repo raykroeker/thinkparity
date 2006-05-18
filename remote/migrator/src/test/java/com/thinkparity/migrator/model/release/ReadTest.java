@@ -4,9 +4,7 @@
  */
 package com.thinkparity.migrator.model.release;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MigratorTestCase;
 import com.thinkparity.migrator.MockLibrary;
 import com.thinkparity.migrator.MockRelease;
@@ -22,7 +20,7 @@ import com.thinkparity.migrator.model.library.LibraryModel;
 public class ReadTest extends MigratorTestCase {
 
     /** Test data. */
-    private List<Fixture> data;
+    private Fixture data;
 
     /** Create ReadTest. */
     public ReadTest() {
@@ -31,12 +29,18 @@ public class ReadTest extends MigratorTestCase {
 
     /** Test the read api. */
     public void testRead() {
-        Release release;
-        for(final Fixture datum : data) {
-            release = datum.rModel.read(datum.releaseName);
+        final Release release = data.rModel.read(data.releaseName);
 
-            assertNotNull("[RMIGRATOR] [RELEASE] [READ TEST] [RELEASE IS NULL]", release);
-            assertEquals("[RMIGRATOR] [RELEASE] [READ TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", datum.eRelease, release);
+        assertEquals("[RMIGRATOR] [RELEASE] [READ LATEST TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", data.eRelease, release);
+        assertEquals("[RMIGRATOR] [RELEASE] [READ LATEST TEST] [RELEASE ARTIFACT ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getArtifactId(), release.getArtifactId());
+        assertEquals("[RMIGRATOR] [RELEASE] [READ LATEST TEST] [RELEASE GROUP ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getGroupId(), release.getGroupId());
+        assertEquals("[RMIGRATOR] [RELEASE] [READ LATEST TEST] [RELEASE ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getId(), release.getId());
+        assertEquals("[RMIGRATOR] [RELEASE] [READ LATEST TEST] [RELEASE VERSION DOES NOT EQUAL EXPECTATION]", data.eRelease.getVersion(), release.getVersion());
+        for(final Library library : data.eRelease.getLibraries()) {
+            assertTrue("[RMIGRATOR] [RELEASE] [READ LATEST TEST] [RELEASE LIBRARES DO NOT CONTAIN EXPECTATION]", release.getLibraries().contains(library));
+        }
+        for(final Library library : release.getLibraries()) {
+            assertTrue("[RMIGRATOR] [RELEASE] [READ LATEST TEST] [RELEASE EXPECTATION LIBRARIES DO NOT CONTAIN LIBRARY]", data.eRelease.getLibraries().contains(library));
         }
     }
 
@@ -45,7 +49,6 @@ public class ReadTest extends MigratorTestCase {
         super.setUp();
         final LibraryModel lModel = getLibraryModel(getClass());
         final ReleaseModel rModel = getReleaseModel(getClass());
-        data = new LinkedList<Fixture>();
 
         // 1 scenario
         final MockRelease eRelease = MockRelease.create(this);
@@ -56,12 +59,13 @@ public class ReadTest extends MigratorTestCase {
         }
         rModel.create(eRelease.getArtifactId(), eRelease.getGroupId(),
                 eRelease.getName(), eRelease.getVersion(), eRelease.getLibraries());
-        data.add(new Fixture(eRelease, rModel, eRelease.getName()));
+        data = new Fixture(eRelease, rModel, eRelease.getName());
     }
 
     /** @see junit.framework.TestCase#tearDown() */
     protected void tearDown() throws Exception {
         super.tearDown();
+        data = null;
     }
 
     private class Fixture {

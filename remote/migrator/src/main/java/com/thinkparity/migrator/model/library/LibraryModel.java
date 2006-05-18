@@ -92,6 +92,26 @@ public class LibraryModel extends AbstractModel {
     }
 
     /**
+     * Read a library.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param groupId
+     *            A group id.
+     * @param type
+     *            A type.
+     * @param version
+     *            A version.
+     * @return A library.
+     */
+    public Library read(final String artifactId, final String groupId,
+            final Library.Type type, final String version) {
+        synchronized(implLock) {
+            return impl.read(artifactId, groupId, type, version);
+        }
+    }
+
+    /**
      * Download the library bytes.
      *
      * @param libraryId

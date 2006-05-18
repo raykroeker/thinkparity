@@ -20,14 +20,6 @@ public class Version extends com.thinkparity.codebase.Version {
     static { SINGLETON = new Version(ConfigFactory.newInstance(Version.class)); }
 
     /**
-     * Create a Version.
-     *
-     * @param config
-     *      The version properties.
-     */
-    private Version(final Config config) { super(config); }
-
-    /**
      * Obtain the build id.
      * 
      * @return A build id string.
@@ -46,12 +38,34 @@ public class Version extends com.thinkparity.codebase.Version {
      * 
      * @return A name string.
      */
-    public static  String getName() { return SINGLETON.doGetName(); }
+    public static String getName() { return SINGLETON.doGetName(); }
 
     /**
      * Obtain the version.
      * 
      * @return A version string.
      */
-    public static  String getVersion() { return SINGLETON.doGetVersion(); }
+    public static String getVersion() { return SINGLETON.doGetVersion(); }
+
+    /**
+     * Obtain an apache loggable info statement.
+     * 
+     * @return An info string.
+     */
+    public static String toInfo() { return SINGLETON.doGetInfo(); }
+
+    /**
+     * Obtain the release id.
+     *
+     * @return A release id.
+     */
+    public static String getReleaseId() { return SINGLETON.doGetReleaseId(); }
+
+    /**
+     * Create a Version.
+     *
+     * @param config
+     *      The version properties.
+     */
+    private Version(final Config config) { super(config); }
 }

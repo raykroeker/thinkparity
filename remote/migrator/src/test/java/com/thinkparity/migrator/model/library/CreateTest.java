@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MigratorTestCase;
-import com.thinkparity.migrator.MockLibrary;
 
 /**
  * Test the parity library interface's create api.
@@ -31,14 +30,13 @@ public class CreateTest extends MigratorTestCase {
     public void testCreate() {
         Library library;
         for(final Fixture datum : data) {
-            testLogger.debug(datum.eLibrary.getId());
             library = datum.lModel.create(datum.artifactId, datum.groupId, datum.type, datum.version);
-            testLogger.debug(library.getId());
 
             assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY IS NULL]", library);
-            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY DOES NOT EQUAL EXPECTATION]", datum.eLibrary, library);
             assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY ARTIFACT ID DOES NOT EQUAL EXPECTATION]", datum.eLibrary.getArtifactId(), library.getArtifactId());
+            assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY CREATED ON IS NULL]", library.getCreatedOn());
             assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY GROUP ID DOES NOT EQUAL EXPECTATION]", datum.eLibrary.getGroupId(), library.getGroupId());
+            assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY ID IS NULL]", library.getId());
             assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY TYPE DOES NOT EQUAL EXPECTATION]", datum.eLibrary.getType(), library.getType());
             assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY VERSION NOT EQUAL EXPECTATION]", datum.eLibrary.getVersion(), library.getVersion());
         }
@@ -51,7 +49,7 @@ public class CreateTest extends MigratorTestCase {
         data = new LinkedList<Fixture>();
 
         // 1 scenario
-        final Library eLibrary = MockLibrary.create(this);
+        final Library eLibrary = getJavaLibrary();
         data.add(new Fixture(eLibrary.getArtifactId(), eLibrary,
                 eLibrary.getGroupId(), lModel, eLibrary.getType(),
                 eLibrary.getVersion()));

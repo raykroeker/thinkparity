@@ -24,8 +24,6 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.Table;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 
-import com.thinkparity.migrator.Library;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -43,8 +41,6 @@ class HypersonicMigrator {
 	private static final String INSERT_SEED_ARTIFACT_STATE;
 
 	private static final String INSERT_SEED_ARTIFACT_TYPE;
-
-	private static final String INSERT_SEED_LIBRARY_TYPE;
 
 	private static final String INSERT_SEED_META_DATA_TYPE;
 
@@ -76,11 +72,6 @@ class HypersonicMigrator {
 				CONFIG.getProperty("CreateArtifactAudit"),
 				CONFIG.getProperty("CreateArtifactAuditMetaData"),
 				CONFIG.getProperty("CreateArtifactAuditVersion"),
-                CONFIG.getProperty("CreateLibraryType"),
-				CONFIG.getProperty("CreateLibrary"),
-				CONFIG.getProperty("CreateLibraryBytes"),
-                CONFIG.getProperty("CreateRelease"),
-                CONFIG.getProperty("CreateReleaseLibraryRel"),
 				CONFIG.getProperty("CreateSystemMessageType"),
 				CONFIG.getProperty("CreateSystemMessage"),
 				CONFIG.getProperty("CreateSystemMessageMetaData"),
@@ -102,8 +93,6 @@ class HypersonicMigrator {
 		INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
 
 		INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
-
-        INSERT_SEED_LIBRARY_TYPE = CONFIG.getProperty("InsertSeedLibraryType");
 
 		INSERT_SEED_SYSTEM_MESSAGE_TYPE = CONFIG.getProperty("InsertSeedSystemMessageType");
 
@@ -242,15 +231,6 @@ class HypersonicMigrator {
 				throw new HypersonicException(
 						"Could not insert system message type seed data:  " + smt);
 		}
-
-        session.prepareStatement(INSERT_SEED_LIBRARY_TYPE);
-        for(final Library.Type type : Library.Type.values()) {
-            session.setTypeAsInteger(1, type);
-            session.setTypeAsString(2, type);
-            if(1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not insert library type seed data:  " + type);
-        }
 	}
 
 	private void migrateSchema(final String fromVersionId,

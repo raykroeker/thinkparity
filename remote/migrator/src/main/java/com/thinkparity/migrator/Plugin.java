@@ -46,6 +46,7 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
     /** @see org.jivesoftware.messenger.container.Plugin#destroyPlugin() */
     public void destroyPlugin() {
         destroyControllers();
+        destroyDatabase();
         destroyPluginLogging();
     }
 
@@ -68,6 +69,9 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
             }
         }
     }
+
+    /** Destroy the database. */
+    private void destroyDatabase() { HypersonicSessionManager.shutdown(); }
 
     /** Shutdown the logging framework. */
     private void destroyPluginLogging() { LogManager.shutdown(); }
@@ -102,10 +106,13 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
         synchronized(controllers) {
             initializeController("com.thinkparity.migrator.controller.library.Create");
             initializeController("com.thinkparity.migrator.controller.library.CreateBytes");
+            initializeController("com.thinkparity.migrator.controller.library.Delete");
             initializeController("com.thinkparity.migrator.controller.library.Read");
             initializeController("com.thinkparity.migrator.controller.library.ReadBytes");
             initializeController("com.thinkparity.migrator.controller.release.Create");
+            initializeController("com.thinkparity.migrator.controller.release.Delete");
             initializeController("com.thinkparity.migrator.controller.release.Read");
+            initializeController("com.thinkparity.migrator.controller.release.ReadLibraries");
             initializeController("com.thinkparity.migrator.controller.release.ReadLatest");
         }
     }
@@ -116,6 +123,7 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
         final File databaseFile =
                 new File(databaseDirectory, Constants.Database.FILE);
         System.setProperty("hsqldb.file", databaseFile.getAbsolutePath());
+        logger.info("hsqldb.file:" + databaseFile.getAbsolutePath());
 
         // opening and closing a session will cause the db layer to initialize
         final HypersonicSession session =

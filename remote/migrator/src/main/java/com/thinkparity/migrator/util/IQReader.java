@@ -5,15 +5,19 @@
 package com.thinkparity.migrator.util;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SimpleTimeZone;
 import java.util.zip.DataFormatException;
 
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.CompressionUtil;
+import com.thinkparity.codebase.DateUtil;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Constants.Xml;
@@ -42,6 +46,15 @@ public class IQReader {
             catch(final DataFormatException dfx) { throw new RuntimeException(dfx); }
             catch(final IOException iox) { throw new RuntimeException(iox); }
         }
+    }
+
+    public Calendar readCalendar(final String name) {
+        final String sData = readString(name);
+        try {
+            return DateUtil.parse(sData, DateUtil.DateImage.ISO,
+                    new SimpleTimeZone(0, "GMT"));
+        }
+        catch(final ParseException px) { throw new RuntimeException(px); }
     }
 
     public List<Library> readLibraries(final String parentName, final String name) {

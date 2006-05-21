@@ -7,8 +7,8 @@ package com.thinkparity.migrator.model.library;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MigratorTestCase;
-import com.thinkparity.migrator.MockLibrary;
 
 /**
  * Test the parity library interface's create bytes api.
@@ -48,10 +48,11 @@ public class CreateBytesTest extends MigratorTestCase {
         final LibraryModel lModel = getLibraryModel(getClass());
         data = new LinkedList<Fixture>();
 
-        // 1 scenario
-        final MockLibrary eLibrary = MockLibrary.create(this);
-        lModel.create(eLibrary.getArtifactId(), eLibrary.getGroupId(), eLibrary.getType(), eLibrary.getVersion());
-        data.add(new Fixture(eLibrary.getBytes(), lModel, eLibrary.getId()));
+        final Library javaLibrary = getJavaLibrary();
+        final Library eLibrary = lModel.create(javaLibrary.getArtifactId(),
+                javaLibrary.getGroupId(), javaLibrary.getType(),
+                javaLibrary.getVersion());
+        data.add(new Fixture(getJavaLibraryBytes(), lModel, eLibrary.getId()));
     }
 
     /** @see junit.framework.TestCase#tearDown() */

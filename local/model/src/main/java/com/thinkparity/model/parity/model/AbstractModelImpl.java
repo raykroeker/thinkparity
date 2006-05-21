@@ -26,6 +26,8 @@ import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
+import com.thinkparity.model.parity.model.library.LibraryModel;
+import com.thinkparity.model.parity.model.library.InternalLibraryModel;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
@@ -356,6 +358,15 @@ public abstract class AbstractModelImpl {
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(context);
 	}
+
+    /**
+     * Obtain the internal parity library interface.
+     *
+     * @return The internal parity library interface.
+     */
+    protected InternalLibraryModel getInternalLibraryModel() {
+        return LibraryModel.getInternalModel(context);
+    }
 
 	/**
      * Obtain the internal parity session interface.

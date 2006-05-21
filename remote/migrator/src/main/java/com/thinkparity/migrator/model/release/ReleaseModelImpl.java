@@ -32,38 +32,12 @@ class ReleaseModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read a release.
-     * 
-     * @param releaseName
-     *            The release name.
-     * @return The release.
-     * @tpc.model.api visiblity="public"
-     */
-    Release read(final String name) {
-        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ]");
-        logger.debug(name);
-        return releaseIO.read(name);
-    }
-
-    /**
-     * Read the latest release.
-     *
-     * @return A release.
-     */
-    Release readLatest() {
-        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ LATEST]");
-        return releaseIO.readLatest();
-    }
-
-    /**
      * Create a release.
      * 
      * @param artifactId
      *            An artifact id.
      * @param groupId
      *            A group id.
-     * @param name
-     *            A name.
      * @param version
      *            A version.
      * @param libraries
@@ -71,17 +45,91 @@ class ReleaseModelImpl extends AbstractModelImpl {
      * @return The release.
      */
     Release create(final String artifactId, final String groupId,
-            final String name, final String version,
-            final List<Library> libraries) {
-        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [CREATE RELEASE]");
+            final String version, final List<Library> libraries) {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [CREATE]");
         logger.debug(artifactId);
         logger.debug(groupId);
-        logger.debug(name);
         logger.debug(version);
         logger.debug(libraries);
-        final Long releaseId = releaseIO.create(artifactId, groupId, name, version);
+        final Long releaseId = releaseIO.create(artifactId, groupId, version);
         for(final Library library : libraries)
             releaseIO.createLibraryRel(releaseId, library.getId());
-        return read(name);
+        return read(releaseId);
+    }
+
+    /**
+     * Delete a release.
+     *
+     * @param releaseId
+     *      A release id.
+     */
+    void delete(final Long releaseId) {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [DELETE]");
+        logger.debug(releaseId);
+        releaseIO.deleteLibraryRel(releaseId);
+        releaseIO.delete(releaseId);
+    }
+
+    /**
+     * Read a release.
+     * 
+     * @param releaseId
+     *            A release id.
+     * @return A release.
+     * @tpc.model.api visiblity="public"
+     */
+    Release read(final Long releaseId) {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ]");
+        logger.debug(releaseId);
+        return releaseIO.read(releaseId);
+    }
+
+    /**
+     * Read a release.
+     * 
+     * @param artifactId
+     *      An artifact id.
+     * @param groupId
+     *      A group id.
+     * @param version
+     *      A version.
+     * @return A release.
+     */
+    Release read(final String artifactId, final String groupId,
+            final String version) {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ]");
+        logger.debug(artifactId);
+        logger.debug(groupId);
+        logger.debug(version);
+        return releaseIO.read(artifactId, groupId, version);
+    }
+
+    /**
+     * Read the latest release.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param groupId
+     *            A group id.
+     * @return A release.
+     */
+    Release readLatest(final String artifactId, final String groupId) {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ LATEST]");
+        logger.debug(artifactId);
+        logger.debug(groupId);
+        return releaseIO.readLatest(artifactId, groupId);
+    }
+
+    /**
+     * Read the release libraries.
+     *
+     * @param releaseId
+     *      A release id.
+     * @return A list of libraries.
+     */
+    List<Library> readLibraries(final Long releaseId) {
+        logger.info("[RMIGRATOR] [MODEL] [RELEASE] [READ LIBRARIES]");
+        logger.debug(releaseId);
+        return releaseIO.readLibraryRel(releaseId);
     }
 }

@@ -4,17 +4,16 @@
  */
 package com.thinkparity.migrator.controller.release;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.migrator.Library;
-import com.thinkparity.migrator.MockLibrary;
-import com.thinkparity.migrator.MockRelease;
 import com.thinkparity.migrator.Release;
 import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
-import com.thinkparity.migrator.controller.MockIQ;
-import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.util.IQReader;
 
 /**
@@ -45,42 +44,31 @@ public class CreateTest extends ControllerTestCase {
         final IQReader iqReader = new IQReader(response);
         final Release release = new Release();
         release.setArtifactId(iqReader.readString(Xml.Release.ARTIFACT_ID));
+        release.setCreatedOn(iqReader.readCalendar(Xml.Release.CREATED_ON));
         release.setGroupId(iqReader.readString(Xml.Release.GROUP_ID));
         release.setId(iqReader.readLong(Xml.Release.ID));
-        release.addAllLibraries(iqReader.readLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY));
-        release.setName(iqReader.readString(Xml.Release.NAME));
         release.setVersion(iqReader.readString(Xml.Release.VERSION));
 
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", data.eRelease, release);
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ARTIFACT ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getArtifactId(), release.getArtifactId());
+        assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE CREATED ON IS NULL]", release.getCreatedOn());
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE GROUP ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getGroupId(), release.getGroupId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getId(), release.getId());
+        assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ID IS NULL]", release.getId());
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE VERSION DOES NOT EQUAL EXPECTATION]", data.eRelease.getVersion(), release.getVersion());
-        for(final Library library : data.eRelease.getLibraries()) {
-            assertTrue("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE LIBRARES DO NOT CONTAIN EXPECTATION]", release.getLibraries().contains(library));
-        }
-        for(final Library library : release.getLibraries()) {
-            assertTrue("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE EXPECTATION LIBRARIES DO NOT CONTAIN LIBRARY]", data.eRelease.getLibraries().contains(library));
-        }
     }
 
     /** Set up the test data. */
     protected void setUp() throws Exception {
-        final LibraryModel lModel = getLibraryModel(getClass());
-        final MockRelease mockRelease = MockRelease.create(this);
-        for(final MockLibrary library : mockRelease.getMockLibraries()) {
-            lModel.create(library.getArtifactId(), library.getGroupId(),
-                    library.getType(), library.getVersion());
-            lModel.createBytes(library.getId(), library.getBytes());
-        }
-        
-        final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeString("artifactId", mockRelease.getArtifactId());
-        mockIQ.writeString("groupId", mockRelease.getGroupId());
-        mockIQ.writeString("version", mockRelease.getVersion());
-        mockIQ.writeString("name", mockRelease.getName());
-        mockIQ.writeLongs("libraryIds", "libraryId", mockRelease.getLibraryIds());
-        data = new Fixture(new Create(), mockRelease, mockIQ);
+        final Release eRelease = getRelease();
+        final List<Library> libraries = new LinkedList<Library>();
+        libraries.add(createJavaLibrary());
+        libraries.add(createNativeLibrary());
+
+        final IQ iq = createGetIQ();
+        writeString(iq, "artifactId", eRelease.getArtifactId());
+        writeString(iq, "groupId", eRelease.getGroupId());
+        writeString(iq, "version", eRelease.getVersion());
+        writeLongs(iq, "libraryIds", "libraryId", extractIds(libraries));
+        data = new Fixture(new Create(), eRelease, iq);
     }
 
     /** Tear down the test data. */

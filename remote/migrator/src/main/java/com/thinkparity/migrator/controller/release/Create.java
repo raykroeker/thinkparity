@@ -24,15 +24,13 @@ public class Create extends AbstractController {
     public void service() {
         logger.info("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE]");
         final Release release = create(readString(Xml.Release.ARTIFACT_ID),
-                readString(Xml.Release.GROUP_ID), readString(Xml.Release.NAME),
-                readString(Xml.Release.VERSION),
+                readString(Xml.Release.GROUP_ID), readString(Xml.Release.VERSION),
                 readLibraryIds(Xml.Release.LIBRARY_IDS, Xml.Release.LIBRARY_ID));
 
         writeString(Xml.Release.ARTIFACT_ID, release.getArtifactId());
+        writeCalendar(Xml.Release.CREATED_ON, release.getCreatedOn());
         writeString(Xml.Release.GROUP_ID, release.getGroupId());
         writeLong(Xml.Release.ID, release.getId());
-        writeLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY, release.getLibraries());
-        writeString(Xml.Release.NAME, release.getName());
         writeString(Xml.Release.VERSION, release.getVersion());
     }
 
@@ -43,8 +41,6 @@ public class Create extends AbstractController {
      *            The artifact id.
      * @param groupId
      *            The group id.
-     * @param name
-     *            The name.
      * @param version
      *            The version.
      * @param libraries
@@ -52,9 +48,8 @@ public class Create extends AbstractController {
      * @return The release.
      */
     private Release create(final String artifactId, final String groupId,
-            final String name, final String version,
-            final List<Library> libraries) {
+            final String version, final List<Library> libraries) {
         return getReleaseModel(getClass()).create(
-                artifactId, groupId, name, version, libraries);
+                artifactId, groupId, version, libraries);
     }
 }

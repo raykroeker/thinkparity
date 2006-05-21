@@ -3,6 +3,8 @@
  */
 package com.thinkparity.migrator.util;
 
+import java.util.Calendar;
+import java.util.SimpleTimeZone;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +12,7 @@ import java.util.UUID;
 import org.dom4j.Element;
 
 import com.thinkparity.codebase.CompressionUtil;
+import com.thinkparity.codebase.DateUtil;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Constants.Xml;
@@ -37,6 +40,26 @@ public class ElementBuilder {
             return addElement(parent, name, Byte[].class, encode(compress(value)));
         }
         catch(final IOException iox) { throw new RuntimeException(iox); }
+    }
+
+    /**
+     * Add a calendar value.
+     *
+     * @param parent
+     *      The parent element.
+     * @param name
+     *      The element name.
+     * @param value
+     *      The element value.
+     * @return The element.
+     */
+    public static Element addElement(final Element parent, final String name,
+            final Calendar value) {
+        final Calendar valueGMT = DateUtil.getInstance(
+                value.getTime(), new SimpleTimeZone(0, "GMT"));
+        final String valueString = DateUtil.format(
+                valueGMT, DateUtil.DateImage.ISO);
+        return addElement(parent, name, Calendar.class, valueString);
     }
 
     /**

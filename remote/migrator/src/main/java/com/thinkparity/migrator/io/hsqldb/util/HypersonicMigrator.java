@@ -3,14 +3,18 @@
  */
 package com.thinkparity.migrator.io.hsqldb.util;
 
-import java.util.List;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.Mode;
+import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
-import com.thinkparity.codebase.Mode;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.LoggerFactory;
@@ -187,15 +191,37 @@ class HypersonicMigrator {
      *      A database session.
      */
     private void insertTestData(final HypersonicSession session) {
+        // v1.0.0
         final List<Long> libraryIds = new ArrayList<Long>();
+        Calendar createdOn = null;
+        try { createdOn = DateUtil.parse("1970 01 01 00:00", DateImage.YearMonthDayHourMinute); }
+        catch(final ParseException px) { throw new HypersonicException(px); }
         libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
-                "com.thinkparity.parity", "tJavaLibrary", "1.0.0",
+                "com.thinkparity.parity", "tJavaLibrary", "1.0.0", createdOn,
                 "com.thinkparity.parity:tJavaLibrary:1.0.0".getBytes()));
+        libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
+                "com.3rdparty", "tJavaLibrary", "1.0.0", createdOn,
+                "com.3rdparty:tJavaLibrary:1.0.0".getBytes()));
         libraryIds.add(insertTestDataLibrary(session, Library.Type.NATIVE,
-                "com.thinkparity.parity", "tNativeLibrary", "1.0.0",
-                "com.thinkparity.parity:tJavaLibrary:1.0.0".getBytes()));
-        insertTestDataRelease(session, "TEST 2006 05 13",
-                "com.thinkparity.parity", "tRelease", "1.0.0", libraryIds);
+                "com.3rdparty", "tNativeLibrary", "1.0.0", createdOn,
+                "com.3rdparty:tJavaLibrary:1.0.0".getBytes()));
+        insertTestDataRelease(session, "com.thinkparity.parity", "tRelease",
+                    "1.0.0", createdOn, libraryIds);
+        // v1.0.1
+        libraryIds.clear();
+        try { createdOn = DateUtil.parse("1970 01 01 00:01", DateImage.YearMonthDayHourMinute); }
+        catch(final ParseException px) { throw new HypersonicException(px); }
+        libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
+                "com.thinkparity.parity", "tJavaLibrary", "1.0.1", createdOn,
+                "com.thinkparity.parity:tJavaLibrary:1.0.1".getBytes()));
+        libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
+                "com.3rdparty", "tJavaLibrary", "1.0.1", createdOn,
+                "com.3rdparty:tJavaLibrary:1.0.1".getBytes()));
+        libraryIds.add(insertTestDataLibrary(session, Library.Type.NATIVE,
+                "com.3rdparty", "tNativeLibrary", "1.0.1", createdOn,
+                "com.3rdparty:tJavaLibrary:1.0.1".getBytes()));
+        insertTestDataRelease(session, "com.thinkparity.parity", "tRelease",
+                    "1.0.1", createdOn, libraryIds);
     }
 
     /**
@@ -214,12 +240,14 @@ class HypersonicMigrator {
      */
     private Long insertTestDataLibrary(final HypersonicSession session,
             final Library.Type type, final String groupId,
-            final String artifactId, final String version, final byte[] bytes) {
+            final String artifactId, final String version,
+            final Calendar createdOn, final byte[] bytes) {
         session.prepareStatement(INSERT_TEST_DATA_LIBRARY);
         session.setTypeAsInteger(1, type);
         session.setString(2, groupId);
         session.setString(3, artifactId);
         session.setString(4, version);
+        session.setCalendar(5, createdOn);
         if(1 != session.executeUpdate())
             throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT LIBRARY TEST DATA]");
         final Long libraryId = session.getIdentity();
@@ -247,13 +275,14 @@ class HypersonicMigrator {
      *      Library ids.
      */
     private void insertTestDataRelease(final HypersonicSession session,
-            final String name, final String groupId, final String artifactId,
-            final String version, final List<Long> libraryIds) {
+            final String groupId, final String artifactId,
+            final String version, final Calendar createdOn,
+            final List<Long> libraryIds) {
         session.prepareStatement(INSERT_TEST_DATA_RELEASE);
-        session.setString(1, name);
-        session.setString(2, groupId);
-        session.setString(3, artifactId);
-        session.setString(4, version);
+        session.setString(1, groupId);
+        session.setString(2, artifactId);
+        session.setString(3, version);
+        session.setCalendar(4, createdOn);
         if(1 != session.executeUpdate())
             throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT RELEASE TEST DATA]");
         final Long releaseId = session.getIdentity();

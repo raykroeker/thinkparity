@@ -11,11 +11,8 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.migrator.Library;
-import com.thinkparity.migrator.MockLibrary;
 import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
-import com.thinkparity.migrator.controller.MockIQ;
-import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.util.IQReader;
 
 /**
@@ -43,22 +40,18 @@ public class ReadTest extends ControllerTestCase {
     /** Set up the test data. */
     protected void setUp() throws Exception {
         data = new HashMap<String, Fixture>(2, 1.0F);
-        final LibraryModel lModel = getLibraryModel(getClass());
+        final Library eLibrary = createJavaLibrary();
 
-        final MockLibrary mockLibrary = MockLibrary.create(this);
-        lModel.create(mockLibrary.getArtifactId(), mockLibrary.getGroupId(),
-                mockLibrary.getType(), mockLibrary.getVersion());
+        IQ iq = createGetIQ();
+        writeLong(iq, Xml.Library.ID, eLibrary.getId());
+        data.put("Scenario1", new Fixture(eLibrary, new Read(), iq));
 
-        MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeLong(Xml.Library.ID, mockLibrary.getId());
-        data.put("Scenario1", new Fixture(mockLibrary, new Read(), mockIQ));
-
-        mockIQ = MockIQ.createGet();
-        mockIQ.writeString(Xml.Library.ARTIFACT_ID, mockLibrary.getArtifactId());
-        mockIQ.writeString(Xml.Library.GROUP_ID, mockLibrary.getGroupId());
-        mockIQ.writeLibraryType(Xml.Library.TYPE, mockLibrary.getType());
-        mockIQ.writeString(Xml.Library.VERSION, mockLibrary.getVersion());
-        data.put("Scenario2", new Fixture(mockLibrary, new Read(), mockIQ));
+        iq = createGetIQ();
+        writeString(iq, Xml.Library.ARTIFACT_ID, eLibrary.getArtifactId());
+        writeString(iq, Xml.Library.GROUP_ID, eLibrary.getGroupId());
+        writeLibraryType(iq, Xml.Library.TYPE, eLibrary.getType());
+        writeString(iq, Xml.Library.VERSION, eLibrary.getVersion());
+        data.put("Scenario2", new Fixture(eLibrary, new Read(), iq));
     }
 
     /** Tear down the test data. */

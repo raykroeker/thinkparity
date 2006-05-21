@@ -4,12 +4,17 @@
  */
 package com.thinkparity.migrator;
 
+import java.util.Calendar;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 public class Library {
 
     /** The library artifact id. */
     private String artifactId;
+
+    /** The creation date. */
+    private Calendar createdOn;
 
     /** The library group id. */
     private String groupId;
@@ -44,6 +49,25 @@ public class Library {
     public String getArtifactId() { return artifactId; }
 
     /**
+     * Obtain the creation date.
+     *
+     * @return The creation date.
+     */
+    public Calendar getCreatedOn() { return createdOn; }
+
+    /**
+     * Obtain the file name.
+     * 
+     * @return The library's file name.
+     */
+    public String getFilename() {
+        return new StringBuffer(artifactId)
+        .append("-").append(version)
+        .append(".").append(getFilenameExtension())
+        .toString();
+    }
+
+    /**
      * Obtain the groupId
      *
      * @return The String.
@@ -75,12 +99,38 @@ public class Library {
     public int hashCode() { return id.hashCode(); }
 
     /**
+     * Determine whether or not the library is core.
+     * 
+     * @return True if the library is core; false otherwise.
+     */
+    public Boolean isCore() { return getGroupId().equals("com.thinkparity.parity"); }
+
+    /**
+     * Determine if the library version is a snapshot.
+     *
+     * @return True if the library version is a snapshot.
+     */
+    public Boolean isSnapshot() {
+        return getVersion().endsWith("-SNAPSHOT");
+    }
+
+    /**
      * Set artifactId.
      *
      * @param artifactId The String.
      */
     public void setArtifactId(final String artifactId) {
         this.artifactId = artifactId;
+    }
+
+    /**
+     * Set the creation date.
+     *
+     * @param createdOn
+     *      The creation date.
+     */
+    public void setCreatedOn(final Calendar createdOn) {
+        this.createdOn = createdOn;
     }
 
     /**
@@ -110,6 +160,29 @@ public class Library {
      * @param version The String.
      */
     public void setVersion(final String version) { this.version = version; }
+
+    /** @see java.lang.Object#toString() */
+    public String toString() {
+        return new StringBuffer(groupId)
+            .append(":").append(artifactId)
+            .append(":").append(version)
+            .append(":").append(type.toString())
+            .toString();
+    }
+
+    /**
+     * Obtain the file name extension.
+     * 
+     * @return The file extension.
+     */
+    private String getFilenameExtension() {
+        switch(type) {
+            case JAVA: return "jar";
+            case NATIVE: return "dll";
+            default:
+                throw Assert.createUnreachable("[LOOKUP FILE EXTENSION] [UNKNOWN LIBRARY TYPE]");
+        }
+    }
 
     /** The definition of a library type. */
     public enum Type {

@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MigratorTestCase;
-import com.thinkparity.migrator.MockLibrary;
 
 /**
  * Test the parity library interface's read api.
@@ -53,18 +52,14 @@ public class ReadTest extends MigratorTestCase {
         // 2 scenarios
         
         // 1:  java library
-        final Library eLibrary0 = MockLibrary.create(this);
-        lModel.create(eLibrary0.getArtifactId(), eLibrary0.getGroupId(),
-                eLibrary0.getType(), eLibrary0.getVersion());
+        final Library eLibrary0 = createJavaLibrary();
         data.add(new Fixture(eLibrary0, lModel, eLibrary0.getId()));
         data.add(new Fixture(eLibrary0.getArtifactId(), eLibrary0,
                 eLibrary0.getGroupId(), lModel, eLibrary0.getType(),
                 eLibrary0.getVersion()));
 
         // 2:  native library
-        final Library eLibrary1 = MockLibrary.createNative(this);
-        lModel.create(eLibrary1.getArtifactId(), eLibrary1.getGroupId(),
-                eLibrary1.getType(), eLibrary1.getVersion());
+        final Library eLibrary1 = createNativeLibrary();
         data.add(new Fixture(eLibrary1, lModel, eLibrary1.getId()));
     }
 
@@ -84,6 +79,16 @@ public class ReadTest extends MigratorTestCase {
         private final LibraryModel lModel;
         private final Library.Type type;
         private final String version;
+        private Fixture(final Library eLibrary, final LibraryModel lModel,
+                final Long libraryId) {
+            this.artifactId = null;
+            this.eLibrary = eLibrary;
+            this.groupId = null;
+            this.lModel = lModel;
+            this.type = null;
+            this.libraryId = libraryId;
+            this.version = null;
+        }
         private Fixture(final String artifactId, final Library eLibrary,
                 final String groupId, final LibraryModel lModel,
                 final Library.Type type, final String version) {
@@ -94,16 +99,6 @@ public class ReadTest extends MigratorTestCase {
             this.type = type;
             this.libraryId = null;
             this.version = version;
-        }
-        private Fixture(final Library eLibrary, final LibraryModel lModel,
-                final Long libraryId) {
-            this.artifactId = null;
-            this.eLibrary = eLibrary;
-            this.groupId = null;
-            this.lModel = lModel;
-            this.type = null;
-            this.libraryId = libraryId;
-            this.version = null;
         }
     }
 }

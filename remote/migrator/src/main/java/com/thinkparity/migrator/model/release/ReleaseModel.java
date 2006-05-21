@@ -50,34 +50,12 @@ public class ReleaseModel extends AbstractModel {
     }
 
     /**
-     * Read a release.
-     * 
-     * @param releaseName
-     *            The release name.
-     * @return The release.
-     */
-    public Release read(final String name) {
-        synchronized(implLock) { return impl.read(name); }
-    }
-
-    /**
-     * Read the latest release.
-     *
-     * @return A release.
-     */
-    public Release readLatest() {
-        synchronized(implLock) { return impl.readLatest(); }
-    }
-
-    /**
      * Create a release.
      * 
      * @param artifactId
      *            An artifact id.
      * @param groupId
      *            A group id.
-     * @param name
-     *            A name.
      * @param version
      *            A version.
      * @param libraries
@@ -85,10 +63,66 @@ public class ReleaseModel extends AbstractModel {
      * @return The release.
      */
     public Release create(final String artifactId, final String groupId,
-            final String name, final String version,
-            final List<Library> libraries) {
+            final String version, final List<Library> libraries) {
         synchronized(implLock) {
-            return impl.create(artifactId, groupId, name, version, libraries);
+            return impl.create(artifactId, groupId, version, libraries);
         }
+    }
+
+    /**
+     * Delete a release.
+     *
+     * @param releaseId
+     *      A release id.
+     */
+    public void delete(final Long releaseId) {
+        synchronized(implLock) { impl.delete(releaseId); }
+    }
+
+    /**
+     * Read a release.
+     * 
+     * @param releaseId
+     *            A release id.
+     * @return A release.
+     */
+    public Release read(final Long releaseId) {
+        synchronized(implLock) { return impl.read(releaseId); }
+    }
+
+    /**
+     * Read a release.
+     * 
+     * @param artifactId
+     *      An artifact id.
+     * @param groupId
+     *      A group id.
+     * @param version
+     *      A version.
+     * @return A release.
+     */
+    public Release read(final String artifactId, final String groupId,
+            final String version) {
+        synchronized(implLock) { return impl.read(artifactId, groupId, version); }
+    }
+
+    /**
+     * Read the latest release.
+     *
+     * @return A release.
+     */
+    public Release readLatest(final String artifactId, final String groupId) {
+        synchronized(implLock) { return impl.readLatest(artifactId, groupId); }
+    }
+
+    /**
+     * Read the release libraries.
+     *
+     * @param releaseId
+     *      A release id.
+     * @return A list of libraries.
+     */
+    public List<Library> readLibraries(final Long releaseId) {
+        synchronized(implLock) { return impl.readLibraries(releaseId); }
     }
 }

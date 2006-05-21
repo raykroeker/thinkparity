@@ -17,7 +17,6 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
-import com.thoughtworks.xstream.XStream.InitializationException;
 
 /**
  * @author raykroeker@gmail.com
@@ -36,10 +35,10 @@ public abstract class ModelTestCase extends TestCase {
 		System.setProperty("parity.insecure", "true");
 		// set staging system
         if(Mode.DEVELOPMENT == Version.getMode()) {
-            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
+            System.setProperty("parity.serverhost", "rk-mobile.raykroeker.com");
         }
         else if(Mode.TESTING == Version.getMode()) {
-            System.setProperty("parity.serverhost", "rk-mobile.raykroeker.com");
+            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
         }
         else if(Mode.PRODUCTION == Version.getMode()) {}
         else { Assert.assertUnreachable("[RMODEL] [TEST INIT] [UNKNOWN OP MODE]"); }

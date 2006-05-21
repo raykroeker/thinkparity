@@ -49,6 +49,18 @@ class LibraryModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Delete a library.
+     *
+     * @param libraryId
+     *      A library id.
+     */
+    void delete(final Long libraryId) {
+        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [DELETE]");
+        logger.debug(libraryId);
+        libraryIO.delete(libraryId);
+    }
+
+    /**
      * Create the bytes for a library.
      *
      * @param libraryId

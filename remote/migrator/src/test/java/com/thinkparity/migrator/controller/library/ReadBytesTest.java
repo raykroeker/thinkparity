@@ -7,11 +7,9 @@ package com.thinkparity.migrator.controller.library;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.migrator.MockLibrary;
+import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
-import com.thinkparity.migrator.controller.MockIQ;
-import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.util.IQReader;
 
 /**
@@ -44,22 +42,18 @@ public class ReadBytesTest extends ControllerTestCase {
         assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [BYTES ARE NULL]", bytes);
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [BYTE LENGTH IS NOT EQUAL TO EXPECTATION]", data.eBytes.length, bytes.length);
         for(int i = 0; i < bytes.length; i++) {
-            assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [BYTE NOT EQUAL TO EXPECTATION]", data.eBytes[i], bytes[i]);
+            assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ TEST] [BYTE NOT EQUAL TO EXPECTATION] [" + i + "]", data.eBytes[i], bytes[i]);
         }
     }
 
     /** Set up the test data. */
     protected void setUp() throws Exception {
-        final LibraryModel lModel = getLibraryModel(getClass());
-        
-        final MockLibrary mockLibrary = MockLibrary.create(this);
-        lModel.create(mockLibrary.getArtifactId(), mockLibrary.getGroupId(),
-                mockLibrary.getType(), mockLibrary.getVersion());
-        lModel.createBytes(mockLibrary.getId(), mockLibrary.getBytes());
-
-        final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeLong(Xml.Library.ID, mockLibrary.getId());
-        data = new Fixture(mockLibrary.getBytes(), new ReadBytes(), mockIQ);
+        super.setUp();
+        final Library eLibrary = createJavaLibrary();
+        final Byte[] eLibraryBytes = getJavaLibraryBytes();
+        final IQ iq = createGetIQ();
+        writeLong(iq, Xml.Library.ID, eLibrary.getId());
+        data = new Fixture(eLibraryBytes, new ReadBytes(), iq);
     }
 
     /** Tear down the test data. */

@@ -43,6 +43,14 @@ public interface LibraryIOHandler {
             throws HypersonicException;
 
     /**
+     * Delete a library.
+     *
+     * @param libraryId
+     *      A library id.
+     */
+    public void delete(final Long libraryId) throws HypersonicException;
+
+    /**
      * Read a library by its id.
      * 
      * @param libraryId

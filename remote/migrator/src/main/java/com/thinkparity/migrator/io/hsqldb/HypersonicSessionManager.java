@@ -38,18 +38,7 @@ public class HypersonicSessionManager {
 		HypersonicUtil.setInitialProperties();
         HypersonicValidator.validate();
 		Runtime.getRuntime().addShutdownHook(new Thread("[RMIGRATOR] [IO] [HYPERSONIC SESSION MANAGER] [SHUTDOWN]") {
-			public void run() {
-				// remove abandoned sessions
-				final Logger logger = LoggerFactory.getLogger(HypersonicSessionManager.class);
-				synchronized(sessions) {
-					logger.warn("[RMIGRATOR] [IO] [HYPERSONIC SESSION MANAGER] [ABANDONED SESSIONS] [" + sessions.size() + "]");
-					for(final HypersonicSession session : sessions) {
-						logger.warn(session.getId());
-						session.close();
-					}
-				}
-				HypersonicUtil.shutdown();
-			}
+			public void run() { shutdown(); }
 		});
 	}
 
@@ -109,6 +98,20 @@ public class HypersonicSessionManager {
 		sessions.add(session);
 		return session;
 	}
+
+    /** Shutdown the database. */
+    public static void shutdown() {
+        // remove abandoned sessions
+        final Logger logger = LoggerFactory.getLogger(HypersonicSessionManager.class);
+        synchronized(sessions) {
+            logger.warn("[RMIGRATOR] [IO] [HYPERSONIC SESSION MANAGER] [ABANDONED SESSIONS] [" + sessions.size() + "]");
+            for(final HypersonicSession session : sessions) {
+                logger.warn(session.getId());
+                session.close();
+            }
+        }
+		HypersonicUtil.shutdown();
+    }
 
 	/**
 	 * Close the session.

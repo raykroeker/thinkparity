@@ -4,6 +4,7 @@
  */
 package com.thinkparity.migrator.util;
 
+import java.util.Calendar;
 import java.util.List;
 
 import org.xmpp.packet.IQ;
@@ -38,6 +39,18 @@ public class IQWriter {
      */
     public void writeBytes(final String name, final Byte[] bytes) {
         ElementBuilder.addElement(iq.getChildElement(), name, bytes);
+    }
+
+    /**
+     * Write a calendar value.
+     *
+     * @param name
+     *      The element name.
+     * @param value
+     *      The element value.
+     */
+    public void writeCalendar(final String name, final Calendar value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 
     /**

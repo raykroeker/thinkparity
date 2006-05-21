@@ -20,14 +20,20 @@ public class Read extends AbstractController {
     /** @see com.thinkparity.migrator.controller.AbstractController#service() */
     public void service() {
         logger.info("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ]");
-        final Release release = read(readString(Xml.Release.NAME));
-
+        final Long releaseId = readLong(Xml.Release.ID);
+        final Release release;
+        if(null == releaseId) {
+            release = read(readString(Xml.Release.ARTIFACT_ID),
+                    readString(Xml.Release.GROUP_ID),
+                    readString(Xml.Release.VERSION));
+        }
+        else { release = read(readLong(Xml.Release.ID)); }
+        
         if(null != release) {
             writeString(Xml.Release.ARTIFACT_ID, release.getArtifactId());
+            writeCalendar(Xml.Release.CREATED_ON, release.getCreatedOn());
             writeString(Xml.Release.GROUP_ID, release.getGroupId());
             writeLong(Xml.Release.ID, release.getId());
-            writeLibraries(Xml.Release.LIBRARIES, Xml.Release.LIBRARY, release.getLibraries());
-            writeString(Xml.Release.NAME, release.getName());
             writeString(Xml.Release.VERSION, release.getVersion());
         }
     }
@@ -39,7 +45,23 @@ public class Read extends AbstractController {
      *            The release id.
      * @return The release.
      */
-    private Release read(final String releaseName) {
-        return getReleaseModel(getClass()).read(releaseName);
+    private Release read(final Long releaseId) {
+        return getReleaseModel(getClass()).read(releaseId);
+    }
+
+    /**
+     * Read a release.
+     *
+     * @param artifactId
+     *      An artifact id.
+     * @param groupId
+     *      A group id.
+     * @param version
+     *      A version.
+     * @return A release.
+     */
+    private Release read(final String artifactId, final String groupId,
+            final String version) {
+        return getReleaseModel(getClass()).read(artifactId, groupId, version);
     }
 }

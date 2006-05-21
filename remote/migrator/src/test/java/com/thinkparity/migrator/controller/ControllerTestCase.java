@@ -4,12 +4,15 @@
  */
 package com.thinkparity.migrator.controller;
 
+import java.util.List;
+
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
 
 import com.thinkparity.codebase.StringUtil.Separator;
-
+import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MigratorTestCase;
+import com.thinkparity.migrator.util.IQWriter;
 
 /**
  * A controller test case abstraction.
@@ -46,4 +49,37 @@ public abstract class ControllerTestCase extends MigratorTestCase {
      *      The test name.
      */
     protected ControllerTestCase(final String name) { super(name); }
+
+    /**
+     * Create an internet query of type get.
+     *
+     * @return An internet query.
+     */
+    protected IQ createGetIQ() {
+        final IQ iq = new IQ(IQ.Type.get);
+        iq.setChildElement("query", "jabber:iq:parity");
+        return iq;
+    }
+
+    protected void writeBytes(final IQ iq, final String name, final Byte[] value) {
+        new IQWriter(iq).writeBytes(name, value);
+    }
+
+    protected void writeString(final IQ iq, final String name, final String value) {
+        new IQWriter(iq).writeString(name, value);
+    }
+
+    protected void writeLibraryType(final IQ iq, final String name,
+            final Library.Type libraryType) {
+        new IQWriter(iq).writeLibraryType(name, libraryType);
+    }
+
+    protected void writeLong(final IQ iq, final String name, final Long value) {
+        new IQWriter(iq).writeLong(name, value);
+    }
+
+    protected void writeLongs(final IQ iq, final String parentName, final String name,
+            final List<Long> values) {
+        new IQWriter(iq).writeLongs(parentName, name, values);
+    }
 }

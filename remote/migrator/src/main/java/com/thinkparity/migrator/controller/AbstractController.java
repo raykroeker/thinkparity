@@ -4,6 +4,7 @@
  */
 package com.thinkparity.migrator.controller;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,13 +67,9 @@ public abstract class AbstractController extends
         logger.debug(iq.toXML());
         iqReader = new IQReader(iq);
 
-//        final IQ response = createResponse(iq);
-//        iqWriter = new IQWriter(response);
-        
-        final IQ response = IQ.createResultIQ(iq);
-        response.setChildElement(info.getName(), Xml.RESPONSE_NAMESPACE);
+        final IQ response = createResponse(iq);
         iqWriter = new IQWriter(response);
-
+        
         try { service(); }
         catch(final Throwable t) {
             logger.error("[RMIGRATOR] [CONTROLLER] [UNKNOWN ERROR]", t);
@@ -182,6 +179,18 @@ public abstract class AbstractController extends
     }
 
     /**
+     * Write a calendar to the response query.
+     *
+     * @param name
+     *      The element name.
+     * @param value
+     *      The element value.
+     */
+    protected void writeCalendar(final String name, final Calendar value) {
+        iqWriter.writeCalendar(name, value);
+    }
+
+    /**
      * Write libraries to the response query.
      * 
      * @param parentName
@@ -253,27 +262,13 @@ public abstract class AbstractController extends
     }
 
     /**
-     * Create an iq.
-     * 
-     * @param type
-     *            The query type.
-     * @param packetId
-     *            The request query id.
-     * @return A response query.
-     */
-    private IQ createIQ(final IQ iq) {
-        final IQ resultIQ = IQ.createResultIQ(iq);
-        resultIQ.setChildElement(info.getName(), info.getNamespace());
-        return resultIQ;
-    }
-
-    /**
      * Create a response for the query.
      * @param iq The internet query.
      * @return The response.
      */
     private IQ createResponse(final IQ iq) {
-        final IQ response = createIQ(iq);
+        final IQ response = IQ.createResultIQ(iq);
+        response.setChildElement(info.getName(), Xml.RESPONSE_NAMESPACE);
         return response;
     }
 }

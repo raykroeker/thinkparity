@@ -67,6 +67,16 @@ public class LibraryModel extends AbstractModel {
     }
 
     /**
+     * Delete a library.
+     *
+     * @param libraryId
+     *      A library id.
+     */
+    public void delete(final Long libraryId) {
+        synchronized(implLock) { impl.delete(libraryId); }
+    }
+
+    /**
      * Create the bytes for a library.
      *
      * @param libraryId

@@ -1,10 +1,11 @@
 /*
- * May 9, 2006
+ * Created On: May 9, 2006
+ * $Id$
  */
 package com.thinkparity.migrator;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * @author raymond@thinkparity.com
@@ -15,60 +16,20 @@ public class Release {
     /** The artifact id. */
     private String artifactId;
 
+    /** The creation date. */
+    private Calendar createdOn;
+
     /** The group id. */
     private String groupId;
 
     /** The id. */
     private Long id;
 
-    /** The libraries. */
-    private final List<Library> libraries;
-
-    /** The name. */
-    private String name;
-
     /** The version. */
     private String version;
 
     /** Create Release. */
-    public Release() {
-        super();
-        this.libraries = new LinkedList<Library>();
-    }
-
-    /**
-     * Add all libraries.
-     * 
-     * @param libraries
-     *            A list of libraries.
-     * @return True if the list is modified.
-     */
-    public boolean addAllLibraries(final List<Library> libraries) {
-        return this.libraries.addAll(libraries);
-    }
-
-    /**
-     * Add a library.
-     * 
-     * @param library
-     *            A library.
-     * @return True if the library is modified.
-     */
-    public boolean addLibrary(final Library library) {
-        return libraries.add(library);
-    }
-
-    /** Clear the list of libraries. */
-    public void clearLibraries() { libraries.clear(); }
-
-    /**
-     * Determine if this release contains a library.
-     *
-     * @return True if this release contains the library; false otherwise.
-     */
-    public boolean containsLibrary(final Library library) {
-        return libraries.contains(library);
-    }
+    public Release() { super(); }
 
     /** @see java.lang.Object#equals(java.lang.Object) */
     public boolean equals(final Object obj) {
@@ -86,6 +47,13 @@ public class Release {
     public String getArtifactId() { return artifactId; }
 
     /**
+     * Obtain the creation date.
+     *
+     * @return The creation date.
+     */
+    public Calendar getCreatedOn() { return createdOn; }
+
+    /**
      * Obtain the group id
      * 
      * @return The group id.
@@ -100,20 +68,6 @@ public class Release {
     public Long getId() { return id; }
 
     /**
-     * Obtain the libraries
-     * 
-     * @return The libraries.
-     */
-    public List<Library> getLibraries() { return libraries; }
-
-    /**
-     * Obtain the name
-     *
-     * @return The String.
-     */
-    public String getName() { return name; }
-
-    /**
      * Obtain the version
      *
      * @return The version string.
@@ -124,23 +78,12 @@ public class Release {
     public int hashCode() { return id.hashCode(); }
 
     /**
-     * Remove all libraries.
-     * 
-     * @param libraries
-     *            A list of libraries.
-     * @return True if the list has been modified.
+     * Determine if the release version is a snapshot.
+     *
+     * @return True if the release version is a snapshot.
      */
-    public boolean removeAllLibraries(final List<Library> libraries) {
-        return this.libraries.removeAll(libraries);
-    }
-
-    /**
-     * Remove a library.
-     * @param library A library.
-     * @return True if the library list has been modified.
-     */
-    public boolean removeLibrary(final Library library) {
-        return libraries.remove(library);
+    public Boolean isSnapshot() {
+        return getVersion().endsWith("-SNAPSHOT");
     }
 
     /**
@@ -151,6 +94,16 @@ public class Release {
      */
     public void setArtifactId(final String artifactId) {
         this.artifactId = artifactId;
+    }
+
+    /**
+     * Set the creation date.
+     *
+     * @param createdOn
+     *      The creation date.
+     */
+    public void setCreatedOn(final Calendar createdOn) {
+        this.createdOn = createdOn;
     }
 
     /**
@@ -170,17 +123,23 @@ public class Release {
     public void setId(final Long id) { this.id = id; }
 
     /**
-     * Set name.
-     *
-     * @param name The String.
-     */
-    public void setName(final String name) { this.name = name; }
-
-    /**
      * Set version.
      * 
      * @param version
      *            A version string.
      */
     public void setVersion(final String version) { this.version = version; }
+
+    /** @see java.lang.Object#toString() */
+    public String toString() {
+        final StringBuffer buffer = new StringBuffer(groupId)
+            .append(":").append(artifactId)
+            .append(":").append(version);
+        if(null != createdOn) {
+            buffer.append(":")
+                    .append(new SimpleDateFormat("yyyy MM dd HH:mm:ss")
+                    .format(getCreatedOn().getTime()));
+        }
+        return buffer.toString();
+    }
 }

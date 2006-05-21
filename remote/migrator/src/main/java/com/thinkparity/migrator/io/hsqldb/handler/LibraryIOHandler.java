@@ -19,8 +19,8 @@ public class LibraryIOHandler extends AbstractIOHandler implements
     private static final String SQL_CREATE =
         new StringBuffer("insert into LIBRARY")
         .append("(LIBRARY_TYPE_ID,LIBRARY_GROUP_ID,LIBRARY_ARTIFACT_ID,")
-        .append("LIBRARY_VERSION) ")
-        .append("values (?,?,?,?)")
+        .append("LIBRARY_VERSION,CREATED_ON) ")
+        .append("values (?,?,?,?,NOW())")
         .toString();
 
     /** Sql to create a library's bytes. */
@@ -30,17 +30,29 @@ public class LibraryIOHandler extends AbstractIOHandler implements
         .append("values (?,?)")
         .toString();
 
+    /** Sql to delete a library. */
+    private static final String SQL_DELETE =
+            new StringBuffer("delete from LIBRARY ")
+            .append("where LIBRARY_ID=?")
+            .toString();
+
+    /** Sql to delete a library's bytes. */
+    private static final String SQL_DELETE_BYTES =
+            new StringBuffer("delete from LIBRARY_BYTES ")
+            .append("where LIBRARY_ID=?")
+            .toString();
+
     /** Sql to read a library. */
     private static final String SQL_READ =
         new StringBuffer("select L.LIBRARY_ID,L.LIBRARY_TYPE_ID,")
-        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION ")
+        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION,L.CREATED_ON ")
         .append("from LIBRARY L ")
         .append("where L.LIBRARY_ID=?")
         .toString();
 
     private static final String SQL_READ_BY_ARTIFACT_ID_GROUP_ID_TYPE_VERSION =
         new StringBuffer("select L.LIBRARY_ID,L.LIBRARY_TYPE_ID,")
-        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION ")
+        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION,L.CREATED_ON ")
         .append("from LIBRARY L ")
         .append("where L.LIBRARY_ARTIFACT_ID=? ")
         .append("and L.LIBRARY_GROUP_ID=? ")
@@ -84,6 +96,31 @@ public class LibraryIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
+
+    /**
+     * Delete a library.
+     *
+     * @param libraryId
+     *      A library id.
+     */
+    public void delete(final Long libraryId) throws HypersonicException {
+        final HypersonicSession session = openSession();
+        try {
+            deleteBytes(session, libraryId);
+            session.prepareStatement(SQL_DELETE);
+            session.setLong(1, libraryId);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [LIBRARY] [DELETE] [COULD NOT EXECUTE UPDATE]");
+
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+     }
 
     /** @see com.thinkparity.migrator.io.handler.LibraryIOHandler#createBytes(java.lang.Long, java.lang.Byte[]) */
     public void createBytes(final Long libraryId, final Byte[] bytes)
@@ -173,6 +210,7 @@ public class LibraryIOHandler extends AbstractIOHandler implements
     Library extractLibrary(final HypersonicSession session) {
         final Library library = new Library();
         library.setArtifactId(session.getString("LIBRARY_ARTIFACT_ID"));
+        library.setCreatedOn(session.getCalendar("CREATED_ON"));
         library.setGroupId(session.getString("LIBRARY_GROUP_ID"));
         library.setId(session.getLong("LIBRARY_ID"));
         library.setType(session.getLibraryTypeFromInteger("LIBRARY_TYPE_ID"));
@@ -185,5 +223,14 @@ public class LibraryIOHandler extends AbstractIOHandler implements
         final Byte[] bigBytes = new Byte[smallBytes.length];
         for(int i = 0; i < smallBytes.length; i++) { bigBytes[i] = smallBytes[i]; }
         return bigBytes;
+    }
+
+    private void deleteBytes(final HypersonicSession session,
+            final Long libraryId) throws HypersonicException {
+        session.prepareStatement(SQL_DELETE_BYTES);
+        session.setLong(1, libraryId);
+        if(1 != session.executeUpdate())
+            throw new HypersonicException(
+                    "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [LIBRARY] [DELETE BYTES] [COULD NOT EXECUTE UPDATE]");
     }
 }

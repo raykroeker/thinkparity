@@ -1,0 +1,509 @@
+/*
+ * Created On: Fri May 12 2006 10:33 PDT
+ * $Id$
+ */
+package com.thinkparity.model.parity.model.io.xmpp;
+
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.zip.DataFormatException;
+
+import org.apache.log4j.Logger;
+import org.jivesoftware.smack.PacketCollector;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.filter.PacketIDFilter;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.provider.IQProvider;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import com.thinkparity.codebase.CompressionUtil;
+import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.JVMUniqueId;
+import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.parity.model.workspace.Preferences;
+import com.thinkparity.model.parity.util.Base64;
+
+import com.thinkparity.migrator.Library;
+
+/**
+ * The parity bootstrap's io xmpp session.
+ *
+ * @author raymond@thinkparity.com
+ * @version $Revision$
+ */
+public class XMPPSession {
+
+    static {
+        ProviderManager.addIQProvider("query", "jabber:iq:parity:response", new XMPPMethodResponseProvider());
+    }
+
+    /** An apache logger. */
+    protected final Logger logger;
+
+    /** A smack xmpp connection. */
+    private final XMPPConnection connection;
+
+    /** A jvm unique id. */
+    private final JVMUniqueId uniqueId;
+
+    /** An xmpp method definition. */
+    private XMPPMethod xmppMethod;
+
+    /** The xmpp method's response. */
+    private XMPPMethodResponse xmppMethodResponse;
+
+    /** Create XMPPSession. */
+    XMPPSession(final Preferences preferences) {
+        super();
+        try {
+            this.connection = new XMPPConnection(
+                    preferences.getServerHost(),
+                    preferences.getServerPort());
+            this.connection.loginAnonymously();
+        }
+        catch(final org.jivesoftware.smack.XMPPException xmppx) {
+            throw new XMPPException(xmppx);
+        }
+        this.logger = ModelLoggerFactory.getLogger(getClass());
+        this.uniqueId = JVMUniqueId.nextId();
+    }
+
+    /** Close this session. */
+    public void close() { XMPPSessionManager.close(this); }
+
+    /** Commit the session transaction. */
+    public void commit() { /* ? */ }
+
+    /**
+     * Determine whether or not the remote method invocation has a result.
+     *
+     * @return True if the method invocation has a result.
+     */
+    public Boolean containsResult() {
+        assertMethod("[CONTAINS RESULT]");
+        assertMethodResponse("[CONTAINS RESULT]");
+        return xmppMethodResponse.containsResult();
+    }
+
+    /** @see java.lang.Object#equals(java.lang.Object) */
+    public boolean equals(final Object obj) {
+		if(null != obj && obj instanceof XMPPSession)
+			return ((XMPPSession) obj).uniqueId.equals(uniqueId);
+		return false;
+    }
+
+    /** Execute the xmpp method. */
+    public void execute() { xmppMethodResponse = execute(xmppMethod); }
+
+    public Byte[] getBytes(final String name) {
+        return xmppMethodResponse.readBytes(name);
+    }
+
+    public Calendar getCalendar(final String name) {
+        return xmppMethodResponse.readResultCalendar(name);
+    }
+
+    /**
+     * Obtain a library list result value.
+     * 
+     * @param name
+     *            The result name.
+     * @return The result value.
+     */
+    public List<Library> getLibraries(final String name) {
+        return xmppMethodResponse.readResultLibraries(name);
+    }
+
+    public Library.Type getLibraryType(final String name) {
+        return xmppMethodResponse.readResultLibraryType(name);
+    }
+
+    /**
+     * Obtain a long result value.
+     * 
+     * @param name
+     *            The result name.
+     * @return The result value.
+     */
+    public Long getLong(final String name) {
+        return xmppMethodResponse.readResultLong(name);
+    }
+
+    /**
+     * Obtain a string result value.
+     * 
+     * @param name
+     *            The result name.
+     * @return The result value.
+     */
+    public String getString(final String name) {
+        return xmppMethodResponse.readResultString(name);
+    }
+
+    /** @see java.lang.Object#hashCode() */
+    public int hashCode() { return uniqueId.hashCode(); }
+
+    /**
+     * Rollback the xmpp transaction.
+     *
+     */
+    public void rollback() {
+        Assert.assertNotYetImplemented("XMPPSession#rollback() [" + StackUtil.getCallerClassAndMethodName() + "]");
+    }
+
+    public void setLongParameters(final String listName, final String name,
+            final List<Long> longs) {
+        assertMethod("[SET LONG PARAMTERS]");
+        debugLongParameters(listName, name, longs);
+        xmppMethod.setLongParameters(listName, name, longs);
+    }
+
+    public void setParameter(final String name, final Byte[] value) {
+        assertMethod("[SET PARAMETER]");
+        debugParameter(name, value);
+        xmppMethod.setParameter(name, value);
+    }
+
+    public void setParameter(final String name, final Library.Type value) {
+        assertMethod("[SET PARAMETER]");
+        debugParameter(name, value);
+        xmppMethod.setParameter(name, value);
+    }
+
+    /**
+     * Set a named parameter for the remote method.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    public void setParameter(final String name, final Long value) {
+        assertMethod("[SET PARAMETER]");
+        debugParameter(name, value);
+        xmppMethod.setParameter(name, value);
+    }
+
+    /**
+     * Set a named parameter for the remote method.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    public void setParameter(final String name, final String value) {
+        assertMethod("[SET PARAMETER]");
+        debugParameter(name, value);
+        xmppMethod.setParameter(name, value);
+    }
+
+    /**
+     * Set the remote method to be invoked.
+     *
+     * @param remoteMethod.
+     *      A remote method.
+     */
+    public void setRemoteMethod(final String methodName) {
+        assertNoMethod("[SET REMOTE METHOD]");
+        xmppMethod = new XMPPMethod(methodName);
+        xmppMethodResponse = null;
+    }
+
+    private void assertMethod(final String assertion) {
+        Assert.assertNotNull("[LBROWSER BOOTSTRAP] [XMPP IO] " + assertion +
+                " [REMOTE METHOD IS NOT DEFINED]", xmppMethod);
+    }
+
+    private void assertMethodResponse(final String assertion) {
+        Assert.assertNotNull("[LBROWSER BOOTSTRAP] [XMPP IO] " + assertion +
+                " [REMOTE METHOD RESPONSE IS NOT DEFINED]", xmppMethodResponse);
+    }
+
+    /**
+     * Assert the remote method has not yet been defined.
+     *
+     * @param assertion
+     *      The assertion.
+     */
+    private void assertNoMethod(final String assertion) {
+        Assert.assertIsNull("[LBROWSER BOOTSTRAP] [XMPP IO] " + assertion +
+                " [REMOTE METHOD ALREADY DEFINED]", xmppMethod);
+        Assert.assertIsNull("[LBROWSER BOOTSTRAP] [XMPP IO] " + assertion +
+                " [REMOTE METHOD RESPONSE ALREADY DEFINED]", xmppMethodResponse);
+    }
+
+    /**
+     * Create a packet collector that will filter on packets with the same
+     * query id.
+     *
+     * @param iq
+     *      The internet query.
+     * @return A packet collector.
+     */
+    private PacketCollector createPacketCollector(final IQ iq) {
+        return connection.createPacketCollector(
+                new PacketIDFilter(iq.getPacketID()));
+    }
+
+    private void debugLongParameters(final String listName, final String name,
+            final List<Long> values) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(listName);
+            for(final Long value : values) debugParameter(name, value);
+        }
+    }
+
+    private void debugParameter(final String name, final Byte[] value) {
+        if(logger.isDebugEnabled()) {
+            debugParameter(name, null == value ? null : String.valueOf(value.length));
+        }
+    }
+
+    private void debugParameter(final String name, final Library.Type value) {
+        if(logger.isDebugEnabled()) {
+            debugParameter(name, null == value ? null : value.toString());
+        }
+    }
+
+    /**
+     * Debug a long parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    private void debugParameter(final String name, final Long value) {
+        if(logger.isDebugEnabled()) {
+            debugParameter(name, null == value ? null : value.toString());
+        }
+    }
+
+    /**
+     * Debug a string parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    private void debugParameter(final String name, final String value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(new StringBuffer("[LMODEL] [IO] [XMPP] [REMOTE METHOD PARAM] ")
+                    .append("[").append(name).append(":")
+                    .append(null == value ? "null" : value)
+                    .append("] "));
+        }
+    }
+
+    /**
+     * Execute an xmpp method and return the xmpp response.
+     * 
+     * @param xmppMethod
+     *            An xmpp method.
+     * @return An xmpp method response.
+     */
+    private XMPPMethodResponse execute(final XMPPMethod xmppMethod) {
+        // create a collector for the response
+        final PacketCollector idCollector = createPacketCollector(xmppMethod);
+        // send the internet query
+        connection.sendPacket(xmppMethod);
+
+        // this sleep has been inserted because when packets are sent within
+        // x milliseconds of each other, they tend to get swallowed by the
+        // smack library
+        try { Thread.sleep(75); }
+        catch(final InterruptedException ix) {}
+
+        return ((XMPPMethodResponse) idCollector.nextResult());
+    }
+
+    /** A remote result reader. */
+    private static class XMPPMethodResponseProvider implements IQProvider {
+
+        /**
+         * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
+         */
+        public IQ parseIQ(final XmlPullParser parser) throws Exception {
+            final XMPPMethodResponse response = new XMPPMethodResponse();
+
+            parser.next();
+            while(true) {
+
+                // stop processing when we hit the trailing query tag
+                if(XmlPullParser.END_TAG == parser.getEventType()) {
+                    if("query".equals(parser.getName())) { break; }
+                    else {
+                        Assert.assertUnreachable("Query end tag.");
+                    }
+                }
+                else {
+                    final Class javaType = parseJavaType(parser);
+                    final String name = parseName(parser);
+                    response.writeResult(name, javaType, parseJavaObject(parser, name, javaType));
+                }
+            }
+            return response;
+        }
+
+        private Calendar calendarValueOf(final String s) {
+            try {
+                return DateUtil.parse(s, DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"));
+            }
+            catch(final ParseException px) { throw new RuntimeException(px); }
+        }
+
+        private byte[] decode(final String s) {
+            return Base64.decodeBytes(s);
+        }
+
+        private byte[] decompress(final byte[] bytes) {
+            try { return CompressionUtil.decompress(bytes); }
+            catch(final DataFormatException dfx) { throw new XMPPException(dfx); }
+            catch(final IOException iox) { throw new XMPPException(iox); }
+        }
+
+        private Object parseJavaObject(final XmlPullParser parser,
+                final String name, final Class javaType) throws IOException,
+                XmlPullParserException {
+            if(javaType.equals(Byte[].class)) {
+                parser.next();
+                final Byte[] bValue = unbox(decompress(decode(parser.getText())));
+                parser.next();
+                parser.next();
+                return bValue;
+            }
+            else if(javaType.equals(Calendar.class)) {
+                parser.next();
+                final Calendar cValue = calendarValueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return cValue;
+            }
+            else if(javaType.equals(String.class)) {
+                parser.next();
+                final String sValue = parser.getText();
+                parser.next();
+                parser.next();
+                return sValue;
+            }
+            else if(javaType.equals(Long.class)) {
+                parser.next();
+                final Long lValue = Long.valueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return lValue;
+            }
+            else if(javaType.equals(Library.class)) {
+                parser.next();
+
+                final Library library = new Library();
+                while(true) {
+                    if(XmlPullParser.END_TAG == parser.getEventType()) {
+                        // the expecation is that name equals "library"
+                        if(name.equals(parseName(parser))) { break; }
+                        else {
+                            Assert.assertUnreachable("Library end tag.");
+                        }
+                    }
+                    else {
+                        if("artifactId".equals(parseName(parser))) {
+                            parser.next();
+                            library.setArtifactId(parser.getText());
+                            parser.next();
+                        }
+                        else if("groupId".equals(parseName(parser))) {
+                            parser.next();
+                            library.setGroupId(parser.getText());
+                            parser.next();
+                        }
+                        else if("id".equals(parseName(parser))) {
+                            parser.next();
+                            library.setId(Long.valueOf(parser.getText()));
+                            parser.next();
+                        }
+                        else if("type".equals(parseName(parser))) {
+                            parser.next();
+                            library.setType(Library.Type.valueOf(parser.getText()));
+                            parser.next();
+                        }
+                        else if("version".equals(parseName(parser))) {
+                            parser.next();
+                            library.setVersion(parser.getText());
+                            parser.next();
+                        }
+                        else {
+                            Assert.assertUnreachable("Library unknown tag.");
+                        }
+                        parser.next();
+                    }
+                }
+                parser.next();
+                return library;
+            }
+            else if(javaType.equals(Library.Type.class)) {
+                parser.next();
+                final Library.Type type = Library.Type.valueOf(parser.getText());
+                parser.next();
+                parser.next();
+                return type;
+            }
+            else if(javaType.equals(List.class)) {
+                parser.next();
+                final List<Object> list = new LinkedList<Object>();
+                while(true) {
+                    if(XmlPullParser.END_TAG == parser.getEventType()) {
+                        // the expectation is that name equals "libraries"
+                        if(name.equals(parseName(parser))) { break; }
+                        else {
+                            Assert.assertUnreachable("Libraries end tag.");
+                        }
+                    }
+                    else {
+                        final String listItemName = parseName(parser);
+                        final Class listItemJavaType = parseJavaType(parser);
+                        list.add(parseJavaObject(parser, listItemName, listItemJavaType));
+                    }
+                }
+                parser.next();
+                return list;
+            }
+            else {
+                throw Assert.createUnreachable(MessageFormat.format(
+                        "[LBROWSER BOOTSTRAP] [XMPP IO] [JAVA TYPE NOT SUPPORTED] [{0}]",
+                        new Object[] {javaType.getName()}));
+            }
+        }
+
+        private Class parseJavaType(final XmlPullParser parser) {
+            final String javaType = parser.getAttributeValue("", "javaType");
+            try { return Class.forName(javaType); }
+            catch(final ClassNotFoundException cnfx) {
+                throw new XMPPException(MessageFormat.format(
+                        "[LBROWSER BOOTSTRAP] [XMPP IO] [JAVA TYPE NOT SUPPORTED] [{0}]",
+                        new Object[] {javaType}));
+            }
+        }
+
+        private String parseName(final XmlPullParser parser) {
+            return parser.getName();
+        }
+
+        private Byte[] unbox(final byte[] boxed) {
+            final Byte[] unboxed = new Byte[boxed.length];
+            for(int i = 0; i < boxed.length; i++) unboxed[i] = boxed[i];
+            return unboxed;
+        }
+    }
+}

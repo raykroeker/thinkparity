@@ -7,10 +7,9 @@ package com.thinkparity.migrator.controller.library;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.migrator.MockLibrary;
 import com.thinkparity.migrator.Constants.Xml;
+import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.controller.ControllerTestCase;
-import com.thinkparity.migrator.controller.MockIQ;
 import com.thinkparity.migrator.model.library.LibraryModel;
 
 /**
@@ -39,14 +38,15 @@ public class CreateBytesTest extends ControllerTestCase {
     protected void setUp() throws Exception {
         final LibraryModel lModel = getLibraryModel(getClass());
         
-        final MockLibrary mockLibrary = MockLibrary.create(this);
-        lModel.create(mockLibrary.getArtifactId(), mockLibrary.getGroupId(),
-                mockLibrary.getType(), mockLibrary.getVersion());
+        final Library javaLibrary = getJavaLibrary();
+        final Library eLibrary = lModel.create(
+                javaLibrary.getArtifactId(), javaLibrary.getGroupId(),
+                javaLibrary.getType(), javaLibrary.getVersion());
 
-        final MockIQ mockIQ = MockIQ.createGet();
-        mockIQ.writeLong(Xml.Library.ID, mockLibrary.getId());
-        mockIQ.writeBytes(Xml.Library.BYTES, mockLibrary.getBytes());
-        data = new Fixture(new CreateBytes(), mockIQ);
+        final IQ iq = createGetIQ();
+        writeLong(iq, Xml.Library.ID, eLibrary.getId());
+        writeBytes(iq, Xml.Library.BYTES, getJavaLibraryBytes());
+        data = new Fixture(new CreateBytes(), iq);
     }
 
     /** Tear down the test data. */

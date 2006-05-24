@@ -46,11 +46,7 @@ public class BrowserPlatform implements Platform {
 				"[LBROWSER] [PLATFORM] [START] [ALREADY STARTED]]",
 				SINGLETON);
 		SINGLETON = new BrowserPlatform();
-		try { SINGLETON.doStart(); }
-        catch(final Throwable t) {
-            LoggerFactory.getLogger(BrowserPlatform.class).fatal("[LBROWSER] [PLATFORM] [UNKNOWN ERROR]", t);
-            System.exit(1);
-        }
+		SINGLETON.doStart();
 	}
 
 	/**

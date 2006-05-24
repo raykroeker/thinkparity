@@ -73,15 +73,16 @@ public class BrowserPlatformInitializer {
             preferences.setArchiveOutputDirectory(archive);
         }
         catch(final Throwable t) {
-            logger.fatal("[BROWSER2] [PLATFORM] [INIT MODEL] [UNEXPECTED ERROR]", t);
-            System.exit(1);
+            logger.fatal("[LBROWSER] [PLATFORM] [INIT] [UNEXPECTED ERROR]", t);
+            throw new RuntimeException(t);
         }
 
 		// init look and feel
 		try { UIManager.setLookAndFeel(new WindowsLookAndFeel()); }
-		catch(final Exception x) {
-			logger.fatal("[BROWSER2] [PLATFORM] [INIT LAF]", x);
-            System.exit(1);
+		catch(final Throwable t) {
+			logger.fatal("[LBROWSER] [PLATFORM] [INIT]", t);
+            throw new RuntimeException(t);
+
 		}
 	}
 

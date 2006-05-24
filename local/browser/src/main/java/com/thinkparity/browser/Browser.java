@@ -1,19 +1,21 @@
 /*
- * Dec 30, 2005
+ * Created On: Dec 30, 2005
+ * $Id$
  */
 package com.thinkparity.browser;
-
 
 import com.thinkparity.browser.platform.BrowserPlatform;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * The browser entry point.
+ * 
+ * @author raymond@thinkparity.com
+ * @version $Revision$
  */
-public class Browser2 {
+public class Browser {
 
 	/**
-	 * Run Browser2
+	 * Run Browser
 	 * 
 	 * @param args
 	 *            Command line arguments.
@@ -21,8 +23,8 @@ public class Browser2 {
 	public static void main(String[] args) { BrowserPlatform.start(args); }
 
 	/**
-	 * Create a Browser2.
+	 * Create a Browser.
 	 * 
 	 */
-	private Browser2() { super(); }
+	private Browser() { super(); }
 }

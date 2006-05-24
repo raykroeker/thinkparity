@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.thinkparity.model.parity.model.Context;
+import com.thinkparity.model.parity.model.release.helper.AbstractHelper;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Release;
@@ -20,7 +24,7 @@ import com.thinkparity.migrator.Release;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-class MetaInfoHelper {
+class MetaInfoHelper extends AbstractHelper {
 
     /** A class loader helper. */
     private final ClassLoaderHelper clHelper;
@@ -51,5 +55,21 @@ class MetaInfoHelper {
         return new MetaInfo(
                 clHelper.getClassLoader(library),
                 clHelper.getClassLoader(libraries));
+    }
+
+    /**
+     * Print the meta info class path to the default logger.
+     *
+     */
+    void printClassPath(final Level level) {
+        clHelper.printClassPath(level, libraries);
+    }
+
+    /**
+     * Print the meta info class path to the logger.
+     *
+     */
+    void printClassPath(final Logger logger, final Level level) {
+        clHelper.printClassPath(logger, level, libraries);
     }
 }

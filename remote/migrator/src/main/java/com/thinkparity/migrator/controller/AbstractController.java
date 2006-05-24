@@ -64,7 +64,7 @@ public abstract class AbstractController extends
     /** @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ) */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
         logger.info("[RMIGRATOR] [CONTROLLER] [HANDLE IQ]");
-        logger.debug(iq.toXML());
+        logger.debug(iq);
         iqReader = new IQReader(iq);
 
         final IQ response = createResponse(iq);
@@ -76,7 +76,7 @@ public abstract class AbstractController extends
             return createErrorResponse(iq, t);
         }
 
-        logger.debug(response.toXML());
+        logger.debug(response);
         return response;
     }
 

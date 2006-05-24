@@ -29,7 +29,7 @@ public class DownloadTest extends ModelTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        datum = new Fixture("tRelease", "com.thinkparity.parity",
+        datum = new Fixture("lBrowser", "com.thinkparity.parity",
                 getInternalReleaseModel());
     }
 

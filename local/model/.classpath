@@ -7,7 +7,6 @@
 	<classpathentry output="target/test-classes" kind="src" path="src/test/java"/>
 	<classpathentry output="target/test-classes" kind="src" path="src/test/resources"/>
 	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/codebase/1.0-SNAPSHOT/codebase-1.0-SNAPSHOT.jar"/>
-	<classpathentry sourcepath="/M2_REPO/commons-codec/commons-codec/1.3/commons-codec-1.3-sources.jar" kind="var" path="M2_REPO/commons-codec/commons-codec/1.3/commons-codec-1.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/xpp3/xpp3/1.1.3.3/xpp3-1.1.3.3.jar"/>
 	<classpathentry sourcepath="/M2_REPO/jivesoftware/smack/2.0.0/smack-2.0.0-sources.jar" kind="var" path="M2_REPO/jivesoftware/smack/2.0.0/smack-2.0.0.jar"/>
 	<classpathentry sourcepath="/M2_REPO/jivesoftware/smackx/2.0.0/smack-2.0.0-sources.jar" kind="var" path="M2_REPO/jivesoftware/smackx/2.0.0/smackx-2.0.0.jar"/>
@@ -17,5 +16,6 @@
 	<classpathentry sourcepath="/M2_REPO/junit/junit/3.8.1/junit-3.8.1-sources.jar" kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/raykroeker/jUnitX/1.0.1/jUnitX-1.0.1.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/cMigrator/1.0-SNAPSHOT/cMigrator-1.0-SNAPSHOT-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/cMigrator/1.0-SNAPSHOT/cMigrator-1.0-SNAPSHOT.jar"/>
+	<classpathentry sourcepath="/M2_REPO/commons-codec/commons-codec/1.3/commons-codec-1.3.jar" kind="var" path="M2_REPO/commons-codec/commons-codec/1.3/commons-codec-1.3.jar"/>
 	<classpathentry kind="output" path="target/test-classes/com/thinkparity/model"/>
 </classpath>

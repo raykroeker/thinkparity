@@ -5,13 +5,17 @@
 package com.thinkparity.model.parity.model.release;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.Constants;
+import com.thinkparity.model.Constants.Directories;
+import com.thinkparity.model.Constants.DirectoryNames;
 import com.thinkparity.model.parity.model.Context;
 
 import com.thinkparity.migrator.Library;
@@ -26,22 +30,46 @@ import com.thinkparity.migrator.Release;
 class FileSystemHelper {
 
     /**
-     * Initialize the filesystem root for a release.
+     * Initialize the download root directory.
+     * 
+     * @return The download root.
+     */
+    private static File initDownloadRoot() {
+        final File downloadRoot = Directories.DOWNLOAD;
+        if(!downloadRoot.exists()) {
+            Assert.assertTrue(
+                    "[FILE SYSTEM HELPER] [CANNOT INITIALIZE DOWNLOAD ROOT]",
+                    downloadRoot.mkdir());
+        }
+        return downloadRoot;
+    }
+
+    /**
+     * Initialize the file system root.
+     * 
+     * @return The file system root directory.
+     */
+    private static File initInstallRoot() {
+        final File root = Directories.INSTALL;
+        Assert.assertTrue(
+                "[FILE SYSTEM HELPER] [CANNOT INITIALIZE INSTALL ROOT]",
+                root.exists() && root.canRead() && root.canWrite());
+        return root;
+    }
+
+    /**
+     * Initialize the downloaded release root directory.
      * 
      * @param release
      *            A release.
-     * @return A directory.
+     * @return A release download root.
      */
-    private static File initRoot(final Release release) {
-        final String relPath =
-            StringUtil.searchAndReplace(release.getGroupId(), ".", File.separator)
-            .append(File.separator).append(release.getArtifactId())
-            .append(File.separator).append(release.getVersion())
-            .append(File.separator).toString();
-        final File root = new File(Constants.Directories.DOWNLOAD_ROOT, relPath);
+    private static File initReleaseRoot(final Release release) {
+        final File root = new File(initDownloadRoot(), release.getVersion());
         if(!root.exists()) {
             Assert.assertTrue(
-                    "[FILE SYSTEM HELPER] [CANNOT INITIALIZE]", root.mkdirs());
+                    "[FILE SYSTEM HELPER] [CANNOT INITIALIZE RELEASE DOWNLOAD ROOT]",
+                    root.mkdir());
         }
         return root;
     }
@@ -53,15 +81,31 @@ class FileSystemHelper {
     private final File root;
 
     /**
-     * Create DirectoryHelper.
-     *
+     * Create FileSystemHelper.
+     * 
+     * @param context
+     *            A parity calling context.
+     */
+    FileSystemHelper(final Context context) {
+        super();
+        this.root = FileSystemHelper.initInstallRoot();
+    }
+
+    /**
+     * Create FileSystemHelper.
+     * 
+     * @param context
+     *            A parity calling context.
      * @param release
-     *      A release.
+     *            A release.
      */
     FileSystemHelper(final Context context, final Release release) {
         super();
-        this.root = FileSystemHelper.initRoot(release);
+        this.root = FileSystemHelper.initReleaseRoot(release);
     }
+
+    /** Obtain the root of the download file system. */
+    File getDownloadRoot() { return FileSystemHelper.initDownloadRoot(); }
 
     /**
      * Obtain the local file for the library.
@@ -86,26 +130,56 @@ class FileSystemHelper {
         }
     }
 
+    /**
+     * Synchronize the file system with another.
+     * 
+     * @param fsHelper
+     *            The file system to synchronize with.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    void synchronize(final FileSystemHelper fsHelper)
+            throws FileNotFoundException, IOException {
+        synchronizeDir(fsHelper.initCore(), initCore());
+        synchronizeDir(fsHelper.initLib(), initLib());
+        final File[] backups = root.listFiles(new FileFilter() {
+            public boolean accept(final File pathname) {
+                final String name = pathname.getName();
+                if(pathname.isDirectory()) {
+                    if(name.equals("." + DirectoryNames.BIN)) { return true; }
+                    if(name.equals("." + DirectoryNames.CORE)) { return true; }
+                    if(name.equals("." + DirectoryNames.LIB)) { return true; }
+                }
+                return false;
+            }
+        });
+        for(final File backup : backups) { FileUtil.deleteTree(backup); }
+    }
+
     private File initCore() {
-        if(null == core) { core = initDir(root, Constants.DirectoryNames.CORE); }
+        if(null == core) { core = initDir(root, DirectoryNames.CORE); }
         return core;
     }
 
     private File initDir(final File parent, final String child) {
         final File dir = new File(parent, child);
-        if(!dir.exists()) { Assert.assertTrue("", dir.mkdir()); }
+        if(!dir.exists()) {
+            Assert.assertTrue(
+                "[FILE SYSTEM HELPER] [INIT DIR] [CANNOT CREATE DIR]",
+                dir.mkdir());
+        }
         return dir;
     }
 
     private File initLib() {
-        if(null == lib) { lib = initDir(root, Constants.DirectoryNames.LIB); }
+        if(null == lib) { lib = initDir(root, DirectoryNames.LIB); }
         return lib;
     }
 
     private File initLibNative() {
         if(null == libNative) {
             if(isWin32()) {
-                libNative = initDir(lib, Constants.DirectoryNames.LIB_NATIVE_WIN32);
+                libNative = initDir(lib, DirectoryNames.LIB_NATIVE_WIN32);
             }
             else {
                 Assert.assertUnreachable("[RMODEL] [RELEASE] [DOWNLOAD HELPER] [UNSUPPORTED OS]");
@@ -122,5 +196,38 @@ class FileSystemHelper {
     private Boolean isWin32() {
         final OS os = OSUtil.getOS();
         return OS.WINDOWS_2000 == os || OS.WINDOWS_XP == os;
+    }
+
+    /**
+     * Synchronize the source with the target directory.
+     * 
+     * @param source
+     *            A directory.
+     * @param target
+     *            A directory.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    private void synchronizeDir(final File source, final File target)
+            throws FileNotFoundException, IOException {
+        // create a backup of the target
+        final File targetBackup = new File(target.getParentFile(), "." + target.getName());
+        Assert.assertTrue(
+                "[FILE SYSTEM HELPER] [SYNC DIR] [CANNOT RENAME TARGET]",
+                target.renameTo(targetBackup));
+        // re-create the target
+        Assert.assertTrue(
+                "[FILE SYSTEM HELPER] [SYNC DIR] [CANNOT CREATE TARGET]",
+                target.mkdir());
+        // copy from source to target
+        final File[] sourceFiles = source.listFiles();
+        File targetFile;
+        for(final File sourceFile : sourceFiles) {
+            targetFile = new File(target, sourceFile.getName());
+            if(targetFile.exists()) {
+                Assert.assertTrue("[FILE SYSTEM HELPER] [SYNC DIR] [CANNOT DELETE TARGET]", targetFile.delete());
+            }
+            FileUtil.copy(sourceFile, targetFile);
+        }
     }
 }

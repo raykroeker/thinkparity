@@ -4,10 +4,13 @@
  */
 package com.thinkparity.model.parity.model.release;
 
-import java.beans.IntrospectionException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.log4j.Level;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -19,6 +22,7 @@ import com.thinkparity.model.parity.model.io.handler.ReleaseIOHandler;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.MigrationError;
 import com.thinkparity.migrator.Migrator;
 import com.thinkparity.migrator.Release;
 import com.thinkparity.migrator.ReleaseDateComparator;
@@ -135,7 +139,7 @@ class ReleaseModelImpl extends AbstractModelImpl {
      *            A version.
      */
     void migrate(final String artifactId, final String groupId,
-            final String version) {
+            final String version) throws ParityException {
         logger.info("[LMODEL] [RELEASE] [MIGRATE]");
         logger.debug(artifactId);
         logger.debug(groupId);
@@ -150,37 +154,65 @@ class ReleaseModelImpl extends AbstractModelImpl {
         // ensure the latest relase has been downloaded
         assertIsDownloaded("[MIGRATE]", latest, latestLibraries);
 
-        final MetaInfoHelper metaInfoHelper =
+        // upgrade all core libraries
+        MetaInfoHelper metaInfoHelper =
             new MetaInfoHelper(context, latest, latestLibraries);
         MetaInfo metaInfo;
         Migrator libraryMigrator;
         for(final Library library : latestLibraries) {
             if(library.isCore()) {
-                try {
-                    metaInfo = metaInfoHelper.getMetaInfo(library);
-
-                    libraryMigrator = metaInfo.getMigrator();
-                    if(null != libraryMigrator) {
-                        libraryMigrator.upgrade(current, latest);
-                    }
-                }
-                catch(final ClassNotFoundException cnfx) {
-                    logger.error("", cnfx);
+                metaInfo = null;
+                try { metaInfo = metaInfoHelper.getMetaInfo(library); }
+                catch(final MalformedURLException murlx) {
+                    logger.error(
+                            "[LMODEL] [RELEASE] [MIGRATE] [CANNOT LOAD META CLASS LOADER]",
+                            murlx);
+                    throw ParityErrorTranslator.translate(murlx);
                 }
                 catch(final IOException iox) {
-                    logger.error("", iox);
+                    logger.error(
+                            "[LMODEL] [RELEASE] [MIGRATE] [CANNOT LOAD META INFO]",
+                            iox);
+                    throw ParityErrorTranslator.translate(iox);
                 }
-                catch(final IllegalAccessException iax) {
-                    logger.error("", iax);
+
+                libraryMigrator = metaInfo.getMigrator();
+                if(null != libraryMigrator) {
+                    try { libraryMigrator.upgrade(current, latest); }
+                    catch(final MigrationError me) {
+                        logger.error("[LMODEL] [RELEASE] [MIGRATE] [CANNOT MIGRATE LIBRARY]", me);
+                        metaInfoHelper.printClassPath(logger, Level.ERROR);
+                        throw ParityErrorTranslator.translate(me);
+                    }
+                    libraryMigrator = null; // release the migrator
                 }
-                catch(final InstantiationException ix) {
-                    logger.error("", ix);
-                }
-                catch(final IntrospectionException ix) {
-                    logger.error("", ix);
-                }
+                metaInfo.clean();
+                metaInfo = null;
             }
         }
+        metaInfoHelper = null;
+    }
+
+    void install(final String artifactId, final String groupId)
+            throws ParityException {
+        logger.info("[LMODEL] [MODEL] [RELEASE] [INSTALL]");
+        final Release latest = readLatest(artifactId, groupId);
+
+        // copy libraries to installed dir
+        final FileSystemHelper fsInstall = new FileSystemHelper(getContext());
+        final FileSystemHelper fsLatest = new FileSystemHelper(getContext(), latest);
+        try {  fsInstall.synchronize(fsLatest); }
+        catch(final FileNotFoundException fnfx) {
+            logger.error("[LMODEL] [RELEASE] [MIGRATE] [CANNOT SYNCHRONIZE FILE SYSTEMS]", fnfx);
+            throw ParityErrorTranslator.translate(fnfx);
+        }
+        catch(final IOException iox) {
+            logger.error("[LMODEL] [RELEASE] [MIGRATE] [CANNOT SYNCHRONIZE FILE SYSTEMS]", iox);
+            throw ParityErrorTranslator.translate(iox);
+        }
+
+        // delete download
+        new DownloadHelper(getContext(), latest).delete();
     }
 
     /**

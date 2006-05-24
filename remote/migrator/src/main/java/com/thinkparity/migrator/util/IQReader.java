@@ -126,6 +126,20 @@ public class IQReader {
     }
 
     /**
+     * Read the variable names within the iq.
+     * 
+     * @return A list of the variable names.
+     */
+    public List<String> readNames() {
+        final List elements = iq.getChildElement().elements();
+        final List<String> elementNames = new LinkedList<String>();
+        for(final Object o : elements) {
+            elementNames.add(((Element) o).getName());
+        }
+        return elementNames;
+    }
+
+    /**
      * Read string data.
      *
      * @param name

@@ -30,7 +30,7 @@ public abstract class ModelTestCase extends TestCase {
 	 */
 	private static final TestSession testSession;
 
-	static {
+    static {
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
 		// set staging system
@@ -43,17 +43,62 @@ public abstract class ModelTestCase extends TestCase {
         else if(Mode.PRODUCTION == Version.getMode()) {}
         else { Assert.assertUnreachable("[RMODEL] [TEST INIT] [UNKNOWN OP MODE]"); }
 
-		// set archive directory
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);
-		System.setProperty("parity.workspace",
-				new File(testSession.getSessionDirectory(), "workspace")
-				.getAbsolutePath());
+		// init workspace
+		initParityWorkspace(testSession.getSessionDirectory());
+        // init preferences
 		final Preferences preferences = WorkspaceModel.getModel().getWorkspace().getPreferences();
 		preferences.setUsername(modelTestUser.getUsername());
-		preferences.setArchiveOutputDirectory(new File(testSession.getSessionDirectory(), "Archive"));
+        // init archive
+        initParityArchive(testSession.getSessionDirectory());
+        // init install
+        initParityInstall(testSession.getSessionDirectory());
 	}
+
+    /**
+     * Initialize the parity archive directory for a test run.
+     * 
+     * @param parent
+     *            The parent within which to create the archive dir.
+     */
+    private static void initParityArchive(final File parent) {
+        final File archive = new File(parent, "parity.archive");
+        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT ARCHIVE]", archive.mkdir());
+
+        System.setProperty("parity.archive.directory", archive.getAbsolutePath());
+    }
+
+    /**
+     * Initialize the parity install directory for a test run.
+     * 
+     * @param parent
+     *            The parent within which to create the install dir.
+     */
+    private static void initParityInstall(final File parent) {
+        final File install = new File(parent, "parity.install");
+        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL]", install.mkdir());
+        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL CORE]", new File(install, "core").mkdir());
+        final File lib = new File(install, "lib");
+        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL LIB]", lib.mkdir());
+        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT INSTALL LIB NATIVE]", new File(lib, "win32").mkdir());
+
+        System.setProperty("parity.install", install.getAbsolutePath());
+    }
+
+	/**
+     * Initialize the parity workspace directory for a test run.
+     * 
+     * @param parent
+     *            The parent within which to create the workspace dir.
+     */
+    private static void initParityWorkspace(final File parent) {
+        final File workspace = new File(parent, "parity.workspace");
+        Assert.assertTrue("[LMODEL] [TEST INIT] [INIT WORKSPACE]", workspace.mkdir());
+
+        System.setProperty("parity.workspace", workspace.getAbsolutePath());
+    }
 
 	private DocumentModel documentModel;
 

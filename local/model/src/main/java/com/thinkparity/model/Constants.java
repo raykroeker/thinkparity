@@ -11,12 +11,14 @@ import java.io.File;
  * @author raymond@thinkparity.com
  * @version 1.1
  */
-public final class Constants {
+public final class Constants extends com.thinkparity.codebase.Constants {
 
-    public static final class Directories {
+    public static final class Directories extends
+            com.thinkparity.codebase.Constants.Local.Directories {
 
-        public static final File DOWNLOAD_ROOT =
-            new File(System.getProperty("user.dir"), ".downloads");
+        /** The parity download directory. */
+        public static final File DOWNLOAD =
+            new File(com.thinkparity.codebase.Constants.Local.Directories.INSTALL, DirectoryNames.DOWNLOAD);
     }
 
     public static final class DirectoryNames {
@@ -24,6 +26,8 @@ public final class Constants {
         public static final String BIN = "bin";
 
         public static final String CORE = "core";
+
+        public static final String DOWNLOAD = "download";
 
         public static final String LIB = "lib";
 
@@ -39,11 +43,11 @@ public final class Constants {
 
     public static final class MetaData {
 
-        public static final Long RELEASE_ID_PK =
-            1000L;
-
         public static final String RELEASE_ID_KEY =
             "com.thinkparity.model.parity.releaseId";
+
+        public static final Long RELEASE_ID_PK =
+            1000L;
     }
 
     /** Preferences constants. */

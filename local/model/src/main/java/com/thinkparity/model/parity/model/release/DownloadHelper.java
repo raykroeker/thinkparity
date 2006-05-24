@@ -59,6 +59,9 @@ class DownloadHelper {
                 && !libraryFile.canWrite();
     }
 
+    /** Delete the download. */
+    void delete() { FileUtil.deleteTree(fsHelper.getDownloadRoot()); }
+
     /**
      * Download a library.
      *

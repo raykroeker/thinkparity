@@ -4,6 +4,8 @@
  */
 package com.thinkparity.migrator;
 
+import java.text.SimpleDateFormat;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1
@@ -19,6 +21,22 @@ public final class Constants {
         public static final String DIRECTORY = "db";
 
         public static final String FILE = "rMigrator";
+    }
+
+    public static final class Log4J {
+
+        public static final String EMPTY_STRING = "";
+
+        public static final String ID = "id:";
+
+        public static final String NULL = "null";
+        
+        public static final String PREFIX_SUFFIX = "[";
+
+        public static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        public static final String SUFFIX = "]";
+
     }
 
     /** Miscellaneous constants. */

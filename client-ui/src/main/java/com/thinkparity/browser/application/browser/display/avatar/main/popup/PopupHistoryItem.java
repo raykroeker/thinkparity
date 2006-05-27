@@ -7,20 +7,15 @@ package com.thinkparity.browser.application.browser.display.avatar.main.popup;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.Set;
 
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
 import com.thinkparity.browser.platform.Platform.Connection;
 
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -94,19 +89,6 @@ public class PopupHistoryItem implements Popup {
      */
     private String getString(final String localKey) {
         return l18n.getString(localKey);
-    }
-
-    /**
-     * Obtain a localised\formatted string.
-     * 
-     * @param localKey
-     *            The localisation local key.
-     * @param The
-     *            format data.
-     * @return A localised string.
-     */
-    private String getString(final String localKey, final Object[] arguments) {
-        return l18n.getString(localKey, arguments);
     }
 
     /** An open version {@link JMenuItem}. */

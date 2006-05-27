@@ -285,20 +285,6 @@ public class AddNewTeamMember extends Avatar {
     }
 
     /**
-     * Proxy a contact list to a user list.
-     *
-     * @param i
-     *            The contact list.
-     * @return The user list.
-     * @deprecated
-     */
-    private List<User> proxy(final Iterable<Contact> i) {
-        final List<User> l = new LinkedList<User>();
-        for(final Contact c : i ) { l.add(c); }
-        return l;
-    }
-
-    /**
      * Reload the contacts model.
      *
      */

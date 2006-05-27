@@ -3,8 +3,16 @@
  */
 package com.thinkparity.browser.platform;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.BrowserException;
+import com.thinkparity.browser.Constants.Java;
+import com.thinkparity.browser.Constants.Directories;
 import com.thinkparity.browser.Version;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.model.ModelFactory;
@@ -215,6 +223,37 @@ public class BrowserPlatform implements Platform {
         logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION START]");
         logger.debug(application.getId());
 	}
+
+    /** @see com.thinkparity.browser.platform.Platform#restart() */
+    public void restart() {
+        logger.info("[LBROWSER] [PLATFORM] [RESTARTING PLATFORM]");
+
+        // attach a process to the jvm shutdown
+        final List<String> commands = new ArrayList<String>();
+        commands.add(Java.EXECUTABLE);
+        commands.add(Java.OPTION_PARITY_INSTALL);
+        commands.add(Java.OPTION_PARITY_SERVER_HOST.format(new Object[] {preferences.getServerHost()}));
+        commands.add(Java.OPTION_PARITY_SERVER_PORT.format(new Object[] {preferences.getServerPort().toString()}));
+        commands.add(Java.OPTION_PARITY_WORKSPACE);
+        commands.add(Java.OPTION_CLASS_PATH);
+        commands.add(Java.OPTION_CLASS_PATH_VALUE);
+        commands.add(Java.MAIN_CLASS);
+        for(final String command : commands) { logger.debug(command); }
+
+        final ProcessBuilder pb = new ProcessBuilder();
+        pb.command(commands);
+        logger.debug(Directories.PARITY_INSTALL);
+        pb.directory(Directories.PARITY_INSTALL);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try { pb.start(); }
+                catch(final IOException iox) { throw new BrowserException("", iox); }
+            }
+        });
+
+        end();
+    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Platform#restore(com.thinkparity.browser.platform.application.ApplicationId)

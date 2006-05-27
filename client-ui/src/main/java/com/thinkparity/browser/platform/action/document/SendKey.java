@@ -11,7 +11,6 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.xmpp.JabberId;
 

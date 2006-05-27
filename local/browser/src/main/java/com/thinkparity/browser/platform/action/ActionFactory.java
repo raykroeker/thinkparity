@@ -145,6 +145,9 @@ public class ActionFactory {
         case PLATFORM_QUIT:
             action = new com.thinkparity.browser.platform.action.QuitPlatform(platform);
             break;
+        case PLATFORM_RESTART:
+            action = new com.thinkparity.browser.platform.action.RestartPlatform(platform);
+            break;
         case MOVE_BROWSER_TO_FRONT:
             action = new com.thinkparity.browser.platform.action.application.system.MoveBrowserToFront(platform);
             break;

@@ -7,7 +7,6 @@ import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,6 @@ import com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests;
 import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.RequestKey;
 import com.thinkparity.browser.platform.action.artifact.Search;
-import com.thinkparity.browser.platform.action.artifact.SendVersion;
 import com.thinkparity.browser.platform.action.document.*;
 import com.thinkparity.browser.platform.action.session.AcceptInvitation;
 import com.thinkparity.browser.platform.action.session.DeclineInvitation;
@@ -60,7 +58,6 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * The controller is used to manage state as well as control display of the

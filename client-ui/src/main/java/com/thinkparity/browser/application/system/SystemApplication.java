@@ -160,6 +160,13 @@ public class SystemApplication extends AbstractApplication {
         run(ActionId.PLATFORM_QUIT, new Data(0));
     }
 
+    /** Run the restart platform action. */
+    public void runRestartPlatform() {
+        if(!actionRegistry.contains(ActionId.PLATFORM_RESTART))
+            ActionFactory.createAction(ActionId.PLATFORM_RESTART, getPlatform());
+        run(ActionId.PLATFORM_RESTART, new Data(0));
+    }
+
     /** Run the login action. */
     public void runLogin() {
         if(!actionRegistry.contains(ActionId.PLATFORM_LOGIN))

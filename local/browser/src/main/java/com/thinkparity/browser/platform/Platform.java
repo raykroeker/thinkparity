@@ -76,6 +76,9 @@ public interface Platform extends ApplicationListener {
 	 */
 	public Boolean isTestMode();
 
+    /** Restart the platform. */
+    public void restart();
+
     /**
 	 * RestoreBrower an application from hibernation.
 	 * 

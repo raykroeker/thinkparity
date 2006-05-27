@@ -48,6 +48,13 @@ public class ReadLibrariesTest extends ControllerTestCase {
 
         final String assertion = "[RMIGRATOR] [RELEASE] [READ LIBRARIES TEST] [EXPECTED LIBRARIES DOES NOT CONTAIN LIBRARY] [{0}]";
         for(final Library library : libraries) {
+            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [ARTIFACT ID IS NULL]", library.getArtifactId());
+            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [CREATED ON IS NULL]", library.getCreatedOn());
+            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [FILE NAME IS NULL]", library.getFilename());
+            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [GROUP ID IS NULL]", library.getGroupId());
+            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [ID IS NULL]", library.getId());
+            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [TYPE IS NULL]", library.getType());
+            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [VERSION IS NULL]", library.getVersion());
             assertTrue(MessageFormat.format(assertion, new Object[] {library}), datum.eLibraries.contains(library));
         }
         for(final Library library : datum.eLibraries) {

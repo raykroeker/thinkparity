@@ -182,6 +182,7 @@ public class ElementBuilder {
             libraryElement = addElement(element, Xml.Library.LIBRARY, Library.class);
 
             addElement(libraryElement, Xml.Library.ARTIFACT_ID, value.getArtifactId());
+            addElement(libraryElement, Xml.Library.CREATED_ON, value.getCreatedOn());
             addElement(libraryElement, Xml.Library.GROUP_ID, value.getGroupId());
             addElement(libraryElement, Xml.Library.ID, value.getId());
             addElement(libraryElement, Xml.Library.TYPE, value.getType());

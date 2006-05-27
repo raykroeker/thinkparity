@@ -70,6 +70,8 @@ public class IQReader {
 
             library = new Library();
             library.setArtifactId((String) libraryElement.element(Xml.Library.ARTIFACT_ID).getData());
+            try { library.setCreatedOn(DateUtil.parse((String) libraryElement.element(Xml.Library.CREATED_ON).getData(), DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"))); }
+            catch(final ParseException px) { throw new RuntimeException(px); }
             library.setGroupId((String) libraryElement.element(Xml.Library.GROUP_ID).getData());
             library.setId(Long.valueOf((String) libraryElement.element(Xml.Library.ID).getData()));
             library.setType(Library.Type.valueOf((String) libraryElement.element(Xml.Library.TYPE).getData()));

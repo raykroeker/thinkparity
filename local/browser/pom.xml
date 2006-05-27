@@ -66,34 +66,32 @@
 			<type>jar</type>
 		</dependency>
 
+        <dependency>
+            <groupId>com.thinkparity.parity</groupId>
+            <artifactId>thinkParity</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>runtime</scope>
+            <type>jar</type>
+        </dependency>
 		<dependency>
 			<groupId>com.raykroeker</groupId>
 			<artifactId>jUnitX</artifactId>
 			<version>1.0.1</version>
-			<type>jar</type>
 			<scope>test</scope>
-		</dependency>
-
-
-		<dependency>
-			<groupId>com.thinkparity.parity</groupId>
-			<artifactId>lBrowserStartup</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>runtime</scope>
 			<type>jar</type>
-		</dependency>
+		</dependency>	
 	</dependencies>
 
 	<build>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-				<version>2.0-beta-1</version>
+				<version>2.1</version>
 				<configuration>
-					<descriptor>src/main/assembly/bin.xml</descriptor>
-                    <finalName>${artifactId}-${version}</finalName>
-					<outputDirectory>target</outputDirectory>
-					<workDirectory>target/assembly/work</workDirectory>
+					<descriptors>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                        <descriptor>src/main/assembly/image.xml</descriptor>
+                    </descriptors>
 				</configuration>
             </plugin>
 
@@ -102,6 +100,11 @@
                 <artifactId>parityMojo</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <configuration>
+                    <release implementation="com.thinkparity.parity.mojo.Release">
+                        <groupId>com.thinkparity.parity</groupId>
+                        <artifactId>lBrowser</artifactId>
+                        <version>1.0.0.RC4.1000</version>
+                    </release>
                     <connection implementation="com.thinkparity.parity.mojo.Connection">
                         <host>rkutil.raykroeker.com</host>
                         <port>5222</port>
@@ -111,5 +114,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

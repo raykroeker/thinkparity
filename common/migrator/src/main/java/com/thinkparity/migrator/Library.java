@@ -22,6 +22,9 @@ public class Library {
     /** The library id. */
     private Long id;
 
+    /** The relative path. */
+    private String path;
+
     /** The library type. */
     private Library.Type type;
 
@@ -56,18 +59,6 @@ public class Library {
     public Calendar getCreatedOn() { return createdOn; }
 
     /**
-     * Obtain the file name.
-     * 
-     * @return The library's file name.
-     */
-    public String getFilename() {
-        return new StringBuffer(artifactId)
-        .append("-").append(version)
-        .append(".").append(getFilenameExtension())
-        .toString();
-    }
-
-    /**
      * Obtain the groupId
      *
      * @return The String.
@@ -80,6 +71,13 @@ public class Library {
      * @return The Long.
      */
     public Long getId() { return id; }
+
+    /**
+     * Obtain the path
+     *
+     * @return A relative path.
+     */
+    public String getPath() { return path; }
 
     /**
      * Obtain the type
@@ -104,15 +102,6 @@ public class Library {
      * @return True if the library is core; false otherwise.
      */
     public Boolean isCore() { return getGroupId().equals("com.thinkparity.parity"); }
-
-    /**
-     * Determine if the library version is a snapshot.
-     *
-     * @return True if the library version is a snapshot.
-     */
-    public Boolean isSnapshot() {
-        return getVersion().endsWith("-SNAPSHOT");
-    }
 
     /**
      * Set artifactId.
@@ -148,6 +137,14 @@ public class Library {
     public void setId(final Long id) { this.id = id; }
 
     /**
+     * Set path.
+     * 
+     * @param path
+     *            A relative path.
+     */
+    public void setPath(final String path) { this.path = path; }
+
+    /**
      * Set type.
      *
      * @param type The Library.Type.
@@ -168,20 +165,6 @@ public class Library {
             .append(":").append(version)
             .append(":").append(type.toString())
             .toString();
-    }
-
-    /**
-     * Obtain the file name extension.
-     * 
-     * @return The file extension.
-     */
-    private String getFilenameExtension() {
-        switch(type) {
-            case JAVA: return "jar";
-            case NATIVE: return "dll";
-            default:
-                throw Assert.createUnreachable("[LOOKUP FILE EXTENSION] [UNKNOWN LIBRARY TYPE]");
-        }
     }
 
     /** The definition of a library type. */

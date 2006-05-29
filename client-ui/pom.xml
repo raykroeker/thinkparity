@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.thinkparity.parity</groupId>
-	<version>1.0-SNAPSHOT</version>
-	<url>http://thinkparity.dyndns.org</url>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.thinkparity.parity</groupId>
+    <version>1.0.0.RC4.1000</version>
+    <url>http://thinkparity.dyndns.org</url>
 
     <parent>
         <artifactId>parity</artifactId>
@@ -12,9 +12,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-	<artifactId>lBrowser</artifactId>
-	<name>thinkParity - Local Browser</name>
-	<packaging>jar</packaging>
+    <artifactId>lBrowser</artifactId>
+    <name>thinkParity - Local Browser</name>
+    <packaging>jar</packaging>
 
 	<scm>
 		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:browser2</connection>
@@ -86,27 +86,22 @@
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-				<version>2.1</version>
-				<configuration>
-					<descriptors>
+                <version>2.1</version>
+                <configuration>
+                    <descriptors>
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                         <descriptor>src/main/assembly/image.xml</descriptor>
                     </descriptors>
-				</configuration>
+                </configuration>
             </plugin>
 
             <plugin>
                 <groupId>com.thinkparity.parity</groupId>
-                <artifactId>parityMojo</artifactId>
+                <artifactId>lBrowserMojo</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <configuration>
-                    <release implementation="com.thinkparity.parity.mojo.Release">
-                        <groupId>com.thinkparity.parity</groupId>
-                        <artifactId>lBrowser</artifactId>
-                        <version>1.0.0.RC4.1000</version>
-                    </release>
-                    <connection implementation="com.thinkparity.parity.mojo.Connection">
-                        <host>rkutil.raykroeker.com</host>
+                    <connection implementation="com.thinkparity.browser.mojo.Connection">
+                        <host>rk-mobile.raykroeker.com</host>
                         <port>5222</port>
                         <protocol>xmpp</protocol>
                     </connection>

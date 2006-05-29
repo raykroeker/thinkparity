@@ -1,5 +1,5 @@
 /*
- * Created On: Fri May 12 2006 11:32 PDT
+ * Created On: 
  * $Id$
  */
 package com.thinkparity.model.parity.model.io.xmpp.handler;
@@ -8,7 +8,7 @@ import com.thinkparity.model.parity.model.io.xmpp.XMPPException;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPSession;
 
 import com.thinkparity.migrator.Library;
-import com.thinkparity.migrator.Library.Type;
+import com.thinkparity.migrator.LibraryBytes;
 
 /**
  * The implementation of the xmpp library io interface.
@@ -23,12 +23,14 @@ public class LibraryIOHandler extends AbstractIOHandler
     public LibraryIOHandler() { super(); }
 
     public Long create(final String artifactId, final String groupId,
-            final Library.Type type, final String version) throws XMPPException {
+            final String path, final Library.Type type, final String version)
+            throws XMPPException {
         final XMPPSession session = openSession();
         try {
             session.setRemoteMethod("library:create");
             session.setParameter("artifactId", artifactId);
             session.setParameter("groupId", groupId);
+            session.setParameter("path", path);
             session.setParameter("type", type);
             session.setParameter("version", version);
 
@@ -42,6 +44,25 @@ public class LibraryIOHandler extends AbstractIOHandler
                 throw new XMPPException(
                         "[RMODEL] [LIBRARY] [XMPP IO] [UNABLE TO CREATE LIBRARY]");
             }
+        }
+        catch(final Exception x) {
+            session.rollback();
+            throw new XMPPException(x);
+        }
+        finally { session.close(); }
+    }
+
+    public void createBytes(final Long libraryId, final byte[] bytes,
+            final String checksum) throws XMPPException {
+        final XMPPSession session = openSession();
+        try {
+            session.setRemoteMethod("library:createbytes");
+            session.setParameter("id", libraryId);
+            session.setParameter("bytes", bytes);
+            session.setParameter("checksum", checksum);
+
+            session.execute();
+            session.commit();
         }
         catch(final Exception x) {
             session.rollback();
@@ -65,24 +86,6 @@ public class LibraryIOHandler extends AbstractIOHandler
         finally { session.close(); }
     }
 
-    public void createBytes(final Long libraryId, final Byte[] bytes)
-            throws XMPPException {
-        final XMPPSession session = openSession();
-        try {
-            session.setRemoteMethod("library:createbytes");
-            session.setParameter("id", libraryId);
-            session.setParameter("bytes", bytes);
-
-            session.execute();
-            session.commit();
-        }
-        catch(final Exception x) {
-            session.rollback();
-            throw new XMPPException(x);
-        }
-        finally { session.close(); }
-    }
-
     public Library read(final Long libraryId) throws XMPPException {
         final XMPPSession session = openSession();
         try {
@@ -98,7 +101,7 @@ public class LibraryIOHandler extends AbstractIOHandler
 
     /** @see com.thinkparity.model.parity.model.io.handler.LibraryIOHandler#read(java.lang.String, java.lang.String, com.thinkparity.migrator.Library.Type, java.lang.String) */
     public Library read(final String artifactId, final String groupId,
-            final Type type, final String version) {
+            final Library.Type type, final String version) {
         final XMPPSession session = openSession();
         try {
             session.setRemoteMethod("library:read");
@@ -115,8 +118,8 @@ public class LibraryIOHandler extends AbstractIOHandler
         finally { session.close(); }
     }
 
-    /** @see com.thinkparity.browser.bootstrap.io.handler.LibraryHandler#readBytes(java.lang.Long) */
-    public Byte[] readBytes(final Long libraryId) throws XMPPException {
+    /** @see com.thinkparity.model.parity.model.io.handler.LibraryHandler#readBytes(java.lang.Long) */
+    public LibraryBytes readBytes(final Long libraryId) throws XMPPException {
         final XMPPSession session = openSession();
         try {
             session.setRemoteMethod("library:readbytes");
@@ -130,9 +133,25 @@ public class LibraryIOHandler extends AbstractIOHandler
         finally { session.close(); }
     }
 
+    /** @see com.thinkparity.model.parity.model.io.handler.LibraryHandler#readBytes(java.lang.Long) */
+    public byte[] readSmallBytes(final Long libraryId) throws XMPPException {
+        final XMPPSession session = openSession();
+        try {
+            session.setRemoteMethod("library:readbytes");
+            session.setParameter("id", libraryId);
+            session.execute();
+
+            if(session.containsResult()) { return extractSmallLibraryBytes(session); }
+            else { return null; }
+        }
+        catch(final Exception x) { throw new XMPPException(x); }
+        finally { session.close(); }
+    }
+
     Library extractLibrary(final XMPPSession session) {
         final Library library = new Library();
         library.setArtifactId(session.getString("artifactId"));
+        library.setCreatedOn(session.getCalendar("createdOn"));
         library.setGroupId(session.getString("groupId"));
         library.setId(session.getLong("id"));
         library.setType(session.getLibraryType("type"));
@@ -147,7 +166,15 @@ public class LibraryIOHandler extends AbstractIOHandler
      *      The xmpp session.
      * @return The library byte array.
      */
-    Byte[] extractLibraryBytes(final XMPPSession session) {
-        return session.getBytes("bytes");
+    LibraryBytes extractLibraryBytes(final XMPPSession session) {
+        final LibraryBytes libraryBytes = new LibraryBytes();
+        libraryBytes.setBytes(session.getBytes("bytes"));
+        libraryBytes.setChecksum(session.getString("checksum"));
+        libraryBytes.setLibraryId(session.getLong("id"));
+        return libraryBytes;
+    }
+
+    byte[] extractSmallLibraryBytes(final XMPPSession session) {
+        return session.getSmallBytes("bytes");
     }
 }

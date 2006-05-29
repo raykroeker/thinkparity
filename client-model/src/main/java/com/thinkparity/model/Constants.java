@@ -13,6 +13,24 @@ import java.io.File;
  */
 public final class Constants extends com.thinkparity.codebase.Constants {
 
+    public static final class Release {
+
+        public static final String ARTIFACT_ID = "lBrowser";
+
+        public static final String GROUP_ID = "com.thinkparity.parity";
+
+        public static final String VERSION = "1.0.0.RC4";
+    }
+
+    public static final class Connection {
+
+        public static final String SERVER_HOST = System
+                .getProperty("parity.serverhost");
+
+        public static final Integer SERVER_PORT = Integer
+                .getInteger("parity.serverport");
+    }
+
     public static final class Directories extends
             com.thinkparity.codebase.Constants.Local.Directories {
 

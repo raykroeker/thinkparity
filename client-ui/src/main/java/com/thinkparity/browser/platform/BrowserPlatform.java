@@ -3,17 +3,16 @@
  */
 package com.thinkparity.browser.platform;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.BrowserException;
-import com.thinkparity.browser.Constants.Java;
-import com.thinkparity.browser.Constants.Directories;
 import com.thinkparity.browser.Version;
+import com.thinkparity.browser.Constants.Directories;
+import com.thinkparity.browser.Constants.Java;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.application.Application;
@@ -22,6 +21,7 @@ import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.browser.platform.login.LoginHelper;
+import com.thinkparity.browser.platform.update.UpdateHelper;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.Mode;
@@ -81,7 +81,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	private final LoginHelper loginHelper;
 
-	/**
+    /**
 	 * The parity model factory.
 	 * 
 	 */
@@ -98,6 +98,9 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	private final Preferences preferences;
+
+	/** The platform update helper. */
+    private final UpdateHelper updateHelper;
 
 	/**
 	 * The window registry.
@@ -126,13 +129,30 @@ public class BrowserPlatform implements Platform {
 		this.logger = LoggerFactory.getLogger(getClass());
 		this.loginHelper = new LoginHelper(this);
 		this.persistence = new BrowserPlatformPersistence(this);
+        this.updateHelper = new UpdateHelper(this);
 	}
+
+	/**
+     * @see com.thinkparity.browser.platform.Platform#end()
+     * 
+     */
+    public void end() {
+        for(final ApplicationId id : ApplicationId.values()) {
+            if(applicationRegistry.contains(id))
+                applicationRegistry.get(id).end(this);
+        }
+    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Platform#getAvatarRegistry()
 	 * 
 	 */
 	public AvatarRegistry getAvatarRegistry() { return avatarRegistry; }
+
+	public Connection getConnectionStatus() {
+        if(isLoggedIn()) { return Connection.ONLINE; }
+        else { return Connection.OFFLINE; }
+    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Platform#getLogger(java.lang.Class)
@@ -168,7 +188,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	public WindowRegistry getWindowRegistry() { return windowRegistry; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.Platform#hibernate(com.thinkparity.browser.platform.application.ApplicationId)
 	 * 
 	 */
@@ -179,7 +199,7 @@ public class BrowserPlatform implements Platform {
 	/** @see com.thinkparity.browser.platform.Platform#isDebugMode() */
 	public Boolean isDebugMode() { return Version.getMode() == Mode.DEVELOPMENT; }
 
-    /** @see com.thinkparity.browser.platform.Platform#isOnline() */
+	/** @see com.thinkparity.browser.platform.Platform#isOnline() */
     public Boolean isOnline() { return isLoggedIn(); }
 
 	/** @see com.thinkparity.browser.platform.Platform#isTestMode() */
@@ -206,7 +226,7 @@ public class BrowserPlatform implements Platform {
         logger.debug(application.getId());
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.ApplicationListener#notifyRestore(com.thinkparity.browser.platform.application.Application)
 	 * 
 	 */
@@ -224,7 +244,7 @@ public class BrowserPlatform implements Platform {
         logger.debug(application.getId());
 	}
 
-    /** @see com.thinkparity.browser.platform.Platform#restart() */
+	/** @see com.thinkparity.browser.platform.Platform#restart() */
     public void restart() {
         logger.info("[LBROWSER] [PLATFORM] [RESTARTING PLATFORM]");
 
@@ -251,11 +271,10 @@ public class BrowserPlatform implements Platform {
                 catch(final IOException iox) { throw new BrowserException("", iox); }
             }
         });
-
         end();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.Platform#restore(com.thinkparity.browser.platform.application.ApplicationId)
 	 * 
 	 */
@@ -264,14 +283,21 @@ public class BrowserPlatform implements Platform {
 		applicationRegistry.get(applicationId).restore(this);
 	}
 
-	/** Start the  platform. */
+    /** Start the  platform. */
 	private void doStart() {
+        if(isUpdateAvailable()) { update(); }
         if(!isFirstRun()) { firstRun(); }
 	    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
 	    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
         // login after the browser is launched
         if(!isLoggedIn()) { login(); }
 	}
+
+	/** Perform first run initialization. */
+    private void firstRun() {
+        login();
+        if(!isLoggedIn()) { System.exit(0); }
+    }
 
     /**
      * Determine if this is the first time the platform has been run.
@@ -280,12 +306,6 @@ public class BrowserPlatform implements Platform {
      */
     private Boolean isFirstRun() { return null != preferences.getLastRun(); }
 
-    /** Perform first run initialization. */
-    private void firstRun() {
-        login();
-        if(!isLoggedIn()) { System.exit(0); }
-    }
-
 	/**
 	 * Determine whether or not the user is logged in.
 	 * 
@@ -293,26 +313,23 @@ public class BrowserPlatform implements Platform {
 	 */
 	private Boolean isLoggedIn() { return loginHelper.isLoggedIn(); }
 
-	/**
+    /**
+     * Determine whether or not an update is available.
+     *
+     * @return True if a newer release is available.
+     */
+    private Boolean isUpdateAvailable() { return updateHelper.isAvailable(); }
+
+    /**
 	 * Check if the user has set auto-login. If so; attempt an auto-login;
 	 * otherwise attempt a manual login until the user cancels.
 	 * 
 	 */
 	private void login() { loginHelper.login(); }
 
-    /**
-     * @see com.thinkparity.browser.platform.Platform#end()
-     * 
-     */
-    public void end() {
-        for(final ApplicationId id : ApplicationId.values()) {
-            if(applicationRegistry.contains(id))
-                applicationRegistry.get(id).end(this);
-        }
-    }
-
-    public Connection getConnectionStatus() {
-        if(isLoggedIn()) { return Connection.ONLINE; }
-        else { return Connection.OFFLINE; }
+    /** Update the browser. */
+    private void update() {
+        updateHelper.update();
+        restart();
     }
 }

@@ -5,7 +5,6 @@
 package com.thinkparity.model.parity.model.release;
 
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
@@ -14,11 +13,10 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class InternalReleaseModel extends ReleaseModel implements InternalModel {
+public class InternalReleaseModel extends ReleaseModel {
 
     /** Create InternalReleaseModel. */
     InternalReleaseModel(final Context context, final Workspace workspace) {
         super(workspace);
-        context.assertContextIsValid();
     }
 }

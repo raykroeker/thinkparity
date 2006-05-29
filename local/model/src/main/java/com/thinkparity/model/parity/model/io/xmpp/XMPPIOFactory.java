@@ -1,66 +1,72 @@
 /*
- * Created On: Fri May 12 2006 11:38 PDT
+ * Created On: Sat May 27 2006 11:52 PDT
+
  * $Id$
  */
 package com.thinkparity.model.parity.model.io.xmpp;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.*;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 /**
- * An xmpp implementation of the io factory.
+ * A concrete implemenation of an io factory for xmpp io.  Note that as of yet
+ * not all implementations of the xmpp handlers have been completed.  Those that
+ * have not; throw runtime assertions.
  *
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
 public class XMPPIOFactory extends IOFactory {
 
-    /** Create XMPPIOFactory. */
+    /**
+     * Create XMPPIOFactory.
+     *
+     * @param The parity workspace.
+     */
     public XMPPIOFactory(final Workspace workspace) { super(workspace); }
 
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createArtifactHandler() */
     public ArtifactIOHandler createArtifactHandler() {
-        throw Assert.createNotYetImplemented("XMPPIOFactory#createArtifactHandler");
+        throw Assert.createUnreachable("XMPPIOFactory#createArtifactHandler()");
     }
-
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createAuditHandler() */
     public AuditIOHandler createAuditHandler() {
-        throw Assert.createNotYetImplemented("XMPPIOFactory#createAuditHandler");
+        throw Assert.createUnreachable("XMPPIOFactory#createAuditHandler()");
     }
-
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createDocumentHandler() */
     public DocumentIOHandler createDocumentHandler() {
-        throw Assert.createNotYetImplemented("XMPPIOFactory#createDocumentHandler");
+        throw Assert.createUnreachable("XMPPIOFactory#createDocumentHandler()");
     }
-
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createDocumentHistoryIOHandler() */
     public DocumentHistoryIOHandler createDocumentHistoryIOHandler() {
-        throw Assert.createNotYetImplemented("XMPPIOFactory#createDocumentHistoryIOHandler");
+        throw Assert.createUnreachable("XMPPIOFactory#createDocumentHistoryIOHandler()");
     }
 
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createLibraryHandler() */
+    /**
+     * Create an xmpp library io handler.
+     *
+     * @return An xmpp library io handler.
+     */
     public LibraryIOHandler createLibraryHandler() {
         return new com.thinkparity.model.parity.model.io.xmpp.handler.LibraryIOHandler();
     }
 
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createReleaseHandler() */
+    /**
+     * Create an xmpp release io handler.
+     *
+     * @return An xmpp release io handler.
+     */
     public ReleaseIOHandler createReleaseHandler() {
         return new com.thinkparity.model.parity.model.io.xmpp.handler.ReleaseIOHandler();
     }
 
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createSystemMessageHandler() */
     public SystemMessageIOHandler createSystemMessageHandler() {
-        throw Assert.createNotYetImplemented("XMPPIOFactory#createSystemMessageHandler");
+        throw Assert.createUnreachable("XMPPIOFactory#createSystemMessageHandler()");
     }
 
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createUserIOHandler() */
     public UserIOHandler createUserIOHandler() {
-        throw Assert.createNotYetImplemented("XMPPIOFactory#createUserIOHandler");
+        throw Assert.createUnreachable("XMPPIOFactory#createUserIOHandler()");
     }
 
-    /** @see com.thinkparity.browser.bootstrap.io.IOFactory#initialize() */
+    /** Initialize the io factory. */
     public void initialize() {}
 }

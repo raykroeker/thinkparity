@@ -60,4 +60,9 @@ public final class Constants {
         public static final File PARITY_INSTALL =
             new File(System.getProperty("parity.install"));
     }
+
+    public static final class Release {
+        public static final String ARTIFACT_ID = "lBrowser";
+        public static final String GROUP_ID = "com.thinkparity.parity";
+    }
 }

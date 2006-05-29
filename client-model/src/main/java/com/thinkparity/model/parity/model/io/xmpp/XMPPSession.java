@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.zip.DataFormatException;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.codec.binary.Base64;
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketIDFilter;
@@ -29,10 +29,6 @@ import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.parity.model.workspace.Preferences;
-import com.thinkparity.model.parity.util.Base64;
-
 import com.thinkparity.migrator.Library;
 
 /**
@@ -47,9 +43,6 @@ public class XMPPSession {
         ProviderManager.addIQProvider("query", "jabber:iq:parity:response", new XMPPMethodResponseProvider());
     }
 
-    /** An apache logger. */
-    protected final Logger logger;
-
     /** A smack xmpp connection. */
     private final XMPPConnection connection;
 
@@ -63,23 +56,24 @@ public class XMPPSession {
     private XMPPMethodResponse xmppMethodResponse;
 
     /** Create XMPPSession. */
-    XMPPSession(final Preferences preferences) {
+    XMPPSession(final String serverHost, final Integer serverPort) {
         super();
         try {
-            this.connection = new XMPPConnection(
-                    preferences.getServerHost(),
-                    preferences.getServerPort());
+            this.connection = new XMPPConnection(serverHost, serverPort);
             this.connection.loginAnonymously();
         }
         catch(final org.jivesoftware.smack.XMPPException xmppx) {
             throw new XMPPException(xmppx);
         }
-        this.logger = ModelLoggerFactory.getLogger(getClass());
         this.uniqueId = JVMUniqueId.nextId();
     }
 
     /** Close this session. */
-    public void close() { XMPPSessionManager.close(this); }
+    public void close() {
+        this.xmppMethod = null;
+        this.xmppMethodResponse = null;
+        XMPPSessionManager.close(this);
+    }
 
     /** Commit the session transaction. */
     public void commit() { /* ? */ }
@@ -105,8 +99,12 @@ public class XMPPSession {
     /** Execute the xmpp method. */
     public void execute() { xmppMethodResponse = execute(xmppMethod); }
 
-    public Byte[] getBytes(final String name) {
+    public byte[] getBytes(final String name) {
         return xmppMethodResponse.readBytes(name);
+    }
+
+    public byte[] getSmallBytes(final String name) {
+        return xmppMethodResponse.readSmallBytes(name);
     }
 
     public Calendar getCalendar(final String name) {
@@ -168,7 +166,7 @@ public class XMPPSession {
         xmppMethod.setLongParameters(listName, name, longs);
     }
 
-    public void setParameter(final String name, final Byte[] value) {
+    public void setParameter(final String name, final byte[] value) {
         assertMethod("[SET PARAMETER]");
         debugParameter(name, value);
         xmppMethod.setParameter(name, value);
@@ -257,24 +255,11 @@ public class XMPPSession {
     }
 
     private void debugLongParameters(final String listName, final String name,
-            final List<Long> values) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(listName);
-            for(final Long value : values) debugParameter(name, value);
-        }
-    }
+            final List<Long> values) {}
 
-    private void debugParameter(final String name, final Byte[] value) {
-        if(logger.isDebugEnabled()) {
-            debugParameter(name, null == value ? null : String.valueOf(value.length));
-        }
-    }
+    private void debugParameter(final String name, final byte[] value) {}
 
-    private void debugParameter(final String name, final Library.Type value) {
-        if(logger.isDebugEnabled()) {
-            debugParameter(name, null == value ? null : value.toString());
-        }
-    }
+    private void debugParameter(final String name, final Library.Type value) {}
 
     /**
      * Debug a long parameter.
@@ -284,11 +269,7 @@ public class XMPPSession {
      * @param value
      *            The parameter value.
      */
-    private void debugParameter(final String name, final Long value) {
-        if(logger.isDebugEnabled()) {
-            debugParameter(name, null == value ? null : value.toString());
-        }
-    }
+    private void debugParameter(final String name, final Long value) {}
 
     /**
      * Debug a string parameter.
@@ -298,14 +279,7 @@ public class XMPPSession {
      * @param value
      *            The parameter value.
      */
-    private void debugParameter(final String name, final String value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(new StringBuffer("[LMODEL] [IO] [XMPP] [REMOTE METHOD PARAM] ")
-                    .append("[").append(name).append(":")
-                    .append(null == value ? "null" : value)
-                    .append("] "));
-        }
-    }
+    private void debugParameter(final String name, final String value) {}
 
     /**
      * Execute an xmpp method and return the xmpp response.
@@ -344,9 +318,7 @@ public class XMPPSession {
                 // stop processing when we hit the trailing query tag
                 if(XmlPullParser.END_TAG == parser.getEventType()) {
                     if("query".equals(parser.getName())) { break; }
-                    else {
-                        Assert.assertUnreachable("Query end tag.");
-                    }
+                    else { Assert.assertUnreachable("Query end tag."); }
                 }
                 else {
                     final Class javaType = parseJavaType(parser);
@@ -365,7 +337,7 @@ public class XMPPSession {
         }
 
         private byte[] decode(final String s) {
-            return Base64.decodeBytes(s);
+            return Base64.decodeBase64(s.getBytes());
         }
 
         private byte[] decompress(final byte[] bytes) {
@@ -377,9 +349,9 @@ public class XMPPSession {
         private Object parseJavaObject(final XmlPullParser parser,
                 final String name, final Class javaType) throws IOException,
                 XmlPullParserException {
-            if(javaType.equals(Byte[].class)) {
+            if(javaType.equals(byte[].class)) {
                 parser.next();
-                final Byte[] bValue = unbox(decompress(decode(parser.getText())));
+                final byte[] bValue = decompress(decode(parser.getText()));
                 parser.next();
                 parser.next();
                 return bValue;
@@ -421,6 +393,11 @@ public class XMPPSession {
                         if("artifactId".equals(parseName(parser))) {
                             parser.next();
                             library.setArtifactId(parser.getText());
+                            parser.next();
+                        }
+                        else if("createdOn".equals(parseName(parser))) {
+                            parser.next();
+                            library.setCreatedOn(calendarValueOf(parser.getText()));
                             parser.next();
                         }
                         else if("groupId".equals(parseName(parser))) {
@@ -498,12 +475,6 @@ public class XMPPSession {
 
         private String parseName(final XmlPullParser parser) {
             return parser.getName();
-        }
-
-        private Byte[] unbox(final byte[] boxed) {
-            final Byte[] unboxed = new Byte[boxed.length];
-            for(int i = 0; i < boxed.length; i++) unboxed[i] = boxed[i];
-            return unboxed;
         }
     }
 }

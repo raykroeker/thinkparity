@@ -6,8 +6,6 @@ package com.thinkparity.model.parity.model.io.xmpp;
 
 import java.util.Vector;
 
-import com.thinkparity.model.parity.model.workspace.Preferences;
-
 /**
  * An xmpp session manager.
  *
@@ -31,9 +29,10 @@ public class XMPPSessionManager {
      *
      * @return An xmpp session.
      */
-    public static XMPPSession open(final Preferences preferences) {
+    public static XMPPSession open(final String serverHost,
+            final Integer serverPort) {
         synchronized(sessions) {
-            sessions.add(new XMPPSession(preferences));
+            sessions.add(new XMPPSession(serverHost, serverPort));
             return sessions.get(sessions.size() - 1);
         }
     }

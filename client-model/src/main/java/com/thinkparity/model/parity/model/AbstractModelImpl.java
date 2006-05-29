@@ -15,7 +15,7 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.l10n.L18nContext;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -26,10 +26,14 @@ import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
-import com.thinkparity.model.parity.model.library.LibraryModel;
+import com.thinkparity.model.parity.model.download.DownloadModel;
+import com.thinkparity.model.parity.model.download.InternalDownloadModel;
 import com.thinkparity.model.parity.model.library.InternalLibraryModel;
+import com.thinkparity.model.parity.model.library.LibraryModel;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.release.InternalReleaseModel;
+import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
@@ -41,6 +45,8 @@ import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
+import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Release;
 
 /**
  * AbstractModelImpl
@@ -99,8 +105,7 @@ public abstract class AbstractModelImpl {
 	 * Apache logger.
 	 * 
 	 */
-	protected final Logger logger =
-		ModelLoggerFactory.getLogger(getClass());
+	protected final Logger logger;
 
 	/**
 	 * Handle to the parity model preferences.
@@ -133,6 +138,7 @@ public abstract class AbstractModelImpl {
 		super();
 		this.context = new Context(getClass());
 		this.l18n = null == l18nContext ? null : new ModelL18n(l18nContext);
+        this.logger = LoggerFactory.getLogger(getClass());
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
@@ -360,6 +366,15 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Obtain the internal parity download interface.
+     *
+     * @return The internal parity download interface.
+     */
+    protected InternalDownloadModel getInternalDownloadModel() {
+        return DownloadModel.getInternalModel(context);
+    }
+
+    /**
      * Obtain the internal parity library interface.
      *
      * @return The internal parity library interface.
@@ -376,6 +391,15 @@ public abstract class AbstractModelImpl {
 	protected InternalSessionModel getInternalSessionModel() {
 		return SessionModel.getInternalModel(getContext());
 	}
+
+    /**
+     * Obtain the internal parity release interface.
+     *
+     * @return The internal parity release interface.
+     */
+    protected InternalReleaseModel getInternalReleaseModel() {
+        return ReleaseModel.getInternalModel(getContext());
+    }
 
     /**
      * Obtain the internal parity system message interface.
@@ -440,4 +464,30 @@ public abstract class AbstractModelImpl {
 		}
 		return assertion.toString();
 	}
+
+    protected StringBuffer getLogId(final Release release) {
+        if(null == release) { return new StringBuffer("null"); }
+        else {
+            return new StringBuffer()
+                .append(release.getId())
+                .append(":").append(release.getGroupId())
+                .append(":").append(release.getArtifactId())
+                .append(":").append(release.getVersion())
+                .append(":").append(DateUtil.format(
+                        release.getCreatedOn(), DateUtil.DateImage.ISO));
+        }
+    }
+
+    protected StringBuffer getLogId(final Library library) {
+        if(null == library) { return new StringBuffer("null"); }
+        else {
+            return new StringBuffer()
+                .append(library.getId())
+                .append(":").append(library.getGroupId())
+                .append(":").append(library.getArtifactId())
+                .append(":").append(library.getVersion())
+                .append(":").append(DateUtil.format(
+                        library.getCreatedOn(), DateUtil.DateImage.ISO));
+        }
+    }
 }

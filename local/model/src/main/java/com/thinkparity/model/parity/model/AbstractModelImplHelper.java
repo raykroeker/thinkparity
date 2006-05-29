@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 
 /**
  * AbstractModelImplHelper
@@ -14,14 +14,14 @@ import com.thinkparity.model.log4j.ModelLoggerFactory;
  */
 public abstract class AbstractModelImplHelper {
 
-	/**
-	 * Handle to the apache logger.
-	 */
-	protected final Logger logger =
-		ModelLoggerFactory.getLogger(AbstractModelImplHelper.class);
+	/** An apache logger. */
+	protected final Logger logger;
 
 	/**
 	 * Create an AbstractModelImplHelper
 	 */
-	protected AbstractModelImplHelper() { super(); }
+	protected AbstractModelImplHelper() {
+        super();
+        this.logger = LoggerFactory.getLogger(getClass());
+    }
 }

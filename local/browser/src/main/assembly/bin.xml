@@ -92,6 +92,7 @@
 				<exclude>${pom.groupId}:codebase</exclude>
 				<exclude>${pom.groupId}:cMigrator</exclude>
 				<exclude>${pom.groupId}:lModel</exclude>
+				<exclude>${pom.groupId}:thinkParity</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

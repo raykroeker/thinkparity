@@ -20,7 +20,7 @@ import com.thinkparity.migrator.Release;
  * @version $Revision$
  */
 public class ReleaseIOHandler extends AbstractIOHandler
-    implements com.thinkparity.model.parity.model.io.handler.ReleaseIOHandler {
+        implements com.thinkparity.model.parity.model.io.handler.ReleaseIOHandler {
 
     /** Create ReleaseIOHandler. */
     public ReleaseIOHandler() { super(); }
@@ -93,7 +93,7 @@ public class ReleaseIOHandler extends AbstractIOHandler
         finally { session.close(); }
     }
 
-    /** @see com.thinkparity.browser.bootstrap.io.handler.ReleaseIOHandler#readLatest() */
+    /** @see com.thinkparity.model.parity.model.io.handler.ReleaseIOHandler#readLatest() */
     public Release readLatest(final String artifactId, final String groupId)
             throws XMPPException {
         final XMPPSession session = openSession();

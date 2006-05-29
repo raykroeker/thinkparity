@@ -5,6 +5,7 @@
 package com.thinkparity.model.parity.model.io.handler;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.LibraryBytes;
 
 /**
  * The implementation of the xmpp library io interface.
@@ -20,17 +21,20 @@ public interface LibraryIOHandler {
      * @return A library id.
      */
     public Long create(final String artifactId, final String groupId,
-            final Library.Type type, final String version);
+            final String path, final Library.Type type, final String version);
 
     /**
      * Create the library bytes.
-     *
+     * 
      * @param libraryId
-     *      A library id.
+     *            A library id.
      * @param bytes
-     *      A library's bytes.
+     *            A library's bytes.
+     * @param checksum
+     *            A library's checksum.
      */
-    public void createBytes(final Long libraryId, final Byte[] bytes);
+    public void createBytes(final Long libraryId, final byte[] bytes,
+            final String checksum);
 
     /**
      * Delete a library.
@@ -71,5 +75,5 @@ public interface LibraryIOHandler {
      *            A library id.
      * @return A byte array of the library's content.
      */
-    public Byte[] readBytes(final Long libraryId);
+    public LibraryBytes readBytes(final Long libraryId);
 }

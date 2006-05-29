@@ -5,11 +5,14 @@ package com.thinkparity.browser.model;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.download.DownloadModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
+import com.thinkparity.model.parity.model.install.InstallModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.user.UserModel;
+import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -37,8 +40,14 @@ public class ModelFactory {
     /** The parity document interface. */
 	private DocumentModel documentModel;
 
+    /** The parity download interface. */
+    private DownloadModel download;
+
     /** The parity index interface. */
 	private IndexModel indexModel;
+
+    /** The parity install interface. */
+    private InstallModel install;
 
     /** Flag indicating whether or not the factory is initialized. */
 	private boolean isInitialized;
@@ -46,14 +55,17 @@ public class ModelFactory {
     /** The parity preferences. */
 	private Preferences preferences;
 
+    /** The parity release interface. */
+    private ReleaseModel release;
+
     /** The parity session interface. */
 	private SessionModel sessionModel;
 
-    /** The parity user interface. */
-    private UserModel uModel;
-
-	/** The parity system message interface. */
+    /** The parity system message interface. */
 	private SystemMessageModel systemMessageModel;
+
+	/** The parity user interface. */
+    private UserModel uModel;
 
     /** The parity workspace. */
 	private Workspace workspace;
@@ -76,26 +88,53 @@ public class ModelFactory {
 		return documentModel;
 	}
 
-	public IndexModel getIndexModel(final Class clasz) {
+    /**
+     * Obtain the parity download interface.
+     * 
+     * @param clasz
+     *            The model consumer.
+     * @return The parity download interface.
+     */
+    public DownloadModel getDownload(final Class clasz) { return download; }
+
+    public IndexModel getIndexModel(final Class clasz) {
 		return indexModel;
 	}
+
+	/**
+     * Obtain the parity install interface.
+     * 
+     * @param clasz
+     *            The model consumer.
+     * @return The parity install interface.
+     */
+    public InstallModel getInstall(final Class clasz) { return install; }
 
 	public Preferences getPreferences(final Class clasz) {
 		return preferences;
 	}
 
+	/**
+     * Obtain the parity release interface.
+     * 
+     * @param clasz
+     *            The model consumer.
+     * @return The parity release interface.
+     */
+	public ReleaseModel getRelease(final Class clasz) { return release; }
+
 	public SessionModel getSessionModel(final Class clasz) {
 		return sessionModel;
 	}
 
-	public SystemMessageModel getSystemMessageModel(final Class clasz) {
+    public SystemMessageModel getSystemMessageModel(final Class clasz) {
 		if(null == systemMessageModel) {
 			systemMessageModel = SystemMessageModel.getModel();
 		}
 		return systemMessageModel;
 	}
 
-    /**
+	/**
      * Obtain a parity user interface.
      *
      * @param clasz
@@ -116,7 +155,7 @@ public class ModelFactory {
 		return workspaceModel;
 	}
 
-	/**
+    /**
 	 * Initialize the model factory.
 	 * 
 	 */
@@ -124,7 +163,10 @@ public class ModelFactory {
 		if(!isInitialized) {
 			artifactModel = ArtifactModel.getModel();
 			documentModel = DocumentModel.getModel();
+            download = DownloadModel.getModel();
 			indexModel = IndexModel.getModel();
+            install = InstallModel.getModel();
+            release = ReleaseModel.getModel();
 			sessionModel = SessionModel.getModel();
             uModel = UserModel.getModel();
 			workspaceModel = WorkspaceModel.getModel();

@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
  * 
  * @author raykroeker@gmail.com
  * @version 1.1.2.4
- * @see org.apache.log4j.Logger#getLogger(java.lang.Class)
+ * @deprecated @link{use com.thinkparity.model.LoggerFactory} instead.
  */
 public class ModelLoggerFactory {
 

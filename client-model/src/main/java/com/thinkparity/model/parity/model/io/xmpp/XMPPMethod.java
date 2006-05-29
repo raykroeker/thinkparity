@@ -9,17 +9,17 @@ import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.util.Base64;
 
 import com.thinkparity.migrator.Library;
 
 /**
+ * An xmpp method for the parity bootstrap library.
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1
  */
@@ -58,8 +58,8 @@ public class XMPPMethod extends IQ {
 
     String getNamespace() { return "jabber:iq:parity:" + name; }
 
-    void setParameter(final String name, final Byte[] value) {
-        parameters.add(new Parameter(name, Byte[].class, value));
+    void setParameter(final String name, final byte[] value) {
+        parameters.add(new Parameter(name, byte[].class, value));
     }
 
     void setParameter(final String name, final Library.Type value) {
@@ -120,7 +120,7 @@ public class XMPPMethod extends IQ {
     }
     
     private String encode(final byte[] bytes) {
-        return Base64.encodeBytes(bytes);
+        return new String(Base64.encodeBase64(bytes));
     }
 
     /**
@@ -153,8 +153,8 @@ public class XMPPMethod extends IQ {
     }
 
     private String getParameterXMLValue(final Parameter parameter) {
-        if(parameter.javaType.equals(Byte[].class)) {
-            return encode(compress(autobox((Byte[]) parameter.javaValue)));
+        if(parameter.javaType.equals(byte[].class)) {
+            return encode(compress((byte[]) parameter.javaValue));
         }
         else if(parameter.javaType.equals(String.class)) {
             return parameter.javaValue.toString();
@@ -181,7 +181,7 @@ public class XMPPMethod extends IQ {
             final String assertion =
                 MessageFormat.format("[RMODEL] [XMPP METHOD] [GET PARAMTER XML VALUE] [UNKNOWN JAVA TYPE] [{0}]",
                         new Object[] {parameter.javaType.getName()});
-            throw Assert.createUnreachable(assertion);
+            throw new XMPPException(assertion);
         }
     }
 

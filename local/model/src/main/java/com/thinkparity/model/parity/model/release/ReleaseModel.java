@@ -1,12 +1,11 @@
 /*
- * Created On: Fri May 12 2006 09:11 PDT
+ * Created On: 
  * $Id$
  */
 package com.thinkparity.model.parity.model.release;
 
 import java.util.List;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -63,8 +62,6 @@ public class ReleaseModel extends AbstractModel {
      *            An artifact id.
      * @param groupId
      *            A group id.
-     * @param name
-     *            A name.
      * @param version
      *            A version.
      * @param libraries
@@ -75,64 +72,6 @@ public class ReleaseModel extends AbstractModel {
             final String version, final List<Library> libraries) {
         synchronized(implLock) {
             return impl.create(artifactId, groupId, version, libraries);
-        }
-    }
-
-    /**
-     * Delete a release.
-     *
-     * @param releaseId
-     *      A release id.
-     */
-    public void delete(final Long releaseId) {
-        synchronized(implLock) { impl.delete(releaseId); }
-    }
-
-    /**
-     * Download the latest release.
-     *
-     * @param artifactId
-     *      An artifact id.
-     * @param groupId
-     *      A group id.
-     */
-    public void download(final String artifactId, final String groupId)
-            throws ParityException {
-        synchronized(implLock) { impl.download(artifactId, groupId); }
-    }
-
-    /**
-     * Determine whether a release is available.
-     *
-     * @param artifactId
-     *      An artifact id.
-     * @param groupId
-     *      A group id.
-     * @param version
-     *      A version
-     * @return True if a release is available; false otherwise.
-     */
-    public Boolean isAvailable(final String artifactId, final String groupId,
-            final String version) {
-        synchronized(implLock) {
-            return impl.isAvailable(artifactId, groupId, version);
-        }
-    }
-
-    /**
-     * Migrate to the latest release.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @param groupId
-     *            A group id.
-     * @param version
-     *            A version.
-     */
-    public void migrate(final String artifactId, final String groupId,
-            final String version) throws ParityException {
-        synchronized(implLock) {
-            impl.migrate(artifactId, groupId,version);
         }
     }
 
@@ -152,6 +91,32 @@ public class ReleaseModel extends AbstractModel {
         synchronized(implLock) {
             return impl.read(artifactId, groupId, version);
         }
+    }
+
+    /**
+     * Read the latest release.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param groupId
+     *            A group id.
+     * @return A release.
+     */
+    public Release readLatest(final String artifactId, final String groupId) {
+        synchronized(getImplLock()) {
+            return getImpl().readLatest(artifactId, groupId);
+        }
+    }
+
+    /**
+     * Read a list of libraries belonging to a release.
+     * 
+     * @param releaseId
+     *            A release id.
+     * @return A list of libraries.
+     */
+    public List<Library> readLibraries(final Long releaseId) {
+        synchronized(implLock) { return impl.readLibraries(releaseId); }
     }
 
     /**

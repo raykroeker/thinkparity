@@ -1,5 +1,5 @@
 /*
- * May 14, 2006 9:12:54 AM
+ * Created On: May 14, 2006 9:12:54 AM
  * $Id$
  */
 package com.thinkparity.model.parity.model.io.xmpp;
@@ -15,8 +15,10 @@ import org.jivesoftware.smack.packet.IQ;
 import com.thinkparity.migrator.Library;
 
 /**
+ * The parity bootstrap's xmpp method response.
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1
+ * @version $Revision$
  */
 class XMPPMethodResponse extends IQ {
 
@@ -54,8 +56,12 @@ class XMPPMethodResponse extends IQ {
         return libraries;
     }
 
-    public Byte[] readBytes(final String name) {
-        return (Byte[]) result.get(name).javaValue;
+    public byte[] readBytes(final String name) {
+        return (byte[]) result.get(name).javaValue;
+    }
+
+    public byte[] readSmallBytes(final String name) {
+        return (byte[]) result.get(name).javaValue;
     }
 
     public Calendar readResultCalendar(final String name) {

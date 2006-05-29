@@ -24,6 +24,7 @@ import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSessionManager;
 import com.thinkparity.migrator.io.hsqldb.Table;
 import com.thinkparity.migrator.io.md.MetaDataType;
+import com.thinkparity.migrator.util.ChecksumUtil;
 
 /**
  * @author raykroeker@gmail.com
@@ -197,13 +198,16 @@ class HypersonicMigrator {
         try { createdOn = DateUtil.parse("1970 01 01 00:00", DateImage.YearMonthDayHourMinute); }
         catch(final ParseException px) { throw new HypersonicException(px); }
         libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
-                "com.thinkparity.parity", "tJavaLibrary", "1.0.0", createdOn,
+                "com.thinkparity.parity", "tJavaLibrary", "1.0.0",
+                "core/tJavaLibrary-1.0.0.jar", createdOn,
                 "com.thinkparity.parity:tJavaLibrary:1.0.0".getBytes()));
         libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
-                "com.3rdparty", "tJavaLibrary", "1.0.0", createdOn,
+                "com.3rdparty", "tJavaLibrary", "1.0.0",
+                "lib/tJavaLibrary-1.0.0.jar", createdOn,
                 "com.3rdparty:tJavaLibrary:1.0.0".getBytes()));
         libraryIds.add(insertTestDataLibrary(session, Library.Type.NATIVE,
-                "com.3rdparty", "tNativeLibrary", "1.0.0", createdOn,
+                "com.3rdparty", "tNativeLibrary", "1.0.0",
+                "lib/win32/tNativeLibrary.dll", createdOn,
                 "com.3rdparty:tJavaLibrary:1.0.0".getBytes()));
         insertTestDataRelease(session, "com.thinkparity.parity", "tRelease",
                     "1.0.0", createdOn, libraryIds);
@@ -212,13 +216,16 @@ class HypersonicMigrator {
         try { createdOn = DateUtil.parse("1970 01 01 00:01", DateImage.YearMonthDayHourMinute); }
         catch(final ParseException px) { throw new HypersonicException(px); }
         libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
-                "com.thinkparity.parity", "tJavaLibrary", "1.0.1", createdOn,
+                "com.thinkparity.parity", "tJavaLibrary", "1.0.1",
+                "core/tJavaLibrary-1.0.1.jar", createdOn,
                 "com.thinkparity.parity:tJavaLibrary:1.0.1".getBytes()));
         libraryIds.add(insertTestDataLibrary(session, Library.Type.JAVA,
-                "com.3rdparty", "tJavaLibrary", "1.0.1", createdOn,
+                "com.3rdparty", "tJavaLibrary", "1.0.1",
+                "lib/tJavaLibrary-1.0.1.jar", createdOn,
                 "com.3rdparty:tJavaLibrary:1.0.1".getBytes()));
         libraryIds.add(insertTestDataLibrary(session, Library.Type.NATIVE,
-                "com.3rdparty", "tNativeLibrary", "1.0.1", createdOn,
+                "com.3rdparty", "tNativeLibrary", "1.0.1",
+                "lib/win32/tNativeLibrary.dll", createdOn,
                 "com.3rdparty:tJavaLibrary:1.0.1".getBytes()));
         insertTestDataRelease(session, "com.thinkparity.parity", "tRelease",
                     "1.0.1", createdOn, libraryIds);
@@ -240,13 +247,14 @@ class HypersonicMigrator {
      */
     private Long insertTestDataLibrary(final HypersonicSession session,
             final Library.Type type, final String groupId,
-            final String artifactId, final String version,
+            final String artifactId, final String version, final String path,
             final Calendar createdOn, final byte[] bytes) {
         session.prepareStatement(INSERT_TEST_DATA_LIBRARY);
         session.setTypeAsInteger(1, type);
         session.setString(2, groupId);
         session.setString(3, artifactId);
         session.setString(4, version);
+        session.setString(5, path);
         session.setCalendar(5, createdOn);
         if(1 != session.executeUpdate())
             throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT LIBRARY TEST DATA]");
@@ -254,6 +262,7 @@ class HypersonicMigrator {
         session.prepareStatement(INSERT_TEST_DATA_LIBRARY_BYTES);
         session.setLong(1, libraryId);
         session.setBytes(2, bytes);
+        session.setString(3, ChecksumUtil.md5Hex(bytes));
         if(1 != session.executeUpdate())
             throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT LIBRARY BYTES TEST DATA");
 

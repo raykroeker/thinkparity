@@ -71,17 +71,15 @@ public class ReadTest extends ControllerTestCase {
         final IQReader iqReader = new IQReader(response);
         final Library library = new Library();
         library.setArtifactId(iqReader.readString(Xml.Library.ARTIFACT_ID));
+        library.setCreatedOn(iqReader.readCalendar(Xml.Library.CREATED_ON));
         library.setGroupId(iqReader.readString(Xml.Library.GROUP_ID));
         library.setId(iqReader.readLong(Xml.Library.ID));
+        library.setPath(iqReader.readString(Xml.Library.PATH));
         library.setType(iqReader.readLibraryType(Xml.Library.TYPE));
         library.setVersion(iqReader.readString(Xml.Library.VERSION));
 
-        assertNotNull("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY IS NULL]", library);
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY DOES NOT MATCH EXPECTATION]", library.getArtifactId(), datum.eLibrary.getArtifactId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY GROUP ID DOES NOT MATCH EXPECTATION]", library.getGroupId(), datum.eLibrary.getGroupId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY ID DOES NOT MATCH EXPECTATION]", library.getId(), datum.eLibrary.getId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY TYPE DOES NOT MATCH EXPECTATION]", library.getType(), datum.eLibrary.getType());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [LIBRARY] [READ TEST] [LIBRARY VERSION DOES NOT MATCH EXPECTATION]", library.getVersion(), datum.eLibrary.getVersion());
+        assertNotNull("[RMIGRATOR] [LIBRARY] [READ TEST]", library);
+        assertEquals("[RMIGRATOR] [LIBRARY] [READ TEST]", datum.eLibrary, library);
     }
 
     /** The test data fixture. */

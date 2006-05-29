@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.LibraryBytes;
 import com.thinkparity.migrator.MigratorTestCase;
 
 /**
@@ -28,17 +29,14 @@ public class CreateBytesTest extends MigratorTestCase {
 
     /** Test the create bytes api. */
     public void testCreateBytes() {
-        Byte[] aBytes;
+        LibraryBytes libraryBytes;
         for(final Fixture datum : data) {
-            datum.lModel.createBytes(datum.libraryId, datum.eBytes);
+            datum.lModel.createBytes(datum.libraryId, datum.eLibraryBytes.getBytes(), datum.eLibraryBytes.getChecksum());
 
-            aBytes = datum.lModel.readBytes(datum.libraryId);
+            libraryBytes = datum.lModel.readBytes(datum.libraryId);
 
-            assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY BYTES ARE NULL]", aBytes);
-            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eBytes.length, aBytes.length);
-            for(int i = 0; i < datum.eBytes.length; i++) {
-                assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eBytes[i], aBytes[i]);
-            }
+            assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY BYTES ARE NULL]", libraryBytes);
+            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST]", datum.eLibraryBytes, libraryBytes);
         }
     }
 
@@ -50,9 +48,13 @@ public class CreateBytesTest extends MigratorTestCase {
 
         final Library javaLibrary = getJavaLibrary();
         final Library eLibrary = lModel.create(javaLibrary.getArtifactId(),
-                javaLibrary.getGroupId(), javaLibrary.getType(),
-                javaLibrary.getVersion());
-        data.add(new Fixture(getJavaLibraryBytes(), lModel, eLibrary.getId()));
+                javaLibrary.getGroupId(), javaLibrary.getPath(),
+                javaLibrary.getType(), javaLibrary.getVersion());
+        final LibraryBytes eLibraryBytes = new LibraryBytes();
+        eLibraryBytes.setBytes(getJavaLibraryBytes(javaLibrary));
+        eLibraryBytes.setChecksum(getJavaLibraryChecksum(eLibraryBytes.getBytes()));
+        eLibraryBytes.setLibraryId(eLibrary.getId());
+        data.add(new Fixture(eLibraryBytes, lModel, eLibrary.getId()));
     }
 
     /** @see junit.framework.TestCase#tearDown() */
@@ -64,11 +66,12 @@ public class CreateBytesTest extends MigratorTestCase {
     }
 
     private class Fixture {
-        private final Byte[] eBytes;
-        private final LibraryModel lModel;
+        private final LibraryBytes eLibraryBytes;
         private final Long libraryId;
-        private Fixture(final Byte[] eBytes, final LibraryModel lModel, final Long libraryId) {
-            this.eBytes = eBytes;
+        private final LibraryModel lModel;
+        private Fixture(final LibraryBytes eLibraryBytes,
+                final LibraryModel lModel, final Long libraryId) {
+            this.eLibraryBytes = eLibraryBytes;
             this.lModel = lModel;
             this.libraryId = libraryId;
         }

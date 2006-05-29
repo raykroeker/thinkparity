@@ -26,13 +26,14 @@ import com.thinkparity.migrator.util.IQReader;
  */
 public class ReadLibrariesTest extends ControllerTestCase {
 
+    /** The test name. */
+    private static final String NAME = "[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST]";
+
     /** The test data. */
     private Fixture datum;
 
     /** Create ReadLibrariesTest. */
-    public ReadLibrariesTest() {
-        super("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST]");
-    }
+    public ReadLibrariesTest() { super(NAME); }
 
     /** Test the handle IQ api. */
     public void testHandleIQ() {
@@ -48,13 +49,7 @@ public class ReadLibrariesTest extends ControllerTestCase {
 
         final String assertion = "[RMIGRATOR] [RELEASE] [READ LIBRARIES TEST] [EXPECTED LIBRARIES DOES NOT CONTAIN LIBRARY] [{0}]";
         for(final Library library : libraries) {
-            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [ARTIFACT ID IS NULL]", library.getArtifactId());
-            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [CREATED ON IS NULL]", library.getCreatedOn());
-            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [FILE NAME IS NULL]", library.getFilename());
-            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [GROUP ID IS NULL]", library.getGroupId());
-            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [ID IS NULL]", library.getId());
-            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [TYPE IS NULL]", library.getType());
-            assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LIBRARIES TEST] [VERSION IS NULL]", library.getVersion());
+            assertNotNull(NAME, library);
             assertTrue(MessageFormat.format(assertion, new Object[] {library}), datum.eLibraries.contains(library));
         }
         for(final Library library : datum.eLibraries) {

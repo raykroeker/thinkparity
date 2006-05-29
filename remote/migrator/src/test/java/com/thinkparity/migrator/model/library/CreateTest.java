@@ -30,15 +30,14 @@ public class CreateTest extends MigratorTestCase {
     public void testCreate() {
         Library library;
         for(final Fixture datum : data) {
-            library = datum.lModel.create(datum.artifactId, datum.groupId, datum.type, datum.version);
+            library = datum.lModel.create(datum.artifactId, datum.groupId, datum.path, datum.type, datum.version);
 
             assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY IS NULL]", library);
-            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY ARTIFACT ID DOES NOT EQUAL EXPECTATION]", datum.eLibrary.getArtifactId(), library.getArtifactId());
-            assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY CREATED ON IS NULL]", library.getCreatedOn());
-            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY GROUP ID DOES NOT EQUAL EXPECTATION]", datum.eLibrary.getGroupId(), library.getGroupId());
-            assertNotNull("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY ID IS NULL]", library.getId());
-            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY TYPE DOES NOT EQUAL EXPECTATION]", datum.eLibrary.getType(), library.getType());
-            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY VERSION NOT EQUAL EXPECTATION]", datum.eLibrary.getVersion(), library.getVersion());
+            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY ARTIFACT ID DOES NOT MATCH EXPECTATION]", datum.eLibrary.getArtifactId(), library.getArtifactId());
+            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY GROUP ID DOES NOT MATCH EXPECTATION]", datum.eLibrary.getGroupId(), library.getGroupId());
+            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY PATH DOES NOT MATCH EXPECTATION]", datum.eLibrary.getPath(), library.getPath());
+            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY TYPE DOES NOT MATCH EXPECTATION]", datum.eLibrary.getType(), library.getType());
+            assertEquals("[RMIGRATOR] [LIBRARY] [CREATE TEST] [LIBRARY VERSION DOES NOT MATCH EXPECTATION]", datum.eLibrary.getVersion(), library.getVersion());
         }
     }
 
@@ -51,8 +50,8 @@ public class CreateTest extends MigratorTestCase {
         // 1 scenario
         final Library eLibrary = getJavaLibrary();
         data.add(new Fixture(eLibrary.getArtifactId(), eLibrary,
-                eLibrary.getGroupId(), lModel, eLibrary.getType(),
-                eLibrary.getVersion()));
+                eLibrary.getGroupId(), lModel, eLibrary.getPath(),
+                eLibrary.getType(), eLibrary.getVersion()));
     }
 
     /** @see junit.framework.TestCase#tearDown() */
@@ -68,15 +67,17 @@ public class CreateTest extends MigratorTestCase {
         private final Library eLibrary;
         private final String groupId;
         private final LibraryModel lModel;
+        private final String path;
         private final Library.Type type;
         private final String version;
         private Fixture(final String artifactId, final Library eLibrary,
                 final String groupId, final LibraryModel lModel,
-                final Library.Type type, final String version) {
+                final String path, final Library.Type type, final String version) {
             this.artifactId = artifactId;
             this.eLibrary= eLibrary;
             this.groupId = groupId;
             this.lModel = lModel;
+            this.path = path;
             this.type = type;
             this.version = version;
         }

@@ -34,8 +34,10 @@ public final class Read extends AbstractController {
 
         if(null != library) {
             writeString(Xml.Library.ARTIFACT_ID, library.getArtifactId());
+            writeCalendar(Xml.Library.CREATED_ON, library.getCreatedOn());
             writeString(Xml.Library.GROUP_ID, library.getGroupId());
             writeLong(Xml.Library.ID, library.getId());
+            writeString(Xml.Library.PATH, library.getPath());
             writeLibraryType(Xml.Library.TYPE, library.getType());
             writeString(Xml.Library.VERSION, library.getVersion());
         }

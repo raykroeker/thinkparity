@@ -61,7 +61,7 @@ public abstract class ControllerTestCase extends MigratorTestCase {
         return iq;
     }
 
-    protected void writeBytes(final IQ iq, final String name, final Byte[] value) {
+    protected void writeBytes(final IQ iq, final String name, final byte[] value) {
         new IQWriter(iq).writeBytes(name, value);
     }
 

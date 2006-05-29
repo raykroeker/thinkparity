@@ -4,10 +4,16 @@
  */
 package com.thinkparity.migrator.model.library;
 
+import java.text.MessageFormat;
+
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.LibraryBytes;
 import com.thinkparity.migrator.io.IOFactory;
 import com.thinkparity.migrator.io.handler.LibraryIOHandler;
 import com.thinkparity.migrator.model.AbstractModelImpl;
+import com.thinkparity.migrator.util.ChecksumUtil;
 
 /**
  * @author raymond@thinkparity.com
@@ -31,6 +37,8 @@ class LibraryModelImpl extends AbstractModelImpl {
      *            A artifact id.
      * @param groupId
      *            A group id.
+     * @param path
+     *            A library path.
      * @param type
      *            A library type.
      * @param version
@@ -38,14 +46,36 @@ class LibraryModelImpl extends AbstractModelImpl {
      * @return A library.
      */
     Library create(final String artifactId, final String groupId,
-            final Library.Type type, final String version) {
+            final String path, final Library.Type type, final String version) {
         logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [CREATE]");
         logger.debug(artifactId);
         logger.debug(groupId);
         logger.debug(type);
+        logger.debug(path);
         logger.debug(version);
-        final Long libraryId = libraryIO.create(artifactId, groupId, type, version);
+        final Long libraryId = libraryIO.create(artifactId, groupId, path, type, version);
         return read(libraryId);
+    }
+
+    /**
+     * Create the bytes for a library.
+     *
+     * @param libraryId
+     *      A library id.
+     * @param bytes
+     *      A library bytes.
+     */
+    void createBytes(final Long libraryId, final byte[] bytes, final String checksum) {
+        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [CREATE BYTES]");
+        logger.debug(libraryId);
+        logger.debug(bytes);
+        logger.debug(checksum);
+        final String calculatedChecksum = ChecksumUtil.md5Hex(bytes);
+        Assert.assertTrue(MessageFormat.format(
+                "[RMIGRATOR [MODEL] [LIBRARY] [CREATE BYTES] [CHECKSUM DOES NOT MATCH CONTENT] [{0}] [{1}]",
+                new Object[] {checksum, calculatedChecksum}),
+                checksum.equals(calculatedChecksum));
+        libraryIO.createBytes(libraryId, bytes, checksum);
     }
 
     /**
@@ -58,21 +88,6 @@ class LibraryModelImpl extends AbstractModelImpl {
         logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [DELETE]");
         logger.debug(libraryId);
         libraryIO.delete(libraryId);
-    }
-
-    /**
-     * Create the bytes for a library.
-     *
-     * @param libraryId
-     *      A library id.
-     * @param bytes
-     *      A library bytes.
-     */
-    void createBytes(final Long libraryId, final Byte[] bytes) {
-        logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [CREATE BYTES]");
-        logger.debug(libraryId);
-        logger.debug(bytes);
-        libraryIO.createBytes(libraryId, bytes);
     }
 
     /**
@@ -117,7 +132,7 @@ class LibraryModelImpl extends AbstractModelImpl {
      * @param libraryId
      *      A library id.
      */
-    Byte[] readBytes(final Long libraryId) {
+    LibraryBytes readBytes(final Long libraryId) {
         logger.info("[RMIGRATOR] [MODEL] [LIBRARY] [READ  BYTES]");
         logger.debug(libraryId);
         return libraryIO.readBytes(libraryId);

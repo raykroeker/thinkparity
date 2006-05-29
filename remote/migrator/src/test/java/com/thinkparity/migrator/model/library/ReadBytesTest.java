@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.LibraryBytes;
 import com.thinkparity.migrator.MigratorTestCase;
 
 /**
@@ -28,15 +29,12 @@ public class ReadBytesTest extends MigratorTestCase {
 
     /** Test the read bytes api. */
     public void testReadBytes() {
-        Byte[] bytes;
+        LibraryBytes libraryBytes;
         for(final Fixture datum : data) {
-            bytes = datum.lModel.readBytes(datum.libraryId);
+            libraryBytes = datum.lModel.readBytes(datum.libraryId);
 
-            assertNotNull("[RMIGRATOR] [LIBRARY] [READ  BYTES TEST] [LIBRARY BYTES ARE NULL]", bytes);
-            assertEquals("[RMIGRATOR] [LIBRARY] [READ BYTES TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eBytes.length, bytes.length);
-            for(int i = 0; i < datum.eBytes.length; i++) {
-                assertEquals("[RMIGRATOR] [LIBRARY] [READ BYTES TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eBytes[i], bytes[i]);
-            }
+            assertNotNull("[RMIGRATOR] [LIBRARY] [READ  BYTES TEST] [LIBRARY BYTES ARE NULL]", libraryBytes);
+            assertEquals("[RMIGRATOR] [LIBRARY] [READ BYTES TEST] [LIBRARY BYTES DO NOT EQUAL EXPECTATION]", datum.eLibraryBytes, libraryBytes);
         }
     }
 
@@ -48,7 +46,11 @@ public class ReadBytesTest extends MigratorTestCase {
 
         // 1 scenario
         final Library eLibrary = createJavaLibrary();
-        data.add(new Fixture(getJavaLibraryBytes(), lModel, eLibrary.getId()));
+        final LibraryBytes eLibraryBytes = new LibraryBytes();
+        eLibraryBytes.setBytes(getJavaLibraryBytes(eLibrary));
+        eLibraryBytes.setChecksum(getJavaLibraryChecksum(eLibraryBytes.getBytes()));
+        eLibraryBytes.setLibraryId(eLibrary.getId());
+        data.add(new Fixture(eLibraryBytes, lModel, eLibrary.getId()));
     }
 
     /** @see junit.framework.TestCase#tearDown() */
@@ -60,11 +62,11 @@ public class ReadBytesTest extends MigratorTestCase {
     }
 
     private class Fixture {
-        private final Byte[] eBytes;
-        private final LibraryModel lModel;
+        private final LibraryBytes eLibraryBytes;
         private final Long libraryId;
-        private Fixture(final Byte[] eBytes, final LibraryModel lModel, final Long libraryId) {
-            this.eBytes = eBytes;
+        private final LibraryModel lModel;
+        private Fixture(final LibraryBytes eLibraryBytes, final LibraryModel lModel, final Long libraryId) {
+            this.eLibraryBytes = eLibraryBytes;
             this.lModel = lModel;
             this.libraryId = libraryId;
         }

@@ -38,7 +38,7 @@ public class IQReader {
         this.iq = iq;
     }
 
-    public Byte[] readByteArray(final String name) {
+    public byte[] readByteArray(final String name) {
         final String sData = readString(name);
         if(null == sData) { return null; }
         else {
@@ -74,6 +74,7 @@ public class IQReader {
             catch(final ParseException px) { throw new RuntimeException(px); }
             library.setGroupId((String) libraryElement.element(Xml.Library.GROUP_ID).getData());
             library.setId(Long.valueOf((String) libraryElement.element(Xml.Library.ID).getData()));
+            library.setPath((String) libraryElement.element(Xml.Library.PATH).getData());
             library.setType(Library.Type.valueOf((String) libraryElement.element(Xml.Library.TYPE).getData()));
             library.setVersion((String) libraryElement.element(Xml.Library.VERSION).getData());
  
@@ -166,16 +167,11 @@ public class IQReader {
      *
      * @param bytes
      *      An array of bytes.
-     * @return An array of byte objects.
+     * @return An array of bytes.
      */
-    private Byte[] decompress(final byte[] bytes)
-            throws DataFormatException, IOException {
-        final byte[] decompressed = CompressionUtil.decompress(bytes);
-        final Byte[] unboxed = new Byte[decompressed.length];
-        for(int i = 0; i < decompressed.length; i++) {
-            unboxed[i] = decompressed[i];
-        }
-        return unboxed;
+    private byte[] decompress(final byte[] bytes) throws DataFormatException,
+            IOException {
+        return CompressionUtil.decompress(bytes);
     }
 
     /**

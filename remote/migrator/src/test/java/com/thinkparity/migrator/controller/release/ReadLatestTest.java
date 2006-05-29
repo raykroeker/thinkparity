@@ -20,38 +20,37 @@ import com.thinkparity.migrator.util.IQReader;
  */
 public class ReadLatestTest extends ControllerTestCase {
 
-    /** The test data. */
-    private Fixture data;
+    /** The test name. */
+    private static final String NAME = "[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST]";
+
+    /** The test datum. */
+    private Fixture datum;
 
     /** Create ReadLatestTest. */
-    public ReadLatestTest() {
-        super("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST]");
-    }
+    public ReadLatestTest() { super(NAME); }
 
     /** Test the handle IQ api. */
     public void testHandleIQ() {
         IQ response = null;
-        try { response = data.readLatest.handleIQ(data.iq); }
+        try { response = datum.readLatest.handleIQ(datum.iq); }
         catch(final UnauthorizedException ux) { fail(createFailMessage(ux)); }
 
-        assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST] [RESPONSE IS NULL]", response);
+        assertNotNull(NAME + " [RESPONSE IS NULL]", response);
         if(didFail(response)) { fail(createFailMessage(response)); }
 
         final IQReader iqReader = new IQReader(response);
         final Release release = new Release();
         release.setArtifactId(iqReader.readString(Xml.Release.ARTIFACT_ID));
+        release.setCreatedOn(iqReader.readCalendar(Xml.Release.CREATED_ON));
         release.setGroupId(iqReader.readString(Xml.Release.GROUP_ID));
         release.setId(iqReader.readLong(Xml.Release.ID));
         release.setVersion(iqReader.readString(Xml.Release.VERSION));
 
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST] [RELEASE DOES NOT EQUAL EXPECTATION]", data.eRelease, release);
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST] [RELEASE ARTIFACT ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getArtifactId(), release.getArtifactId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST] [RELEASE GROUP ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getGroupId(), release.getGroupId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST] [RELEASE ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getId(), release.getId());
-        assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [READ LATEST TEST] [RELEASE VERSION DOES NOT EQUAL EXPECTATION]", data.eRelease.getVersion(), release.getVersion());
+        assertNotNull(NAME, release);
+        assertEquals(NAME, datum.eRelease, release);
     }
 
-    /** Set up the test data. */
+    /** Set up the test datum. */
     protected void setUp() throws Exception {
         createRelease();
         createRelease();
@@ -60,13 +59,13 @@ public class ReadLatestTest extends ControllerTestCase {
         final IQ iq = createGetIQ();
         writeString(iq, Xml.Release.ARTIFACT_ID, eRelease.getArtifactId());
         writeString(iq, Xml.Release.GROUP_ID, eRelease.getGroupId());
-        data = new Fixture(new ReadLatest(), eRelease, iq);
+        datum = new Fixture(new ReadLatest(), eRelease, iq);
     }
 
-    /** Tear down the test data. */
-    protected void tearDown() throws Exception { data = null; }
+    /** Tear down the test datum. */
+    protected void tearDown() throws Exception { datum = null; }
 
-    /** The test data fixture. */
+    /** The test datum fixture. */
     private class Fixture {
         private final Release eRelease;
         private final IQ iq;

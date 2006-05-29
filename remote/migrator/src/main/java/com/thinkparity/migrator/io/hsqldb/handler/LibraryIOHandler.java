@@ -5,6 +5,7 @@
 package com.thinkparity.migrator.io.hsqldb.handler;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.LibraryBytes;
 import com.thinkparity.migrator.io.hsqldb.HypersonicException;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
 
@@ -19,15 +20,15 @@ public class LibraryIOHandler extends AbstractIOHandler implements
     private static final String SQL_CREATE =
         new StringBuffer("insert into LIBRARY")
         .append("(LIBRARY_TYPE_ID,LIBRARY_GROUP_ID,LIBRARY_ARTIFACT_ID,")
-        .append("LIBRARY_VERSION,CREATED_ON) ")
-        .append("values (?,?,?,?,NOW())")
+        .append("LIBRARY_VERSION,LIBRARY_PATH,CREATED_ON) ")
+        .append("values (?,?,?,?,?,NOW())")
         .toString();
 
     /** Sql to create a library's bytes. */
     private static final String SQL_CREATE_BYTES =
         new StringBuffer("insert into LIBRARY_BYTES")
-        .append("(LIBRARY_ID,LIBRARY_BYTES) ")
-        .append("values (?,?)")
+        .append("(LIBRARY_ID,LIBRARY_BYTES,LIBRARY_BYTES_CHECKSUM) ")
+        .append("values (?,?,?)")
         .toString();
 
     /** Sql to delete a library. */
@@ -45,14 +46,16 @@ public class LibraryIOHandler extends AbstractIOHandler implements
     /** Sql to read a library. */
     private static final String SQL_READ =
         new StringBuffer("select L.LIBRARY_ID,L.LIBRARY_TYPE_ID,")
-        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION,L.CREATED_ON ")
+        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION,")
+        .append("L.LIBRARY_PATH,L.CREATED_ON ")
         .append("from LIBRARY L ")
         .append("where L.LIBRARY_ID=?")
         .toString();
 
     private static final String SQL_READ_BY_ARTIFACT_ID_GROUP_ID_TYPE_VERSION =
         new StringBuffer("select L.LIBRARY_ID,L.LIBRARY_TYPE_ID,")
-        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION,L.CREATED_ON ")
+        .append("L.LIBRARY_GROUP_ID,L.LIBRARY_ARTIFACT_ID,L.LIBRARY_VERSION,")
+        .append("L.LIBRARY_PATH,L.CREATED_ON ")
         .append("from LIBRARY L ")
         .append("where L.LIBRARY_ARTIFACT_ID=? ")
         .append("and L.LIBRARY_GROUP_ID=? ")
@@ -62,7 +65,8 @@ public class LibraryIOHandler extends AbstractIOHandler implements
 
     /** Sel to read a library's bytes. */
     private static final String SQL_READ_BYTES =
-        new StringBuffer("select LB.LIBRARY_BYTES ")
+        new StringBuffer("select LB.LIBRARY_ID,LB.LIBRARY_BYTES,")
+        .append("LB.LIBRARY_BYTES_CHECKSUM ")
         .append("from LIBRARY_BYTES LB ")
         .append("where LB.LIBRARY_ID=?")
         .toString();
@@ -70,11 +74,9 @@ public class LibraryIOHandler extends AbstractIOHandler implements
     /** Create LibraryIOHandler. */
     public LibraryIOHandler() { super(); }
 
-    /**
-     * @see com.thinkparity.migrator.io.handler.LibraryIOHandler#create(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-     */
+    /** @see com.thinkparity.migrator.io.handler.LibraryIOHandler#create(java.lang.String, java.lang.String, java.lang.String, com.thinkparity.migrator.Library.Type, java.lang.String) */
     public Long create(final String artifactId, final String groupId,
-            final Library.Type type, final String version)
+            final String path, final Library.Type type, final String version)
             throws HypersonicException {
         final HypersonicSession session = openSession();
         try {
@@ -83,12 +85,35 @@ public class LibraryIOHandler extends AbstractIOHandler implements
             session.setString(2, groupId);
             session.setString(3, artifactId);
             session.setString(4, version);
+            session.setString(5, path);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
                         "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [LIBRARY] [CREATE] [COULD NOT EXECUTE UPDATE]");
 
             session.commit();
             return session.getIdentity();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /** @see com.thinkparity.migrator.io.handler.LibraryIOHandler#createBytes(java.lang.Long, java.lang.Byte[]) */
+    public void createBytes(final Long libraryId, final byte[] bytes,
+            final String checksum) throws HypersonicException {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_BYTES);
+            session.setLong(1, libraryId);
+            session.setBytes(2, bytes);
+            session.setString(3, checksum);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [LIBRARY] [CREATE BYTES] [COULD NOT EXECUTE UPDATE]");
+
+            session.commit();
         }
         catch(final HypersonicException hx) {
             session.rollback();
@@ -121,30 +146,6 @@ public class LibraryIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
      }
-
-    /** @see com.thinkparity.migrator.io.handler.LibraryIOHandler#createBytes(java.lang.Long, java.lang.Byte[]) */
-    public void createBytes(final Long libraryId, final Byte[] bytes)
-            throws HypersonicException {
-        final HypersonicSession session = openSession();
-        try {
-            final byte[] smallBytes = new byte[bytes.length];
-            for(int i = 0; i < bytes.length; i++) { smallBytes[i] = bytes[i]; }
-
-            session.prepareStatement(SQL_CREATE_BYTES);
-            session.setLong(1, libraryId);
-            session.setBytes(2, smallBytes);
-            if(1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [LIBRARY] [CREATE BYTES] [COULD NOT EXECUTE UPDATE]");
-
-            session.commit();
-        }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
-    }
 
 
     /**
@@ -191,7 +192,7 @@ public class LibraryIOHandler extends AbstractIOHandler implements
     }
 
     /** @see com.thinkparity.migrator.io.handler.LibraryIOHandler#readBytes(java.lang.Long) */
-    public Byte[] readBytes(final Long libraryId) throws HypersonicException {
+    public LibraryBytes readBytes(final Long libraryId) throws HypersonicException {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_BYTES);
@@ -213,16 +214,18 @@ public class LibraryIOHandler extends AbstractIOHandler implements
         library.setCreatedOn(session.getCalendar("CREATED_ON"));
         library.setGroupId(session.getString("LIBRARY_GROUP_ID"));
         library.setId(session.getLong("LIBRARY_ID"));
+        library.setPath(session.getString("LIBRARY_PATH"));
         library.setType(session.getLibraryTypeFromInteger("LIBRARY_TYPE_ID"));
         library.setVersion(session.getString("LIBRARY_VERSION"));
         return library;
     }
 
-    Byte[] extractLibraryBytes(final HypersonicSession session) {
-        final byte[] smallBytes = session.getBytes("LIBRARY_BYTES");
-        final Byte[] bigBytes = new Byte[smallBytes.length];
-        for(int i = 0; i < smallBytes.length; i++) { bigBytes[i] = smallBytes[i]; }
-        return bigBytes;
+    LibraryBytes extractLibraryBytes(final HypersonicSession session) {
+        final LibraryBytes libraryBytes = new LibraryBytes();
+        libraryBytes.setBytes(session.getBytes("LIBRARY_BYTES"));
+        libraryBytes.setChecksum(session.getString("LIBRARY_BYTES_CHECKSUM"));
+        libraryBytes.setLibraryId(session.getLong("LIBRARY_ID"));
+        return libraryBytes;
     }
 
     private void deleteBytes(final HypersonicSession session,

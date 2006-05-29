@@ -5,6 +5,7 @@
 package com.thinkparity.migrator.model.library;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.LibraryBytes;
 import com.thinkparity.migrator.model.AbstractModel;
 import com.thinkparity.migrator.model.Context;
 
@@ -53,6 +54,8 @@ public class LibraryModel extends AbstractModel {
      *            A artifact id.
      * @param groupId
      *            A group id.
+     * @param path
+     *            A library path.
      * @param type
      *            A library type.
      * @param version
@@ -60,20 +63,10 @@ public class LibraryModel extends AbstractModel {
      * @return A library.
      */
     public Library create(final String artifactId, final String groupId,
-            final Library.Type type, final String version) {
+            final String path, final Library.Type type, final String version) {
         synchronized(implLock) {
-            return impl.create(artifactId, groupId, type, version);
+            return impl.create(artifactId, groupId, path, type, version);
         }
-    }
-
-    /**
-     * Delete a library.
-     *
-     * @param libraryId
-     *      A library id.
-     */
-    public void delete(final Long libraryId) {
-        synchronized(implLock) { impl.delete(libraryId); }
     }
 
     /**
@@ -86,8 +79,19 @@ public class LibraryModel extends AbstractModel {
      *      
      * @xmpp.model.api
      */
-    public void createBytes(final Long libraryId, final Byte[] bytes) {
-        synchronized(implLock) { impl.createBytes(libraryId, bytes); }
+    public void createBytes(final Long libraryId, final byte[] bytes,
+            final String checksum) {
+        synchronized(implLock) { impl.createBytes(libraryId, bytes, checksum); }
+    }
+
+    /**
+     * Delete a library.
+     *
+     * @param libraryId
+     *      A library id.
+     */
+    public void delete(final Long libraryId) {
+        synchronized(implLock) { impl.delete(libraryId); }
     }
 
     /**
@@ -127,7 +131,7 @@ public class LibraryModel extends AbstractModel {
      * @param libraryId
      *      A library id.
      */
-    public Byte[] readBytes(final Long libraryId) {
+    public LibraryBytes readBytes(final Long libraryId) {
         synchronized(implLock) { return impl.readBytes(libraryId); }
     }
 

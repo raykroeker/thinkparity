@@ -3,10 +3,10 @@
  */
 package com.thinkparity.migrator.util;
 
-import java.util.Calendar;
-import java.util.SimpleTimeZone;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
+import java.util.SimpleTimeZone;
 import java.util.UUID;
 
 import org.dom4j.Element;
@@ -35,9 +35,9 @@ public class ElementBuilder {
      * @return The element.
      */
     public static Element addElement(final Element parent, final String name,
-            final Byte[] value) {
+            final byte[] value) {
         try {
-            return addElement(parent, name, Byte[].class, encode(compress(value)));
+            return addElement(parent, name, byte[].class, encode(compress(value)));
         }
         catch(final IOException iox) { throw new RuntimeException(iox); }
     }
@@ -185,6 +185,7 @@ public class ElementBuilder {
             addElement(libraryElement, Xml.Library.CREATED_ON, value.getCreatedOn());
             addElement(libraryElement, Xml.Library.GROUP_ID, value.getGroupId());
             addElement(libraryElement, Xml.Library.ID, value.getId());
+            addElement(libraryElement, Xml.Library.PATH, value.getPath());
             addElement(libraryElement, Xml.Library.TYPE, value.getType());
             addElement(libraryElement, Xml.Library.VERSION, value.getVersion());
         }
@@ -234,14 +235,8 @@ public class ElementBuilder {
      *      The bytes to compress.
      * @return The compressed bytes.
      */
-    private static Byte[] compress(final Byte[] bytes) throws IOException {
-        final byte[] boxed = new byte[bytes.length];
-        for(int i = 0; i < bytes.length; i++) { boxed[i] = bytes[i]; }
-        final byte[] compressed =
-                CompressionUtil.compress(boxed, CompressionUtil.Level.Nine);
-        final Byte[] unboxed = new Byte[compressed.length];
-        for(int i = 0; i < unboxed.length; i++) { unboxed[i] = compressed[i]; }
-        return unboxed;
+    private static byte[] compress(final byte[] bytes) throws IOException {
+        return CompressionUtil.compress(bytes, CompressionUtil.Level.Nine);
     }
 
     /**
@@ -251,10 +246,8 @@ public class ElementBuilder {
      *      The bytes to encode.
      * @return A Base64 encoding of the bytes.
      */
-    private static String encode(final Byte[] bytes) {
-        final byte[] boxed = new byte[bytes.length];
-        for(int i = 0; i < bytes.length; i++) { boxed[i] = bytes[i]; }
-        return Base64.encode(boxed);
+    private static String encode(final byte[] bytes) {
+        return Base64.encode(bytes);
     }
 
 	/** Create ElementBuilder */

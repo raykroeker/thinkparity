@@ -39,7 +39,7 @@ public class ReadTest extends MigratorTestCase {
             }
 
             assertNotNull("[RMIGRATOR] [LIBRARY] [READ TEST] [LIBRARY IS NULL]", library);
-            assertEquals("[RMIGRATOR] [LIBRARY] [READ TEST] [LIBRARY DOES NOT EQUAL EXPECTATION]", datum.eLibrary, library);
+            assertEquals("[RMIGRATOR] [LIBRARY] [READ TEST]", datum.eLibrary, library);
         }
     }
 

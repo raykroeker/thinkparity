@@ -112,7 +112,7 @@ public abstract class AbstractController extends
      *            The parameter name.
      * @return The byte array parameter value.
      */
-    protected Byte[] readByteArray(final String name) {
+    protected byte[] readByteArray(final String name) {
         return iqReader.readByteArray(name);
     }
 
@@ -174,7 +174,7 @@ public abstract class AbstractController extends
      * @param value
      *            The element value.
      */
-    protected void writeBytes(final String name, final Byte[] value) {
+    protected void writeBytes(final String name, final byte[] value) {
         iqWriter.writeBytes(name, value);
     }
 

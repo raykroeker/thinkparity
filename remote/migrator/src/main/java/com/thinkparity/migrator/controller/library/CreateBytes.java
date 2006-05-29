@@ -4,8 +4,8 @@
  */
 package com.thinkparity.migrator.controller.library;
 
-import com.thinkparity.migrator.controller.AbstractController;
 import com.thinkparity.migrator.Constants.Xml;
+import com.thinkparity.migrator.controller.AbstractController;
 
 /**
  * Library create bytes controller.
@@ -21,7 +21,9 @@ public final class CreateBytes extends AbstractController {
     /** @see com.thinkparity.migrator.controller.AbstractController#service() */
     public void service() {
         logger.info("[RMIGRATOR] [CONTROLLER] [LIBRARY] [CREATE BYTES]");
-        createBytes(readLong(Xml.Library.ID), readByteArray(Xml.Library.BYTES));
+        createBytes(readLong(Xml.Library.ID),
+                readByteArray(Xml.Library.BYTES),
+                readString(Xml.Library.CHECKSUM));
     }
 
     /**
@@ -32,7 +34,8 @@ public final class CreateBytes extends AbstractController {
      * @param bytes
      *            The library's bytes.
      */
-    private void createBytes(final Long libraryId, final Byte[] bytes) {
-        getLibraryModel(getClass()).createBytes(libraryId, bytes);
+    private void createBytes(final Long libraryId, final byte[] bytes,
+            final String checksum) {
+        getLibraryModel(getClass()).createBytes(libraryId, bytes, checksum);
     }
 }

@@ -55,23 +55,16 @@ public final class Constants {
         public static final String RESPONSE_NAMESPACE = "jabber:iq:parity:response";
 
         public static final class Library {
-
             public static final String ARTIFACT_ID = "artifactId";
-
             public static final String BYTES = "bytes";
-
+            public static final String CHECKSUM = "checksum";
             public static final String CREATED_ON = "createdOn";
-
             public static final String GROUP_ID = "groupId";
-
             public static final String ID = "id";
-
             public static final String LIBRARIES = "libraries";
-
             public static final String LIBRARY = "library";
-
+            public static final String PATH = "path";
             public static final String TYPE = "type";
-
             public static final String VERSION = "version";
         }
 

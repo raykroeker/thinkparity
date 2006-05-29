@@ -81,7 +81,8 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
     /** Sql to read the libraries for a release. */
     private static final String SQL_READ_LIBRARY_REL =
         new StringBuffer("select L.LIBRARY_ARTIFACT_ID,L.LIBRARY_GROUP_ID,")
-        .append("L.LIBRARY_ID,L.LIBRARY_TYPE_ID,L.LIBRARY_VERSION,L.CREATED_ON ")
+        .append("L.LIBRARY_ID,L.LIBRARY_TYPE_ID,L.LIBRARY_VERSION,")
+        .append("L.LIBRARY_PATH,L.CREATED_ON ")
         .append("from LIBRARY L ")
         .append("inner join RELEASE_LIBRARY_REL RLR ")
         .append("on L.LIBRARY_ID = RLR.LIBRARY_ID ")

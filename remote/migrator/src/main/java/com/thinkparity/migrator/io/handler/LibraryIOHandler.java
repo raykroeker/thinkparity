@@ -5,6 +5,7 @@
 package com.thinkparity.migrator.io.handler;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.LibraryBytes;
 import com.thinkparity.migrator.io.hsqldb.HypersonicException;
 
 /**
@@ -22,13 +23,15 @@ public interface LibraryIOHandler {
      *            The group id.
      * @param type
      *            The type.
+     * @param path
+     *            The path.
      * @param version
      *            The version.
      * @return The library id.
      * @throws HypersonicException
      */
     public Long create(final String artifactId, final String groupId,
-            final Library.Type type, final String version)
+            final String path, final Library.Type type, final String version)
             throws HypersonicException;
     /**
      * Create a library's bytes.
@@ -37,10 +40,12 @@ public interface LibraryIOHandler {
      *            A library id.
      * @param bytes
      *            A library's bytes.
+     * @param checksum
+     *            The byte checksum.
      * @throws HypersonicException
      */
-    public void createBytes(final Long libraryId, final Byte[] bytes)
-            throws HypersonicException;
+    public void createBytes(final Long libraryId, final byte[] bytes,
+            final String checksum) throws HypersonicException;
 
     /**
      * Delete a library.
@@ -85,5 +90,6 @@ public interface LibraryIOHandler {
      *      A library id.
      * @return A byte array.
      */
-    public Byte[] readBytes(final Long libraryId) throws HypersonicException;
+    public LibraryBytes readBytes(final Long libraryId)
+            throws HypersonicException;
 }

@@ -149,13 +149,15 @@ public class HypersonicSession {
 	public byte[] getBytes(final String columnName) {
 		assertOpen("[GET BYTES]");
 		assertOpenResult("[GET BYTES]");
-		try { return resultSet.getBytes(columnName); }
+        debugSql(columnName);
+        try { return resultSet.getBytes(columnName); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public Calendar getCalendar(final String columnName) {
 		assertOpen("[GET CALENDAR]");
 		assertOpenResult("[GET CALENDAR]");
+        debugSql(columnName);
 		try {
 			final Calendar calendar = DateUtil.getInstance();
 			final Timestamp timestamp = resultSet.getTimestamp(columnName, calendar);

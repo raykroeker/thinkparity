@@ -49,8 +49,8 @@ public class CreateTest extends ControllerTestCase {
         release.setId(iqReader.readLong(Xml.Release.ID));
         release.setVersion(iqReader.readString(Xml.Release.VERSION));
 
+        assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST]", release);
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ARTIFACT ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getArtifactId(), release.getArtifactId());
-        assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE CREATED ON IS NULL]", release.getCreatedOn());
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE GROUP ID DOES NOT EQUAL EXPECTATION]", data.eRelease.getGroupId(), release.getGroupId());
         assertNotNull("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE ID IS NULL]", release.getId());
         assertEquals("[RMIGRATOR] [CONTROLLER] [RELEASE] [CREATE TEST] [RELEASE VERSION DOES NOT EQUAL EXPECTATION]", data.eRelease.getVersion(), release.getVersion());

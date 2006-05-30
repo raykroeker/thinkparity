@@ -34,6 +34,8 @@ public class BrowserPlatformInitializer {
 		System.setProperty("sun.awt.noerasebackground", "true");
 		System.setProperty("parity.insecure", "true");
         initializePropertyParityWorkspace();
+        initParityServerHost();
+        initParityServerPort();
 
 		final Logger logger =
             LoggerFactory.getLogger(BrowserPlatformInitializer.class);
@@ -107,5 +109,15 @@ public class BrowserPlatformInitializer {
             }
             System.setProperty("parity.workspace", parityWorkspacePath);
         }
+    }
+
+    private static void initParityServerHost() {
+        final String serverHost = System.getProperty("parity.serverhost");
+        if(null == serverHost) { System.setProperty("parity.serverhost", "thinkparity.dyndns.org"); }
+    }
+
+    private static void initParityServerPort() {
+        final Integer serverPort= Integer.getInteger("parity.serverport", null);
+        if(null == serverPort) { System.setProperty("parity.serverport", "5222"); }
     }
 }

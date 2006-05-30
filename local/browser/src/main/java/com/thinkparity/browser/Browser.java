@@ -20,7 +20,7 @@ public class Browser {
 	 * @param args
 	 *            Command line arguments.
 	 */
-	public static void main(String[] args) { BrowserPlatform.start(args); }
+	public static void main(String[] args) { new BrowserPlatform().start(); }
 
 	/**
 	 * Create a Browser.

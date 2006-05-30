@@ -4,10 +4,13 @@
  */
 package com.thinkparity.browser.platform.update;
 
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
+
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.Constants;
-import com.thinkparity.browser.Version;
-import com.thinkparity.browser.platform.BrowserPlatform;
+import com.thinkparity.browser.platform.Platform;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.download.DownloadModel;
@@ -36,12 +39,20 @@ public class UpdateHelper {
     /** The latest release. */
     private Release latestRelease;
 
+    /** The platform. */
+    private Platform platform;
+
     /** The parity release interface. */
     private final ReleaseModel rModel;
 
+    /** An apache logger. */
+    private final Logger logger;
+
     /** Create UpdateHelper. */
-    public UpdateHelper(final BrowserPlatform platform) {
+    public UpdateHelper(final Platform platform) {
         super();
+        this.logger = platform.getLogger(getClass());
+        this.platform = platform;
         this.dModel = platform.getModelFactory().getDownload(getClass());
         this.iModel = platform.getModelFactory().getInstall(getClass());
         this.rModel = platform.getModelFactory().getRelease(getClass());
@@ -54,7 +65,9 @@ public class UpdateHelper {
      */
     public Boolean isAvailable() {
         final Release current = readCurrentRelease();
+        logger.debug(current);
         final Release latest = readLatestRelease();
+        logger.debug(latest);
         return new ReleaseDateComparator(latest).isAfter(current);
     }
 
@@ -62,12 +75,18 @@ public class UpdateHelper {
     public void update() {
         final Release release = readLatestRelease();
 
-        // if the download is not complete; download
+        // download
         try { if(!dModel.isComplete(release)) { dModel.download(release); } }
         catch(final ParityException px) { throw new BrowserException("", px); }
 
+        // install
         try { iModel.install(release); }
         catch(final ParityException px) { throw new BrowserException("", px); }
+
+        // set property for restart
+        final Properties properties = new Properties();
+        properties.setProperty("parity.image.name", release.getVersion());
+        platform.restart(properties);
     }
 
     /**
@@ -78,8 +97,9 @@ public class UpdateHelper {
     private Release readCurrentRelease() {
         if(null == currentRelease) {
             currentRelease = rModel.read(
-                    Constants.Release.ARTIFACT_ID, Constants.Release.GROUP_ID,
-                    Version.getVersion());
+                    Constants.Release.ARTIFACT_ID,
+                    Constants.Release.GROUP_ID,
+                    Constants.Release.VERSION);
         }
         return currentRelease;
     }

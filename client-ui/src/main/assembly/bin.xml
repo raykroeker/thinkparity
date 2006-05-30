@@ -36,13 +36,6 @@
         <!-- thinkParity:  Image -->
         <!-- /${version} -->
         <fileSet>
-			<outputDirectory>/${artifactId}-${version}/${version}</outputDirectory>
-			<includes>
-				<include>README.txt</include>
-				<include>LICENSE.txt</include>
-			</includes>
-		</fileSet>
-        <fileSet>
             <outputDirectory>/${artifactId}-${version}/${version}</outputDirectory>
             <directory>target/classes</directory>
             <includes>

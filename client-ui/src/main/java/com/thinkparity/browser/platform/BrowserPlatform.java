@@ -6,6 +6,7 @@ package com.thinkparity.browser.platform;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -25,7 +26,6 @@ import com.thinkparity.browser.platform.update.UpdateHelper;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.codebase.Mode;
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -38,24 +38,16 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  */
 public class BrowserPlatform implements Platform {
 
-	/** The singleton instance. */
-	private static BrowserPlatform SINGLETON;
-
 	static { BrowserPlatformInitializer.initialize(); }
 
 	/**
-	 * Start the platform.
-	 * 
-	 * @param args
-	 *            Startup arguments.
-	 */
-	public static void start(final String[] args) {
-		Assert.assertIsNull(
-				"[LBROWSER] [PLATFORM] [START] [ALREADY STARTED]]",
-				SINGLETON);
-		SINGLETON = new BrowserPlatform();
-		SINGLETON.doStart();
-	}
+     * Obtain a log id for the platform class.
+     * 
+     * @return A log id.
+     */
+    private static StringBuffer getLogId(final String suffix) {
+        return new StringBuffer("[LBROWSER] [PLATFORM] ").append(suffix);
+    }
 
 	/**
 	 * The platform's logger.
@@ -75,13 +67,13 @@ public class BrowserPlatform implements Platform {
 	 */
 	private final AvatarRegistry avatarRegistry;
 
-	/**
+    /**
 	 * The platform's login helper.
 	 * 
 	 */
 	private final LoginHelper loginHelper;
 
-    /**
+	/**
 	 * The parity model factory.
 	 * 
 	 */
@@ -118,7 +110,7 @@ public class BrowserPlatform implements Platform {
 	 * Create a BrowserPlatform [Singleton]
 	 * 
 	 */
-	private BrowserPlatform() {
+	public BrowserPlatform() {
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
 		this.windowRegistry = new WindowRegistry();
@@ -182,13 +174,13 @@ public class BrowserPlatform implements Platform {
 	 */
 	public Preferences getPreferences() { return preferences; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.Platform#getWindowRegistry()
 	 * 
 	 */
 	public WindowRegistry getWindowRegistry() { return windowRegistry; }
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.Platform#hibernate(com.thinkparity.browser.platform.application.ApplicationId)
 	 * 
 	 */
@@ -208,13 +200,13 @@ public class BrowserPlatform implements Platform {
 		return Version.getMode() == Mode.TESTING;
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.ApplicationListener#notifyEnd(com.thinkparity.browser.platform.application.Application)
 	 * 
 	 */
 	public void notifyEnd(final Application application) {
-        logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION END]");
-        logger.debug(application.getId());
+        logger.info(getLogId("[NOTIFY END]"));
+        logger.debug(application);
 	}
 
 	/**
@@ -222,8 +214,8 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyHibernate(final Application application) {
-		logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION HIBERNATE]");
-        logger.debug(application.getId());
+		logger.info(getLogId("[NOTIFY HIBERNATE]"));
+        logger.debug(application);
 	}
 
     /**
@@ -231,8 +223,8 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyRestore(final Application application) {
-        logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION RESTORE]");
-        logger.debug(application.getId());
+        logger.info(getLogId("[NOTIFY RESTORE]"));
+        logger.debug(application);
 	}
 
 	/**
@@ -240,21 +232,27 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyStart(final Application application) {
-        logger.info("[LBROWSER] [PLATFORM] [NOTIFY APPLICATION START]");
-        logger.debug(application.getId());
+        logger.info(getLogId("[NOTIFY START]"));
+        logger.debug(application);
 	}
 
 	/** @see com.thinkparity.browser.platform.Platform#restart() */
-    public void restart() {
-        logger.info("[LBROWSER] [PLATFORM] [RESTARTING PLATFORM]");
+    public void restart() { restart(System.getProperties()); }
+
+    /** @see com.thinkparity.browser.platform.Platform#restart(java.util.Properties) */
+    public void restart(final Properties properties) {
+        logger.info(getLogId("[RESTART]"));
+        logger.debug(properties);
 
         // attach a process to the jvm shutdown
         final List<String> commands = new ArrayList<String>();
         commands.add(Java.EXECUTABLE);
-        commands.add(Java.OPTION_PARITY_INSTALL);
+        if(properties.containsKey("parity.image.name"))
+            commands.add(Java.OPTION_PARITY_IMAGE.format(new Object[] {properties.getProperty("parity.image.name")}));
+        commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {Directories.PARITY_INSTALL.getAbsolutePath()}));
         commands.add(Java.OPTION_PARITY_SERVER_HOST.format(new Object[] {preferences.getServerHost()}));
         commands.add(Java.OPTION_PARITY_SERVER_PORT.format(new Object[] {preferences.getServerPort().toString()}));
-        commands.add(Java.OPTION_PARITY_WORKSPACE);
+        commands.add(Java.OPTION_PARITY_WORKSPACE.format(new Object[] {workspace.getWorkspaceURL().getFile()}));
         commands.add(Java.OPTION_CLASS_PATH);
         commands.add(Java.OPTION_CLASS_PATH_VALUE);
         commands.add(Java.MAIN_CLASS);
@@ -268,7 +266,9 @@ public class BrowserPlatform implements Platform {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 try { pb.start(); }
-                catch(final IOException iox) { throw new BrowserException("", iox); }
+                catch(final IOException iox) {
+                    throw new BrowserException(getLogId("[RESTARTING PLATFORM] [RESTART IO ERROR]").toString(), iox);
+                }
             }
         });
         end();
@@ -279,34 +279,47 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void restore(final ApplicationId applicationId) {
-		logger.info("[BROWSER2] [PLATFORM] [RESTORING APPLICATION]");
+		logger.info(getLogId("[RESTORE]"));
+        logger.debug(applicationId);
 		applicationRegistry.get(applicationId).restore(this);
 	}
 
-    /** Start the  platform. */
-	private void doStart() {
+    /**
+     * @see com.thinkparity.browser.platform.Platform#start()
+     * 
+     */
+	public void start() {
+        logger.info(getLogId("[START]"));
         if(isUpdateAvailable()) { update(); }
-        if(!isFirstRun()) { firstRun(); }
-	    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
-	    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
-        // login after the browser is launched
-        if(!isLoggedIn()) { login(); }
+        else {
+            if(!isFirstRun()) { firstRun(); }
+    	    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
+    	    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
+            // login after the browser is launched
+            if(!isLoggedIn()) { login(); }
+        }
 	}
 
-	/** Perform first run initialization. */
+    /** Update the browser. */
+    public void update() {
+        logger.info(getLogId("[UPDATE]"));
+        updateHelper.update();
+    }
+
+    /** Perform first run initialization. */
     private void firstRun() {
         login();
         if(!isLoggedIn()) { System.exit(0); }
     }
 
-    /**
+	/**
      * Determine if this is the first time the platform has been run.
      *
      * @return True if this is the first run of the platform.
      */
     private Boolean isFirstRun() { return null != preferences.getLastRun(); }
 
-	/**
+    /**
 	 * Determine whether or not the user is logged in.
 	 * 
 	 * @return True if the user is logged in false otherwise.
@@ -326,10 +339,4 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	private void login() { loginHelper.login(); }
-
-    /** Update the browser. */
-    private void update() {
-        updateHelper.update();
-        restart();
-    }
 }

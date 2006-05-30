@@ -21,9 +21,6 @@ import com.thinkparity.browser.application.system.SystemApplication;
  */
 class TrayMenuBuilder {
 
-    /** System application. */
-    private final SystemApplication application;
-
     /** The about action. */
     final Action about;
 
@@ -36,9 +33,6 @@ class TrayMenuBuilder {
     /** The edit profile action. */
     final Action editProfile;
 
-    /** The restart action. */
-    final Action restart;
-
     /** The exit action. */
     final Action exit;
 
@@ -47,6 +41,9 @@ class TrayMenuBuilder {
 
     /** The logout action. */
     final Action logout;
+
+    /** System application. */
+    private final SystemApplication application;
 
     /** Create a TrayMenuBuilder. */
     TrayMenuBuilder(final SystemApplication application) {
@@ -78,13 +75,6 @@ class TrayMenuBuilder {
             public void actionPerformed(final ActionEvent e) {
             }};
         this.editProfile.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.EditProfileMnemonic").charAt(0)));
-
-        this.restart = new AbstractAction(getString("Menu.Restart")) {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-                application.runRestartPlatform();
-            }};
-        this.restart.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.RestartMnemonic").charAt(0)));
 
         this.exit = new AbstractAction(getString("Menu.Exit")) {
             private static final long serialVersionUID = 1;
@@ -125,7 +115,6 @@ class TrayMenuBuilder {
         jPopupMenu.add(logout);
         jPopupMenu.add(about);
         jPopupMenu.addSeparator();
-        jPopupMenu.add(restart);
         jPopupMenu.add(exit);
 
         return jPopupMenu;

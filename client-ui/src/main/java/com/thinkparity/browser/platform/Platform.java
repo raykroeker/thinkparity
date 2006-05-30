@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.platform;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
@@ -19,30 +21,27 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
  */
 public interface Platform extends ApplicationListener {
 
-    /** Connection status. */
-    public enum Connection { OFFLINE, ONLINE }
-
     /**
      * End the platform.
      *
      */
     public void end();
 
-	public AvatarRegistry getAvatarRegistry();
+    public AvatarRegistry getAvatarRegistry();
 
-    /**
+	/**
      * Obtain the current connection status.
      *
      * @return The connection status.
      */
     public Connection getConnectionStatus();
 
-	public Logger getLogger(final Class clasz);
+    public Logger getLogger(final Class clasz);
+
 	public ModelFactory getModelFactory();
 	public BrowserPlatformPersistence getPersistence();
 	public Preferences getPreferences();
 	public WindowRegistry getWindowRegistry();
-
 	/**
 	 * Request that the application hibernate.
 	 * 
@@ -60,14 +59,14 @@ public interface Platform extends ApplicationListener {
 	 */
 	public Boolean isDebugMode();
 
-    /**
+	/**
      * Determine whether or not the platform is online.
      *
      * @return True if the application is online; false otherwise.
      */
     public Boolean isOnline();
 
-	/**
+    /**
 	 * Indicates whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the application is in debug mode; false otherwise.
@@ -76,8 +75,16 @@ public interface Platform extends ApplicationListener {
 	 */
 	public Boolean isTestMode();
 
-    /** Restart the platform. */
+	/** Restart the platform. */
     public void restart();
+
+    /**
+     * Restart the platform with the specified properties.
+     * 
+     * @param properties
+     *            Platform properties.
+     */
+    public void restart(final Properties properties);
 
     /**
 	 * RestoreBrower an application from hibernation.
@@ -86,4 +93,19 @@ public interface Platform extends ApplicationListener {
 	 *            The application id.
 	 */
 	public void restore(final ApplicationId applicationId);
+
+    /**
+     * Update the browser platform.
+     *
+     */
+    public void update();
+
+    /**
+     * Start the browser platform.
+     *
+     */
+    public void start();
+
+    /** Connection status. */
+    public enum Connection { OFFLINE, ONLINE }
 }

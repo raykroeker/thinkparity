@@ -11,13 +11,6 @@
 	<fileSets>
         <!-- / -->
         <fileSet>
-			<outputDirectory>/</outputDirectory>
-			<includes>
-				<include>README.txt</include>
-				<include>LICENSE.txt</include>
-			</includes>
-		</fileSet>
-        <fileSet>
             <outputDirectory>/</outputDirectory>
             <directory>target/classes</directory>
             <includes>

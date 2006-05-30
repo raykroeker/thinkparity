@@ -33,21 +33,11 @@ public final class Constants {
                 .append(File.separator).append("javaw")
                 .toString();
 
-        public static final String OPTION_PARITY_INSTALL =
-                new StringBuffer("-Dparity.install=")
-                .append(System.getProperty("parity.install"))
-                .toString();
-
-        public static final MessageFormat OPTION_PARITY_SERVER_HOST =
-                new MessageFormat("-Dparity.serverhost={0}");
-
-        public static final MessageFormat OPTION_PARITY_SERVER_PORT =
-                new MessageFormat("-Dparity.serverport={0}");
-
-        public static final String OPTION_PARITY_WORKSPACE =
-                new StringBuffer("-Dparity.workspace=")
-                .append(System.getProperty("parity.workspace"))
-                .toString();
+        public static final MessageFormat OPTION_PARITY_IMAGE = new MessageFormat("-Dparity.image.name={0}");
+        public static final MessageFormat OPTION_PARITY_INSTALL = new MessageFormat("-Dparity.install={0}");
+        public static final MessageFormat OPTION_PARITY_SERVER_HOST = new MessageFormat("-Dparity.serverhost={0}");
+        public static final MessageFormat OPTION_PARITY_SERVER_PORT = new MessageFormat("-Dparity.serverport={0}");
+        public static final MessageFormat OPTION_PARITY_WORKSPACE = new MessageFormat("-Dparity.workspace={0}");
 
         public static final String MAIN_CLASS = "com.thinkparity.ThinkParity";
 
@@ -64,5 +54,6 @@ public final class Constants {
     public static final class Release {
         public static final String ARTIFACT_ID = "lBrowser";
         public static final String GROUP_ID = "com.thinkparity.parity";
+        public static final String VERSION = Version.getVersion();
     }
 }

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Properties;
 
@@ -20,7 +21,6 @@ import com.thinkparity.model.parity.model.library.InternalLibraryModel;
 import com.thinkparity.model.parity.model.library.LibraryModel;
 
 import com.thinkparity.migrator.Library;
-import com.thinkparity.migrator.LibraryBytes;
 import com.thinkparity.migrator.Release;
 
 /**
@@ -56,21 +56,11 @@ public class DownloadHelper extends AbstractModelImplHelper {
     }
 
     /**
-     * Download a library.
-     *
-     * @param library
-     *      A library.
+     * Determine if a download is complete.
+     * 
+     * @return True if the download is complete; false otherwise.
+     * @throws IOException
      */
-    public void download(final Library library) throws IOException {
-        final File libraryFile = fsHelper.getFile(library);
-        LibraryBytes libraryBytes = ilModel.readBytes(library.getId());
-        FileUtil.writeBytes(libraryFile, libraryBytes.getBytes());
-        libraryBytes = null;
-        Assert.assertTrue(
-            "[RMODEL] [RELEASE] [DOWNLOAD HELPER] [CANNOT MARK LIBRARY AS READ ONLY]",
-            libraryFile.setReadOnly());
-    }
-
     public Boolean isComplete() throws IOException {
         if(getManifestFile().exists()) {
             FileInputStream fis = null;
@@ -90,30 +80,23 @@ public class DownloadHelper extends AbstractModelImplHelper {
     }
 
     /**
-     * Determine whether or not the library has been downloaded.
-     *
-     * @param library
-     *      A library.
-     * @return True if the library has been downloaded.
+     * Determine if the download has been started.
+     * 
+     * @return True if the download has been started; false otherwise.
      */
-    public Boolean isDownloaded(final Library library) {
-        if(isStarted()) {
-            final File libraryFile = fsHelper.getFile(library);
-            return libraryFile.exists()
-                    && libraryFile.canRead()
-                    && !libraryFile.canWrite();
-        }
-        else { return Boolean.FALSE; }
-    }
+    public Boolean isStarted() { return getManifestFile().exists(); }
 
-    public Boolean isStarted() { return fsHelper.getRoot().exists(); }
-
+    /**
+     * Resume the download. This will resume a download where it left off.
+     * 
+     * @throws IOException
+     */
     public void resume() throws IOException {
         Assert.assertTrue(
-                "[DOWNLOAD HELPER] [RESUME] [DOWNLOAD NOT YET STARTED]",
+                "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD RESUME] [DOWNLOAD NOT YET STARTED]",
                 isStarted());
         Assert.assertNotTrue(
-                "[DOWNLOAD HELPER] [RESUME] [DOWNLOAD COMPLETE]",
+                "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD RESUME] [DOWNLOAD COMPLETE]",
                 isComplete());
         File downloadFile;
         Long libraryId;
@@ -123,24 +106,42 @@ public class DownloadHelper extends AbstractModelImplHelper {
                 Assert.assertTrue("[DOWNLOAD HELPER] [RESUME] [CANNOT CREATE NEW FILE]",
                         downloadFile.getParentFile().mkdir());
             }
+            libraryId = parseManifestKeyForId((String) key);
             if(!downloadFile.exists()) {
-                Assert.assertTrue("[DOWNLOAD HELPER] [RESUME] [CANNOT CREATE NEW FILE]",
+                logger.debug(MessageFormat.format(
+                        "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD RESUME] [DOWNLOADING LIBRARY {0}]",
+                        new Object[] {libraryId}));
+                Assert.assertTrue(MessageFormat.format(
+                        "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD RESUME] [LIBRARY FILE {0} CANNOT BE CREATED]",
+                        new Object[] {downloadFile.getAbsolutePath()}),
                         downloadFile.createNewFile());
-                libraryId = parseManifestKeyForId((String) key);
                 FileUtil.writeBytes(downloadFile, ilModel.readBytes(libraryId).getBytes());
-                Assert.assertTrue(
-                    "[RMODEL] [RELEASE] [DOWNLOAD HELPER] [CANNOT MARK LIBRARY AS READ ONLY]",
-                    downloadFile.setReadOnly());
+                Assert.assertTrue(MessageFormat.format(
+                        "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD RESUME] [LIBRARY FILE {0} CANNOT MARKED AS READ ONLY]",
+                        new Object[] {downloadFile.getAbsolutePath()}),
+                        downloadFile.setReadOnly());
+            }
+            else {
+                logger.debug(MessageFormat.format(
+                        "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD RESUME] [LIBRARY {0} ALREADY DOWNLOADED]",
+                        new Object[] {libraryId}));
             }
         }
     }
 
+    /**
+     * This will start the download of the list of libraries.
+     * 
+     * @param libraries
+     *            A list of libraries.
+     * @throws IOException
+     */
     public void start(final List<Library> libraries) throws IOException {
         Assert.assertNotTrue(
-                "[DOWNLOAD HELPER] [START] [DOWNLOAD ROOT ALREADY EXISTS]",
+                "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD START] [DOWNLOAD ROOT ALREADY EXISTS]",
                 fsHelper.getRoot().exists());
         Assert.assertTrue(
-                "[DOWNLOAD HELPER] [START] [CANNOT CREATE DOWNLOAD ROOT]",
+                "[LMODEL] [DOWNLOAD MODEL] [DOWNLOAD START] [DOWNLOAD ROOT CANNOT BE CREATED]",
                 fsHelper.getRoot().mkdirs());
         for(final Library library : libraries) {
             manifest.setProperty(getManifestKey(library), getManifestValue(library));
@@ -153,11 +154,22 @@ public class DownloadHelper extends AbstractModelImplHelper {
         }
     }
 
+    /**
+     * Obtain the manifest file for the download.
+     * 
+     * @return A file.
+     */
     private File getManifestFile() {
-        return new File(
-                fsHelper.getRoot(), release.getVersion() + ".download");
+        return new File(fsHelper.getRoot(), release.getVersion() + ".download");
     }
 
+    /**
+     * Obtain a manifest key for a library.
+     * 
+     * @param library
+     *            A library.
+     * @return A manifest key.
+     */
     private String getManifestKey(final Library library) {
         return new StringBuffer()
             .append(library.getId())
@@ -167,10 +179,24 @@ public class DownloadHelper extends AbstractModelImplHelper {
             .toString();
     }
 
+    /**
+     * Obtain a manifest value for a library.
+     * 
+     * @param library
+     *            A library.
+     * @return A manifest value.
+     */
     private String getManifestValue(final Library library) {
         return library.getPath();
     }
 
+    /**
+     * Parse a manifest key for the library's id.
+     * 
+     * @param manifestKey
+     *            A manifest key.
+     * @return The library's id.
+     */
     private Long parseManifestKeyForId(final String manifestKey) {
         return Long.valueOf(manifestKey.substring(0, manifestKey.indexOf(":")));
     }

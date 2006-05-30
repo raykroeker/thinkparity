@@ -410,6 +410,11 @@ public class XMPPSession {
                             library.setId(Long.valueOf(parser.getText()));
                             parser.next();
                         }
+                        else if("path".equals(parseName(parser))) {
+                            parser.next();
+                            library.setPath(parser.getText());
+                            parser.next();
+                        }
                         else if("type".equals(parseName(parser))) {
                             parser.next();
                             library.setType(Library.Type.valueOf(parser.getText()));

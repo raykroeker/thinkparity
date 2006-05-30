@@ -3,13 +3,13 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.thinkparity.parity</groupId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.0-RC4</version>
 	<url>http://thinkparity.dyndns.org</url>
  
     <parent>
         <artifactId>parity</artifactId>
         <groupId>com.thinkparity.parity</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-RC4</version>
     </parent>
 
 	<artifactId>rModel</artifactId>

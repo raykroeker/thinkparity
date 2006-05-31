@@ -20,6 +20,7 @@ public final class Constants extends com.thinkparity.codebase.Constants {
 
     public static final class Directories extends
             com.thinkparity.codebase.Constants.Local.Directories {
+        public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
         public static final File DOWNLOAD = new File(com.thinkparity.codebase.Constants.Local.Directories.INSTALL, DirectoryNames.DOWNLOAD);
     }
 
@@ -57,7 +58,7 @@ public final class Constants extends com.thinkparity.codebase.Constants {
     public static final class Release {
         public static final String ARTIFACT_ID = "lBrowser";
         public static final String GROUP_ID = "com.thinkparity.parity";
-        public static final String VERSION = "1.0.0.RC4";
+        public static final String VERSION = "1.0.0-RC4";
     }
 
     public static final class Sundry {

@@ -35,12 +35,14 @@ public abstract class ModelTestCase extends TestCase {
 		System.setProperty("parity.insecure", "true");
 		// set staging system
         if(Mode.DEVELOPMENT == Version.getMode()) {
-            System.setProperty("parity.serverhost", "rk-mobile.raykroeker.com");
+            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
         }
         else if(Mode.TESTING == Version.getMode()) {
             System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
         }
-        else if(Mode.PRODUCTION == Version.getMode()) {}
+        else if(Mode.PRODUCTION == Version.getMode()) {
+            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
+        }
         else { Assert.assertUnreachable("[RMODEL] [TEST INIT] [UNKNOWN OP MODE]"); }
 
 		testSession = TestCase.getTestSession();

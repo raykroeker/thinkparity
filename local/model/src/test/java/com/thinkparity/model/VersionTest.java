@@ -49,7 +49,7 @@ public class VersionTest extends ModelTestCase {
 		super.setUp();
 
 		data = new LinkedList<Fixture>();
-		data.add(new Fixture("thinkParity - Local Model", "1.0-SNAPSHOT"));
+		data.add(new Fixture("thinkParity - Local Model", "1.0.0-RC4"));
 	}
 
 	/**

@@ -50,6 +50,7 @@ import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.Constants.Directories;
 
 /**
  * Implementation of the document model interface.
@@ -1314,21 +1315,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 */
 	private void assertValidOutputDirectory() {
-		Assert.assertTrue(
-				"Archive output directory has not been set.",
-				preferences.isSetArchiveOutputDirectory());
-		final File aod = preferences.getArchiveOutputDirectory();
-		if(!aod.exists()) {
+		if(!Directories.ARCHIVE.exists()) {
 			Assert.assertTrue(
-					format("Cannot create archive output directory [{0}]", aod),
-					aod.mkdir());
+					format("Cannot create archive output directory [{0}]", Directories.ARCHIVE),
+					Directories.ARCHIVE.mkdir());
 		}
 		Assert.assertTrue(
-				format("Archive output directory [{0}] is not a directory.", aod), aod.isDirectory());
+				format("Archive output directory [{0}] is not a directory.", Directories.ARCHIVE), Directories.ARCHIVE.isDirectory());
 		Assert.assertTrue(
-				format("Cannot read archive output directory [{0}]", aod), aod.canRead());
+				format("Cannot read archive output directory [{0}]", Directories.ARCHIVE), Directories.ARCHIVE.canRead());
 		Assert.assertTrue(
-				format("Cannot write archive output directory [{0}]", aod), aod.canWrite());
+				format("Cannot write archive output directory [{0}]", Directories.ARCHIVE), Directories.ARCHIVE.canWrite());
 	}
 
     /**

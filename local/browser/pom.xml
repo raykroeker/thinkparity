@@ -26,14 +26,14 @@
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>codebase</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0-RC4</version>
 			<scope>compile</scope>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>lModel</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.0-RC4</version>
 			<scope>compile</scope>
 			<type>jar</type>
 		</dependency>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>com.thinkparity.parity</groupId>
             <artifactId>thinkParity</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0-RC4</version>
             <scope>runtime</scope>
             <type>jar</type>
         </dependency>
@@ -98,7 +98,7 @@
             <plugin>
                 <groupId>com.thinkparity.parity</groupId>
                 <artifactId>lBrowserMojo</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0.0-RC4</version>
                 <configuration>
                     <connection implementation="com.thinkparity.browser.mojo.Connection">
                         <host>rkutil.raykroeker.com</host>

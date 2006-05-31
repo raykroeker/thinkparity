@@ -2,13 +2,13 @@
 <plugin>
     <class>com.thinkparity.migrator.Plugin</class>
 
-    <name>thinkParity Solutions Inc:  Remote Migrator</name>
+    <name>${pom.name}</name>
     <description>Provides auto-update functionality and release storage for thinkParity solutions.</description>
-    <author>thinkParity Solutions Inc.</author>
-    <version>1.0</version>
+    <author></author>
+    <version>${pom.version}</version>
     <!-- MM/DD/YYYY -->
     <date>05/11/2006</date>
-    <url>http://www.thinkparity.com</url>
+    <url>${pom.url}</url>
     <minServerVersion>2.3.1</minServerVersion>
 
 </plugin>

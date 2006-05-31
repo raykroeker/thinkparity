@@ -31,7 +31,7 @@
 			<outputDirectory>/lib</outputDirectory>
 			<directory>target</directory>
 			<includes>
-				<include>rModel-1.0-SNAPSHOT.jar</include>
+				<include>${artifactId}-${version}.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>

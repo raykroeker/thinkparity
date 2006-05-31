@@ -12,7 +12,7 @@
 
   ;Name and file
   Name "thinkParity ${pom.artifactId}"
-  OutFile "thinkParity ${pom.artifactId}.exe"
+  OutFile "thinkParity ${pom.artifactId} ${pom.version}.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\thinkParity\${pom.artifactId}"

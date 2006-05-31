@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thinkparity.parity</groupId>
-    <version>1.0.0-RC4</version>
+    <version>1.0.0-RC5</version>
     <url>http://thinkparity.dyndns.org</url>
 
     <parent>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>com.thinkparity.parity</groupId>
             <artifactId>thinkParity</artifactId>
-            <version>1.0.0-RC4</version>
+            <version>1.0.0-RC5</version>
             <scope>runtime</scope>
             <type>jar</type>
         </dependency>

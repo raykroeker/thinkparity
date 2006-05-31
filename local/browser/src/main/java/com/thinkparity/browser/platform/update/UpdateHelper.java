@@ -68,7 +68,9 @@ public class UpdateHelper {
         logger.debug(current);
         final Release latest = readLatestRelease();
         logger.debug(latest);
-        return new ReleaseDateComparator(latest).isAfter(current);
+        if(null == latest) { return Boolean.FALSE; }
+        if(null == current) { return Boolean.TRUE; }
+        else { return new ReleaseDateComparator(latest).isAfter(current); }
     }
 
     /** Update. */

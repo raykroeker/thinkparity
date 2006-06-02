@@ -431,6 +431,19 @@ public class DocumentModel {
 	}
 
     /**
+     * Rename a document.
+     *
+     * @param documentId
+     *      A document id.
+     * @param documentName
+     *      A document name.
+     */
+    public void rename(final Long documentId, final String documentName)
+            throws ParityException {
+        synchronized(implLock) { impl.rename(documentId, documentName); }
+    }
+
+    /**
      * Publish a document.  Publishing a document involves the following
      * process:<ol>
      *  <li>Check if the working version differs from the latest version. If<ul>

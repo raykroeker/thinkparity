@@ -453,7 +453,7 @@ class DocumentModelImpl extends AbstractModelImpl {
             // audit the creation
 			auditor.create(document.getId(), currentUserId(), document.getCreatedOn());
 
-			// index the creation
+			// index the document
 			indexor.create(document.getId(), document.getName());
 
             // fire event
@@ -1166,6 +1166,32 @@ class DocumentModelImpl extends AbstractModelImpl {
 			DocumentModelImpl.LISTENERS.remove(l);
 		}
 	}
+
+    /**
+     * Rename a document.
+     *
+     * @param documentId
+     *      A document id.
+     * @param documentName
+     *      A document name.
+     */
+    void rename(final Long documentId, final String documentName)
+            throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [RENAME]");
+        logger.debug(documentId);
+        logger.debug(documentName);
+        final Document d = get(documentId);
+        final Collection<DocumentVersion> dVersions = listVersions(documentId);
+        Assert.assertTrue(
+                "[LMODEL] [DOCUMENT] [RENAME] [CANNOT RENAME A PUBLISHED DOCUMENT]",
+                dVersions.size() == 1);
+        final DocumentVersion dVersion = dVersions.iterator().next();
+        d.setName(documentName);
+        dVersion.setName(documentName);
+
+        documentIO.update(d);
+        documentIO.updateVersion(dVersion);
+    }
 
 	void requestKey(final Long documentId, final JabberId requestedBy)
 			throws ParityException {

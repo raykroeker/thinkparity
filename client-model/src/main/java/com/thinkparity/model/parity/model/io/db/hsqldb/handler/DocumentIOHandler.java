@@ -114,9 +114,15 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 
 	private static final String SQL_UPDATE =
 		new StringBuffer("update ARTIFACT ")
-		.append("set UPDATED_ON=? ")
+		.append("set UPDATED_ON=?,ARTIFACT_NAME=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
+
+    private static final String SQL_UPDATE_VERISON =
+            new StringBuffer("update ARTIFACT_VERSION ")
+            .append("set ARTIFACT_NAME=? ")
+            .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+            .toString();
 
 	private static final String SQL_UPDATE_CONTENT =
 		new StringBuffer("update DOCUMENT ")
@@ -455,14 +461,15 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#update(com.thinkparity.model.parity.model.document.Document)
 	 */
 	public void update(final Document document) {
-		logger.warn("Update is misleading.  Only updated on timestamp\flags are being set.");
+		logger.warn("Update is misleading.  Only name, timestamp and flag information is being set.");
 		final Session session = openSession();
 		try {
 			artifactIO.setFlags(session, document.getId(), document.getFlags());
 
 			session.prepareStatement(SQL_UPDATE);
 			session.setCalendar(1, document.getUpdatedOn());
-			session.setLong(2, document.getId());
+            session.setString(2, document.getName());
+			session.setLong(3, document.getId());
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not update document.");
 
@@ -474,6 +481,27 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
+
+    
+    /** @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#updateVersion(com.thinkparity.model.parity.model.document.DocumentVersion) */
+    public void updateVersion(final DocumentVersion documentVersion) throws HypersonicException {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_VERISON);
+            session.setString(1, documentVersion.getName());
+            session.setLong(2, documentVersion.getArtifactId());
+            session.setLong(3, documentVersion.getVersionId());
+            if(1 != session.executeUpdate())
+                throw new HypersonicException("[DOCUMENT IO] [UPDATE VERSION]");
+
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#updateContent(com.thinkparity.model.parity.model.document.DocumentContent)

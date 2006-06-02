@@ -24,6 +24,7 @@ import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -300,8 +301,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 
 	private void populateUserInfo(final List<SystemMessage> messages)
 			throws ParityException {
-		final InternalSessionModel iSModel =
-			SessionModel.getInternalModel(getContext());
+		final InternalUserModel iUModel = getInternalUserModel();
 		for(final SystemMessage message : messages) {
 			switch(message.getType()) {
 			case INFO:
@@ -310,11 +310,9 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 			case KEY_RESPONSE:
 				break;
 			case KEY_REQUEST:
-				final User requestedByUser = iSModel.readUser(((KeyRequestMessage) message).getRequestedBy());
+				final User user = iUModel.read(((KeyRequestMessage) message).getRequestedBy());
 				final Object[] arguments = new Object[] {
-					requestedByUser.getFirstName(),
-					requestedByUser.getLastName(),
-					requestedByUser.getOrganization()
+					user.getFirstName(), user.getLastName(), user.getOrganization()
 				};
 				((KeyRequestMessage) message).setRequestedByName(getString("KeyRequestMessage.RequestedByName", arguments));
 				break;

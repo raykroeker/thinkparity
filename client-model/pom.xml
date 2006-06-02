@@ -13,7 +13,7 @@
 
     <artifactId>lModel</artifactId>
     <name>thinkParity - Local Model</name>
-    <version>1.0.0-RC4</version>
+    <version>1.0.0-RC5</version>
 
 	<scm>
 		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:model</connection>

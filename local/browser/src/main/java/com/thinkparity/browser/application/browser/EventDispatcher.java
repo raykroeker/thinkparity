@@ -137,7 +137,7 @@ class EventDispatcher {
 				browser.fireDocumentUpdated(e.getArtifactId(), Boolean.TRUE);
 			}
 			public void keyRequested(final KeyEvent e) {
-				browser.fireDocumentUpdated(e.getArtifactId(), Boolean.TRUE);
+                browser.runKeyRequested(e.getArtifactId());
 			}
 		};
 	}

@@ -12,8 +12,8 @@ import com.thinkparity.browser.application.browser.display.provider.main.MainPro
 import com.thinkparity.browser.application.browser.display.provider.session.SendArtifactProvider;
 import com.thinkparity.browser.application.browser.display.provider.session.SendVersionProvider;
 import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
@@ -139,7 +139,7 @@ public class ProviderFactory {
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
 		this.dModel = modelFactory.getDocumentModel(getClass());
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = LoggerFactory.getLogger(getClass());
 		this.sModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
         this.uModel = modelFactory.getUserModel(getClass());

@@ -116,6 +116,9 @@ public class PopupDocument implements Popup {
         }
         else { jPopupMenu.add(new RequestKey(application)); }
         jPopupMenu.add(new Close(application));
+        if(document.isRenameable()) {
+            jPopupMenu.add(new Rename(application));
+        }
         jPopupMenu.addSeparator();
         jPopupMenu.add(new Delete(application));
 
@@ -156,6 +159,9 @@ public class PopupDocument implements Popup {
      */
     private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         jPopupMenu.add(new Open(application));
+        if(document.isRenameable()) {
+            jPopupMenu.add(new Rename(application));
+        }
     }
 
     /**
@@ -315,6 +321,27 @@ public class PopupDocument implements Popup {
             this.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runOpenDocument(document.getId());
+                }
+            });
+        }
+    }
+
+    /** A rename {@linke JMenuItem}. */
+    private class Rename extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create Rename.
+         * @param application
+         *      The browser application.
+         */
+        private Rename(final Browser application) {
+            super(getString("Rename"), getString("RenameMnemonic").charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runRenameDocument(document.getId());
                 }
             });
         }

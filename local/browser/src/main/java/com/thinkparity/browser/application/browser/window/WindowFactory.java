@@ -77,8 +77,8 @@ public class WindowFactory {
 			final BrowserWindow browserWindow) {
 		switch(windowId) {
 		case CONFIRM: return doCreateConfirm(browserWindow);
-		case HISTORY: return doCreateHistory(browserWindow);
 		case POPUP: return doCreatePopup(browserWindow);
+        case RENAME: return doCreateRename(browserWindow);
 		default:
 			throw Assert.createUnreachable("Unknown window:  " + windowId);
 		}
@@ -117,28 +117,21 @@ public class WindowFactory {
 		return window;
 	}
 
-	private Window doCreateHistory(final BrowserWindow browserWindow) {
-//		if(null == history) {
-			history = null;//new HistoryWindow(browserWindow);
-			register(history);
-//		}
-		return history;
+	private Window doCreatePopup(final BrowserWindow browserWindow) {
+        popup = new PopupWindow(browserWindow);
+		register(popup);
+		return popup;
 	}
+
+    private Window doCreateRename(final BrowserWindow browserWindow) {
+        final Window window = new RenameWindow(browserWindow);
+        register(window);
+        return window;
+    }
 
 	private void register(final Window window) {
 		registry.put(window.getId(), window);
 	}
 
-	/**
-	 * Create the modal popup window.
-	 * 
-	 * @return The modal popup window.
-	 */
-	private Window doCreatePopup(final BrowserWindow browserWindow) {
-//		if(null == popup) {
-			popup = new PopupWindow(browserWindow);
-			register(popup);
-//		}
-		return popup;
-	}
+
 }

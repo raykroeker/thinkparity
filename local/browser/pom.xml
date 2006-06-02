@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>lModel</artifactId>
-			<version>1.0.0-RC4</version>
+			<version>1.0.0-RC5</version>
 			<scope>compile</scope>
 			<type>jar</type>
 		</dependency>
@@ -41,13 +41,6 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.13</version>
-			<scope>compile</scope>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>com.l2fprod</groupId>
-			<artifactId>nativeskin</artifactId>
-			<version>6.2</version>
 			<scope>compile</scope>
 			<type>jar</type>
 		</dependency>

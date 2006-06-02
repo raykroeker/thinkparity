@@ -98,6 +98,7 @@ public class MainCellDocument extends Document implements MainCell {
         this.keyRequests = new LinkedList<KeyRequest>();
         this.seen = contains(ArtifactFlag.SEEN);
         this.team = team;
+        this.urgent = Boolean.FALSE;
     }
 
     /**
@@ -138,7 +139,7 @@ public class MainCellDocument extends Document implements MainCell {
      */
     public BufferedImage getBackgroundSelected() {
         if(isClosed()) { return imageCache.read(DocumentImage.BG_SEL_CLOSED); }
-        else if(isUrgent()) { return imageCache.read(DocumentImage.BG_SEL_URGENT); }
+        else if(isUrgent()) { return imageCache.read(DocumentImage.BG_URGENT); }
         else { return imageCache.read(DocumentImage.BG_SEL_DEFAULT); }
     }
 
@@ -284,7 +285,6 @@ public class MainCellDocument extends Document implements MainCell {
      *            The document's key request.
      */
     public void setKeyRequests(final List<KeyRequest> keyRequests) {
-        urgent = keyRequests.size() > 0;
         this.keyRequests.clear();
         this.keyRequests.addAll(keyRequests);
     }
@@ -306,4 +306,15 @@ public class MainCellDocument extends Document implements MainCell {
      * @return A set of users.
      */
     public Set<User> getTeam() { return team; }
+
+    /**
+     * Detemrine whether or not the document can be renamed.
+     *
+     * @return True if the document can be renamed; false otherwise.
+     */
+    public Boolean isRenameable() {
+        // TODO Encapsulate this rule.
+        try { return dModel.listVersions(getId()).size() == 1; }
+        catch(final ParityException px) { throw new RuntimeException(px); }
+    }
 }

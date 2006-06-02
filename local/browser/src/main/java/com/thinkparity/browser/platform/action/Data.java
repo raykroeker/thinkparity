@@ -1,5 +1,6 @@
 /*
- * Jan 10, 2006
+ * Created On: Jan 10, 2006
+ * $Id$
  */
 package com.thinkparity.browser.platform.action;
 
@@ -7,8 +8,10 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
+ * Data is a wrapper around a set of mapped name\values.
+ *
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class Data {
 

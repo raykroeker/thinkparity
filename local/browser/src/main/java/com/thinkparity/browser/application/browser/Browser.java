@@ -24,6 +24,7 @@ import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAva
 import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserTitleAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.Status;
+import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
 import com.thinkparity.browser.application.browser.window.WindowId;
@@ -36,6 +37,7 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests;
 import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
+import com.thinkparity.browser.platform.action.artifact.KeyRequested;
 import com.thinkparity.browser.platform.action.artifact.RequestKey;
 import com.thinkparity.browser.platform.action.artifact.Search;
 import com.thinkparity.browser.platform.action.document.*;
@@ -236,10 +238,32 @@ public class Browser extends AbstractApplication {
      */
 	public void debugMain() { getMainAvatar().debug(); }
 
-    /** Display the contact search dialogue. */
+    public void displayAddNewDocumentTeamMember(final Long documentId) {
+        setInput(AvatarId.ADD_TEAM_MEMBER, documentId);
+        displayAvatar(WindowId.POPUP, AvatarId.ADD_TEAM_MEMBER);
+    }
+
+	/** Display the contact search dialogue. */
 	public void displayContactSearch() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEARCH_PARTNER);
 	}
+
+	/**
+     * Display a document rename dialog.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param documentName
+     *            A document name.
+     */
+    public void displayRenameDocument(final Long documentId,
+            final String documentName) {
+        final Data input = new Data(2);
+        input.set(RenameDialog.DataKey.DOCUMENT_ID, documentId);
+        input.set(RenameDialog.DataKey.DOCUMENT_NAME, documentName);
+        setInput(AvatarId.RENAME_DIALOGUE, input);
+        displayAvatar(WindowId.RENAME, AvatarId.RENAME_DIALOGUE);
+    }
 
 	/**
      * Display send version.
@@ -252,7 +276,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_VERSION, data);
 	}
 
-	/**
+    /**
 	 * Display the invite partner dialogue.
 	 *
 	 */
@@ -260,7 +284,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_INVITE_PARTNER);
 	}
 
-	/**
+    /**
 	 * Display the manage contacts dialogue.
 	 *
 	 */
@@ -268,7 +292,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
 	 */
@@ -285,7 +309,7 @@ public class Browser extends AbstractApplication {
 		notifyEnd();
 	}
 
-    /**
+	/**
      * Notify the application a document has been closed.
      * 
      * @param documentId
@@ -301,7 +325,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-	/**
+    /**
      * Notify the application a document confirmation has been received.
      *
      * @param documentId
@@ -313,7 +337,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-	/**
+    /**
 	 * Notify the application that a document has been created.
 	 * 
 	 * @param documentId
@@ -368,7 +392,7 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-    /**
+	/**
      * Notify the application that a set of documents has been created.
      * 
      * @param documentIds
@@ -389,7 +413,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-    /**
+	/**
      * Notify the application a team member has been added to the document.
      *
      * @param documentId
@@ -402,7 +426,7 @@ public class Browser extends AbstractApplication {
         fireDocumentUpdated(documentId, Boolean.TRUE);
     }
 
-	/**
+    /**
 	 * Notify the application that a document has in some way been updated.
 	 * 
 	 * @param documentId
@@ -412,7 +436,7 @@ public class Browser extends AbstractApplication {
 		fireDocumentUpdated(documentId, Boolean.FALSE);
 	}
 
-	public void fireDocumentUpdated(final Long documentId, final Boolean remoteReload) {
+    public void fireDocumentUpdated(final Long documentId, final Boolean remoteReload) {
         setCustomStatusMessage("DocumentUpdated");
 		// refresh the document in the main list
 		SwingUtilities.invokeLater(new Runnable() {
@@ -422,20 +446,6 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-    /** Notify the session has been established. */
-    public void fireSessionEstablished() {
-        getStatusAvatar().reloadStatusMessage(
-                Status.Area.CONNECTION, "ConnectionOnline");
-        getTitleAvatar().reloadConnectionStatus(Connection.ONLINE);
-    }
-
-    /** Notify the session has been terminated. */
-    public void fireSessionTerminated() {
-        getStatusAvatar().reloadStatusMessage(
-                Status.Area.CONNECTION, "ConnectionOffline");
-        getTitleAvatar().reloadConnectionStatus(Connection.OFFLINE);
-    }
-
 	/** Notify the application the filters are on. */
     public void fireFilterApplied() {
         setFilterStatusMessage("FilterOn");
@@ -444,6 +454,20 @@ public class Browser extends AbstractApplication {
 	/** Notify the application the filters are off. */
     public void fireFilterRevoked() {
         setFilterStatusMessage("FilterOff");
+    }
+
+	/** Notify the session has been established. */
+    public void fireSessionEstablished() {
+        getStatusAvatar().reloadStatusMessage(
+                Status.Area.CONNECTION, "ConnectionOnline");
+        getTitleAvatar().reloadConnectionStatus(Connection.ONLINE);
+    }
+
+	/** Notify the session has been terminated. */
+    public void fireSessionTerminated() {
+        getStatusAvatar().reloadStatusMessage(
+                Status.Area.CONNECTION, "ConnectionOffline");
+        getTitleAvatar().reloadConnectionStatus(Connection.OFFLINE);
     }
 
 	/**
@@ -493,28 +517,28 @@ public class Browser extends AbstractApplication {
         return getPlatform().getLogger(clasz);
     }
 
-	/**
+    /**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform the application is running on.
 	 */
 	public Platform getPlatform() { return super.getPlatform(); }
 
-	/**
+    /**
 	 * Obtain the selected document id from the session.
 	 * 
 	 * @return A document id.
 	 */
 	public Long getSelectedDocumentId() { return session.getSelectedDocumentId(); }
 
-    /**
+	/**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
 	 */
 	public Object getSelectedSystemMessage() { return null; }
 
-    /**
+	/**
 	 * Close the main window.
 	 *
 	 */
@@ -551,7 +575,7 @@ public class Browser extends AbstractApplication {
 		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
 	}
 
-	/**
+    /**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -573,7 +597,7 @@ public class Browser extends AbstractApplication {
         getMainAvatar().removeKeyHolderFilter();
     }
 
-    /**
+	/**
 	 * Remove the search filter from the document list.
 	 *
 	 */
@@ -593,7 +617,7 @@ public class Browser extends AbstractApplication {
 	public void restore(final Platform platform) {
 		assertStatusChange(ApplicationStatus.RESTORING);
 
-		openMainWindow();
+		reOpenMainWindow();
 
 		setStatus(ApplicationStatus.RESTORING);
 		notifyRestore();
@@ -602,13 +626,13 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.RUNNING);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.Saveable#restoreState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
 	public void restoreState(final State state) {}
 
-	/**
+    /**
 	 * Accept an invitation.
 	 * 
 	 * @param systemMessageId
@@ -620,12 +644,26 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.SESSION_ACCEPT_INVITATION, data);
 	}
 
+    /**
+	 * Run the accept key action.
+	 * 
+	 * @param keyRequestId
+	 *            The key request id.
+	 */
+	public void runAcceptKeyRequest(final Long artifactId,
+			final Long keyRequestId) {
+		final Data data = new Data(2);
+		data.set(AcceptKeyRequest.DataKey.ARTIFACT_ID, artifactId);
+		data.set(AcceptKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
+		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
+	}
+
     /** Add a team member to the selected document. */
     public void runAddNewDocumentTeamMember() {
         runAddNewDocumentTeamMember(session.getSelectedDocumentId(), null);
     }
 
-    /**
+	/**
      * Add a team member to the selected document.
      * 
      * @param documentId
@@ -643,25 +681,6 @@ public class Browser extends AbstractApplication {
             public void run() { invoke(ActionId.ADD_TEAM_MEMBER, data); }
         });
     }
-
-    public void displayAddNewDocumentTeamMember(final Long documentId) {
-        setInput(AvatarId.ADD_TEAM_MEMBER, documentId);
-        displayAvatar(WindowId.POPUP, AvatarId.ADD_TEAM_MEMBER);
-    }
-
-	/**
-	 * Run the accept key action.
-	 * 
-	 * @param keyRequestId
-	 *            The key request id.
-	 */
-	public void runAcceptKeyRequest(final Long artifactId,
-			final Long keyRequestId) {
-		final Data data = new Data(2);
-		data.set(AcceptKeyRequest.DataKey.ARTIFACT_ID, artifactId);
-		data.set(AcceptKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
-		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
-	}
 
     /**
 	 * Run the close document action.
@@ -685,16 +704,7 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-    /** Publish the selected document. */
-    public void runPublishDocument() {
-        final Data data = new Data(1);
-        data.set(Publish.DataKey.DOCUMENT_ID, session.getSelectedDocumentId());
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { invoke(ActionId.PUBLISH_DOCUMENT, data); }
-        });
-    }
-
-	/**
+    /**
      * Create a document.
      * 
      * @param file
@@ -768,6 +778,12 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.SYSTEM_MESSAGE_DELETE, data);
 	}
 
+	public void runKeyRequested(final Long artifactId) {
+        final Data data = new Data(1);
+        data.set(KeyRequested.DataKey.ARTIFACT_ID, artifactId);
+        invoke(ActionId.ARTIFACT_KEY_REQUESTED, data);
+    }
+
 	/**
      * Run the move to front action.
      *
@@ -801,6 +817,43 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
+
+    /** Publish the selected document. */
+    public void runPublishDocument() {
+        final Data data = new Data(1);
+        data.set(Publish.DataKey.DOCUMENT_ID, session.getSelectedDocumentId());
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { invoke(ActionId.PUBLISH_DOCUMENT, data); }
+        });
+    }
+
+    /**
+     * Run the document rename action.
+     * 
+     * @param documentId
+     *            A document id.
+     */
+    public void runRenameDocument(final Long documentId) {
+        final Data data = new Data(1);
+        data.set(Rename.DataKey.DOCUMENT_ID, documentId);
+        invoke(ActionId.DOCUMENT_RENAME, data);
+    }
+
+    /**
+     * Run the document rename action.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param documentName
+     *            An document name.
+     */
+    public void runRenameDocument(final Long documentId,
+            final String documentName) {
+        final Data data = new Data(2);
+        data.set(Rename.DataKey.DOCUMENT_ID, documentId);
+        data.set(Rename.DataKey.DOCUMENT_NAME, documentName);
+        invoke(ActionId.DOCUMENT_RENAME, data);
+    }
 
     /**
 	 * Run the request key action.
@@ -1104,6 +1157,12 @@ public class Browser extends AbstractApplication {
 		mainWindow = new BrowserWindow(this);
 		mainWindow.open();
 	}
+
+    private void reOpenMainWindow() {
+        mainWindow = new BrowserWindow(this);
+        mainWindow.reOpen();
+    }
+
 
 	/**
      * Set a custom status message.

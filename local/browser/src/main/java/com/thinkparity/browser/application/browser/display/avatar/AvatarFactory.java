@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
 import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
 import com.thinkparity.browser.application.browser.display.avatar.contact.SearchPartner;
+import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
@@ -113,6 +114,10 @@ public class AvatarFactory {
         return new ConfirmDialog();
     }
 
+    private Avatar createRenameDialogue() {
+        return new RenameDialog();
+    }
+
 	/**
 	 * Create the platform login avatar.
 	 * 
@@ -204,6 +209,9 @@ public class AvatarFactory {
 			break;
         case CONFIRM_DIALOGUE:
             avatar = createConfirmDialogue();
+            break;
+        case RENAME_DIALOGUE:
+            avatar = createRenameDialogue();
             break;
 		case PLATFORM_LOGIN:
 			avatar = createPlatformLogin();

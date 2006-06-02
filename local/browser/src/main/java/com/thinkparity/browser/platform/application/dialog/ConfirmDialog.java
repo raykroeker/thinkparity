@@ -1,7 +1,6 @@
 /*
- * ConfirmDialog.java
- *
- * Created on April 7, 2006, 6:25 PM
+ * Created On: April 7, 2006, 6:25 PM
+ * $Id$
  */
 package com.thinkparity.browser.platform.application.dialog;
 
@@ -20,7 +19,7 @@ import com.thinkparity.browser.platform.util.State;
  * confirmation (yes/no) message to obtain user input.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class ConfirmDialog extends Avatar {
 

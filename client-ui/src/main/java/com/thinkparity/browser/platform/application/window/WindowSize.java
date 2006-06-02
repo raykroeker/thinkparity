@@ -1,5 +1,6 @@
 /*
- * Mar 10, 2006
+ * Created On: Mar 10, 2006
+ * $Id$
  */
 package com.thinkparity.browser.platform.application.window;
 
@@ -16,7 +17,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
  * Simple map of the avatar being displayed to the size of the window required.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 class WindowSize {
 
@@ -39,6 +40,8 @@ class WindowSize {
 		sizeMap = new Hashtable<AvatarId, Object>(2, 1.0F);
         // DIMENSION Confirmation Dialogue 300x125
         sizeMap.put(AvatarId.CONFIRM_DIALOGUE, new Dimension(300, 125));
+        // DIMENSION Rename Dialogue 300x125
+        sizeMap.put(AvatarId.RENAME_DIALOGUE, new Dimension(300, 70));
 		// DIMENSION Send Dialogue 405x308
 		sizeMap.put(AvatarId.SESSION_SEND_FORM, new Dimension(405, 265));
 		// DIMENSION Send Version Window 405x308
@@ -53,7 +56,6 @@ class WindowSize {
 		// DIMENSION Search Partner Dialogue 520x330
 		sizeMap.put(AvatarId.SESSION_SEARCH_PARTNER, new Dimension(520, 330));
         // DIMENSION Add Team Member
-//        sizeMap.put(AvatarId.ADD_TEAM_MEMBER, new Dimension(392 + 8, 393 + 8));
         sizeMap.put(AvatarId.ADD_TEAM_MEMBER, new Dimension(392 + 8, 233 + 8));
 	}
 

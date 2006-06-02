@@ -24,7 +24,6 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
-import com.thinkparity.browser.util.NativeSkinUtil;
 
 /**
  * @author raykroeker@gmail.com
@@ -98,7 +97,6 @@ public class BrowserWindow extends AbstractJFrame {
         setLocation(location.x, location.y);
 		setResizable(false);
 		setSize(BrowserWindow.getMainWindowSize());
-		applyNativeSkin();
 		initComponents();
 	}
 
@@ -120,36 +118,37 @@ public class BrowserWindow extends AbstractJFrame {
 	 */
 	public Display[] getDisplays() { return mainPanel.getDisplays(); }
 
-	/**
-	 * Open the main window.
-	 * 
-	 * @return The main window.
-	 */
-	void open() {
+    /**
+     * Open the main window.
+     * 
+     * @return The main window.
+     */
+    void open() {
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    setVisible(true);
-                    applyRenderingHints();
-                    debugGeometry();
-                    debugLookAndFeel();
-    
-                    browser.displayTitleAvatar();
-                    browser.displayInfoAvatar();
-                    browser.displayDocumentListAvatar();
-                    browser.displayStatusAvatar();
-                }
+                public void run() { reOpen(); }
             });
         }
         catch(final InterruptedException ix) { throw new RuntimeException(ix); }
         catch(final InvocationTargetException itx) { throw new RuntimeException(itx); }
-	}
+    }
 
-	/**
-	 * Apply native skin attributes to the browser window.
-	 * 
-	 */
-	private void applyNativeSkin() { NativeSkinUtil.applyNativeSkin(this); }
+    /**
+     * Re open the main window.
+     * 
+     * @return The main window.
+     */
+    void reOpen() {
+        setVisible(true);
+        applyRenderingHints();
+        debugGeometry();
+        debugLookAndFeel();
+        
+        browser.displayTitleAvatar();
+        browser.displayInfoAvatar();
+        browser.displayDocumentListAvatar();
+        browser.displayStatusAvatar();
+    }
 
 	/**
 	 * Add the main panel to the window.

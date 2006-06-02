@@ -44,6 +44,13 @@ class WindowBorder {
                         "ConfirmDialogueBorderBottom.png",
                         "ConfirmDialogueBorderRight.png"));
 
+        // BORDER Rename Dialogue
+        borderMap.put(AvatarId.RENAME_DIALOGUE,
+                new ImageBorder("RenameDialogueBorderTop.png",
+                        "RenameDialogueBorderLeft.png",
+                        "RenameDialogueBorderBottom.png",
+                        "RenameDialogueBorderRight.png"));
+
         // BORDER Login Dialogue
         borderMap.put(AvatarId.PLATFORM_LOGIN,
                 new ImageBorder("LoginDialogueBorderTop.png",

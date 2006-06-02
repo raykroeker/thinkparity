@@ -97,6 +97,10 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest(browser);
 		case ARTIFACT_DECLINE_ALL_KEY_REQUESTS:
 			return new com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests(browser);
+        case ARTIFACT_KEY_REQUESTED:
+            return new com.thinkparity.browser.platform.action.artifact.KeyRequested(browser);
+        case DOCUMENT_RENAME:
+            return new com.thinkparity.browser.platform.action.document.Rename(browser);
 		case ARTIFACT_REQUEST_KEY:
 			return new com.thinkparity.browser.platform.action.artifact.RequestKey(browser);
 		case ARTIFACT_SEARCH:

@@ -95,6 +95,9 @@ public class HistoryItemBuilder {
             case RECEIVE_KEY:
                 history.add(customize(historyItem, (ReceiveKeyEvent) auditEvent));
                 break;
+            case RENAME:
+                history.add(customize(historyItem, (RenameEvent) auditEvent));
+                break;
             case REQUEST_KEY:
                 history.add(customize(historyItem, loggedInUser, (RequestKeyEvent) auditEvent));
                 break;
@@ -283,6 +286,13 @@ public class HistoryItemBuilder {
                 new Object[] {getName(event.getReceivedFrom())}));
 		return item;
 	}
+
+    private HistoryItem customize(final HistoryItem item, final RenameEvent event) {
+        item.setEvent(getString(
+                "eventText.RENAME",
+                new Object[] {event.getFrom(), event.getTo()}));
+        return item;
+    }
 
 	/**
      * Create the history entry for the send audit event.  Note that we do not

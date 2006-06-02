@@ -1180,17 +1180,47 @@ class DocumentModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [DOCUMENT] [RENAME]");
         logger.debug(documentId);
         logger.debug(documentName);
-        final Document d = get(documentId);
+        assertIsNotPublished("[RENAME]", documentId);
+        assertIsNotRemote("[RENAME]", documentId);
         final Collection<DocumentVersion> dVersions = listVersions(documentId);
         Assert.assertTrue(
                 "[LMODEL] [DOCUMENT] [RENAME] [CANNOT RENAME A PUBLISHED DOCUMENT]",
                 dVersions.size() == 1);
+        final Document d = get(documentId);
         final DocumentVersion dVersion = dVersions.iterator().next();
+        final String originalName = d.getName();
+
+        // delete the local files
+        LocalFile dFile = getLocalFile(d);
+        LocalFile dVersionFile = getLocalFile(d, dVersion);
+		dFile.delete();
+        dVersionFile.delete();
+
+        // rename the document and version
         d.setName(documentName);
         dVersion.setName(documentName);
-
         documentIO.update(d);
         documentIO.updateVersion(dVersion);
+
+        // write the local files
+        final DocumentContent dContent = documentIO.getContent(documentId);
+        dFile = getLocalFile(d);
+        final DocumentVersionContent dVersionContent =
+                documentIO.getVersionContent(documentId, dVersion.getVersionId());
+        dVersionFile = getLocalFile(d, dVersion);
+
+        try {
+            dFile.write(dContent.getContent());
+            dVersionFile.write(dVersionContent.getDocumentContent().getContent());
+        }
+        catch(final IOException iox) {
+            logger.error("[LMODEL] [DOCUMENT] [RENAME] [IO ERROR]", iox);
+            throw ParityErrorTranslator.translate(iox);
+        }
+
+        // audit the rename
+        auditor.rename(documentId, currentDateTime(), currentUserId(),
+                originalName,documentName);
     }
 
 	void requestKey(final Long documentId, final JabberId requestedBy)
@@ -1337,6 +1367,38 @@ class DocumentModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Assert that a document has not yet been sent to anyone.
+     *
+     * @param assertion
+     *      Assertion text.
+     * @param documentId
+     *      A document id.
+     */
+    private void assertIsNotRemote(final String assertion, final Long documentId)
+            throws ParityException {
+        final StringBuffer buffer = new StringBuffer("[LMODEL] [DOCUMENT] ")
+                .append(assertion)
+                .append(" [DOCUMENT HAS ALREADY BEEN SENT]");
+        Assert.assertNotTrue(buffer.toString(), isRemote(documentId));
+    }
+
+    /**
+     * Assert that the document is not publihed.
+     *
+     * @param assertion
+     *      Assertion text.
+     * @param documentId
+     *      A document id.
+     */
+    private void assertIsNotPublished(final String assertion,
+            final Long documentId) throws ParityException {
+        final StringBuffer buffer = new StringBuffer("[LMODEL] [DOCUMENT] ")
+            .append(assertion)
+            .append(" [DOCUMENT HAS ALREADY BEEN PUBLISHED]");
+        Assert.assertNotTrue(buffer.toString(), isPublished(documentId)); 
+    }
+
+    /**
 	 * Assert that the archive output directory has been set.
 	 * 
 	 */
@@ -1456,6 +1518,34 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
+
+    /**
+     * Determine whether or not a document is remote; ie if it has been sent
+     * to anyone.
+     *
+     * @param documentId
+     *      A document id.
+     * @return True if a document has not yet been sent; false otherwise.
+     */
+    private Boolean isRemote(final Long documentId) {
+        final User currentUser = getInternalUserModel().read(currentUserId());
+        final Set<User> team = getInternalArtifactModel().readTeam(documentId);
+        team.remove(currentUser);
+        return team.size() > 0;
+    }
+
+    /**
+     * Determine whether or not a document has been published.
+     *
+     * @param documentId
+     *      A document id.
+     * @return True if the document has been published; false otherwise.
+     */
+    private Boolean isPublished(final Long documentId) throws ParityException {
+        final Collection<DocumentVersion> dVersions =
+                listVersions(documentId);
+        return dVersions.size() > 1;
+    }
 
 	/**
 	 * Check and see if this version is the latest version.

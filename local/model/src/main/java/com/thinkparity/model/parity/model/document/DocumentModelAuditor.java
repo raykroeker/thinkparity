@@ -97,6 +97,18 @@ class DocumentModelAuditor extends AbstractAuditor {
 		getInternalAuditModel().audit(event, createdBy, receivedFrom);
 	}
 
+    void rename(final Long artifactId, final Calendar createdOn,
+            final JabberId createdBy, final String from, final String to)
+            throws ParityException {
+        final RenameEvent event = new RenameEvent();
+        event.setArtifactId(artifactId);
+        event.setCreatedOn(createdOn);
+        event.setFrom(from);
+        event.setTo(to);
+
+        getInternalAuditModel().audit(event, createdBy);
+    }
+
     void addTeamMember(final Long artifactId, final JabberId createdBy,
             final Calendar createdOn, final JabberId teamMember)
             throws ParityException {

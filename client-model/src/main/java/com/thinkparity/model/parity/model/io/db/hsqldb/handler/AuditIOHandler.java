@@ -321,6 +321,27 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
+    
+	/** @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.RenameEvent) */
+	public void audit(final RenameEvent event) throws HypersonicException {
+		final Session session = openSession();
+		try {
+			audit(session, event);
+
+            auditMetaData(session, event,
+                MetaDataType.STRING, MetaDataKey.RENAMED_FROM, event.getFrom());
+            auditMetaData(session, event,
+                MetaDataType.STRING, MetaDataKey.RENAMED_TO, event.getTo());
+
+			session.commit();
+		}
+		catch(final HypersonicException hx) {
+			session.rollback();
+			throw hx;
+		}
+		finally { session.close(); }
+	}
+
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.RequestKeyEvent)
 	 */
@@ -547,6 +568,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			return extractReceive(session);
 		case RECEIVE_KEY:
 			return extractReceiveKey(session);
+        case RENAME:
+            return extractRename(session);
 		case REQUEST_KEY:
 			return extractRequestKey(session);
 		case SEND:
@@ -693,6 +716,22 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		return event;
 	}
 
+    private AuditEvent extractRename(final Session session) {
+        final RenameEvent event = new RenameEvent();
+        event.setArtifactId(session.getLong("ARTIFACT_ID"));
+        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedOn(session.getCalendar("CREATED_ON"));
+        event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+
+        MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.RENAMED_FROM);
+        event.setFrom((String) metaData[0].getValue());
+
+        metaData = readMetaData(event.getId(), MetaDataKey.RENAMED_TO);
+        event.setTo((String) metaData[0].getValue());
+
+        return event;
+    }
+
 	private RequestKeyEvent extractRequestKey(final Session session) {
 		final RequestKeyEvent event = new RequestKeyEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
@@ -805,5 +844,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-    private enum MetaDataKey { CLOSED_BY, CONFIRMED_BY, DENIED_BY, RECEIVED_BY, RECEIVED_FROM, REQUESTED_BY, REQUESTED_FROM, SENT_TO, TEAM_MEMBER }
+    private enum MetaDataKey {
+        CLOSED_BY,CONFIRMED_BY,DENIED_BY,RECEIVED_BY,RECEIVED_FROM,RENAMED_FROM,
+        RENAMED_TO,REQUESTED_BY,REQUESTED_FROM,SENT_TO,TEAM_MEMBER
+    }
 }

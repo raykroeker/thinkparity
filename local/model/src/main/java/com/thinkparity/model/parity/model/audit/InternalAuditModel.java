@@ -68,6 +68,11 @@ public class InternalAuditModel extends AuditModel {
         }
 	}
 
+    public void audit(final RenameEvent event, final JabberId createdBy)
+        throws ParityException {
+        synchronized(getImplLock()) { getImpl().audit(event, createdBy); }
+    }
+
     public void audit(final SendConfirmEvent event,
             final JabberId createdBy, final JabberId receivedFrom)
             throws ParityException {

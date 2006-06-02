@@ -7,15 +7,8 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.session.KeyResponse;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Test the parity document interface rename api.
@@ -63,10 +56,7 @@ public class RenameTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new LinkedList<Fixture>();
-        final ArtifactModel aModel = getArtifactModel();
 		final DocumentModel dModel = getDocumentModel();
-        final SessionModel sModel = getSessionModel();
-        final ModelTestUser userX = ModelTestUser.getX();
 
         // 0:  a new document with a name
         final File file0 = getInputFiles()[0];

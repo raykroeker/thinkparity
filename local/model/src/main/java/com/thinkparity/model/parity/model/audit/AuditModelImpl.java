@@ -159,6 +159,15 @@ class AuditModelImpl extends AbstractModelImpl {
 		auditIO.audit(event);
 	}
 
+    void audit(final RenameEvent event, final JabberId createdBy)
+            throws ParityException {
+        logger.info("[LMODEL] [AUDIT] [AUDIT RENAME]");
+        logger.debug(event);
+        logger.debug(createdBy);
+        event.setCreatedBy(lookupUser(createdBy));
+        auditIO.audit(event);
+    }
+
 	void audit(final RequestKeyEvent event, final JabberId createdBy,
             final JabberId requestedBy, final JabberId requestedFrom)
             throws ParityException {

@@ -22,6 +22,7 @@ public enum AuditEventType {
     PUBLISH(12),
     RECEIVE(3),
     RECEIVE_KEY(4),
+    RENAME(15),
     REQUEST_KEY(5),
     SEND(6),
     SEND_CONFIRM(10),
@@ -40,6 +41,7 @@ public enum AuditEventType {
         case 12: return PUBLISH;
 		case  3: return RECEIVE;
 		case  4: return RECEIVE_KEY;
+        case 15: return RENAME;
 		case  5: return REQUEST_KEY;
 		case  6: return SEND;
 		case 10: return SEND_CONFIRM;

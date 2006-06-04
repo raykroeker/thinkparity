@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.thinkparity.parity</groupId>
-	<version>1.0.0-RC4</version>
+	<version>1.0.0-RC5</version>
 	<url>http://thinkparity.dyndns.org</url>
 
 	<artifactId>rMigrator</artifactId>
@@ -20,14 +20,14 @@
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>codebase</artifactId>
-			<version>1.0.0-RC4</version>
+			<version>1.0.0-RC5</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>cMigrator</artifactId>
-			<version>1.0.0-RC4</version>
+			<version>1.0.0-RC5</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -107,6 +107,6 @@
      <properties>
         <com.thinkparity.parity.mode>PRODUCTION</com.thinkparity.parity.mode>
         <com.thinkparity.parity.buildId>PRODUCTION-M200605301615</com.thinkparity.parity.buildId>
-        <com.thinkparity.parity.releaseId>PRODUCTION-1.0.0-RC4</com.thinkparity.parity.releaseId>
+        <com.thinkparity.parity.releaseId>PRODUCTION-1.0.0-RC5</com.thinkparity.parity.releaseId>
     </properties>
 </project>

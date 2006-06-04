@@ -65,6 +65,15 @@ public class SystemApplication extends AbstractApplication {
     public void displayAbout() {}
 
 	/**
+     * Get the auto login preference.
+     *
+     * @return True if auto login is set; false otherwise.
+     */
+    public Boolean doAutoLogin() {
+        return getPlatform().getPersistence().doAutoLogin();
+    }
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#end(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -128,7 +137,12 @@ public class SystemApplication extends AbstractApplication {
             applicationRegistry.getStatus(ApplicationId.BROWSER2);
     }
 
-	/**
+    /** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
+    public Boolean isDevelopmentMode() {
+        return getPlatform().isDevelopmentMode();
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -160,13 +174,6 @@ public class SystemApplication extends AbstractApplication {
         run(ActionId.PLATFORM_QUIT, new Data(0));
     }
 
-    /** Run the restart platform action. */
-    public void runRestartPlatform() {
-        if(!actionRegistry.contains(ActionId.PLATFORM_RESTART))
-            ActionFactory.createAction(ActionId.PLATFORM_RESTART, getPlatform());
-        run(ActionId.PLATFORM_RESTART, new Data(0));
-    }
-
     /** Run the login action. */
     public void runLogin() {
         if(!actionRegistry.contains(ActionId.PLATFORM_LOGIN))
@@ -191,6 +198,13 @@ public class SystemApplication extends AbstractApplication {
         runLater(ActionId.MOVE_BROWSER_TO_FRONT, new Data(0));
     }
 
+    /** Run the restart platform action. */
+    public void runRestartPlatform() {
+        if(!actionRegistry.contains(ActionId.PLATFORM_RESTART))
+            ActionFactory.createAction(ActionId.PLATFORM_RESTART, getPlatform());
+        run(ActionId.PLATFORM_RESTART, new Data(0));
+    }
+
     /** Run the restore browser action. */
 	public void runRestoreBrowser() {
         if(!actionRegistry.contains(ActionId.RESTORE_BROWSER))
@@ -198,6 +212,14 @@ public class SystemApplication extends AbstractApplication {
 
         runLater(ActionId.RESTORE_BROWSER, new Data(0));
     }
+
+    /**
+	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
+	 * 
+	 */
+	public void saveState(State state) {
+		throw Assert.createNotYetImplemented("System#saveState");
+	}
 
     /**
      * Set the auto login preference.
@@ -208,23 +230,6 @@ public class SystemApplication extends AbstractApplication {
     public void setAutoLogin(final Boolean autoLogin) {
         getPlatform().getPersistence().setAutoLogin(autoLogin);
     }
-
-    /**
-     * Get the auto login preference.
-     *
-     * @return True if auto login is set; false otherwise.
-     */
-    public Boolean doAutoLogin() {
-        return getPlatform().getPersistence().doAutoLogin();
-    }
-
-    /**
-	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
-	 * 
-	 */
-	public void saveState(State state) {
-		throw Assert.createNotYetImplemented("System#saveState");
-	}
 
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#start(com.thinkparity.browser.platform.Platform)
@@ -289,7 +294,6 @@ public class SystemApplication extends AbstractApplication {
                 "Notification.DocumentKeyRequestDeclinedMessage",
                 new Object[] {getName(user), document.getName()}));
     }
-
     /**
      * Notify a document key has been requested.
      * 
@@ -300,17 +304,6 @@ public class SystemApplication extends AbstractApplication {
         fireNotification(getString(
                 "Notification.DocumentKeyRequestedMessage",
                 new Object[] {getName(user), document.getName()}));
-    }
-    /**
-     * Notify a document has been updated.
-     * 
-     * @param document
-     *            The document.
-     */
-    void fireDocumentUpdated(final Document document) {
-        fireNotification(getString(
-                "Notification.DocumentUpdatedMessage",
-                new Object[] {document.getName()}));
     }
 
     /**
@@ -325,6 +318,18 @@ public class SystemApplication extends AbstractApplication {
         fireNotification(getString(
                 "Notification.DocumentTeamMemberAddedMessage",
                 new Object[] {getName(user), document.getName()}));
+    }
+
+    /**
+     * Notify a document has been updated.
+     * 
+     * @param document
+     *            The document.
+     */
+    void fireDocumentUpdated(final Document document) {
+        fireNotification(getString(
+                "Notification.DocumentUpdatedMessage",
+                new Object[] {document.getName()}));
     }
 
     /** Notify the session has been established. */

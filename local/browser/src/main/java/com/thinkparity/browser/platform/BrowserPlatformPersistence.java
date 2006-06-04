@@ -19,18 +19,11 @@ public class BrowserPlatformPersistence {
 	private final Persistence persistence;
 
 	/**
-	 * The browser platform.
-	 * 
-	 */
-	private final Platform platform;
-
-	/**
 	 * Create a BrowserPlatformPersistence.
 	 */
 	BrowserPlatformPersistence(final Platform platform) {
 		super();
 		this.persistence = PersistenceFactory.getPersistence(BrowserPlatform.class);
-		this.platform = platform;
 	}
 
 	/**

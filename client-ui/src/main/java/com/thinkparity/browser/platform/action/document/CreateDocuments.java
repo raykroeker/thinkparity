@@ -53,7 +53,7 @@ public class CreateDocuments extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-		final List<File> files = (List<File>) data.get(DataKey.FILES);
+		final List<File> files = getDataFiles(data, DataKey.FILES);
 
         final Create create = new Create(browser);
         final Data createData = new Data(1);

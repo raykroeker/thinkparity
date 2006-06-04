@@ -55,9 +55,9 @@ public interface Platform extends ApplicationListener {
 	 * 
 	 * @return True if the application is in debug mode; false otherwise.
 	 * 
-	 * @see #isTestMode()
+	 * @see #isTestingMode()
 	 */
-	public Boolean isDebugMode();
+	public Boolean isDevelopmentMode();
 
 	/**
      * Determine whether or not the platform is online.
@@ -71,9 +71,9 @@ public interface Platform extends ApplicationListener {
 	 * 
 	 * @return True if the application is in debug mode; false otherwise.
 	 * 
-	 * @see #isDebugMode()
+	 * @see #isDevelopmentMode()
 	 */
-	public Boolean isTestMode();
+	public Boolean isTestingMode();
 
 	/** Restart the platform. */
     public void restart();
@@ -95,16 +95,16 @@ public interface Platform extends ApplicationListener {
 	public void restore(final ApplicationId applicationId);
 
     /**
-     * Update the browser platform.
-     *
-     */
-    public void update();
-
-    /**
      * Start the browser platform.
      *
      */
     public void start();
+
+    /**
+     * Update the browser platform.
+     *
+     */
+    public void update();
 
     /** Connection status. */
     public enum Connection { OFFLINE, ONLINE }

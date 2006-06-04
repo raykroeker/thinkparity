@@ -8,7 +8,6 @@ import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
@@ -18,9 +17,9 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
+import com.thinkparity.browser.javax.swing.Swing.Constants.Images;
 import com.thinkparity.browser.javax.swing.border.ImageBorder;
 import com.thinkparity.browser.platform.application.display.Display;
-import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
@@ -31,9 +30,6 @@ import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
  */
 public class BrowserWindow extends AbstractJFrame {
 
-	/** The window icon. */
-	private static final BufferedImage BROWSER_ICON;
-
 	/**
 	 * The size of the main window.
 	 * 
@@ -43,8 +39,6 @@ public class BrowserWindow extends AbstractJFrame {
 
 	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
-
-	static { BROWSER_ICON = ImageIOUtil.read("ThinkParity32x32.png"); }
 
 	/**
 	 * Obtain the size of the main window.
@@ -89,7 +83,7 @@ public class BrowserWindow extends AbstractJFrame {
                 persist();
                 browser.hibernate();
             }});
-		setIconImage(BROWSER_ICON);
+		setIconImage(Images.WINDOW_ICON_IMAGE);
 		setTitle(getString("Title"));
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

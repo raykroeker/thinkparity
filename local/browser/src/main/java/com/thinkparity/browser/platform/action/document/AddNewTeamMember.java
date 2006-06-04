@@ -56,7 +56,7 @@ public class AddNewTeamMember extends AbstractAction {
      */
     public void invoke(final Data data) throws Exception {
         final Long documentId  = (Long) data.get(DataKey.DOCUMENT_ID);
-        final List<JabberId> jabberIds = (List<JabberId>) data.get(DataKey.JABBER_IDS);
+        final List<JabberId> jabberIds = getDataJabberIds(data, DataKey.JABBER_IDS);
 
         if(null == jabberIds) {
             browser.displayAddNewDocumentTeamMember(documentId);

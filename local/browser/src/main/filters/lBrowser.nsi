@@ -12,7 +12,7 @@
 
   ;Name and file
   Name "thinkParity ${pom.artifactId}"
-  OutFile "thinkParity ${pom.artifactId} ${pom.version}.exe"
+  OutFile "..\..\thinkParity ${pom.artifactId} ${pom.version}.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\thinkParity\${pom.artifactId}"
@@ -73,6 +73,7 @@ Section "thinkParity ${pom.artifactId}" SecParityBrowser
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall thinkParity.lnk" "$INSTDIR\Uninstall thinkParity.exe"
+  CreateShortCut "$DESKTOP\thinkParity.lnk" "$INSTDIR\thinkParity.exe"
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall thinkParity.exe"
@@ -107,6 +108,7 @@ Section "Uninstall"
 
   Delete "$SMPROGRAMS\$MUI_TEMP\thinkParity.lnk"
   Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall thinkParity.lnk"
+  Delete "$DESKTOP\thinkParity.lnk"
 
   ; Delete empty start menu parent diretories
   StrCpy $MUI_TEMP "$SMPROGRAMS\$MUI_TEMP"

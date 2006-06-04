@@ -179,6 +179,12 @@ class DocumentModelImpl extends AbstractModelImpl {
                 "[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [USER ALREADY TEAM MEMBER]",
                 teamUsers.contains(user));
 
+        // save the new team member locally index
+        getInternalArtifactModel().addTeamMember(documentId, teamMember);
+
+        // update index
+        updateIndex(documentId);
+
         // audit
         auditor.addTeamMember(
                 documentId, currentUserId(), currentDateTime(), teamMember);
@@ -190,6 +196,47 @@ class DocumentModelImpl extends AbstractModelImpl {
         for(final DocumentVersion version : versions) {
             getInternalSessionModel().send(users, documentId, version.getVersionId());
         }
+    }
+
+    /**
+     * Add a team member to the document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param jabberId
+     *            The team member.
+     * @throws ParityException
+     */
+    void addTeamMember(final Long documentId, final JabberId teamMember)
+            throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
+        logger.debug(documentId);
+        logger.debug(teamMember);
+
+        final InternalArtifactModel iAModel = getInternalArtifactModel();
+        final Set<User> team = iAModel.readTeam(documentId);
+        Boolean isOnTeam = Boolean.FALSE;
+        for(final User teamUser : team) {
+            if(teamUser.getId().equals(teamMember)) {
+                isOnTeam = Boolean.TRUE;
+                break;
+            }
+        }
+
+        if(!isOnTeam) {
+            // save the new team member locally
+            getInternalArtifactModel().addTeamMember(documentId, teamMember);
+        }
+
+        // re-index
+        updateIndex(documentId);
+
+        // audit
+        auditor.confirmAddTeamMember(
+                documentId, currentUserId(), currentDateTime(), teamMember);
+        // fire event
+        notifyTeamMemberAdded(
+                readUser(teamMember), get(documentId), remoteEventGen);
     }
 
     /**
@@ -1875,34 +1922,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// update remote info
 		iAModel.updateRemoteInfo(documentId, receivedFrom, currentDateTime);
 	}
-
-    /**
-     * Add a team member to the document.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param jabberId
-     *            The team member.
-     * @throws ParityException
-     */
-    void addTeamMember(final Long documentId, final JabberId teamMember)
-            throws ParityException {
-        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
-        logger.debug(documentId);
-        logger.debug(teamMember);
-        // save the new team member locally
-        getInternalArtifactModel().addTeamMember(documentId, teamMember);
-
-        // re-index
-        updateIndex(documentId);
-
-        // audit
-        auditor.confirmAddTeamMember(
-                documentId, currentUserId(), currentDateTime(), teamMember);
-        // fire event
-        notifyTeamMemberAdded(
-                readUser(teamMember), get(documentId), remoteEventGen);
-    }
 
     /**
      * Remove a team member from the document.

@@ -195,7 +195,7 @@ public class BrowserMainDocumentModel {
      *
      */
     void debug() {
-        if(browser.getPlatform().isDebugMode()) {
+        if(browser.getPlatform().isDevelopmentMode()) {
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + documents.size() + " DOCUMENTS]");
             Integer historyItems = 0;
             for(final MainCellDocument mcd : documents) {

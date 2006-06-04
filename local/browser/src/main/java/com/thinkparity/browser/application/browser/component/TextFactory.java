@@ -39,6 +39,10 @@ public class TextFactory extends ComponentFactory {
 		synchronized(singletonLock) { return singleton.doCreateArea(); }
 	}
 
+        public static JTextArea createArea(final String text) {
+            synchronized(singletonLock) { return singleton.doCreateArea(text); }
+        }
+
 	public static JPasswordField createPassword() {
 		synchronized(singletonLock) { return singleton.doCreatePassword(); }
 	}
@@ -53,6 +57,12 @@ public class TextFactory extends ComponentFactory {
 		applyDefaultFont(jTextArea);
 		return jTextArea;
 	}
+
+        private JTextArea doCreateArea(final String text) {
+            final JTextArea jTextArea = doCreateArea();
+            jTextArea.setText(text);
+            return jTextArea;
+        }
 
 	private JTextField doCreate() {
 		final JTextField jTextField = new JTextField();

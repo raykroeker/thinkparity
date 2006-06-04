@@ -7,9 +7,6 @@ import javax.swing.ImageIcon;
 
 import com.thinkparity.browser.platform.Platform;
 
-import com.thinkparity.model.parity.model.user.UserModel;
-import com.thinkparity.model.xmpp.user.User;
-
 /**
  * The platform login action.
  *
@@ -24,7 +21,7 @@ public class SaveProfile extends AbstractAction {
 
     private static final String NAME;
 
-    private static Object saveDialogue;
+//    private static Object saveDialogue;
 
     static {
         ICON = null;
@@ -33,7 +30,7 @@ public class SaveProfile extends AbstractAction {
     }
 
     /** The platform. */
-    private final Platform platform;
+//    private final Platform platform;
 
     /**
      * Create SaveProfile.
@@ -43,17 +40,17 @@ public class SaveProfile extends AbstractAction {
      */
     public SaveProfile(final Platform platform) {
         super(NAME, ID, NAME, ICON);
-        this.platform = platform;
+//        this.platform = platform;
     }
 
     /** @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data) */
     public void invoke(final Data data) throws Exception {
         // display the save profile dialogue
-        saveDialogue = new Object();
+//        saveDialogue = new Object();
         //saveDialogue.display();
         //saveDialogue.
 
-        final UserModel uModel = UserModel.getModel();
+//        final UserModel uModel = UserModel.getModel();
 //        final User user = uModel.read(jabberId);
 //        user.setFirstName(saveDialogue.getFirstName());
 //        user.setOrganization(saveDialoge.getOrganization());

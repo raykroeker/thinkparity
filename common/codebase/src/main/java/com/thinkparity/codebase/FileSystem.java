@@ -62,6 +62,13 @@ public class FileSystem {
         else { return false; }
     }
 
+    /**
+     * Obtain the file system root.
+     * 
+     * @return The file system root.
+     */
+    public File getRoot() { return root; }
+
     /** @see java.lang.Object#hashCode() */
     public int hashCode() { return root.hashCode(); }
 

@@ -49,7 +49,7 @@ public class VersionTest extends CodebaseTestCase {
 		super.setUp();
 
 		data = new LinkedList<Fixture>();
-		data.add(new Fixture("thinkParity - Codebase", "1.0.0-RC4"));
+		data.add(new Fixture("thinkParity - Codebase", "1.0.0-RC5"));
 	}
 
 	/**

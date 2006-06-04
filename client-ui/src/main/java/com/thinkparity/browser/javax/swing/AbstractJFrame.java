@@ -1,5 +1,6 @@
 /*
- * Jan 21, 2006
+ * Created On: Jan 21, 2006
+ * $Id$
  */
 package com.thinkparity.browser.javax.swing;
 
@@ -14,32 +15,23 @@ import com.thinkparity.browser.platform.util.l10n.JFrameLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
+ * An abstraction of a swing JFrame.  Used by all thinkParity main windows.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public abstract class AbstractJFrame extends JFrame {
 
-	/**
-	 * @see java.io.Serializable
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * Resource bundle based localziation.
-	 * 
-	 */
+	/** Resource bundle based localization. */
 	protected final JFrameLocalization localization;
 
-	/**
-	 * An apache logger.
-	 * 
-	 */
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	/** An apache logger. */
+	protected final Logger logger;
 
-	/**
-	 * Container tools for swing.
-	 * 
-	 */
+	/** Container tools for swing. */
 	private final ContainerTools containerTools;
 
 	/**
@@ -52,6 +44,7 @@ public abstract class AbstractJFrame extends JFrame {
 		super();
 		this.containerTools = new ContainerTools(this);
 		this.localization = new JFrameLocalization(l18Context);
+        this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	/**

@@ -44,19 +44,18 @@ public abstract class ModelTestCase extends TestCase {
             System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
         }
         else { Assert.assertUnreachable("[RMODEL] [TEST INIT] [UNKNOWN OP MODE]"); }
-
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);
+        // init archive
+		initParityArchive(testSession.getSessionDirectory());
+		// init install
+		initParityInstall(testSession.getSessionDirectory());
 		// init workspace
 		initParityWorkspace(testSession.getSessionDirectory());
         // init preferences
 		final Preferences preferences = WorkspaceModel.getModel().getWorkspace().getPreferences();
 		preferences.setUsername(modelTestUser.getUsername());
-        // init archive
-        initParityArchive(testSession.getSessionDirectory());
-        // init install
-        initParityInstall(testSession.getSessionDirectory());
 	}
 
     /**

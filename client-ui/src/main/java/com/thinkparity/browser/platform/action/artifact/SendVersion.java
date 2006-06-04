@@ -32,19 +32,9 @@ public class SendVersion extends AbstractAction {
         NAME = "Send Version";
     }
         
-    /**
-     * The browser application.
-     * 
-     */
-    private final Browser browser;
-
-    /**
-     * Create a SendVersion.
-     * 
-     */
+    /** Create SendVersion. */
     public SendVersion(final Browser browser) {
         super("Send Version", ID, NAME, ICON);
-        this.browser = browser;
     }
 
     /**
@@ -52,7 +42,7 @@ public class SendVersion extends AbstractAction {
      * 
      */
     public void invoke(final Data data) throws Exception {
-        final List<User> users = (List<User>) data.get(DataKey.USERS);
+        final List<User> users = getDataUsers(data, DataKey.USERS);
         final Long artifactId = (Long) data.get(DataKey.ARTIFACT_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
 

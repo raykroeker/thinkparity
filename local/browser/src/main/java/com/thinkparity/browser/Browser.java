@@ -4,7 +4,10 @@
  */
 package com.thinkparity.browser;
 
+import com.thinkparity.browser.javax.swing.Swing;
 import com.thinkparity.browser.platform.BrowserPlatform;
+import com.thinkparity.browser.profile.Profile;
+import com.thinkparity.browser.profile.ProfileManager;
 
 /**
  * The browser entry point.
@@ -20,11 +23,12 @@ public class Browser {
 	 * @param args
 	 *            Command line arguments.
 	 */
-	public static void main(String[] args) { new BrowserPlatform().start(); }
+	public static void main(String[] args) {
+        Swing.init();
+        final Profile profile = new ProfileManager().select();
+        if(null != profile) { new BrowserPlatform(profile).start(); }
+    }
 
-	/**
-	 * Create a Browser.
-	 * 
-	 */
+	/** Create Browser. */
 	private Browser() { super(); }
 }

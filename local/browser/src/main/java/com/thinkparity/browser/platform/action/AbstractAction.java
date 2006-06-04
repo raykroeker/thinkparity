@@ -3,6 +3,10 @@
  */
 package com.thinkparity.browser.platform.action;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
@@ -18,6 +22,8 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -154,6 +160,54 @@ public abstract class AbstractAction {
 	}
 
 	/**
+     * Convert the data element foudn at the given key to a list of files.
+     * 
+     * @param data
+     *            The action data.
+     * @param key
+     *            The data element key.
+     * @return A list of files.
+     */
+    protected List<File> getDataFiles(final Data data, final Enum<?> key) {
+        final List<?> list = (List<?>) data.get(key);
+        final List<File> files = new ArrayList<File>();
+        for(final Object o : list) { files.add((File) o); }
+        return files;
+    }
+
+    /**
+     * Convert the data element found at the given key to a list of jabber ids.
+     * 
+     * @param data
+     *            The action data.
+     * @param key
+     *            The data element key.
+     * @return A list of jabber ids.
+     */
+    protected List<JabberId> getDataJabberIds(final Data data, final Enum<?> key) {
+        final List<?> list = (List<?>) data.get(key);
+        final List<JabberId> jabberIds = new ArrayList<JabberId>();
+        for(final Object o : list) { jabberIds.add((JabberId) o); }
+        return jabberIds;
+    }
+
+    /**
+     * Convert the data element found at the given key to a list of users.
+     * 
+     * @param data
+     *            The action data.
+     * @param key
+     *            The data element key.
+     * @return A list of users.
+     */
+	protected List<User> getDataUsers(final Data data, final Enum<?> key) {
+        final List<?> list = (List<?>) data.get(key);
+        final List<User> users = new ArrayList<User>();
+        for(final Object o : list) { users.add((User) o); }
+        return users;
+    }
+
+	/**
 	 * Obtain the document model api.
 	 * 
 	 * @return The document model api.
@@ -218,7 +272,7 @@ public abstract class AbstractAction {
 		registerError((Throwable) px);
 	}
 
-	/**
+    /**
 	 * Register an error.
 	 * 
 	 * @param t

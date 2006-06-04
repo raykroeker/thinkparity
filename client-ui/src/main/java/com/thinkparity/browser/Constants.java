@@ -49,6 +49,11 @@ public final class Constants {
         /** System property parity.install. */
         public static final File PARITY_INSTALL =
             new File(System.getProperty("parity.install"));
+
+    }
+
+    public static final class DirectoryNames {
+        public static final String DEFAULT_PROFILE = "Default";
     }
 
     public static final class Release {

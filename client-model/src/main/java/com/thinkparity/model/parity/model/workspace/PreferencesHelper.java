@@ -13,6 +13,7 @@ import java.util.Properties;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.Constants;
+import com.thinkparity.model.Constants.Directories;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -72,11 +73,8 @@ class PreferencesHelper {
 				javaProperties.remove(Constants.Preferences.Properties.PASSWORD);
 			}
 
-			public File getArchiveOutputDirectory() {
-				final String archiveOutputDirectory =
-					javaProperties.getProperty("parity.archive.directory", null);
-				if(null == archiveOutputDirectory) { return null; }
-				else { return new File(archiveOutputDirectory); }
+			public File getArchiveOutputDirectory() { 
+                return Directories.ARCHIVE;
 			}
 
             public Long getLastRun() {
@@ -124,13 +122,6 @@ class PreferencesHelper {
 			public Boolean isSetUsername() {
 				final String username = getUsername();
 				return (null != username && 0 < username.length());
-			}
-
-			public void setArchiveOutputDirectory(
-					final File archiveOutputDirectory) {
-				javaProperties.setProperty(
-						"parity.archive.directory",
-						archiveOutputDirectory.getAbsolutePath());
 			}
 
 			public void setLocale(final Locale locale) {}

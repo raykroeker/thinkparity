@@ -18,10 +18,11 @@ public final class Constants extends com.thinkparity.codebase.Constants {
         public static final Integer SERVER_PORT = Integer.getInteger("parity.serverport");
     }
 
-    public static final class Directories extends
-            com.thinkparity.codebase.Constants.Local.Directories {
+    public static final class Directories {
         public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
-        public static final File DOWNLOAD = new File(com.thinkparity.codebase.Constants.Local.Directories.INSTALL, DirectoryNames.DOWNLOAD);
+        public static final File DOWNLOAD = new File(System.getProperty("parity.install"), DirectoryNames.DOWNLOAD);
+        public static final File INSTALL = new File(System.getProperty("parity.install"));
+        public static final File WORKSPACE = new File(System.getProperty("parity.workspace"));
     }
 
     public static final class DirectoryNames {

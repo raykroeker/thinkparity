@@ -1,5 +1,6 @@
 /*
- * Jan 21, 2006
+ * Created On: Jan 21, 2006
+ * $Id$
  */
 package com.thinkparity.browser.javax.swing;
 
@@ -17,27 +18,21 @@ import com.thinkparity.browser.platform.util.l10n.JFrameLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
+ * An abstraction of the swing JDialog.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public abstract class AbstractJDialog extends JDialog {
 
-	/**
-	 * @see java.io.Serializable
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * Resource bundle based localziation.
-	 * 
-	 */
+	/** Resource bundle based localziation. */
 	protected final JFrameLocalization localization;
 
-	/**
-	 * An apache logger.
-	 * 
-	 */
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	/** An apache logger. */
+	protected final Logger logger;
 
 	/**
 	 * Create a AbstractJFrame.
@@ -54,6 +49,7 @@ public abstract class AbstractJDialog extends JDialog {
 			final String l18nContext) {
 		super(owner, modal);
 		this.localization = new JFrameLocalization(l18nContext);
+        this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	/**

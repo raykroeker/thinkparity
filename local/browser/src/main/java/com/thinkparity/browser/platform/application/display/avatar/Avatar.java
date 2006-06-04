@@ -3,18 +3,12 @@
  */
 package com.thinkparity.browser.platform.application.display.avatar;
 
-import java.awt.event.KeyEvent;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.Browser;
@@ -32,24 +26,6 @@ import com.thinkparity.codebase.assertion.Assert;
 public abstract class Avatar extends AbstractJPanel {
 
     /**
-     * Obtain the enter key stroke.
-     *
-     * @return A key stroke.
-     */
-    private static KeyStroke getEnterKeyStroke() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-    }
-
-    /**
-     * Obtain the escape key stroke.
-     *
-     * @return A key stroke.
-     */
-    private static KeyStroke getEscapeKeyStroke() {
-        return KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-    }
-
-	/**
 	 * The avatar's content provider.
 	 * 
 	 */
@@ -267,7 +243,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 * @return True if the platform is in test mode; false otherwise.
 	 */
 	protected final Boolean isDebugMode() {
-		return getController().getPlatform().isDebugMode();
+		return getController().getPlatform().isDevelopmentMode();
 	}
 
 	/**
@@ -276,7 +252,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 * @return True if the platform is in test mode; false otherwise.
 	 */
 	protected final Boolean isTestMode() {
-		return getController().getPlatform().isTestMode();
+		return getController().getPlatform().isTestingMode();
 	}
 
 	/**
@@ -306,45 +282,6 @@ public abstract class Avatar extends AbstractJPanel {
 			}
 		}
 	}
-
-    /**
-     * Bind the enter key to the action.
-     *
-     * @param action
-     *      The action to perform when enter is pressed.
-     */
-    protected void bindEnterKey(final String command,
-            final Action action) {
-        bindKey(getEnterKeyStroke(), command, action);
-    }
-
-    /**
-     * Bind the escape key to an action.
-     *
-     * @param action
-     *      The action to perform when escape is pressed.
-     */
-    protected void bindEscapeKey(final String command,
-            final Action action) {
-        bindKey(getEscapeKeyStroke(), command, action);
-    }
-
-    /**
-     * Bind a key stroke to an action through a binding.
-     *
-     * @param keyStroke
-     *      A key stroke.
-     * @param action
-     *      An action.
-     */
-    private void bindKey(final KeyStroke keyStroke, final String command,
-            final Action action) {
-        final ActionMap actionMap = getActionMap();
-        final InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        actionMap.put(command, action);
-        inputMap.put(keyStroke, command);
-    }
 
     /**
 	 * The scrolling policy for the avatar.

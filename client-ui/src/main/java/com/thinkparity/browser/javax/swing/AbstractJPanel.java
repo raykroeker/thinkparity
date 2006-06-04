@@ -1,40 +1,45 @@
 /*
- * Jan 17, 2006
+ * Created On: Jan 17, 2006
+ * $Id$
  */
 package com.thinkparity.browser.javax.swing;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.JPanelLocalization;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
+ * An abstraction of a swing JPanel.  Used by all thinkParity panels as a root
+ * class.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class AbstractJPanel extends JPanel {
 
-	/**
-	 * Default background color.
-	 * 
-	 */
+	/** Default background color. */
 	private static final Color DEFAULT_BACKGROUND;
 
-	/**
-	 * @see java.io.Serializable
-	 */
+	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
 	static {
@@ -43,27 +48,33 @@ public class AbstractJPanel extends JPanel {
 	}
 
 	/**
-	 * Localisation helper utility.
-	 * 
-	 */
+     * Obtain the enter key stroke.
+     *
+     * @return A key stroke.
+     */
+    private static KeyStroke getEnterKeyStroke() {
+        return KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+    }
+
+    /**
+     * Obtain the escape key stroke.
+     *
+     * @return A key stroke.
+     */
+    private static KeyStroke getEscapeKeyStroke() {
+        return KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+    }
+
+    /** Localization helper utility. */
 	protected final JPanelLocalization localization;
 
-	/**
-	 * Handle to an apache logger.
-	 * 
-	 */
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	/** An apache logger. */
+	protected final Logger logger;
 
-	/**
-	 * Handle to the parity model factory.
-	 * 
-	 */
+	/** Handle to the parity model factory. */
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
-	/**
-	 * Swing container tools.
-	 * 
-	 */
+	/** Swing container tools. */
 	private final ContainerTools containerTools;
 
 	/**
@@ -102,6 +113,7 @@ public class AbstractJPanel extends JPanel {
 		super();
 		this.containerTools = new ContainerTools(this);
 		this.localization = new JPanelLocalization(l18nContext);
+        this.logger = LoggerFactory.getLogger(getClass());
 		addMouseListener(debugMouseAdapter);
 		setOpaque(true);
 		setBackground(background);
@@ -127,6 +139,26 @@ public class AbstractJPanel extends JPanel {
 	 * @return True if the input is valid; false otherwise.
 	 */
 	public Boolean isInputValid() { return Boolean.TRUE; }
+
+	/**
+     * Bind the enter key to the action.
+     *
+     * @param action
+     *      The action to perform when enter is pressed.
+     */
+    protected void bindEnterKey(final String command, final Action action) {
+        bindKey(getEnterKeyStroke(), command, action);
+    }
+
+	/**
+     * Bind the escape key to an action.
+     *
+     * @param action
+     *      The action to perform when escape is pressed.
+     */
+    protected void bindEscapeKey(final String command, final Action action) {
+        bindKey(getEscapeKeyStroke(), command, action);
+    }
 
 	/**
 	 * Obtain a handle to the document api.
@@ -171,7 +203,7 @@ public class AbstractJPanel extends JPanel {
 		return localization.getString(localKey, arguments);
 	}
 
-	/**
+    /**
 	 * Obtain a handle to the parity workspace.
 	 * 
 	 * @return The parity workspace.
@@ -180,11 +212,27 @@ public class AbstractJPanel extends JPanel {
 		return modelFactory.getWorkspace(getClass());
 	}
 
-	/**
+    /**
 	 * Set a default background color. 
 	 *
 	 */
 	protected void setDefaultBackground() {
 		setBackground(DEFAULT_BACKGROUND);
 	}
+
+    /**
+     * Bind a key stroke to an action through a binding.
+     *
+     * @param keyStroke
+     *      A key stroke.
+     * @param action
+     *      An action.
+     */
+    private void bindKey(final KeyStroke keyStroke, final String command, final Action action) {
+        final ActionMap actionMap = getActionMap();
+        final InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    
+        actionMap.put(command, action);
+        inputMap.put(keyStroke, command);
+    }
 }

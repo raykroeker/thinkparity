@@ -27,18 +27,14 @@ public class Logout extends AbstractAction {
         NAME = "Logout";
     }
 
-    /** The platform. */
-    private final Platform platform;
-
     /**
-     * Create a Logout.
+     * Create Logout.
      *
      * @param platform
      *      The platform.
      */
     public Logout(final Platform platform) {
         super("Logout", ID, NAME, ICON);
-        this.platform = platform;
     }
 
     /** @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data) */

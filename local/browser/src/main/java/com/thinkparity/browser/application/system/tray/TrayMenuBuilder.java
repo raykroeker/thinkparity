@@ -36,6 +36,9 @@ class TrayMenuBuilder {
     /** The exit action. */
     final Action exit;
 
+    /** The restart action. */
+    final Action restart;
+
     /** The login action. */
     final Action login;
 
@@ -76,6 +79,16 @@ class TrayMenuBuilder {
             }};
         this.editProfile.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.EditProfileMnemonic").charAt(0)));
 
+        if(application.isDevelopmentMode()) {
+            this.restart = new AbstractAction(getString("Menu.Restart")) {
+                private static final long serialVersionUID = 1;
+                public void actionPerformed(final ActionEvent e) {
+                    application.runRestartPlatform();
+                }
+            };
+        }
+        else { this.restart = null; }
+
         this.exit = new AbstractAction(getString("Menu.Exit")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
@@ -115,6 +128,8 @@ class TrayMenuBuilder {
         jPopupMenu.add(logout);
         jPopupMenu.add(about);
         jPopupMenu.addSeparator();
+        if(null == restart) {}
+        else { jPopupMenu.add(restart); }
         jPopupMenu.add(exit);
 
         return jPopupMenu;

@@ -17,8 +17,8 @@
 	<classpathentry sourcepath="/M2_REPO/net/java/jdic/0.9.1/jdic-0.9.1-src.jar" kind="var" path="M2_REPO/net/java/jdic/0.9.1/jdic-0.9.1.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/raykroeker/jUnitX/1.0.1/jUnitX-1.0.1-sources.jar" kind="var" path="M2_REPO/com/raykroeker/jUnitX/1.0.1/jUnitX-1.0.1.jar"/>
 	<classpathentry sourcepath="/M2_REPO/junit/junit/3.8.1/junit-3.8.1-sources.jar" kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
-	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/codebase/1.0.0-RC4/codebase-1.0.0-RC4.jar" kind="var" path="M2_REPO/com/thinkparity/parity/codebase/1.0.0-RC4/codebase-1.0.0-RC4.jar"/>
-	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/cMigrator/1.0.0-RC4/cMigrator-1.0.0-RC4-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/cMigrator/1.0.0-RC4/cMigrator-1.0.0-RC4.jar"/>
 	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/lModel/1.0.0-RC5/lModel-1.0.0-RC5-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/lModel/1.0.0-RC5/lModel-1.0.0-RC5.jar"/>
+	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/codebase/1.0.0-RC5/codebase-1.0.0-RC5-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/codebase/1.0.0-RC5/codebase-1.0.0-RC5.jar"/>
+	<classpathentry sourcepath="/M2_REPO/com/thinkparity/parity/cMigrator/1.0.0-RC5/cMigrator-1.0.0-RC5-sources.jar" kind="var" path="M2_REPO/com/thinkparity/parity/cMigrator/1.0.0-RC5/cMigrator-1.0.0-RC5.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -39,8 +39,6 @@ public interface Preferences {
 
 	public Boolean isSetUsername();
 
-	public void setArchiveOutputDirectory(final File archiveOutputDirectory);
-
 	public void setLocale(final Locale locale);
 
 	public void setPassword(final String password);

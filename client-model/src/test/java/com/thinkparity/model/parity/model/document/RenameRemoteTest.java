@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
 
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.assertion.TrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
 
@@ -34,7 +34,7 @@ public class RenameRemoteTest extends DocumentTestCase {
 
         try { datum.dModel.rename(datum.documentId, datum.documentName); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
-        catch(final NotTrueAssertion nta) { didAssert = Boolean.TRUE; }
+        catch(final TrueAssertion ta) { didAssert = Boolean.TRUE; }
 
         if(!didAssert) { fail(NAME + " [DID NOT ASSERT]"); }
 	}

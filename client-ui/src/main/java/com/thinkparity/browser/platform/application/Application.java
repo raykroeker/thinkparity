@@ -70,6 +70,13 @@ public interface Application extends Saveable {
 	public void hibernate(final Platform platform);
 
     /**
+     * Determine whether or not the application is in development mode.
+     * 
+     * @return True if the application is in development mode.
+     */
+	public Boolean isDevelopmentMode();
+
+	/**
      * Determine whether or not the application is online.
      *
      * @return True if the application is online; false otherwise.
@@ -93,7 +100,7 @@ public interface Application extends Saveable {
 	 */
 	public void restore(final Platform platform);
 
-	/**
+    /**
 	 * Start the application.
 	 *
      * @param platform

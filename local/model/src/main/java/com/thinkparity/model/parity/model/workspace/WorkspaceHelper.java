@@ -1,5 +1,6 @@
 /*
- * Oct 17, 2005
+ * Created On: Oct 17, 2005
+ * $Id$
  */
 package com.thinkparity.model.parity.model.workspace;
 
@@ -13,14 +14,12 @@ import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.util.SystemUtil;
+import com.thinkparity.model.Constants.Directories;
 
 /**
  * 
  * @author raykroeker@gmail.com
- * @version 1.0
- * 
- * TODO: Move the corporate name and application name referenced in the
- * directory creation to another location.
+ * @version $Revision$
  */
 class WorkspaceHelper {
 
@@ -162,52 +161,14 @@ class WorkspaceHelper {
 	 * @return The workspace root url.
 	 */
 	private URL initRoot() {
-		final File workspaceDirectory;
-		switch(OSUtil.getOS()) {
-		case WINDOWS_2000:
-		case WINDOWS_XP:
-			workspaceDirectory = initRootWin32();
-			break;
-		case LINUX:
-			workspaceDirectory = initRootLinux();
-			break;
-		default:
-			throw Assert.createUnreachable("Unsupported os:  " + OSUtil.getOS());
-		}
-		if(!workspaceDirectory.exists())
+		if(!Directories.WORKSPACE.exists())
 			Assert.assertTrue(
-					"Cannot create workspace directory.",
-					workspaceDirectory.mkdirs());
-		try { return workspaceDirectory.toURL(); }
-		catch(MalformedURLException murlx) {
+					"[LMODEL] [WORKSPACE INIT] [CANNOT BE CREATED]",
+					Directories.WORKSPACE.mkdirs());
+		try { return Directories.WORKSPACE.toURL(); }
+		catch(final MalformedURLException murlx) {
 			murlx.printStackTrace();
 			return null;
 		}
-	}
-
-	/**
-	 * Obtain the workspace root directory for a linux environment.
-	 * 
-	 * @return The workspace root directory for a linux environment.
-	 */
-	private File initRootLinux() {
-		final StringBuffer linuxPath = new StringBuffer()
-			.append(SystemUtil.getenv("HOME"))
-			.append(File.separatorChar).append("Parity Software")
-			.append(File.separatorChar).append("Parity");
-		return new File(linuxPath.toString());
-	}
-
-	/**
-	 * Obtain the workspace root directory for a win32 environment.
-	 * 
-	 * @return The workspace root directory for a win32 environment.
-	 */
-	private File initRootWin32() {
-		final StringBuffer win32Path = new StringBuffer()
-			.append(SystemUtil.getenv("APPDATA"))
-			.append(File.separatorChar).append("Parity Software")
-			.append(File.separatorChar).append("Parity");
-		return new File(win32Path.toString());
 	}
 }

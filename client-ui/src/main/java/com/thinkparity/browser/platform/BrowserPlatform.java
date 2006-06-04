@@ -24,11 +24,11 @@ import com.thinkparity.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.browser.platform.login.LoginHelper;
 import com.thinkparity.browser.platform.update.UpdateHelper;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+import com.thinkparity.browser.profile.Profile;
 
 import com.thinkparity.codebase.Mode;
 
 import com.thinkparity.model.parity.model.workspace.Preferences;
-import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * 
@@ -37,8 +37,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  * @version 1.1
  */
 public class BrowserPlatform implements Platform {
-
-	static { BrowserPlatformInitializer.initialize(); }
 
 	/**
      * Obtain a log id for the platform class.
@@ -101,22 +99,16 @@ public class BrowserPlatform implements Platform {
 	private final WindowRegistry windowRegistry;
 
 	/**
-	 * The parity workspace.
-	 * 
-	 */
-	private final Workspace workspace;
-
-	/**
 	 * Create a BrowserPlatform [Singleton]
 	 * 
 	 */
-	public BrowserPlatform() {
+	public BrowserPlatform(final Profile profile) {
+        new BrowserPlatformInitializer(profile).initialize();
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
 		this.windowRegistry = new WindowRegistry();
 		this.modelFactory = ModelFactory.getInstance();
 		this.preferences = modelFactory.getPreferences(getClass());
-		this.workspace = modelFactory.getWorkspace(getClass());
 
 		this.logger = LoggerFactory.getLogger(getClass());
 		this.loginHelper = new LoginHelper(this);
@@ -188,15 +180,15 @@ public class BrowserPlatform implements Platform {
 		applicationRegistry.get(applicationId).hibernate(this);
 	}
 
-	/** @see com.thinkparity.browser.platform.Platform#isDebugMode() */
-	public Boolean isDebugMode() { return Version.getMode() == Mode.DEVELOPMENT; }
+	/** @see com.thinkparity.browser.platform.Platform#isDevelopmentMode() */
+	public Boolean isDevelopmentMode() { return Version.getMode() == Mode.DEVELOPMENT; }
 
 	/** @see com.thinkparity.browser.platform.Platform#isOnline() */
     public Boolean isOnline() { return isLoggedIn(); }
 
-	/** @see com.thinkparity.browser.platform.Platform#isTestMode() */
-	public Boolean isTestMode() {
-		if(isDebugMode()) { return Boolean.TRUE; }
+	/** @see com.thinkparity.browser.platform.Platform#isTestingMode() */
+	public Boolean isTestingMode() {
+		if(isDevelopmentMode()) { return Boolean.TRUE; }
 		return Version.getMode() == Mode.TESTING;
 	}
 
@@ -252,7 +244,6 @@ public class BrowserPlatform implements Platform {
         commands.add(Java.OPTION_PARITY_INSTALL.format(new Object[] {Directories.PARITY_INSTALL.getAbsolutePath()}));
         commands.add(Java.OPTION_PARITY_SERVER_HOST.format(new Object[] {preferences.getServerHost()}));
         commands.add(Java.OPTION_PARITY_SERVER_PORT.format(new Object[] {preferences.getServerPort().toString()}));
-        commands.add(Java.OPTION_PARITY_WORKSPACE.format(new Object[] {workspace.getWorkspaceURL().getFile()}));
         commands.add(Java.OPTION_CLASS_PATH);
         commands.add(Java.OPTION_CLASS_PATH_VALUE);
         commands.add(Java.MAIN_CLASS);

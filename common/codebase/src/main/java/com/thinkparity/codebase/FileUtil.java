@@ -152,6 +152,39 @@ public abstract class FileUtil {
 		return fileName;
 	}
 
+    /**
+     * Test a potential file name for validity.
+     *
+     * @param name
+     *      A file name.
+     * @return True if a file can be created with the name.
+     */
+    public static Boolean isFileNameValid(final String name) {
+        final File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        final File testFile = new File(tempDir, name);
+        Boolean didCreate = Boolean.FALSE;
+        try { didCreate = testFile.createNewFile(); }
+        catch(final IOException iox) { didCreate = Boolean.FALSE; }
+        if(didCreate) { testFile.delete(); }
+        return didCreate;
+    }
+
+    /**
+     * Test a potential directory name for validity.
+     *
+     * @param name
+     *      A directory name.
+     * @return True if a directory can be created with the name.
+     */
+    public static Boolean isDirectoryNameValid(final String name) {
+        final File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        final File testDirectory = new File(tempDir, name);
+        Boolean didCreate = Boolean.FALSE;
+        didCreate = testDirectory.mkdir();
+        if(didCreate) { testDirectory.delete(); }
+        return didCreate;
+    }
+
 	/**
 	 * Read a file's contents into a byte array.
 	 * 

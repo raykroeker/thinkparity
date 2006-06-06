@@ -1,26 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-    <groupId>com.thinkparity.parity</groupId>
-    <version>1.0.0-RC5</version>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.thinkparity.remote</groupId>
+    <version>1.0.0-RC6</version>
     <url>http://thinkparity.dyndns.org</url>
- 
-    <parent>
-        <artifactId>parity</artifactId>
-        <groupId>com.thinkparity.parity</groupId>
-        <version>1.0.0-RC5</version>
-    </parent>
 
     <artifactId>rModel</artifactId>
     <name>thinkParity - Remote Model</name>
     <packaging>jar</packaging>
 
-	<scm>
-		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:server</connection>
-		<tag>v1_0</tag>
-		<url>http://tpdev.thinkparity.com/viewcvs</url>
-	</scm>
+    <scm>
+        <connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:server</connection>
+        <tag>v1_0</tag>
+        <url>http://tpdev.thinkparity.com/viewcvs</url>
+    </scm>
 
 	<dependencies>
 		<dependency>
@@ -52,10 +46,37 @@
 			<scope>test</scope>
 			<type>jar</type>
 		</dependency>
+		<dependency>
+			<groupId>com.raykroeker</groupId>
+			<artifactId>junitx</artifactId>
+			<version>1.0.1</version>
+			<scope>test</scope>
+			<type>jar</type>
+		</dependency>
 	</dependencies>
 
 	<build>
+        <resources>
+            <resource>
+                <directory>src/main/filters</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.1</version>

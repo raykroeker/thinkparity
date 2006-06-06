@@ -1,66 +1,45 @@
 /*
- * Nov 25, 2005
+ * Created On: Nov 25, 2005
+ * $Id$
  */
 package com.thinkparity.server;
 
 import java.io.File;
+import java.text.MessageFormat;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import org.jivesoftware.messenger.IQRouter;
 import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.container.Plugin;
 import org.jivesoftware.messenger.container.PluginManager;
 
-import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.server.handler.IQHandler;
-import com.thinkparity.server.handler.artifact.*;
-import com.thinkparity.server.handler.contact.AcceptInvitation;
-import com.thinkparity.server.handler.contact.DeclineInvitation;
-import com.thinkparity.server.handler.contact.InviteContact;
-import com.thinkparity.server.handler.contact.ReadContacts;
-import com.thinkparity.server.handler.queue.ProcessOfflineQueue;
-import com.thinkparity.server.handler.user.ReadUsers;
-import com.thinkparity.server.handler.user.SubscribeUser;
-import com.thinkparity.server.handler.user.UnsubscribeUser;
-import com.thinkparity.server.org.apache.log4j.ServerLog4jConfigurator;
-import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 
 /**
+ * thinkParity Remote Model Plugin
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class ParityServer implements Plugin {
 
-	private IQHandler acceptInvitation;
-	private AcceptKeyRequest acceptKeyRequest;
-	private IQHandler artifactReadContacts;
-	private IQHandler closeArtifact;
-    private IQHandler confirmArtifactReceipt;
-	private CreateArtifact createArtifact;
-	private IQHandler declineInvitation;
-	private IQHandler deleteArtifact;
-	private DenyKeyRequest denyKeyRequest;
-	private IQHandler flagArtifact;
-	private IQHandler getArtifactKeys;
-	private IQHandler getKeyHolder;
-	private IQHandler getSubscription;
-	private IQHandler inviteContact;
-	private final IQRouter iqRouter;
-	private IQHandler processOfflineQueue;
-	private IQHandler readContacts;
-	private IQHandler readUsers;
-	private RequestArtifactKey requestArtifactKey;
-	private IQHandler sendDocument;
-	private SubscribeUser subscribeUser;
-	private UnsubscribeUser unsubscribeUser;
+	/** An apache logger. */
+    protected Logger logger;
 
-	/**
-	 * Create a ParityServer.
-	 */
+	/** The model's controllers. */
+    private final List<IQHandler> controllers;
+
+    /** The jive query router. */
+	private final IQRouter iqRouter;
+
+	/** Create ParityServer. */
 	public ParityServer() {
 		super();
+        this.controllers = new LinkedList<IQHandler>();
 		this.iqRouter = XMPPServer.getInstance().getIQRouter();
 	}
 
@@ -68,8 +47,8 @@ public class ParityServer implements Plugin {
 	 * @see org.jivesoftware.messenger.container.Plugin#destroyPlugin()
 	 */
 	public void destroyPlugin() {
+	    destroyControllers();
 		destroyPluginLogging();
-		destroyIQHandlers();
 	}
 
 	/**
@@ -77,102 +56,22 @@ public class ParityServer implements Plugin {
 	 */
 	public void initializePlugin(PluginManager manager, File pluginDirectory) {
 		initializePluginLogging(pluginDirectory);
-		initializeIQHandlers();
-		final StringBuffer infoBuffer = new StringBuffer()
-			.append(Version.getName()).append(Separator.FullColon)
-			.append(Version.getVersion()).append(Separator.FullColon)
-			.append(Version.getBuildId());
-		ServerLoggerFactory.getLogger(getClass()).info(infoBuffer);
+		initializeControllers();
+
+		logger.info(Version.toInfo());
 	}
 
 	/**
 	 * Destroy the iq dispatcher.
 	 * 
 	 */
-	private void destroyIQHandlers() {
-		iqRouter.removeHandler(acceptInvitation);
-		acceptInvitation.destroy();
-		acceptInvitation = null;
-
-		iqRouter.removeHandler(acceptKeyRequest);
-		acceptKeyRequest.destroy();
-		acceptKeyRequest = null;
-		
-		iqRouter.removeHandler(closeArtifact);
-		closeArtifact.destroy();
-		closeArtifact = null;
-
-        iqRouter.removeHandler(confirmArtifactReceipt);
-        confirmArtifactReceipt.destroy();
-        confirmArtifactReceipt = null;
-
-		iqRouter.removeHandler(createArtifact);
-		createArtifact.destroy();
-		createArtifact = null;
-
-		iqRouter.removeHandler(declineInvitation);
-		declineInvitation.destroy();
-		declineInvitation = null;
-
-		iqRouter.removeHandler(deleteArtifact);
-		deleteArtifact.destroy();
-		deleteArtifact = null;
-
-		iqRouter.removeHandler(denyKeyRequest);
-		denyKeyRequest.destroy();
-		denyKeyRequest = null;
-		
-		iqRouter.removeHandler(flagArtifact);
-		flagArtifact.destroy();
-		flagArtifact = null;
-		
-		iqRouter.removeHandler(getKeyHolder);
-		getKeyHolder.destroy();
-		getKeyHolder = null;
-
-		iqRouter.removeHandler(getArtifactKeys);
-		getArtifactKeys.destroy();
-		getArtifactKeys = null;
-
-		iqRouter.removeHandler(getSubscription);
-		getSubscription.destroy();
-		getSubscription = null;
-
-		iqRouter.removeHandler(inviteContact);
-		inviteContact.destroy();
-		inviteContact = null;
-
-		iqRouter.removeHandler(processOfflineQueue);
-		processOfflineQueue.destroy();
-		processOfflineQueue = null;
-
-		iqRouter.removeHandler(requestArtifactKey);
-		requestArtifactKey.destroy();
-		requestArtifactKey = null;
-
-		iqRouter.removeHandler(artifactReadContacts);
-		artifactReadContacts.destroy();
-		artifactReadContacts = null;
-
-		iqRouter.removeHandler(readContacts);
-		readContacts.destroy();
-		readContacts = null;
-
-		iqRouter.removeHandler(readUsers);
-		readUsers.destroy();
-		readUsers = null;
-
-        iqRouter.removeHandler(sendDocument);
-        sendDocument.destroy();
-        sendDocument = null;
-
-		iqRouter.removeHandler(subscribeUser);
-		subscribeUser.destroy();
-		subscribeUser = null;
-		
-		iqRouter.removeHandler(unsubscribeUser);
-		unsubscribeUser.destroy();
-		unsubscribeUser = null;
+	private void destroyControllers() {
+	    synchronized(controllers) {
+            for(IQHandler controller : controllers) { 
+                iqRouter.removeHandler(controller);
+                controller = null;
+            }
+        }
 	}
 
 	/**
@@ -182,87 +81,68 @@ public class ParityServer implements Plugin {
 	private void destroyPluginLogging() { LogManager.shutdown(); }
 
 	/**
+     * Intialize the controller and add it to the route table.
+     * 
+     * @param controllerName
+     *            The fully qualified controller name.
+     */
+    private void initializeController(final String controllerName) {
+        try { controllers.add((IQHandler) Class.forName(controllerName).newInstance()); }
+        catch(final ClassNotFoundException cnfx) {
+            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", cnfx);
+        }
+        catch(final IllegalAccessException iax) {
+            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", iax);
+        }
+        catch(final InstantiationException ix) {
+            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", ix);
+        }
+        final IQHandler controller = controllers.get(controllers.size() - 1);
+        iqRouter.addHandler(controller);
+        final String info = MessageFormat.format(
+                "[RMODEL] [PLUGIN] [INIT CONTROLLER] [{0} REGISTERED]",
+                new Object[] {controller.getInfo().getNamespace()});
+        logger.info(info);
+    }
+
+    /**
 	 * Initialize the iq dispatcher.
 	 * 
 	 */
-	private void initializeIQHandlers() {
-		acceptInvitation = new AcceptInvitation();
-		iqRouter.addHandler(acceptInvitation);
-
-		acceptKeyRequest = new AcceptKeyRequest();
-		iqRouter.addHandler(acceptKeyRequest);
-		
-		closeArtifact = new CloseArtifact();
-		iqRouter.addHandler(closeArtifact);
-
-        confirmArtifactReceipt = new ConfirmReceipt();
-        iqRouter.addHandler(confirmArtifactReceipt);
-
-		createArtifact = new CreateArtifact();
-		iqRouter.addHandler(createArtifact);
-
-		declineInvitation = new DeclineInvitation();
-		iqRouter.addHandler(declineInvitation);
-
-		deleteArtifact = new DeleteArtifact();
-		iqRouter.addHandler(deleteArtifact);
-
-		denyKeyRequest = new DenyKeyRequest();
-		iqRouter.addHandler(denyKeyRequest);
-		
-		flagArtifact = new FlagArtifact();
-		iqRouter.addHandler(flagArtifact);
-
-		getKeyHolder = new GetKeyHolder();
-		iqRouter.addHandler(getKeyHolder);
-
-		getArtifactKeys = new GetArtifactKeys();
-		iqRouter.addHandler(getArtifactKeys);
-
-		getSubscription = new GetSubscription();
-		iqRouter.addHandler(getSubscription);
-
-		inviteContact = new InviteContact();
-		iqRouter.addHandler(inviteContact);
-
-		processOfflineQueue = new ProcessOfflineQueue();
-		iqRouter.addHandler(processOfflineQueue);
-
-		artifactReadContacts = new com.thinkparity.server.handler.artifact.ReadContacts();
-		iqRouter.addHandler(artifactReadContacts);
-
-		readContacts = new ReadContacts();
-		iqRouter.addHandler(readContacts);
-
-		readUsers = new ReadUsers();
-		iqRouter.addHandler(readUsers);
-
-		requestArtifactKey = new RequestArtifactKey();
-		iqRouter.addHandler(requestArtifactKey);
-
-        sendDocument = new com.thinkparity.server.handler.document.SendDocument();
-        iqRouter.addHandler(sendDocument);
-
-		subscribeUser = new SubscribeUser();
-		iqRouter.addHandler(subscribeUser);
-
-		unsubscribeUser = new UnsubscribeUser();
-		iqRouter.addHandler(unsubscribeUser);
+	private void initializeControllers() {
+        synchronized(controllers) {
+            initializeController("com.thinkparity.server.handler.artifact.AcceptKeyRequest");
+            initializeController("com.thinkparity.server.handler.artifact.CloseArtifact");
+            initializeController("com.thinkparity.server.handler.artifact.ConfirmReceipt");
+            initializeController("com.thinkparity.server.handler.artifact.CreateArtifact");
+            initializeController("com.thinkparity.server.handler.artifact.DeleteArtifact");
+            initializeController("com.thinkparity.server.handler.artifact.DenyKeyRequest");
+            initializeController("com.thinkparity.server.handler.artifact.FlagArtifact");
+            initializeController("com.thinkparity.server.handler.artifact.GetArtifactKeys");
+            initializeController("com.thinkparity.server.handler.artifact.GetKeyHolder");
+            initializeController("com.thinkparity.server.handler.artifact.GetSubscription");
+            initializeController("com.thinkparity.server.handler.artifact.ReadContacts");
+            initializeController("com.thinkparity.server.handler.artifact.RequestArtifactKey");
+            initializeController("com.thinkparity.server.handler.contact.AcceptInvitation");
+            initializeController("com.thinkparity.server.handler.contact.DeclineInvitation");
+            initializeController("com.thinkparity.server.handler.contact.InviteContact");
+            initializeController("com.thinkparity.server.handler.contact.ReadContacts");
+            initializeController("com.thinkparity.server.handler.document.SendDocument");
+            initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");
+            initializeController("com.thinkparity.server.handler.user.ReadUsers");
+            initializeController("com.thinkparity.server.handler.user.SubscribeUser");
+            initializeController("com.thinkparity.server.handler.user.UnsubscribeUser");
+        }
 	}
 
-	/**
+    /**
 	 * Initialize log4j for the parity server.
 	 * 
 	 * @param pluginDirectory
 	 *            The plugin directory.
 	 */
 	private void initializePluginLogging(final File pluginDirectory) {
-		final File log4jDirectory = new File(
-				pluginDirectory, ParityServerConstants.LOG4J_DIRECTORY_NAME);
-		if(!log4jDirectory.exists()) {
-			Assert.assertTrue(
-					"initializePluginLogging(File)", log4jDirectory.mkdir());
-		}
-		ServerLog4jConfigurator.configure(log4jDirectory);
+        System.setProperty("rModel.pluginDirectory", pluginDirectory.getAbsolutePath());
+        logger = LoggerFactory.getLogger(getClass());
 	}
 }

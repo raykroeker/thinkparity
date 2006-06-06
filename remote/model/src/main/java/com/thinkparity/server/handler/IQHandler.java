@@ -12,10 +12,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
-import org.dom4j.Branch;
-import org.dom4j.Element;
+
 import org.jivesoftware.messenger.IQHandlerInfo;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+
+import org.dom4j.Branch;
+import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
@@ -24,6 +26,7 @@ import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.server.JabberId;
 import com.thinkparity.server.JabberIdBuilder;
+import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
@@ -33,7 +36,6 @@ import com.thinkparity.server.model.document.DocumentModel;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.UserModel;
-import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 import com.thinkparity.server.org.dom4j.ElementName;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 
@@ -51,7 +53,7 @@ public abstract class IQHandler extends
 	/**
 	 * Handle to an apache logger.
 	 */
-	protected final Logger logger = ServerLoggerFactory.getLogger(getClass());
+	protected final Logger logger;
 
 	/**
 	 * Handler information for the iq.
@@ -66,6 +68,7 @@ public abstract class IQHandler extends
 		this.iqHandlerInfo = new IQHandlerInfo(
 				ParityServerConstants.IQ_PARITY_INFO_NAME,
 				action.getNamespace());
+        this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	/**
@@ -164,20 +167,7 @@ public abstract class IQHandler extends
 		return JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData());
 	}
 
-    protected Set<JabberId> extractJabberIdSet(final IQ iq) {
-        final Element childElement = iq.getChildElement();
-        final Element jidListElement = getElement(childElement, ElementName.JIDS);
-        final List jidElements = getElements(jidListElement, ElementName.JID);
-        final Set<JabberId> jabberIds = new HashSet<JabberId>();
-        Element jidElement;
-        for(final Object o : jidElements) {
-            jidElement = (Element) o;
-            jabberIds.add(JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData()));
-        }
-        return jabberIds;
-    }
-
-	protected List<JabberId> extractJabberIds(final IQ iq) {
+    protected List<JabberId> extractJabberIds(final IQ iq) {
 		final Element childElement = iq.getChildElement();
 		final Element jidListElement = getElement(childElement, ElementName.JIDS);
 		final List jidElements = getElements(jidListElement, ElementName.JID);
@@ -189,6 +179,19 @@ public abstract class IQHandler extends
 		}
 		return jabberIds;
 	}
+
+	protected Set<JabberId> extractJabberIdSet(final IQ iq) {
+        final Element childElement = iq.getChildElement();
+        final Element jidListElement = getElement(childElement, ElementName.JIDS);
+        final List jidElements = getElements(jidListElement, ElementName.JID);
+        final Set<JabberId> jabberIds = new HashSet<JabberId>();
+        Element jidElement;
+        for(final Object o : jidElements) {
+            jidElement = (Element) o;
+            jabberIds.add(JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData()));
+        }
+        return jabberIds;
+    }
 
 	/**
 	 * Extract the jive id from the iq.

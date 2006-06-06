@@ -6,9 +6,11 @@ package com.thinkparity.server.model;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.messenger.SessionManager;
 import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
@@ -16,6 +18,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.server.JabberId;
+import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.contact.ContactModel;
@@ -23,7 +26,6 @@ import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.session.SessionModel;
 import com.thinkparity.server.model.user.UserModel;
-import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 
 /**
@@ -35,7 +37,7 @@ public abstract class AbstractModelImpl {
 	/**
 	 * Handle to a parity server logger.
 	 */
-	protected final Logger logger = ServerLoggerFactory.getLogger(getClass());
+	protected final Logger logger;
 
 	/**
 	 * Handle to the user's session.
@@ -47,6 +49,7 @@ public abstract class AbstractModelImpl {
 	 */
 	protected AbstractModelImpl(final Session session) {
 		super();
+        this.logger = LoggerFactory.getLogger(getClass());
 		this.session = session;
 	}
 

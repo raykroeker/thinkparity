@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.messenger.vcard.VCardManager;
+
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
@@ -43,12 +44,25 @@ import com.thinkparity.server.org.xmpp.packet.artifact.IQNotifyTeamMemberRemoved
  */
 class ArtifactModelImpl extends AbstractModelImpl {
 
-	/**
+    /**
 	 * Assertion statement used when comparing the current key holder with
 	 * the current session.
 	 */
 	private static final String ASSERT_KEYHOLDER_SESSION =
 		"Cannot accept key request if the user is not the current keyholder.";
+
+    private static StringBuffer getApiErrorId(final String api,
+            final String error) {
+        return getApiLogId(api).append(" ").append(error);
+    }
+
+    private static StringBuffer getApiLogId(final String api) {
+        return getModelLogId().append(" ").append(api);
+    }
+
+	private static StringBuffer getModelLogId() {
+        return new StringBuffer("[RMODEL] [ARTIFACT MODEL]");
+    }
 
 	/**
 	 * Artifact sql interface.
@@ -156,7 +170,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void close(final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info("close(UUID)");
+		logger.info(getApiLogId("[CLOSE]"));
 		logger.debug(artifactUniqueId);
 		final Artifact artifact = get(artifactUniqueId);
 		assertIsKeyHolder(artifact);
@@ -177,15 +191,15 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			}
 		}
 		catch(final SQLException sqlx) {
-			logger.error("Cannot close artifact.", sqlx);
+			logger.error(getApiErrorId("[CLOSE]", "[SQL ERROR]"), sqlx);
 			throw ParityErrorTranslator.translate(sqlx);
 		}
 		catch(final RuntimeException rx) {
-			logger.error("Cannot close artifact.", rx);
+            logger.error(getApiErrorId("[CLOSE]", "[UNKNOWN ERROR]"), rx);
 			throw ParityErrorTranslator.translate(rx);
 		}
 		catch(final UnauthorizedException ux) {
-			logger.error("Cannot close artifact.", ux);
+            logger.error(getApiErrorId("[CLOSE]", "[AUTHORIZATION ERROR]"), ux);
 			throw ParityErrorTranslator.translate(ux);
 		}
 	}
@@ -540,7 +554,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void unsubscribe(final Artifact artifact) throws ParityServerModelException {
-		logger.info("[RMODEL] [ARTIFACT] [UNSUBSCRIBE USER]");
+		logger.info(getApiLogId("[UNSUBSCRIBE]"));
 		logger.debug(artifact);
 		try {
 			final Integer artifactId = artifact.getArtifactId();
@@ -630,13 +644,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return assertion.toString();
 	}
 
-	private List<ArtifactSubscription> proxy(
+    private List<ArtifactSubscription> proxy(
 			final Collection<ArtifactSubscription> c) {
 		final List<ArtifactSubscription> l = new LinkedList<ArtifactSubscription>();
 		for(final ArtifactSubscription as : c) { l.add(as); }
 		return l;
 	}
-
     /**
 	 * Update the artifact's state.
 	 * 

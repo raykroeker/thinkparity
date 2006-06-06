@@ -6,10 +6,11 @@ package com.thinkparity.server.org.xmpp.packet;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
+import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.org.dom4j.ElementBuilder;
 import com.thinkparity.server.org.dom4j.ElementName;
 import com.thinkparity.server.org.dom4j.NamespaceName;
@@ -28,7 +29,7 @@ public abstract class IQParity2 extends IQ {
 	protected final Action action;
 
     /** An apache logger. */
-	protected final Logger logger = ServerLoggerFactory.getLogger(getClass());
+	protected final Logger logger;
 
 	/** The root xml element. */
     protected final Element rootElement;
@@ -44,6 +45,7 @@ public abstract class IQParity2 extends IQ {
 	protected IQParity2(final Action action, final NamespaceName namespaceName) {
 		super();
         this.action = action;
+        this.logger = LoggerFactory.getLogger(getClass());
 		this.rootElement = setChildElement(
                 ElementName.QUERY.getName(),
                 namespaceName.getName());

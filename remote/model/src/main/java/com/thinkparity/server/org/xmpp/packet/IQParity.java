@@ -4,9 +4,10 @@
 package com.thinkparity.server.org.xmpp.packet;
 
 import org.apache.log4j.Logger;
+
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
+import com.thinkparity.server.LoggerFactory;
 
 /**
  * Abstraction of an xmpp internet query. Used primarily to insert a logger and
@@ -21,10 +22,9 @@ public abstract class IQParity extends IQ {
 	 * IQAction to perform.
 	 */
 	protected final Action action;
-	/**
-	 * Handle to an apache logger.
-	 */
-	protected final Logger logger = ServerLoggerFactory.getLogger(getClass());
+
+    /** An apache logger. */
+	protected final Logger logger;
 
 	/**
 	 * Create a IQParity.
@@ -32,6 +32,7 @@ public abstract class IQParity extends IQ {
 	protected IQParity(final Action action) {
 		super();
 		this.action = action;
+        this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	/**
@@ -46,6 +47,6 @@ public abstract class IQParity extends IQ {
 	 * 
 	 */
 	public enum Action {
-		ARTIFACTCONFIRMRECEIPT, ARTIFACTREADCONTACTS, ACCEPTCONTACTINVITATION, CLOSE, CREATE, DECLINECONTACTINVITATION, DOCUMENTSEND, FLAG, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION, INVITECONTACT, READCONTACTS, READUSERS, REQUESTKEY, SUBSCRIBE, UNSUBSCRIBE, NOTIFYTEAMMEMBERADDED, NOTIFYTEAMMEMBERREMOVED
+		ACCEPTCONTACTINVITATION, ARTIFACTCONFIRMRECEIPT, ARTIFACTREADCONTACTS, CLOSE, CREATE, DECLINECONTACTINVITATION, DOCUMENTSEND, FLAG, GETKEYHOLDER, GETKEYS, GETSUBSCRIPTION, INVITECONTACT, NOTIFYTEAMMEMBERADDED, NOTIFYTEAMMEMBERREMOVED, READCONTACTS, READUSERS, REQUESTKEY, SUBSCRIBE, UNSUBSCRIBE
 	}
 }

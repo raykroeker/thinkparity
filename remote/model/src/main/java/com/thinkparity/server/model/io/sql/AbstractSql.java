@@ -9,12 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.database.SequenceManager;
 
 import com.thinkparity.server.JabberId;
+import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.model.artifact.Artifact;
-import com.thinkparity.server.org.apache.log4j.ServerLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -25,12 +26,15 @@ public abstract class AbstractSql {
 	/**
 	 * Handle to an apache logger.
 	 */
-	protected Logger logger = ServerLoggerFactory.getLogger(getClass());
+	protected Logger logger;
 
 	/**
 	 * Create a AbstractSql.
 	 */
-	protected AbstractSql() { super(); }
+	protected AbstractSql() {
+        super();
+        this.logger = LoggerFactory.getLogger(getClass());
+    }
 
 	protected void close(final Connection cx, final PreparedStatement ps)
 			throws SQLException {

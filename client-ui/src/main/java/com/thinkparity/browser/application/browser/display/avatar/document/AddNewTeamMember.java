@@ -1,9 +1,7 @@
 /*
- * SessionSendFormAvatar.java
- *
- * Created on March 14, 2006, 9:54 AM
+ * Created On: March 14, 2006, 9:54 AM
+ * $Id$
  */
-
 package com.thinkparity.browser.application.browser.display.avatar.document;
 
 import java.util.Collection;
@@ -12,7 +10,6 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
@@ -37,12 +34,20 @@ import com.thinkparity.model.xmpp.user.User;
 
 /**
  *
- * @author  raymond
+ * @author raymond@thinkparity.com
+ * @version $Revision$
  */
 public class AddNewTeamMember extends Avatar {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addJButton;
+
+    private javax.swing.JButton cancelJButton;
+
+    private javax.swing.JList contactsJList;
 
     /** The contacts list model. */
     private final DefaultListModel contactsModel;
@@ -50,34 +55,20 @@ public class AddNewTeamMember extends Avatar {
     /** The contacts list selection model. */
     private final DefaultListSelectionModel contactsSelectionModel;
 
-    /** The team list model. */
-    private final DefaultListModel teamModel;
-
-    /** The team list selection model. */
-    private final DefaultListSelectionModel teamSelectionModel;
-
-    /**
-     * Used by the contact provider to exclude team members from the contact
-     * list.
-     *
-     */
-    private User[] team;
+    private javax.swing.JLabel documentNameJLabel;
+    // End of variables declaration//GEN-END:variables
 
     /** Create AddNewTeamMember. */
     public AddNewTeamMember() {
         super("AddNewTeamMember", BrowserConstants.DIALOGUE_BACKGROUND);
         this.contactsModel = new DefaultListModel();
         this.contactsSelectionModel = new DefaultListSelectionModel();
-        this.teamModel = new DefaultListModel();
-        this.teamSelectionModel = new DefaultListSelectionModel();
         initComponents();
     }
 
-    public void setState(final State state) {}
+    public AvatarId getId() { return AvatarId.ADD_TEAM_MEMBER; }
 
     public State getState() { return null; }
-
-    public AvatarId getId() { return AvatarId.ADD_TEAM_MEMBER; }
 
     /**
      * Determine whether or not the user's input is valid.
@@ -85,7 +76,7 @@ public class AddNewTeamMember extends Avatar {
      */
     public Boolean isInputValid() {
         Long documentId;
-        try { documentId = extractDocumentId(); } catch(final Throwable t) { return Boolean.FALSE; }
+        try { documentId = getInputDocumentId(); } catch(final Throwable t) { return Boolean.FALSE; }
         
         Collection<Contact> contacts = null;
         try { contacts = extractContacts(); }
@@ -103,11 +94,72 @@ public class AddNewTeamMember extends Avatar {
      */
     public void reload() {
     	reloadDocument();
-        reloadTeamMembers();
         reloadContacts();
         reloadAddJButtonState();
         
         contactsJList.requestFocusInWindow();
+    }
+
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
+     *
+     */
+    public void setInput(Object input) {
+        Assert.assertNotNull("Cannot set null input:  " + getId(), input);
+        this.input = input;
+        reload();
+    }
+    
+    public void setState(final State state) {}
+    
+    private void addJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_addJButtonActionPerformed
+        if(isInputValid()) {
+            final List<Contact> contacts = extractContacts();
+            final List<JabberId> jabberIds = new LinkedList<JabberId>();
+            for(final Contact contact : contacts) { jabberIds.add(contact.getId()); }
+            getController().runAddNewDocumentTeamMember(getInputDocumentId(), jabberIds);
+            disposeWindow();
+        }
+    }//GEN-LAST:event_addJButtonActionPerformed
+
+    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    private void contactsJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_contactsJListValueChanged
+    	reloadAddJButtonState();
+    }//GEN-LAST:event_contactsJListValueChanged
+
+    private void disposeWindow() {
+    	SwingUtilities.getWindowAncestor(this).dispose();
+    }
+
+    /**
+     * Extract the selected contacts.
+     *
+     */
+    private List<Contact> extractContacts() {
+        return SwingUtil.extract(contactsJList);
+    }
+
+    /**
+     * Obtain the document from the content provider.
+     *
+     * @return The document.
+     */
+    private Document getDocument() {
+        return (Document) ((CompositeFlatSingleContentProvider) contentProvider)
+        .getElement(0, (Long) input);
+    }
+
+    /**
+     * Extract the document id we are sending.
+     *
+     */
+    private Long getInputDocumentId() { return (Long) input; }
+
+    private Contact[] getShareContacts() {
+        return (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider).getElements(0, getInputDocumentId());
     }
 
     /** This method is called from within the constructor to
@@ -202,76 +254,6 @@ public class AddNewTeamMember extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void addJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_addJButtonActionPerformed
-        if(isInputValid()) {
-            final List<Contact> contacts = extractContacts();
-            final List<JabberId> jabberIds = new LinkedList<JabberId>();
-            for(final Contact contact : contacts) { jabberIds.add(contact.getId()); }
-            getController().runAddNewDocumentTeamMember(extractDocumentId(), jabberIds);
-            disposeWindow();
-        }
-    }//GEN-LAST:event_addJButtonActionPerformed
-
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
-        disposeWindow();
-    }//GEN-LAST:event_cancelJButtonActionPerformed
-
-    private void disposeWindow() {
-    	SwingUtilities.getWindowAncestor(this).dispose();
-    }
-    
-    private void contactsJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_contactsJListValueChanged
-        if(!evt.getValueIsAdjusting()) {
-            if(ListSelectionModel.SINGLE_SELECTION ==
-                contactsSelectionModel.getSelectionMode()) {
-                teamSelectionModel.clearSelection();
-            }
-        }
-    	reloadAddJButtonState();
-    }//GEN-LAST:event_contactsJListValueChanged
-    
-    /**
-     * Extract the selected contacts.
-     *
-     */
-    private List<Contact> extractContacts() {
-        return SwingUtil.extract(contactsJList);
-    }
-
-    /**
-     * Extract the document id we are sending.
-     *
-     */
-    private Long extractDocumentId() { return (Long) input; }
-
-    /**
-     * Obtain a list of contacts from the content provider.
-     *
-     */
-    private Contact[] getContacts(final User[] team) {
-        return (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider)
-				.getElements(0, team);
-    }
-
-    /**
-     * Obtain the document from the content provider.
-     *
-     * @return The document.
-     */
-    private Document getDocument() {
-        return (Document) ((CompositeFlatSingleContentProvider) contentProvider)
-        .getElement(0, (Long) input);
-    }
-
-    /**
-     * Obtain a list of team members from the content provider.
-     *
-     */
-    private User[] getTeam() {
-        return (Contact[]) ((CompositeFlatSingleContentProvider) contentProvider)
-                        .getElements(1, (Long) input);
-    }
-
     /**
      * Load a list model with the user list.
      *
@@ -283,16 +265,22 @@ public class AddNewTeamMember extends Avatar {
             listModel.addElement(user);
         }
     }
-
+    /**
+     * Set the enabled property of the send button based upon the validity
+     * of the form's input.
+     *
+     */
+    private void reloadAddJButtonState() {
+    	addJButton.setEnabled(isInputValid());
+    }
     /**
      * Reload the contacts model.
      *
      */
     private void reloadContacts() {
         contactsModel.clear();
-        if(null != input) loadUserList(contactsModel, getContacts(team));
+        if(null != input) loadUserList(contactsModel, getShareContacts());
     }
-
     /**
      * Reload the document.
      *
@@ -305,39 +293,5 @@ public class AddNewTeamMember extends Avatar {
             documentNameJLabel.setText(getString("DocumentNameLabel", arguments));
     	}
     }
-
-    /**
-     * Set the enabled property of the send button based upon the validity
-     * of the form's input.
-     *
-     */
-    private void reloadAddJButtonState() {
-    	addJButton.setEnabled(isInputValid());
-    }
-
-    private void reloadTeamMembers() {
-        teamModel.clear();
-        if(null != input) {
-            team = getTeam();
-            loadUserList(teamModel, team);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
-     *
-     */
-    public void setInput(Object input) {
-        Assert.assertNotNull("Cannot set null input:  " + getId(), input);
-        this.input = input;
-        reload();
-    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addJButton;
-    private javax.swing.JButton cancelJButton;
-    private javax.swing.JList contactsJList;
-    private javax.swing.JLabel documentNameJLabel;
-    // End of variables declaration//GEN-END:variables
     
 }

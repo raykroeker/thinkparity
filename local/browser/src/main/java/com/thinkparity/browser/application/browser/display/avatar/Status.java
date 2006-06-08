@@ -10,6 +10,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JLabel;
+
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
@@ -27,14 +29,6 @@ public class Status extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel connectionJLabel;
-
-    private javax.swing.JLabel customJLabel;
-
-    private javax.swing.JLabel filterJLabel;
-    // End of variables declaration//GEN-END:variables
-
     /** Creates new form Status */
     public Status() {
         super("Status", ScrollPolicy.NONE, Color.WHITE);
@@ -46,13 +40,35 @@ public class Status extends Avatar {
     }
 
     /**
+     * Clear the status message in an area.
+     * 
+     * @param area
+     *            The area to clear.
+     */
+    public void clearStatusMessage(final Area area) {
+        switch(area) {
+        case CONNECTION:
+            clear(connectionJLabel);
+            break;
+        case FILTER:
+            clear(filterJLabel);
+            break;
+        case CUSTOM:
+            clear(customJLabel);
+            break;
+        default:
+            Assert.assertUnreachable("");
+        }
+    }
+    
+    /**
      * Obtain the avatar id.
      * 
      * 
      * @return The avatar id.
      */
     public AvatarId getId() { return AvatarId.STATUS; }
-    
+
     /**
      * Obtain the avatar's state information.
      * 
@@ -85,7 +101,7 @@ public class Status extends Avatar {
         default:  Assert.assertUnreachable("");
         }
     }
-    
+
     /**
      * Reload a status message.
      * 
@@ -120,6 +136,8 @@ public class Status extends Avatar {
      *            The avatar's state information.
      */
     public void setState(final State state) {}
+
+    private void clear(final JLabel jLabel) { jLabel.setText(""); }
 
     private void formMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_formMouseClicked
         if(2 == e.getClickCount()) {
@@ -227,4 +245,10 @@ gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
     }
 
     public enum Area { CONNECTION, CUSTOM, FILTER }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel connectionJLabel;
+    private javax.swing.JLabel customJLabel;
+    private javax.swing.JLabel filterJLabel;
+    // End of variables declaration//GEN-END:variables
 }

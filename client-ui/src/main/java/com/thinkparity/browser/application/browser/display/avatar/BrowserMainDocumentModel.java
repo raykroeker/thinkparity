@@ -416,7 +416,7 @@ public class BrowserMainDocumentModel {
             final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         if(mainCell instanceof MainCellDocument) {
-            new PopupDocument((MainCellDocument) mainCell, browser.getConnectionStatus()).trigger(browser, jPopupMenu, e);
+            new PopupDocument(contentProvider, (MainCellDocument) mainCell, browser.getConnectionStatus()).trigger(browser, jPopupMenu, e);
         }
         else if(mainCell instanceof MainCellHistoryItem) {
             new PopupHistoryItem((MainCellHistoryItem) mainCell, browser.getConnectionStatus()).trigger(browser, jPopupMenu, e);

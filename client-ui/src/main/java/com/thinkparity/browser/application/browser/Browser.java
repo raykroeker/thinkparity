@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -665,7 +666,26 @@ public class Browser extends AbstractApplication {
 
 	/** Add a team member to the selected document. */
     public void runAddNewDocumentTeamMember() {
-        runAddNewDocumentTeamMember(session.getSelectedDocumentId(), null);
+        runAddNewDocumentTeamMember(session.getSelectedDocumentId(), (JabberId) null);
+    }
+
+    /**
+     * Add a team member to the selected document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param jabberId
+     *            A jabber id.
+     */
+    public void runAddNewDocumentTeamMember(final Long documentId,
+            final JabberId jabberId) {
+        final List<JabberId> jabberIds;
+        if(null == jabberId) { jabberIds = null; }
+        else {
+            jabberIds = new ArrayList<JabberId>();
+            jabberIds.add(jabberId);
+        }
+        runAddNewDocumentTeamMember(documentId, jabberIds);
     }
 
     /**
@@ -912,7 +932,12 @@ public class Browser extends AbstractApplication {
 	 *            The document id.
 	 */
 	public void selectDocument(final Long documentId) {
+        final Long oldSelection = session.getSelectedDocumentId();
 		session.setSelectedDocumentId(documentId);
+
+        if(null != oldSelection && !oldSelection.equals(documentId)) {
+            clearStatusMessage(Status.Area.CUSTOM);
+        }
 	}
 
 	/**
@@ -968,7 +993,16 @@ public class Browser extends AbstractApplication {
     	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
 	}
 
-	/**
+	private void clearStatusMessage(final Status.Area area) {
+        final Status status = getStatusAvatar();
+        if(null != status) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() { status.clearStatusMessage(area); }
+            });
+        }
+    }
+
+    /**
      * Open a confirmation dialogue.
      * 
      * @param input
@@ -1009,7 +1043,7 @@ public class Browser extends AbstractApplication {
 		display.repaint();
 	}
 
-    /**
+	/**
 	 * Display an avatar.
 	 * 
 	 * @param displayId
@@ -1033,7 +1067,7 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-	private void displayAvatar(final WindowId windowId,
+    private void displayAvatar(final WindowId windowId,
 			final AvatarId avatarId, final Data input) {
 		Assert.assertNotNull("Cannot display on a null window.", windowId);
 		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
@@ -1055,7 +1089,7 @@ public class Browser extends AbstractApplication {
         mainWindow.dispose();
     }
 
-    /**
+	/**
 	 * Obtain the action from the controller's cache. If the action does not
 	 * exist in the cache it is created and stored.
 	 * 
@@ -1072,7 +1106,7 @@ public class Browser extends AbstractApplication {
 		return action;
 	}
 
-	/**
+    /**
 	 * Obtain the input for an avatar.
 	 * 
 	 * @param avatarId
@@ -1083,7 +1117,7 @@ public class Browser extends AbstractApplication {
 		return avatarInputMap.get(avatarId);
 	}
 
-    /**
+	/**
      * Obtain the confirmation avatar.
      * @return The confirmation avatar.
      */
@@ -1091,7 +1125,7 @@ public class Browser extends AbstractApplication {
         return (ConfirmDialog) avatarRegistry.get(AvatarId.CONFIRM_DIALOGUE);
     }
 
-	/**
+    /**
 	 * Obtain the file chooser.
 	 * 
 	 * @return The file chooser.
@@ -1110,7 +1144,7 @@ public class Browser extends AbstractApplication {
         return (BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN);
     }
 
-    /**
+	/**
      * Convenience method to obtain the status avatar.
      * 
      * @return The status avatar.
@@ -1119,7 +1153,7 @@ public class Browser extends AbstractApplication {
         return (Status) avatarRegistry.get(AvatarId.STATUS);
     }
 
-	/**
+    /**
      * Convenience method to obtain the title avatar.
      * 
      * @return The title avatar.
@@ -1128,7 +1162,7 @@ public class Browser extends AbstractApplication {
         return (BrowserTitleAvatar) avatarRegistry.get(AvatarId.BROWSER_TITLE);
     }
 
-    private void invoke(final ActionId actionId, final Data data) {
+	private void invoke(final ActionId actionId, final Data data) {
 		try {
 			final AbstractAction action = getActionFromCache(actionId);
 			action.invoke(data);
@@ -1144,7 +1178,7 @@ public class Browser extends AbstractApplication {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
-	private void open(final WindowId windowId,
+    private void open(final WindowId windowId,
             final AvatarId avatarId, final Data input) {
         final Window window = WindowFactory.create(windowId, mainWindow);
 
@@ -1154,7 +1188,8 @@ public class Browser extends AbstractApplication {
         window.open(avatar);
     }
 
-    /**
+
+	/**
 	 * Open the main browser window.
 	 *
 	 */
@@ -1163,8 +1198,7 @@ public class Browser extends AbstractApplication {
 		mainWindow.open();
 	}
 
-
-	private void reOpenMainWindow() {
+    private void reOpenMainWindow() {
         mainWindow = new BrowserWindow(this);
         mainWindow.reOpen();
     }

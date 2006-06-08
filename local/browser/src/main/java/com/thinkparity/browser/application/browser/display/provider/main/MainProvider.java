@@ -14,6 +14,8 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellH
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.contact.QuickShareProvider;
+import com.thinkparity.browser.application.browser.display.provider.contact.ShareProvider;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -43,15 +45,21 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 
 	private final FlatContentProvider[] flatProviders;
 
+	private final FlatContentProvider historyProvider;
+
+	/** Provides a list of contact that can quickly be shared with. */
+    private final FlatContentProvider quickShareContactProvider;
+
+    /** Provides a list of contact that can be shared with. */
+    private final FlatContentProvider shareContactProvider;
+
 	private final SingleContentProvider[] singleProviders;
 
-	private final SingleContentProvider systemMessageProvider;
+    private final SingleContentProvider systemMessageProvider;
 
-    private final FlatContentProvider historyProvider;
+    private final FlatContentProvider systemMessagesProvider;
 
-	private final FlatContentProvider systemMessagesProvider;
-
-	/**
+    /**
      * Create a MainProvider.
      * 
      * @param aModel
@@ -132,7 +140,9 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider};
+        this.quickShareContactProvider = new QuickShareProvider(artifactModel, sModel);
+        this.shareContactProvider = new ShareProvider(artifactModel, sModel);
+		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider, quickShareContactProvider, shareContactProvider};
 		this.singleProviders = new SingleContentProvider[] {documentProvider, systemMessageProvider};
 	}
 
@@ -149,7 +159,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		return singleProviders[index].getElement(input);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider#getElements(java.lang.Integer,
 	 *      java.lang.Object)
 	 * 
@@ -168,47 +178,15 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		return (Long) input;
 	}
 
-	/**
-     * Obtain a displayable version of a list of documents.
-     * 
-     * @param documents
-     *            The documents.
-     * @param aModel
-     *            The parity artifact interface.
-     * @return The displayable documents.
-     */
-	private MainCellDocument[] toDisplay(final Collection<Document> documents,
-            final ArtifactModel aModel, final DocumentModel dModel,
-            final JabberId localUserId) throws ParityException {
-		final List<MainCellDocument> display = new LinkedList<MainCellDocument>();
-
-		for(final Document d : documents) {
-			display.add(toDisplay(d, aModel, dModel, localUserId));
-		}
-		return display.toArray(new MainCellDocument[] {});
-	}
-
-    /**
-     * Obtain the displable version of the document.
-     * 
-     * @param document
-     *            The document.
-     * @param aModel
-     *            The parity artifact interface.
-     * @return The displayable version of the document.
-     * @throws ParityException
-     */
-	private MainCellDocument toDisplay(final Document document,
-            final ArtifactModel aModel, final DocumentModel dModel, final JabberId localUserId)
-            throws ParityException {
-		if(null == document) { return null; }
-		else {
-			final MainCellDocument mcd = new MainCellDocument(
-                    dModel, document, readTeam(aModel, document.getId(), localUserId));
-            mcd.setKeyRequests(aModel.readKeyRequests(document.getId()));
-			return mcd;
-		}
-	}
+    private Set<User> readTeam(final ArtifactModel aModel,
+            final Long documentId, final JabberId localUserId) {
+        final Set<User> team = aModel.readTeam(documentId);
+        logger.debug("[] [TEAM SIZE (" + team.size() + "]");
+        for(final Iterator<User> i = team.iterator(); i.hasNext();) {
+            if(i.next().getId().equals(localUserId)) { i.remove(); }
+        }
+        return team;
+    }
 
     /**
      * Convert a document and its history into a list of displayable history
@@ -236,13 +214,45 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
         return display.toArray(new MainCellHistoryItem[] {});
     }
 
-    private Set<User> readTeam(final ArtifactModel aModel,
-            final Long documentId, final JabberId localUserId) {
-        final Set<User> team = aModel.readTeam(documentId);
-        logger.debug("[] [TEAM SIZE (" + team.size() + "]");
-        for(final Iterator<User> i = team.iterator(); i.hasNext();) {
-            if(i.next().getId().equals(localUserId)) { i.remove(); }
-        }
-        return team;
-    }
+    /**
+     * Obtain a displayable version of a list of documents.
+     * 
+     * @param documents
+     *            The documents.
+     * @param aModel
+     *            The parity artifact interface.
+     * @return The displayable documents.
+     */
+	private MainCellDocument[] toDisplay(final Collection<Document> documents,
+            final ArtifactModel aModel, final DocumentModel dModel,
+            final JabberId localUserId) throws ParityException {
+		final List<MainCellDocument> display = new LinkedList<MainCellDocument>();
+
+		for(final Document d : documents) {
+			display.add(toDisplay(d, aModel, dModel, localUserId));
+		}
+		return display.toArray(new MainCellDocument[] {});
+	}
+
+	/**
+     * Obtain the displable version of the document.
+     * 
+     * @param document
+     *            The document.
+     * @param aModel
+     *            The parity artifact interface.
+     * @return The displayable version of the document.
+     * @throws ParityException
+     */
+	private MainCellDocument toDisplay(final Document document,
+            final ArtifactModel aModel, final DocumentModel dModel, final JabberId localUserId)
+            throws ParityException {
+		if(null == document) { return null; }
+		else {
+			final MainCellDocument mcd = new MainCellDocument(
+                    dModel, document, readTeam(aModel, document.getId(), localUserId));
+            mcd.setKeyRequests(aModel.readKeyRequests(document.getId()));
+			return mcd;
+		}
+	}
 }

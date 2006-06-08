@@ -63,7 +63,7 @@ public class AddNewTeamMember extends AbstractAction {
         }
         else {
             for(final JabberId jabberId : jabberIds) {
-                getDocumentModel().addNewTeamMember(documentId, jabberId);
+                getDocumentModel().share(documentId, jabberId);
                 browser.fireDocumentUpdated(documentId);
             }
         }

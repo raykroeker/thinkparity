@@ -3,12 +3,12 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.main.popup;
 
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.Toolkit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,15 +18,17 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
+import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.Platform.Connection;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -43,6 +45,9 @@ public class PopupDocument implements Popup {
     /** The connection status. */
     private final Connection connection;
 
+    /** The main display content provider. */
+    private final CompositeFlatSingleContentProvider contentProvider;
+
     /** The document main cell. */
     private final MainCellDocument document;
 
@@ -51,25 +56,90 @@ public class PopupDocument implements Popup {
 
     /**
      * Create a PopupDocument.
-     * 
+     *
      * @param document
      *            The document main cell.
      */
-    public PopupDocument(final MainCellDocument document, final Connection connection) {
+    public PopupDocument(
+            final CompositeFlatSingleContentProvider contentProvider,
+            final MainCellDocument document, final Connection connection) {
         super();
         this.connection = connection;
+        this.contentProvider = contentProvider;
         this.document = document;
         this.l18n = new PopupL18n("DocumentListItem");
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.popup.Popup#trigger()
-     * 
+     *
      */
     public void trigger(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         if(Connection.ONLINE == connection) { triggerOnline(application, jPopupMenu, e); }
         else if(Connection.OFFLINE == connection) { triggerOffline(application, jPopupMenu, e); }
         else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [DOCUMENT POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]"); }
+    }
+
+    /**
+     * Create the share menu item.
+     * 
+     * @param application
+     *            The browser application.
+     * @return The share menu item.
+     */
+    private JMenu createShare(final Browser application) {
+        final JMenu shareMenu = MenuFactory.create(getString("ShareMenu"));
+        final Contact[] quickShareContacts = getQuickShareContacts();
+        for(final Contact contact : quickShareContacts) {
+            shareMenu.add(new QuickShare(application, contact));
+        }
+        shareMenu.add(new Share(application));
+        return shareMenu;
+    }
+
+    private Contact[] getQuickShareContacts() {
+        return (Contact[]) contentProvider.getElements(3, document.getId());
+    }
+
+    /**
+     * Obtain a localised string.
+     *
+     * @param localKey
+     *            The localisation local key.
+     * @return A localised string.
+     */
+    private String getString(final String localKey) {
+        return l18n.getString(localKey);
+    }
+
+    /**
+     * Obtain a localised\formatted string.
+     *
+     * @param localKey
+     *            The localisation local key.
+     * @param The
+     *            format data.
+     * @return A localised string.
+     */
+    private String getString(final String localKey, final Object[] arguments) {
+        return l18n.getString(localKey, arguments);
+    }
+
+    /**
+     * Trigger a document popup when the user is offline.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The popup menu to populate.
+     * @param e
+     *      The source mouse event
+     */
+    private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
+        jPopupMenu.add(new Open(application));
+        if(document.isRenameable()) {
+            jPopupMenu.add(new Rename(application));
+        }
     }
 
     /**
@@ -83,6 +153,8 @@ public class PopupDocument implements Popup {
      *      The source mouse event
      */
     private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
+        final Set<User> team = document.getTeam();
+
         if(document.isUrgent()) {
             final List<KeyRequest> keyRequests = document.getKeyRequests();
             if(keyRequests.size() >= 1) {
@@ -100,22 +172,21 @@ public class PopupDocument implements Popup {
             }
         }
         jPopupMenu.add(new Open(application));
-        jPopupMenu.add(new AddNewTeamMember(application));
+        jPopupMenu.add(createShare(application));
         if(document.isKeyHolder()) {
             if(!document.isWorkingVersionEqual())
                 jPopupMenu.add(new Publish(application));
 
-            final Set<User> team = document.getTeam(); 	 
             System.out.println("[LBROWSER] [APPLICATION] [BROWSER] [DISPLAY] [AVATAR] [POPUP DOCUMENT] [TRIGGER ONLINE] [TEAM SIZE] [" + team.size() + "]");
-            if(0 < team.size()) { 	 
-                final JMenu jMenu = MenuFactory.create(getString("SendKey")); 	 
-                for(final User teamMember : team) 	 
-                    jMenu.add(new SendKey(application, teamMember)); 	 
-                jPopupMenu.add(jMenu); 	 
+            if(0 < team.size()) {
+                final JMenu jMenu = MenuFactory.create(getString("SendKey"));
+                for(final User teamMember : team)
+                    jMenu.add(new SendKey(application, teamMember));
+                jPopupMenu.add(jMenu);
             }
+            jPopupMenu.add(new Close(application));
         }
         else { jPopupMenu.add(new RequestKey(application)); }
-        jPopupMenu.add(new Close(application));
         if(document.isRenameable()) {
             jPopupMenu.add(new Rename(application));
         }
@@ -147,47 +218,6 @@ public class PopupDocument implements Popup {
         }
     }
 
-    /**
-     * Trigger a document popup when the user is offline.
-     *
-     * @param application
-     *      The browser application.
-     * @param jPopupMenu
-     *      The popup menu to populate.
-     * @param e
-     *      The source mouse event
-     */
-    private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
-        jPopupMenu.add(new Open(application));
-        if(document.isRenameable()) {
-            jPopupMenu.add(new Rename(application));
-        }
-    }
-
-    /**
-     * Obtain a localised string.
-     * 
-     * @param localKey
-     *            The localisation local key.
-     * @return A localised string.
-     */
-    private String getString(final String localKey) {
-        return l18n.getString(localKey);
-    }
-
-    /**
-     * Obtain a localised\formatted string.
-     * 
-     * @param localKey
-     *            The localisation local key.
-     * @param The
-     *            format data.
-     * @return A localised string.
-     */
-    private String getString(final String localKey, final Object[] arguments) {
-        return l18n.getString(localKey, arguments);
-    }
-
     /** An accept key request {@link JMenuItem}. */
     private class AcceptKeyRequest extends JMenuItem {
 
@@ -196,7 +226,7 @@ public class PopupDocument implements Popup {
 
         /**
          * Create a AcceptKeyRequest JMenuItem.
-         * 
+         *
          * @param application
          *            The browser application.
          * @param keyRequestId
@@ -216,20 +246,20 @@ public class PopupDocument implements Popup {
         }
     }
 
-    /** An add team member {@link JMenuItem}. */
-    private class AddNewTeamMember extends JMenuItem {
+    /** A share {@link JMenuItem}. */
+    private class Share extends JMenuItem {
 
         /** @see java.io.Serializable */
         private static final long serialVersionUID = 1;
 
         /**
-         * Create an AddTeamMember JMenuItem.
+         * Create Share.
          *
          * @param application
          *      The browser application.
          */
-        private AddNewTeamMember(final Browser application) {
-            super(getString("AddTeamMember"), getString("AddTeamMemberMnemonic").charAt(0));
+        private Share(final Browser application) {
+            super(getString("Share"), getString("ShareMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runAddNewDocumentTeamMember();
@@ -246,7 +276,7 @@ public class PopupDocument implements Popup {
 
         /**
          * Create a Close JMenuItem.
-         * 
+         *
          * @param application
          *            The browser application.
          */
@@ -268,7 +298,7 @@ public class PopupDocument implements Popup {
 
         /**
          * Create a DeclineAllKeyRequests JMenuItem.
-         * 
+         *
          * @param application
          *            The browser application.
          */
@@ -290,7 +320,7 @@ public class PopupDocument implements Popup {
 
         /**
          * Create a Delete JMenuItem.
-         * 
+         *
          * @param application
          *            The browser application.
          */
@@ -312,7 +342,7 @@ public class PopupDocument implements Popup {
 
         /**
          * Create the Open menu item.
-         * 
+         *
          * @param application
          *            The browser application.
          */
@@ -321,6 +351,50 @@ public class PopupDocument implements Popup {
             this.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runOpenDocument(document.getId());
+                }
+            });
+        }
+    }
+
+    /** A publish {@link JMenuItem}. */
+    private class Publish extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create a Send JMenuItem.
+         *
+         * @param application
+         *            The browser application.
+         */
+        private Publish(final Browser application) {
+            super(getString("Publish"), getString("PublishMnemonic").charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runPublishDocument();
+                }
+            });
+        }
+    }
+
+    /** A quick share {@link JMenuItem}. */
+    private class QuickShare extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create an AddTeamMember JMenuItem.
+         *
+         * @param application
+         *      The browser application.
+         */
+        private QuickShare(final Browser application, final Contact contact) {
+            super(getString("QuickShare", new Object[] {contact.getFirstName(), contact.getLastName()}), getString("QuickShareMnemonic", new Object[] {contact.getFirstName(), contact.getLastName()}).charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runAddNewDocumentTeamMember(document.getId(), contact.getId());
                 }
             });
         }
@@ -355,7 +429,7 @@ public class PopupDocument implements Popup {
 
         /**
          * Create a RequestKey JMenuItem.
-         * 
+         *
          * @param application
          *            The browser application.
          */
@@ -369,11 +443,11 @@ public class PopupDocument implements Popup {
         }
     }
 
-    /** A send key {@link JMenuItem}. */ 	 
-    private class SendKey extends JMenuItem { 	 
+    /** A send key {@link JMenuItem}. */
+    private class SendKey extends JMenuItem {
 
-        /** @see java.io.Serializable */ 	 
-        private static final long serialVersionUID = 1; 	 
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
 
         private SendKey(final Browser application, final User teamMember) {
             super(getString("SendKey.TeamMember", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}), getString("SendKey.TeamMemberMnemonic", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}).charAt(0));
@@ -386,25 +460,4 @@ public class PopupDocument implements Popup {
         }
     }
 
-    /** A publish {@link JMenuItem}. */
-    private class Publish extends JMenuItem {
-
-        /** @see java.io.Serializable */
-        private static final long serialVersionUID = 1;
-
-        /**
-         * Create a Send JMenuItem.
-         * 
-         * @param application
-         *            The browser application.
-         */
-        private Publish(final Browser application) {
-            super(getString("Publish"), getString("PublishMnemonic").charAt(0));
-            addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    application.runPublishDocument();
-                }
-            });
-        }
-    }
 }

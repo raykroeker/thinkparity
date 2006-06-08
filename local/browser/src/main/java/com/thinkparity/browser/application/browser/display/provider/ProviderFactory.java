@@ -111,11 +111,11 @@ public class ProviderFactory {
 	/** The info pane provider. */
 	private final ContentProvider infoProvider;
 
-	/** The local user id. */
-	private final JabberId localUserId;
-
-    /** The local user. */
+	/** The local user. */
     private final User localUser;
+
+    /** The local user id. */
+	private final JabberId localUserId;
 
 	/** The main provider. */
 	private final ContentProvider mainProvider;
@@ -152,7 +152,7 @@ public class ProviderFactory {
 		this.infoProvider = new InfoProvider(localUser, dModel);
 		this.mainProvider = new MainProvider(artifactModel, dModel, sModel, systemMessageModel, localUserId);
 		this.manageContactsProvider = new ManageContactsProvider(sModel);
-		this.sendArtifactProvider = new SendArtifactProvider(dModel, sModel, localUserId);
+		this.sendArtifactProvider = new SendArtifactProvider(artifactModel, dModel, sModel, localUserId);
 		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, localUserId);
 	}
 

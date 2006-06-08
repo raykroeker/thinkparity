@@ -170,6 +170,7 @@ public abstract class AbstractAction {
      */
     protected List<File> getDataFiles(final Data data, final Enum<?> key) {
         final List<?> list = (List<?>) data.get(key);
+        if(null == list) { return null; }
         final List<File> files = new ArrayList<File>();
         for(final Object o : list) { files.add((File) o); }
         return files;
@@ -186,6 +187,7 @@ public abstract class AbstractAction {
      */
     protected List<JabberId> getDataJabberIds(final Data data, final Enum<?> key) {
         final List<?> list = (List<?>) data.get(key);
+        if(null == list) { return null; }
         final List<JabberId> jabberIds = new ArrayList<JabberId>();
         for(final Object o : list) { jabberIds.add((JabberId) o); }
         return jabberIds;
@@ -202,6 +204,7 @@ public abstract class AbstractAction {
      */
 	protected List<User> getDataUsers(final Data data, final Enum<?> key) {
         final List<?> list = (List<?>) data.get(key);
+        if(null == list) { return null; }
         final List<User> users = new ArrayList<User>();
         for(final Object o : list) { users.add((User) o); }
         return users;

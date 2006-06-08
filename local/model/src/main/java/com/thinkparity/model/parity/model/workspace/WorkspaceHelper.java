@@ -9,11 +9,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.util.SystemUtil;
 import com.thinkparity.model.Constants.Directories;
 
 /**

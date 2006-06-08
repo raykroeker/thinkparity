@@ -7,11 +7,13 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.DateUtil.DateImage;
 
 import com.thinkparity.model.ModelTestUser;
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
@@ -51,13 +53,18 @@ public abstract class DocumentTestCase extends ModelTestCase {
 		super.tearDown();
 	}
 
+    protected void addTeamMember(final Document document,
+            final ModelTestUser testUser) throws ParityException {
+        getDocumentModel().share(document.getId(), testUser.getJabberId());
+    }
+
     protected void addTeam(final Document document) throws Exception {
         addTeam(document.getId());
     }
 
     protected void addTeam(final Long documentId) throws Exception {
         final ModelTestUser userX = ModelTestUser.getX();
-        getDocumentModel().addNewTeamMember(documentId, userX.getJabberId());
+        getDocumentModel().share(documentId, userX.getJabberId());
     }
 
     protected void modifyDocument(final Document document) throws Exception {
@@ -81,5 +88,14 @@ public abstract class DocumentTestCase extends ModelTestCase {
             impl = new DocumentModelImpl(WorkspaceModel.getModel().getWorkspace());
         }
         return impl;
+    }
+
+    /**
+     * @param d1
+     * @throws ParityException
+     */
+    protected void sendKey(final Document d1) throws ParityException {
+        getSessionModel().sendKeyResponse(d1.getId(),
+                ModelTestUser.getX().getJabberId(), KeyResponse.ACCEPT);
     }
 }

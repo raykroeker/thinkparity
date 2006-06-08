@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.*;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.filter.PacketIDFilter;
@@ -20,7 +21,7 @@ import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.session.KeyResponse;
@@ -47,7 +48,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * Interal logger implemenation.
 	 */
 	private static final Logger logger =
-		ModelLoggerFactory.getLogger(XMPPSessionImpl.class);
+		LoggerFactory.getLogger(XMPPSessionImpl.class);
 
 	/**
 	 * The number of milliseconds to sleep subsequent to each maual packet sent
@@ -673,8 +674,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             JabberIdBuilder.parseQualifiedJabberId(qualifiedJabberId);
         final UserVCard vCard = xmppUser.readVCard(jabberId);
         vCard.setFirstName(firstName);
-        vCard.setFirstName(firstName);
-        vCard.setFirstName(firstName);
+        vCard.setLastName(lastName);
+        vCard.setOrganization(organization);
         xmppUser.updateVCard(jabberId, vCard);
     }
 

@@ -1,5 +1,6 @@
 /*
- * Feb 19, 2006
+ * Created On: Feb 19, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.artifact;
 
@@ -7,11 +8,11 @@ import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public enum ArtifactState {
 
-	ACTIVE(0), ARCHIVED(1), CLOSED(2), DELETED(3);
+	ACTIVE(0), CLOSED(2);
 
 	/**
 	 * Find the state with the corresponding id.
@@ -23,10 +24,10 @@ public enum ArtifactState {
 	public static ArtifactState fromId(final Integer id) {
 		switch(id) {
 		case 0: return ACTIVE;
-		case 1: return ARCHIVED;
 		case 2: return CLOSED;
-		case 3: return DELETED;
-		default: throw Assert.createUnreachable("Unknown artifact state id:  " + id);
+		default:
+            throw Assert.createUnreachable(
+                    "[ARTIFACT MODEL] [UNKNOWN ARTIFACT STATE]");
 		}
 	}
 

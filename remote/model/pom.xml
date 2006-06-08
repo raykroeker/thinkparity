@@ -67,7 +67,7 @@
             </resource>
         </resources>
 
-		<plugins>
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -82,10 +82,16 @@
                 <version>2.1</version>
                 <configuration>
                     <descriptors>
-			    <descriptor>src/main/assembly/plugin.xml</descriptor>
+                        <descriptor>src/main/assembly/plugin.xml</descriptor>
                     </descriptors>
-		</configuration>
+                </configuration>
             </plugin>
         </plugins>
-	</build>
+    </build>
+
+    <properties>
+        <com.thinkparity.parity.mode>TESTING</com.thinkparity.parity.mode>
+        <com.thinkparity.parity.buildId>M200606071800</com.thinkparity.parity.buildId>
+        <com.thinkparity.parity.releaseId>TESTING</com.thinkparity.parity.releaseId>
+    </properties>
 </project>

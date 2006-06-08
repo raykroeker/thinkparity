@@ -86,16 +86,16 @@ public class DocumentModel {
 
 
     /**
-     * Add a user to the document team.  This will iterate all
-     * versions of a document and send them to a user.
-     *
+     * Share a document with a user.  The user will become a member of the document
+     * team.
+     * 
      * @param documentId
      *      The document id.
      * @param jabberId
      *      The user id to add.
      */
-    public void addNewTeamMember(final Long documentId, final JabberId jabberId) throws ParityException {
-        synchronized(implLock) { impl.addNewTeamMember(documentId, jabberId); }
+    public void share(final Long documentId, final JabberId jabberId) throws ParityException {
+        synchronized(implLock) { impl.share(documentId, jabberId); }
     }
 
 	/**
@@ -138,7 +138,7 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Import a document. This will take a name, description and location of a
+	 * Create a document. This will take a name, description and location of a
 	 * document and copy the document into an internal store, then returns the
 	 * newly created document.
 	 * 

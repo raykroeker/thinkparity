@@ -17,6 +17,7 @@ import com.thinkparity.codebase.l10n.L18nContext;
 
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
@@ -156,6 +157,19 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Assert that the artifact is closed.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param artifact
+     *            The artifact.
+     */
+    protected void assertIsClosed(final String assertion,
+            final Artifact artifact) {
+        Assert.assertTrue(assertion, isClosed(artifact));
+    }
+
+    /**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -168,17 +182,6 @@ public abstract class AbstractModelImpl {
             final Long artifactId) throws ParityException {
         Assert.assertTrue(assertion, isOnline());
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
-    }
-
-    /**
-     * Determine whether or not the logged in user is the artifact key holder.
-     *
-     * @param artifactId
-     *      The artifact id.
-     * @return True if the user is the keyholder; false otherwise.
-     */
-    protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
-        return getInternalSessionModel().isLoggedInUserKeyHolder(artifactId);
     }
 
     /**
@@ -213,15 +216,6 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Determine whether or not the user is online.
-     *
-     * @return True if the user is online; false otherwise.
-     */
-    protected Boolean isOnline() {
-        return getInternalSessionModel().isLoggedIn();
-    }
-
-	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -236,16 +230,16 @@ public abstract class AbstractModelImpl {
 			final ArtifactState intendedState) {
 		switch(currentState) {
 		case ACTIVE:
-			// i can close it or delete it
+			// i can close it
 			Assert.assertTrue(
 					formatAssertion(currentState, intendedState, new ArtifactState[] {ArtifactState.CLOSED}),
 						ArtifactState.CLOSED == intendedState);
 			break;
 		case CLOSED:
-			// i can delete it
+			// i can reactivate it
 			Assert.assertTrue(
-					formatAssertion(currentState, intendedState, new ArtifactState[] {ArtifactState.DELETED}),
-						ArtifactState.DELETED == intendedState);
+					formatAssertion(currentState, intendedState, new ArtifactState[] {ArtifactState.ACTIVE}),
+						ArtifactState.ACTIVE == intendedState);
 			break;
 		default: Assert.assertUnreachable("Unknown artifact state:  " + currentState);
 		}
@@ -285,7 +279,7 @@ public abstract class AbstractModelImpl {
         return getInternalSessionModel().getLoggedInUser();
     }
 
-    /**
+	/**
 	 * Obtain the current user id.
 	 * 
 	 * @return The jabber id of the current user.
@@ -294,7 +288,7 @@ public abstract class AbstractModelImpl {
 		return JabberIdBuilder.parseUsername(preferences.getUsername());
 	}
 
-	protected Long getArtifactId(final UUID artifactUniqueId)
+    protected Long getArtifactId(final UUID artifactUniqueId)
 			throws ParityException {
 		// NOTE I'm assuming document
 		final InternalDocumentModel iDModel = getInternalDocumentModel();
@@ -338,7 +332,7 @@ public abstract class AbstractModelImpl {
 	 */
 	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
 
-    /**
+	/**
      * Obtain the internal parity artifact interface.
      * 
      * @return The internal parity artifact interface.
@@ -383,15 +377,6 @@ public abstract class AbstractModelImpl {
         return LibraryModel.getInternalModel(context);
     }
 
-	/**
-     * Obtain the internal parity session interface.
-     * 
-     * @return The internal parity session interface.
-     */
-	protected InternalSessionModel getInternalSessionModel() {
-		return SessionModel.getInternalModel(getContext());
-	}
-
     /**
      * Obtain the internal parity release interface.
      *
@@ -400,6 +385,15 @@ public abstract class AbstractModelImpl {
     protected InternalReleaseModel getInternalReleaseModel() {
         return ReleaseModel.getInternalModel(getContext());
     }
+
+	/**
+     * Obtain the internal parity session interface.
+     * 
+     * @return The internal parity session interface.
+     */
+	protected InternalSessionModel getInternalSessionModel() {
+		return SessionModel.getInternalModel(getContext());
+	}
 
     /**
      * Obtain the internal parity system message interface.
@@ -419,19 +413,45 @@ public abstract class AbstractModelImpl {
         return UserModel.getInternalModel(context);
     }
 
-	/**
+    /**
 	 * Obtain the model's localization.
 	 * 
 	 * @return The model's localization.
 	 */
 	protected L18n getL18n() { return l18n; }
 
+	protected StringBuffer getLogId(final Library library) {
+        if(null == library) { return new StringBuffer("null"); }
+        else {
+            return new StringBuffer()
+                .append(library.getId())
+                .append(":").append(library.getGroupId())
+                .append(":").append(library.getArtifactId())
+                .append(":").append(library.getVersion())
+                .append(":").append(DateUtil.format(
+                        library.getCreatedOn(), DateUtil.DateImage.ISO));
+        }
+    }
+
+	protected StringBuffer getLogId(final Release release) {
+        if(null == release) { return new StringBuffer("null"); }
+        else {
+            return new StringBuffer()
+                .append(release.getId())
+                .append(":").append(release.getGroupId())
+                .append(":").append(release.getArtifactId())
+                .append(":").append(release.getVersion())
+                .append(":").append(DateUtil.format(
+                        release.getCreatedOn(), DateUtil.DateImage.ISO));
+        }
+    };
+
 	/**
 	 * Obtain a handle to the session model.
 	 * 
 	 * @return Obtain a handle to the session model.
 	 */
-	protected SessionModel getSessionModel() { return SessionModel.getModel(); };
+	protected SessionModel getSessionModel() { return SessionModel.getModel(); }
 
 	/**
 	 * @see ModelL18n#getString(String)
@@ -449,7 +469,38 @@ public abstract class AbstractModelImpl {
 		return l18n.getString(localKey, arguments);
 	}
 
-	private String formatAssertion(final ArtifactState currentState,
+    /**
+     * Determine whether or not the artifact is closed.
+     * 
+     * @param artifact
+     *            The artifact.
+     * @return True if the artifact is closed; false otherwise.
+     */
+    protected Boolean isClosed(final Artifact artifact) {
+        return ArtifactState.CLOSED == artifact.getState();
+    }
+
+    /**
+     * Determine whether or not the logged in user is the artifact key holder.
+     *
+     * @param artifactId
+     *      The artifact id.
+     * @return True if the user is the keyholder; false otherwise.
+     */
+    protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
+        return getInternalSessionModel().isLoggedInUserKeyHolder(artifactId);
+    }
+
+    /**
+     * Determine whether or not the user is online.
+     *
+     * @return True if the user is online; false otherwise.
+     */
+    protected Boolean isOnline() {
+        return getInternalSessionModel().isLoggedIn();
+    }
+
+    private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {
 		final StringBuffer assertion =
@@ -465,29 +516,4 @@ public abstract class AbstractModelImpl {
 		return assertion.toString();
 	}
 
-    protected StringBuffer getLogId(final Release release) {
-        if(null == release) { return new StringBuffer("null"); }
-        else {
-            return new StringBuffer()
-                .append(release.getId())
-                .append(":").append(release.getGroupId())
-                .append(":").append(release.getArtifactId())
-                .append(":").append(release.getVersion())
-                .append(":").append(DateUtil.format(
-                        release.getCreatedOn(), DateUtil.DateImage.ISO));
-        }
-    }
-
-    protected StringBuffer getLogId(final Library library) {
-        if(null == library) { return new StringBuffer("null"); }
-        else {
-            return new StringBuffer()
-                .append(library.getId())
-                .append(":").append(library.getGroupId())
-                .append(":").append(library.getArtifactId())
-                .append(":").append(library.getVersion())
-                .append(":").append(DateUtil.format(
-                        library.getCreatedOn(), DateUtil.DateImage.ISO));
-        }
-    }
 }

@@ -71,13 +71,8 @@ public abstract class IQHandler extends
         this.logger = LoggerFactory.getLogger(getClass());
 	}
 
-	/**
-	 * @see org.jivesoftware.messenger.handler.IQHandler#getInfo()
-	 */
-	public IQHandlerInfo getInfo() {
-		logger.debug(iqHandlerInfo);
-		return iqHandlerInfo;
-	}
+	/** @see org.jivesoftware.messenger.handler.IQHandler#getInfo() */
+	public IQHandlerInfo getInfo() { return iqHandlerInfo; }
 
 	/**
 	 * @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ)

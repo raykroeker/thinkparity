@@ -20,6 +20,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.server.JabberId;
+import com.thinkparity.server.JabberIdBuilder;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -177,18 +178,23 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		try {
 			updateState(artifact, Artifact.State.CLOSED);
 			final IQ close = new IQCloseArtifact(artifactUniqueId);
-			final List<ArtifactSubscription> subscription =
-				getSubscription(artifactUniqueId);
+
+			final List<ArtifactSubscription> subscription = getSubscription(artifactUniqueId);
 			JID jid;
 			for(final ArtifactSubscription s : subscription) {
 				jid = JIDBuilder.build(s.getUsername());
-				// we don't want to notify ourselves
+                // fire distributed close events; save ourselves
 				if(!jid.equals(session.getJID())) {
 					close.setTo(jid);
 					close.setFrom(session.getJID());
 					send(jid, close);
 				}
+                // delete subscription
+                artifactSubscriptionSql.delete(
+                        artifact.getArtifactId(), s.getUsername());
 			}
+            // delete artifact
+            artifactSql.delete(artifact.getArtifactId());
 		}
 		catch(final SQLException sqlx) {
 			logger.error(getApiErrorId("[CLOSE]", "[SQL ERROR]"), sqlx);
@@ -266,11 +272,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	void delete(final UUID artifactUniqueId) throws ParityServerModelException {
+    void delete(final UUID artifactUniqueId) throws ParityServerModelException {
 		logger.info("delete(UUID)");
 		logger.debug(artifactUniqueId);
+		final Artifact artifact = get(artifactUniqueId);
+        assertIsNotDistributed("", artifactUniqueId);
 		try {
-			final Artifact artifact = get(artifactUniqueId);
 			final JID jid = session.getJID();
 
 			artifactSubscriptionSql.delete(
@@ -291,7 +298,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Deny the key request for the artifact from the jid.
 	 * 
 	 * @param artifactUniqueId
@@ -597,6 +604,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	private void assertIsNotDistributed(final String assertion,
+            final UUID artifactUniqueId) throws ParityServerModelException {
+        Assert.assertTrue(assertion, isDistributed(artifactUniqueId));
+    }
+
 	/**
 	 * Create a flag iq packet to send to a subscription.
 	 * 
@@ -643,6 +655,22 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 		return assertion.toString();
 	}
+
+	private Boolean isDistributed(final UUID artifactUniqueId)
+            throws ParityServerModelException {
+        final Collection<ArtifactSubscription> subscription =
+            getSubscription(artifactUniqueId);
+        if(1 < subscription.size()) { return Boolean.TRUE; }
+        else if(1 == subscription.size()) {
+            final JabberId keyHolder =
+                JabberIdBuilder.parseJID(getKeyHolder(artifactUniqueId));
+            if(subscription.iterator().next().getJabberId().equals(keyHolder)) {
+                return Boolean.FALSE;
+            }
+            else { return Boolean.TRUE; }
+        }
+        else { return Boolean.FALSE; }
+    }
 
     private List<ArtifactSubscription> proxy(
 			final Collection<ArtifactSubscription> c) {

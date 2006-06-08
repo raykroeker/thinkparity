@@ -13,7 +13,7 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
@@ -52,7 +52,7 @@ class LocalFile {
 	 * Apache logger.
 	 * 
 	 */
-	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
+	protected final Logger logger;
 
 	/**
 	 * The file representing the document's content.
@@ -77,7 +77,8 @@ class LocalFile {
 	 */
 	LocalFile(final Workspace workspace, final Document document) {
 		super();
-		this.file = getFile(workspace, document);
+        this.logger = LoggerFactory.getLogger(getClass());
+        this.file = getFile(workspace, document);
 	}
 
 	/**
@@ -91,6 +92,7 @@ class LocalFile {
 	LocalFile(final Workspace workspace, final Document document,
 			final DocumentVersion version) {
 		super();
+        this.logger = LoggerFactory.getLogger(getClass());
 		this.file = getFile(workspace, document, version);
 	}
 

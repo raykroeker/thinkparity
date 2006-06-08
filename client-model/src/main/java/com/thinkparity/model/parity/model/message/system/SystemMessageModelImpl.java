@@ -19,12 +19,10 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.L18nContext;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
-import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
+import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 

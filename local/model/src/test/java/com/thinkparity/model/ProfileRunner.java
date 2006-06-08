@@ -22,7 +22,6 @@ public class ProfileRunner {
 		TestSuite suite= new TestSuite();
 		suite.addTest(new com.thinkparity.model.parity.model.document.CreateTest());
 		suite.addTest(new com.thinkparity.model.parity.model.document.CreateVersionTest());
-		suite.addTest(new com.thinkparity.model.parity.model.document.DeleteTest());
 		suite.addTest(new com.thinkparity.model.parity.model.document.FlagTest());
 		suite.addTest(new com.thinkparity.model.parity.model.document.GetContentTest());
 		suite.addTest(new com.thinkparity.model.parity.model.document.GetTest());

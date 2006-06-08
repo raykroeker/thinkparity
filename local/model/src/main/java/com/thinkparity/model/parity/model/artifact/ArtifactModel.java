@@ -119,7 +119,8 @@ public class ArtifactModel extends AbstractModel {
 	public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
 		synchronized(implLock) { return impl.isFlagApplied(artifactId, flag); }
 	}
-	/**
+
+    /**
 	 * Obtain all pending key requests for the document.
 	 * 
 	 * @param documentId
@@ -132,7 +133,7 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { return impl.readKeyRequests(documentId); }
 	}
 
-    /**
+	/**
      * Read the team for the artifact.
      * 
      * @param artifactId
@@ -143,7 +144,7 @@ public class ArtifactModel extends AbstractModel {
         synchronized(getImplLock()) { return getImpl().readTeam(artifactId); }
     }
 
-	/**
+    /**
 	 * Remove the seen flag from the artifact.
 	 * 
 	 * @param artifactId

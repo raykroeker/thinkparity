@@ -101,7 +101,7 @@
     <repositories>
         <repository>
             <id>tpdev.thinkparity.com</id>
-            <url>http://tpdev.thinkparity.com/maven/repository</url>
+            <url>http://localhost/maven/repository</url>
         </repository>
     </repositories>
 </project>

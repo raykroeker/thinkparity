@@ -87,7 +87,7 @@ class EventDispatcher {
             }
             public void documentCreated(final DocumentEvent e) {
                 if(e.isRemote())
-                    systemApplication.fireDocumentCreated(e.getDocument());
+                    systemApplication.fireDocumentCreated(e.getUser(), e.getDocument());
             }
             public void documentUpdated(final DocumentEvent e) {
                 if(e.isRemote())

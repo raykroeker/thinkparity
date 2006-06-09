@@ -262,13 +262,15 @@ public class SystemApplication extends AbstractApplication {
     /**
      * Notify a document key has created.
      * 
+     * @param user
+     *            The originating user.
      * @param document
      *            The document.
      */
-    void fireDocumentCreated(final Document document) {
+    void fireDocumentCreated(final User user, final Document document) {
         fireNotification(getString(
                 "Notification.DocumentCreatedMessage",
-                new Object[] {document.getName()}));
+                new Object[] {document.getName(), getName(user)}));
     }
 
     /**

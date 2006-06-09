@@ -1811,10 +1811,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 		file.write(content.getContent());
 
 		// send a subscription request
-		getInternalSessionModel().sendSubscribe(document);
+		final InternalSessionModel isModel = getInternalSessionModel();
+        isModel.sendSubscribe(document);
 		
-		// add team member
-		iAModel.addTeamMember(document.getId(), currentUserId());
+		// add team members
+		final Set<User> team = isModel.readArtifactTeam(document.getId());
+        // TODO Add the team as a whole; better yet add an api to create the
+        // team from the remote app in the model
+        for(final User user : team) { iAModel.addTeamMember(document.getId(), user.getId()); }
 
 		// index the creation
 		indexor.create(document.getId(), document.getName());

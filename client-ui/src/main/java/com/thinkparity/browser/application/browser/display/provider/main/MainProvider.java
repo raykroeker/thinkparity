@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.display.provider.main;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellUser;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
@@ -58,6 +60,9 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
     private final SingleContentProvider systemMessageProvider;
 
     private final FlatContentProvider systemMessagesProvider;
+
+    /** Provides a list of document team members. */
+    private final FlatContentProvider teamProvider;
 
     /**
      * Create a MainProvider.
@@ -109,6 +114,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
                 catch(final ParityException px) { throw new RuntimeException(px); }
             }
         };
+        this.quickShareContactProvider = new QuickShareProvider(artifactModel, sModel);
         this.systemMessageProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
 				final Long systemMessageId = assertNotNullLong(
@@ -140,9 +146,14 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-        this.quickShareContactProvider = new QuickShareProvider(artifactModel, sModel);
         this.shareContactProvider = new ShareProvider(artifactModel, sModel);
-		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider, quickShareContactProvider, shareContactProvider};
+        this.teamProvider = new FlatContentProvider() {
+            public Object[] getElements(final Object input) {
+                final MainCellDocument mcd = (MainCellDocument) input;
+                return toDisplay(mcd, readTeam(artifactModel, mcd.getId(), loggedInUserId));
+            }
+        };
+		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider, quickShareContactProvider, shareContactProvider, teamProvider};
 		this.singleProviders = new SingleContentProvider[] {documentProvider, systemMessageProvider};
 	}
 
@@ -212,6 +223,16 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
                     document, hi, readTeam(aModel, document.getId(), localUserId), count, index++));
         }
         return display.toArray(new MainCellHistoryItem[] {});
+    }
+
+    private MainCellUser[] toDisplay(final MainCellDocument mcd, final Set<User> users) {
+        final List<MainCellUser> display = new ArrayList<MainCellUser>();
+        final Integer count = users.size();
+        Integer index = 0;
+        for(final User user : users) {
+            display.add(new MainCellUser(mcd, count, index++, user));
+        }
+        return display.toArray(new MainCellUser[] {});
     }
 
     /**

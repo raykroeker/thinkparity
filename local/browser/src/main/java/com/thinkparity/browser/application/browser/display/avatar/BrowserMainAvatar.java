@@ -271,14 +271,15 @@ public class BrowserMainAvatar extends Avatar {
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
                     if(listIndex == jList.getSelectedIndex()) {
+                        final MainCell mc = (MainCell) jList.getSelectedValue();
                         final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
-                        cellBounds.x += CELL_NODE_LOCATION.x;
+                        cellBounds.x += CELL_NODE_LOCATION.x * mc.getTextInsetFactor();
                         cellBounds.y += CELL_NODE_LOCATION.y;
                         cellBounds.width = CELL_NODE_SIZE.width;
                         cellBounds.height = CELL_NODE_SIZE.height;
                         if(SwingUtil.regionContains(cellBounds, p)) {
                             jList.setSelectedIndex(listIndex);
-                            mainDocumentModel.triggerExpand((MainCell) jList.getSelectedValue());
+                            mainDocumentModel.triggerExpand(mc);
                         }
                     }
                 }

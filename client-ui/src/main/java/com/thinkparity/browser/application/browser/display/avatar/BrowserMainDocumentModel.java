@@ -16,9 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
+import com.thinkparity.browser.application.browser.display.avatar.main.*;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
@@ -67,6 +65,9 @@ public class BrowserMainDocumentModel {
     /** The content provider. */
     private CompositeFlatSingleContentProvider contentProvider;
 
+    /** A list of "dirty" cells. */
+    private final List<MainCell> dirtyCells;
+
     /** The filter that is used to filter documents to produce visibleDocuments. */
     private final FilterChain<Artifact> documentFilter;
 
@@ -76,15 +77,15 @@ public class BrowserMainDocumentModel {
     /** A list of all documents. */
     private final List<MainCellDocument> documents;
 
+    /** The team cell for the document. */
+    private final Map<MainCellDocument, MainCellTeam> documentTeam;
+    
     /** The swing list model. */
     private final DefaultListModel jListModel;
 
-    /** A list of "dirty" cells. */
-    private final List<MainCell> dirtyCells;
-
     /** The list of cells that are pseudo selected. */
     private final List<MainCell> pseudoSelection;
-    
+
     /** A list of all visible cells. */
     private final List<MainCell> visibleCells;
 
@@ -98,6 +99,7 @@ public class BrowserMainDocumentModel {
         this.documentFilter = new FilterChain<Artifact>();
         this.documents = new LinkedList<MainCellDocument>();
         this.documentHistory = new Hashtable<MainCellDocument, List<MainCellHistoryItem>>(10, 0.65F);
+        this.documentTeam = new HashMap<MainCellDocument, MainCellTeam>(10, 10.0F);
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
         this.dirtyCells = new LinkedList<MainCell>();
@@ -115,6 +117,12 @@ public class BrowserMainDocumentModel {
     public Boolean isExpanded(final MainCell mainCell) {
         if(mainCell instanceof MainCellDocument) {
             return ((MainCellDocument) mainCell).isExpanded();
+        }
+        else if(mainCell instanceof MainCellHistoryRoot) {
+            return ((MainCellHistoryRoot) mainCell).isExpanded();
+        }
+        else if(mainCell instanceof MainCellTeamRoot) {
+            return ((MainCellTeamRoot) mainCell).isExpanded();
         }
         else { return Boolean.FALSE; }
     }
@@ -404,6 +412,18 @@ public class BrowserMainDocumentModel {
 
             syncModel();
         }
+        else if(mainCell instanceof MainCellHistoryRoot) {
+            final MainCellHistoryRoot mchr = (MainCellHistoryRoot) mainCell;
+            if(isExpanded(mchr)) { collapse(mchr); }
+            else { expand(mchr); }
+            syncModel();
+        }
+        else if(mainCell instanceof MainCellTeamRoot) {
+            final MainCellTeamRoot mctr = (MainCellTeamRoot) mainCell;
+            if(isExpanded(mctr)) { collapse(mctr); }
+            else { expand(mctr); }
+            syncModel();
+        }
     }
 
     /**
@@ -453,23 +473,6 @@ public class BrowserMainDocumentModel {
         }
     }
 
-    private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
-        for(final MainCell mc : mainCells) { pseudoUnselect(mc); }
-    }
-
-    private void pseudoUnselect(final MainCell mainCell) {
-        pseudoSelection.remove(mainCell);
-    }
-
-    private void pseudoSelect(final MainCell mainCell) {
-        pseudoSelection.add(mainCell);
-    }
-
-    private void pseudoSelectAll(final List<? extends MainCell> mainCells) {
-        if(null == mainCells) { logger.warn("[LBROWSER] [APPLICATION] [BROWSER] [MAIN] [CANNOT PSEUDO SELECT NULL]"); }
-        else { for(final MainCell mc : mainCells) { pseudoSelect(mc); } }
-    }
-
     /**
      * Apply the specified filter.
      * 
@@ -501,7 +504,16 @@ public class BrowserMainDocumentModel {
      */
     private void collapse(final MainCellDocument mcd) {
         mcd.setExpanded(Boolean.FALSE);
+        syncModel();
+    }
 
+    private void collapse(final MainCellHistoryRoot mchr) {
+        mchr.setExpanded(Boolean.FALSE);
+        syncModel();
+    }
+
+    private void collapse(final MainCellTeamRoot mctr) {
+        mctr.setExpanded(Boolean.FALSE);
         syncModel();
     }
 
@@ -513,6 +525,16 @@ public class BrowserMainDocumentModel {
      */
     private void expand(final MainCellDocument mcd) {
         mcd.setExpanded(Boolean.TRUE);
+        syncModel();
+    }
+
+    private void expand(final MainCellHistoryRoot mchr) {
+        mchr.setExpanded(Boolean.TRUE);
+        syncModel();
+    }
+
+    private void expand(final MainCellTeamRoot mctr) {
+        mctr.setExpanded(Boolean.TRUE);
         syncModel();
     }
 
@@ -530,8 +552,26 @@ public class BrowserMainDocumentModel {
         documents.addAll(readDocuments());
         for(final MainCellDocument mcd : documents) {
             documentHistory.put(mcd, readHistory(mcd));
+            documentTeam.put(mcd, new MainCellTeam(mcd, readTeam(mcd)));
         }
         syncModel();
+    }
+
+    private void pseudoSelect(final MainCell mainCell) {
+        pseudoSelection.add(mainCell);
+    }
+
+    private void pseudoSelectAll(final List<? extends MainCell> mainCells) {
+        if(null == mainCells) { logger.warn("[LBROWSER] [APPLICATION] [BROWSER] [MAIN] [CANNOT PSEUDO SELECT NULL]"); }
+        else { for(final MainCell mc : mainCells) { pseudoSelect(mc); } }
+    }
+
+    private void pseudoUnselect(final MainCell mainCell) {
+        pseudoSelection.remove(mainCell);
+    }
+
+    private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
+        for(final MainCell mc : mainCells) { pseudoUnselect(mc); }
     }
 
     /**
@@ -575,6 +615,21 @@ public class BrowserMainDocumentModel {
     }
 
     /**
+     * Read the team for the document from the provider.
+     * 
+     * @param mcd
+     *            The document.
+     * @return The document team.
+     */
+    private List<MainCellUser> readTeam(final MainCellDocument mcd) {
+        final List<MainCellUser> l = new ArrayList<MainCellUser>();
+        final MainCellUser[] a =
+            (MainCellUser[]) contentProvider.getElements(5, mcd);
+        for(final MainCellUser mcu : a) { l.add(mcu); }
+        return l;
+    }
+
+    /**
      * Remove a document filter.
      * 
      * @param filter
@@ -585,7 +640,6 @@ public class BrowserMainDocumentModel {
             documentFilter.removeFilter(filter);
         }
     }
-
     /**
      * Synchronize the document with the list. The content provider is queried
      * for the document and if it can be obtained; it will either be added to or
@@ -631,6 +685,7 @@ public class BrowserMainDocumentModel {
             if(!documents.contains(mainCellDocument)) {
                 documents.add(0, mainCellDocument);
                 documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
+                documentTeam.put(mainCellDocument, new MainCellTeam(mainCellDocument, readTeam(mainCellDocument)));
             }
             // the document has been updated
             else {
@@ -646,10 +701,12 @@ public class BrowserMainDocumentModel {
                 // it previously existed
                 if(remote) { documents.add(0, mainCellDocument); }
                 else { documents.add(index, mainCellDocument); }
+                documentTeam.put(mainCellDocument, new MainCellTeam(mainCellDocument, readTeam(mainCellDocument)));
                 documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
 
                 dirtyCells.add(mainCellDocument);
                 dirtyCells.addAll(documentHistory.get(mainCellDocument));
+                dirtyCells.add(documentTeam.get(mainCellDocument));
             }
         }
     }
@@ -668,8 +725,10 @@ public class BrowserMainDocumentModel {
         visibleCells.clear();
         for(final MainCellDocument mcd : filteredDocuments) {
             visibleCells.add(mcd);
-            if(mcd.isExpanded())
+            if(mcd.isExpanded()) {
+                visibleCells.add(documentTeam.get(mcd));
                 visibleCells.addAll(documentHistory.get(mcd));
+            }
         }
 
         // add visible cells not in the model; as well as update cell

@@ -822,6 +822,7 @@ public class Browser extends AbstractApplication {
 	 *            The document id.
 	 */
 	public void runOpenDocument(final Long documentId) {
+        Assert.assertNotNull("Cannot open null document.", documentId);
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
@@ -837,6 +838,8 @@ public class Browser extends AbstractApplication {
 	 */
 	public void runOpenDocumentVersion(final Long documentId,
 			final Long versionId) {
+        Assert.assertNotNull("Cannot open null document.", documentId);
+        Assert.assertNotNull("Cannot open null document version.", versionId);
 		final Data data = new Data(2);
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);

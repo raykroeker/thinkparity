@@ -260,8 +260,12 @@ public class BrowserMainAvatar extends Avatar {
                 if(2 == e.getClickCount()) {
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
-                    jList.setSelectedIndex(listIndex);
-                    mainDocumentModel.triggerDoubleClick((MainCell) jList.getSelectedValue());
+                    // Don't process double click if it is on white space below the last document
+                    final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
+                    if(SwingUtil.regionContains(cellBounds, p)){
+                        jList.setSelectedIndex(listIndex);                    
+                        mainDocumentModel.triggerDoubleClick((MainCell) jList.getSelectedValue());    
+                    }
                 }
                 else if(1 == e.getClickCount()) {
                     // first; we grab the index of the list item of the event

@@ -20,6 +20,9 @@ import com.thinkparity.browser.application.browser.display.avatar.main.*;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.browser.platform.action.ActionId;
+import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.document.Open;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -379,7 +382,20 @@ public class BrowserMainDocumentModel {
      */
     void triggerDoubleClick(final MainCell mainCell) {
         debug();
-        triggerExpand(mainCell);
+        // RBM 13/06/05 #36 Double click will open the document instead of expanding
+        // The old line of code commented out:
+        // triggerExpand(mainCell);
+        if(browser.getPlatform().isDevelopmentMode()) {
+            logger.debug("Opening document " + mainCell.getText());
+        }    
+        if(mainCell instanceof MainCellDocument) {
+            final MainCellDocument mcd = (MainCellDocument) mainCell;
+            browser.runOpenDocument(mcd.getId());
+        }
+        else if(mainCell instanceof MainCellHistoryItem) {
+            final MainCellHistoryItem mch = (MainCellHistoryItem) mainCell;
+            browser.runOpenDocumentVersion(mch.getDocumentId(),mch.getVersionId());
+        }
     }
 
     /**

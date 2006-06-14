@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.MouseInputAdapter;
+import javax.swing.Timer;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
@@ -78,6 +79,11 @@ public class SearchPanel extends AbstractJPanel {
 	 * 
 	 */
 	private JLabel searchRightJLabel;
+    
+    /**
+     * The timer that will delay searches by 1/2 second
+     */
+    private Timer timer = null;
 
 	/**
 	 * Create a SearchPanel.
@@ -152,16 +158,35 @@ public class SearchPanel extends AbstractJPanel {
 	}
 
 	private void searchJTextFieldActionPerformed(final ActionEvent e) {
+        if (timer!=null) {
+            timer.stop();
+        }
 		getBrowser().runSearchArtifact(searchJTextField.getText());
 	}
 
 	private void searchJTextFieldRemoveUpdate(final DocumentEvent e) {
-		if(e.getDocument().getLength() == 0) {
-			getBrowser().removeSearchFilter();
-		}
+        searchFieldUpdated(e);
 	}
 
-	private void searchJTextFieldInsertUpdate(final DocumentEvent e) {}
+	private void searchJTextFieldInsertUpdate(final DocumentEvent e) {
+        searchFieldUpdated(e);
+    }
 
 	private void searchJTextFieldChangedUpdate(final DocumentEvent e) {}
+    
+    private void searchFieldUpdated(final DocumentEvent e) {
+        if (timer==null) {
+            int delay = 500;  // 500 milliseconds
+            timer = new Timer(delay,new ActionListener() {
+                public void actionPerformed(final ActionEvent timerEvent) {
+                    timer.stop();
+                    getBrowser().runSearchArtifact(searchJTextField.getText());
+                }
+            });
+            timer.start();
+        }
+        else {
+            timer.restart();
+        }
+    }
 }

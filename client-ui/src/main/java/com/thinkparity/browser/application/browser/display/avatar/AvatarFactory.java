@@ -248,7 +248,7 @@ public class AvatarFactory {
 	 */
 	private void register(final Avatar avatar) {
 		Assert.assertIsNull(
-				"Avatar " + avatar.getId() + " already registerd.",
+				"Avatar " + avatar.getId() + " already registered.",
 				avatarRegistry.put(avatar.getId(), avatar));
 	}
 }

@@ -46,4 +46,10 @@
 		</dependency>
 	</dependencies>
 
+	<repositories>
+        <repository>
+            <id>tpdev.thinkparity.com</id>
+            <url>http://localhost/maven/repository</url>
+        </repository>
+    </repositories>
 </project>

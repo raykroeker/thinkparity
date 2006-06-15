@@ -141,7 +141,7 @@ class XMPPUser {
             if(vCard.isSetMiddleName())
                 smackVCard.setMiddleName(vCard.getMiddleName());
             smackVCard.setLastName(vCard.getLastName());
-            smackVCard.setEmailHome(vCard.getEmail());
+            smackVCard.setEmailWork(vCard.getEmail());
             smackVCard.setOrganization(vCard.getOrganization());
             smackVCard.save(xmppCore.getConnection());
         }

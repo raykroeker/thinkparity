@@ -20,13 +20,25 @@ public class UserNameBuilder {
     /** A user's last name. */
     private final String middle;
 
+    /**
+     * Create UserNameBuilder.
+     * 
+     * @param first
+     *            The first name.
+     * @param last
+     *            The last name.
+     */
+    UserNameBuilder(final String first, final String last) {
+        super();
+        this.first = first;
+        this.middle = null;
+        this.last = last;
+    }
+
     /** Create UserNameBuilder. */
     UserNameBuilder(final String first, final String middle,
             final String last) {
         super();
-        if(null == first) { throw new NullPointerException(); }
-        if(null == last) { throw new NullPointerException(); }
-
         this.first = first;
         this.middle = middle;
         this.last = last;
@@ -38,10 +50,17 @@ public class UserNameBuilder {
      * @return A user's name.
      */
     public String getName() {
-        if(null == first || null == last) { return null; }
-        final StringBuffer name = new StringBuffer(first);
-        if(null != middle) { name.append(User.NAME_SEP).append(middle); }
-        name.append(User.NAME_SEP).append(last);
+        if(null == first && null == middle && null == last) { return null; }
+        final StringBuffer name = new StringBuffer();
+        if(null != first) { name.append(first); }
+        if(null != middle) {
+            if(0 < name.length()) { name.append(User.NAME_SEP); }
+            name.append(middle);
+        }
+        if(null != last) {
+            if(0 < name.length()) { name.append(User.NAME_SEP); }
+            name.append(last);
+        }
         return name.toString();
     }
 }

@@ -62,13 +62,13 @@
 		<dependency>
 			<groupId>jivesoftware</groupId>
 			<artifactId>smack</artifactId>
-			<version>2.0.0</version>
+			<version>2.2.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>jivesoftware</groupId>
 			<artifactId>smackx</artifactId>
-			<version>2.0.0</version>
+			<version>2.2.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -112,4 +112,11 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+        <repository>
+            <id>tpdev.thinkparity.com</id>
+            <url>http://localhost/maven/repository</url>
+        </repository>
+    </repositories>
 </project>

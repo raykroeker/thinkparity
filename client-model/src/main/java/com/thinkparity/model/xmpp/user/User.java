@@ -22,14 +22,6 @@ public class User {
 
 	static { SystemUser = new User("thinkparity"); }
 
-    private static StringBuffer getApiId(final String api) {
-        return new StringBuffer("[LMODEL] [USER] ").append(api);
-    }
-
-    private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
-    }
-
 	/** The user's email. */
     private String email;
 
@@ -185,10 +177,7 @@ public class User {
      *            The user's last name.
      */
     public void setName(final String first, final String last) {
-        if(null == first) { throw new NullPointerException(getErrorId("[SET NAME]", "[FIRST NAME IS NULL]")); }
-        if(null == last) { throw new NullPointerException(getErrorId("[SET NAME]", "[LAST NAME IS NULL]")); }
-        this.name = new StringBuffer(first)
-                .append(" ").append(last).toString();
+        this.name = new UserNameBuilder(first, last).getName();
     }
 
     /**
@@ -203,12 +192,7 @@ public class User {
      */
     public void setName(final String first, final String middle,
             final String last) {
-        if(null == first) { throw new NullPointerException(); }
-        if(null == middle) { throw new NullPointerException(); }
-        if(null == last) { throw new NullPointerException(); }
-        this.name = new StringBuffer(first)
-                .append(" ").append(middle)
-                .append(" ").append(last).toString();
+        this.name = new UserNameBuilder(first, middle, last).getName();
     }
 
     /**
@@ -220,4 +204,15 @@ public class User {
 	public void setOrganization(final String organization) {
 		this.organization = organization;
 	}
+
+    /** @see java.lang.Object#toString() */
+    public String toString() {
+        return new StringBuffer(getClass().getName())
+                .append("//").append(id)
+                .append("/").append(localId)
+                .append("/").append(name)
+                .append("/").append(email)
+                .append("/").append(organization)
+                .toString();
+    }
 }

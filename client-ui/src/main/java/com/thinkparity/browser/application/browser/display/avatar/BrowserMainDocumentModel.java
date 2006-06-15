@@ -20,9 +20,6 @@ import com.thinkparity.browser.application.browser.display.avatar.main.*;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-import com.thinkparity.browser.platform.action.ActionId;
-import com.thinkparity.browser.platform.action.Data;
-import com.thinkparity.browser.platform.action.document.Open;
 
 import com.thinkparity.codebase.assertion.Assert;
 

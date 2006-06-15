@@ -34,15 +34,14 @@ class LocalFile {
 	 */
 	private static final Runtime myRuntime;
 
-	/**
-	 * Windows executable to use when opening a file.
-	 */
+	/** Windows wrapper dll. */
 	private static final String OPEN_PARAM_WIN32_DLL = "rundll32.exe";
 
 	/**
-	 * Windows file path parameter name to use when opening a file.
-	 */
-	private static final String OPEN_PARAM_WIN32_PROTOCOL = "url.dll,FileProtocolHandler";
+     * The dll to call; and the api to execute. This will automatically provide
+     * the open-with dialogue if no application is associated with the file.
+     */
+	private static final String OPEN_PARAM_WIN32_PROTOCOL = "shell32.dll,ShellExec_RunDLL";
 
 	static {
 		myRuntime = Runtime.getRuntime();

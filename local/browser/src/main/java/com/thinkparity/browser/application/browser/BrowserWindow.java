@@ -18,8 +18,8 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
 import com.thinkparity.browser.javax.swing.Swing.Constants.Images;
-import com.thinkparity.browser.javax.swing.border.ImageBorder;
 import com.thinkparity.browser.platform.application.display.Display;
+import com.thinkparity.browser.platform.application.window.WindowBorder;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
@@ -75,9 +75,7 @@ public class BrowserWindow extends AbstractJFrame {
 		this.browser = browser;
 		this.logger = LoggerFactory.getLogger(getClass());
         this.persistence = PersistenceFactory.getPersistence(getClass());
-		getRootPane().setBorder(new ImageBorder(
-                "MainWindowBorderTop.png", "MainWindowBorderLeft.png",
-                "MainWindowBorderBottom.png", "MainWindowBorderRight.png"));
+		getRootPane().setBorder(new WindowBorder());
         addWindowListener(new WindowAdapter() {
             public void windowClosing(final WindowEvent e) {
                 persist();

@@ -14,7 +14,6 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.platform.Platform;
-import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.ApplicationListener;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
@@ -105,21 +104,21 @@ public abstract class AbstractApplication implements Application {
 	}
 
 	/**
-	 * Obtain the parity document interface.
-	 * 
-	 * @return The parity document interface.
-	 */
-	public DocumentModel getDocumentModel() { 
-		return platform.getModelFactory().getDocumentModel(getClass());
-	}
-
-	/**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
      */
 	public ArtifactModel getArtifactModel() {
 		return platform.getModelFactory().getArtifactModel(getClass());
+	}
+
+	/**
+	 * Obtain the parity document interface.
+	 * 
+	 * @return The parity document interface.
+	 */
+	public DocumentModel getDocumentModel() { 
+		return platform.getModelFactory().getDocumentModel(getClass());
 	}
 
 	/**
@@ -314,7 +313,7 @@ public abstract class AbstractApplication implements Application {
 		this.status = status;
 	}
 
-	private void assertIsOneOf(final ApplicationStatus[] acceptableStatus,
+    private void assertIsOneOf(final ApplicationStatus[] acceptableStatus,
 			final ApplicationStatus targetStatus) {
 		for(final ApplicationStatus status : acceptableStatus) {
 			if(status == targetStatus) { return; }
@@ -324,7 +323,7 @@ public abstract class AbstractApplication implements Application {
 				this.status + " to:  " + targetStatus + ".");
 	}
 
-	/**
+    /**
 	 * Obtain the listeners for this class from the static list. Note that the
 	 * execution of this api must exist from within a synchronized code-block.
 	 * 
@@ -338,10 +337,4 @@ public abstract class AbstractApplication implements Application {
 		else { listeners = new HashSet<ApplicationListener>(); }
 		return listeners;
 	}
-
-    /** @see com.thinkparity.browser.platform.application.Application#isOnline() */
-    public Boolean isOnline() { return platform.isOnline(); }
-
-    /** @see com.thinkparity.browser.platform.application.Application#getConnectionStatus() */
-    public Connection getConnectionStatus() { return platform.getConnectionStatus(); }
 }

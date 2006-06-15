@@ -29,13 +29,6 @@ public interface Platform extends ApplicationListener {
 
     public AvatarRegistry getAvatarRegistry();
 
-	/**
-     * Obtain the current connection status.
-     *
-     * @return The connection status.
-     */
-    public Connection getConnectionStatus();
-
     public Logger getLogger(final Class clasz);
 
 	public ModelFactory getModelFactory();
@@ -59,10 +52,10 @@ public interface Platform extends ApplicationListener {
 	 */
 	public Boolean isDevelopmentMode();
 
-	/**
-     * Determine whether or not the platform is online.
-     *
-     * @return True if the application is online; false otherwise.
+    /**
+     * Determine if the user has online capability.
+     * 
+     * @return True if the user has online capability.
      */
     public Boolean isOnline();
 

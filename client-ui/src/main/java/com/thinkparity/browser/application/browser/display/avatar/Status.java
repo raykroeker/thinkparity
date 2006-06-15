@@ -1,9 +1,7 @@
 /*
- * Status.java
- *
  * Created on April 11, 2006, 12:22 PM
+ * $Id$
  */
-
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
@@ -14,6 +12,7 @@ import javax.swing.JLabel;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
@@ -22,7 +21,7 @@ import com.thinkparity.codebase.assertion.Assert;
 /**
  *
  * @author raykroeker@gmail.com
- * @version 1.1.0.0
+ * @version $Revision$
  */
 public class Status extends Avatar {
 
@@ -60,7 +59,7 @@ public class Status extends Avatar {
             Assert.assertUnreachable("");
         }
     }
-    
+
     /**
      * Obtain the avatar id.
      * 
@@ -147,15 +146,19 @@ public class Status extends Avatar {
             }
         }
     }//GEN-LAST:event_formMouseClicked
-
+    
     /**
      * Determine the connection key based upon the online state.
      * 
      * @return The message key for the connection status message.
      */
     private String getConnectionKey() {
-        return getController().isOnline()
-                ? "ConnectionOnline" : "ConnectionOffline";
+        final Connection connection = getController().getConnection();
+        switch(connection) {
+            case ONLINE: return "ConnectionOnline";
+            case OFFLINE: return "ConnectionOffline";
+            default: throw Assert.createUnreachable("[UNKNOWN CONNECTION TYPE]");
+        }
     }
 
     /** This method is called from within the constructor to
@@ -215,12 +218,10 @@ gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
     private void reloadConnection(final String messageKey) {
         connectionJLabel.setText(getString(messageKey));
     }
-    
     private void reloadConnection(final String messageKey,
             final Object[] messageArguments) {
         connectionJLabel.setText(getString(messageKey, messageArguments));
     }
-
     private void reloadCustom(final String messageKey) {
         customJLabel.setText(getString("Custom." + messageKey));
         final javax.swing.Timer t = new javax.swing.Timer(7 * 1000, new ActionListener() {
@@ -236,6 +237,7 @@ gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
             final Object[] messageArguments) {
         customJLabel.setText(getString("Custom." + messageKey, messageArguments));
     }
+
     private void reloadFilter(final String messageKey) {
         filterJLabel.setText(getString(messageKey));
     }
@@ -244,6 +246,7 @@ gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
         filterJLabel.setText(getString(messageKey, messageArguments));
     }
 
+    /** Areas of the status bar. */
     public enum Area { CONNECTION, CUSTOM, FILTER }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -251,4 +254,5 @@ gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 0);
     private javax.swing.JLabel customJLabel;
     private javax.swing.JLabel filterJLabel;
     // End of variables declaration//GEN-END:variables
+
 }

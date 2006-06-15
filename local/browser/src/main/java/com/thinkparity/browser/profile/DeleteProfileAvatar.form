@@ -11,22 +11,22 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="eaJLabel" alignment="0" pref="336" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="profileNameJLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="profileNameJTextField" pref="258" max="32767" attributes="0"/>
+                  </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="cancelJButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="deleteJButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="profileNameJLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="profileNameJTextField" min="-2" pref="195" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="eaJTextArea" alignment="1" min="-2" pref="338" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -34,13 +34,13 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="eaJTextArea" min="-2" pref="85" max="-2" attributes="0"/>
+              <Component id="eaJLabel" min="-2" pref="102" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="profileNameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="profileNameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="11" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="deleteJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -51,22 +51,18 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JTextArea" name="eaJTextArea">
+    <Component class="javax.swing.JLabel" name="eaJLabel">
       <Properties>
-        <Property name="columns" type="int" value="20"/>
-        <Property name="editable" type="boolean" value="false"/>
-        <Property name="lineWrap" type="boolean" value="true"/>
-        <Property name="rows" type="int" value="5"/>
-        <Property name="wrapStyleWord" type="boolean" value="true"/>
-        <Property name="opaque" type="boolean" value="false"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DeleteProfileAvatar.EmbeddedAssistance" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.createArea(&#xa;        getString(&quot;EmbeddedAssistance&quot;,&#xa;        new Object[] {System.getProperty(&quot;line.separator&quot;)}));"/>
-      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="profileNameJLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="!Profile name:!"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DeleteProfileAvatar.ProfileNameLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.create(getString(&quot;ProfileNameLabel&quot;));"/>
@@ -90,7 +86,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="deleteJButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="!Delete!"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DeleteProfileAvatar.DeleteButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteJButtonActionPerformed"/>
@@ -101,7 +99,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="cancelJButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="!Cancel!"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DeleteProfileAvatar.CancelButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelJButtonActionPerformed"/>

@@ -310,8 +310,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 			case KEY_REQUEST:
 				final User user = iUModel.read(((KeyRequestMessage) message).getRequestedBy());
 				final Object[] arguments = new Object[] {
-					user.getFirstName(), user.getLastName(), user.getOrganization()
-				};
+					user.getName(), user.getOrganization() };
 				((KeyRequestMessage) message).setRequestedByName(getString("KeyRequestMessage.RequestedByName", arguments));
 				break;
 			default:

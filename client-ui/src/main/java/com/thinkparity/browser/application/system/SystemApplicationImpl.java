@@ -24,10 +24,7 @@ class SystemApplicationImpl extends Thread {
 	 */
 	Boolean running = Boolean.FALSE;
 
-	/**
-	 * Queue of pending new/updated artifacts\versions\system messages.
-	 * 
-	 */
+	/** Queue of pending new/updated artifacts\versions\system messages. */
 	private final List<TrayNotification> queue;
 
 	/** The system application. */

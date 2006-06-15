@@ -52,9 +52,9 @@ public class MainCellUser extends User implements MainCell {
         this.index = index;
         this.l18n = new MainCellL18n("User");
 
-        setFirstName(user.getFirstName());
+        setEmail(user.getEmail());
+        setName(user.getName());
         setId(user.getId());
-        setLastName(user.getLastName());
         setLocalId(user.getLocalId());
         setOrganization(user.getOrganization());
     }
@@ -145,15 +145,11 @@ public class MainCellUser extends User implements MainCell {
      */
     public String getText() {
         if(isSetOrganization()) {
-            return l18n.getString("IncludeOrg", new Object[] {getFirstName(), getLastName(), getOrganization()});
+            return l18n.getString("IncludeOrg", new Object[] {getName(), getOrganization()});
         }
         else {
-            return l18n.getString("NotIncludeOrg", new Object[] {getFirstName(), getLastName()});
+            return l18n.getString("NotIncludeOrg", new Object[] {getName()});
         }
-    }
-
-    protected Boolean isSetOrganization() {
-        return null != getOrganization() && 0 < getOrganization().length();
     }
 
     /**

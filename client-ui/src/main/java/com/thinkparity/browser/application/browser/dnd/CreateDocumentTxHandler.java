@@ -69,7 +69,7 @@ public class CreateDocumentTxHandler extends TransferHandler {
         logger.info("[LBROWSER] [APPLICATION] [BROWSER] [DND] [CREATE TX] [CAN IMPORT]");
         logger.debug(comp.getClass().getSimpleName());
         if(TxUtils.containsJavaFileList(transferFlavors)) {
-            if(Connection.ONLINE == browser.getConnectionStatus()) {
+            if(Connection.ONLINE == browser.getConnection()) {
                 return true;
             }
         }

@@ -383,6 +383,22 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.addArtifactTeamMember(artifactUniqueId);
 	}
 
+    /**
+     * Update the user.
+     * 
+     * @param name
+     *            The user's name.
+     * @param email
+     *            The user's email.
+     * @param organization
+     *            The user's organization.
+     * @throws SmackException
+     */
+    void updateUser(final String name, final String email,
+            final String organization) throws SmackException {
+        xmppSession.updateCurrentUser(name, email, organization);
+    }
+
 	/**
 	 * Event handler for the extension listener's artifact close event.
 	 * 

@@ -192,16 +192,15 @@ public interface XMPPSession {
     /**
      * Update the logged in user.
      * 
-     * @param firstName
-     *            The user's first name.
-     * @param lastName
-     *            The user's last name.
+     * @param name
+     *            The user's name.
+     * @param email
+     *            The user's email.
      * @param organization
      *            The user's organization.
      */
-    public void updateCurrentUser(final String firstName,
-            final String lastName, final String organization)
-            throws SmackException;
+    public void updateCurrentUser(final String name, final String email,
+            final String organization) throws SmackException;
 
     /**
      * Read a set of users.

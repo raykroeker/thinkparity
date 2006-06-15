@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.model.util;
 
-import com.thinkparity.codebase.StringUtil.Separator;
-
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -51,28 +49,9 @@ public class ModelUtil {
 	}
 
 	private String doGetName(final User user) {
-		if(isSetFirstAndLastName(user)) {
-			return new StringBuffer(user.getFirstName())
-                .append(Separator.Space)
-                .append(user.getLastName())
-				.toString();
-		}
-		else if(isSetFirstName(user)) { return user.getFirstName(); }
+        final String name = user.getName();
+        if(null != name && 0 < name.length()) { return name; }
 		else { return user.getUsername(); }
-	}
-
-	private Boolean isSetFirstAndLastName(final User user) {
-		return isSetFirstName(user) && isSetLastName(user);
-	}
-
-	private Boolean isSetFirstName(final User user) {
-		final String firstName = user.getFirstName();
-		return null != firstName && 0 < firstName.length();
-	}
-	
-	private Boolean isSetLastName(final User user) {
-		final String lastName = user.getLastName();
-		return null != lastName && 0 < lastName.length();
 	}
 
 	private Preferences doGetPreferences() { return preferences; }

@@ -86,7 +86,7 @@ public class UpdateDocumentTxHandler extends TransferHandler {
         if(1 == transferFlavors.length) {
             if(TxUtils.containsJavaFileList(transferFlavors)) {
                 if(!jList.isSelectionEmpty()) {
-                    if(Connection.ONLINE == application.getConnectionStatus()) {
+                    if(Connection.ONLINE == application.getConnection()) {
                         return true;
                     }
                 }

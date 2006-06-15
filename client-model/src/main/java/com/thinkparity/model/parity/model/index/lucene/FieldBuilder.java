@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.index.lucene;
 
 import java.util.Calendar;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Field;
@@ -209,12 +210,14 @@ public class FieldBuilder {
 	 * @return A comma separated list.
 	 */
 	private String tokenize(final User user) {
-		final StringBuffer buffer = new StringBuffer(user.getFirstName())
-			.append(Separator.Comma)
-			.append(user.getLastName());
-		if(null != user.getOrganization()) {
-			buffer.append(Separator.Comma)
-				.append(user.getOrganization());
+        final StringBuffer buffer = new StringBuffer();
+        final StringTokenizer nameTokenizer = new StringTokenizer(user.getName(), " ");
+        while(nameTokenizer.hasMoreTokens()) {
+            if(0 < buffer.length()) { buffer.append(Separator.Comma); }
+            buffer.append(nameTokenizer.nextToken());
+        }
+		if(user.isSetOrganization()) {
+			buffer.append(Separator.Comma).append(user.getOrganization());
 		}
 		return buffer.toString();
 	}

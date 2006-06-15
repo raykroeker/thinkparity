@@ -39,14 +39,14 @@ public class UpdateHelper {
     /** The latest release. */
     private Release latestRelease;
 
+    /** An apache logger. */
+    private final Logger logger;
+
     /** The platform. */
     private Platform platform;
 
     /** The parity release interface. */
     private final ReleaseModel rModel;
-
-    /** An apache logger. */
-    private final Logger logger;
 
     /** Create UpdateHelper. */
     public UpdateHelper(final Platform platform) {
@@ -64,6 +64,8 @@ public class UpdateHelper {
      * @return True if an update is available; false otherwise.
      */
     public Boolean isAvailable() {
+        if(!isOnline()) { return Boolean.FALSE; }
+
         final Release current = readCurrentRelease();
         logger.debug(current);
         final Release latest = readLatestRelease();
@@ -90,6 +92,13 @@ public class UpdateHelper {
         properties.setProperty("parity.image.name", release.getVersion());
         platform.restart(properties);
     }
+
+    /**
+     * Determine if the user has online capability.
+     * 
+     * @return True if the user has online capability.
+     */
+    private Boolean isOnline() { return platform.isOnline(); }
 
     /**
      * Read the current release.

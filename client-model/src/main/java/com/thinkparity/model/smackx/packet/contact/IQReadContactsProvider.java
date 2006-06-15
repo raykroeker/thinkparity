@@ -7,10 +7,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.provider.VCardProvider;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.model.log4j.ModelLoggerFactory;
@@ -87,8 +89,8 @@ public class IQReadContactsProvider implements IQProvider {
 			else if(XmlPullParser.START_TAG == eventType && "vcard".equals(name)) {
 				parser.next();
 				contactVCard = (VCard) vCardProvider.parseIQ(parser);
-				contact.setFirstName(contactVCard.getFirstName());
-				contact.setLastName(contactVCard.getLastName());
+                contact.setEmail(contactVCard.getEmailWork());
+				contact.setName(contactVCard.getFirstName(), contactVCard.getLastName());
 				contact.setOrganization(contactVCard.getOrganization());
 			}
 			else if(XmlPullParser.END_TAG == eventType && "contact".equals(name)) {

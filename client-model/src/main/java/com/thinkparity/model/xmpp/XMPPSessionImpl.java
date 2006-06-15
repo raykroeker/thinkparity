@@ -546,8 +546,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 				userVCard.getJabberId().equals(getJabberId()));
 
 		final VCard vCard = new VCard();
-		vCard.setFirstName(userVCard.getFirstName());
-		vCard.setLastName(userVCard.getLastName());
+		vCard.setFirstName(userVCard.getName());
+		vCard.setLastName(userVCard.getName());
 		vCard.setOrganization(userVCard.getOrganization());
 		vCard.setType(IQ.Type.SET);
 		sendAndConfirmPacket(vCard);
@@ -665,16 +665,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *      java.lang.String, java.lang.String)
      * 
      */
-    public void updateCurrentUser(final String firstName,
-            final String lastName, final String organization)
-            throws SmackException {
+    public void updateCurrentUser(final String name, final String email,
+            final String organization) throws SmackException {
         assertLoggedIn("[LMODEL] [XMPP] [UPDATE CURRENT USER] [NO SESSION]");
         final String qualifiedJabberId = smackXMPPConnection.getUser();
         final JabberId jabberId =
             JabberIdBuilder.parseQualifiedJabberId(qualifiedJabberId);
         final UserVCard vCard = xmppUser.readVCard(jabberId);
-        vCard.setFirstName(firstName);
-        vCard.setLastName(lastName);
+        vCard.setName(name);
+        vCard.setEmail(email);
         vCard.setOrganization(organization);
         xmppUser.updateVCard(jabberId, vCard);
     }

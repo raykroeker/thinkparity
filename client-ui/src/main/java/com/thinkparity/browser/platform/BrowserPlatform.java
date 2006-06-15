@@ -21,7 +21,8 @@ import com.thinkparity.browser.platform.application.ApplicationFactory;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.browser.platform.application.window.WindowRegistry;
-import com.thinkparity.browser.platform.login.LoginHelper;
+import com.thinkparity.browser.platform.firstrun.FirstRunHelper;
+import com.thinkparity.browser.platform.online.OnlineHelper;
 import com.thinkparity.browser.platform.update.UpdateHelper;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.profile.Profile;
@@ -65,16 +66,10 @@ public class BrowserPlatform implements Platform {
 	 */
 	private final AvatarRegistry avatarRegistry;
 
-    /**
-	 * The platform's login helper.
-	 * 
-	 */
-	private final LoginHelper loginHelper;
+    /** The platform's first run helper. */
+    private final FirstRunHelper firstRunHelper;
 
-	/**
-	 * The parity model factory.
-	 * 
-	 */
+	/** The parity model factory. */
 	private final ModelFactory modelFactory;
 
 	/**
@@ -88,6 +83,9 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	private final Preferences preferences;
+
+    /** The platform online helper. */
+    private final OnlineHelper onlineHelper;
 
 	/** The platform update helper. */
     private final UpdateHelper updateHelper;
@@ -111,8 +109,10 @@ public class BrowserPlatform implements Platform {
 		this.preferences = modelFactory.getPreferences(getClass());
 
 		this.logger = LoggerFactory.getLogger(getClass());
-		this.loginHelper = new LoginHelper(this);
 		this.persistence = new BrowserPlatformPersistence(this);
+
+        this.firstRunHelper = new FirstRunHelper(this);
+        this.onlineHelper = new OnlineHelper(this);
         this.updateHelper = new UpdateHelper(this);
 	}
 
@@ -132,11 +132,6 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public AvatarRegistry getAvatarRegistry() { return avatarRegistry; }
-
-	public Connection getConnectionStatus() {
-        if(isLoggedIn()) { return Connection.ONLINE; }
-        else { return Connection.OFFLINE; }
-    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.Platform#getLogger(java.lang.Class)
@@ -182,9 +177,6 @@ public class BrowserPlatform implements Platform {
 
 	/** @see com.thinkparity.browser.platform.Platform#isDevelopmentMode() */
 	public Boolean isDevelopmentMode() { return Version.getMode() == Mode.DEVELOPMENT; }
-
-	/** @see com.thinkparity.browser.platform.Platform#isOnline() */
-    public Boolean isOnline() { return isLoggedIn(); }
 
 	/** @see com.thinkparity.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
@@ -283,11 +275,18 @@ public class BrowserPlatform implements Platform {
         logger.info(getLogId("[START]"));
         if(isUpdateAvailable()) { update(); }
         else {
-            if(!isFirstRun()) { firstRun(); }
-    	    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
-    	    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
-            // login after the browser is launched
-            if(!isLoggedIn()) { login(); }
+            if(isFirstRun()) {
+                if(firstRun()) {
+                    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
+                    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
+                    ApplicationFactory.create(this, ApplicationId.SESSION).start(this);
+                }
+            }
+            else {
+                ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
+                ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
+                ApplicationFactory.create(this, ApplicationId.SESSION).start(this);
+            }
         }
 	}
 
@@ -298,24 +297,14 @@ public class BrowserPlatform implements Platform {
     }
 
     /** Perform first run initialization. */
-    private void firstRun() {
-        login();
-        if(!isLoggedIn()) { System.exit(0); }
-    }
+    private Boolean firstRun() { return firstRunHelper.firstRun(); }
 
 	/**
      * Determine if this is the first time the platform has been run.
      *
      * @return True if this is the first run of the platform.
      */
-    private Boolean isFirstRun() { return null != preferences.getLastRun(); }
-
-    /**
-	 * Determine whether or not the user is logged in.
-	 * 
-	 * @return True if the user is logged in false otherwise.
-	 */
-	private Boolean isLoggedIn() { return loginHelper.isLoggedIn(); }
+    private Boolean isFirstRun() { return firstRunHelper.isFirstRun(); }
 
     /**
      * Determine whether or not an update is available.
@@ -324,10 +313,6 @@ public class BrowserPlatform implements Platform {
      */
     private Boolean isUpdateAvailable() { return updateHelper.isAvailable(); }
 
-    /**
-	 * Check if the user has set auto-login. If so; attempt an auto-login;
-	 * otherwise attempt a manual login until the user cancels.
-	 * 
-	 */
-	private void login() { loginHelper.login(); }
+    /** @see com.thinkparity.browser.platform.Platform#isOnline() */
+    public Boolean isOnline() { return onlineHelper.isOnline(); }
 }

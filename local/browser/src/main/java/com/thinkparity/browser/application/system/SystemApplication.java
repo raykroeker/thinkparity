@@ -1,5 +1,6 @@
 /*
- * Mar 17, 2006
+ * Created On:  Mar 17, 2006
+ * $Id$
  */
 package com.thinkparity.browser.application.system;
 
@@ -11,6 +12,7 @@ import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.system.tray.TrayNotification;
 import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.Platform;
+import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.ActionRegistry;
@@ -29,7 +31,7 @@ import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class SystemApplication extends AbstractApplication {
 
@@ -41,6 +43,9 @@ public class SystemApplication extends AbstractApplication {
 
 	/** The application registry. */
     private final ApplicationRegistry applicationRegistry;
+
+	/** The system application's connection. */
+    private Connection connection;
 
 	/** The event dispatcher. */
 	private EventDispatcher ed;
@@ -73,7 +78,7 @@ public class SystemApplication extends AbstractApplication {
         return getPlatform().getPersistence().doAutoLogin();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#end(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -88,6 +93,9 @@ public class SystemApplication extends AbstractApplication {
 
 		notifyEnd();
 	}
+
+	/** @see com.thinkparity.browser.platform.application.Application#getConnection() */
+    public Connection getConnection() { return connection; }
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.Application#getId()
@@ -127,7 +135,7 @@ public class SystemApplication extends AbstractApplication {
 		notifyHibernate();
 	}
 
-	/**
+    /**
      * Determine whether or not the browser is running.
      * 
      * @return True if the browser is running false otherwise.
@@ -238,6 +246,9 @@ public class SystemApplication extends AbstractApplication {
 	public void start(final Platform platform) {
 		logger.info("[BROWSER2] [APP] [SYS] [START]");
 
+        connection = getSessionModel().isLoggedIn() ?
+                Connection.ONLINE : Connection.OFFLINE;
+
 		impl = new SystemApplicationImpl(this);
 		impl.start();
 
@@ -246,6 +257,18 @@ public class SystemApplication extends AbstractApplication {
 
 		notifyStart();
 	}
+
+    /** Notify the connection is offline. */
+    void fireConnectionOffline() {
+        connection = Connection.OFFLINE;
+        impl.reloadConnectionStatus(connection);
+    }
+
+    /** Notify the connection is online. */
+    void fireConnectionOnline() {
+        connection = Connection.ONLINE;
+        impl.reloadConnectionStatus(connection);
+    }
 
     /**
      * Notify a document key has been closed.
@@ -258,7 +281,6 @@ public class SystemApplication extends AbstractApplication {
                 "Notification.DocumentClosedMessage",
                 new Object[] {document.getName()}));
     }
-
     /**
      * Notify a document key has created.
      * 
@@ -296,6 +318,7 @@ public class SystemApplication extends AbstractApplication {
                 "Notification.DocumentKeyRequestDeclinedMessage",
                 new Object[] {getName(user), document.getName()}));
     }
+
     /**
      * Notify a document key has been requested.
      * 
@@ -332,16 +355,6 @@ public class SystemApplication extends AbstractApplication {
         fireNotification(getString(
                 "Notification.DocumentUpdatedMessage",
                 new Object[] {document.getName()}));
-    }
-
-    /** Notify the session has been established. */
-    void fireSessionEstablished() {
-        impl.reloadConnectionStatus(Platform.Connection.ONLINE);
-    }
-
-    /** Notify the session has been terminated. */
-    void fireSessionTerminated() {
-        impl.reloadConnectionStatus(Platform.Connection.OFFLINE);
     }
 
     /**

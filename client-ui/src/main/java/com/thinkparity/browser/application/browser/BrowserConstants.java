@@ -7,8 +7,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 
-import com.thinkparity.browser.platform.util.FontIOUtil;
-
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -51,22 +49,24 @@ public final class BrowserConstants {
     /** Browser Fonts */
     public static final class Fonts {
 
-        private static final String FONT_NAME = "Lucida Grande.ttf";
+        /** The font family name. */
+        private static final String FONT_NAME = "Tahoma";
 
         /** The default font. */
         public static final Font DefaultFont =
-            FontIOUtil.derive(FONT_NAME, 11.0F);
+            new Font(FONT_NAME, Font.PLAIN, 11);
 
         /** The default bold font. */
         public static final Font DefaultFontBold =
-            FontIOUtil.derive(FONT_NAME, 11.0F, Font.BOLD);
+            new Font(FONT_NAME, Font.BOLD, 11);
 
         /** The small font. */
         public static final Font SmallFont =
-            FontIOUtil.derive(FONT_NAME, 10.0F);
+            new Font(FONT_NAME, Font.PLAIN, 10);
 
         /** The status bar font. */
         public static final Font StatusBar =
-            FontIOUtil.derive(FONT_NAME, 11.0F);
+            new Font(FONT_NAME, Font.PLAIN, 11);
+
     }
 }

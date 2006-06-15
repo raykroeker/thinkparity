@@ -131,4 +131,11 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	public void sendDelete(final Long artifactId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().sendDelete(artifactId); }
 	}
+
+    public void updateUser(final String name, final String email,
+            final String organization) throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().updateUser(name, email, organization);
+        }
+    }
 }

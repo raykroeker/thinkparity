@@ -140,12 +140,6 @@ public class ActionFactory {
     private AbstractAction doCreateAction(final ActionId actionId, final Platform platform) {
         final AbstractAction action;
         switch(actionId) {
-        case PLATFORM_LOGIN:
-            action = new com.thinkparity.browser.platform.action.Login(platform);
-            break;
-        case PLATFORM_LOGOUT:
-            action = new com.thinkparity.browser.platform.action.Logout(platform);
-            break;
         case PLATFORM_QUIT:
             action = new com.thinkparity.browser.platform.action.QuitPlatform(platform);
             break;

@@ -5,7 +5,7 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.md.MetaData;
@@ -17,18 +17,37 @@ import com.thinkparity.model.parity.model.io.md.MetaData;
 abstract class AbstractIOHandler {
 
 	/**
+     * A log id.
+     * 
+     * @param io
+     *            The io category.
+     * @return The io log id.
+     */
+    protected static StringBuffer getIOId(final String io) {
+        return new StringBuffer("[LMODEL] [IO] ").append(io);
+    }
+
+	/**
 	 * An apache logger.
 	 * 
 	 */
 	protected final Logger logger;
 
-	/**
-	 * The meta data io. Since the IO handler is an abstract io handler; it is
-	 * obtained using a lazy create pattern.
-	 * 
-	 * @see #getMetaDataIO()
-	 */
-	private MetaDataIOHandler metaDataIO;
+    /**
+     * The configuration io. Since the IO handler is an abstract io handler; it is
+     * obtained using a lazy create pattern.
+     * 
+     * @see #getConfigurationIO()
+     */
+    private ConfigurationIOHandler configurationIO;
+
+    /**
+     * The meta data io. Since the IO handler is an abstract io handler; it is
+     * obtained using a lazy create pattern.
+     * 
+     * @see #getMetaDataIO()
+     */
+    private MetaDataIOHandler metaDataIO;
 
 	/**
 	 * Create a AbstractIOHandler.
@@ -36,7 +55,7 @@ abstract class AbstractIOHandler {
 	 */
 	protected AbstractIOHandler() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	/**
@@ -55,17 +74,29 @@ abstract class AbstractIOHandler {
 		return metaData;
 	}
 
-	/**
-	 * Obtain the meta data io handler.
-	 * 
-	 * @return The meta data io handler.
-	 */
-	protected MetaDataIOHandler getMetaDataIO() {
-		if(null == metaDataIO) {
-			metaDataIO = new MetaDataIOHandler();
-		}
-		return metaDataIO;
-	}
+    /**
+     * Obtain the meta data io handler.
+     * 
+     * @return The meta data io handler.
+     */
+    protected ConfigurationIOHandler getConfigurationIO() {
+        if(null == configurationIO) {
+            configurationIO = new ConfigurationIOHandler();
+        }
+        return configurationIO;
+    }
+
+    /**
+     * Obtain the meta data io handler.
+     * 
+     * @return The meta data io handler.
+     */
+    protected MetaDataIOHandler getMetaDataIO() {
+        if(null == metaDataIO) {
+            metaDataIO = new MetaDataIOHandler();
+        }
+        return metaDataIO;
+    }
 
     /**
 	 * Open a database session.

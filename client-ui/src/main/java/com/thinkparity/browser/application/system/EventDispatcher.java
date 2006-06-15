@@ -116,13 +116,13 @@ class EventDispatcher {
     private SessionListener createSessionListener() {
         return new SessionListener() {
             public void sessionEstablished() {
-                systemApplication.fireSessionEstablished();
+                systemApplication.fireConnectionOnline();
             }
             public void sessionTerminated() {
-                systemApplication.fireSessionTerminated();
+                systemApplication.fireConnectionOffline();
             }
             public void sessionTerminated(final Throwable t) {
-                systemApplication.fireSessionTerminated();
+                sessionTerminated();
             }
         };
     }

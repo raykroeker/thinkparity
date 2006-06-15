@@ -10,6 +10,7 @@ import java.awt.Toolkit;
 
 import com.thinkparity.browser.javax.swing.AbstractJDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.browser.platform.application.window.WindowBorder;
 
 /**
  *
@@ -21,13 +22,9 @@ class ProfileManagerDialog extends AbstractJDialog {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    /** A border registry. */
-    private final BorderRegistry borderRegistry;
-
     /** Create ProfileManagerDialog. */
     ProfileManagerDialog(final ProfileManagerWindow window) {
         super(window, Boolean.TRUE, "ProfileManagerDialog");
-        this.borderRegistry = new BorderRegistry();
         setUndecorated(true);
     }
 
@@ -67,7 +64,7 @@ class ProfileManagerDialog extends AbstractJDialog {
      *            The profile manager avatar.
      */
     void open(final String title, final Avatar avatar) {
-        getRootPane().setBorder(borderRegistry.get(avatar.getClass()));
+        getRootPane().setBorder(new WindowBorder());
         add(avatar);
         pack();
         avatar.reload();

@@ -88,6 +88,13 @@ public abstract class IOFactory {
 	public abstract AuditIOHandler createAuditHandler();
 
 	/**
+     * Create a configuration io handler.
+     * 
+     * @return A configuration io handler.
+     */
+    public abstract ConfigurationIOHandler createConfigurationHandler();
+
+    /**
 	 * Create a document io handler.
 	 * 
 	 * @return The document io handler.
@@ -101,14 +108,14 @@ public abstract class IOFactory {
 	 */
 	public abstract DocumentHistoryIOHandler createDocumentHistoryIOHandler();
 
-    /**
+	/**
      * Create a library io handler.
      * 
      * @return A library io handler.
      */
     public abstract LibraryIOHandler createLibraryHandler();
 
-	/**
+    /**
      * Create a release io handler.
      * 
      * @return A release io handler.

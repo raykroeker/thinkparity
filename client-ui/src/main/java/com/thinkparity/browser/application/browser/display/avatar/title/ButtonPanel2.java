@@ -102,7 +102,7 @@ public class ButtonPanel2 extends AbstractJPanel {
         };
         initComponents();
 
-        reloadConnectionStatus(getBrowser().getConnectionStatus());
+        reloadConnectionStatus(getBrowser().getConnection());
     }
 
     /**

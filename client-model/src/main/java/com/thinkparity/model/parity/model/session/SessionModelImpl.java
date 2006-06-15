@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -39,13 +38,6 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1
  */
 class SessionModelImpl extends AbstractModelImpl {
-
-	/**
-	 * Assertion used to compare the username provided with the username in
-	 * the preferences.
-	 */
-	private static final String ASSERT_USERNAME_EQUALS_PREFS =
-		"The username supplied \"{0}\" does not match the preferences \"{1}\".";
 
 	/**
 	 * List of all of the registered parity key listeners.
@@ -327,6 +319,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		iDModel.removeTeamMember(d.getId(), teamMember.getId());
 	}
 
+	private static StringBuffer getApiId(final String api) {
+        return getModelId("SESSION").append(" ").append(api);
+    }
+
+    private static StringBuffer getErrorId(final String api, final String error) {
+        return getApiId(api).append(" ").append(error);
+    }
+
 	/**
 	 * Fire the keyRequestDeclined event for all key listeners.
 	 * 
@@ -346,7 +346,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	private final SessionModelAuditor auditor;
 
-	/**
+    /**
 	 * Create a SessionModelImpl
 	 * 
 	 * @param workspace
@@ -410,7 +410,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Add a session listener to the session.
 	 * 
 	 * @param sessionListener
@@ -424,7 +424,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		sessionListeners.add(sessionListener);
 	}
 
-    /**
+	/**
 	 * Send an artifact received confirmation receipt.
 	 * 
 	 * @param receivedFrom
@@ -445,6 +445,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	        xmppHelper.confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
 	    }
 	}
+
 
 	/**
 	 * Decline a user's invitation to their contact list.
@@ -467,7 +468,6 @@ class SessionModelImpl extends AbstractModelImpl {
 			}
 		}
 	}
-
 
 	/**
 	 * Obtain the artifact key holder.
@@ -586,49 +586,55 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
+    /**
+     * Establish a new xmpp session.
+     * 
+     * @throws ParityException
+     */
+    void login() throws ParityException {
+        logger.info(getApiId("[LOGIN]"));
+        login(readCredentials());
+    }
+
 	/**
 	 * Establish a new xmpp session.
 	 * 
-	 * @param username
-	 *            The login.
-	 * @param password
-	 *            The login password.
+	 * @param credentials
+	 *            The user's credentials.
 	 * @throws ParityException
 	 */
-	void login(final String username, final String password) throws ParityException {
-		logger.info("[LMODEL] [SESSION] [LOGIN]");
-		logger.debug(username);
-		logger.debug(mask(password));
+	void login(final Credentials credentials) throws ParityException {
+		logger.info(getApiId("[LOGIN]"));
+		logger.debug(credentials);
+        assertNotIsOnline(getErrorId("[LOGIN]", "[USER ALREADY ONLINE]").toString());
 		final String host = preferences.getServerHost();
 		final Integer port = preferences.getServerPort();
 		synchronized(xmppHelperLock) {
 			try {
-				// check that the preferences username matches the username
-				// supplied
-				if(preferences.isSetUsername()) {
+				// check that the user's credentials match
+                final Credentials storedCredentials = readCredentials();
+				if(null != storedCredentials) {
 					Assert.assertTrue(
-							formatAssertUsernameEqualsPreferences(username),
-							username.equals(preferences.getUsername()));
+							getErrorId("[LOGIN]", "[CANNOT MATCH USER CREDENTIALS]").toString(),
+							storedCredentials.equals(credentials));
 				}
 				// login
-				xmppHelper.login(host, port, username, password);
-				// set the username@host in the preferences
-				if(!preferences.isSetUsername()) {
-					preferences.setUsername(username);
-                    getInternalUserModel().create(xmppHelper.getUser().getId());
-				}
+				xmppHelper.login(host, port, credentials.getUsername(), credentials.getPassword());
+
+                // save the user's credentials
+				if(null == storedCredentials) {
+                    createCredentials(
+                            credentials.getUsername(), credentials.getPassword());
+                }
+
 				xmppHelper.processOfflineQueue();
 			}
 			catch(final SmackException sx) {
 				logger.error("[LMODEL] [SESSION] [LOGIN] [XMPP ERROR])", sx);
-                logger.error(username);
-                logger.error(mask(password));
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(final RuntimeException rx) {
 				logger.error("[LMODEL] [SESSION] [LOGIN] [UNKNOWN ERROR])", rx);
-                logger.error(username);
-                logger.error(mask(password));
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -695,7 +701,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		return proxy(readUser(currentUserId()));
 	}
 
-	/**
+    /**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -730,7 +736,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		return readUsers(jabberIds).iterator().next();
 	}
 
-    /**
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -1131,7 +1137,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Subscribe to a document. The parity server is notified and will create a
 	 * subscription entry for the logged in user.
 	 * 
@@ -1156,19 +1162,51 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
-	 * Assert that the user is currently logged in.
-	 * 
-	 * @param message
-	 *            Message to display in the assertion.
-	 * @param xmppHelper
-	 *            A handle to the xmpp helper in order to determine logged in
-	 *            status.
-	 */
-	private void assertIsLoggedIn(final String message,
-			final SessionModelXMPPHelper xmppHelper) {
-		Assert.assertTrue(message + " [NOT LOGGED IN]", xmppHelper.isLoggedIn());
-	}
+    void updateUser(final String name, final String email,
+            final String organization) throws ParityException {
+        logger.info(getApiId("[UPDATE USER]"));
+        logger.debug(name);
+        logger.debug(email);
+        logger.debug(organization);
+        synchronized(SessionModelImpl.xmppHelperLock) {
+            assertIsLoggedIn(getApiId("[UPDATE USER]"), SessionModelImpl.xmppHelper);
+            try {
+                SessionModelImpl.xmppHelper.updateUser(name, email, organization);
+            }
+            catch(final SmackException sx) {
+                logger.error(getErrorId("[UPDATE USER]", "[SMACK ERROR]"), sx);
+                throw ParityErrorTranslator.translate(sx);
+            }
+        }
+    }
+
+    /**
+     * Assert that the user is currently logged in.
+     * 
+     * @param message
+     *            Message to display in the assertion.
+     * @param xmppHelper
+     *            A handle to the xmpp helper in order to determine logged in
+     *            status.
+     */
+    private void assertIsLoggedIn(final String message,
+            final SessionModelXMPPHelper xmppHelper) {
+        Assert.assertTrue(message + " [NOT LOGGED IN]", xmppHelper.isLoggedIn());
+    }
+
+    /**
+     * Assert that the user is currently logged in.
+     * 
+     * @param message
+     *            Message to display in the assertion.
+     * @param xmppHelper
+     *            A handle to the xmpp helper in order to determine logged in
+     *            status.
+     */
+    private void assertIsLoggedIn(final StringBuffer message,
+            final SessionModelXMPPHelper xmppHelper) {
+        assertIsLoggedIn(message.toString(), xmppHelper);
+    }
 
 	/**
      * Extract a set of jabber ids from the list of users.
@@ -1183,35 +1221,14 @@ class SessionModelImpl extends AbstractModelImpl {
         return jabberIds;
     }
 
-	/**
-	 * Create an asssertion message.
-	 * 
-	 * @param username
-	 *            The username.
-	 * @return The assertion message.
-	 */
-	private String formatAssertUsernameEqualsPreferences(final String username) {
-		final MessageFormat f = new MessageFormat(ASSERT_USERNAME_EQUALS_PREFS);
-		return f.format(new Object[] {username, preferences.getUsername()});
-	}
-
-	/**
-	 * Mask the password for logging statements.
-	 * 
-	 * @param password
-	 *            The password.
-	 * @return The password mask.
-	 */
-	private String mask(final String password) { return "XXXXXXXXXX"; }
-
     /**
 	 * @deprecated
 	 */
 	private Contact proxy(final User user) {
 		final Contact contact = new Contact();
-		contact.setFirstName(user.getFirstName());
+        contact.setEmail(user.getEmail());
+		contact.setName(user.getName());
 		contact.setId(user.getId());
-		contact.setLastName(user.getLastName());
 		contact.setOrganization(user.getOrganization());
 		return contact;
 	}

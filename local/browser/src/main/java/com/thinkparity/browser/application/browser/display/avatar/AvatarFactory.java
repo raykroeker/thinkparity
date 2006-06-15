@@ -1,5 +1,6 @@
 /*
- * Jan 20, 2006
+ * Created On: Jan 20, 2006
+ * $Id$
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
@@ -11,13 +12,12 @@ import com.thinkparity.browser.application.browser.display.avatar.session.Sessio
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.browser.platform.login.ui.LoginAvatar;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class AvatarFactory {
 
@@ -118,16 +118,6 @@ public class AvatarFactory {
         return new RenameDialog();
     }
 
-	/**
-	 * Create the platform login avatar.
-	 * 
-	 * @return The platform login avatar.
-	 */
-	private Avatar createPlatformLogin() {
-		final Avatar platformLogin = new LoginAvatar();
-		return platformLogin;
-	}
-
 	private Avatar createSendVersion() {
 		final Avatar avatar = new SessionSendVersion();
 		avatar.setContentProvider(ProviderFactory.getSendVersionProvider());
@@ -213,9 +203,6 @@ public class AvatarFactory {
         case RENAME_DIALOGUE:
             avatar = createRenameDialogue();
             break;
-		case PLATFORM_LOGIN:
-			avatar = createPlatformLogin();
-			break;
 		case SESSION_INVITE_PARTNER:
 			avatar = createSessionInvitePartner();
 			break;

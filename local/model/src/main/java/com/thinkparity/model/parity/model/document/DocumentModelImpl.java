@@ -156,47 +156,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Add a user to the document team.  This will iterate all
-     * versions of a document and send them to a user.
-     *
-     * @param documentId
-     *      The document id.
-     * @param teamMember
-     *      The user id to add.
-     */
-    void share(final Long documentId, final JabberId teamMember)
-            throws ParityException {
-        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
-        logger.debug(documentId);
-        logger.debug(teamMember);
-        assertOnline("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [NOT ONLINE]");
-
-        // the user is not yet a team member; hence the user info must come
-        // from the session model and not the user model
-        final User user = getInternalSessionModel().readUser(teamMember);
-        final Set<User> teamUsers = getInternalArtifactModel().readTeam(documentId);
-        Assert.assertNotTrue(
-                "[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [USER ALREADY TEAM MEMBER]",
-                teamUsers.contains(user));
-
-        // save the new team member locally index
-        getInternalArtifactModel().addTeamMember(documentId, teamMember);
-
-        // update index
-        updateIndex(documentId);
-
-        // audit
-        auditor.addTeamMember(
-                documentId, currentUserId(), currentDateTime(), teamMember);
-
-        // send latest version
-        final DocumentVersion latestVersion = readLatestVersion(documentId);
-        final Set<User> users = new HashSet<User>();
-        users.add(user);
-        getInternalSessionModel().send(users, documentId, latestVersion.getVersionId());
-    }
-
-    /**
      * Add a team member to the document.
      * 
      * @param documentId
@@ -246,7 +205,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return archive(documentId, ProgressIndicator.emptyIndicator());
 	}
 
-	/**
+    /**
 	 * 
 	 * @param documentId
 	 * @param progressIndicator
@@ -290,7 +249,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
 
-    /**
+	/**
 	 * Close a document.  Execute one of two close scenarios; audit the closure
      * then fire a close event.
      *
@@ -347,7 +306,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 getVersion(documentId, versionId), remoteEventGen);
     }
 
-	/**
+    /**
 	 * Import a document. This will take a name, description and location of a
 	 * document and copy the document into an internal store, then returns the
 	 * newly created document.
@@ -368,7 +327,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(description);
 		logger.debug(file);
 		assertOnline("[LMODEL] [DOCUMENT] [CREATE] [USER IS NOT ONLINE]");
-		assertCanCreateArtifacts();
+		assertIsSetCredentials();
 		Assert.assertTrue(
 				// TODO Centralize business rules about document creation.
 				"File \"" + file.getAbsolutePath() + "\" does not exist.",
@@ -378,9 +337,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 				(file.length() <= IParityModelConstants.FILE_SIZE_UPPER_BOUNDS));
 		try {
 			final Calendar now = currentDateTime();
-			final Document document = new Document(preferences.getUsername(),
+			final Document document = new Document(readCredentials().getUsername(),
 					now, description, Collections.<ArtifactFlag>emptyList(),
-					UUIDGenerator.nextUUID(), name, preferences.getUsername(),
+					UUIDGenerator.nextUUID(), name, readCredentials().getUsername(),
 					now);
 			document.setState(ArtifactState.ACTIVE);
 			final byte[] contentBytes = FileUtil.readBytes(file);
@@ -496,7 +455,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 			versionLocalFile.lock();
 
 			// update the document updated by\on
-			document.setUpdatedBy(preferences.getUsername());
+			document.setUpdatedBy(readCredentials().getUsername());
 			document.setUpdatedOn(currentDateTime());
 			documentIO.update(document);
 
@@ -517,7 +476,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Accept the key request.
 	 * 
 	 * @param keyRequestId
@@ -527,7 +486,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		getInternalArtifactModel().declineKeyRequest(keyRequestId);
 	}
 
-	/**
+    /**
 	 * Delete a document.
 	 * 
 	 * @param documentId
@@ -554,7 +513,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		notifyDocumentDeleted(null, localEventGen);
 	}
 
-    /**
+	/**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param id
@@ -572,7 +531,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain a document with the specified unique id.
 	 * 
 	 * @param documentUniqueId
@@ -800,7 +759,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 readUser(declinedBy), get(documentId), remoteEventGen);
     }
 
-    /**
+	/**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -814,7 +773,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return list(defaultComparator);
 	}
 
-	/**
+    /**
 	 * Obtain a list of sorted documents.
 	 * 
 	 * @param comparator
@@ -1138,7 +1097,11 @@ class DocumentModelImpl extends AbstractModelImpl {
                 iAModel.confirmReceipt(receivedFrom, document.getId(), versionId);
 
                 // fire event
-				notifyDocumentCreated(document, remoteEventGen);
+                {
+                    final User receivedFromUser =
+                        getInternalUserModel().read(receivedFrom);
+                    notifyDocumentCreated(receivedFromUser, document, remoteEventGen);
+                }
 			}
 			else {
 				final DocumentVersion version =
@@ -1197,7 +1160,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Remove a team member from the document.
      * 
      * @param documentId
@@ -1218,7 +1181,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         updateIndex(documentId);
     }
 
-	/**
+    /**
      * Rename a document.
      *
      * @param documentId
@@ -1274,7 +1237,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 originalName,documentName);
     }
 
-    void requestKey(final Long documentId, final JabberId requestedBy)
+	void requestKey(final Long documentId, final JabberId requestedBy)
 			throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [REQUEST KEY]");
 		logger.debug(documentId);
@@ -1291,6 +1254,47 @@ class DocumentModelImpl extends AbstractModelImpl {
         // fire event
         notifyKeyRequested(readUser(requestedBy), d, remoteEventGen);
 	}
+
+    /**
+     * Add a user to the document team.  This will iterate all
+     * versions of a document and send them to a user.
+     *
+     * @param documentId
+     *      The document id.
+     * @param teamMember
+     *      The user id to add.
+     */
+    void share(final Long documentId, final JabberId teamMember)
+            throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
+        logger.debug(documentId);
+        logger.debug(teamMember);
+        assertOnline("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [NOT ONLINE]");
+
+        // the user is not yet a team member; hence the user info must come
+        // from the session model and not the user model
+        final User user = getInternalSessionModel().readUser(teamMember);
+        final Set<User> teamUsers = getInternalArtifactModel().readTeam(documentId);
+        Assert.assertNotTrue(
+                "[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [USER ALREADY TEAM MEMBER]",
+                teamUsers.contains(user));
+
+        // save the new team member locally index
+        getInternalArtifactModel().addTeamMember(documentId, teamMember);
+
+        // update index
+        updateIndex(documentId);
+
+        // audit
+        auditor.addTeamMember(
+                documentId, currentUserId(), currentDateTime(), teamMember);
+
+        // send latest version
+        final DocumentVersion latestVersion = readLatestVersion(documentId);
+        final Set<User> users = new HashSet<User>();
+        users.add(user);
+        getInternalSessionModel().send(users, documentId, latestVersion.getVersionId());
+    }
 
     /**
 	 * Unlock a document.
@@ -1639,6 +1643,25 @@ class DocumentModelImpl extends AbstractModelImpl {
 			}
 		}
 	}
+
+    /**
+     * Fire document created.
+     * 
+     * @param user
+     *            A user.
+     * @param document
+     *            A document.
+     * @param eventGen
+     *            An event generator.
+     */
+    private void notifyDocumentCreated(final User user,
+            final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(DocumentModelImpl.LISTENERS) {
+            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
+                l.documentCreated(eventGen.generate(user, document));
+            }
+        }
+    }
 
     /**
 	 * Fire document deleted.

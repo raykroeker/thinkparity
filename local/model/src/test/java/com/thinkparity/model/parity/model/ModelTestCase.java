@@ -231,8 +231,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	protected void login() {
 		final ModelTestUser modelTestUser = getModelTestUser();
 		try {
-			getSessionModel().login(
-					modelTestUser.getUsername(), modelTestUser.getPassword());
+			getSessionModel().login(modelTestUser.getCredentials());
 		}
 		catch(final ParityException px) { throw new RuntimeException(px); }
 	}

@@ -298,8 +298,6 @@ public class BrowserInfoAvatar extends Avatar {
             reloadTimer.setRepeats(false);
             reloadTimer.start();
         }
-        else if(isTestMode()) {
-            infoJLabel.setText(ModelUtil.getName(readLocalUser()));
-        }
+        else { infoJLabel.setText(ModelUtil.getName(readLocalUser())); }
 	}
 }

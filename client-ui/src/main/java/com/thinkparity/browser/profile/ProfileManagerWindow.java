@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import com.thinkparity.browser.javax.swing.AbstractJFrame;
 import com.thinkparity.browser.javax.swing.Swing.Constants.Images;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.browser.platform.application.window.WindowBorder;
 
 /**
  *
@@ -24,13 +25,9 @@ class ProfileManagerWindow extends AbstractJFrame {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    /** A border registry. */
-    private final BorderRegistry borderRegistry;
-
     /** Create ProfileManagerWindow. */
     ProfileManagerWindow() {
         super("ProfileManagerWindow");
-        this.borderRegistry = new BorderRegistry();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setIconImage(Images.WINDOW_ICON_IMAGE);
         setResizable(false);
@@ -65,7 +62,7 @@ class ProfileManagerWindow extends AbstractJFrame {
      *            The profile manager avatar.
      */
     void open(final String title, final Avatar avatar) {
-        getRootPane().setBorder(borderRegistry.get(avatar.getClass()));
+        getRootPane().setBorder(new WindowBorder());
         setTitle(title);
         add(avatar);
         pack();

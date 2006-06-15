@@ -17,24 +17,6 @@ import com.thinkparity.model.parity.model.ModelTestCase;
 public class LoginTest extends ModelTestCase {
 
 	/**
-	 * Test data fixture.
-	 * 
-	 * @see LoginTest#setUp()
-	 * @see LoginTest#tearDown()
-	 */
-	private class Fixture {
-		private final String password;
-		private final SessionModel sessionModel;
-		private final String username;
-		private Fixture(final String password,
-				final SessionModel sessionModel, final String username) {
-			this.password = password;
-			this.sessionModel = sessionModel;
-			this.username = username;
-		}
-	}
-
-	/**
 	 * Test data.
 	 */
 	private Vector<Fixture> data;
@@ -50,7 +32,7 @@ public class LoginTest extends ModelTestCase {
 	public void testLogin() {
 		try {
 			for(Fixture datum : data) {
-				datum.sessionModel.login(datum.username, datum.password);
+				datum.sessionModel.login(datum.credentials);
 			
 				assertTrue(datum.sessionModel.isLoggedIn());
 				datum.sessionModel.logout();
@@ -67,8 +49,7 @@ public class LoginTest extends ModelTestCase {
 		final SessionModel sessionModel = getSessionModel();
 		final ModelTestUser testUser = getModelTestUser();
 		data = new Vector<Fixture>(1);
-		data.add(new Fixture(
-				testUser.getPassword(), sessionModel, testUser.getUsername()));
+		data.add(new Fixture(testUser.getCredentials(), sessionModel));
 	}
 
 	/**
@@ -77,5 +58,21 @@ public class LoginTest extends ModelTestCase {
 	protected void tearDown() throws Exception {
 		data.clear();
 		data = null;
+	}
+
+	/**
+	 * Test data fixture.
+	 * 
+	 * @see LoginTest#setUp()
+	 * @see LoginTest#tearDown()
+	 */
+	private class Fixture {
+		private final Credentials credentials;
+		private final SessionModel sessionModel;
+		private Fixture(final Credentials credentials,
+                final SessionModel sessionModel) {
+			this.credentials = credentials;
+			this.sessionModel = sessionModel;
+		}
 	}
 }

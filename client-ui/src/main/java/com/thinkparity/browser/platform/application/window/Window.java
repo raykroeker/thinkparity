@@ -26,9 +26,6 @@ public abstract class Window extends AbstractJDialog {
 	/** The panel onto which all displays are dropped. */
 	protected WindowPanel windowPanel;
 
-    /** A lookup for window borders. */
-	private final WindowBorder windowBorder;
-
 	/** A lookup for window sizes. */
 	private final WindowSize windowSize;
 
@@ -45,7 +42,6 @@ public abstract class Window extends AbstractJDialog {
 	public Window(final AbstractJFrame owner, final Boolean modal,
             final String l18nContext) {
         super(owner, modal, l18nContext);
-        this.windowBorder = new WindowBorder();
         this.windowSize = new WindowSize();
         setTitle(getString("Title"));
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -69,7 +65,7 @@ public abstract class Window extends AbstractJDialog {
         initComponents(avatar);
         debugGeometry();
         debugLookAndFeel();
-        getRootPane().setBorder(windowBorder.get(avatar.getId()));
+        getRootPane().setBorder(new WindowBorder());
         setSize(windowSize.get(avatar.getId()));
         setLocation(calculateLocation());
         invalidate();

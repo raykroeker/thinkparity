@@ -6,13 +6,14 @@ package com.thinkparity.model.xmpp;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.packet.VCard;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.user.IQReadUsers;
 import com.thinkparity.model.smackx.packet.user.IQReadUsersProvider;
@@ -50,7 +51,7 @@ class XMPPUser {
 	 */
 	public XMPPUser(final XMPPCore xmppCore) {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = LoggerFactory.getLogger(getClass());
 		this.xmppCore = xmppCore;
 	}
 
@@ -73,9 +74,9 @@ class XMPPUser {
     User read(final JabberId jabberId) throws SmackException {
         final UserVCard vCard = readVCard(jabberId);
         final User user = new User();
-        user.setFirstName(vCard.getFirstName());
+        user.setEmail(vCard.getEmail());
+        user.setName(vCard.getName());
         user.setId(jabberId);
-        user.setLastName(vCard.getLastName());
         user.setOrganization(vCard.getOrganization());
         return user;
     }
@@ -105,9 +106,9 @@ class XMPPUser {
 			vCard.load(xmppCore.getConnection(), jabberId.getQualifiedUsername());
 
 			final UserVCard userVCard = new UserVCard();
+            userVCard.setEmail(vCard.getEmailWork());
 			userVCard.setJabberId(jabberId);
-			userVCard.setFirstName(vCard.getFirstName());
-			userVCard.setLastName(vCard.getLastName());
+            userVCard.setName(vCard.getFirstName(), vCard.getMiddleName(), vCard.getLastName());
 			userVCard.setOrganization(vCard.getOrganization());
 			return userVCard;
 		}
@@ -137,7 +138,10 @@ class XMPPUser {
             smackVCard.load(xmppCore.getConnection(), jabberId.getQualifiedUsername());
 
             smackVCard.setFirstName(vCard.getFirstName());
+            if(vCard.isSetMiddleName())
+                smackVCard.setMiddleName(vCard.getMiddleName());
             smackVCard.setLastName(vCard.getLastName());
+            smackVCard.setEmailHome(vCard.getEmail());
             smackVCard.setOrganization(vCard.getOrganization());
             smackVCard.save(xmppCore.getConnection());
         }

@@ -7,13 +7,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.provider.VCardProvider;
+
 import org.xmlpull.v1.XmlPullParser;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
@@ -42,7 +44,7 @@ public class IQReadContactsProvider implements IQProvider {
 	 */
 	public IQReadContactsProvider() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = LoggerFactory.getLogger(getClass());
 		this.vCardProvider = new VCardProvider();
 	}
 
@@ -59,7 +61,7 @@ public class IQReadContactsProvider implements IQProvider {
 		String name, namespace, prefix, text;
 		Boolean isComplete = Boolean.FALSE;
 		Contact contact = null;
-		VCard contactVCard = null;
+		VCard vCard = null;
 		while(Boolean.FALSE == isComplete) {
 			eventType = parser.next();
 			attributeCount = parser.getAttributeCount();
@@ -87,10 +89,10 @@ public class IQReadContactsProvider implements IQProvider {
 			}
 			else if(XmlPullParser.START_TAG == eventType && "vcard".equals(name)) {
 				parser.next();
-				contactVCard = (VCard) vCardProvider.parseIQ(parser);
-				contact.setFirstName(contactVCard.getFirstName());
-				contact.setLastName(contactVCard.getLastName());
-				contact.setOrganization(contactVCard.getOrganization());
+                vCard = (VCard) vCardProvider.parseIQ(parser);
+                contact.setEmail(vCard.getEmailWork());
+				contact.setName(vCard.getFirstName(), vCard.getMiddleName(), vCard.getLastName());
+				contact.setOrganization(vCard.getOrganization());
 			}
 			else if(XmlPullParser.END_TAG == eventType && "contact".equals(name)) {
 				contacts.add(contact);

@@ -149,8 +149,8 @@ class EventDispatcher {
      */
 	private SessionListener createSessionModelSessionListener() {
 		return new SessionListener() {
-			public void sessionEstablished() { browser.fireSessionEstablished(); }
-			public void sessionTerminated() { browser.fireSessionTerminated(); }
+			public void sessionEstablished() { browser.fireConnectionOnline(); }
+			public void sessionTerminated() { browser.fireConnectionOffline(); }
 			public void sessionTerminated(final Throwable cause) {
 				sessionTerminated();
 			}

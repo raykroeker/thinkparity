@@ -23,9 +23,6 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public class PopupHistoryItem implements Popup {
 
-    /** The connection status. */
-    private final Connection connection;
-
     /** The history item. */
     private final MainCellHistoryItem historyItem;
 
@@ -33,9 +30,8 @@ public class PopupHistoryItem implements Popup {
     private final PopupL18n l18n;
 
     /** Create a PopupHistoryItem. */
-    public PopupHistoryItem(final MainCellHistoryItem historyItem, final Connection connection) {
+    public PopupHistoryItem(final MainCellHistoryItem historyItem) {
         super();
-        this.connection = connection;
         this.historyItem = historyItem;
         this.l18n = new PopupL18n("HistoryListItem");
     }
@@ -45,8 +41,8 @@ public class PopupHistoryItem implements Popup {
      */
     public void trigger(final Browser application, final JPopupMenu jPopupMenu,
             final MouseEvent e) {
-        if(Connection.ONLINE == connection) { triggerOnline(application, jPopupMenu, e); }
-        else if(Connection.OFFLINE == connection) { triggerOffline(application, jPopupMenu, e); }
+        if(Connection.ONLINE == application.getConnection()) { triggerOnline(application, jPopupMenu, e); }
+        else if(Connection.OFFLINE == application.getConnection()) { triggerOffline(application, jPopupMenu, e); }
         else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [HISTORY ITEM POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]"); }
     }
 

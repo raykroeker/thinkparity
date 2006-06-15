@@ -16,7 +16,6 @@ import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.ListFactory;
 import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
-import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
@@ -165,30 +164,23 @@ class ProfileManagerAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         javax.swing.JButton deleteJButton;
-        javax.swing.JTextArea eaJTextArea;
+        javax.swing.JLabel eaJLabel;
         javax.swing.JButton exitJButton;
         javax.swing.JButton newJButton;
         javax.swing.JScrollPane profileJScrollPane;
         javax.swing.JButton renameJButton;
         javax.swing.JButton startJButton;
 
-        eaJTextArea = TextFactory.createArea(getString("EmbeddedAssistance"));
+        eaJLabel = new javax.swing.JLabel();
         profileJScrollPane = ScrollPaneFactory.create();
         profileJList = ListFactory.create();
         startJButton = ButtonFactory.create(getString("StartButton"));
         exitJButton = ButtonFactory.create(getString("ExitButton"));
-        newJButton = ButtonFactory.create(getString("NewButton"));
         renameJButton = ButtonFactory.create(getString("RenameButton"));
+        newJButton = ButtonFactory.create(getString("NewButton"));
         deleteJButton = ButtonFactory.create(getString("DeleteButton"));
 
-        eaJTextArea.setColumns(20);
-        eaJTextArea.setEditable(false);
-        eaJTextArea.setLineWrap(true);
-        eaJTextArea.setRows(5);
-        eaJTextArea.setWrapStyleWord(true);
-        eaJTextArea.setBorder(null);
-        eaJTextArea.setFocusable(false);
-        eaJTextArea.setOpaque(false);
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ProfileManagerAvatar.EmbeddedAssistance"));
 
         profileJList.setCellRenderer(new ProfileListCellRenderer());
         profileJList.setModel(profileModel);
@@ -200,30 +192,35 @@ class ProfileManagerAvatar extends Avatar {
 
         profileJScrollPane.setViewportView(profileJList);
 
+        startJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ProfileManagerAvatar.StartButton"));
         startJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 startJButtonActionPerformed(e);
             }
         });
 
+        exitJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ProfileManagerAvatar.ExitButton"));
         exitJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 exitJButtonActionPerformed(e);
             }
         });
 
-        newJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                newJButtonActionPerformed(e);
-            }
-        });
-
+        renameJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ProfileManagerAvatar.RenameButton"));
         renameJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 renameJButtonActionPerformed(e);
             }
         });
 
+        newJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ProfileManagerAvatar.NewButton"));
+        newJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                newJButtonActionPerformed(e);
+            }
+        });
+
+        deleteJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ProfileManagerAvatar.DeleteButton"));
         deleteJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 deleteJButtonActionPerformed(e);
@@ -234,47 +231,44 @@ class ProfileManagerAvatar extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(44, Short.MAX_VALUE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(newJButton)
-                    .add(renameJButton)
-                    .add(deleteJButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(profileJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 176, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(eaJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 295, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(175, Short.MAX_VALUE)
-                .add(exitJButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(startJButton)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(deleteJButton)
+                            .add(newJButton)
+                            .add(renameJButton))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(profileJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 192, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(exitJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(startJButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(eaJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 48, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                .add(eaJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 61, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(profileJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 98, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(profileJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(startJButton)
                             .add(exitJButton)))
                     .add(layout.createSequentialGroup()
-                        .add(9, 9, 9)
+                        .add(25, 25, 25)
                         .add(newJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(renameJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(deleteJButton)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 

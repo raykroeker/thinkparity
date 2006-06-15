@@ -24,21 +24,21 @@ public class UserIOHandler extends AbstractIOHandler implements
 
     private static final String SQL_CREATE_INFO =
         new StringBuffer("insert into USER_INFO ")
-        .append("(USER_ID,FIRST_NAME,LAST_NAME,ORGANIZATION) ")
+        .append("(USER_ID,NAME,EMAIL,ORGANIZATION) ")
         .append("values (?,?,?,?)")
         .toString();
 
     private static final String SQL_READ_BY_JABBER_ID =
-        new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.FIRST_NAME,")
-        .append("UI.LAST_NAME,UI.ORGANIZATION ")
+        new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.NAME,")
+        .append("UI.EMAIL,UI.ORGANIZATION ")
         .append("from USER U inner join USER_INFO UI ")
         .append("on U.USER_ID=UI.USER_ID ")
         .append("where U.JABBER_ID=?")
         .toString();
 
     private static final String SQL_READ_BY_USER_ID =
-        new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.FIRST_NAME,")
-        .append("UI.LAST_NAME,UI.ORGANIZATION ")
+        new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.NAME,")
+        .append("UI.EMAIL,UI.ORGANIZATION ")
         .append("from USER U inner join USER_INFO UI ")
         .append("on U.USER_ID=UI.USER_ID ")
         .append("where U.USER_ID=?")
@@ -63,8 +63,8 @@ public class UserIOHandler extends AbstractIOHandler implements
             final Long userId = session.getIdentity();
             session.prepareStatement(SQL_CREATE_INFO);
             session.setLong(1, userId);
-            session.setString(2, user.getFirstName());
-            session.setString(3, user.getLastName());
+            session.setString(2, user.getName());
+            session.setString(3, user.getEmail());
             session.setString(4, user.getOrganization());
             if(1 != session.executeUpdate())
                 throw new HypersonicException("");
@@ -122,10 +122,10 @@ public class UserIOHandler extends AbstractIOHandler implements
 
     /**
      * Extract a user from a database session.  The fields required are:<ul>
-     * <li>FIRST_NAME - <code>java.lang.String</code>
+     * <li>EMAIL - <code>java.lang.String</code>
      * <li>JABBER_ID - <code>com.thinkparity.model.xmpp.JabberId</code>
-     * <li>LAST_NAME - <code>java.lang.String</code>
      * <li>USER_ID - <code>java.lang.Long</code>
+     * <li>NAME - <code>java.lang.String</code>
      * <li>ORGANIZATION - <code>java.lang.String</code></ul>
      * 
      * @param session
@@ -134,12 +134,11 @@ public class UserIOHandler extends AbstractIOHandler implements
      */
     User extractUser(final Session session) {
         final User u = new User();
-        u.setFirstName(session.getString("FIRST_NAME"));
+        u.setEmail(session.getString("EMAIL"));
         u.setId(session.getQualifiedUsername("JABBER_ID"));
-        u.setLastName(session.getString("LAST_NAME"));
         u.setLocalId(session.getLong("USER_ID"));
+        u.setName(session.getString("NAME"));
         u.setOrganization(session.getString("ORGANIZATION"));
         return u;
     }
-
 }

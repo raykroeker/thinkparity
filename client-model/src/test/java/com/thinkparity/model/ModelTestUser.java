@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model;
 
+import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
@@ -55,6 +56,22 @@ public class ModelTestUser {
 		this.username = username;
 	}
 
+	public Credentials getCredentials() {
+        final Credentials credentials = new Credentials();
+        credentials.setPassword(password);
+        credentials.setUsername(username);
+        return credentials;
+    }
+
+	public JabberId getJabberId() {
+		return JabberIdBuilder.parseQualifiedJabberId(
+				new StringBuffer(username)
+				.append('@')
+				.append(serverHost)
+				.append('/')
+				.append(resource).toString());
+	}
+
 	/**
 	 * @return The password.
 	 */
@@ -81,13 +98,4 @@ public class ModelTestUser {
 	 * @return The username.
 	 */
 	public String getUsername() { return username; }
-
-	public JabberId getJabberId() {
-		return JabberIdBuilder.parseQualifiedJabberId(
-				new StringBuffer(username)
-				.append('@')
-				.append(serverHost)
-				.append('/')
-				.append(resource).toString());
-	}
 }

@@ -176,59 +176,59 @@ class RenameProfileAvatar extends Avatar {
         javax.swing.JLabel profileNameJLabel;
         javax.swing.JButton renameJButton;
 
-        eaJTextArea = TextFactory.createArea(getString("EmbeddedAssistance"));
         profileNameJLabel = LabelFactory.create(getString("ProfileNameLabel"));
         profileNameJTextField = TextFactory.create();
         renameJButton = ButtonFactory.create(getString("RenameButton"));
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
+        eaJLabel = new javax.swing.JLabel();
 
-        eaJTextArea.setColumns(20);
-        eaJTextArea.setEditable(false);
-        eaJTextArea.setLineWrap(true);
-        eaJTextArea.setRows(5);
-        eaJTextArea.setWrapStyleWord(true);
-        eaJTextArea.setOpaque(false);
+        profileNameJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("RenameProfileAvatar.ProfileNameLabel"));
 
+        profileNameJTextField.setText("!Profile name value!");
+
+        renameJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("RenameProfileAvatar.RenameButton"));
         renameJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 renameJButtonActionPerformed(e);
             }
         });
 
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("RenameProfileAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 cancelJButtonActionPerformed(e);
             }
         });
 
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("RenameProfileAvatar.EmbeddedAssistance"));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, eaJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 338, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                            .add(cancelJButton)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(renameJButton)))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(cancelJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(renameJButton))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .add(profileNameJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 195, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(eaJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 85, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(eaJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(profileNameJLabel))
+                    .add(profileNameJLabel)
+                    .add(profileNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(renameJButton)
@@ -239,9 +239,9 @@ class RenameProfileAvatar extends Avatar {
 
     /** Reload the embedded assistance control. */
     private void reloadEmbeddedAssistance() {
-        eaJTextArea.setText("");
+        eaJLabel.setText("");
         if(null != input) {
-            eaJTextArea.setText(getString("EmbeddedAssistance",
+            eaJLabel.setText(getString("EmbeddedAssistance",
                     new Object[] {getInputADataSelectedProfile().getName()}));
         }
     }
@@ -262,7 +262,7 @@ class RenameProfileAvatar extends Avatar {
     }//GEN-LAST:event_renameJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea eaJTextArea;
+    private javax.swing.JLabel eaJLabel;
     private javax.swing.JTextField profileNameJTextField;
     // End of variables declaration//GEN-END:variables
     

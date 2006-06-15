@@ -108,10 +108,10 @@ public class Browser extends AbstractApplication {
 	 */
 	private final AvatarRegistry avatarRegistry;
 
-	/**
-	 * The browser's event dispatcher.
-	 * 
-	 */
+	/** The browser's connection. */
+    private Connection connection;
+
+    /** The browser's event dispatcher. */
 	private EventDispatcher ed;
 
 	/**
@@ -457,20 +457,6 @@ public class Browser extends AbstractApplication {
         setFilterStatusMessage("FilterOff");
     }
 
-	/** Notify the session has been established. */
-    public void fireSessionEstablished() {
-        getStatusAvatar().reloadStatusMessage(
-                Status.Area.CONNECTION, "ConnectionOnline");
-        getTitleAvatar().reloadConnectionStatus(Connection.ONLINE);
-    }
-
-	/** Notify the session has been terminated. */
-    public void fireSessionTerminated() {
-        getStatusAvatar().reloadStatusMessage(
-                Status.Area.CONNECTION, "ConnectionOffline");
-        getTitleAvatar().reloadConnectionStatus(Connection.OFFLINE);
-    }
-
 	/**
      * Notify the application that a system message has been created.
      * 
@@ -502,6 +488,11 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
+     * @see com.thinkparity.browser.platform.application.Application#getConnection()
+     */
+    public Connection getConnection() { return connection; }
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#getId()
 	 * 
 	 */
@@ -518,7 +509,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().getLogger(clasz);
     }
 
-    /**
+	/**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform the application is running on.
@@ -532,7 +523,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public Long getSelectedDocumentId() { return session.getSelectedDocumentId(); }
 
-	/**
+    /**
 	 * Obtain the selected system message.
 	 * 
 	 * @return The selected system message id.
@@ -573,7 +564,7 @@ public class Browser extends AbstractApplication {
         return getMainAvatar().isFilterEnabled();
     }
 
-    /**
+	/**
 	 * Minimize the browser application.
 	 *
 	 */
@@ -581,7 +572,7 @@ public class Browser extends AbstractApplication {
 		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
 	}
 
-	/**
+    /**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -616,7 +607,7 @@ public class Browser extends AbstractApplication {
      */
     public void removeStateFilter() { getMainAvatar().removeStateFilter(); }
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -664,12 +655,12 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
 	}
 
-	/** Add a team member to the selected document. */
+    /** Add a team member to the selected document. */
     public void runAddNewDocumentTeamMember() {
         runAddNewDocumentTeamMember(session.getSelectedDocumentId(), (JabberId) null);
     }
 
-    /**
+	/**
      * Add a team member to the selected document.
      * 
      * @param documentId
@@ -729,7 +720,7 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-	/**
+    /**
      * Create a document.
      * 
      * @param file
@@ -815,7 +806,7 @@ public class Browser extends AbstractApplication {
      */
     public void runMoveBrowserToFront() { mainWindow.toFront(); }
 
-    /**
+	/**
 	 * Run the open document action.
 	 * 
 	 * @param documentId
@@ -883,7 +874,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.DOCUMENT_RENAME, data);
     }
 
-	/**
+    /**
 	 * Run the request key action.
 	 * 
 	 * @param artifactId
@@ -895,7 +886,7 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.ARTIFACT_REQUEST_KEY, data);
 	}
 
-    /**
+	/**
      * Run a search for an artifact on the criteria.
      * 
      * @param criteria
@@ -943,7 +934,7 @@ public class Browser extends AbstractApplication {
         }
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#start()
 	 * 
 	 */
@@ -952,6 +943,9 @@ public class Browser extends AbstractApplication {
 
 		assertStatusChange(ApplicationStatus.STARTING);
 		setStatus(ApplicationStatus.STARTING);
+
+        connection = getSessionModel().isLoggedIn() ?
+                Connection.ONLINE : Connection.OFFLINE;
 
 		ed = new EventDispatcher(this);
 		ed.start();
@@ -963,11 +957,11 @@ public class Browser extends AbstractApplication {
 		notifyStart();
 	}
 
-    public void toggleStatusImage() {
+	public void toggleStatusImage() {
         ((com.thinkparity.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
 
-	/**
+    /**
 	 * Display the document list.
 	 *
 	 */
@@ -983,7 +977,7 @@ public class Browser extends AbstractApplication {
 		displayAvatar(DisplayId.INFO, AvatarId.BROWSER_INFO);
 	}
 
-    /** Display the browser's status. */
+	/** Display the browser's status. */
     void displayStatusAvatar() {
         displayAvatar(DisplayId.STATUS, AvatarId.STATUS);
     }
@@ -996,7 +990,23 @@ public class Browser extends AbstractApplication {
     	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
 	}
 
-	private void clearStatusMessage(final Status.Area area) {
+    /** Notify the session has been terminated. */
+    void fireConnectionOffline() {
+        connection = Connection.OFFLINE;
+        getStatusAvatar().reloadStatusMessage(
+                Status.Area.CONNECTION, "ConnectionOffline");
+        getTitleAvatar().reloadConnectionStatus(Connection.OFFLINE);
+    }
+
+	/** Notify the session has been established. */
+    void fireConnectionOnline() {
+        connection = Connection.ONLINE;
+        getStatusAvatar().reloadStatusMessage(
+                Status.Area.CONNECTION, "ConnectionOnline");
+        getTitleAvatar().reloadConnectionStatus(Connection.ONLINE);
+    }
+
+    private void clearStatusMessage(final Status.Area area) {
         final Status status = getStatusAvatar();
         if(null != status) {
             SwingUtilities.invokeLater(new Runnable() {
@@ -1017,7 +1027,7 @@ public class Browser extends AbstractApplication {
         return getConfirmAvatar().didConfirm();
     }
 
-    /**
+	/**
 	 * Display an avatar.
 	 * 
 	 * @param displayId
@@ -1046,7 +1056,7 @@ public class Browser extends AbstractApplication {
 		display.repaint();
 	}
 
-	/**
+    /**
 	 * Display an avatar.
 	 * 
 	 * @param displayId
@@ -1084,7 +1094,7 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-    /** Dispose the main window. */
+	/** Dispose the main window. */
     private void disposeBrowserWindow() {
         Assert.assertNotNull(
                 "[LBROWSER] [APPLICATION] [BROWSER] [DISPOSE BROWSER WINDOW] [BROWSER WINDOW IS NULL]",
@@ -1092,7 +1102,7 @@ public class Browser extends AbstractApplication {
         mainWindow.dispose();
     }
 
-	/**
+    /**
 	 * Obtain the action from the controller's cache. If the action does not
 	 * exist in the cache it is created and stored.
 	 * 
@@ -1109,7 +1119,7 @@ public class Browser extends AbstractApplication {
 		return action;
 	}
 
-    /**
+	/**
 	 * Obtain the input for an avatar.
 	 * 
 	 * @param avatarId
@@ -1120,7 +1130,7 @@ public class Browser extends AbstractApplication {
 		return avatarInputMap.get(avatarId);
 	}
 
-	/**
+    /**
      * Obtain the confirmation avatar.
      * @return The confirmation avatar.
      */
@@ -1138,7 +1148,7 @@ public class Browser extends AbstractApplication {
 		return jFileChooser;
 	}
 
-    /**
+	/**
      * Convenience method to obtain the main avatar.
      * 
      * @return The main avatar.
@@ -1147,7 +1157,7 @@ public class Browser extends AbstractApplication {
         return (BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN);
     }
 
-	/**
+    /**
      * Convenience method to obtain the status avatar.
      * 
      * @return The status avatar.
@@ -1156,7 +1166,7 @@ public class Browser extends AbstractApplication {
         return (Status) avatarRegistry.get(AvatarId.STATUS);
     }
 
-    /**
+	/**
      * Convenience method to obtain the title avatar.
      * 
      * @return The title avatar.
@@ -1177,11 +1187,12 @@ public class Browser extends AbstractApplication {
 		return JFrame.ICONIFIED == mainWindow.getExtendedState();
 	}
 
-	private Boolean isBrowserWindowOpen() {
+    private Boolean isBrowserWindowOpen() {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
-    private void open(final WindowId windowId,
+
+	private void open(final WindowId windowId,
             final AvatarId avatarId, final Data input) {
         final Window window = WindowFactory.create(windowId, mainWindow);
 
@@ -1191,8 +1202,7 @@ public class Browser extends AbstractApplication {
         window.open(avatar);
     }
 
-
-	/**
+    /**
 	 * Open the main browser window.
 	 *
 	 */

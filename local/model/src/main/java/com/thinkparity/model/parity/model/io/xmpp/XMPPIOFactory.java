@@ -5,11 +5,11 @@
  */
 package com.thinkparity.model.parity.model.io.xmpp;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.*;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * A concrete implemenation of an io factory for xmpp io.  Note that as of yet
@@ -31,8 +31,14 @@ public class XMPPIOFactory extends IOFactory {
     public ArtifactIOHandler createArtifactHandler() {
         throw Assert.createUnreachable("XMPPIOFactory#createArtifactHandler()");
     }
+
     public AuditIOHandler createAuditHandler() {
         throw Assert.createUnreachable("XMPPIOFactory#createAuditHandler()");
+    }
+
+    /** @see com.thinkparity.model.parity.model.io.IOFactory#createConfigurationHandler() */
+    public ConfigurationIOHandler createConfigurationHandler() {
+        throw Assert.createNotYetImplemented("XMPPIOFactory#createConfigurationHandler");
     }
     public DocumentIOHandler createDocumentHandler() {
         throw Assert.createUnreachable("XMPPIOFactory#createDocumentHandler()");

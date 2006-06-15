@@ -3,10 +3,11 @@
  */
 package com.thinkparity.browser.platform.application;
 
-import com.thinkparity.browser.platform.Platform;
-import com.thinkparity.browser.platform.Platform.Connection;
-import com.thinkparity.browser.platform.Saveable;
 import org.apache.log4j.Logger;
+
+import com.thinkparity.browser.platform.Platform;
+import com.thinkparity.browser.platform.Saveable;
+import com.thinkparity.browser.platform.Platform.Connection;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,11 +33,11 @@ public interface Application extends Saveable {
 	public void end(final Platform platform);
 
     /**
-     * Obtain the current connection status.
-     *
-     * @return The connection status.
+     * Obtain the application connection info.
+     * 
+     * @return The connection info.
      */
-    public Connection getConnectionStatus();
+    public Connection getConnection();
 
 	/**
 	 * Obtain the application id.
@@ -75,13 +76,6 @@ public interface Application extends Saveable {
      * @return True if the application is in development mode.
      */
 	public Boolean isDevelopmentMode();
-
-	/**
-     * Determine whether or not the application is online.
-     *
-     * @return True if the application is online; false otherwise.
-     */
-    public Boolean isOnline();
 
 	/**
 	 * Add a listener to the application. The listener is used to generate

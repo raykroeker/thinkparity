@@ -452,13 +452,13 @@ public class BrowserMainDocumentModel {
             final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         if(mainCell instanceof MainCellDocument) {
-            new PopupDocument(contentProvider, (MainCellDocument) mainCell, browser.getConnectionStatus()).trigger(browser, jPopupMenu, e);
+            new PopupDocument(contentProvider, (MainCellDocument) mainCell).trigger(browser, jPopupMenu, e);
         }
         else if(mainCell instanceof MainCellHistoryItem) {
-            new PopupHistoryItem((MainCellHistoryItem) mainCell, browser.getConnectionStatus()).trigger(browser, jPopupMenu, e);
+            new PopupHistoryItem((MainCellHistoryItem) mainCell).trigger(browser, jPopupMenu, e);
         }
         logger.info("[LBROWSER] [APPLICATION] [BROWSER] [DOCUMENT AVATAR] [TRIGGER POPUP]");
-        logger.debug(browser.getConnectionStatus());
+        logger.debug(browser.getConnection());
         jPopupMenu.show(invoker, x, y);
     }
 

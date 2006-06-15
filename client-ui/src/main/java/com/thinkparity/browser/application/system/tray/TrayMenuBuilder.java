@@ -119,19 +119,8 @@ class TrayMenuBuilder {
     JPopupMenu createPopup() {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         jPopupMenu.add(browser);
-        jPopupMenu.add(editProfile);
         jPopupMenu.addSeparator();
-        jPopupMenu.add(login);
-        final JCheckBoxMenuItem jCheckBoxMenuItem = new JCheckBoxMenuItem(autoLogin);
-        jCheckBoxMenuItem.setSelected(application.doAutoLogin());
-        jPopupMenu.add(jCheckBoxMenuItem);
-        jPopupMenu.add(logout);
-        jPopupMenu.add(about);
-        jPopupMenu.addSeparator();
-        if(null == restart) {}
-        else { jPopupMenu.add(restart); }
         jPopupMenu.add(exit);
-
         return jPopupMenu;
     }
 

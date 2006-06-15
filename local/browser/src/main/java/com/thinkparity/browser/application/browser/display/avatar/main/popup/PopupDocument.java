@@ -42,9 +42,6 @@ public class PopupDocument implements Popup {
         com.thinkparity.browser.application.browser.component.MenuItemFactory.create("", 0);
     }
 
-    /** The connection status. */
-    private final Connection connection;
-
     /** The main display content provider. */
     private final CompositeFlatSingleContentProvider contentProvider;
 
@@ -56,15 +53,16 @@ public class PopupDocument implements Popup {
 
     /**
      * Create a PopupDocument.
-     *
+     * 
+     * @param contentProvider
+     *            The main display's content provider.
      * @param document
-     *            The document main cell.
+     *            The selected document.
      */
     public PopupDocument(
             final CompositeFlatSingleContentProvider contentProvider,
-            final MainCellDocument document, final Connection connection) {
+            final MainCellDocument document) {
         super();
-        this.connection = connection;
         this.contentProvider = contentProvider;
         this.document = document;
         this.l18n = new PopupL18n("DocumentListItem");
@@ -75,8 +73,8 @@ public class PopupDocument implements Popup {
      *
      */
     public void trigger(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
-        if(Connection.ONLINE == connection) { triggerOnline(application, jPopupMenu, e); }
-        else if(Connection.OFFLINE == connection) { triggerOffline(application, jPopupMenu, e); }
+        if(Connection.ONLINE == application.getConnection()) { triggerOnline(application, jPopupMenu, e); }
+        else if(Connection.OFFLINE == application.getConnection()) { triggerOffline(application, jPopupMenu, e); }
         else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [DOCUMENT POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]"); }
     }
 
@@ -246,28 +244,6 @@ public class PopupDocument implements Popup {
         }
     }
 
-    /** A share {@link JMenuItem}. */
-    private class Share extends JMenuItem {
-
-        /** @see java.io.Serializable */
-        private static final long serialVersionUID = 1;
-
-        /**
-         * Create Share.
-         *
-         * @param application
-         *      The browser application.
-         */
-        private Share(final Browser application) {
-            super(getString("Share"), getString("ShareMnemonic").charAt(0));
-            addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    application.runAddNewDocumentTeamMember();
-                }
-            });
-        }
-    }
-
     /** A close {@link JMenuItem}. */
     private class Close extends JMenuItem {
 
@@ -391,7 +367,7 @@ public class PopupDocument implements Popup {
          *      The browser application.
          */
         private QuickShare(final Browser application, final Contact contact) {
-            super(getString("QuickShare", new Object[] {contact.getFirstName(), contact.getLastName()}), getString("QuickShareMnemonic", new Object[] {contact.getFirstName(), contact.getLastName()}).charAt(0));
+            super(getString("QuickShare", new Object[] {contact.getName()}), getString("QuickShareMnemonic", new Object[] {contact.getName()}).charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runAddNewDocumentTeamMember(document.getId(), contact.getId());
@@ -450,11 +426,33 @@ public class PopupDocument implements Popup {
         private static final long serialVersionUID = 1;
 
         private SendKey(final Browser application, final User teamMember) {
-            super(getString("SendKey.TeamMember", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}), getString("SendKey.TeamMemberMnemonic", new Object[] {teamMember.getFirstName(), teamMember.getLastName()}).charAt(0));
+            super(getString("SendKey.TeamMember", new Object[] {teamMember.getName()}), getString("SendKey.TeamMemberMnemonic", new Object[] {teamMember.getName()}).charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runSendDocumentKey(
                         document.getId(), teamMember.getId());
+                }
+            });
+        }
+    }
+
+    /** A share {@link JMenuItem}. */
+    private class Share extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create Share.
+         *
+         * @param application
+         *      The browser application.
+         */
+        private Share(final Browser application) {
+            super(getString("Share"), getString("ShareMnemonic").charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runAddNewDocumentTeamMember();
                 }
             });
         }

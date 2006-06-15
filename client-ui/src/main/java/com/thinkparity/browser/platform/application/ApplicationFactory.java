@@ -1,24 +1,26 @@
 /*
- * Feb 4, 2006
+ * Created On: Feb 4, 2006
+ * $Id$
  */
 package com.thinkparity.browser.platform.application;
 
-import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.system.SystemApplication;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.platform.Platform;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
+ * The browser's application factory.
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class ApplicationFactory {
 
-	/**
-	 * The singleton application factory.
-	 * 
-	 */
+	/** The singleton application factory. */
 	private static final ApplicationFactory SINGLETON;
 
 	static { SINGLETON = new ApplicationFactory(); }
@@ -35,75 +37,90 @@ public class ApplicationFactory {
 		return SINGLETON.doCreate(platform, id);
 	}
 
-	/**
-	 * The application registry.
-	 * 
-	 */
+	private static final StringBuffer getApiId(final String api) {
+        return getLogId().append(" ").append(api);
+    }
+
+	private static final String getAssertionId(final String api,
+            final String assertion) {
+        return getApiId(api).append(" ").append(assertion).toString();
+    }
+
+	private static final String getErrorId(final String error) {
+        return getLogId().append(" ").append(error).toString();
+    }
+
+    private static final StringBuffer getLogId() {
+        return new StringBuffer("[LBROWSER] [PLATFORM] [APP FACTORY]");
+    }
+
+    /** The application registry. */
 	private final ApplicationRegistry registry;
 
-	/**
-	 * Create an ApplicationFactory [Singleton, Factory]
-	 * 
-	 */
+    /** Create ApplicationFactory. */
 	private ApplicationFactory() {
 		super();
 		this.registry = new ApplicationRegistry();
 	}
 
-	/**
-	 * Create the browser application.
-	 * 
-	 * @return The browser application.
-	 */
-	private Application createBrowser2(final Platform platform) {
-		final Application browser2 = new Browser(platform);
-		browser2.addListener(platform);
-		return browser2;
-	}
-
-	/**
-	 * Create the session application.
-	 *
-	 * @return The session application.
-	 */
-	private Application createSysApp(final Platform platform) {
-		final Application sysApp = new SystemApplication(platform);
-		sysApp.addListener(platform);
-		return sysApp;
-	}
-
-	/**
-	 * Create the application specified by the id and register it.
-	 * 
-	 * @param id
-	 *            The application id.
-	 * @return The application.
-	 */
+    /**
+     * Create the application specified by the id.
+     * 
+     * @param id
+     *            The application id.
+     * @return The application.
+     */
 	private Application doCreate(final Platform platform, final ApplicationId id) {
-		final Application application;
 		switch(id) {
-		case BROWSER2:
-			application = createBrowser2(platform);
-			break;
-		case SYS_APP:
-			application = createSysApp(platform);
-			break;
+		case BROWSER2: return doCreate(platform, "com.thinkparity.browser.application.browser.Browser");
+        case SESSION: return doCreate(platform, "com.thinkparity.browser.application.session.SessionApplication");
+		case SYS_APP: return doCreate(platform, "com.thinkparity.browser.application.system.SystemApplication");
 		default: throw Assert.createUnreachable("Unknown application:  " + id);
 		}
-		register(application);
-		return application;
 	}
 
-	/**
-	 * Register the application.
-	 * 
-	 * @param application
-	 *            The application to register.
-	 */
-	private void register(final Application application) {
-		Assert.assertNotTrue(
-				"[LBROWSER] [PLATFORM] [APP FACTORY] [APPLICATION ALREADY REGISTERED]",
-				registry.contains(application.getId()));
-		registry.put(application);
-	}
+    /**
+     * Create an application; register it and add the platform as a listener.
+     * 
+     * @param platform
+     *            The platform.
+     * @param applicationName
+     *            The fully qualified application name.
+     * @return The application.
+     */
+    private Application doCreate(final Platform platform,
+            final String applicationName) {
+        Application application = null;
+        try {
+            final Class applicationClass = Class.forName(applicationName);
+            final Constructor constructor = applicationClass.getConstructor(new Class[] {Platform.class});
+            application = (Application) constructor.newInstance(new Object[] {platform});
+        }
+        catch(final ClassNotFoundException cnfx) {
+            throw new BrowserException(
+                    getErrorId("[DO CREATE] [CANNOT CREATE APPLICATION]"), cnfx);
+        }
+        catch(final IllegalAccessException iax) {
+            throw new BrowserException(
+                    getErrorId("[DO CREATE] [CANNOT CREATE APPLICATION]"), iax);
+        }
+        catch(final InstantiationException ix) {
+            throw new BrowserException(
+                    getErrorId("[DO CREATE] [CANNOT CREATE APPLICATION]"), ix);
+        }
+        catch(final InvocationTargetException itx) {
+            throw new BrowserException(
+                    getErrorId("[DO CREATE] [CANNOT CREATE APPLICATION]"), itx);
+        }
+        catch(final NoSuchMethodException nsmx) {
+            throw new BrowserException(
+                    getErrorId("[DO CREATE] [CANNOT CREATE APPLICATION]"), nsmx);
+        }
+        Assert.assertNotTrue(
+                getAssertionId("[DO CREATE]", "[APPLICATION ALREADY REGISTERED]"),
+                registry.contains(application.getId()));
+        registry.put(application);
+        application.addListener(platform);
+        return application;
+    }
 }

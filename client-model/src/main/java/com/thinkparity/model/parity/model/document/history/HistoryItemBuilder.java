@@ -14,7 +14,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.*;
@@ -26,7 +26,7 @@ import com.thinkparity.model.xmpp.user.User;
  * events for an artifact.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class HistoryItemBuilder {
 
@@ -45,7 +45,7 @@ public class HistoryItemBuilder {
 	public HistoryItemBuilder(final L18n l18n) {
 		super();
 		this.l18n = l18n;
-        this.logger = ModelLoggerFactory.getLogger(getClass());
+        this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	/**
@@ -398,21 +398,14 @@ public class HistoryItemBuilder {
     }
 
 	private String getName(final User user) {
-		final String organization = user.getOrganization();
-		if(null ==  organization) {
-			final Object[] arguments = new Object[] {
-					user.getFirstName(),
-					user.getLastName()
-			};
-			return getString("user.nameMinusOrganization", arguments);
+		if(user.isSetOrganization()) {
+		    final Object[] arguments = new Object[] {
+		            user.getName(), user.getOrganization()};
+		    return getString("user.name", arguments);
 		}
 		else {
-			final Object[] arguments = new Object[] {
-					user.getFirstName(),
-					user.getLastName(),
-					user.getOrganization()
-			};
-			return getString("user.name", arguments);
+		    final Object[] arguments = new Object[] {user.getName()};
+		    return getString("user.nameMinusOrganization", arguments);
 		}
 	}
 

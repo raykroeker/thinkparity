@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.xmpp.user;
 
+import org.jivesoftware.smackx.packet.VCard;
+
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -14,36 +16,37 @@ import com.thinkparity.model.xmpp.JabberIdBuilder;
  */
 public class User {
 
-	public static final User SystemUser;
+    public static final User SystemUser;
+
+	static final String NAME_SEP = " ";
 
 	static { SystemUser = new User("thinkparity"); }
 
-    /** The local user pk. */
-    private Long localId;
+    private static StringBuffer getApiId(final String api) {
+        return new StringBuffer("[LMODEL] [USER] ").append(api);
+    }
 
-	/**
-	 * The user's first name.
-	 * 
-	 */
-	private String firstName;
+    private static String getErrorId(final String api, final String error) {
+        return getApiId(api).append(" ").append(error).toString();
+    }
 
-	/**
-	 * The user's jabber id.
-	 * 
-	 */
+	/** The user's email. */
+    private String email;
+
+	/** The user's jabber id. */
 	private JabberId id;
 
-	/**
-	 * The user's last name.
-	 * 
-	 */
-	private String lastName;
+	/** The local user pk. */
+    private Long localId;
 
-	/**
-	 * The user's organization.
-	 * 
-	 */
+	/** The user's name. */
+	private String name;
+
+	/** The user's organization. */
 	private String organization;
+
+	/** Create User. */
+	public User() { super(); }
 
 	/**
 	 * Create a User.
@@ -57,49 +60,36 @@ public class User {
 	}
 
 	/**
-	 * Create a User.
-	 * 
-	 * @param username
-	 *            The fully qualified username.
-	 */
+     * Create User.
+     * 
+     * @param username
+     *            A fully qualified username.
+     */
 	public User(final String username) {
 		super();
-		JabberId id = null;
 		try { id = JabberIdBuilder.parseQualifiedJabberId(username); }
 		catch(final IllegalArgumentException iax) { id = null; }
 		if(null == id) {
 			try { id = JabberIdBuilder.parseQualifiedUsername(username); }
 			catch(final IllegalArgumentException iax) { id = null; }
-			if(null == id) {
-				id = JabberIdBuilder.parseUsername(username);
-			}
+			if(null == id) { id = JabberIdBuilder.parseUsername(username); }
 		}
-		this.id = id;
 	}
 
-	/**
-	 * Create a User.
-	 * 
-	 */
-	public User() { super(); }
-
-	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 * 
-	 */
-	public boolean equals(Object obj) {
+    /** @see java.lang.Object#equals(java.lang.Object) */
+	public boolean equals(final Object obj) {
 		if(null != obj && obj instanceof User) {
-			return id.equals(((User) obj).id);
+			return ((User) obj).id.equals(id);
 		}
 		return false;
 	}
 
 	/**
-	 * Obtain the user's first name.
-	 * 
-	 * @return The user's first name.
-	 */
-	public String getFirstName() { return firstName; }
+     * Obtain the email
+     *
+     * @return The email.
+     */
+    public String getEmail() { return email; }
 
 	/**
 	 * Obtain the user's id.
@@ -109,52 +99,60 @@ public class User {
 	public JabberId getId() { return id; }
 
 	/**
-	 * Obtain the user's last name.
+     * Obtain the user's local id.
+     * 
+     * @return The local id.
+     */
+	public Long getLocalId() { return localId; }
+
+	/**
+	 * Obtain the user's name.
 	 * 
-	 * @return The user's last name.
+	 * @return The user's name.
 	 */
-	public String getLastName() { return lastName; }
+	public String getName() { return name; }
 
 	/**
 	 * Obtain the user's organization.
 	 * 
 	 * @return Returns the organization.
 	 */
-	public String getOrganization() {
-		return organization;
-	}
+	public String getOrganization() { return organization; }
 
-	/**
+    /**
 	 * Obtain the simple username of the user.
 	 * 
 	 * @return The simple username; without the domain\resource suffix.
 	 */
 	public String getSimpleUsername() { return id.getUsername(); }
 
-	/**
+    /**
 	 * Obtain the username of the user.
 	 * 
 	 * @return The username of the user.
 	 */
 	public String getUsername() { return id.getQualifiedUsername(); }
 
-	/**
-	 * @see java.lang.Object#hashCode()
-	 * 
-	 */
+	/** @see java.lang.Object#hashCode() */
 	public int hashCode() { return id.hashCode(); }
 
-	/**
-	 * Set the user's first name.
-	 * 
-	 * @param firstName
-	 *            The user's first name.
-	 */
-	public void setFirstName(final String firstName) {
-		this.firstName = firstName;
-	}
+    /**
+     * Determine if the organiation is set.
+     * 
+     * @return True if the organization is set.
+     */
+    public Boolean isSetOrganization() { return null != organization; }
 
-	/**
+    /**
+     * Set email.
+     *
+     * @param email The email.
+     * 
+     * @see VCard#getEmailWork()
+     */
+    public void setEmail(final String email) { this.email = email; }
+
+    /**
 	 * Set the user's id.
 	 * 
 	 * @param id
@@ -162,15 +160,58 @@ public class User {
 	 */
 	public void setId(final JabberId id) { this.id = id; }
 
-	/**
-	 * Set the user's last name.
-	 * 
-	 * @param lastName
-	 *            The user's last name.
-	 */
-	public void setLastName(final String lastName) { this.lastName = lastName; }
+    /**
+     * Set the user's local id.
+     * 
+     * @param localId
+     *            A local id.
+     */
+    public void setLocalId(final Long localId) { this.localId = localId; }
 
-	/**
+    /**
+	 * Set the user's name.
+	 * 
+	 * @param name
+	 *            The user's name.
+	 */
+	public void setName(final String name) { this.name = name; }
+
+    /**
+     * Set the user's name.
+     * 
+     * @param first
+     *            The user's first name.
+     * @param last
+     *            The user's last name.
+     */
+    public void setName(final String first, final String last) {
+        if(null == first) { throw new NullPointerException(getErrorId("[SET NAME]", "[FIRST NAME IS NULL]")); }
+        if(null == last) { throw new NullPointerException(getErrorId("[SET NAME]", "[LAST NAME IS NULL]")); }
+        this.name = new StringBuffer(first)
+                .append(" ").append(last).toString();
+    }
+
+    /**
+     * Set the user's name.
+     * 
+     * @param first
+     *            The user's first name.
+     * @param middle
+     *            The user's middle name.
+     * @param last
+     *            The user's last name.
+     */
+    public void setName(final String first, final String middle,
+            final String last) {
+        if(null == first) { throw new NullPointerException(); }
+        if(null == middle) { throw new NullPointerException(); }
+        if(null == last) { throw new NullPointerException(); }
+        this.name = new StringBuffer(first)
+                .append(" ").append(middle)
+                .append(" ").append(last).toString();
+    }
+
+    /**
 	 * Set the user's organization.
 	 * 
 	 * @param organization
@@ -179,8 +220,4 @@ public class User {
 	public void setOrganization(final String organization) {
 		this.organization = organization;
 	}
-
-    public Long getLocalId() { return localId; }
-
-    public void setLocalId(final Long localId) { this.localId = localId; }
 }

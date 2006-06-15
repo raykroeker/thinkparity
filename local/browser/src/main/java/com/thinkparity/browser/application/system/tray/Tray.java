@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
+
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
 
@@ -101,7 +102,7 @@ public class Tray {
 		systemTray.addTrayIcon(systemTrayIcon);
 		isInstalled = Boolean.TRUE;
 
-        reloadConnectionStatus(systemApplication.getConnectionStatus());
+        reloadConnectionStatus(systemApplication.getConnection());
 	}
 
     /**

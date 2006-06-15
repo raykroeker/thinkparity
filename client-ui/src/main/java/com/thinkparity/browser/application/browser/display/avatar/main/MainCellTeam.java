@@ -149,7 +149,7 @@ public class MainCellTeam implements MainCell {
                 else { localKey = "TeamMember.N"; }
             }
             
-            text.append(l18n.getString(localKey, new Object[] {teamMember.getFirstName(), teamMember.getLastName(), teamMember.getOrganization()}));
+            text.append(l18n.getString(localKey, new Object[] {teamMember.getName(), teamMember.getOrganization()}));
         }
         return text.toString();
     }

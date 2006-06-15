@@ -40,6 +40,11 @@ public class FOPIOFactory extends IOFactory {
 	 */
 	public AuditIOHandler createAuditHandler() { return null; }
 
+	/** @see com.thinkparity.model.parity.model.io.IOFactory#createConfigurationHandler() */
+    public ConfigurationIOHandler createConfigurationHandler() {
+        throw Assert.createNotYetImplemented("FOPIOFactory#createConfigurationHandler");
+    }
+
 	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createDocumentHandler()
 	 * 
@@ -54,7 +59,7 @@ public class FOPIOFactory extends IOFactory {
 		return new com.thinkparity.model.parity.model.io.pdf.fop.handler.DocumentHistoryIOHandler(preferences.getArchiveOutputDirectory());
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.IOFactory#createLibraryHandler()
      */
     @Override
@@ -62,7 +67,7 @@ public class FOPIOFactory extends IOFactory {
         throw Assert.createNotYetImplemented("FOPIOFactory#createLibraryHandler");
     }
 
-    /**
+	/**
      * @see com.thinkparity.model.parity.model.io.IOFactory#createReleaseHandler()
      */
     @Override
@@ -70,7 +75,7 @@ public class FOPIOFactory extends IOFactory {
         throw Assert.createNotYetImplemented("FOPIOFactory#createReleaseHandler");
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createSystemMessageHandler()
 	 * 
 	 */

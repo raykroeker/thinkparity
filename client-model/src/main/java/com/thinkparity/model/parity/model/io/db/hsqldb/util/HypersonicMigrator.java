@@ -1,5 +1,6 @@
 /*
- * Feb 8, 2006
+ * Created On: Feb 8, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.util;
 
@@ -11,8 +12,8 @@ import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 import com.thinkparity.model.Constants;
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.Version;
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
@@ -26,7 +27,7 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 class HypersonicMigrator {
 
@@ -72,13 +73,14 @@ class HypersonicMigrator {
 				CONFIG.getProperty("CreateArtifactAudit"),
 				CONFIG.getProperty("CreateArtifactAuditMetaData"),
 				CONFIG.getProperty("CreateArtifactAuditVersion"),
+                CONFIG.getProperty("CreateConfiguration"),
 				CONFIG.getProperty("CreateSystemMessageType"),
 				CONFIG.getProperty("CreateSystemMessage"),
 				CONFIG.getProperty("CreateSystemMessageMetaData"),
 				CONFIG.getProperty("CreateDocument"),
 				CONFIG.getProperty("CreateDocumentVersion"),
-                CONFIG.getProperty("CreateIndexUserInfoFirstName"),
-                CONFIG.getProperty("CreateIndexUserInfoLastName"),
+                CONFIG.getProperty("CreateIndexUserInfoName"),
+                CONFIG.getProperty("CreateIndexUserInfoEMail"),
                 CONFIG.getProperty("CreateIndexUserInfoOrganization")
 		};
 
@@ -107,7 +109,7 @@ class HypersonicMigrator {
 	 */
 	HypersonicMigrator() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	void migrate() throws HypersonicException {

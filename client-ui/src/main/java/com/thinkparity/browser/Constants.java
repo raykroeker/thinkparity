@@ -61,4 +61,14 @@ public final class Constants {
         public static final String GROUP_ID = "com.thinkparity.parity";
         public static final String VERSION = Version.getVersion();
     }
+
+    public static final class Network {
+        public static final Integer TIMEOUT = 750;
+        public static final Integer TTL = 0;
+    }
+
+    public static final class Session {
+        public static final Long RECONNECT_DELAY = 1 * 60 * 1000L;
+        public static final Long RECONNECT_PERIOD = 1 * 60 * 1000L;
+    }
 }

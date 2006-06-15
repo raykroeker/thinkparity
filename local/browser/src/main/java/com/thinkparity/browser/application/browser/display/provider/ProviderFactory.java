@@ -19,11 +19,7 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.UserModel;
-import com.thinkparity.model.parity.model.workspace.Preferences;
-import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -32,24 +28,10 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class ProviderFactory {
 
-	/**
-	 * The parity preferences.
-	 * 
-	 */
-	private static final Preferences preferences;
-
-	/**
-	 * Singleton instance.
-	 * 
-	 */
+	/** Singleton instance. */
 	private static final ProviderFactory singleton;
 
-	static {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
-		preferences = workspace.getPreferences();
-
-		singleton = new ProviderFactory();
-	}
+	static { singleton = new ProviderFactory(); }
 
 	/**
 	 * Obtain the history content provider.
@@ -144,9 +126,8 @@ public class ProviderFactory {
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
         this.uModel = modelFactory.getUserModel(getClass());
 
-        this.localUserId =
-            JabberIdBuilder.parseUsername(preferences.getUsername());
-        this.localUser = uModel.read(localUserId);
+        this.localUser = uModel.read();
+        this.localUserId = localUser.getId();
 
 		this.historyProvider = new HistoryProvider(localUserId, dModel, sModel);
 		this.infoProvider = new InfoProvider(localUser, dModel);

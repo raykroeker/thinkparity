@@ -185,6 +185,13 @@ public class MainCellDocument extends Document implements MainCell {
     }
 
     /**
+     * Obtain the team.
+     *
+     * @return A set of users.
+     */
+    public Set<User> getTeam() { return team; }
+    
+    /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getText()
      * 
      */
@@ -194,7 +201,7 @@ public class MainCellDocument extends Document implements MainCell {
         }
         else { return getName(); }
     }
-    
+
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextFont()
      * 
@@ -256,6 +263,13 @@ public class MainCellDocument extends Document implements MainCell {
     public Boolean isKeyHolder() { return keyHolder; }
 
     /**
+     * Detemrine whether or not the document can be renamed.
+     *
+     * @return True if the document can be renamed; false otherwise.
+     */
+    public Boolean isRenameable() { return !dModel.isDistributed(getId()); }
+
+    /**
      * Determine whether or not the document cell has been seen.
      * 
      * @return True if the document has been seen; false otherwise.
@@ -268,6 +282,17 @@ public class MainCellDocument extends Document implements MainCell {
      * @return True if the document is urgent.
      */
     public Boolean isUrgent() { return urgent; }
+
+    /**
+     * Determine whether or not the working version has been modified.
+     *
+     * @return True if the working version has not been modified; false
+     * otherwise.
+     */
+    public Boolean isWorkingVersionEqual() {
+        try { return dModel.isWorkingVersionEqual(getId()); }
+        catch(final ParityException px) { throw new RuntimeException(px); }
+    }
 
     /**
      * Set the expanded flag.
@@ -287,34 +312,5 @@ public class MainCellDocument extends Document implements MainCell {
     public void setKeyRequests(final List<KeyRequest> keyRequests) {
         this.keyRequests.clear();
         this.keyRequests.addAll(keyRequests);
-    }
-
-    /**
-     * Determine whether or not the working version has been modified.
-     *
-     * @return True if the working version has not been modified; false
-     * otherwise.
-     */
-    public Boolean isWorkingVersionEqual() {
-        try { return dModel.isWorkingVersionEqual(getId()); }
-        catch(final ParityException px) { throw new RuntimeException(px); }
-    }
-
-    /**
-     * Obtain the team.
-     *
-     * @return A set of users.
-     */
-    public Set<User> getTeam() { return team; }
-
-    /**
-     * Detemrine whether or not the document can be renamed.
-     *
-     * @return True if the document can be renamed; false otherwise.
-     */
-    public Boolean isRenameable() {
-        // TODO Encapsulate this rule.
-        try { return dModel.listVersions(getId()).size() == 1; }
-        catch(final ParityException px) { throw new RuntimeException(px); }
     }
 }

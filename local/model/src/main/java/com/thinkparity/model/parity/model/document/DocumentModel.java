@@ -86,19 +86,6 @@ public class DocumentModel {
 
 
     /**
-     * Share a document with a user.  The user will become a member of the document
-     * team.
-     * 
-     * @param documentId
-     *      The document id.
-     * @param jabberId
-     *      The user id to add.
-     */
-    public void share(final Long documentId, final JabberId jabberId) throws ParityException {
-        synchronized(implLock) { impl.share(documentId, jabberId); }
-    }
-
-	/**
 	 * Archive a document.
 	 * 
 	 * @param documentId
@@ -209,7 +196,7 @@ public class DocumentModel {
 		synchronized(implLock) { return impl.getContent(documentId); }
 	}
 
-    /**
+	/**
 	 * Obtain a document version.
 	 * 
 	 * @param documentId
@@ -242,6 +229,17 @@ public class DocumentModel {
 	}
 
     /**
+     * Determine whether or not the document has been distributed.
+     * 
+     * @param documentId
+     *            The document id.
+     * @return True if the document has been distributed; false otherwise.
+     */
+    public Boolean isDistributed(final Long documentId) {
+        synchronized(implLock) { return impl.isDistributed(documentId); }
+    }
+
+    /**
      * Determine whether or not the working version of the document is equal to
      * the last version.
      * 
@@ -255,7 +253,7 @@ public class DocumentModel {
         synchronized(implLock) { return impl.isWorkingVersionEqual(documentId); }
     }
 
-	/**
+    /**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -375,6 +373,22 @@ public class DocumentModel {
 	}
 
 	/**
+     * Publish a document.  Publishing a document involves the following
+     * process:<ol>
+     *  <li>Check if the working version differs from the latest version. If<ul>
+     *      <li>True:  Create a new version.
+     *      <li>False:  Do nothing.
+     *  <li>Send the latest version to all team members.
+     * </ol>
+     *
+     * @param documentId
+     *      The document id.
+     */
+    public void publish(final Long documentId) throws ParityException {
+        synchronized(implLock) { impl.publish(documentId); }
+    }
+
+	/**
 	 * Read the document's history.
 	 * 
 	 * @param documentId
@@ -444,19 +458,16 @@ public class DocumentModel {
     }
 
     /**
-     * Publish a document.  Publishing a document involves the following
-     * process:<ol>
-     *  <li>Check if the working version differs from the latest version. If<ul>
-     *      <li>True:  Create a new version.
-     *      <li>False:  Do nothing.
-     *  <li>Send the latest version to all team members.
-     * </ol>
-     *
+     * Share a document with a user.  The user will become a member of the document
+     * team.
+     * 
      * @param documentId
      *      The document id.
+     * @param jabberId
+     *      The user id to add.
      */
-    public void publish(final Long documentId) throws ParityException {
-        synchronized(implLock) { impl.publish(documentId); }
+    public void share(final Long documentId, final JabberId jabberId) throws ParityException {
+        synchronized(implLock) { impl.share(documentId, jabberId); }
     }
 
     /**

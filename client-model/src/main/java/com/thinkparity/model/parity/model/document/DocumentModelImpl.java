@@ -651,6 +651,21 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+	 * Determine whether or not a document is distributed; ie if it has been sent
+     * to anyone.
+     *
+     * @param documentId
+     *      A document id.
+     * @return True if a document has not yet been sent; false otherwise.
+     */
+    Boolean isDistributed(final Long documentId) {
+        final User currentUser = getInternalUserModel().read(currentUserId());
+        final Set<User> team = getInternalArtifactModel().readTeam(documentId);
+        team.remove(currentUser);
+        return team.size() > 0;
+    }
+
+	/**
 	 * Determine whether or not the working version of the document is different
 	 * from the last version.
 	 * 
@@ -759,7 +774,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 readUser(declinedBy), get(documentId), remoteEventGen);
     }
 
-	/**
+    /**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -773,7 +788,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return list(defaultComparator);
 	}
 
-    /**
+	/**
 	 * Obtain a list of sorted documents.
 	 * 
 	 * @param comparator
@@ -1160,7 +1175,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Remove a team member from the document.
      * 
      * @param documentId
@@ -1181,7 +1196,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         updateIndex(documentId);
     }
 
-    /**
+	/**
      * Rename a document.
      *
      * @param documentId
@@ -1194,7 +1209,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [DOCUMENT] [RENAME]");
         logger.debug(documentId);
         logger.debug(documentName);
-        assertIsNotPublished("[RENAME]", documentId);
         assertIsNotDistributed("[RENAME]", documentId);
         final Collection<DocumentVersion> dVersions = listVersions(documentId);
         Assert.assertTrue(
@@ -1237,7 +1251,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 originalName,documentName);
     }
 
-	void requestKey(final Long documentId, final JabberId requestedBy)
+    void requestKey(final Long documentId, final JabberId requestedBy)
 			throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [REQUEST KEY]");
 		logger.debug(documentId);
@@ -1296,7 +1310,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         getInternalSessionModel().send(users, documentId, latestVersion.getVersionId());
     }
 
-    /**
+	/**
 	 * Unlock a document.
 	 * 
 	 * @param documentId
@@ -1323,7 +1337,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Update the working version of a document.
      * 
      * @param documentId
@@ -1377,22 +1391,6 @@ class DocumentModelImpl extends AbstractModelImpl {
                 .append(assertion)
                 .append(" [DOCUMENT HAS ALREADY BEEN DISTRIBUTED]");
         Assert.assertNotTrue(buffer.toString(), isDistributed(documentId));
-    }
-
-    /**
-     * Assert that the document is not publihed.
-     *
-     * @param assertion
-     *      Assertion text.
-     * @param documentId
-     *      A document id.
-     */
-    private void assertIsNotPublished(final String assertion,
-            final Long documentId) throws ParityException {
-        final StringBuffer buffer = new StringBuffer("[LMODEL] [DOCUMENT] ")
-            .append(assertion)
-            .append(" [DOCUMENT HAS ALREADY BEEN PUBLISHED]");
-        Assert.assertNotTrue(buffer.toString(), isPublished(documentId)); 
     }
 
     /**
@@ -1459,7 +1457,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.delete(document.getId());
     }
 
-    private String format(final String pattern, final File file) {
+	private String format(final String pattern, final File file) {
 		return format(pattern, new Object[] {file.getAbsolutePath()});
 	}
 
@@ -1537,21 +1535,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
-     * Determine whether or not a document is remote; ie if it has been sent
-     * to anyone.
-     *
-     * @param documentId
-     *      A document id.
-     * @return True if a document has not yet been sent; false otherwise.
-     */
-    private Boolean isDistributed(final Long documentId) {
-        final User currentUser = getInternalUserModel().read(currentUserId());
-        final Set<User> team = getInternalArtifactModel().readTeam(documentId);
-        team.remove(currentUser);
-        return team.size() > 0;
-    }
-
     /**
 	 * Check and see if this version is the latest version.
 	 * 
@@ -1564,19 +1547,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			documentIO.getLatestVersion(version.getArtifactId());
 		return latestLocalVersion.getVersionId().equals(version.getVersionId());
 	}
-
-    /**
-     * Determine whether or not a document has been published.
-     *
-     * @param documentId
-     *      A document id.
-     * @return True if the document has been published; false otherwise.
-     */
-    private Boolean isPublished(final Long documentId) throws ParityException {
-        final Collection<DocumentVersion> dVersions =
-                listVersions(documentId);
-        return dVersions.size() > 1;
-    }
 
 	/**
      * Fire confirmation received.

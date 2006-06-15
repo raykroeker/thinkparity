@@ -104,6 +104,7 @@ public class TestCaseHelper {
 			inputFiles.add(copyInputFile("JUnitTestFramework.odt"));
 			inputFiles.add(copyInputFile("JUnitTestFramework.png"));
 			inputFiles.add(copyInputFile("JUnitTestFramework.txt"));
+			inputFiles.add(copyInputFile("JUnitTestFramework.unknown"));
 			inputFiles.add(copyInputFile("JUnitTestFramework1MB.txt"));
 			inputFiles.add(copyInputFile("JUnitTestFramework2MB.txt"));
 			inputFiles.add(copyInputFile("JUnitTestFramework4MB.txt"));
@@ -118,6 +119,7 @@ public class TestCaseHelper {
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.odt"));
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.png"));
 			modFiles.add(copyInputFile("JUnitTestFrameworkMod.txt"));
+			modFiles.add(copyInputFile("JUnitTestFrameworkMod.unknown"));
 			modFiles.add(copyInputFile("JUnitTestFramework1MBMod.txt"));
 			modFiles.add(copyInputFile("JUnitTestFramework2MBMod.txt"));
 			modFiles.add(copyInputFile("JUnitTestFramework4MBMod.txt"));

@@ -60,16 +60,15 @@
 				</configuration>
 			</plugin>
 
-			<!-- assembly -->
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.0-beta-1</version>
-				<configuration>
-					<descriptor>src/main/assembly/bin.xml</descriptor>
-					<outputDirectory>target</outputDirectory>
-					<workDirectory>target/assembly/work</workDirectory>
-				</configuration>
-			</plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 </project>

@@ -3,13 +3,13 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thinkparity.parity</groupId>
-    <version>1.0.0-RC5</version>
+    <version>1.0.0-RC6</version>
     <url>http://thinkparity.dyndns.org</url>
 
     <parent>
         <artifactId>parity</artifactId>
         <groupId>com.thinkparity.parity</groupId>
-        <version>1.0.0-RC5</version>
+        <version>1.0.0-RC6</version>
     </parent>
 
     <artifactId>lBrowser</artifactId>
@@ -26,7 +26,7 @@
         <dependency>
                 <groupId>com.thinkparity.parity</groupId>
                 <artifactId>codebase</artifactId>
-                <version>1.0.0-RC5</version>
+                <version>1.0.0-RC6</version>
                 <scope>compile</scope>
                 <type>jar</type>
         </dependency>

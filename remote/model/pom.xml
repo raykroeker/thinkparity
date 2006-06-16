@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>com.thinkparity.parity</groupId>
 			<artifactId>codebase</artifactId>
-			<version>1.0.0-RC5</version>
+			<version>1.0.0-RC6</version>
 			<scope>compile</scope>
 			<type>jar</type>
 		</dependency>

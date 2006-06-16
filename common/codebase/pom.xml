@@ -9,7 +9,7 @@
     <parent>
         <artifactId>parity</artifactId>
         <groupId>com.thinkparity.parity</groupId>
-        <version>1.0.0-RC5</version>
+        <version>1.0.0-RC6</version>
     </parent>
 
     <artifactId>codebase</artifactId>

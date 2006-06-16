@@ -1,5 +1,6 @@
 /*
- * Feb 10, 2006
+ * Created On: Feb 10, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb;
 
@@ -11,14 +12,16 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.codebase.StackUtil;
+
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class HypersonicUtil {
 
@@ -129,7 +132,7 @@ public class HypersonicUtil {
 		super();
 		this.isDriverRegistered = Boolean.FALSE;
 		this.isInitalPropertiesSet = Boolean.FALSE;
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = LoggerFactory.getLogger(getClass());
 	}
 
 	/**
@@ -139,19 +142,19 @@ public class HypersonicUtil {
 	 */
 	private void doCheckpoint() throws HypersonicException {
 		logger.info("Issuing checkpoint.");
-		final Session session = SessionManager.openSession();
+		final Session session = openSession();
 		try { session.execute("CHECKPOINT DEFRAG"); }
 		finally { session.close(); }
 	}
 
-	/**
+    /**
 	 * Issue a compact command to the hypersonic database.
 	 *
 	 * @throws HypersonicException
 	 */
 	private void doCompact() throws HypersonicException {
 		logger.info("Issuing hypersonic compact.");
-		final Session session = SessionManager.openSession();
+		final Session session = openSession();
 		try { session.execute("SHUTDOWN COMPACT"); }
 		finally { session.close(); }
 	}
@@ -199,7 +202,7 @@ public class HypersonicUtil {
 		logger.info("Setting initial hypersonic properties.");
 		if(!isInitalPropertiesSet) {
 			// set custom hypersonic settings
-			final Session session = SessionManager.openSession();
+			final Session session = openSession();
 			try {
 				final String[] sql = {
 						"SET PROPERTY \"sql.tx_no_multi_rewrite\" TRUE"
@@ -213,4 +216,13 @@ public class HypersonicUtil {
 			logger.warn("Initial hypersonic properties have already been set.");
 		}
 	}
+
+	/**
+     * Open the hypersonic session.
+     * 
+     * @return The hypersonic session.
+     */
+    private Session openSession() {
+        return SessionManager.openSession(StackUtil.getCaller());
+    }
 }

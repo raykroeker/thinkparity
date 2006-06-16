@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.StackUtil;
+
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
@@ -103,5 +105,5 @@ abstract class AbstractIOHandler {
 	 * 
 	 * @return The database session.
 	 */
-	protected Session openSession() { return SessionManager.openSession(); }
+	protected Session openSession() { return SessionManager.openSession(StackUtil.getCaller()); }
 }

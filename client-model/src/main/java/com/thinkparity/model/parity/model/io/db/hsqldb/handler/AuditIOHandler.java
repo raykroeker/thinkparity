@@ -297,7 +297,7 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			session.rollback();
 			throw hx;
 		}
-		finally { session.commit(); }
+		finally { session.close(); }
 	}
 
 	/**

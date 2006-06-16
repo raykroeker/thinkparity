@@ -63,7 +63,7 @@ public class Session {
 	 */
 	private ResultSet resultSet;
 
-	/**
+    /**
 	 * Create a Session.
 	 * 
 	 * @param connection
@@ -206,7 +206,7 @@ public class Session {
 	 */
 	public JVMUniqueId getId() { return id; }
 
-	public Long getIdentity() {
+    public Long getIdentity() {
 		ResultSet resultSet = null;
 		try {
 			resultSet = list("CALL IDENTITY()");
@@ -217,7 +217,7 @@ public class Session {
 		finally { close(resultSet); }
 	}
 
-    public Integer getInteger(final String columnName) {
+	public Integer getInteger(final String columnName) {
         assertOpen("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         assertOpenResult("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         debugSql(columnName);
@@ -308,7 +308,6 @@ public class Session {
 		assertOpenResult("getString(String)");
 		return UUID.fromString(getString(columnName));
 	}
-
 	/**
 	 * @see java.lang.Object#hashCode()
 	 * 
@@ -316,6 +315,7 @@ public class Session {
 	public int hashCode() {
 		return id.hashCode();
 	}
+
 	public boolean nextResult() {
 		assertOpen("nextResult()");
 		assertOpenResult("nextResult()");
@@ -439,7 +439,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final AuditEventType type) {
+    public void setTypeAsInteger(final Integer index, final AuditEventType type) {
 		assertOpen("setTypeAsInteger(Integer,AuditEventType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,AuditEventType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -455,7 +455,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setTypeAsInteger(final Integer index, final MetaDataType type) {
+	public void setTypeAsInteger(final Integer index, final MetaDataType type) {
 		assertOpen("setTypeAsInteger(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,MetaDataType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -487,7 +487,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsString(final Integer index, final Enum<?> type) {
+    public void setTypeAsString(final Integer index, final Enum<?> type) {
 		assertOpen("setTypeAsString(Integer,Enum<?>)");
 		assertPreparedStatement("setTypeString(Integer,Enum<?>)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -503,7 +503,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public void setTypeAsString(final Integer index, final MetaDataType type) {
+	public void setTypeAsString(final Integer index, final MetaDataType type) {
 		assertOpen("setType(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeString(Integer,MetaDataType)");
 		debugSql(null == type ? null : type.toString(), index);
@@ -539,12 +539,12 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+
 	private void assertOpen(final String caller) {
 		if(null == connection) {
 			throw new HypersonicException("Session is closed:  " + caller);
 		}
 	}
-
 
 	private void assertOpenResult(final String caller) {
 		if(null == resultSet)
@@ -613,7 +613,7 @@ public class Session {
 		logger.debug(message.append(sql));
 	}
 
-	private ResultSet list(final String sql) {
+    private ResultSet list(final String sql) {
 		assertOpen("list(String)");
 		debugSql(sql);
 		Statement statement = null;

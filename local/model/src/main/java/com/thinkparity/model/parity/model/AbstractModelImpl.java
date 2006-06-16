@@ -27,7 +27,6 @@ import com.thinkparity.codebase.l10n.L18nContext;
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
@@ -556,7 +555,7 @@ public abstract class AbstractModelImpl {
      * @return True if the user is the keyholder; false otherwise.
      */
     protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
-        return getInternalArtifactModel().isFlagApplied(artifactId, ArtifactFlag.KEY);
+        return getSessionModel().isLoggedInUserKeyHolder(artifactId);
     }
 
     /**

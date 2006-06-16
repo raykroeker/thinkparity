@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.util;
 
 import java.io.File;
 
+import com.thinkparity.codebase.StackUtil;
+
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
@@ -48,7 +50,8 @@ public class HypersonicValidator {
 	}
 
 	private void validateSession() {
-		final Session session = SessionManager.openSession();
+		final Session session =
+            SessionManager.openSession(StackUtil.getExecutionPoint());
 		session.close();
 	}
 }

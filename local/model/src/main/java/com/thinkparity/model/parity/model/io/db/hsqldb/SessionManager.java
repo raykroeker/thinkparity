@@ -6,13 +6,18 @@ package com.thinkparity.model.parity.model.io.db.hsqldb;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import com.thinkparity.codebase.StackUtil;
+
+import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 
@@ -22,10 +27,10 @@ import com.thinkparity.model.parity.model.io.md.MetaDataType;
  */
 public class SessionManager {
 
-	/**
-	 * Contains all open sessions to the hsqldb database.
-	 * 
-	 */
+	/** A map of the session to the session's caller. */
+    private static final Map<Session, Object> sessionCallers;
+
+    /** A list of all open sessions. */
 	private static final Vector<Session> sessions;
 
 	private static final String SQL_GET_META_DATA =
@@ -33,16 +38,17 @@ public class SessionManager {
 
 	static {
 		sessions = new Vector<Session>();
+        sessionCallers = new HashMap<Session, Object>();
 		HypersonicUtil.registerDriver();
 		HypersonicUtil.setInitialProperties();
 		Runtime.getRuntime().addShutdownHook(new Thread("thinkParity - Shutdown Database") {
 			public void run() {
 				// remove abandoned sessions
-				final Logger logger = ModelLoggerFactory.getLogger(SessionManager.class);
+				final Logger logger = LoggerFactory.getLogger(SessionManager.class);
 				synchronized(sessions) {
 					logger.warn("Number of abandoned sessions:  " + sessions.size());
 					for(final Session session : sessions) {
-						logger.warn(session.getId());
+						logger.warn(session.getId() + " - " + formatCaller(session));
 						session.close();
 					}
 				}
@@ -51,7 +57,7 @@ public class SessionManager {
 		});
 	}
 
-	/**
+    /**
 	 * Obtain a named property from the database.
 	 * 
 	 * @param property
@@ -61,7 +67,7 @@ public class SessionManager {
 	 */
 	public static String getMetaDataString(final MetaData metaData)
 			throws HypersonicException {
-		final Session session = SessionManager.openSession();
+		final Session session = SessionManager.openSession(StackUtil.getExecutionPoint());
 		try {
 			session.prepareStatement(SQL_GET_META_DATA);
 			session.setTypeAsInteger(1, MetaDataType.STRING);
@@ -79,7 +85,7 @@ public class SessionManager {
 	 * @return A list of tables.
 	 */
 	public static List<Table> listTables() {
-		final Session session = openSession();
+		final Session session = openSession(StackUtil.getExecutionPoint());
 		ResultSet resultSet = null;
 		try {
 			final DatabaseMetaData md = session.getMetaData();
@@ -102,10 +108,13 @@ public class SessionManager {
 	 * 
 	 * @return The new database session.
 	 */
-	public static Session openSession() {
-		final Session session = new Session(HypersonicUtil.createConnection());
-		sessions.add(session);
-		return session;
+	public static Session openSession(final StackTraceElement caller) {
+		synchronized(sessions) {
+            final Session session = new Session(HypersonicUtil.createConnection());
+            sessions.add(session);
+            sessionCallers.put(session, caller);
+            return session;
+        }
 	}
 
 	/**
@@ -114,8 +123,14 @@ public class SessionManager {
 	 * @param session
 	 *            The session to close.
 	 */
-	static void close(final Session session) { sessions.remove(session); }
-	
+	static void close(final Session session) {
+        synchronized(sessions) {
+            sessions.remove(session);
+            sessionCallers.remove(session);
+        }
+    }
+    
+
 	/**
 	 * Close the result set.
 	 * 
@@ -128,7 +143,7 @@ public class SessionManager {
 			catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 		}
 	}
-
+	
 	/**
 	 * Extract table metadata information from the result set.
 	 * 
@@ -146,6 +161,21 @@ public class SessionManager {
 		t.setType(rs.getString("TABLE_TYPE"));
 		return t;
 	}
+
+	/**
+     * Format the session's caller.
+     * 
+     * @param session
+     *            The session.
+     * @return A formatted stack trace.
+     */
+    private static String formatCaller(final Session session) {
+        final StackTraceElement caller = (StackTraceElement) sessionCallers.get(session);
+        return MessageFormat.format(
+                "{0}.{3}({1}:{2})",
+                new Object[] {caller.getClassName(), caller.getFileName(),
+                        caller.getLineNumber(), caller.getMethodName()});
+    }
 
 	/**
 	 * Create a SessionManager [Singleton]

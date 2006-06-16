@@ -276,6 +276,10 @@ class DocumentModelImpl extends AbstractModelImpl {
         assertStateTransition(d.getState(), ArtifactState.CLOSED);
         documentIO.updateState(d.getId(), ArtifactState.CLOSED);
 
+        // remove key
+        final InternalArtifactModel iAModel = getInternalArtifactModel();
+        iAModel.removeFlagKey(documentId);
+
         // lock
         lock(documentId);
 
@@ -629,10 +633,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("[LMODEL] [DOCUMENT] [HANDLE CLOSE]");
 		logger.debug(documentId);
 		logger.debug(closedBy);
-		assertIsNotKeyHolder(
-		        "[LMODEL] [DOCUMENT] [CLOSE AS NON KEYHOLDER] [USER IS KEYHOLDER]",
-		        documentId);
-
         final Calendar currentDateTime = currentDateTime();
 
         // update remote info

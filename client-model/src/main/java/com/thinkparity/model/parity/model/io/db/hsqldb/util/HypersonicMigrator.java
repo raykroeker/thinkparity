@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
@@ -138,7 +139,7 @@ class HypersonicMigrator {
 		}
 		if(!isTableFound) { return null; }
 		else {
-			final Session session = SessionManager.openSession();
+			final Session session = openSession();
 			try {
 				session.prepareStatement(READ_META_DATA_RELEASE_ID);
                 session.setLong(1, Constants.MetaData.RELEASE_ID_PK);
@@ -152,12 +153,12 @@ class HypersonicMigrator {
 		}
 	}
 
-	/**
+    /**
 	 * Initialize the parity model schema.
 	 * 
 	 */
 	private void initializeSchema() {
-		final Session session = SessionManager.openSession();
+		final Session session = openSession();
 		try {
 			createSchema(session);
 			insertSeedData(session);
@@ -237,4 +238,13 @@ class HypersonicMigrator {
 
 	private void migrateSchema(final String fromVersionId,
 			final String toVersionId) {}
+
+	/**
+     * Open the hypersonic session.
+     * 
+     * @return The hypersonic session.
+     */
+	private Session openSession() {
+        return SessionManager.openSession(StackUtil.getCaller());
+    }
 }

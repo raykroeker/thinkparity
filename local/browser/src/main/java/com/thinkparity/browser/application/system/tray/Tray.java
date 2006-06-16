@@ -124,8 +124,8 @@ public class Tray {
         logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [UPDATE MENU OFFLINE]");
         menuBuilder.editProfile.setEnabled(false);
         menuBuilder.logout.setEnabled(false);
-
         menuBuilder.login.setEnabled(true);
+        systemTrayIcon.setToolTip("thinkParity (offline)");
     }
 
     /** Update the online menu. */
@@ -133,8 +133,8 @@ public class Tray {
         logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [UPDATE MENU ONLINE]");
         menuBuilder.editProfile.setEnabled(true);
         menuBuilder.logout.setEnabled(true);
-
         menuBuilder.login.setEnabled(false);
+        systemTrayIcon.setToolTip("thinkParity (online)");
     }
 
     /** Uninstall the system tray. */
@@ -160,9 +160,11 @@ public class Tray {
      *            The notification.
      */
     private void displayInfo(final TrayNotification notification) {
-        systemTrayIcon.displayMessage(
-                systemApplication.getString("Notification.InfoCaption"),
-                notification.getMessage(), TrayIcon.INFO_MESSAGE_TYPE);
+        if ( notification.getMessage().length()>0) {
+            systemTrayIcon.displayMessage(
+                    systemApplication.getString("Notification.InfoCaption"),
+                    notification.getMessage(), TrayIcon.INFO_MESSAGE_TYPE);
+        }
     }
 
     /**
@@ -170,8 +172,23 @@ public class Tray {
      * 
      * @param notification
      *            The notification.
+     *            
+     *            RBM June 15, 2006 The caption appears to overwrite the tooltip which is
+     *            strange behavior. Changed to only use setToolTip() and never setCaption().
      */
     private void setCaption(final TrayNotification notification) {
-        systemTrayIcon.setCaption(notification.getMessage());
+        String toolTip = "thinkParity ";
+        final Platform.Connection cx = systemApplication.getConnection();
+        if(Platform.Connection.OFFLINE == cx) {
+            toolTip += "(offline)";
+        }
+        else {
+            toolTip += "(online)";
+        }
+        String notifyMessage = notification.getMessage();
+        if ( notifyMessage.length()>0) {
+            toolTip += "\nLast update: " + notifyMessage;
+        }    
+        systemTrayIcon.setToolTip(toolTip);
     }
 }

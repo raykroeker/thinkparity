@@ -108,7 +108,7 @@ public class StackUtil {
      * 
      * @return A stack trace element.
      */
-    public static StackTraceElement getExcutionPoint() {
+    public static StackTraceElement getExecutionPoint() {
         return getFrame(EXECUTION_POINT_DEPTH);
     }
 

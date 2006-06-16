@@ -41,7 +41,7 @@ public class StackUtilTest extends CodebaseTestCase {
 	 *
 	 */
 	private void doTestGetCallerMethod(){ 
-        final StackTraceElement executionPoint = StackUtil.getExcutionPoint();
+        final StackTraceElement executionPoint = StackUtil.getExecutionPoint();
         final String executionPointClassAndMethodName = StackUtil.getExecutionPointClassAndMethodName();
         final String executionPointClassName = StackUtil.getExecutionPointClassName();
         final int executionPointLineNumber = StackUtil.getExecutionPointLineNumber();

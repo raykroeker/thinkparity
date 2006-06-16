@@ -507,15 +507,17 @@ class DocumentModelImpl extends AbstractModelImpl {
         assertOnline("[LMODEL] [DOCUMENT MODEL] [DELETE] [USER IS NOT ONLINE]");
 
         final Document document = get(documentId);
-        if(isKeyHolder(documentId)) {
-            if(isClosed(document)) { deleteLocal(document); }
-            else if(!isDistributed(documentId)) { deleteLocal(document); }
-            else {
-                throw Assert.createUnreachable(
-                        "[LMODEL] [DOCUMENT MODEL] [DELETE] [CANNOT DELETE DOCUMENT UNTIL IT HAS BEEN CLOSED]");
+        if(isClosed(document)) { deleteLocal(document); }
+        else {
+            if(isKeyHolder(documentId)) {
+                if(!isDistributed(documentId)) { deleteLocal(document); }
+                else {
+                    throw Assert.createUnreachable(
+                            "[LMODEL] [DOCUMENT] [DELETE] [CAN ONLY DELETE CLOSED DOCUMENTS IF YOU ARE THE KEY HOLDER]");
+                }
             }
+            else { deleteLocal(document); }
         }
-        else { deleteLocal(document); }
 
         // fire event
 		notifyDocumentDeleted(null, localEventGen);

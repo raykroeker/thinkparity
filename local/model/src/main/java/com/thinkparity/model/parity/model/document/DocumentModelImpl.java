@@ -1055,7 +1055,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 
         // share
         final Set<User> users = iAModel.readTeam(documentId);
-        for(final User user : users) { share(documentId, user.getId()); }
+        Collection<User> userCollection;
+        Collection<DocumentVersion> versions;
+        for(final User user : users) {
+            userCollection = new Vector<User>(1);
+            userCollection.add(user);
+            versions = listVersions(documentId);
+            for(final DocumentVersion version : versions) {
+                getInternalSessionModel().send(userCollection, documentId, version.getVersionId());
+            }
+        }
     }
 
     List<HistoryItem> readHistory(final Long documentId)

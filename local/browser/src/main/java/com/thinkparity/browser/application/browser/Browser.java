@@ -847,6 +847,18 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Run the document reactivate action.
+     * 
+     * @param documentId
+     *            A document id.
+     */
+    public void runReactivateDocument(final Long documentId) {
+        final Data data = new Data(1);
+        data.set(Reactivate.DataKey.DOCUMENT_ID, documentId);
+        invoke(ActionId.DOCUMENT_REACTIVATE, data);
+    }
+
+    /**
      * Run the document rename action.
      * 
      * @param documentId

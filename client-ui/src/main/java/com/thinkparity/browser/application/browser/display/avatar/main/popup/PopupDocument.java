@@ -188,6 +188,9 @@ public class PopupDocument implements Popup {
         if(document.isRenameable()) {
             jPopupMenu.add(new Rename(application));
         }
+        if(document.isClosed()) {
+            jPopupMenu.add(new Reactivate(application));
+        }
         jPopupMenu.addSeparator();
         jPopupMenu.add(new Delete(application));
 
@@ -371,6 +374,27 @@ public class PopupDocument implements Popup {
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runAddNewDocumentTeamMember(document.getId(), contact.getId());
+                }
+            });
+        }
+    }
+
+    /** A reactivate {@linke JMenuItem}. */
+    private class Reactivate extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create Rename.
+         * @param application
+         *      The browser application.
+         */
+        private Reactivate(final Browser application) {
+            super(getString("Reactivate"), getString("ReactivateMnemonic").charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runReactivateDocument(document.getId());
                 }
             });
         }

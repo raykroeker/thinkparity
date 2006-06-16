@@ -135,7 +135,7 @@ public class PopupDocument implements Popup {
      */
     private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         jPopupMenu.add(new Open(application));
-        if(document.isRenameable()) {
+        if(!document.isDistributed()) {
             jPopupMenu.add(new Rename(application));
         }
     }
@@ -153,46 +153,70 @@ public class PopupDocument implements Popup {
     private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         final Set<User> team = document.getTeam();
 
-        if(document.isUrgent()) {
-            final List<KeyRequest> keyRequests = document.getKeyRequests();
-            if(keyRequests.size() >= 1) {
-                final Set<JabberId> requestedBySet = new HashSet<JabberId>();
-                for(final KeyRequest keyRequest : keyRequests) {
-                    // if a single user has requested more than once; we only
-                    // display one menu item.
-                    if(!requestedBySet.contains(keyRequest.getRequestedBy())) {
-                        jPopupMenu.add(new AcceptKeyRequest(application, keyRequest.getId(), keyRequest.getRequestedByName()));
-                        requestedBySet.add(keyRequest.getRequestedBy());
-                    }
-                }
-                jPopupMenu.add(new DeclineAllKeyRequests(application));
-                jPopupMenu.addSeparator();
-            }
-        }
+        // MENU_ITEM Open
         jPopupMenu.add(new Open(application));
-        jPopupMenu.add(createShare(application));
-        if(document.isKeyHolder()) {
-            if(!document.isWorkingVersionEqual())
-                jPopupMenu.add(new Publish(application));
-
-            System.out.println("[LBROWSER] [APPLICATION] [BROWSER] [DISPLAY] [AVATAR] [POPUP DOCUMENT] [TRIGGER ONLINE] [TEAM SIZE] [" + team.size() + "]");
-            if(0 < team.size()) {
-                final JMenu jMenu = MenuFactory.create(getString("SendKey"));
-                for(final User teamMember : team)
-                    jMenu.add(new SendKey(application, teamMember));
-                jPopupMenu.add(jMenu);
-            }
-            jPopupMenu.add(new Close(application));
-        }
-        else { jPopupMenu.add(new RequestKey(application)); }
-        if(document.isRenameable()) {
-            jPopupMenu.add(new Rename(application));
-        }
         if(document.isClosed()) {
-            jPopupMenu.add(new Reactivate(application));
+            // MENU_ITEM Delete
+            jPopupMenu.addSeparator();
+            jPopupMenu.add(new Delete(application));
         }
-        jPopupMenu.addSeparator();
-        jPopupMenu.add(new Delete(application));
+        else {
+            if(document.isUrgent()) {
+                final List<KeyRequest> keyRequests = document.getKeyRequests();
+                if(keyRequests.size() >= 1) {
+                    final Set<JabberId> requestedBySet = new HashSet<JabberId>();
+                    for(final KeyRequest keyRequest : keyRequests) {
+                        // if a single user has requested more than once; we only
+                        // display one menu item.
+                        if(!requestedBySet.contains(keyRequest.getRequestedBy())) {
+                            // MENU_ITEM Accept Key Request ${RequestedBy}
+                            jPopupMenu.add(new AcceptKeyRequest(application, keyRequest.getId(), keyRequest.getRequestedByName()));
+                            requestedBySet.add(keyRequest.getRequestedBy());
+                        }
+                    }
+                    // MENU_ITEM Decline All Key Requests
+                    jPopupMenu.add(new DeclineAllKeyRequests(application));
+                    jPopupMenu.addSeparator();
+                }
+            }
+            // MENU_ITEM Share
+            jPopupMenu.add(createShare(application));
+            if(document.isKeyHolder()) {
+                if(0 < team.size()) {
+                    final JMenu jMenu = MenuFactory.create(getString("SendKey"));
+                    for(final User teamMember : team)
+                        jMenu.add(new SendKey(application, teamMember));
+                    // MENU_ITEM Send Key ${TeamMember}
+                    jPopupMenu.add(jMenu);
+                }
+                if(!document.isWorkingVersionEqual()) {
+                    // MENU_ITEM Publish
+                    jPopupMenu.add(new Publish(application));
+                }
+                // MENU_ITEM Close
+                jPopupMenu.add(new Close(application));
+            }
+            // MENU_ITEM Request Key
+            if(!document.isKeyHolder()) {
+                jPopupMenu.add(new RequestKey(application));
+            }
+            // MENU_ITEM Rename
+            if(!document.isDistributed()) {
+                jPopupMenu.add(new Rename(application));
+            }
+            if(document.isKeyHolder()) {
+                if(!document.isDistributed()) {
+                    // MENU_ITEM Delete
+                    jPopupMenu.addSeparator();
+                    jPopupMenu.add(new Delete(application));
+                }
+            }
+            else {
+                // MENU_ITEM Delete
+                jPopupMenu.addSeparator();
+                jPopupMenu.add(new Delete(application));
+            }
+        }
 
         // DEBUG Document Menu Options
         if(e.isShiftDown()) {

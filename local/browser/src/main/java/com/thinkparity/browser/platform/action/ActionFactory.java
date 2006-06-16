@@ -89,6 +89,8 @@ public class ActionFactory {
             return new com.thinkparity.browser.platform.action.document.Publish(browser);
         case CREATE_DOCUMENTS:
             return new com.thinkparity.browser.platform.action.document.CreateDocuments(browser);
+        case DOCUMENT_REACTIVATE:
+            return new com.thinkparity.browser.platform.action.document.Reactivate(browser);
         case DOCUMENT_SEND_KEY:
             return new com.thinkparity.browser.platform.action.document.SendKey(browser);
 		case ARTIFACT_ACCEPT_KEY_REQUEST:

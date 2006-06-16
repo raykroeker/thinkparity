@@ -263,11 +263,11 @@ public class MainCellDocument extends Document implements MainCell {
     public Boolean isKeyHolder() { return keyHolder; }
 
     /**
-     * Detemrine whether or not the document can be renamed.
-     *
-     * @return True if the document can be renamed; false otherwise.
+     * Determine whether or not the document has been distributed.
+     * 
+     * @return True if the document has been distributed.
      */
-    public Boolean isRenameable() { return !dModel.isDistributed(getId()); }
+    public Boolean isDistributed() { return dModel.isDistributed(getId()); }
 
     /**
      * Determine whether or not the document cell has been seen.

@@ -10,9 +10,7 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -54,24 +52,13 @@ public class Delete extends AbstractAction {
 	 * 
 	 */
 	public void invoke(Data data) throws Exception {
-		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
+	    final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Document document = getDocumentModel().get(documentId);
 
-        // needs to be closed first
-        if(ArtifactState.CLOSED != document.getState()) {
-            if(browser.confirm("DocumentDelete.ConfirmCloseAndDeleteMessage", new Object[] {document.getName()})) {
-                final DocumentModel dModel = getDocumentModel();
-                dModel.close(documentId);
-                browser.fireDocumentClosed(documentId, Boolean.FALSE);
-
-                dModel.delete(documentId);
-                browser.fireDocumentDeleted(documentId);
-            }
+        if(browser.confirm("DocumentDelete.ConfirmDeleteMessage", new Object[] {document.getName()})) {
+            getDocumentModel().delete(documentId);
+            browser.fireDocumentDeleted(documentId);
         }
-        else if(browser.confirm("DocumentDelete.ConfirmDeleteMessage", new Object[] {document.getName()})) {
-			getDocumentModel().delete(documentId);
-			browser.fireDocumentDeleted(documentId);
-		}
 	}
 
 	public enum DataKey { DOCUMENT_ID }

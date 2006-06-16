@@ -81,6 +81,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/** A logger info statement. */
     private static final String LOG_UWV_INFO = LOG_UWV;
 
+	private static StringBuffer getApiId(final String api) {
+        return getModelId("DOCUMENT").append(" ").append(api);
+    }
+
+	private static String getErrorId(final String api, final String error) {
+        return getApiId(api).append(" ").append(error).toString();
+    }
+
 	/** A document auditor. */
 	private final DocumentModelAuditor auditor;
 
@@ -96,19 +104,19 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/** A document history reader/writer. */
 	private final DocumentHistoryIOHandler documentHistoryIO;
 
-	/** A document reader/writer. */
+    /** A document reader/writer. */
 	private final DocumentIOHandler documentIO;
 
-	/** A document indexor. */
+    /** A document indexor. */
 	private final DocumentIndexor indexor;
 
-    /** A document event generator for local events. */
+	/** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-    /** A document event generator for remote events. */
+	/** A document event generator for remote events. */
     private final DocumentModelEventGenerator remoteEventGen;
 
-	/**
+    /**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -128,7 +136,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         this.remoteEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.REMOTE);
 	}
 
-	/**
+    /**
 	 * Accept the key request.
 	 * 
 	 * @param keyRequestId
@@ -196,7 +204,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 readUser(teamMember), get(documentId), remoteEventGen);
     }
 
-    /**
+	/**
 	 * @param documentId
 	 * @return
 	 * @throws ParityException
@@ -205,7 +213,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return archive(documentId, ProgressIndicator.emptyIndicator());
 	}
 
-    /**
+	/**
 	 * 
 	 * @param documentId
 	 * @param progressIndicator
@@ -231,7 +239,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         return archive;
 	}
 
-	/**
+    /**
 	 * Audit a key received event.
 	 * 
 	 * @param artifactId
@@ -249,7 +257,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		auditor.receiveKey(artifactId, createdBy, createdOn, receivedFrom);
 	}
 
-	/**
+    /**
 	 * Close a document.  Execute one of two close scenarios; audit the closure
      * then fire a close event.
      *
@@ -274,10 +282,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         // call the server's close api
         getInternalSessionModel().sendClose(documentId);
 
-        // delete remote team subscription
-        final InternalSessionModel iSModel = getInternalSessionModel();
-        iSModel.sendDelete(documentId);
-
         // audit
         auditor.close(
                 documentId, currentUserId(), currentDateTime(), currentUserId());
@@ -286,7 +290,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		notifyDocumentClosed(get(documentId), localEventGen);
     }
 
-    /**
+	/**
      * Confirm that the document sent previously has been received by the
      * specified user.
      * 
@@ -306,7 +310,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 getVersion(documentId, versionId), remoteEventGen);
     }
 
-    /**
+	/**
 	 * Import a document. This will take a name, description and location of a
 	 * document and copy the document into an internal store, then returns the
 	 * newly created document.
@@ -393,7 +397,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Create a new document version based upon an existing document. This will
 	 * check the cache for updates to the document, write the updates to the
 	 * document, then create a new version based upon that document.
@@ -531,7 +535,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Obtain a document with the specified unique id.
 	 * 
 	 * @param documentUniqueId
@@ -706,7 +710,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * A key request for a document was accepted.
      * 
      * @param documentId
@@ -774,7 +778,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 readUser(declinedBy), get(documentId), remoteEventGen);
     }
 
-    /**
+	/**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -953,7 +957,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Open a document version. Extract the version's content and open it.
 	 * 
 	 * @param documentId
@@ -984,7 +988,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Publish a document.  Publishing a document involves the following
      * process:<ol>
      *  <li>Check if the working version differs from the latest version. If<ul>
@@ -1024,7 +1028,37 @@ class DocumentModelImpl extends AbstractModelImpl {
                 getVersion(documentId, version.getVersionId()), localEventGen);
     }
 
-	List<HistoryItem> readHistory(final Long documentId)
+    /**
+     * Reactivate a document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @throws ParityException
+     */
+    void reactivate(final Long documentId) throws ParityException {
+        logger.info(getApiId("[REACTIVATE]"));
+        assertIsClosed(getErrorId("[REACTIVATE]", "[CANNOT REACTIVATE A CLOSED DOCUMENT]"), get(documentId));
+
+        // update the local state
+        final Document document = get(documentId);
+        assertStateTransition(document.getState(), ArtifactState.ACTIVE);
+        document.setState(ArtifactState.ACTIVE);
+        documentIO.update(document);
+
+        // set key locally
+        final InternalArtifactModel iAModel = getInternalArtifactModel();
+        iAModel.applyFlagKey(documentId);
+
+        // create remotely
+        final InternalSessionModel iSModel = getInternalSessionModel();
+        iSModel.sendCreate(document);
+
+        // share
+        final Set<User> users = iAModel.readTeam(documentId);
+        for(final User user : users) { share(documentId, user.getId()); }
+    }
+
+    List<HistoryItem> readHistory(final Long documentId)
 			throws ParityException {
 		logger.info("readHistory(Long)");
 		logger.debug(documentId);

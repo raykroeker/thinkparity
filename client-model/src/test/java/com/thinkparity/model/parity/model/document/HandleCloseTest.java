@@ -11,10 +11,10 @@ import java.util.Set;
 
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.session.KeyResponse;
+import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -49,7 +49,7 @@ public class HandleCloseTest extends DocumentTestCase {
 
             team = datum.aModel.readTeam(datum.documentId);
             assertNotNull("[LMODEL] [DOCUMENT] [TEST CLOSE] [TEAM IS NULL]", team);
-            assertEquals("[LMODEL] [DOCUMENT] [TEST CLOSE] [NON-ZERO TEAM SIZE]", team.size(), 0);
+            assertEquals("[LMODEL] [DOCUMENT] [TEST CLOSE] [NON-ZERO TEAM SIZE]", datum.eTeamSize.intValue(), team.size());
         }
 	}
 
@@ -73,7 +73,7 @@ public class HandleCloseTest extends DocumentTestCase {
         modifyDocument(d0);
         dModel.publish(d0.getId());
         sModel.sendKeyResponse(d0.getId(), userX.getJabberId(), KeyResponse.ACCEPT);
-        data.add(new Fixture(aModel, userX.getJabberId(), dMImpl, dModel, d0.getId()));
+        data.add(new Fixture(aModel, userX.getJabberId(), dMImpl, dModel, d0.getId(), aModel.readTeam(d0.getId()).size()));
 	}
 
 	/**
@@ -92,14 +92,16 @@ public class HandleCloseTest extends DocumentTestCase {
 		private final DocumentModelImpl dMImpl;
         private final DocumentModel dModel;
 		private final Long documentId;
+        private final Integer eTeamSize;
 		private Fixture(final ArtifactModel aModel, final JabberId closedBy,
                 final DocumentModelImpl dMImpl, final DocumentModel dModel,
-                final Long documentId) {
+                final Long documentId, final Integer eTeamSize) {
             this.aModel = aModel;
             this.closedBy = closedBy;
 			this.dMImpl = dMImpl;
             this.dModel = dModel;
 			this.documentId = documentId;
+            this.eTeamSize = eTeamSize;
 		}
 	}
 }

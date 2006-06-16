@@ -65,6 +65,12 @@ public abstract class DocumentTestCase extends ModelTestCase {
     protected void addTeam(final Long documentId) throws Exception {
         final ModelTestUser userX = ModelTestUser.getX();
         getDocumentModel().share(documentId, userX.getJabberId());
+
+        final ModelTestUser userY = ModelTestUser.getY();
+        getDocumentModel().share(documentId, userY.getJabberId());
+
+        final ModelTestUser userZ = ModelTestUser.getZ();
+        getDocumentModel().share(documentId, userZ.getJabberId());
     }
 
     protected void modifyDocument(final Document document) throws Exception {

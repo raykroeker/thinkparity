@@ -114,7 +114,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 
 	private static final String SQL_UPDATE =
 		new StringBuffer("update ARTIFACT ")
-		.append("set UPDATED_ON=?,ARTIFACT_NAME=? ")
+		.append("set UPDATED_ON=?,ARTIFACT_NAME=?,ARTIFACT_STATE_ID=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
@@ -461,7 +461,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#update(com.thinkparity.model.parity.model.document.Document)
 	 */
 	public void update(final Document document) {
-		logger.warn("Update is misleading.  Only name, timestamp and flag information is being set.");
+		logger.warn("Update is misleading.  Only name, state, timestamp and flag information is being set.");
 		final Session session = openSession();
 		try {
 			artifactIO.setFlags(session, document.getId(), document.getFlags());
@@ -469,7 +469,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_UPDATE);
 			session.setCalendar(1, document.getUpdatedOn());
             session.setString(2, document.getName());
-			session.setLong(3, document.getId());
+            session.setStateAsInteger(3, document.getState());
+			session.setLong(4, document.getId());
 			if(1 != session.executeUpdate())
 				throw new HypersonicException("Could not update document.");
 

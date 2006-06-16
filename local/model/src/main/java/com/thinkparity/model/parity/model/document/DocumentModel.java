@@ -1,5 +1,6 @@
 /*
- * Mar 6, 2005
+ * Created On: Mar 6, 2005
+ * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -386,6 +387,17 @@ public class DocumentModel {
      */
     public void publish(final Long documentId) throws ParityException {
         synchronized(implLock) { impl.publish(documentId); }
+    }
+
+    /**
+     * Reactivate a document.
+     * 
+     * @param documentId
+     *            The document id.
+     * @throws ParityException
+     */
+    public void reactivate(final Long documentId) throws ParityException {
+        synchronized(implLock) { impl.reactivate(documentId); }
     }
 
 	/**

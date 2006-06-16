@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.thinkparity.parity</groupId>
-    <version>1.0.0-RC5</version>
+    <version>1.0.0-RC6</version>
     <url>http://thinkparity.dyndns.org</url>
 
     <parent>
@@ -12,41 +12,41 @@
         <version>1.0.0-RC5</version>
     </parent>
 
-	<artifactId>codebase</artifactId>
-	<name>thinkParity - Codebase</name>
-	<packaging>jar</packaging>
+    <artifactId>codebase</artifactId>
+    <name>thinkParity - Codebase</name>
+    <packaging>jar</packaging>
 
-	<scm>
-		<connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:codebase</connection>
-		<tag>v1_0</tag>
-		<url>http://tpdev.thinkparity.com/viewcvs</url>
-	</scm>
+    <scm>
+        <connection>scm:cvs:pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401:/home/cvs/thinkparity.com/parity:codebase</connection>
+        <tag>v1_0</tag>
+        <url>http://tpdev.thinkparity.com/viewcvs</url>
+    </scm>
 
-	<dependencies>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.13</version>
-			<scope>compile</scope>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.13</version>
+            <scope>compile</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>com.raykroeker</groupId>
-			<artifactId>jUnitX</artifactId>
-			<version>1.0.2</version>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.raykroeker</groupId>
+            <artifactId>jUnitX</artifactId>
+            <version>1.0.2</version>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<repositories>
+    <repositories>
         <repository>
             <id>tpdev.thinkparity.com</id>
             <url>http://localhost/maven/repository</url>

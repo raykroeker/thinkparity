@@ -66,7 +66,6 @@
     </target>
 
 	<target name="init">
-<echoproperties/>
         <mkdir dir="${target.classes.dir}"/>
 		<mkdir dir="${target.test-classes.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>

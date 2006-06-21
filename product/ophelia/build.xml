@@ -2,8 +2,12 @@
 <project name="lBrowser" default="help" basedir=".">
     <property name="build.sysclasspath" value="ignore"/>
 
+    <!-- launch4j task definition -->
+    <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
+            classpath="${basedir}/vendor/launch4j/2.1.3/launch4j.jar:${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
+
     <!-- release configuration -->
-    <property name="release.version" value="1.0.0-RC7"/>
+    <property name="release.version" value="1.0.0-RC9"/>
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
@@ -130,7 +134,6 @@ Examples:
 	<target name="init">
         <mkdir dir="${target.classes.dir}"/>
         <mkdir dir="${target.javadoc.dir}"/>
-        <mkdir dir="${target.release.dir}"/>
 		<mkdir dir="${target.test-classes.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
 	</target>
@@ -155,21 +158,24 @@ Examples:
         <copy todir="${target.classes.dir}" overwrite="true">
             <fileset dir="${basedir}/common/codebase/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
-                <filtersfile file="${basedir}/local/browser/build.filters"/>
+                <filter token="pom.version" value="${release.version}"/>
+                <filtersfile file="${basedir}/build.filters"/>
                 <filtersfile file="${basedir}/common/codebase/build.filters"/>
             </filterset>
         </copy>
         <copy todir="${target.classes.dir}" overwrite="true">
             <fileset dir="${basedir}/local/browser/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
-                <filtersfile file="${basedir}/local/browser/build.filters"/>
+                <filter token="pom.version" value="${release.version}"/>
+                <filtersfile file="${basedir}/build.filters"/>
                 <filtersfile file="${basedir}/local/browser/build.filters"/>
             </filterset>
         </copy>
         <copy todir="${target.classes.dir}" overwrite="true">
             <fileset dir="${basedir}/local/model/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
-                <filtersfile file="${basedir}/local/browser/build.filters"/>
+                <filter token="pom.version" value="${release.version}"/>
+                <filtersfile file="${basedir}/build.filters"/>
                 <filtersfile file="${basedir}/local/model/build.filters"/>
             </filterset>
         </copy>

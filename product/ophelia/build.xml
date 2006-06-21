@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="lBrowser" default="help" basedir=".">
+<project name="ophelia" default="help" basedir=".">
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- release configuration -->
@@ -7,7 +7,7 @@
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
-    <property name="cvs.modules" value="lBrowserSource lBrowserLibs lBrowserLibsWin32"/>
+    <property name="cvs.modules" value="opheliaSource opheliaLibs opheliaLibsWin32"/>
     <property name="cvs.tag" value="v1_0"/>
 
     <!-- output directories -->

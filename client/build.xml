@@ -8,6 +8,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.modules" value="opheliaSource opheliaLibs opheliaLibsWin32"/>
+    <property name="cvs.modules.ide" value="opheliaEclipse"/>
     <property name="cvs.tag" value="v1_0"/>
 
     <!-- output directories -->
@@ -77,6 +78,16 @@
         <echo message="${cvs.modules}"/>
         <cvs cvsroot="${cvs.cvsroot}"
             command="checkout" tag="${cvs.tag}" package="${cvs.modules}"
+            dest="${basedir}"/>
+    </target>
+
+    <!-- checkout ide files -->
+    <target name="checkout.ide">
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="checkout" tag="${cvs.tag}" package="${cvs.modules.ide}"
             dest="${basedir}"/>
     </target>
 

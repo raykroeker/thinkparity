@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="com.thinkparity.local.browser" default="help" basedir=".">
+<project name="lBrowser" default="help" basedir=".">
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- cvs configuration -->
@@ -120,7 +120,7 @@ Examples:
         <javadoc access="private" classpathref="project.classpath"
                 destdir="${target.javadoc.dir}"
                 doctitle="thinkParity Local Browser"
-                group="Browser com.thinkparity.browser com.thinkparity.browser.*,Model com.thinkparity.model com.thinkparity.model.*,Migrator com.thinkparity.migrator,Codebase com.thinkparity.codebase com.thinkparity.codebase.*"
+                group="Browser com.thinkparity.browser:com.thinkparity.browser.*,Model com.thinkparity.model:com.thinkparity.model.*,Migrator com.thinkparity.migrator,Codebase com.thinkparity.codebase:com.thinkparity.codebase.*"
                 packagenames="com.thinkparity.*"
                 sourcepathref="project.sourcepath"/>
     </target>

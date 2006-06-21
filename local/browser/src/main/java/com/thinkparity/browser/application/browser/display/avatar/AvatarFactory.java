@@ -51,6 +51,12 @@ public class AvatarFactory {
 	 * 
 	 */
 	private Avatar browserMain;
+    
+    /**
+     * The contacts list avatar.
+     * 
+     */
+    private Avatar browserContacts;
 
 	/**
 	 * The browser title avatar.
@@ -96,6 +102,19 @@ public class AvatarFactory {
 		}
 		return browserMain;
 	}
+    
+    /**
+     * Create the contacts list avatar.
+     * 
+     * @return The contacts list avatar.
+     */
+    private Avatar createBrowserContacts() {
+        if(null == browserContacts) {
+            browserContacts = new BrowserContactsAvatar();
+            browserContacts.setContentProvider(ProviderFactory.getContactsProvider());
+        }
+        return browserContacts;
+    }
 
 	/**
 	 * Create the browser title avatar.
@@ -194,6 +213,9 @@ public class AvatarFactory {
 		case BROWSER_MAIN:
 			avatar = createBrowserMain();
 			break;
+        case BROWSER_CONTACTS:
+            avatar = createBrowserContacts();
+            break;
 		case BROWSER_TITLE:
 			avatar = createBrowserTitle();
 			break;

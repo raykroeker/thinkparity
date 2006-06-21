@@ -23,6 +23,7 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.BrowserContactsAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.BrowserTitleAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.Status;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
@@ -138,6 +139,12 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	private final BrowserState state;
+    
+    /**
+     * The current tab (documents or contacts)
+     */
+    private enum BrowserTab { DOCUMENTS_TAB, CONTACTS_TAB }
+    private BrowserTab currentTab = BrowserTab.DOCUMENTS_TAB;
 
 	/**
 	 * Create a Browser [Singleton]
@@ -290,7 +297,17 @@ public class Browser extends AbstractApplication {
 	 *
 	 */
 	public void displaySessionManageContacts() {
-		displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
+        // TO DO fix up!
+        if (currentTab == BrowserTab.DOCUMENTS_TAB) {
+            currentTab = BrowserTab.CONTACTS_TAB;
+            displayContactListAvatar();
+        }
+        else {
+            currentTab = BrowserTab.DOCUMENTS_TAB;
+            displayDocumentListAvatar();
+        }
+        
+		// displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
 	}
 
 	/**
@@ -980,7 +997,14 @@ public class Browser extends AbstractApplication {
 	void displayDocumentListAvatar() {
 		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
 	}
-
+    
+    /**
+     * Display the contacts list.
+     *
+     */
+    void displayContactListAvatar() {
+        displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_CONTACTS);
+    }
 	/**
 	 * Display the browser info.
 	 *
@@ -1169,6 +1193,15 @@ public class Browser extends AbstractApplication {
         return (BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN);
     }
 
+    /**
+     * Convenience method to obtain the contacts avatar.
+     * 
+     * @return The contacts avatar.
+     */
+    private BrowserContactsAvatar getContactsAvatar() {
+        return (BrowserContactsAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTACTS);
+    }
+    
     /**
      * Convenience method to obtain the status avatar.
      * 

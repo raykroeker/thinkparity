@@ -1,5 +1,5 @@
 /*
- * Jan 5, 2006
+ * June 20, 2006
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 

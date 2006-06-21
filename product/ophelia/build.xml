@@ -4,7 +4,7 @@
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
-    <property name="cvs.modules" value="lBrowserLibs"/>
+    <property name="cvs.modules" value="lBrowserSource lBrowserLibs"/>
     <property name="cvs.tag" value="v1_0"/>
 
     <!-- output directories -->

@@ -2,10 +2,6 @@
 <project name="lBrowser" default="help" basedir=".">
     <property name="build.sysclasspath" value="ignore"/>
 
-    <!-- launch4j task definition -->
-    <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
-            classpath="${basedir}/vendor/launch4j/2.1.3/launch4j.jar:${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
-
     <!-- release configuration -->
     <property name="release.version" value="1.0.0-RC9"/>
 
@@ -183,6 +179,10 @@ Examples:
 
     <!-- release -->
     <target name="release">
+        <!-- launch4j task definition -->
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
+            classpath="${basedir}/vendor/launch4j/2.1.3/launch4j.jar:${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
+
         <!-- / -->
         <mkdir dir="${target.release.dir}"/>
         <copy todir="${target.release.dir}">

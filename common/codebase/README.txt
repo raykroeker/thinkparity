@@ -1,2 +1,0 @@
-thinkParity.com
-codebase

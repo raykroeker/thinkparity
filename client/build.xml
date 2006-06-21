@@ -4,7 +4,7 @@
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
-    <property name="cvs.modules" value="common/codebase common/junitx common/migrator local/browser local/model local/thinkparity lib/commons-codec lib/commons-codec-sources lib/commons-codec-javadoc lib/hsqldb lib/hsqldb-sources lib/hsqldb-javadoc lib/jdic lib/jdic-sources lib/jdic-javadoc lib/junit lib/junit-sources lib/junit-javadoc lib/log4j lib/log4j-sources lib/log4j-javadoc lib/lucene lib/lucene-sources lib/lucene-javadoc lib/smack lib/smack-sources lib/smack-javadoc lib/smackx lib/smackx-sources lib/smackx-javadoc lib/swing-layout lib/swing-layout-sources lib/swing-layout-javadoc lib/xpp3 lib/xpp3-sources lib/xpp3-javadoc lib/xstream lib/xstream-sources lib/xstream-javadoc"/>
+    <property name="cvs.modules" value="lBrowserLibs"/>
     <property name="cvs.tag" value="v1_0"/>
 
     <!-- output directories -->

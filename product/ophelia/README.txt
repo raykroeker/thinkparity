@@ -52,12 +52,13 @@ Source Tree
             +>swing-layout
             +>xpp3
             +>xstream
-        +.classpath                 // Eclipse IDE
+        +.classpath                                         // Eclipse IDE
         +.cvsignore
-        +.project                   // Eclipse IDE
-        +build.filters
-        +build.xml
+        +.project                                           // Eclipse IDE
+        +build.filters                                      // Ant Build Filters
+        +build.xml                                          // Ant Build Definition
         +LICENSE.txt
+        +ophelia - com.thinkparity.browser.Browser.launch   // Eclipse Launch
         +README.txt
 
 How To:  Build a Release

@@ -7,7 +7,7 @@
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
-    <property name="cvs.modules" value="lBrowserSource lBrowserLibs"/>
+    <property name="cvs.modules" value="lBrowserSource lBrowserLibs lBrowserLibsWin32"/>
     <property name="cvs.tag" value="v1_0"/>
 
     <!-- output directories -->
@@ -192,6 +192,7 @@ Examples:
             </fileset>
             <fileset dir="${target.classes.dir}">
                 <include name="thinkParity.properties"/>
+                <include name="lBrowser.launch4j.xml"/>
             </fileset>
         </copy>
         <jar destfile="${target.release.dir}/thinkParity.jar"
@@ -200,6 +201,22 @@ Examples:
                 <include name="com/thinkparity/*"/>
             </fileset>
         </jar>
+        <launch4j>
+            <config dontWrapJar="true" headerType="0"
+                    jarPath="thinkParity.jar"
+                    outfile="${target.release.dir}/thinkParity.exe"
+                    errTitle="thinkParity - Error" customProcName="true"
+                    stayAlive="false"
+                    icon="${target.classes.dir}/images/ThinkParity32x32.ico">
+                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=thinkparity.dyndns.org -Dparity.serverport=5222"/>
+                    <!--
+                        <args>-Dparity.install=&quot;%EXEDIR%&quot;
+-Dparity.serverhost=thinkparity.dyndns.org
+-Dparity.serverport=5222</args>
+                    </jre>
+                    -->
+            </config>
+        </launch4j>
         <!-- ${release.image}/ -->
         <property name="target.release.image.dir" value="${target.release.dir}/${release.version}"/>
         <mkdir dir="${target.release.image.dir}"/>

@@ -83,6 +83,8 @@ public class ReadArtifactTeamTest extends ModelTestCase {
 	 * 
 	 */
 	protected void tearDown() throws Exception {
+	    logout();
+
 		super.tearDown();
 	}
 

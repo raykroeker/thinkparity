@@ -87,8 +87,11 @@
         <echo message="${cvs.tag}"/>
         <echo message="${cvs.modules.ide}"/>
         <cvs cvsroot="${cvs.cvsroot}"
-            command="checkout" tag="${cvs.tag}" package="${cvs.modules.ide}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.tag}" package="${cvs.modules.ide}"
             dest="${basedir}"/>
+        <move todir="${basedir}">
+            <fileset dir="${basedir}/ide"/>
+        </move>
     </target>
 
     <!-- delete output -->

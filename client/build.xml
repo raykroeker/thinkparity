@@ -1,15 +1,19 @@
+<?xml version="1.0"?>
 <project name="com.thinkparity.local.browser" default="help" basedir=".">
     <property name="build.sysclasspath" value="ignore"/>
 
+    <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.modules" value="common/codebase common/junitx common/migrator local/browser local/model local/thinkparity lib/commons-codec lib/commons-codec-sources lib/commons-codec-javadoc lib/hsqldb lib/hsqldb-sources lib/hsqldb-javadoc lib/jdic lib/jdic-sources lib/jdic-javadoc lib/junit lib/junit-sources lib/junit-javadoc lib/log4j lib/log4j-sources lib/log4j-javadoc lib/lucene lib/lucene-sources lib/lucene-javadoc lib/smack lib/smack-sources lib/smack-javadoc lib/smackx lib/smackx-sources lib/smackx-javadoc lib/swing-layout lib/swing-layout-sources lib/swing-layout-javadoc lib/xpp3 lib/xpp3-sources lib/xpp3-javadoc lib/xstream lib/xstream-sources lib/xstream-javadoc"/>
     <property name="cvs.tag" value="v1_0"/>
 
+    <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
 	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
 	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
+    <!-- source files -->
 	<path id="project.sourcepath">
 		<pathelement location="${basedir}/common/codebase/src/main/java"/>
 		<pathelement location="${basedir}/common/migrator/src/main/java"/>
@@ -18,6 +22,7 @@
 		<pathelement location="${basedir}/local/thinkparity/src/main/java"/>
 	</path>
 
+    <!-- source files for the junit test code -->
 	<path id="project.test-sourcepath">
 		<pathelement location="${basedir}/common/junitx/src/main/java"/>
 		<pathelement location="${basedir}/common/codebase/src/test/java"/>
@@ -25,6 +30,7 @@
 		<pathelement location="${basedir}/local/model/src/test/java"/>
 	</path>
 
+    <!-- compile classpath -->
 	<path id="project.classpath">
 		<pathelement location="${target.classes.dir}"/>
 		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j-1.2.13.jar"/>
@@ -38,40 +44,75 @@
 		<pathelement location="${basedir}/vendor/jdic/0.9.1/jdic-0.9.1.jar"/>
 	</path>
 
+    <!-- test classpath (test compile and test run) -->
     <path id="project.test-classpath">
         <pathelement location="${target.test-classes.dir}"/>
         <pathelement location="${basedir}/vendor/junit/3.8.1/junit-3.8.1.jar"/>
         <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb-1.8.0.2.jar"/>
     </path>
 
-	<target name="clean">
-		<delete dir="${target.dir}"/>
-	</target>
-
-	<target name="compile" depends="init,process-resources">
-		<javac destdir="${target.classes.dir}" debug="${compile.debug}">
-			<src refid="project.sourcepath"/>
-			<classpath refid="project.classpath"/>
-		</javac>
-	</target>
-
-    <target name="help">
-        <echo message="-Dcompile.debug=true,false    Generate all debugging info."/>
-    </target>
-
+    <!-- checkout source -->
     <target name="checkout">
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.modules}"/>
         <cvs cvsroot="${cvs.cvsroot}"
             command="checkout" tag="${cvs.tag}" package="${cvs.modules}"
             dest="${basedir}"/>
     </target>
 
+    <!-- delete output -->
+	<target name="clean">
+		<delete dir="${target.dir}"/>
+	</target>
+
+    <!-- compile -->
+	<target name="compile" depends="init,process-resources">
+        <!-- if the compile.debug is not set; use true as a default otherwise
+             use the value itself -->
+        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
+            <isset property="compile.debug"/>
+        </condition>
+
+		<javac destdir="${target.classes.dir}" debug="${compile.innerDebug}">
+			<src refid="project.sourcepath"/>
+			<classpath refid="project.classpath"/>
+		</javac>
+	</target>
+
+    <!-- print help -->
+    <target name="help">
+        <echo>
+Options:
+    -Dcompile.debug=true,false  Generate compiler debug info.
+                                Default:true
+Targets:
+    checkout                    Checkout all source.
+    clean                       Delete output.
+    compile                     Compile source.
+    process-resources           Process resources.
+    test                        Run tests.
+    test-compile                Compile test source.
+    test-process-resources      Process test resources.
+Examples:
+    First Run:
+    ant checkout test           Will grab all source from cvs; process all
+                                resources; compile all code and run all tests.
+
+    Subsequent Runs:
+    ant test                    Will process all resources; compile all code; run
+                                all tests.
+        </echo>
+    </target>
+
+    <!-- initialize output -->
 	<target name="init">
         <mkdir dir="${target.classes.dir}"/>
 		<mkdir dir="${target.test-classes.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
-        <echo message="-Dcompile.debug=${compile.debug}"/>
 	</target>
 
+    <!-- process resources -->
     <target name="process-resources">
         <copy todir="${target.classes.dir}">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
@@ -101,15 +142,7 @@
         </copy>
     </target>
 
-    <target name="test-process-resources">
-        <copy todir="${target.test-classes.dir}">
-            <fileset dir="${basedir}/common/junitx/src/main/resources"/>
-
-            <fileset dir="${basedir}/local/browser/src/test/resources"/>
-            <fileset dir="${basedir}/local/model/src/test/resources"/>
-        </copy>
-    </target>
-
+    <!-- unit test -->
 	<target name="test" depends="test-compile">
 		<junit fork="on" forkmode="once" reloading="false" errorproperty="junit.didError" failureproperty="junit.didFail">
 			<classpath refid="project.classpath"/>
@@ -132,6 +165,7 @@
         <fail message="JUnit error." if="junit.didError"/>
 	</target>
 
+    <!-- compile tests -->
 	<target name="test-compile" depends="compile,test-process-resources">
 		<javac destdir="${target.test-classes.dir}" debug="${compile.debug}">
 			<src refid="project.test-sourcepath"/>
@@ -140,4 +174,13 @@
 		</javac>
 	</target>
 
+    <!-- process test resources -->
+    <target name="test-process-resources">
+        <copy todir="${target.test-classes.dir}">
+            <fileset dir="${basedir}/common/junitx/src/main/resources"/>
+
+            <fileset dir="${basedir}/local/browser/src/test/resources"/>
+            <fileset dir="${basedir}/local/model/src/test/resources"/>
+        </copy>
+    </target>
 </project>

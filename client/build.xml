@@ -10,6 +10,7 @@
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
 	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
 	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
@@ -90,6 +91,7 @@ Targets:
     checkout                    Checkout all source.
     clean                       Delete output.
     compile                     Compile source.
+    javadoc                     Generate javadoc (html) documentation.
     process-resources           Process resources.
     test                        Run tests.
     test-compile                Compile test source.
@@ -108,9 +110,20 @@ Examples:
     <!-- initialize output -->
 	<target name="init">
         <mkdir dir="${target.classes.dir}"/>
+        <mkdir dir="${target.javadoc.dir}"/>
 		<mkdir dir="${target.test-classes.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
 	</target>
+
+    <!-- document the source -->
+    <target name="javadoc">
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}"
+                doctitle="thinkParity Local Browser"
+                group="Browser com.thinkparity.browser com.thinkparity.browser.*,Model com.thinkparity.model com.thinkparity.model.*,Migrator com.thinkparity.migrator,Codebase com.thinkparity.codebase com.thinkparity.codebase.*"
+                packagenames="com.thinkparity.*"
+                sourcepathref="project.sourcepath"/>
+    </target>
 
     <!-- process resources -->
     <target name="process-resources">

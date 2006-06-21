@@ -63,8 +63,8 @@
     <!-- test classpath (test compile and test run) -->
     <path id="project.test-classpath">
         <pathelement location="${target.test-classes.dir}"/>
-        <pathelement location="${basedir}/vendor/junit/3.8.1/junit-3.8.1.jar"/>
-        <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb-1.8.0.2.jar"/>
+        <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
+        <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
     </path>
 
     <!-- checkout source -->

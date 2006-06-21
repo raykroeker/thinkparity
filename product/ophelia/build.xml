@@ -3,7 +3,7 @@
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- release configuration -->
-    <property name="release.version" value="1.0.0-RC9"/>
+    <property name="release.version" value="1.0.0-RC7"/>
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
@@ -92,7 +92,6 @@
         <condition property="compile.innerDebug" value="${compile.debug}" else="true">
             <isset property="compile.debug"/>
         </condition>
-
 		<javac destdir="${target.classes.dir}" debug="${compile.innerDebug}">
 			<src refid="project.sourcepath"/>
 			<classpath refid="project.classpath"/>
@@ -282,7 +281,13 @@ Examples:
 
     <!-- compile tests -->
 	<target name="test-compile" depends="compile,test-process-resources">
-		<javac destdir="${target.test-classes.dir}" debug="${compile.debug}">
+        <!-- if the compile.debug is not set; use true as a default otherwise
+             use the value itself -->
+        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
+            <isset property="compile.debug"/>
+        </condition>
+	
+		<javac destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
 			<src refid="project.test-sourcepath"/>
 			<classpath refid="project.classpath"/>
 			<classpath refid="project.test-classpath"/>

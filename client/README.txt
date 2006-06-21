@@ -52,9 +52,9 @@ Source Tree
             +>swing-layout
             +>xpp3
             +>xstream
-        +.classpath
+        +.classpath                 // Eclipse IDE
         +.cvsignore
-        +.project
+        +.project                   // Eclipse IDE
         +build.filters
         +build.xml
         +LICENSE.txt

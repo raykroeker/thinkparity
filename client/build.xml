@@ -66,6 +66,7 @@
     </target>
 
 	<target name="init">
+<echo message="ant home:${ANT_HOME}"/>
         <mkdir dir="${target.classes.dir}"/>
 		<mkdir dir="${target.test-classes.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>

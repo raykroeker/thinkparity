@@ -29,6 +29,7 @@ Checkout Source
 
 Source Tree
     +>ophelia
+    	+>.externalToolBuilders		// Eclipse IDE
         +>common                    // All location generic code (non local;
             +>codebase              // non-remote) code lives in common.
             +>junitx

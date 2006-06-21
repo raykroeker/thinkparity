@@ -2,6 +2,9 @@
 <project name="lBrowser" default="help" basedir=".">
     <property name="build.sysclasspath" value="ignore"/>
 
+    <!-- release configuration -->
+    <property name="release.version" value="1.0.0-RC7"/>
+
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.modules" value="lBrowserSource lBrowserLibs"/>
@@ -176,41 +179,53 @@ Examples:
     <target name="release">
         <!-- / -->
         <mkdir dir="${target.release.dir}"/>
+        <copy todir="${target.release.dir}">
+            <fileset dir="${basedir}">
+                <include name="README.txt"/>
+                <include name="LICENSE.txt"/>
+            </fileset>
+            <fileset dir="${target.classes.dir}">
+                <include name="thinkParity.properties"/>
+            </fileset>
+        </copy>
         <jar destfile="${target.release.dir}/thinkParity.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/*"/>
             </fileset>
         </jar>
-        <!-- /core/ -->
-        <mkdir dir="${target.release.dir}/core"/>
-        <jar destfile="${target.release.dir}/core/codebase.jar"
+        <!-- ${release.image}/ -->
+        <property name="target.release.image.dir" value="${target.release.dir}/${release.version}"/>
+        <mkdir dir="${target.release.image.dir}"/>
+        <!-- ${release.image}/core/ -->
+        <mkdir dir="${target.release.image.dir}/core"/>
+        <jar destfile="${target.release.image.dir}/core/codebase.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/codebase/*/**"/>
             </fileset>
         </jar>
-        <jar destfile="${target.release.dir}/core/migrator.jar"
+        <jar destfile="${target.release.image.dir}/core/migrator.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/migrator/*/**"/>
             </fileset>
         </jar>
-        <jar destfile="${target.release.dir}/core/model.jar"
+        <jar destfile="${target.release.image.dir}/core/model.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/model/*/**"/>
             </fileset>
         </jar>
-        <jar destfile="${target.release.dir}/core/browser.jar"
+        <jar destfile="${target.release.image.dir}/core/browser.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/browser/*/**"/>
             </fileset>
         </jar>
-        <!-- /lib/ -->
-        <mkdir dir="${target.release.dir}/lib"/>
-        <copy todir="${target.release.dir}/lib">
+        <!-- ${release.image}/lib/ -->
+        <mkdir dir="${target.release.image.dir}/lib"/>
+        <copy todir="${target.release.image.dir}/lib">
             <fileset refid="project.runtimevendorlib"/>
             <mapper type="flatten"/>
         </copy>

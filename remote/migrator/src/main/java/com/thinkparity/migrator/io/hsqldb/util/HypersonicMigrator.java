@@ -255,7 +255,7 @@ class HypersonicMigrator {
         session.setString(3, artifactId);
         session.setString(4, version);
         session.setString(5, path);
-        session.setCalendar(5, createdOn);
+        session.setCalendar(6, createdOn);
         if(1 != session.executeUpdate())
             throw new HypersonicException("[RMIGRATOR] [IO] [UTIL] [HYPERSONIC MIGRATOR] [CANNOT INSERT LIBRARY TEST DATA]");
         final Long libraryId = session.getIdentity();

@@ -41,19 +41,10 @@ public final class Constants {
 
     /** Miscellaneous constants. */
     public static class Sundry {
-        public static final String CLIENT_RESOURCE = "parity";
-
         public static final String LOG4J_FILE = "rMigrator.html";
     }
 
     public static final class Xml {
-
-        public static final String NAME = "query";
-       
-        public static final String NAMESPACE = "jabber:iq:parity";
-
-        public static final String RESPONSE_NAMESPACE = "jabber:iq:parity:response";
-
         public static final class Library {
             public static final String ARTIFACT_ID = "artifactId";
             public static final String BYTES = "bytes";

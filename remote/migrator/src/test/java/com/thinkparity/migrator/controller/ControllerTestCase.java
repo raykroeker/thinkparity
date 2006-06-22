@@ -12,7 +12,7 @@ import org.xmpp.packet.PacketError;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.MigratorTestCase;
-import com.thinkparity.migrator.util.IQWriter;
+import com.thinkparity.migrator.xmpp.IQWriter;
 
 /**
  * A controller test case abstraction.

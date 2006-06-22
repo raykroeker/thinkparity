@@ -8,21 +8,13 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.jivesoftware.messenger.IQHandlerInfo;
-import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
-import org.xmpp.packet.PacketError;
-
-import com.thinkparity.codebase.StringUtil;
 
 import com.thinkparity.migrator.Library;
-import com.thinkparity.migrator.LoggerFactory;
-import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.model.release.ReleaseModel;
-import com.thinkparity.migrator.util.IQReader;
-import com.thinkparity.migrator.util.IQWriter;
+import com.thinkparity.migrator.xmpp.IQReader;
+import com.thinkparity.migrator.xmpp.IQWriter;
 
 /**
  * An abstraction of the use-case controller from the MVC paradigm. The IQ
@@ -33,55 +25,39 @@ import com.thinkparity.migrator.util.IQWriter;
  * @version 1.1
  */
 public abstract class AbstractController extends
-		org.jivesoftware.messenger.handler.IQHandler {
+        com.thinkparity.codebase.controller.AbstractController {
 
-    /** An apache logger. */
-	protected final Logger logger;
-
-	/** The info. */
-	private final IQHandlerInfo info;
-
-	/** An iq reader. */
+    /** The migrator's custom iq reader. */
     private IQReader iqReader;
 
-    /** An iq writer. */
+	/** The migrator's custom iq writer. */
     private IQWriter iqWriter;
 
-	/**
-	 * Create a AbstractController.
-	 */
-	protected AbstractController(final String action) {
-		super(action);
-		this.info = new IQHandlerInfo(
-                Xml.NAME,
-                Xml.NAMESPACE + ":" + action);
-        this.logger = LoggerFactory.getLogger(getClass());
-	}
+    /**
+     * Create AbstractController.
+     * 
+     * @param action
+     *            The action the controller will handle.
+     */
+	protected AbstractController(final String action) { super(action); }
 
-    /** @see org.jivesoftware.messenger.handler.IQHandler#getInfo() */
-	public IQHandlerInfo getInfo() { return info; }
-
-    /** @see org.jivesoftware.messenger.handler.IQHandler#handleIQ(org.xmpp.packet.IQ) */
-    public IQ handleIQ(final IQ iq) throws UnauthorizedException {
-        logger.info("[RMIGRATOR] [CONTROLLER] [HANDLE IQ]");
-        logger.debug(iq);
+    /**
+     * @see com.thinkparity.codebase.controller.AbstractController#createReader(org.xmpp.packet.IQ)
+     * 
+     */
+    public com.thinkparity.codebase.xmpp.IQReader createReader(final IQ iq) {
         iqReader = new IQReader(iq);
-
-        final IQ response = createResponse(iq);
-        iqWriter = new IQWriter(response);
-        
-        try { service(); }
-        catch(final Throwable t) {
-            logger.error("[RMIGRATOR] [CONTROLLER] [UNKNOWN ERROR]", t);
-            return createErrorResponse(iq, t);
-        }
-
-        logger.debug(response);
-        return response;
+        return iqReader;
     }
 
-    /** Handle an internet query. */
-    public abstract void service();
+    /**
+     * @see com.thinkparity.codebase.controller.AbstractController#createWriter(org.xmpp.packet.IQ)
+     * 
+     */
+    public com.thinkparity.codebase.xmpp.IQWriter createWriter(final IQ iq) {
+        iqWriter = new IQWriter(iq);
+        return iqWriter;
+    }
 
     /**
      * Obtain the parity library interface.
@@ -103,17 +79,6 @@ public abstract class AbstractController extends
      */
     protected ReleaseModel getReleaseModel(final Class clasz) {
         return ReleaseModel.getModel();
-    }
-
-    /**
-     * Read a byte array parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @return The byte array parameter value.
-     */
-    protected byte[] readByteArray(final String name) {
-        return iqReader.readByteArray(name);
     }
 
     /**
@@ -189,7 +154,6 @@ public abstract class AbstractController extends
     protected void writeCalendar(final String name, final Calendar value) {
         iqWriter.writeCalendar(name, value);
     }
-
     /**
      * Write libraries to the response query.
      * 
@@ -240,35 +204,5 @@ public abstract class AbstractController extends
      */
     protected void writeString(final String name, final String value) {
         iqWriter.writeString(name, value);
-    }
-    /**
-     * Create an error response for the query, for the error.
-     * 
-     * @param iq
-     *            The internet query.
-     * @param x
-     *            The error.
-     * @return The error response.
-     */
-    private IQ createErrorResponse(final IQ iq, final Throwable t) {
-        final IQ errorResult = IQ.createResultIQ(iq);
-
-        final PacketError packetError = new PacketError(
-                PacketError.Condition.internal_server_error,
-                PacketError.Type.cancel, StringUtil.printStackTrace(t));
-
-		errorResult.setError(packetError);
-        return errorResult;
-    }
-
-    /**
-     * Create a response for the query.
-     * @param iq The internet query.
-     * @return The response.
-     */
-    private IQ createResponse(final IQ iq) {
-        final IQ response = IQ.createResultIQ(iq);
-        response.setChildElement(info.getName(), Xml.RESPONSE_NAMESPACE);
-        return response;
     }
 }

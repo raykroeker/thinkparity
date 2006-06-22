@@ -8,13 +8,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Release;
 import com.thinkparity.migrator.Constants.Xml;
 import com.thinkparity.migrator.controller.ControllerTestCase;
-import com.thinkparity.migrator.util.IQReader;
+import com.thinkparity.migrator.xmpp.IQReader;
 
 /**
  * A test for the library create controller's handle iq api.

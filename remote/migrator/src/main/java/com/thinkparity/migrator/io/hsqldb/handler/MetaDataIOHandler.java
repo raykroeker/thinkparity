@@ -4,13 +4,13 @@
 package com.thinkparity.migrator.io.hsqldb.handler;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.migrator.io.hsqldb.HypersonicException;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
 import com.thinkparity.migrator.io.md.MetaData;
 import com.thinkparity.migrator.io.md.MetaDataType;
-import com.thinkparity.migrator.util.JabberId;
-import com.thinkparity.migrator.util.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -286,21 +286,21 @@ public class MetaDataIOHandler extends AbstractIOHandler implements
 	 * 
 	 * @see #extractValue(HypersonicSession, MetaDataType, String)
 	 */
-	private void setValue(final HypersonicSession HypersonicSession, final Integer index,
+	private void setValue(final HypersonicSession hypersonicSession, final Integer index,
 			final MetaDataType metaDataType, final Object value) {
 		switch(metaDataType) {
 		case BOOLEAN:
-			HypersonicSession.setString(index, ((Boolean) value).toString());
+            hypersonicSession.setString(index, ((Boolean) value).toString());
 			break;
 		case LONG:
         case USER_ID:
-			HypersonicSession.setString(index, ((Long) value).toString());
+            hypersonicSession.setString(index, ((Long) value).toString());
 			break;
 		case STRING:
-			HypersonicSession.setString(index, (String) value);
+            hypersonicSession.setString(index, (String) value);
 			break;
 		case JABBER_ID:
-			HypersonicSession.setQualifiedUsername(index, (JabberId) value);
+            hypersonicSession.setQualifiedUsername(index, (JabberId) value);
 			break;
 		default:
             Assert.assertUnreachable("[RMIGRATOR] [IO] [HYPERSONIC HANDLER] [META DATA] [SET VALUE] [UNKNOWN META DATA TYPE]");

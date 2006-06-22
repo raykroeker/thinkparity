@@ -11,13 +11,13 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.DateUtil.DateImage;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.LoggerFactory;
 import com.thinkparity.migrator.io.md.MetaData;
 import com.thinkparity.migrator.io.md.MetaDataType;
-import com.thinkparity.migrator.util.JabberId;
-import com.thinkparity.migrator.util.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com

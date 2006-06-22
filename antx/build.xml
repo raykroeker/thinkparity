@@ -139,8 +139,8 @@ Examples:
     <target name="javadoc">
         <javadoc access="private" classpathref="classpath"
                 destdir="${target.javadoc.dir}"
-                doctitle="thinkParity Remote Model"
-                group="Model com.thinkparity.server:com.thinkparity.server.*,Codebase com.thinkparity.codebase:com.thinkparity.codebase.*"
+                doctitle="thinkParity Remote Migrator"
+                group="Migrator com.thinkparity.migrator:com.thinkparity.migrator.*,Codebase com.thinkparity.codebase:com.thinkparity.codebase.*"
                 packagenames="com.thinkparity.*"
                 sourcepathref="sourcepath"/>
     </target>
@@ -199,11 +199,11 @@ Examples:
         <copy todir="${target.release.plugin.dir}/lib">
             <fileset file="${vendor.log4j.lib}"/>
         </copy>
-        <jar destfile="${target.release.plugin.dir}/lib/model.jar">
+        <jar destfile="${target.release.plugin.dir}/lib/migrator.jar">
             <manifest>
             </manifest>
             <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/server/**/*"/>
+                <include name="com/thinkparity/migrator/**/*"/>
             </fileset>
         </jar>
         <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">

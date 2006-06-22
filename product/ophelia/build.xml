@@ -4,6 +4,7 @@
 
     <!-- release configuration -->
     <property name="release.version" value="1.0.0-RC7"/>
+    <property name="release.serverhost" value="thinkparity.dyndns.org"/>
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
@@ -49,6 +50,11 @@
 		<include name="xpp3/1.1.3.4.O/xpp3.jar"/>
 		<include name="xstream/1.1.2/xstream.jar"/>
     </fileset>
+
+    <!-- runtime vendor win32 libs -->
+    <fileset id="project.runtimevendorlibwin32" dir="${basedir}/vendor/i686/win32">
+        <include name="jdic/0.9.1/tray.dll"/>
+    </fileset>   
 
     <!-- compile classpath -->
 	<path id="project.classpath">
@@ -213,6 +219,9 @@ Examples:
         </copy>
         <jar destfile="${target.release.dir}/thinkParity.jar"
                 duplicate="fail" update="false" whenempty="fail">
+            <manifest>
+                <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/> 
+            </manifest>
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/*"/>
             </fileset>
@@ -224,18 +233,17 @@ Examples:
                     errTitle="thinkParity - Error" customProcName="true"
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico">
-                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=thinkparity.dyndns.org -Dparity.serverport=5222"/>
-                    <!--
-                        <args>-Dparity.install=&quot;%EXEDIR%&quot;
--Dparity.serverhost=thinkparity.dyndns.org
--Dparity.serverport=5222</args>
-                    </jre>
-                    -->
+                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=${release.serverhost} -Dparity.serverport=${release.serverport}"/>
             </config>
         </launch4j>
         <!-- ${release.image}/ -->
         <property name="target.release.image.dir" value="${target.release.dir}/${release.version}"/>
         <mkdir dir="${target.release.image.dir}"/>
+        <copy todir="${target.release.image.dir}">
+            <fileset dir="${target.classes.dir}">
+                <include name="thinkParityImage.properties"/>   
+             </fileset>   
+        </copy>   
         <!-- ${release.image}/core/ -->
         <mkdir dir="${target.release.image.dir}/core"/>
         <jar destfile="${target.release.image.dir}/core/codebase.jar"
@@ -260,12 +268,20 @@ Examples:
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/browser/*/**"/>
+                <include name="fonts/*/**"/>
+                <include name="images/*/**"/>   
             </fileset>
         </jar>
         <!-- ${release.image}/lib/ -->
         <mkdir dir="${target.release.image.dir}/lib"/>
         <copy todir="${target.release.image.dir}/lib">
             <fileset refid="project.runtimevendorlib"/>
+            <mapper type="flatten"/>
+        </copy>
+        <!-- ${release.image}/lib/win32 -->
+        <mkdir dir="${target.release.image.dir}/lib/win32"/>
+        <copy todir="${target.release.image.dir}/lib/win32">
+            <fileset refid="project.runtimevendorlibwin32"/>
             <mapper type="flatten"/>
         </copy>
     </target>

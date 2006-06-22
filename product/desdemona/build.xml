@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+<project name="desdemona" default="help" basedir=".">
+    <property name="build.sysclasspath" value="ignore"/>
+
+    <!-- release configuration -->
+    <property name="release.name" value="${ant.project.name}"/>
+    <property name="release.version" value="1.0.0-RC7"/>
+
+    <!-- cvs configuration -->
+    <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
+    <property name="cvs.modules" value="desdemonaSource desdemonaLibs"/>
+    <property name="cvs.modules.ide" value="desdemonaEclipse"/>
+    <property name="cvs.tag" value="v1_0"/>
+
+    <!-- input directories/files/paths -->
+    <property name="vendor.dir" value="${basedir}/vendor"/>
+    <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
+	<path id="sourcepath">
+		<pathelement location="${basedir}/common/codebase/src/main/java"/>
+		<pathelement location="${basedir}/remote/model/src/main/java"/>
+	</path>
+	<path id="test-sourcepath">
+		<pathelement location="${basedir}/common/junitx/src/main/java"/>
+		<pathelement location="${basedir}/common/codebase/src/test/java"/>
+		<pathelement location="${basedir}/remote/model/src/test/java"/>
+	</path>
+	<path id="classpath">
+		<pathelement location="${target.classes.dir}"/>
+		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
+		<pathelement location="${basedir}/vendor/messenger/2.3.1/messenger.jar"/>
+	</path>
+    <path id="test-classpath">
+        <pathelement location="${target.test-classes.dir}"/>
+        <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
+    </path>
+
+    <!-- output directories -->
+	<property name="target.dir" value="${basedir}/target"/>
+	<property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
+    <property name="target.release.dir" value="${target.dir}/release"/>
+	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
+
+    <!-- checkout source -->
+    <target name="checkout">
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.modules}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="checkout" tag="${cvs.tag}" package="${cvs.modules}"
+            dest="${basedir}"/>
+    </target>
+
+    <!-- update source -->
+    <target name="update">
+        <echo message="${cvs.cvsroot}"/>
+        <cvs cvsroot="${cvs.cvsroot}" command="update -P"/>
+    </target>
+   
+    <!-- checkout ide files -->
+    <target name="checkout.ide">
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.tag}" package="${cvs.modules.ide}"
+            dest="${basedir}"/>
+        <move todir="${basedir}">
+            <fileset dir="${basedir}/ide"/>
+        </move>
+    </target>
+
+    <!-- delete output -->
+	<target name="clean">
+		<delete dir="${target.dir}"/>
+	</target>
+
+    <!-- compile -->
+	<target name="compile" depends="init,process-resources">
+        <!-- if the compile.debug is not set; use true as a default otherwise
+             use the value itself -->
+        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
+            <isset property="compile.debug"/>
+        </condition>
+		<javac destdir="${target.classes.dir}" debug="${compile.innerDebug}">
+			<src refid="sourcepath"/>
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+
+    <!-- print help -->
+    <target name="help">
+        <echo>
+Options:
+    -Dcompile.debug=true,false  Generate compiler debug info.
+                                Default:true
+Targets:
+    checkout                    Checkout all source.
+    checkout.ide                Checkout ide configuration files.
+    clean                       Delete output.
+    compile                     Compile source.
+    javadoc                     Generate javadoc (html) documentation.
+    process-resources           Process resources.
+    release                     Create a release package.
+    test                        Run tests.
+    test-compile                Compile test source.
+    test-process-resources      Process test resources.
+Examples:
+    First Run:
+    ant checkout test           Will grab all source from cvs; process all
+                                resources; compile all code and run all tests.
+
+    Subsequent Runs:
+    ant test                    Will process all resources; compile all code; run
+                                all tests.
+
+    Checkout IDE Files:
+    ant checkout.ide
+        </echo>
+    </target>
+
+    <!-- initialize output -->
+	<target name="init">
+        <mkdir dir="${target.classes.dir}"/>
+        <mkdir dir="${target.javadoc.dir}"/>
+		<mkdir dir="${target.test-classes.dir}"/>
+        <mkdir dir="${target.test-sessions.dir}"/>
+	</target>
+
+    <!-- document the source -->
+    <target name="javadoc">
+        <javadoc access="private" classpathref="classpath"
+                destdir="${target.javadoc.dir}"
+                doctitle="thinkParity Remote Model"
+                group="Model com.thinkparity.server:com.thinkparity.server.*,Codebase com.thinkparity.codebase:com.thinkparity.codebase.*"
+                packagenames="com.thinkparity.*"
+                sourcepathref="sourcepath"/>
+    </target>
+
+    <!-- process resources -->
+    <target name="process-resources">
+        <copy todir="${target.classes.dir}">
+            <fileset dir="${basedir}/common/codebase/src/main/resources"/>
+            <fileset dir="${basedir}/remote/model/src/main/resources"/>
+        </copy>
+        <copy todir="${target.classes.dir}" overwrite="true">
+            <fileset dir="${basedir}/common/codebase/src/main/filters"/>
+            <filterset begintoken="$${" endtoken="}">
+                <filter token="pom.version" value="${release.version}"/>
+                <filtersfile file="${basedir}/build.filters"/>
+                <filtersfile file="${basedir}/common/codebase/build.filters"/>
+            </filterset>
+        </copy>
+        <copy todir="${target.classes.dir}" overwrite="true">
+            <fileset dir="${basedir}/remote/model/src/main/filters"/>
+            <filterset begintoken="$${" endtoken="}">
+                <filter token="pom.version" value="${release.version}"/>
+                <filtersfile file="${basedir}/build.filters"/>
+                <filtersfile file="${basedir}/remote/model/build.filters"/>
+            </filterset>
+        </copy>
+    </target>
+
+    <!-- release -->
+    <target name="release">
+        <property name="target.release.plugin.dir"
+                value="${target.release.dir}/plugin"/>
+
+        <!-- ${target.release.plugin.dir} -->
+        <copy todir="${target.release.plugin.dir}">
+            <fileset dir="${basedir}">
+                <include name="README.txt"/>
+                <include name="LICENSE.txt"/>
+            </fileset>
+            <fileset dir="${target.classes.dir}">
+                <include name="changelog.html"/>
+                <include name="icon_large.gif"/>
+                <include name="icon_small.gif"/>
+                <include name="plugin.xml"/>
+                <include name="readme.html"/>
+            </fileset>
+        </copy>
+        <!-- ${target.release.plugin.dir}/classes -->
+        <copy todir="${target.release.plugin.dir}/classes">
+            <fileset dir="${target.classes.dir}">
+                <include name="log4j.properties"/>
+            </fileset>
+        </copy>
+        <!-- ${target.release.plugin.dir}/lib -->
+        <mkdir dir="${target.release.plugin.dir}/lib"/>
+        <copy todir="${target.release.plugin.dir}/lib">
+            <fileset file="${vendor.log4j.lib}"/>
+        </copy>
+        <jar destfile="${target.release.plugin.dir}/lib/model.jar">
+            <manifest>
+            </manifest>
+            <fileset dir="${target.classes.dir}">
+                <include name="com/thinkparity/server/**/*"/>
+            </fileset>
+        </jar>
+        <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
+            <manifest>
+            </manifest>
+            <fileset dir="${target.classes.dir}">
+                <include name="com/thinkparity/codebase/**/*"/>
+            </fileset>
+        </jar>
+
+        <jar destfile="${target.release.dir}/${release.name}-${release.version}-plugin.jar">
+            <manifest>
+            </manifest>
+            <fileset dir="${target.release.plugin.dir}"/>
+        </jar>
+    </target>
+
+    <!-- unit test -->
+	<target name="test" depends="test-compile">
+		<junit fork="on" forkmode="once" reloading="false" errorproperty="junit.didError" failureproperty="junit.didFail">
+			<classpath refid="classpath"/>
+			<classpath refid="test-classpath"/>
+			<formatter type="brief" usefile="false"/>
+			<batchtest todir="${target.test-sessions.dir}">
+                <formatter type="xml"/>
+				<fileset dir="${target.test-classes.dir}" includes="**/*Test.class"/>
+			</batchtest>
+		</junit>
+
+        <junitreport todir="${target.test-sessions.dir}">
+            <fileset dir="${target.test-sessions.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="noframes" todir="${target.test-sessions.dir}"/>
+        </junitreport>
+
+        <fail message="JUnit failure." if="junit.didFail"/>
+        <fail message="JUnit error." if="junit.didError"/>
+	</target>
+
+    <!-- compile tests -->
+	<target name="test-compile" depends="compile,test-process-resources">
+        <!-- if the compile.debug is not set; use true as a default otherwise
+             use the value itself -->
+        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
+            <isset property="compile.debug"/>
+        </condition>
+	
+		<javac destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
+			<src refid="test-sourcepath"/>
+			<classpath refid="classpath"/>
+			<classpath refid="test-classpath"/>
+		</javac>
+	</target>
+
+    <!-- process test resources -->
+    <target name="test-process-resources">
+        <copy todir="${target.test-classes.dir}">
+            <fileset dir="${basedir}/common/junitx/src/main/resources"/>
+        </copy>
+    </target>
+</project>

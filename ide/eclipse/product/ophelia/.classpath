@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="local/browser/src/main/java"/>
+	<classpathentry kind="src" path="local/model/src/main/java"/>
+	<classpathentry kind="src" path="common/codebase/src/main/java"/>
+	<classpathentry kind="src" path="common/migrator/src/main/java"/>
+	<classpathentry kind="src" path="local/thinkparity/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry output="target/test-classes" kind="src" path="common/codebase/src/test/java"/>
+	<classpathentry output="target/test-classes" kind="src" path="common/junitx/src/main/java"/>
+	<classpathentry output="target/test-classes" kind="src" path="local/browser/src/test/java"/>
+	<classpathentry output="target/test-classes" kind="src" path="local/model/src/test/java"/>
+	<classpathentry sourcepath="vendor/commons-codec/1.3/commons-codec-sources.jar" kind="lib" path="vendor/commons-codec/1.3/commons-codec.jar"/>
+	<classpathentry sourcepath="vendor/hsqldb/1.8.0.2/hsqldb-sources.jar" kind="lib" path="vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
+	<classpathentry sourcepath="vendor/xstream/1.1.2/xstream-sources.jar" kind="lib" path="vendor/xstream/1.1.2/xstream.jar"/>
+	<classpathentry sourcepath="vendor/xpp3/1.1.3.4.O/xpp3-sources.jar" kind="lib" path="vendor/xpp3/1.1.3.4.O/xpp3.jar"/>
+	<classpathentry sourcepath="vendor/swing-layout/1.0/swing-layout-sources.jar" kind="lib" path="vendor/swing-layout/1.0/swing-layout.jar"/>
+	<classpathentry sourcepath="vendor/smackx/2.2.1/smackx-sources.jar" kind="lib" path="vendor/smackx/2.2.1/smackx.jar"/>
+	<classpathentry sourcepath="vendor/smack/2.2.1/smack-sources.jar" kind="lib" path="vendor/smack/2.2.1/smack.jar"/>
+	<classpathentry sourcepath="vendor/lucene/1.9.1/lucene-sources.jar" kind="lib" path="vendor/lucene/1.9.1/lucene.jar"/>
+	<classpathentry sourcepath="vendor/log4j/1.2.13/log4j-sources.jar" kind="lib" path="vendor/log4j/1.2.13/log4j.jar"/>
+	<classpathentry sourcepath="vendor/jdic/0.9.1/jdic-sources.jar" kind="lib" path="vendor/jdic/0.9.1/jdic.jar"/>
+	<classpathentry sourcepath="vendor/junit/3.8.1/junit-sources.jar" kind="lib" path="vendor/junit/3.8.1/junit.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

@@ -1,0 +1,4 @@
+.externalToolBuilders*
+target*
+.classpath
+.project

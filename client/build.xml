@@ -132,6 +132,7 @@ Options:
                                 Default:true
 Targets:
     checkout                    Checkout all source.
+    checkout.ide                Checkout ide configuration files.
     clean                       Delete output.
     compile                     Compile source.
     javadoc                     Generate javadoc (html) documentation.

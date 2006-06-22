@@ -25,7 +25,7 @@ Build Tools Installation:
         6.  Install launch4j-2.1.3-1-win32.exe
 
 Checkout Source
-    1.  ant checkout
+    1.  ant checkout checkout.ide
 
 Source Tree
     +>ophelia

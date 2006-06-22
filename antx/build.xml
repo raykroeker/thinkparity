@@ -30,6 +30,7 @@
 	<path id="sourcepath">
 		<pathelement location="${basedir}/common/codebase/src/main/java"/>
 		<pathelement location="${basedir}/common/migrator/src/main/java"/>
+        <pathelement location="${basedir}/remote/codebase/src/main/java"/>      
 		<pathelement location="${basedir}/remote/migrator/src/main/java"/>
 	</path>
 	<path id="test-sourcepath">

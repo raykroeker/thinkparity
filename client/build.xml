@@ -87,6 +87,12 @@
             dest="${basedir}"/>
     </target>
 
+    <!-- update source -->
+    <target name="update">
+        <echo message="${cvs.cvsroot}"/>
+        <cvs cvsroot="${cvs.cvsroot}" command="update -P"/>
+    </target>
+   
     <!-- checkout ide files -->
     <target name="checkout.ide">
         <echo message="${cvs.cvsroot}"/>

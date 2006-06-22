@@ -59,7 +59,7 @@ Source Tree
         +build.filters                                      // Ant Build Filters
         +build.xml                                          // Ant Build Definition
         +LICENSE.txt
-        +ophelia - com.thinkparity.browser.Browser.launch   // Eclipse Launch
+        +ophelia - com.thinkparity.browser.Browser.launch   // Eclipse IDE
         +README.txt
 
 How To:  Build a Release

@@ -18,6 +18,7 @@
 	<path id="sourcepath">
 		<pathelement location="${basedir}/common/codebase/src/main/java"/>
 		<pathelement location="${basedir}/remote/model/src/main/java"/>
+        <pathelement location="${basedir}/remote/codebase/src/main/java"/>
 	</path>
 	<path id="test-sourcepath">
 		<pathelement location="${basedir}/common/junitx/src/main/java"/>
@@ -197,6 +198,7 @@ Examples:
             </manifest>
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/server/**/*"/>
+                <include name="com/thinkparity/model/**/*"/>
             </fileset>
         </jar>
         <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">

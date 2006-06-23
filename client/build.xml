@@ -14,9 +14,9 @@
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
+    <property name="target.assembly.dir" value="${target.dir}/assembly"/>
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
-    <property name="target.release.dir" value="${target.dir}/release"/>
 	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
 	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
@@ -204,7 +204,7 @@ Examples:
     </target>
 
     <!-- release -->
-    <target name="release">
+    <target name="assemble">
         <!-- load the user's environment -->
         <property environment="env"/>
         <!-- configure launch4j location -->
@@ -214,8 +214,8 @@ Examples:
                 classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
 
         <!-- / -->
-        <mkdir dir="${target.release.dir}"/>
-        <copy todir="${target.release.dir}">
+        <mkdir dir="${target.assembly.dir}"/>
+        <copy todir="${target.assembly.dir}">
             <fileset dir="${basedir}">
                 <include name="README.txt"/>
                 <include name="LICENSE.txt"/>
@@ -224,7 +224,7 @@ Examples:
                 <include name="thinkParity.properties"/>
             </fileset>
         </copy>
-        <jar destfile="${target.release.dir}/thinkParity.jar"
+        <jar destfile="${target.assembly.dir}/thinkParity.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <manifest>
                 <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/> 
@@ -236,7 +236,7 @@ Examples:
         <launch4j>
             <config dontWrapJar="true" headerType="0"
                     jarPath="thinkParity.jar"
-                    outfile="${target.release.dir}/thinkParity.exe"
+                    outfile="${target.assembly.dir}/thinkParity.exe"
                     errTitle="thinkParity - Error" customProcName="true"
                     stayAlive="false"
                     icon="${target.classes.dir}/images/ThinkParity32x32.ico">
@@ -244,34 +244,34 @@ Examples:
             </config>
         </launch4j>
         <!-- ${release.image}/ -->
-        <property name="target.release.image.dir" value="${target.release.dir}/${release.version}"/>
-        <mkdir dir="${target.release.image.dir}"/>
-        <copy todir="${target.release.image.dir}">
+        <property name="target.assembly.image.dir" value="${target.assembly.dir}/${release.version}"/>
+        <mkdir dir="${target.assembly.image.dir}"/>
+        <copy todir="${target.assembly.image.dir}">
             <fileset dir="${target.classes.dir}">
                 <include name="thinkParityImage.properties"/>   
              </fileset>   
         </copy>   
         <!-- ${release.image}/core/ -->
-        <mkdir dir="${target.release.image.dir}/core"/>
-        <jar destfile="${target.release.image.dir}/core/codebase.jar"
+        <mkdir dir="${target.assembly.image.dir}/core"/>
+        <jar destfile="${target.assembly.image.dir}/core/codebase.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/codebase/*/**"/>
             </fileset>
         </jar>
-        <jar destfile="${target.release.image.dir}/core/migrator.jar"
+        <jar destfile="${target.assembly.image.dir}/core/migrator.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/migrator/*/**"/>
             </fileset>
         </jar>
-        <jar destfile="${target.release.image.dir}/core/model.jar"
+        <jar destfile="${target.assembly.image.dir}/core/model.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/model/*/**"/>
             </fileset>
         </jar>
-        <jar destfile="${target.release.image.dir}/core/browser.jar"
+        <jar destfile="${target.assembly.image.dir}/core/browser.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <fileset dir="${target.classes.dir}">
                 <include name="com/thinkparity/browser/*/**"/>
@@ -280,14 +280,14 @@ Examples:
             </fileset>
         </jar>
         <!-- ${release.image}/lib/ -->
-        <mkdir dir="${target.release.image.dir}/lib"/>
-        <copy todir="${target.release.image.dir}/lib">
+        <mkdir dir="${target.assembly.image.dir}/lib"/>
+        <copy todir="${target.assembly.image.dir}/lib">
             <fileset refid="project.runtimevendorlib"/>
             <mapper type="flatten"/>
         </copy>
         <!-- ${release.image}/lib/win32 -->
-        <mkdir dir="${target.release.image.dir}/lib/win32"/>
-        <copy todir="${target.release.image.dir}/lib/win32">
+        <mkdir dir="${target.assembly.image.dir}/lib/win32"/>
+        <copy todir="${target.assembly.image.dir}/lib/win32">
             <fileset refid="project.runtimevendorlibwin32"/>
             <mapper type="flatten"/>
         </copy>

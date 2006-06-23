@@ -135,10 +135,9 @@ public class BrowserWindow extends AbstractJFrame {
         applyRenderingHints();
         debugGeometry();
         debugLookAndFeel();
-        
+
         browser.displayTitleAvatar();
         browser.displayInfoAvatar();
-        browser.displayContactListAvatar();       
         browser.displayDocumentListAvatar();
         browser.displayStatusAvatar();
     }

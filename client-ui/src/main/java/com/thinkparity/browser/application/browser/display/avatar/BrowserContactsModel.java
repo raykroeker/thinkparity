@@ -789,7 +789,7 @@ public class BrowserContactsModel {
        
         // filter contacts
         final List<CellContact> filteredContacts = cloneContacts();
-        // ModelFilterManager.filter(filteredDocuments, documentFilter);
+        // ArtifactFilterManager.filter(filteredDocuments, documentFilter);
 
         // update all visible cells
         visibleCells.clear();

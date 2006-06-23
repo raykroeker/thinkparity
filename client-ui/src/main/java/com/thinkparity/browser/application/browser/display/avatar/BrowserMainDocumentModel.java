@@ -27,7 +27,7 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.FilterChain;
-import com.thinkparity.model.parity.model.filter.ModelFilterManager;
+import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.artifact.Active;
 import com.thinkparity.model.parity.model.filter.artifact.Closed;
 import com.thinkparity.model.parity.model.filter.artifact.IsKeyHolder;
@@ -733,7 +733,7 @@ public class BrowserMainDocumentModel {
         debug();
         // filter documents
         final List<MainCellDocument> filteredDocuments = cloneDocuments();
-        ModelFilterManager.filter(filteredDocuments, documentFilter);
+        ArtifactFilterManager.filter(filteredDocuments, documentFilter);
         // update all visible cells
         visibleCells.clear();
         for(final MainCellDocument mcd : filteredDocuments) {

@@ -35,7 +35,7 @@ import com.thinkparity.model.parity.model.audit.InternalAuditModel;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.document.history.HistoryItemBuilder;
 import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.ModelFilterManager;
+import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
@@ -943,7 +943,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.debug(comparator);
 		logger.debug(filter);
 		final List<Document> documents = documentIO.list();
-		ModelFilterManager.filter(documents, filter);
+		ArtifactFilterManager.filter(documents, filter);
 		ModelSorter.sortDocuments(documents, comparator);
 		return documents;
 	}

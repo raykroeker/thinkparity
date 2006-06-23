@@ -1,5 +1,6 @@
 /*
- * Mar 28, 2006
+ * Created On: Mar 28, 2006
+ * $Id$
  */
 package com.thinkparity.model.parity.model.filter;
 
@@ -9,21 +10,19 @@ import java.util.List;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 
 /**
- * The ModelFilterManager is a singleton responsible for filtering the lists of
- * elements returned by the model.
+ * <b>Title:</b>thinkParity Model Artifact Filter Manager<br>
+ * <b>Description:</b>The artifact filter manager takes ordered lists of
+ * artifacts and applies a chain of filters to the list.
  * 
- * @author raykroeker@gmail.com
- * @version 1.1
+ * @author raymond@thinkparity.com
+ * @version $Revision$
  */
-public class ModelFilterManager {
+public class ArtifactFilterManager {
 
-	/**
-	 * The filter manager singleont.
-	 * 
-	 */
-	private static final ModelFilterManager SINGLETON;
+	/** A singleton implementation. */
+	private static final ArtifactFilterManager SINGLETON;
 
-	static { SINGLETON = new ModelFilterManager(); }
+	static { SINGLETON = new ArtifactFilterManager(); }
 
 	/**
      * Filter a list of artifacts.
@@ -38,11 +37,8 @@ public class ModelFilterManager {
 		SINGLETON.doFilter(list, filter);
 	}
 
-	/**
-	 * Create a ModelFilterManager [Singleton]
-	 * 
-	 */
-	private ModelFilterManager() { super(); }
+	/** Create ArtifactFilterManager. */
+	private ArtifactFilterManager() { super(); }
 
 	/**
      * Filter a list of artifacts.
@@ -54,9 +50,9 @@ public class ModelFilterManager {
      */
 	private void doFilter(final List<? extends Artifact> list,
 			final Filter<? super Artifact> filter) {
-		Artifact artifact = null;
+        Artifact artifact;
 		for(final Iterator<? extends Artifact> i = list.iterator(); i.hasNext();) {
-			artifact = i.next();
+            artifact = i.next();
 			if(filter.doFilter(artifact)) { i.remove(); }
 		}
 	}

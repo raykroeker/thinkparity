@@ -22,8 +22,10 @@ import org.jivesoftware.smackx.packet.VCard;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.LoggerFactory;
+import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.*;
@@ -465,9 +467,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	public void removeArtifactTeamMember(final UUID artifactUniqueId) throws SmackException {
 		logger.info("sendDelete(UUID)");
 		logger.debug(artifactUniqueId);
-		final IQArtifact delete = new IQDeleteArtifact(artifactUniqueId);
-		delete.setType(IQ.Type.SET);
-		sendAndConfirmPacket(delete);
+		final XMPPMethod method = new XMPPMethod("unsubscribeuser");
+        method.setParameter(Xml.Artifact.UNIQUE_ID, artifactUniqueId);
+        method.execute(getConnection());
 	}
 
 	/**
@@ -603,6 +605,17 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
         return confirmationPacket;
 	}
+
+    /**
+     * Execute a remote method call to reactivate a document.
+     * 
+     * @throws SmackException
+     */
+    public void sendDocumentReactivate(final List<JabberId> team,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] bytes) throws SmackException {
+        xmppDocument.sendReactivate(team, uniqueId, versionId, name, bytes);
+    }
 
 	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#sendDocument(java.util.Set,

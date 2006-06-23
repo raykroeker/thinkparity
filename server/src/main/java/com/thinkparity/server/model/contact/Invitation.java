@@ -3,7 +3,7 @@
  */
 package com.thinkparity.server.model.contact;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
  * @author raykroeker@gmail.com

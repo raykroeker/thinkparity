@@ -16,6 +16,7 @@ public enum NamespaceName {
 	IQ_CLOSE_ARTIFACT("closeartifact"),
 	IQ_DECLINE_CONTACT_INVITATION("declinecontactinvitation"),
 	IQ_DENY_KEY_REQUEST("denykeyrequest"), IQ_GET_KEYHOLDER("getkeyholder"),
+    IQ_DOCUMENT_REACTIVATE("documentreactivate"),
     IQ_DOCUMENT_SEND("documentsend"),
 	IQ_GET_KEYS("getkeys"), IQ_GET_SUBSCRIPTION("getsubscriptions"),
 	IQ_INVITE_CONTACT("invitecontact"), IQ_KEY_REQUEST("keyrequest"),

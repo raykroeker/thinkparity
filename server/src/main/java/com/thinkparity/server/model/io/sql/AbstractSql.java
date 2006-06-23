@@ -13,7 +13,8 @@ import org.apache.log4j.Logger;
 import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.database.SequenceManager;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.model.artifact.Artifact;
 

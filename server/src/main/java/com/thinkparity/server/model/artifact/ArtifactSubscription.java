@@ -5,8 +5,7 @@ package com.thinkparity.server.model.artifact;
 
 import java.util.Calendar;
 
-import com.thinkparity.server.JabberId;
-
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
  * @author raykroeker@gmail.com

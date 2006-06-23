@@ -8,6 +8,8 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.system.tray.TrayNotification;
 import com.thinkparity.browser.model.util.ModelUtil;
@@ -23,9 +25,8 @@ import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
 import com.thinkparity.browser.platform.util.State;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -331,6 +332,12 @@ public class SystemApplication extends AbstractApplication {
                 new Object[] {getName(user), document.getName()}));
     }
 
+    void fireDocumentReactivated(final User user, final Document document,
+            final DocumentVersion version) {
+        fireNotification(getString(
+                "Notification.DocumentReactivatedMessage",
+                new Object[] {document.getName(), getName(user)}));
+    }
     /**
      * Notify a document team member has been added.
      *

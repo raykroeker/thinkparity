@@ -4,6 +4,8 @@
  */
 package com.thinkparity.codebase.jabber;
 
+import org.xmpp.packet.JID;
+
 import com.thinkparity.codebase.Constants.Jabber;
 
 /**
@@ -20,6 +22,17 @@ public class JabberIdBuilder {
 	private static final JabberIdBuilder SINGLETON;
 
 	static { SINGLETON = new JabberIdBuilder(); }
+
+    /**
+     * Parse a jive JID.
+     * 
+     * @param jid
+     *            A jid.
+     * @return A jabber id.
+     */
+    public static JabberId parseJID(final JID jid) {
+        synchronized(SINGLETON) { return SINGLETON.doParseJID(jid); }
+    }
 
 	/**
 	 * Parse the qualified jabber id.
@@ -83,6 +96,31 @@ public class JabberIdBuilder {
 	}
 
 	/**
+     * Parse a jive JID.
+     * 
+     * @param jid
+     *            A jid.
+     * @return A jabber id.
+     */
+    private JabberId doParseJID(final JID jid) {
+        if(null == jid.getResource()) {
+            final String qualifiedUsername = new StringBuffer(jid.getNode())
+                .append('@')
+                .append(jid.getDomain())
+                .toString();
+            return doParseQualifiedUsername(qualifiedUsername);
+        }
+        else {
+            final String qualifiedJabberId = new StringBuffer(jid.getNode())
+                .append('@')
+                .append(jid.getDomain())
+                .append('/')
+                .append(jid.getResource()).toString();
+            return doParseQualifiedJabberId(qualifiedJabberId);
+        }
+    }
+
+	/**
 	 * Parse the qualified jabber id.
 	 * 
 	 * <strong>For singleton use only.</strong>
@@ -108,7 +146,7 @@ public class JabberIdBuilder {
 		return new JabberId(username, host, resource);
 	}
 
-	/**
+    /**
 	 * Parse the qualified username and build a jabber id.
 	 * 
 	 * <strong>For singleton use only.</strong>
@@ -129,4 +167,5 @@ public class JabberIdBuilder {
 		if(-1 != host.indexOf('/')) throw new IllegalArgumentException("Host cannot contain '/'");
 		return new JabberId(username, host, defaultResource);
 	}
+
 }

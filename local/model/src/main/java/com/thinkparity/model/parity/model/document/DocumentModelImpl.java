@@ -110,7 +110,7 @@ class DocumentModelImpl extends AbstractModelImpl {
     /** A document indexor. */
 	private final DocumentIndexor indexor;
 
-	/** A document event generator for local events. */
+    /** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
 	/** A document event generator for remote events. */
@@ -516,7 +516,11 @@ class DocumentModelImpl extends AbstractModelImpl {
                             "[LMODEL] [DOCUMENT] [DELETE] [CAN ONLY DELETE CLOSED DOCUMENTS IF YOU ARE THE KEY HOLDER]");
                 }
             }
-            else { deleteLocal(document); }
+            else {
+                getInternalSessionModel().sendDelete(document.getId());
+
+                deleteLocal(document);
+            }
         }
 
         // fire event
@@ -656,7 +660,111 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyDocumentClosed(get(documentId), remoteEventGen);
 	}
 
-	/**
+    /**
+     * Handle a reactivate request from the remote model.
+     * 
+     * @param reactivatedBy
+     *            By whom the document was reactivated.
+     * @param team
+     *            The team.
+     * @param uniqueId
+     *            The unique id.
+     * @param versionId
+     *            The version id.
+     * @param name
+     *            The name.
+     * @param content
+     *            The content.
+     */
+    void handleReactivate(final JabberId reactivatedBy,
+            final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] bytes)
+            throws ParityException {
+        logger.info(getApiId("[HANDLE REACTIVATE]"));
+        logger.debug(reactivatedBy);
+        logger.debug(team);
+        logger.debug(uniqueId);
+        logger.debug(versionId);
+        logger.debug(name);
+        logger.debug(bytes);
+        final Calendar currentDateTime = currentDateTime();
+        final Document document;
+        final DocumentVersion version;
+
+        // re-create
+        if(!doesExist(uniqueId)) {
+            // create the document
+            document = new Document();
+            document.setCreatedBy(reactivatedBy.getUsername());
+            document.setCreatedOn(currentDateTime);
+            document.setName(name);
+            document.setState(ArtifactState.ACTIVE);
+            document.setUniqueId(uniqueId);
+            document.setUpdatedBy(reactivatedBy.getUsername());
+            document.setUpdatedOn(currentDateTime);
+
+            final DocumentContent content = new DocumentContent();
+            content.setChecksum(MD5Util.md5Hex(bytes));
+            content.setContent(bytes);
+
+            // create the document
+            documentIO.create(document, content);
+
+            // create the local file
+            final LocalFile localFile = getLocalFile(document);
+            try { localFile.write(bytes); }
+            catch(final IOException iox) {
+                throw ParityErrorTranslator.translate(iox);
+            }
+
+            // create the remote info row
+            final InternalArtifactModel iAModel = getInternalArtifactModel();
+            iAModel.createRemoteInfo(document.getId(), reactivatedBy, currentDateTime);
+
+            // add team members
+            // TODO Add the team as a whole; better yet add an api to create the
+            // team from the remote app in the model
+            for(final JabberId jabberId : team) {
+                iAModel.addTeamMember(document.getId(), jabberId);
+            }
+
+            // index the creation
+            indexor.create(document.getId(), document.getName());
+
+            // create a version similar to receiving a doc
+            try {
+                receiveUpdate(reactivatedBy, uniqueId, document.getId(),
+                        versionId, name, bytes);
+            }
+            catch(final IOException iox) {
+                throw ParityErrorTranslator.translate(iox);
+            }
+            version = readLatestVersion(document.getId());
+        }
+        else {
+            document = get(uniqueId);
+            version = getVersion(document.getId(), versionId);
+
+            // update state
+            assertStateTransition(document.getState(), ArtifactState.ACTIVE);
+            documentIO.updateState(document.getId(), ArtifactState.ACTIVE);
+
+            // update remote info
+            getInternalArtifactModel().updateRemoteInfo(document.getId(),
+                    reactivatedBy, currentDateTime);
+        }
+        // send a subscription request
+        final InternalSessionModel isModel = getInternalSessionModel();
+        isModel.sendSubscribe(document);
+
+        // audit reactivation
+        auditor.reactivate(document.getId(), currentDateTime, currentUserId(),
+                versionId, reactivatedBy, currentDateTime);
+        // fire event
+        notifyDocumentReactivated(readUser(reactivatedBy), document, version, remoteEventGen);
+    }
+
+    /**
 	 * Determine whether or not a document is distributed; ie if it has been sent
      * to anyone.
      *
@@ -712,7 +820,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * A key request for a document was accepted.
      * 
      * @param documentId
@@ -747,7 +855,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyKeyRequestAccepted(readUser(acceptedBy), get(documentId), remoteEventGen);
     }
 
-	/**
+    /**
      * A key request for a document was declined.
      * 
      * @param documentId
@@ -959,7 +1067,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Open a document version. Extract the version's content and open it.
 	 * 
 	 * @param documentId
@@ -1039,6 +1147,7 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     void reactivate(final Long documentId) throws ParityException {
         logger.info(getApiId("[REACTIVATE]"));
+        assertOnline(getErrorId("[REACTIVATE]", "[CANNOT REACTIVATE WHILE OFFLINE]"));
         assertIsClosed(getErrorId("[REACTIVATE]", "[CANNOT REACTIVATE A CLOSED DOCUMENT]"), get(documentId));
 
         // update the local state
@@ -1051,22 +1160,24 @@ class DocumentModelImpl extends AbstractModelImpl {
         final InternalArtifactModel iAModel = getInternalArtifactModel();
         iAModel.applyFlagKey(documentId);
 
-        // create remotely
-        final InternalSessionModel iSModel = getInternalSessionModel();
-        iSModel.sendCreate(document);
-
-        // share
+        // reactivate remotely
+        final DocumentVersion version = readLatestVersion(documentId);
+        final DocumentVersionContent versionContent = getVersionContent(documentId, version.getVersionId());
         final Set<User> users = iAModel.readTeam(documentId);
-        Collection<User> userCollection;
-        Collection<DocumentVersion> versions;
-        for(final User user : users) {
-            userCollection = new Vector<User>(1);
-            userCollection.add(user);
-            versions = listVersions(documentId);
-            for(final DocumentVersion version : versions) {
-                getInternalSessionModel().send(userCollection, documentId, version.getVersionId());
-            }
-        }
+        final List<JabberId> team = new ArrayList<JabberId>();
+        for(final User user : users) { team.add(user.getId()); }
+        getInternalSessionModel().sendDocumentReactivate(team,
+                document.getUniqueId(), version.getVersionId(),
+                document.getName(),
+                versionContent.getDocumentContent().getContent());
+
+        // audit
+        final Calendar currentDateTime = currentDateTime();
+        auditor.reactivate(documentId, currentDateTime, currentUserId(),
+                version.getVersionId(), currentUserId(), currentDateTime);
+
+        // fire event
+        notifyDocumentReactivated(readUser(currentUserId()), document, version, localEventGen);
     }
 
     List<HistoryItem> readHistory(final Long documentId)
@@ -1076,7 +1187,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return readHistory(documentId, getDefaultHistoryItemComparator());
 	}
 
-	List<HistoryItem> readHistory(final Long documentId,
+    List<HistoryItem> readHistory(final Long documentId,
 			final Comparator<HistoryItem> comparator) throws ParityException {
 		logger.info("readHistory(Long,Comparator<HistoryItem>)");
 		logger.debug(documentId);
@@ -1220,7 +1331,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Remove a team member from the document.
      * 
      * @param documentId
@@ -1234,14 +1345,18 @@ class DocumentModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [DOCUMENT] [REMOVE TEAM MEMBER]");
         logger.debug(documentId);
         logger.debug(jabberId);
+        final User user = readUser(jabberId);
         // remove the team member locally
         getInternalArtifactModel().removeTeamMember(documentId, jabberId);
 
         // re-index
         updateIndex(documentId);
+
+        // fire event
+        notifyTeamMemberRemoved(user, get(documentId), remoteEventGen);
     }
 
-	/**
+    /**
      * Rename a document.
      *
      * @param documentId
@@ -1296,7 +1411,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 originalName,documentName);
     }
 
-    void requestKey(final Long documentId, final JabberId requestedBy)
+	void requestKey(final Long documentId, final JabberId requestedBy)
 			throws ParityException {
 		logger.info("[LMODEL] [DOCUMENT] [REQUEST KEY]");
 		logger.debug(documentId);
@@ -1355,7 +1470,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         getInternalSessionModel().send(users, documentId, latestVersion.getVersionId());
     }
 
-	/**
+    /**
 	 * Unlock a document.
 	 * 
 	 * @param documentId
@@ -1382,7 +1497,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Update the working version of a document.
      * 
      * @param documentId
@@ -1500,6 +1615,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 		localFile.delete();
 		localFile.deleteParent();
 		documentIO.delete(document.getId());
+    }
+
+    /**
+     * Determine if an artifact exists.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @return True if the artifact exists; false otherwise.
+     */
+    private Boolean doesExist(final UUID uniqueId) {
+        return getInternalArtifactModel().doesExist(uniqueId);
     }
 
 	private String format(final String pattern, final File file) {
@@ -1643,7 +1769,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Fire document created.
 	 * 
 	 * @param document
@@ -1659,7 +1785,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Fire document created.
      * 
      * @param user
@@ -1708,6 +1834,26 @@ class DocumentModelImpl extends AbstractModelImpl {
         synchronized(DocumentModelImpl.LISTENERS) {
             for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
                 l.documentPublished(eventGen.generate(document, version));
+            }
+        }
+    }
+
+    /**
+     * Fire document reactivated.
+     * 
+     * @param document
+     *            A document.
+     * @param version
+     *            A document version.
+     * @param eventGen
+     *            An event generator.
+     */
+    private void notifyDocumentReactivated(final User user,
+            final Document document, final DocumentVersion version,
+            final DocumentModelEventGenerator eventGen) {
+        synchronized(LISTENERS) {
+            for(final DocumentListener l : LISTENERS) {
+                l.documentReactivated(eventGen.generate(user, document, version));
             }
         }
     }
@@ -1800,6 +1946,25 @@ class DocumentModelImpl extends AbstractModelImpl {
         synchronized(DocumentModelImpl.LISTENERS) {
             for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
                 l.teamMemberAdded(eventGen.generate(user, document));
+            }
+        }
+    }
+
+    /**
+     * Fire team member removed.
+     * 
+     * @param user
+     *            A user.
+     * @param document
+     *            A document.
+     * @param eventGen
+     *            The event generator.
+     */
+    private void notifyTeamMemberRemoved(final User user,
+            final Document document, final DocumentModelEventGenerator eventGen) {
+        synchronized(LISTENERS) {
+            for(final DocumentListener l : LISTENERS) {
+                l.teamMemberRemoved(eventGen.generate(user, document));
             }
         }
     }

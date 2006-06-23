@@ -3,14 +3,13 @@
  */
 package com.thinkparity.server.handler.user;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-import org.xmpp.packet.IQ;
+import java.util.UUID;
 
-import com.thinkparity.server.handler.IQAction;
-import com.thinkparity.server.handler.IQHandler;
+import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.handler.AbstractController;
 import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
-import com.thinkparity.server.model.session.Session;
 
 /**
  * Handle the removal of a user from an artifact; AKA team member
@@ -19,22 +18,29 @@ import com.thinkparity.server.model.session.Session;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class UnsubscribeUser extends IQHandler {
+public class UnsubscribeUser extends AbstractController {
+
+	/** Create UnsubscribeUser. */
+	public UnsubscribeUser() { super("unsubscribeuser"); }
 
 	/**
-	 * Create a UnsubscribeUser.
-	 */
-	public UnsubscribeUser() { super(IQAction.UNSUBSCRIBEUSER); }
+     * @see com.thinkparity.codebase.controller.AbstractController#service()
+     * 
+     */
+    public void service() {
+        logger.info(getControllerId("[UNSUBSCRIBE USER]").append(" [SERVICE]"));
+        unsubscribeUser(readUUID(Xml.Artifact.UNIQUE_ID));
+    }
 
-	/**
-	 * @see com.thinkparity.server.handler.IQHandler#handleIQ(org.xmpp.packet.IQ,
-	 *      com.thinkparity.server.model.session.Session)
-	 */
-	public IQ handleIQ(final IQ iq, final Session session) throws ParityServerModelException,
-			UnauthorizedException {
-		logger.info("[RMODEL] [USER] [UNSUBSCRIBE]");
-		final ArtifactModel artifactModel = getArtifactModel(session);
-		artifactModel.unsubscribe(extractArtifact(artifactModel, iq));
-		return createResult(iq);
-	}
+    private void unsubscribeUser(final UUID uniqueId) {
+        final ArtifactModel aModel = getArtifactModel();
+        try {
+            final Artifact artifact = aModel.get(uniqueId);
+            aModel.unsubscribe(artifact);
+        }
+        catch(final ParityServerModelException psmx) {
+            logger.error("", psmx);
+            throw new RuntimeException(psmx);
+        }
+    }
 }

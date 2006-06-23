@@ -8,8 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.thinkparity.server.JabberId;
-import com.thinkparity.server.JabberIdBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.server.model.contact.Invitation;
 import com.thinkparity.server.model.io.sql.AbstractSql;
 

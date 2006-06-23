@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.artifact;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
@@ -150,6 +151,17 @@ public class InternalArtifactModel extends ArtifactModel {
      */
     public void deleteTeam(final Long artifactId) {
         synchronized(getImplLock()) { getImpl().deleteTeam(artifactId); }
+    }
+
+    /**
+     * Determine if an artifact exists.
+     * 
+     * @param uniqueId
+     *            The unique id.
+     * @return True if the artifact exists; false otherwise.
+     */
+    public Boolean doesExist(final UUID uniqueId) {
+        synchronized(getImplLock()) { return getImpl().doesExist(uniqueId); }
     }
 
 	/**

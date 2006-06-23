@@ -20,7 +20,7 @@ import com.thinkparity.migrator.Library;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-class XMPPMethodResponse extends IQ {
+public class XMPPMethodResponse extends IQ {
 
     /** A method's response result. */
     private final Map<String, Result> result;

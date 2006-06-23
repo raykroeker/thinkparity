@@ -17,15 +17,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
-import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
-import com.thinkparity.browser.application.browser.display.avatar.BrowserInfoAvatar;
-import com.thinkparity.browser.application.browser.display.avatar.BrowserMainAvatar;
-import com.thinkparity.browser.application.browser.display.avatar.BrowserContactsAvatar;
-import com.thinkparity.browser.application.browser.display.avatar.BrowserTitleAvatar;
-import com.thinkparity.browser.application.browser.display.avatar.Status;
+import com.thinkparity.browser.application.browser.display.avatar.*;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -55,8 +51,6 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -431,13 +425,26 @@ public class Browser extends AbstractApplication {
         });
     }
 
-	/**
+    /**
      * Notify the application a team member has been added to the document.
      *
      * @param documentId
      *      A document id.
      */
     public void fireDocumentTeamMemberAdded(final Long documentId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getMainAvatar().syncDocument(documentId, Boolean.TRUE); }
+        });
+        fireDocumentUpdated(documentId, Boolean.TRUE);
+    }
+
+    /**
+     * Notify the application a team member has been removed from the document.
+     *
+     * @param documentId
+     *      A document id.
+     */
+    public void fireDocumentTeamMemberRemoved(final Long documentId) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getMainAvatar().syncDocument(documentId, Boolean.TRUE); }
         });

@@ -120,10 +120,18 @@ class EventDispatcher {
                 }
 
             }
+            public void documentReactivated(DocumentEvent e) {
+                if(e.isRemote())
+                    browser.fireDocumentUpdated(e.getDocument().getId(), Boolean.TRUE);
+            }
             public void teamMemberAdded(final DocumentEvent e) {
                 if(e.isRemote()) {
                     browser.fireDocumentTeamMemberAdded(e.getDocument().getId());
                 }
+            }
+            public void teamMemberRemoved(DocumentEvent e) {
+                if(e.isRemote())
+                    browser.fireDocumentTeamMemberRemoved(e.getDocument().getId());
             }
 		};
 	}

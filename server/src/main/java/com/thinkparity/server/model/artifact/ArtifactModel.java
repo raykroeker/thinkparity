@@ -9,7 +9,8 @@ import java.util.UUID;
 
 import org.xmpp.packet.JID;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.contact.Contact;
@@ -166,6 +167,14 @@ public class ArtifactModel extends AbstractModel {
 	public List<Artifact> listForKeyHolder() throws ParityServerModelException {
 		synchronized(implLock) { return impl.listForKeyHolder(); }
 	}
+
+    public void reactivate(final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] bytes)
+            throws ParityServerModelException {
+        synchronized(implLock) {
+            impl.reactivate(team, uniqueId, versionId, name, bytes);
+        }
+    }
 
 	public List<Contact> readContacts(final UUID artifactUniqueId)
 			throws ParityServerModelException {

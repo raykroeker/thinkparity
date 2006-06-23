@@ -8,7 +8,8 @@ import java.util.List;
 
 import org.jivesoftware.messenger.vcard.VCardManager;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;

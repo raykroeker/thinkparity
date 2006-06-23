@@ -5,6 +5,7 @@
 package com.thinkparity.codebase.controller;
 
 import java.util.Calendar;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -16,6 +17,7 @@ import org.xmpp.packet.PacketError;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.xmpp.IQReader;
 import com.thinkparity.codebase.xmpp.IQWriter;
 
@@ -94,6 +96,20 @@ public abstract class AbstractController extends
 
         logger.debug(response);
         return response;
+    }
+
+    /**
+     * Read a list of jabber id parameters.
+     * 
+     * @param parentName
+     *            The parent parameter name.
+     * @param name
+     *            The parameter name.
+     * @return A list of jabber ids.
+     */
+    public List<JabberId> readJabberIds(final String parentName,
+            final String name) {
+        return iqReader.readJabberIds(parentName, name);
     }
 
     /** Handle an internet query. */

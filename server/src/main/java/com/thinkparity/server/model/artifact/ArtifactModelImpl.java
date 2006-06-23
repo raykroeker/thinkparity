@@ -18,9 +18,9 @@ import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.server.JabberId;
-import com.thinkparity.server.JabberIdBuilder;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -38,6 +38,7 @@ import com.thinkparity.server.org.xmpp.packet.IQKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQConfirmReceipt;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQNotifyTeamMemberAdded;
 import com.thinkparity.server.org.xmpp.packet.artifact.IQNotifyTeamMemberRemoved;
+import com.thinkparity.server.org.xmpp.packet.document.IQReactivateDocument;
 
 /**
  * @author raykroeker@gmail.com
@@ -451,6 +452,39 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
+
+    void reactivate(final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] bytes)
+            throws ParityServerModelException {
+        logger.info("[RMODEL] [ARTIFACT] [REACTIVATE]");
+        logger.debug(team);
+        logger.debug(uniqueId);
+        logger.debug(versionId);
+        logger.debug(name);
+        logger.debug(bytes);
+        create(uniqueId);
+
+        final IQReactivateDocument iq = new IQReactivateDocument();
+        iq.setContent(bytes);
+        iq.setName(name);
+        iq.setUniqueId(uniqueId);
+        iq.setVersionId(versionId);
+        for(final JabberId jabberId : team) {
+            try {
+                // don't send reactivation to self
+                if(!jabberId.equals(session.getJabberId())) {
+                    if(isActive(jabberId)) {
+                        iq.setFrom(session.getJID());
+                        iq.setTo(jabberId.getJID());
+                        send(jabberId, iq);
+                    }
+                }
+            }
+            catch(final UnauthorizedException ux) {
+                throw ParityErrorTranslator.translate(ux);
+            }
+        }
+    }
 
 	List<Contact> readContacts(final UUID artifactUniqueId)
 			throws ParityServerModelException {

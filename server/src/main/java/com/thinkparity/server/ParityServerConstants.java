@@ -21,4 +21,18 @@ public interface ParityServerConstants {
 	public static final String LOG4J_DIRECTORY_NAME = "log4j";
 
 	public static final String SERVER_NAME = "Parity XMPP Server";
+
+    /** Xml constants. &*/
+	public static final class Xml {
+	    public static final class Artifact {
+            public static final String BYTES = "bytes";
+            public static final String NAME = "name";
+            public static final String UNIQUE_ID = "uniqueId";
+            public static final String VERSION_ID = "versionId";
+        }
+        public static final class User {
+            public static final String JABBER_ID = "jabberId";
+            public static final String JABBER_IDS = "jabberIds";
+        }
+    }
 }

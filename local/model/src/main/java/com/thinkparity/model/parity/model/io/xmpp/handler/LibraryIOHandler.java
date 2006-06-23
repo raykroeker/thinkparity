@@ -25,7 +25,7 @@ public class LibraryIOHandler extends AbstractIOHandler
     public Long create(final String artifactId, final String groupId,
             final String path, final Library.Type type, final String version)
             throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("library:create");
             session.setParameter("artifactId", artifactId);
@@ -54,7 +54,7 @@ public class LibraryIOHandler extends AbstractIOHandler
 
     public void createBytes(final Long libraryId, final byte[] bytes,
             final String checksum) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("library:createbytes");
             session.setParameter("id", libraryId);
@@ -72,7 +72,7 @@ public class LibraryIOHandler extends AbstractIOHandler
     }
 
     public void delete(final Long libraryId) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("library:delete");
             session.setParameter("id", libraryId);
@@ -87,7 +87,7 @@ public class LibraryIOHandler extends AbstractIOHandler
     }
 
     public Library read(final Long libraryId) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("library:read");
             session.setParameter("id", libraryId);
@@ -102,7 +102,7 @@ public class LibraryIOHandler extends AbstractIOHandler
     /** @see com.thinkparity.model.parity.model.io.handler.LibraryIOHandler#read(java.lang.String, java.lang.String, com.thinkparity.migrator.Library.Type, java.lang.String) */
     public Library read(final String artifactId, final String groupId,
             final Library.Type type, final String version) {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("library:read");
             session.setParameter("artifactId", artifactId);
@@ -120,7 +120,7 @@ public class LibraryIOHandler extends AbstractIOHandler
 
     /** @see com.thinkparity.model.parity.model.io.handler.LibraryHandler#readBytes(java.lang.Long) */
     public LibraryBytes readBytes(final Long libraryId) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("library:readbytes");
             session.setParameter("id", libraryId);
@@ -135,7 +135,7 @@ public class LibraryIOHandler extends AbstractIOHandler
 
     /** @see com.thinkparity.model.parity.model.io.handler.LibraryHandler#readBytes(java.lang.Long) */
     public byte[] readSmallBytes(final Long libraryId) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("library:readbytes");
             session.setParameter("id", libraryId);

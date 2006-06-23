@@ -22,11 +22,6 @@ class UserModelImpl extends AbstractModelImpl {
         return getModelId("[USER]").append(" ").append(api);
     }
 
-    private static final StringBuffer getWarnId(final String api,
-            final String warning) {
-        return getApiId(api).append(" ").append(warning);
-    }
-
     private final UserIOHandler userIO;
 
     /**

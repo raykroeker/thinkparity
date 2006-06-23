@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
@@ -59,23 +60,6 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
     /**
-     * Handle a close request from the remote model.
-     *
-     * @param documentId
-     *      A document id.
-     * @param closedBy
-     *      A jabber id.
-     *
-     * @throws ParityException
-     */
-    public void handleClose(final Long documentId, final JabberId closedBy)
-            throws ParityException {
-		synchronized(getImplLock()) {
-            getImpl().handleClose(documentId, closedBy);
-        }
-	}
-
-	/**
      * Confirm that the document sent previously has been received by the
      * specified user.
      * 
@@ -106,6 +90,49 @@ public class InternalDocumentModel extends DocumentModel implements
 	public Document get(final UUID documentUniqueId) throws ParityException {
 		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
 	}
+
+	/**
+     * Handle a close request from the remote model.
+     *
+     * @param documentId
+     *      A document id.
+     * @param closedBy
+     *      A jabber id.
+     *
+     * @throws ParityException
+     */
+    public void handleClose(final Long documentId, final JabberId closedBy)
+            throws ParityException {
+		synchronized(getImplLock()) {
+            getImpl().handleClose(documentId, closedBy);
+        }
+	}
+
+    /**
+     * Handle a reactivate request from the remote model.
+     * 
+     * @param reactivatedBy
+     *            By whom the document was reactivated.
+     * @param team
+     *            The team.
+     * @param uniqueId
+     *            The unique id.
+     * @param versionId
+     *            The version id.
+     * @param name
+     *            The name.
+     * @param content
+     *            The content.
+     */
+    public void handleReactivate(final JabberId reactivatedBy,
+            final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] content)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().handleReactivate(reactivatedBy, team, uniqueId, versionId,
+                    name, content);
+        }
+    }
 
     /**
      * A key request for a document was accepted.
@@ -166,11 +193,6 @@ public class InternalDocumentModel extends DocumentModel implements
         }
 	}
 
-	public void requestKey(final Long documentId, final JabberId requestedBy)
-			throws ParityException {
-		synchronized(getImplLock()) { getImpl().requestKey(documentId, requestedBy); }
-	}
-
 	/**
      * Remove a team member from the document.
      * 
@@ -186,6 +208,11 @@ public class InternalDocumentModel extends DocumentModel implements
             getImpl().removeTeamMember(documentId, jabberId);
         }
     }
+
+	public void requestKey(final Long documentId, final JabberId requestedBy)
+			throws ParityException {
+		synchronized(getImplLock()) { getImpl().requestKey(documentId, requestedBy); }
+	}
 
     /**
 	 * Unlock a document.

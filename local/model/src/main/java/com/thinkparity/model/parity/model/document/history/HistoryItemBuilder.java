@@ -89,6 +89,9 @@ public class HistoryItemBuilder {
             case PUBLISH:
                 history.add(customize(historyItem, (PublishEvent) auditEvent));
                 break;
+            case REACTIVATE:
+                history.add(customize(historyItem, (ReactivateEvent) auditEvent));
+                break;
             case RECEIVE:
                 history.add(customize(historyItem, (ReceiveEvent) auditEvent));
                 break;
@@ -268,6 +271,13 @@ public class HistoryItemBuilder {
 	private HistoryItem customize(final HistoryItem item,
             final PublishEvent event) {
         item.setEvent(getString("eventText.PUBLISH"));
+        return item;
+    }
+
+    private HistoryItem customize(final HistoryItem item,
+            final ReactivateEvent event) {
+        item.setEvent(getString("eventText.REACTIVATE",
+                new Object[] {getName(event.getReactivatedBy())}));
         return item;
     }
 

@@ -16,8 +16,7 @@ import org.jivesoftware.messenger.IQRouter;
 import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.container.Plugin;
 import org.jivesoftware.messenger.container.PluginManager;
-
-import com.thinkparity.server.handler.IQHandler;
+import org.jivesoftware.messenger.handler.IQHandler;
 
 /**
  * thinkParity Remote Model Plugin
@@ -97,6 +96,9 @@ public class ParityServer implements Plugin {
         catch(final InstantiationException ix) {
             logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", ix);
         }
+        catch(final Throwable t) {
+            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", t);
+        }
         final IQHandler controller = controllers.get(controllers.size() - 1);
         iqRouter.addHandler(controller);
         final String info = MessageFormat.format(
@@ -127,6 +129,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.contact.DeclineInvitation");
             initializeController("com.thinkparity.server.handler.contact.InviteContact");
             initializeController("com.thinkparity.server.handler.contact.ReadContacts");
+            initializeController("com.thinkparity.server.handler.document.Reactivate");
             initializeController("com.thinkparity.server.handler.document.SendDocument");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");
             initializeController("com.thinkparity.server.handler.user.ReadUsers");

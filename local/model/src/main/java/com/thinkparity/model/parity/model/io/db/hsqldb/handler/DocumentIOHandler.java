@@ -138,7 +138,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	private final ArtifactIOHandler artifactIO;
 
 	/**
-	 * Create a DocumentIOHandler.
+	 * Create a RemoteDocumentHandler.
 	 * 
 	 */
 	public DocumentIOHandler() {

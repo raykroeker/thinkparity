@@ -281,6 +281,27 @@ public class AuditIOHandler extends AbstractIOHandler implements
     }
 
 	/**
+     * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ReactivateEvent)
+     * 
+     */
+    public void audit(final ReactivateEvent event) throws HypersonicException {
+        final Session session = openSession();
+        try {
+            audit(session, event);
+            auditVersion(session, event, event.getArtifactVersionId());
+
+            auditMetaData(session, event,
+                    MetaDataType.USER_ID, MetaDataKey.REACTIVATED_BY, event.getReactivatedBy().getLocalId());
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
 	 * @see com.thinkparity.model.parity.model.io.handler.AuditIOHandler#audit(com.thinkparity.model.parity.model.audit.event.ReceiveEvent)
 	 * 
 	 */
@@ -292,7 +313,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 
 			auditMetaData(session, event,
 					MetaDataType.USER_ID, MetaDataKey.RECEIVED_FROM, event.getReceivedFrom().getLocalId());
-		}
+            session.commit();
+        }
 		catch(final HypersonicException hx) {
 			session.rollback();
 			throw hx;
@@ -564,6 +586,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 			return extractKeyRequestDenied(session);
         case PUBLISH:
             return extractPublish(session);
+        case REACTIVATE:
+            return extractReactivate(session);
 		case RECEIVE:
 			return extractReceive(session);
 		case RECEIVE_KEY:
@@ -689,6 +713,19 @@ public class AuditIOHandler extends AbstractIOHandler implements
         return event;
     }
 
+    private ReactivateEvent extractReactivate(final Session session) {
+        final ReactivateEvent event = new ReactivateEvent();
+        event.setArtifactId(session.getLong("ARTIFACT_ID"));
+        event.setArtifactVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+        event.setCreatedBy(userIO.read(session.getLong("CREATED_BY")));
+        event.setCreatedOn(session.getCalendar("CREATED_ON"));
+        event.setId(session.getLong("ARTIFACT_AUDIT_ID"));
+
+        final MetaData[] metaData = readMetaData(event.getId(), MetaDataKey.REACTIVATED_BY);
+        event.setReactivatedBy(userIO.read((Long) metaData[0].getValue()));
+
+        return event;
+    }
 	private ReceiveEvent extractReceive(final Session session) {
 		final ReceiveEvent event = new ReceiveEvent();
 		event.setArtifactId(session.getLong("ARTIFACT_ID"));
@@ -845,7 +882,8 @@ public class AuditIOHandler extends AbstractIOHandler implements
 	}
 
     private enum MetaDataKey {
-        CLOSED_BY,CONFIRMED_BY,DENIED_BY,RECEIVED_BY,RECEIVED_FROM,RENAMED_FROM,
-        RENAMED_TO,REQUESTED_BY,REQUESTED_FROM,SENT_TO,TEAM_MEMBER
+        CLOSED_BY, CONFIRMED_BY, DENIED_BY, REACTIVATED_BY, RECEIVED_BY,
+        RECEIVED_FROM, RENAMED_FROM, RENAMED_TO, REQUESTED_BY, REQUESTED_FROM,
+        SENT_TO, TEAM_MEMBER
     }
 }

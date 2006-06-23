@@ -4,6 +4,7 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -236,6 +237,15 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void requestArtifactKey(final UUID uniqueId) throws SmackException;
+
+    /**
+     * Execute a remote method call to reactivate a document.
+     * 
+     * @throws SmackException
+     */
+    public void sendDocumentReactivate(final List<JabberId> team,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] bytes) throws SmackException;
 
     /**
      * Send a document across the parity xmpp network.

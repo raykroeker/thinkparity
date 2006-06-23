@@ -156,6 +156,10 @@ public class PopupDocument implements Popup {
         // MENU_ITEM Open
         jPopupMenu.add(new Open(application));
         if(document.isClosed()) {
+            // MENU_ITEM Reactivate
+            if(document.isClosed()) {
+                jPopupMenu.add(new Reactivate(application));
+            }
             // MENU_ITEM Delete
             jPopupMenu.addSeparator();
             jPopupMenu.add(new Delete(application));

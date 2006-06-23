@@ -29,12 +29,12 @@ abstract class AbstractIOHandler {
     }
 
     /**
-     * Open an xmpp session.
+     * Open an anonymous xmpp session.
      *
-     * @return The xmpp session.
+     * @return An anonymous xmpp session.
      */
-    protected XMPPSession openSession() {
-        return XMPPSessionManager.open(
+    protected XMPPSession openAnonymousSession() {
+        return XMPPSessionManager.openAnonymous(
                 Connection.SERVER_HOST, Connection.SERVER_PORT);
     }
 }

@@ -10,9 +10,9 @@ import org.dom4j.Element;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
-import com.thinkparity.server.JabberId;
 
 
 /**

@@ -60,6 +60,14 @@ public interface DocumentListener {
     public void documentPublished(final DocumentEvent e);
 
     /**
+     * A dcument has been reactivated.
+     * 
+     * @param e
+     *            The document event.
+     */
+    public void documentReactivated(final DocumentEvent e);
+
+    /**
      * A document has been udpated.
      *
      * @param e
@@ -98,4 +106,12 @@ public interface DocumentListener {
      *      The document event.
      */
     public void teamMemberAdded(final DocumentEvent e);
+
+    /**
+     * A user has been removed from the team.
+     * 
+     * @param e
+     *            The document event.
+     */
+    public void teamMemberRemoved(final DocumentEvent e);
 }

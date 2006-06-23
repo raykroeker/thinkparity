@@ -11,15 +11,17 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SimpleTimeZone;
+import java.util.UUID;
 import java.util.zip.DataFormatException;
 
 import org.apache.commons.codec.binary.Base64;
-import org.jivesoftware.smack.PacketCollector;
+import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -28,6 +30,10 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.model.Constants.Jabber;
+import com.thinkparity.model.parity.model.session.Credentials;
+import com.thinkparity.model.xmpp.JabberId;
 
 import com.thinkparity.migrator.Library;
 
@@ -42,6 +48,9 @@ public class XMPPSession {
     static {
         ProviderManager.addIQProvider("query", "jabber:iq:parity:response", new XMPPMethodResponseProvider());
     }
+
+    /** An apache logger. */
+    protected final Logger logger;
 
     /** A smack xmpp connection. */
     private final XMPPConnection connection;
@@ -65,6 +74,22 @@ public class XMPPSession {
         catch(final org.jivesoftware.smack.XMPPException xmppx) {
             throw new XMPPException(xmppx);
         }
+        this.logger = Logger.getLogger(getClass());
+        this.uniqueId = JVMUniqueId.nextId();
+    }
+
+    /** Create XMPPSession. */
+    XMPPSession(final String serverHost, final Integer serverPort,
+            final Credentials credentials) {
+        super();
+        try {
+            this.connection = new XMPPConnection(serverHost, serverPort);
+            this.connection.login(credentials.getUsername(), credentials.getPassword(), Jabber.RESOURCE);
+        }
+        catch(final org.jivesoftware.smack.XMPPException xmppx) {
+            throw new XMPPException(xmppx);
+        }
+        this.logger = Logger.getLogger(getClass());
         this.uniqueId = JVMUniqueId.nextId();
     }
 
@@ -103,10 +128,6 @@ public class XMPPSession {
         return xmppMethodResponse.readBytes(name);
     }
 
-    public byte[] getSmallBytes(final String name) {
-        return xmppMethodResponse.readSmallBytes(name);
-    }
-
     public Calendar getCalendar(final String name) {
         return xmppMethodResponse.readResultCalendar(name);
     }
@@ -137,6 +158,10 @@ public class XMPPSession {
         return xmppMethodResponse.readResultLong(name);
     }
 
+    public byte[] getSmallBytes(final String name) {
+        return xmppMethodResponse.readSmallBytes(name);
+    }
+
     /**
      * Obtain a string result value.
      * 
@@ -159,9 +184,36 @@ public class XMPPSession {
         Assert.assertNotYetImplemented("XMPPSession#rollback() [" + StackUtil.getCallerClassAndMethodName() + "]");
     }
 
-    public void setLongParameters(final String listName, final String name,
+    /**
+     * Set a list of jabber id parameters.
+     * 
+     * @param listName
+     *            The list name.
+     * @param name
+     *            The list item name.
+     * @param values
+     *            The list of values.
+     */
+    public final void setJabberIdParameters(final String listName,
+            final String name, final List<JabberId> values) {
+        assertMethod("[SET JABBER ID PARAMETERS]");
+        debugJabberIdParameters(listName, name, values);
+        xmppMethod.setJabberIdParameters(listName, name, values);
+    }
+
+    /**
+     * Set a list of long parameters.
+     * 
+     * @param listName
+     *            The list name.
+     * @param name
+     *            The list item name.
+     * @param longs
+     *            The list of values.
+     */
+    public final void setLongParameters(final String listName, final String name,
             final List<Long> longs) {
-        assertMethod("[SET LONG PARAMTERS]");
+        assertMethod("[SET LONG PARAMETERS]");
         debugLongParameters(listName, name, longs);
         xmppMethod.setLongParameters(listName, name, longs);
     }
@@ -207,6 +259,20 @@ public class XMPPSession {
     }
 
     /**
+     * Set a named parameter for the remote method.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The paramter value.
+     */
+    public final void setParameter(final String name, final UUID value) {
+        assertMethod("[SET PARAMETER]");
+        debugParameter(name, value);
+        xmppMethod.setParameter(name, value);
+    }
+
+    /**
      * Set the remote method to be invoked.
      *
      * @param remoteMethod.
@@ -241,21 +307,11 @@ public class XMPPSession {
                 " [REMOTE METHOD RESPONSE ALREADY DEFINED]", xmppMethodResponse);
     }
 
-    /**
-     * Create a packet collector that will filter on packets with the same
-     * query id.
-     *
-     * @param iq
-     *      The internet query.
-     * @return A packet collector.
-     */
-    private PacketCollector createPacketCollector(final IQ iq) {
-        return connection.createPacketCollector(
-                new PacketIDFilter(iq.getPacketID()));
-    }
+    private final void debugJabberIdParameters(final String listName,
+            final String name, final List<JabberId> values) {}
 
-    private void debugLongParameters(final String listName, final String name,
-            final List<Long> values) {}
+    private final void debugLongParameters(final String listName,
+            final String name, final List<Long> values) {}
 
     private void debugParameter(final String name, final byte[] value) {}
 
@@ -269,7 +325,9 @@ public class XMPPSession {
      * @param value
      *            The parameter value.
      */
-    private void debugParameter(final String name, final Long value) {}
+    private void debugParameter(final String name, final Long value) {
+        debugParameter(name, null == value ? "null" : value.toString());
+    }
 
     /**
      * Debug a string parameter.
@@ -279,7 +337,23 @@ public class XMPPSession {
      * @param value
      *            The parameter value.
      */
-    private void debugParameter(final String name, final String value) {}
+    private void debugParameter(final String name, final String value) {
+        logger.debug(new StringBuffer("[LMODEL] [IO] [XMPP] [")
+                .append(name).append("] [")
+                .append(value).append("]"));
+    }
+
+    /**
+     * Debug a unique id paramter.
+     * 
+     * @param name
+     *            The paramter name.
+     * @param value
+     *            The paramter value.
+     */
+    private final void debugParameter(final String name, final UUID value) {
+        debugParameter(name, null == value ? "null" : value.toString());
+    }
 
     /**
      * Execute an xmpp method and return the xmpp response.
@@ -289,18 +363,7 @@ public class XMPPSession {
      * @return An xmpp method response.
      */
     private XMPPMethodResponse execute(final XMPPMethod xmppMethod) {
-        // create a collector for the response
-        final PacketCollector idCollector = createPacketCollector(xmppMethod);
-        // send the internet query
-        connection.sendPacket(xmppMethod);
-
-        // this sleep has been inserted because when packets are sent within
-        // x milliseconds of each other, they tend to get swallowed by the
-        // smack library
-        try { Thread.sleep(75); }
-        catch(final InterruptedException ix) {}
-
-        return ((XMPPMethodResponse) idCollector.nextResult());
+        return xmppMethod.execute(connection);
     }
 
     /** A remote result reader. */

@@ -156,15 +156,21 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.toString();
 	
 	/** Sql to delete a team member relationship. */
+    private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT =
+        new StringBuffer("delete from ARTIFACT_TEAM_REL ")
+        .append("where ARTIFACT_ID=?")
+        .toString();
+
+    /** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT_BY_USER =
         new StringBuffer("delete from ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
-    /** Sql to delete a team member relationship. */
-    private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT =
-        new StringBuffer("delete from ARTIFACT_TEAM_REL ")
-        .append("where ARTIFACT_ID=?")
+    private static final String SQL_READ_ID =
+        new StringBuffer("select A.ARTIFACT_ID ")
+        .append("from ARTIFACT A ")
+        .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
     /** Sql to read the team relationship. */
@@ -283,6 +289,29 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long)
+     * 
+     */
+    public void deleteTeamRel(final Long artifactId) throws HypersonicException {
+        final Session session = openSession();
+        try {
+            final Integer rowCount = readTeamRelCount(session, artifactId);
+
+            session.prepareStatement(SQL_DELETE_TEAM_REL_BY_ARTIFACT);
+            session.setLong(1, artifactId);
+            if(rowCount != session.executeUpdate())
+                throw new HypersonicException("[LMODEL] [ARTIFACT] [IO] [DELETE TEAM REL]");
+
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+	/**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -306,48 +335,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-	/**
-     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long)
-     * 
-     */
-    public void deleteTeamRel(final Long artifactId) throws HypersonicException {
-        final Session session = openSession();
-        try {
-            final Integer rowCount = readTeamRelCount(session, artifactId);
-
-            session.prepareStatement(SQL_DELETE_TEAM_REL_BY_ARTIFACT);
-            session.setLong(1, artifactId);
-            if(rowCount != session.executeUpdate())
-                throw new HypersonicException("[LMODEL] [ARTIFACT] [IO] [DELETE TEAM REL]");
-
-            session.commit();
-        }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
-    }
-
     /**
-     * Obtain the number of team members for the artifact.
-     *
-     * @param session
-     *      A db session.
-     * @param artifactId
-     *      An artifact id.
-     * @return The number of team rel rows.
-     */
-    private Integer readTeamRelCount(final Session session,
-            final Long artifactId) throws HypersonicException {
-        session.prepareStatement(SQL_READ_TEAM_REL_COUNT);
-        session.setLong(1, artifactId);
-        session.executeQuery();
-        session.nextResult();
-        return session.getInteger("TEAM_SIZE");
-    }
-
-	/**
 	 * Obtain the artifact's flags.
 	 * 
 	 * @param artifactId
@@ -361,6 +349,25 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		try { return getFlags(session, artifactId); }
 		finally { session.close(); }
 	}
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readId(java.util.UUID)
+     */
+    public Long readId(final UUID uniqueId) throws HypersonicException {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ID);
+            session.setUniqueId(1, uniqueId);
+            session.executeQuery();
+            if(session.nextResult()) { return session.getLong("ARTIFACT_ID"); }
+            else { return null; }
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
 
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readTeam(java.lang.Long)
@@ -403,7 +410,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#updateRemoteInfo(java.lang.Long,
      *      com.thinkparity.model.xmpp.JabberId, java.util.Calendar)
      * 
@@ -698,7 +705,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		else { return 1L; }
 	}
 
-    /**
+	/**
 	 * Insert the artifact flag relationships for all of the flags.
 	 * 
 	 * @param session
@@ -718,6 +725,24 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 				throw new HypersonicException("Could not insert flag.");
 		}
 	}
+
+    /**
+     * Obtain the number of team members for the artifact.
+     *
+     * @param session
+     *      A db session.
+     * @param artifactId
+     *      An artifact id.
+     * @return The number of team rel rows.
+     */
+    private Integer readTeamRelCount(final Session session,
+            final Long artifactId) throws HypersonicException {
+        session.prepareStatement(SQL_READ_TEAM_REL_COUNT);
+        session.setLong(1, artifactId);
+        session.executeQuery();
+        session.nextResult();
+        return session.getInteger("TEAM_SIZE");
+    }
 
     /**
 	 * Set the artifact version's meta data.

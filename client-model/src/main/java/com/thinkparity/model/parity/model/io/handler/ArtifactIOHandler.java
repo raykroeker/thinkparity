@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.io.handler;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
@@ -86,6 +87,16 @@ public interface ArtifactIOHandler {
 	 */
 	public List<ArtifactFlag> getFlags(final Long artifactId)
 			throws HypersonicException;
+
+    /**
+     * Read the artifact id.
+     * 
+     * @param uniqueId
+     *            A unique id.
+     * @return An id.
+     * @throws HypersonicException
+     */
+    public Long readId(final UUID uniqueId) throws HypersonicException;
 
     /**
      * Read the team for an artifact.

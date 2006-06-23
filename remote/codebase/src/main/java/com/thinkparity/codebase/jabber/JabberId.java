@@ -4,6 +4,8 @@
  */
 package com.thinkparity.codebase.jabber;
 
+import org.xmpp.packet.JID;
+
 /**
  * <b>Title:</b>thinkParity Remote JabberId<br>
  * <b>Description:</b> A thinkParity remote jabber id implementation.
@@ -84,4 +86,8 @@ public class JabberId {
 	public String toString() {
 		return getClass().getName() + "\\" +getQualifiedJabberId();
 	}
+
+    public JID getJID() {
+        return JIDBuilder.buildQualified(getQualifiedJabberId());
+    }
 }

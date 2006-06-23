@@ -16,12 +16,13 @@ import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.JabberId;
 import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.contact.ContactModel;
+import com.thinkparity.server.model.document.DocumentModel;
 import com.thinkparity.server.model.queue.QueueModel;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.session.SessionModel;
@@ -103,7 +104,7 @@ public abstract class AbstractModelImpl {
 		return artifactModel;
 	}
 
-	/**
+    /**
      * Obtain the parity contact interface.
      * 
      * @return The parity contact interface.
@@ -111,6 +112,15 @@ public abstract class AbstractModelImpl {
 	protected ContactModel getContactModel() {
 		return ContactModel.getModel(session);
 	}
+
+	/**
+     * Obtain the parity document interface.
+     * 
+     * @return The parity document interface.
+     */
+    protected DocumentModel getDocumentModel() {
+        return DocumentModel.getModel(session);
+    }
 
 	/**
 	 * Obtain the parity session interface.
@@ -133,6 +143,16 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+     * Determine if the user account is still active.
+     * 
+     * @param jabberId
+     *            The user's jabber id.
+     * @return True if the account is active; false otherwise.
+     * TODO Finish isActive implementation.
+     */
+    protected Boolean isActive(final JabberId jabberId) { return Boolean.TRUE; }
+
+    /**
 	 * Determine whether or not the user represented by the jabber id is
 	 * currently online.
 	 * 

@@ -4,9 +4,11 @@
 package com.thinkparity.server.handler.contact;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.server.handler.IQAction;
 import com.thinkparity.server.handler.IQHandler;
 import com.thinkparity.server.model.ParityServerModelException;

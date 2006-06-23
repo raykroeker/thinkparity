@@ -6,7 +6,8 @@ package com.thinkparity.server.model.document;
 import java.util.Set;
 import java.util.UUID;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.server.model.AbstractModel;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;

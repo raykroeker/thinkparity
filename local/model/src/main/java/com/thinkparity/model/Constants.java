@@ -11,7 +11,7 @@ import java.io.File;
  * @author raymond@thinkparity.com
  * @version 1.1
  */
-public final class Constants extends com.thinkparity.codebase.Constants {
+public final class Constants {
 
     public static final class Connection {
         public static final String SERVER_HOST = System.getProperty("parity.serverhost");
@@ -39,6 +39,10 @@ public final class Constants extends com.thinkparity.codebase.Constants {
         public static final String PROPERTIES_FILENAME = "thinkParityImage.properties";
     }
 
+    public static final class Jabber {
+        public static final String RESOURCE = "parity";
+    }
+
     public static final class LibraryFileExtensions {
         public static final String JAVA = ".jar";
         public static final String NATIVE = ".dll";
@@ -64,5 +68,18 @@ public final class Constants extends com.thinkparity.codebase.Constants {
 
     public static final class Sundry {
         public static final String THINKPARITY_GROUP_ID = "com.thinkparity.parity";
+    }
+
+    public static final class Xml {
+        public static final class Artifact {
+            public static final String BYTES = "bytes";
+            public static final String NAME = "name";
+            public static final String UNIQUE_ID = "uniqueId";
+            public static final String VERSION_ID = "versionId";
+        }
+        public static final class User {
+            public static final String JABBER_ID = "jabberId";
+            public static final String JABBER_IDS = "jabberIds";
+        }
     }
 }

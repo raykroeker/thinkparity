@@ -28,7 +28,7 @@ public class FOPIOFactory extends IOFactory {
 		this.preferences = workspace.getPreferences();
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createArtifactHandler()
 	 * 
 	 */
@@ -59,7 +59,7 @@ public class FOPIOFactory extends IOFactory {
 		return new com.thinkparity.model.parity.model.io.pdf.fop.handler.DocumentHistoryIOHandler(preferences.getArchiveOutputDirectory());
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.parity.model.io.IOFactory#createLibraryHandler()
      */
     @Override
@@ -67,7 +67,7 @@ public class FOPIOFactory extends IOFactory {
         throw Assert.createNotYetImplemented("FOPIOFactory#createLibraryHandler");
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.IOFactory#createReleaseHandler()
      */
     @Override

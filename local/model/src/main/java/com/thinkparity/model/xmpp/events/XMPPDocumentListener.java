@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.xmpp.events;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.model.xmpp.JabberId;
@@ -15,4 +16,8 @@ public interface XMPPDocumentListener {
     public void documentReceived(final JabberId receivedFrom,
             final UUID uniqueId, final Long versionId, final String name,
             final byte[] content);
+
+    public void documentReactivated(final JabberId reactivatedBy,
+            final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] content);
 }

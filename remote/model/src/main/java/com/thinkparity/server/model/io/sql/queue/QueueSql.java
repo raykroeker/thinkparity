@@ -15,8 +15,8 @@ import org.jivesoftware.database.JiveID;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.io.sql.AbstractSql;
 import com.thinkparity.server.model.queue.QueueItem;
 

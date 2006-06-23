@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.io.xmpp;
 
 import java.util.Vector;
 
+import com.thinkparity.model.parity.model.session.Credentials;
+
 /**
  * An xmpp session manager.
  *
@@ -24,12 +26,20 @@ public class XMPPSessionManager {
         });
     }
 
+    public static XMPPSession openAuthenticated(final String serverHost,
+            final Integer serverPort, final Credentials credentials) {
+        synchronized(sessions) {
+            sessions.add(new XMPPSession(serverHost, serverPort, credentials));
+            return sessions.get(sessions.size() - 1);
+        }
+    }
+
     /**
-     * Open a new xmpp session.
+     * Open a new anonymous xmpp session.
      *
      * @return An xmpp session.
      */
-    public static XMPPSession open(final String serverHost,
+    public static XMPPSession openAnonymous(final String serverHost,
             final Integer serverPort) {
         synchronized(sessions) {
             sessions.add(new XMPPSession(serverHost, serverPort));

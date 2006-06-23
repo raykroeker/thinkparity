@@ -10,8 +10,9 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.thinkparity.server.JabberId;
-import com.thinkparity.server.JabberIdBuilder;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
 import com.thinkparity.server.model.io.sql.AbstractSql;
 
 /**

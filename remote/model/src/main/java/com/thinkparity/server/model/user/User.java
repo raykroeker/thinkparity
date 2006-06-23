@@ -5,7 +5,7 @@ package com.thinkparity.server.model.user;
 
 import org.dom4j.Element;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
  * @author raykroeker@gmail.com

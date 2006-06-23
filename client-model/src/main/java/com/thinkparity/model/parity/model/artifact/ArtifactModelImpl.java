@@ -89,6 +89,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
 				keyRequestMessage.getRequestedBy(), KeyResponse.ACCEPT);
 	}
 
+	void addTeamMember(final Long artifactId, final JabberId jabberId) throws ParityException {
+        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
+        logger.debug(artifactId);
+        logger.debug(jabberId);
+        final InternalUserModel iUModel = getInternalUserModel();
+        User user = iUModel.read(jabberId);
+        if(null == user) { user = iUModel.create(jabberId); }
+
+        artifactIO.createTeamRel(artifactId, user.getLocalId());
+    }
+
 	/**
 	 * Apply the key flag.
 	 * 
@@ -100,7 +111,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		applyFlag(artifactId, ArtifactFlag.KEY);
 	}
 
-	/**
+    /**
 	 * Apply the seen flag.
 	 * 
 	 * @param artifactId
@@ -162,7 +173,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         getInternalSessionModel().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
     }
 
-    /**
+	/**
      * Create the artifact's remote info.
      * 
      * @param artifactId
@@ -208,7 +219,19 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		artifactIO.deleteRemoteInfo(artifactId);
 	}
 
-	/**
+	void deleteTeam(final Long artifactId) {
+        logger.info("[LMODEL] [ARTIFACT] [DELETE TEAM]");
+        logger.debug(artifactId);
+        artifactIO.deleteTeamRel(artifactId);
+    }
+
+	Boolean doesExist(final UUID uniqueId) {
+        logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
+        logger.debug(uniqueId);
+        return null != artifactIO.readId(uniqueId);
+    }
+
+    /**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -258,7 +281,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return requests;
 	}
 
-    /**
+	/**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -292,7 +315,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		removeFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
-	/**
+	void removeTeamMember(final Long artifactId, final JabberId jabberId) {
+        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
+        logger.debug(artifactId);
+        logger.debug(jabberId);
+        final InternalUserModel iUModel = getInternalUserModel();
+        final User user = iUModel.read(jabberId);
+
+        artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+    }
+
+    /**
      * Update the artifact's remote info.
      * 
      * @param artifactId
@@ -311,7 +344,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		artifactIO.updateRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
 
-	/**
+    /**
 	 * Apply a flag to an artifact.
 	 * 
 	 * @param artifactId
@@ -334,7 +367,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Create a key request based upon a key request system message.
 	 * 
 	 * @param message
@@ -350,7 +383,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return request;
 	}
 
-	/**
+    /**
 	 * Remove a flag from an artifact.
 	 * 
 	 * @param artifactId
@@ -374,31 +407,4 @@ class ArtifactModelImpl extends AbstractModelImpl {
 					+ "] has no flag [" + flag + "].");
 		}
 	}
-
-    void addTeamMember(final Long artifactId, final JabberId jabberId) throws ParityException {
-        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
-        logger.debug(artifactId);
-        logger.debug(jabberId);
-        final InternalUserModel iUModel = getInternalUserModel();
-        User user = iUModel.read(jabberId);
-        if(null == user) { user = iUModel.create(jabberId); }
-
-        artifactIO.createTeamRel(artifactId, user.getLocalId());
-    }
-
-    void deleteTeam(final Long artifactId) {
-        logger.info("[LMODEL] [ARTIFACT] [DELETE TEAM]");
-        logger.debug(artifactId);
-        artifactIO.deleteTeamRel(artifactId);
-    }
-
-    void removeTeamMember(final Long artifactId, final JabberId jabberId) {
-        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
-        logger.debug(artifactId);
-        logger.debug(jabberId);
-        final InternalUserModel iUModel = getInternalUserModel();
-        final User user = iUModel.read(jabberId);
-
-        artifactIO.deleteTeamRel(artifactId, user.getLocalId());
-    }
 }

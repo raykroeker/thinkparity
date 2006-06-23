@@ -28,7 +28,7 @@ public class ReleaseIOHandler extends AbstractIOHandler
     public Long create(final String artifactId, final String groupId,
             final String version, final List<Long> libraryIds)
             throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("release:create");
             session.setParameter("artifactId", artifactId);
@@ -52,7 +52,7 @@ public class ReleaseIOHandler extends AbstractIOHandler
     }
 
     public void delete(final Long releaseId) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("release:delete");
             session.setParameter("id", releaseId);
@@ -63,7 +63,7 @@ public class ReleaseIOHandler extends AbstractIOHandler
     }
 
     public Release read(final Long releaseId) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("release:read");
             session.setParameter("id", releaseId);
@@ -78,7 +78,7 @@ public class ReleaseIOHandler extends AbstractIOHandler
 
     public Release read(final String artifactId, final String groupId,
             final String version) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("release:read");
             session.setParameter("artifactId", artifactId);
@@ -96,7 +96,7 @@ public class ReleaseIOHandler extends AbstractIOHandler
     /** @see com.thinkparity.model.parity.model.io.handler.ReleaseIOHandler#readLatest() */
     public Release readLatest(final String artifactId, final String groupId)
             throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("release:readlatest");
             session.setParameter("artifactId", artifactId);
@@ -117,7 +117,7 @@ public class ReleaseIOHandler extends AbstractIOHandler
      * @return A list of libraries.
      */
      public List<Library> readLibraries(final Long releaseId) throws XMPPException {
-        final XMPPSession session = openSession();
+        final XMPPSession session = openAnonymousSession();
         try {
             session.setRemoteMethod("release:readlibraries");
             session.setParameter("id", releaseId);

@@ -5,7 +5,7 @@ package com.thinkparity.server.model.session;
 
 import org.xmpp.packet.JID;
 
-import com.thinkparity.server.JabberId;
+import com.thinkparity.codebase.jabber.JabberId;
 
 /**
  * @author raykroeker@gmail.com

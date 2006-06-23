@@ -20,6 +20,7 @@ public enum AuditEventType {
     KEY_REQUEST_DENIED(8),
     KEY_RESPONSE_DENIED(9),
     PUBLISH(12),
+    REACTIVATE(16),
     RECEIVE(3),
     RECEIVE_KEY(4),
     RENAME(15),
@@ -39,6 +40,7 @@ public enum AuditEventType {
 		case  8: return KEY_REQUEST_DENIED;
 		case  9: return KEY_RESPONSE_DENIED;
         case 12: return PUBLISH;
+        case 16: return REACTIVATE;
 		case  3: return RECEIVE;
 		case  4: return RECEIVE_KEY;
         case 15: return RENAME;

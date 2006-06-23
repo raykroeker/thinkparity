@@ -41,6 +41,11 @@ public class HypersonicIOFactory extends IOFactory {
 		return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.AuditIOHandler();
 	}
 
+    /** @see com.thinkparity.model.parity.model.io.IOFactory#createConfigurationHandler() */
+    public ConfigurationIOHandler createConfigurationHandler() {
+        return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ConfigurationIOHandler();
+    }
+
 	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createDocumentHandler()
 	 * 
@@ -67,11 +72,6 @@ public class HypersonicIOFactory extends IOFactory {
      */
     public ReleaseIOHandler createReleaseHandler() {
         throw Assert.createNotYetImplemented("HypersonicIOFactory#createReleaseHandler");
-    }
-
-    /** @see com.thinkparity.model.parity.model.io.IOFactory#createConfigurationHandler() */
-    public ConfigurationIOHandler createConfigurationHandler() {
-        return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ConfigurationIOHandler();
     }
 
     /**

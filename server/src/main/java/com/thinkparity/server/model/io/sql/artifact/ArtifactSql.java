@@ -13,12 +13,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jivesoftware.database.JiveID;
+
 import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.JabberId;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.Artifact.State;
 import com.thinkparity.server.model.io.sql.AbstractSql;

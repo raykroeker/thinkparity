@@ -18,6 +18,8 @@ import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.util.Base64;
 
 /**
@@ -60,6 +62,26 @@ public abstract class IQReader {
                     new SimpleTimeZone(0, "GMT"));
         }
         catch(final ParseException px) { throw new RuntimeException(px); }
+    }
+
+    /**
+     * Read a list of jabber ids.
+     * 
+     * @param parentName
+     *            The parent parameter name.
+     * @param name
+     *            The parameter name.
+     * @return A list of jabber ids.
+     */
+    public final List<JabberId> readJabberIds(final String parentName,
+            final String name) {
+        final Element element = iq.getChildElement().element(parentName);
+        final Iterator iChildren = element.elementIterator(name);
+        final List<JabberId> jabberIds = new LinkedList<JabberId>();
+        while(iChildren.hasNext()) {
+            jabberIds.add(JabberIdBuilder.parseQualifiedJabberId(((String) ((Element) iChildren.next()).getData())));
+        }
+        return jabberIds;
     }
 
     /**

@@ -4,7 +4,9 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
@@ -349,6 +351,18 @@ public class SessionModel extends AbstractModel {
 	public void sendLogFileArchive() throws ParityException {
 		synchronized(implLock) { impl.sendLogFileArchive(); }
 	}
+
+    /**
+     * Reactivate a document.
+     *
+     */
+    public void sendDocumentReactivate(final List<JabberId> team,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] bytes) throws ParityException {
+        synchronized(implLock) {
+            impl.sendDocumentReactivate(team, uniqueId, versionId, name, bytes);
+        }
+    }
 
 	/**
 	 * Subscribe to a document. The parity server is notified and will create a

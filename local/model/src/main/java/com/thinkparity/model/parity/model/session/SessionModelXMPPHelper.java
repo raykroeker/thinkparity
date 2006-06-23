@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -85,6 +86,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 			}
 		};
         this.xmppDocumentListener = new XMPPDocumentListener() {
+            public void documentReactivated(final JabberId reactivatedBy,
+                    final List<JabberId> team, final UUID uniqueId,
+                    final Long versionId, final String name,
+                    final byte[] content) {
+                handleDocumentReactivated(reactivatedBy, team, uniqueId,
+                        versionId, name, content);
+            }
             public void documentReceived(final JabberId receivedFrom,
                     final UUID uniqueId, final Long versionId,
                     final String name, final byte[] content) {
@@ -312,6 +320,16 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+     * Reactivate a document.
+     *
+     */
+    void sendDocumentReactivate(final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] bytes)
+            throws SmackException {
+        xmppSession.sendDocumentReactivate(team, uniqueId, versionId, name, bytes);
+    }
+
+	/**
      * Send a document.
      * 
      * @param sendTo
@@ -358,7 +376,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.sendKeyResponse(artifactUniqueId, keyResponse, user);
 	}
 
-	/**
+    /**
 	 * Send the log file archive to the parity server.
 	 * 
 	 * @param logFileArchive
@@ -435,6 +453,33 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         }
         catch(final ParityException px) { unexpectedOccured(px); }
         catch(final SmackException sx) { unexpectedOccured(sx); }
+        catch(final RuntimeException rx) { unexpectedOccured(rx); }
+    }
+
+    /**
+     * Event handler for the extension listener's document reactivated event.
+     * 
+     * @param reactivatedBy
+     *            By whom the document was reactivated.
+     * @param team
+     *            The team.
+     * @param uniqueId
+     *            The unique id.
+     * @param versionId
+     *            The version id.
+     * @param name
+     *            The name.
+     * @param content
+     *            The content.
+     */
+    private void handleDocumentReactivated(final JabberId reactivatedBy,
+            final List<JabberId> team, final UUID uniqueId,
+            final Long versionId, final String name, final byte[] content) {
+        try {
+            SessionModelImpl.notifyDocumentReactivated(reactivatedBy, team,
+                    uniqueId, versionId, name, content);
+        }
+        catch(final ParityException px) { unexpectedOccured(px); }
         catch(final RuntimeException rx) { unexpectedOccured(rx); }
     }
 

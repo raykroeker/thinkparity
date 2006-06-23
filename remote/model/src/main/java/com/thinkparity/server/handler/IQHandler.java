@@ -23,9 +23,9 @@ import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
 
 import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.server.JabberId;
-import com.thinkparity.server.JabberIdBuilder;
 import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.ParityServerConstants;
 import com.thinkparity.server.model.ParityServerModelException;

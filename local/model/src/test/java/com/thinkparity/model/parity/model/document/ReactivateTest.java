@@ -26,7 +26,7 @@ public class ReactivateTest extends DocumentTestCase {
 	public ReactivateTest() { super(NAME); }
 
     /** Test the parity document interface close api. */ 
-	public void testRename() {
+	public void testReactivate() {
         try { datum.dModel.reactivate(datum.documentId); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
 	}

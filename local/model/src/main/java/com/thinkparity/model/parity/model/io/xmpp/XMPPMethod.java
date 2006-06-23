@@ -8,12 +8,16 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
+
 import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
+
+import com.thinkparity.model.xmpp.JabberId;
 
 import com.thinkparity.migrator.Library;
 
@@ -58,11 +62,38 @@ public class XMPPMethod extends IQ {
 
     String getNamespace() { return "jabber:iq:parity:" + name; }
 
-    void setParameter(final String name, final byte[] value) {
+    final void setJabberIdParameters(final String listName, final String name,
+            final List<JabberId> values) {
+        final List<Parameter> parameters = new LinkedList<Parameter>();
+        for(final JabberId value : values) {
+            parameters.add(new Parameter(name, JabberId.class, value));
+        }
+        this.parameters.add(new Parameter(listName, List.class, parameters));
+    }
+
+    final void setLibraryParameters(final String listName, final String name,
+            final List<Library> values) {
+        final List<Parameter> parameters = new LinkedList<Parameter>();
+        for(final Library value : values)
+            parameters.add(new Parameter(name, Library.class, value));
+
+        this.parameters.add(new Parameter(listName, List.class, parameters));
+    }
+
+    final void setLongParameters(final String listName, final String name,
+            final List<Long> values) {
+        final List<Parameter> parameters = new LinkedList<Parameter>();
+        for(final Long value : values)
+            parameters.add(new Parameter(name, Long.class, value));
+
+        this.parameters.add(new Parameter(listName, List.class, parameters));
+    }
+
+    final void setParameter(final String name, final byte[] value) {
         parameters.add(new Parameter(name, byte[].class, value));
     }
 
-    void setParameter(final String name, final Library.Type value) {
+    final void setParameter(final String name, final Library.Type value) {
         parameters.add(new Parameter(name, Library.Type.class, value));
     }
 
@@ -74,7 +105,7 @@ public class XMPPMethod extends IQ {
      * @param value
      *            The parameter value.
      */
-    void setParameter(final String name, final Long value) {
+    final void setParameter(final String name, final Long value) {
         parameters.add(new Parameter(name, Long.class, value));
     }
 
@@ -86,32 +117,20 @@ public class XMPPMethod extends IQ {
      * @param value
      *            The parameter value.
      */
-    void setParameter(final String name, final String value) {
+    final void setParameter(final String name, final String value) {
         parameters.add(new Parameter(name, String.class, value));
     }
 
-    void setLibraryParameters(final String listName, final String name,
-            final List<Library> values) {
-        final List<Parameter> parameters = new LinkedList<Parameter>();
-        for(final Library value : values)
-            parameters.add(new Parameter(name, Library.class, value));
-
-        this.parameters.add(new Parameter(listName, List.class, parameters));
-    }
-
-    void setLongParameters(final String listName, final String name,
-            final List<Long> values) {
-        final List<Parameter> parameters = new LinkedList<Parameter>();
-        for(final Long value : values)
-            parameters.add(new Parameter(name, Long.class, value));
-
-        this.parameters.add(new Parameter(listName, List.class, parameters));
-    }
-
-    private byte[] autobox(final Byte[] bytes) {
-        final byte[] boxed = new byte[bytes.length];
-        for(int i = 0; i < bytes.length; i++) boxed[i] = bytes[i];
-        return boxed;
+    /**
+     * Set a named parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @param value
+     *            The parameter value.
+     */
+    final void setParameter(final String name, final UUID value) {
+        parameters.add(new Parameter(name, UUID.class, value));
     }
 
     private byte[] compress(final byte[] bytes) {
@@ -159,6 +178,9 @@ public class XMPPMethod extends IQ {
         else if(parameter.javaType.equals(String.class)) {
             return parameter.javaValue.toString();
         }
+        else if(parameter.javaType.equals(JabberId.class)) {
+            return ((JabberId) parameter.javaValue).getQualifiedJabberId();
+        }
         else if(parameter.javaType.equals(Long.class)) {
             return parameter.javaValue.toString();
         }
@@ -176,6 +198,9 @@ public class XMPPMethod extends IQ {
             }
 
             return xmlValue.toString();
+        }
+        else if(parameter.javaType.equals(UUID.class)) {
+            return parameter.javaValue.toString();
         }
         else {
             final String assertion =

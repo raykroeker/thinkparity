@@ -9,7 +9,6 @@ import com.thinkparity.browser.application.browser.display.provider.contact.Mana
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.InfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.MainProvider;
-import com.thinkparity.browser.application.browser.display.provider.contact.ContactsProvider;
 import com.thinkparity.browser.application.browser.display.provider.session.SendArtifactProvider;
 import com.thinkparity.browser.application.browser.display.provider.session.SendVersionProvider;
 import com.thinkparity.browser.model.ModelFactory;
@@ -61,15 +60,6 @@ public class ProviderFactory {
 		return singleton.doGetMainProvider();
 	}
     
-    /**
-     * Obtain the contacts provider.
-     * 
-     * @return The contacts provider.
-     */
-    public static ContentProvider getContactsProvider() {
-        return singleton.doGetContactsProvider();
-    }
-
 	/**
 	 * Obtain the manage contacts provider.
 	 * 
@@ -117,9 +107,6 @@ public class ProviderFactory {
 	/** The main provider. */
 	private final ContentProvider mainProvider;
     
-    /** The contacts provider. */
-    private final ContentProvider contactsProvider;
-
 	/** The contacts provider. */
 	private final ContentProvider manageContactsProvider;
 
@@ -133,7 +120,7 @@ public class ProviderFactory {
     private final UserModel uModel;
 
 	/** Create a ProviderFactory. */
-    // PATTERM Singleton,Factory
+    // PATTERN Singleton,Factory
 	private ProviderFactory() {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
@@ -150,7 +137,6 @@ public class ProviderFactory {
 		this.historyProvider = new HistoryProvider(localUserId, dModel, sModel);
 		this.infoProvider = new InfoProvider(localUser, dModel);
 		this.mainProvider = new MainProvider(artifactModel, dModel, sModel, systemMessageModel, localUserId);
-        this.contactsProvider = new ContactsProvider(artifactModel, dModel, sModel, systemMessageModel, localUserId);
 		this.manageContactsProvider = new ManageContactsProvider(sModel);
 		this.sendArtifactProvider = new SendArtifactProvider(artifactModel, dModel, sModel, localUserId);
 		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, localUserId);
@@ -177,13 +163,6 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetMainProvider() { return mainProvider; }
     
-    /**
-     * Obtain the contacts provider.
-     * 
-     * @return The contacts provider.
-     */
-    private ContentProvider doGetContactsProvider() { return contactsProvider; }
-
 	/**
 	 * Obtain the manage contacts provider.
 	 * 

@@ -25,7 +25,7 @@ public class JabberId {
 	 * @param resource
 	 *            The jabber resource.
 	 */
-	JabberId(final String username, final String host, final String resource) {
+	public JabberId(final String username, final String host, final String resource) {
 		super();
 		this.username = username;
 		this.host = host;

@@ -99,7 +99,7 @@ public class MainCellImageCache {
     protected final Logger logger;
 
     /** Creates a new instance of MainCellImageCache */
-    MainCellImageCache() {
+    public MainCellImageCache() {
         super();
         this.logger = LoggerFactory.getLogger(getClass());
     }
@@ -118,7 +118,7 @@ public class MainCellImageCache {
      * @return The icon.
      * @see ImageIOUtil#readIcon(java.lang.String)
      */
-    ImageIcon read(final DocumentIcon icon) {
+    public ImageIcon read(final DocumentIcon icon) {
         return (ImageIcon) read(ICON_CACHE, icon.iconName);
     }
 
@@ -130,7 +130,7 @@ public class MainCellImageCache {
      * @return The image.
      * @see ImageIOUtil.read(java.lang.String)
      */
-    BufferedImage read(final DocumentImage image) {
+    public BufferedImage read(final DocumentImage image) {
         return (BufferedImage) read(IMAGE_CACHE, image.imageName);
     }
 
@@ -190,7 +190,7 @@ public class MainCellImageCache {
     }
 
     /** All document cell icons. */
-    enum DocumentIcon {
+    public enum DocumentIcon {
 
         INFO_IS_KEYHOLDER("Invisible20x20.png"),
         INFO_IS_NOT_KEYHOLDER("Lock.png"),
@@ -216,7 +216,7 @@ public class MainCellImageCache {
     }
 
     /** All document cell images. */
-    enum DocumentImage {
+    public enum DocumentImage {
 
         BG_CLOSED("MainCellGray.png"),
         BG_DEFAULT("MainCellGreen.png"),

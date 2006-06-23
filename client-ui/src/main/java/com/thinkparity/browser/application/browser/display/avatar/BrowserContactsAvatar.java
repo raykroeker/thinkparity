@@ -5,40 +5,19 @@
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.dnd.DropTargetAdapter;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.TooManyListenersException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellRenderer;
-import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
-import com.thinkparity.browser.application.browser.dnd.UpdateDocumentTxHandler;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-import com.thinkparity.browser.platform.util.SwingUtil;
-
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.artifact.Search;
-import com.thinkparity.model.parity.model.index.IndexHit;
 
 /**
  * The contacts list avatar displays the list of contacts.
@@ -59,7 +38,7 @@ public class BrowserContactsAvatar extends Avatar {
     //    "[BROWSER2] [APP] [B2] [MAIN LIST] [INIT] [TOO MANY DROP TARGET LISTENERS]";
 
     /** @see java.io.Serializable */
-	//private static final long serialVersionUID = 1;
+	private static final long serialVersionUID = 1;
 
     /** The swing JList. */
 	private JList jList;
@@ -186,7 +165,7 @@ public class BrowserContactsAvatar extends Avatar {
      * 
      */
     public void setContentProvider(final ContentProvider contentProvider) {
-        contactsModel.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
+        contactsModel.setContentProvider((FlatContentProvider) contentProvider);
         // set initial selection
         if(0 < jList.getModel().getSize()) { jList.setSelectedIndex(0); }
     }
@@ -319,6 +298,7 @@ public class BrowserContactsAvatar extends Avatar {
             logger.error(ERROR_INIT_TMLX, tmlx);
             throw new RuntimeException(tmlx);
         }
+        */
 
         final JScrollPane jListScrollPane = new JScrollPane(jList);
         jListScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -329,8 +309,7 @@ public class BrowserContactsAvatar extends Avatar {
         c.insets.top = c.insets.bottom = 1;
         c.weightx = 1;
         c.weighty = 1;
-        add(jListScrollPane, c.clone());
-        */
+        add(jListScrollPane, c.clone());  // Add the jListScrollPane to the container
     }
 
     /**

@@ -4,37 +4,22 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import java.awt.Component;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JPopupMenu;
 import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.component.MenuFactory;
-import com.thinkparity.browser.application.browser.display.avatar.main.*;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
-import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.browser.application.browser.display.avatar.contact.CellContact;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.platform.Platform.Connection;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.FilterChain;
-import com.thinkparity.model.parity.model.filter.ModelFilterManager;
-import com.thinkparity.model.parity.model.filter.artifact.Active;
-import com.thinkparity.model.parity.model.filter.artifact.Closed;
-import com.thinkparity.model.parity.model.filter.artifact.IsKeyHolder;
-import com.thinkparity.model.parity.model.filter.artifact.IsNotKeyHolder;
-import com.thinkparity.model.parity.model.filter.artifact.Search;
-import com.thinkparity.model.parity.model.index.IndexHit;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * @author rob_masako@shaw.ca
@@ -60,13 +45,13 @@ public class BrowserContactsModel {
     */
 
     /** An apache logger. */
-    //protected final Logger logger;
+    protected final Logger logger;
 
     /** The application. */
     private final Browser browser;
 
     /** The content provider. */
-    private CompositeFlatSingleContentProvider contentProvider;
+    private FlatContentProvider contentProvider;
 
     /** A list of "dirty" cells. */
     //private final List<MainCell> dirtyCells;
@@ -74,15 +59,9 @@ public class BrowserContactsModel {
     /** The filter that is used to filter documents to produce visibleDocuments. */
     //private final FilterChain<Artifact> documentFilter;
 
-    /** A map of documents to their history. */
-    //private final Map<MainCellDocument, List<MainCellHistoryItem>> documentHistory;
+    /** A list of all contacts. */
+    private final List<CellContact> contacts;
 
-    /** A list of all documents. */
-    //private final List<MainCellDocument> documents;
-
-    /** The team cell for the document. */
-    //private final Map<MainCellDocument, MainCellTeam> documentTeam;
-    
     /** The swing list model. */
     private final DefaultListModel jListModel;
 
@@ -90,7 +69,10 @@ public class BrowserContactsModel {
     //private final List<MainCell> pseudoSelection;
 
     /** A list of all visible cells. */
-    //private final List<MainCell> visibleCells;
+    private final List<MainCell> visibleCells;
+    
+    /** Keep track of when the lists are initialized. */
+    private boolean isInitialized = false;
 
     /**
      * Create a BrowserMainDocumentModel.
@@ -99,19 +81,17 @@ public class BrowserContactsModel {
     BrowserContactsModel(final Browser browser) {
         super();
         this.browser = browser;
+        this.contacts = new LinkedList<CellContact>();       
         /*
         this.documentFilter = new FilterChain<Artifact>();
-        this.documents = new LinkedList<MainCellDocument>();
-        this.documentHistory = new Hashtable<MainCellDocument, List<MainCellHistoryItem>>(10, 0.65F);
-        this.documentTeam = new HashMap<MainCellDocument, MainCellTeam>(10, 10.0F);
         */
         this.jListModel = new DefaultListModel();
-        /*
         this.logger = browser.getPlatform().getLogger(getClass());
+        /*
         this.dirtyCells = new LinkedList<MainCell>();
         this.pseudoSelection = new LinkedList<MainCell>();
-        this.visibleCells = new LinkedList<MainCell>();
         */
+        this.visibleCells = new LinkedList<MainCell>();
     }
 
     /**
@@ -219,32 +199,22 @@ public class BrowserContactsModel {
      * Debug the document filter.
      *
      */
-    /*
     void debug() {
         if(browser.getPlatform().isDevelopmentMode()) {
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + documents.size() + " DOCUMENTS]");
-            Integer historyItems = 0;
-            for(final MainCellDocument mcd : documents) {
-                historyItems += documentHistory.get(mcd).size();
-            }
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + historyItems + " HISTORY EVENTS]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dirtyCells.size() + " DIRTY CELLS]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + jListModel.size() + " MODEL ELEMENTS]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [" + contacts.size() + " CONTACTS]");
 
-            // documents
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [DOCUMENTS (" + documents.size() + ")]");
-            for(final MainCellDocument mcd : documents) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mcd.getText() + "]");
+            //logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
+            //logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dirtyCells.size() + " DIRTY CELLS]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [" + jListModel.size() + " MODEL ELEMENTS]");
+
+            // contacts
+            logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [CONTACTS (" + contacts.size() + ")]");
+            for(final CellContact cc : contacts) {
+                logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t[" + cc.getText() + "]");
             }
-            // history
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [HISTORY EVENTS (" + historyItems + ")]");
-            for(final MainCellDocument mcd : documents) {
-                for(final MainCellHistoryItem mchi : documentHistory.get(mcd)) {
-                    logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mchi.getText() + "]");
-                }
-            }
+
             // visible cells
+            /*
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [VISIBLE CELLS (" + visibleCells.size() + ")]");
             for(final MainCell mc : visibleCells) {
                 logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
@@ -263,9 +233,9 @@ public class BrowserContactsModel {
                 logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
             }
             documentFilter.debug(logger);
+            */
         }
     }
-    */
 
     /**
      * Obtain the swing list model.
@@ -357,7 +327,7 @@ public class BrowserContactsModel {
      *            The content provider.
      */
     void setContentProvider(
-            final CompositeFlatSingleContentProvider contentProvider) {
+            final FlatContentProvider contentProvider) {
         this.contentProvider = contentProvider;
         initModel();
     }
@@ -544,17 +514,15 @@ public class BrowserContactsModel {
     */
 
     /**
-     * Perform a shallow clone of the documents list.
+     * Perform a shallow clone of the contacts list.
      * 
-     * @return A copy of the documents list.
+     * @return A copy of the contacts list.
      */
-    /*
-    private List<MainCellDocument> cloneDocuments() {
-        final List<MainCellDocument> clone = new LinkedList<MainCellDocument>();
-        clone.addAll(documents);
+    private List<CellContact> cloneContacts() {
+        final List<CellContact> clone = new LinkedList<CellContact>();
+        clone.addAll(contacts);
         return clone;
     }
-    */
 
     /**
      * Collapse the history.
@@ -611,16 +579,16 @@ public class BrowserContactsModel {
      * <ol>
      */
     private void initModel() {
-        // read the documents from the provider into the list
-        /*
-        documents.clear();
-        documents.addAll(readDocuments());
-        for(final MainCellDocument mcd : documents) {
-            documentHistory.put(mcd, readHistory(mcd));
-            documentTeam.put(mcd, new MainCellTeam(mcd, readTeam(mcd)));
+        // Read the contacts from the provider into the list
+        // This will only work if the system is online
+        if (!isInitialized) {
+            //if (Connection.ONLINE == browser.getConnection()) {
+                contacts.clear();
+                contacts.addAll(readContacts());
+                syncModel();
+                isInitialized = true;
+            //}
         }
-        syncModel();
-        */
     }
 
     /*
@@ -656,19 +624,38 @@ public class BrowserContactsModel {
     */
 
     /**
-     * Read the documents from the provider.
+     * Read the contacts from the provider.
      * 
      * @return The documents.
      */
-    /*
-    private List<MainCellDocument> readDocuments() {
-        final List<MainCellDocument> l = new LinkedList<MainCellDocument>();
-        final MainCellDocument[] a =
-                (MainCellDocument[]) contentProvider.getElements(0, null);
-        for(final MainCellDocument mcd : a) { l.add(mcd); }
+    private List<CellContact> readContacts() {
+        final List<CellContact> l = new LinkedList<CellContact>();  
+
+        /* Add these lines to show "Rob" and "Masako" as a test.
+        JabberId j = new JabberId("Rob","host","resource");
+        Contact c = new Contact();
+        c.setName("Rob");
+        c.setId(j);
+        CellContact cc = new CellContact(c);
+        l.add(cc);
+        
+        JabberId j2 = new JabberId("Masako","host","resource");        
+        Contact c2 = new Contact();
+        c2.setName("Masako");
+        c2.setId(j2);
+        CellContact cc2 = new CellContact(c2);
+        l.add(cc2);
+        
+        return l;
+        */
+     
+        final Contact[] a = (Contact[]) contentProvider.getElements(null);
+        for(final Contact c : a) {
+            final CellContact cc = new CellContact(c);
+            l.add(cc);
+        }
         return l;
     }
-    */
 
     /**
      * Read the history for the document from the provider.
@@ -793,24 +780,21 @@ public class BrowserContactsModel {
     */
 
     /**
-     * Filter the list of documents. Update the visible cell list with documents
-     * as well as the history. Update the model with the visible cell list.
+     * Filter the list of contacts. Update the visible cell list with contacts.
+     * Update the model with the visible cell list.
      * 
      */
-    /*
     private void syncModel() {
         debug();
-        // filter documents
-        final List<MainCellDocument> filteredDocuments = cloneDocuments();
-        ModelFilterManager.filter(filteredDocuments, documentFilter);
+       
+        // filter contacts
+        final List<CellContact> filteredContacts = cloneContacts();
+        // ModelFilterManager.filter(filteredDocuments, documentFilter);
+
         // update all visible cells
         visibleCells.clear();
-        for(final MainCellDocument mcd : filteredDocuments) {
-            visibleCells.add(mcd);
-            if(mcd.isExpanded()) {
-                visibleCells.add(documentTeam.get(mcd));
-                visibleCells.addAll(documentHistory.get(mcd));
-            }
+        for(final CellContact cc : filteredContacts) {
+            visibleCells.add(cc);
         }
 
         // add visible cells not in the model; as well as update cell
@@ -827,6 +811,7 @@ public class BrowserContactsModel {
             }
         }
 
+        /*
         // prune cells
         final MainCell[] mcModel = new MainCell[jListModel.size()];
         jListModel.copyInto(mcModel);
@@ -848,10 +833,10 @@ public class BrowserContactsModel {
 
         if(isDocumentListFiltered()) { browser.fireFilterApplied(); }
         else { browser.fireFilterRevoked(); }
+        */
 
         debug();
     }
-    */
 
     /**
      * Unique keys used in the {@link DOCUMENT_FILTERS} collection.

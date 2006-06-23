@@ -111,7 +111,7 @@ public class AvatarFactory {
     private Avatar createBrowserContacts() {
         if(null == browserContacts) {
             browserContacts = new BrowserContactsAvatar();
-            browserContacts.setContentProvider(ProviderFactory.getContactsProvider());
+            browserContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
         }
         return browserContacts;
     }

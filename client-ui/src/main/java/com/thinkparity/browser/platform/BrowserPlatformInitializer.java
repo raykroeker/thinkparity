@@ -6,7 +6,6 @@ package com.thinkparity.browser.platform;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.profile.Profile;
 
 /**
@@ -49,8 +48,7 @@ public class BrowserPlatformInitializer {
         initParityServerHost();
         initParityServerPort();
 
-		final Logger logger =
-            LoggerFactory.getLogger(BrowserPlatformInitializer.class);
+		final Logger logger = Logger.getLogger(BrowserPlatformInitializer.class);
         logger.info("[BROWSER2] [PLATFORM] [INIT]");
 
         // init model

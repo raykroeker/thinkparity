@@ -4,9 +4,6 @@
 package com.thinkparity.model.xmpp;
 
 import com.thinkparity.model.parity.IParityModelConstants;
-import com.thinkparity.model.parity.model.workspace.Preferences;
-import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -15,16 +12,11 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class JabberIdBuilder {
 
-	private static final Preferences preferences;
-
 	private static final JabberIdBuilder singleton;
 
 	private static final Object singletonLock;
 
 	static {
-		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
-		preferences = workspace.getPreferences();
-
 		singleton = new JabberIdBuilder();
 		singletonLock = new Object();
 	}
@@ -114,7 +106,7 @@ public class JabberIdBuilder {
 	 */
 	private JabberIdBuilder() {
 		super();
-		this.defaultHost = preferences.getServerHost();
+		this.defaultHost = System.getProperty("parity.serverhost");
 		this.defaultResource = IParityModelConstants.PARITY_CONNECTION_RESOURCE;
 	}
 

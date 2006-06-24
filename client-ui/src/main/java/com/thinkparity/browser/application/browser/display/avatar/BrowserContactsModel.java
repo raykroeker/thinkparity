@@ -4,8 +4,11 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
@@ -16,10 +19,14 @@ import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.contact.CellContact;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
-import com.thinkparity.browser.platform.Platform.Connection;
 
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.FilterChain;
+import com.thinkparity.model.parity.model.filter.UserFilterManager;
+import com.thinkparity.model.parity.model.filter.user.SearchUser;
+import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author rob_masako@shaw.ca
@@ -28,21 +35,21 @@ import com.thinkparity.model.xmpp.contact.Contact;
 public class BrowserContactsModel {
 
     /**
-     * Collection of all filters used by the document model.
+     * Collection of all filters used by the contacts model.
      * 
      */
-    /*
-    private static final Map<Enum<?>, Filter<Artifact>> DOCUMENT_FILTERS;
+    private static final Map<Enum<?>, Filter<User>> CONTACT_FILTERS;
 
     static {
-        DOCUMENT_FILTERS = new HashMap<Enum<?>, Filter<Artifact>>(5, 0.75F);
+        CONTACT_FILTERS = new HashMap<Enum<?>, Filter<User>>(2, 0.75F);
+        /*
         DOCUMENT_FILTERS.put(DocumentFilterKey.STATE_ACTIVE, new Active());
         DOCUMENT_FILTERS.put(DocumentFilterKey.STATE_CLOSED, new Closed());
         DOCUMENT_FILTERS.put(DocumentFilterKey.KEY_HOLDER_FALSE, new IsNotKeyHolder());
         DOCUMENT_FILTERS.put(DocumentFilterKey.KEY_HOLDER_TRUE, new IsKeyHolder());
-        DOCUMENT_FILTERS.put(DocumentFilterKey.SEARCH, new Search(new LinkedList<IndexHit>()));
+        */
+        CONTACT_FILTERS.put(ContactFilterKey.SEARCH, new SearchUser(new LinkedList<IndexHit>()));
     }
-    */
 
     /** An apache logger. */
     protected final Logger logger;
@@ -56,8 +63,8 @@ public class BrowserContactsModel {
     /** A list of "dirty" cells. */
     //private final List<MainCell> dirtyCells;
 
-    /** The filter that is used to filter documents to produce visibleDocuments. */
-    //private final FilterChain<Artifact> documentFilter;
+    /** The filter that is used to filter contacts to produce visibleContacts. */
+    private final FilterChain<User> contactFilter;
 
     /** A list of all contacts. */
     private final List<CellContact> contacts;
@@ -71,9 +78,6 @@ public class BrowserContactsModel {
     /** A list of all visible cells. */
     private final List<MainCell> visibleCells;
     
-    /** Keep track of when the lists are initialized. */
-    private boolean isInitialized = false;
-
     /**
      * Create a BrowserMainDocumentModel.
      * 
@@ -82,9 +86,7 @@ public class BrowserContactsModel {
         super();
         this.browser = browser;
         this.contacts = new LinkedList<CellContact>();       
-        /*
-        this.documentFilter = new FilterChain<Artifact>();
-        */
+        this.contactFilter = new FilterChain<User>();
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
         /*
@@ -135,22 +137,20 @@ public class BrowserContactsModel {
     */
 
     /**
-     * Apply a search filter to the list of visible documents.
+     * Apply a search filter to the list of visible contacts.
      * 
      * @param searchResult
      *            The search result to filter by.
      * 
      * @see #removeSearchFilter()
      */
-    /*
     void applySearchFilter(final List<IndexHit> searchResult) {
-        final Search search = (Search) DOCUMENT_FILTERS.get(DocumentFilterKey.SEARCH);
+        final SearchUser search = (SearchUser) CONTACT_FILTERS.get(ContactFilterKey.SEARCH);
         search.setResults(searchResult);
 
-        applyDocumentFilter(search);
+        applyContactFilter(search);
         syncModel();
     }
-    */
 
     /**
      * Apply an artifact state filter to the list of visible documents.
@@ -178,7 +178,7 @@ public class BrowserContactsModel {
     */
 
     /**
-     * Clear the filter on the visible documents. Note that the search filter
+     * Clear the filter on the visible contacts. Note that the search filter
      * will still be applied.
      * 
      * @see #removeSearchFilter()
@@ -214,26 +214,29 @@ public class BrowserContactsModel {
             }
 
             // visible cells
-            /*
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [VISIBLE CELLS (" + visibleCells.size() + ")]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [VISIBLE CELLS (" + visibleCells.size() + ")]");
             for(final MainCell mc : visibleCells) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
+                logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t[" + mc.getText() + "]");
             }
+            
+            /*
             // pseudo selection
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [PSEUDO SELECTION (" + pseudoSelection.size() + ")]");
             for(final MainCell mc : pseudoSelection) {
                 logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
             }
+            */
+            
             // list elements
             final Enumeration e = jListModel.elements();
             MainCell mc;
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [MODEL ELEMENTS (" + jListModel.size() + ")]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [MODEL ELEMENTS (" + jListModel.size() + ")]");
             while(e.hasMoreElements()) {
                 mc = (MainCell) e.nextElement();
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
+                logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t[" + mc.getText() + "]");
             }
-            documentFilter.debug(logger);
-            */
+
+            contactFilter.debug(logger);
         }
     }
 
@@ -245,31 +248,16 @@ public class BrowserContactsModel {
     ListModel getListModel() { return jListModel; }
 
     /**
-     * Determine whether the document list is currently filtered.
+     * Determine whether the contact list is currently filtered. (Search doesn't count.)
      * 
-     * @return True if the document list is filtered; false otherwise.
+     * @return True if the contact list is filtered; false otherwise.
      */
-    /*
-    Boolean isDocumentListFiltered() {
-        if(documentFilter.isEmpty()) { return Boolean.FALSE; }
-        else {
-            if(documentFilter.containsFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.SEARCH))) {
-                if(documentFilter.containsFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_ACTIVE)) ||
-                        documentFilter.containsFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_CLOSED)) ||
-                        documentFilter.containsFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_FALSE)) ||
-                        documentFilter.containsFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_TRUE))) {
-                    return Boolean.TRUE;
-                }
-                else { return Boolean.FALSE; }
-                
-            }
-            else { return Boolean.TRUE; }
-        }
+    Boolean isContactListFiltered() {
+        return Boolean.FALSE;
     }
-    */
-
+    
     /**
-     * Determine if the document is visible.
+     * Determine if the contact is visible.
      * 
      * @param displayDocument
      *            The display document.
@@ -299,12 +287,10 @@ public class BrowserContactsModel {
      * 
      * @see #applySearchFilter(List)
      */
-    /*
     void removeSearchFilter() {
-        removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.SEARCH));
+        removeContactFilter(CONTACT_FILTERS.get(ContactFilterKey.SEARCH));
         syncModel();
     }
-    */
 
     /**
      * Remove the state filters.
@@ -505,13 +491,11 @@ public class BrowserContactsModel {
      * @param filter
      *            The document filter.
      */
-    /*
-    private void applyDocumentFilter(final Filter<Artifact> filter) {
-        if(!documentFilter.containsFilter(filter)) {
-            documentFilter.addFilter(filter);
+    private void applyContactFilter(final Filter<User> filter) {
+        if(!contactFilter.containsFilter(filter)) {
+            contactFilter.addFilter(filter);
         }
     }
-    */
 
     /**
      * Perform a shallow clone of the contacts list.
@@ -580,35 +564,26 @@ public class BrowserContactsModel {
      */
     private void initModel() {
         // Read the contacts from the provider into the list
-        // This will only work if the system is online
-        if (!isInitialized) {
-            //if (Connection.ONLINE == browser.getConnection()) {
-                contacts.clear();
-                contacts.addAll(readContacts());
-                syncModel();
-                isInitialized = true;
-            //}
-        }
+        contacts.clear();
+        contacts.addAll(readContacts());
+        syncModel();
     }
 
     /*
-    private void pseudoSelect(final MainCell mainCell) {
-        pseudoSelection.add(mainCell);
-    }
-
-    private void pseudoSelectAll(final List<? extends MainCell> mainCells) {
-        if(null == mainCells) { logger.warn("[LBROWSER] [APPLICATION] [BROWSER] [MAIN] [CANNOT PSEUDO SELECT NULL]"); }
-        else { for(final MainCell mc : mainCells) { pseudoSelect(mc); } }
-    }
-
-    private void pseudoUnselect(final MainCell mainCell) {
-        pseudoSelection.remove(mainCell);
-    }
-
-    private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
-        for(final MainCell mc : mainCells) { pseudoUnselect(mc); }
-    }
-    */
+     * private void pseudoSelect(final MainCell mainCell) {
+     * pseudoSelection.add(mainCell); }
+     * 
+     * private void pseudoSelectAll(final List<? extends MainCell> mainCells) {
+     * if(null == mainCells) { logger.warn("[LBROWSER] [APPLICATION] [BROWSER]
+     * [MAIN] [CANNOT PSEUDO SELECT NULL]"); } else { for(final MainCell mc :
+     * mainCells) { pseudoSelect(mc); } } }
+     * 
+     * private void pseudoUnselect(final MainCell mainCell) {
+     * pseudoSelection.remove(mainCell); }
+     * 
+     * private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
+     * for(final MainCell mc : mainCells) { pseudoUnselect(mc); } }
+     */
 
     /**
      * Read a document from the provider.
@@ -693,18 +668,16 @@ public class BrowserContactsModel {
     */
 
     /**
-     * Remove a document filter.
+     * Remove a contact filter.
      * 
      * @param filter
-     *            The document filter.
+     *            The contact filter.
      */
-    /*
-    private void removeDocumentFilter(final Filter<Artifact> filter) {
-        if(documentFilter.containsFilter(filter)) {
-            documentFilter.removeFilter(filter);
+    private void removeContactFilter(final Filter<User> filter) {
+        if(contactFilter.containsFilter(filter)) {
+            contactFilter.removeFilter(filter);
         }
     }
-    */
     
     /**
      * Synchronize the document with the list. The content provider is queried
@@ -789,7 +762,7 @@ public class BrowserContactsModel {
        
         // filter contacts
         final List<CellContact> filteredContacts = cloneContacts();
-        // ArtifactFilterManager.filter(filteredDocuments, documentFilter);
+        UserFilterManager.filter(filteredContacts, contactFilter);
 
         // update all visible cells
         visibleCells.clear();
@@ -797,8 +770,7 @@ public class BrowserContactsModel {
             visibleCells.add(cc);
         }
 
-        // add visible cells not in the model; as well as update cell
-        // locations
+        // add visible cells not in the model; as well as update cell locations
         for(final MainCell mc : visibleCells) {
             if(!jListModel.contains(mc)) {
                 jListModel.add(visibleCells.indexOf(mc), mc);
@@ -811,14 +783,13 @@ public class BrowserContactsModel {
             }
         }
 
-        /*
         // prune cells
         final MainCell[] mcModel = new MainCell[jListModel.size()];
         jListModel.copyInto(mcModel);
         for(final MainCell mc : mcModel) {
             if(!visibleCells.contains(mc)) { jListModel.removeElement(mc); }
         }
-
+/*
         // update dirty cells
         final Iterator<MainCell> iDirty = dirtyCells.iterator();
         MainCell mcDirty;
@@ -830,22 +801,20 @@ public class BrowserContactsModel {
                 iDirty.remove();
             }
         }
-
-        if(isDocumentListFiltered()) { browser.fireFilterApplied(); }
+*/
+        // Update the filter "on/off" text on the browser
+        if(isContactListFiltered()) { browser.fireFilterApplied(); }
         else { browser.fireFilterRevoked(); }
-        */
 
         debug();
     }
 
     /**
-     * Unique keys used in the {@link DOCUMENT_FILTERS} collection.
+     * Unique keys used in the {@link CONTACT_FILTERS} collection.
      * 
      */
-    /*
-    private enum DocumentFilterKey {
-        KEY_HOLDER_FALSE, KEY_HOLDER_TRUE, SEARCH, STATE_ACTIVE, STATE_CLOSED
+    private enum ContactFilterKey {
+        SEARCH, UNDEFINED
     }
-    */
 }
 

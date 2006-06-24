@@ -155,6 +155,17 @@ public class Browser extends AbstractApplication {
 		this.session= new BrowserSession(this);
 		this.state = new BrowserState(this);
 	}
+    
+    /**
+     * Get or Set the current tab.
+     */
+    private void setCurrentTab(BrowserTab currentTab) {
+        this.currentTab = currentTab;
+    }
+    
+    private BrowserTab getCurrentTab() {
+        return currentTab;
+    }
 
     /**
      * Apply a key holder filter.
@@ -176,8 +187,26 @@ public class Browser extends AbstractApplication {
      *            The search results.
      */
 	public void applySearchFilter(final List<IndexHit> searchResult) {
-	    getMainAvatar().applySearchFilter(searchResult);
+        if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
+	        getMainAvatar().applySearchFilter(searchResult);
+        }
+        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
+            getContactsAvatar().applySearchFilter(searchResult);
+        }
 	}
+
+    /**
+     * Remove the search filter from the document list.
+     *
+     */
+    public void removeSearchFilter() {
+        if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
+            getMainAvatar().removeSearchFilter();
+        }
+        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
+            getContactsAvatar().removeSearchFilter();
+        }
+    }
 
     /**
      * Apply an artifact state filter.
@@ -292,16 +321,15 @@ public class Browser extends AbstractApplication {
 	 */
 	public void displaySessionManageContacts() {
         // TO DO fix up!
-        if (currentTab == BrowserTab.DOCUMENTS_TAB) {
-            currentTab = BrowserTab.CONTACTS_TAB;
+        //displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
+        if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
+            setCurrentTab(BrowserTab.CONTACTS_TAB);
             displayContactListAvatar();
         }
         else {
-            currentTab = BrowserTab.DOCUMENTS_TAB;
+            setCurrentTab(BrowserTab.DOCUMENTS_TAB);
             displayDocumentListAvatar();
         }
-        
-		// displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
 	}
 
 	/**
@@ -619,12 +647,6 @@ public class Browser extends AbstractApplication {
     }
 
 	/**
-	 * Remove the search filter from the document list.
-	 *
-	 */
-	public void removeSearchFilter() { getMainAvatar().removeSearchFilter(); }
-
-	/**
      * Remove the artifact state filter.
      * 
      * @see BrowserMainAvatar#removeStateFilter()
@@ -637,7 +659,8 @@ public class Browser extends AbstractApplication {
 	 */
 	public void restore(final Platform platform) {
 		assertStatusChange(ApplicationStatus.RESTORING);
-
+        
+        setCurrentTab(BrowserTab.DOCUMENTS_TAB);
 		reOpenMainWindow();
 
 		setStatus(ApplicationStatus.RESTORING);

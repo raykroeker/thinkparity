@@ -7,6 +7,7 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
@@ -14,10 +15,13 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellRenderer;
-import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
+
+import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.index.IndexHit;
 
 /**
  * The contacts list avatar displays the list of contacts.
@@ -77,7 +81,7 @@ public class BrowserContactsAvatar extends Avatar {
     //}
 
     /**
-     * Apply the search results to filter the main list.
+     * Apply the search results to filter the contacts list.
      * 
      * @param searchResult
      *            The search results.
@@ -86,9 +90,9 @@ public class BrowserContactsAvatar extends Avatar {
      * @see #applyFilter(Filter)
      * @see #removeSearchFilter()
      */
-    //public void applySearchFilter(final List<IndexHit> searchResult) {
-    //    mainDocumentModel.applySearchFilter(searchResult);
-    //}
+    public void applySearchFilter(final List<IndexHit> searchResult) {
+        contactsModel.applySearchFilter(searchResult);
+    }
 
     /**
      * Apply an artifact state filter.
@@ -149,9 +153,9 @@ public class BrowserContactsAvatar extends Avatar {
      *
      * @see #applySearchFilter(List)
      */
-    //public void removeSearchFilter() {
-    //    mainDocumentModel.removeSearchFilter();
-    //}
+    public void removeSearchFilter() {
+        contactsModel.removeSearchFilter();
+    }
 
     /**
      * Remove the state filter from the list.

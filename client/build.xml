@@ -9,7 +9,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.modules" value="common/codebase common/junitx common/migrator local/browser local/model local/thinkparity vendor/commons-codec/1.3 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/i686/win32/jdic/0.9.1 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.1.2"/>
-    <property name="cvs.tag" value="v1_0"/>
+    <property name="cvs.branch" value="v1_0"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
@@ -82,23 +82,112 @@
         <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
     </path>
 
+    <!-- release -->
+    <target name="assemble">
+        <!-- codebase -->
+        <jar destfile="${target.classes.dir}/common/codebase.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/common/codebase"/>
+        </jar>
+        <!-- migrator -->
+        <jar destfile="${target.classes.dir}/common/migrator.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/common/migrator"/>
+        </jar>
+        <!-- thinkparity -->
+        <jar destfile="${target.classes.dir}/local/thinkparity.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <manifest>
+                <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/>
+            </manifest>
+            <fileset dir="${target.classes.dir}/local/thinkparity"/>
+        </jar>
+        <!-- model -->
+        <jar destfile="${target.classes.dir}/local/model.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/local/model"/>
+        </jar>
+        <!-- browser -->
+        <jar destfile="${target.classes.dir}/local/browser.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/local/browser"/>
+        </jar>
+
+        <mkdir dir="${target.assembly.dir}/${release.version}/core"/>
+        <mkdir dir="${target.assembly.dir}/${release.version}/lib"/>
+        <!-- launch4j -->
+        <property environment="env"/>
+        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
+                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
+        <launch4j>
+            <config dontWrapJar="true" headerType="0"
+                    jarPath="thinkParity.jar"
+                    outfile="${target.assembly.dir}/thinkParity.exe"
+                    errTitle="thinkParity - Error" customProcName="true"
+                    stayAlive="false"
+                    icon="${target.classes.dir}/local/browser/images/ThinkParity32x32.ico">
+                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=${release.serverhost} -Dparity.serverport=${release.serverport}"/>
+            </config>
+        </launch4j>
+        <copy todir="${target.assembly.dir}">
+            <fileset file="${basedir}/LICENSE.txt"/>
+            <fileset file="${basedir}/README.txt"/>
+            <fileset file="${target.classes.dir}/local/thinkparity.jar"/>
+            <fileset file="${target.classes.dir}/local/browser/thinkParity.properties"/>
+            <fileset file="${target.classes.dir}/local/browser/lBrowser.nsi"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}">
+            <fileset file="${target.classes.dir}/local/browser/thinkParityImage.properties"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/core">
+            <fileset dir="${target.classes.dir}">
+                <include name="common/codebase.jar"/>
+                <include name="common/migrator.jar"/>
+                <include name="local/browser.jar"/>
+                <include name="local/model.jar"/>
+            </fileset>
+            <mapper type="flatten"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/lib">
+            <fileset dir="${basedir}/vendor">
+                <include name="**/*.jar"/>
+                <exclude name="**/*-sources.jar"/>
+                <exclude name="**/*-javadoc.jar"/>
+                <exclude name="**/junit.jar"/>
+            </fileset>
+            <mapper type="flatten"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/lib/win32">
+            <fileset dir="${basedir}/vendor">
+                <include name="**/*.dll"/>
+            </fileset>
+            <mapper type="flatten"/>
+        </copy>
+        <!-- nsis -->
+        <property name="nsis.install.dir" value="${env.ProgramFiles}\NSIS"/>
+        <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.assembly.dir}">
+            <arg value="lBrowser.nsi"/>
+        </exec>
+    </target>
+
     <!-- checkout -->
     <target name="checkout">
         <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules}"/>
         <cvs cvsroot="${cvs.cvsroot}"
-            command="checkout" tag="${cvs.tag}" package="${cvs.modules}"
+            command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
             dest="${basedir}"/>
     </target>
 
     <!-- checkout ide -->
     <target name="checkout.ide">
         <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules.ide}"/>
         <cvs cvsroot="${cvs.cvsroot}"
-            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.tag}" package="${cvs.modules.ide}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
             dest="${basedir}"/>
         <move todir="${basedir}">
             <fileset dir="${basedir}/ide"/>
@@ -158,7 +247,7 @@ Targets:
     compile                     Compile source.
     javadoc                     Generate javadoc (html) documentation.
     process-resources           Process resources.
-    release                     Create a release package.
+    tag                         Tag the release.
     test                        Run tests.
     test-compile                Compile test source.
     test-process-resources      Process test resources.
@@ -269,93 +358,13 @@ Examples:
         </copy>
     </target>
 
-    <!-- release -->
-    <target name="assemble">
-        <!-- codebase -->
-        <jar destfile="${target.classes.dir}/common/codebase.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}/common/codebase"/>
-        </jar>
-        <!-- migrator -->
-        <jar destfile="${target.classes.dir}/common/migrator.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}/common/migrator"/>
-        </jar>
-        <!-- thinkparity -->
-        <jar destfile="${target.classes.dir}/local/thinkparity.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <manifest>
-                <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/>
-            </manifest>
-            <fileset dir="${target.classes.dir}/local/thinkparity"/>
-        </jar>
-        <!-- model -->
-        <jar destfile="${target.classes.dir}/local/model.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}/local/model"/>
-        </jar>
-        <!-- browser -->
-        <jar destfile="${target.classes.dir}/local/browser.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}/local/browser"/>
-        </jar>
-
-        <mkdir dir="${target.assembly.dir}/${release.version}/core"/>
-        <mkdir dir="${target.assembly.dir}/${release.version}/lib"/>
-        <!-- launch4j -->
-        <property environment="env"/>
-        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
-        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
-                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
-        <launch4j>
-            <config dontWrapJar="true" headerType="0"
-                    jarPath="thinkParity.jar"
-                    outfile="${target.assembly.dir}/thinkParity.exe"
-                    errTitle="thinkParity - Error" customProcName="true"
-                    stayAlive="false"
-                    icon="${target.classes.dir}/local/browser/images/ThinkParity32x32.ico">
-                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=${release.serverhost} -Dparity.serverport=${release.serverport}"/>
-            </config>
-        </launch4j>
-        <copy todir="${target.assembly.dir}">
-            <fileset file="${basedir}/LICENSE.txt"/>
-            <fileset file="${basedir}/README.txt"/>
-            <fileset file="${target.classes.dir}/local/thinkparity.jar"/>
-            <fileset file="${target.classes.dir}/local/browser/thinkParity.properties"/>
-            <fileset file="${target.classes.dir}/local/browser/lBrowser.nsi"/>
-        </copy>
-        <copy todir="${target.assembly.dir}/${release.version}">
-            <fileset file="${target.classes.dir}/local/browser/thinkParityImage.properties"/>
-        </copy>
-        <copy todir="${target.assembly.dir}/${release.version}/core">
-            <fileset dir="${target.classes.dir}">
-                <include name="common/codebase.jar"/>
-                <include name="common/migrator.jar"/>
-                <include name="local/browser.jar"/>
-                <include name="local/model.jar"/>
-            </fileset>
-            <mapper type="flatten"/>
-        </copy>
-        <copy todir="${target.assembly.dir}/${release.version}/lib">
-            <fileset dir="${basedir}/vendor">
-                <include name="**/*.jar"/>
-                <exclude name="**/*-sources.jar"/>
-                <exclude name="**/*-javadoc.jar"/>
-                <exclude name="**/junit.jar"/>
-            </fileset>
-            <mapper type="flatten"/>
-        </copy>
-        <copy todir="${target.assembly.dir}/${release.version}/lib/win32">
-            <fileset dir="${basedir}/vendor">
-                <include name="**/*.dll"/>
-            </fileset>
-            <mapper type="flatten"/>
-        </copy>
-        <!-- nsis -->
-        <property name="nsis.install.dir" value="${env.ProgramFiles}\NSIS"/>
-        <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.assembly.dir}">
-            <arg value="lBrowser.nsi"/>
-        </exec>
+    <target name="tag">
+        <input addproperty="cvs.tag" message="Release tag (REL_vX_X[_RCX]:"/>
+        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.tag}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="tag -c -F -R ${cvs.tag}" package="${cvs.modules}"/>
     </target>
 
     <!-- unit test -->
@@ -410,6 +419,6 @@ Examples:
     <target name="update">
         <echo message="${cvs.cvsroot}"/>
         <cvs cvsroot="${cvs.cvsroot}"
-            command="update -P" tag="${cvs.tag}" package="${cvs.modules}"/>
+            command="update -P" tag="${cvs.branch}" package="${cvs.modules}"/>
     </target>
 </project>

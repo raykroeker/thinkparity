@@ -57,7 +57,13 @@
 
     <!-- compile classpath -->
 	<path id="project.classpath">
-		<pathelement location="${target.classes.dir}"/>
+		<pathelement location="${target.dir}/classes/common/codebase"/>
+		<pathelement location="${target.dir}/classes/common/migrator"/>
+		<pathelement location="${target.dir}/classes/common/junitx"/>
+		<pathelement location="${target.dir}/classes/local/browser"/>
+		<pathelement location="${target.dir}/classes/local/model"/>
+		<pathelement location="${target.dir}/classes/local/thinkparity"/>
+
 		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
 		<pathelement location="${basedir}/vendor/xpp3/1.1.3.4.O/xpp3.jar"/>
 		<pathelement location="${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
@@ -76,7 +82,7 @@
         <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
     </path>
 
-    <!-- checkout source -->
+    <!-- checkout -->
     <target name="checkout">
         <echo message="${cvs.cvsroot}"/>
         <echo message="${cvs.tag}"/>
@@ -86,14 +92,7 @@
             dest="${basedir}"/>
     </target>
 
-    <!-- update source -->
-    <target name="update">
-        <echo message="${cvs.cvsroot}"/>
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="update -P" tag="${cvs.tag}" package="${cvs.modules}"/>
-    </target>
-   
-    <!-- checkout ide files -->
+    <!-- checkout ide -->
     <target name="checkout.ide">
         <echo message="${cvs.cvsroot}"/>
         <echo message="${cvs.tag}"/>
@@ -118,10 +117,32 @@
         <condition property="compile.innerDebug" value="${compile.debug}" else="true">
             <isset property="compile.debug"/>
         </condition>
-		<javac destdir="${target.classes.dir}" debug="${compile.innerDebug}">
-			<src refid="project.sourcepath"/>
+
+        <!-- codebase -->
+		<javac srcdir="common/codebase/src/main/java"
+                destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
 			<classpath refid="project.classpath"/>
 		</javac>
+        <!-- migrator -->
+        <javac srcdir="common/migrator/src/main/java"
+                destdir="${target.classes.dir}/common/migrator" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
+        <!-- thinkparity -->
+        <javac srcdir="local/thinkparity/src/main/java"
+                destdir="${target.classes.dir}/local/thinkparity" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
+        <!-- model -->
+        <javac srcdir="local/model/src/main/java"
+                destdir="${target.classes.dir}/local/model" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
+        <!-- browser -->
+        <javac srcdir="local/browser/src/main/java"
+                destdir="${target.classes.dir}/local/browser" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
 	</target>
 
     <!-- print help -->
@@ -141,6 +162,7 @@ Targets:
     test                        Run tests.
     test-compile                Compile test source.
     test-process-resources      Process test resources.
+    update                      Update source with latest from CVS.
 Examples:
     First Run:
     ant checkout test           Will grab all source from cvs; process all
@@ -154,30 +176,66 @@ Examples:
 
     <!-- initialize output -->
 	<target name="init">
-        <mkdir dir="${target.classes.dir}"/>
-        <mkdir dir="${target.javadoc.dir}"/>
-		<mkdir dir="${target.test-classes.dir}"/>
+        <mkdir dir="${target.classes.dir}/common/codebase"/>
+        <mkdir dir="${target.classes.dir}/common/migrator"/>
+        <mkdir dir="${target.classes.dir}/local/browser"/>
+        <mkdir dir="${target.classes.dir}/local/model"/>
+        <mkdir dir="${target.classes.dir}/local/thinkparity"/>
+        <mkdir dir="${target.javadoc.dir}/common/codebase"/>
+        <mkdir dir="${target.javadoc.dir}/common/migrator"/>
+        <mkdir dir="${target.javadoc.dir}/local/browser"/>
+        <mkdir dir="${target.javadoc.dir}/local/model"/>
+        <mkdir dir="${target.javadoc.dir}/local/thinkparity"/>
+		<mkdir dir="${target.test-classes.dir}/common/codebase"/>
+		<mkdir dir="${target.test-classes.dir}/common/junitx"/>
+		<mkdir dir="${target.test-classes.dir}/common/migrator"/>
+		<mkdir dir="${target.test-classes.dir}/local/browser"/>
+		<mkdir dir="${target.test-classes.dir}/local/model"/>
+		<mkdir dir="${target.test-classes.dir}/local/thinkparity"/>
         <mkdir dir="${target.test-sessions.dir}"/>
 	</target>
 
     <!-- document the source -->
     <target name="javadoc">
+        <!-- codebase -->
         <javadoc access="private" classpathref="project.classpath"
-                destdir="${target.javadoc.dir}"
-                doctitle="thinkParity Local Browser"
-                group="Browser com.thinkparity.browser:com.thinkparity.browser.*,Model com.thinkparity.model:com.thinkparity.model.*,Migrator com.thinkparity.migrator,Codebase com.thinkparity.codebase:com.thinkparity.codebase.*"
+                destdir="${target.javadoc.dir}/common/codebase"
+                doctitle="thinkParity Common Codebase"
                 packagenames="com.thinkparity.*"
-                sourcepathref="project.sourcepath"/>
+                sourcepath="${basedir}/common/codebase/src/main/java"/>
+        <!-- migrator -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/common/migrator"
+                doctitle="thinkParity Common Migrator"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/common/migrator/src/main/java"/>
+        <!-- thinkparity -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/local/thinkparity"
+                doctitle="thinkParity Local ThinkParity"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/local/thinkparity/src/main/java"/>
+        <!-- model -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/local/model"
+                doctitle="thinkParity Local Model"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/local/model/src/main/java"/>
+        <!-- browser -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/local/browser"
+                doctitle="thinkParity Local Browser"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/local/browser/src/main/java"/>
     </target>
 
     <!-- process resources -->
     <target name="process-resources">
-        <copy todir="${target.classes.dir}">
+        <!-- codebase -->
+        <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
-            <fileset dir="${basedir}/local/browser/src/main/resources"/>
-            <fileset dir="${basedir}/local/model/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}" overwrite="true">
+        <copy todir="${target.classes.dir}/common/codebase" overwrite="true">
             <fileset dir="${basedir}/common/codebase/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
@@ -185,15 +243,11 @@ Examples:
                 <filtersfile file="${basedir}/common/codebase/build.filters"/>
             </filterset>
         </copy>
-        <copy todir="${target.classes.dir}" overwrite="true">
-            <fileset dir="${basedir}/local/browser/src/main/filters"/>
-            <filterset begintoken="$${" endtoken="}">
-                <filter token="pom.version" value="${release.version}"/>
-                <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/local/browser/build.filters"/>
-            </filterset>
+        <!-- model -->
+        <copy todir="${target.classes.dir}/local/model">
+            <fileset dir="${basedir}/local/model/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}" overwrite="true">
+        <copy todir="${target.classes.dir}/local/model" overwrite="true">
             <fileset dir="${basedir}/local/model/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
@@ -201,96 +255,107 @@ Examples:
                 <filtersfile file="${basedir}/local/model/build.filters"/>
             </filterset>
         </copy>
+        <!-- browser -->
+        <copy todir="${target.classes.dir}/local/browser">
+            <fileset dir="${basedir}/local/browser/src/main/resources"/>
+        </copy>
+        <copy todir="${target.classes.dir}/local/browser" overwrite="true">
+            <fileset dir="${basedir}/local/browser/src/main/filters"/>
+            <filterset begintoken="$${" endtoken="}">
+                <filter token="pom.version" value="${release.version}"/>
+                <filtersfile file="${basedir}/build.filters"/>
+                <filtersfile file="${basedir}/local/browser/build.filters"/>
+            </filterset>
+        </copy>
     </target>
 
     <!-- release -->
     <target name="assemble">
-        <!-- load the user's environment -->
-        <property environment="env"/>
-        <!-- configure launch4j location -->
-        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
-        <!-- launch4j task definition -->
-        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
-                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
-
-        <!-- / -->
-        <mkdir dir="${target.assembly.dir}"/>
-        <copy todir="${target.assembly.dir}">
-            <fileset dir="${basedir}">
-                <include name="README.txt"/>
-                <include name="LICENSE.txt"/>
-            </fileset>
-            <fileset dir="${target.classes.dir}">
-                <include name="thinkParity.properties"/>
-            </fileset>
-        </copy>
-        <jar destfile="${target.assembly.dir}/thinkParity.jar"
+        <!-- codebase -->
+        <jar destfile="${target.classes.dir}/common/codebase.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/common/codebase"/>
+        </jar>
+        <!-- migrator -->
+        <jar destfile="${target.classes.dir}/common/migrator.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/common/migrator"/>
+        </jar>
+        <!-- thinkparity -->
+        <jar destfile="${target.classes.dir}/local/thinkparity.jar"
                 duplicate="fail" update="false" whenempty="fail">
             <manifest>
-                <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/> 
+                <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/>
             </manifest>
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/*"/>
-            </fileset>
+            <fileset dir="${target.classes.dir}/local/thinkparity"/>
         </jar>
+        <!-- model -->
+        <jar destfile="${target.classes.dir}/local/model.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/local/model"/>
+        </jar>
+        <!-- browser -->
+        <jar destfile="${target.classes.dir}/local/browser.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/local/browser"/>
+        </jar>
+
+        <mkdir dir="${target.assembly.dir}/${release.version}/core"/>
+        <mkdir dir="${target.assembly.dir}/${release.version}/lib"/>
+        <!-- launch4j -->
+        <property environment="env"/>
+        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
+                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
         <launch4j>
             <config dontWrapJar="true" headerType="0"
                     jarPath="thinkParity.jar"
                     outfile="${target.assembly.dir}/thinkParity.exe"
                     errTitle="thinkParity - Error" customProcName="true"
                     stayAlive="false"
-                    icon="${target.classes.dir}/images/ThinkParity32x32.ico">
+                    icon="${target.classes.dir}/local/browser/images/ThinkParity32x32.ico">
                     <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=${release.serverhost} -Dparity.serverport=${release.serverport}"/>
             </config>
         </launch4j>
-        <!-- ${release.image}/ -->
-        <property name="target.assembly.image.dir" value="${target.assembly.dir}/${release.version}"/>
-        <mkdir dir="${target.assembly.image.dir}"/>
-        <copy todir="${target.assembly.image.dir}">
+        <copy todir="${target.assembly.dir}">
+            <fileset file="${basedir}/LICENSE.txt"/>
+            <fileset file="${basedir}/README.txt"/>
+            <fileset file="${target.classes.dir}/local/thinkparity.jar"/>
+            <fileset file="${target.classes.dir}/local/browser/thinkParity.properties"/>
+            <fileset file="${target.classes.dir}/local/browser/lBrowser.nsi"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}">
+            <fileset file="${target.classes.dir}/local/browser/thinkParityImage.properties"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/core">
             <fileset dir="${target.classes.dir}">
-                <include name="thinkParityImage.properties"/>   
-             </fileset>   
-        </copy>   
-        <!-- ${release.image}/core/ -->
-        <mkdir dir="${target.assembly.image.dir}/core"/>
-        <jar destfile="${target.assembly.image.dir}/core/codebase.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/codebase/*/**"/>
+                <include name="common/codebase.jar"/>
+                <include name="common/migrator.jar"/>
+                <include name="local/browser.jar"/>
+                <include name="local/model.jar"/>
             </fileset>
-        </jar>
-        <jar destfile="${target.assembly.image.dir}/core/migrator.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/migrator/*/**"/>
-            </fileset>
-        </jar>
-        <jar destfile="${target.assembly.image.dir}/core/model.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/model/*/**"/>
-            </fileset>
-        </jar>
-        <jar destfile="${target.assembly.image.dir}/core/browser.jar"
-                duplicate="fail" update="false" whenempty="fail">
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/browser/*/**"/>
-                <include name="fonts/*/**"/>
-                <include name="images/*/**"/>   
-            </fileset>
-        </jar>
-        <!-- ${release.image}/lib/ -->
-        <mkdir dir="${target.assembly.image.dir}/lib"/>
-        <copy todir="${target.assembly.image.dir}/lib">
-            <fileset refid="project.runtimevendorlib"/>
             <mapper type="flatten"/>
         </copy>
-        <!-- ${release.image}/lib/win32 -->
-        <mkdir dir="${target.assembly.image.dir}/lib/win32"/>
-        <copy todir="${target.assembly.image.dir}/lib/win32">
-            <fileset refid="project.runtimevendorlibwin32"/>
+        <copy todir="${target.assembly.dir}/${release.version}/lib">
+            <fileset dir="${basedir}/vendor">
+                <include name="**/*.jar"/>
+                <exclude name="**/*-sources.jar"/>
+                <exclude name="**/*-javadoc.jar"/>
+                <exclude name="**/junit.jar"/>
+            </fileset>
             <mapper type="flatten"/>
         </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/lib/win32">
+            <fileset dir="${basedir}/vendor">
+                <include name="**/*.dll"/>
+            </fileset>
+            <mapper type="flatten"/>
+        </copy>
+        <!-- nsis -->
+        <property name="nsis.install.dir" value="${env.ProgramFiles}\NSIS"/>
+        <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.assembly.dir}">
+            <arg value="lBrowser.nsi"/>
+        </exec>
     </target>
 
     <!-- unit test -->
@@ -339,5 +404,12 @@ Examples:
             <fileset dir="${basedir}/local/browser/src/test/resources"/>
             <fileset dir="${basedir}/local/model/src/test/resources"/>
         </copy>
+    </target>
+
+     <!-- update -->
+    <target name="update">
+        <echo message="${cvs.cvsroot}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="update -P" tag="${cvs.tag}" package="${cvs.modules}"/>
     </target>
 </project>

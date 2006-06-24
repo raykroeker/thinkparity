@@ -23,6 +23,7 @@ Build Tools Installation:
             Apache Ant version 1.6.5 compiled on June 2 2005
         5.  Copy junit.jar to "%ANT_HOME%\lib"
         6.  Install launch4j-2.1.3-1-win32.exe
+        7.  Install nsis-2.1.14.exe
 
 Checkout Source
     1.  ant checkout checkout.ide

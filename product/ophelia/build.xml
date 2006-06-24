@@ -364,7 +364,7 @@ Examples:
         <echo message="${cvs.cvsroot}"/>
         <echo message="${cvs.tag}"/>
         <cvs cvsroot="${cvs.cvsroot}"
-            command="tag -c -F -R ${cvs.tag}" package="${cvs.modules}"/>
+            command="tag -c -F -R ${cvs.tag}" package="* ${cvs.modules}"/>
     </target>
 
     <!-- unit test -->

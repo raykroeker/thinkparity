@@ -143,14 +143,12 @@ public class ListTest extends DocumentTestCase {
 		data = new Vector<Fixture>(scenarioCount);
 		final DocumentModel documentModel = getDocumentModel();
 		Collection<Document> documentList;
-		String name;
 		Document document;
 
 		documentList = new Vector<Document>(getInputFilesLength());
 		final File[] inputFiles = getInputFiles();
 		for(int i = 0; i < inputFiles.length; i++) {
-			name = inputFiles[i].getName();
-			document = documentModel.create(name, null, inputFiles[i]);
+			document = create(inputFiles[i]);
 			if(0 == i) { documentModel.close(document.getId()); }
 			documentList.add(document);
 		}

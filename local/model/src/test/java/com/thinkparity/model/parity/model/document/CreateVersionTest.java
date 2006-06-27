@@ -83,14 +83,11 @@ public class CreateVersionTest extends DocumentTestCase {
 		super.setUp();
 		data = new Vector<Fixture>(getInputFilesLength());
 		final DocumentModel documentModel = getDocumentModel();
-		String name, description;
 		Document document;
 		DocumentContent content;
 
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = name;
-			document = documentModel.create(name, description, testFile);
+			document = create(testFile);
 			content = documentModel.getContent(document.getId());
 			data.add(new Fixture(content, document, documentModel));
 		}

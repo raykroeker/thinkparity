@@ -52,7 +52,7 @@ public class SearchTest extends IndexTestCase {
 
 		data = new LinkedList<Fixture>();
 		for(final File inputFile : getInputFiles()) {
-			dModel.create(inputFile.getName(), inputFile.getName(), inputFile);
+			create(inputFile);
 			data.add(new Fixture("JUnit", dModel, iModel));
 		}
 	}

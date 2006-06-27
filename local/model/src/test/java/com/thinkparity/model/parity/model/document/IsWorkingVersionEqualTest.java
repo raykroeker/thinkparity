@@ -63,7 +63,7 @@ public class IsWorkingVersionEqualTest extends DocumentTestCase {
         final File[] modFiles = getModFiles();
         Boolean isEqual;
         for(int i = 0; i < inputFiles.length; i++) {
-            d = dModel.create(inputFiles[i].getName(), null, inputFiles[i]);
+            d = create(inputFiles[i]);
             if(0 == (i % 2)) {
                 dModel.updateWorkingVersion(d.getId(), modFiles[i]);
                 isEqual = Boolean.FALSE;

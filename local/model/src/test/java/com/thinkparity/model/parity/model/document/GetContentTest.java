@@ -71,15 +71,13 @@ public class GetContentTest extends DocumentTestCase {
 		data = new Vector<Fixture>(getInputFilesLength());
 		final DocumentModel documentModel = getDocumentModel();
 		Document document;
-		String name, description, contentChecksum;
+		String contentChecksum;
 		byte[] content;
 
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = name;
 			content = FileUtil.readBytes(testFile);
 			contentChecksum = MD5Util.md5Hex(content);
-			document = documentModel.create(name, description, testFile);
+			document = create(testFile);
 
 			data.add(new Fixture(document, documentModel, contentChecksum));
 		}

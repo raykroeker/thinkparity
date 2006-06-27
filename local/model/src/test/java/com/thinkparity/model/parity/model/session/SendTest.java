@@ -9,7 +9,6 @@ import java.util.Vector;
 
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
@@ -51,19 +50,14 @@ public class SendTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new Vector<Fixture>(4);
-		final DocumentModel documentModel = getDocumentModel();
 		final SessionModel sessionModel = getSessionModel();
 		Document document;
-		String name, description;
 
 		login();
 		final Set<Contact> contacts = sessionModel.readContacts();
 
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = name;
-			document =
-				documentModel.create(name, description, testFile);
+			document = create(testFile);
 
 			data.add(new Fixture(document, sessionModel, contacts));
 		}

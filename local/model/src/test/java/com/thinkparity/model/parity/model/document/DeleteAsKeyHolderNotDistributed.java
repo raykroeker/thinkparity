@@ -43,7 +43,7 @@ public class DeleteAsKeyHolderNotDistributed extends DocumentTestCase {
 		final DocumentModel dModel = getDocumentModel();
 
         final File file1 = getInputFiles()[1];
-		final Document d1 = dModel.create(file1.getName(), file1.getName(), file1);
+		final Document d1 = create(file1);
         datum = new Fixture(dModel, d1.getId());
 	}
 

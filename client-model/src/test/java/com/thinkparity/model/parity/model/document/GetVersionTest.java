@@ -73,12 +73,8 @@ public class GetVersionTest extends DocumentTestCase {
 
 		Document document;
 		DocumentVersion documentVersion;
-		String name, description;
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = getName() + ":  " + name;
-
-			document = documentModel.create(name, description, testFile);
+			document = create(testFile);
 			documentModel.createVersion(document.getId());
 			documentVersion = documentModel.listVersions(document.getId()).iterator().next();
 			data.add(new Fixture(document.getId(), documentModel, documentVersion, documentVersion.getVersionId()));

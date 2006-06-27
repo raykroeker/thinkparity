@@ -42,7 +42,7 @@ public class PublishTest extends DocumentTestCase {
 
 		Document d;
 		for(final File file : getInputFiles()) {
-			d = dModel.create(file.getName(), file.getName(), file);
+			d = create(file);
             modifyDocument(d.getId());
 
 			data.add(new Fixture(dModel, d.getId()));

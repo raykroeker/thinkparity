@@ -60,7 +60,7 @@ public class RenameTest extends DocumentTestCase {
 
         // 0:  a new document with a name
         final File file0 = getInputFiles()[0];
-        final Document d0 = dModel.create(file0.getName(), file0.getName(), file0);
+        final Document d0 = create(file0);
         data.add(new Fixture(dModel, d0.getId(), "New " + file0.getName()));
 	}
 

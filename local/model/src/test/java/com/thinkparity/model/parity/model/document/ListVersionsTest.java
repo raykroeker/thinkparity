@@ -99,13 +99,9 @@ public class ListVersionsTest extends DocumentTestCase {
 		super.setUp();
 		data = new Vector<Fixture>(getInputFilesLength());
 		final DocumentModel documentModel = getDocumentModel();
-		String name, description;
 		Document document;
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = "Document:  " + name;
-			document =
-				documentModel.create(name, description, testFile);
+			document = create(testFile);
 			documentModel.createVersion(document.getId());
 			documentModel.createVersion(document.getId());
 			documentModel.createVersion(document.getId());

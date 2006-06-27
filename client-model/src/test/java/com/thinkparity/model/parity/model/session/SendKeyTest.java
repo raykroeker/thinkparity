@@ -10,7 +10,6 @@ import java.util.List;
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -44,7 +43,6 @@ public class SendKeyTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new LinkedList<Fixture>();
-		final DocumentModel documentModel = getDocumentModel();
 		final SessionModel sessionModel = getSessionModel();
 
 		login();
@@ -52,7 +50,7 @@ public class SendKeyTest extends ModelTestCase {
 		final JabberId jabberId = jUnitTestUser.getJabberId();
 		Document d;
 		for(final File inputFile : getInputFiles()) {
-			d = documentModel.create(inputFile.getName(), inputFile.getName(), inputFile);
+			d = create(inputFile);
 			data.add(new Fixture(d.getId(), KeyResponse.ACCEPT, sessionModel, jabberId));
 		}
 	}

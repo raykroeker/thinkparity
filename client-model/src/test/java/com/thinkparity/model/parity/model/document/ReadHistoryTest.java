@@ -66,7 +66,7 @@ public class ReadHistoryTest extends DocumentTestCase {
 
 		Document d;
 		for(final File file : getInputFiles()) {
-			d = dModel.create(file.getName(), file.getName(), file);
+			d = create(file);
             modifyDocument(d.getId());
 			dModel.publish(d.getId());
 			dModel.close(d.getId());

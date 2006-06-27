@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -32,7 +33,7 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase {
 
-	/**
+    /**
 	 * Assert that the document list provided contains the document.
 	 * 
 	 * @param documentList
@@ -60,11 +61,11 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 
 	private InternalDocumentModel iDocumentModel;
 
-    private InternalLibraryModel ilModel;
+	private InternalLibraryModel ilModel;
 
     private InternalReleaseModel irModel;
 
-	/**
+    /**
 	 * The parity preferences.
 	 * 
 	 */
@@ -95,6 +96,24 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 *            The test name.
 	 */
 	protected ModelTestCase(final String name) { super(name); }
+
+	/**
+     * Create a document.
+     * 
+     * @param file
+     *            A file.
+     * @return A document.
+     * @throws IOException
+     * @throws ParityException
+     */
+    protected Document create(final File file) throws IOException,
+            ParityException {
+        final FileInputStream fis = new FileInputStream(file);
+        try {
+            return getInternalDocumentModel().create(null, file.getName(), fis);
+        }
+        finally { fis.close(); }
+    }
 	
 	/**
 	 * @see com.raykroeker.junitx.TestCase#createFailMessage(java.lang.Throwable)
@@ -129,12 +148,6 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		return inputFiles;
 	}
 
-    protected File[] getModFiles() throws IOException {
-        final File[] modFiles = new File[5];
-        System.arraycopy(super.getModFiles(), 0, modFiles, 0, 5);
-        return modFiles;
-    }
-
     protected InternalDocumentModel getInternalDocumentModel() {
         if(null == iDocumentModel) {
             return DocumentModel.getInternalModel(new Context(getClass()));
@@ -154,6 +167,12 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
             irModel = ReleaseModel.getInternalModel(new Context(getClass()));
         }
         return irModel;
+    }
+
+    protected File[] getModFiles() throws IOException {
+        final File[] modFiles = new File[5];
+        System.arraycopy(super.getModFiles(), 0, modFiles, 0, 5);
+        return modFiles;
     }
 
 	/**

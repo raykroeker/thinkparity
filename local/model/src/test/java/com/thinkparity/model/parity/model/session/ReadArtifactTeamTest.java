@@ -12,7 +12,6 @@ import java.util.Set;
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -57,7 +56,6 @@ public class ReadArtifactTeamTest extends ModelTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new LinkedList<Fixture>();
-		final DocumentModel documentModel = getDocumentModel();
 		final SessionModel sessionModel = getSessionModel();
 		final ModelTestUser jUnit = ModelTestUser.getJUnit();
 		final User jUnitUser = jUnit.getUser();
@@ -67,7 +65,7 @@ public class ReadArtifactTeamTest extends ModelTestCase {
 		Set<User> team;
 		User teamMember;
 		for(final File file : getInputFiles()) {
-			d = documentModel.create(file.getName(), file.getName(), file);
+			d = create(file);
 
             team = new HashSet<User>();
 			teamMember = new User();

@@ -46,14 +46,11 @@ public class GetTest extends DocumentTestCase {
 		super.setUp();
 		data = new Vector<Fixture>(getInputFilesLength());
 		final DocumentModel documentModel = getDocumentModel();
-		String name, description;
 		Document document;
 		Long documentId;
 		
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = name;
-			document = documentModel.create(name, description, testFile);
+			document = create(testFile);
 			documentId = document.getId();
 
 			data.add(new Fixture(document, documentModel, documentId));

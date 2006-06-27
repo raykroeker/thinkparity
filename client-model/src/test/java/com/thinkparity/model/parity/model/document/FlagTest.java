@@ -45,14 +45,10 @@ public class FlagTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		data = new Vector<Fixture>(1);
-		final DocumentModel documentModel = getDocumentModel();
 		final File testFile = getInputFile("JUnitTestFramework.txt");
-		String name, description;
 		Document document;
 
-		name = testFile.getName();
-		description = name;
-		document = documentModel.create(name, description, testFile);
+		document = create(testFile);
 		data.add(new Fixture(document));
 	}
 

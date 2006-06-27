@@ -48,7 +48,7 @@ public class RenamePublishedTest extends DocumentTestCase {
 		final DocumentModel dModel = getDocumentModel();
 
         final File file0 = getInputFiles()[0];
-        final Document d0 = dModel.create(file0.getName(), file0.getName(), file0);
+        final Document d0 = create(file0);
         addTeam(d0.getId());
         modifyDocument(d0.getId());
         dModel.publish(d0.getId());

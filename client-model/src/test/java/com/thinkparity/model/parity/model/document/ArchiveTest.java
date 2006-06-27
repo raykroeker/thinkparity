@@ -47,7 +47,7 @@ public class ArchiveTest extends DocumentTestCase {
 
 		Document d;
 		for(final File file : getInputFiles()) {
-			d = dModel.create(file.getName(), file.getName(), file);
+			d = create(file);
 			dModel.createVersion(d.getId());
 			dModel.createVersion(d.getId());
 			dModel.createVersion(d.getId());

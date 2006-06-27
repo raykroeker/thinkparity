@@ -4,14 +4,16 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Set;
 import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
 
-import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -43,8 +45,10 @@ public class CreateTest extends DocumentTestCase {
 			Collection<DocumentVersion> versions;
             Set<User> team;
 			for(Fixture datum : data) {
-				document = datum.documentModel.create(datum.name,
-						datum.description, datum.file);
+                try {
+                    document = datum.documentModel.create(datum.containerId, datum.name, datum.inputStream);
+                }
+                finally { datum.inputStream.close(); }
 				assertNotNull(document);
 
 				content = datum.documentModel.getContent(document.getId());
@@ -72,15 +76,13 @@ public class CreateTest extends DocumentTestCase {
         final ArtifactModel aModel = getArtifactModel();
 		final DocumentModel documentModel = getDocumentModel();
 		data = new Vector<Fixture>(4);
-		String name, description;
+		String name;
 		String documentContentChecksum;
 
 		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
-			description = name;
 			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(testFile));
-			data.add(new Fixture(aModel, description, testFile,
-					documentContentChecksum, documentModel, 1, 1, name));
+			data.add(new Fixture(aModel, null, documentContentChecksum, documentModel, 1, 1, new FileInputStream(testFile), name));
 		}
 	}
 
@@ -101,24 +103,25 @@ public class CreateTest extends DocumentTestCase {
 	 */
 	private class Fixture {
         private final ArtifactModel aModel;
-		private final String description;
+        private final Long containerId;
 		private final String documentContentChecksum;
 		private final DocumentModel documentModel;
         private final int expectedTeamSize;
 		private final int expectedVersionsSize;
-		private final File file;
+		private final InputStream inputStream;
 		private final String name;
-		private Fixture(final ArtifactModel aModel, final String description,
-                final File file, final String documentContentChecksum,
+		private Fixture(final ArtifactModel aModel, final Long containerId,
+                final String documentContentChecksum,
                 final DocumentModel documentModel, final int expectedTeamSize,
-                final int expectedVersionsSize, final String name) {
+                final int expectedVersionsSize, final InputStream inputStream,
+                final String name) {
             this.aModel = aModel;
-			this.description = description;
-			this.file = file;
+            this.containerId = containerId;
 			this.documentContentChecksum = documentContentChecksum;
 			this.documentModel = documentModel;
             this.expectedTeamSize = expectedTeamSize;
 			this.expectedVersionsSize = expectedVersionsSize;
+			this.inputStream = inputStream;
 			this.name = name;
 		}
 	}

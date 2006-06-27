@@ -51,7 +51,7 @@ public class UpdateWorkingVersionTest extends DocumentTestCase {
         final File[] inputFiles = getInputFiles();
         final File[] modFiles = getModFiles();
         for(int i = 0; i < inputFiles.length; i++) {
-            d = dModel.create(inputFiles[i].getName(), null, inputFiles[i]);
+            d = create(inputFiles[i]);
             
             data.add(new Fixture(d.getId(), dModel, modFiles[i]));
         }

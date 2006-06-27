@@ -44,12 +44,9 @@ public class LockTest extends DocumentTestCase {
 		data = new Vector<Fixture>(getInputFilesLength());
 		final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
 
-		String description, name;
 		Document document;
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = name;
-			document = iDocumentModel.create(name, description, testFile);
+			document = create(testFile);
 			data.add(new Fixture(document.getId(), iDocumentModel));
 		}
 	}

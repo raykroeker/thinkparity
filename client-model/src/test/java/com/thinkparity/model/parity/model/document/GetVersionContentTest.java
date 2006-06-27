@@ -71,10 +71,7 @@ public class GetVersionContentTest extends DocumentTestCase {
 		data = new Vector<Fixture>(4);
 		final DocumentModel documentModel = getDocumentModel();
 		final File testFile = getInputFile("JUnitTestFramework.txt");
-		final String name = testFile.getName();
-		final String description = name;
-		final Document document =
-			documentModel.create(name, description, testFile);
+		final Document document = create(testFile);
 		DocumentVersion version;
 		DocumentVersionContent versionContent;
 

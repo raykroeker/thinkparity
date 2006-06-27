@@ -68,7 +68,7 @@ public class HandleCloseTest extends DocumentTestCase {
 
         // 1 scenario
         final File file0 = getInputFiles()[0];
-        final Document d0 = dModel.create(file0.getName(), file0.getName(), file0);
+        final Document d0 = create(file0);
         addTeam(d0);
         modifyDocument(d0);
         dModel.publish(d0.getId());

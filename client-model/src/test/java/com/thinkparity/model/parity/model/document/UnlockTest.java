@@ -44,12 +44,9 @@ public class UnlockTest extends DocumentTestCase {
 		data = new Vector<Fixture>(getInputFilesLength());
 		final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
 
-		String description, name;
 		Document document;
 		for(File testFile : getInputFiles()) {
-			name = testFile.getName();
-			description = name;
-			document = iDocumentModel.create(name, description, testFile);
+			document = create(testFile);
 			// in order to unlock the document it must first be locked
 			// since it's initial state is not locked after creation
 			iDocumentModel.lock(document.getId());

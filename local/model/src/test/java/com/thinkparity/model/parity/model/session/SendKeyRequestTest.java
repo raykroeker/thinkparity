@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -42,12 +41,11 @@ public class SendKeyRequestTest extends ModelTestCase {
 		super.setUp();
 		login();
 		data = new LinkedList<Fixture>();
-		final DocumentModel documentModel = getDocumentModel();
 		final SessionModel sessionModel = getSessionModel();
 
 		Document d;
 		for(final File file : getInputFiles()) {
-			d = documentModel.create(file.getName(), file.getName(), file);
+			d = create(file);
 			data.add(new Fixture(d.getId(), sessionModel));
 		}
 	}

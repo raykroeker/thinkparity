@@ -4,11 +4,16 @@
  */
 package com.thinkparity.model.parity.model.contact;
 
+import java.util.Comparator;
+import java.util.List;
+
 import com.thinkparity.model.parity.model.Context;
+import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Contact Model<br>
@@ -78,6 +83,51 @@ public class ContactModel {
      */
     public void delete(final JabberId contactId) {
         synchronized(implLock) { impl.delete(contactId); }
+    }
+
+    /**
+     * Read a list of contacts.
+     * 
+     * @return A list of contacts.
+     */
+    public List<Contact> read() {
+        synchronized(implLock) { return impl.read(); }
+    }
+
+    /**
+     * Read a list of contacts.
+     * 
+     * @param comparator
+     *            A user comparator to sort the contacts.
+     * @return A list of contacts.
+     */
+    public List<Contact> read(final Comparator<User> comparator) {
+        synchronized(implLock) { return impl.read(comparator); }
+    }
+
+    /**
+     * Read a list of contacts.
+     * 
+     * @param comparator
+     *            A user comparator to sort the contacts.
+     * @param filter
+     *            A user filter to scope the contacts.
+     * @return A list of contacts.
+     */
+    public List<Contact> read(final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        synchronized(implLock) { return impl.read(comparator, filter); }
+    }
+
+    /**
+     * Read a list of contacts.
+     * 
+     * @param filter
+     *            A user filter to scope the contacts.
+     * @return A list of contacts.
+     */
+    public List<Contact> read(final Filter<? super User> filter) {
+        synchronized(implLock) { return impl.read(filter); }
     }
 
     /**

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Release;
 
 /**
  * The parity bootstrap's xmpp method response.
@@ -54,6 +55,15 @@ public class XMPPMethodResponse extends IQ {
         for(final Object genericLibrary : genericLibraries)
             libraries.add((Library) genericLibrary);
         return libraries;
+    }
+
+    public List<Release> readResultReleases(final String name) {
+        final List<Object> genericReleases = (List<Object>) result.get(name).javaValue;
+        final List<Release> releases = new LinkedList<Release>();
+        for(final Object genericRelease : genericReleases) {
+            releases.add((Release) genericRelease);
+        }
+        return releases;
     }
 
     public byte[] readBytes(final String name) {

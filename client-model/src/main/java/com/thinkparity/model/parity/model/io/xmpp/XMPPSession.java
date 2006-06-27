@@ -21,6 +21,7 @@ import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.xmpp.JabberId;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Release;
 
 /**
  * The parity bootstrap's io xmpp session.
@@ -122,6 +123,17 @@ public class XMPPSession {
      */
     public List<Library> getLibraries(final String name) {
         return xmppMethodResponse.readResultLibraries(name);
+    }
+
+    /**
+     * Obatain a release list result value.
+     * 
+     * @param name
+     *            The result name.
+     * @return The result value.
+     */
+    public List<Release> getReleases(final String name) {
+        return xmppMethodResponse.readResultReleases(name);
     }
 
     public Library.Type getLibraryType(final String name) {

@@ -4,6 +4,8 @@
 package com.thinkparity.browser.platform.action.document;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 import javax.swing.Icon;
 
@@ -55,8 +57,15 @@ public class Create extends AbstractAction {
 	 */
 	public void invoke(final Data data) throws Exception {
 		final File file = (File) data.get(DataKey.FILE);
-		final Document document =
-			getDocumentModel().create(file.getName(), file.getName(), file);
+
+        final InputStream inputStream = new FileInputStream(file);
+        Document document = null;
+        try {
+    		document =
+    			getDocumentModel().create(null, file.getName(), inputStream);
+        }
+        finally { inputStream.close(); }
+
         getArtifactModel().applyFlagSeen(document.getId());
 
 		browser.fireDocumentCreated(document.getId(), Boolean.FALSE);

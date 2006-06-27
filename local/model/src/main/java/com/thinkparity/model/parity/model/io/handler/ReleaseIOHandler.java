@@ -55,6 +55,13 @@ public interface ReleaseIOHandler  {
             final String version);
 
     /**
+     * Read all releases.
+     * 
+     * @return A list of releases.
+     */
+    public List<Release> readAll();
+
+    /**
      * Read the latest release.
      * 
      * @param artifactId

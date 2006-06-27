@@ -93,6 +93,22 @@ public class ReleaseIOHandler extends AbstractIOHandler
         finally { session.close(); }
     }
 
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ReleaseIOHandler#readAll()
+     * 
+     */
+    public List<Release> readAll() {
+        final XMPPSession session = openAnonymousSession();
+        try {
+            session.setRemoteMethod("release:readall");
+            session.execute();
+
+            if(session.containsResult()) { return session.getReleases("releases"); }
+            else { return null; }
+        }
+        catch(final Exception x) { throw new XMPPException(x); }
+        finally { session.close(); }    }
+
     /** @see com.thinkparity.model.parity.model.io.handler.ReleaseIOHandler#readLatest() */
     public Release readLatest(final String artifactId, final String groupId)
             throws XMPPException {

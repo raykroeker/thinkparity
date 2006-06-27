@@ -73,6 +73,15 @@ class ReleaseModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read all releases.
+     * 
+     * @return A list of releases.
+     */
+    List<Release> readAll() {
+        return releaseIO.readAll();
+    }
+
+    /**
      * Read the latest release.
      * 
      * @param artifactId

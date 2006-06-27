@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.Vector;
 
-import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.util.MD5Util;
@@ -79,10 +79,17 @@ public class CreateTest extends DocumentTestCase {
 		String name;
 		String documentContentChecksum;
 
+        InputStream fis;
 		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
-			documentContentChecksum = MD5Util.md5Hex(FileUtil.readBytes(testFile));
-			data.add(new Fixture(aModel, null, documentContentChecksum, documentModel, 1, 1, new FileInputStream(testFile), name));
+            fis = new FileInputStream(testFile);
+            try {
+                documentContentChecksum = MD5Util.md5Hex(StreamUtil.read(fis));
+            }
+            finally { fis.close(); }
+
+            fis = new FileInputStream(testFile);
+            data.add(new Fixture(aModel, null, documentContentChecksum, documentModel, 1, 1, fis, name));
 		}
 	}
 

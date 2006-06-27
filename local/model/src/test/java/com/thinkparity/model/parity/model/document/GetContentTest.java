@@ -4,9 +4,10 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Vector;
 
-import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.model.parity.util.MD5Util;
 
@@ -72,11 +73,14 @@ public class GetContentTest extends DocumentTestCase {
 		final DocumentModel documentModel = getDocumentModel();
 		Document document;
 		String contentChecksum;
-		byte[] content;
 
+        FileInputStream fis;
 		for(File testFile : getInputFiles()) {
-			content = FileUtil.readBytes(testFile);
-			contentChecksum = MD5Util.md5Hex(content);
+            
+            fis = new FileInputStream(testFile);
+			try { contentChecksum = MD5Util.md5Hex(StreamUtil.read(fis)); }
+            finally { fis.close(); }
+
 			document = create(testFile);
 
 			data.add(new Fixture(document, documentModel, contentChecksum));

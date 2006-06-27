@@ -59,6 +59,24 @@ public abstract class ModelTestCase extends TestCase {
 	}
 
     /**
+     * Assert that two byte arrays are equal.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected byte array.
+     * @param actual
+     *            The actual byte array.
+     */
+    protected static void assertEquals(final String assertion,
+            final byte[] expected, final byte[] actual) {
+        assertEquals(new StringBuffer(assertion).append(" [BYTE ARRAY LENGTH DOES NOT MATCH EXPECTATION]").toString(), expected.length, actual.length);
+        for(int i = 0; i < expected.length; i++) {
+            assertEquals(new StringBuffer(assertion).append(" [BYTE AT POSITION ").append(i).append(" DOES NOT MATCH EXPECTATION]").toString(), expected[i], actual[i]);
+        }
+    }
+
+    /**
      * Initialize the parity archive directory for a test run.
      * 
      * @param parent
@@ -71,7 +89,7 @@ public abstract class ModelTestCase extends TestCase {
         System.setProperty("parity.archive.directory", archive.getAbsolutePath());
     }
 
-    /**
+	/**
      * Initialize the parity install directory for a test run.
      * 
      * @param parent
@@ -105,7 +123,7 @@ public abstract class ModelTestCase extends TestCase {
 
 	private IndexModel indexModel;
 
-	/**
+    /**
 	 * Create a ModelTestCase.
 	 * 
 	 * @param name
@@ -116,7 +134,7 @@ public abstract class ModelTestCase extends TestCase {
 		// TODO Auto-generated constructor stub
 	}
 
-    protected ArtifactModel getArtifactModel() {
+	protected ArtifactModel getArtifactModel() {
         return ArtifactModel.getModel();
     }
 
@@ -144,7 +162,7 @@ public abstract class ModelTestCase extends TestCase {
 	
 	}
 
-	/**
+    /**
 	 * Obtain the junit test user.
 	 * 
 	 * @return The junit test user.

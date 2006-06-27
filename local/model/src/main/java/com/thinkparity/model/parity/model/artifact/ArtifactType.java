@@ -12,7 +12,7 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum ArtifactType {
 
-	DOCUMENT(0);
+	CONTAINER(1), DOCUMENT(0);
 
 	/**
 	 * Obtain an artifact type from its id.
@@ -23,6 +23,7 @@ public enum ArtifactType {
 	 */
 	public static ArtifactType fromId(final Integer id) {
 		switch(id) {
+        case 1: return CONTAINER;
 		case 0: return DOCUMENT;
 		default:
 			throw Assert.createUnreachable("Unknown artifact type id:  " + id);

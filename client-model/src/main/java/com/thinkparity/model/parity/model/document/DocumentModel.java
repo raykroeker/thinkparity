@@ -5,6 +5,7 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -126,22 +127,19 @@ public class DocumentModel {
 	}
 
 	/**
-	 * Create a document. This will take a name, description and location of a
-	 * document and copy the document into an internal store, then returns the
-	 * newly created document.
-	 * 
-	 * @param name
-	 *            Name of the document you wish to import.
-	 * @param description
-	 *            Description of the document you wish to import.
-	 * @param file
-	 *            File content of the document
-	 * @return The newly created document.
-	 * @throws ParityException
-	 */
-	public Document create(final String name, final String description,
-			final File file) throws ParityException {
-		synchronized(implLock) { return impl.create(name, description, file); }
+     * Create a document and attach it to a container. This will take a name,
+     * and input stream of a file and create a document.
+     * 
+     * @param name
+     *            The document name.
+     * @param inputStream
+     *            The document content's input stream.
+     * @return The document.
+     * @throws ParityException
+     */
+	public Document create(final Long containerId, final String name,
+            final InputStream inputStream) throws ParityException {
+		synchronized(implLock) { return impl.create(containerId, name, inputStream); }
 	}
 
 	/**

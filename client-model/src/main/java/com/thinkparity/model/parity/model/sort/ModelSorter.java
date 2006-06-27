@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
@@ -21,6 +22,11 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
  * @version 1.1
  */
 public class ModelSorter {
+
+    public static void sortContainers(final List<Container> list,
+            final Comparator<Artifact> comparator) {
+        Collections.sort(list, comparator);
+    }
 
 	public static void sortDocuments(final List<Document> list,
 			final Comparator<Artifact> comparator) {

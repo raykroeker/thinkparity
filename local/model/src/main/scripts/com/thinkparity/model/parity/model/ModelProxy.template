@@ -1,0 +1,73 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ * \$Id$
+ */
+package ${proxy.packageName};
+
+import com.thinkparity.model.parity.model.Context;
+import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+
+/**
+ * <b>Title:</b>thinkParity ${proxy.name} Model<br>
+ * <b>Description:</b>
+ *
+ * @author ${environment.author}
+ * @version \$Revision$
+ */
+${proxy.classModifier}class ${proxy.className} {
+
+	/**
+	 * Create ${proxyInternal.article} ${proxyInternal.name} interface.
+	 * 
+	 * @param context
+	 *            A thinkParity internal context.
+	 * @return The internal ${proxyInternal.name} interface.
+	 */
+	public static ${proxyInternal.className} getInternalModel(final Context context) {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		return new ${proxyInternal.className}(workspace, context);
+	}
+
+	/**
+	 * Create ${proxy.article} ${proxy.name} interface.
+	 * 
+	 * @return The ${proxy.name} interface.
+	 */
+	public static ${proxy.className} getModel() {
+		final Workspace workspace = WorkspaceModel.getModel().getWorkspace();
+		return new ${proxy.className}(workspace);
+	}
+
+	/** The model implementation. */
+	private final ${proxyImpl.className} impl;
+
+	/** The model implementation synchronization lock. */
+	private final Object implLock;
+
+	/**
+	 * Create ${proxy.className}.
+	 *
+	 * @param workspace
+	 *		The thinkParity workspace.
+	 */
+	protected ${proxy.className}(final Workspace workspace) {
+		super();
+		this.impl = new ${proxyImpl.className}(workspace);
+		this.implLock = new Object();
+	}
+
+	/**
+	 * Obtain the model implementation.
+	 * 
+	 * @return The model implementation.
+	 */
+	protected ${proxyImpl.className} getImpl() { return impl; }
+
+	/**
+	 * Obtain the model implementation synchronization lock.
+	 * 
+	 * @return The model implementation synchrnoization lock.
+	 */
+	protected Object getImplLock() { return implLock; }
+}

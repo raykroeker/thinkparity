@@ -1,0 +1,18 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ * \$Id$
+ */
+package ${model.packageName};
+
+/**
+ * <b>Title:</b>thinkParity ${model.name}<br>
+ * <b>Description:</b>
+ * 
+ * @author ${environment.author}
+ * @version \$Revision$
+ */
+${model.classModifier}class ${model.className} {
+
+	/** Create ${model.className}. */
+	public ${model.className}() { super(); }
+}

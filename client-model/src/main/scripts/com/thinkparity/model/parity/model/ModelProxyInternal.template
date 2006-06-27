@@ -1,0 +1,32 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ * \$Id$
+ */
+package ${proxyInternal.packageName};
+
+import com.thinkparity.model.parity.model.Context;
+import com.thinkparity.model.parity.model.InternalModel;
+import com.thinkparity.model.parity.model.workspace.Workspace;
+
+/**
+ * <b>Title:</b>thinkParity ${proxyInternal.name} Internal Model<br>
+ * <b>Description:</b>
+ *
+ * @author ${environment.author}
+ * @version \$Revision$
+ */
+${proxyInternal.classModifier}class ${proxyInternal.className} extends ${proxyInternal.superClassName} implements ${proxyInternal.interfaceClassNames} {
+
+    /**
+     * Create ${proxyInternal.className}
+     *
+     * @param workspace
+     *		A thinkParity workspace.
+     * @param context
+     *		A thinkParity internal context.
+     */
+    ${proxyInternal.className}(final Workspace workspace, final Context context) {
+        super(workspace);
+        context.assertContextIsValid();
+    }
+}

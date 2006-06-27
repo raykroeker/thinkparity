@@ -1,0 +1,37 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ * \$Id$
+ */
+package ${proxyImpl.packageName};
+
+import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.workspace.Workspace;
+
+/**
+ * <b>Title:</b>thinkParity ${proxyImpl.name} Model Implementation</br>
+ * <b>Description:</b>
+ *
+ * @author ${environment.author}
+ * @version \$Revision$
+ */
+${proxyImpl.classModifier}class ${proxyImpl.className} extends ${proxyImpl.superClassName} {
+
+    /**
+     * Obtain an apache api log id.
+     * @param api The api.
+     * @return The log id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return getModelId("[${proxyImpl.name}]").append(" ").append(api);
+    }
+
+    /**
+     * Create ${proxyImpl.className}.
+     *
+     * @param workspace
+     *		The thinkParity workspace.
+     */
+    ${proxyImpl.className}(final Workspace workspace) {
+        super(workspace);
+    }
+}

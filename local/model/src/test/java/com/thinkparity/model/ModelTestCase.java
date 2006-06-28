@@ -10,6 +10,7 @@ import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -119,11 +120,13 @@ public abstract class ModelTestCase extends TestCase {
         System.setProperty("parity.workspace", workspace.getAbsolutePath());
     }
 
+	private ContactModel contactModel;
+
 	private DocumentModel documentModel;
 
-	private IndexModel indexModel;
+    private IndexModel indexModel;
 
-    /**
+	/**
 	 * Create a ModelTestCase.
 	 * 
 	 * @param name
@@ -134,8 +137,15 @@ public abstract class ModelTestCase extends TestCase {
 		// TODO Auto-generated constructor stub
 	}
 
-	protected ArtifactModel getArtifactModel() {
+    protected ArtifactModel getArtifactModel() {
         return ArtifactModel.getModel();
+    }
+
+    protected ContactModel getContactModel() {
+        if(null == contactModel) {
+            contactModel = ContactModel.getModel();
+        }
+        return contactModel;
     }
 
 	protected DocumentModel getDocumentModel() {

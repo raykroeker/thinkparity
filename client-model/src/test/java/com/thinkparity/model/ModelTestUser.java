@@ -18,24 +18,25 @@ public class ModelTestUser {
 
 	public static ModelTestUser getJUnit() {
 		return new ModelTestUser(
-				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit");
+				"junit@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit");
 	}
 
     public static ModelTestUser getX() {
 		return new ModelTestUser(
-				"parity", "parity", "rkutil.raykroeker.com", 5222, "junit.x");
+                "junit.x@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.x");
 	}
 
     public static ModelTestUser getY() {
         return new ModelTestUser(
-                "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.y");
+                "junit.y@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.y");
     }
 
     public static ModelTestUser getZ() {
         return new ModelTestUser(
-                "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.z");
+                "junit.z@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.z");
     }
 
+    private final String emailAddress;
 	private final String password;
 	private final String resource;
 	private final String serverHost;
@@ -45,10 +46,11 @@ public class ModelTestUser {
 	/**
 	 * Create a ModelTestUser.
 	 */
-	private ModelTestUser(final String password, final String resource,
-			final String serverHost, final Integer serverPort,
-			final String username) {
+	private ModelTestUser(final String emailAddress, final String password,
+            final String resource, final String serverHost,
+            final Integer serverPort, final String username) {
 		super();
+        this.emailAddress = emailAddress;
 		this.password = password;
 		this.resource = resource;
 		this.serverHost = serverHost;
@@ -61,6 +63,15 @@ public class ModelTestUser {
         credentials.setPassword(password);
         credentials.setUsername(username);
         return credentials;
+    }
+
+	/**
+     * Obtain the emailAddress
+     *
+     * @return The String.
+     */
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
 	public JabberId getJabberId() {
@@ -94,7 +105,7 @@ public class ModelTestUser {
 
 	public User getUser() { return new User(username); }
 
-	/**
+    /**
 	 * @return The username.
 	 */
 	public String getUsername() { return username; }

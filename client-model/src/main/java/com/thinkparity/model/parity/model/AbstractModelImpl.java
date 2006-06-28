@@ -255,6 +255,10 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isOnline());
     }
 
+    protected void assertOnline(final StringBuffer api) {
+        assertOnline(api.toString());
+    }
+
 	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.

@@ -7,6 +7,7 @@ package com.thinkparity.model.parity.model.contact;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
@@ -15,7 +16,6 @@ import com.thinkparity.model.parity.model.filter.user.DefaultFilter;
 import com.thinkparity.model.parity.model.sort.user.UserComparatorFactory;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -63,10 +63,10 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param email
      *            An e-mail address.
      */
-    Contact create(final String email) {
+    Contact create(final String emailAddress) {
         logger.info(getApiId("[CREATE]"));
-        logger.debug(email);
-        logger.warn(getApiId("[CREATE] [NOT YET IMPLEMENTED]"));
+        logger.debug(emailAddress);
+        assertOnline(getApiId("[CREATE] [CANNOT CREATE CONTACT WHILE OFFLINE]"));
         return read((JabberId) null);
     }
 
@@ -151,12 +151,17 @@ class ContactModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[DELETE]"));
         logger.debug(contactId);
         logger.warn(getApiId("[DELETE] [NOT YET IMPLEMENTED]"));
-        final Contact contact = new Contact();
-        contact.setEmail("user@domain.com");
-        contact.setId(JabberIdBuilder.parseQualifiedJabberId("user@thinkparity.dyndns.org/parity"));
-        contact.setLocalId(new Long(-1));
-        contact.setName("Fake User");
-        contact.setOrganization("Fake User's Organization");
-        return contact;
+        try {
+            final Set<Contact> contacts = getSessionModel().readContacts();
+            for(final Contact contact : contacts) {
+                if(contact.getId().equals(contactId)) { return contact; }
+            }
+            return null;
+        }
+        catch(final ParityException px) {
+            logger.error(px);
+            return null;
+        }
+        
     }
 }

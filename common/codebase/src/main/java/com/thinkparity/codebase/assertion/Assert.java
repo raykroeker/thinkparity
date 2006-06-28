@@ -10,6 +10,9 @@ package com.thinkparity.codebase.assertion;
  */
 public class Assert {
 
+    /** The assertion message to use when the message provided is null. */
+    private static final String NULL_MESSAGE = "";
+
 	/**
 	 * Assert that the object reference provided is null. If it is not, throw a
 	 * NotNullPointerAssertion.
@@ -19,10 +22,11 @@ public class Assert {
 	 * @param objectReference
 	 *            The object reference to test.
 	 */
-	public static void assertIsNull(final String message,
+	public static void assertIsNull(final Object message,
 			final Object objectReference) {
 		if(null != objectReference)
-			throw new NotNullPointerAssertion(message);
+			throw new NotNullPointerAssertion(
+                    null == message ? NULL_MESSAGE : message.toString());
 	}
 
 	/**
@@ -30,27 +34,27 @@ public class Assert {
 	 * <code>org.kcs.projectmanager.client.util.NullPointerAssertion</code>.
 	 * 
 	 * @param message
-	 *            <code>java.lang.String</code>
+	 *            A message object.
 	 * @param objectReference
 	 *            <code>java.lang.Object</code>
 	 */
-	public static void assertNotNull(final String message,
+	public static void assertNotNull(final Object message,
 			final Object objectReference) {
 		if(null == objectReference)
-			throw new NullPointerAssertion(message);
+			throw new NullPointerAssertion(
+                    null == message ? NULL_MESSAGE : message.toString());
 	}
 
 	/**
 	 * Assert that the object references provided are not null. If they are,
-	 * throw a
-	 * <code>org.kcs.projectmanager.client.util.NullPointerAssertion</code>.
+	 * throw a {@link NullPointerAssertion}.
 	 * 
 	 * @param message
-	 *            <code>java.lang.String</code>
+	 *            An assertion message.
 	 * @param objectReferences
 	 *            <code>java.lang.Object</code>
 	 */
-	public static void assertNotNull(final String message,
+	public static void assertNotNull(final Object message,
 			final Object[] objectReferences) {
 		Assert.assertNotNull(message, (Object) objectReferences);
 		for(int i = 0; i < objectReferences.length; i++)
@@ -62,20 +66,23 @@ public class Assert {
 	 * a <code>org.kcs.projectmanager.client.util.TrueAssertion</code>.
 	 * 
 	 * @param message
-	 *            <code>java.lang.String</code>
+	 *            An assertion message.
 	 * @param falseExpression
 	 *            <code>java.lang.Boolean</code>
 	 */
-	public static void assertNotTrue(final String message, final Boolean falseExpression) {
+	public static void assertNotTrue(final Object message, final Boolean falseExpression) {
 		if(Boolean.FALSE != falseExpression)
-			throw new TrueAssertion(message);
+			throw new TrueAssertion(
+                    null == message ? NULL_MESSAGE : message.toString());
 	}
 
 	/**
-	 * Assert that the current api method has not yet been implemented.
-	 * @param message <code>java.lang.String</code>
-	 */
-	public static void assertNotYetImplemented(final String message) {
+     * Assert that the current api method has not yet been implemented.
+     * 
+     * @param message
+     *            An assertion message.
+     */
+	public static void assertNotYetImplemented(final Object message) {
 		throw Assert.createNotYetImplemented(message);
 	}
 
@@ -91,10 +98,12 @@ public class Assert {
 	 * @throws NotOfTypeAssertion
 	 *             If the instance is not of the target type.
 	 */
-	public static void assertOfType(final String message, final Class<?> type,
+	public static void assertOfType(final Object message, final Class<?> type,
 			final Object instance) {
 		if(!type.isAssignableFrom(instance.getClass()))
-			throw new NotOfTypeAssertion(message, type, instance);
+			throw new NotOfTypeAssertion(
+                    null == message ? NULL_MESSAGE : message.toString(),
+                    type, instance);
 	}
 
 	/**
@@ -107,9 +116,10 @@ public class Assert {
 	 * @throws NotTrueAssertion
 	 *             If the expression does not evaluate to true.
 	 */
-	public static void assertTrue(final String message, final Boolean expression) {
+	public static void assertTrue(final Object message, final Boolean expression) {
 		if(Boolean.TRUE != expression)
-			throw new NotTrueAssertion(message);
+			throw new NotTrueAssertion(
+                    null == message ? NULL_MESSAGE : message.toString());
 	}
 
 	/**
@@ -117,30 +127,36 @@ public class Assert {
 	 * an <code>UnreachableCodeAssertion</code>.
 	 * 
 	 * @param message
-	 *            <code>java.lang.String</code>
+	 *            An assertion message.
 	 */
-	public static void assertUnreachable(final String message) {
+	public static void assertUnreachable(final Object message) {
 		throw Assert.createUnreachable(message);
 	}
 
 	/**
-	 * Create a not yet implemented code assertion.
-	 * @param message <code>java.lang.String</code>
-	 * @return <code>NotYetImplementedAssertion</code>
-	 */
+     * Create a not yet implemented code assertion.
+     * 
+     * @param message
+     *            An assertion message.
+     * @return <code>NotYetImplementedAssertion</code>
+     */
 	public static NotYetImplementedAssertion createNotYetImplemented(
-			final String message) {
-		return new NotYetImplementedAssertion(message);
+			final Object message) {
+		return new NotYetImplementedAssertion(
+                null == message ? NULL_MESSAGE : message.toString());
 	}
 
 	/**
-	 * Create an unreachable code assertion.
-	 * @param message <code>java.lang.String</code>
-	 * @return <code>UnreachableCodeAssertion</code>
-	 */
+     * Create an unreachable code assertion.
+     * 
+     * @param message
+     *            An assertion message.
+     * @return <code>UnreachableCodeAssertion</code>
+     */
 	public static UnreachableCodeAssertion createUnreachable(
-			final String message) {
-		return new UnreachableCodeAssertion(message);
+			final Object message) {
+		return new UnreachableCodeAssertion(
+                null == message ? NULL_MESSAGE : message.toString());
 	}
 
 	/**

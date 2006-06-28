@@ -16,6 +16,7 @@ import org.xmpp.packet.IQ;
 import com.thinkparity.codebase.DateUtil;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Release;
 import com.thinkparity.migrator.Constants.Xml;
 
 /**
@@ -81,5 +82,40 @@ public class IQReader extends com.thinkparity.codebase.xmpp.IQReader {
         final String sData = readString(name);
         if(null == sData) { return null; }
         else { return Library.Type.valueOf(sData); }
+    }
+
+    /**
+     * Read a list of releases from the backing query.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @return A list of releases.
+     */
+    public final List<Release> readReleases(final String parentName,
+            final String name) {
+        final Element element = iq.getChildElement().element(parentName);
+        if(null == element) { return null; }
+
+        final Iterator iChildren = element.elementIterator(name);
+        final List<Release> releases = new LinkedList<Release>();
+        Element releaseElement;
+        Release release;
+        while(iChildren.hasNext()) {
+            releaseElement = (Element) iChildren.next();
+
+            release = new Release();
+            release.setArtifactId((String) releaseElement.element(Xml.Release.ARTIFACT_ID).getData());
+            try { release.setCreatedOn(DateUtil.parse((String) releaseElement.element(Xml.Release.CREATED_ON).getData(), DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"))); }
+            catch(final ParseException px) { throw new RuntimeException(px); }
+            release.setGroupId((String) releaseElement.element(Xml.Release.GROUP_ID).getData());
+            release.setId(Long.valueOf((String) releaseElement.element(Xml.Release.ID).getData()));
+            release.setVersion((String) releaseElement.element(Xml.Release.VERSION).getData());
+ 
+            releases.add(release);
+        }
+        return releases;
+
     }
 }

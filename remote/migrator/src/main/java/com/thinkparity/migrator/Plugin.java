@@ -112,6 +112,7 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
             initializeController("com.thinkparity.migrator.controller.release.Create");
             initializeController("com.thinkparity.migrator.controller.release.Delete");
             initializeController("com.thinkparity.migrator.controller.release.Read");
+            initializeController("com.thinkparity.migrator.controller.release.ReadAll");
             initializeController("com.thinkparity.migrator.controller.release.ReadLibraries");
             initializeController("com.thinkparity.migrator.controller.release.ReadLatest");
         }

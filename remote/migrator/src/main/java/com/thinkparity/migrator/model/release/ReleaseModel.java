@@ -107,6 +107,15 @@ public class ReleaseModel extends AbstractModel {
     }
 
     /**
+     * Read all releases.
+     * 
+     * @return A list of all releases.
+     */
+    public List<Release> readAll() {
+        synchronized(implLock) { return impl.readAll(); }
+    }
+
+    /**
      * Read the latest release.
      *
      * @return A release.

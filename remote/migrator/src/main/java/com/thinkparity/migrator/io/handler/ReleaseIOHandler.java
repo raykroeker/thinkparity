@@ -86,7 +86,15 @@ public interface ReleaseIOHandler {
     public Release read(final String artifactId, final String groupId,
             final String version) throws HypersonicException;
 
-   /**
+    /**
+     * Read all releases.
+     * 
+     * @return A list of releases.
+     * @throws HypersonicException
+     */
+    public List<Release> readAll() throws HypersonicException;
+
+    /**
      * Read the latest release.
      * 
      * @param artifactId

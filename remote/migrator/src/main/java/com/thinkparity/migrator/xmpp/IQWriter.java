@@ -9,6 +9,7 @@ import java.util.List;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Release;
 
 /**
  * <b>Title:</b>thinkParity Migrator IQ Writer <br>
@@ -54,5 +55,20 @@ public class IQWriter extends com.thinkparity.codebase.xmpp.IQWriter {
     public void writeLibraryType(final String name,
             final Library.Type value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    /**
+     * Writer a list of release values.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param releases
+     *            The element values.
+     */
+    public void writeReleases(final String parentName, final String name,
+            final List<Release> releases) {
+        ElementBuilder.addReleaseElements(iq.getChildElement(), parentName, name, releases);
     }
 }

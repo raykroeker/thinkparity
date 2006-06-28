@@ -8,6 +8,7 @@ import java.util.List;
 import org.dom4j.Element;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Release;
 import com.thinkparity.migrator.Constants.Xml;
 
 /**
@@ -58,6 +59,25 @@ class ElementBuilder extends com.thinkparity.codebase.xmpp.ElementBuilder {
             addElement(libraryElement, Xml.Library.PATH, value.getPath());
             addElement(libraryElement, Xml.Library.TYPE, value.getType());
             addElement(libraryElement, Xml.Library.VERSION, value.getVersion());
+        }
+
+        return element;
+    }
+
+    static Element addReleaseElements(final Element parent,
+            final String parentName, final String name,
+            final List<Release> values) {
+        final Element element = addElement(parent, parentName, List.class);
+
+        Element releaseElement;
+        for(final Release value : values) {
+            releaseElement = addElement(element, Xml.Release.RELEASE, Release.class);
+
+            addElement(releaseElement, Xml.Release.ARTIFACT_ID, value.getArtifactId());
+            addElement(releaseElement, Xml.Release.CREATED_ON, value.getCreatedOn());
+            addElement(releaseElement, Xml.Release.GROUP_ID, value.getGroupId());
+            addElement(releaseElement, Xml.Release.ID, value.getId());
+            addElement(releaseElement, Xml.Release.VERSION, value.getVersion());
         }
 
         return element;

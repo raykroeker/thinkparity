@@ -53,6 +53,14 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
         .append("where RELEASE_ID=?")
         .toString();
 
+    /** Sql to read all releases. */
+    private static final String SQL_READ_ALL =
+        new StringBuffer("select R.RELEASE_ID,")
+        .append("R.RELEASE_GROUP_ID,R.RELEASE_ARTIFACT_ID,R.RELEASE_VERSION,R.CREATED_ON ")
+        .append("from RELEASE R ")
+        .append("order by R.CREATED_ON asc")
+        .toString();
+
     private static final String SQL_READ_BY_ARTIFACT_ID_GROUP_ID_VERSION =
         new StringBuffer("select R.RELEASE_ID,")
         .append("R.RELEASE_GROUP_ID,R.RELEASE_ARTIFACT_ID,R.RELEASE_VERSION,R.CREATED_ON ")
@@ -235,6 +243,24 @@ public class ReleaseIOHandler extends AbstractIOHandler implements
             session.rollback();
             throw hx;
         }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.migrator.io.handler.ReleaseIOHandler#readAll()
+     * 
+     */
+    public List<Release> readAll() throws HypersonicException {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ALL);
+            session.executeQuery();
+
+            final List<Release> releases = new LinkedList<Release>();
+            while(session.nextResult()) { releases.add(extractRelease(session)); }
+            return releases;
+        }
+        catch(final HypersonicException hx) { throw hx; }
         finally { session.close(); }
     }
 

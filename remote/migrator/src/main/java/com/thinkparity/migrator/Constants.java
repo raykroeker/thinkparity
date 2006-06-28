@@ -17,26 +17,17 @@ public final class Constants {
 
     /** Database constants. */
     public static class Database {
-
         public static final String DIRECTORY = "db";
-
         public static final String FILE = "rMigrator";
     }
 
     public static final class Log4J {
-
         public static final String EMPTY_STRING = "";
-
         public static final String ID = "id:";
-
         public static final String NULL = "null";
-        
         public static final String PREFIX_SUFFIX = "[";
-
         public static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
         public static final String SUFFIX = "]";
-
     }
 
     /** Miscellaneous constants. */
@@ -60,25 +51,17 @@ public final class Constants {
         }
 
         public static final class Release {
-
             public static final String ARTIFACT_ID = "artifactId";
-
             public static final String CREATED_ON = "createdOn";
-
             public static final String GROUP_ID = "groupId";
-
             public static final String ID = "id";
-
             public static final String LIBRARIES = "libraries";
-
             public static final String LIBRARY = "library";
-
             public static final String LIBRARY_ID = "libraryId";
-
             public static final String LIBRARY_IDS = "libraryIds";
-
             public static final String NAME = "name";
-
+            public static final String RELEASE = "release";
+            public static final String RELEASES = "releases";
             public static final String VERSION = "version";
         }
     }

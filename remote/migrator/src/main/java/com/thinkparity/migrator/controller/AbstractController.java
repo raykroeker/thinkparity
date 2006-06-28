@@ -11,6 +11,7 @@ import java.util.List;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.migrator.Library;
+import com.thinkparity.migrator.Release;
 import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.model.release.ReleaseModel;
 import com.thinkparity.migrator.xmpp.IQReader;
@@ -167,6 +168,21 @@ public abstract class AbstractController extends
     protected void writeLibraries(final String parentName, final String name,
             final List<Library> libraries) {
         iqWriter.writeLibraries(parentName, name, libraries);
+    }
+
+    /**
+     * Write releases to the response query.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param releases
+     *            The element value.
+     */
+    protected void writeReleases(final String parentName,
+            final String name, final List<Release> releases) {
+        iqWriter.writeReleases(parentName, name, releases);
     }
 
     /**

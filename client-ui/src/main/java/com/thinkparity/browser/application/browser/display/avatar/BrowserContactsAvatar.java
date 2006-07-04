@@ -7,21 +7,31 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import com.thinkparity.browser.application.browser.display.avatar.contact.CellContact;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
-import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
+import com.thinkparity.browser.platform.util.SwingUtil;
 
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.index.IndexHit;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * The contacts list avatar displays the list of contacts.
@@ -67,20 +77,6 @@ public class BrowserContactsAvatar extends Avatar {
     }
 
     /**
-     * Apply a key holder filter to the main list.
-     * 
-     * @param keyHolder
-     *            If true; results are filtered where the user has the key if
-     *            false; results are filtered where the user does not have the
-     *            key.
-     * 
-     * @see #removeKeyHolderFilter()
-     */
-    //public void applyKeyHolderFilter(final Boolean keyHolder) {
-    //    mainDocumentModel.applyKeyHolderFilter(keyHolder);
-    //}
-
-    /**
      * Apply the search results to filter the contacts list.
      * 
      * @param searchResult
@@ -94,23 +90,11 @@ public class BrowserContactsAvatar extends Avatar {
         contactsModel.applySearchFilter(searchResult);
     }
 
-    /**
-     * Apply an artifact state filter.
-     * 
-     * @param state
-     *            The artifact state to filter by.
-     * 
-     * @see #removeStateFilter()
-     */
-    //public void applyStateFilter(final ArtifactState state) {
-    //    mainDocumentModel.applyStateFilter(state);
-    //}
-
     /** Clear all filters. */
-    //public void clearFilters() { mainDocumentModel.clearDocumentFilters(); }
+    //public void clearFilters() { contactsModel.clearContactFilters(); }
     
     /** Debug the model. */
-    //public void debug() { mainDocumentModel.debug(); }
+    //public void debug() { contactsModel.debug(); }
 
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
@@ -130,7 +114,7 @@ public class BrowserContactsAvatar extends Avatar {
      * @return True if it is; false otherwise.
      */
     //public Boolean isFilterEnabled() {
-    //    return mainDocumentModel.isDocumentListFiltered();
+    //    return contactsModel.isContactListFiltered();
     //}
 
 	/**
@@ -138,15 +122,6 @@ public class BrowserContactsAvatar extends Avatar {
      *
      */
     public void reload() {}
-
-    /**
-     * Remove the key holder filter.
-     *
-     * @see #applyKeyHolderFilter(Boolean)
-     */
-    //public void removeKeyHolderFilter() {
-    //    mainDocumentModel.removeKeyHolderFilters();
-    //}
 
     /**
      * Remove the search filter from the list.
@@ -158,18 +133,11 @@ public class BrowserContactsAvatar extends Avatar {
     }
 
     /**
-     * Remove the state filter from the list.
-     * 
-     * @see #applyStateFilter(ArtifactState)
-     */
-    //public void removeStateFilter() { mainDocumentModel.removeStateFilters(); }
-    
-    /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setContentProvider(com.thinkparity.browser.application.browser.display.provider.ContentProvider)
      * 
      */
     public void setContentProvider(final ContentProvider contentProvider) {
-        contactsModel.setContentProvider((FlatContentProvider) contentProvider);
+        contactsModel.setContentProvider((FlatSingleContentProvider) contentProvider);
         // set initial selection
         if(0 < jList.getModel().getSize()) { jList.setSelectedIndex(0); }
     }
@@ -181,49 +149,57 @@ public class BrowserContactsAvatar extends Avatar {
     public void setState(final State state) {}
 
     /**
-     * Synchronize the document in the list.
+     * Synchronize the contact in the list, for example if it is deleted.
      * 
-     * @param documentId
-     *            The document id.
+     * @param contactId
+     *            The contact id.
      * @param remote
      *            Indicates whether the sync is the result of a remote event
      */
-    //public void syncDocument(final Long documentId, final Boolean remote) {
-    //    final MainCellDocument selectedDocument = getSelectedDocument();
-    //    mainDocumentModel.syncDocument(documentId, remote);
-    //    if(mainDocumentModel.isDocumentVisible(selectedDocument))
-    //        selectDocument(selectedDocument);
-    //}
+    public void syncContact(final JabberId contactId, final Boolean remote) {
+        final CellContact selectedContact = getSelectedContact();
+        contactsModel.syncContact(contactId, remote);
+        if(contactsModel.isContactVisible(selectedContact))
+            selectContact(selectedContact);
+    }
 
     /**
-     * Synchronize the documents in the list.
+     * Synchronize the contacts in the list.
      *
-     * @param documentIds
-     *            The document ids.
+     * @param contactIds
+     *            The contact ids.
      * @param remote
      *            Indicates whether the sync is the result of a remove event.
      */
-    //public void syncDocuments(final List<Long> documentIds, final Boolean remote) {
-    //    final MainCellDocument selectedDocument = getSelectedDocument();
-    //    mainDocumentModel.syncDocuments(documentIds, remote);
-    //    if(mainDocumentModel.isDocumentVisible(selectedDocument))
-    //        selectDocument(selectedDocument);
+    //public void syncContacts(final List<JabberId> contactIds, final Boolean remote) {
+    //    final cellContact selectedContact = getSelectedContact();
+    //    contactsModel.syncContacts(contactIds, remote);
+    //    if(contactsModel.isContactVisible(selectedContact))
+    //        selectContact(selectedContact);
     //}
 
     /**
-     * Obtain the selected document from the list.
+     * Obtain the selected contact from the list.
      * 
-     * @return The selected document.
+     * @return The selected contact.
      */
-    /*
-    private MainCellDocument getSelectedDocument() {
+    private CellContact getSelectedContact() {
         final MainCell mc = (MainCell) jList.getSelectedValue();
-        if(mc instanceof MainCellDocument) {
-            return (MainCellDocument) mc;
+        if(mc instanceof CellContact) {
+            return (CellContact) mc;
         }
         return null;
     }
-    */
+    
+    /**
+     * Select a contact cell.
+     * 
+     * @param mcd
+     *            The contact cell.
+     */
+    private void selectContact(final CellContact cc) {
+        jList.setSelectedValue(cc, true);
+    }    
 
     /**
      * Initialize the swing components.
@@ -240,60 +216,47 @@ public class BrowserContactsAvatar extends Avatar {
         jList.setLayoutOrientation(JList.VERTICAL);
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         /*
-        jList.setTransferHandler(new UpdateDocumentTxHandler(getController(), jList));
+        jList.setTransferHandler(new UpdateContactTxHandler(getController(), jList));
+        */
         jList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(final MouseEvent e) {
                 if(2 == e.getClickCount()) {
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
-                    // Don't process double click if it is on white space below the last document
+                    // Don't process double click if it is on white space below the last contact
                     final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
                     if(SwingUtil.regionContains(cellBounds, p)){
                         jList.setSelectedIndex(listIndex);                    
-                        mainDocumentModel.triggerDoubleClick((MainCell) jList.getSelectedValue());    
+                        contactsModel.triggerDoubleClick((MainCell) jList.getSelectedValue());    
                     }
                 }
                 else if(1 == e.getClickCount()) {
-                    // first; we grab the index of the list item of the event
-                    // second; we grab the bounds of the list item's icon
-                    // third; we check to see that the icon was clicked and if it was
-                    //      we display the popup menu
-                    final Point p = e.getPoint();
-                    final Integer listIndex = jList.locationToIndex(p);
-                    if(listIndex == jList.getSelectedIndex()) {
-                        final MainCell mc = (MainCell) jList.getSelectedValue();
-                        final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
-                        cellBounds.x += CELL_NODE_LOCATION.x * mc.getTextInsetFactor();
-                        cellBounds.y += CELL_NODE_LOCATION.y;
-                        cellBounds.width = CELL_NODE_SIZE.width;
-                        cellBounds.height = CELL_NODE_SIZE.height;
-                        if(SwingUtil.regionContains(cellBounds, p)) {
-                            jList.setSelectedIndex(listIndex);
-                            mainDocumentModel.triggerExpand(mc);
-                        }
-                    }
+                    // Do nothing in this event. There are no actions related to a
+                    // single mouse click for contacts.
                 }
+
             }
             public void mouseReleased(final MouseEvent e) {
                 if(e.isPopupTrigger()) {
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
                     jList.setSelectedIndex(listIndex);
-                    mainDocumentModel.triggerPopup((MainCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
+                    contactsModel.triggerPopup((MainCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
                 }
             }
         });
         jList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(final ListSelectionEvent e) {
                 if(!e.getValueIsAdjusting()) {
-                    mainDocumentModel.triggerSelection((MainCell) jList.getSelectedValue());
+                    contactsModel.triggerSelection((MainCell) jList.getSelectedValue());
                 }
             }
         });
+        /*
         try {
             jList.getDropTarget().addDropTargetListener(new DropTargetAdapter() {
                 public void dragOver(final DropTargetDragEvent dtde) {
-                    mainDocumentModel.triggerDragOver((MainCell) jList.getSelectedValue(), dtde);
+                    contactsModel.triggerDragOver((MainCell) jList.getSelectedValue(), dtde);
                 }
                 public void drop(final DropTargetDropEvent dtde) {}
             });
@@ -315,14 +278,4 @@ public class BrowserContactsAvatar extends Avatar {
         c.weighty = 1;
         add(jListScrollPane, c.clone());  // Add the jListScrollPane to the container
     }
-
-    /**
-     * Select a document cell.
-     * 
-     * @param mcd
-     *            The document cell.
-     */
-    //private void selectDocument(final MainCellDocument mcd) {
-    //    jList.setSelectedValue(mcd, true);
-    //}
 }

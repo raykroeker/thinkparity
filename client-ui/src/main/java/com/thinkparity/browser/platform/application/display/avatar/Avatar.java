@@ -186,7 +186,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 * 
 	 */
 	public void reload() {}
-
+    
 	/**
 	 * Set the content provider.
 	 * 

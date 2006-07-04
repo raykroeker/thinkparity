@@ -4,6 +4,7 @@
 package com.thinkparity.browser.model;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.download.DownloadModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
@@ -36,9 +37,12 @@ public class ModelFactory {
 
     /** The parity artifact interface. */
 	private ArtifactModel artifactModel;
-
+    
     /** The parity document interface. */
 	private DocumentModel documentModel;
+    
+    /** The parity contact interface. */
+    private ContactModel contactModel;  
 
     /** The parity download interface. */
     private DownloadModel download;
@@ -87,6 +91,10 @@ public class ModelFactory {
 	public DocumentModel getDocumentModel(final Class clasz) {
 		return documentModel;
 	}
+    
+    public ContactModel getContactModel(final Class clasz) {
+        return contactModel;
+    }
 
     /**
      * Obtain the parity download interface.
@@ -163,6 +171,7 @@ public class ModelFactory {
 		if(!isInitialized) {
 			artifactModel = ArtifactModel.getModel();
 			documentModel = DocumentModel.getModel();
+            contactModel = ContactModel.getModel();
             download = DownloadModel.getModel();
 			indexModel = IndexModel.getModel();
             install = InstallModel.getModel();

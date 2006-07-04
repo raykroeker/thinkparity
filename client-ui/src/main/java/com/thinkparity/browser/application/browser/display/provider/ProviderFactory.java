@@ -5,6 +5,7 @@ package com.thinkparity.browser.application.browser.display.provider;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.browser.application.browser.display.provider.contact.ContactInfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.InfoProvider;
@@ -15,6 +16,7 @@ import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -69,6 +71,14 @@ public class ProviderFactory {
 		return singleton.doGetManageContactsProvider();
 	}
 
+    /** Obtain the contact info provider.
+     * 
+     * @return The contact info provider.
+     */
+    public static ContentProvider getContactInfoProvider() {
+        return singleton.doGetContactInfoProvider();
+    }
+
 	public static ContentProvider getSendArtifactProvider() {
 		return singleton.doGetSendArtifactProvider();
 	}
@@ -82,6 +92,9 @@ public class ProviderFactory {
 
 	/** The parity document interface. */
 	protected final DocumentModel dModel;
+    
+    /** The contact interface. */
+    protected final ContactModel cModel;
 
 	/** An apache logger. */
 	protected final Logger logger;
@@ -109,6 +122,9 @@ public class ProviderFactory {
     
 	/** The contacts provider. */
 	private final ContentProvider manageContactsProvider;
+    
+    /** The contact info provider. */
+    private final ContentProvider contactInfoProvider;
 
 	/** The send artifact provider. */
 	private final ContentProvider sendArtifactProvider;
@@ -126,6 +142,7 @@ public class ProviderFactory {
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
 		this.dModel = modelFactory.getDocumentModel(getClass());
+        this.cModel = modelFactory.getContactModel(getClass());
 		this.logger = LoggerFactory.getLogger(getClass());
 		this.sModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
@@ -137,7 +154,8 @@ public class ProviderFactory {
 		this.historyProvider = new HistoryProvider(localUserId, dModel, sModel);
 		this.infoProvider = new InfoProvider(localUser, dModel);
 		this.mainProvider = new MainProvider(artifactModel, dModel, sModel, systemMessageModel, localUserId);
-		this.manageContactsProvider = new ManageContactsProvider(sModel);
+		this.manageContactsProvider = new ManageContactsProvider(cModel);
+        this.contactInfoProvider = new ContactInfoProvider(cModel);
 		this.sendArtifactProvider = new SendArtifactProvider(artifactModel, dModel, sModel, localUserId);
 		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, localUserId);
 	}
@@ -171,6 +189,15 @@ public class ProviderFactory {
 	private ContentProvider doGetManageContactsProvider() {
 		return manageContactsProvider;
 	}
+
+    /**
+     * Obtain the contact info provider.
+     * 
+     * @return The contact info provider.
+     */
+    private ContentProvider doGetContactInfoProvider() {
+        return contactInfoProvider;
+    }
 
 	/**
 	 * Obtain the user provider.

@@ -4,6 +4,8 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,20 +13,25 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JPopupMenu;
 import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.contact.CellContact;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupContact;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider;
 
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.FilterChain;
 import com.thinkparity.model.parity.model.filter.UserFilterManager;
 import com.thinkparity.model.parity.model.filter.user.SearchUser;
 import com.thinkparity.model.parity.model.index.IndexHit;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -36,18 +43,13 @@ public class BrowserContactsModel {
 
     /**
      * Collection of all filters used by the contacts model.
+     * In the case of contacts, there are no filters that apply, only search.
      * 
      */
     private static final Map<Enum<?>, Filter<User>> CONTACT_FILTERS;
 
     static {
         CONTACT_FILTERS = new HashMap<Enum<?>, Filter<User>>(2, 0.75F);
-        /*
-        DOCUMENT_FILTERS.put(DocumentFilterKey.STATE_ACTIVE, new Active());
-        DOCUMENT_FILTERS.put(DocumentFilterKey.STATE_CLOSED, new Closed());
-        DOCUMENT_FILTERS.put(DocumentFilterKey.KEY_HOLDER_FALSE, new IsNotKeyHolder());
-        DOCUMENT_FILTERS.put(DocumentFilterKey.KEY_HOLDER_TRUE, new IsKeyHolder());
-        */
         CONTACT_FILTERS.put(ContactFilterKey.SEARCH, new SearchUser(new LinkedList<IndexHit>()));
     }
 
@@ -58,10 +60,7 @@ public class BrowserContactsModel {
     private final Browser browser;
 
     /** The content provider. */
-    private FlatContentProvider contentProvider;
-
-    /** A list of "dirty" cells. */
-    //private final List<MainCell> dirtyCells;
+    private FlatSingleContentProvider contentProvider;
 
     /** The filter that is used to filter contacts to produce visibleContacts. */
     private final FilterChain<User> contactFilter;
@@ -72,14 +71,11 @@ public class BrowserContactsModel {
     /** The swing list model. */
     private final DefaultListModel jListModel;
 
-    /** The list of cells that are pseudo selected. */
-    //private final List<MainCell> pseudoSelection;
-
     /** A list of all visible cells. */
     private final List<MainCell> visibleCells;
     
     /**
-     * Create a BrowserMainDocumentModel.
+     * Create a BrowserContactsModel.
      * 
      */
     BrowserContactsModel(final Browser browser) {
@@ -89,52 +85,8 @@ public class BrowserContactsModel {
         this.contactFilter = new FilterChain<User>();
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
-        /*
-        this.dirtyCells = new LinkedList<MainCell>();
-        this.pseudoSelection = new LinkedList<MainCell>();
-        */
         this.visibleCells = new LinkedList<MainCell>();
     }
-
-    /**
-     * Determine whether or not the main cell is expanded.
-     * 
-     * @param mainCell
-     *            The cell.
-     * @return True if the cell is expanded; false otherwise.
-     */
-    /*
-    public Boolean isExpanded(final MainCell mainCell) {
-        if(mainCell instanceof MainCellDocument) {
-            return ((MainCellDocument) mainCell).isExpanded();
-        }
-        else if(mainCell instanceof MainCellHistoryRoot) {
-            return ((MainCellHistoryRoot) mainCell).isExpanded();
-        }
-        else if(mainCell instanceof MainCellTeamRoot) {
-            return ((MainCellTeamRoot) mainCell).isExpanded();
-        }
-        else { return Boolean.FALSE; }
-    }
-    */
-
-    /**
-     * Apply a key holder filter to the list of visible documents.
-     * 
-     * @param keyHolder
-     *            If true; will filter documents with a key; if false; it will
-     *            filter documents without the key.
-     * 
-     * @see #removeKeyHolderFilters()
-     */
-    /*
-    void applyKeyHolderFilter(final Boolean keyHolder) {
-        applyDocumentFilter(keyHolder
-                ? DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_TRUE)
-                        : DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_FALSE));
-        syncModel();
-    }
-    */
 
     /**
      * Apply a search filter to the list of visible contacts.
@@ -153,58 +105,13 @@ public class BrowserContactsModel {
     }
 
     /**
-     * Apply an artifact state filter to the list of visible documents.
-     * 
-     * @param state
-     *            The artifact state to filter by.
-     * 
-     * @see #removeStateFilters()
-     */
-    /*
-    void applyStateFilter(final ArtifactState state) {
-        if(ArtifactState.ACTIVE == state) {
-            applyDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_ACTIVE));
-            syncModel();
-        }
-        else if(ArtifactState.CLOSED == state) {
-            applyDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_CLOSED));
-            syncModel();
-        }
-        else {
-            Assert.assertUnreachable(
-                    "[BROWSER2] [APP] [B2] [MAIN AVATAR] [MODEL] [CANNOT FILTER BY STATE " + state + "]");
-        }
-    }
-    */
-
-    /**
-     * Clear the filter on the visible contacts. Note that the search filter
-     * will still be applied.
-     * 
-     * @see #removeSearchFilter()
-     */
-    /*
-    void clearDocumentFilters() {
-        // remove all document filters save the search filter and apply
-        // changes
-        for(final DocumentFilterKey filterKey : DocumentFilterKey.values()) {
-            if(filterKey == DocumentFilterKey.SEARCH) { continue; }
-            documentFilter.removeFilter(DOCUMENT_FILTERS.get(filterKey));
-        }
-        syncModel();
-    }
-    */
-
-    /**
-     * Debug the document filter.
+     * Debug the contact filter.
      *
      */
     void debug() {
         if(browser.getPlatform().isDevelopmentMode()) {
             logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [" + contacts.size() + " CONTACTS]");
-
-            //logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
-            //logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dirtyCells.size() + " DIRTY CELLS]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
             logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL] [" + jListModel.size() + " MODEL ELEMENTS]");
 
             // contacts
@@ -218,15 +125,7 @@ public class BrowserContactsModel {
             for(final MainCell mc : visibleCells) {
                 logger.debug("[BROWSER2] [APP] [B2] [CONTACTS MODEL]\t[" + mc.getText() + "]");
             }
-            
-            /*
-            // pseudo selection
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [PSEUDO SELECTION (" + pseudoSelection.size() + ")]");
-            for(final MainCell mc : pseudoSelection) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
-            }
-            */
-            
+                       
             // list elements
             final Enumeration e = jListModel.elements();
             MainCell mc;
@@ -259,28 +158,13 @@ public class BrowserContactsModel {
     /**
      * Determine if the contact is visible.
      * 
-     * @param displayDocument
-     *            The display document.
-     * @return True if the document is visible; false otherwise.
+     * @param displayContact
+     *            The display contact.
+     * @return True if the contact is visible; false otherwise.
      */
-    /*
-    Boolean isDocumentVisible(final MainCellDocument mainCellDocument) {
-        return visibleCells.contains(mainCellDocument);
+    Boolean isContactVisible(final CellContact cellContact) {
+        return visibleCells.contains(cellContact);
     }
-    */
-
-    /**
-     * Remove all key holder filters.
-     *
-     * @see #applyKeyHolderFilter(Boolean)
-     */
-    /*
-    void removeKeyHolderFilters() {
-        removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_FALSE));
-        removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_TRUE));
-        syncModel();
-    }
-    */
 
     /**
      * Remove the search filter.
@@ -293,19 +177,6 @@ public class BrowserContactsModel {
     }
 
     /**
-     * Remove the state filters.
-     * 
-     * @see #applyStateFilter(ArtifactState)
-     */
-    /*
-    void removeStateFilters() {
-        removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_ACTIVE));
-        removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_CLOSED));
-        syncModel();
-    }
-    */
-
-    /**
      * Set the content provider. This will initialize the model with contacts
      * via the provider.
      * 
@@ -313,48 +184,46 @@ public class BrowserContactsModel {
      *            The content provider.
      */
     void setContentProvider(
-            final FlatContentProvider contentProvider) {
+            final FlatSingleContentProvider contentProvider) {
         this.contentProvider = contentProvider;
         initModel();
     }
 
     /**
-     * Synchronize the document with the list. The content provider is queried
-     * for the document and if it can be obtained; it will either be added to or
+     * Synchronize the contact with the list. The content provider is queried
+     * for the contact and if it can be obtained; it will either be added to or
      * updated in the list. If it cannot be found; it will be removed from the
      * list.
      * 
-     * @param documentId
-     *            The document id.
+     * @param contactId
+     *            The contact id.
      * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
      */
-    /*
-    void syncDocument(final Long documentId, final Boolean remote) {
-        syncDocumentInternal(documentId, remote);
+    void syncContact(final JabberId contactId, final Boolean remote) {
+        syncContactInternal(contactId, remote);
         syncModel();
     }
-    */
 
     /**
-     * Synchronize the documents with the list. The content provider is queried
-     * for the document and if it can be obtained; it will either be added to or
+     * Synchronize the contacts with the list. The content provider is queried
+     * for the contact and if it can be obtained; it will either be added to or
      * updated in the list. If it cannot be found; it will be removed from the
      * list.
      * 
-     * @param documentIds
-     *            The document ids.
+     * @param contactIds
+     *            The contact ids.
      * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
-     * @see #syncDocumentInternal(Long, Boolean)
+     * @see #syncContactInternal(JabberId, Boolean)
      * @see #syncModel()
      */
     /*
-    void syncDocuments(final List<Long> documentIds, final Boolean remote) {
-        for(final Long documentId : documentIds) {
-            syncDocumentInternal(documentId, remote);
+    void syncContacts(final List<JabberId> contactIds, final Boolean remote) {
+        for(final JabberId contactId : contactIds) {
+            syncContactInternal(contactId, remote);
         }
         syncModel();
     }
@@ -366,25 +235,16 @@ public class BrowserContactsModel {
      * @param mainCell
      *            The main cell.
      */
-    /*
     void triggerDoubleClick(final MainCell mainCell) {
         debug();
-        // RBM 13/06/05 #36 Double click will open the document instead of expanding
-        // The old line of code commented out:
-        // triggerExpand(mainCell);
         if(browser.getPlatform().isDevelopmentMode()) {
-            logger.debug("Opening document " + mainCell.getText());
-        }    
-        if(mainCell instanceof MainCellDocument) {
-            final MainCellDocument mcd = (MainCellDocument) mainCell;
-            browser.runOpenDocument(mcd.getId());
-        }
-        else if(mainCell instanceof MainCellHistoryItem) {
-            final MainCellHistoryItem mch = (MainCellHistoryItem) mainCell;
-            browser.runOpenDocumentVersion(mch.getDocumentId(),mch.getVersionId());
+            logger.debug("Opening contact " + mainCell.getText());
+        } 
+        if(mainCell instanceof CellContact) {
+            final CellContact cc = (CellContact) mainCell;
+            browser.runOpenContact(cc.getId());  // Jabber ID
         }
     }
-    */
 
     /**
      * Trigger a drag event for the cell.
@@ -399,62 +259,21 @@ public class BrowserContactsModel {
     */
 
     /**
-     * Trigger the expansion of the cell.
-     * 
-     * @param mainCell
-     *            The main cell.
-     */
-    /*
-    void triggerExpand(final MainCell mainCell) {
-        if(mainCell instanceof MainCellDocument) {
-            final MainCellDocument mcd = (MainCellDocument) mainCell;
-            if(isExpanded(mcd)) {
-                collapse(mcd);
-                pseudoUnselectAll(documentHistory.get(mcd));
-            }
-            else {
-                expand(mcd);
-                pseudoSelectAll(documentHistory.get(mcd));
-            }
-
-            syncModel();
-        }
-        else if(mainCell instanceof MainCellHistoryRoot) {
-            final MainCellHistoryRoot mchr = (MainCellHistoryRoot) mainCell;
-            if(isExpanded(mchr)) { collapse(mchr); }
-            else { expand(mchr); }
-            syncModel();
-        }
-        else if(mainCell instanceof MainCellTeamRoot) {
-            final MainCellTeamRoot mctr = (MainCellTeamRoot) mainCell;
-            if(isExpanded(mctr)) { collapse(mctr); }
-            else { expand(mctr); }
-            syncModel();
-        }
-    }
-    */
-
-    /**
      * Trigger a popup event for the cell.
      * 
      * @param mainCell
      *            The main cell.
      */
-    /*
     void triggerPopup(final MainCell mainCell, final Component invoker, final MouseEvent e,
             final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        if(mainCell instanceof MainCellDocument) {
-            new PopupDocument(contentProvider, (MainCellDocument) mainCell).trigger(browser, jPopupMenu, e);
+        if(mainCell instanceof CellContact) {
+            new PopupContact(contentProvider, (CellContact) mainCell).trigger(browser, jPopupMenu, e);
         }
-        else if(mainCell instanceof MainCellHistoryItem) {
-            new PopupHistoryItem((MainCellHistoryItem) mainCell).trigger(browser, jPopupMenu, e);
-        }
-        logger.info("[LBROWSER] [APPLICATION] [BROWSER] [DOCUMENT AVATAR] [TRIGGER POPUP]");
+        logger.info("[LBROWSER] [APPLICATION] [BROWSER] [CONTACT AVATAR] [TRIGGER POPUP]");
         logger.debug(browser.getConnection());
         jPopupMenu.show(invoker, x, y);
     }
-    */
 
     /**
      * Trigger a selection event for the cell.
@@ -462,34 +281,18 @@ public class BrowserContactsModel {
      * @param mainCell
      *            The main cell.
      */
-    /*
     void triggerSelection(final MainCell mainCell) {
-        pseudoSelection.clear();
-
-        if(mainCell instanceof MainCellDocument) {
-            final MainCellDocument mcd = (MainCellDocument) mainCell;
-            browser.selectDocument(mcd.getId());
-
-            pseudoSelect(mcd);
-            // this means that expand and collapse need to
-            // update the selection as well
-            if(mcd.isExpanded())
-                pseudoSelectAll(documentHistory.get(mcd));
-        }
-        else if(mainCell instanceof MainCellHistoryItem) {
-            final MainCellHistoryItem mchi = (MainCellHistoryItem) mainCell;
-
-            pseudoSelect(mchi.getDocument());
-            pseudoSelectAll(documentHistory.get(mchi.getDocument()));
+        if(mainCell instanceof CellContact) {
+            final CellContact cc = (CellContact) mainCell;
+            browser.selectContact(cc.getId());
         }
     }
-    */
 
     /**
      * Apply the specified filter.
      * 
      * @param filter
-     *            The document filter.
+     *            The contact filter.
      */
     private void applyContactFilter(final Filter<User> filter) {
         if(!contactFilter.containsFilter(filter)) {
@@ -509,56 +312,9 @@ public class BrowserContactsModel {
     }
 
     /**
-     * Collapse the history.
-     * 
-     * @param mcd
-     *            The main cell document.
-     */
-    /*
-    private void collapse(final MainCellDocument mcd) {
-        mcd.setExpanded(Boolean.FALSE);
-        syncModel();
-    }
-
-    private void collapse(final MainCellHistoryRoot mchr) {
-        mchr.setExpanded(Boolean.FALSE);
-        syncModel();
-    }
-
-    private void collapse(final MainCellTeamRoot mctr) {
-        mctr.setExpanded(Boolean.FALSE);
-        syncModel();
-    }
-    */
-
-    /**
-     * Expand the history for the document.
-     * 
-     * @param mcd
-     *            The main cell document.
-     */
-    /*
-    private void expand(final MainCellDocument mcd) {
-        mcd.setExpanded(Boolean.TRUE);
-        syncModel();
-    }
-
-    private void expand(final MainCellHistoryRoot mchr) {
-        mchr.setExpanded(Boolean.TRUE);
-        syncModel();
-    }
-
-    private void expand(final MainCellTeamRoot mctr) {
-        mctr.setExpanded(Boolean.TRUE);
-        syncModel();
-    }
-    */
-
-    /**
-     * Initialize the document model
+     * Initialize the contact model
      * <ol>
-     * <li>Load the documents from the provider.
-     * <li>Load the history from the provider.
+     * <li>Load the contacts from the provider.
      * <li>Synchronize the data with the model.
      * <ol>
      */
@@ -569,39 +325,27 @@ public class BrowserContactsModel {
         syncModel();
     }
 
-    /*
-     * private void pseudoSelect(final MainCell mainCell) {
-     * pseudoSelection.add(mainCell); }
-     * 
-     * private void pseudoSelectAll(final List<? extends MainCell> mainCells) {
-     * if(null == mainCells) { logger.warn("[LBROWSER] [APPLICATION] [BROWSER]
-     * [MAIN] [CANNOT PSEUDO SELECT NULL]"); } else { for(final MainCell mc :
-     * mainCells) { pseudoSelect(mc); } } }
-     * 
-     * private void pseudoUnselect(final MainCell mainCell) {
-     * pseudoSelection.remove(mainCell); }
-     * 
-     * private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
-     * for(final MainCell mc : mainCells) { pseudoUnselect(mc); } }
-     */
-
     /**
-     * Read a document from the provider.
+     * Read a contact from the provider.
      * 
-     * @param documentId
-     *            The document id.
-     * @return The document.
+     * @param contactId
+     *            The contact id.
+     * @return The contact.
      */
-    /*
-    private MainCellDocument readDocument(final Long documentId) {
-        return (MainCellDocument) contentProvider.getElement(0, documentId);
+    private CellContact readContact(final JabberId contactId) {
+        final Contact contact = (Contact) contentProvider.getElement(contactId);        
+        if (contact!=null) {
+            return( new CellContact(contact) );
+        }
+        else {
+            return null;
+        }
     }
-    */
 
     /**
      * Read the contacts from the provider.
      * 
-     * @return The documents.
+     * @return The contacts.
      */
     private List<CellContact> readContacts() {
         final List<CellContact> l = new LinkedList<CellContact>();  
@@ -633,41 +377,6 @@ public class BrowserContactsModel {
     }
 
     /**
-     * Read the history for the document from the provider.
-     * 
-     * @param mainCellDocument
-     *            The document.
-     * @return The history.
-     */
-    /*
-    private List<MainCellHistoryItem> readHistory(
-            final MainCellDocument mainCellDocument) {
-        final List<MainCellHistoryItem> l = new LinkedList<MainCellHistoryItem>();
-        final MainCellHistoryItem[] a =
-                (MainCellHistoryItem[]) contentProvider.getElements(1, mainCellDocument);
-        for(final MainCellHistoryItem mchi : a) { l.add(mchi); }
-        return l;
-    }
-    */
-
-    /**
-     * Read the team for the document from the provider.
-     * 
-     * @param mcd
-     *            The document.
-     * @return The document team.
-     */
-    /*
-    private List<MainCellUser> readTeam(final MainCellDocument mcd) {
-        final List<MainCellUser> l = new ArrayList<MainCellUser>();
-        final MainCellUser[] a =
-            (MainCellUser[]) contentProvider.getElements(5, mcd);
-        for(final MainCellUser mcu : a) { l.add(mcu); }
-        return l;
-    }
-    */
-
-    /**
      * Remove a contact filter.
      * 
      * @param filter
@@ -680,77 +389,53 @@ public class BrowserContactsModel {
     }
     
     /**
-     * Synchronize the document with the list. The content provider is queried
-     * for the document and if it can be obtained; it will either be added to or
-     * updated in the list as well as its history updated. If it cannot be found;
-     * it will be removed from the list.
+     * Synchronize the contact with the list. The content provider is queried
+     * for the contact and if it can be obtained; it will either be added to or
+     * updated in the list. If it cannot be found, it will be removed from the list.
      * 
-     * @param documentId
-     *            The document id.
+     * @param contactId
+     *            The contact id.
      * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
      * 
-     * @see #syncDocument(Long, Boolean)
+     * @see #syncContact(JabberId, Boolean)
      * @see #syncModel()
      */
-    /*
-    private void syncDocumentInternal(final Long documentId,
+    private void syncContactInternal(final JabberId contactId,
             final Boolean remote) {
-        final MainCellDocument mainCellDocument = readDocument(documentId);
+        final CellContact cellContact = readContact(contactId);
 
-        // if the document is null; we can assume the document has been
+        // if the contact is null; we can assume the contact has been
         // deleted (it's not longer being created by the provider); so we find
-        // the document and remove it
-        if(null == mainCellDocument) {
-            for(int i = 0; i < documents.size(); i++) {
-                if(documents.get(i).getId().equals(documentId)) {
-                    documents.remove(i);
-                    break;
-                }
-            }
-            final MainCellDocument[] historyKeys =
-                (MainCellDocument[]) documentHistory.keySet().toArray(new MainCellDocument[] {});
-            for(int i = 0; i < historyKeys.length; i++) {
-                if(historyKeys[i].getId().equals(documentId)) {
-                    documentHistory.remove(historyKeys[i]);
+        // the contact and remove it
+        if(null == cellContact) {
+            for(int i = 0; i < contacts.size(); i++) {
+                if(contacts.get(i).getId().equals(contactId)) {
+                    contacts.remove(i);
                     break;
                 }
             }
         }
-        // the document is not null; therefore it is either new; or updated
+        // the contact is not null; therefore it is either new; or updated
         else {
-
-            // the document is new
-            if(!documents.contains(mainCellDocument)) {
-                documents.add(0, mainCellDocument);
-                documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
-                documentTeam.put(mainCellDocument, new MainCellTeam(mainCellDocument, readTeam(mainCellDocument)));
+            // the contact is new
+            if(!contacts.contains(cellContact)) {
+                contacts.add(0, cellContact);
             }
-            // the document has been updated
+            // the contact has been updated
             else {
-                final int index = documents.indexOf(mainCellDocument);
+                final int index = contacts.indexOf(cellContact);
+                contacts.remove(index);
 
-                // preserve expand\collapse state
-                mainCellDocument.setExpanded(documents.get(index).isExpanded());
-
-                documents.remove(index);
-
-                // if the reload is the result of a remote event add the document
+                // if the reload is the result of a remote event add the contact
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                if(remote) { documents.add(0, mainCellDocument); }
-                else { documents.add(index, mainCellDocument); }
-                documentTeam.put(mainCellDocument, new MainCellTeam(mainCellDocument, readTeam(mainCellDocument)));
-                documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
-
-                dirtyCells.add(mainCellDocument);
-                dirtyCells.addAll(documentHistory.get(mainCellDocument));
-                dirtyCells.add(documentTeam.get(mainCellDocument));
+                if(remote) { contacts.add(0, cellContact); }
+                else { contacts.add(index, cellContact); }
             }
         }
     }
-    */
 
     /**
      * Filter the list of contacts. Update the visible cell list with contacts.
@@ -789,19 +474,7 @@ public class BrowserContactsModel {
         for(final MainCell mc : mcModel) {
             if(!visibleCells.contains(mc)) { jListModel.removeElement(mc); }
         }
-/*
-        // update dirty cells
-        final Iterator<MainCell> iDirty = dirtyCells.iterator();
-        MainCell mcDirty;
-        while(iDirty.hasNext()) {
-            mcDirty = iDirty.next();
-            if(jListModel.contains(mcDirty)) {  // might not contain history cells
-                jListModel.removeElement(mcDirty);
-                jListModel.add(visibleCells.indexOf(mcDirty), mcDirty);
-                iDirty.remove();
-            }
-        }
-*/
+
         // Update the filter "on/off" text on the browser
         if(isContactListFiltered()) { browser.fireFilterApplied(); }
         else { browser.fireFilterRevoked(); }

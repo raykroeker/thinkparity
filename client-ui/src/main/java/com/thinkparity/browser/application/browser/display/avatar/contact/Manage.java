@@ -110,6 +110,7 @@ public class Manage extends Avatar {
         javax.swing.JScrollPane contactsJScrollPane;
         javax.swing.JLabel eaJLabel;
         javax.swing.JButton inviteJButton;
+        javax.swing.JButton jButton1;
 
         eaJLabel = LabelFactory.create(getString("EmbeddedAssistance"));
         contactsJScrollPane = new javax.swing.JScrollPane();
@@ -119,47 +120,57 @@ public class Manage extends Avatar {
         removeJButton = ButtonFactory.create(getString("RemoveButton"));
         viewJButton = ButtonFactory.create(getString("ViewButton"));
         closeJButton = ButtonFactory.create(getString("CloseButton"));
+        jButton1 = new javax.swing.JButton();
+
+        eaJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ManageContacts.EmbeddedAssistance"));
 
         contactsModel = new DefaultListModel();
         contactsJList.setModel(contactsModel);
         contactsJList.setCellRenderer(new ContactCellRenderer());
         contactsJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                contactsJListValueChanged(e);
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                contactsJListValueChanged(evt);
             }
         });
 
         contactsJScrollPane.setViewportView(contactsJList);
 
+        inviteJButton.setText("!Invite!");
         inviteJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                inviteJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inviteJButtonActionPerformed(evt);
             }
         });
 
+        searchJButton.setText("!Search!");
         searchJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                searchJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchJButtonActionPerformed(evt);
             }
         });
 
+        removeJButton.setText("!Remove!");
         removeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                removeJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeJButtonActionPerformed(evt);
             }
         });
 
+        viewJButton.setText("!View!");
         viewJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                viewJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewJButtonActionPerformed(evt);
             }
         });
 
+        closeJButton.setText("!Close!");
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                closeJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeJButtonActionPerformed(evt);
             }
         });
+
+        jButton1.setText("jButton1");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -179,9 +190,10 @@ public class Manage extends Avatar {
                                 .add(closeJButton))
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(viewJButton)
-                            .add(removeJButton))))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(removeJButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jButton1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(viewJButton))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -201,7 +213,9 @@ public class Manage extends Avatar {
                     .add(layout.createSequentialGroup()
                         .add(viewJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(removeJButton)))
+                        .add(removeJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jButton1)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

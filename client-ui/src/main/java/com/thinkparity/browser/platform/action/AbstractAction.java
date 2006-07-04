@@ -18,6 +18,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
@@ -218,6 +219,15 @@ public abstract class AbstractAction {
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
 	}
+    
+    /**
+     * Obtain the contact model api.
+     * 
+     * @return The contact model api.
+     */
+    protected ContactModel getContactModel() {
+        return modelFactory.getContactModel(getClass());
+    }
 
 	/**
      * Obtain the parity index interface.
@@ -236,7 +246,7 @@ public abstract class AbstractAction {
 	protected SessionModel getSessionModel() {
 		return modelFactory.getSessionModel(getClass());
 	}
-
+    
 	/**
 	 * Obtain localized text.
 	 * 

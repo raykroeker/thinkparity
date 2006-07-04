@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.application.browser;
 
+import com.thinkparity.model.xmpp.JabberId;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -10,10 +12,11 @@ package com.thinkparity.browser.application.browser;
 class BrowserSession {
 
 	/**
-	 * The currently selected document id.
+	 * The currently selected document id and contact id.
 	 * 
 	 */
 	private Long selectedDocumentId;
+    private JabberId selectedContactId;
 
 	/**
 	 * Create a BrowserSession.
@@ -27,6 +30,13 @@ class BrowserSession {
 	 * @return The selected document id.
 	 */
 	public Long getSelectedDocumentId() { return selectedDocumentId; }
+    
+    /**
+     * Obtain the selected contact id.
+     * 
+     * @return The selected contact id.
+     */
+    public JabberId getSelectedContactId() { return selectedContactId; }
 
 	/**
 	 * Set the selected document id.
@@ -40,4 +50,17 @@ class BrowserSession {
 		this.selectedDocumentId = selectedDocumentId;
 		return prevSelectedDocumentId;
 	}
+    
+    /**
+     * Set the selected contact id.
+     * 
+     * @param selectedContactId
+     *            The contact id to select.
+     * @return The previously selected contact id.
+     */
+    public JabberId setSelectedContactId(final JabberId selectedContactId) {
+        final JabberId prevSelectedContactId = this.selectedContactId;
+        this.selectedContactId = selectedContactId;
+        return prevSelectedContactId;
+    }
 }

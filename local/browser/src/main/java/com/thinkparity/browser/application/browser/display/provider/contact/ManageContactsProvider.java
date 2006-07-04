@@ -3,10 +3,11 @@
  */
 package com.thinkparity.browser.application.browser.display.provider.contact;
 
-import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
@@ -15,28 +16,34 @@ import com.thinkparity.model.xmpp.contact.Contact;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ManageContactsProvider extends FlatContentProvider {
+public class ManageContactsProvider extends FlatSingleContentProvider {
 
 	/**
 	 * The parity session api.
 	 * 
 	 */
-	private final SessionModel sessionModel;
+	private final ContactModel contactModel;
 
 	/**
 	 * Create a ManageContactsProvider.
 	 */
-	public ManageContactsProvider(final SessionModel sessionModel) {
+	public ManageContactsProvider(final ContactModel contactModel) {
 		super();
-		this.sessionModel = sessionModel;
+		this.contactModel = contactModel;
 	}
 
+    /**
+     * @see com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider#getElement(java.lang.Object)
+     */
+    public Object getElement(final Object input) {
+        return contactModel.read((JabberId)input);
+    }
+
 	/**
-	 * @see com.thinkparity.browser.application.browser.display.provider.FlatContentProvider#getElements(java.lang.Object)
+	 * @see com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider#getElements(java.lang.Object)
 	 * 
 	 */
 	public Object[] getElements(final Object input) {
-		try { return sessionModel.readContacts().toArray(new Contact[] {}); }
-		catch(final ParityException px) { throw new RuntimeException(px); }
+		return contactModel.read().toArray(new Contact[] {});
 	}
 }

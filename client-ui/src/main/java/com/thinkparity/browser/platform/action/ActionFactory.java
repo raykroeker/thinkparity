@@ -109,6 +109,12 @@ public class ActionFactory {
 			return new com.thinkparity.browser.platform.action.artifact.Search(browser);
         case ARTIFACT_SEND_VERSION:
             return new com.thinkparity.browser.platform.action.artifact.SendVersion(browser);
+        case CONTACT_OPEN:
+            return new com.thinkparity.browser.platform.action.contact.OpenContact(browser);
+        case CONTACT_DELETE:
+            return new com.thinkparity.browser.platform.action.contact.DeleteContact(browser);
+        case CONTACT_ADD:
+            return new com.thinkparity.browser.platform.action.contact.AddContact(browser);
 		case DOCUMENT_CREATE:
 			return new com.thinkparity.browser.platform.action.document.Create(browser);
 		case DOCUMENT_CLOSE:

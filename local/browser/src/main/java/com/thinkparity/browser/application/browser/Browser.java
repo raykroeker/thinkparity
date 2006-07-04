@@ -17,11 +17,10 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.*;
+import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -38,6 +37,9 @@ import com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest;
 import com.thinkparity.browser.platform.action.artifact.KeyRequested;
 import com.thinkparity.browser.platform.action.artifact.RequestKey;
 import com.thinkparity.browser.platform.action.artifact.Search;
+import com.thinkparity.browser.platform.action.contact.AddContact;
+import com.thinkparity.browser.platform.action.contact.DeleteContact;
+import com.thinkparity.browser.platform.action.contact.OpenContact;
 import com.thinkparity.browser.platform.action.document.*;
 import com.thinkparity.browser.platform.action.session.AcceptInvitation;
 import com.thinkparity.browser.platform.action.session.DeclineInvitation;
@@ -51,6 +53,8 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -301,10 +305,10 @@ public class Browser extends AbstractApplication {
      * 
      */
 	public void displaySendVersion(final Long artifactId, final Long versionId) {
-		final Data data = new Data(2);
-		data.set(SessionSendVersion.DataKey.ARTIFACT_ID, artifactId);
-		data.set(SessionSendVersion.DataKey.VERSION_ID, versionId);
-		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_VERSION, data);
+		final Data input = new Data(2);
+		input.set(SessionSendVersion.DataKey.ARTIFACT_ID, artifactId);
+		input.set(SessionSendVersion.DataKey.VERSION_ID, versionId);
+		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_VERSION, input);
 	}
 
     /**
@@ -320,7 +324,7 @@ public class Browser extends AbstractApplication {
 	 *
 	 */
 	public void displaySessionManageContacts() {
-        // TO DO fix up!
+        // TO DO fix up! Change this method and set up tabs properly
         //displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
         if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
             setCurrentTab(BrowserTab.CONTACTS_TAB);
@@ -331,6 +335,28 @@ public class Browser extends AbstractApplication {
             displayDocumentListAvatar();
         }
 	}
+    
+    /**
+     * Display the contact info dialogue.
+     *
+     */
+    public void displayContactInfoDialogue(JabberId contactId) {
+        final Data input = new Data(1);
+        input.set(ContactInfo.DataKey.CONTACT_ID, contactId);
+        setInput(AvatarId.CONTACT_INFO_DIALOGUE, input);
+        displayAvatar(WindowId.POPUP, AvatarId.CONTACT_INFO_DIALOGUE);        
+    }
+    
+    /**
+     * Display the invite dialogue.
+     *
+     */
+    
+    public void displayAddContactDialogue() {
+        // TO DO fix up where this is called from, delete displaySessionInvitePartner()
+        // Use INVITE
+        displayAvatar(WindowId.POPUP, AvatarId.SESSION_INVITE_PARTNER);
+    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
@@ -389,9 +415,23 @@ public class Browser extends AbstractApplication {
 			public void run() { getMainAvatar().syncDocument(documentId, remote); }
 		});
 	}
+    
+    /**
+     * Notify the application that a contact has been added.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void fireContactAdded(final JabberId contactId, final Boolean remote) {
+        setCustomStatusMessage("ContactAdded");
+        // refresh the contact list
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContactsAvatar().syncContact(contactId, remote); }
+        });
+    }
 
     /**
-	 * Notify the application that a document has been created.
+	 * Notify the application that a document has been deleted.
 	 * 
 	 * @param documentId
 	 *            The document id.
@@ -410,6 +450,31 @@ public class Browser extends AbstractApplication {
 			}
 		});
 	}
+    
+    /**
+     * 
+     * Notify the application that a contact has been deleted.
+     * 
+     * @param contactId
+     *           The contact id.
+     */
+    public void fireContactDeleted(final JabberId contactId) {
+        setCustomStatusMessage("ContactDeleted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO))
+                        .reload();
+            }
+        });
+        // refresh the contact list
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((BrowserContactsAvatar) avatarRegistry
+                        .get(AvatarId.BROWSER_CONTACTS)).syncContact(contactId,
+                        Boolean.FALSE);
+            }
+        });
+    }
 
     /**
      * Notify the application that a document has been received.
@@ -574,6 +639,13 @@ public class Browser extends AbstractApplication {
 	 * @return A document id.
 	 */
 	public Long getSelectedDocumentId() { return session.getSelectedDocumentId(); }
+    
+    /**
+     * Obtain the selected contact id from the session.
+     * 
+     * @return A contact id.
+     */
+    public JabberId getSelectedContactId() { return session.getSelectedContactId(); }
 
     /**
 	 * Obtain the selected system message.
@@ -883,6 +955,43 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
+    
+    /**
+     * Run the open contact action.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void runOpenContact(final JabberId contactId) {
+        Assert.assertNotNull("Cannot open null contact.", contactId);
+        final Data data = new Data(1);
+        data.set(OpenContact.DataKey.CONTACT_ID, contactId);
+        invoke(ActionId.CONTACT_OPEN, data);
+    }
+    
+    /**
+     * Run the delete contact action.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void runDeleteContact(final JabberId contactId) {
+        Assert.assertNotNull("Cannot delete null contact.", contactId);
+        final Data data = new Data(1);
+        data.set(DeleteContact.DataKey.CONTACT_ID, contactId);
+        invoke(ActionId.CONTACT_DELETE, data);        
+    }
+    
+    /**
+     * Run the add contact action.
+     * 
+     */
+    public void runAddContact(final String newContactEmail) {
+        final Data data = new Data(1);
+        data.set(AddContact.DataKey.CONTACT_EMAIL, newContactEmail);
+        invoke(ActionId.CONTACT_ADD, data);
+    }
+
 
     /** Publish the selected document. */
     public void runPublishDocument() {
@@ -992,6 +1101,21 @@ public class Browser extends AbstractApplication {
             clearStatusMessage(Status.Area.CUSTOM);
         }
 	}
+    
+    /**
+     * Select a contact.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void selectContact(final JabberId contactId) {
+        final JabberId oldSelection = session.getSelectedContactId();
+        session.setSelectedContactId(contactId);
+
+        if(null != oldSelection && !oldSelection.equals(contactId)) {
+            clearStatusMessage(Status.Area.CUSTOM);
+        }
+    }
 
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#start()

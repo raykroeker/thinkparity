@@ -4,6 +4,7 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
 import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
 import com.thinkparity.browser.application.browser.display.avatar.contact.SearchPartner;
@@ -192,6 +193,27 @@ public class AvatarFactory {
 		}
 		return sessionSendForm;
 	}
+    
+    /**
+     * Create the contact info dialogue avatar.
+     * 
+     * @return The contact info dialogue avatar.
+     */
+    private Avatar createContactInfoDialogue() {
+        final Avatar contactInfoAvatar = new ContactInfo();
+        contactInfoAvatar.setContentProvider(ProviderFactory.getContactInfoProvider());
+        return contactInfoAvatar;       
+    }
+    
+    /**
+     * Create the invite form avatar.
+     * 
+     * @return The invite form avatar.
+     */
+    private Avatar createInvite() {
+        final Avatar inviteAvatar = new InvitePartner();
+        return inviteAvatar;
+    }
 
 	/**
 	 * Create an avatar and register it.
@@ -240,6 +262,12 @@ public class AvatarFactory {
 		case SESSION_SEND_VERSION:
 			avatar = createSendVersion();
 			break;
+        case CONTACT_INFO_DIALOGUE:
+            avatar = createContactInfoDialogue();
+            break;
+        case INVITE:
+            avatar = createInvite();
+            break;
         case STATUS:
             avatar = createStatus();
             break;

@@ -19,6 +19,8 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
+import com.thinkparity.model.parity.model.container.ContainerModel;
+import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -127,9 +129,11 @@ class SessionModelImpl extends AbstractModelImpl {
      */
 	static void notifyArtifactClosed(final UUID artifactUniqueId,
 			final JabberId artifactClosedBy) throws ParityException {
-		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
-        final Document d = iDModel.get(artifactUniqueId);
-		iDModel.handleClose(d.getId(), artifactClosedBy);
+        final InternalArtifactModel aModel = ArtifactModel.getInternalModel(sContext);
+        final Long artifactId = aModel.readId(artifactUniqueId);
+
+        final InternalContainerModel cModel = ContainerModel.getInternalModel(sContext);
+        cModel.handleClose(artifactId, artifactClosedBy, currentDateTime());
 	}
 
     /**
@@ -478,34 +482,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain the artifact key holder.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return The artifact key holder.
-	 * @throws ParityException
-	 */
-	User getArtifactKeyHolder(final Long artifactId) throws ParityException {
-		logger.info("getArtifactKeyHolder(Long)");
-		logger.debug(artifactId);
-		synchronized(xmppHelper) {
-			assertIsLoggedIn("Cannot obtain artifact key holder while offline.", xmppHelper);
-			try {
-				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
-				return xmppHelper.getArtifactKeyHolder(artifactUniqueId);
-			}
-			catch(final SmackException sx) {
-				logger.error("Cannot obtain artifact key holder.", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("Cannot obtain artifact key holder.", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
 	 * Obtain the currently logged in user.
 	 * 
 	 * @return The currently logged in user.
@@ -572,7 +548,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	Boolean isLoggedInUserKeyHolder(final Long artifactId) throws ParityException {
 		logger.info("isLoggedInUserKeyHolder(Long)");
 		logger.debug(artifactId);
-		final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+		final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
 		synchronized(xmppHelper) {
 			assertIsLoggedIn(
 					"Cannot determine whether the logged in user is the key holder while offline.",
@@ -594,7 +570,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Establish a new xmpp session.
      * 
      * @throws ParityException
@@ -604,7 +580,7 @@ class SessionModelImpl extends AbstractModelImpl {
         login(readCredentials());
     }
 
-	/**
+    /**
 	 * Establish a new xmpp session.
 	 * 
 	 * @param credentials
@@ -676,7 +652,7 @@ class SessionModelImpl extends AbstractModelImpl {
      * @return A set of users.
      * @throws ParityException
      */
-	Set<User> readArtifactTeam(final Long artifactId)
+	List<User> readArtifactTeam(final Long artifactId)
             throws ParityException {
 		logger.info("[LMODEL] [SESSION] [READ ARTIFACT TEAM]");
 		logger.debug(artifactId);
@@ -684,7 +660,7 @@ class SessionModelImpl extends AbstractModelImpl {
 			assertIsLoggedIn("[LMODEL] [SESSION] [READ ARTIFACT TEAM]",
 					xmppHelper);
 			try {
-				final UUID uniqueId = getArtifactUniqueId(artifactId);
+				final UUID uniqueId = readArtifactUniqueId(artifactId);
 				return xmppHelper.readArtifactTeam(uniqueId);
 			}
 			catch(final SmackException sx) {
@@ -709,22 +685,22 @@ class SessionModelImpl extends AbstractModelImpl {
 		return proxy(readUser(currentUserId()));
 	}
 
-    /**
+	/**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
      * @throws ParityException
      */
-	Set<Contact> readContacts() throws ParityException {
+	List<Contact> readContacts() throws ParityException {
 		synchronized(xmppHelper) {
-			assertIsLoggedIn("[LMODEL] [SESSION] [READ CONTACTS]", xmppHelper);
+			assertIsLoggedIn(getApiId("[READ CONTACTS] [USER NOT ONLINE]"), xmppHelper);
 			try { return xmppHelper.readContacts(); }
 			catch(final SmackException sx) {
-				logger.error("[LMODEL] [SESSION] [READ CONTACTS] [XMPP ERROR]", sx);
+				logger.error(getApiId("[READ CONTACTS] [XMPP ERROR]"), sx);
 				throw ParityErrorTranslator.translate(sx);
 			}
 			catch(final RuntimeException rx) {
-				logger.error("[LMODEL] [SESSION] [READ CONTACTS] [UNKNOWN ERROR]", rx);
+                logger.error(getApiId("[READ CONTACTS] [UNKNOWN ERROR]"), rx);
 				throw ParityErrorTranslator.translate(rx);
 			}
 		}
@@ -744,7 +720,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		return readUsers(jabberIds).iterator().next();
 	}
 
-	/**
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -866,7 +842,7 @@ class SessionModelImpl extends AbstractModelImpl {
 				// send the document version
 				xmppHelper.sendDocumentVersion(extractIdSet(users),
                         d.getUniqueId(), dv.getVersionId(), d.getName(),
-                        vc.getDocumentContent().getContent());
+                        vc.getContent());
 
 				// audit the send
                 final Calendar currentDateTime = currentDateTime();
@@ -929,7 +905,7 @@ class SessionModelImpl extends AbstractModelImpl {
                 "[LMODEL] [SESSION] [SEND CLOSE] [USER IS NOT KEYHOLDER]", artifactId);
 		synchronized(xmppHelper) {
 			try {
-				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+				final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
 				xmppHelper.sendClose(artifactUniqueId);
 			}
 			catch(final SmackException sx) {
@@ -972,7 +948,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Send a delete packet to the parity server.  Note that sendDelete is a
      * misnomer.  It deletes the current user's subscription adn only flags the
      * remote document as deleted once all subscriptions have been removed.
@@ -991,7 +967,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(SessionModelImpl.xmppHelperLock) {
 			assertIsLoggedIn("Must be online to delete.", xmppHelper);
 			try {
-				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+				final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
 				xmppHelper.sendDelete(artifactUniqueId);
 			}
 			catch(final SmackException sx) {
@@ -1019,6 +995,36 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
 	/**
+	 * Send the response to a key request. It is assumed that the logged in user
+	 * is the key holder. It is assumed that all key information is stored on
+	 * the parity server and never locally. It is assumed that they key will be
+	 * accompanied by the working document.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @param requestedBy
+	 *            The jabber id of the user requesting the key.
+	 * @param keyResponse
+	 *            The response.
+	 */
+	void sendKey(final UUID artifactUniqueId, final JabberId jabberId)
+            throws ParityException {
+		logger.info(getApiId("[SEND KEY]"));
+		logger.debug(artifactUniqueId);
+        logger.debug(jabberId);
+        assertOnline(getApiId("[SEND KEY] [USER NOT ONLINE]"));
+        synchronized(xmppHelper) {
+            try {
+                xmppHelper.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jabberId);
+            }
+            catch(final SmackException sx) {
+                logger.error(getApiId("[SEND KEY] [SMACK ERROR]"), sx);
+                throw ParityErrorTranslator.translate(sx);
+            }
+        }
+	}
+
+	/**
 	 * Send a reqest for a document key to the parity server.
 	 * 
 	 * @param artifactId
@@ -1032,13 +1038,14 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(SessionModelImpl.xmppHelperLock) {
 			assertIsLoggedIn("Cannot request key while offline.", xmppHelper);
 			try {
-				final UUID artifactUniqueId = getArtifactUniqueId(artifactId);
+				final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
 				xmppHelper.sendKeyRequest(artifactUniqueId);
 
 				// audit key request
-				final User loggedInUser = xmppHelper.getUser();
-				final User keyHolder = getArtifactKeyHolder(artifactId);
-				auditor.requestKey(artifactId, loggedInUser.getId(), currentDateTime(), loggedInUser.getId(), keyHolder.getId());
+				final JabberId currentUserId = currentUserId();
+				final JabberId keyHolder = readArtifactKeyHolder(artifactUniqueId);
+				auditor.requestKey(artifactId, currentUserId, currentDateTime(),
+                        currentUserId, keyHolder);
 			}
 			catch(SmackException sx) {
 				logger.error("Cannot send key request.", sx);
@@ -1052,89 +1059,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send the response to a key request. It is assumed that the logged in user
-	 * is the key holder. It is assumed that all key information is stored on
-	 * the parity server and never locally. It is assumed that they key will be
-	 * accompanied by the working document.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @param requestedBy
-	 *            The jabber id of the user requesting the key.
-	 * @param keyResponse
-	 *            The response.
-	 */
-	void sendKeyResponse(final Long documentId, final JabberId requestedBy,
-			final KeyResponse keyResponse) throws ParityException {
-		logger.info("sendKeyResponse(UUID,User,KeyResponse)");
-		logger.debug(documentId);
-		logger.debug(requestedBy);
-		logger.debug(keyResponse);
-        assertOnline(
-                "[LMODEL] [SESSION] [SEND KEY RESPONSE] [USER IS NOT ONLINE]");
-        assertIsKeyHolder(
-                "[LMODEL] [SESSION] [SEND KEY RESPONSE] [USER IS NOT KEYHOLDER]",
-                documentId);
-		synchronized(SessionModelImpl.xmppHelperLock) {
-			try {
-				// NOTE This should be refactored when the session can be changed.
-				final User requestedByUser = new User(requestedBy.getQualifiedJabberId());
-
-				final InternalDocumentModel iDModel = getInternalDocumentModel();
-				final Document document = iDModel.get(documentId);
-
-				// if the user sends an acceptance of the key request; we
-				// want to send the latest version to the requesting user
-				switch(keyResponse) {
-				case ACCEPT:
-					// publish the document
-                    if(!iDModel.isWorkingVersionEqual(documentId))
-                        iDModel.publish(documentId);
-
-                    // send the key change to the server
-					xmppHelper.sendKeyResponse(
-					        document.getUniqueId(), keyResponse, requestedByUser);
-
-					// remove flag key
-					final InternalArtifactModel iAModel = getInternalArtifactModel();
-					iAModel.removeFlagKey(documentId);
-
-					// lock the local document
-					iDModel.lock(documentId);
-
-					// audit send key
-					final DocumentVersion dv = iDModel.readLatestVersion(documentId);
-                    final Calendar currentDateTime = currentDateTime();
-					auditor.sendKey(dv.getArtifactId(), currentDateTime,
-                            currentUserId(), dv.getVersionId(),
-                            currentUserId(), currentDateTime(),
-                            requestedBy);
-					break;
-				case DENY:
-					// send the declination to the server
-					xmppHelper.sendKeyResponse(
-							document.getUniqueId(), KeyResponse.DENY, requestedByUser);
-
-					// audit send key denied
-					auditor.keyResponseDenied(documentId,
-							xmppHelper.getUser().getId(), currentDateTime(),
-							requestedBy);
-					break;
-				default: throw Assert.createUnreachable("Unknown key response:  " + keyResponse);
-				}
-			}
-			catch(final SmackException sx) {
-				logger.error("sendKeyResponse(Document,User,KeyResponse)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("sendKeyResponse(Document,User,KeyResponse)", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-    /**
 	 * Send the parity log file. To be used in order to troubleshoot remote
 	 * problems.
 	 * 
@@ -1157,6 +1081,27 @@ class SessionModelImpl extends AbstractModelImpl {
 			}
 		}
 	}
+
+	void sendReactivate(final List<JabberId> artifactTeam, final Long artifactId)
+            throws ParityException {
+        logger.info(getApiId("[SEND REACTIVATE]"));
+        logger.debug(artifactId);
+        assertOnline(getApiId("[SEND REACTIVATE] [USER NOT ONLINE]"));
+        synchronized(xmppHelper) {
+            try {
+                final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
+                xmppHelper.sendReactivate(artifactTeam, artifactUniqueId);
+            }
+            catch(final SmackException sx) {
+                logger.error(getApiId("[SEND REACTIVATE]"), sx);
+                throw ParityErrorTranslator.translate(sx);
+            }
+            catch(final RuntimeException rx) {
+                logger.error(getApiId("[SEND REACTIVATE]"), rx);
+                throw ParityErrorTranslator.translate(rx);
+            }
+        }
+    }
 
     /**
 	 * Subscribe to a document. The parity server is notified and will create a
@@ -1229,7 +1174,7 @@ class SessionModelImpl extends AbstractModelImpl {
         assertIsLoggedIn(message.toString(), xmppHelper);
     }
 
-	/**
+    /**
      * Extract a set of jabber ids from the list of users.
      * 
      * @param users
@@ -1241,6 +1186,30 @@ class SessionModelImpl extends AbstractModelImpl {
         for(final User user : users) { jabberIds.add(user.getId()); }
         return jabberIds;
     }
+
+    /**
+     * Read the artifact key holder from the server.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact key holder.
+     * @throws ParityException
+     */
+    JabberId readArtifactKeyHolder(final UUID artifactUniqueId)
+            throws ParityException {
+		logger.info(getApiId("[READ ARTIFACT KEY HOLDER]"));
+		logger.debug(artifactUniqueId);
+        assertOnline(getApiId("[READ ARTIFACT KEY HOLDER] [USER NOT ONLINE]"));
+		synchronized(xmppHelper) {
+			try {
+				return xmppHelper.getArtifactKeyHolder(artifactUniqueId).getId();
+			}
+			catch(final SmackException sx) {
+				logger.error(getApiId("[READ ARTIFACT KEY HOLDER] [SMACK ERROR]"), sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+		}
+	}
 
     /**
 	 * @deprecated

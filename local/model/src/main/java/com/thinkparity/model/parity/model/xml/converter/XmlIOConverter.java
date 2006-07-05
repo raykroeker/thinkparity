@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.note.Note;
@@ -36,11 +35,8 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  */
 public abstract class XmlIOConverter implements Converter {
 
-	/**
-	 * Handle to an internal logger.
-	 */
-	protected final Logger logger =
-		ModelLoggerFactory.getLogger(getClass());
+	/** An apache logger. */
+	protected final Logger logger;
 
 	/**
 	 * Handle to parity preferences.
@@ -59,6 +55,7 @@ public abstract class XmlIOConverter implements Converter {
 		super();
 		this.workspace = WorkspaceModel.getModel().getWorkspace();
 		this.preferences = workspace.getPreferences();
+        this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactRemoteInfo;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -24,28 +22,28 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 public class DocumentIOHandler extends AbstractIOHandler implements
 		com.thinkparity.model.parity.model.io.handler.DocumentIOHandler {
 
+    /** Sql to create a document. */
 	private static final String SQL_CREATE =
-		new StringBuffer("insert into DOCUMENT (")
-		.append("ARTIFACT_ID,CONTENT,CONTENT_ENCODING,CONTENT_CHECKSUM,")
-		.append("CONTENT_COMPRESSION) ")
-		.append("values (?,?,?,?,?)")
+		new StringBuffer("insert into DOCUMENT (DOCUMENT_ID) ")
+		.append("values (?)")
 		.toString();
 
+    /** Sql to create a document version. */
 	private static final String SQL_CREATE_VERSION =
 		new StringBuffer("insert into DOCUMENT_VERSION ")
-		.append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,CONTENT,CONTENT_ENCODING,")
+		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT,CONTENT_ENCODING,")
 		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION) ")
 		.append("values (?,?,?,?,?,?) ")
 		.toString();
 
 	private static final String SQL_DELETE =
 		new StringBuffer("delete from DOCUMENT ")
-		.append("where ARTIFACT_ID=?")
+		.append("where DOCUMENT_ID=?")
 		.toString();
 
 	private static final String SQL_DELETE_VERSION =
 		new StringBuffer("delete from DOCUMENT_VERSION ")
-		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+		.append("where DOCUMENT_ID=? and DOCUMENT_VERSION_ID=?")
 		.toString();
 
 	private static final String SQL_GET =
@@ -54,7 +52,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
 		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from ARTIFACT A left join ARTIFACT_REMOTE_INFO ARI ")
+		.append("from DOCUMENT D inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("left join ARTIFACT_REMOTE_INFO ARI ")
 		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("where A.ARTIFACT_ID=?")
 		.toString();
@@ -65,64 +64,64 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
 		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from ARTIFACT A left join ARTIFACT_REMOTE_INFO ARI ")
-		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+		.append("from DOCUMENT D inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("where A.ARTIFACT_UNIQUE_ID=?")
 		.toString();
 
-	private static final String SQL_GET_CONTENT =
-		new StringBuffer("select ARTIFACT_ID,CONTENT,CONTENT_ENCODING,")
-		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION ")
-		.append("from DOCUMENT ")
-		.append("where ARTIFACT_ID=?")
-		.toString();
-
-	private static final String SQL_GET_DOCUMENT_VERSION =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_VERSION_ID,CONTENT,")
-		.append("CONTENT_ENCODING,CONTENT_CHECKSUM,CONTENT_COMPRESSION ")
-		.append("from DOCUMENT_VERSION ")
-		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
-		.toString();
-
-	private static final String SQL_GET_VERSION =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_VERSION_ID,")
+    /** Sql to read a document version. */
+    private static final String SQL_GET_VERSION =
+		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
-		.append("CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
-		.append("from ARTIFACT_VERSION ")
-		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,")
+        .append("CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+		.append("from DOCUMENT_VERSION DV ")
+        .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID = AV.ARTIFACT_ID ")
+        .append("and DV.DOCUMENT_VERSION_ID = AV.ARTIFACT_VERSION_ID ")
+		.append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
 		.toString();
 
 	private static final String SQL_LIST =
-		new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+		new StringBuffer("select D.CONTAINER_ID,A.ARTIFACT_ID,A.ARTIFACT_NAME,")
 		.append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,A.ARTIFACT_UNIQUE_ID,")
 		.append("A.CREATED_BY,A.CREATED_ON,A.UPDATED_BY,A.UPDATED_ON,")
 		.append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
 		.append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
-		.append("from ARTIFACT A left join ARTIFACT_REMOTE_INFO ARI ")
-		.append("on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+		.append("from DOCUMENT D inner join ARTIFACT A on D.DOCUMENT_ID=A.ARTIFACT_ID ")
+        .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
 		.append("order by A.ARTIFACT_ID asc")
 		.toString();
 
 	private static final String SQL_LIST_VERSIONS =
-		new StringBuffer("select ARTIFACT_ID,ARTIFACT_VERSION_ID,")
+		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
-		.append("CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
-		.append("from ARTIFACT_VERSION ")
-		.append("where ARTIFACT_ID=? ")
-		.append("order by ARTIFACT_VERSION_ID asc")
+		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,")
+        .append("CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON ")
+		.append("from DOCUMENT_VERSION DV ")
+        .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
+        .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+		.append("where DV.DOCUMENT_ID=? ")
+		.append("order by DV.DOCUMENT_VERSION_ID asc")
 		.toString();
 
-	private static final String SQL_UPDATE =
+	/** Sql to read a document version content. */
+    private static final String SQL_READ_VERSION_CONTENT =
+            new StringBuffer("select DV.DOCUMENT_ID,DV.DOCUMENT_VERSION_ID,")
+            .append("DV.CONTENT,DV.CONTENT_CHECKSUM,DV.CONTENT_COMPRESSION,")
+            .append("DV.CONTENT_ENCODING,AV.ARTIFACT_NAME,AV.ARTIFACT_TYPE,")
+            .append("AV.ARTIFACT_UNIQUE_ID,AV.CREATED_BY,AV.CREATED_ON,")
+            .append("AV.UPDATED_BY,AV.UPDATED_ON ")
+            .append("from DOCUMENT_VERSION DV ")
+            .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
+            .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
+            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
+            .toString();
+
+    private static final String SQL_UPDATE =
 		new StringBuffer("update ARTIFACT ")
 		.append("set UPDATED_ON=?,ARTIFACT_NAME=?,ARTIFACT_STATE_ID=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
-
-    private static final String SQL_UPDATE_VERISON =
-            new StringBuffer("update ARTIFACT_VERSION ")
-            .append("set ARTIFACT_NAME=? ")
-            .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
-            .toString();
 
 	private static final String SQL_UPDATE_CONTENT =
 		new StringBuffer("update DOCUMENT ")
@@ -131,13 +130,43 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
+	private static final String SQL_UPDATE_VERISON =
+            new StringBuffer("update ARTIFACT_VERSION ")
+            .append("set ARTIFACT_NAME=? ")
+            .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+            .toString();
+
 	/**
+     * Obtain a log4j api id.
+     * 
+     * @param api
+     *            An api.
+     * @return A log4j api id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return getIOId("[DOCUMENT]").append(" ").append(api);
+    }
+
+	/**
+     * Obtain a log4j error id for an api.
+     * 
+     * @param api
+     *            An api.
+     * @param error
+     *            An error.
+     * @return A log4j error id.
+     */
+    private static String getErrorId(final String api, final String error) {
+        return getApiId(api).append(" ").append(error).toString();
+    }
+
+    /**
 	 * Generic artifact io.
 	 * 
 	 */
 	private final ArtifactIOHandler artifactIO;
 
-	/**
+    /**
 	 * Create a RemoteDocumentHandler.
 	 * 
 	 */
@@ -147,24 +176,18 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#create(com.thinkparity.model.parity.model.document.Document,
-	 *      com.thinkparity.model.parity.model.document.DocumentContent)
-	 * 
-	 */
-	public void create(final Document document, final DocumentContent content)
-			throws HypersonicException {
+     * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#create(com.thinkparity.model.parity.model.document.Document)
+     * 
+     */
+	public void create(final Document document) throws HypersonicException {
 		final Session session = openSession();
 		try {
 			artifactIO.create(session, document);
 
 			session.prepareStatement(SQL_CREATE);
 			session.setLong(1, document.getId());
-			session.setBytes(2, content.getContent());
-			session.setString(3, "???");
-			session.setString(4, content.getChecksum());
-			session.setInt(5, -1);
 			if(1 != session.executeUpdate())
-				throw new HypersonicException("Unable to create.");
+				throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE DOCUMENT]"));
 
 			session.commit();
 		}
@@ -176,29 +199,28 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#createVersion(com.thinkparity.model.parity.model.document.DocumentVersion,
-	 *      com.thinkparity.model.parity.model.document.DocumentVersionContent)
-	 * 
-	 */
+     * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#createVersion(com.thinkparity.model.parity.model.document.DocumentVersion,
+     *      com.thinkparity.model.parity.model.document.DocumentVersionContent)
+     * 
+     */
 	public void createVersion(final DocumentVersion version,
-			final DocumentVersionContent versionContent) {
+            final DocumentVersionContent versionContent) {
 		final Session session = openSession();
 		try {
 			artifactIO.createVersion(session, version);
 
-			final DocumentContent documentContent =
-				versionContent.getDocumentContent();
 			session.prepareStatement(SQL_CREATE_VERSION);
 			session.setLong(1, version.getArtifactId());
 			session.setLong(2, version.getVersionId());
-			session.setBytes(3, documentContent.getContent());
-			session.setString(4, "???");
-			session.setString(5, documentContent.getChecksum());
-			session.setInt(6, -1);
-			session.executeUpdate();
+			session.setBytes(3, versionContent.getContent());
+			session.setString(4, version.getEncoding());
+			session.setString(5, version.getChecksum());
+			session.setInt(6, version.getCompression());
+			if(1 != session.executeUpdate())
+                throw new HypersonicException(
+                        getErrorId("[CREATE VERSION]", "[CANNOT CREATE DOCUMENT VERSION]"));
 
-			versionContent.setVersionId(version.getVersionId());
-
+			version.setVersionId(version.getVersionId());
 			session.commit();
 		}
 		catch(final HypersonicException hx) {
@@ -221,20 +243,17 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		try {
 			artifactIO.createVersion(session, versionId, version);
 
-			final DocumentContent documentContent =
-				versionContent.getDocumentContent();
 			session.prepareStatement(SQL_CREATE_VERSION);
 			session.setLong(1, version.getArtifactId());
 			session.setLong(2, version.getVersionId());
-			session.setBytes(3, documentContent.getContent());
-			session.setString(4, "???");
-			session.setString(5, documentContent.getChecksum());
-			session.setInt(6, -1);
+			session.setBytes(3, versionContent.getContent());
+			session.setString(4, version.getEncoding());
+			session.setString(5, version.getChecksum());
+			session.setInt(6, version.getCompression());
 			if(1 != session.executeUpdate())
-				throw new HypersonicException("Could not create version.");
-
-			versionContent.setVersionId(version.getVersionId());
-
+				throw new HypersonicException(
+                        getErrorId("[CREATE VERSION]", "[COULD NOT CREATE DOCUMENT VERSION]"));
+			version.setVersionId(version.getVersionId());
 			session.commit();
 		}
 		catch(final HypersonicException hx) {
@@ -254,9 +273,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_DELETE);
 			session.setLong(1, documentId);
 			if(1 != session.executeUpdate())
-				throw new HypersonicException("Cannot delete.");
-
-			artifactIO.deleteRemoteInfo(documentId);
+				throw new HypersonicException(getErrorId("[DELETE]", "[CANNOT DELETE DOCUMENT]"));
+			artifactIO.deleteRemoteInfo(session, documentId);
 			artifactIO.delete(session, documentId);
 			session.commit();
 		}
@@ -335,51 +353,11 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getContent(java.lang.Long)
-	 * 
-	 */
-	public DocumentContent getContent(final Long documentId) {
-		final Session session = openSession();
-		try {
-			session.prepareStatement(SQL_GET_CONTENT);
-			session.setLong(1, documentId);
-			session.executeQuery();
-
-			if(session.nextResult()) { return extractDocumentContent(session); }
-			else { return null; }
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-	}
-
-	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getLatestVersion(java.lang.Long)
-	 * 
-	 */
-	public DocumentVersion getLatestVersion(final Long documentId) {
-		final Session session = openSession();
-		Long latestVersionId = null;
-		try {
-			latestVersionId =
-				artifactIO.getLatestVersionId(session, documentId);
-		}
-		catch(final RuntimeException rx) {
-			session.rollback();
-			throw rx;
-		}
-		finally { session.close(); }
-		return getVersion(documentId, latestVersionId);
-	}
-
-	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getVersion(java.lang.Long,
-	 *      java.lang.Long)
-	 * 
-	 */
-	public DocumentVersion getVersion(Long documentId, Long versionId) {
+     * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getVersion(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+	public DocumentVersion getVersion(final Long documentId, final Long versionId) {
 		final Session session = openSession();
 		try {
 			session.prepareStatement(SQL_GET_VERSION);
@@ -396,27 +374,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#getVersionContent(java.lang.Long,
-	 *      java.lang.Long)
-	 * 
-	 */
-	public DocumentVersionContent getVersionContent(final Long documentId,
-			final Long versionId) {
-		final Session session = openSession();
-		try {
-			session.prepareStatement(SQL_GET_DOCUMENT_VERSION);
-			session.setLong(1, documentId);
-			session.setLong(2, versionId);
-			session.executeQuery();
-
-			if(session.nextResult()) { return extractVersionContent(session); }
-			else { return null; }
-		}
-		finally { session.close(); }
-	}
-
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#list()
 	 */
 	public List<Document> list() {
@@ -438,7 +396,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#listVersions(java.lang.Long)
 	 */
 	public List<DocumentVersion> listVersions(final Long documentId) {
@@ -456,6 +414,64 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#readLatestVersion(java.lang.Long)
+     * 
+     */
+	public DocumentVersion readLatestVersion(final Long documentId) {
+		final Session session = openSession();
+		Long latestVersionId = null;
+		try {
+			latestVersionId =
+				artifactIO.getLatestVersionId(session, documentId);
+			return getVersion(documentId, latestVersionId);
+		}
+		catch(final RuntimeException rx) {
+			session.rollback();
+			throw rx;
+		}
+		finally { session.close(); }
+	}
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#readLatestVersionContent(java.lang.Long)
+     * 
+     */
+	public DocumentVersionContent readLatestVersionContent(final Long documentId) {
+        final Session session = openSession();
+        Long latestVersionId = null;
+        try {
+            latestVersionId =
+                artifactIO.getLatestVersionId(session, documentId);
+            return readVersionContent(documentId, latestVersionId);
+        }
+        finally { session.close(); }
+	}
+
+	/**
+     * Read the document version content.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param versionId
+     *            The version id.
+     * @return The version content.
+     */
+    public DocumentVersionContent readVersionContent(final Long documentId,
+            final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION_CONTENT);
+            session.setLong(1, documentId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+
+            if(session.nextResult()) { return extractVersionContent(session); }
+            else { return null; }
+        }
+        finally { session.close(); }
+    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#update(com.thinkparity.model.parity.model.document.Document)
@@ -484,27 +500,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
     
-    /** @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#updateVersion(com.thinkparity.model.parity.model.document.DocumentVersion) */
-    public void updateVersion(final DocumentVersion documentVersion) throws HypersonicException {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_UPDATE_VERISON);
-            session.setString(1, documentVersion.getName());
-            session.setLong(2, documentVersion.getArtifactId());
-            session.setLong(3, documentVersion.getVersionId());
-            if(1 != session.executeUpdate())
-                throw new HypersonicException("[DOCUMENT IO] [UPDATE VERSION]");
-
-            session.commit();
-        }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
-    }
-
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#updateContent(com.thinkparity.model.parity.model.document.DocumentContent)
 	 */
 	public void updateContent(final DocumentContent content) {
@@ -527,31 +523,40 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#updateState(java.lang.Long,
-	 *      com.thinkparity.model.parity.model.artifact.ArtifactState)
-	 * 
-	 */
-	public void updateState(final Long documentId, final ArtifactState state)
-			throws HypersonicException {
-		final Session session = openSession();
-		try {
-			artifactIO.updateState(session, documentId, state);
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-	}
+    /** @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#updateVersion(com.thinkparity.model.parity.model.document.DocumentVersion) */
+    public void updateVersion(final DocumentVersion documentVersion) throws HypersonicException {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_VERISON);
+            session.setString(1, documentVersion.getName());
+            session.setLong(2, documentVersion.getArtifactId());
+            session.setLong(3, documentVersion.getVersionId());
+            if(1 != session.executeUpdate())
+                throw new HypersonicException("[DOCUMENT IO] [UPDATE VERSION]");
 
-	private Document extractDocument(final Session session) {
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * Extract the document.
+     * 
+     * @param session
+     *            The database session.
+     * @return The document.
+     */
+	Document extractDocument(final Session session) {
 		final Document d = new Document();
 		d.setCreatedBy(session.getString("CREATED_BY"));
 		d.setCreatedOn(session.getCalendar("CREATED_ON"));
 		d.setId(session.getLong("ARTIFACT_ID"));
 		d.setName(session.getString("ARTIFACT_NAME"));
+		d.setRemoteInfo(artifactIO.extractRemoteInfo(session));
 		d.setState(session.getStateFromInteger("ARTIFACT_STATE_ID"));
 		d.setType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
 		d.setUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
@@ -559,41 +564,32 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		d.setUpdatedOn(session.getCalendar("UPDATED_ON"));
 
 		d.setFlags(artifactIO.getFlags(d.getId()));
-
-		final ArtifactRemoteInfo remoteInfo = new ArtifactRemoteInfo();
-		remoteInfo.setUpdatedBy(session.getQualifiedUsername("REMOTE_UPDATED_BY"));
-		remoteInfo.setUpdatedOn(session.getCalendar("REMOTE_UPDATED_ON"));
-		d.setRemoteInfo(remoteInfo);
 		return d;
 	}
 
 	/**
-	 * Extract the document content from the session.
-	 * @param session The session.
-	 * @return The document content.
-	 */
-	private DocumentContent extractDocumentContent(final Session session) {
-		final DocumentContent dc = new DocumentContent();
-		dc.setChecksum(session.getString("CONTENT_CHECKSUM"));
-		dc.setContent(session.getBytes("CONTENT"));
-		dc.setDocumentId(session.getLong("ARTIFACT_ID"));
-		return dc;
-	}
-
-	private DocumentVersion extractVersion(final Session session) {
+     * Extract the version.
+     * 
+     * @param session
+     *            The database session.
+     * @return The version.
+     */
+	DocumentVersion extractVersion(final Session session) {
 		final DocumentVersion dv = new DocumentVersion();
-		dv.setArtifactId(session.getLong("ARTIFACT_ID"));
+		dv.setArtifactId(session.getLong("DOCUMENT_ID"));
 		dv.setArtifactType(session.getTypeFromString("ARTIFACT_TYPE"));
 		dv.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
+		dv.setChecksum(session.getString("CONTENT_CHECKSUM"));
+		dv.setCompression(session.getInteger("CONTENT_COMPRESSION"));
 		dv.setCreatedBy(session.getString("CREATED_BY"));
 		dv.setCreatedOn(session.getCalendar("CREATED_ON"));
+		dv.setEncoding(session.getString("CONTENT_ENCODING"));
 		dv.setName(session.getString("ARTIFACT_NAME"));
 		dv.setUpdatedBy(session.getString("UPDATED_BY"));
 		dv.setUpdatedOn(session.getCalendar("UPDATED_ON"));
-		dv.setVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+		dv.setVersionId(session.getLong("DOCUMENT_VERSION_ID"));
 
-		dv.setMetaData(
-				getVersionMetaData(dv.getArtifactId(), dv.getVersionId()));
+		dv.setMetaData(getVersionMetaData(dv.getArtifactId(), dv.getVersionId()));
 		return dv;
 	}
 
@@ -606,9 +602,8 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	 */
 	private DocumentVersionContent extractVersionContent(final Session session) {
 		final DocumentVersionContent dvc = new DocumentVersionContent();
-		dvc.setDocumentContent(extractDocumentContent(session));
-		dvc.setDocumentId(session.getLong("ARTIFACT_ID"));
-		dvc.setVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+		dvc.setContent(session.getBytes("CONTENT"));
+        dvc.setVersion(extractVersion(session));
 		return dvc;
 	}
 

@@ -12,6 +12,7 @@ import org.apache.lucene.document.Field;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -103,6 +104,18 @@ public class FieldBuilder {
 		this.termVector = termVector;
 		return this;
 	}
+
+    /**
+     * Set the field value.
+     * 
+     * @param value
+     *            The field value.
+     * @return A reference to this object.
+     */
+    public FieldBuilder setValue(final ArtifactType value) {
+        this.value = value.toString();
+        return this;
+    }
 
 	/**
 	 * Set the field value.

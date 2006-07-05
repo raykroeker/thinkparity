@@ -10,6 +10,7 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -121,6 +122,17 @@ public class ArtifactModel extends AbstractModel {
 	}
 
     /**
+     * Read the artifact key holder.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact key holder.
+     */
+    public JabberId readKeyHolder(final Long artifactId) throws ParityException {
+        synchronized(getImplLock()) { return getImpl().readKeyHolder(artifactId); }
+    }
+
+	/**
 	 * Obtain all pending key requests for the document.
 	 * 
 	 * @param documentId
@@ -133,7 +145,7 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { return impl.readKeyRequests(documentId); }
 	}
 
-	/**
+    /**
      * Read the team for the artifact.
      * 
      * @param artifactId
@@ -144,7 +156,7 @@ public class ArtifactModel extends AbstractModel {
         synchronized(getImplLock()) { return getImpl().readTeam(artifactId); }
     }
 
-    /**
+	/**
 	 * Remove the seen flag from the artifact.
 	 * 
 	 * @param artifactId
@@ -155,13 +167,24 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
+     * Send the key for an artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void sendKey(final Long artifactId, final JabberId jabberId)
+            throws ParityException {
+        synchronized(getImplLock()) { getImpl().sendKey(artifactId, jabberId); }
+    }
+
+    /**
 	 * Obtain the implemenatation.
 	 * 
 	 * @return The implementation.
 	 */
 	protected ArtifactModelImpl getImpl() { return impl; }
 
-	/**
+    /**
 	 * Obtain the implementation synchronization lock.
 	 * 
 	 * @return The implementation synchronization lock.

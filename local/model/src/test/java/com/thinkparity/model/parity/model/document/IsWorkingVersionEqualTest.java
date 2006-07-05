@@ -3,48 +3,33 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-
-import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.container.Container;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class IsWorkingVersionEqualTest extends DocumentTestCase {
 
-    /** Fixture data. */
-    private Set<Fixture> data;
+    /** Test name. */
+    private static final String NAME = "[LMODEL] [DOCUMENT] [TEST IS WORKING VERSION EQUAL]";
 
-    /**
-     * Create a IsWorkingVersionEqualTest.
-     * 
-     */
-    public IsWorkingVersionEqualTest() {
-        super("IsWorkingVersionEqualTest");
-    }
+    /** Fixture datum. */
+    private Fixture datum;
+
+    /** Create IsWorkingVersionEqualTest. */
+    public IsWorkingVersionEqualTest() { super(NAME); }
 
     /**
      * Test the IsWorkingVersionEqualTest api.
      * 
      */
     public void testIsWorkingVersionEqualTest() {
-        Boolean isEqual;
-        for(final Fixture datum : data) {
-            try {
-                isEqual = datum.dModel.isWorkingVersionEqual(datum.dId);
-                assertEquals(
-                        "[LMODEL] [JUNIT] [DOCUMENT] [IS WORKING VERSION EQUAL]",
-                        isEqual, datum.expectedIsEqual);
-            }
-            catch(final ParityException px) {
-                fail(createFailMessage(px));
-            }
-        }
+        Boolean isEqual = null;
+        try { isEqual = datum.dModel.isWorkingVersionEqual(datum.documentId); }
+        catch(final ParityException px) { fail(createFailMessage(px)); }
+        assertEquals(NAME + " [IS EQUAL DOES NOT MATCH EXPECTATION]", isEqual, datum.eIsEqual);
     }
 
     /**
@@ -54,26 +39,11 @@ public class IsWorkingVersionEqualTest extends DocumentTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        final DocumentModel dModel = getDocumentModel();
-        final SessionModel sModel = getSessionModel();
-        data = new HashSet<Fixture>();
 
-        Document d;
-        final File[] inputFiles = getInputFiles();
-        final File[] modFiles = getModFiles();
-        Boolean isEqual;
-        for(int i = 0; i < inputFiles.length; i++) {
-            d = create(inputFiles[i]);
-            if(0 == (i % 2)) {
-                dModel.updateWorkingVersion(d.getId(), modFiles[i]);
-                isEqual = Boolean.FALSE;
-            }
-            else {
-                sModel.send(ModelTestUser.getX().getJabberId(), d.getId());
-                isEqual = Boolean.TRUE;
-            }
-            data.add(new Fixture(d.getId(), dModel, isEqual));
-        }
+        final Container container = createContainer(NAME);
+        final Document document = addDocument(container, getInputFiles()[0]);
+
+        datum = new Fixture(getDocumentModel(), document.getId(), Boolean.TRUE);
     }
 
     /**
@@ -82,20 +52,20 @@ public class IsWorkingVersionEqualTest extends DocumentTestCase {
      * @throws Exception
      */
     protected void tearDown() throws Exception {
-        data.clear();
-        data = null;
+        datum = null;
         super.tearDown();
     }
 
     /** Fixture definition. */
     private class Fixture {
-        private final Long dId;
         private final DocumentModel dModel;
-        private final Boolean expectedIsEqual;
-        private Fixture(final Long dId, final DocumentModel dModel, final Boolean expectedIsEqual) {
-            this.dId = dId;
+        private final Long documentId;
+        private final Boolean eIsEqual;
+        private Fixture(final DocumentModel dModel, final Long documentId,
+                final Boolean eIsEqual) {
+            this.documentId = documentId;
             this.dModel = dModel;
-            this.expectedIsEqual = expectedIsEqual;
+            this.eIsEqual = eIsEqual;
         }
     }
 }

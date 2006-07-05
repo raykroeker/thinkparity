@@ -165,6 +165,17 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
 	/**
+     * Read the artifact id.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @return The artifact id.
+     */
+    public Long readId(final UUID uniqueId) {
+        synchronized(getImplLock()) { return getImpl().readId(uniqueId); }
+    }
+
+    /**
 	 * Obtain all pending key requests for the artifact.
 	 * 
 	 * @param artifactId
@@ -178,6 +189,17 @@ public class InternalArtifactModel extends ArtifactModel {
 			return getImpl().readKeyRequests(artifactId);
 		}
 	}
+
+    /**
+     * Read the artifact unique id.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return An artifact unique id.
+     */
+    public UUID readUniqueId(final Long artifactId) {
+        synchronized(getImplLock()) { return getImpl().readUniqueId(artifactId); }
+    }
 
     public void removeFlagKey(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
@@ -214,4 +236,16 @@ public class InternalArtifactModel extends ArtifactModel {
 			getImpl().updateRemoteInfo(artifactId, updatedBy, updatedOn);
 		}
 	}
+    
+    /**
+     * Update an artifact's state.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param state
+     *            The artifact state.
+     */
+	public void updateState(final Long artifactId, final ArtifactState state) {
+	    synchronized(getImplLock()) { getImpl().updateState(artifactId, state); }
+    }
 }

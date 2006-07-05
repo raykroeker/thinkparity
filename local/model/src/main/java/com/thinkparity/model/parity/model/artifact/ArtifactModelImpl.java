@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.TrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
+import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
@@ -32,6 +34,17 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1
  */
 class ArtifactModelImpl extends AbstractModelImpl {
+
+	/**
+     * Obtain a logging api id.
+     * 
+     * @param api
+     *            An api.
+     * @return An api id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return getModelId("ARTIFACT").append(" ").append(api);
+    }
 
 	/**
 	 * The artifact model's auditor.
@@ -100,7 +113,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.createTeamRel(artifactId, user.getLocalId());
     }
 
-	/**
+    /**
 	 * Apply the key flag.
 	 * 
 	 * @param artifactId
@@ -156,7 +169,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 
-    /**
+	/**
      * Confirm the reciept of an artifact.
      * 
      * @param receivedFrom
@@ -169,7 +182,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
     void confirmReceipt(final JabberId receivedFrom, final Long artifactId,
             final Long versionId) throws ParityException,
             SmackException {
-        final UUID uniqueId = getArtifactUniqueId(artifactId);
+        final UUID uniqueId = readArtifactUniqueId(artifactId);
         getInternalSessionModel().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
     }
 
@@ -225,13 +238,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.deleteTeamRel(artifactId);
     }
 
-	Boolean doesExist(final UUID uniqueId) {
+    Boolean doesExist(final UUID uniqueId) {
         logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
         logger.debug(uniqueId);
         return null != artifactIO.readId(uniqueId);
     }
 
-    /**
+	/**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -261,6 +274,33 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+     * Read the artifact id.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @return The artifact id.
+     */
+    Long readId(final UUID uniqueId) {
+        logger.info("[LMODEL] [ARTIFACT] [READ ID]");
+        logger.debug(uniqueId);
+        return artifactIO.readId(uniqueId);
+    }
+
+    /**
+     * Read the artifact key holder.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact key holder.
+     */
+    JabberId readKeyHolder(final Long artifactId) throws ParityException {
+        logger.info(getApiId("[READ KEY HOLDER]"));
+        logger.debug(artifactId);
+        assertOnline(getApiId("[READ KEY HOLDER]"));
+        return getInternalSessionModel().readArtifactKeyHolder(readUniqueId(artifactId));
+    }
+
+    /**
 	 * Read all key requests for the given artifact.
 	 * 
 	 * @param artifactId
@@ -281,7 +321,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return requests;
 	}
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -291,6 +331,19 @@ class ArtifactModelImpl extends AbstractModelImpl {
     Set<User> readTeam(final Long artifactId) {
         logger.info("[LMODEL] [ARTIFACT] [READ TEAM]");
         return artifactIO.readTeamRel(artifactId);
+    }
+
+	/**
+     * Read the artifact unique id.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return An artifact unique id.
+     */
+    UUID readUniqueId(final Long artifactId) {
+        logger.info("[LMODEL] [ARTIFACT] [READ UNIQUE ID]");
+        logger.debug(artifactId);
+        return artifactIO.readUniqueId(artifactId);
     }
 
 	/**
@@ -315,7 +368,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		removeFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
-	void removeTeamMember(final Long artifactId, final JabberId jabberId) {
+    void removeTeamMember(final Long artifactId, final JabberId jabberId) {
         logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
         logger.debug(artifactId);
         logger.debug(jabberId);
@@ -323,6 +376,54 @@ class ArtifactModelImpl extends AbstractModelImpl {
         final User user = iUModel.read(jabberId);
 
         artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+    }
+
+    /**
+     * Send the key for an artifact to a user.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param jabberId
+     *            The jabber id.
+     */
+	void sendKey(final Long artifactId, final JabberId jabberId)
+            throws ParityException {
+	    logger.info(getApiId("[SEND KEY]"));
+        logger.debug(artifactId);
+        logger.debug(jabberId);
+        assertOnline(getApiId("[SEND KEY] [USER NOT ONLINE]"));
+
+        final ArtifactType type = artifactIO.readType(artifactId);
+        final Artifact artifact;
+        final ArtifactVersion artifactVersion;
+        switch(type) {
+        case CONTAINER:
+            final InternalContainerModel cModel = getInternalContainerModel();
+            if(cModel.isLocallyModified(artifactId))
+                cModel.publish(artifactId);
+            artifact = cModel.read(artifactId);
+            artifactVersion = cModel.readLatestVersion(artifactId);
+            cModel.lock(artifactId);
+            break;
+        case DOCUMENT:
+            throw Assert.createUnreachable(
+                    getApiId("[SEND KEY] [UNABLE TO SEND KEY FOR TYPE] [DOCUMENT]"));
+        default:
+            throw Assert.createUnreachable(
+                    getApiId("[SEND KEY] [UNKOWN ARTIFACT TYPE] [")
+                    .append(type).append("]"));
+        }
+        // remote send
+        final InternalSessionModel sModel = getInternalSessionModel();
+        sModel.sendKey(artifact.getUniqueId(), jabberId);
+        // remove local key
+        removeFlagKey(artifactId);
+        // audit
+        final Calendar currentDateTime = currentDateTime();
+        final JabberId currentUserId = currentUserId();
+        auditor.sendKey(artifactId, currentDateTime, currentUserId,
+                artifactVersion.getVersionId(), currentUserId, currentDateTime,
+                jabberId);
     }
 
     /**
@@ -343,6 +444,23 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.debug(updatedOn);
 		artifactIO.updateRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
+
+    /**
+     * Update an artifact's state.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param state
+     *            The artifact state.
+     */
+    void updateState(final Long artifactId, final ArtifactState state) {
+        logger.info("[LMODEL] [ARTIFACT] [UPDATE STATE]");
+        logger.debug(artifactId);
+        logger.debug(state);
+        final ArtifactState currentState = artifactIO.readState(artifactId);
+        assertStateTransition(currentState, state);
+        artifactIO.updateState(artifactId, state);
+    }
 
     /**
 	 * Apply a flag to an artifact.

@@ -10,8 +10,8 @@ import java.util.List;
 import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
@@ -49,16 +49,16 @@ public class DocumentHistoryIOHandler extends AbstractIOHandler implements
 		final Document document = documentIO.get(documentId);
 		// Copy document
 		{
-			final DocumentContent content = documentIO.getContent(documentId);
-			copyToTemp(tempDirectory, document.getName(), content.getContent());
+			final DocumentVersionContent versionContent = documentIO.readLatestVersionContent(documentId);
+			copyToTemp(tempDirectory, document.getName(), versionContent.getContent());
 		}
 		// Copy versions
 		final List<DocumentVersion> versions = documentIO.listVersions(documentId);
-		DocumentContent versionContent;
+		DocumentVersionContent versionContent;
 		for(final DocumentVersion version : versions) {
 			{
-				versionContent = documentIO.getVersionContent(
-						documentId, version.getVersionId()).getDocumentContent();
+				versionContent = documentIO.readVersionContent(
+						documentId, version.getVersionId());
 				copyToTemp(tempDirectory, createVersionName(version),
 						versionContent.getContent());
 			}

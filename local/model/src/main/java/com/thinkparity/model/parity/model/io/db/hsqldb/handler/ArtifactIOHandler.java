@@ -7,7 +7,9 @@ import java.util.*;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
@@ -21,16 +23,13 @@ import com.thinkparity.model.xmpp.user.User;
 public class ArtifactIOHandler extends AbstractIOHandler implements
 		com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler {
 
-	/**
-	 * Sql query to delete the artifact.
-	 * 
-	 */
+    /** Sql query to delete the artifact. */
 	private static final String DELETE_FROM_ARTIFACT =
 		new StringBuffer("delete from ARTIFACT ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-    /**
+	/**
 	 * Sql query to delete artifact flags for an artifact.
 	 * 
 	 */
@@ -48,7 +47,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
-	/**
+    /**
 	 * Sql to delete the artifact version meta data.
 	 * 
 	 */
@@ -154,14 +153,14 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		new StringBuffer("delete from ARTIFACT_REMOTE_INFO ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
-	
+
 	/** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT =
         new StringBuffer("delete from ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=?")
         .toString();
-
-    /** Sql to delete a team member relationship. */
+	
+	/** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT_BY_USER =
         new StringBuffer("delete from ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=? and USER_ID=?")
@@ -172,6 +171,20 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         .append("from ARTIFACT A ")
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
+
+    /** Sql to read the artifact state. */
+    private static final String SQL_READ_STATE =
+            new StringBuffer("select A.ARTIFACT_STATE_ID ")
+            .append("from ARTIFACT A ")
+            .append("where A.ARTIFACT_ID=?")
+            .toString();
+
+    /** Sql to read the artifact type. */
+    private static final String SQL_READ_TYPE =
+            new StringBuffer("select A.ARTIFACT_TYPE_ID ")
+            .append("from ARTIFACT A ")
+            .append("where A.ARTIFACT_ID=?")
+            .toString();
 
     /** Sql to read the team relationship. */
     private static final String SQL_READ_TEAM_REL =
@@ -190,6 +203,13 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where ARTIFACT_ID=?")
             .toString();
 
+    /** Sql to read an artifact unique id. */
+    private static final String SQL_READ_UNIQUE_ID =
+            new StringBuffer("select A.ARTIFACT_UNIQUE_ID ")
+            .append("from ARTIFACT A ")
+            .append("Where A.ARTIFACT_ID=?")
+            .toString();
+
 	/**
 	 * Sql to update the remote info of an artifact.
 	 * 
@@ -206,10 +226,34 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
+	/**
+     * Obtain a log4j api id.
+     * 
+     * @param api
+     *            The api.
+     * @return A log4j api id.
+     */
+    protected static StringBuffer getApiId(final String api) {
+        return getIOId("[ARTIFACT]").append(" ").append(api);
+    }
+
+	/**
+     * Obtain a log4j error id.
+     * 
+     * @param api
+     *            The api.
+     * @param error
+     *            The error.
+     * @return A log4j error id.
+     */
+    protected static String getErrorId(final String api, final String error) {
+        return getApiId(api).append(" ").append(error).toString();
+    }
+
 	/** The user io interface. */
     private final UserIOHandler userIO;
 
-	/**
+    /**
 	 * Create a ArtifactIOHandler.
 	 */
 	public ArtifactIOHandler() {
@@ -267,18 +311,14 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteRemoteInfo(java.lang.Long)
      * 
      */
 	public void deleteRemoteInfo(final Long artifactId) throws HypersonicException {
 		final Session session = openSession();
 		try {
-			session.prepareStatement(SQL_DELETE_REMOTE_INFO);
-			session.setLong(1, artifactId);
-			if(1 != session.executeUpdate())
-				throw new HypersonicException("Could not delete remote info.");
-
+            deleteRemoteInfo(session, artifactId);
 			session.commit();
 		}
 		catch(final HypersonicException hx) {
@@ -288,7 +328,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long)
      * 
      */
@@ -335,7 +375,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    /**
+	/**
 	 * Obtain the artifact's flags.
 	 * 
 	 * @param artifactId
@@ -350,7 +390,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readId(java.util.UUID)
      */
     public Long readId(final UUID uniqueId) throws HypersonicException {
@@ -365,6 +405,37 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         catch(final HypersonicException hx) {
             session.rollback();
             throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readState(java.lang.Long)
+     * 
+     */
+    public ArtifactState readState(final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_STATE);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+            if(session.nextResult()) { return session.getStateFromInteger("ARTIFACT_STATE_ID"); }
+            else { return null; }
+        }
+        finally { session.close(); }
+    }
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readType(java.lang.Long)
+     */
+    public ArtifactType readType(final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_TYPE);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+            if(session.nextResult()) { return session.getTypeFromInteger("ARTIFACT_TYPE_ID"); }
+            else { return null; }
         }
         finally { session.close(); }
     }
@@ -387,6 +458,21 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         catch(final HypersonicException hx) {
             session.rollback();
             throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readUniqueId(java.lang.Long)
+     */
+    public UUID readUniqueId(final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_UNIQUE_ID);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+            if(session.nextResult()) { return session.getUniqueId("ARTIFACT_UNIQUE_ID"); }
+            else { return null; }
         }
         finally { session.close(); }
     }
@@ -436,6 +522,26 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#updateState(java.lang.Long, com.thinkparity.model.parity.model.artifact.ArtifactState)
+     */
+    public void updateState(final Long artifactId, final ArtifactState state) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_STATE);
+            session.setStateAsInteger(1, state);
+            session.setLong(2, artifactId);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("[UPDATE STATE]", "[CANNOT UPDATE STATE]"));
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
 
 	/**
 	 * Obtain the latest version id for the given artifact.
@@ -550,6 +656,21 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+     * Delete the artifact remote info.
+     * 
+     * @param session
+     *            A database session.
+     * @param artifactId
+     *            The artifact id.
+     */
+    void deleteRemoteInfo(final Session session, final Long artifactId) {
+        session.prepareStatement(SQL_DELETE_REMOTE_INFO);
+        session.setLong(1, artifactId);
+        if(1 != session.executeUpdate())
+            throw new HypersonicException(getErrorId("[DELETE REMOTE INFO]", "[COULD NOT DELETE REMOTE INFO]"));
+    }
+
+	/**
 	 * Delete an artifact version.
 	 * 
 	 * @param session
@@ -573,6 +694,24 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		if(1 != session.executeUpdate())
 			throw new HypersonicException("Could not delete version.");
 	}
+
+	/**
+     * Extract the artifact remote info from the session. The required column
+     * names are:
+     * <ul>
+     * <li>REMOTE_UPDATED_BY
+     * <li>REMOTE_UPDATED_ON
+     * 
+     * @param session
+     *            The database session.
+     * @return The artifact remote info.
+     */
+	ArtifactRemoteInfo extractRemoteInfo(final Session session) {
+        final ArtifactRemoteInfo remoteInfo = new ArtifactRemoteInfo();
+        remoteInfo.setUpdatedBy(session.getQualifiedUsername("REMOTE_UPDATED_BY"));
+        remoteInfo.setUpdatedOn(session.getCalendar("REMOTE_UPDATED_ON"));
+        return remoteInfo;
+    }
 
 	/**
 	 * Obtain the artifact version meta data.
@@ -619,24 +758,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * Close an artifact.
-	 * 
-	 * @param session
-	 *            The database session.
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws HypersonicException
-	 */
-	void updateState(final Session session, final Long artifactId,
-			final ArtifactState state) throws HypersonicException {
-		session.prepareStatement(SQL_UPDATE_STATE);
-		session.setStateAsInteger(1, state);
-		session.setLong(2, artifactId);
-		if(1 != session.executeUpdate())
-			throw new HypersonicException("Could not update state.");
-	}
-
-	/**
 	 * Delete all artifact flags for an artifact.
 	 * 
 	 * @param session
@@ -662,7 +783,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         return userIO.extractUser(session);
     }
 
-	/**
+    /**
 	 * Obtain the artifact's flags.
 	 * 
 	 * @param session
@@ -685,7 +806,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		return flags;
 	}
 
-	/**
+    /**
 	 * Obtain the next version id for the given artifact.
 	 * 
 	 * @param session
@@ -705,7 +826,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		else { return 1L; }
 	}
 
-	/**
+    /**
 	 * Insert the artifact flag relationships for all of the flags.
 	 * 
 	 * @param session

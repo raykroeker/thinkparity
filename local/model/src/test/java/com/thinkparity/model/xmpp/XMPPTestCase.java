@@ -11,7 +11,7 @@ import com.thinkparity.model.ModelTestUser;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public abstract class XMPPTestCase extends ModelTestCase {
+abstract class XMPPTestCase extends ModelTestCase {
 
 	private XMPPSession session;
 

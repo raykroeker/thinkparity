@@ -18,13 +18,14 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.index.IndexFilterManager;
 import com.thinkparity.model.parity.model.index.lucene.DocumentBuilder;
 import com.thinkparity.model.parity.model.index.lucene.FieldBuilder;
 import com.thinkparity.model.parity.model.index.lucene.QueryHit;
@@ -38,43 +39,60 @@ import com.thinkparity.model.xmpp.user.User;
  */
 class IndexModelImpl extends AbstractModelImpl {
 
-	/**
-	 * Artifact contacts index field.
-	 * 
-	 */
+	/** An artifact contacts index field builder. */
 	private static final FieldBuilder IDX_ARTIFACT_CONTACTS;
 
-	/**
-	 * Artifact id index field.
-	 * 
-	 */
+	/** An artifact id index field builder. */
 	private static final FieldBuilder IDX_ARTIFACT_ID;
 
-	/**
-	 * Artifact name index field.
-	 * 
-	 */
-	private static final FieldBuilder IDX_ARTIFACT_NAME;
+    /** An artifact name index field builder. */
+    private static final FieldBuilder IDX_ARTIFACT_NAME;
+
+    /** An artifact type index field builder. */
+    private static final FieldBuilder IDX_ARTIFACT_TYPE;
 
 	static {
 		IDX_ARTIFACT_ID = new FieldBuilder()
-			.setIndex(Field.Index.UN_TOKENIZED)
-			.setName("ARTIFACT.ARTIFACT_ID")
-			.setStore(Field.Store.YES)
-			.setTermVector(Field.TermVector.NO);
+                .setIndex(Field.Index.UN_TOKENIZED)
+                .setName("ARTIFACT.ARTIFACT_ID")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
 
-		IDX_ARTIFACT_NAME = new FieldBuilder()
-			.setIndex(Field.Index.TOKENIZED)
-			.setName("ARTIFACT.ARTIFACT_NAME")
-			.setStore(Field.Store.YES)
-			.setTermVector(Field.TermVector.NO);
+        IDX_ARTIFACT_NAME = new FieldBuilder()
+                .setIndex(Field.Index.TOKENIZED)
+                .setName("ARTIFACT.ARTIFACT_NAME")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
+
+        IDX_ARTIFACT_TYPE = new FieldBuilder()
+                .setIndex(Field.Index.UN_TOKENIZED)
+                .setName("ARTIFACT.ARTIFACT_TYPE")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
 
 		IDX_ARTIFACT_CONTACTS = new FieldBuilder()
-			.setIndex(Field.Index.TOKENIZED)
-			.setName("ARTIFACT.CONTACTS")
-			.setStore(Field.Store.YES)
-			.setTermVector(Field.TermVector.NO);
+                .setIndex(Field.Index.TOKENIZED)
+                .setName("ARTIFACT.CONTACTS")
+                .setStore(Field.Store.YES)
+                .setTermVector(Field.TermVector.NO);
 	}
+
+	/**
+     * Obtain a log4j api id.
+     * 
+     * @param api
+     *            The api.
+     * @return The log4j api id.
+     */
+    protected static StringBuffer getApiId(final String api) {
+        return getModelId("INDEX").append(" ").append(api);
+    }
+
+	/** Index filter for containers. */
+    private final Filter<? super IndexHit> containerFilter;
+
+    /** Index filter for documents. */
+    private final Filter<? super IndexHit> documentFilter;
 
 	/**
 	 * The index analyzer to use when creating/updating index entries.
@@ -82,14 +100,14 @@ class IndexModelImpl extends AbstractModelImpl {
 	 */
 	private final Analyzer indexAnalyzer;
 
-	/**
+    /**
 	 * Index hit builder.  Is responsible for converting a query hit to an index
 	 * hit.
 	 * 
 	 */
 	private final IndexHitBuilder indexHitBuilder;
 
-	/**
+    /**
 	 * Create a IndexModelImpl.
 	 * 
 	 * @param workspace
@@ -97,9 +115,36 @@ class IndexModelImpl extends AbstractModelImpl {
 	 */
 	IndexModelImpl(final Workspace workspace) {
 		super(workspace);
+        this.containerFilter = new com.thinkparity.model.parity.model.filter.index.Container();
+        this.documentFilter = new com.thinkparity.model.parity.model.filter.index.Document();
 		this.indexAnalyzer = new StandardAnalyzer();
 		this.indexHitBuilder = new IndexHitBuilder();
 	}
+
+	/**
+     * Create an index entry for the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param containerName
+     *            The container name.
+     */
+    void createContainer(final Long containerId, final String containerName)
+            throws ParityException {
+        logger.info(getApiId("[CREATE CONTAINER]"));
+        logger.debug(containerId);
+        logger.debug(containerName);
+
+        final Set<User> team = getInternalArtifactModel().readTeam(containerId);
+
+        final DocumentBuilder documentBuilder = new DocumentBuilder(6);
+        documentBuilder.append(IDX_ARTIFACT_ID.setValue(containerId).toField())
+            .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.CONTAINER).toField())
+            .append(IDX_ARTIFACT_NAME.setValue(containerName).toField())
+            .append(IDX_ARTIFACT_CONTACTS.setValue(team).toField());
+
+        index(documentBuilder.toDocument());
+    }
 
 	/**
 	 * Create an index entry for an artifact.
@@ -110,29 +155,16 @@ class IndexModelImpl extends AbstractModelImpl {
 	 */
 	void createDocument(final Long documentId, final String documentName)
 			throws ParityException {
-		logger.info("[LMODEL] [INDEX] [CREATE DOCUMENT INDEX]");
+		logger.info(getApiId("[CREATE DOCUMENT]"));
 		logger.debug(documentId);
 		logger.debug(documentName);
 
-		// since a document's name is a filename; we can assume it follows this
-		// format document.doc
-		// therefore; we want to set the value in the index to be
-		// document.doc document
-		final StringBuffer documentNameValue = new StringBuffer();
-		if(-1 < documentName.indexOf('.')) {
-			documentNameValue.append(documentName.substring(
-					0, documentName.lastIndexOf('.')))
-				.append(Separator.SemiColon)
-				.append(documentName);
-		}
-		logger.debug("[LMODEL] [INDEX] [CREATE DOCUMENT INDEX] [DOCUMENT NAME VALUE] [" + documentNameValue + "]");
-
-		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		final Set<User> documentTeam = iAModel.readTeam(documentId);
+		final Set<User> documentTeam = getInternalArtifactModel().readTeam(documentId);
 
 		final DocumentBuilder db = new DocumentBuilder(6);
 		db.append(IDX_ARTIFACT_ID.setValue(documentId).toField())
-			.append(IDX_ARTIFACT_NAME.setValue(documentNameValue.toString()).toField())
+            .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.DOCUMENT).toField())
+			.append(IDX_ARTIFACT_NAME.setValue(documentName).toField())
 			.append(IDX_ARTIFACT_CONTACTS.setValue(documentTeam).toField());
 
 		index(db.toDocument());
@@ -163,38 +195,32 @@ class IndexModelImpl extends AbstractModelImpl {
 		finally { closeIndexReader(indexReader); }
 	}
 
-	/**
-	 * Search the artifact index.
-	 * 
-	 * @param expression
-	 *            The search expression.
-	 * @return A list of index hits.
-	 * @throws ParityException
-	 */
-	List<IndexHit> searchArtifact(final String expression) throws ParityException {
-		logger.info("[LMODEL] [INDEX] [SEARCH ARTIFACT]");
-		logger.debug(expression);
-		final IndexReader indexReader = openIndexReader();
-		try {
-			final List<Field> fields = new LinkedList<Field>();
-			fields.add(IDX_ARTIFACT_NAME.toSearchField());
-			fields.add(IDX_ARTIFACT_CONTACTS.toSearchField());
-	
-			final Searcher searcher =
-				new Searcher(logger, indexAnalyzer, indexReader,
-						IDX_ARTIFACT_ID.toSearchField(), fields);
-			final List<QueryHit> queryHits = searcher.search(expression);
-	
-			final List<IndexHit> indexHits = new LinkedList<IndexHit>();
-			for(final QueryHit queryHit : queryHits) {
-				indexHits.add(indexHitBuilder.toIndexHit(queryHit));
-			}
-			return indexHits;
-		}
-		finally { closeIndexReader(indexReader); }
+    /**
+     * Search the container index.
+     * 
+     * @param expression
+     *            The search expression.
+     * @return A list of index hits representing containers.
+     * @throws ParityException
+     */
+    List<IndexHit> searchContainers(final String expression)
+            throws ParityException {
+        return searchArtifacts(expression, containerFilter);
+    }
+
+    /**
+     * Search the document index.
+     * 
+     * @param expression
+     *            The search expression.
+     * @return A list of index hits representing documents.
+     * @throws ParityException
+     */
+	List<IndexHit> searchDocuments(final String expression) throws ParityException {
+        return searchArtifacts(expression, documentFilter);
 	}
 
-	/**
+    /**
      * Close the index reader.
      * 
      * @param indexReader
@@ -302,4 +328,41 @@ class IndexModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(iox);
 		}
 	}
+
+	/**
+     * Search the index.
+     * 
+     * @param expression
+     *            A search expression.
+     * @param filter
+     *            A result filter.
+     * @return A list of index hits.
+     * @throws ParityException
+     */
+    private List<IndexHit> searchArtifacts(final String expression,
+            final Filter<? super IndexHit> filter) throws ParityException {
+        logger.info(getApiId("[SEARCH ARTIFACTS]"));
+        logger.debug(expression);
+        logger.debug(filter);
+        final IndexReader indexReader = openIndexReader();
+        try {
+            final List<Field> fields = new LinkedList<Field>();
+            fields.add(IDX_ARTIFACT_NAME.toSearchField());
+            fields.add(IDX_ARTIFACT_CONTACTS.toSearchField());
+    
+            final Searcher searcher =
+                new Searcher(logger, indexAnalyzer, indexReader,
+                        IDX_ARTIFACT_ID.toSearchField(), fields,
+                        IDX_ARTIFACT_TYPE.toSearchField());
+            final List<QueryHit> queryHits = searcher.search(expression);
+    
+            final List<IndexHit> indexHits = new LinkedList<IndexHit>();
+            for(final QueryHit queryHit : queryHits) {
+                indexHits.add(indexHitBuilder.toIndexHit(queryHit));
+            }
+            IndexFilterManager.filter(indexHits, filter);
+            return indexHits;
+        }
+        finally { closeIndexReader(indexReader); }
+    }
 }

@@ -3,50 +3,50 @@
  */
 package com.thinkparity.model.parity.model.index.lucene;
 
-import org.apache.lucene.document.Document;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version $Revision$
  */
 public class QueryHit {
 
-	private Long dataId;
+    /** The artifact id. */
+	private Long id;
 
-	private Document document;
+    /** The artifact type. */
+    private ArtifactType type;
 	
-	/**
-	 * Create a QueryHit.
-	 * 
-	 */
+	/** Create QueryHit. */
 	QueryHit() { super(); }
 
 	/**
-	 * Obtain the data id.
-	 * 
-	 * @return The data id.
-	 */
-	public Long getDataId() { return dataId; }
+     * Obtain the artifact id.
+     * 
+     * @return An artifact id.
+     */
+	public Long getId() { return id; }
 
-	/**
-	 * @return Returns the document.
-	 */
-	public Document getDocument() {
-		return document;
-	}
+    /**
+     * Obtain the artifact type.
+     * 
+     * @return An artifact type.
+     */
+    public ArtifactType getType() { return type; }
 
-	/**
-	 * Set the data id.
-	 * 
-	 * @param dataId
-	 *            The data id.
-	 */
-	public void setDataId(final Long dataId) { this.dataId = dataId; }
+    /**
+     * Set the id.
+     * 
+     * @param id
+     *            An artifact id.
+     */
+	void setId(final Long id) { this.id = id; }
 
-	/**
-	 * @param document The document to set.
-	 */
-	public void setDocument(Document document) {
-		this.document = document;
-	}
+    /**
+     * Set the type.
+     * 
+     * @param type
+     *            The ArtifactType.
+     */
+    void setType(final ArtifactType type) { this.type = type; }
 }

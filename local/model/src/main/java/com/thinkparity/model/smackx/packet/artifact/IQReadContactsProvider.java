@@ -3,8 +3,8 @@
  */
 package com.thinkparity.model.smackx.packet.artifact;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -55,7 +55,7 @@ public class IQReadContactsProvider implements IQProvider {
 	public IQ parseIQ(final XmlPullParser parser) throws Exception {
 		logger.info("parseIQ(XmlPullParser)");
 		logger.debug(parser);
-		final Set<User> contacts = new HashSet<User>();
+		final List<User> contacts = new LinkedList<User>();
 
 		Integer attributeCount, depth, eventType;
 		String name, namespace, prefix, text;

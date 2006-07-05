@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.index;
 
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
@@ -59,18 +61,42 @@ public class IndexModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-	/**
-	 * Search the index for hits containing the expression.
-	 * 
-	 * @param expression
-	 *            The search expression.
-	 * @return A list of index hits.
-	 * @throws ParityException
-	 */
-	public List<IndexHit> searchArtifact(final String expression)
-			throws ParityException {
-		synchronized(implLock) { return impl.searchArtifact(expression); }
-	}
+    /**
+     * Search the index for artifacts containing the expression.
+     * 
+     * @param expression
+     *            The search expression.
+     * @return A list of index hits.
+     */
+    public List<IndexHit> searchArtifact(final String expression) {
+        throw Assert.createUnreachable("IndexModel#searchArtifact(java.lang.String) => [IndexModel.searchContainers(java.lang.String) | IndexModel.searchDocuments(java.lang.String)]");
+    }
+
+    /**
+     * Search the index for containers containing the expression.
+     * 
+     * @param expression
+     *            The search expression.
+     * @return A list of index hits.
+     * @throws ParityException
+     */
+    public List<IndexHit> searchContainers(final String expression)
+            throws ParityException {
+        synchronized(implLock) { return impl.searchContainers(expression); }
+    }
+
+    /**
+     * Search the index for documents containing the expression.
+     * 
+     * @param expression
+     *            The search expression.
+     * @return A list of index hits.
+     * @throws ParityException
+     */
+    public List<IndexHit> searchDocuments(final String expression)
+            throws ParityException {
+        synchronized(implLock) { return impl.searchDocuments(expression); }
+    }
 
 	/**
 	 * Obtain the implementation.

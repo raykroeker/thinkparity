@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
@@ -99,6 +101,15 @@ public interface ArtifactIOHandler {
     public Long readId(final UUID uniqueId) throws HypersonicException;
 
     /**
+     * Read the artifact state.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact state.
+     */
+    public ArtifactState readState(final Long artifactId);
+
+    /**
      * Read the team for an artifact.
      * 
      * @param artifactId
@@ -109,7 +120,25 @@ public interface ArtifactIOHandler {
     public Set<User> readTeamRel(final Long artifactId)
             throws HypersonicException;
 
-	/**
+    /**
+     * Read the artifact type.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact type.
+     */
+    public ArtifactType readType(final Long artifactId);
+
+    /**
+     * Read the artifact unique id.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact unique id.
+     */
+    public UUID readUniqueId(final Long artifactId);
+
+    /**
 	 * Set the flags for the artifact.
 	 * 
 	 * @param session
@@ -137,5 +166,14 @@ public interface ArtifactIOHandler {
 	public void updateRemoteInfo(final Long artifactId,
 			final JabberId updatedBy, final Calendar updatedOn)
 			throws HypersonicException;
+
+	/**
+     * Update the artifact state.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param The artifact state.
+     */
+    public void updateState(final Long artifactId, final ArtifactState state);
 
 }

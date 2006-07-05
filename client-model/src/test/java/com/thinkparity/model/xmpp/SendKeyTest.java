@@ -30,7 +30,7 @@ public class SendKeyTest extends XMPPTestCase {
 		try {
 			for(final Fixture datum : data) {
 				datum.session.sendKeyResponse(datum.artifactUniqueId,
-						datum.keyResponse, datum.user);
+						datum.keyResponse, datum.jabberId);
 			}
 		}
 		catch(final Throwable t) { fail(createFailMessage(t)); }
@@ -47,23 +47,23 @@ public class SendKeyTest extends XMPPTestCase {
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user.getId()));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user.getId()));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user.getId()));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user.getId()));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user));
+		data.add(new Fixture(artifactUniqueId, KeyResponse.ACCEPT, getSession(), user.getId()));
 	}
 
 	/**
@@ -79,15 +79,15 @@ public class SendKeyTest extends XMPPTestCase {
 		private final UUID artifactUniqueId;
 		private final KeyResponse keyResponse;
 		private final XMPPSession session;
-		private final User user;
+		private final JabberId jabberId;
 		private Fixture(final UUID artifactUniqueId,
 				final KeyResponse keyResponse, final XMPPSession session,
-				final User user) {
+				final JabberId jabberId) {
 			super();
 			this.artifactUniqueId = artifactUniqueId;
 			this.keyResponse = keyResponse;
 			this.session = session;
-			this.user = user;
+			this.jabberId = jabberId;
 		}
 	}
 }

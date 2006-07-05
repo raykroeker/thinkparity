@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
@@ -208,7 +209,7 @@ public class SessionModel extends AbstractModel {
      */
 	public Set<User> readArtifactTeam(final Long artifactId)
 			throws ParityException {
-		synchronized(implLock) { return impl.readArtifactTeam(artifactId); }
+		throw Assert.createUnreachable("SessionModel#readArtifactTeam(Long) => ArtifactModel#readTeam(Long)");
 	}
 
 	/**
@@ -218,7 +219,7 @@ public class SessionModel extends AbstractModel {
      * @throws ParityException
      */
 	public Contact readContact() throws ParityException {
-		synchronized(implLock) { return impl.readContact(); }
+        throw Assert.createUnreachable("SessionModel#readContacts() => ContactModel#read(JabberId)");
 	}
 
 	/**
@@ -228,7 +229,7 @@ public class SessionModel extends AbstractModel {
      * @throws ParityException
      */
 	public Set<Contact> readContacts() throws ParityException {
-		synchronized(implLock) { return impl.readContacts(); }
+        throw Assert.createUnreachable("SessionModel#readContacts() => ContactModel#read()");
 	}
 
 	/**
@@ -337,9 +338,7 @@ public class SessionModel extends AbstractModel {
 	public void sendKeyResponse(final Long artifactId,
 			final JabberId requestedBy, final KeyResponse keyResponse)
 			throws ParityException {
-		synchronized(implLock) {
-			impl.sendKeyResponse(artifactId, requestedBy, keyResponse);
-		}
+	    throw Assert.createUnreachable("SessionModel#sendKeyResponse(java.lang.Long,JabberId,KeyResponse) => InteralArtifactModel#sendKey(java.lang.Long,JabberId)");
 	}
 
 	/**

@@ -32,9 +32,6 @@ public class CreateTest extends ContactTestCase {
     public void testCreate() {
         final Contact contact = datum.cModel.create(datum.emailAddress);
         assertNotNull(NAME, contact);
-
-        assertNull(NAME + " [CONTACT NAME IS NOT NULL]", contact.getName());
-        assertNull(NAME + " [CONTACT ORGANIZATION IS NOT NULL]", contact.getOrganization());
     }
 
     /**

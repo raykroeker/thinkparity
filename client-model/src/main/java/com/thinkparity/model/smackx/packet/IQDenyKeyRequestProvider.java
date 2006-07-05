@@ -6,14 +6,16 @@ package com.thinkparity.model.smackx.packet;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,13 +32,13 @@ public class IQDenyKeyRequestProvider implements IQProvider {
 	/**
 	 * Assertion message for a null username.
 	 */
-	private static final String ASSERT_USERNAME =
+	private static final String ASSERT_JABBER_ID =
 		"The username could not be extracted from the key request.";
 
 	/**
 	 * Handle to an apache logger.
 	 */
-	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
+	protected final Logger logger = Logger.getLogger(getClass());
 
 	/**
 	 * Create a IQDenyKeyRequestProvider.
@@ -50,7 +52,7 @@ public class IQDenyKeyRequestProvider implements IQProvider {
 		logger.info("parseIQ(XmlPullParser)");
 		logger.debug(parser);
 		UUID artifactUUID = null;
-		String username = null;
+		JabberId jabberId = null;
 
 		Integer attributeCount, depth, eventType;
 		String name, namespace, prefix, text;
@@ -80,12 +82,12 @@ public class IQDenyKeyRequestProvider implements IQProvider {
 			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				isComplete = Boolean.TRUE;
 				parser.next();
-				username = parser.getText();
+				jabberId = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
 				parser.next();
 			}
 		}
 		Assert.assertNotNull(ASSERT_ARTIFACT_UUID, artifactUUID);
-		Assert.assertNotNull(ASSERT_USERNAME, username);
-		return new IQDenyKeyRequest(artifactUUID, new User(username));
+		Assert.assertNotNull(ASSERT_JABBER_ID, jabberId);
+		return new IQDenyKeyRequest(artifactUUID, jabberId);
 	}
 }

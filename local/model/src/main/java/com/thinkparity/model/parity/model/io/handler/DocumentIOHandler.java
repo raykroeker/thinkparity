@@ -6,9 +6,7 @@ package com.thinkparity.model.parity.model.io.handler;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentContent;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.IOHandler;
@@ -19,18 +17,24 @@ import com.thinkparity.model.parity.model.io.IOHandler;
  */
 public interface DocumentIOHandler extends IOHandler {
 
-	public void create(final Document document, final DocumentContent content);
+    /**
+     * Create a document.
+     * 
+     * @param document
+     *            A document.
+     */
+	public void create(final Document document);
 
 	/**
-	 * Create a new document version.
-	 * 
-	 * @param version
-	 *            The version.
-	 * @param versionContent
-	 *            The version content.
-	 */
-	public void createVersion(final DocumentVersion version,
-			final DocumentVersionContent versionContent);
+     * Create a new document version.
+     * 
+     * @param version
+     *            The version.
+     * @param versionContent
+     *            The version content.
+     */
+    public void createVersion(final DocumentVersion version,
+            final DocumentVersionContent versionContent);
 
 	/**
 	 * Create a specific artifact version.
@@ -54,25 +58,44 @@ public interface DocumentIOHandler extends IOHandler {
 
 	public Document get(final UUID documentUniqueId);
 	
-	public DocumentContent getContent(final Long documentId);
-	
-	public DocumentVersion getLatestVersion(final Long documentId);
-
-	public DocumentVersion getVersion(final Long documentId,
+    public DocumentVersion getVersion(final Long documentId,
 			final Long versionId);
 
-	public DocumentVersionContent getVersionContent(final Long documentId,
-			final Long versionId);
-	
-	public List<Document> list();
-	
+    public List<Document> list();
+
 	public List<DocumentVersion> listVersions(final Long documentId);
+
+    /**
+     * Read the latest version for a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A document version.
+     */
+	public DocumentVersion readLatestVersion(final Long documentId);
+
+	
+	/**
+     * Read the latest version content for a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A document version content.
+     */
+	public DocumentVersionContent readLatestVersionContent(final Long documentId);
+	
+	/**
+     * Read a document's version content.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A version id.
+     * @return A document version content.
+     */
+    public DocumentVersionContent readVersionContent(final Long documentId, final Long versionId);
 	
 	public void update(final Document document);
 
-    public void updateVersion(final DocumentVersion documentVersion);
-
-	public void updateContent(final DocumentContent content);
-	
-	public void updateState(final Long documentId, final ArtifactState state);
+	public void updateVersion(final DocumentVersion documentVersion);
 }

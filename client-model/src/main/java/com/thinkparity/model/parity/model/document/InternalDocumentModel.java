@@ -91,23 +91,6 @@ public class InternalDocumentModel extends DocumentModel implements
 		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
 	}
 
-	/**
-     * Handle a close request from the remote model.
-     *
-     * @param documentId
-     *      A document id.
-     * @param closedBy
-     *      A jabber id.
-     *
-     * @throws ParityException
-     */
-    public void handleClose(final Long documentId, final JabberId closedBy)
-            throws ParityException {
-		synchronized(getImplLock()) {
-            getImpl().handleClose(documentId, closedBy);
-        }
-	}
-
     /**
      * Handle a reactivate request from the remote model.
      * 

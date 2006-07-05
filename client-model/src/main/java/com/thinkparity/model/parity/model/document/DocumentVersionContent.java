@@ -1,85 +1,56 @@
 /*
- * Nov 19, 2005
+ * Created On: Nov 19, 2005
+ * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
-
 /**
- * Represents the content snapshot of a document version.
+ * <b>Title:</b>thinkParity Document Version Content<br>
+ * <b>Description:</b>The document version content represents only the content
+ * of a document version. The content is separated to maintain a high level of
+ * performance when reading lists of document versions.
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class DocumentVersionContent {
 
-	/**
-	 * Snapshot of the document content.
-	 * 
-	 */
-	private DocumentContent documentContent;
+	/** The content. */
+    private byte[] content;
 
-	/**
-	 * The document id.
-	 * 
-	 */
-	private Long documentId;
+    /** The document version. */
+	private DocumentVersion version;
 
-	/**
-	 * The version id.
-	 * 
-	 */
-	private Long versionId;
-
-	/**
-	 * Create a DocumentVersionContent.
-	 */
+	/** Create DocumentVersionContent. */
 	public DocumentVersionContent() { super(); }
 
-	/**
-	 * Obtain the document content.
-	 * 
-	 * @return The document content.
-	 */
-	public DocumentContent getDocumentContent() { return documentContent; }
+    /**
+     * Obtain the content
+     *
+     * @return The byte[].
+     */
+    public byte[] getContent() { return content; }
 
-	/**
-	 * Obtain the document id.
-	 * 
-	 * @return The document id.
-	 */
-	public Long getDocumentId() { return documentId; }
+    /**
+     * Obtain the documentVersion
+     *
+     * @return The DocumentVersion.
+     */
+    public DocumentVersion getVersion() { return version; }
 
-	/**
-	 * Obtain the version id.
-	 * 
-	 * @return The version id.
-	 */
-	public Long getVersionId() { return versionId; }
+    /**
+     * Set content.
+     *
+     * @param content The byte[].
+     */
+    public void setContent(final byte[] content) { this.content = content; }
 
-	/**
-	 * Set the document content.
-	 * 
-	 * @param documentContent
-	 *            The document content.
-	 */
-	public void setDocumentContent(final DocumentContent documentContent) {
-		this.documentContent = documentContent;
-	}
-
-	/**
-	 * @param documentId The documentId to set.
-	 */
-	public void setDocumentId(Long documentId) {
-		this.documentId = documentId;
-	}
-
-	/**
-	 * Set the version id.
-	 * 
-	 * @param versionId
-	 *            The version id.
-	 */
-	public void setVersionId(final Long versionId) {
-		this.versionId = versionId;
-	}
+    /**
+     * Set documentVersion.
+     *
+     * @param documentVersion The DocumentVersion.
+     */
+    public void setVersion(final DocumentVersion version) {
+        this.version = version;
+    }
 }

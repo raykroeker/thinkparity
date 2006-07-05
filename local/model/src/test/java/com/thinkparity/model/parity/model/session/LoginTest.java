@@ -3,9 +3,8 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-import java.util.Vector;
-
 import com.thinkparity.model.ModelTestUser;
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
@@ -16,10 +15,8 @@ import com.thinkparity.model.parity.model.ModelTestCase;
  */
 public class LoginTest extends ModelTestCase {
 
-	/**
-	 * Test data.
-	 */
-	private Vector<Fixture> data;
+	/** Test datum. */
+	private Fixture datum;
 
 	/**
 	 * Create a LoginTest.
@@ -30,15 +27,12 @@ public class LoginTest extends ModelTestCase {
 	 * Test the session model login api.
 	 */
 	public void testLogin() {
-		try {
-			for(Fixture datum : data) {
-				datum.sessionModel.login(datum.credentials);
+		try { datum.sessionModel.login(datum.credentials); }
+        catch(final ParityException px) { fail(createFailMessage(px)); }
 			
-				assertTrue(datum.sessionModel.isLoggedIn());
-				datum.sessionModel.logout();
-			}
-		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
+		assertTrue(datum.sessionModel.isLoggedIn());
+        try { datum.sessionModel.logout(); }
+        catch(final ParityException px) { fail(createFailMessage(px)); }
 	}
 
 	/**
@@ -48,16 +42,15 @@ public class LoginTest extends ModelTestCase {
 		super.setUp();
 		final SessionModel sessionModel = getSessionModel();
 		final ModelTestUser testUser = getModelTestUser();
-		data = new Vector<Fixture>(1);
-		data.add(new Fixture(testUser.getCredentials(), sessionModel));
+		datum = new Fixture(testUser.getCredentials(), sessionModel);
 	}
 
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		data.clear();
-		data = null;
+		datum = null;
+        super.tearDown();
 	}
 
 	/**

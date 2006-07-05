@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.crypto.BadPaddingException;
@@ -27,12 +28,14 @@ import com.thinkparity.codebase.l10n.L18nContext;
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.AuditModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
+import com.thinkparity.model.parity.model.container.ContainerModel;
+import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
@@ -187,7 +190,12 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-	/**
+	protected void assertIsKeyHolder(final Object assertion,
+            final Long artifactId) throws ParityException {
+        assertIsKeyHolder(assertion.toString(), artifactId);
+    }
+
+    /**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -198,7 +206,6 @@ public abstract class AbstractModelImpl {
      */
     protected void assertIsKeyHolder(final String assertion,
             final Long artifactId) throws ParityException {
-        Assert.assertTrue(assertion, isOnline());
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
@@ -343,9 +350,10 @@ public abstract class AbstractModelImpl {
      *
      * @return The current user.
      */
-    protected User currentUser() throws ParityException {
-        assertOnline("[LMODEL] [ABSTRACTION] [CURRENT USER] [NOT ONLINE]");
-        return getInternalSessionModel().getLoggedInUser();
+    protected User currentUser() {
+        final JabberId currentUserId = currentUserId();
+        if(null == currentUserId) { return null; }
+        else { return getInternalUserModel().read(currentUserId); }
     }
 
 	/**
@@ -369,24 +377,6 @@ public abstract class AbstractModelImpl {
 			return null;
 		}
 		else { return d.getId(); }
-	}
-
-	protected UUID getArtifactUniqueId(final Long artifactId)
-			throws ParityException {
-		// NOTE I'm assuming document :)
-		final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
-		return iDocumentModel.get(artifactId).getUniqueId();
-	}
-
-    protected UUID getArtifactUniqueId(final Long artifactId,
-			final ArtifactType artifactType) throws ParityException {
-		switch(artifactType) {
-		case DOCUMENT:
-			final InternalDocumentModel iDocumentModel = getInternalDocumentModel();
-			return iDocumentModel.get(artifactId).getUniqueId();
-		default:
-			throw Assert.createUnreachable("");
-		}
 	}
 
     /**
@@ -421,7 +411,16 @@ public abstract class AbstractModelImpl {
 		return AuditModel.getInternalModel(context);
 	}
 
-	/**
+    /**
+     * Obtain the internal thinkParity container interface.
+     * 
+     * @return The internal thinkParity container interface.
+     */
+    protected InternalContainerModel getInternalContainerModel() {
+        return ContainerModel.getInternalModel(context);
+    }
+
+    /**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
@@ -430,7 +429,7 @@ public abstract class AbstractModelImpl {
 		return DocumentModel.getInternalModel(context);
 	}
 
-    /**
+	/**
      * Obtain the internal parity download interface.
      *
      * @return The internal parity download interface.
@@ -457,7 +456,7 @@ public abstract class AbstractModelImpl {
         return ReleaseModel.getInternalModel(getContext());
     }
 
-	/**
+    /**
      * Obtain the internal parity session interface.
      * 
      * @return The internal parity session interface.
@@ -473,7 +472,7 @@ public abstract class AbstractModelImpl {
      */
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
 		return SystemMessageModel.getInternalModel(context);
-	};
+	}
 
 	/**
      * Obtain the internal parity user interface.
@@ -482,7 +481,7 @@ public abstract class AbstractModelImpl {
      */
     protected InternalUserModel getInternalUserModel() {
         return UserModel.getInternalModel(context);
-    }
+    };
 
 	/**
 	 * Obtain the model's localization.
@@ -504,7 +503,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-    protected StringBuffer getLogId(final Release release) {
+	protected StringBuffer getLogId(final Release release) {
         if(null == release) { return new StringBuffer("null"); }
         else {
             return new StringBuffer()
@@ -552,14 +551,28 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Determine whether or not the logged in user is the artifact key holder.
-     *
+     * Determine whether or not an artifact is distributed; ie if it has been
+     * sent to anyone.
+     * 
      * @param artifactId
-     *      The artifact id.
+     *            An artifact id.
+     * @return True if the artifact has not yet been sent; false otherwise.
+     */
+    protected Boolean isDistributed(final Long artifactId) {
+        final Set<User> team = getInternalArtifactModel().readTeam(artifactId);
+        team.remove(currentUser());
+        return team.size() > 0;
+    }
+
+    /**
+     * Determine whether or not the artifact has the key flag applied.
+     * 
+     * @param artifactId
+     *            The artifact id.
      * @return True if the user is the keyholder; false otherwise.
      */
     protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
-        return getSessionModel().isLoggedInUserKeyHolder(artifactId);
+        return getInternalArtifactModel().isFlagApplied(artifactId, ArtifactFlag.KEY);
     }
 
     /**
@@ -569,6 +582,17 @@ public abstract class AbstractModelImpl {
      */
     protected Boolean isOnline() {
         return getInternalSessionModel().isLoggedIn();
+    }
+
+    /**
+     * Read the artifact unique id.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact unique id.
+     */
+    protected UUID readArtifactUniqueId(final Long artifactId) {
+        return getInternalArtifactModel().readUniqueId(artifactId);
     }
 
     /**

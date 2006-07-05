@@ -13,6 +13,10 @@ import java.io.File;
  */
 public final class Constants {
 
+    public static final class Compression {
+        public static final Integer NONE = 0;
+    }
+
     public static final class Connection {
         public static final String SERVER_HOST = System.getProperty("parity.serverhost");
         public static final Integer SERVER_PORT = Integer.getInteger("parity.serverport");
@@ -31,6 +35,10 @@ public final class Constants {
         public static final String DOWNLOAD = ".download";
         public static final String LIB = "lib";
         public static final String LIB_NATIVE_WIN32 = "win32";
+    }
+
+    public static final class Encoding {
+        public static final String BASE_64 = "Base64";
     }
 
     public static final class Image {

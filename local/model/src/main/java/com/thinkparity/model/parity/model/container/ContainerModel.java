@@ -8,12 +8,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
@@ -72,8 +74,42 @@ public class ContainerModel {
      * @param documentId
      *            A document id.
      */
-    public void addDocument(final Long containerId, final Long documentId) {
-        synchronized(implLock) { impl.addDocument(containerId, documentId); }
+    public void addDocument(final Long containerId, final Long documentId)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().addDocument(containerId, documentId);
+        }
+    }
+
+    /**
+     * Add a container listener.
+     * 
+     * @param listener
+     *            A container listener.
+     */
+    public void addListener(final ContainerListener listener) {
+        synchronized(implLock) { impl.addListener(listener); }
+    }
+
+    /**
+     * Close a container.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void close(final Long containerId) throws ParityException {
+        synchronized(implLock) { impl.close(containerId); }
+    }
+
+    /**
+     * Reactivate a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @throws ParityException
+     */
+    public void reactivate(final Long containerId) throws ParityException {
+        synchronized(implLock) { impl.reactivate(containerId); }
     }
 
     /**
@@ -83,7 +119,7 @@ public class ContainerModel {
      *            The container name.
      * @return The new container.
      */
-    public Container create(final String name) {
+    public Container create(final String name) throws ParityException {
         synchronized(implLock) { return impl.create(name); }
     }
 
@@ -93,8 +129,19 @@ public class ContainerModel {
      * @param containerId
      *            A container id.
      */
-    public void delete(final Long containerId) {
+    public void delete(final Long containerId) throws ParityException {
         synchronized(implLock) { impl.delete(containerId); }
+    }
+
+    /**
+     * Publish the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @throws ParityException
+     */
+    public void publish(final Long containerId) throws ParityException {
+        synchronized(implLock) { impl.publish(containerId); }
     }
 
     /**
@@ -138,7 +185,9 @@ public class ContainerModel {
      */
     public List<Container> read(final Filter<? super Artifact> filter) {
         synchronized(implLock) { return impl.read(filter); }
-    }/**
+    }
+
+    /**
      * Read a container.
      * 
      * @param containerId
@@ -157,7 +206,8 @@ public class ContainerModel {
      * @return A list of documents.
      * @throws ParityException
      */
-    public List<Document> readDocuments(final Long containerId) throws ParityException {
+    public List<Document> readDocuments(final Long containerId)
+            throws ParityException {
         synchronized(implLock) { return impl.readDocuments(containerId); }
     }
 
@@ -195,18 +245,29 @@ public class ContainerModel {
     }
 
     /**
-     * Read the documents for the container.
+     * Read the document versions for the container.
      * 
      * @param containerId
      *            A container id.
      * @param filter
      *            A document filter.
-     * @return A list of documents.
+     * @return A list of document versions.
      * @throws ParityException
      */
     public List<Document> readDocuments(final Long containerId,
             final Filter<? super Artifact> filter) throws ParityException {
         synchronized(implLock) { return impl.readDocuments(containerId, filter); }
+    }
+
+    /**
+     * Read the latest container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    public ContainerVersion readLatestVersion(final Long containerId) {
+        synchronized(implLock) { return impl.readLatestVersion(containerId); }
     }
 
     /**
@@ -217,11 +278,36 @@ public class ContainerModel {
      * @param documentId
      *            A document id.
      */
-    public void removeDocument(final Long containerId, final Long documentId) {
+    public void removeDocument(final Long containerId, final Long documentId)
+            throws ParityException {
         synchronized(implLock) { impl.removeDocument(containerId, documentId); }
     }
 
+    /**
+     * Remove a container listener.
+     * 
+     * @param listener
+     *            A container listener.
+     */
+    public void removeListener(final ContainerListener listener) {
+        synchronized(implLock) { impl.removeListener(listener); }
+    }
+
 	/**
+     * Share the container with a user. The user will receive the latest version
+     * of the container and become part of the container's team.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The jabber id.
+     */
+    public void share(final Long containerId, final JabberId jabberId)
+            throws ParityException {
+        synchronized(implLock) { impl.share(containerId, jabberId); }
+    }
+
+    /**
 	 * Obtain the model implementation.
 	 * 
 	 * @return The model implementation.
@@ -234,4 +320,5 @@ public class ContainerModel {
 	 * @return The model implementation synchrnoization lock.
 	 */
 	protected Object getImplLock() { return implLock; }
+
 }

@@ -4,21 +4,39 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.api.events.ContainerListener;
+import com.thinkparity.model.parity.api.events.ContainerEvent.Source;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.container.DefaultFilter;
+import com.thinkparity.model.parity.model.filter.artifact.DefaultFilter;
+import com.thinkparity.model.parity.model.io.IOFactory;
+import com.thinkparity.model.parity.model.io.handler.ContainerIOHandler;
+import com.thinkparity.model.parity.model.session.Credentials;
+import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.parity.util.UUIDGenerator;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -29,6 +47,9 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  */
 class ContainerModelImpl extends AbstractModelImpl {
 
+    /** A list of container listeners. */
+    private static final List<ContainerListener> LISTENERS = new LinkedList<ContainerListener>();
+
     /**
      * Obtain an apache api log id.
      * @param api The api.
@@ -38,11 +59,32 @@ class ContainerModelImpl extends AbstractModelImpl {
         return getModelId("[CONTAINER]").append(" ").append(api);
     }
 
+    /** A container audit generator. */
+    private final ContainerAuditor auditor;
+
+    /** The container io layer. */
+    private final ContainerIOHandler containerIO;
+
     /** A default container comparator. */
     private final Comparator<Artifact> defaultComparator;
 
+    /** The default document comparator. */
+    private final Comparator<Artifact> defaultDocumentComparator;
+
+    /** The default document filter. */
+    private final Filter<? super Artifact> defaultDocumentFilter;
+
     /** A default container filter. */
     private final Filter<? super Artifact> defaultFilter;
+
+    /** A container index writer. */
+    private final ContainerIndexor indexor;
+
+    /** A local event generator. */
+    private final ContainerEventGenerator localEventGenerator;
+
+    /** A remote event generator. */
+    private final ContainerEventGenerator remoteEventGenerator;
 
     /**
      * Create ContainerModelImpl.
@@ -52,8 +94,15 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     ContainerModelImpl(final Workspace workspace) {
         super(workspace);
+        this.auditor = new ContainerAuditor(getContext());
+        this.containerIO = IOFactory.getDefault().createContainerHandler();
         this.defaultComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
+        this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
+        this.defaultDocumentFilter = new DefaultFilter();
         this.defaultFilter = new DefaultFilter();
+        this.indexor = new ContainerIndexor(getContext());
+        this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
+        this.remoteEventGenerator = new ContainerEventGenerator(Source.REMOTE);
     }
 
     /**
@@ -64,7 +113,81 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @param documentId
      *            A document id.
      */
-    void addDocument(final Long containerId, final Long documentId) {}
+    void addDocument(final Long containerId, final Long documentId)
+            throws ParityException {
+        logger.info(getApiId("[ADD DOCUMENT]"));
+        logger.debug(containerId);
+        logger.debug(documentId);
+        assertIsKeyHolder(getApiId("[ADD DOCUMENT] [CANNOT ADD DOCUMENT WITHOUT KEY]"), containerId);
+        final List<Document> documents = readDocuments(containerId);
+        assertDoesNotContain(getApiId("[ADD DOCUMENT] [DOCUMENT ALREADY ADDED]"),
+                documents, documentId);
+
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final DocumentVersion latestDocument = dModel.readLatestVersion(documentId);
+        containerIO.addVersion(latestVersion.getArtifactId(),
+                latestVersion.getVersionId(), latestDocument.getArtifactId(),
+                latestDocument.getVersionId(), latestDocument.getArtifactType());
+        // fire event
+        notifyDocumentAdded(read(containerId), dModel.get(documentId),
+                localEventGenerator);
+    }
+
+    /**
+     * Add a container listener.
+     * 
+     * @param listener
+     *            A container listener.
+     */
+    void addListener(final ContainerListener listener) {
+        logger.info(getApiId("[ADD LISTENER]"));
+        logger.debug(listener);
+        Assert.assertNotNull(getApiId("[ADD LISTENER] [LISTENER IS NULL]"),
+                listener);
+        synchronized(LISTENERS) {
+            if(LISTENERS.contains(listener)) { return; }
+            LISTENERS.add(listener);
+        }
+    }
+
+    /**
+     * Close a container.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    void close(final Long containerId) throws ParityException {
+        logger.info(getApiId("[CLOSE]"));
+        logger.debug(containerId);
+        assertOnline(getApiId("[CLOSE] [USER NOT ONLINE]"));
+        assertIsKeyHolder(getApiId("[CLOSE] [USER NOT KEY HOLDER]"), containerId);
+
+        // update state
+        final InternalArtifactModel aModel = getInternalArtifactModel();
+        aModel.updateState(containerId, ArtifactState.CLOSED);
+
+        // lock documents
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final List<Document> documents = readDocuments(containerId);
+        for(final Document document : documents) {
+            dModel.lock(document.getId());
+        }
+        
+        // remote close
+        getInternalSessionModel().sendClose(containerId);
+
+        // remove key - needs to be done post remote close
+        aModel.removeFlagKey(containerId);
+
+        // audit
+        final JabberId currentUserId = currentUserId();
+        final Calendar currentDateTime = currentDateTime();
+        auditor.close(containerId, currentUserId, currentDateTime, currentUserId, currentDateTime);
+
+        // fire event
+        notifyContainerClosed(read(containerId), currentUser(), localEventGenerator);
+    }
 
     /**
      * Create a container.
@@ -73,11 +196,65 @@ class ContainerModelImpl extends AbstractModelImpl {
      *            The container name.
      * @return The new container.
      */
-    Container create(final String name) {
+    Container create(final String name) throws ParityException {
         logger.info(getApiId("[CREATE]"));
-        logger.warn(getApiId("[CREATE] [NOT YET IMPLEMENTED]"));
+        assertOnline(getApiId("[CREATE] [USER NOT ONLINE]"));
+        final Credentials credentials = readCredentials();
+        final Calendar currentDateTime = currentDateTime();
+
         final Container container = new Container();
-        return container;
+        container.setCreatedBy(credentials.getUsername());
+        container.setCreatedOn(currentDateTime);
+        container.setName(name);
+        container.setState(ArtifactState.ACTIVE);
+        container.setType(ArtifactType.CONTAINER);
+        container.setUniqueId(UUIDGenerator.nextUUID());
+        container.setUpdatedBy(credentials.getUsername());
+        container.setUpdatedOn(currentDateTime);
+
+        // remote create
+        getInternalSessionModel().sendCreate(container);
+
+        // local create
+        containerIO.create(container);
+
+        // create version
+        createVersion(container);
+
+        // apply key
+        final InternalArtifactModel iAModel = getInternalArtifactModel();
+        iAModel.applyFlagKey(container.getId());
+
+        // create remote info
+        iAModel.createRemoteInfo(container.getId(), currentUserId(), currentDateTime);
+
+        // add team member
+        iAModel.addTeamMember(container.getId(), currentUserId());
+
+        // audit
+        auditor.create(container.getId(), currentUserId(), currentDateTime);
+
+        // index
+        indexor.create(container.getId(), container.getName());
+
+        // fire event
+        final Container postCreation = read(container.getId());
+        notifyContainerCreated(postCreation, localEventGenerator);
+
+        return postCreation;
+    }
+
+    /**
+     * Create a container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    ContainerVersion createVersion(final Long containerId) {
+        logger.info(getApiId("[CREATE VERSION]"));
+        logger.debug(containerId);
+        return createVersion(read(containerId));
     }
 
     /**
@@ -86,7 +263,183 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @param containerId
      *            A container id.
      */
-    void delete(final Long containerId) {}
+    void delete(final Long containerId) throws ParityException {
+        logger.info(getApiId("[DELETE]"));
+        logger.debug(containerId);
+        assertOnline(getApiId("[DELETE] [USER NOT ONLINE]"));
+        final Container container = read(containerId);
+        if(isClosed(container)) { deleteLocal(containerId); }
+        else {
+            if(isKeyHolder(containerId)) {
+                if(!isDistributed(containerId)) { deleteLocal(containerId); }
+                else {
+                    throw Assert.createUnreachable(getApiId(""));
+                }
+            }
+            else {
+                deleteRemote(containerId);
+                deleteLocal(containerId);
+            }
+        }
+        // fire event
+        notifyContainerDeleted(null, localEventGenerator);
+    }
+
+    /**
+     * Handle the close event from a remote event.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param closedBy
+     *            The user who closed the container.
+     * @param closedOn
+     *            When the container was closed.
+     * @throws ParityException
+     */
+    void handleClose(final Long containerId, final JabberId closedBy,
+            final Calendar closedOn) throws ParityException {
+        logger.info(getApiId("[HANDLE CLOSE]"));
+        logger.debug(containerId);
+        logger.debug(closedBy);
+        logger.debug(closedOn);
+        final Calendar currentDateTime = currentDateTime();
+
+        // update remote info
+        final InternalArtifactModel aModel = getInternalArtifactModel();
+        aModel.updateRemoteInfo(containerId, closedBy, currentDateTime);
+        // update state
+        aModel.updateState(containerId, ArtifactState.CLOSED);
+
+        // lock documents
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final List<Document> documents = readDocuments(containerId);
+        for(final Document document : documents) {
+            dModel.lock(document.getId());
+        }
+
+        // audit
+        auditor.close(containerId, closedBy, closedOn, currentUserId(), currentDateTime);
+
+        // fire event
+        notifyContainerClosed(read(containerId), currentUser(), remoteEventGenerator);
+    }
+
+    /**
+     * Determine if the container has been locally modified.
+     * 
+     * @param containerId
+     * @return True if the container has been locally modified.
+     */
+    Boolean isLocallyModified(final Long containerId) throws ParityException {
+        logger.info(getApiId("[IS LOCALLY MODIFIED]"));
+        logger.debug(containerId);
+        // check if the documents have been modified
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final List<Document> documents = readDocuments(containerId);
+        for(final Document document : documents) {
+            if(!dModel.isWorkingVersionEqual(document.getId())) { return Boolean.TRUE; }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Lock the container.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    void lock(final Long containerId) throws ParityException {
+        logger.info(getApiId("[LOCK]"));
+        logger.debug(containerId);
+        // lock the documents
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final List<Document> documents = readDocuments(containerId);
+        for(final Document document : documents) {
+            dModel.lock(document.getId());
+        }
+    }
+
+
+    /**
+     * Publish the container. Publishing involves determining if the working
+     * version of a document differes from the latest version and if so creating
+     * a new version; then sending the latest version to all team members.
+     * 
+     * @param containerId
+     *            The conainter id.
+     * @throws ParityException
+     */
+    void publish(final Long containerId) throws ParityException {
+        logger.info(getApiId("[PUBLISH]"));
+        logger.debug(containerId);
+        assertOnline(getApiId("[PUBLISH] [USER NOT ONLINE]"));
+        assertIsKeyHolder(getApiId("[PUBLISH] [USER NOT KEY HOLDER]"), containerId);
+
+        // create neccessary versions
+        Boolean didCreate = Boolean.FALSE;
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        final List<Document> documents = containerIO.readDocuments(containerId, latestVersion.getVersionId());
+        for(final Document document : documents) {
+            if(!dModel.isWorkingVersionEqual(document.getId())) {
+                didCreate = Boolean.TRUE;
+                dModel.createVersion(document.getId());
+            }
+        }
+        Assert.assertTrue(getApiId("[CREATE] [NO DOCUMENTS DIFFER]"), didCreate);
+
+        // create container
+        final ContainerVersion newVersion = createVersion(containerId);
+
+        // audit
+        auditor.publish(containerId, newVersion.getVersionId(), currentUserId(),
+                currentDateTime());
+
+        // send
+        final List<User> team =
+            getInternalSessionModel().readArtifactTeamList(containerId);
+        team.remove(currentUserId());
+        send(newVersion, team);
+    }
+
+    /**
+     * Reactivate a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @throws ParityException
+     */
+    void reactivate(final Long containerId) throws ParityException {
+        logger.info(getApiId("[REACTIVATE]"));
+        logger.debug(containerId);
+
+        // update local state
+        final InternalArtifactModel aModel = getInternalArtifactModel();
+        aModel.updateState(containerId, ArtifactState.ACTIVE);
+        // apply key
+        aModel.applyFlagKey(containerId);
+
+        // remote reactivate
+        final Set<User> team = aModel.readTeam(containerId);
+        final List<JabberId> teamIds = new ArrayList<JabberId>();
+        for(final User user : team) { teamIds.add(user.getId()); }
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        getInternalSessionModel().sendReactivate(teamIds, containerId);
+
+        // publish
+        publish(containerId);
+
+        // audit
+        final JabberId currentUserId = currentUserId();
+        final Calendar currentDateTime = currentDateTime();
+        auditor.reactivate(containerId, latestVersion.getVersionId(),
+                currentUserId(), currentDateTime, currentUserId,
+                currentDateTime);
+
+        // fire event
+        notifyContainerReactivated(read(containerId), currentUser(),
+                localEventGenerator);
+    }
 
     /**
      * Read the containers.
@@ -97,22 +450,6 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ]"));
         logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
         return read(defaultComparator);
-    }
-
-    /**
-     * Read a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container.
-     */
-    Container read(final Long containerId) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(containerId);
-        logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
-        final Container container = new Container();
-        container.setName("Fake Container 0");
-        return container;
     }
 
     /**
@@ -143,30 +480,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
         logger.debug(filter);
-        logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
-        final List<Container> containers = new LinkedList<Container>();
-        Container container;
-
-        container = new Container();
-        container.setName("Fake Package 0");
-        containers.add(container);
-
-        container = new Container();
-        container.setName("Fake Package 1");
-        containers.add(container);
-        
-        container = new Container();
-        container.setName("Fake Package 2");
-        containers.add(container);
-
-        container = new Container();
-        container.setName("Fake Package 3");
-        containers.add(container);
-        
-        container = new Container();
-        container.setName("Fake Package 4");
-        containers.add(container);
-
+        final List<Container> containers = containerIO.read();
         ArtifactFilterManager.filter(containers, filter);
         ModelSorter.sortContainers(containers, comparator);
         return containers;        
@@ -186,6 +500,19 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container.
+     */
+    Container read(final Long containerId) {
+        logger.info(getApiId("[READ]"));
+        logger.debug(containerId);
+        return containerIO.read(containerId);
+    }
+
+    /**
      * Read the documents for the container.
      * 
      * @param containerId
@@ -195,10 +522,8 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     List<Document> readDocuments(final Long containerId) throws ParityException {
         logger.info(getApiId("[READ DOCUMENTS]"));
-        logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
-        logger.warn(getApiId("[CREATE] [NOT YET IMPLEMENTED]"));
-        return readDocuments(containerId, null, null);
+        return readDocuments(containerId, defaultDocumentComparator, defaultDocumentFilter);
     }
 
     /**
@@ -214,7 +539,7 @@ class ContainerModelImpl extends AbstractModelImpl {
     List<Document> readDocuments(final Long containerId,
             final Comparator<Artifact> comparator) throws ParityException {
         logger.info(getApiId("[READ DOCUMENTS]"));
-        return readDocuments(containerId, null, null);
+        return readDocuments(containerId, comparator, defaultDocumentFilter);
     }
 
     /**
@@ -236,14 +561,12 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         logger.debug(comparator);
         logger.debug(filter);
-        logger.warn(getApiId("[CREATE] [NOT YET IMPLEMENTED]"));
-        final Collection<Document> documents = getInternalDocumentModel().list(comparator, filter);
-        final List<Document> documentsList = new LinkedList<Document>();
-        documentsList.addAll(documents);
-        for(int i = 0; i < documentsList.size() && i > 2; i++) {
-            documentsList.remove(i);
-        }
-        return documentsList;
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        final List<Document> documents =
+            containerIO.readDocuments(containerId, latestVersion.getVersionId());
+        ArtifactFilterManager.filter(documents, filter);
+        ModelSorter.sortDocuments(documents, comparator);
+        return documents;
     }
 
     /**
@@ -259,11 +582,49 @@ class ContainerModelImpl extends AbstractModelImpl {
     List<Document> readDocuments(final Long containerId,
             final Filter<? super Artifact> filter) throws ParityException {
         logger.info(getApiId("[READ DOCUMENTS]"));
-        logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
         logger.debug(filter);
-        logger.warn(getApiId("[CREATE] [NOT YET IMPLEMENTED]"));
-        return readDocuments(containerId, null, filter);
+        return readDocuments(containerId, defaultDocumentComparator, filter);
+    }
+
+    /**
+     * Read a list of document versions for the latest container version.
+     * 
+     * @param containerId
+     *            The container id.
+     * @return A list of document versions.
+     */
+    List<DocumentVersion> readDocumentVersions(final Long containerId) {
+        logger.info(getApiId("[READ DOCUMENT VERSIONS]"));
+        logger.debug(containerId);
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        return containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
+    }
+
+    /**
+     * Read the latest container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    ContainerVersion readLatestVersion(final Long containerId) {
+        logger.info(getApiId("[READ LATEST VERSION]"));
+        logger.debug(containerId);
+        return containerIO.readLatestVersion(containerId);
+    }
+
+    /**
+     * Read the container versions.
+     * 
+     * @param containerId
+     *            The container id.
+     * @return A list of container versions.
+     */
+    List<ContainerVersion> readVersions(final Long containerId) {
+        logger.info(getApiId("[READ VERSIONS]"));
+        logger.debug(containerId);
+        return containerIO.readVersions(containerId);
     }
 
     /**
@@ -274,5 +635,337 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @param documentId
      *            A document id.
      */
-    void removeDocument(final Long containerId, final Long documentId) {}
+    void removeDocument(final Long containerId, final Long documentId)
+            throws ParityException {
+        logger.info(getApiId("[REMOVE DOCUMENT]"));
+        logger.debug(containerId);
+        logger.debug(documentId);
+        assertIsKeyHolder(getApiId("[REMOVE DOCUMENT] [CANNOT REMOVE DOCUMENT WITHOUT KEY]"), containerId);
+        final List<Document> documents = readDocuments(containerId);
+        assertContains(getApiId("[ADD DOCUMENT] [DOCUMENT ALREADY ADDED]"),
+                documents, documentId);
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final DocumentVersion latestDocument = dModel.readLatestVersion(documentId);
+        containerIO.removeVersion(latestVersion.getArtifactId(),
+                latestVersion.getVersionId(), latestDocument.getArtifactId(),
+                latestDocument.getVersionId());
+        // fire event
+        notifyDocumentRemoved(read(containerId), dModel.get(documentId),
+                localEventGenerator);
+    }
+
+    /**
+     * Remove a container listener.
+     * 
+     * @param listener
+     *            A container listener.
+     */
+    void removeListener(final ContainerListener listener) {
+        logger.info(getApiId("[REMOVE LISTENER]"));
+        logger.debug(listener);
+        Assert.assertNotNull(getApiId("[REMOVE LISTENER] [LISTENER IS NULL]"),
+                listener);
+        synchronized(LISTENERS) {
+            if(!LISTENERS.contains(listener)) { return; }
+            LISTENERS.remove(listener);
+        }
+    }
+
+    /**
+     * Share the container with a user. The user will receive the latest version
+     * of the container and become part of the container's team.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The jabber id.
+     */
+    void share(final Long containerId, final JabberId jabberId)
+            throws ParityException {
+        logger.info(getApiId("[SHARE]"));
+        logger.debug(containerId);
+        logger.debug(jabberId);
+        assertOnline(getApiId("[SHARE] [USER NOT ONLINE]"));
+        final User user = getInternalSessionModel().readUser(jabberId);
+        final Set<User> team = getInternalArtifactModel().readTeam(containerId);
+        Assert.assertNotTrue(getApiId("[SHARE] [USER ALREADY ON TEAM]"), team.contains(user));
+
+        // save the new team member locally
+        getInternalArtifactModel().addTeamMember(containerId, jabberId);
+
+        // update index
+        updateIndex(containerId);
+
+        // audit
+        auditor.addTeamMember(containerId, currentUserId(), currentDateTime(),
+                jabberId);
+
+        // send
+        send(readLatestVersion(containerId), user);
+    }
+
+    /**
+     * Assert that the list of documents contains the document id.
+     * 
+     * @param assertion
+     *            An assertion message.
+     * @param documents
+     *            A list of documents.
+     * @param documentId
+     *            A document id.
+     */
+    private void assertContains(final Object assertion,
+            final List<Document> documents, final Long documentId) {
+        Boolean didContain = Boolean.FALSE;
+        for(final Document document : documents) {
+            if(document.getId().equals(documentId)) {
+                didContain = Boolean.TRUE;
+                break;
+            }
+        }
+        Assert.assertTrue(assertion, didContain);
+    }
+
+    /**
+     * Assert that the list of documents does not contain the document.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param documents
+     *            A list of documents.
+     * @param documentId
+     *            A document id.
+     */
+    private void assertDoesNotContain(final Object assertion,
+            final List<Document> documents, final Long documentId) {
+        for(final Document document : documents)
+            Assert.assertNotTrue(assertion, document.getId().equals(documentId));
+    }
+
+    /**
+     * Create a container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return The container version.
+     */
+    private ContainerVersion createVersion(final Container container) {
+        final ContainerVersion version = new ContainerVersion();
+        version.setArtifactId(container.getId());
+        version.setArtifactType(container.getType());
+        version.setArtifactUniqueId(container.getUniqueId());
+        version.setCreatedBy(container.getCreatedBy());
+        version.setCreatedOn(container.getCreatedOn());
+        version.setName(container.getName());
+        version.setUpdatedBy(container.getUpdatedBy());
+        version.setUpdatedOn(container.getUpdatedOn());
+        containerIO.createVersion(version);
+        return containerIO.readVersion(version.getArtifactId(), version.getVersionId());
+    }
+
+    /**
+     * Delete the local info for this container.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    private void deleteLocal(final Long containerId) throws ParityException {
+        final InternalArtifactModel aModel = getInternalArtifactModel();
+        // delete the team
+        aModel.deleteTeam(containerId);
+        // delete the remote info
+        aModel.deleteRemoteInfo(containerId);
+        // delete the audit events
+        getInternalAuditModel().delete(containerId);
+        // delete versions
+        final List<ContainerVersion> versions = readVersions(containerId);
+        for(final ContainerVersion version : versions) {
+            // remove the version's artifact versions
+            containerIO.removeVersions(containerId, version.getVersionId());
+            // delete the version
+            containerIO.deleteVersion(containerId, version.getVersionId());
+        }
+        // delete the index
+        indexor.delete(containerId);
+        // delete the container
+        containerIO.delete(containerId);
+    }
+
+    /**
+     * Delete the remote info for this container.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    private void deleteRemote(final Long containerId) throws ParityException {
+        getInternalSessionModel().sendDelete(containerId);
+    }
+
+    /**
+     * Fire a container closed notification.
+     * 
+     * @param container
+     *            A container.
+     * @param user
+     *            A user.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyContainerClosed(final Container container,
+            final User user, final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.containerClosed(eventGenerator.generate(container, user));
+            }
+        }
+    }
+
+    /**
+     * Fire a container created notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyContainerCreated(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.containerCreated(eventGenerator.generate(container));
+            }
+        }
+    }
+
+    /**
+     * Fire a container deleted notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyContainerDeleted(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.containerDeleted(eventGenerator.generate(container));
+            }
+        }
+    }
+
+    /**
+     * Fire a container reactivated notification.
+     * 
+     * @param container
+     *            A container.
+     * @param user
+     *            A user.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyContainerReactivated(final Container container,
+            final User user, final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.containerReactivated(eventGenerator.generate(container, user));
+            }
+        }
+    }
+
+    /**
+     * Fire a document added notification.
+     * 
+     * @param container
+     *            A container.
+     * @param document
+     *            A document.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyDocumentAdded(final Container container,
+            final Document document,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.documentAdded(eventGenerator.generate(container, document));
+            }
+        }
+    }
+
+    /**
+     * Fire a document removed notification.
+     * 
+     * @param container
+     *            A container.
+     * @param document
+     *            A document.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyDocumentRemoved(final Container container,
+            final Document document,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.documentRemoved(eventGenerator.generate(container, document));
+            }
+        }
+        
+    }
+
+    /**
+     * Send the version to a user.
+     * 
+     * @param version
+     *            The container version.
+     * @param user
+     *            A list of users.
+     * @throws ParityException
+     */
+    private void send(final ContainerVersion version, final List<User> users)
+            throws ParityException {
+        for(final User user : users) { send(version, user); }
+    }
+
+    /**
+     * Send a container version to a user.
+     * 
+     * @param version
+     *            A container version.
+     * @param user
+     *            A user.
+     * @throws ParityException
+     */
+    private void send(final ContainerVersion version, final User user)
+            throws ParityException {
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final InternalSessionModel sModel = getInternalSessionModel();
+        final List<Document> documents = containerIO.readDocuments(
+                version.getArtifactId(), version.getVersionId());
+        DocumentVersion latestVersion;
+        final List<User> users = new LinkedList<User>();
+        for(final Document document : documents) {
+            latestVersion = dModel.readLatestVersion(document.getId());
+            users.clear();
+            users.add(user);
+            sModel.send(users, document.getId(), latestVersion.getVersionId());
+        }
+    }
+
+    /**
+     * Update the container's index entry.
+     * 
+     * @param containerId
+     *            The container id.
+     * @throws ParityException
+     */
+    private void updateIndex(final Long containerId) throws ParityException {
+        logger.info("[LMODEL] [DOCUMENT] [UPDATE INDEX]");
+        logger.debug(containerId);
+        indexor.delete(containerId);
+        indexor.create(containerId, read(containerId).getName());
+    }
+
 }

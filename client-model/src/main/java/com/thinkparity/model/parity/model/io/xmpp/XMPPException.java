@@ -15,13 +15,23 @@ public class XMPPException extends RuntimeException {
 	/** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-	/**
-	 * Create XMPPException.
-	 * 
-	 * @param cause
-	 *        The cause of the xmpp error.
-	 */
-	public XMPPException(final Throwable cause) { super(cause); }
+    /**
+     * Create XMPPException.
+     * 
+     * @param cause
+     *        The cause of the xmpp error.
+     */
+    public XMPPException(final Throwable cause) { super(cause); }
+
+    /**
+     * Create XMPPException.
+     * 
+     * @param cause
+     *        The cause of the xmpp error.
+     */
+    public XMPPException(final Object message, final Throwable cause) {
+        super(null == message ? null : message.toString(), cause);
+    }
 
 	/**
 	 * Create XMPPException.

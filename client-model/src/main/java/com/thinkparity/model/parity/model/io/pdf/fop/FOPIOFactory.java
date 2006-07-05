@@ -46,6 +46,14 @@ public class FOPIOFactory extends IOFactory {
     }
 
 	/**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createContainerHandler()
+     * 
+     */
+    public ContainerIOHandler createContainerHandler() {
+        throw Assert.createNotYetImplemented("FOPIOFactory#createContainerHandler");
+    }
+
+	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createDocumentHandler()
 	 * 
 	 */
@@ -59,7 +67,7 @@ public class FOPIOFactory extends IOFactory {
 		return new com.thinkparity.model.parity.model.io.pdf.fop.handler.DocumentHistoryIOHandler(preferences.getArchiveOutputDirectory());
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.IOFactory#createLibraryHandler()
      */
     @Override

@@ -40,6 +40,14 @@ public class XMPPIOFactory extends IOFactory {
     public ConfigurationIOHandler createConfigurationHandler() {
         throw Assert.createNotYetImplemented("XMPPIOFactory#createConfigurationHandler");
     }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createContainerHandler()
+     * 
+     */
+    public ContainerIOHandler createContainerHandler() {
+        throw Assert.createNotYetImplemented("XMPPIOFactory#createContainerHandler");
+    }
     public DocumentIOHandler createDocumentHandler() {
         throw Assert.createUnreachable("XMPPIOFactory#createDocumentHandler()");
     }

@@ -29,7 +29,7 @@ public class GetSubscriptionListTest extends XMPPTestCase {
 
 	public void testGetSubscription() {
 		try {
-			Set<User> artifactTeam;
+			List<User> artifactTeam;
 			for(final Fixture datum : data) {
                 artifactTeam =
 					datum.session.readArtifactTeam(datum.artifactUniqueId);

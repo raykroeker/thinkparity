@@ -4,7 +4,11 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import com.thinkparity.model.ModelTestCase;
+
+import java.util.List;
+
+import com.thinkparity.model.parity.model.ModelTestCase;
+
 
 /**
  * <b>Title:</b>thinkParity Container Test Abstraction<br>
@@ -13,7 +17,22 @@ import com.thinkparity.model.ModelTestCase;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public abstract class ContainerTestCase extends ModelTestCase {
+abstract class ContainerTestCase extends ModelTestCase {
+
+    /**
+     * Assert the containers are not null.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param containers
+     *            A list of containers.
+     */
+    protected static void assertNotNull(final String assertion, final List<Container> containers) {
+        assertNotNull(assertion + " [CONTAINERS IS NULL]", (Object) containers);
+        for(final Container container : containers) {
+            assertNotNull(assertion, container);
+        }
+    }
 
     /**
      * Create ContainerTestCase.
@@ -21,7 +40,7 @@ public abstract class ContainerTestCase extends ModelTestCase {
      * @param name
      *            The test name.
      */
-    public ContainerTestCase(final String name) { super(name); }
+    protected ContainerTestCase(final String name) { super(name); }
 
     /**
      * @see junit.framework.TestCase#setUp()

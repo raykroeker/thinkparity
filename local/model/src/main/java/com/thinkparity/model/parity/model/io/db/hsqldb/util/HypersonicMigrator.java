@@ -78,8 +78,11 @@ class HypersonicMigrator {
 				CONFIG.getProperty("CreateSystemMessageType"),
 				CONFIG.getProperty("CreateSystemMessage"),
 				CONFIG.getProperty("CreateSystemMessageMetaData"),
-				CONFIG.getProperty("CreateDocument"),
-				CONFIG.getProperty("CreateDocumentVersion"),
+                CONFIG.getProperty("CreateContainer"),
+                CONFIG.getProperty("CreateContainerVersion"),
+                CONFIG.getProperty("CreateContainerVersionArtifactVersionRel"),
+                CONFIG.getProperty("CreateDocument"),
+                CONFIG.getProperty("CreateDocumentVersion"),
                 CONFIG.getProperty("CreateIndexUserInfoName"),
                 CONFIG.getProperty("CreateIndexUserInfoEMail"),
                 CONFIG.getProperty("CreateIndexUserInfoOrganization")

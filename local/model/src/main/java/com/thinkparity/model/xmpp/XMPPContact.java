@@ -5,9 +5,9 @@ package com.thinkparity.model.xmpp;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
@@ -17,7 +17,6 @@ import org.jivesoftware.smack.provider.ProviderManager;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.contact.*;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -61,7 +60,7 @@ class XMPPContact {
 	 */
 	XMPPContact(final XMPPCore xmppCore) {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.xmppCore = xmppCore;
 	}
 
@@ -164,7 +163,7 @@ class XMPPContact {
      * 
      * @return The list of contacts for the user.
      */
-	Set<Contact> read() throws SmackException {
+	List<Contact> read() throws SmackException {
 		logger.info("[XMPP] [CONTACT] [READ CONTACTS]");
 		final IQ iq = new IQReadContacts();
 		iq.setType(IQ.Type.GET);

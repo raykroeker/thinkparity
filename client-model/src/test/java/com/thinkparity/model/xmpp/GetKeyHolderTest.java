@@ -65,17 +65,17 @@ public class GetKeyHolderTest extends XMPPTestCase {
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getUser());
+		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getJabberId());
 		data.add(new Fixture(artifactUniqueId, userX.getUser(), session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getUser());
+		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getJabberId());
 		data.add(new Fixture(artifactUniqueId, userX.getUser(), session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getUser());
+		session.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, userX.getJabberId());
 		data.add(new Fixture(artifactUniqueId, userX.getUser(), session));
 	}
 

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Comparator;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
@@ -94,8 +95,8 @@ public class DocumentModel {
 	 *            The document to archive.
 	 * @throws ParityException
 	 */
-	public File archive(final Long documentId) throws ParityException {
-		synchronized(implLock) { return impl.archive(documentId); }
+	public File archive(final Long documentId) {
+		throw Assert.createUnreachable("DocumentModel#archive(java.lang.Long) => ContainerModel#archive(java.lang.Long)");
 	}
 
 	/**
@@ -106,8 +107,8 @@ public class DocumentModel {
 	 * @throws ParityException
 	 */
 	public File archive(final Long documentId,
-			final ProgressIndicator progressIndicator) throws ParityException {
-		synchronized(implLock) { return impl.archive(documentId, progressIndicator); }
+			final ProgressIndicator progressIndicator) {
+        throw Assert.createUnreachable("DocumentModel#archive(java.lang.Long) => ContainerModel#archive(java.lang.Long,com.thinkparity.model.parity.model.progress.ProgressIndicator)");
 	}
 
 	/**
@@ -122,8 +123,8 @@ public class DocumentModel {
 	 *             </ul>
 	 * @throws ParityException
 	 */
-	public void close(final Long documentId) throws ParityException {
-		synchronized(implLock) { impl.close(documentId); }
+	public void close(final Long documentId) {
+        throw Assert.createUnreachable("DocumentModel#close(java.lang.Long) => ContainerModel#close(java.lang.Long)");
 	}
 
 	/**
@@ -167,7 +168,7 @@ public class DocumentModel {
 	 * @throws ParityException
 	 */
 	public void delete(final Long documentId) throws ParityException {
-		synchronized(implLock) { impl.delete(documentId); }
+	    throw Assert.createUnreachable("DocumentModel#delete(java.lang.Long)) => ContainerModel#removeDocument(java.lang.Long)");
 	}
 
 	/**
@@ -180,19 +181,6 @@ public class DocumentModel {
 	 */
 	public Document get(final Long documentId) throws ParityException {
 		synchronized(implLock) { return impl.get(documentId); }
-	}
-
-	/**
-	 * Obtain the document content for a given document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @return The document's content.
-	 * @throws ParityException
-	 */
-	public DocumentContent getContent(final Long documentId)
-			throws ParityException {
-		synchronized(implLock) { return impl.getContent(documentId); }
 	}
 
 	/**
@@ -262,7 +250,7 @@ public class DocumentModel {
 	 * @see #list(Long, Comparator)
 	 */
 	public Collection<Document> list() throws ParityException {
-		synchronized(implLock) { return impl.list(); }
+        throw Assert.createUnreachable("DocumentModel#list() => ContainerModel#readDocuments(java.lang.Long)");
 	}
 
 	/**
@@ -277,7 +265,7 @@ public class DocumentModel {
 	 */
 	public Collection<Document> list(final Comparator<Artifact> comparator)
 			throws ParityException {
-		synchronized(implLock) { return impl.list(comparator); }
+        throw Assert.createUnreachable("DocumentModel#list(Comparator<Artifact>) => ContainerModel#readDocuments(java.lang.Long,Comparator<Artifact>)");
 	}
 
 	/**
@@ -292,7 +280,7 @@ public class DocumentModel {
      */
 	public Collection<Document> list(final Comparator<Artifact> comaprator,
 			final Filter<? super Artifact> filter) throws ParityException {
-		synchronized(implLock) { return impl.list(comaprator, filter); }
+        throw Assert.createUnreachable("DocumentModel#list(Comparator<Artifact>,Filter<? super Artifact>) => ContainerModel#readDocuments(java.lang.Long,Comparator<Artifact>,Filter<? super Artifact>)");
 	}
 
 	/**
@@ -305,7 +293,7 @@ public class DocumentModel {
      */
 	public Collection<Document> list(final Filter<? super Artifact> filter)
 			throws ParityException {
-		synchronized(implLock) { return impl.list(filter); }
+        throw Assert.createUnreachable("DocumentModel#list(Filter<? super Artifact>) => ContainerModel#readDocuments(java.lang.Long,Filter<? super Artifact>)");
 	}
 
 	/**
@@ -384,7 +372,7 @@ public class DocumentModel {
      *      The document id.
      */
     public void publish(final Long documentId) throws ParityException {
-        synchronized(implLock) { impl.publish(documentId); }
+        throw Assert.createUnreachable("DocumentModel#publish(java.lang.Long) => ContainerModel#publish(java.lang.Long)");
     }
 
     /**
@@ -395,7 +383,7 @@ public class DocumentModel {
      * @throws ParityException
      */
     public void reactivate(final Long documentId) throws ParityException {
-        synchronized(implLock) { impl.reactivate(documentId); }
+        throw Assert.createUnreachable("DocumentModel#reactivate(java.lang.Long) => ContainerModel#reactivate(java.lang.Long)");
     }
 
 	/**
@@ -477,7 +465,7 @@ public class DocumentModel {
      *      The user id to add.
      */
     public void share(final Long documentId, final JabberId jabberId) throws ParityException {
-        synchronized(implLock) { impl.share(documentId, jabberId); }
+        throw Assert.createUnreachable("DocumentModel#share(java.lang.Long,com.thinkparity.model.xmpp.JabberId) => ContainerModel#share(java.lang.Long,com.thinkparity.model.xmpp.JabberId)");
     }
 
     /**

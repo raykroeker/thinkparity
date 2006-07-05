@@ -4,6 +4,8 @@
  */
 package com.thinkparity.model.parity.model.contact;
 
+import java.util.List;
+
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -14,7 +16,7 @@ import com.thinkparity.model.xmpp.contact.Contact;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public abstract class ContactTestCase extends ModelTestCase {
+abstract class ContactTestCase extends ModelTestCase {
 
     /**
      * Assert that the contact; nor its required members are null.
@@ -32,12 +34,28 @@ public abstract class ContactTestCase extends ModelTestCase {
     }
 
     /**
+     * Assert that the list of contacts is not null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param contacts
+     *            The list of contacts.
+     */
+    protected static void assertNotNull(final String assertion,
+            final List<Contact> contacts) {
+        assertNotNull(assertion + " [CONTACTS IS NULL]", (Object) contacts);
+        for(final Contact contact : contacts) {
+            assertNotNull(assertion, contact);
+        }
+    }
+
+    /**
      * Create ContactTestCase.
      * 
      * @param name
      *            The test case name.
      */
-    public ContactTestCase(final String name) { super(name); }
+    protected ContactTestCase(final String name) { super(name); }
 
     /**
      * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()

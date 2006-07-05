@@ -5,9 +5,7 @@ package com.thinkparity.model.smackx.packet;
 
 import java.util.UUID;
 
-import com.thinkparity.model.xmpp.JabberIdBuilder;
-import com.thinkparity.model.xmpp.user.User;
-
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raykroeker@gmail.com
@@ -23,9 +21,9 @@ public class IQAcceptKeyRequest extends IQArtifact {
 	 * @param artifactUUID
 	 *            The artifact unique id.
 	 */
-	public IQAcceptKeyRequest(final UUID artifactUUID, final User user) {
+	public IQAcceptKeyRequest(final UUID artifactUUID, final JabberId jabberId) {
 		super(Action.ACCEPTKEYREQUEST, artifactUUID);
-		setQualifiedJID(new JabberIdBuilder(user).getQualifiedJID());
+		setQualifiedJID(jabberId.getQualifiedJabberId());
 	}
 
 	/**

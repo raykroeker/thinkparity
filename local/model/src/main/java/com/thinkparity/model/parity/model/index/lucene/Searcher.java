@@ -42,11 +42,11 @@ public class Searcher {
 	 */
 	private final List<Field> fields;
 
-	/**
-	 * The field representing the data's unique id.
-	 * 
-	 */
+	/** The index id field. */
 	private final Field idField;
+
+    /** The index type field. */
+    private final Field typeField;
 
 	/**
 	 * The index searcher.
@@ -62,13 +62,14 @@ public class Searcher {
 	 */
 	public Searcher(final Logger logger, final Analyzer analyzer,
 			final IndexReader indexReader, final Field idField,
-			final List<Field> fields) {
+			final List<Field> fields, final Field typeField) {
 		super();
 		this.analyzer = analyzer;
 		this.fields = fields;
 		this.idField = idField;
 		this.indexSearcher = new IndexSearcher(indexReader);
 		this.logger = logger;
+        this.typeField = typeField;
 	}
 
 	/**
@@ -84,7 +85,7 @@ public class Searcher {
 		final List<Query> queries = createQueries(expression);
 
 		final List<QueryHit> hits = new LinkedList<QueryHit>();
-		final QueryHitBuilder queryHitBuilder = new QueryHitBuilder(idField);
+		final QueryHitBuilder queryHitBuilder = new QueryHitBuilder(idField, typeField);
 		Iterator iHits;
 		for(final Query query : queries) {
 			logger.info("[LMODEL] [INDEX] [SEARCH] [QUERY]");

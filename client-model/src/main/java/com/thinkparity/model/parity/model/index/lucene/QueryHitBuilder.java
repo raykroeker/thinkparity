@@ -8,17 +8,19 @@ import java.io.IOException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Hit;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class QueryHitBuilder {
 
-	/**
-	 * The query id field.
-	 * 
-	 */
+	/** The index id field. */
 	private final Field idField;
+
+    /** The index type field. */
+    private final Field typeField;
 
 	/**
 	 * Create a QueryHitBuilder.
@@ -26,9 +28,10 @@ public class QueryHitBuilder {
 	 * @param capacity
 	 *            The initial hit capacity.
 	 */
-	QueryHitBuilder(final Field idField) {
+	QueryHitBuilder(final Field idField, final Field typeField) {
 		super();
 		this.idField = idField;
+        this.typeField = typeField;
 	}
 
 	/**
@@ -39,26 +42,12 @@ public class QueryHitBuilder {
 	public QueryHit toQueryHit(final Hit hit) {
 		final QueryHit queryHit = new QueryHit();
 		try {
-			queryHit.setDataId(parseLong(hit, idField));
-			queryHit.setDocument(hit.getDocument());
+            queryHit.setId(Long.parseLong(hit.getDocument().get(idField.name())));
+            queryHit.setType(ArtifactType.valueOf(hit.getDocument().get(typeField.name())));
 		}
 		catch(final IOException iox) {
 			throw new IndexException("Could not extract hit value.", iox);
 		}
 		return queryHit;
-	}
-
-	/**
-	 * Parse a hit's value for a long.
-	 * 
-	 * @param hit
-	 *            The hit.
-	 * @param field
-	 *            The field to extract.
-	 * @return The long value.
-	 * @throws IOException
-	 */
-	private Long parseLong(final Hit hit, final Field field) throws IOException {
-		return Long.parseLong(hit.get(field.name()));
 	}
 }

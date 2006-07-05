@@ -26,6 +26,13 @@ public class InternalIndexModel extends IndexModel {
 		context.assertContextIsValid();
 	}
 
+    public void createContainer(final Long containerId,
+            final String containerName) throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().createContainer(containerId, containerName);
+        }
+    }
+
 	public void createDocument(final Long documentId, final String documentName)
 			throws ParityException {
 		synchronized(getImplLock()) {

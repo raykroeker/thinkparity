@@ -95,6 +95,13 @@ public abstract class IOFactory {
     public abstract ConfigurationIOHandler createConfigurationHandler();
 
     /**
+     * Create a container io handler.
+     * 
+     * @return A container io handler.
+     */
+    public abstract ContainerIOHandler createContainerHandler();
+
+    /**
 	 * Create a document io handler.
 	 * 
 	 * @return The document io handler.

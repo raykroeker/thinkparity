@@ -87,7 +87,10 @@ public class XMPPMethod extends IQ {
         try { Thread.sleep(75); }
         catch(final InterruptedException ix) {}
 
-        return ((XMPPMethodResponse) idCollector.nextResult());
+        try { return ((XMPPMethodResponse) idCollector.nextResult()); }
+        catch(final ClassCastException ccx) {
+            throw new XMPPException("[XMPP] [XMPP METHOD] [REMOTE METHOD NOT AVAILABLE]", ccx);
+        }
     }
 
     /** @see org.jivesoftware.smack.packet.IQ#getChildElementXML() */

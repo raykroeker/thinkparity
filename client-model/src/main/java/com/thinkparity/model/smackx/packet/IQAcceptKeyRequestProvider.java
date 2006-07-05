@@ -6,14 +6,16 @@ package com.thinkparity.model.smackx.packet;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,13 +32,11 @@ public class IQAcceptKeyRequestProvider implements IQProvider {
 	/**
 	 * Assertion message when the username is null.
 	 */
-	private static final String ASSERT_USERNAME =
-		"The username could not be extracted from the key request.";
+	private static final String ASSERT_JABBER_ID =
+		"The jabber id could not be extracted from the key request.";
 
-	/**
-	 * Handle to an apache logger.
-	 */
-	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
+	/** An apache logger. */
+	protected final Logger logger = Logger.getLogger(getClass());
 
 	/**
 	 * Create a IQAcceptKeyRequestProvider.
@@ -46,11 +46,11 @@ public class IQAcceptKeyRequestProvider implements IQProvider {
 	/**
 	 * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
 	 */
-	public IQ parseIQ(XmlPullParser parser) throws Exception {
+	public IQ parseIQ(final XmlPullParser parser) throws Exception {
 		logger.info("parseIQ(XmlPullParser)");
 		logger.debug(parser);
 		UUID artifactUUID = null;
-		String username = null;
+		JabberId jabberId = null;
 
 		Integer attributeCount, depth, eventType;
 		String name, namespace, prefix, text;
@@ -80,12 +80,12 @@ public class IQAcceptKeyRequestProvider implements IQProvider {
 			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				isComplete = Boolean.TRUE;
 				parser.next();
-				username = parser.getText();
+				jabberId = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
 				parser.next();
 			}
 		}
 		Assert.assertNotNull(ASSERT_ARTIFACT_UUID, artifactUUID);
-		Assert.assertNotNull(ASSERT_USERNAME, username);
-		return new IQAcceptKeyRequest(artifactUUID, new User(username));
+		Assert.assertNotNull(ASSERT_JABBER_ID, jabberId);
+		return new IQAcceptKeyRequest(artifactUUID, jabberId);
 	}
 }

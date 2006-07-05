@@ -153,6 +153,18 @@ public interface XMPPSession {
     public void processOfflineQueue() throws SmackException;
 
     /**
+     * Reactivate an artifact.
+     * 
+     * @param team
+     *            The artifact team.
+     * @param uniqueId
+     *            An artifact unique id.
+     * @throws SmackException
+     */
+    public void reactivateArtifact(final List<JabberId> team,
+            final UUID uniqueId) throws SmackException;
+
+    /**
      * Read the artifact key holder.
      * 
      * @param artifactUniqueId
@@ -163,7 +175,7 @@ public interface XMPPSession {
 	public User readArtifactKeyHolder(final UUID uniqueId)
             throws SmackException;
 
-    /**
+	/**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -171,16 +183,16 @@ public interface XMPPSession {
      * @return The users representing the artifact team.
      * @throws SmackException
      */
-    public Set<User> readArtifactTeam(final UUID artifactUniqueId)
+    public List<User> readArtifactTeam(final UUID artifactUniqueId)
             throws SmackException;
 
-	/**
+    /**
      * Read the logged in user's contacts.
      * 
      * @return The logge in user's contacts.
      * @throws SmackException
      */
-    public Set<Contact> readContacts() throws SmackException;
+    public List<Contact> readContacts() throws SmackException;
 
     /**
      * Read the logged in user.
@@ -189,19 +201,6 @@ public interface XMPPSession {
      * @throws SmackException
      */
 	public User readCurrentUser() throws SmackException;
-
-    /**
-     * Update the logged in user.
-     * 
-     * @param name
-     *            The user's name.
-     * @param email
-     *            The user's email.
-     * @param organization
-     *            The user's organization.
-     */
-    public void updateCurrentUser(final String name, final String email,
-            final String organization) throws SmackException;
 
     /**
      * Read a set of users.
@@ -276,9 +275,22 @@ public interface XMPPSession {
 	public void sendInvitation(final JabberId jabberId) throws SmackException;
 
     public void sendKeyResponse(final UUID artifactUniqueId,
-			final KeyResponse keyResponse, final User user)
-			throws SmackException;
+            final KeyResponse keyResponse, final JabberId jabberId)
+            throws SmackException;
 
     public void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException;
+
+    /**
+     * Update the logged in user.
+     * 
+     * @param name
+     *            The user's name.
+     * @param email
+     *            The user's email.
+     * @param organization
+     *            The user's organization.
+     */
+    public void updateCurrentUser(final String name, final String email,
+            final String organization) throws SmackException;
 }

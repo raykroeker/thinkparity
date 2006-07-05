@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -50,20 +52,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
 	/**
-	 * Obtain the artifact key holder.
-	 * 
-	 * @param artifactId
-	 *            The artifact key holder.
-	 * @return The artifact key holder.
-	 * @throws ParityException
-	 */
-	public User getArtifactKeyHolder(final Long artifactId) throws ParityException {
-		synchronized(getImplLock()) {
-			return getImpl().getArtifactKeyHolder(artifactId);
-		}
-	}
-
-	/**
 	 * Obtain the currently logged in user.
 	 * 
 	 * @return The logged in user.
@@ -73,11 +61,40 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) { return getImpl().getLoggedInUser(); }
 	}
 
+    /**
+     * Read the artifact key holder.
+     * 
+     * @param artifactUniqueId
+     *            The artifact unique id.
+     * @return The artifact key holder.
+     * @throws ParityException
+     */
+    public JabberId readArtifactKeyHolder(final UUID artifactUniqueId)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            return getImpl().readArtifactKeyHolder(artifactUniqueId);
+        }
+    }
+
+	public List<User> readArtifactTeamList(final Long artifactId) throws ParityException {
+        synchronized(getImplLock()) { return getImpl().readArtifactTeam(artifactId); }
+    }
+
+    /**
+     * Read the user's contact list.
+     * 
+     * @return A list of contacts.
+     * @throws ParityException
+     */
+    public List<Contact> readContactList() throws ParityException {
+        synchronized(getImplLock()) { return getImpl().readContacts(); }
+    }
+
 	public User readUser(final JabberId jabberId) throws ParityException {
 		synchronized(getImplLock()) { return getImpl().readUser(jabberId); }
 	}
 
-    /**
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -90,7 +107,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) { return getImpl().readUsers(jabberIds); }
 	}
 
-	/**
+    /**
 	 * Send a close packet to the parity server.
 	 * 
 	 * @param artifactId
@@ -117,7 +134,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) { getImpl().sendCreate(artifact); }
 	}
 
-	/**
+    /**
 	 * Send a delete packet to the parity server.
 	 * 
 	 * @param artifactId
@@ -131,6 +148,35 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	public void sendDelete(final Long artifactId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().sendDelete(artifactId); }
 	}
+
+    /**
+     * Send the artifact key to a user.
+     * 
+     * @param artifactUniqueId
+     *            The artifact unique id.
+     * @param jabberId
+     *            The user to send the key to.
+     */
+    public void sendKey(final UUID artifactUniqueId, final JabberId jabberId)
+            throws ParityException {
+        synchronized(getImplLock()) { getImpl().sendKey(artifactUniqueId, jabberId); }
+    }
+
+    /**
+     * Send a reactivation package to the parity server.
+     * 
+     * @param artifactTeam
+     *            The artifact team.
+     * @param artifactId
+     *            The artifact id.
+     * @throws ParityException
+     */
+    public void sendReactivate(final List<JabberId> artifactTeam,
+            final Long artifactId) throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().sendReactivate(artifactTeam, artifactId);
+        }
+    }
 
     public void updateUser(final String name, final String email,
             final String organization) throws ParityException {

@@ -400,6 +400,17 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#reactivateArtifact(java.util.UUID)
+     */
+    public void reactivateArtifact(final List<JabberId> team,
+            final UUID uniqueId) throws SmackException {
+        logger.info("[XMPP] [REACTIVATE ARTIFACT]");
+        logger.debug(team);
+        logger.debug(uniqueId);
+        xmppArtifact.reactivate(team, uniqueId);
+    }
+
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactKeyHolder(java.util.UUID)
      * 
      */
@@ -419,20 +430,20 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactTeam(java.util.UUID)
      * 
      */
-	public Set<User> readArtifactTeam(final UUID uniqueId)
+	public List<User> readArtifactTeam(final UUID uniqueId)
             throws SmackException {
 		return xmppArtifact.readTeam(uniqueId);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
-	public Set<Contact> readContacts() throws SmackException {
+	public List<Contact> readContacts() throws SmackException {
 		return xmppContact.read();
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#readCurrentUser()
 	 * 
 	 */
@@ -472,7 +483,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         method.execute(getConnection());
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPArtifactListener)
 	 * 
 	 */
@@ -480,7 +491,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppArtifact.removeListener(l);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPContactListener)
 	 * 
 	 */
@@ -579,7 +590,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * Send the packet and wait for a response. If the response conains an
 	 * error; a SmackException will be thrown.
 	 * 
@@ -606,7 +617,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return confirmationPacket;
 	}
 
-    /**
+	/**
      * Execute a remote method call to reactivate a document.
      * 
      * @throws SmackException
@@ -643,18 +654,18 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * 
 	 */
 	public void sendKeyResponse(final UUID artifactUniqueId,
-			final KeyResponse keyResponse, final User user)
-			throws SmackException {
+            final KeyResponse keyResponse, final JabberId jabberId)
+            throws SmackException {
 		logger.info("sendKeyResponse(UUID,KeyResponse,User)");
 		logger.debug(artifactUniqueId);
-		logger.debug(user);
+		logger.debug(jabberId);
 		final IQArtifact iq;
 		switch(keyResponse) {
 		case ACCEPT:
-			iq = new IQAcceptKeyRequest(artifactUniqueId, user);
+			iq = new IQAcceptKeyRequest(artifactUniqueId, jabberId);
 			break;
 		case DENY:
-			iq = new IQDenyKeyRequest(artifactUniqueId, user);
+			iq = new IQDenyKeyRequest(artifactUniqueId, jabberId);
 			break;
 		default:
 			throw Assert.createUnreachable(
@@ -803,7 +814,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * Fire the keyRequested event for all of the XMPPExtension listeners.
 	 * 
 	 * @param iqKeyRequest

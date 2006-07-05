@@ -5,7 +5,6 @@
 package com.thinkparity.model.parity.model.contact;
 
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -121,8 +120,8 @@ class ContactModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
         logger.debug(filter);
-        final List<Contact> contactList = new LinkedList<Contact>();
-        try { contactList.addAll(getSessionModel().readContacts()); } 
+        List<Contact> contactList = null;
+        try { contactList = getInternalSessionModel().readContactList(); }
         catch(final ParityException px) { throw new RuntimeException(px); }
         return contactList;
     }

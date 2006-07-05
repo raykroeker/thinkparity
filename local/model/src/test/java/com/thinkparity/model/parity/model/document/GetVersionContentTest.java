@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
+import com.thinkparity.model.parity.ParityException;
+
 /**
  * Test the document model get version content api.
  * 
@@ -14,53 +16,30 @@ import java.util.Vector;
  */
 public class GetVersionContentTest extends DocumentTestCase {
 
-	/**
-	 * Test data fixture.
-	 */
-	private class Fixture {
-		private final Long documentId;
-		private final DocumentModel documentModel;
-		private final DocumentVersionContent versionContent;
-		private final Long versionId;
-		private Fixture(final Long documentId,
-				final DocumentModel documentModel,
-				final DocumentVersionContent versionContent,
-				final Long versionId) {
-			this.documentId = documentId;
-			this.documentModel = documentModel;
-			this.versionId = versionId;
-			this.versionContent = versionContent;
-		}
-	}
+    /** The test name. */
+    private static final String NAME = "[LMODEL] [DOCUMENT] [GET VERSION CONTENT TEST]";
 
-	/**
-	 * Test data.
-	 */
+	/** Test data. */
 	private Vector<Fixture> data;
 
-	/**
-	 * Create a GetVersionContentTest.
-	 * @param name
-	 */
-	public GetVersionContentTest() { super("testGetVersionContent"); }
+	/** Create GetVersionContentTest. */
+	public GetVersionContentTest() { super(NAME); }
 
 	/**
 	 * Test the document model get version content api.
 	 *
 	 */
 	public void testGetVersionContent() {
-		try {
-			DocumentVersionContent versionContent;
-			for(Fixture datum : data) {
-				versionContent =
-					datum.documentModel.getVersionContent(datum.documentId, datum.versionId);
-				assertNotNull(versionContent);
-				assertEquals(datum.versionContent.getDocumentId(), versionContent.getDocumentId());
-				assertEquals(datum.versionContent.getDocumentContent(), versionContent.getDocumentContent());
-				assertEquals(datum.versionContent.getVersionId(), versionContent.getVersionId());
-			}
+		DocumentVersionContent versionContent = null;
+		for(Fixture datum : data) {
+		    try {
+		        versionContent = datum.documentModel.getVersionContent(
+                        datum.documentId, datum.versionId);
+            }
+		    catch(final ParityException px) { fail(createFailMessage(px)); }
+			assertNotNull(NAME, versionContent);
+			assertEquals(NAME, datum.eVersionContent, versionContent);
 		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
 
 	/**
@@ -73,19 +52,19 @@ public class GetVersionContentTest extends DocumentTestCase {
 		final File testFile = getInputFile("JUnitTestFramework.txt");
 		final Document document = create(testFile);
 		DocumentVersion version;
-		DocumentVersionContent versionContent;
+		DocumentVersionContent eVersionContent;
 
 		version = documentModel.createVersion(document.getId());
-		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
-		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
+		eVersionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
+		data.add(new Fixture(document.getId(), documentModel, eVersionContent, version.getVersionId()));
 
 		version = documentModel.createVersion(document.getId());
-		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
-		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
+        eVersionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
+		data.add(new Fixture(document.getId(), documentModel, eVersionContent, version.getVersionId()));
 
 		version = documentModel.createVersion(document.getId());
-		versionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
-		data.add(new Fixture(document.getId(), documentModel, versionContent, version.getVersionId()));
+        eVersionContent = documentModel.getVersionContent(document.getId(), version.getVersionId());
+		data.add(new Fixture(document.getId(), documentModel, eVersionContent, version.getVersionId()));
 	}
 
 	/**
@@ -95,5 +74,24 @@ public class GetVersionContentTest extends DocumentTestCase {
 		data.clear();
 		data = null;
 		super.tearDown();
+	}
+
+	/**
+	 * Test data fixture.
+	 */
+	private class Fixture {
+		private final Long documentId;
+		private final DocumentModel documentModel;
+		private final DocumentVersionContent eVersionContent;
+		private final Long versionId;
+		private Fixture(final Long documentId,
+				final DocumentModel documentModel,
+				final DocumentVersionContent eVersionContent,
+				final Long versionId) {
+			this.documentId = documentId;
+			this.documentModel = documentModel;
+			this.versionId = versionId;
+			this.eVersionContent = eVersionContent;
+		}
 	}
 }

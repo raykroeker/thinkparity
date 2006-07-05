@@ -9,6 +9,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.modules" value="common/codebase common/junitx common/migrator local/browser local/model local/thinkparity vendor/commons-codec/1.3 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/i686/win32/jdic/0.9.1 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.1.2"/>
+    <property name="cvs.modules.ide" value="ide/eclipse/product/ophelia"/>
     <property name="cvs.branch" value="v1_0"/>
 
     <!-- output directories -->
@@ -17,6 +18,7 @@
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
 	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+	<property name="target.test-report.dir" value="${target.dir}/test-report"/>
 	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
     <!-- source files -->
@@ -182,16 +184,13 @@
         <echo message="${cvs.cvsroot}"/>
         <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <sleep seconds="3"/>
+        <!-- source trees -->
         <cvs cvsroot="${cvs.cvsroot}"
             command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
             dest="${basedir}"/>
-    </target>
-
-    <!-- checkout ide -->
-    <target name="checkout.ide">
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.branch}"/>
-        <echo message="${cvs.modules.ide}"/>
+        <!-- ide files -->
         <cvs cvsroot="${cvs.cvsroot}"
             command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
             dest="${basedir}"/>
@@ -257,6 +256,7 @@ Targets:
     test                        Run tests.
     test-compile                Compile test source.
     test-process-resources      Process test resources.
+    test-report                 Produce a test report.
     update                      Update source with latest from CVS.
 Examples:
     First Run:
@@ -287,6 +287,7 @@ Examples:
 		<mkdir dir="${target.test-classes.dir}/local/browser"/>
 		<mkdir dir="${target.test-classes.dir}/local/model"/>
 		<mkdir dir="${target.test-classes.dir}/local/thinkparity"/>
+		<mkdir dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-sessions.dir}"/>
 	</target>
 
@@ -314,6 +315,7 @@ Examples:
         <javadoc access="private" classpathref="project.classpath"
                 destdir="${target.javadoc.dir}/local/model"
                 doctitle="thinkParity Local Model"
+                group="Artifact com.thinkparity.model.parity.model.artifact*,Contact com.thinkparity.model.parity.model.contact*,Container com.thinkparity.model.parity.model.container*,Document com.thinkparity.model.parity.model.document*,Index com.thinkparity.model.parity.model.index*,Session com.thinkparity.model.parity.model.session*,SystemMessage com.thinkparity.model.parity.model.system*,Workspace com.thinkparity.model.parity.model.workspace*,XMPP com.thinkparity.model.xmpp*:com.thinkparity.model.smack*"
                 packagenames="com.thinkparity.*"
                 sourcepath="${basedir}/local/model/src/main/java"/>
         <!-- browser -->
@@ -364,6 +366,7 @@ Examples:
         </copy>
     </target>
 
+    <!-- tag cvs -->
     <target name="tag">
         <input addproperty="cvs.tag" message="Release tag (REL_vX_X[_RCX]:"/>
         <echo message="${cvs.tag}"/>
@@ -375,27 +378,41 @@ Examples:
 
     <!-- unit test -->
 	<target name="test" depends="test-compile">
-		<junit fork="on" forkmode="once" reloading="false" errorproperty="junit.didError" failureproperty="junit.didFail">
+		<junit fork="on" forkmode="once" reloading="false"
+		errorproperty="junit.didError" failureproperty="junit.didFail">
 			<classpath refid="project.test-classpath"/>
 			<formatter type="brief" usefile="false"/>
-			<batchtest todir="${target.test-sessions.dir}">
+
+            <!-- execute single test -->
+		    <test if="test" name="${test}" todir="${target.test-sessions.dir}">
+		        <formatter type="xml"/>
+		    </test>
+
+		    <!-- execute batch tests -->
+		    <batchtest unless="test" todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
                 <fileset dir="${target.test-classes.dir}/common/codebase" includes="**/*Test.class"/>
                 <fileset dir="${target.test-classes.dir}/local/browser" includes="**/*Test.class"/>
                 <fileset dir="${target.test-classes.dir}/local/model" includes="**/*Test.class"/>
 			</batchtest>
 		</junit>
-
-        <junitreport todir="${target.test-sessions.dir}">
-            <fileset dir="${target.test-sessions.dir}">
-                <include name="TEST-*.xml"/>
-            </fileset>
-            <report format="noframes" todir="${target.test-sessions.dir}"/>
-        </junitreport>
+        <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
 
         <fail message="JUnit failure." if="junit.didFail"/>
         <fail message="JUnit error." if="junit.didError"/>
 	</target>
+
+    <!-- unit test report -->
+    <target name="test-report">
+        <delete dir="${target.test-report.dir}"/>
+        <mkdir dir="${target.test-report.dir}"/>
+        <junitreport todir="${target.test-report.dir}">
+            <fileset dir="${target.test-sessions.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${target.test-report.dir}"/>
+        </junitreport>
+    </target>
 
     <!-- compile tests -->
 	<target name="test-compile" depends="compile,test-process-resources">

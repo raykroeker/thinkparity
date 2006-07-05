@@ -46,6 +46,14 @@ public class HypersonicIOFactory extends IOFactory {
         return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ConfigurationIOHandler();
     }
 
+    /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createContainerHandler()
+     * 
+     */
+    public ContainerIOHandler createContainerHandler() {
+        return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ContainerIOHandler();
+    }
+
 	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createDocumentHandler()
 	 * 

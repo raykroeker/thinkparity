@@ -10,6 +10,7 @@ import com.thinkparity.model.parity.model.AbstractAuditor;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.audit.event.KeyRequestDeniedEvent;
 import com.thinkparity.model.parity.model.audit.event.SendConfirmEvent;
+import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -73,4 +74,30 @@ class ArtifactModelAuditor extends AbstractAuditor {
 
 		getInternalAuditModel().audit(event, createdBy, deniedBy);
 	}
+
+    /**
+     * Audit the send key api.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param artifactVersionId
+     *            The artifact version id.
+     * @param sentBy
+     *            The user sending the key.
+     * @param sentOn
+     *            The sent date\time.
+     * @param sentTo
+     *            The user the key was sent to.
+     */
+    void sendKey(final Long artifactId, final Calendar createdOn,
+            final JabberId createdBy, final Long artifactVersionId,
+            final JabberId sentBy, final Calendar sentOn, final JabberId sentTo)
+            throws ParityException {
+        final SendKeyEvent sendKeyEvent = new SendKeyEvent();
+        sendKeyEvent.setArtifactId(artifactId);
+        sendKeyEvent.setArtifactVersionId(artifactVersionId);
+        sendKeyEvent.setCreatedOn(sentOn);
+
+        getInternalAuditModel().audit(sendKeyEvent, createdBy, sentTo);
+    }
 }

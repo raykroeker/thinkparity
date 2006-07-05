@@ -27,13 +27,10 @@ import com.thinkparity.model.parity.model.artifact.ArtifactType;
  */
 public class Document extends Artifact {
 
-	/**
-	 * Create a Document.
-	 * 
-	 */
+	/** Create Document. */
 	public Document() { super(); }
 
-	/**
+    /**
 	 * Create a Document.
 	 * 
 	 * @param createdBy
@@ -61,7 +58,7 @@ public class Document extends Artifact {
 				updatedBy, updatedOn);
 	}
 
-	/**
+    /**
 	 * Create a Document.
 	 * 
 	 * @param createdBy

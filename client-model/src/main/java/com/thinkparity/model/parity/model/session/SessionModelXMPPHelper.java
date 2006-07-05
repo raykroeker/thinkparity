@@ -260,7 +260,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @return A list of contacts.
 	 * @throws SmackException
 	 */
-	Set<User> readArtifactTeam(final UUID uniqueId) throws SmackException {
+	List<User> readArtifactTeam(final UUID uniqueId) throws SmackException {
 		return xmppSession.readArtifactTeam(uniqueId);
 	}
 
@@ -270,7 +270,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 * @return A list of contacts.
 	 * @throws SmackException
 	 */
-	Set<Contact> readContacts() throws SmackException {
+	List<Contact> readContacts() throws SmackException {
 		return xmppSession.readContacts();
 	}
 
@@ -296,6 +296,18 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	void sendClose(final UUID artifactUniqueId) throws SmackException {
 		xmppSession.closeArtifact(artifactUniqueId);
 	}
+
+    /**
+     * Send a reactivation package to the parity server.
+     * 
+     * @param artifactUniqueId
+     *            The artifact unique id.
+     * @throws SmackException
+     */
+    void sendReactivate(final List<JabberId> artifactTeam, final UUID artifactUniqueId)
+            throws SmackException {
+        xmppSession.reactivateArtifact(artifactTeam, artifactUniqueId);
+    }
 
 	/**
 	 * Send a create packet to the parity server.
@@ -360,20 +372,21 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
-	 * Send the response to a document key request to the user (via the parity
-	 * server).
-	 * 
-	 * @param artifactUniqueId
-	 *            The document unique id.
-	 * @param keyResponse
-	 *            The response.
-	 * @param user
-	 *            The user.
-	 * @throws SmackException
-	 */
-	void sendKeyResponse(final UUID artifactUniqueId, final KeyResponse keyResponse,
-			final User user) throws SmackException {
-		xmppSession.sendKeyResponse(artifactUniqueId, keyResponse, user);
+     * Send the response to a document key request to the user (via the parity
+     * server).
+     * 
+     * @param artifactUniqueId
+     *            The document unique id.
+     * @param keyResponse
+     *            The response.
+     * @param jabberId
+     *            The user's jabber id.
+     * @throws SmackException
+     */
+	void sendKeyResponse(final UUID artifactUniqueId,
+            final KeyResponse keyResponse, final JabberId jabberId)
+            throws SmackException {
+		xmppSession.sendKeyResponse(artifactUniqueId, keyResponse, jabberId);
 	}
 
     /**

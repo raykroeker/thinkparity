@@ -7,8 +7,6 @@ package com.thinkparity.model;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
-
 /**
  * A logger factory for the local model.
  *
@@ -25,7 +23,7 @@ public class LoggerFactory {
 	 * @return The logger.
 	 */
     public static Logger getLogger(final Class clasz) {
-        return ModelLoggerFactory.getLogger(clasz);
+        return Logger.getLogger(clasz);
     }
 
     /** Create LoggerFactory. */

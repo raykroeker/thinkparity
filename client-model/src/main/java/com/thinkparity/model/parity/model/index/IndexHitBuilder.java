@@ -24,7 +24,10 @@ class IndexHitBuilder {
 	 *            The query hit.
 	 * @return The index hit.
 	 */
-	IndexHit toIndexHit(final QueryHit queryHit) {
-		return new IndexHit(queryHit.getDataId());
+	IndexHit toIndexHit(final QueryHit query) {
+		final IndexHit index = new IndexHit();
+        index.setId(query.getId());
+        index.setType(query.getType());
+        return index;
 	}
 }

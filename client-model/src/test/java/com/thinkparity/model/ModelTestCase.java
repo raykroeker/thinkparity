@@ -1,16 +1,22 @@
 /*
- * Feb 13, 2006
+ * CreatedOn: Feb 13, 2006
+ * $Id$
  */
 package com.thinkparity.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 
+import org.apache.log4j.Logger;
+
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -25,13 +31,13 @@ import com.raykroeker.junitx.TestSession;
  */
 public abstract class ModelTestCase extends TestCase {
 
-	/**
+    /**
 	 * The JUnit eXtension test session.
 	 * 
 	 */
 	private static final TestSession testSession;
 
-    static {
+	static {
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
 		// set staging system
@@ -78,6 +84,13 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Obtain the current date\time.
+     * 
+     * @return A calendar.
+     */
+    protected static Calendar currentDateTime() { return DateUtil.getInstance(); }
+
+    /**
      * Initialize the parity archive directory for a test run.
      * 
      * @param parent
@@ -90,7 +103,7 @@ public abstract class ModelTestCase extends TestCase {
         System.setProperty("parity.archive.directory", archive.getAbsolutePath());
     }
 
-	/**
+    /**
      * Initialize the parity install directory for a test run.
      * 
      * @param parent
@@ -120,13 +133,18 @@ public abstract class ModelTestCase extends TestCase {
         System.setProperty("parity.workspace", workspace.getAbsolutePath());
     }
 
+	/** An apache logger. */
+    protected final Logger logger;
+
 	private ContactModel contactModel;
 
-	private DocumentModel documentModel;
+	private ContainerModel containerModel;
 
-    private IndexModel indexModel;
+    private DocumentModel documentModel;
 
-	/**
+	private IndexModel indexModel;
+
+    /**
 	 * Create a ModelTestCase.
 	 * 
 	 * @param name
@@ -134,7 +152,7 @@ public abstract class ModelTestCase extends TestCase {
 	 */
 	protected ModelTestCase(final String name) {
 		super(name);
-		// TODO Auto-generated constructor stub
+		this.logger = Logger.getLogger(getClass());
 	}
 
     protected ArtifactModel getArtifactModel() {
@@ -146,6 +164,13 @@ public abstract class ModelTestCase extends TestCase {
             contactModel = ContactModel.getModel();
         }
         return contactModel;
+    }
+
+    protected ContainerModel getContainerModel() {
+        if(null == containerModel) {
+            containerModel = ContainerModel.getModel();
+        }
+        return containerModel;
     }
 
 	protected DocumentModel getDocumentModel() {

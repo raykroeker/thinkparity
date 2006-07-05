@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="remote/model/src/main/java"/>
+	<classpathentry kind="src" path="remote/model/src/main/java"/>	<classpathentry kind="src" path="remote/codebase/src/main/java"/>
 	<classpathentry kind="src" path="common/codebase/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry output="target/test-classes" kind="src" path="common/junitx/src/main/java"/>

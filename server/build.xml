@@ -7,7 +7,7 @@
     <property name="release.version" value="1.0.0-RC7"/>
 
     <!-- cvs configuration -->
-    <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
+    <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.modules" value="desdemonaSource desdemonaLibs"/>
     <property name="cvs.modules.ide" value="desdemonaEclipse"/>
     <property name="cvs.tag" value="v1_0"/>

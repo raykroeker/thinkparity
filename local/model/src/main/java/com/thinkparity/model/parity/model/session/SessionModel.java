@@ -319,14 +319,15 @@ public class SessionModel extends AbstractModel {
 	}
 
     /**
-     * @deprecated No replacement.
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.artifact.ArtifactModel#sendKey(Long, JabberId)}
      * 
      */
     @Deprecated
     public void sendKeyResponse(final Long artifactId,
             final JabberId requestedBy, final KeyResponse keyResponse)
             throws ParityException {
-        throw Assert.createUnreachable("SessionModel#sendKeyResponse(java.lang.Long,JabberId,KeyResponse)");
+        throw Assert.createUnreachable("SessionModel#sendKeyResponse(java.lang.Long,JabberId,KeyResponse) => ArtifactModel#sendKey(Long, JabberId)");
     }
 
     /**

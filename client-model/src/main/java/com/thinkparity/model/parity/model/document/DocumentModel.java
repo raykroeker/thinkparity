@@ -1,6 +1,5 @@
 /*
  * Created On: Mar 6, 2005
- * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -10,7 +9,6 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.DocumentListener;
@@ -29,7 +27,7 @@ import com.thinkparity.model.xmpp.JabberId;
  * The parity document interface.
  *
  * @author raykroeker@gmail.com
- * @version 
+ * @version 1.5.2.43
  */
 public class DocumentModel {
 
@@ -89,43 +87,32 @@ public class DocumentModel {
 
 
     /**
-	 * Archive a document.
-	 * 
-	 * @param documentId
-	 *            The document to archive.
-	 * @throws ParityException
-	 */
-	public File archive(final Long documentId) {
-		throw Assert.createUnreachable("DocumentModel#archive(java.lang.Long) => ContainerModel#archive(java.lang.Long)");
-	}
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#archive(java.lang.Long)}
+     */
+    @Deprecated
+    public File archive(final Long documentId) {
+        throw Assert.createUnreachable("DocumentModel#archive(java.lang.Long) => ContainerModel#archive(java.lang.Long)");
+    }
 
-	/**
-	 * Archive a document.
-	 * 
-	 * @param documentId
-	 *            The document to archive.
-	 * @throws ParityException
-	 */
-	public File archive(final Long documentId,
-			final ProgressIndicator progressIndicator) {
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#archive(Long, ProgressIndicator)}
+     */
+    @Deprecated
+    public File archive(final Long documentId,
+            final ProgressIndicator progressIndicator) {
         throw Assert.createUnreachable("DocumentModel#archive(java.lang.Long) => ContainerModel#archive(java.lang.Long,com.thinkparity.model.parity.model.progress.ProgressIndicator)");
-	}
+    }
 
-	/**
-	 * Close a document.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             <li>If the logged in user is not the key holder.
-	 *             </ul>
-	 * @throws ParityException
-	 */
-	public void close(final Long documentId) {
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#close(Long)}
+     */
+    @Deprecated
+    public void close(final Long documentId) {
         throw Assert.createUnreachable("DocumentModel#close(java.lang.Long) => ContainerModel#close(java.lang.Long)");
-	}
+    }
 
 	/**
      * Create a document and attach it to a container. This will take a name,
@@ -160,18 +147,17 @@ public class DocumentModel {
 		}
 	}
 
-	/**
-	 * Delete a document.
-	 * 
-	 * @param document
-	 *            The document unique id.
-	 * @throws ParityException
-	 */
-	public void delete(final Long documentId) throws ParityException {
-	    throw Assert.createUnreachable("DocumentModel#delete(java.lang.Long)) => ContainerModel#removeDocument(java.lang.Long)");
-	}
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#removeDocument(Long, Long)}
+     * 
+     */
+    @Deprecated
+    public void delete(final Long documentId) throws ParityException {
+        throw Assert.createUnreachable("DocumentModel#delete(java.lang.Long)) => ContainerModel#removeDocument(java.lang.Long)");
+    }
 
-	/**
+    /**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentId
@@ -241,60 +227,43 @@ public class DocumentModel {
     }
 
     /**
-	 * Obtain a list of documents.
-	 * 
-	 * @return A list of documents sorted by name.
-	 * @throws ParityException
-	 * 
-	 * @see ComparatorBuilder
-	 * @see #list(Long, Comparator)
-	 */
-	public Collection<Document> list() throws ParityException {
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#readDocuments(Long)}
+     */
+    @Deprecated
+    public Collection<Document> list() throws ParityException {
         throw Assert.createUnreachable("DocumentModel#list() => ContainerModel#readDocuments(java.lang.Long)");
-	}
+    }
 
-	/**
-	 * Obtain a list of sorted documents.
-	 * 
-	 * @param comparator
-	 *            The comparator.
-	 * @return A sorted list of documents.
-	 * @throws ParityException
-	 * 
-	 * @see ComparatorBuilder
-	 */
-	public Collection<Document> list(final Comparator<Artifact> comparator)
-			throws ParityException {
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#readDocuments(Long, Comparator)}
+     */
+    @Deprecated
+    public Collection<Document> list(final Comparator<Artifact> comparator)
+            throws ParityException {
         throw Assert.createUnreachable("DocumentModel#list(Comparator<Artifact>) => ContainerModel#readDocuments(java.lang.Long,Comparator<Artifact>)");
-	}
+    }
 
-	/**
-     * Obtain a filtered and sorted list of documents.
-     * 
-     * @param comparator
-     *            The comparator.
-     * @param filter
-     *            The document filter.
-     * @return A list of documents.
-     * @throws ParityException
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#readDocuments(Long, Comparator, Filter)}
      */
-	public Collection<Document> list(final Comparator<Artifact> comaprator,
-			final Filter<? super Artifact> filter) throws ParityException {
+    @Deprecated
+    public Collection<Document> list(final Comparator<Artifact> comaprator,
+            final Filter<? super Artifact> filter) throws ParityException {
         throw Assert.createUnreachable("DocumentModel#list(Comparator<Artifact>,Filter<? super Artifact>) => ContainerModel#readDocuments(java.lang.Long,Comparator<Artifact>,Filter<? super Artifact>)");
-	}
+    }
 
-	/**
-     * Obtain a filtered list of documents.
-     * 
-     * @param filter
-     *            The document filter.
-     * @return A list of documents.
-     * @throws ParityException
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#readDocuments(Long, Filter)}
      */
-	public Collection<Document> list(final Filter<? super Artifact> filter)
-			throws ParityException {
+    @Deprecated
+    public Collection<Document> list(final Filter<? super Artifact> filter)
+            throws ParityException {
         throw Assert.createUnreachable("DocumentModel#list(Filter<? super Artifact>) => ContainerModel#readDocuments(java.lang.Long,Filter<? super Artifact>)");
-	}
+    }
 
 	/**
 	 * Obtain a list of document versions for a document.
@@ -359,29 +328,21 @@ public class DocumentModel {
 		synchronized(implLock) { impl.openVersion(documentId, versionId); }
 	}
 
-	/**
-     * Publish a document.  Publishing a document involves the following
-     * process:<ol>
-     *  <li>Check if the working version differs from the latest version. If<ul>
-     *      <li>True:  Create a new version.
-     *      <li>False:  Do nothing.
-     *  <li>Send the latest version to all team members.
-     * </ol>
-     *
-     * @param documentId
-     *      The document id.
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#publish(Long)}
+     * 
      */
+    @Deprecated
     public void publish(final Long documentId) throws ParityException {
         throw Assert.createUnreachable("DocumentModel#publish(java.lang.Long) => ContainerModel#publish(java.lang.Long)");
     }
 
     /**
-     * Reactivate a document.
-     * 
-     * @param documentId
-     *            The document id.
-     * @throws ParityException
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#reactivate(Long)}
      */
+    @Deprecated
     public void reactivate(final Long documentId) throws ParityException {
         throw Assert.createUnreachable("DocumentModel#reactivate(java.lang.Long) => ContainerModel#reactivate(java.lang.Long)");
     }
@@ -456,15 +417,12 @@ public class DocumentModel {
     }
 
     /**
-     * Share a document with a user.  The user will become a member of the document
-     * team.
-     * 
-     * @param documentId
-     *      The document id.
-     * @param jabberId
-     *      The user id to add.
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#share(Long, JabberId)}
      */
-    public void share(final Long documentId, final JabberId jabberId) throws ParityException {
+    @Deprecated
+    public void share(final Long documentId, final JabberId jabberId)
+            throws ParityException {
         throw Assert.createUnreachable("DocumentModel#share(java.lang.Long,com.thinkparity.model.xmpp.JabberId) => ContainerModel#share(java.lang.Long,com.thinkparity.model.xmpp.JabberId)");
     }
 

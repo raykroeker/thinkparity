@@ -1,5 +1,5 @@
 /*
- * Mar 6, 2006
+ * Created On: Mar 6, 2006
  */
 package com.thinkparity.model.parity.model.index;
 
@@ -14,7 +14,7 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 
 /**
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.4
  */
 public class IndexModel extends AbstractModel {
 
@@ -61,13 +61,11 @@ public class IndexModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-    /**
-     * Search the index for artifacts containing the expression.
+	/**
+     * @deprecated => [{@link IndexModel#searchContainers(String)}|{@link IndexModel#searchDocuments(String)}]
      * 
-     * @param expression
-     *            The search expression.
-     * @return A list of index hits.
      */
+    @Deprecated
     public List<IndexHit> searchArtifact(final String expression) {
         throw Assert.createUnreachable("IndexModel#searchArtifact(java.lang.String) => [IndexModel.searchContainers(java.lang.String) | IndexModel.searchDocuments(java.lang.String)]");
     }

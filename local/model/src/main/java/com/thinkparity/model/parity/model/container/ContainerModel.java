@@ -1,6 +1,5 @@
 /*
  * Generated On: Jun 27 06 12:13:12 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.container;
 
@@ -22,11 +21,11 @@ import com.thinkparity.model.xmpp.JabberId;
  * <b>Description:</b>
  *
  * @author CreateModel.groovy
- * @version $Revision$
+ * @version 1.1.2.3
  */
 public class ContainerModel {
 
-	/**
+    /**
 	 * Create a Container interface.
 	 * 
 	 * @param context
@@ -38,7 +37,7 @@ public class ContainerModel {
 		return new InternalContainerModel(workspace, context);
 	}
 
-	/**
+    /**
 	 * Create a Container interface.
 	 * 
 	 * @return The Container interface.
@@ -54,7 +53,7 @@ public class ContainerModel {
 	/** The model implementation synchronization lock. */
 	private final Object implLock;
 
-    /**
+	/**
 	 * Create ContainerModel.
 	 *
 	 * @param workspace
@@ -66,7 +65,7 @@ public class ContainerModel {
 		this.implLock = new Object();
 	}
 
-    /**
+	/**
      * Add a document to a container.
      * 
      * @param containerId
@@ -92,6 +91,29 @@ public class ContainerModel {
     }
 
     /**
+     * Archive a container.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void archive(final Long containerId) {
+        Assert.assertNotYetImplemented("");
+    }
+
+    /**
+     * Archive a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param progressIndicator
+     *            A progress indicator.
+     */
+    public void archive(final Long containerId,
+            final ProgressIndicator progressIndicator) {
+        Assert.assertNotYetImplemented("");
+    }
+
+    /**
      * Close a container.
      * 
      * @param containerId
@@ -99,17 +121,6 @@ public class ContainerModel {
      */
     public void close(final Long containerId) throws ParityException {
         synchronized(implLock) { impl.close(containerId); }
-    }
-
-    /**
-     * Reactivate a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @throws ParityException
-     */
-    public void reactivate(final Long containerId) throws ParityException {
-        synchronized(implLock) { impl.reactivate(containerId); }
     }
 
     /**
@@ -142,6 +153,17 @@ public class ContainerModel {
      */
     public void publish(final Long containerId) throws ParityException {
         synchronized(implLock) { impl.publish(containerId); }
+    }
+
+    /**
+     * Reactivate a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @throws ParityException
+     */
+    public void reactivate(final Long containerId) throws ParityException {
+        synchronized(implLock) { impl.reactivate(containerId); }
     }
 
     /**

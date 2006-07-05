@@ -1,5 +1,5 @@
 /*
- * Mar 7, 2005
+ * Created On: Mar 7, 2005
  */
 package com.thinkparity.model.parity.model.session;
 
@@ -29,7 +29,7 @@ import com.thinkparity.model.xmpp.user.User;
  * The parity session interface.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.3.2.25
  */
 public class SessionModel extends AbstractModel {
 
@@ -199,38 +199,35 @@ public class SessionModel extends AbstractModel {
 		synchronized(implLock) { impl.logout(); }
 	}
 
-	/**
-     * Read the artifact team.
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.artifact.ArtifactModel#readTeam(Long)}
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @return A set of users.
-     * @throws ParityException
      */
-	public Set<User> readArtifactTeam(final Long artifactId)
-			throws ParityException {
-		throw Assert.createUnreachable("SessionModel#readArtifactTeam(Long) => ArtifactModel#readTeam(Long)");
-	}
+    @Deprecated
+    public Set<User> readArtifactTeam(final Long artifactId)
+            throws ParityException {
+        throw Assert.createUnreachable("SessionModel#readArtifactTeam(Long) => ArtifactModel#readTeam(Long)");
+    }
 
-	/**
-     * Obtain the contact for the logged in user.
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.contact.ContactModel#read(JabberId)}
      * 
-     * @return The contact .
-     * @throws ParityException
      */
-	public Contact readContact() throws ParityException {
+    @Deprecated
+    public Contact readContact() throws ParityException {
         throw Assert.createUnreachable("SessionModel#readContacts() => ContactModel#read(JabberId)");
-	}
+    }
 
-	/**
-     * Read the logged in user's contacts.
-     * 
-     * @return A set of contacts.
-     * @throws ParityException
+    /**
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.contact.ContactModel#read()}
      */
-	public Set<Contact> readContacts() throws ParityException {
+    @Deprecated
+    public Set<Contact> readContacts() throws ParityException {
         throw Assert.createUnreachable("SessionModel#readContacts() => ContactModel#read()");
-	}
+    }
 
 	/**
 	 * Remove a key listener from the session.
@@ -321,27 +318,18 @@ public class SessionModel extends AbstractModel {
 		synchronized(implLock) { impl.sendKeyRequest(artifactId); }
 	}
 
-	/**
-	 * Send the response to a key request.
-	 * 
-	 * @param artifactId
-	 *            The document unique id.
-	 * @param requestedBy
-	 *            The jabber id of the user requesting the key.
-	 * @param keyResponse
-	 *            The response.
-	 * 
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             If the logged in user is not the key holder.
-	 */
-	public void sendKeyResponse(final Long artifactId,
-			final JabberId requestedBy, final KeyResponse keyResponse)
-			throws ParityException {
-	    throw Assert.createUnreachable("SessionModel#sendKeyResponse(java.lang.Long,JabberId,KeyResponse) => InteralArtifactModel#sendKey(java.lang.Long,JabberId)");
-	}
+    /**
+     * @deprecated No replacement.
+     * 
+     */
+    @Deprecated
+    public void sendKeyResponse(final Long artifactId,
+            final JabberId requestedBy, final KeyResponse keyResponse)
+            throws ParityException {
+        throw Assert.createUnreachable("SessionModel#sendKeyResponse(java.lang.Long,JabberId,KeyResponse)");
+    }
 
-	/**
+    /**
 	 * Send the parity log file. To be used in order to troubleshoot remote
 	 * problems.
 	 * 

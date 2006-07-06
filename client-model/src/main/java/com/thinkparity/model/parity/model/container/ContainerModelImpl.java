@@ -494,16 +494,21 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         assertOnline(getApiId("[PUBLISH] [USER NOT ONLINE]"));
         assertIsKeyHolder(getApiId("[PUBLISH] [USER NOT KEY HOLDER]"), containerId);
+        final JabberId currentUserId = currentUserId();
+        final Calendar currentDateTime = currentDateTime();
 
         // create neccessary versions
         Boolean didCreate = Boolean.FALSE;
         final InternalDocumentModel dModel = getInternalDocumentModel();
         final ContainerVersion latestVersion = readLatestVersion(containerId);
         final List<Document> documents = containerIO.readDocuments(containerId, latestVersion.getVersionId());
+        DocumentVersion version;
         for(final Document document : documents) {
             if(!dModel.isWorkingVersionEqual(document.getId())) {
                 didCreate = Boolean.TRUE;
-                dModel.createVersion(document.getId());
+                version = dModel.createVersion(document.getId());
+                auditor.publish(document.getId(), version.getVersionId(),
+                        currentUserId, currentDateTime);
             }
         }
         Assert.assertTrue(getApiId("[CREATE] [NO DOCUMENTS DIFFER]"), didCreate);
@@ -512,8 +517,8 @@ class ContainerModelImpl extends AbstractModelImpl {
         final ContainerVersion newVersion = createVersion(containerId);
 
         // audit
-        auditor.publish(containerId, newVersion.getVersionId(), currentUserId(),
-                currentDateTime());
+        auditor.publish(containerId, newVersion.getVersionId(), currentUserId,
+                currentDateTime);
 
         // send
         final List<User> team =

@@ -43,16 +43,9 @@ public class ReadHistoryTest extends DocumentTestCase {
 				datum.documentId, hItem.getDocumentId());
 
 		hItem = history.get(1);
-		assertNotNull("Send history item is null.", hItem);
-		assertNotNull("Send history item event is null.", hItem.getEvent());
-		assertEquals("Send history item document id does not match expectation.",
-				datum.documentId, hItem.getDocumentId());
-
-		hItem = history.get(2);
-		assertNotNull("Create history item is null.", hItem);
-		assertNotNull("Create history item event is null.", hItem.getEvent());
-		assertEquals("Create history item document id does not match expectation.",
-				datum.documentId, hItem.getDocumentId());
+		assertNotNull(NAME + " [PUBLISH HISTORY ITEM IS NULL]", hItem);
+		assertEquals(NAME + " [PUBLISH HISTORY ITEM DOCUMENT ID DOES NOT MATCH EXPECTATION]",
+                datum.documentId, hItem.getDocumentId());
 	}
 
 	/**

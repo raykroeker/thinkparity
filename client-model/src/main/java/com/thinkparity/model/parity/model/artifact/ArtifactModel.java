@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.artifact;
 import java.util.List;
 import java.util.Set;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
@@ -133,16 +135,13 @@ public class ArtifactModel extends AbstractModel {
     }
 
 	/**
-	 * Obtain all pending key requests for the document.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 * @return A list of key requests.
-	 * @throws ParityException
-	 */
+     * @deprecated =>
+     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#readKeyRequests(Long)}
+     */
+    @Deprecated
 	public List<KeyRequest> readKeyRequests(final Long documentId)
 			throws ParityException {
-		synchronized(implLock) { return impl.readKeyRequests(documentId); }
+		throw Assert.createUnreachable("ArtifactModel#readKeyRequests(Long) => ContainerModel#readKeyRequests(Long)");
 	}
 
     /**

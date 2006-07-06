@@ -448,6 +448,15 @@ public abstract class AbstractModelImpl {
     }
 
     /**
+     * Obtain the thinkParity internal message interface.
+     * 
+     * @return The thinkParity internal message interface.
+     */
+    protected InternalSystemMessageModel getInternalMessageModel() {
+        return getInternalSystemMessageModel();
+    }
+
+    /**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -456,7 +465,7 @@ public abstract class AbstractModelImpl {
         return ReleaseModel.getInternalModel(getContext());
     }
 
-    /**
+	/**
      * Obtain the internal parity session interface.
      * 
      * @return The internal parity session interface.
@@ -465,7 +474,7 @@ public abstract class AbstractModelImpl {
 		return SessionModel.getInternalModel(getContext());
 	}
 
-	/**
+    /**
      * Obtain the internal parity system message interface.
      * 
      * @return The internal parity system message interface.

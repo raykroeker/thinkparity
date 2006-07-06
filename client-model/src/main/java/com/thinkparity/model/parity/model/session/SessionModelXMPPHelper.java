@@ -4,12 +4,15 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
+import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
@@ -17,6 +20,7 @@ import com.thinkparity.model.xmpp.XMPPSessionFactory;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
+import com.thinkparity.model.xmpp.events.XMPPContainerListener;
 import com.thinkparity.model.xmpp.events.XMPPDocumentListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -33,36 +37,25 @@ import com.thinkparity.model.xmpp.user.User;
  */
 class SessionModelXMPPHelper extends AbstractModelImplHelper {
 
-	/**
-	 * The xmpp artifact event listener.
-	 * 
-	 */
+	/** An xmpp artifact event listener. */
 	private final XMPPArtifactListener xmppArtifactListener;
 
-    /**
-     * The xmpp document event listener.
-     * 
-     */
+    /** An xmpp container event listener. */
+    private final XMPPContainerListener xmppContainerListener;
+
+    /** An xmpp document event listener. */
     private final XMPPDocumentListener xmppDocumentListener;
 
-	/**
-	 * XMPP Extension listener.
-	 */
+	/**An xmpp extension listener. */
 	private final XMPPExtensionListener xmppExtensionListener;
 
-	/**
-	 * XMPP Presence listener.
-	 */
+	/** An xmpp presence listener. */
 	private final XMPPContactListener xmppPresenceListener;
 
-	/**
-	 * XMPP session.
-	 */
+	/** The xmpp session. */
 	private final XMPPSession xmppSession;
 
-	/**
-	 * XMPP Session listener.
-	 */
+	/** An xmpp Session listener. */
 	private final XMPPSessionListener xmppSessionListener;
 
 	/**
@@ -85,6 +78,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 				handleTeamMemberRemoved(artifactUniqueId, teamMember);
 			}
 		};
+        this.xmppContainerListener = new XMPPContainerListener() {
+            public void handleReactivate(final UUID uniqueId,
+                    final Long versionId, final String name, final List<JabberId> team,
+                    final JabberId reactivatedBy, final Calendar reactivatedOn) {
+                handleContainerReactivate(uniqueId, versionId, name, team, reactivatedBy, reactivatedOn);
+            }
+        };
         this.xmppDocumentListener = new XMPPDocumentListener() {
             public void documentReactivated(final JabberId reactivatedBy,
                     final List<JabberId> team, final UUID uniqueId,
@@ -136,6 +136,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		};
 
 		xmppSession.addListener(xmppArtifactListener);
+        xmppSession.addListener(xmppContainerListener);
         xmppSession.addListener(xmppDocumentListener);
 		xmppSession.addListener(xmppExtensionListener);
 		xmppSession.addListener(xmppPresenceListener);
@@ -253,6 +254,26 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+     * Reactivate a container version.
+     * 
+     * @param version
+     *            The version.
+     * @param team
+     *            The team.
+     * @param reactivatedBy
+     *            Who reactivated.
+     * @param reactivatedOn
+     *            When it was reactivated.
+     * @throws SmackException
+     */
+    void reactivate(final ContainerVersion version,
+            final List<DocumentVersionContent> documentVersions,
+            final List<JabberId> team, final JabberId reactivatedBy,
+            final Calendar reactivatedOn) throws SmackException {
+        xmppSession.reactivate(version, documentVersions, team, reactivatedBy, reactivatedOn);
+    }
+
+	/**
 	 * Obtain a list of contacts for an artifact.
 	 * 
 	 * @param uniqueId
@@ -264,7 +285,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readArtifactTeam(uniqueId);
 	}
 
-	/**
+    /**
 	 * Read the logged in user's contacts.
 	 * 
 	 * @return A list of contacts.
@@ -274,7 +295,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readContacts();
 	}
 
-    /**
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -286,7 +307,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readUsers(jabberIds);
 	}
 
-	/**
+    /**
 	 * Send a close packet to the parity server.
 	 * 
 	 * @param artifactUniqueId
@@ -296,18 +317,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	void sendClose(final UUID artifactUniqueId) throws SmackException {
 		xmppSession.closeArtifact(artifactUniqueId);
 	}
-
-    /**
-     * Send a reactivation package to the parity server.
-     * 
-     * @param artifactUniqueId
-     *            The artifact unique id.
-     * @throws SmackException
-     */
-    void sendReactivate(final List<JabberId> artifactTeam, final UUID artifactUniqueId)
-            throws SmackException {
-        xmppSession.reactivateArtifact(artifactTeam, artifactUniqueId);
-    }
 
 	/**
 	 * Send a create packet to the parity server.
@@ -389,7 +398,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.sendKeyResponse(artifactUniqueId, keyResponse, jabberId);
 	}
 
-    /**
+	/**
 	 * Send the log file archive to the parity server.
 	 * 
 	 * @param logFileArchive
@@ -466,6 +475,21 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         }
         catch(final ParityException px) { unexpectedOccured(px); }
         catch(final SmackException sx) { unexpectedOccured(sx); }
+        catch(final RuntimeException rx) { unexpectedOccured(rx); }
+    }
+
+    /**
+     * Handle the remote container reactivate event.
+     *
+     */
+    private void handleContainerReactivate(final UUID uniqueId,
+            final Long versionId, final String name, final List<JabberId> team,
+            final JabberId reactivatedBy, final Calendar reactivatedOn) {
+        try {
+            SessionModelImpl.handleContainerReactivate(uniqueId, versionId,
+                    name, team, reactivatedBy, reactivatedOn);
+        }
+        catch(final ParityException px) { unexpectedOccured(px); }
         catch(final RuntimeException rx) { unexpectedOccured(rx); }
     }
 

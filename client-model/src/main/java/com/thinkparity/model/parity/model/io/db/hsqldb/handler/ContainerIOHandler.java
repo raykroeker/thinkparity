@@ -1,6 +1,5 @@
 /*
  * Created On: Jun 28, 2006 8:49:07 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
@@ -79,7 +78,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
             .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
             .append("A.ARTIFACT_UNIQUE_ID,A.CREATED_BY,A.CREATED_ON,")
-            .append("A.UPDATED_BY,A.UPDATED_ON,")
+            .append("A.UPDATED_BY,A.UPDATED_ON,D.DOCUMENT_ID,")
+            .append("DV.CONTENT_CHECKSUM,DV.CONTENT_COMPRESSION,")
+            .append("DV.CONTENT_ENCODING,DV.DOCUMENT_VERSION_ID,")
             .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
             .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
             .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
@@ -87,7 +88,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
             .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
             .append("inner join DOCUMENT_VERSION DV on CVAVR.ARTIFACT_ID=DV.DOCUMENT_ID ")
-            .append("and CVAVR.ARTIFACT_VERSION_ID=DV.VERSION_ID ")
+            .append("and CVAVR.ARTIFACT_VERSION_ID=DV.DOCUMENT_VERSION_ID ")
             .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
             .toString();
 
@@ -363,7 +364,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.executeQuery();
             final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
             while(session.nextResult()) {
-                versions.add(documentIO.extractVersion(session));
+                versions.add(extractDocumentVersion(session));
             }
             return versions;
         }
@@ -516,4 +517,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
        return version;
     }
 
+    private DocumentVersion extractDocumentVersion(final Session session) {
+        final DocumentVersion dv = new DocumentVersion();
+        dv.setArtifactId(session.getLong("DOCUMENT_ID"));
+        dv.setArtifactType(session.getTypeFromInteger("ARTIFACT_TYPE_ID"));
+        dv.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
+        dv.setChecksum(session.getString("CONTENT_CHECKSUM"));
+        dv.setCompression(session.getInteger("CONTENT_COMPRESSION"));
+        dv.setCreatedBy(session.getString("CREATED_BY"));
+        dv.setCreatedOn(session.getCalendar("CREATED_ON"));
+        dv.setEncoding(session.getString("CONTENT_ENCODING"));
+        dv.setName(session.getString("ARTIFACT_NAME"));
+        dv.setUpdatedBy(session.getString("UPDATED_BY"));
+        dv.setUpdatedOn(session.getCalendar("UPDATED_ON"));
+        dv.setVersionId(session.getLong("DOCUMENT_VERSION_ID"));
+
+        dv.setMetaData(documentIO.getVersionMetaData(dv.getArtifactId(), dv.getVersionId()));
+        return dv;
+    }
 }

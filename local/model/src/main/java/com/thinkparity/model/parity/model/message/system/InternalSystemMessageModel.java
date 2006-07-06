@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.message.system;
 
 import java.util.List;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
@@ -29,7 +28,7 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 		context.assertContextIsValid();
 	}
 
-	public void createContactInvitation(final JabberId invitedBy) {
+    public void createContactInvitation(final JabberId invitedBy) {
 		synchronized(getImplLock()) {
 			getImpl().createContactInvitation(invitedBy);
 		}
@@ -46,9 +45,10 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 		}
 	}
 
-	public void createKeyRequest(final Long artifactId, final JabberId requestedBy) {
+	public SystemMessage createKeyRequest(final Long artifactId,
+            final JabberId requestedBy) {
 		synchronized(getImplLock()) {
-			getImpl().createKeyRequest(artifactId, requestedBy);
+			return getImpl().createKeyRequest(artifactId, requestedBy);
 		}
 	}
 
@@ -60,15 +60,25 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 	}
 
 	/**
-	 * Read all system messages for an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return A list of system messages.
-	 * @throws ParityException
-	 */
+     * Delete a message.
+     * 
+     * @param messageId
+     *            The message id.
+     */
+    @Override
+    public void delete(final Long messageId) {
+        synchronized(getImplLock()) { getImpl().delete(messageId); }
+    }
+
+	/**
+     * Read the system messages of a given type for an artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return A list of system messages.
+     */
 	public List<SystemMessage> readForArtifact(final Long artifactId,
-			final SystemMessageType type) throws ParityException {
+            final SystemMessageType type) {
 		synchronized(getImplLock()) {
 			return getImpl().readForArtifact(artifactId, type);
 		}

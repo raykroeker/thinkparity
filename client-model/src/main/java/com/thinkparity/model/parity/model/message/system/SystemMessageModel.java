@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.SystemMessageListener;
 import com.thinkparity.model.parity.model.AbstractModel;
@@ -75,14 +77,11 @@ public class SystemMessageModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete a system message.
-	 * 
-	 * @param systemMessageId
-	 *            The system message id.
-	 * @throws ParityException
-	 */
-	public void delete(final Long systemMessageId) throws ParityException {
-		synchronized(implLock) { impl.delete(systemMessageId); }
+     * @deprecated => No replacement.
+     */
+    @Deprecated
+	public void delete(final Long systemMessageId) {
+		throw Assert.createUnreachable("SystemMessageModel#delete(Long) => No replacement.");
 	}
 
 	/**
@@ -116,8 +115,7 @@ public class SystemMessageModel extends AbstractModel {
 	 * @return The system message.
 	 * @throws ParityException
 	 */
-	public SystemMessage read(final Long systemMessageId)
-			throws ParityException {
+	public SystemMessage read(final Long systemMessageId) {
 		synchronized(implLock) { return impl.read(systemMessageId); }
 	}
 

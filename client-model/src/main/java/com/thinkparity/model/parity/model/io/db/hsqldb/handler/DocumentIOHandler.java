@@ -594,6 +594,23 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+	 * Obtain the version meta data.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @param versionId
+	 *            The version id.
+	 * @return The version meta data.
+	 */
+	Properties getVersionMetaData(final Long artifactId, final Long versionId) {
+		final Session session = openSession();
+		try {
+			return artifactIO.getVersionMetaData(session, artifactId, versionId);
+		}
+		finally { session.close(); }
+	}
+
+	/**
 	 * Extract the document version content from the session.
 	 * 
 	 * @param session
@@ -605,24 +622,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		dvc.setContent(session.getBytes("CONTENT"));
         dvc.setVersion(extractVersion(session));
 		return dvc;
-	}
-
-	/**
-	 * Obtain the version meta data.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param versionId
-	 *            The version id.
-	 * @return The version meta data.
-	 */
-	private Properties getVersionMetaData(final Long artifactId,
-			final Long versionId) {
-		final Session session = openSession();
-		try {
-			return artifactIO.getVersionMetaData(session, artifactId, versionId);
-		}
-		finally { session.close(); }
 	}
 
 

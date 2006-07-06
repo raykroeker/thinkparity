@@ -7,6 +7,7 @@ package com.thinkparity.model.parity.model.io.xmpp;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +32,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.xmpp.JabberId;
 
 import com.thinkparity.migrator.Library;
@@ -123,6 +125,15 @@ public class XMPPMethod extends IQ {
         this.parameters.add(new Parameter(listName, List.class, parameters));
     }
 
+    public final void setDocumentVersionParameters(final String listname,
+            final String name, final List<DocumentVersionContent> values) {
+        final List<Parameter> parameters = new ArrayList<Parameter>(values.size());
+        for(final DocumentVersionContent value : values) {
+            parameters.add(new Parameter(name, DocumentVersionContent.class, value));
+        }
+        this.parameters.add(new Parameter(listname, List.class, parameters));
+    }
+
     public final void setLibraryParameters(final String listName, final String name,
             final List<Library> values) {
         final List<Parameter> parameters = new LinkedList<Parameter>();
@@ -143,6 +154,14 @@ public class XMPPMethod extends IQ {
 
     public final void setParameter(final String name, final byte[] value) {
         parameters.add(new Parameter(name, byte[].class, value));
+    }
+
+    public final void setParameter(final String name, final Calendar value) {
+        parameters.add(new Parameter(name, Calendar.class, value));
+    }
+
+    public final void setParameter(final String name, final JabberId value) {
+        parameters.add(new Parameter(name, JabberId.class, value));
     }
 
     public final void setParameter(final String name, final Library.Type value) {
@@ -240,6 +259,19 @@ public class XMPPMethod extends IQ {
     private String getParameterXMLValue(final Parameter parameter) {
         if(parameter.javaType.equals(byte[].class)) {
             return encode(compress((byte[]) parameter.javaValue));
+        }
+        else if(parameter.javaType.equals(Calendar.class)) {
+            final Calendar valueGMT =
+                DateUtil.getInstance(((Calendar) parameter.javaValue).getTime(), new SimpleTimeZone(0, "GMT"));
+            return DateUtil.format(valueGMT, DateUtil.DateImage.ISO);
+        }
+        else if(parameter.javaType.equals(DocumentVersionContent.class)) {
+            final DocumentVersionContent dvc = (DocumentVersionContent) parameter.javaValue;
+            return new StringBuffer("")
+                    .append(getParameterXML(new Parameter("uniqueId", UUID.class, dvc.getVersion().getArtifactUniqueId())))
+                    .append(getParameterXML(new Parameter("versionId", Long.class, dvc.getVersion().getVersionId())))
+                    .append(getParameterXML(new Parameter("bytes", byte[].class, dvc.getContent())))
+                    .toString();
         }
         else if(parameter.javaType.equals(String.class)) {
             return parameter.javaValue.toString();

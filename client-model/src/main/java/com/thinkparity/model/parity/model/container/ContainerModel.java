@@ -12,6 +12,7 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
@@ -69,6 +70,19 @@ public class ContainerModel {
 	}
 
 	/**
+     * Accept a key request made by a user.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The user making the request.
+     */
+    public void acceptKeyRequest(final Long keyRequestId)
+            throws ParityException {
+        synchronized(implLock) { impl.acceptKeyRequest(keyRequestId); }
+    }
+
+    /**
      * Add a document to a container.
      * 
      * @param containerId
@@ -135,6 +149,19 @@ public class ContainerModel {
      */
     public Container create(final String name) throws ParityException {
         synchronized(implLock) { return impl.create(name); }
+    }
+
+    /**
+     * Decline a key request made by a user.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The user making the request.
+     */
+    public void declineKeyRequest(final Long keyRequestId)
+            throws ParityException {
+        synchronized(implLock) { impl.declineKeyRequest(keyRequestId); }
     }
 
     /**
@@ -285,6 +312,61 @@ public class ContainerModel {
     }
 
     /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of key requests.
+     */
+    public List<KeyRequest> readKeyRequests(final Long containerId) {
+        synchronized(implLock) { return impl.readKeyRequests(containerId); }
+    }
+
+    /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A key request comparator.
+     * @return A list of key requests.
+     */
+    public List<KeyRequest> readKeyRequests(final Long containerId,
+            final Comparator<KeyRequest> comparator) {
+        synchronized(implLock) { return impl.readKeyRequests(containerId, comparator); }
+    }
+
+    /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A key request comparator.
+     * @param filter
+     *            A key request filter.
+     * @return A list of key requests.
+     */
+    public List<KeyRequest> readKeyRequests(final Long containerId,
+            final Comparator<KeyRequest> comparator,
+            final Filter<? super KeyRequest> filter) {
+        synchronized(implLock) { return impl.readKeyRequests(containerId, comparator, filter); }
+    }
+
+    /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param filter
+     *            A key request filter.
+     * @return A list of key requests.
+     */
+    public List<KeyRequest> readKeyRequests(final Long containerId, final Filter<? super KeyRequest> filter) {
+        synchronized(implLock) { return impl.readKeyRequests(containerId, filter); }
+    }
+
+	/**
      * Read the latest container version.
      * 
      * @param containerId
@@ -318,7 +400,22 @@ public class ContainerModel {
         synchronized(implLock) { impl.removeListener(listener); }
     }
 
-	/**
+    /**
+     * Send the container's key to a user. All pending key requests not made by
+     * the recipient of the key will be declined. This is the same as accepting
+     * a key request if one exists for a user.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The jabber id.
+     */
+    public void sendKey(final Long containerId, final JabberId jabberId)
+            throws ParityException {
+        synchronized(implLock) { impl.sendKey(containerId, jabberId); }
+    }
+
+    /**
      * Share the container with a user. The user will receive the latest version
      * of the container and become part of the container's team.
      * 
@@ -345,5 +442,4 @@ public class ContainerModel {
 	 * @return The model implementation synchrnoization lock.
 	 */
 	protected Object getImplLock() { return implLock; }
-
 }

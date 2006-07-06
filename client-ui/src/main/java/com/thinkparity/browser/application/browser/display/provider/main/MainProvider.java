@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellUser;
@@ -18,8 +20,6 @@ import com.thinkparity.browser.application.browser.display.provider.FlatContentP
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.QuickShareProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.ShareProvider;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
@@ -120,9 +120,8 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				final Long systemMessageId = assertNotNullLong(
 						"The main provider's system message provider " +
 						"requires non-null java.lang.Long input.", input);
-				final SystemMessage systemMessage;
-				try { systemMessage = systemMessageModel.read(systemMessageId); }
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				final SystemMessage systemMessage =
+				        systemMessageModel.read(systemMessageId);
 				switch(systemMessage.getType()) {
 				case INFO:
 				case CONTACT_INVITATION:

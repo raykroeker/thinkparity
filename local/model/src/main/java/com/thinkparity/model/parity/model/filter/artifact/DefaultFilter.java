@@ -10,7 +10,7 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.filter.AbstractFilter;
 
 /**
- * <b>Title:</b>thinkParity Default Artifact Filter<br>
+ * <b>Title:</b>thinkParity DefaultFilter Artifact Filter<br>
  * <b>Description:</b>A default container filter that doesn't filter out
  * anything.
  * 

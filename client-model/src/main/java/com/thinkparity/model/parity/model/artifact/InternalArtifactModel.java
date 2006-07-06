@@ -164,6 +164,17 @@ public class InternalArtifactModel extends ArtifactModel {
         synchronized(getImplLock()) { return getImpl().doesExist(uniqueId); }
     }
 
+    /**
+     * Determine if an artifact exists.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return True if the artifact exists; false otherwise.
+     */
+    public Boolean doesExist(final Long artifactId) {
+        synchronized(getImplLock()) { return getImpl().doesExist(artifactId); }
+    }
+
 	/**
      * Read the artifact id.
      * 
@@ -176,15 +187,26 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
     /**
+     * Read a key request.
+     * 
+     * @param keyRequestId
+     *            A key request id.
+     * @return A key request.
+     */
+    public KeyRequest readKeyRequest(final Long keyRequestId) {
+        synchronized(getImplLock()) {
+            return getImpl().readKeyRequest(keyRequestId);
+        }
+    }
+
+    /**
 	 * Obtain all pending key requests for the artifact.
 	 * 
 	 * @param artifactId
 	 *            The artifact id.
 	 * @return A list of key requests.
-	 * @throws ParityException
 	 */
-	public List<KeyRequest> readKeyRequests(final Long artifactId)
-			throws ParityException {
+	public List<KeyRequest> readKeyRequests(final Long artifactId) {
 		synchronized(getImplLock()) {
 			return getImpl().readKeyRequests(artifactId);
 		}

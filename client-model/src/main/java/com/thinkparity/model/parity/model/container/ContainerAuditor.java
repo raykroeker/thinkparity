@@ -14,6 +14,7 @@ import com.thinkparity.model.parity.model.audit.event.CloseEvent;
 import com.thinkparity.model.parity.model.audit.event.CreateEvent;
 import com.thinkparity.model.parity.model.audit.event.PublishEvent;
 import com.thinkparity.model.parity.model.audit.event.ReactivateEvent;
+import com.thinkparity.model.parity.model.audit.event.SendKeyEvent;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -75,5 +76,16 @@ class ContainerAuditor extends AbstractAuditor {
         event.setArtifactVersionId(versionId);
         event.setCreatedOn(createdOn);
         getInternalAuditModel().audit(event, createdBy, reactivatedBy);
+    }
+
+    void sendKey(final Long id, final JabberId createdBy,
+            final Calendar createdOn, final Long versionId,
+            final JabberId sentBy, final Calendar sentOn, final JabberId sentTo)
+            throws ParityException {
+        final SendKeyEvent sendKeyEvent = new SendKeyEvent();
+        sendKeyEvent.setArtifactId(id);
+        sendKeyEvent.setArtifactVersionId(versionId);
+        sendKeyEvent.setCreatedOn(sentOn);
+        getInternalAuditModel().audit(sendKeyEvent, createdBy, sentTo);
     }
 }

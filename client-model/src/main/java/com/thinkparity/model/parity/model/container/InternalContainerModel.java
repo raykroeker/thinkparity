@@ -5,6 +5,7 @@
 package com.thinkparity.model.parity.model.container;
 
 import java.util.Calendar;
+import java.util.List;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
@@ -59,6 +60,33 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
             final Calendar closedOn) throws ParityException {
         synchronized(getImplLock()) {
             getImpl().handleClose(containerId, closedBy, closedOn);
+        }
+    }
+
+    /**
+     * Handle a remote reactivate event.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            The version id.
+     * @param name
+     *            The container name.
+     * @param team
+     *            The container team.
+     * @param reactivatedBy
+     *            By whom the container was reactivated.
+     * @param reactivatedOn
+     *            When the container was reactivated.
+     * @throws ParityException
+     */
+    public void handleReactivate(final Long containerId, final Long versionId,
+            final String name, final List<JabberId> team,
+            final JabberId reactivatedBy, final Calendar reactivatedOn)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().handleReactivate(containerId, versionId, name, team,
+                    reactivatedBy, reactivatedOn);
         }
     }
 

@@ -18,7 +18,6 @@ import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
@@ -351,18 +350,6 @@ public class SessionModel extends AbstractModel {
             impl.sendDocumentReactivate(team, uniqueId, versionId, name, bytes);
         }
     }
-
-	/**
-	 * Subscribe to a document. The parity server is notified and will create a
-	 * subscription entry for the logged in user.
-	 * 
-	 * @param document
-	 *            The document to subscribe to.
-	 * @throws ParityException
-	 */
-	public void sendSubscribe(final Document document) throws ParityException {
-		synchronized(implLock) { impl.sendSubscribe(document); }
-	}
 
 	/**
 	 * Obtain the session model implementation.

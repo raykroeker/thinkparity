@@ -3,8 +3,8 @@
  */
 package com.thinkparity.model.parity.model.artifact;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -79,7 +79,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	void acceptKeyRequest(final Long keyRequestId) throws ParityException {
 		logger.info("[LMODEL] [ARTIFACT] [ACCEPT KEY REQUEST]");
 		logger.debug(keyRequestId);
-		final InternalSessionModel iSModel = getInternalSessionModel();
 		final InternalSystemMessageModel iSMModel = getInternalSystemMessageModel();
 		final KeyRequestMessage keyRequestMessage =
 			(KeyRequestMessage) iSMModel.read(keyRequestId);
@@ -97,9 +96,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			declineKeyRequest(request.getId());
 		}
 		// send acceptance
-		iSModel.sendKeyResponse(
-				keyRequestMessage.getArtifactId(),
-				keyRequestMessage.getRequestedBy(), KeyResponse.ACCEPT);
+		sendKey(keyRequestMessage.getArtifactId(), keyRequestMessage.getRequestedBy());
 	}
 
 	void addTeamMember(final Long artifactId, final JabberId jabberId) throws ParityException {
@@ -238,6 +235,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.deleteTeamRel(artifactId);
     }
 
+    Boolean doesExist(final Long artifactId) {
+        logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
+        logger.debug(artifactId);
+        return null != artifactIO.readUniqueId(artifactId);
+    }
+
     Boolean doesExist(final UUID uniqueId) {
         logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
         logger.debug(uniqueId);
@@ -301,27 +304,38 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read a key request.
+     * 
+     * @param keyRequestId
+     *            A key request id.
+     * @return A key request.
+     */
+    KeyRequest readKeyRequest(final Long keyRequestId) {
+        logger.info(getApiId("[READ KEY REQUEST]"));
+        logger.debug(keyRequestId);
+        return createKeyRequest((KeyRequestMessage) getInternalMessageModel().read(keyRequestId));
+    }
+
+    /**
 	 * Read all key requests for the given artifact.
 	 * 
 	 * @param artifactId
 	 *            The artifact id.
 	 * @return A list of requests.
 	 */
-	List<KeyRequest> readKeyRequests(final Long artifactId)
-			throws ParityException {
-		logger.info("[LMODEL] [ARTIFACT] [READ KEY REQUESTS]");
+	List<KeyRequest> readKeyRequests(final Long artifactId) {
+		logger.info(getApiId("[READ KEY REQUESTS]"));
 		logger.debug(artifactId);
 		final List<SystemMessage> messages =
-			getInternalSystemMessageModel().readForArtifact(
-					artifactId, SystemMessageType.KEY_REQUEST);
-		final List<KeyRequest> requests = new LinkedList<KeyRequest>();
+			getInternalSystemMessageModel().readForArtifact(artifactId, SystemMessageType.KEY_REQUEST);
+		final List<KeyRequest> requests = new ArrayList<KeyRequest>();
 		for(final SystemMessage message : messages) {
 			requests.add(createKeyRequest((KeyRequestMessage) message));
 		}
 		return requests;
 	}
 
-    /**
+	/**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -357,7 +371,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		removeFlag(artifactId, ArtifactFlag.KEY);
 	}
 
-	/**
+    /**
 	 * Remove the seen flag.
 	 * 
 	 * @param artifactId
@@ -501,6 +515,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return request;
 	}
 
+
     /**
 	 * Remove a flag from an artifact.
 	 * 
@@ -525,4 +540,5 @@ class ArtifactModelImpl extends AbstractModelImpl {
 					+ "] has no flag [" + flag + "].");
 		}
 	}
+
 }

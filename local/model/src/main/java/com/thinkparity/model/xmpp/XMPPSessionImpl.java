@@ -25,6 +25,8 @@ import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
@@ -32,6 +34,7 @@ import com.thinkparity.model.smackx.packet.*;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
+import com.thinkparity.model.xmpp.events.XMPPContainerListener;
 import com.thinkparity.model.xmpp.events.XMPPDocumentListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -75,23 +78,17 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
 	private XMPPConnection smackXMPPConnection;
 
-	/**
-	 * The artifact xmpp interface.
-	 * 
-	 */
+	/** The artifact xmpp interface. */
 	private final XMPPArtifact xmppArtifact;
 
-    /**
-	 * The xmpp contact interface.
-	 * 
-	 */
+    /** The contact xmpp interface. */
 	private final XMPPContact xmppContact;
 
-	/**
-     * The document xmpp interface.
-     * 
-     */
-    private final com.thinkparity.model.xmpp.XMPPDocument xmppDocument;
+    /** The container xmpp interface. */
+    private final XMPPContainer xmppContainer;
+
+	/** The document xmpp interface. */
+    private final XMPPDocument xmppDocument;
 
 	private Vector<XMPPExtensionListener> xmppExtensionListeners;
 
@@ -118,7 +115,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		this.xmppSessionListeners = new Vector<XMPPSessionListener>(10);
 
 		this.xmppArtifact = new XMPPArtifact(this);
-        this.xmppDocument = new com.thinkparity.model.xmpp.XMPPDocument(this);
+        this.xmppContainer = new XMPPContainer(this);
+        this.xmppDocument = new XMPPDocument(this);
 		this.xmppContact = new XMPPContact(this);
 		this.xmppUser = new XMPPUser(this);
 
@@ -166,6 +164,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	public void addListener(final XMPPContactListener l) {
 		xmppContact.addListener(l);
 	}
+
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPContainerListener)
+     * 
+     */
+    public void addListener(final XMPPContainerListener l) {
+        xmppContainer.addListener(l);
+    }
 
 	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPDocumentListener)
@@ -366,6 +372,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			xmppArtifact.addPacketListeners(smackXMPPConnection);
 			// add the contact listeners
 			xmppContact.addPacketListeners(smackXMPPConnection);
+            // add the container listeners
+            xmppContainer.addPacketListeners(smackXMPPConnection);
             // add the document listeners
             xmppDocument.addPacketListeners(smackXMPPConnection);
 			// add the user listeners
@@ -400,14 +408,23 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#reactivateArtifact(java.util.UUID)
+     * @see com.thinkparity.model.xmpp.XMPPSession#reactivate(com.thinkparity.model.parity.model.container.ContainerVersion,
+     *      java.util.List, java.util.List, com.thinkparity.model.xmpp.JabberId,
+     *      java.util.Calendar)
+     * 
      */
-    public void reactivateArtifact(final List<JabberId> team,
-            final UUID uniqueId) throws SmackException {
-        logger.info("[XMPP] [REACTIVATE ARTIFACT]");
+    public void reactivate(final ContainerVersion version,
+            final List<DocumentVersionContent> documentVersions,
+            final List<JabberId> team, final JabberId reactivatedBy,
+            final Calendar reactivatedOn) throws SmackException {
+        logger.info("[XMPP] [REACTIVATE CONTAINER]");
+        logger.debug(version);
+        logger.debug(documentVersions);
         logger.debug(team);
-        logger.debug(uniqueId);
-        xmppArtifact.reactivate(team, uniqueId);
+        logger.debug(reactivatedBy);
+        logger.debug(reactivatedOn);
+        xmppContainer.reactivate(version, documentVersions, team,
+                reactivatedBy, reactivatedOn);
     }
 
 	/**

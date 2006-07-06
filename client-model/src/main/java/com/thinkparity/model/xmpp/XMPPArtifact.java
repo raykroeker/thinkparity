@@ -16,8 +16,6 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 
-import com.thinkparity.model.Constants.Xml;
-import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.artifact.*;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
@@ -38,7 +36,6 @@ class XMPPArtifact {
         ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactconfirmreceipt", new IQConfirmReceiptProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberadded", new IQTeamMemberAddedNotificationProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberremoved", new IQTeamMemberRemovedNotificationProvider());
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:artifact:reactivated", new IQArtifactReactivatedProvider());
 	}
 
 	/**
@@ -64,24 +61,6 @@ class XMPPArtifact {
 		this.xmppCore = xmppCore;
 		this.logger = Logger.getLogger(getClass());
 	}
-
-    /**
-     * Call the remote artifact:reactivate method.
-     * 
-     * @param team
-     *            The artifact team.
-     * @param uniqueId
-     *            The artifact unique id.
-     */
-    void reactivate(final List<JabberId> team, final UUID uniqueId) {
-        logger.info("[LMODEL] [XMPP] [ARTIFACT] [REACTIVATE]");
-        logger.debug(team);
-        logger.debug(uniqueId);
-        final XMPPMethod method = new XMPPMethod("artifact:reactivate");
-        method.setJabberIdParameters(Xml.User.JABBER_IDS, Xml.User.JABBER_ID, team);
-        method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
-        method.execute(xmppCore.getConnection());
-    }
 
 	void addListener(final XMPPArtifactListener l) {
 		logger.info("[LMODEL] [XMPP] [ARTIFACT] [ADD ARTIFACT LISTENER");

@@ -1,6 +1,5 @@
 /*
  * Generated On: Jun 27 06 12:13:12 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.container;
 
@@ -21,8 +20,10 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
+import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.Filter;
@@ -31,6 +32,7 @@ import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContainerIOHandler;
 import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
+import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -43,7 +45,7 @@ import com.thinkparity.model.xmpp.user.User;
  * <b>Description:</b>
  *
  * @author CreateModel.groovy
- * @version $Revision$
+ * @version 1.1.2.3
  */
 class ContainerModelImpl extends AbstractModelImpl {
 
@@ -77,6 +79,12 @@ class ContainerModelImpl extends AbstractModelImpl {
     /** A default container filter. */
     private final Filter<? super Artifact> defaultFilter;
 
+    /** A default key request comparator. */
+    private final Comparator<KeyRequest> defaultKeyRequestComparator;
+
+    /** A default key request filter. */
+    private final Filter<? super KeyRequest> defaultKeyRequestFilter;
+
     /** A container index writer. */
     private final ContainerIndexor indexor;
 
@@ -100,9 +108,24 @@ class ContainerModelImpl extends AbstractModelImpl {
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = new DefaultFilter();
         this.defaultFilter = new DefaultFilter();
+        this.defaultKeyRequestComparator = null;
+        this.defaultKeyRequestFilter = null;
         this.indexor = new ContainerIndexor(getContext());
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
         this.remoteEventGenerator = new ContainerEventGenerator(Source.REMOTE);
+    }
+
+    /**
+     * Accept a key request made by a user.
+     * 
+     * @param keyRequestId
+     *            The key request id.
+     */
+    void acceptKeyRequest(final Long keyRequestId) throws ParityException {
+        logger.info(getApiId("[ACCEPT KEY REQUEST]"));
+        logger.debug(keyRequestId);
+        final KeyRequest keyRequest = readKeyRequest(keyRequestId);
+        acceptKeyRequest(keyRequest.getArtifactId(), keyRequest.getRequestedBy());
     }
 
     /**
@@ -178,7 +201,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         getInternalSessionModel().sendClose(containerId);
 
         // remove key - needs to be done post remote close
-        aModel.removeFlagKey(containerId);
+        removeFlagKey(containerId);
 
         // audit
         final JabberId currentUserId = currentUserId();
@@ -258,6 +281,25 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Decline a key request made by a user.
+     * 
+     * @param keyRequestId
+     *            The key request id.
+     */
+    void declineKeyRequest(final Long keyRequestId) throws ParityException {
+        logger.info(getApiId("[DECLINE KEY REQUEST]"));
+        logger.debug(keyRequestId);
+        assertOnline(getApiId("[DECLINE KEY REQUEST] [USER NOT ONLINE]"));
+        final KeyRequest keyRequest = readKeyRequest(keyRequestId);
+        final Container container = read(keyRequest.getArtifactId());
+        assertIsKeyHolder(getApiId("[DECLINE KEY REQUEST] [USER NOT KEY HOLDER]"), container.getId());
+        // remote deline
+        remoteDecline(container.getId(), keyRequest.getRequestedBy());
+        // delete request
+        deleteKeyRequest(keyRequestId);
+    }
+
+    /**
      * Delete a container.
      * 
      * @param containerId
@@ -325,6 +367,85 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Handle a remote reactivate event.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            The version id.
+     * @param name
+     *            The container name.
+     * @param team
+     *            The container team.
+     * @param reactivatedBy
+     *            By whom the container was reactivated.
+     * @param reactivatedOn
+     *            When the container was reactivated.
+     * @throws ParityException
+     */
+    void handleReactivate(final Long containerId, final Long versionId,
+            final String name, final List<JabberId> team,
+            final JabberId reactivatedBy, final Calendar reactivatedOn)
+            throws ParityException {
+        logger.info(getApiId("[HANDLE REACTIVATE]"));
+        logger.debug(containerId);
+        logger.debug(team);
+        logger.debug(versionId);
+        logger.debug(name);
+        final Calendar currentDateTime = currentDateTime();
+        final Container container;
+
+        if(doesExist(containerId)) {
+            container = read(containerId);
+
+            // update state
+            final InternalArtifactModel aModel = getInternalArtifactModel();
+            aModel.updateState(containerId, ArtifactState.ACTIVE);
+
+            // update remote info
+            aModel.updateRemoteInfo(containerId, reactivatedBy, currentDateTime);
+        }
+        else {
+            // create the container
+            container = new Container();
+            container.setCreatedBy(reactivatedBy.getUsername());
+            container.setCreatedOn(currentDateTime);
+            container.setName(name);
+            container.setState(ArtifactState.ACTIVE);
+            container.setType(ArtifactType.CONTAINER);
+            container.setUniqueId(UUIDGenerator.nextUUID());
+            container.setUpdatedBy(reactivatedBy.getUsername());
+            container.setUpdatedOn(currentDateTime);
+            containerIO.create(container);
+
+            // create the remote info row
+            final InternalArtifactModel iAModel = getInternalArtifactModel();
+            iAModel.createRemoteInfo(containerId, reactivatedBy, currentDateTime);
+
+            // add team members
+            // TODO Add the team as a whole; better yet add an api to create the
+            // team from the remote app in the model
+            for(final JabberId jabberId : team) {
+                iAModel.addTeamMember(containerId, jabberId);
+            }
+
+            // index the creation
+            indexor.create(containerId, name);
+        }
+        // send a subscription request
+        final InternalSessionModel isModel = getInternalSessionModel();
+        isModel.sendSubscribe(container);
+
+        // audit reactivation
+        auditor.reactivate(containerId, versionId, currentUserId(),
+                currentDateTime, reactivatedBy, reactivatedOn);
+
+        // fire event
+        notifyContainerReactivated(container, readUser(reactivatedBy),
+                remoteEventGenerator);
+    }
+
+    /**
      * Determine if the container has been locally modified.
      * 
      * @param containerId
@@ -358,7 +479,6 @@ class ContainerModelImpl extends AbstractModelImpl {
             dModel.lock(document.getId());
         }
     }
-
 
     /**
      * Publish the container. Publishing involves determining if the working
@@ -412,6 +532,9 @@ class ContainerModelImpl extends AbstractModelImpl {
     void reactivate(final Long containerId) throws ParityException {
         logger.info(getApiId("[REACTIVATE]"));
         logger.debug(containerId);
+        assertOnline(getApiId("[REACTIVATE] [USER NOT ONLINE]"));
+        final JabberId currentUserId = currentUserId();
+        final Calendar currentDateTime = currentDateTime();
 
         // update local state
         final InternalArtifactModel aModel = getInternalArtifactModel();
@@ -419,19 +542,15 @@ class ContainerModelImpl extends AbstractModelImpl {
         // apply key
         aModel.applyFlagKey(containerId);
 
-        // remote reactivate
-        final Set<User> team = aModel.readTeam(containerId);
-        final List<JabberId> teamIds = new ArrayList<JabberId>();
-        for(final User user : team) { teamIds.add(user.getId()); }
+        // update remote state
+        final List<JabberId> teamIds = readLocalTeamIds(containerId);
         final ContainerVersion latestVersion = readLatestVersion(containerId);
-        getInternalSessionModel().sendReactivate(teamIds, containerId);
-
-        // publish
-        publish(containerId);
+        final List<DocumentVersionContent> documentVersions = readDocumentVersionContents(containerId);
+        getInternalSessionModel().reactivate(
+                latestVersion, documentVersions, teamIds,
+                currentUserId, currentDateTime);
 
         // audit
-        final JabberId currentUserId = currentUserId();
-        final Calendar currentDateTime = currentDateTime();
         auditor.reactivate(containerId, latestVersion.getVersionId(),
                 currentUserId(), currentDateTime, currentUserId,
                 currentDateTime);
@@ -441,6 +560,22 @@ class ContainerModelImpl extends AbstractModelImpl {
                 localEventGenerator);
     }
 
+    private List<DocumentVersionContent> readDocumentVersionContents(
+            final Long containerId) throws ParityException {
+        logger.info(getApiId("[READ DOCUMENT VERSIONS]"));
+        logger.debug(containerId);
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        final List<DocumentVersion> documentVersions =
+                containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
+        final List<DocumentVersionContent> documentVersionContents =
+                new ArrayList<DocumentVersionContent>(documentVersions.size());
+        for(final DocumentVersion documentVersion : documentVersions) {
+            documentVersionContents.add(dModel.getVersionContent(documentVersion.getArtifactId(), documentVersion.getVersionId()));
+        }
+        return documentVersionContents;
+    }
+
     /**
      * Read the containers.
      * 
@@ -448,7 +583,6 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     List<Container> read() {
         logger.info(getApiId("[READ]"));
-        logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
         return read(defaultComparator);
     }
 
@@ -602,6 +736,77 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of key requests.
+     */
+    List<KeyRequest> readKeyRequests(final Long containerId) {
+        logger.info(getApiId("[READ KEY REQUESTS]"));
+        logger.debug(containerId);
+        return readKeyRequests(containerId, defaultKeyRequestComparator);
+    }
+
+    /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A key request comparator.
+     * @return A list of key requests.
+     */
+    List<KeyRequest> readKeyRequests(final Long containerId,
+            final Comparator<KeyRequest> comparator) {
+        logger.info(getApiId("[READ KEY REQUESTS]"));
+        logger.debug(containerId);
+        logger.debug(comparator);
+        return readKeyRequests(containerId, comparator, defaultKeyRequestFilter);
+    }
+
+    /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A key request comparator.
+     * @param filter
+     *            A key request filter.
+     * @return A list of key requests.
+     */
+    List<KeyRequest> readKeyRequests(final Long containerId,
+            final Comparator<KeyRequest> comparator,
+            final Filter<? super KeyRequest> filter) {
+        logger.info(getApiId("[READ KEY REQUESTS]"));
+        logger.debug(containerId);
+        logger.debug(comparator);
+        logger.debug(filter);
+        logger.warn(getApiId("[READ KEY REQUESTS] [COMPARATOR NOT USED]"));
+        logger.warn(getApiId("[READ KEY REQUESTS] [FILTER NOT USED]"));
+        return getInternalArtifactModel().readKeyRequests(containerId);
+    }
+
+    /**
+     * Read a list of key requests for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param filter
+     *            A key request filter.
+     * @return A list of key requests.
+     */
+    List<KeyRequest> readKeyRequests(final Long containerId,
+            final Filter<? super KeyRequest> filter) {
+        logger.info(getApiId("[READ KEY REQUESTS]"));
+        logger.debug(containerId);
+        logger.debug(filter);
+        return readKeyRequests(containerId, defaultKeyRequestComparator, filter);
+    }
+
+
+    /**
      * Read the latest container version.
      * 
      * @param containerId
@@ -673,6 +878,23 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Send the container's key to a user. All pending key requests not made by
+     * the recipient of the key will be declined.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The jabber id.
+     */
+    void sendKey(final Long containerId, final JabberId jabberId)
+            throws ParityException {
+        logger.info(getApiId("[SEND KEY]"));
+        logger.debug(containerId);
+        logger.debug(jabberId);
+        acceptKeyRequest(containerId, jabberId);
+    }
+
+    /**
      * Share the container with a user. The user will receive the latest version
      * of the container and become part of the container's team.
      * 
@@ -703,6 +925,51 @@ class ContainerModelImpl extends AbstractModelImpl {
 
         // send
         send(readLatestVersion(containerId), user);
+    }
+    
+    /**
+     * Accept a key request made by a user.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The user.
+     * @throws ParityException
+     */
+    private void acceptKeyRequest(final Long containerId,
+            final JabberId jabberId) throws ParityException {
+        assertOnline(getApiId("[ACCEPT KEY REQUEST] [USER NOT ONLINE]"));
+        assertIsKeyHolder(getApiId("[ACCEPT KEY REQUEST] [USER NOT KEY HOLDER]"), containerId);
+
+        // decline\delete all other requests
+        final List<KeyRequest> keyRequests = readKeyRequests(containerId);
+        for(final KeyRequest keyRequest : keyRequests) {
+            if(!keyRequest.getRequestedBy().equals(jabberId)) {
+                declineKeyRequest(keyRequest.getId());
+            }
+            else { deleteKeyRequest(keyRequest.getId()); }
+        }
+
+        // if the container has been changed publish it
+        if(isLocallyModified(containerId))
+            publish(containerId);
+
+        // send key
+        remoteAccept(containerId, jabberId);
+
+        // remove key
+        removeFlagKey(containerId);
+
+        // lock 
+        lock(containerId);
+
+        // audit
+        final JabberId currentUserId = currentUserId();
+        final Calendar currentDateTime = currentDateTime();
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        auditor.sendKey(containerId, currentUserId, currentDateTime,
+                latestVersion.getVersionId(), currentUserId, currentDateTime,
+                jabberId);
     }
 
     /**
@@ -765,6 +1032,16 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Delete a key request.
+     * 
+     * @param keyRequestId
+     *            A key request id.
+     */
+    private void deleteKeyRequest(final Long keyRequestId) {
+        getInternalMessageModel().delete(keyRequestId);
+    }
+
+    /**
      * Delete the local info for this container.
      * 
      * @param containerId
@@ -800,6 +1077,17 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     private void deleteRemote(final Long containerId) throws ParityException {
         getInternalSessionModel().sendDelete(containerId);
+    }
+
+    /**
+     * Determine if the container exists.
+     * 
+     * @param containerId
+     *            The container id.
+     * @return True if the container exists; false otherwise.
+     */
+    private Boolean doesExist(final Long containerId) {
+        return getInternalArtifactModel().doesExist(containerId);
     }
 
     /**
@@ -916,6 +1204,95 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read a key request.
+     * 
+     * @param keyRequestId
+     *            A key request id.
+     * @return A key request.
+     */
+    private KeyRequest readKeyRequest(final Long keyRequestId) {
+        return getInternalArtifactModel().readKeyRequest(keyRequestId);
+    }
+
+    /**
+     * Read the local team for a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of users.
+     */
+    private List<User> readLocalTeam(final Long containerId) {
+        final Set<User> localTeam = getInternalArtifactModel().readTeam(containerId);
+        final List<User> team = new ArrayList<User>();
+        for(final User teamMember : localTeam) { team.add(teamMember); }
+        return team;
+    }
+
+    /**
+     * Read the local team ids for a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of user ids.
+     */
+    private List<JabberId> readLocalTeamIds(final Long containerId) {
+        final List<User> team = readLocalTeam(containerId);
+        final List<JabberId> teamIds = new ArrayList<JabberId>(team.size());
+        for(final User teamMember : team) { teamIds.add(teamMember.getId()); }
+        return teamIds;
+    }
+
+    /**
+     * Read a user for a jabber id.
+     * 
+     * @param jabberId
+     *            A jabber id.
+     * @return A user.
+     * @throws ParityException
+     */
+    private User readUser(final JabberId jabberId) throws ParityException {
+        return getInternalSessionModel().readUser(jabberId);
+    }
+
+    /**
+     * Call the remote accept api.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The jabber id.
+     * @throws ParityException
+     */
+    private void remoteAccept(final Long containerId, final JabberId jabberId)
+            throws ParityException {
+        getInternalSessionModel().sendKeyResponse(KeyResponse.ACCEPT, containerId, jabberId);
+    }
+
+    /**
+     * Call the remote decline api.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param jabberId
+     *            The jabber id.
+     * @throws ParityException
+     */
+    private void remoteDecline(final Long containerId, final JabberId jabberId)
+            throws ParityException {
+        getInternalSessionModel().sendKeyResponse(KeyResponse.DENY, containerId, jabberId);
+    }
+
+    /**
+     * Remove the key locally.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    private void removeFlagKey(final Long containerId) {
+        getInternalArtifactModel().removeFlagKey(containerId);
+    }
+
+    /**
      * Send the version to a user.
      * 
      * @param version
@@ -967,5 +1344,4 @@ class ContainerModelImpl extends AbstractModelImpl {
         indexor.delete(containerId);
         indexor.create(containerId, read(containerId).getName());
     }
-
 }

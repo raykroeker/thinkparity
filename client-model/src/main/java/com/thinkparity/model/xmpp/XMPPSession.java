@@ -4,15 +4,19 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
+import com.thinkparity.model.xmpp.events.XMPPContainerListener;
 import com.thinkparity.model.xmpp.events.XMPPDocumentListener;
 import com.thinkparity.model.xmpp.events.XMPPExtensionListener;
 import com.thinkparity.model.xmpp.events.XMPPSessionListener;
@@ -64,6 +68,14 @@ public interface XMPPSession {
      *            The xmpp contact event listener.
      */
     public void addListener(final XMPPContactListener l);
+
+    /**
+     * Add an xmpp container event listener.
+     * 
+     * @param l
+     *            The xmpp container event listener.
+     */
+    public void addListener(final XMPPContainerListener l);
 
 	/**
      * Add an xmpp document event listener.
@@ -153,16 +165,24 @@ public interface XMPPSession {
     public void processOfflineQueue() throws SmackException;
 
     /**
-     * Reactivate an artifact.
+     * Reactivate a container version.
      * 
+     * @param version
+     *            The container version.
+     * @param documentVersions
+     *            The document versions.
      * @param team
-     *            The artifact team.
-     * @param uniqueId
-     *            An artifact unique id.
+     *            The container team.
+     * @param reactivatedBy
+     *            Who reactivated the container.
+     * @param reactivatedOn
+     *            When the container was reactivated.
      * @throws SmackException
      */
-    public void reactivateArtifact(final List<JabberId> team,
-            final UUID uniqueId) throws SmackException;
+    public void reactivate(final ContainerVersion version,
+            final List<DocumentVersionContent> documentVersions,
+            final List<JabberId> team, final JabberId reactivatedBy,
+            final Calendar reactivatedOn) throws SmackException;
 
     /**
      * Read the artifact key holder.

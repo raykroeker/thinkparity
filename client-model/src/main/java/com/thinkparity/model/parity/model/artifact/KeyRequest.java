@@ -20,7 +20,7 @@ public class KeyRequest {
 	private String requestedByName;
 
 	/**
-	 * Create a KeyRequest.
+	 * Create a KeyRequestFilter.
 	 * 
 	 */
 	public KeyRequest() { super(); }

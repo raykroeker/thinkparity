@@ -43,8 +43,8 @@ public class ModelSorter {
 		Collections.sort(list, comparator);
 	}
 
-	public static void sortSystemMessages(final List<SystemMessage> list,
-			final Comparator<SystemMessage> comparator) {
+	public static void sortMessages(final List<SystemMessage> list,
+            final Comparator<SystemMessage> comparator) {
 		Collections.sort(list, comparator);
 	}
 

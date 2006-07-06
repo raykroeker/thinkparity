@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.contact;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
@@ -147,11 +146,11 @@ class ContactModelImpl extends AbstractModelImpl {
      * @return A contact.
      */
     Contact read(final JabberId contactId) {
-        logger.info(getApiId("[DELETE]"));
+        logger.info(getApiId("[READ]"));
         logger.debug(contactId);
-        logger.warn(getApiId("[DELETE] [NOT YET IMPLEMENTED]"));
+        logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
         try {
-            final Set<Contact> contacts = getSessionModel().readContacts();
+            final List<Contact> contacts = getInternalSessionModel().readContactList();
             for(final Contact contact : contacts) {
                 if(contact.getId().equals(contactId)) { return contact; }
             }

@@ -124,7 +124,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	void createKeyRequest(final Long artifactId, final JabberId requestedBy) {
+	SystemMessage createKeyRequest(final Long artifactId, final JabberId requestedBy) {
 		logger.info("createKeyRequest(Long,User)");
 		logger.debug(artifactId);
 		logger.debug(requestedBy);
@@ -134,6 +134,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		keyRequestMessage.setType(SystemMessageType.KEY_REQUEST);
 		systemMessageIO.create(keyRequestMessage);
 		notify_MessageCreated(keyRequestMessage);
+        return keyRequestMessage;
 	}
 
 	void createKeyResponse(final Long artifactId,
@@ -155,16 +156,11 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param systemMessageId
 	 *            The system message id.
-	 * @throws ParityException
 	 */
-	void delete(final Long systemMessageId) throws ParityException {
+	void delete(final Long systemMessageId) {
 		logger.info("delete(Long)");
 		logger.debug(systemMessageId);
-		try { systemMessageIO.delete(systemMessageId); }
-		catch(final RuntimeException rx) {
-			logger.error("Could not delete message:  " + systemMessageId, rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		systemMessageIO.delete(systemMessageId);
 	}
 
 	/**
@@ -191,7 +187,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		logger.debug(comparator);
 		try {
 			final List<SystemMessage> messages = systemMessageIO.read();
-			ModelSorter.sortSystemMessages(messages, comparator);
+			ModelSorter.sortMessages(messages, comparator);
 			return messages;
 		}
 		catch(final RuntimeException rx) {
@@ -208,31 +204,21 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	 * @return The system message.
 	 * @throws ParityException
 	 */
-	SystemMessage read(final Long systemMessageId) throws ParityException {
+	SystemMessage read(final Long systemMessageId) {
 		logger.info("read(Long)");
 		logger.debug(systemMessageId);
-		try { return systemMessageIO.read(systemMessageId); }
-		catch(final RuntimeException rx) {
-			logger.error("Could not obtain system message:  " + systemMessageId, rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		return systemMessageIO.read(systemMessageId);
 	}
 
 	List<SystemMessage> readForArtifact(final Long artifactId,
-			final SystemMessageType type) throws ParityException {
+            final SystemMessageType type) {
 		logger.info("[LMODEL] [SYSTEM MESSAGE] [READ FOR ARTIFACT]");
 		logger.debug(artifactId);
 		logger.debug(type);
-		try {
-			final List<SystemMessage> messages =
-				systemMessageIO.readForArtifact(artifactId, type);
-			populateUserInfo(messages);
-			return messages;
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[LMODEL] [SYSTEM MESSAGE] [READ FOR ARTIFACT]", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		final List<SystemMessage> messages =
+                systemMessageIO.readForArtifact(artifactId, type);
+		populateUserInfo(messages);
+		return messages;
 	}
 
 	List<SystemMessage> readForNonArtifacts() throws ParityException {
@@ -297,8 +283,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	private void populateUserInfo(final List<SystemMessage> messages)
-			throws ParityException {
+	private void populateUserInfo(final List<SystemMessage> messages) {
 		final InternalUserModel iUModel = getInternalUserModel();
 		for(final SystemMessage message : messages) {
 			switch(message.getType()) {

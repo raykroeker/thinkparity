@@ -28,6 +28,8 @@ public class ReactivateTest extends ContainerTestCase {
     public void testReactivate() {
         try { datum.cModel.reactivate(datum.containerId); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
+
+        assertTrue(NAME + " [CONTAINER REACTIVATE DID NOT FIRE]", datum.didNotify);
     }
 
     /**
@@ -61,6 +63,7 @@ public class ReactivateTest extends ContainerTestCase {
     private class Fixture implements ContainerListener {
         private final ContainerModel cModel;
         private final Long containerId;
+        private Boolean didNotify;
         private Fixture(final ContainerModel cModel, final Long containerId) {
             this.cModel = cModel;
             this.containerId = containerId;
@@ -75,7 +78,7 @@ public class ReactivateTest extends ContainerTestCase {
             fail(NAME + " [CONTAINER DELETED EVENT FIRED]");
         }
         public void containerReactivated(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER REACTIVATED EVENT FIRED]");
+            didNotify = Boolean.TRUE;
         }
         public void documentAdded(final ContainerEvent e) {
             fail(NAME + " [DOCUMENT ADDED EVENT FIRED]");

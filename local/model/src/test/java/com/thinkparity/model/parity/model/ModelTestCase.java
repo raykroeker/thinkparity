@@ -6,7 +6,9 @@ package com.thinkparity.model.parity.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import com.thinkparity.codebase.DateUtil;
@@ -17,6 +19,10 @@ import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
+import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
@@ -28,12 +34,16 @@ import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.library.InternalLibraryModel;
 import com.thinkparity.model.parity.model.library.LibraryModel;
+import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
+import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.release.InternalReleaseModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -56,199 +66,6 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 			Document document) {
 		ModelTestCaseHelper.assertContains(documentList, document);
 	}
-
-    /**
-     * Assert the expected document matches the actual.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param expected
-     *            The expected document.
-     * @param actual
-     *            The actual document.
-     */
-    protected static void assertEquals(final String assertion,
-            final Document expected, final Document actual) {
-        assertEquals(assertion + " [DOCUMENT DOES NOT MATCH EXPECTATION]", (Object) expected, (Object) actual);
-        assertEquals(assertion + " [DOCUMENT'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
-        assertEquals(assertion + " [DOCUMENT'S CREATED ON DOES NOT MATCH EXPECTATION]", expected.getCreatedOn(), actual.getCreatedOn());
-        assertEquals(assertion + " [DOCUMENT'S FLAGS DO NOT MATCH EXPECTATION]", expected.getFlags(), actual.getFlags());
-        assertEquals(assertion + " [DOCUMENT'S ID DOES NOT MATCH EXPECTATION]", expected.getId(), actual.getId());
-        assertEquals(assertion + " [DOCUMENT'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
-        assertEquals(assertion + " [DOCUMENT'S REMOTE INFO DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo(), actual.getRemoteInfo());
-        assertEquals(assertion + " [DOCUMENT'S REMOTE INFO'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo().getUpdatedBy(), actual.getRemoteInfo().getUpdatedBy());
-        assertEquals(assertion + " [DOCUMENT'S REMOTE INFO'S UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo().getUpdatedOn(), actual.getRemoteInfo().getUpdatedOn());
-        assertEquals(assertion + " [DOCUMENT'S STATE DOES NOT MATCH EXPECTATION]", expected.getState(), actual.getState());
-        assertEquals(assertion + " [DOCUMENT'S TYPE DOES NOT MATCH EXPECTATION]", expected.getType(), actual.getType());
-        assertEquals(assertion + " [DOCUMENT'S UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getUniqueId(), actual.getUniqueId());
-        assertEquals(assertion + " [DOCUMENT'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
-        assertEquals(assertion + " [DOCUMENT'S UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
-    }
-
-    /**
-     * Assert that the expected version matches the actual one.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param expected
-     *            The expected version.
-     * @param actual
-     *            The actual version.
-     */
-    protected static void assertEquals(final String assertion, final DocumentVersion expected, final DocumentVersion actual) {
-        assertEquals(assertion + " [ARTIFACT ID DOES NOT MATCH EXPECTATION]", expected.getArtifactId(), actual.getArtifactId());
-        assertEquals(assertion + " [ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
-        assertEquals(assertion + " [ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
-        assertEquals(assertion + " [CHECKSUM DOES NOT MATCH EXPECTATION]", expected.getChecksum(), actual.getChecksum());
-        assertEquals(assertion + " [COMPRESSION DOES NOT MATCH EXPECTATION]", expected.getCompression(), actual.getCompression());
-        assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
-        assertEquals(assertion + " [CREATED ON DOES NOT MATCH EXPECTATION]", expected.getCreatedOn(), actual.getCreatedOn());
-        assertEquals(assertion + " [ENCODING DOES NOT MATCH EXPECTATION]", expected.getEncoding(), actual.getEncoding());
-        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
-        assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
-        assertEquals(assertion + " [UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
-        assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
-    }
-
-    /**
-     * Assert that the expected version content matches the actual version
-     * content.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param expected
-     *            The expected version content.
-     * @param actual
-     *            The actual version content.
-     */
-    protected static void assertEquals(final String assertion, final DocumentVersionContent expected, final DocumentVersionContent actual) {
-        assertEquals(assertion, expected.getContent(), actual.getContent());
-        assertEquals(assertion, expected.getVersion(), actual.getVersion());
-    }
-
-    /**
-	 * Assert that the document list provided doesn't contain the document.
-	 * 
-	 * @param documentList
-	 *            The document list to check.
-	 * @param document
-	 *            The document to validate.
-	 */
-	protected static void assertNotContains(final Collection<Document> documentList,
-			Document document) {
-		ModelTestCaseHelper.assertNotContains(documentList, document);
-	}
-
-    /**
-     * Assert that a list of versions is not null and all of the versions in the
-     * list are not null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param versions
-     *            A list of versions.
-     */
-    protected static void assertNotNull(final String assertion, final Collection<DocumentVersion> versions) {
-        assertNotNull(assertion + " [DOCUMENT VERSIONS IS NULL]", (Object) versions);
-        for(final DocumentVersion version : versions) {
-            assertNotNull(assertion, version);
-        }
-    }
-
-	/**
-     * Assert that the document and all of its required members are not null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param document
-     *            The document.
-     */
-    protected static void assertNotNull(final String assertion, final Document document) {
-        assertNotNull(assertion + " [DOCUMENT IS NULL]", (Object) document);
-        assertNotNull(assertion + " [DOCUMENT CREATED BY IS NULL]", document.getCreatedBy());
-        assertNotNull(assertion + " [DOCUMENT CREATED ON IS NULL]", document.getCreatedOn());
-        assertNotNull(assertion + " [DOCUMENT FLAGS IS NULL]", document.getFlags());
-        assertNotNull(assertion + " [DOCUMENT ID IS NULL]", document.getId());
-        assertNotNull(assertion + " [DOCUMENT NAME IS NULL]", document.getName());
-        assertNotNull(assertion + " [DOCUMENT REMOTE INFO IS NULL]", document.getRemoteInfo());
-        assertNotNull(assertion + " [DOCUMENT REMOTE INFO UPDATED BY IS NULL]", document.getRemoteInfo().getUpdatedBy());
-        assertNotNull(assertion + " [DOCUMENT REMOTE INFO UPDATED ON IS NULL]", document.getRemoteInfo().getUpdatedOn());
-        assertNotNull(assertion + " [DOCUMENT STATE IS NULL]", document.getState());
-        assertNotNull(assertion + " [DOCUMENT TYPE IS NULL]", document.getType());
-        assertNotNull(assertion + " [DOCUMENT UNIQUE ID IS NULL]", document.getUniqueId());
-        assertNotNull(assertion + " [DOCUMENT UPDATED BY IS NULL]", document.getUpdatedBy());
-        assertNotNull(assertion + " [DOCUMENT UPDATED ON IS NULL]", document.getUpdatedOn());
-    }
-
-	/**
-     * Assert that the document version and all of its required fields are not
-     * null.
-     * 
-     * @param assertion The assertion.
-     * @param version The document version.
-     */
-    protected static void assertNotNull(final String assertion, final DocumentVersion version) {
-        assertNotNull(assertion + " [DOCUMENT VERSION IS NULL]", (Object) version);
-        assertNotNull(assertion + " [DOCUMENT VERSION ARTIFACT ID IS NULL]", version.getArtifactId());
-        assertNotNull(assertion + " [DOCUMENT VERSION ARTIFACT TYPE IS NULL]", version.getArtifactType());
-        assertNotNull(assertion + " [DOCUMENT VERSION UNIQUE ID IS NULL]", version.getArtifactUniqueId());
-        assertNotNull(assertion + " [DOCUMENT VERSION CHECKSUM IS NULL]", version.getChecksum());
-        assertNotNull(assertion + " [DOCUMENT VERSION COMPRESSION IS NULL]", version.getCompression());
-        assertNotNull(assertion + " [DOCUMENT VERSION CREATED BY IS NULL]", version.getCreatedBy());
-        assertNotNull(assertion + " [DOCUMENT VERSION CREATED ON IS NULL]", version.getCreatedOn());
-        assertNotNull(assertion + " [DOCUMENT VERSION ENCODING IS NULL]", version.getEncoding());
-        assertNotNull(assertion + " [DOCUMENT VERSION NAME IS NULL]", version.getName());
-        assertNotNull(assertion + " [DOCUMENT VERSION UPDATED ON IS NULL]", version.getUpdatedBy());
-        assertNotNull(assertion + " [DOCUMENT VERSION UPDATED BY IS NULL]", version.getUpdatedOn());
-        assertNotNull(assertion + " [DOCUMENT VERSION VERSION ID IS NULL]", version.getVersionId());
-    }
-
-    /**
-     * Assert that a version content and all of its required members are not
-     * null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param versionContent
-     *            The version content.
-     */
-    protected static void assertNotNull(final String assertion, final DocumentVersionContent versionContent) {
-        assertNotNull(assertion + " [VERSION CONTENT IS NULL]", (Object) versionContent);
-        assertNotNull(assertion + " [VERSION CONTENT'S CONTENT IS NULL]", versionContent.getContent());
-        assertNotNull(assertion + " [VERSION CONTENT'S VERSION IS NULL]", versionContent.getVersion());
-    }
-
-    /**
-     * Assert that the set of users is not null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param users
-     *            The set of users.
-     */
-    protected static void assertNotNull(final String assertion,
-            final Set<User> users) {
-        assertNotNull(assertion + " [USERS IS NULL]", (Object) users);
-        for(final User user : users) {
-            assertNotNull(assertion, user);
-        }
-    }
-
-    /**
-     * Assert that the user and all of the user required fields are not null.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param user
-     *            The user.
-     */
-    protected static void assertNotNull(final String assertion, final User user) {
-        assertNotNull(assertion + " [USER IS NULL]", (Object) user);
-        assertNotNull(assertion + " [USER'S ID IS NULL]", user.getId());
-        assertNotNull(assertion + " [USER'S LOCAL ID IS NULL]", user.getLocalId());
-        assertNotNull(assertion + " [USER'S NAME IS NULL]", user.getName());
-        assertNotNull(assertion + " [USER'S ORGANIZATION IS NULL]", user.getOrganization());
-    }
 
     /**
      * Assert that the expected container matches the actual.
@@ -323,6 +140,104 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
     }
 
     /**
+     * Assert the expected document matches the actual.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected document.
+     * @param actual
+     *            The actual document.
+     */
+    protected static void assertEquals(final String assertion,
+            final Document expected, final Document actual) {
+        assertEquals(assertion + " [DOCUMENT DOES NOT MATCH EXPECTATION]", (Object) expected, (Object) actual);
+        assertEquals(assertion + " [DOCUMENT'S CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
+        assertEquals(assertion + " [DOCUMENT'S CREATED ON DOES NOT MATCH EXPECTATION]", expected.getCreatedOn(), actual.getCreatedOn());
+        assertEquals(assertion + " [DOCUMENT'S FLAGS DO NOT MATCH EXPECTATION]", expected.getFlags(), actual.getFlags());
+        assertEquals(assertion + " [DOCUMENT'S ID DOES NOT MATCH EXPECTATION]", expected.getId(), actual.getId());
+        assertEquals(assertion + " [DOCUMENT'S NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [DOCUMENT'S REMOTE INFO DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo(), actual.getRemoteInfo());
+        assertEquals(assertion + " [DOCUMENT'S REMOTE INFO'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo().getUpdatedBy(), actual.getRemoteInfo().getUpdatedBy());
+        assertEquals(assertion + " [DOCUMENT'S REMOTE INFO'S UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getRemoteInfo().getUpdatedOn(), actual.getRemoteInfo().getUpdatedOn());
+        assertEquals(assertion + " [DOCUMENT'S STATE DOES NOT MATCH EXPECTATION]", expected.getState(), actual.getState());
+        assertEquals(assertion + " [DOCUMENT'S TYPE DOES NOT MATCH EXPECTATION]", expected.getType(), actual.getType());
+        assertEquals(assertion + " [DOCUMENT'S UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getUniqueId(), actual.getUniqueId());
+        assertEquals(assertion + " [DOCUMENT'S UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
+        assertEquals(assertion + " [DOCUMENT'S UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
+    }
+
+    /**
+     * Assert that the expected version matches the actual one.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected version.
+     * @param actual
+     *            The actual version.
+     */
+    protected static void assertEquals(final String assertion, final DocumentVersion expected, final DocumentVersion actual) {
+        assertEquals(assertion + " [ARTIFACT ID DOES NOT MATCH EXPECTATION]", expected.getArtifactId(), actual.getArtifactId());
+        assertEquals(assertion + " [ARTIFACT TYPE DOES NOT MATCH EXPECTATION]", expected.getArtifactType(), actual.getArtifactType());
+        assertEquals(assertion + " [ARTIFACT UNIQUE ID DOES NOT MATCH EXPECTATION]", expected.getArtifactUniqueId(), actual.getArtifactUniqueId());
+        assertEquals(assertion + " [CHECKSUM DOES NOT MATCH EXPECTATION]", expected.getChecksum(), actual.getChecksum());
+        assertEquals(assertion + " [COMPRESSION DOES NOT MATCH EXPECTATION]", expected.getCompression(), actual.getCompression());
+        assertEquals(assertion + " [CREATED BY DOES NOT MATCH EXPECTATION]", expected.getCreatedBy(), actual.getCreatedBy());
+        assertEquals(assertion + " [CREATED ON DOES NOT MATCH EXPECTATION]", expected.getCreatedOn(), actual.getCreatedOn());
+        assertEquals(assertion + " [ENCODING DOES NOT MATCH EXPECTATION]", expected.getEncoding(), actual.getEncoding());
+        assertEquals(assertion + " [NAME DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
+        assertEquals(assertion + " [UPDATED BY DOES NOT MATCH EXPECTATION]", expected.getUpdatedBy(), actual.getUpdatedBy());
+        assertEquals(assertion + " [UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
+        assertEquals(assertion + " [VERSION ID DOES NOT MATCH EXPECTATION]", expected.getVersionId(), actual.getVersionId());
+    }
+
+	/**
+     * Assert that the expected version content matches the actual version
+     * content.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected version content.
+     * @param actual
+     *            The actual version content.
+     */
+    protected static void assertEquals(final String assertion, final DocumentVersionContent expected, final DocumentVersionContent actual) {
+        assertEquals(assertion, expected.getContent(), actual.getContent());
+        assertEquals(assertion, expected.getVersion(), actual.getVersion());
+    }
+
+	/**
+	 * Assert that the document list provided doesn't contain the document.
+	 * 
+	 * @param documentList
+	 *            The document list to check.
+	 * @param document
+	 *            The document to validate.
+	 */
+	protected static void assertNotContains(final Collection<Document> documentList,
+			Document document) {
+		ModelTestCaseHelper.assertNotContains(documentList, document);
+	}
+
+    /**
+     * Assert that a list of versions is not null and all of the versions in the
+     * list are not null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param versions
+     *            A list of versions.
+     */
+    protected static void assertNotNull(final String assertion, final Collection<DocumentVersion> versions) {
+        assertNotNull(assertion + " [DOCUMENT VERSIONS IS NULL]", (Object) versions);
+        for(final DocumentVersion version : versions) {
+            assertNotNull(assertion, version);
+        }
+    }
+
+    /**
      * Assert the container is not null.
      * 
      * @param assertion
@@ -368,13 +283,113 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         assertNotNull(assertion + " [CONTAINER VERSION'S VERSION ID IS NULL]", version.getVersionId());
     }
 
-    private InternalContainerModel iContainerModel;
+    /**
+     * Assert that the document and all of its required members are not null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param document
+     *            The document.
+     */
+    protected static void assertNotNull(final String assertion, final Document document) {
+        assertNotNull(assertion + " [DOCUMENT IS NULL]", (Object) document);
+        assertNotNull(assertion + " [DOCUMENT CREATED BY IS NULL]", document.getCreatedBy());
+        assertNotNull(assertion + " [DOCUMENT CREATED ON IS NULL]", document.getCreatedOn());
+        assertNotNull(assertion + " [DOCUMENT FLAGS IS NULL]", document.getFlags());
+        assertNotNull(assertion + " [DOCUMENT ID IS NULL]", document.getId());
+        assertNotNull(assertion + " [DOCUMENT NAME IS NULL]", document.getName());
+        assertNotNull(assertion + " [DOCUMENT REMOTE INFO IS NULL]", document.getRemoteInfo());
+        assertNotNull(assertion + " [DOCUMENT REMOTE INFO UPDATED BY IS NULL]", document.getRemoteInfo().getUpdatedBy());
+        assertNotNull(assertion + " [DOCUMENT REMOTE INFO UPDATED ON IS NULL]", document.getRemoteInfo().getUpdatedOn());
+        assertNotNull(assertion + " [DOCUMENT STATE IS NULL]", document.getState());
+        assertNotNull(assertion + " [DOCUMENT TYPE IS NULL]", document.getType());
+        assertNotNull(assertion + " [DOCUMENT UNIQUE ID IS NULL]", document.getUniqueId());
+        assertNotNull(assertion + " [DOCUMENT UPDATED BY IS NULL]", document.getUpdatedBy());
+        assertNotNull(assertion + " [DOCUMENT UPDATED ON IS NULL]", document.getUpdatedOn());
+    }
 
-	private InternalDocumentModel iDocumentModel;
+    /**
+     * Assert that the document version and all of its required fields are not
+     * null.
+     * 
+     * @param assertion The assertion.
+     * @param version The document version.
+     */
+    protected static void assertNotNull(final String assertion, final DocumentVersion version) {
+        assertNotNull(assertion + " [DOCUMENT VERSION IS NULL]", (Object) version);
+        assertNotNull(assertion + " [DOCUMENT VERSION ARTIFACT ID IS NULL]", version.getArtifactId());
+        assertNotNull(assertion + " [DOCUMENT VERSION ARTIFACT TYPE IS NULL]", version.getArtifactType());
+        assertNotNull(assertion + " [DOCUMENT VERSION UNIQUE ID IS NULL]", version.getArtifactUniqueId());
+        assertNotNull(assertion + " [DOCUMENT VERSION CHECKSUM IS NULL]", version.getChecksum());
+        assertNotNull(assertion + " [DOCUMENT VERSION COMPRESSION IS NULL]", version.getCompression());
+        assertNotNull(assertion + " [DOCUMENT VERSION CREATED BY IS NULL]", version.getCreatedBy());
+        assertNotNull(assertion + " [DOCUMENT VERSION CREATED ON IS NULL]", version.getCreatedOn());
+        assertNotNull(assertion + " [DOCUMENT VERSION ENCODING IS NULL]", version.getEncoding());
+        assertNotNull(assertion + " [DOCUMENT VERSION NAME IS NULL]", version.getName());
+        assertNotNull(assertion + " [DOCUMENT VERSION UPDATED ON IS NULL]", version.getUpdatedBy());
+        assertNotNull(assertion + " [DOCUMENT VERSION UPDATED BY IS NULL]", version.getUpdatedOn());
+        assertNotNull(assertion + " [DOCUMENT VERSION VERSION ID IS NULL]", version.getVersionId());
+    }
+
+    /**
+     * Assert that a version content and all of its required members are not
+     * null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param versionContent
+     *            The version content.
+     */
+    protected static void assertNotNull(final String assertion, final DocumentVersionContent versionContent) {
+        assertNotNull(assertion + " [VERSION CONTENT IS NULL]", (Object) versionContent);
+        assertNotNull(assertion + " [VERSION CONTENT'S CONTENT IS NULL]", versionContent.getContent());
+        assertNotNull(assertion + " [VERSION CONTENT'S VERSION IS NULL]", versionContent.getVersion());
+    }
+
+    /**
+     * Assert that the set of users is not null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param users
+     *            The set of users.
+     */
+    protected static void assertNotNull(final String assertion,
+            final Set<User> users) {
+        assertNotNull(assertion + " [USERS IS NULL]", (Object) users);
+        for(final User user : users) {
+            assertNotNull(assertion, user);
+        }
+    }
+
+    /**
+     * Assert that the user and all of the user required fields are not null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param user
+     *            The user.
+     */
+    protected static void assertNotNull(final String assertion, final User user) {
+        assertNotNull(assertion + " [USER IS NULL]", (Object) user);
+        assertNotNull(assertion + " [USER'S ID IS NULL]", user.getId());
+        assertNotNull(assertion + " [USER'S LOCAL ID IS NULL]", user.getLocalId());
+        assertNotNull(assertion + " [USER'S NAME IS NULL]", user.getName());
+        assertNotNull(assertion + " [USER'S ORGANIZATION IS NULL]", user.getOrganization());
+    }
+
+    /** The internal artifact model. */
+    private InternalArtifactModel artifactModel;
+
+	private InternalContainerModel iContainerModel;
+
+    private InternalDocumentModel iDocumentModel;
 
     private InternalLibraryModel ilModel;
 
-    private InternalReleaseModel irModel;
+	private InternalReleaseModel irModel;
+
+	private InternalSystemMessageModel messageModel;
 
 	/**
 	 * The parity preferences.
@@ -393,21 +408,21 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 * 
 	 */
 	private Workspace workspace;
-
+	
 	/**
 	 * The workspace model.
 	 * 
 	 */
 	private WorkspaceModel workspaceModel;
 
-	/**
+    /**
 	 * Create a ModelTestCase
 	 * 
 	 * @param name
 	 *            The test name.
 	 */
 	protected ModelTestCase(final String name) { super(name); }
-	
+
 	/**
      * Add a document to a container.
      * 
@@ -425,11 +440,11 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         return document;
     }
 
-    protected void addTeam(final Container container) throws Exception {
+	protected void addTeam(final Container container) throws Exception {
         addTeamToContainer(container.getId());
     }
 
-	/**
+    /**
      * Create a document.
      * 
      * @param file
@@ -447,7 +462,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         finally { fis.close(); }
     }
 
-	/**
+    /**
      * Create a container.
      * 
      * @param name
@@ -457,6 +472,22 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
     protected Container createContainer(final String name)
             throws ParityException {
         return getInternalContainerModel().create(name);
+    }
+
+    /**
+     * Read an artifact's team.
+     * 
+     * @param artifact
+     *            An artifact.
+     * @return A list of jabber ids.
+     */
+    protected List<JabberId> readTeam(final Artifact artifact) {
+        final List<JabberId> team = new ArrayList<JabberId>();
+        for(final User user : getArtifactModel().readTeam(
+                artifact.getId())) {
+            team.add(user.getId());
+        }
+        return team;
     }
 
     /**
@@ -492,6 +523,13 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		return inputFiles;
 	}
 
+    protected InternalArtifactModel getInternalArtifactModel() {
+        if(null == artifactModel) {
+            artifactModel = ArtifactModel.getInternalModel(new Context(getClass()));
+        }
+        return artifactModel;
+    }
+
     protected InternalContainerModel getInternalContainerModel() {
         if(null == iContainerModel) {
             iContainerModel = ContainerModel.getInternalModel(new Context(getClass()));
@@ -511,6 +549,13 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
             ilModel = LibraryModel.getInternalModel(new Context(getClass()));
         }
         return ilModel;
+    }
+
+	protected InternalSystemMessageModel getInternalMessageModel() {
+        if(null == messageModel) {
+            messageModel = SystemMessageModel.getInternalModel(new Context(getClass()));
+        }
+        return messageModel;
     }
 
 	protected InternalReleaseModel getInternalReleaseModel() {
@@ -550,7 +595,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		return sessionModel;
 	}
 
-	/**
+    /**
 	 * Obtain the parity workspace.
 	 * 
 	 * @return The parity workspace.
@@ -561,7 +606,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		}
 		return workspace;
 	}
-
+	
     /**
 	 * Obtain a handle to the parity workspace model.
 	 * 
@@ -573,7 +618,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		}
 		return workspaceModel;
 	}
-	
+
     /**
      * Determine if the session model is currently logged in.
      * 
@@ -581,7 +626,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      */
     protected Boolean isLoggedIn() { return getSessionModel().isLoggedIn(); }
 
-    /**
+	/**
 	 * Determine if the parity error is generated by the model due to operating
 	 * system constraints.
 	 * 
@@ -622,7 +667,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		catch(final ParityException px) { throw new RuntimeException(px); }
 	}
 
-	/**
+    /**
      * Terminate an existing session.
      *
      */
@@ -645,6 +690,23 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
                 ("jUnit Test MOD " +
                 DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
         getDocumentModel().updateWorkingVersion(documentId, tempFile);
+    }
+
+    /**
+     * Request the key for the container from the user.
+     * 
+     * @param container
+     *            The container.
+     * @param testUser
+     *            The user.
+     * @return The key request.
+     */
+    protected KeyRequest requestKey(final Container container,
+            final ModelTestUser testUser) {
+        final SystemMessage systemMessage =
+                getInternalMessageModel().createKeyRequest(
+                        container.getId(), testUser.getJabberId());
+        return getInternalArtifactModel().readKeyRequest(systemMessage.getId());
     }
 
     /**

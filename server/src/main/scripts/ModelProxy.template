@@ -1,0 +1,58 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ */
+package ${proxy.packageName};
+
+import com.thinkparity.server.model.AbstractModel;
+import com.thinkparity.server.model.session.Session;
+
+/**
+ * <b>Title:</b>thinkParity ${proxy.name} Model<br>
+ * <b>Description:</b>
+ *
+ * @author ${environment.author}
+ * @version 1.1
+ */
+${proxy.classModifier}class ${proxy.className} extends AbstractModel {
+
+	/**
+	 * Create ${proxy.article} ${proxy.name} interface.
+	 * 
+	 * @return The ${proxy.name} interface.
+	 */
+	public static ${proxy.className} getModel(final Session session) {
+		return new ${proxy.className}(session);
+	}
+
+	/** The model implementation. */
+	private final ${proxyImpl.className} impl;
+
+	/** The model implementation synchronization lock. */
+	private final Object implLock;
+
+	/**
+	 * Create ${proxy.className}.
+	 *
+	 * @param workspace
+	 *		The thinkParity workspace.
+	 */
+	protected ${proxy.className}(final Session session) {
+		super();
+		this.impl = new ${proxyImpl.className}(session);
+		this.implLock = new Object();
+	}
+
+	/**
+	 * Obtain the model implementation.
+	 * 
+	 * @return The model implementation.
+	 */
+	protected ${proxyImpl.className} getImpl() { return impl; }
+
+	/**
+	 * Obtain the model implementation synchronization lock.
+	 * 
+	 * @return The model implementation synchrnoization lock.
+	 */
+	protected Object getImplLock() { return implLock; }
+}

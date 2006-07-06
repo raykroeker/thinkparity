@@ -53,13 +53,6 @@
         <cvs cvsroot="${cvs.cvsroot}"
             command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
             dest="${basedir}"/>
-        <!-- ide files -->
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
-            dest="${basedir}"/>
-        <move todir="${basedir}">
-            <fileset dir="${basedir}/ide"/>
-        </move>
     </target>
 
     <!-- update -->

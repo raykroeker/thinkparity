@@ -8,9 +8,9 @@
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
-    <property name="cvs.modules" value="desdemonaSource desdemonaLibs"/>
-    <property name="cvs.modules.ide" value="desdemonaEclipse"/>
-    <property name="cvs.tag" value="v1_0"/>
+    <property name="cvs.modules" value="common/codebase common/junitx remote/codebase remote/model lib/junit lib/log4j lib/messenger"/>
+    <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
+    <property name="cvs.branch" value="v1_0"/>
 
     <!-- input directories/files/paths -->
     <property name="vendor.dir" value="${basedir}/vendor"/>
@@ -43,33 +43,30 @@
 	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
 	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
 
-    <!-- checkout source -->
+    <!-- checkout -->
     <target name="checkout">
         <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules}"/>
-        <cvs cvsroot="${cvs.cvsroot}"
-            command="checkout" tag="${cvs.tag}" package="${cvs.modules}"
-            dest="${basedir}"/>
-    </target>
-
-    <!-- update source -->
-    <target name="update">
-        <echo message="${cvs.cvsroot}"/>
-        <cvs cvsroot="${cvs.cvsroot}" command="update -P"/>
-    </target>
-   
-    <!-- checkout ide files -->
-    <target name="checkout.ide">
-        <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.tag}"/>
         <echo message="${cvs.modules.ide}"/>
+        <!-- source trees -->
         <cvs cvsroot="${cvs.cvsroot}"
-            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.tag}" package="${cvs.modules.ide}"
+            command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
+            dest="${basedir}"/>
+        <!-- ide files -->
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
             dest="${basedir}"/>
         <move todir="${basedir}">
             <fileset dir="${basedir}/ide"/>
         </move>
+    </target>
+
+    <!-- update -->
+    <target name="update">
+        <echo message="${cvs.cvsroot}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="update -P" tag="${cvs.branch}" package="${cvs.modules}"/>
     </target>
 
     <!-- delete output -->

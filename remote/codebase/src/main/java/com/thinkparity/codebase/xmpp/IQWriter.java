@@ -81,7 +81,7 @@ public abstract class IQWriter {
      */
     public final void writeLongs(final String parentName, final String name,
             final List<Long> values) {
-        ElementBuilder.addElements(iq.getChildElement(), parentName, name, values);
+        ElementBuilder.addLongElements(iq.getChildElement(), parentName, name, values);
     }
 
     /**

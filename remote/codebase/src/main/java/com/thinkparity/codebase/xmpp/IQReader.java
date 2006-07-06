@@ -65,6 +65,19 @@ public abstract class IQReader {
     }
 
     /**
+     * Read jabber id data.
+     * 
+     * @param name
+     *            The element name.
+     * @return The data; or null if the data does not exist.
+     */
+    public final JabberId readJabberId(final String name) {
+        final String sData = readString(name);
+        if(null == sData) { return null; }
+        else { return JabberIdBuilder.parseQualifiedJabberId(sData); }
+    }
+
+    /**
      * Read a list of jabber ids.
      * 
      * @param parentName

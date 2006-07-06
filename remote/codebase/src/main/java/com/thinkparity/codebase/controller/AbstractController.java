@@ -98,20 +98,6 @@ public abstract class AbstractController extends
         return response;
     }
 
-    /**
-     * Read a list of jabber id parameters.
-     * 
-     * @param parentName
-     *            The parent parameter name.
-     * @param name
-     *            The parameter name.
-     * @return A list of jabber ids.
-     */
-    public List<JabberId> readJabberIds(final String parentName,
-            final String name) {
-        return iqReader.readJabberIds(parentName, name);
-    }
-
     /** Handle an internet query. */
     public abstract void service();
 
@@ -133,8 +119,44 @@ public abstract class AbstractController extends
      *            The parameter name.
      * @return The byte array parameter value.
      */
-    protected byte[] readByteArray(final String name) {
+    protected final byte[] readByteArray(final String name) {
         return iqReader.readByteArray(name);
+    }
+
+    /**
+     * Read a calendar parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @return The calendar.
+     */
+    protected final Calendar readCalendar(final String name) {
+        return iqReader.readCalendar(name);
+    }
+
+    /**
+     * Read a jabber id parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @return The jabber id.
+     */
+    protected final JabberId readJabberId(final String name) {
+        return iqReader.readJabberId(name);
+    }
+
+    /**
+     * Read a list of jabber id parameters.
+     * 
+     * @param parentName
+     *            The parent parameter name.
+     * @param name
+     *            The parameter name.
+     * @return A list of jabber ids.
+     */
+    protected final List<JabberId> readJabberIds(final String parentName,
+            final String name) {
+        return iqReader.readJabberIds(parentName, name);
     }
 
     /**
@@ -144,7 +166,7 @@ public abstract class AbstractController extends
      *            The parameter name.
      * @return The long value.
      */
-    protected Long readLong(final String name) {
+    protected final Long readLong(final String name) {
         return iqReader.readLong(name);
     }
 
@@ -155,7 +177,7 @@ public abstract class AbstractController extends
      *            The parameter name.
      * @return The string value.
      */
-    protected String readString(final String name) {
+    protected final String readString(final String name) {
         return iqReader.readString(name);
     }
 
@@ -167,7 +189,7 @@ public abstract class AbstractController extends
      * @param value
      *            The element value.
      */
-    protected void writeBytes(final String name, final byte[] value) {
+    protected final void writeBytes(final String name, final byte[] value) {
         iqWriter.writeBytes(name, value);
     }
 
@@ -179,7 +201,7 @@ public abstract class AbstractController extends
      * @param value
      *      The element value.
      */
-    protected void writeCalendar(final String name, final Calendar value) {
+    protected final void writeCalendar(final String name, final Calendar value) {
         iqWriter.writeCalendar(name, value);
     }
 
@@ -191,7 +213,7 @@ public abstract class AbstractController extends
      * @param value
      *      The element value.
      */
-    protected void writeLong(final String name, final Long value) {
+    protected final void writeLong(final String name, final Long value) {
         iqWriter.writeLong(name, value);
     }
     /**
@@ -202,7 +224,7 @@ public abstract class AbstractController extends
      * @param value
      *      The element value.
      */
-    protected void writeString(final String name, final String value) {
+    protected final void writeString(final String name, final String value) {
         iqWriter.writeString(name, value);
     }
 

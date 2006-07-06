@@ -22,7 +22,7 @@ public interface ParityServerConstants {
 
 	public static final String SERVER_NAME = "Parity XMPP Server";
 
-    /** Xml constants. &*/
+    /** Xml constants. */
 	public static final class Xml {
 	    public static final class Artifact {
             public static final String BYTES = "bytes";

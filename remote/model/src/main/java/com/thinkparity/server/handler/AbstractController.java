@@ -18,6 +18,7 @@ import com.thinkparity.model.xmpp.IQReader;
 import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.model.artifact.ArtifactModel;
+import com.thinkparity.server.model.container.ContainerModel;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -40,6 +41,12 @@ public abstract class AbstractController extends
     protected static StringBuffer getControllerId(final String controller) {
         return new StringBuffer("[MODEL] [CONTROLLER] ").append(controller);
     }
+
+    /** A thinkParity artifact model interface. */
+    private ArtifactModel artifactModel;
+
+    /** A thinkParity container model interface. */
+    private ContainerModel containerModel;
 
     /** A custom iq reader. */
     private IQReader iqReader;
@@ -71,17 +78,14 @@ public abstract class AbstractController extends
      */
     public IQ handleIQ(final IQ iq) throws UnauthorizedException {
         final Session session = new Session() {
-            final JID jid = iq.getFrom();
-            final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(jid.toString());
+            final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
             public JabberId getJabberId() { return jabberId; }
-            public JID getJID() { return jid; }
+            public JID getJID() { return iq.getFrom(); }
         };
         this.artifactModel = ArtifactModel.getModel(session);
+        this.containerModel = ContainerModel.getModel(session);
         return super.handleIQ(iq);
     }
-
-    /** The parity artifact interface. */
-    private ArtifactModel artifactModel;
 
     /**
      * Read a unique id parameter.
@@ -101,4 +105,12 @@ public abstract class AbstractController extends
      * @see #handleIQ(IQ)
      */
     protected ArtifactModel getArtifactModel() { return artifactModel; }
+
+    /**
+     * Obtain the contianer model.
+     * 
+     * @return The container model.
+     * @see #handleIQ(IQ)
+     */
+    protected ContainerModel getContainerModel() { return containerModel; }
 }

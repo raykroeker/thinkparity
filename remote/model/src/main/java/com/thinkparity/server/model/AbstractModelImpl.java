@@ -35,6 +35,17 @@ import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
  */
 public abstract class AbstractModelImpl {
 
+    /**
+     * Obtain a log4j model id.
+     * 
+     * @param model
+     *            The model.
+     * @return A model id.
+     */
+    protected static StringBuffer getModelId(final String model) {
+        return new StringBuffer("[RMODEL]").append(" ").append(model);
+    }
+
 	/**
 	 * Handle to a parity server logger.
 	 */

@@ -9,10 +9,26 @@ package com.thinkparity.server.org.dom4j;
  */
 public enum ElementName {
 
-	ACTION("action"), BYTES("bytes"), CONTACT("contact"), CONTACTS("contacts"), FLAG("flag"),
-	JID("jid"), JIDS("jids"), KEYHOLDER("keyholder"),
-	KEYRESPONSE("keyresponse"), NAME("name"), QUERY("query"), USERNAME("username"),
-	UUID("uuid"), UUIDS("uuids"), VERSIONID("versionid"), USERS("users"), USER("user"), VCARD("vcard");
+	ACTION("action"),
+    BYTES("bytes"),
+    CONTACT("contact"),
+    CONTACTS("contacts"),
+    FLAG("flag"),
+	JID("jid"),
+    JIDS("jids"),
+    KEYHOLDER("keyholder"),
+	KEYRESPONSE("keyresponse"),
+    NAME("name"),
+    QUERY("query"),
+    REACTIVATEDBY("reactivatedby"),
+    REACTIVATEDON("reactivatedon"),
+    USER("user"),
+	USERNAME("username"),
+    USERS("users"),
+    UUID("uuid"),
+    UUIDS("uuids"),
+    VCARD("vcard"),
+    VERSIONID("versionid");
 
 	/**
 	 * The xml element name.

@@ -87,8 +87,7 @@ Options:
     -Dcompile.debug=true,false  Generate compiler debug info.
                                 Default:true
 Targets:
-    checkout                    Checkout all source.
-    checkout.ide                Checkout ide configuration files.
+    checkout                    Checkout all source from ${cvs.branch}.
     clean                       Delete output.
     compile                     Compile source.
     javadoc                     Generate javadoc (html) documentation.
@@ -97,6 +96,7 @@ Targets:
     test                        Run tests.
     test-compile                Compile test source.
     test-process-resources      Process test resources.
+    update                      Update sources from ${cvs.branch}.
 Examples:
     First Run:
     ant checkout test           Will grab all source from cvs; process all
@@ -155,9 +155,13 @@ Examples:
 
     <!-- release -->
     <target name="release">
+        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
+        <antcall target="test" inheritAll="true" inheritRefs="true"/>
+        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
+        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
+
         <property name="target.release.plugin.dir"
                 value="${target.release.dir}/plugin"/>
-
         <!-- ${target.release.plugin.dir} -->
         <copy todir="${target.release.plugin.dir}">
             <fileset dir="${basedir}">
@@ -183,6 +187,7 @@ Examples:
         <copy todir="${target.release.plugin.dir}/lib">
             <fileset file="${vendor.log4j.lib}"/>
         </copy>
+        <!-- model -->
         <jar destfile="${target.release.plugin.dir}/lib/model.jar">
             <manifest>
             </manifest>
@@ -191,6 +196,7 @@ Examples:
                 <include name="com/thinkparity/model/**/*"/>
             </fileset>
         </jar>
+        <!-- codebase -->
         <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
             <manifest>
             </manifest>
@@ -198,12 +204,16 @@ Examples:
                 <include name="com/thinkparity/codebase/**/*"/>
             </fileset>
         </jar>
-
+        <!-- release jar -->
         <jar destfile="${target.release.dir}/${release.name}-${release.version}-plugin.jar">
             <manifest>
             </manifest>
             <fileset dir="${target.release.plugin.dir}"/>
         </jar>
+        <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
+            algorithm="MD5"/>
+        <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
+            algorithm="SHA"/>
     </target>
 
     <!-- unit test -->

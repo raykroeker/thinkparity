@@ -9,10 +9,10 @@ import java.util.List;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
@@ -33,15 +33,23 @@ public class ModelSorter {
 		Collections.sort(list, comparator);
 	}
 
-	public static void sortDocumentVersions(final List<DocumentVersion> list,
+    public static void sortDocumentVersions(final List<DocumentVersion> list,
 			final Comparator<ArtifactVersion> comparator) {
 		Collections.sort(list, comparator);
 	}
 
-	public static void sortHistoryItems(final List<HistoryItem> list,
-			final Comparator<HistoryItem> comparator) {
-		Collections.sort(list, comparator);
-	}
+    /**
+     * Sort a history.
+     * 
+     * @param history
+     *            An artifact history.
+     * @param comparator
+     *            An artifact history comparator.
+     */
+    public static <T extends HistoryItem> void sortHistory(
+            final List<T> history, final Comparator<? super T> comparator) {
+        Collections.sort(history, comparator);
+    }
 
 	public static void sortMessages(final List<SystemMessage> list,
             final Comparator<SystemMessage> comparator) {

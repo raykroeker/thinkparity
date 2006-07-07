@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.sort;
 
 import java.util.Comparator;
 
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 
 /**
  * A history item comparator that knows how to compare history item

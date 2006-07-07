@@ -7,7 +7,7 @@ import java.util.Comparator;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**

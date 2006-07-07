@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
+import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -207,4 +208,17 @@ public class InternalDocumentModel extends DocumentModel implements
 	public void unlock(final Long documentId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().unlock(documentId); }
 	}
+
+    /**
+     * Read a list of audit events for a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A list of audit events.
+     */
+	public List<AuditEvent> readAuditEvents(final Long documentId) {
+	    synchronized(getImplLock()) {
+            return getImpl().readAuditEvents(documentId);
+        }
+    }
 }

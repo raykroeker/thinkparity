@@ -13,6 +13,7 @@ import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
@@ -51,13 +52,13 @@ public class ContainerModel {
 		return new ContainerModel(workspace);
 	}
 
-	/** The model implementation. */
+    /** The model implementation. */
 	private final ContainerModelImpl impl;
 
-	/** The model implementation synchronization lock. */
+    /** The model implementation synchronization lock. */
 	private final Object implLock;
 
-	/**
+    /**
 	 * Create ContainerModel.
 	 *
 	 * @param workspace
@@ -69,7 +70,7 @@ public class ContainerModel {
 		this.implLock = new Object();
 	}
 
-	/**
+    /**
      * Accept a key request made by a user.
      * 
      * @param containerId
@@ -82,7 +83,7 @@ public class ContainerModel {
         synchronized(implLock) { impl.acceptKeyRequest(keyRequestId); }
     }
 
-    /**
+	/**
      * Add a document to a container.
      * 
      * @param containerId
@@ -97,7 +98,7 @@ public class ContainerModel {
         }
     }
 
-    /**
+	/**
      * Add a container listener.
      * 
      * @param listener
@@ -107,7 +108,7 @@ public class ContainerModel {
         synchronized(implLock) { impl.addListener(listener); }
     }
 
-    /**
+	/**
      * Archive a container.
      * 
      * @param containerId
@@ -117,7 +118,7 @@ public class ContainerModel {
         Assert.assertNotYetImplemented("");
     }
 
-    /**
+	/**
      * Archive a container.
      * 
      * @param containerId
@@ -309,6 +310,54 @@ public class ContainerModel {
     public List<Document> readDocuments(final Long containerId,
             final Filter<? super Artifact> filter) throws ParityException {
         synchronized(implLock) { return impl.readDocuments(containerId, filter); }
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @return A list of container history items.
+     */
+    public List<ContainerHistoryItem> readHistory(final Long containerId) {
+        synchronized(implLock) { return impl.readHistory(containerId); }
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @param comparator
+     *            A history item comparator
+     * @return A list of container history items.
+     */
+    public List<ContainerHistoryItem> readHistory(final Long containerId,
+            final Comparator<HistoryItem> comparator) {
+        synchronized(implLock) { return impl.readHistory(containerId, comparator); }
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @param comparator
+     *            A history item comparator
+     * @param filter
+     *            A history item filter.
+     * @return A list of container history items.
+     */
+    public List<ContainerHistoryItem> readHistory(final Long containerId,
+            final Comparator<HistoryItem> comparator,
+            final Filter<? super HistoryItem> filter) {
+        synchronized(implLock) { return impl.readHistory(containerId, comparator, filter); }
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @param filter
+     *            A history item filter.
+     * @return A list of container history items.
+     */
+    public List<ContainerHistoryItem> readHistory(final Long containerId,
+            final Filter<? super HistoryItem> filter) {
+        synchronized(implLock) { return impl.readHistory(containerId, filter); }
     }
 
     /**

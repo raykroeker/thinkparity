@@ -1,6 +1,5 @@
 /*
  * Created On:  Sun Mar 06, 2005
- * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -10,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.*;
 
 import com.thinkparity.codebase.StreamUtil;
@@ -18,7 +16,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.Constants.Compression;
-import com.thinkparity.model.Constants.Directories;
 import com.thinkparity.model.Constants.Encoding;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
@@ -32,13 +29,14 @@ import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
-import com.thinkparity.model.parity.model.document.history.HistoryItemBuilder;
+import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.history.DefaultFilter;
+import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
-import com.thinkparity.model.parity.model.io.handler.DocumentHistoryIOHandler;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
@@ -95,14 +93,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/** The default document comparator. */
 	private final Comparator<Artifact> defaultComparator;
 
-	/** The default document history comparator. */
-	private Comparator<HistoryItem> defaultHistoryItemComparator;
+	/** The default history comparator. */
+	private final Comparator<? super HistoryItem> defaultHistoryComparator;
+
+    /** The default history filter. */
+    private final Filter<? super HistoryItem> defaultHistoryFilter;
 
 	/** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
-
-	/** A document history reader/writer. */
-	private final DocumentHistoryIOHandler documentHistoryIO;
 
     /** A document reader/writer. */
 	private final DocumentIOHandler documentIO;
@@ -127,10 +125,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
 		this.auditor = new DocumentModelAuditor(getContext());
 		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);
+        this.defaultHistoryComparator = new ComparatorBuilder().createIdDescending();
+        this.defaultHistoryFilter = new DefaultFilter();
 		this.defaultVersionComparator =
 			comparatorBuilder.createVersionById(Boolean.TRUE);
 		this.documentIO = IOFactory.getDefault().createDocumentHandler();
-		this.documentHistoryIO = IOFactory.getPDF().createDocumentHistoryIOHandler();
 		this.indexor = new DocumentIndexor(getContext());
         this.localEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.LOCAL);
         this.remoteEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.REMOTE);
@@ -233,18 +232,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("[LMODEL] [DOCUMENT] [ARCHIVE]");
 		logger.debug(documentId);
 		logger.debug(progressIndicator);
-		assertValidOutputDirectory();
-
-		// 1  Audit Archive
-		auditor.archive(documentId, currentUserId(), currentDateTime());
-
-		// 2  Archive History
-		final File archive = documentHistoryIO.archive(documentId, readHistory(documentId));
-
-        // fire event
-        notifyDocumentArchived(get(documentId), localEventGen);
-
-        return archive;
+        throw Assert.createNotYetImplemented("DocumentModelImpl#archive(Long,ProgressIndicator)");
 	}
 
     /**
@@ -979,34 +967,93 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyDocumentReactivated(readUser(currentUserId()), document, version, localEventGen);
     }
 
-    List<HistoryItem> readHistory(final Long documentId)
-			throws ParityException {
-		logger.info("readHistory(Long)");
+    /**
+     * Read a list of audit events for a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A list of audit events.
+     */
+    List<AuditEvent> readAuditEvents(final Long documentId) {
+        logger.info(getApiId("[READ AUDIT EVENTS]"));
+        logger.debug(documentId);
+        return getInternalAuditModel().read(documentId);
+    }
+
+    /**
+     * Read the document history.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A list of history items.
+     */
+    List<DocumentHistoryItem> readHistory(final Long documentId) {
+		logger.info(getApiId("[READ HISTORY]"));
 		logger.debug(documentId);
-		return readHistory(documentId, getDefaultHistoryItemComparator());
+		return readHistory(documentId, defaultHistoryComparator);
 	}
 
-    List<HistoryItem> readHistory(final Long documentId,
-			final Comparator<HistoryItem> comparator) throws ParityException {
-		logger.info("readHistory(Long,Comparator<HistoryItem>)");
+    /**
+     * Read the document history.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param comparator
+     *            A history comparator.
+     * @return A list of history items.
+     */
+    List<DocumentHistoryItem> readHistory(final Long documentId,
+            final Comparator<? super HistoryItem> comparator) {
+        logger.info(getApiId("[READ HISTORY]"));
+        logger.debug(documentId);
+        logger.debug(comparator);
+        return readHistory(documentId, comparator, defaultHistoryFilter);
+    }
+
+    /**
+     * Read the document history.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param comparator
+     *            A history item comparator.
+     * @param filter
+     *            A history item filter.
+     * @return A list of history items.
+     * @throws ParityException
+     */
+    List<DocumentHistoryItem> readHistory(final Long documentId,
+            final Comparator<? super HistoryItem> comparator,
+            final Filter<? super HistoryItem> filter) {
+		logger.info(getApiId("[READ HISTORY]"));
 		logger.debug(documentId);
-		logger.debug(comparator);
-		try {
-			final InternalAuditModel iAModel = getInternalAuditModel();
-
-			final HistoryItemBuilder hib = new HistoryItemBuilder(l18n);
-
-			final List<HistoryItem> history =
-				hib.build(iAModel.read(documentId), currentUserId());
-			ModelSorter.sortHistoryItems(history, comparator);
-
-			return history;
-		}
-		catch(final RuntimeException rx) {
-			logger.error("Could not obtain history list.", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+        logger.debug(comparator);
+        logger.debug(filter);
+		final DocumentHistoryBuilder historyBuilder =
+		        new DocumentHistoryBuilder(getInternalDocumentModel(), l18n);
+		final List<DocumentHistoryItem> history =
+                historyBuilder.createHistory(documentId);
+        HistoryFilterManager.filter(history, filter);
+		ModelSorter.sortHistory(history, comparator);
+		return history;
 	}
+
+    /**
+     * Read the document history.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param comparator
+     *            A history comparator.
+     * @return A list of history items.
+     */
+    List<DocumentHistoryItem> readHistory(final Long documentId,
+            final Filter<? super HistoryItem> filter) {
+        logger.info(getApiId("[READ HISTORY]"));
+        logger.debug(documentId);
+        logger.debug(filter);
+        return readHistory(documentId, defaultHistoryComparator, filter);
+    }
 
     /**
 	 * Obtain the latest document version.
@@ -1350,24 +1397,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         Assert.assertNotTrue(buffer.toString(), isDistributed(documentId));
     }
 
-	/**
-	 * Assert that the archive output directory has been set.
-	 * 
-	 */
-	private void assertValidOutputDirectory() {
-		if(!Directories.ARCHIVE.exists()) {
-			Assert.assertTrue(
-					format("Cannot create archive output directory [{0}]", Directories.ARCHIVE),
-					Directories.ARCHIVE.mkdir());
-		}
-		Assert.assertTrue(
-				format("Archive output directory [{0}] is not a directory.", Directories.ARCHIVE), Directories.ARCHIVE.isDirectory());
-		Assert.assertTrue(
-				format("Cannot read archive output directory [{0}]", Directories.ARCHIVE), Directories.ARCHIVE.canRead());
-		Assert.assertTrue(
-				format("Cannot write archive output directory [{0}]", Directories.ARCHIVE), Directories.ARCHIVE.canWrite());
-	}
-
     /**
      * Create an input stream from the input file.
      * 
@@ -1498,28 +1527,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         return getInternalArtifactModel().doesExist(uniqueId);
     }
 
-	private String format(final String pattern, final File file) {
-		return format(pattern, new Object[] {file.getAbsolutePath()});
-	}
-
-	private String format(final String pattern, final Object[] arguments) {
-		return MessageFormat.format(
-				pattern,
-				arguments);
-	}
-
-	/**
-	 * Obtain the default history item comparator.
-	 * 
-	 * @return A sort by date descending history item comparator.
-	 */
-	private Comparator<HistoryItem> getDefaultHistoryItemComparator() {
-		if(null == defaultHistoryItemComparator) {
-			defaultHistoryItemComparator = new ComparatorBuilder().createIdDescending();
-		}
-		return defaultHistoryItemComparator;
-	}
-
 	/**
 	 * Create a document local file reference for a given document.
 	 * 
@@ -1603,22 +1610,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         synchronized(DocumentModelImpl.LISTENERS) {
             for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
                 l.confirmationReceived(eventGen.generate(document, version));
-            }
-        }
-    }
-
-	/**
-     * Fire the document archived listener event.
-     *
-     * @param document
-     *      A document,
-     * @param eventGen
-     *      The event generator.
-     */
-    private void notifyDocumentArchived(final Document document, final DocumentModelEventGenerator eventGen) {
-        synchronized(LISTENERS) {
-            for(final DocumentListener l : LISTENERS) {
-                l.documentArchived(eventGen.generate(document));
             }
         }
     }

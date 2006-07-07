@@ -6,11 +6,7 @@ package com.thinkparity.model.parity.model.document;
 
 import java.util.List;
 
-import com.thinkparity.codebase.CollectionsUtil;
-
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.container.Container;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
 
 /**
  * @author raykroeker@gmail.com
@@ -28,24 +24,20 @@ public class ReadHistoryTest extends DocumentTestCase {
 	public ReadHistoryTest() { super(NAME); }
 
 	public void testReadHistory() {
-		List<HistoryItem> history = null;
-		HistoryItem hItem;
-		try {
-            history = CollectionsUtil.proxy(datum.dModel.readHistory(datum.documentId));
-        }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
+		final List<DocumentHistoryItem> history =
+            datum.dModel.readHistory(datum.documentId);
 
 		assertNotNull("Null history returned.", history);
-		hItem = history.get(0);
-		assertNotNull("Close history item is null.", hItem);
-		assertNotNull("Close history item is null.", hItem.getEvent());
+		DocumentHistoryItem item = history.get(0);
+		assertNotNull("Close history item is null.", item);
+		assertNotNull("Close history item is null.", item.getEvent());
 		assertEquals("Close history item document id does not match expectation.",
-				datum.documentId, hItem.getDocumentId());
+				datum.documentId, item.getDocumentId());
 
-		hItem = history.get(1);
-		assertNotNull(NAME + " [PUBLISH HISTORY ITEM IS NULL]", hItem);
+        item = history.get(1);
+		assertNotNull(NAME + " [PUBLISH HISTORY ITEM IS NULL]", item);
 		assertEquals(NAME + " [PUBLISH HISTORY ITEM DOCUMENT ID DOES NOT MATCH EXPECTATION]",
-                datum.documentId, hItem.getDocumentId());
+                datum.documentId, item.getDocumentId());
 	}
 
 	/**

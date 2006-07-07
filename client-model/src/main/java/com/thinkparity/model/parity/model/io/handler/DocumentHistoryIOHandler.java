@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.io.handler;
 import java.io.File;
 import java.util.List;
 
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 
 /**
  * @author raykroeker@gmail.com

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -15,7 +16,7 @@ import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
@@ -353,10 +354,8 @@ public class DocumentModel {
 	 * @param documentId
 	 *            The document id.
 	 * @return A list of a history items.
-	 * @throws ParityException
 	 */
-	public Collection<HistoryItem> readHistory(final Long documentId)
-			throws ParityException {
+	public List<DocumentHistoryItem> readHistory(final Long documentId) {
 		synchronized(implLock) { return impl.readHistory(documentId); }
 	}
 
@@ -368,17 +367,48 @@ public class DocumentModel {
 	 * @param comparator
 	 *            The sort to use when returning the history.
 	 * @return A list of a history items.
-	 * @throws ParityException
 	 */
-	public Collection<HistoryItem> readHistory(final Long documentId,
-			final Comparator<HistoryItem> comparator)
-			throws ParityException {
+	public List<DocumentHistoryItem> readHistory(final Long documentId,
+            final Comparator<HistoryItem> comparator) {
 		synchronized(implLock) {
 			return impl.readHistory(documentId, comparator);
 		}
 	}
 
-	/**
+    /**
+     * Read the document's history.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param comparator
+     *            A history item comparator.
+     * @param filter
+     *            A history item filter.
+     * @return A list of a history items.
+     */
+    public List<DocumentHistoryItem> readHistory(final Long documentId,
+            final Comparator<HistoryItem> comparator,
+            final Filter<? super HistoryItem> filter) {
+        synchronized(implLock) {
+            return impl.readHistory(documentId, comparator, filter);
+        }
+    }
+
+    /**
+     * Read the document's history.
+     * 
+     * @param documentId
+     *            The document id.
+     * @param filter
+     *            A history filter.
+     * @return A list of a history items.
+     */
+    public List<DocumentHistoryItem> readHistory(final Long documentId,
+            final Filter<? super HistoryItem> filter) {
+        synchronized(implLock) { return impl.readHistory(documentId, filter); }
+    }
+
+    /**
      * Obtain the latest document version.
      * 
      * @param documentId

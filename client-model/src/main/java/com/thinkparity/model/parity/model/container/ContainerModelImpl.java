@@ -21,6 +21,8 @@ import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
+import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
@@ -28,6 +30,7 @@ import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.artifact.DefaultFilter;
+import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContainerIOHandler;
 import com.thinkparity.model.parity.model.session.Credentials;
@@ -48,7 +51,6 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1.2.3
  */
 class ContainerModelImpl extends AbstractModelImpl {
-
     /** A list of container listeners. */
     private static final List<ContainerListener> LISTENERS = new LinkedList<ContainerListener>();
 
@@ -79,6 +81,12 @@ class ContainerModelImpl extends AbstractModelImpl {
     /** A default container filter. */
     private final Filter<? super Artifact> defaultFilter;
 
+    /** A default history item comparator. */
+    private final Comparator<? super HistoryItem> defaultHistoryComparator;
+
+    /** A default history item filter. */
+    private final Filter<? super HistoryItem> defaultHistoryFilter;
+
     /** A default key request comparator. */
     private final Comparator<KeyRequest> defaultKeyRequestComparator;
 
@@ -108,6 +116,8 @@ class ContainerModelImpl extends AbstractModelImpl {
         this.defaultDocumentComparator = new ComparatorBuilder().createByName(Boolean.TRUE);
         this.defaultDocumentFilter = new DefaultFilter();
         this.defaultFilter = new DefaultFilter();
+        this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
+        this.defaultHistoryFilter = new com.thinkparity.model.parity.model.filter.history.DefaultFilter();
         this.defaultKeyRequestComparator = null;
         this.defaultKeyRequestFilter = null;
         this.indexor = new ContainerIndexor(getContext());
@@ -565,22 +575,6 @@ class ContainerModelImpl extends AbstractModelImpl {
                 localEventGenerator);
     }
 
-    private List<DocumentVersionContent> readDocumentVersionContents(
-            final Long containerId) throws ParityException {
-        logger.info(getApiId("[READ DOCUMENT VERSIONS]"));
-        logger.debug(containerId);
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        final List<DocumentVersion> documentVersions =
-                containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
-        final List<DocumentVersionContent> documentVersionContents =
-                new ArrayList<DocumentVersionContent>(documentVersions.size());
-        for(final DocumentVersion documentVersion : documentVersions) {
-            documentVersionContents.add(dModel.getVersionContent(documentVersion.getArtifactId(), documentVersion.getVersionId()));
-        }
-        return documentVersionContents;
-    }
-
     /**
      * Read the containers.
      * 
@@ -649,6 +643,19 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ]"));
         logger.debug(containerId);
         return containerIO.read(containerId);
+    }
+
+    /**
+     * Read the list of audit events for a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of audit events.
+     */
+    List<AuditEvent> readAuditEvents(final Long containerId) {
+        logger.info(getApiId("[READ AUDIT EVENTS]"));
+        logger.debug(containerId);
+        return getInternalAuditModel().read(containerId);
     }
 
     /**
@@ -738,6 +745,79 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         final ContainerVersion latestVersion = readLatestVersion(containerId);
         return containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of history items.
+     */
+    List<ContainerHistoryItem> readHistory(final Long containerId) {
+        logger.info(getApiId("[READ HISTORY]"));
+        logger.debug(containerId);
+        return readHistory(containerId, defaultHistoryComparator, defaultHistoryFilter);
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A history item comparator
+     * @return A list of history items.
+     */
+    List<ContainerHistoryItem> readHistory(final Long containerId,
+            final Comparator<? super HistoryItem> comparator) {
+        logger.info(getApiId("[READ HISTORY]"));
+        logger.debug(containerId);
+        logger.debug(comparator);
+        return readHistory(containerId, comparator, defaultHistoryFilter);
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A history item comparator
+     * @param filter
+     *            A history item filter.
+     * @return A list of history items.
+     */
+    List<ContainerHistoryItem> readHistory(final Long containerId,
+            final Comparator<? super HistoryItem> comparator,
+            final Filter<? super HistoryItem> filter) {
+        logger.info(getApiId("[READ HISTORY]"));
+        logger.debug(containerId);
+        logger.debug(comparator);
+        logger.debug(filter);
+        final ContainerHistoryBuilder historyBuilder =
+            new ContainerHistoryBuilder(getInternalContainerModel(), l18n);
+        final List<ContainerHistoryItem> history = historyBuilder.createHistory(containerId);
+        HistoryFilterManager.filter(history, filter);
+        ModelSorter.sortHistory(history, defaultHistoryComparator);
+        return history;
+    }
+
+    /**
+     * Read the container history.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param filter
+     *            A history item filter.
+     * @return A list of history items.
+     */
+    List<ContainerHistoryItem> readHistory(final Long containerId,
+            final Filter<? super HistoryItem> filter) {
+        logger.info(getApiId("[READ HISTORY]"));
+        logger.debug(containerId);
+        logger.debug(filter);
+        return readHistory(containerId, defaultHistoryComparator, filter);
     }
 
     /**
@@ -1206,6 +1286,22 @@ class ContainerModelImpl extends AbstractModelImpl {
             }
         }
         
+    }
+
+    private List<DocumentVersionContent> readDocumentVersionContents(
+            final Long containerId) throws ParityException {
+        logger.info(getApiId("[READ DOCUMENT VERSIONS]"));
+        logger.debug(containerId);
+        final InternalDocumentModel dModel = getInternalDocumentModel();
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        final List<DocumentVersion> documentVersions =
+                containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
+        final List<DocumentVersionContent> documentVersionContents =
+                new ArrayList<DocumentVersionContent>(documentVersions.size());
+        for(final DocumentVersion documentVersion : documentVersions) {
+            documentVersionContents.add(dModel.getVersionContent(documentVersion.getArtifactId(), documentVersion.getVersionId()));
+        }
+        return documentVersionContents;
     }
 
     /**

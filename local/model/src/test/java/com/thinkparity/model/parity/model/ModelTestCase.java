@@ -23,16 +23,18 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
+import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerHistoryItem;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.library.InternalLibraryModel;
 import com.thinkparity.model.parity.model.library.LibraryModel;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
@@ -264,6 +266,20 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
     }
 
     /**
+     * Assert the history item and all of its required memebers are not null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param historyItem
+     *            The history item.
+     */
+    protected static void assertNotNull(final String assertion,
+            final ContainerHistoryItem historyItem) {
+        assertNotNull(assertion, (HistoryItem) historyItem);
+        assertNotNull(assertion + " [CONTAINER HISTORY ITEM CONTAINER ID IS NULL]", historyItem.getContainerId());
+    }
+
+    /**
      * Assert that a container version is not null.
      * 
      * @param assertion
@@ -307,6 +323,20 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         assertNotNull(assertion + " [DOCUMENT UNIQUE ID IS NULL]", document.getUniqueId());
         assertNotNull(assertion + " [DOCUMENT UPDATED BY IS NULL]", document.getUpdatedBy());
         assertNotNull(assertion + " [DOCUMENT UPDATED ON IS NULL]", document.getUpdatedOn());
+    }
+
+    /**
+     * Assert the history item and all of its required memebers are not null.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param historyItem
+     *            The history item.
+     */
+    protected static void assertNotNull(final String assertion,
+            final DocumentHistoryItem historyItem) {
+        assertNotNull(assertion + " [HISTORY ITEM IS NULL]", (HistoryItem) historyItem);
+        assertNotNull(assertion + " [DOCUMENT HISTORY ITEM DOCUMENT ID IS NULL]", historyItem.getDocumentId());
     }
 
     /**
@@ -358,7 +388,6 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
     protected static void assertNotNull(final String assertion, final HistoryItem historyItem) {
         assertNotNull(assertion + " [HISTORY ITEM IS NULL]", (Object) historyItem);
         assertNotNull(assertion + " [HISTORY ITEM DATE IS NULL]", historyItem.getDate());
-        assertNotNull(assertion + " [HISTORY ITEM DOCUMENT ID IS NULL]", historyItem.getDocumentId());
         assertNotNull(assertion + " [HISTORY ITEM EVENT IS NULL]", historyItem.getEvent());
         assertNotNull(assertion + " [HISTORY ITEM ID IS NULL]", historyItem.getId());
     }

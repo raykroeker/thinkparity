@@ -10,6 +10,7 @@ import java.util.List;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
+import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 
@@ -111,5 +112,18 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
      */
     public void lock(final Long containerId) throws ParityException {
         synchronized(getImplLock()) { getImpl().lock(containerId); }
+    }
+
+    /**
+     * Read the list of audit events for a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of audit events.
+     */
+    public List<AuditEvent> readAuditEvents(final Long containerId) {
+        synchronized(getImplLock()) {
+            return getImpl().readAuditEvents(containerId);
+        }
     }
 }

@@ -6,15 +6,15 @@ package com.thinkparity.browser.application.browser.display.provider.document;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -91,8 +91,7 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 				Assert.assertOfType(
 						"The history provider requries java.lang.Long input.",
 						Long.class, input);
-				try { return dModel.readHistory((Long) input).toArray(new HistoryItem[] {}); }
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				return dModel.readHistory((Long) input).toArray(new DocumentHistoryItem[] {});
 			}
 		};
         this.teamProvider = new FlatContentProvider() {

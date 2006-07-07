@@ -1,5 +1,5 @@
 /*
- * Mar 22, 2006
+ * Created On: Mar 22, 2006
  */
 package com.thinkparity.browser.application.browser.display.provider.main;
 
@@ -24,8 +24,8 @@ import com.thinkparity.browser.application.browser.display.provider.contact.Shar
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -110,8 +110,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		this.historyProvider = new FlatContentProvider() {
             public Object[] getElements(final Object input) {
                 final MainCellDocument mcd = (MainCellDocument) input;
-                try { return toDisplay(artifactModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId())); }
-                catch(final ParityException px) { throw new RuntimeException(px); }
+                return toDisplay(artifactModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId()));
             }
         };
         this.quickShareContactProvider = new QuickShareProvider(artifactModel, sModel);
@@ -213,25 +212,15 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 	private MainCellHistoryItem[] toDisplay(final ArtifactModel aModel,
             final JabberId localUserId,
             final MainCellDocument document,
-            final Collection<HistoryItem> history) {
+            final List<DocumentHistoryItem> history) {
 	    final List<MainCellHistoryItem> display = new LinkedList<MainCellHistoryItem>();
         final Integer count = history.size();
         Integer index = 0;
-        for(final HistoryItem hi : history) {
+        for(final DocumentHistoryItem item : history) {
             display.add(new MainCellHistoryItem(
-                    document, hi, readTeam(aModel, document.getId(), localUserId), count, index++));
+                    document, item, readTeam(aModel, document.getId(), localUserId), count, index++));
         }
         return display.toArray(new MainCellHistoryItem[] {});
-    }
-
-    private MainCellUser[] toDisplay(final MainCellDocument mcd, final Set<User> users) {
-        final List<MainCellUser> display = new ArrayList<MainCellUser>();
-        final Integer count = users.size();
-        Integer index = 0;
-        for(final User user : users) {
-            display.add(new MainCellUser(mcd, count, index++, user));
-        }
-        return display.toArray(new MainCellUser[] {});
     }
 
     /**
@@ -254,7 +243,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		return display.toArray(new MainCellDocument[] {});
 	}
 
-	/**
+    /**
      * Obtain the displable version of the document.
      * 
      * @param document
@@ -275,4 +264,14 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			return mcd;
 		}
 	}
+
+	private MainCellUser[] toDisplay(final MainCellDocument mcd, final Set<User> users) {
+        final List<MainCellUser> display = new ArrayList<MainCellUser>();
+        final Integer count = users.size();
+        Integer index = 0;
+        for(final User user : users) {
+            display.add(new MainCellUser(mcd, count, index++, user));
+        }
+        return display.toArray(new MainCellUser[] {});
+    }
 }

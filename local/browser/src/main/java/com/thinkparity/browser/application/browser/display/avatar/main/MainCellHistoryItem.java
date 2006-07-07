@@ -17,14 +17,14 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellI
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.HistoryItemImage;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
-import com.thinkparity.model.parity.model.document.history.HistoryItem;
+import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class MainCellHistoryItem extends HistoryItem implements MainCell {
+public class MainCellHistoryItem extends DocumentHistoryItem implements MainCell {
 
     /** The history item's document. */
     private final MainCellDocument document;
@@ -46,7 +46,7 @@ public class MainCellHistoryItem extends HistoryItem implements MainCell {
      * 
      */
     public MainCellHistoryItem(final MainCellDocument document,
-            final HistoryItem historyItem, final Set<User> documentTeam,
+            final DocumentHistoryItem historyItem, final Set<User> documentTeam,
             final Integer count, final Integer index) {
         super();
         this.document = document;

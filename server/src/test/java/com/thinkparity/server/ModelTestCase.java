@@ -7,11 +7,9 @@ package com.thinkparity.server;
 import java.util.UUID;
 
 import com.raykroeker.junitx.TestCase;
-
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
-import com.thinkparity.server.model.session.Session;
 
 /**
  * An abstraction of the parity remote model test case.

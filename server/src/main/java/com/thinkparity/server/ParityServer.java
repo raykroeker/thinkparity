@@ -129,6 +129,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.contact.DeclineInvitation");
             initializeController("com.thinkparity.server.handler.contact.InviteContact");
             initializeController("com.thinkparity.server.handler.contact.ReadContacts");
+            initializeController("com.thinkparity.server.handler.container.Reactivate");
             initializeController("com.thinkparity.server.handler.document.Reactivate");
             initializeController("com.thinkparity.server.handler.document.SendDocument");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");

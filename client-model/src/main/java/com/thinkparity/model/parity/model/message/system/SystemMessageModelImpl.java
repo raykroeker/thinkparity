@@ -16,7 +16,6 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.SystemMessageEvent;
 import com.thinkparity.model.parity.api.events.SystemMessageListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.L18nContext;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.SystemMessageIOHandler;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
@@ -65,7 +64,7 @@ class SystemMessageModelImpl extends AbstractModelImpl {
 	 * Create a SystemMessageModelImpl.
 	 */
 	SystemMessageModelImpl(final Workspace workspace) {
-		super(workspace, L18nContext.SYSTEM_MESSAGE);
+		super(workspace);
 		this.defaultComparator = new ComparatorBuilder().createSystemMessageDefault();
 		this.systemMessageIO = IOFactory.getDefault().createSystemMessageHandler();
 	}

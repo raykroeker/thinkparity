@@ -22,7 +22,6 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.DocumentEvent;
 import com.thinkparity.model.parity.api.events.DocumentListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.L18nContext;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -121,7 +120,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The workspace to work within.
 	 */
 	DocumentModelImpl(final Workspace workspace) {
-		super(workspace, L18nContext.DOCUMENT);
+		super(workspace);
 		final ComparatorBuilder comparatorBuilder = new ComparatorBuilder();
 		this.auditor = new DocumentModelAuditor(getContext());
 		this.defaultComparator = comparatorBuilder.createByName(Boolean.TRUE);

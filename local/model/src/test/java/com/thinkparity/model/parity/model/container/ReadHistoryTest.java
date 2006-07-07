@@ -47,8 +47,8 @@ public class ReadHistoryTest extends ContainerTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
+        login();
         final ContainerModel cModel = getContainerModel();
-
         final Container container = createContainer(NAME);
         final Document document = addDocument(container, getInputFiles()[0]);
         modifyDocument(document);
@@ -63,6 +63,7 @@ public class ReadHistoryTest extends ContainerTestCase {
 	 */
 	protected void tearDown() throws Exception {
 		datum = null;
+        logout();
 		super.tearDown();
 	}
 

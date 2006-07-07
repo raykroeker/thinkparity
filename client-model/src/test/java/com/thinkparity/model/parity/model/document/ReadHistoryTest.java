@@ -47,7 +47,6 @@ public class ReadHistoryTest extends DocumentTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		final DocumentModel dModel = getDocumentModel();
-
         final Container container = createContainer(NAME);
         final Document document = addDocument(container, getInputFiles()[0]);
         modifyDocument(document);

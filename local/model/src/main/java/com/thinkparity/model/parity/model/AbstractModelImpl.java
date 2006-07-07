@@ -23,7 +23,6 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.l10n.L18n;
-import com.thinkparity.codebase.l10n.L18nContext;
 
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
@@ -58,7 +57,8 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.Base64;
 import com.thinkparity.model.parity.util.MD5Util;
-import com.thinkparity.model.util.l10n.ModelL18n;
+import com.thinkparity.model.util.Localization;
+import com.thinkparity.model.util.LocalizationContext;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
@@ -152,26 +152,15 @@ public abstract class AbstractModelImpl {
     private transient SecretKeySpec secretKeySpec;
 
     /**
-	 * Create a AbstractModelImpl.
-	 * 
-	 * @param workspace
-	 *            The parity workspace.
-	 */
-	protected AbstractModelImpl(final Workspace workspace) {
-		this(workspace, null);
-	}
-
-    /**
 	 * Create an AbstractModelImpl
 	 * 
 	 * @param workspace
 	 *            The parity workspace.
 	 */
-	protected AbstractModelImpl(final Workspace workspace,
-			final L18nContext l18nContext) {
+	protected AbstractModelImpl(final Workspace workspace) {
 		super();
 		this.context = new Context(getClass());
-		this.l18n = null == l18nContext ? null : new ModelL18n(l18nContext);
+		this.l18n = new Localization(LocalizationContext.MODEL);
         this.logger = LoggerFactory.getLogger(getClass());
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
@@ -533,7 +522,7 @@ public abstract class AbstractModelImpl {
 	protected SessionModel getSessionModel() { return SessionModel.getModel(); }
 
     /**
-	 * @see ModelL18n#getString(String)
+	 * @see Localization#getString(String)
 	 * 
 	 */
 	protected String getString(final String localKey) {
@@ -541,7 +530,7 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
-	 * @see ModelL18n#getString(String, Object[])
+	 * @see Localization#getString(String, Object[])
 	 * 
 	 */
 	protected String getString(final String localKey, final Object[] arguments) {

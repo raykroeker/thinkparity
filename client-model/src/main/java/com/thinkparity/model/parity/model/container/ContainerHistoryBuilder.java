@@ -40,6 +40,7 @@ class ContainerHistoryBuilder extends HistoryItemBuilder<ContainerHistoryItem> {
     @Override
     protected ContainerHistoryItem createItem(final AuditEvent event) {
         final ContainerHistoryItem item = new ContainerHistoryItem();
+        customize(item, event);
         item.setContainerId(event.getArtifactId());
         if(event instanceof AuditVersionEvent)
             item.setVersionId(((AuditVersionEvent) event).getArtifactVersionId());

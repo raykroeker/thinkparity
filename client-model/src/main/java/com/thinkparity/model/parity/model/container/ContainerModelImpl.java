@@ -51,6 +51,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1.2.3
  */
 class ContainerModelImpl extends AbstractModelImpl {
+
     /** A list of container listeners. */
     private static final List<ContainerListener> LISTENERS = new LinkedList<ContainerListener>();
 

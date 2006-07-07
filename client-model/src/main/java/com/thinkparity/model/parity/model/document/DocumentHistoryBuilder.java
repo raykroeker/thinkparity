@@ -45,6 +45,7 @@ class DocumentHistoryBuilder extends HistoryItemBuilder<DocumentHistoryItem> {
     @Override
     protected DocumentHistoryItem createItem(final AuditEvent event) {
         final DocumentHistoryItem item = new DocumentHistoryItem();
+        customize(item, event);
         item.setDocumentId(event.getArtifactId());
         if(event instanceof AuditVersionEvent)
             item.setVersionId(((AuditVersionEvent) event).getArtifactVersionId());

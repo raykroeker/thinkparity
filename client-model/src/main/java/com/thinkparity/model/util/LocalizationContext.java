@@ -1,29 +1,26 @@
 /*
- * Mar 5, 2006
+ * Created On: Mar 5, 2006
  */
-package com.thinkparity.model.parity.model;
+package com.thinkparity.model.util;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public enum L18nContext implements com.thinkparity.codebase.l10n.L18nContext {
+public enum LocalizationContext implements com.thinkparity.codebase.l10n.L18nContext {
 
-	DOCUMENT("Artifact.Document"), SYSTEM_MESSAGE("SystemMessage");
+	MODEL("Model");
 
-	/**
-	 * The l18n lookup context.
-	 * 
-	 */
+	/** The l18n lookup context. */
 	private final String lookupContext;
 
 	/**
-	 * Create a L18nContext.
+	 * Create a LocalizationContext.
 	 * 
 	 * @param lookupContext
 	 *            The l18n lookup context.
 	 */
-	private L18nContext(final String lookupContext) {
+	private LocalizationContext(final String lookupContext) {
 		this.lookupContext = lookupContext;
 	}
 

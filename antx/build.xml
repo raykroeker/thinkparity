@@ -7,9 +7,9 @@
     <property name="release.version" value="1.0.0-RC7"/>
 
     <!-- cvs configuration -->
-    <property name="cvs.cvsroot" value=":pserver:maven:pr3t0r1a@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
-    <property name="cvs.modules" value="${ant.project.name}Source ${ant.project.name}Libs"/>
-    <property name="cvs.modules.ide" value="${ant.project.name}Eclipse"/>
+    <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/migrator remote/codebase remote/migrator lib/commons-codec lib/hsqldb lib/junit lib/log4j lib/messenger"/>
+    <property name="cvs.modules.ide" value="ide/eclipse/product/calpurnia"/>
     <property name="cvs.tag" value="v1_0"/>
 
     <!-- output directories -->
@@ -53,11 +53,21 @@
     <!-- checkout source -->
     <target name="checkout">
         <echo message="${cvs.cvsroot}"/>
-        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <sleep seconds="3"/>
+        <!-- source trees -->
         <cvs cvsroot="${cvs.cvsroot}"
-            command="checkout" tag="${cvs.tag}" package="${cvs.modules}"
+            command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
             dest="${basedir}"/>
+        <!-- ide files -->
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
+            dest="${basedir}"/>
+        <move todir="${basedir}">
+            <fileset dir="${basedir}/ide"/>
+        </move>
     </target>
 
     <!-- update source -->
@@ -172,9 +182,13 @@ Examples:
 
     <!-- release -->
     <target name="release">
+        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
+        <antcall target="test" inheritAll="true" inheritRefs="true"/>
+        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
+        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
+
         <property name="target.release.plugin.dir"
                 value="${target.release.dir}/plugin"/>
-
         <!-- ${target.release.plugin.dir} -->
         <copy todir="${target.release.plugin.dir}">
             <fileset dir="${basedir}">

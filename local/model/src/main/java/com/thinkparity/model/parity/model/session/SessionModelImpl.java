@@ -503,28 +503,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Obtain the currently logged in user.
-	 * 
-	 * @return The currently logged in user.
-	 * @throws ParityException
-	 */
-	User getLoggedInUser() throws ParityException {
-		logger.info("getLoggedInUser()");
-		synchronized(xmppHelper) {
-			assertIsLoggedIn("Cannot obtain logged in user while offline.", xmppHelper);
-			try { return xmppHelper.getUser(); }
-			catch(final SmackException sx) {
-				logger.error("Cannot obtain logged in user.", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("Cannot obtain logged in user.", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
 	 * Add a roster entry for the user. This will send a presence request to
 	 * user.
 	 * 
@@ -574,7 +552,7 @@ class SessionModelImpl extends AbstractModelImpl {
 			assertIsLoggedIn(
 					"Cannot determine whether the logged in user is the key holder while offline.",
 					xmppHelper);
-			final User loggedInUser = getLoggedInUser();
+			final User loggedInUser = readUser();
 			try {
 				final User keyHolder =
 					xmppHelper.getArtifactKeyHolder(artifactUniqueId);
@@ -793,7 +771,26 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
+     * Read the session user's user info.
+     * 
+     * @return thinkParity user info.
+     * @throws ParityException
+     */
+	User readUser() throws ParityException {
+        logger.info(getApiId("[READ USER]"));
+        assertOnline(getApiId("[READ USER] [USER NOT ONLINE]"));
+        synchronized(xmppHelper) {
+            try { return xmppHelper.getUser(); }
+            catch(final SmackException sx) {
+                logger.error(getApiId("[READ USER] [SMACK ERROR]"), sx);
+                throw ParityErrorTranslator.translate(sx);
+            }
+        }
+
+    }
+
+    /**
      * Read a single user.
      * 
      * @param jabberId

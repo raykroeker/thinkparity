@@ -5,10 +5,8 @@ package com.thinkparity.model.parity.model.session;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
@@ -21,7 +19,6 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -199,33 +196,12 @@ public class SessionModel extends AbstractModel {
 	}
 
     /**
-     * @deprecated =>
-     *             {@link com.thinkparity.model.parity.model.artifact.ArtifactModel#readTeam(Long)}
+     * Read the session user's user info.
      * 
+     * @return thinkParity user info.
      */
-    @Deprecated
-    public Set<User> readArtifactTeam(final Long artifactId)
-            throws ParityException {
-        throw Assert.createUnreachable("SessionModel#readArtifactTeam(Long) => ArtifactModel#readTeam(Long)");
-    }
-
-    /**
-     * @deprecated =>
-     *             {@link com.thinkparity.model.parity.model.contact.ContactModel#read(JabberId)}
-     * 
-     */
-    @Deprecated
-    public Contact readContact() throws ParityException {
-        throw Assert.createUnreachable("SessionModel#readContacts() => ContactModel#read(JabberId)");
-    }
-
-    /**
-     * @deprecated =>
-     *             {@link com.thinkparity.model.parity.model.contact.ContactModel#read()}
-     */
-    @Deprecated
-    public Set<Contact> readContacts() throws ParityException {
-        throw Assert.createUnreachable("SessionModel#readContacts() => ContactModel#read()");
+    public User readUser() throws ParityException {
+        synchronized(implLock) { return impl.readUser(); }
     }
 
 	/**
@@ -306,6 +282,18 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
+     * Reactivate a document.
+     *
+     */
+    public void sendDocumentReactivate(final List<JabberId> team,
+            final UUID uniqueId, final Long versionId, final String name,
+            final byte[] bytes) throws ParityException {
+        synchronized(implLock) {
+            impl.sendDocumentReactivate(team, uniqueId, versionId, name, bytes);
+        }
+    }
+
+    /**
 	 * Send a reqest for a document key to the parity server.
 	 * 
 	 * @param artifactId
@@ -318,18 +306,6 @@ public class SessionModel extends AbstractModel {
 	}
 
     /**
-     * @deprecated =>
-     *             {@link com.thinkparity.model.parity.model.artifact.ArtifactModel#sendKey(Long, JabberId)}
-     * 
-     */
-    @Deprecated
-    public void sendKeyResponse(final Long artifactId,
-            final JabberId requestedBy, final KeyResponse keyResponse)
-            throws ParityException {
-        throw Assert.createUnreachable("SessionModel#sendKeyResponse(java.lang.Long,JabberId,KeyResponse) => ArtifactModel#sendKey(Long, JabberId)");
-    }
-
-    /**
 	 * Send the parity log file. To be used in order to troubleshoot remote
 	 * problems.
 	 * 
@@ -338,18 +314,6 @@ public class SessionModel extends AbstractModel {
 	public void sendLogFileArchive() throws ParityException {
 		synchronized(implLock) { impl.sendLogFileArchive(); }
 	}
-
-    /**
-     * Reactivate a document.
-     *
-     */
-    public void sendDocumentReactivate(final List<JabberId> team,
-            final UUID uniqueId, final Long versionId, final String name,
-            final byte[] bytes) throws ParityException {
-        synchronized(implLock) {
-            impl.sendDocumentReactivate(team, uniqueId, versionId, name, bytes);
-        }
-    }
 
 	/**
 	 * Obtain the session model implementation.

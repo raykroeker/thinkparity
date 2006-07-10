@@ -61,7 +61,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	 * @throws ParityException
 	 */
 	public User getLoggedInUser() throws ParityException {
-		synchronized(getImplLock()) { return getImpl().getLoggedInUser(); }
+		synchronized(getImplLock()) { return getImpl().readUser(); }
 	}
 
     /**
@@ -225,6 +225,25 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             final String organization) throws ParityException {
         synchronized(getImplLock()) {
             getImpl().updateUser(name, email, organization);
+        }
+    }
+
+    /**
+     * Send a key response.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param jabberId
+     *            The user's jabber id.
+     * @param keyRepsonse
+     *            The response [ACCEPT,DENY]
+     * @throws ParityException
+     */
+    public void sendKeyResponse(final Long artifactId,
+            final JabberId jabberId, final KeyResponse keyResponse)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().sendKeyResponse(keyResponse, artifactId, jabberId);
         }
     }
 }

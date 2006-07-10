@@ -4,7 +4,6 @@
  */
 package com.thinkparity.migrator.controller;
 
-import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -111,51 +110,6 @@ public abstract class AbstractController extends
     }
 
     /**
-     * Read a long parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @return The long value.
-     */
-    protected Long readLong(final String name) {
-        return iqReader.readLong(name);
-    }
-
-    /**
-     * Read a string parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @return The string value.
-     */
-    protected String readString(final String name) {
-        return iqReader.readString(name);
-    }
-
-    /**
-     * Write a byte array to the response query.
-     * 
-     * @param name
-     *            The element name.
-     * @param value
-     *            The element value.
-     */
-    protected void writeBytes(final String name, final byte[] value) {
-        iqWriter.writeBytes(name, value);
-    }
-
-    /**
-     * Write a calendar to the response query.
-     *
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
-     */
-    protected void writeCalendar(final String name, final Calendar value) {
-        iqWriter.writeCalendar(name, value);
-    }
-    /**
      * Write libraries to the response query.
      * 
      * @param parentName
@@ -196,29 +150,5 @@ public abstract class AbstractController extends
     protected void writeLibraryType(final String name,
             final Library.Type libraryType) {
         iqWriter.writeLibraryType(name, libraryType);
-    }
-
-    /**
-     * Write a long value to the response query.
-     * 
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
-     */
-    protected void writeLong(final String name, final Long value) {
-        iqWriter.writeLong(name, value);
-    }
-
-    /**
-     * Write a string value to the response query.
-     *
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
-     */
-    protected void writeString(final String name, final String value) {
-        iqWriter.writeString(name, value);
     }
 }

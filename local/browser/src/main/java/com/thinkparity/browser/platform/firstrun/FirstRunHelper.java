@@ -12,11 +12,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.session.Credentials;
@@ -93,9 +93,8 @@ public class FirstRunHelper {
             Assert.assertTrue("", sModel.isLoggedIn());
 
             User user = null;
-            try { user = sModel.readContact(); }
+            try { user = sModel.readUser(); }
             catch(final ParityException px) { throw new BrowserException("", px); }
-
             userProfileAvatar = new UserProfileAvatar(this);
             userProfileAvatar.setInput(user);
             openWindow(userProfileAvatar.getTitle(), userProfileAvatar);

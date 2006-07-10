@@ -6,16 +6,17 @@ package com.thinkparity.browser.application.browser.display.provider.session;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
-import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
-
 import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotOfTypeAssertion;
 import com.thinkparity.codebase.assertion.NullPointerAssertion;
 
+import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
+
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.xmpp.JabberId;
@@ -39,10 +40,20 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
 	private final SingleContentProvider versionProvider;
 
 	/**
-	 * Create a SendVersionProvider.
-	 */
-	public SendVersionProvider(final DocumentModel dModel,
-			final SessionModel sModel, final JabberId loggedInUser) {
+     * Create SendVersionProvider.
+     * 
+     * @param aModel
+     *            A thinkParity artifact interface.
+     * @param dModel
+     *            A thinkParity document interface.
+     * @param sModel
+     *            A thinkParity session interface.
+     * @param loggeInUser
+     *            The session user.
+     */
+	public SendVersionProvider(final ArtifactModel aModel,
+            final DocumentModel dModel, final SessionModel sModel,
+            final JabberId loggedInUser) {
 		super();
 		this.documentProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
@@ -54,15 +65,11 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
 		this.teamProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
 				final Long artifactId = assertValidInput(input);
-				try {
-					final Set<User> team =
-						sModel.readArtifactTeam(artifactId);
-					for(final Iterator<User> i = team.iterator(); i.hasNext();) {
-						if(i.next().getId().equals(loggedInUser)) { i.remove(); }
-					}
-					return team.toArray(new Contact[] {});
+				final Set<User> team = aModel.readTeam(artifactId);
+				for(final Iterator<User> i = team.iterator(); i.hasNext();) {
+					if(i.next().getId().equals(loggedInUser)) { i.remove(); }
 				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				return team.toArray(new Contact[] {});
 			}
 		};
 		this.versionProvider = new SingleContentProvider() {

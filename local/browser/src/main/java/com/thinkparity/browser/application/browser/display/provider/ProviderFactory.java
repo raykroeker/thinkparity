@@ -1,5 +1,5 @@
 /*
- * Jan 16, 2006
+ * Created On: Jan 16, 2006
  */
 package com.thinkparity.browser.application.browser.display.provider;
 
@@ -35,6 +35,14 @@ public class ProviderFactory {
 
 	static { singleton = new ProviderFactory(); }
 
+	/** Obtain the contact info provider.
+     * 
+     * @return The contact info provider.
+     */
+    public static ContentProvider getContactInfoProvider() {
+        return singleton.doGetContactInfoProvider();
+    }
+
 	/**
 	 * Obtain the history content provider.
 	 * 
@@ -43,8 +51,8 @@ public class ProviderFactory {
 	public static ContentProvider getHistoryProvider() {
 		return singleton.doGetHistoryProvider();
 	}
-
-	/**
+    
+    /**
 	 * Obtain the info provider.
 	 * 
 	 * @return The info provider.
@@ -53,7 +61,7 @@ public class ProviderFactory {
 		return singleton.doGetInfoProvider();
 	}
     
-    /**
+	/**
      * Obtain the main provider.
      * 
      * @return The main provider.
@@ -61,8 +69,8 @@ public class ProviderFactory {
 	public static ContentProvider getMainProvider() {
 		return singleton.doGetMainProvider();
 	}
-    
-	/**
+
+    /**
 	 * Obtain the manage contacts provider.
 	 * 
 	 * @return The manage contacts provider.
@@ -70,14 +78,6 @@ public class ProviderFactory {
 	public static ContentProvider getManageContactsProvider() {
 		return singleton.doGetManageContactsProvider();
 	}
-
-    /** Obtain the contact info provider.
-     * 
-     * @return The contact info provider.
-     */
-    public static ContentProvider getContactInfoProvider() {
-        return singleton.doGetContactInfoProvider();
-    }
 
 	public static ContentProvider getSendArtifactProvider() {
 		return singleton.doGetSendArtifactProvider();
@@ -90,11 +90,11 @@ public class ProviderFactory {
 	/** The parity artifact interface. */
 	protected final ArtifactModel artifactModel;
 
-	/** The parity document interface. */
-	protected final DocumentModel dModel;
-    
-    /** The contact interface. */
+	/** The contact interface. */
     protected final ContactModel cModel;
+    
+    /** The parity document interface. */
+	protected final DocumentModel dModel;
 
 	/** An apache logger. */
 	protected final Logger logger;
@@ -105,26 +105,26 @@ public class ProviderFactory {
 	/** The parity system message interface. */
 	protected final SystemMessageModel systemMessageModel;
 
+	/** The contact info provider. */
+    private final ContentProvider contactInfoProvider;
+
 	/** The document history provider. */
 	private final ContentProvider historyProvider;
 
 	/** The info pane provider. */
 	private final ContentProvider infoProvider;
 
-	/** The local user. */
+    /** The local user. */
     private final User localUser;
 
-    /** The local user id. */
+	/** The local user id. */
 	private final JabberId localUserId;
-
+    
 	/** The main provider. */
 	private final ContentProvider mainProvider;
     
-	/** The contacts provider. */
+    /** The contacts provider. */
 	private final ContentProvider manageContactsProvider;
-    
-    /** The contact info provider. */
-    private final ContentProvider contactInfoProvider;
 
 	/** The send artifact provider. */
 	private final ContentProvider sendArtifactProvider;
@@ -151,14 +151,23 @@ public class ProviderFactory {
         this.localUser = uModel.read();
         this.localUserId = localUser.getId();
 
-		this.historyProvider = new HistoryProvider(localUserId, dModel, sModel);
+		this.historyProvider = new HistoryProvider(localUserId, artifactModel, dModel, sModel);
 		this.infoProvider = new InfoProvider(localUser, dModel);
-		this.mainProvider = new MainProvider(artifactModel, dModel, sModel, systemMessageModel, localUserId);
+		this.mainProvider = new MainProvider(artifactModel, cModel, dModel, systemMessageModel, localUserId);
 		this.manageContactsProvider = new ManageContactsProvider(cModel);
         this.contactInfoProvider = new ContactInfoProvider(cModel);
-		this.sendArtifactProvider = new SendArtifactProvider(artifactModel, dModel, sModel, localUserId);
-		this.sendVersionProvider = new SendVersionProvider(dModel, sModel, localUserId);
+		this.sendArtifactProvider = new SendArtifactProvider(artifactModel, cModel, dModel, localUserId);
+		this.sendVersionProvider = new SendVersionProvider(artifactModel, dModel, sModel, localUserId);
 	}
+
+	/**
+     * Obtain the contact info provider.
+     * 
+     * @return The contact info provider.
+     */
+    private ContentProvider doGetContactInfoProvider() {
+        return contactInfoProvider;
+    }
 
 	/**
 	 * Obtain the history content provider.
@@ -173,15 +182,15 @@ public class ProviderFactory {
 	 * @return The info content provider.
 	 */
 	private ContentProvider doGetInfoProvider() { return infoProvider; }
-
+    
 	/**
 	 * Obtain the main provider.
 	 * 
 	 * @return The main provider.
 	 */
 	private ContentProvider doGetMainProvider() { return mainProvider; }
-    
-	/**
+
+    /**
 	 * Obtain the manage contacts provider.
 	 * 
 	 * @return The manage contacts provider.
@@ -189,15 +198,6 @@ public class ProviderFactory {
 	private ContentProvider doGetManageContactsProvider() {
 		return manageContactsProvider;
 	}
-
-    /**
-     * Obtain the contact info provider.
-     * 
-     * @return The contact info provider.
-     */
-    private ContentProvider doGetContactInfoProvider() {
-        return contactInfoProvider;
-    }
 
 	/**
 	 * Obtain the user provider.

@@ -4,16 +4,16 @@
  */
 package com.thinkparity.browser.application.browser.display.provider.contact;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
-
-import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
+
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -23,24 +23,24 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class ShareProvider extends FlatContentProvider {
 
-    /** The parity artifact interface. */
+    /** The thinkParity artifact interface. */
     private final ArtifactModel aModel;
 
-    /** The parity session interface. */
-    private final SessionModel sModel;
+    /** The thinkParity contact interface. */
+    private final ContactModel cModel;
 
     /**
      * Create ShareProvider.
      * 
      * @param aModel
-     *            An artifact model.
-     * @param sModel
-     *            A session model.
+     *            A thinkParity artifact interface.
+     * @param cModel
+     *            A thinkParity contact interface.
      */
-    public ShareProvider(final ArtifactModel aModel, final SessionModel sModel) {
+    public ShareProvider(final ArtifactModel aModel, final ContactModel cModel) {
         super();
         this.aModel = aModel;
-        this.sModel = sModel;
+        this.cModel = cModel;
     }
 
     /** @see com.thinkparity.browser.application.browser.display.provider.FlatContentProvider#getElements(java.lang.Object) */
@@ -79,11 +79,8 @@ public class ShareProvider extends FlatContentProvider {
             final Long artifactId) {
         final Set<User> team = aModel.readTeam(artifactId);
 
-        Set<Contact> contacts = null;
-        try { contacts = sModel.readContacts(); }
-        catch(final ParityException px) { throw new RuntimeException(px); }
-
-        final Set<Contact> shareUsers = new HashSet<Contact>();
+        final List<Contact> contacts = cModel.read();
+        final List<Contact> shareUsers = new ArrayList<Contact>(contacts.size());
         for(final Contact contact : contacts) {
             if(numberOfContacts <= shareUsers.size()) { break; }
             if(!team.contains(contact)) { shareUsers.add(contact); }

@@ -1,5 +1,5 @@
 /*
- * Mar 10, 2006
+ * Created On:  Mar 10, 2006
  */
 package com.thinkparity.browser.application.browser.display.provider.document;
 
@@ -13,6 +13,7 @@ import com.thinkparity.browser.application.browser.display.provider.FlatContentP
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -47,28 +48,31 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 	private final FlatContentProvider historyProvider;
 
     /**
-     * An artifact team provider.
-     * 
-     */
-    private final FlatContentProvider teamProvider;
-
-	/**
 	 * A list of single result content providers.
 	 * 
 	 */
 	private final SingleContentProvider[] singleProviders;
 
 	/**
+     * An artifact team provider.
+     * 
+     */
+    private final FlatContentProvider teamProvider;
+
+	/**
      * Create a HistoryProvider.
      * 
      * @param loggedInUserId
      *            The logged in user's jabber id.
+     * @param aModel
+     *            A thinkParity artifact interface.
      * @param dModel
      *            The parity document interface.
      * @param sModel
      *            The parity session interface.
      */
-	public HistoryProvider(final JabberId loggedInUserId, final DocumentModel dModel,
+	public HistoryProvider(final JabberId loggedInUserId,
+            final ArtifactModel aModel, final DocumentModel dModel,
             final SessionModel sModel) {
 		super();
 		this.documentProvider = new SingleContentProvider() {
@@ -97,9 +101,7 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
         this.teamProvider = new FlatContentProvider() {
             public Object[] getElements(final Object input) {
                 final Long documentId = (Long) input;
-                final Set<User> team;
-                try { team =  sModel.readArtifactTeam(documentId); }
-                catch(final ParityException px) { throw new RuntimeException(px); }
+                final Set<User> team =  aModel.readTeam(documentId);
                 User teamMember;
                 for(final Iterator<User> i = team.iterator(); i.hasNext();) {
                     teamMember = i.next();

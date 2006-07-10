@@ -11,7 +11,6 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -56,7 +55,7 @@ public class SendKey extends AbstractAction {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final JabberId userId = (JabberId) data.get(DataKey.USER_ID);
 
-        getSessionModel().sendKeyResponse(documentId, userId, KeyResponse.ACCEPT);
+        getArtifactModel().sendKey(documentId, userId);
 
         application.fireDocumentUpdated(documentId, Boolean.FALSE);
 	}

@@ -15,6 +15,8 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.CheckBoxFactory;
@@ -29,12 +31,9 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -313,7 +312,7 @@ public class SessionSendFormAvatar extends Avatar {
 					final User user = contacts.get(0);
 					// TODO Refactor the user object.
 					final JabberId jabberId = JabberIdBuilder.parseUsername(user.getSimpleUsername());
-					getSessionModel().sendKeyResponse(documentId, jabberId, KeyResponse.ACCEPT);
+					getArtifactModel().sendKey(documentId, jabberId);
 				}
 				else {
                     getDocumentModel().publish(documentId);

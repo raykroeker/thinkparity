@@ -1,21 +1,21 @@
 /*
- * Mar 14, 2006
+ * Created On: Mar 14, 2006
  */
 package com.thinkparity.browser.application.browser.display.provider.session;
+
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.NotOfTypeAssertion;
+import com.thinkparity.codebase.assertion.NullPointerAssertion;
 
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.ShareProvider;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.NotOfTypeAssertion;
-import com.thinkparity.codebase.assertion.NullPointerAssertion;
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -46,18 +46,26 @@ public class SendArtifactProvider extends CompositeFlatSingleContentProvider {
 	private final SingleContentProvider[] singleProviders;
 
 	/**
-	 * Create a SendArtifactProvider.
-	 * 
-	 */
+     * Create a SendArtifactProvider.
+     * 
+     * @param aModel
+     *            A thinkParity artifact interface.
+     * @param cModel
+     *            A thinkParity contact interface.
+     * @param dModel
+     *            A thinkParity document interface.
+     * @param loggedInUser
+     *            The thinkparity session user.
+     */
 	public SendArtifactProvider(final ArtifactModel aModel,
-            final DocumentModel documentModel, final SessionModel sModel,
+            final ContactModel cModel, final DocumentModel dModel,
             final JabberId loggedInUser) {
 		super();
-		this.shareContactProvider = new ShareProvider(aModel, sModel);
+		this.shareContactProvider = new ShareProvider(aModel, cModel);
 		this.documentProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
 				final Long documentId = assertValidInput(input);
-				try { return documentModel.get(documentId); }
+				try { return dModel.get(documentId); }
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};

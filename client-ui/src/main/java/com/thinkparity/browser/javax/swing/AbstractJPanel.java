@@ -22,6 +22,7 @@ import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.util.l10n.JPanelLocalization;
 
 import com.thinkparity.model.LoggerFactory;
+import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -161,9 +162,18 @@ public class AbstractJPanel extends JPanel {
     }
 
 	/**
-	 * Obtain a handle to the document api.
+     * Obtain a thinkParity artifact interface.
+     * 
+     * @return A thinkParity artifact interface.
+     */
+    protected ArtifactModel getArtifactModel() {
+        return modelFactory.getArtifactModel(getClass());
+    }
+
+    /**
+	 * Obtain a thinkParity document interface.
 	 * 
-	 * @return The document api.
+	 * @return A thinkParity document interface.
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
@@ -179,9 +189,9 @@ public class AbstractJPanel extends JPanel {
 	}
 
 	/**
-	 * Obtain a handle to the session api.
+	 * Obtain a thinkParity session interface.
 	 * 
-	 * @return The session api.
+	 * @return A thinkParity session interface.
 	 */
 	protected SessionModel getSessionModel() {
 		return modelFactory.getSessionModel(getClass());

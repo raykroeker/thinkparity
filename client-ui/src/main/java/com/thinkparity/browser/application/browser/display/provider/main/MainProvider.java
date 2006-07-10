@@ -23,12 +23,12 @@ import com.thinkparity.browser.application.browser.display.provider.contact.Shar
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
-import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.sort.RemoteUpdatedOnComparator;
 import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
@@ -68,17 +68,18 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * Create a MainProvider.
      * 
      * @param aModel
-     *            The parity artifact interface.
+     *            A thinkParity artifact interface.
+     * @param cModel
+     *            A thinkParity contact interface.
      * @param dModel
-     *            The parity document interface.
-     * @param sModel
-     *            The parity session interface.
-     * @param systemMessageModel
-     *            The parity system message interface.
+     *            A thinkParity document interface.
+     * @param mModel
+     *            A thinkParity system message interface.
+     * @param loggedInUser
+     *            The thinkParity session user.
      */
-	public MainProvider(final ArtifactModel artifactModel,
-            final DocumentModel dModel, final SessionModel sModel,
-            final SystemMessageModel systemMessageModel,
+	public MainProvider(final ArtifactModel aModel, final ContactModel cModel,
+            final DocumentModel dModel, final SystemMessageModel mModel,
             final JabberId loggedInUserId) {
 		super();
 		this.documentProvider = new SingleContentProvider() {
@@ -86,7 +87,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				final Long documentId = (Long) input;
 				try {
 					final Document document = dModel.get(documentId);
-                    return toDisplay(document, artifactModel, dModel, loggedInUserId);
+                    return toDisplay(document, aModel, dModel, loggedInUserId);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -101,7 +102,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 						new RemoteUpdatedOnComparator(Boolean.FALSE);
 					sort.add(new UpdatedOnComparator(Boolean.FALSE));
 
-					return toDisplay(dModel.list(sort), artifactModel, dModel, loggedInUserId);
+					return toDisplay(dModel.list(sort), aModel, dModel, loggedInUserId);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
@@ -110,17 +111,16 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		this.historyProvider = new FlatContentProvider() {
             public Object[] getElements(final Object input) {
                 final MainCellDocument mcd = (MainCellDocument) input;
-                return toDisplay(artifactModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId()));
+                return toDisplay(aModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId()));
             }
         };
-        this.quickShareContactProvider = new QuickShareProvider(artifactModel, sModel);
+        this.quickShareContactProvider = new QuickShareProvider(aModel, cModel);
         this.systemMessageProvider = new SingleContentProvider() {
 			public Object getElement(final Object input) {
 				final Long systemMessageId = assertNotNullLong(
 						"The main provider's system message provider " +
 						"requires non-null java.lang.Long input.", input);
-				final SystemMessage systemMessage =
-				        systemMessageModel.read(systemMessageId);
+				final SystemMessage systemMessage = mModel.read(systemMessageId);
 				switch(systemMessage.getType()) {
 				case INFO:
 				case CONTACT_INVITATION:
@@ -138,17 +138,17 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			public Object[] getElements(final Object input) {
 				try {
 					final Collection<SystemMessage> messages =
-						systemMessageModel.readForNonArtifacts();
+                            mModel.readForNonArtifacts();
 					return messages.toArray(new SystemMessage[] {});
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-        this.shareContactProvider = new ShareProvider(artifactModel, sModel);
+        this.shareContactProvider = new ShareProvider(aModel, cModel);
         this.teamProvider = new FlatContentProvider() {
             public Object[] getElements(final Object input) {
                 final MainCellDocument mcd = (MainCellDocument) input;
-                return toDisplay(mcd, readTeam(artifactModel, mcd.getId(), loggedInUserId));
+                return toDisplay(mcd, readTeam(aModel, mcd.getId(), loggedInUserId));
             }
         };
 		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider, quickShareContactProvider, shareContactProvider, teamProvider};
@@ -201,12 +201,14 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * Convert a document and its history into a list of displayable history
      * items.
      * 
-     * @param sModel
-     *            The session model.
+     * @param aModel
+     *            A thinkParity artifact interface.
+     * @param localUserId
+     *            The thinkParity session user.
      * @param document
-     *            A document.
+     *            A document main cell.
      * @param history
-     *            A document's history.
+     *            A document history.
      * @return A displayable history.
      */
 	private MainCellHistoryItem[] toDisplay(final ArtifactModel aModel,

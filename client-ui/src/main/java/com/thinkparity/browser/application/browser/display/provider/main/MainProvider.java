@@ -94,17 +94,13 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		};
 		this.documentsProvider = new FlatContentProvider() {
 			public Object[] getElements(final Object input) {
-				try {
-					// sort by:
-					// 	+> remote update ? later b4 earlier
-					//	+> last update ? later b4 earlier
-					final AbstractArtifactComparator sort =
-						new RemoteUpdatedOnComparator(Boolean.FALSE);
-					sort.add(new UpdatedOnComparator(Boolean.FALSE));
-
-					return toDisplay(dModel.list(sort), aModel, dModel, loggedInUserId);
-				}
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				// sort by:
+				// 	+> remote update ? later b4 earlier
+				//	+> last update ? later b4 earlier
+				final AbstractArtifactComparator sort =
+					new RemoteUpdatedOnComparator(Boolean.FALSE);
+				sort.add(new UpdatedOnComparator(Boolean.FALSE));
+				return new MainCellDocument[] {};
 			}
 
 		};

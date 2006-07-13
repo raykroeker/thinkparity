@@ -17,6 +17,8 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.*;
@@ -53,8 +55,6 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -353,9 +353,9 @@ public class Browser extends AbstractApplication {
      */
     
     public void displayAddContactDialogue() {
-        // TO DO fix up where this is called from, delete displaySessionInvitePartner()
+        // TODO fix up where this is called from, delete displaySessionInvitePartner()
         // Use INVITE
-        displayAvatar(WindowId.POPUP, AvatarId.SESSION_INVITE_PARTNER);
+        displayAvatar(WindowId.POPUP, AvatarId.CONTACT_ADD);
     }
 
 	/**
@@ -981,14 +981,23 @@ public class Browser extends AbstractApplication {
         data.set(DeleteContact.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
     }
-    
+
+    /**
+     * Run the add contact action.
+     *
+     */
+    public void runAddContact() {
+        runAddContact(null);
+    }
+
     /**
      * Run the add contact action.
      * 
      */
     public void runAddContact(final String newContactEmail) {
         final Data data = new Data(1);
-        data.set(AddContact.DataKey.CONTACT_EMAIL, newContactEmail);
+        if(null != newContactEmail)
+            data.set(AddContact.DataKey.CONTACT_EMAIL, newContactEmail);
         invoke(ActionId.CONTACT_ADD, data);
     }
 

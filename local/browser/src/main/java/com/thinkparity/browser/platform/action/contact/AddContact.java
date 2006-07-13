@@ -11,6 +11,8 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
+import com.thinkparity.model.xmpp.contact.Contact;
+
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
@@ -68,12 +70,12 @@ public class AddContact extends AbstractAction {
      */
     public void invoke(final Data data) throws Exception {
         final String contactEmail = (String) data.get(DataKey.CONTACT_EMAIL);
-        if ((null==contactEmail) || (""==contactEmail)) {
+        if (null==contactEmail) {
             browser.displayAddContactDialogue();
         }
         else {
-            getContactModel().create(contactEmail);
-            //browser.fireContactAdded(contactId, Boolean.FALSE);            
+            final Contact contact = getContactModel().create(contactEmail);
+            browser.fireContactAdded(contact.getId(), Boolean.FALSE);            
         }
     }
 

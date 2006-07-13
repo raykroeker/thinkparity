@@ -4,6 +4,9 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.browser.application.browser.display.avatar.contact.AddContact;
 import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
 import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
@@ -13,8 +16,6 @@ import com.thinkparity.browser.application.browser.display.avatar.session.Sessio
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -48,16 +49,16 @@ public class AvatarFactory {
 	private final AvatarRegistry avatarRegistry;
 
 	/**
-	 * The message list avatar.
-	 * 
-	 */
-	private Avatar browserMain;
-    
-    /**
      * The contacts list avatar.
      * 
      */
     private Avatar browserContacts;
+    
+    /**
+	 * The message list avatar.
+	 * 
+	 */
+	private Avatar browserMain;
 
 	/**
 	 * The browser title avatar.
@@ -81,30 +82,6 @@ public class AvatarFactory {
 	}
 
 	/**
-	 * Create the browser info avatar.
-	 * 
-	 * @return The browser info avatar.
-	 */
-	private Avatar createBrowserInfo() {
-		final Avatar browserInfo = new BrowserInfoAvatar();
-		browserInfo.setContentProvider(ProviderFactory.getInfoProvider());
-		return browserInfo;
-	}
-
-	/**
-	 * Create the message list avatar.
-	 * 
-	 * @return The message list avatar.
-	 */
-	private Avatar createBrowserMain() {
-		if(null == browserMain) {
-			browserMain = new BrowserMainAvatar();
-			browserMain.setContentProvider(ProviderFactory.getMainProvider());
-		}
-		return browserMain;
-	}
-    
-    /**
      * Create the contacts list avatar.
      * 
      * @return The contacts list avatar.
@@ -116,6 +93,30 @@ public class AvatarFactory {
         }
         return browserContacts;
     }
+
+	/**
+	 * Create the browser info avatar.
+	 * 
+	 * @return The browser info avatar.
+	 */
+	private Avatar createBrowserInfo() {
+		final Avatar browserInfo = new BrowserInfoAvatar();
+		browserInfo.setContentProvider(ProviderFactory.getInfoProvider());
+		return browserInfo;
+	}
+    
+    /**
+	 * Create the message list avatar.
+	 * 
+	 * @return The message list avatar.
+	 */
+	private Avatar createBrowserMain() {
+		if(null == browserMain) {
+			browserMain = new BrowserMainAvatar();
+			browserMain.setContentProvider(ProviderFactory.getMainProvider());
+		}
+		return browserMain;
+	}
 
 	/**
 	 * Create the browser title avatar.
@@ -134,6 +135,37 @@ public class AvatarFactory {
         return new ConfirmDialog();
     }
 
+    /**
+     * Create the add contact avatar. Note; no provider required.
+     * 
+     * @return The avatar.
+     */
+    private Avatar createContactAdd() {
+        final Avatar avatar = new AddContact();
+        return avatar;
+    }
+
+	/**
+     * Create the contact info dialogue avatar.
+     * 
+     * @return The contact info dialogue avatar.
+     */
+    private Avatar createContactInfoDialogue() {
+        final Avatar contactInfoAvatar = new ContactInfo();
+        contactInfoAvatar.setContentProvider(ProviderFactory.getContactInfoProvider());
+        return contactInfoAvatar;       
+    }
+
+    /**
+     * Create the invite form avatar.
+     * 
+     * @return The invite form avatar.
+     */
+    private Avatar createInvite() {
+        final Avatar inviteAvatar = new InvitePartner();
+        return inviteAvatar;
+    }
+
     private Avatar createRenameDialogue() {
         return new RenameDialog();
     }
@@ -145,17 +177,7 @@ public class AvatarFactory {
 		return avatar;
 	}
 
-    /**
-     * Create the status avatar.
-     * 
-     * @return An avatar.
-     */
-    private Avatar createStatus() {
-        final Avatar status = new Status();
-        return status;
-    }
-
-    /**
+	/**
      * Create the session invite contact avatar.
      * 
      * @return The session invite contact avatar.
@@ -175,13 +197,13 @@ public class AvatarFactory {
 		sessionManageContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
 		return sessionManageContacts;
 	}
-
-	private Avatar createSessionSearchPartner() {
+    
+    private Avatar createSessionSearchPartner() {
         final Avatar avatar = new SearchPartner();
         return avatar;
     }
 
-	/**
+    /**
 	 * Create the session send form avatar.
 	 * 
 	 * @return The session send form avatar.
@@ -195,24 +217,13 @@ public class AvatarFactory {
 	}
     
     /**
-     * Create the contact info dialogue avatar.
+     * Create the status avatar.
      * 
-     * @return The contact info dialogue avatar.
+     * @return An avatar.
      */
-    private Avatar createContactInfoDialogue() {
-        final Avatar contactInfoAvatar = new ContactInfo();
-        contactInfoAvatar.setContentProvider(ProviderFactory.getContactInfoProvider());
-        return contactInfoAvatar;       
-    }
-    
-    /**
-     * Create the invite form avatar.
-     * 
-     * @return The invite form avatar.
-     */
-    private Avatar createInvite() {
-        final Avatar inviteAvatar = new InvitePartner();
-        return inviteAvatar;
+    private Avatar createStatus() {
+        final Avatar status = new Status();
+        return status;
     }
 
 	/**
@@ -243,6 +254,9 @@ public class AvatarFactory {
 			break;
         case CONFIRM_DIALOGUE:
             avatar = createConfirmDialogue();
+            break;
+        case CONTACT_ADD:
+            avatar = createContactAdd();
             break;
         case RENAME_DIALOGUE:
             avatar = createRenameDialogue();

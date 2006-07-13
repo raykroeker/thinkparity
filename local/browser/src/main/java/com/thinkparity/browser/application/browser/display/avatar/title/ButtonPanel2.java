@@ -278,8 +278,7 @@ public class ButtonPanel2 extends AbstractJPanel {
     }//GEN-LAST:event_helpJLabelMouseEntered
 
     private void helpJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_helpJLabelMouseClicked
-// TODO add your handling code here:
-        getBrowser().runAddContact("");
+        getBrowser().runAddContact();
         helpJLabelMouseExited(e);
     }//GEN-LAST:event_helpJLabelMouseClicked
    

@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
@@ -19,8 +21,8 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
-import com.thinkparity.codebase.assertion.Assert;
-
+import com.thinkparity.model.parity.model.user.UserEmail;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -32,6 +34,17 @@ public class UserProfileAvatar extends Avatar {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+
+    /**
+     * Obtain a logging api id.
+     * 
+     * @param api
+     *            The api.
+     * @return A logging api id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return getAvatarId(AvatarId.USER_PROFILE).append(" ").append(api);
+    }
 
     private String email;
 
@@ -74,8 +87,8 @@ public class UserProfileAvatar extends Avatar {
 
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object) */
     public void setInput(final Object input) {
-        Assert.assertNotNull("", input);
-        Assert.assertOfType("", User.class, input);
+        Assert.assertNotNull(getApiId("[SET INPUT]"), input);
+        Assert.assertOfType(getApiId("[SET INPUT]"), Contact.class, input);
         this.input = input;
     }
 
@@ -117,7 +130,9 @@ public class UserProfileAvatar extends Avatar {
     }//GEN-LAST:event_finishJButtonActionPerformed
 
     private String getInputUserEmail() {
-        return ((User) input).getEmail();
+        final UserEmail email = ((Contact) input).getEmails().get(0);
+        if(null == email) { return null; }
+        else { return email.getEmail(); }
     }
 
     private String getInputUserName() { return ((User) input).getName(); }

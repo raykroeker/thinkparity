@@ -26,6 +26,17 @@ import com.thinkparity.codebase.assertion.Assert;
 public abstract class Avatar extends AbstractJPanel {
 
     /**
+     * Obtain a logging avatar id.
+     * 
+     * @param id
+     *            The avatar id.
+     * @return A logging avatar id.
+     */
+    protected static StringBuffer getAvatarId(final AvatarId id) {
+        return new StringBuffer("[LBROWSER] [AVATAR] [").append(id).append("]");
+    }
+
+    /**
 	 * The avatar's content provider.
 	 * 
 	 */

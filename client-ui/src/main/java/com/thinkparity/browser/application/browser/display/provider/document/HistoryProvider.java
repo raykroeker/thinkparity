@@ -16,8 +16,8 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -62,8 +62,8 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 	/**
      * Create a HistoryProvider.
      * 
-     * @param loggedInUserId
-     *            The logged in user's jabber id.
+     * @param profile
+     *            A thinkParity profile.
      * @param aModel
      *            A thinkParity artifact interface.
      * @param dModel
@@ -71,11 +71,10 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
      * @param sModel
      *            The parity session interface.
      */
-	public HistoryProvider(final JabberId loggedInUserId,
-            final ArtifactModel aModel, final DocumentModel dModel,
-            final SessionModel sModel) {
-		super();
-		this.documentProvider = new SingleContentProvider() {
+	public HistoryProvider(final Profile profile, final ArtifactModel aModel,
+            final DocumentModel dModel, final SessionModel sModel) {
+		super(profile);
+		this.documentProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				Assert.assertNotNull(
 						"The history provider requries java.lang.Long input.",
@@ -87,7 +86,7 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.historyProvider = new FlatContentProvider() {
+		this.historyProvider = new FlatContentProvider(profile) {
 			public Object[] getElements(final Object input) {
 				Assert.assertNotNull(
 						"The history provider requries java.lang.Long input.",
@@ -98,14 +97,14 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 				return dModel.readHistory((Long) input).toArray(new DocumentHistoryItem[] {});
 			}
 		};
-        this.teamProvider = new FlatContentProvider() {
+        this.teamProvider = new FlatContentProvider(profile) {
             public Object[] getElements(final Object input) {
                 final Long documentId = (Long) input;
                 final Set<User> team =  aModel.readTeam(documentId);
                 User teamMember;
                 for(final Iterator<User> i = team.iterator(); i.hasNext();) {
                     teamMember = i.next();
-                    if(teamMember.getId().equals(loggedInUserId)) { i.remove(); }
+                    if(teamMember.getId().equals(profile.getJabberId())) { i.remove(); }
                 }
                 return team.toArray(new Contact[] {});
             }

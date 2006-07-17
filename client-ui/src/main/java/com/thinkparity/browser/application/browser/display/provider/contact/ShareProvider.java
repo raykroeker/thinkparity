@@ -14,6 +14,7 @@ import com.thinkparity.browser.application.browser.display.provider.FlatContentP
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -37,8 +38,9 @@ public class ShareProvider extends FlatContentProvider {
      * @param cModel
      *            A thinkParity contact interface.
      */
-    public ShareProvider(final ArtifactModel aModel, final ContactModel cModel) {
-        super();
+    public ShareProvider(final Profile profile, final ArtifactModel aModel,
+            final ContactModel cModel) {
+        super(profile);
         this.aModel = aModel;
         this.cModel = cModel;
     }

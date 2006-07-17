@@ -19,10 +19,9 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.user.UserModel;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -114,29 +113,25 @@ public class ProviderFactory {
 	/** The info pane provider. */
 	private final ContentProvider infoProvider;
 
-    /** The local user. */
-    private final User localUser;
+    /** The user's profile. */
+    private final Profile profile;
 
-	/** The local user id. */
-	private final JabberId localUserId;
-    
 	/** The main provider. */
 	private final ContentProvider mainProvider;
     
     /** The contacts provider. */
 	private final ContentProvider manageContactsProvider;
 
+	/** A thinkParity profile interface. */
+    private final ProfileModel pModel;
+
 	/** The send artifact provider. */
 	private final ContentProvider sendArtifactProvider;
 
-	/** The Send artifact version provider. */
+    /** The Send artifact version provider. */
 	private final ContentProvider sendVersionProvider;
 
-    /** The parity user interface. */
-    private final UserModel uModel;
-
-	/** Create a ProviderFactory. */
-    // PATTERN Singleton,Factory
+	/** Create ProviderFactory. */
 	private ProviderFactory() {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
@@ -144,20 +139,19 @@ public class ProviderFactory {
 		this.dModel = modelFactory.getDocumentModel(getClass());
         this.cModel = modelFactory.getContactModel(getClass());
 		this.logger = LoggerFactory.getLogger(getClass());
+        this.pModel = modelFactory.getProfileModel(getClass());
 		this.sModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
-        this.uModel = modelFactory.getUserModel(getClass());
 
-        this.localUser = uModel.read();
-        this.localUserId = localUser.getId();
+        this.profile = pModel.read();
 
-		this.historyProvider = new HistoryProvider(localUserId, artifactModel, dModel, sModel);
-		this.infoProvider = new InfoProvider(localUser, dModel);
-		this.mainProvider = new MainProvider(artifactModel, cModel, dModel, systemMessageModel, localUserId);
-		this.manageContactsProvider = new ManageContactsProvider(cModel);
-        this.contactInfoProvider = new ContactInfoProvider(cModel);
-		this.sendArtifactProvider = new SendArtifactProvider(artifactModel, cModel, dModel, localUserId);
-		this.sendVersionProvider = new SendVersionProvider(artifactModel, dModel, sModel, localUserId);
+		this.historyProvider = new HistoryProvider(profile, artifactModel, dModel, sModel);
+		this.infoProvider = new InfoProvider(profile);
+		this.mainProvider = new MainProvider(profile, artifactModel, cModel, dModel, systemMessageModel);
+		this.manageContactsProvider = new ManageContactsProvider(profile, cModel);
+        this.contactInfoProvider = new ContactInfoProvider(profile, cModel);
+		this.sendArtifactProvider = new SendArtifactProvider(profile, artifactModel, cModel, dModel);
+		this.sendVersionProvider = new SendVersionProvider(profile, artifactModel, dModel, sModel);
 	}
 
 	/**

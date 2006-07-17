@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.application.browser.display.provider;
 
+import com.thinkparity.model.parity.model.profile.Profile;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -10,9 +12,12 @@ package com.thinkparity.browser.application.browser.display.provider;
 public abstract class FlatContentProvider extends ContentProvider {
 
 	/**
-	 * Create a FlatContentProvider.
-	 */
-	protected FlatContentProvider() { super(); }
+     * Create FlatContentProvider.
+     * 
+     * @param profile
+     *            A thinkParity profile.
+     */
+	protected FlatContentProvider(final Profile profile) { super(profile); }
 
 	/**
 	 * Obtain a flat list of elements.

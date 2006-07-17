@@ -1,10 +1,9 @@
 /*
- * ContactInfo.java
- *
- * Created on June 29, 2006, 5:47 PM
+ * Created On: June 29, 2006, 5:47 PM
  */
-
 package com.thinkparity.browser.application.browser.display.avatar.contact;
+
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
@@ -20,7 +19,7 @@ import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  *
- * @author  Administrator
+ * @author rob_masako@shaw.ca
  */
 public class ContactInfo extends Avatar {
     
@@ -59,11 +58,16 @@ public class ContactInfo extends Avatar {
         // contact name, company and email
         JabberId id = getInputContactId();
         if (id != null) {
-            Contact c = getContact(id);
+            // TODO Refactor to not use single-character variable names
+            // See:  http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html
+            final Contact c = getContact(id);
             if (c != null) {
                 nameJTextField.setText(c.getName());
                 companyJTextField.setText(c.getOrganization());
-                emailJTextField.setText(c.getEmail());
+                final List<String> emails = c.getEmails();
+                if(0 < emails.size()) {
+                    emailJTextField.setText(emails.get(0));
+                }
             }
         }
         

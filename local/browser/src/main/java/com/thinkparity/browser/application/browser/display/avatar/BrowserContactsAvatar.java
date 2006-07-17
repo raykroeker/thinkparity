@@ -20,6 +20,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.display.avatar.contact.CellContact;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellRenderer;
@@ -54,11 +56,11 @@ public class BrowserContactsAvatar extends Avatar {
     /** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-    /** The swing JList. */
-	private JList jList;
-    
     /** The model. */
     private final BrowserContactsModel contactsModel;
+    
+    /** The swing JList. */
+	private JList jList;
     
     /**
      * The search filter.
@@ -164,6 +166,18 @@ public class BrowserContactsAvatar extends Avatar {
     }
 
     /**
+     * Synchronize an invitation in the list.
+     * 
+     * @param invitationId
+     *            A contact invitation id.
+     * @param remote
+     *            Whether or not the source of the syncrhonization is remote.
+     */
+    public void syncInvitation(final Long invitationId, final Boolean remote) {
+        Assert.assertNotYetImplemented("BrowserContactsAvatar#syncInvitation(Long,Boolean)");
+    }
+
+    /**
      * Synchronize the contacts in the list.
      *
      * @param contactIds
@@ -191,16 +205,6 @@ public class BrowserContactsAvatar extends Avatar {
         return null;
     }
     
-    /**
-     * Select a contact cell.
-     * 
-     * @param mcd
-     *            The contact cell.
-     */
-    private void selectContact(final CellContact cc) {
-        jList.setSelectedValue(cc, true);
-    }    
-
     /**
      * Initialize the swing components.
      *
@@ -277,5 +281,15 @@ public class BrowserContactsAvatar extends Avatar {
         c.weightx = 1;
         c.weighty = 1;
         add(jListScrollPane, c.clone());  // Add the jListScrollPane to the container
+    }    
+
+    /**
+     * Select a contact cell.
+     * 
+     * @param mcd
+     *            The contact cell.
+     */
+    private void selectContact(final CellContact cc) {
+        jList.setSelectedValue(cc, true);
     }
 }

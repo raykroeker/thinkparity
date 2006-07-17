@@ -29,10 +29,10 @@ import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.sort.AbstractArtifactComparator;
 import com.thinkparity.model.parity.model.sort.RemoteUpdatedOnComparator;
 import com.thinkparity.model.parity.model.sort.UpdatedOnComparator;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -78,21 +78,21 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @param loggedInUser
      *            The thinkParity session user.
      */
-	public MainProvider(final ArtifactModel aModel, final ContactModel cModel,
-            final DocumentModel dModel, final SystemMessageModel mModel,
-            final JabberId loggedInUserId) {
-		super();
-		this.documentProvider = new SingleContentProvider() {
+	public MainProvider(final Profile profile, final ArtifactModel aModel,
+            final ContactModel cModel, final DocumentModel dModel,
+            final SystemMessageModel mModel) {
+		super(profile);
+		this.documentProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long documentId = (Long) input;
 				try {
 					final Document document = dModel.get(documentId);
-                    return toDisplay(document, aModel, dModel, loggedInUserId);
+                    return toDisplay(profile, document, aModel, dModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.documentsProvider = new FlatContentProvider() {
+		this.documentsProvider = new FlatContentProvider(profile) {
 			public Object[] getElements(final Object input) {
 				// sort by:
 				// 	+> remote update ? later b4 earlier
@@ -104,14 +104,14 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 			}
 
 		};
-		this.historyProvider = new FlatContentProvider() {
+		this.historyProvider = new FlatContentProvider(profile) {
             public Object[] getElements(final Object input) {
                 final MainCellDocument mcd = (MainCellDocument) input;
-                return toDisplay(aModel, loggedInUserId, mcd, dModel.readHistory(mcd.getId()));
+                return toDisplay(profile, aModel, mcd, dModel.readHistory(mcd.getId()));
             }
         };
-        this.quickShareContactProvider = new QuickShareProvider(aModel, cModel);
-        this.systemMessageProvider = new SingleContentProvider() {
+        this.quickShareContactProvider = new QuickShareProvider(profile, aModel, cModel);
+        this.systemMessageProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long systemMessageId = assertNotNullLong(
 						"The main provider's system message provider " +
@@ -130,7 +130,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				}
 			}
 		};
-		this.systemMessagesProvider = new FlatContentProvider() {
+		this.systemMessagesProvider = new FlatContentProvider(profile) {
 			public Object[] getElements(final Object input) {
 				try {
 					final Collection<SystemMessage> messages =
@@ -140,11 +140,11 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-        this.shareContactProvider = new ShareProvider(aModel, cModel);
-        this.teamProvider = new FlatContentProvider() {
+        this.shareContactProvider = new ShareProvider(profile, aModel, cModel);
+        this.teamProvider = new FlatContentProvider(profile) {
             public Object[] getElements(final Object input) {
                 final MainCellDocument mcd = (MainCellDocument) input;
-                return toDisplay(mcd, readTeam(aModel, mcd.getId(), loggedInUserId));
+                return toDisplay(mcd, readTeam(profile, aModel, mcd.getId()));
             }
         };
 		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider, quickShareContactProvider, shareContactProvider, teamProvider};
@@ -183,14 +183,24 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 		return (Long) input;
 	}
 
-    private Set<User> readTeam(final ArtifactModel aModel,
-            final Long documentId, final JabberId localUserId) {
+    private Set<User> readTeam(final Profile profile,
+            final ArtifactModel aModel, final Long documentId) {
         final Set<User> team = aModel.readTeam(documentId);
         logger.debug("[] [TEAM SIZE (" + team.size() + "]");
         for(final Iterator<User> i = team.iterator(); i.hasNext();) {
-            if(i.next().getId().equals(localUserId)) { i.remove(); }
+            if(i.next().getId().equals(profile.getJabberId())) { i.remove(); }
         }
         return team;
+    }
+
+    private MainCellUser[] toDisplay(final MainCellDocument mcd, final Set<User> users) {
+        final List<MainCellUser> display = new ArrayList<MainCellUser>();
+        final Integer count = users.size();
+        Integer index = 0;
+        for(final User user : users) {
+            display.add(new MainCellUser(mcd, count, index++, user));
+        }
+        return display.toArray(new MainCellUser[] {});
     }
 
     /**
@@ -207,41 +217,20 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      *            A document history.
      * @return A displayable history.
      */
-	private MainCellHistoryItem[] toDisplay(final ArtifactModel aModel,
-            final JabberId localUserId,
-            final MainCellDocument document,
+	private MainCellHistoryItem[] toDisplay(final Profile profile,
+            final ArtifactModel aModel, final MainCellDocument document,
             final List<DocumentHistoryItem> history) {
 	    final List<MainCellHistoryItem> display = new LinkedList<MainCellHistoryItem>();
         final Integer count = history.size();
         Integer index = 0;
         for(final DocumentHistoryItem item : history) {
             display.add(new MainCellHistoryItem(
-                    document, item, readTeam(aModel, document.getId(), localUserId), count, index++));
+                    document, item, readTeam(profile, aModel, document.getId()), count, index++));
         }
         return display.toArray(new MainCellHistoryItem[] {});
     }
 
-    /**
-     * Obtain a displayable version of a list of documents.
-     * 
-     * @param documents
-     *            The documents.
-     * @param aModel
-     *            The parity artifact interface.
-     * @return The displayable documents.
-     */
-	private MainCellDocument[] toDisplay(final Collection<Document> documents,
-            final ArtifactModel aModel, final DocumentModel dModel,
-            final JabberId localUserId) throws ParityException {
-		final List<MainCellDocument> display = new LinkedList<MainCellDocument>();
-
-		for(final Document d : documents) {
-			display.add(toDisplay(d, aModel, dModel, localUserId));
-		}
-		return display.toArray(new MainCellDocument[] {});
-	}
-
-    /**
+	/**
      * Obtain the displable version of the document.
      * 
      * @param document
@@ -251,25 +240,15 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @return The displayable version of the document.
      * @throws ParityException
      */
-	private MainCellDocument toDisplay(final Document document,
-            final ArtifactModel aModel, final DocumentModel dModel, final JabberId localUserId)
-            throws ParityException {
+	private MainCellDocument toDisplay(final Profile profile,
+            final Document document, final ArtifactModel aModel,
+            final DocumentModel dModel) throws ParityException {
 		if(null == document) { return null; }
 		else {
 			final MainCellDocument mcd = new MainCellDocument(
-                    dModel, document, readTeam(aModel, document.getId(), localUserId));
+                    dModel, document, readTeam(profile, aModel, document.getId()));
             mcd.setKeyRequests(aModel.readKeyRequests(document.getId()));
 			return mcd;
 		}
 	}
-
-	private MainCellUser[] toDisplay(final MainCellDocument mcd, final Set<User> users) {
-        final List<MainCellUser> display = new ArrayList<MainCellUser>();
-        final Integer count = users.size();
-        Integer index = 0;
-        for(final User user : users) {
-            display.add(new MainCellUser(mcd, count, index++, user));
-        }
-        return display.toArray(new MainCellUser[] {});
-    }
 }

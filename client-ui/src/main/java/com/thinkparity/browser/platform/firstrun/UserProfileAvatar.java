@@ -21,8 +21,7 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
-import com.thinkparity.model.parity.model.user.UserEmail;
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -88,7 +87,7 @@ public class UserProfileAvatar extends Avatar {
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object) */
     public void setInput(final Object input) {
         Assert.assertNotNull(getApiId("[SET INPUT]"), input);
-        Assert.assertOfType(getApiId("[SET INPUT]"), Contact.class, input);
+        Assert.assertOfType(getApiId("[SET INPUT]"), Profile.class, input);
         this.input = input;
     }
 
@@ -130,9 +129,7 @@ public class UserProfileAvatar extends Avatar {
     }//GEN-LAST:event_finishJButtonActionPerformed
 
     private String getInputUserEmail() {
-        final UserEmail email = ((Contact) input).getEmails().get(0);
-        if(null == email) { return null; }
-        else { return email.getEmail(); }
+        return ((Profile) input).getEmails().get(0);
     }
 
     private String getInputUserName() { return ((User) input).getName(); }

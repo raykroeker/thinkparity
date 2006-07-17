@@ -52,7 +52,6 @@ public class MainCellUser extends User implements MainCell {
         this.index = index;
         this.l18n = new MainCellL18n("User");
 
-        setEmail(user.getEmail());
         setName(user.getName());
         setId(user.getId());
         setLocalId(user.getLocalId());

@@ -5,8 +5,8 @@ package com.thinkparity.browser.application.browser.display.provider.contact;
 
 import com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -27,8 +27,8 @@ public class ManageContactsProvider extends FlatSingleContentProvider {
 	/**
 	 * Create a ManageContactsProvider.
 	 */
-	public ManageContactsProvider(final ContactModel contactModel) {
-		super();
+	public ManageContactsProvider(final Profile profile, final ContactModel contactModel) {
+		super(profile);
 		this.contactModel = contactModel;
 	}
 

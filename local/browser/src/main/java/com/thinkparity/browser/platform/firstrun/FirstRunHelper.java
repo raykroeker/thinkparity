@@ -1,6 +1,5 @@
 /*
  * Created On: Jun 10, 2006 10:26:01 AM
- * $Id$
  */
 package com.thinkparity.browser.platform.firstrun;
 
@@ -19,10 +18,9 @@ import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.user.UserModel;
-import com.thinkparity.model.xmpp.user.User;
 
 
 /**
@@ -31,15 +29,22 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class FirstRunHelper {
 
+    /**
+     * Obtain a logging api id.
+     * 
+     * @param api
+     *            The api.
+     * @return A logging api id.
+     */
     private static final StringBuffer getApiId(final String api) {
         return getLogId().append(" ").append(api);
     }
 
-    private static final String getAssertionId(final String api,
-            final String assertion) {
-        return getApiId(api).append(" ").append(assertion).toString();
-    }
-
+    /**
+     * Obtain a logging id.
+     * 
+     * @return A logging id.
+     */
     private static final StringBuffer getLogId() {
         return new StringBuffer("[LBROWSER] [PLATFORM] [FIRST RUN HELPER]");
     }
@@ -50,11 +55,11 @@ public class FirstRunHelper {
     /** The login avatar. */
     private LoginAvatar loginAvatar;
 
-    /** The parity session interface. */
-    private final SessionModel sModel;
+    /** The thinkParity profile interface. */
+    private final ProfileModel pModel;
 
-    /** The user model. */
-    private final UserModel uModel;
+    /** The thinkParity session interface. */
+    private final SessionModel sModel;
 
     /** The user profile avatar. */
     private UserProfileAvatar userProfileAvatar;
@@ -66,8 +71,8 @@ public class FirstRunHelper {
     public FirstRunHelper(final Platform platform) {
         super();
         this.logger = platform.getLogger(getClass());
+        this.pModel = platform.getModelFactory().getProfileModel(getClass());
         this.sModel = platform.getModelFactory().getSessionModel(getClass());
-        this.uModel = platform.getModelFactory().getUserModel(getClass());
     }
 
     /**
@@ -77,7 +82,7 @@ public class FirstRunHelper {
      */
     public Boolean firstRun() {
         Assert.assertTrue(
-                getAssertionId("[FIRST RUN]", "[PLATFROM HAS ALREADY BEEN RUN]"),
+                getApiId("[FIRST RUN] [PLATFROM HAS ALREADY BEEN RUN]"),
                 isFirstRun());
         loginAvatar = new LoginAvatar(this);
         openWindow(loginAvatar.getTitle(), loginAvatar);
@@ -92,23 +97,7 @@ public class FirstRunHelper {
             catch(final ParityException px) { throw new BrowserException("", px); }
             Assert.assertTrue("", sModel.isLoggedIn());
 
-            User user = null;
-            try { user = sModel.readUser(); }
-            catch(final ParityException px) { throw new BrowserException("", px); }
-            userProfileAvatar = new UserProfileAvatar(this);
-            userProfileAvatar.setInput(user);
-            openWindow(userProfileAvatar.getTitle(), userProfileAvatar);
-            
-            final String name = userProfileAvatar.getFullName();
-            final String email = userProfileAvatar.getEmail();
-            final String organization = userProfileAvatar.getOrganization();
-            if(null != name && null != email) {
-                try { uModel.create(name, email, organization); }
-                catch(final ParityException px) { throw new BrowserException("", px); }
-
-                return Boolean.TRUE;
-            }
-            else { return Boolean.FALSE; }
+            return Boolean.TRUE;
         }
         else { return Boolean.FALSE; }
     }
@@ -118,10 +107,7 @@ public class FirstRunHelper {
      * 
      * @return True if this is the first time the platform has been run.
      */
-    public Boolean isFirstRun() {
-        final User currentUser = uModel.read();
-        return null == currentUser;
-    }
+    public Boolean isFirstRun() { return null == pModel.read(); }
 
     /**
      * Create a new manager window and open the avatar.

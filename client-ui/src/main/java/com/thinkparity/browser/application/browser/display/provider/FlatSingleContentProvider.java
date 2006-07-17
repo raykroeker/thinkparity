@@ -4,29 +4,33 @@
  */
 package com.thinkparity.browser.application.browser.display.provider;
 
+import com.thinkparity.model.parity.model.profile.Profile;
+
 /**
- * @author rob_masako@shaw.ca
+ * @author rob_masako@shaw.ca - Updated by raymond@thinkparity.com
  * @version $Revision$
  */
 public abstract class FlatSingleContentProvider extends ContentProvider {
 
     /**
      * Create a FlatSingleContentProvider.
+     * 
+     * @param profile
+     *            A thinkParity profile.
      */
-    protected FlatSingleContentProvider() { super(); }
+    protected FlatSingleContentProvider(final Profile profile) { super(profile); }
 
+    /**
+     * Obtain a single element.
+     *
+     * @return The element.
+     */
+    public abstract Object getElement(final Object input);
+    
     /**
      * Obtain a flat list of elements.
      * 
      * @return The list of elements.
      */
     public abstract Object[] getElements(final Object input);
-    
-    /**
-     * Obtain a single element.
-     *
-     * @return The element.
-     */
-    
-    public abstract Object getElement(final Object input);
 }

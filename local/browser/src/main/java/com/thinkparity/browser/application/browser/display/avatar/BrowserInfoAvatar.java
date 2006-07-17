@@ -14,16 +14,13 @@ import javax.swing.*;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
-import com.thinkparity.browser.application.browser.display.provider.CompositeSingleContentProvider;
 import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
-import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.State;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Displays the browser's info panel. This avatar contains the sort button and
@@ -159,15 +156,6 @@ public class BrowserInfoAvatar extends Avatar {
 	}
 
 	/**
-     * Obtain the contact from the content provider.
-     * 
-     * @return The contact.
-     */
-	private User readLocalUser() {
-		return (User) ((CompositeSingleContentProvider) contentProvider).getElement(1, null);
-	}
-
-	/**
      * Get the filter menu. It will be created the first time this api is
      * called.
      * 
@@ -298,6 +286,10 @@ public class BrowserInfoAvatar extends Avatar {
             reloadTimer.setRepeats(false);
             reloadTimer.start();
         }
-        else { infoJLabel.setText(ModelUtil.getName(readLocalUser())); }
+        else {
+//            infoJLabel.setText(ModelUtil.getName(readLocalUser()));
+            // TODO Finish the info implementation.
+            infoJLabel.setText("Alan Turing");
+        }
 	}
 }

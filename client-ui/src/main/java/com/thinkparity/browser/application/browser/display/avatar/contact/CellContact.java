@@ -52,14 +52,12 @@ public class CellContact extends Contact implements MainCell {
      */
     public CellContact(final Contact c) {
         super();
-        
         // Set contact details
+        addAllEmails(c.getEmails());
         setId(c.getId());
         setLocalId(c.getLocalId());
         setName(c.getName());
-        setEmail(c.getEmail());
         setOrganization(c.getOrganization());
-        
         this.imageCache = new MainCellImageCache();
     }
 

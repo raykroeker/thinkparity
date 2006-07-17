@@ -11,13 +11,13 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.parity.model.contact.ContactInvitation;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class AddContact extends AbstractAction {
+public class CreateInvitation extends AbstractAction {
 
     /**
      * The action small ICON.
@@ -46,7 +46,7 @@ public class AddContact extends AbstractAction {
     static {
         ICON = null;
         ID = ActionId.CONTACT_ADD;
-        NAME = "Add Contact";
+        NAME = "CreateInvitation";
     }
 
     /**
@@ -59,8 +59,8 @@ public class AddContact extends AbstractAction {
      * Create an OpenContact.
      * 
      */
-    public AddContact(final Browser browser) {
-        super("Contact.Add", ID, NAME, ICON);
+    public CreateInvitation(final Browser browser) {
+        super("CreateInvitation", ID, NAME, ICON);
         this.browser = browser;
     }
     
@@ -71,11 +71,11 @@ public class AddContact extends AbstractAction {
     public void invoke(final Data data) throws Exception {
         final String contactEmail = (String) data.get(DataKey.CONTACT_EMAIL);
         if (null==contactEmail) {
-            browser.displayAddContactDialogue();
+            browser.displayContactCreateInvitation();
         }
         else {
-            final Contact contact = getContactModel().create(contactEmail);
-            browser.fireContactAdded(contact.getId(), Boolean.FALSE);            
+            final ContactInvitation invitation = getContactModel().createInvitation(contactEmail);
+            browser.fireContactInvitationCreated(invitation.getId(), Boolean.FALSE);            
         }
     }
 
@@ -84,7 +84,5 @@ public class AddContact extends AbstractAction {
      * 
      * @see Data
      */
-    public enum DataKey {
-        CONTACT_EMAIL
-    }
+    public enum DataKey { CONTACT_EMAIL }
 }

@@ -1,5 +1,5 @@
 /*
- * Jan 6, 2006
+ * Created On: Jan 6, 2006
  */
 package com.thinkparity.browser.model;
 
@@ -10,6 +10,7 @@ import com.thinkparity.model.parity.model.download.DownloadModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.install.InstallModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.UserModel;
@@ -38,11 +39,11 @@ public class ModelFactory {
     /** The parity artifact interface. */
 	private ArtifactModel artifactModel;
     
-    /** The parity document interface. */
-	private DocumentModel documentModel;
-    
     /** The parity contact interface. */
-    private ContactModel contactModel;  
+    private ContactModel contactModel;
+    
+    /** The parity document interface. */
+	private DocumentModel documentModel;  
 
     /** The parity download interface. */
     private DownloadModel download;
@@ -58,6 +59,9 @@ public class ModelFactory {
 
     /** The parity preferences. */
 	private Preferences preferences;
+
+    /** The thinkParity profile interface. */
+    private ProfileModel profile;
 
     /** The parity release interface. */
     private ReleaseModel release;
@@ -88,13 +92,13 @@ public class ModelFactory {
 		return artifactModel;
 	}
 
-	public DocumentModel getDocumentModel(final Class clasz) {
-		return documentModel;
-	}
-    
-    public ContactModel getContactModel(final Class clasz) {
+	public ContactModel getContactModel(final Class clasz) {
         return contactModel;
     }
+    
+    public DocumentModel getDocumentModel(final Class clasz) {
+		return documentModel;
+	}
 
     /**
      * Obtain the parity download interface.
@@ -109,7 +113,7 @@ public class ModelFactory {
 		return indexModel;
 	}
 
-	/**
+    /**
      * Obtain the parity install interface.
      * 
      * @param clasz
@@ -121,6 +125,15 @@ public class ModelFactory {
 	public Preferences getPreferences(final Class clasz) {
 		return preferences;
 	}
+
+	/**
+     * Obtain the thinkParity profile interface.
+     * 
+     * @param clasz
+     *            The model consumer.
+     * @return The thinkParity profile interface.
+     */
+    public ProfileModel getProfileModel(final Class clasz) { return profile; }
 
 	/**
      * Obtain the parity release interface.
@@ -164,24 +177,25 @@ public class ModelFactory {
 	}
 
     /**
-	 * Initialize the model factory.
-	 * 
-	 */
-	public void initialize() {
-		if(!isInitialized) {
-			artifactModel = ArtifactModel.getModel();
-			documentModel = DocumentModel.getModel();
+     * Initialize the model factory.
+     * 
+     */
+    public void initialize() {
+        if(!isInitialized) {
+            artifactModel = ArtifactModel.getModel();
+            documentModel = DocumentModel.getModel();
             contactModel = ContactModel.getModel();
             download = DownloadModel.getModel();
-			indexModel = IndexModel.getModel();
+            indexModel = IndexModel.getModel();
             install = InstallModel.getModel();
+            profile = ProfileModel.getModel();
             release = ReleaseModel.getModel();
-			sessionModel = SessionModel.getModel();
+            sessionModel = SessionModel.getModel();
             uModel = UserModel.getModel();
-			workspaceModel = WorkspaceModel.getModel();
-			workspace = workspaceModel.getWorkspace();
-			preferences = workspace.getPreferences();
-			isInitialized = true;
-		}
-	}
+            workspaceModel = WorkspaceModel.getModel();
+            workspace = workspaceModel.getWorkspace();
+            preferences = workspace.getPreferences();
+            isInitialized = true;
+        }
+    }
 }

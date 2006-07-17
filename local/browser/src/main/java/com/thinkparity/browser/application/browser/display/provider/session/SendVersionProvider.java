@@ -18,8 +18,8 @@ import com.thinkparity.browser.application.browser.display.provider.SingleConten
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -42,6 +42,8 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
 	/**
      * Create SendVersionProvider.
      * 
+     * @param profile
+     *            A thinkParity profile.
      * @param aModel
      *            A thinkParity artifact interface.
      * @param dModel
@@ -51,28 +53,28 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
      * @param loggeInUser
      *            The session user.
      */
-	public SendVersionProvider(final ArtifactModel aModel,
-            final DocumentModel dModel, final SessionModel sModel,
-            final JabberId loggedInUser) {
-		super();
-		this.documentProvider = new SingleContentProvider() {
+	public SendVersionProvider(final Profile profile,
+            final ArtifactModel aModel, final DocumentModel dModel,
+            final SessionModel sModel) {
+		super(profile);
+		this.documentProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long documentId = assertValidInput(input);
 				try { return dModel.get(documentId); }
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
-		this.teamProvider = new FlatContentProvider() {
+		this.teamProvider = new FlatContentProvider(profile) {
 			public Object[] getElements(final Object input) {
 				final Long artifactId = assertValidInput(input);
 				final Set<User> team = aModel.readTeam(artifactId);
 				for(final Iterator<User> i = team.iterator(); i.hasNext();) {
-					if(i.next().getId().equals(loggedInUser)) { i.remove(); }
+					if(i.next().getId().equals(profile.getJabberId())) { i.remove(); }
 				}
 				return team.toArray(new Contact[] {});
 			}
 		};
-		this.versionProvider = new SingleContentProvider() {
+		this.versionProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long documentId = (Long) ((Pair) input).getFirst();
 				final Long versionId = (Long) ((Pair) input).getSecond();

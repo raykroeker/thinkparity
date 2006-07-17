@@ -23,7 +23,6 @@ import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.contact.CellContact;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupContact;
-import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider;
 
 import com.thinkparity.model.parity.model.filter.Filter;

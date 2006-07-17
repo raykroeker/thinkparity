@@ -9,6 +9,7 @@ import java.util.Set;
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -20,8 +21,8 @@ public class TeamProvider extends FlatContentProvider {
     private final ArtifactModel aModel;
 
     /** Create TeamProvider. */
-    public TeamProvider(final ArtifactModel aModel) {
-        super();
+    public TeamProvider(final Profile profile, final ArtifactModel aModel) {
+        super(profile);
         this.aModel = aModel;
     }
 

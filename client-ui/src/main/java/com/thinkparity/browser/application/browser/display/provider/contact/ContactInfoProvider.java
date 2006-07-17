@@ -7,6 +7,7 @@ package com.thinkparity.browser.application.browser.display.provider.contact;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -24,8 +25,9 @@ public class ContactInfoProvider extends SingleContentProvider {
     /**
      * Create a ContactInfoProvider.
      */
-    public ContactInfoProvider(final ContactModel contactModel) {
-        super();
+    public ContactInfoProvider(final Profile profile,
+            final ContactModel contactModel) {
+        super(profile);
         this.contactModel = contactModel;
     }
 

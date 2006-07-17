@@ -114,7 +114,7 @@ public class ActionFactory {
         case CONTACT_DELETE:
             return new com.thinkparity.browser.platform.action.contact.DeleteContact(browser);
         case CONTACT_ADD:
-            return new com.thinkparity.browser.platform.action.contact.AddContact(browser);
+            return new com.thinkparity.browser.platform.action.contact.CreateInvitation(browser);
 		case DOCUMENT_CREATE:
 			return new com.thinkparity.browser.platform.action.document.Create(browser);
 		case DOCUMENT_CLOSE:

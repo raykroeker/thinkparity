@@ -16,7 +16,7 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
-import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.parity.model.profile.Profile;
 
 /**
  * @author raykroeker@gmail.com
@@ -48,21 +48,20 @@ public class SendArtifactProvider extends CompositeFlatSingleContentProvider {
 	/**
      * Create a SendArtifactProvider.
      * 
+     * @param profile
+     *            A thinkParity profile.
      * @param aModel
      *            A thinkParity artifact interface.
      * @param cModel
      *            A thinkParity contact interface.
      * @param dModel
      *            A thinkParity document interface.
-     * @param loggedInUser
-     *            The thinkparity session user.
      */
-	public SendArtifactProvider(final ArtifactModel aModel,
-            final ContactModel cModel, final DocumentModel dModel,
-            final JabberId loggedInUser) {
-		super();
-		this.shareContactProvider = new ShareProvider(aModel, cModel);
-		this.documentProvider = new SingleContentProvider() {
+	public SendArtifactProvider(final Profile profile, final ArtifactModel aModel,
+            final ContactModel cModel, final DocumentModel dModel) {
+		super(profile);
+		this.shareContactProvider = new ShareProvider(profile, aModel, cModel);
+		this.documentProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long documentId = assertValidInput(input);
 				try { return dModel.get(documentId); }

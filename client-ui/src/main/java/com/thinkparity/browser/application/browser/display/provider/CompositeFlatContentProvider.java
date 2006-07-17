@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.application.browser.display.provider;
 
+import com.thinkparity.model.parity.model.profile.Profile;
+
 /**
  * Provides multiple flat lists.
  * 
@@ -10,5 +12,16 @@ package com.thinkparity.browser.application.browser.display.provider;
  * @version 1.1
  */
 public abstract class CompositeFlatContentProvider extends ContentProvider {
-	public abstract Object[] getElements(final Integer index, final Object input);
+
+    /**
+     * Create CompositeFlatContentProvider.
+     * 
+     * @param profile
+     *            A thinkParity profile.
+     */
+    public CompositeFlatContentProvider(final Profile profile) {
+        super(profile);
+    }
+
+    public abstract Object[] getElements(final Integer index, final Object input);
 }

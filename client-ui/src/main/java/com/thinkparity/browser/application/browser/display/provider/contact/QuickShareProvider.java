@@ -6,6 +6,7 @@ package com.thinkparity.browser.application.browser.display.provider.contact;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 
 /**
  * @author raymond@thinkparity.com
@@ -21,8 +22,9 @@ public class QuickShareProvider extends ShareProvider {
      * @param cModel
      *            A thinkParity contact interface.
      */
-    public QuickShareProvider(final ArtifactModel aModel, final ContactModel cModel) {
-        super(aModel, cModel);
+    public QuickShareProvider(final Profile profile,
+            final ArtifactModel aModel, final ContactModel cModel) {
+        super(profile, aModel, cModel);
     }
 
     /** @see com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider#getElements(java.lang.Integer, java.lang.Object) */

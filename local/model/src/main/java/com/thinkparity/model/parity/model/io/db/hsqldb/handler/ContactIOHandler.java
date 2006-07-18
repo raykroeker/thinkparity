@@ -24,7 +24,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** Sql to create a contact invitation. */
     private static final String SQL_CREATE_INVITATION =
             new StringBuffer("insert into CONTACT_INVITATION ")
-            .append("(EMAIL,CREATED_ON,CREATED_BY) ")
+            .append("(EMAIL_ID,CREATED_ON,CREATED_BY) ")
             .append("values (?,?,?)")
             .toString();
 
@@ -53,16 +53,18 @@ public class ContactIOHandler extends AbstractIOHandler implements
 
     /** Sql to read a contact invitation. */
     private static final String SQL_READ_INVITATION =
-            new StringBuffer("select U.JABBER_ID CREATED_BY,CI.CREATED_ON,CI.EMAIL,CI.CONTACT_INVITATION_ID ")
+            new StringBuffer("select U.JABBER_ID CREATED_BY,CI.CREATED_ON,E.EMAIL,CI.CONTACT_INVITATION_ID ")
             .append("from CONTACT_INVITATION CI ")
-            .append("inner join USER U on CI.CREATED_BY = U.USER_ID ")
-            .append("where CI.EMAIL=?")
+            .append("inner join EMAIL E on CI.EMAIL_ID=E.EMAIL_ID ")
+            .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
+            .append("where E.EMAIL=?")
             .toString();
 
     /** Sql to read contact invitations. */
     private static final String SQL_READ_INVITATIONS =
-            new StringBuffer("select U.JABBER_ID CREATED_BY,CI.CREATED_ON,CI.EMAIL,CI.CONTACT_INVITATION_ID ")
+            new StringBuffer("select U.JABBER_ID CREATED_BY,CI.CREATED_ON,E.EMAIL,CI.CONTACT_INVITATION_ID ")
             .append("from CONTACT_INVITATION CI ")
+            .append("inner join EMAIL E on CI.EMAIL_ID=E.EMAIL_ID ")
             .append("inner join USER U on CI.CREATED_BY = U.USER_ID")
             .toString();
 
@@ -90,8 +92,14 @@ public class ContactIOHandler extends AbstractIOHandler implements
         return getApiId(api).append(" ").append(error).toString();
     }
 
+    /** The email db io. */
+    private final EmailIOHandler emailIO;
+
     /** Create ContactIOHandler. */
-    public ContactIOHandler() { super(); }
+    public ContactIOHandler() {
+        super();
+        this.emailIO = new EmailIOHandler();
+    }
 
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#create()
@@ -109,12 +117,16 @@ public class ContactIOHandler extends AbstractIOHandler implements
             final User createdBy) {
         final Session session = openSession();
         try {
+            final Long emailId = emailIO.create(session, invitation.getEmail());
+
             session.prepareStatement(SQL_CREATE_INVITATION);
-            session.setString(1, invitation.getEmail());
+            session.setLong(1, emailId);
             session.setCalendar(2, invitation.getCreatedOn());
             session.setLong(3, createdBy.getLocalId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE INVITATION]", "[COULD NOT CREATE INVITATION]"));
+            invitation.setId(session.getIdentity());
+
             session.commit();
         }
         catch(final HypersonicException hx) {

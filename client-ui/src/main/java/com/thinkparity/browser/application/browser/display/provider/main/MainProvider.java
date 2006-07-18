@@ -188,7 +188,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
         final Set<User> team = aModel.readTeam(documentId);
         logger.debug("[] [TEAM SIZE (" + team.size() + "]");
         for(final Iterator<User> i = team.iterator(); i.hasNext();) {
-            if(i.next().getId().equals(profile.getJabberId())) { i.remove(); }
+            if(i.next().getId().equals(profile.getId())) { i.remove(); }
         }
         return team;
     }

@@ -48,7 +48,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
      */
     Profile extractProfile(final Session session) {
         final Profile profile = new Profile();
-        profile.setJabberId(session.getQualifiedUsername("JABBER_ID"));
+        profile.setId(session.getQualifiedUsername("JABBER_ID"));
         return profile;
     }
 }

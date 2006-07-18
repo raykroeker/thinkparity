@@ -104,7 +104,7 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
                 User teamMember;
                 for(final Iterator<User> i = team.iterator(); i.hasNext();) {
                     teamMember = i.next();
-                    if(teamMember.getId().equals(profile.getJabberId())) { i.remove(); }
+                    if(teamMember.getId().equals(profile.getId())) { i.remove(); }
                 }
                 return team.toArray(new Contact[] {});
             }

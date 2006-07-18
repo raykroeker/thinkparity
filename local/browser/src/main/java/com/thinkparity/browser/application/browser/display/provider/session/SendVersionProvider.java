@@ -69,7 +69,7 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
 				final Long artifactId = assertValidInput(input);
 				final Set<User> team = aModel.readTeam(artifactId);
 				for(final Iterator<User> i = team.iterator(); i.hasNext();) {
-					if(i.next().getId().equals(profile.getJabberId())) { i.remove(); }
+					if(i.next().getId().equals(profile.getId())) { i.remove(); }
 				}
 				return team.toArray(new Contact[] {});
 			}

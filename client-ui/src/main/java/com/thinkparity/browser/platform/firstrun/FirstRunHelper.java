@@ -18,9 +18,12 @@ import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.user.UserModel;
+import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 
 /**
@@ -61,11 +64,17 @@ public class FirstRunHelper {
     /** The thinkParity session interface. */
     private final SessionModel sModel;
 
+    /** The thinkParity user interface. */
+    private final UserModel uModel;
+
     /** The user profile avatar. */
     private UserProfileAvatar userProfileAvatar;
 
     /** The first run window. */
     private FirstRunWindow window;
+
+    /** The thinkParity workspace model. */
+    private final WorkspaceModel wModel;
 
     /** Create FirstRunHelper. */
     public FirstRunHelper(final Platform platform) {
@@ -73,6 +82,8 @@ public class FirstRunHelper {
         this.logger = platform.getLogger(getClass());
         this.pModel = platform.getModelFactory().getProfileModel(getClass());
         this.sModel = platform.getModelFactory().getSessionModel(getClass());
+        this.uModel = platform.getModelFactory().getUserModel(getClass());
+        this.wModel = platform.getModelFactory().getWorkspaceModel(getClass());
     }
 
     /**
@@ -97,7 +108,20 @@ public class FirstRunHelper {
             catch(final ParityException px) { throw new BrowserException("", px); }
             Assert.assertTrue("", sModel.isLoggedIn());
 
-            return Boolean.TRUE;
+            final Profile profile = pModel.read();
+            userProfileAvatar = new UserProfileAvatar(this);
+            userProfileAvatar.setInput(profile);
+            openWindow(userProfileAvatar.getTitle(), userProfileAvatar);
+            
+            final String name = userProfileAvatar.getFullName();
+            final String email = userProfileAvatar.getEmail();
+            final String organization = userProfileAvatar.getOrganization();
+            if(null != name && null != email) {
+                profile.addEmail(email);
+                pModel.update(profile);
+                return Boolean.TRUE;
+            }
+            else { return Boolean.FALSE; }
         }
         else { return Boolean.FALSE; }
     }
@@ -107,7 +131,7 @@ public class FirstRunHelper {
      * 
      * @return True if this is the first time the platform has been run.
      */
-    public Boolean isFirstRun() { return null == pModel.read(); }
+    public Boolean isFirstRun() { return wModel.isFirstRun(); }
 
     /**
      * Create a new manager window and open the avatar.

@@ -59,9 +59,12 @@ class HypersonicMigrator {
 		CREATE_SCHEMA_SQL = new String[] {
 				CONFIG.getProperty("CreateMetaDataType"),
 				CONFIG.getProperty("CreateMetaData"),
+                CONFIG.getProperty("CreateEmail"),
                 CONFIG.getProperty("CreateUser"),
+                CONFIG.getProperty("CreateProfile"),
+                CONFIG.getProperty("CreateProfileEmailRel"),
                 CONFIG.getProperty("CreateContact"),
-                CONFIG.getProperty("CreateContactEmail"),
+                CONFIG.getProperty("CreateContactEmailRel"),
                 CONFIG.getProperty("CreateContactInvitation"),
 				CONFIG.getProperty("CreateArtifactState"),
 				CONFIG.getProperty("CreateArtifactType"),
@@ -87,7 +90,7 @@ class HypersonicMigrator {
                 CONFIG.getProperty("CreateDocumentVersion"),
                 CONFIG.getProperty("CreateIndexUserName"),
                 CONFIG.getProperty("CreateIndexUserOrganization"),
-                CONFIG.getProperty("CreateIndexContactEMail")
+                CONFIG.getProperty("CreateIndexEmail")
 		};
 
 		INSERT_SEED_META_DATA_TYPE = CONFIG.getProperty("InsertSeedMetaDataType");

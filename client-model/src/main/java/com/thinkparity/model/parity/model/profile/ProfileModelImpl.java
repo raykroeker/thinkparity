@@ -5,9 +5,12 @@ package com.thinkparity.model.parity.model.profile;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.ParityErrorTranslator;
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ProfileIOHandler;
+import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
@@ -47,37 +50,32 @@ class ProfileModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Create the logged in user's profile.
-     * 
-     * @return A profile.
-     */
-    Profile create() {
-        logger.info(getApiId("[CREATE]"));
-        assertOnline(getApiId("[CREATE] [USER NOT ONLINE]"));
-        assertIsNull(getApiId("[CREATE] [USER PROFILE EXISTS]"));
-
-        final Profile profile = new Profile();
-        profileIO.create(profile);
-        return profileIO.read();
-    }
-
-    /**
-     * Read the logged in user's profile.
+     * Read the logged in user's profile. Note that the user's profile will
+     * always exist remotely. If it does not exist locally (in the form of a row
+     * in the user table) create it.
      * 
      * @return A profile.
      */
     Profile read() {
         logger.info(getApiId("[READ]"));
+        assertOnline(getApiId("[READ] [USER NOT ONLINE]"));
+        final InternalUserModel uModel = getInternalUserModel();
         final JabberId currentUserId = currentUserId();
-        if(null == currentUserId) { return null; }
-        else {
-            final User user = getInternalUserModel().read(currentUserId);
-            if(null == user) { return null; }
-            else {
-                final Profile profile = new Profile();
-                profile.setJabberId(user.getId());
-                return profile;
+        final User user = uModel.read(currentUserId);
+        if(null == user) {
+            try { uModel.create(currentUserId); }
+            catch(final ParityException px) {
+                throw ParityErrorTranslator.translateUnchecked(px);
             }
+            return read();
+        }
+        else {
+            final Profile profile = new Profile();
+            profile.setId(user.getId());
+            profile.setLocalId(user.getLocalId());
+            profile.setName(user.getName());
+            profile.setOrganization(user.getOrganization());
+            return profile;
         }
     }
 
@@ -90,15 +88,5 @@ class ProfileModelImpl extends AbstractModelImpl {
     void update(final Profile profile) {
         logger.info(getApiId("[UPDATE]"));
         throw Assert.createNotYetImplemented("ProfileModelImpl#update(Profile)");
-    }
-
-    /**
-     * Assert that the profile is null.
-     * 
-     * @param assertion
-     *            The assertion.
-     */
-    private void assertIsNull(final Object assertion) {
-        Assert.assertIsNull(assertion, read());
     }
 }

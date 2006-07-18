@@ -1,6 +1,5 @@
 /*
  * Generated On: ${environment.generatedOn}
- * \$Id$
  */
 package ${proxyInternal.packageName};
 
@@ -13,7 +12,7 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  * <b>Description:</b>
  *
  * @author ${environment.author}
- * @version \$Revision$
+ * @version ${proxyInternal.version}
  */
 ${proxyInternal.classModifier}class ${proxyInternal.className} extends ${proxyInternal.superClassName} implements ${proxyInternal.interfaceClassNames} {
 

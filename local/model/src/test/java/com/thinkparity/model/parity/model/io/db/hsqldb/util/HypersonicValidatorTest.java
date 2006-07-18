@@ -14,14 +14,22 @@ import com.thinkparity.model.parity.model.ModelTestCase;
  */
 public class HypersonicValidatorTest extends ModelTestCase {
 
+    /** The test name. */
+    private static final String NAME = "[LMODEL] [IO] [HSQLDB] [TEST VALIDATE]";
+
+    /** The test data. */
 	private List<Fixture> data;
-	
+
 	/**
 	 * Create a HypersonicValidatorTest.
 	 * 
 	 */
-	public HypersonicValidatorTest() { super("testValidate"); }
+	public HypersonicValidatorTest() { super(NAME); }
 
+    /**
+     * Test the validate api.
+     *
+     */
 	public void testValidate() {
 		try {
 			for(final Fixture datum : data) {
@@ -49,6 +57,7 @@ public class HypersonicValidatorTest extends ModelTestCase {
 		data = null;
 	}
 
+    /** Test data definition. */
 	private class Fixture {
 		private final HypersonicValidator databaseValidator;
 		private Fixture(final HypersonicValidator databaseValidator) {

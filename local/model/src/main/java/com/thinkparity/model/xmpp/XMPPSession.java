@@ -302,15 +302,11 @@ public interface XMPPSession {
 			throws SmackException;
 
     /**
-     * Update the logged in user.
+     * Update the current user.
      * 
-     * @param name
-     *            The user's name.
-     * @param email
-     *            The user's email.
-     * @param organization
-     *            The user's organization.
+     * @param user
+     *            The user.
+     * @throws SmackException
      */
-    public void updateCurrentUser(final String name, final String email,
-            final String organization) throws SmackException;
+    public void updateUser(final User user) throws SmackException;
 }

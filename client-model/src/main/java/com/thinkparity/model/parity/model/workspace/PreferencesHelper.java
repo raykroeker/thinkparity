@@ -107,7 +107,7 @@ class PreferencesHelper {
 				}
 			}
 
-			public User getSystemUser() { return User.SystemUser; }
+			public User getSystemUser() { return User.THINK_PARITY; }
 
 			public String getUsername() {
 				return javaProperties.getProperty("parity.username", null);

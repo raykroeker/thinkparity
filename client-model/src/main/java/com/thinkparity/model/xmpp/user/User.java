@@ -3,8 +3,6 @@
  */
 package com.thinkparity.model.xmpp.user;
 
-import org.jivesoftware.smackx.packet.VCard;
-
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -16,14 +14,15 @@ import com.thinkparity.model.xmpp.JabberIdBuilder;
  */
 public class User {
 
-    public static final User SystemUser;
+    /** thinkParity user. */
+    public static final User THINK_PARITY;
 
 	static final String NAME_SEP = " ";
 
-	static { SystemUser = new User("thinkparity"); }
-
-	/** The user's email. */
-    private String email;
+	static {
+        THINK_PARITY = new User();
+        THINK_PARITY.setId(JabberIdBuilder.parseUsername("thinkparity"));
+    }
 
 	/** The user's jabber id. */
 	private JabberId id;
@@ -37,38 +36,10 @@ public class User {
 	/** The user's organization. */
 	private String organization;
 
-	/** Create User. */
+    /** Create User. */
 	public User() { super(); }
 
-	/**
-	 * Create a User.
-	 * 
-	 * @param id
-	 *            The user's jabber id.
-	 */
-	public User(final JabberId id) {
-		super();
-		this.id = id;
-	}
-
-	/**
-     * Create User.
-     * 
-     * @param username
-     *            A fully qualified username.
-     */
-	public User(final String username) {
-		super();
-		try { id = JabberIdBuilder.parseQualifiedJabberId(username); }
-		catch(final IllegalArgumentException iax) { id = null; }
-		if(null == id) {
-			try { id = JabberIdBuilder.parseQualifiedUsername(username); }
-			catch(final IllegalArgumentException iax) { id = null; }
-			if(null == id) { id = JabberIdBuilder.parseUsername(username); }
-		}
-	}
-
-    /** @see java.lang.Object#equals(java.lang.Object) */
+	/** @see java.lang.Object#equals(java.lang.Object) */
 	public boolean equals(final Object obj) {
 		if(null != obj && obj instanceof User) {
 			return ((User) obj).id.equals(id);
@@ -76,28 +47,21 @@ public class User {
 		return false;
 	}
 
-	/**
-     * Obtain the email
-     *
-     * @return The email.
-     */
-    public String getEmail() { return email; }
-
-	/**
+    /**
 	 * Obtain the user's id.
 	 * 
 	 * @return The user's jabber id.
 	 */
 	public JabberId getId() { return id; }
 
-	/**
+    /**
      * Obtain the user's local id.
      * 
      * @return The local id.
      */
 	public Long getLocalId() { return localId; }
 
-	/**
+    /**
 	 * Obtain the user's name.
 	 * 
 	 * @return The user's name.
@@ -111,14 +75,14 @@ public class User {
 	 */
 	public String getOrganization() { return organization; }
 
-    /**
+	/**
 	 * Obtain the simple username of the user.
 	 * 
 	 * @return The simple username; without the domain\resource suffix.
 	 */
 	public String getSimpleUsername() { return id.getUsername(); }
 
-    /**
+	/**
 	 * Obtain the username of the user.
 	 * 
 	 * @return The username of the user.
@@ -134,15 +98,6 @@ public class User {
      * @return True if the organization is set.
      */
     public Boolean isSetOrganization() { return null != organization; }
-
-    /**
-     * Set email.
-     *
-     * @param email The email.
-     * 
-     * @see VCard#getEmailWork()
-     */
-    public void setEmail(final String email) { this.email = email; }
 
     /**
 	 * Set the user's id.
@@ -207,12 +162,11 @@ public class User {
 
     /** @see java.lang.Object#toString() */
     public String toString() {
-        return new StringBuffer(getClass().getName())
+        final StringBuffer toString = new StringBuffer(getClass().getName())
                 .append("//").append(id)
                 .append("/").append(localId)
                 .append("/").append(name)
-                .append("/").append(email)
-                .append("/").append(organization)
-                .toString();
+                .append("/").append(organization);
+        return toString.toString();
     }
 }

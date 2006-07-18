@@ -1,5 +1,5 @@
 /*
- * Feb 6, 2006
+ * Created On: Feb 6, 2006
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb;
 
@@ -47,6 +47,14 @@ public class HypersonicIOFactory extends IOFactory {
     }
 
     /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createContactHandler()
+     */
+    @Override
+    public ContactIOHandler createContactHandler() {
+        return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ContactIOHandler();
+    }
+
+    /**
      * @see com.thinkparity.model.parity.model.io.IOFactory#createContainerHandler()
      * 
      */
@@ -54,7 +62,7 @@ public class HypersonicIOFactory extends IOFactory {
         return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ContainerIOHandler();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createDocumentHandler()
 	 * 
 	 */
@@ -73,6 +81,14 @@ public class HypersonicIOFactory extends IOFactory {
      */
     public LibraryIOHandler createLibraryHandler() {
         throw Assert.createNotYetImplemented("HypersonicIOFactory#createLibraryHandler");
+    }
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createProfileHandler()
+     */
+    @Override
+    public ProfileIOHandler createProfileHandler() {
+        return new com.thinkparity.model.parity.model.io.db.hsqldb.handler.ProfileIOHandler();
     }
 
 	/**

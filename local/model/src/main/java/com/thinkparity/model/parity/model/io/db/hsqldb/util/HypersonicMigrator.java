@@ -60,7 +60,9 @@ class HypersonicMigrator {
 				CONFIG.getProperty("CreateMetaDataType"),
 				CONFIG.getProperty("CreateMetaData"),
                 CONFIG.getProperty("CreateUser"),
-                CONFIG.getProperty("CreateUserInfo"),
+                CONFIG.getProperty("CreateContact"),
+                CONFIG.getProperty("CreateContactEmail"),
+                CONFIG.getProperty("CreateContactInvitation"),
 				CONFIG.getProperty("CreateArtifactState"),
 				CONFIG.getProperty("CreateArtifactType"),
 				CONFIG.getProperty("CreateArtifact"),
@@ -83,9 +85,9 @@ class HypersonicMigrator {
                 CONFIG.getProperty("CreateContainerVersionArtifactVersionRel"),
                 CONFIG.getProperty("CreateDocument"),
                 CONFIG.getProperty("CreateDocumentVersion"),
-                CONFIG.getProperty("CreateIndexUserInfoName"),
-                CONFIG.getProperty("CreateIndexUserInfoEMail"),
-                CONFIG.getProperty("CreateIndexUserInfoOrganization")
+                CONFIG.getProperty("CreateIndexUserName"),
+                CONFIG.getProperty("CreateIndexUserOrganization"),
+                CONFIG.getProperty("CreateIndexContactEMail")
 		};
 
 		INSERT_SEED_META_DATA_TYPE = CONFIG.getProperty("InsertSeedMetaDataType");

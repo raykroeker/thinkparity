@@ -7,15 +7,20 @@ package com.thinkparity.model.parity.model.contact;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.contact.FilterManager;
 import com.thinkparity.model.parity.model.filter.user.DefaultFilter;
-import com.thinkparity.model.parity.model.sort.user.UserComparatorFactory;
+import com.thinkparity.model.parity.model.io.IOFactory;
+import com.thinkparity.model.parity.model.io.handler.ContactIOHandler;
+import com.thinkparity.model.parity.model.sort.ModelSorter;
+import com.thinkparity.model.parity.model.sort.contact.NameComparator;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Contact Model Implementation</br>
@@ -37,11 +42,14 @@ class ContactModelImpl extends AbstractModelImpl {
         return getModelId("[Contact]").append(" ").append(api);
     }
 
+    /** The contact db io. */
+    private final ContactIOHandler contactIO;
+
     /** The default contact comparator. */
-    private final Comparator<User> defaultComparator;
+    private final Comparator<Contact> defaultComparator;
 
     /** The default contact filter. */
-    private final Filter<? super User> defaultFilter;
+    private final Filter<? super Contact> defaultFilter;
 
     /**
      * Create ContactModelImpl.
@@ -51,21 +59,30 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     ContactModelImpl(final Workspace workspace) {
         super(workspace);
-        this.defaultComparator = UserComparatorFactory.createName(Boolean.TRUE);
+        this.contactIO = IOFactory.getDefault().createContactHandler();
+        this.defaultComparator = new NameComparator(Boolean.TRUE);
         this.defaultFilter = new DefaultFilter();
     }
 
     /**
-     * Add an e-mail contact.
+     * Create a contact invitation.
      * 
      * @param email
      *            An e-mail address.
      */
-    Contact create(final String emailAddress) {
-        logger.info(getApiId("[CREATE]"));
-        logger.debug(emailAddress);
-        assertOnline(getApiId("[CREATE] [CANNOT CREATE CONTACT WHILE OFFLINE]"));
-        return read((JabberId) null);
+    ContactInvitation createInvitation(final String email) {
+        logger.info(getApiId("[CREATE INVITATION]"));
+        logger.debug(email);
+        assertOnline(getApiId("[CREATE INVITATION] [USER NOT ONLINE]"));
+        assertDoesNotExist(getApiId("[CREATE INVITATION] [CONTACT ALREADY EXISTS]"), email);
+        assertInvitationDoesNotExist(getApiId("[CREATE INVITATION] [CONTACT INVITATION ALREADY EXISTS]"), email);
+
+        final ContactInvitation invitation = new ContactInvitation();
+        invitation.setCreatedBy(currentUserId());
+        invitation.setCreatedOn(currentDateTime());
+        invitation.setEmail(email);
+        contactIO.createInvitation(invitation, currentUser());
+        return contactIO.readInvitation(email);
     }
 
     /**
@@ -91,7 +108,6 @@ class ContactModelImpl extends AbstractModelImpl {
         return read(defaultComparator, defaultFilter);
     }
 
-
     /**
      * Read a list of contacts.
      * 
@@ -99,7 +115,7 @@ class ContactModelImpl extends AbstractModelImpl {
      *            A user comparator to sort the contacts.
      * @return A list of contacts.
      */
-    List<Contact> read(final Comparator<User> comparator) {
+    List<Contact> read(final Comparator<Contact> comparator) {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
         return read(comparator, defaultFilter);
@@ -114,16 +130,17 @@ class ContactModelImpl extends AbstractModelImpl {
      *            A user filter to scope the contacts.
      * @return A list of contacts.
      */
-    List<Contact> read(final Comparator<User> comparator,
-            final Filter<? super User> filter) {
+    List<Contact> read(final Comparator<Contact> comparator,
+            final Filter<? super Contact> filter) {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
         logger.debug(filter);
-        List<Contact> contactList = null;
-        try { contactList = getInternalSessionModel().readContactList(); }
-        catch(final ParityException px) { throw new RuntimeException(px); }
-        return contactList;
+        final List<Contact> contacts = contactIO.read();
+        FilterManager.filter(contacts, filter);
+        ModelSorter.sortContacts(contacts, comparator);
+        return contacts;
     }
+
 
     /**
      * Read a list of contacts.
@@ -132,7 +149,7 @@ class ContactModelImpl extends AbstractModelImpl {
      *            A user filter to scope the contacts.
      * @return A list of contacts.
      */
-    List<Contact> read(final Filter<? super User> filter) {
+    List<Contact> read(final Filter<? super Contact> filter) {
         logger.info(getApiId("[READ]"));
         logger.debug(filter);
         return read(defaultComparator, filter);
@@ -160,6 +177,53 @@ class ContactModelImpl extends AbstractModelImpl {
             logger.error(px);
             return null;
         }
-        
+    }
+
+    /**
+     * Read a contact invitation for an e-mail address.
+     * 
+     * @param email
+     *            An e-mail address.
+     * @return A contact invitation.
+     */
+    ContactInvitation readInvitation(final String email) {
+        logger.info(getApiId("[READ INVITATION]"));
+        logger.debug(email);
+        return contactIO.readInvitation(email);
+    }
+
+    /**
+     * Assert that no contact with the given e-mail address exists.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param email
+     *            An e-mail address.
+     */
+    private void assertDoesNotExist(final Object assertion, final String email) {
+        Assert.assertIsNull(assertion, read(email));
+    }
+
+    /**
+     * Assert that no contact invitation with the given e-mail address exists.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param email
+     *            An e-mail address.
+     */
+    private void assertInvitationDoesNotExist(final Object assertion, final String email) {
+        Assert.assertIsNull(assertion, readInvitation(email));
+    }
+
+    /**
+     * Read a contact for an e-mail address.
+     * 
+     * @param email
+     *            An e-mail address.
+     * @return A contact.
+     */
+    private Contact read(final String email) {
+        return null;
     }
 }

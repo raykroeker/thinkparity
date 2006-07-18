@@ -28,15 +28,12 @@ public class UserNameBuilder {
      * @param last
      *            The last name.
      */
-    UserNameBuilder(final String first, final String last) {
-        super();
-        this.first = first;
-        this.middle = null;
-        this.last = last;
+    public UserNameBuilder(final String first, final String last) {
+        this(first, null, last);
     }
 
     /** Create UserNameBuilder. */
-    UserNameBuilder(final String first, final String middle,
+    public UserNameBuilder(final String first, final String middle,
             final String last) {
         super();
         this.first = first;

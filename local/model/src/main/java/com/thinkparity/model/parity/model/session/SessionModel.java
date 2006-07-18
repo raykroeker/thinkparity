@@ -19,6 +19,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -195,13 +196,14 @@ public class SessionModel extends AbstractModel {
 		synchronized(implLock) { impl.logout(); }
 	}
 
-    /**
-     * Read the session user's user info.
+	/**
+     * Read the logged in user's session.
      * 
-     * @return thinkParity user info.
+     * @return The logged in user's session.
+     * @throws ParityException
      */
-    public User readUser() throws ParityException {
-        synchronized(implLock) { return impl.readUser(); }
+    public Session readSession() {
+        synchronized(implLock) { return impl.readSession(); }
     }
 
 	/**
@@ -235,23 +237,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Send the working document to the list of users. A new version is created;
-	 * which is then sent to each of the users in the list.
-	 * 
-	 * @param users
-	 *            The list of parity users to send to.
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             If the logged in user is not the key holder.
-	 */
-	public void send(final Collection<User> users, final Long documentId)
-			throws ParityException {
-		synchronized(implLock) { impl.send(users, documentId); }
-	}
-
-	/**
 	 * Send a specific document version to the list of users.
 	 * 
 	 * @param users
@@ -267,21 +252,7 @@ public class SessionModel extends AbstractModel {
 		synchronized(implLock) { impl.send(users, documentId, versionId); }
 	}
 
-	/**
-	 * Send the working version of the document to the user.
-	 * 
-	 * @param jabberId
-	 *            The user id.
-	 * @param documentId
-	 *            The document id.
-	 * @throws ParityException
-	 */
-	public void send(final JabberId jabberId, final Long documentId)
-			throws ParityException {
-		synchronized(implLock) { impl.send(jabberId, documentId); }
-	}
-
-	/**
+    /**
      * Reactivate a document.
      *
      */
@@ -316,13 +287,23 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
+     * Update the session user's contact info.
+     * 
+     * @param contact
+     *            The user's contact info.
+     */
+    public void updateContact(final Contact contact) {
+        synchronized(implLock) { impl.updateContact(contact); }
+    }
+
+    /**
 	 * Obtain the session model implementation.
 	 * 
 	 * @return The session model implementation.
 	 */
 	protected SessionModelImpl getImpl() { return impl; }
 
-	/**
+    /**
 	 * Obtain the session model implementation lock.
 	 * 
 	 * @return The session model implemenation synchronization lock.

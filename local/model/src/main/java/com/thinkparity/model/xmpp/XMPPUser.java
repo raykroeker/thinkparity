@@ -13,13 +13,16 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.packet.VCard;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.user.IQReadUsers;
 import com.thinkparity.model.smackx.packet.user.IQReadUsersProvider;
 import com.thinkparity.model.smackx.packet.user.IQReadUsersResult;
 import com.thinkparity.model.xmpp.user.User;
-import com.thinkparity.model.xmpp.user.UserVCard;
+import com.thinkparity.model.xmpp.user.UserNameBuilder;
+import com.thinkparity.model.xmpp.user.UserNameTokenizer;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,6 +33,17 @@ class XMPPUser {
 	static {
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:readusers", new IQReadUsersProvider());
 	}
+
+	/**
+     * Obtain a loggable api id.
+     * 
+     * @param api
+     *            The api.
+     * @return A loggable api id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return new StringBuffer("[XMPP] [USER]").append(" ").append(api);
+    }
 
 	/**
 	 * An apache logger.
@@ -43,7 +57,7 @@ class XMPPUser {
 	 */
 	private final XMPPCore xmppCore;
 
-	/**
+    /**
 	 * Create a XMPPUser.
 	 * 
 	 * @param xmppCore
@@ -55,7 +69,7 @@ class XMPPUser {
 		this.xmppCore = xmppCore;
 	}
 
-    /**
+	/**
 	 * Add the packet listeners to the connection.
 	 * 
 	 * @param xmppConnection
@@ -63,7 +77,7 @@ class XMPPUser {
 	 */
 	void addPacketListeners(final XMPPConnection xmppConnection) {}
 
-	/**
+    /**
      * Build a user from a jabber id.
      * 
      * @param jabberId
@@ -72,16 +86,24 @@ class XMPPUser {
      * @throws SmackException
      */
     User read(final JabberId jabberId) throws SmackException {
-        final UserVCard vCard = readVCard(jabberId);
+        final VCard vCard = new VCard();
+        try {
+            vCard.load(xmppCore.getConnection(), jabberId.getQualifiedUsername());
+        }
+        catch(final XMPPException xmppx) {
+            throw XMPPErrorTranslator.translate(xmppx);
+        }
+
+        final UserNameBuilder nameBuilder = new UserNameBuilder(
+                vCard.getFirstName(), vCard.getMiddleName(), vCard.getLastName());
         final User user = new User();
-        user.setEmail(vCard.getEmail());
-        user.setName(vCard.getName());
         user.setId(jabberId);
+        user.setName(nameBuilder.getName());
         user.setOrganization(vCard.getOrganization());
         return user;
     }
 
-    /**
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -98,55 +120,36 @@ class XMPPUser {
 		return result.getUsers();
 	}
 
-	UserVCard readVCard(final JabberId jabberId) throws SmackException {
-		logger.info("[XMPP] [USER] [READ VCARD]");
-		logger.debug(jabberId);
-		try {
-			final VCard vCard = new VCard();
-			vCard.load(xmppCore.getConnection(), jabberId.getQualifiedUsername());
-
-			final UserVCard userVCard = new UserVCard();
-            userVCard.setEmail(vCard.getEmailWork());
-			userVCard.setJabberId(jabberId);
-            userVCard.setName(vCard.getFirstName(), vCard.getMiddleName(), vCard.getLastName());
-			userVCard.setOrganization(vCard.getOrganization());
-			return userVCard;
-		}
-		catch(final XMPPException xmppx) {
-			logger.error("Could not load user vCard:  " + jabberId, xmppx);
-			throw XMPPErrorTranslator.translate(xmppx);
-		}
-
-	}
-
     /**
-     * Save the vCard info for the user.
+     * Save the user.
      * 
-     * @param jabberId
-     *            The user id.
-     * @param vCard
-     *            The user's vcard info.
+     * @param user
+     *            The user.
      * @throws SmackException
      */
-    void updateVCard(final JabberId jabberId, final UserVCard vCard)
-            throws SmackException {
+    void update(final User user) throws SmackException {
         logger.info("[LMODEL] [XMPP USER] [UPDATE VCARD]");
-        logger.debug(jabberId);
-        logger.debug(vCard);
+        logger.debug(user);
         try {
+            final JabberId jabberId = xmppCore.getJabberId();
+            Assert.assertTrue(
+                    getApiId("[UPDATE] [ID DOES NOT MATCH LOGGED IN USER]"),
+                    jabberId.equals(user.getId()));
+            
             final VCard smackVCard = new VCard();
             smackVCard.load(xmppCore.getConnection(), jabberId.getQualifiedUsername());
 
-            smackVCard.setFirstName(vCard.getFirstName());
-            if(vCard.isSetMiddleName())
-                smackVCard.setMiddleName(vCard.getMiddleName());
-            smackVCard.setLastName(vCard.getLastName());
-            smackVCard.setEmailWork(vCard.getEmail());
-            smackVCard.setOrganization(vCard.getOrganization());
+            final UserNameTokenizer nameTokenizer = new UserNameTokenizer(user.getName());
+            smackVCard.setFirstName(nameTokenizer.getGiven());
+            if(nameTokenizer.isSetMiddle())
+                smackVCard.setMiddleName(nameTokenizer.getMiddle());
+            smackVCard.setLastName(nameTokenizer.getFamily());
+            smackVCard.setOrganization(user.getOrganization());
+
             smackVCard.save(xmppCore.getConnection());
         }
         catch(final XMPPException xmppx) {
-            logger.error("", xmppx);
+            logger.error(getApiId("[UPDATE]"), xmppx);
             throw XMPPErrorTranslator.translate(xmppx);
         }
     }

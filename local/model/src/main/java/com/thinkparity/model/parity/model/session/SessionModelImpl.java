@@ -330,7 +330,7 @@ class SessionModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
 	static void notifyTeamMemberAdded(final UUID uniqueId,
-			final Contact teamMember) throws ParityException {
+			final User teamMember) throws ParityException {
 		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
 		final Document d = iDModel.get(uniqueId);
         iDModel.addTeamMember(d.getId(), teamMember.getId());
@@ -346,7 +346,7 @@ class SessionModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
 	static void notifyTeamMemberRemoved(final UUID uniqueId,
-			final Contact teamMember) throws ParityException {
+			final User teamMember) throws ParityException {
 		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
 		final Document d = iDModel.get(uniqueId);
 		iDModel.removeTeamMember(d.getId(), teamMember.getId());
@@ -740,17 +740,16 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Obtain the contact for the logged in user.
+     * Read the session user's contact info.
      * 
-     * @return The contact .
-     * @throws ParityException
+     * @return The user's contact info.
      */
-	Contact readContact() throws ParityException {
-		logger.info("");
-		return proxy(readUser(currentUserId()));
-	}
+    Contact readContact() {
+        logger.info(getApiId("[READ CONTACT]"));
+        throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
+    }
 
-    /**
+	/**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -772,6 +771,22 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Read the logged in user's session.
+     * 
+     * @return The logged in user's session.
+     */
+    Session readSession() {
+        logger.info(getApiId("[READ SESSION]"));
+        assertOnline(getApiId("[READ SESSION] [USER NOT ONLINE]"));
+        final Session session = new Session();
+        try { session.setJabberId(xmppHelper.getUser().getId()); }
+        catch(final SmackException sx) {
+            throw ParityErrorTranslator.translateUnchecked(sx);
+        }
+        return session;
+    }
+
+    /**
      * Read the session user's user info.
      * 
      * @return thinkParity user info.
@@ -791,6 +806,7 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
+>>>>>>> 1.7.2.57
      * Read a single user.
      * 
      * @param jabberId
@@ -804,7 +820,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		return readUsers(jabberIds).iterator().next();
 	}
 
-	/**
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -880,25 +896,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Send the working copy of a document to a list of users. Here we create a
-	 * new version; and send that version to the list of users.
-	 * 
-	 * @param users
-	 *            The list of parity users to send to.
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             If the logged in user is not the artifact key holder.
-	 */
-	void send(final Collection<User> users, final Long documentId)
-			throws ParityException {
-		final List<JabberId> jabberIds = new LinkedList<JabberId>();
-		for(final User user : users) { jabberIds.add(user.getId()); }
-		send(jabberIds, documentId);
-	}
-
-	/**
 	 * Send a particular revision to a list of users. The version is obtained
 	 * from the document model; and streamed to the list of users.
 	 * 
@@ -945,36 +942,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	void send(final JabberId jabberId, final Long documentId)
-			throws ParityException {
-		final List<JabberId> jabberIds = new LinkedList<JabberId>();
-		jabberIds.add(jabberId);
-		send(jabberIds, documentId);
-	}
-
-	void send(final List<JabberId> jabberIds, final Long documentId)
-			throws ParityException {
-        assertOnline("[LMODEL] [SESSION] [SEND] [USER IS NOT ONLINE]");
-        assertIsKeyHolder(
-                "[LMODEL] [SESSION] [SEND] [USER IS NOT KEYHOLDER]", documentId);
-
-		final InternalDocumentModel iDModel = getInternalDocumentModel();
-		final DocumentVersion version;
-		if(!iDModel.isWorkingVersionEqual(documentId)) {
-			version = iDModel.createVersion(documentId);
-		}
-		else { version = iDModel.readLatestVersion(documentId); }
-		send(jabberIds, documentId, version.getVersionId());
-	}
-
-	void send(final List<JabberId> jabberIds, final Long documentId,
-			final Long versionId) throws ParityException {
-		final Collection<User> users = new Vector<User>(jabberIds.size());
-		for(final JabberId jabberId : jabberIds) { users.add(new User(jabberId)); }
-		send(users, documentId, versionId);
-	}
-
-    /**
+	/**
 	 * Send a close packet to the server.
 	 * 
 	 * @param artifactId
@@ -1003,7 +971,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Send an artifact creation packet to the parity server.
 	 * 
 	 * @param artifact
@@ -1065,7 +1033,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    void sendDocumentReactivate(final List<JabberId> team, final UUID uniqueId,
+	void sendDocumentReactivate(final List<JabberId> team, final UUID uniqueId,
             final Long versionId, final String name, final byte[] bytes)
             throws ParityException {
         synchronized(SessionModelImpl.xmppHelper) {
@@ -1142,7 +1110,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Send a key response [ACCEPT,DENY] to a user.
      * 
      * @param keyResponse
@@ -1171,7 +1139,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
 	 * Send the parity log file. To be used in order to troubleshoot remote
 	 * problems.
 	 * 
@@ -1216,17 +1184,29 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    void updateUser(final String name, final String email,
-            final String organization) throws ParityException {
+    /**
+     * Update the session user's contact info.
+     * 
+     * @param contact
+     *            The user's contact info.
+     */
+    void updateContact(final Contact contact) {
+        throw Assert.createNotYetImplemented("SessionModelImpl#updateContact(Contact)");
+    }
+
+    /**
+     * Update the user.
+     * 
+     * @param user
+     *            The user.
+     * @throws ParityException
+     */
+    void updateUser(final User user) throws ParityException {
         logger.info(getApiId("[UPDATE USER]"));
-        logger.debug(name);
-        logger.debug(email);
-        logger.debug(organization);
+        logger.debug(user);
         synchronized(SessionModelImpl.xmppHelper) {
-            assertIsLoggedIn(getApiId("[UPDATE USER]"), SessionModelImpl.xmppHelper);
-            try {
-                SessionModelImpl.xmppHelper.updateUser(name, email, organization);
-            }
+            assertIsLoggedIn(getApiId("[UPDATE USER]"), xmppHelper);
+            try { xmppHelper.updateUser(user); }
             catch(final SmackException sx) {
                 logger.error(getErrorId("[UPDATE USER]", "[SMACK ERROR]"), sx);
                 throw ParityErrorTranslator.translate(sx);
@@ -1274,16 +1254,4 @@ class SessionModelImpl extends AbstractModelImpl {
         for(final User user : users) { jabberIds.add(user.getId()); }
         return jabberIds;
     }
-
-    /**
-	 * @deprecated
-	 */
-	private Contact proxy(final User user) {
-		final Contact contact = new Contact();
-        contact.setEmail(user.getEmail());
-		contact.setName(user.getName());
-		contact.setId(user.getId());
-		contact.setOrganization(user.getOrganization());
-		return contact;
-	}
 }

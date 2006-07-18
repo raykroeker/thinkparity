@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +45,8 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.release.InternalReleaseModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.user.InternalUserModel;
+import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
@@ -56,6 +60,29 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1
  */
 public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase {
+
+    static {
+        // init user
+        final InternalUserModel uModel = UserModel.getInternalModel(new Context(ModelTestCase.class));
+        final SessionModel sModel = SessionModel.getModel();
+        try {
+            sModel.login(ModelTestUser.getJUnit().getCredentials());
+            uModel.create(ModelTestUser.getJUnit().getJabberId());
+        }
+        catch(final ParityException px) {
+            final StringWriter sw = new StringWriter();
+            px.printStackTrace(new PrintWriter(sw));
+            fail(sw.toString());
+        }
+        finally {
+            try { sModel.logout(); }
+            catch(final ParityException px) {
+                final StringWriter sw = new StringWriter();
+                px.printStackTrace(new PrintWriter(sw));
+                fail(sw.toString());
+            }
+        }
+    }
 
     /**
 	 * Assert that the document list provided contains the document.
@@ -170,7 +197,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         assertEquals(assertion + " [DOCUMENT'S UPDATED ON DOES NOT MATCH EXPECTATION]", expected.getUpdatedOn(), actual.getUpdatedOn());
     }
 
-    /**
+	/**
      * Assert that the expected version matches the actual one.
      * 
      * @param assertion
@@ -211,7 +238,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         assertEquals(assertion, expected.getVersion(), actual.getVersion());
     }
 
-	/**
+    /**
 	 * Assert that the document list provided doesn't contain the document.
 	 * 
 	 * @param documentList
@@ -435,6 +462,8 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 
 	private InternalReleaseModel irModel;
 
+	private InternalUserModel iuModel;
+
 	private InternalSystemMessageModel messageModel;
 
 	/**
@@ -448,20 +477,20 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 * 
 	 */
 	private SessionModel sessionModel;
-
+	
 	/**
 	 * The parity workspace.
 	 * 
 	 */
 	private Workspace workspace;
-	
-	/**
+
+    /**
 	 * The workspace model.
 	 * 
 	 */
 	private WorkspaceModel workspaceModel;
 
-    /**
+	/**
 	 * Create a ModelTestCase
 	 * 
 	 * @param name
@@ -486,7 +515,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         return document;
     }
 
-	protected void addTeam(final Container container) throws Exception {
+    protected void addTeam(final Container container) throws Exception {
         addTeamToContainer(container.getId());
     }
 
@@ -588,11 +617,18 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         return messageModel;
     }
 
-	protected InternalReleaseModel getInternalReleaseModel() {
+    protected InternalReleaseModel getInternalReleaseModel() {
         if(null == irModel) {
             irModel = ReleaseModel.getInternalModel(new Context(getClass()));
         }
         return irModel;
+    }
+
+    protected InternalUserModel getInternalUserModel() {
+        if(null == iuModel) {
+            iuModel = UserModel.getInternalModel(new Context(getClass()));
+        }
+        return iuModel;
     }
 
 	protected File[] getModFiles() throws IOException {

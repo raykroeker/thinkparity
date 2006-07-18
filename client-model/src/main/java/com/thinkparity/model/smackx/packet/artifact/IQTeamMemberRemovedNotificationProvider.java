@@ -13,10 +13,9 @@ import org.jivesoftware.smackx.provider.VCardProvider;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.smack.provider.IQParityProvider;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -33,7 +32,7 @@ public class IQTeamMemberRemovedNotificationProvider extends IQParityProvider {
 	 */
 	public IQTeamMemberRemovedNotificationProvider() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.vCardProvider = new VCardProvider();
 	}
 
@@ -44,7 +43,7 @@ public class IQTeamMemberRemovedNotificationProvider extends IQParityProvider {
 	public IQ parseIQ(final XmlPullParser parser) throws Exception {
 		logger.info("[LMODEL] [XMPP] [PARSE TEAM MEMBER REMOVED]");
 		logger.debug(parser);
-		Contact contact = null;
+		User user = null;
 		UUID artifactUniqueId = null;
 
 		Integer attributeCount, depth, eventType;
@@ -77,25 +76,24 @@ public class IQTeamMemberRemovedNotificationProvider extends IQParityProvider {
 				parser.next();
 			}
 			else if(XmlPullParser.START_TAG == eventType && "contact".equals(name)) {
-				contact = new Contact();
+                user = new User();
 			}
 			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				parser.next();
-				contact.setId(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
+                user.setId(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
 			}
 			else if(XmlPullParser.START_TAG == eventType && "vcard".equals(name)) {
 				parser.next();
 				contactVCard = (VCard) vCardProvider.parseIQ(parser);
-                contact.setEmail(contactVCard.getEmailWork());
-				contact.setName(contactVCard.getFirstName(), contactVCard.getLastName());
-				contact.setOrganization(contactVCard.getOrganization());
+                user.setName(contactVCard.getFirstName(), contactVCard.getLastName());
+                user.setOrganization(contactVCard.getOrganization());
 			}
 			else if(XmlPullParser.END_TAG == eventType && "contact".equals(name)) {
 				isComplete = Boolean.TRUE;
 				parser.next();
 			}
 		}
-		return new IQTeamMemberRemovedNotification(artifactUniqueId, contact);
+		return new IQTeamMemberRemovedNotification(artifactUniqueId, user);
 	}
 
 	

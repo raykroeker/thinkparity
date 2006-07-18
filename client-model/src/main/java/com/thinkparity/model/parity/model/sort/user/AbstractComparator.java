@@ -14,7 +14,10 @@ import com.thinkparity.model.xmpp.user.User;
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
+ * 
+ * @deprecated Has been replaced by com.thinkparity.model.parity.model.sort.AbstractComparator
  */
+@Deprecated
 public abstract class AbstractComparator implements Comparator<User> {
 
 	/**

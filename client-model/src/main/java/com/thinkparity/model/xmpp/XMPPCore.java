@@ -15,7 +15,8 @@ import com.thinkparity.model.smack.SmackException;
  * @version 1.1
  */
 public interface XMPPCore {
-	public Packet sendAndConfirmPacket(final Packet packet)
-			throws SmackException;
 	public XMPPConnection getConnection();
+	public JabberId getJabberId();
+    public Packet sendAndConfirmPacket(final Packet packet)
+			throws SmackException;
 }

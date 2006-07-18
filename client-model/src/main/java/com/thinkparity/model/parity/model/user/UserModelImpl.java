@@ -32,28 +32,36 @@ class UserModelImpl extends AbstractModelImpl {
         this.userIO = IOFactory.getDefault().createUserIOHandler();
     }
 
-    User create(final String name, final String email, final String organization)
-            throws ParityException {
-        logger.info(getApiId("[CREATE]"));
-        logger.debug(name);
-        logger.debug(email);
-        logger.debug(organization);
-        final InternalSessionModel isModel = getInternalSessionModel();
-        final User remoteUser = isModel.readUser(currentUserId());
-        remoteUser.setName(name);
-        remoteUser.setEmail(email);
-        remoteUser.setOrganization(organization);
-        userIO.create(remoteUser);
-        isModel.updateUser(name, email, organization);
-        return read();
-    }
-
     User create(final JabberId jabberId) throws ParityException {
         logger.info(getApiId("[CREATE]"));
         logger.debug(jabberId);
         final User remoteUser = getInternalSessionModel().readUser(jabberId);
         userIO.create(remoteUser);
         return read(jabberId);
+    }
+
+    /**
+     * Create a user.
+     * 
+     * @param name
+     *            A user's name.
+     * @param organization
+     *            A user's organization.
+     * @return A user.
+     * @throws ParityException
+     */
+    User create(final String name, final String organization)
+            throws ParityException {
+        logger.info(getApiId("[CREATE]"));
+        logger.debug(name);
+        logger.debug(organization);
+        final InternalSessionModel isModel = getInternalSessionModel();
+        final User remoteUser = isModel.readUser(currentUserId());
+        remoteUser.setName(name);
+        remoteUser.setOrganization(organization);
+        userIO.create(remoteUser);
+        isModel.updateUser(remoteUser);
+        return read();
     }
 
     User read() {

@@ -22,7 +22,7 @@ public class UserNameTokenizer {
      * @param name
      *            A user's name.
      */
-    UserNameTokenizer(final String name) {
+    public UserNameTokenizer(final String name) {
         super();
         this.name = name;
     }

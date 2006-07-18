@@ -18,31 +18,48 @@ public class UserIOHandler extends AbstractIOHandler implements
 
     private static final String SQL_CREATE =
         new StringBuffer("insert into USER ")
-        .append("(JABBER_ID) ")
-        .append("values (?)")
+        .append("(JABBER_ID,NAME,ORGANIZATION) ")
+        .append("values (?,?,?)")
         .toString();
 
-    private static final String SQL_CREATE_INFO =
-        new StringBuffer("insert into USER_INFO ")
-        .append("(USER_ID,NAME,EMAIL,ORGANIZATION) ")
-        .append("values (?,?,?,?)")
-        .toString();
-
+    /** Sql to read a user by their jabber id. */
     private static final String SQL_READ_BY_JABBER_ID =
-        new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.NAME,")
-        .append("UI.EMAIL,UI.ORGANIZATION ")
-        .append("from USER U inner join USER_INFO UI ")
-        .append("on U.USER_ID=UI.USER_ID ")
+        new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
+        .append("U.ORGANIZATION ")
+        .append("from USER U ")
         .append("where U.JABBER_ID=?")
         .toString();
 
     private static final String SQL_READ_BY_USER_ID =
-        new StringBuffer("select U.USER_ID,U.JABBER_ID,UI.NAME,")
-        .append("UI.EMAIL,UI.ORGANIZATION ")
-        .append("from USER U inner join USER_INFO UI ")
-        .append("on U.USER_ID=UI.USER_ID ")
+        new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
+        .append("U.ORGANIZATION ")
+        .append("from USER U ")
         .append("where U.USER_ID=?")
         .toString();
+
+    /**
+     * Obtain an api id.
+     * 
+     * @param api
+     *            An api.
+     * @return An error id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return getIOId("USER").append(" ").append(api);
+    }
+
+    /**
+     * Obtain an error id.
+     * 
+     * @param api
+     *            An api.
+     * @param error
+     *            An error.
+     * @return An error id.
+     */
+    private static String getErrorId(final String api, final String error) {
+        return getApiId(api).append(" ").append(error).toString();
+    }
 
     /**
      * Create a UserIOHandler.
@@ -57,20 +74,11 @@ public class UserIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_CREATE);
             session.setQualifiedUsername(1, user.getId());
-            if(1 != session.executeUpdate())
-                throw new HypersonicException("");
-
-            final Long userId = session.getIdentity();
-            session.prepareStatement(SQL_CREATE_INFO);
-            session.setLong(1, userId);
             session.setString(2, user.getName());
-            session.setString(3, user.getEmail());
-            session.setString(4, user.getOrganization());
+            session.setString(3, user.getOrganization());
             if(1 != session.executeUpdate())
-                throw new HypersonicException("");
-
-            user.setLocalId(userId);
-
+                throw new HypersonicException(getErrorId("[CREATE]", "[COULD NOT CREATE USER]"));
+            user.setLocalId(session.getIdentity());
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -122,7 +130,6 @@ public class UserIOHandler extends AbstractIOHandler implements
 
     /**
      * Extract a user from a database session.  The fields required are:<ul>
-     * <li>EMAIL - <code>java.lang.String</code>
      * <li>JABBER_ID - <code>com.thinkparity.model.xmpp.JabberId</code>
      * <li>USER_ID - <code>java.lang.Long</code>
      * <li>NAME - <code>java.lang.String</code>
@@ -134,7 +141,6 @@ public class UserIOHandler extends AbstractIOHandler implements
      */
     User extractUser(final Session session) {
         final User u = new User();
-        u.setEmail(session.getString("EMAIL"));
         u.setId(session.getQualifiedUsername("JABBER_ID"));
         u.setLocalId(session.getLong("USER_ID"));
         u.setName(session.getString("NAME"));

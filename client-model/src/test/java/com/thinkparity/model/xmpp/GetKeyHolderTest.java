@@ -51,17 +51,16 @@ public class GetKeyHolderTest extends XMPPTestCase {
 		final XMPPSession session = getSession();
 
 		final ModelTestUser jUnit = ModelTestUser.getJUnit();
-		final User jUnitUser = new User(jUnit.getJabberId());
 
 		final ModelTestUser userX = ModelTestUser.getX();
 
 		UUID artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, jUnitUser, session));
+		data.add(new Fixture(artifactUniqueId, jUnit.getUser(), session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);
-		data.add(new Fixture(artifactUniqueId, jUnitUser, session));
+		data.add(new Fixture(artifactUniqueId, jUnit.getUser(), session));
 
 		artifactUniqueId = UUIDGenerator.nextUUID();
 		session.createArtifact(artifactUniqueId);

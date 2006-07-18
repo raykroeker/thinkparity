@@ -19,7 +19,7 @@ public class FOPIOFactory extends IOFactory {
 	/** The parity preferences. */
 	private final Preferences preferences;
 
-	/**
+    /**
 	 * Create a FOPIOFactory.
 	 * 
 	 */
@@ -28,13 +28,13 @@ public class FOPIOFactory extends IOFactory {
 		this.preferences = workspace.getPreferences();
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createArtifactHandler()
 	 * 
 	 */
 	public ArtifactIOHandler createArtifactHandler() { return null; }
 
-	/**
+    /**
 	 * @see com.thinkparity.model.parity.model.io.IOFactory#createAuditHandler()
 	 * 
 	 */
@@ -43,6 +43,14 @@ public class FOPIOFactory extends IOFactory {
 	/** @see com.thinkparity.model.parity.model.io.IOFactory#createConfigurationHandler() */
     public ConfigurationIOHandler createConfigurationHandler() {
         throw Assert.createNotYetImplemented("FOPIOFactory#createConfigurationHandler");
+    }
+
+	/**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createContactHandler()
+     */
+    @Override
+    public ContactIOHandler createContactHandler() {
+        throw Assert.createNotYetImplemented("FOPIOFactory#createContactHandler");
     }
 
 	/**
@@ -73,6 +81,14 @@ public class FOPIOFactory extends IOFactory {
     @Override
     public LibraryIOHandler createLibraryHandler() {
         throw Assert.createNotYetImplemented("FOPIOFactory#createLibraryHandler");
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createProfileHandler()
+     */
+    @Override
+    public ProfileIOHandler createProfileHandler() {
+        throw Assert.createNotYetImplemented("FOPIOFactory#createProfileHandler");
     }
 
     /**

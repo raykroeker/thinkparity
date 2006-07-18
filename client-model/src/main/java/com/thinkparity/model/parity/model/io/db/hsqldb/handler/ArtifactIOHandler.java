@@ -188,11 +188,10 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the team relationship. */
     private static final String SQL_READ_TEAM_REL =
-        new StringBuffer("select UI.NAME,U.JABBER_ID,UI.EMAIL,")
-        .append("U.USER_ID,UI.ORGANIZATION ")
+        new StringBuffer("select U.NAME,U.JABBER_ID,")
+        .append("U.USER_ID,U.ORGANIZATION ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
-        .append("inner join USER_INFO UI on ATR.USER_ID = UI.USER_ID ")
         .append("where ATR.ARTIFACT_ID=?")
         .toString();
 

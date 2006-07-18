@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.jivesoftware.smack.packet.IQ;
 
-import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -20,14 +20,14 @@ public class IQTeamMemberRemovedNotification extends IQ {
 	/**
 	 * 
 	 */
-	private Contact teamMember;
+	private User teamMember;
 
 	/**
 	 * Create a IQTeamMemberAddedNotification.
 	 * 
 	 */
 	public IQTeamMemberRemovedNotification(final UUID artifactUniqueId,
-			final Contact teamMember) {
+			final User teamMember) {
 		super();
 		this.artifactUniqueId = artifactUniqueId;
 		this.teamMember = teamMember;
@@ -51,5 +51,5 @@ public class IQTeamMemberRemovedNotification extends IQ {
      * 
      * @return The contact info.
      */
-	public Contact getTeamMember() { return teamMember; }
+	public User getTeamMember() { return teamMember; }
 }

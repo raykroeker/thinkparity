@@ -221,10 +221,16 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { getImpl().sendSubscribe(artifact); }
     }
 
-    public void updateUser(final String name, final String email,
-            final String organization) throws ParityException {
+    /**
+     * Update the local user's remote information.
+     * 
+     * @param user
+     *            The user.
+     * @throws ParityException
+     */
+    public void updateUser(final User user) throws ParityException {
         synchronized(getImplLock()) {
-            getImpl().updateUser(name, email, organization);
+            getImpl().updateUser(user);
         }
     }
 

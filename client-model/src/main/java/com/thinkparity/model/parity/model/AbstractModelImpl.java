@@ -33,6 +33,8 @@ import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.AuditModel;
 import com.thinkparity.model.parity.model.audit.InternalAuditModel;
+import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.contact.InternalContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
@@ -376,13 +378,6 @@ public abstract class AbstractModelImpl {
 	protected Context getContext() { return context; }
 
     /**
-	 * Obtain a the parity document interface.
-	 * 
-	 * @return The parity document interface.
-	 */
-	protected DocumentModel getDocumentModel() { return DocumentModel.getModel(); }
-
-    /**
      * Obtain the internal parity artifact interface.
      * 
      * @return The internal parity artifact interface.
@@ -399,6 +394,15 @@ public abstract class AbstractModelImpl {
     protected InternalAuditModel getInternalAuditModel() {
 		return AuditModel.getInternalModel(context);
 	}
+
+    /**
+     * Obtain the internal thinkParity contact interface.
+     * 
+     * @return The internal thinkParity contact interface.
+     */
+    protected InternalContactModel getInternalContactModel() {
+        return ContactModel.getInternalModel(context);
+    }
 
     /**
      * Obtain the internal thinkParity container interface.
@@ -513,13 +517,6 @@ public abstract class AbstractModelImpl {
                         release.getCreatedOn(), DateUtil.DateImage.ISO));
         }
     }
-
-    /**
-	 * Obtain a handle to the session model.
-	 * 
-	 * @return Obtain a handle to the session model.
-	 */
-	protected SessionModel getSessionModel() { return SessionModel.getModel(); }
 
     /**
 	 * @see Localization#getString(String)

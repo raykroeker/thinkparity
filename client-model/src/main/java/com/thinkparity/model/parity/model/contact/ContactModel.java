@@ -13,7 +13,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Contact Model<br>
@@ -65,13 +64,14 @@ public class ContactModel {
 	}
 
     /**
-     * Create an e-mail contact.
+     * Create an e-mail contact invitation.
      * 
      * @param email
      *            An e-mail address.
+     * @return The new contact invitation.
      */
-    public Contact create(final String email) {
-        synchronized(implLock) { return impl.create(email); }
+    public ContactInvitation createInvitation(final String email) {
+        synchronized(implLock) { return impl.createInvitation(email); }
     }
 
     /**
@@ -98,10 +98,10 @@ public class ContactModel {
      * Read a list of contacts.
      * 
      * @param comparator
-     *            A user comparator to sort the contacts.
+     *            A contact comparator to sort the contacts.
      * @return A list of contacts.
      */
-    public List<Contact> read(final Comparator<User> comparator) {
+    public List<Contact> read(final Comparator<Contact> comparator) {
         synchronized(implLock) { return impl.read(comparator); }
     }
 
@@ -109,13 +109,13 @@ public class ContactModel {
      * Read a list of contacts.
      * 
      * @param comparator
-     *            A user comparator to sort the contacts.
+     *            A contact comparator to sort the contacts.
      * @param filter
-     *            A user filter to scope the contacts.
+     *            A contact filter to scope the contacts.
      * @return A list of contacts.
      */
-    public List<Contact> read(final Comparator<User> comparator,
-            final Filter<? super User> filter) {
+    public List<Contact> read(final Comparator<Contact> comparator,
+            final Filter<? super Contact> filter) {
         synchronized(implLock) { return impl.read(comparator, filter); }
     }
 
@@ -123,10 +123,10 @@ public class ContactModel {
      * Read a list of contacts.
      * 
      * @param filter
-     *            A user filter to scope the contacts.
+     *            A contact filter to scope the contacts.
      * @return A list of contacts.
      */
-    public List<Contact> read(final Filter<? super User> filter) {
+    public List<Contact> read(final Filter<Contact> filter) {
         synchronized(implLock) { return impl.read(filter); }
     }
 

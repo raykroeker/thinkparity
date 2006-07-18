@@ -70,11 +70,11 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                 handleConfirmationReceipt(uniqueId, versionId, receivedFrom);
             }
 			public void teamMemberAdded(final UUID artifactUniqueId,
-					final Contact teamMember) {
+					final User teamMember) {
 				handleTeamMemberAdded(artifactUniqueId, teamMember);
 			}
             public void teamMemberRemoved(final UUID artifactUniqueId,
-					final Contact teamMember) {
+					final User teamMember) {
 				handleTeamMemberRemoved(artifactUniqueId, teamMember);
 			}
 		};
@@ -426,17 +426,12 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     /**
      * Update the user.
      * 
-     * @param name
-     *            The user's name.
-     * @param email
-     *            The user's email.
-     * @param organization
-     *            The user's organization.
+     * @param user
+     *            The user.
      * @throws SmackException
      */
-    void updateUser(final String name, final String email,
-            final String organization) throws SmackException {
-        xmppSession.updateCurrentUser(name, email, organization);
+    void updateUser(final User user) throws SmackException {
+        xmppSession.updateUser(user);
     }
 
 	/**
@@ -644,7 +639,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      *            The new team member.
      */
 	private void handleTeamMemberAdded(final UUID artifactUniqueId,
-			final Contact teamMember) {
+			final User teamMember) {
 		try { SessionModelImpl.notifyTeamMemberAdded(artifactUniqueId, teamMember); }
 		catch(final ParityException px) { unexpectedOccured(px); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
@@ -657,7 +652,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      *            The team member.
      */
 	private void handleTeamMemberRemoved(final UUID artifactUniqueId,
-			final Contact teamMember) {
+			final User teamMember) {
 		try { SessionModelImpl.notifyTeamMemberRemoved(artifactUniqueId, teamMember); }
 		catch(final ParityException px) { unexpectedOccured(px); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }

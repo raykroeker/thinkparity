@@ -75,6 +75,17 @@ public class ParityErrorTranslator {
 		synchronized(singletonLock) { return singleton.translateImpl(sx);}
 	}
 
+    /**
+     * Create an unchecked parity error base upon a smack error.
+     * 
+     * @param sx
+     *            The smack error.
+     * @return An unchecked error.
+     */
+    public static ParityUncheckedException translateUnchecked(final SmackException sx) {
+        synchronized(singletonLock) { return singleton.translateUncheckedImpl(sx);}
+    }
+
 	/**
 	 * Create a ParityErrorTranslator [Singleton]
 	 */
@@ -113,14 +124,25 @@ public class ParityErrorTranslator {
 		return new ParityException(rx);
 	}
 
-	/**
-	 * Create a parity error base upon a smack error.
-	 * 
-	 * @param sx
-	 *            The smack error.
-	 * @return The parity error.
-	 */
-	private ParityException translateImpl(final SmackException sx) {
-		return new ParityException(sx);
-	}
+    /**
+     * Create a parity error base upon a smack error.
+     * 
+     * @param sx
+     *            The smack error.
+     * @return The parity error.
+     */
+    private ParityException translateImpl(final SmackException sx) {
+        return new ParityException(sx);
+    }
+
+    /**
+     * Create an unchecked parity error base upon a smack error.
+     * 
+     * @param sx
+     *            The smack error.
+     * @return An unchecked error.
+     */
+    private ParityUncheckedException translateUncheckedImpl(final SmackException sx) {
+        return new ParityUncheckedException(sx);
+    }
 }

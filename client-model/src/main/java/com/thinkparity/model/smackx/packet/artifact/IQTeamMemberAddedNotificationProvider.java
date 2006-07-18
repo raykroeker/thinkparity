@@ -17,6 +17,7 @@ import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.smack.provider.IQParityProvider;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -44,7 +45,7 @@ public class IQTeamMemberAddedNotificationProvider extends IQParityProvider {
 	public IQ parseIQ(final XmlPullParser parser) throws Exception {
 		logger.info("[LMODEL] [XMPP] [PARSE NEW TEAM MEMBER]");
 		logger.debug(parser);
-		Contact contact = null;
+		User user = null;
 		UUID artifactUniqueId = null;
 
 		Integer attributeCount, depth, eventType;
@@ -77,25 +78,24 @@ public class IQTeamMemberAddedNotificationProvider extends IQParityProvider {
 				parser.next();
 			}
 			else if(XmlPullParser.START_TAG == eventType && "contact".equals(name)) {
-				contact = new Contact();
+                user = new User();
 			}
 			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				parser.next();
-				contact.setId(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
+                user.setId(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
 			}
 			else if(XmlPullParser.START_TAG == eventType && "vcard".equals(name)) {
 				parser.next();
 				contactVCard = (VCard) vCardProvider.parseIQ(parser);
-                contact.setEmail(contactVCard.getEmailWork());
-				contact.setName(contactVCard.getFirstName(), contactVCard.getLastName());
-				contact.setOrganization(contactVCard.getOrganization());
+                user.setName(contactVCard.getFirstName(), contactVCard.getLastName());
+                user.setOrganization(contactVCard.getOrganization());
 			}
 			else if(XmlPullParser.END_TAG == eventType && "contact".equals(name)) {
 				isComplete = Boolean.TRUE;
 				parser.next();
 			}
 		}
-		return new IQTeamMemberAddedNotification(artifactUniqueId, contact);
+		return new IQTeamMemberAddedNotification(artifactUniqueId, user);
 	}
 
 	

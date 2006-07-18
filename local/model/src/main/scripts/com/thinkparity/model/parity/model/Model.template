@@ -1,6 +1,5 @@
 /*
  * Generated On: ${environment.generatedOn}
- * \$Id$
  */
 package ${model.packageName};
 
@@ -9,7 +8,7 @@ package ${model.packageName};
  * <b>Description:</b>
  * 
  * @author ${environment.author}
- * @version \$Revision$
+ * @version ${model.version}
  */
 ${model.classModifier}class ${model.className} {
 

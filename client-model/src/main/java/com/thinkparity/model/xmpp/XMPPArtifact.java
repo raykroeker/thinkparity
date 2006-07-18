@@ -32,7 +32,7 @@ class XMPPArtifact {
 	static {
 		listeners = new LinkedList<XMPPArtifactListener>();
 
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactreadcontacts", new IQReadContactsProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactreadcontacts", new IQArtifactReadContactsProvider());
         ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactconfirmreceipt", new IQConfirmReceiptProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberadded", new IQTeamMemberAddedNotificationProvider());
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberremoved", new IQTeamMemberRemovedNotificationProvider());
@@ -139,8 +139,8 @@ class XMPPArtifact {
 		logger.debug(uniqueId);
 		final IQ iq = new IQReadContacts(uniqueId);
 		iq.setType(IQ.Type.GET);
-		final IQReadContactsResult result =
-			(IQReadContactsResult) xmppCore.sendAndConfirmPacket(iq);
+		final IQArtifactReadContactsResult result =
+			(IQArtifactReadContactsResult) xmppCore.sendAndConfirmPacket(iq);
 		return result.getContacts();
 	}
 

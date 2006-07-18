@@ -103,7 +103,11 @@ public class ModelTestUser {
 	 */
 	public Integer getServerPort() { return serverPort; }
 
-	public User getUser() { return new User(username); }
+	public User getUser() {
+        final User user = new User();
+        user.setId(getJabberId());
+        return user;
+    }
 
     /**
 	 * @return The username.

@@ -1,5 +1,5 @@
 /*
- * Feb 6, 2006
+ * Created On: Feb 6, 2006
  */
 package com.thinkparity.model.parity.model.io;
 
@@ -95,6 +95,13 @@ public abstract class IOFactory {
     public abstract ConfigurationIOHandler createConfigurationHandler();
 
     /**
+     * Create a contact io handler.
+     * 
+     * @return A contact io handler.
+     */
+    public abstract ContactIOHandler createContactHandler();
+
+    /**
      * Create a container io handler.
      * 
      * @return A container io handler.
@@ -121,6 +128,13 @@ public abstract class IOFactory {
      * @return A library io handler.
      */
     public abstract LibraryIOHandler createLibraryHandler();
+
+    /**
+     * Create a thinkParity profile db io handler.
+     * 
+     * @return A thinkParity profile db io handler.
+     */
+    public abstract ProfileIOHandler createProfileHandler();
 
     /**
      * Create a release io handler.

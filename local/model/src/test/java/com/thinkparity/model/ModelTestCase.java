@@ -19,6 +19,7 @@ import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
+import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 

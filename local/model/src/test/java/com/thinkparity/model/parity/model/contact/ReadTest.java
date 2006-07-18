@@ -43,7 +43,7 @@ public class ReadTest extends ContactTestCase {
 		super.setUp();
 		login();
         final ContactModel cModel = getContactModel();
-		datum = new Fixture(cModel, 3);
+		datum = new Fixture(cModel, 0);
 	}
 
 	/**

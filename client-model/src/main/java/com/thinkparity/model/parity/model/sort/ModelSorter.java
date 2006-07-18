@@ -14,6 +14,7 @@ import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * Utility convenience class for sorting lists.
@@ -22,6 +23,11 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
  * @version 1.1
  */
 public class ModelSorter {
+
+    public static void sortContacts(final List<Contact> list,
+            final Comparator<Contact> comparator) {
+        Collections.sort(list, comparator);
+    }
 
     public static void sortContainers(final List<Container> list,
             final Comparator<Artifact> comparator) {

@@ -42,19 +42,27 @@ public class XMPPIOFactory extends IOFactory {
     }
 
     /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createContactHandler()
+     */
+    @Override
+    public ContactIOHandler createContactHandler() {
+        throw Assert.createNotYetImplemented("XMPPIOFactory#createContactHandler");
+    }
+
+    /**
      * @see com.thinkparity.model.parity.model.io.IOFactory#createContainerHandler()
      * 
      */
     public ContainerIOHandler createContainerHandler() {
         throw Assert.createNotYetImplemented("XMPPIOFactory#createContainerHandler");
     }
+
     public DocumentIOHandler createDocumentHandler() {
         throw Assert.createUnreachable("XMPPIOFactory#createDocumentHandler()");
     }
     public DocumentHistoryIOHandler createDocumentHistoryIOHandler() {
         throw Assert.createUnreachable("XMPPIOFactory#createDocumentHistoryIOHandler()");
     }
-
     /**
      * Create an xmpp library io handler.
      *
@@ -62,6 +70,14 @@ public class XMPPIOFactory extends IOFactory {
      */
     public LibraryIOHandler createLibraryHandler() {
         return new com.thinkparity.model.parity.model.io.xmpp.handler.LibraryIOHandler();
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.IOFactory#createProfileHandler()
+     */
+    @Override
+    public ProfileIOHandler createProfileHandler() {
+        throw Assert.createNotYetImplemented("XMPPIOFactory#createProfileHandler");
     }
 
     /**

@@ -15,7 +15,6 @@ import org.jivesoftware.smackx.provider.VCardProvider;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -38,12 +37,12 @@ public class IQReadContactsProvider implements IQProvider {
 	private final VCardProvider vCardProvider;
 
 	/**
-	 * Create a IQReadContactsProvider.
+	 * Create a IQArtifactReadContactsProvider.
 	 * 
 	 */
 	public IQReadContactsProvider() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.vCardProvider = new VCardProvider();
 	}
 
@@ -89,7 +88,6 @@ public class IQReadContactsProvider implements IQProvider {
 			else if(XmlPullParser.START_TAG == eventType && "vcard".equals(name)) {
 				parser.next();
 				contactVCard = (VCard) vCardProvider.parseIQ(parser);
-                contact.setEmail(contactVCard.getEmailWork());
 				contact.setName(contactVCard.getFirstName(), contactVCard.getLastName());
 				contact.setOrganization(contactVCard.getOrganization());
 			}

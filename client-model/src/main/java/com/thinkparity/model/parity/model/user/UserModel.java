@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.user;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModel;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -55,31 +54,6 @@ public class UserModel extends AbstractModel {
         super();
         this.impl = new UserModelImpl(workspace);
         this.implLock = new Object();
-    }
-
-    /**
-     * Create the user locally as well as save the information remotely.
-     * 
-     * @param name
-     *            The user's name.
-     * @param email
-     *            The users's email.
-     * @param organization
-     *            The users's organization.
-     * @return A new user.
-     */
-    public User create(final String name, final String email,
-            final String organization) throws ParityException {
-        synchronized(implLock) { return impl.create(name, email, organization); }
-    }
-
-    /**
-     * Read the current user.
-     * 
-     * @return A user.
-     */
-    public User read() {
-        synchronized(getImplLock()) { return getImpl().read(); }
     }
 
     /**

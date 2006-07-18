@@ -48,10 +48,11 @@ abstract class ModelClass {
 	public final String name;
 	public final String packageName;
 	public final String superClassName;
+	public final String version;
 	private Template template;
 	private final Environment environment;
 
-	public ModelClass(final ModelGenerator modelGenerator, final String classModifier, final String className, final String superClassName, final String interfaceClassNames) {
+	public ModelClass(final ModelGenerator modelGenerator, final String classModifier, final String className, final String superClassName, final String interfaceClassNames, final String version) {
 		this.article = modelGenerator.getArticle();
 		this.environment = modelGenerator.getEnvironment();
 		this.classModifier = classModifier;
@@ -60,6 +61,7 @@ abstract class ModelClass {
 		this.name = modelGenerator.getName();
 		this.packageName = "com.thinkparity.model.parity.model." + modelGenerator.getName().toLowerCase();
 		this.superClassName = superClassName;
+		this.version = version;
 	}
 
 	private File loadGeneratedFile() {
@@ -122,6 +124,7 @@ class Model extends ModelClass {
                 "public ",
                 modelGenerator.getName(),
                 "",
+                "",
                 "");
     }
 }
@@ -130,6 +133,7 @@ class ModelProxy extends ModelClass {
 		super(modelGenerator,
 		        "public ",
 		        modelGenerator.getName() + "Model",
+		        "",
 		        "",
 		        "");
 	}
@@ -140,6 +144,7 @@ class ModelProxyImpl extends ModelClass {
 		        "",
 		        modelGenerator.getName() + "ModelImpl",
 		        "AbstractModelImpl",
+		        "",
 		        "");
 	}
 }
@@ -149,7 +154,8 @@ class ModelProxyInternal extends ModelClass {
 		        "public ",
 		        "Internal" + modelGenerator.getName() + "Model",
 		        modelGenerator.getName() + "Model",
-		        "InternalModel");
+		        "InternalModel",
+		        "");
 	}
 }
 

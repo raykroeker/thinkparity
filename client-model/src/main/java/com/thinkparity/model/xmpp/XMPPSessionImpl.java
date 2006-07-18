@@ -292,6 +292,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	public XMPPConnection getConnection() { return smackXMPPConnection; }
 
 	/**
+     * Obtain the connection's jabber id.
+     * 
+     * @return A jabber id.
+     */
+	public JabberId getJabberId() {
+		return JabberIdBuilder.parseQualifiedJabberId(smackXMPPConnection.getUser());
+	}
+
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#isLoggedIn()
 	 */
 	public Boolean isLoggedIn() {
@@ -388,7 +397,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#logout()
 	 */
 	public void logout() throws SmackException {
@@ -397,7 +406,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		smackXMPPConnection = null;
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#processOfflineQueue()
 	 * 
 	 */
@@ -443,7 +452,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppUser.read(response.getKeyHolder());
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactTeam(java.util.UUID)
      * 
      */
@@ -452,7 +461,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppArtifact.readTeam(uniqueId);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
@@ -480,15 +489,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppUser.read(jabberIds);
 	}
 
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#readVCard(com.thinkparity.model.xmpp.JabberId)
-	 * 
-	 */
-	public UserVCard readVCard(final JabberId jabberId) throws SmackException {
-		return xmppUser.readVCard(jabberId);
-	}
-
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeArtifactTeamMember(java.util.UUID)
 	 * 
 	 */
@@ -500,7 +501,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         method.execute(getConnection());
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPArtifactListener)
 	 * 
 	 */
@@ -583,7 +584,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(vCard);
 	}
 
-	/**
+    /**
 	 * Send a message to a list of users.
 	 * 
 	 * @param users
@@ -607,7 +608,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-    /**
+	/**
 	 * Send the packet and wait for a response. If the response conains an
 	 * error; a SmackException will be thrown.
 	 * 
@@ -692,7 +693,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(iq);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendLogFileArchive(java.io.File)
 	 */
 	public void sendLogFileArchive(final File logFileArchive, final User user)
@@ -701,22 +702,10 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		logger.debug(logFileArchive);
 	}
 
-	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#updateCurrentUser(java.lang.String,
-     *      java.lang.String, java.lang.String)
-     * 
-     */
-    public void updateCurrentUser(final String name, final String email,
-            final String organization) throws SmackException {
-        assertLoggedIn("[LMODEL] [XMPP] [UPDATE CURRENT USER] [NO SESSION]");
-        final String qualifiedJabberId = smackXMPPConnection.getUser();
-        final JabberId jabberId =
-            JabberIdBuilder.parseQualifiedJabberId(qualifiedJabberId);
-        final UserVCard vCard = xmppUser.readVCard(jabberId);
-        vCard.setName(name);
-        vCard.setEmail(email);
-        vCard.setOrganization(organization);
-        xmppUser.updateVCard(jabberId, vCard);
+	public void updateUser(final User user) throws SmackException {
+        logger.info("[XMPP] [UPDATE USER]");
+        logger.debug(user);
+        xmppUser.update(user);
     }
 
 	/**
@@ -770,15 +759,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		for(final XMPPSessionListener l : xmppSessionListeners) {
 			l.sessionEstablished();
 		}
-	}
-
-	/**
-	 * Obtain the jabber id for the logged in user.
-	 * 
-	 * @return The jabber id of the logged in user.
-	 */
-	private JabberId getJabberId() {
-		return JabberIdBuilder.parseQualifiedJabberId(smackXMPPConnection.getUser());
 	}
 
 	/**

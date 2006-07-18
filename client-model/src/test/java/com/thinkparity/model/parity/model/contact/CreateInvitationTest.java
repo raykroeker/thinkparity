@@ -5,7 +5,6 @@
 package com.thinkparity.model.parity.model.contact;
 
 import com.thinkparity.model.ModelTestUser;
-import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * <b>Title:</b>thinkParity Contact Create Test<br>
@@ -14,24 +13,24 @@ import com.thinkparity.model.xmpp.contact.Contact;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class CreateTest extends ContactTestCase {
+public class CreateInvitationTest extends ContactTestCase {
 
     /** The test name. */
-    private static final String NAME = "[LMODEL] [CONTACT] [CREATE TEST]";
+    private static final String NAME = "[LMODEL] [CONTACT] [CREATE INVITATION TEST]";
 
     /** Test datum. */
     private Fixture datum;
 
     /** Create CreateTest. */
-    public CreateTest() { super(NAME); }
+    public CreateInvitationTest() { super(NAME); }
 
     /**
      * Test the create api.
      *
      */
-    public void testCreate() {
-        final Contact contact = datum.cModel.create(datum.emailAddress);
-        assertNotNull(NAME, contact);
+    public void testCreateInvitation() {
+        final ContactInvitation invitation = datum.cModel.createInvitation(datum.emailAddress);
+        assertNotNull(NAME, invitation);
     }
 
     /**
@@ -40,10 +39,12 @@ public class CreateTest extends ContactTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        final ContactModel cModel = getContactModel();
-
         login();
-        datum = new Fixture(cModel, ModelTestUser.getX().getEmailAddress());
+        final ContactModel cModel = getContactModel();
+        final ModelTestUser jUnitX = ModelTestUser.getX();
+        final String randomEmailAddress =
+                System.currentTimeMillis() + jUnitX.getEmailAddress();
+        datum = new Fixture(cModel, randomEmailAddress);
     }
 
     /**

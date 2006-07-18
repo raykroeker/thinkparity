@@ -17,14 +17,13 @@ import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
-import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class IQReadContactsProvider implements IQProvider {
+public class IQArtifactReadContactsProvider implements IQProvider {
 
 	/**
 	 * An apache logger.
@@ -42,7 +41,7 @@ public class IQReadContactsProvider implements IQProvider {
 	 * Create a IQReadUsersProvider.
 	 * 
 	 */
-	public IQReadContactsProvider() {
+	public IQArtifactReadContactsProvider() {
 		super();
 		this.logger = LoggerFactory.getLogger(getClass());
 		this.vCardProvider = new VCardProvider();
@@ -55,12 +54,12 @@ public class IQReadContactsProvider implements IQProvider {
 	public IQ parseIQ(final XmlPullParser parser) throws Exception {
 		logger.info("parseIQ(XmlPullParser)");
 		logger.debug(parser);
-		final List<User> contacts = new LinkedList<User>();
+		final List<User> users = new LinkedList<User>();
 
 		Integer attributeCount, depth, eventType;
 		String name, namespace, prefix, text;
 		Boolean isComplete = Boolean.FALSE;
-		Contact contact = null;
+		User user = null;
 		VCard vCard = null;
 		while(Boolean.FALSE == isComplete) {
 			eventType = parser.next();
@@ -81,28 +80,27 @@ public class IQReadContactsProvider implements IQProvider {
 
 			if(XmlPullParser.START_TAG == eventType && "contacts".equals(name)) {}
 			else if(XmlPullParser.START_TAG == eventType && "contact".equals(name)) {
-				contact = new Contact();
+                user = new User();
 			}
 			else if(XmlPullParser.START_TAG == eventType && "jid".equals(name)) {
 				parser.next();
-				contact.setId(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
+                user.setId(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
 			}
 			else if(XmlPullParser.START_TAG == eventType && "vcard".equals(name)) {
 				parser.next();
                 vCard = (VCard) vCardProvider.parseIQ(parser);
-                contact.setEmail(vCard.getEmailWork());
-				contact.setName(vCard.getFirstName(), vCard.getMiddleName(), vCard.getLastName());
-				contact.setOrganization(vCard.getOrganization());
+                user.setName(vCard.getFirstName(), vCard.getMiddleName(), vCard.getLastName());
+                user.setOrganization(vCard.getOrganization());
 			}
 			else if(XmlPullParser.END_TAG == eventType && "contact".equals(name)) {
-				contacts.add(contact);
-				contact = null;
+                users.add(user);
+                user = null;
 			}
 			else if(XmlPullParser.END_TAG == eventType && "contacts".equals(name)) {
 				isComplete = Boolean.TRUE;
 				parser.next();
 			}
 		}
-		return new IQReadContactsResult(contacts);
+		return new IQArtifactReadContactsResult(users);
 	}
 }

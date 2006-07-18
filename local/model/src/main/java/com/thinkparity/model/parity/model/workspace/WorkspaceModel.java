@@ -59,4 +59,13 @@ public class WorkspaceModel extends AbstractModel {
 	public Workspace getWorkspace() {
 		synchronized(implLock) { return impl.getWorkspace(); }
 	}
+
+    /**
+     * Determine if this is the first run of the workspace.
+     * 
+     * @return True if this is the first run of the workspace; false otherwise.
+     */
+    public Boolean isFirstRun() {
+        synchronized(implLock) { return impl.isFirstRun(); }
+    }
 }

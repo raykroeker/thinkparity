@@ -21,16 +21,37 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	static { cachedWorkspace = new WorkspaceHelper().openWorkspace(); }
 
 	/**
+     * Obtain a logging id for an api.
+     * 
+     * @param api
+     *            The api.
+     * @return A logging id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return getModelId("[WORKSPACE]").append(" ").append(api);
+    }
+
+	/**
 	 * Create a WorkspaceModelImpl.
 	 * 
 	 */
 	WorkspaceModelImpl() { super(null); }
 
-	/**
+    /**
 	 * Obtain the workspace for the parity model software.
 	 * 
 	 * @return The workspace.
 	 */
 	Workspace getWorkspace() { return WorkspaceModelImpl.cachedWorkspace; }
+
+    /**
+     * Determine if this is the first run of the workspace.
+     * 
+     * @return True if this is the first run of the workspace; false otherwise.
+     */
+    Boolean isFirstRun() {
+        logger.info(getApiId("[IS FIRST RUN]"));
+        return null == readCredentials();
+    }
 }
 

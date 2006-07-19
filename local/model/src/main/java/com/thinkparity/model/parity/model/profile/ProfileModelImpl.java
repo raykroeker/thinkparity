@@ -71,6 +71,7 @@ class ProfileModelImpl extends AbstractModelImpl {
         }
         else {
             final Profile profile = new Profile();
+            profile.addEmail("user@domain.com");
             profile.setId(user.getId());
             profile.setLocalId(user.getLocalId());
             profile.setName(user.getName());

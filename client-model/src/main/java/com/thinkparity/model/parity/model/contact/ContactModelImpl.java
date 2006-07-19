@@ -9,14 +9,13 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.contact.FilterManager;
 import com.thinkparity.model.parity.model.filter.user.DefaultFilter;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContactIOHandler;
-import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.sort.contact.NameComparator;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
@@ -135,10 +134,14 @@ class ContactModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
         logger.debug(filter);
-        final List<Contact> contacts = contactIO.read();
-        FilterManager.filter(contacts, filter);
-        ModelSorter.sortContacts(contacts, comparator);
-        return contacts;
+        try { return getInternalSessionModel().readContactList(); }
+        catch(final ParityException px) {
+            throw ParityErrorTranslator.translateUnchecked(px);
+        }
+//        final List<Contact> contacts = contactIO.read();
+//        FilterManager.filter(contacts, filter);
+//        ModelSorter.sortContacts(contacts, comparator);
+//        return contacts;
     }
 
 

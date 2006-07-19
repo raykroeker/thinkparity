@@ -58,11 +58,11 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     Profile read() {
         logger.info(getApiId("[READ]"));
-        assertOnline(getApiId("[READ] [USER NOT ONLINE]"));
         final InternalUserModel uModel = getInternalUserModel();
         final JabberId currentUserId = currentUserId();
         final User user = uModel.read(currentUserId);
         if(null == user) {
+            assertOnline(getApiId("[READ] [USER NOT ONLINE]"));
             try { uModel.create(currentUserId); }
             catch(final ParityException px) {
                 throw ParityErrorTranslator.translateUnchecked(px);

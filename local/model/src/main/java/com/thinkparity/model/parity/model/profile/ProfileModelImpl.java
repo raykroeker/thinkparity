@@ -88,6 +88,6 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     void update(final Profile profile) {
         logger.info(getApiId("[UPDATE]"));
-        throw Assert.createNotYetImplemented("ProfileModelImpl#update(Profile)");
+//        throw Assert.createNotYetImplemented("ProfileModelImpl#update(Profile)");
     }
 }

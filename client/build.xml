@@ -448,10 +448,7 @@ Examples:
     <target name="test-process-resources">
         <copy todir="${target.test-classes.dir}/common/junitx/">
             <fileset dir="${basedir}/common/junitx/src/main/resources"/>
-        </copy>   
-        <copy todir="${target.test-classes.dir}/local/browser/">
-            <fileset dir="${basedir}/local/browser/src/test/resources"/>
-        </copy>   
+        </copy>
         <copy todir="${target.test-classes.dir}/local/model/">
             <fileset dir="${basedir}/local/model/src/test/resources"/>
         </copy>

@@ -45,7 +45,7 @@
     <xsl:template name="index.html">
         <html>
             <head>
-                <title>thinkParity Ophelia JUnit Results</title>
+                <title>thinkParity Desdemona JUnit Results</title>
         <style type="text/css">
           body {
             font:normal 68% tahoma,arial,helvetica;

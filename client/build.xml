@@ -293,7 +293,7 @@ Examples:
 
     <!-- document the source -->
     <target name="javadoc">
-        <!-- codebase -->
+        <!-- common/codebase -->
         <javadoc access="private" classpathref="project.classpath"
                 destdir="${target.javadoc.dir}/common/codebase"
                 doctitle="thinkParity Common Codebase"
@@ -328,7 +328,7 @@ Examples:
 
     <!-- process resources -->
     <target name="process-resources">
-        <!-- codebase -->
+        <!-- common/codebase -->
         <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
         </copy>
@@ -422,12 +422,12 @@ Examples:
             <isset property="compile.debug"/>
         </condition>
 
-        <!-- junitx -->
+        <!-- common/junitx -->
         <javac srcdir="common/junitx/src/main/java"
                 destdir="${target.test-classes.dir}/common/junitx" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>
-        </javac>      
-        <!-- codebase -->
+        </javac>
+        <!-- common/codebase -->
         <javac srcdir="common/codebase/src/test/java"
                 destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
             <classpath refid="project.test-classpath"/>

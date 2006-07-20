@@ -289,7 +289,7 @@ public class BrowserInfoAvatar extends Avatar {
         else {
 //            infoJLabel.setText(ModelUtil.getName(readLocalUser()));
             // TODO Finish the info implementation.
-            infoJLabel.setText("Alan Turing");
+            infoJLabel.setText("Helena Bonham-Carter");
         }
 	}
 }

@@ -1,12 +1,16 @@
-/*
- * Apr 4, 2006
+/**
+ * Created On: 13-Jul-06 1:03:06 PM
+ * $Id$
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import java.awt.Component;
-import java.awt.dnd.DropTargetDragEvent;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JPopupMenu;
@@ -16,41 +20,25 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
-import com.thinkparity.browser.application.browser.display.avatar.main.*;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
+import com.thinkparity.browser.application.browser.display.avatar.container.CellContainer;
+import com.thinkparity.browser.application.browser.display.avatar.container.CellDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupContainer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.container.Container;
-import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
-import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.filter.FilterChain;
-import com.thinkparity.model.parity.model.filter.artifact.Active;
-import com.thinkparity.model.parity.model.filter.artifact.Closed;
-import com.thinkparity.model.parity.model.filter.artifact.IsKeyHolder;
-import com.thinkparity.model.parity.model.filter.artifact.IsNotKeyHolder;
-import com.thinkparity.model.parity.model.filter.artifact.Search;
-import com.thinkparity.model.parity.model.index.IndexHit;
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * @author rob_masako@shaw.ca
+ * @version $Revision$
  */
-public class BrowserMainDocumentModel {
-    
-    /** Temporary code. This saves a container ID. */
-    private Long containerId = null;
+public class BrowserContainersModel {
 
     /**
      * Collection of all filters used by the document model.
      * 
      */
-    private static final Map<Enum<?>, Filter<Artifact>> DOCUMENT_FILTERS;
+    //private static final Map<Enum<?>, Filter<Artifact>> DOCUMENT_FILTERS;
 
+    /*
     static {
         DOCUMENT_FILTERS = new HashMap<Enum<?>, Filter<Artifact>>(5, 0.75F);
         DOCUMENT_FILTERS.put(DocumentFilterKey.STATE_ACTIVE, new Active());
@@ -59,6 +47,7 @@ public class BrowserMainDocumentModel {
         DOCUMENT_FILTERS.put(DocumentFilterKey.KEY_HOLDER_TRUE, new IsKeyHolder());
         DOCUMENT_FILTERS.put(DocumentFilterKey.SEARCH, new Search(new LinkedList<IndexHit>()));
     }
+    */
 
     /** An apache logger. */
     protected final Logger logger;
@@ -70,28 +59,28 @@ public class BrowserMainDocumentModel {
     private CompositeFlatSingleContentProvider contentProvider;
 
     /** A list of "dirty" cells. */
-    private final List<MainCell> dirtyCells;
+    //private final List<MainCell> dirtyCells;
 
     /** The filter that is used to filter documents to produce visibleDocuments. */
-    private final FilterChain<Artifact> documentFilter;
+    //private final FilterChain<Artifact> documentFilter;
 
     /** A map of documents to their history. */
-    private final Map<MainCellDocument, List<MainCellHistoryItem>> documentHistory;
+    //private final Map<MainCellDocument, List<MainCellHistoryItem>> documentHistory;
     
     /** A list of all containers (packages). */
-    private final List<Container> containers;
+    private final List<CellContainer> containers;
 
-    /** A list of all documents. */
-    private final List<MainCellDocument> documents;
+    /** A map of containers to their documents. */
+    private final Map<CellContainer, List<CellDocument>> containerDocuments;
 
     /** The team cell for the document. */
-    private final Map<MainCellDocument, MainCellTeam> documentTeam;
+    //private final Map<MainCellDocument, MainCellTeam> documentTeam;
     
     /** The swing list model. */
     private final DefaultListModel jListModel;
 
     /** The list of cells that are pseudo selected. */
-    private final List<MainCell> pseudoSelection;
+    //private final List<MainCell> pseudoSelection;
 
     /** A list of all visible cells. */
     private final List<MainCell> visibleCells;
@@ -100,43 +89,44 @@ public class BrowserMainDocumentModel {
      * Create a BrowserMainDocumentModel.
      * 
      */
-    BrowserMainDocumentModel(final Browser browser) {
+    BrowserContainersModel(final Browser browser) {
         super();
         this.browser = browser;
+        this.containers = new LinkedList<CellContainer>();   
+        this.containerDocuments = new LinkedHashMap<CellContainer, List<CellDocument>>(10, 0.75F);
+        /*
         this.documentFilter = new FilterChain<Artifact>();
-        this.containers = new LinkedList<Container>();
-        this.documents = new LinkedList<MainCellDocument>();
         this.documentHistory = new Hashtable<MainCellDocument, List<MainCellHistoryItem>>(10, 0.65F);
         this.documentTeam = new HashMap<MainCellDocument, MainCellTeam>(10, 10.0F);
+        */
         this.jListModel = new DefaultListModel();
         this.logger = browser.getPlatform().getLogger(getClass());
+        /*
         this.dirtyCells = new LinkedList<MainCell>();
         this.pseudoSelection = new LinkedList<MainCell>();
+        */
         this.visibleCells = new LinkedList<MainCell>();
     }
 
-    /* Temporary code. This version of code uses exactly one container. */
-    public void setContainer(Long containerId) {
-        this.containerId = containerId;
-    }
-
     /**
-     * Determine whether or not the main cell is expanded.
+     * Determine whether or not the cell is expanded.
      * 
      * @param mainCell
      *            The cell.
      * @return True if the cell is expanded; false otherwise.
      */
     public Boolean isExpanded(final MainCell mainCell) {
-        if(mainCell instanceof MainCellDocument) {
-            return ((MainCellDocument) mainCell).isExpanded();
+        if(mainCell instanceof CellContainer) {
+            return ((CellContainer) mainCell).isExpanded();
         }
+        /*
         else if(mainCell instanceof MainCellHistoryRoot) {
             return ((MainCellHistoryRoot) mainCell).isExpanded();
         }
         else if(mainCell instanceof MainCellTeamRoot) {
             return ((MainCellTeamRoot) mainCell).isExpanded();
         }
+        */
         else { return Boolean.FALSE; }
     }
 
@@ -149,12 +139,12 @@ public class BrowserMainDocumentModel {
      * 
      * @see #removeKeyHolderFilters()
      */
-    void applyKeyHolderFilter(final Boolean keyHolder) {
+/*    void applyKeyHolderFilter(final Boolean keyHolder) {
         applyDocumentFilter(keyHolder
                 ? DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_TRUE)
                         : DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_FALSE));
         syncModel();
-    }
+    }*/
 
     /**
      * Apply a search filter to the list of visible documents.
@@ -164,13 +154,13 @@ public class BrowserMainDocumentModel {
      * 
      * @see #removeSearchFilter()
      */
-    void applySearchFilter(final List<IndexHit> searchResult) {
+/*    void applySearchFilter(final List<IndexHit> searchResult) {
         final Search search = (Search) DOCUMENT_FILTERS.get(DocumentFilterKey.SEARCH);
         search.setResults(searchResult);
 
         applyDocumentFilter(search);
         syncModel();
-    }
+    }*/
 
     /**
      * Apply an artifact state filter to the list of visible documents.
@@ -180,7 +170,7 @@ public class BrowserMainDocumentModel {
      * 
      * @see #removeStateFilters()
      */
-    void applyStateFilter(final ArtifactState state) {
+/*    void applyStateFilter(final ArtifactState state) {
         if(ArtifactState.ACTIVE == state) {
             applyDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_ACTIVE));
             syncModel();
@@ -193,7 +183,7 @@ public class BrowserMainDocumentModel {
             Assert.assertUnreachable(
                     "[BROWSER2] [APP] [B2] [MAIN AVATAR] [MODEL] [CANNOT FILTER BY STATE " + state + "]");
         }
-    }
+    }*/
 
     /**
      * Clear the filter on the visible documents. Note that the search filter
@@ -201,7 +191,7 @@ public class BrowserMainDocumentModel {
      * 
      * @see #removeSearchFilter()
      */
-    void clearDocumentFilters() {
+/*    void clearDocumentFilters() {
         // remove all document filters save the search filter and apply
         // changes
         for(final DocumentFilterKey filterKey : DocumentFilterKey.values()) {
@@ -209,36 +199,46 @@ public class BrowserMainDocumentModel {
             documentFilter.removeFilter(DOCUMENT_FILTERS.get(filterKey));
         }
         syncModel();
-    }
+    }*/
 
     /**
-     * Debug the document filter.
+     * Debug the container filter.
      *
      */
     void debug() {
         if(browser.getPlatform().isDevelopmentMode()) {
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + containers.size() + " PACKAGES]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + documents.size() + " DOCUMENTS]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [" + containers.size() + " CONTAINERS]");
+            Integer documentItems = 0;
+            for(final CellContainer cc : containers) {
+                documentItems += containerDocuments.get(cc).size();
+            }
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [" + documentItems + " DOCUMENTS]");
+            /*
             Integer historyItems = 0;
             for(final MainCellDocument mcd : documents) {
                 historyItems += documentHistory.get(mcd).size();
             }
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + historyItems + " HISTORY EVENTS]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dirtyCells.size() + " DIRTY CELLS]");
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + jListModel.size() + " MODEL ELEMENTS]");
+            */
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
+            //logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dirtyCells.size() + " DIRTY CELLS]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [" + jListModel.size() + " MODEL ELEMENTS]");
             
-            // packages
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [PACKAGES (" + containers.size() + ")]");
-            for(final Container c : containers) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + c.getName() + "]");
+            // containers
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [CONTAINERS (" + containers.size() + ")]");
+            for(final CellContainer cc : containers) {
+                logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL]\t[" + cc.getName() + "]");
             }
-                
+ 
             // documents
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [DOCUMENTS (" + documents.size() + ")]");
-            for(final MainCellDocument mcd : documents) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mcd.getText() + "]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [DOCUMENTS (" + documentItems + ")]");
+            for(final CellContainer cc : containers) {
+                for(final CellDocument cd : containerDocuments.get(cc)) {
+                    logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL]\t[" + cd.getText() + "]");
+                }
             }
+            
+            /*
             // history
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [HISTORY EVENTS (" + historyItems + ")]");
             for(final MainCellDocument mcd : documents) {
@@ -246,25 +246,30 @@ public class BrowserMainDocumentModel {
                     logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mchi.getText() + "]");
                 }
             }
+            */
             // visible cells
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [VISIBLE CELLS (" + visibleCells.size() + ")]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [VISIBLE CELLS (" + visibleCells.size() + ")]");
             for(final MainCell mc : visibleCells) {
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
+                logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL]\t[" + mc.getText() + "]");
             }
+            /*
             // pseudo selection
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [PSEUDO SELECTION (" + pseudoSelection.size() + ")]");
             for(final MainCell mc : pseudoSelection) {
                 logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
             }
+            */
             // list elements
             final Enumeration e = jListModel.elements();
             MainCell mc;
-            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [MODEL ELEMENTS (" + jListModel.size() + ")]");
+            logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL] [MODEL ELEMENTS (" + jListModel.size() + ")]");
             while(e.hasMoreElements()) {
                 mc = (MainCell) e.nextElement();
-                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + mc.getText() + "]");
+                logger.debug("[BROWSER2] [APP] [B2] [CONTAINERS MODEL]\t[" + mc.getText() + "]");
             }
+            /*
             documentFilter.debug(logger);
+            */
         }
     }
 
@@ -280,7 +285,7 @@ public class BrowserMainDocumentModel {
      * 
      * @return True if the document list is filtered; false otherwise.
      */
-    Boolean isDocumentListFiltered() {
+/*    Boolean isDocumentListFiltered() {
         if(documentFilter.isEmpty()) { return Boolean.FALSE; }
         else {
             if(documentFilter.containsFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.SEARCH))) {
@@ -295,17 +300,17 @@ public class BrowserMainDocumentModel {
             }
             else { return Boolean.TRUE; }
         }
-    }
+    }*/
 
     /**
-     * Determine if the document is visible.
+     * Determine if the container is visible.
      * 
-     * @param displayDocument
-     *            The display document.
-     * @return True if the document is visible; false otherwise.
+     * @param cellContainer
+     *            The display container.
+     * @return True if the container is visible; false otherwise.
      */
-    Boolean isDocumentVisible(final MainCellDocument mainCellDocument) {
-        return visibleCells.contains(mainCellDocument);
+    Boolean isContainerVisible(final CellContainer cellContainer) {
+        return visibleCells.contains(cellContainer);
     }
 
     /**
@@ -313,32 +318,32 @@ public class BrowserMainDocumentModel {
      *
      * @see #applyKeyHolderFilter(Boolean)
      */
-    void removeKeyHolderFilters() {
+/*    void removeKeyHolderFilters() {
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_FALSE));
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.KEY_HOLDER_TRUE));
         syncModel();
-    }
+    }*/
 
     /**
      * Remove the search filter.
      * 
      * @see #applySearchFilter(List)
      */
-    void removeSearchFilter() {
+/*    void removeSearchFilter() {
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.SEARCH));
         syncModel();
-    }
+    }*/
 
     /**
      * Remove the state filters.
      * 
      * @see #applyStateFilter(ArtifactState)
      */
-    void removeStateFilters() {
+/*    void removeStateFilters() {
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_ACTIVE));
         removeDocumentFilter(DOCUMENT_FILTERS.get(DocumentFilterKey.STATE_CLOSED));
         syncModel();
-    }
+    }*/
 
     /**
      * Set the content provider. This will initialize the model with documents
@@ -354,19 +359,19 @@ public class BrowserMainDocumentModel {
     }
 
     /**
-     * Synchronize the document with the list. The content provider is queried
-     * for the document and if it can be obtained; it will either be added to or
+     * Synchronize the container with the list. The content provider is queried
+     * for the container and if it can be obtained; it will either be added to or
      * updated in the list. If it cannot be found; it will be removed from the
      * list.
      * 
-     * @param documentId
-     *            The document id.
+     * @param containerId
+     *            The container id.
      * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
      */
-    void syncDocument(final Long documentId, final Boolean remote) {
-        syncDocumentInternal(documentId, remote);
+    void syncContainer(final Long containerId, final Boolean remote) {
+        syncContainerInternal(containerId, remote);
         syncModel();
     }
 
@@ -384,12 +389,12 @@ public class BrowserMainDocumentModel {
      * @see #syncDocumentInternal(Long, Boolean)
      * @see #syncModel()
      */
-    void syncDocuments(final List<Long> documentIds, final Boolean remote) {
+/*    void syncDocuments(final List<Long> documentIds, final Boolean remote) {
         for(final Long documentId : documentIds) {
             syncDocumentInternal(documentId, remote);
         }
         syncModel();
-    }
+    }*/
 
     /**
      * Trigger a double click event for the cell.
@@ -397,7 +402,7 @@ public class BrowserMainDocumentModel {
      * @param mainCell
      *            The main cell.
      */
-    void triggerDoubleClick(final MainCell mainCell) {
+/*    void triggerDoubleClick(final MainCell mainCell) {
         debug();
         // RBM 13/06/05 #36 Double click will open the document instead of expanding
         // The old line of code commented out:
@@ -413,7 +418,7 @@ public class BrowserMainDocumentModel {
             final MainCellHistoryItem mch = (MainCellHistoryItem) mainCell;
             browser.runOpenDocumentVersion(mch.getDocumentId(),mch.getVersionId());
         }
-    }
+    }*/
 
     /**
      * Trigger a drag event for the cell.
@@ -423,7 +428,7 @@ public class BrowserMainDocumentModel {
      * @param dtde
      *            The drop target drag event.
      */
-    void triggerDragOver(final MainCell mainCell, final DropTargetDragEvent dtde) {}
+    //void triggerDragOver(final MainCell mainCell, final DropTargetDragEvent dtde) {}
 
     /**
      * Trigger the expansion of the cell.
@@ -432,19 +437,20 @@ public class BrowserMainDocumentModel {
      *            The main cell.
      */
     void triggerExpand(final MainCell mainCell) {
-        if(mainCell instanceof MainCellDocument) {
-            final MainCellDocument mcd = (MainCellDocument) mainCell;
-            if(isExpanded(mcd)) {
-                collapse(mcd);
-                pseudoUnselectAll(documentHistory.get(mcd));
+        if(mainCell instanceof CellContainer) {
+            final CellContainer cc = (CellContainer) mainCell;
+            if(isExpanded(cc)) {
+                collapse(cc);
+                //pseudoUnselectAll(documentHistory.get(mcd));
             }
             else {
-                expand(mcd);
-                pseudoSelectAll(documentHistory.get(mcd));
+                expand(cc);
+                //pseudoSelectAll(documentHistory.get(mcd));
             }
 
-            syncModel();
+            //syncModel();  needed perhaps because of pseudoSelectAll?
         }
+        /*
         else if(mainCell instanceof MainCellHistoryRoot) {
             final MainCellHistoryRoot mchr = (MainCellHistoryRoot) mainCell;
             if(isExpanded(mchr)) { collapse(mchr); }
@@ -457,6 +463,7 @@ public class BrowserMainDocumentModel {
             else { expand(mctr); }
             syncModel();
         }
+        */
     }
 
     /**
@@ -468,13 +475,12 @@ public class BrowserMainDocumentModel {
     void triggerPopup(final MainCell mainCell, final Component invoker, final MouseEvent e,
             final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        if(mainCell instanceof MainCellDocument) {
-            new PopupDocument(contentProvider, (MainCellDocument) mainCell).trigger(browser, jPopupMenu, e);
+        if ((null==mainCell) ||    // null if right-click on an empty area of the JList
+            (mainCell instanceof CellContainer)) {
+            new PopupContainer(contentProvider, (CellContainer) mainCell).trigger(browser, jPopupMenu, e);                
         }
-        else if(mainCell instanceof MainCellHistoryItem) {
-            new PopupHistoryItem((MainCellHistoryItem) mainCell).trigger(browser, jPopupMenu, e);
-        }
-        logger.info("[LBROWSER] [APPLICATION] [BROWSER] [DOCUMENT AVATAR] [TRIGGER POPUP]");
+//new PopupHistoryItem((MainCellHistoryItem) mainCell).trigger(browser, jPopupMenu, e);
+        logger.info("[LBROWSER] [APPLICATION] [BROWSER] [CONTAINERS AVATAR] [TRIGGER POPUP]");
         logger.debug(browser.getConnection());
         jPopupMenu.show(invoker, x, y);
     }
@@ -485,7 +491,7 @@ public class BrowserMainDocumentModel {
      * @param mainCell
      *            The main cell.
      */
-    void triggerSelection(final MainCell mainCell) {
+/*    void triggerSelection(final MainCell mainCell) {
         pseudoSelection.clear();
 
         if(mainCell instanceof MainCellDocument) {
@@ -504,7 +510,7 @@ public class BrowserMainDocumentModel {
             pseudoSelect(mchi.getDocument());
             pseudoSelectAll(documentHistory.get(mchi.getDocument()));
         }
-    }
+    }*/
 
     /**
      * Apply the specified filter.
@@ -512,34 +518,34 @@ public class BrowserMainDocumentModel {
      * @param filter
      *            The document filter.
      */
-    private void applyDocumentFilter(final Filter<Artifact> filter) {
+/*    private void applyDocumentFilter(final Filter<Artifact> filter) {
         if(!documentFilter.containsFilter(filter)) {
             documentFilter.addFilter(filter);
         }
-    }
+    }*/
 
     /**
-     * Perform a shallow clone of the documents list.
+     * Perform a shallow clone of the containers list.
      * 
-     * @return A copy of the documents list.
+     * @return A copy of the containers list.
      */
-    private List<MainCellDocument> cloneDocuments() {
-        final List<MainCellDocument> clone = new LinkedList<MainCellDocument>();
-        clone.addAll(documents);
+    private List<CellContainer> cloneContainers() {
+        final List<CellContainer> clone = new LinkedList<CellContainer>();
+        clone.addAll(containers);
         return clone;
     }
 
     /**
-     * Collapse the history.
+     * Collapse the details for the container.
      * 
-     * @param mcd
-     *            The main cell document.
+     * @param cc
+     *            The cell container.
      */
-    private void collapse(final MainCellDocument mcd) {
-        mcd.setExpanded(Boolean.FALSE);
+    private void collapse(final CellContainer cc) {
+        cc.setExpanded(Boolean.FALSE);
         syncModel();
     }
-
+/*
     private void collapse(final MainCellHistoryRoot mchr) {
         mchr.setExpanded(Boolean.FALSE);
         syncModel();
@@ -548,19 +554,19 @@ public class BrowserMainDocumentModel {
     private void collapse(final MainCellTeamRoot mctr) {
         mctr.setExpanded(Boolean.FALSE);
         syncModel();
-    }
+    }*/
 
     /**
-     * Expand the history for the document.
+     * Expand the details for the container.
      * 
-     * @param mcd
-     *            The main cell document.
+     * @param cc
+     *            The cell container.
      */
-    private void expand(final MainCellDocument mcd) {
-        mcd.setExpanded(Boolean.TRUE);
+    private void expand(final CellContainer cc) {
+        cc.setExpanded(Boolean.TRUE);
         syncModel();
     }
-
+/*
     private void expand(final MainCellHistoryRoot mchr) {
         mchr.setExpanded(Boolean.TRUE);
         syncModel();
@@ -569,7 +575,7 @@ public class BrowserMainDocumentModel {
     private void expand(final MainCellTeamRoot mctr) {
         mctr.setExpanded(Boolean.TRUE);
         syncModel();
-    }
+    }*/
 
     /**
      * Initialize the document model
@@ -582,11 +588,16 @@ public class BrowserMainDocumentModel {
      */
     private void initModel() {
         // read the containers from the provider into the list.
-        // it will be called "MyContainer".
-        // only the first container will be used (this is temporary code)
         containers.clear();
-        documents.clear();
         containers.addAll(readContainers());
+        
+        // For each container, read the documents
+        for(final CellContainer cc : containers) {
+            containerDocuments.put(cc, readDocuments(cc));
+        }
+        
+        /*
+        documents.clear();
         if(!containers.isEmpty()) {
             final Container c = containers.get(0);
             // read the documents from the provider into the list
@@ -596,10 +607,11 @@ public class BrowserMainDocumentModel {
                 documentTeam.put(mcd, new MainCellTeam(mcd, readTeam(mcd)));
             }           
         }
+        */
         syncModel();
     }
 
-    private void pseudoSelect(final MainCell mainCell) {
+/*    private void pseudoSelect(final MainCell mainCell) {
         pseudoSelection.add(mainCell);
     }
 
@@ -614,17 +626,17 @@ public class BrowserMainDocumentModel {
 
     private void pseudoUnselectAll(final List<? extends MainCell> mainCells) {
         for(final MainCell mc : mainCells) { pseudoUnselect(mc); }
-    }
+    }*/
 
     /**
-     * Read a document from the provider.
+     * Read a container from the provider.
      * 
-     * @param documentId
-     *            The document id.
-     * @return The document.
+     * @param containerId
+     *            The container id.
+     * @return The container.
      */
-    private MainCellDocument readDocument(final Long documentId) {
-        return (MainCellDocument) contentProvider.getElement(0, documentId);
+    private CellContainer readContainer(final Long containerId) {
+        return (CellContainer) contentProvider.getElement(0, containerId);
     }
     
     /**
@@ -632,23 +644,26 @@ public class BrowserMainDocumentModel {
      * 
      * @return The containers.
      */
-    private List<Container> readContainers() {
-        final List<Container> l = new LinkedList<Container>();
-        final Container[] a = (Container[]) contentProvider.getElements(6,null);
-        for(final Container c : a) { l.add(c); }
+    private List<CellContainer> readContainers() {
+        final List<CellContainer> l = new LinkedList<CellContainer>();
+        final CellContainer[] a = (CellContainer[]) contentProvider.getElements(0, null);
+        for(final CellContainer c : a) { l.add(c); }
         return l;
     }
 
     /**
      * Read the documents from the provider.
      * 
+     * @param cellContainer
+     *            The container.
+     * 
      * @return The documents.
      */
-    private List<MainCellDocument> readDocuments(final Container container) {
-        final List<MainCellDocument> l = new LinkedList<MainCellDocument>();
-        final MainCellDocument[] a =
-                (MainCellDocument[]) contentProvider.getElements(0, container);
-        for(final MainCellDocument mcd : a) { l.add(mcd); }
+    private List<CellDocument> readDocuments(final CellContainer cellContainer) {
+        final List<CellDocument> l = new LinkedList<CellDocument>();
+        final CellDocument[] a =
+                (CellDocument[]) contentProvider.getElements(1, cellContainer);
+        for(final CellDocument cd : a) { l.add(cd); }
         return l;
     }
 
@@ -659,14 +674,14 @@ public class BrowserMainDocumentModel {
      *            The document.
      * @return The history.
      */
-    private List<MainCellHistoryItem> readHistory(
+/*    private List<MainCellHistoryItem> readHistory(
             final MainCellDocument mainCellDocument) {
         final List<MainCellHistoryItem> l = new LinkedList<MainCellHistoryItem>();
         final MainCellHistoryItem[] a =
                 (MainCellHistoryItem[]) contentProvider.getElements(1, mainCellDocument);
         for(final MainCellHistoryItem mchi : a) { l.add(mchi); }
         return l;
-    }
+    }*/
 
     /**
      * Read the team for the document from the provider.
@@ -675,13 +690,13 @@ public class BrowserMainDocumentModel {
      *            The document.
      * @return The document team.
      */
-    private List<MainCellUser> readTeam(final MainCellDocument mcd) {
+/*    private List<MainCellUser> readTeam(final MainCellDocument mcd) {
         final List<MainCellUser> l = new ArrayList<MainCellUser>();
         final MainCellUser[] a =
             (MainCellUser[]) contentProvider.getElements(5, mcd);
         for(final MainCellUser mcu : a) { l.add(mcu); }
         return l;
-    }
+    }*/
 
     /**
      * Remove a document filter.
@@ -689,40 +704,41 @@ public class BrowserMainDocumentModel {
      * @param filter
      *            The document filter.
      */
-    private void removeDocumentFilter(final Filter<Artifact> filter) {
+/*    private void removeDocumentFilter(final Filter<Artifact> filter) {
         if(documentFilter.containsFilter(filter)) {
             documentFilter.removeFilter(filter);
         }
-    }
+    }*/
+    
     /**
-     * Synchronize the document with the list. The content provider is queried
-     * for the document and if it can be obtained; it will either be added to or
+     * Synchronize the container with the list. The content provider is queried
+     * for the container and if it can be obtained; it will either be added to or
      * updated in the list as well as its history updated. If it cannot be found;
      * it will be removed from the list.
      * 
-     * @param documentId
-     *            The document id.
+     * @param containerId
+     *            The container id.
      * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
      * 
-     * @see #syncDocument(Long, Boolean)
+     * @see #syncContainer(Long, Boolean)
      * @see #syncModel()
      */
-    private void syncDocumentInternal(final Long documentId,
-            final Boolean remote) {
-        final MainCellDocument mainCellDocument = readDocument(documentId);
+    private void syncContainerInternal(final Long containerId, final Boolean remote) {
+        final CellContainer cellContainer = readContainer(containerId);
 
-        // if the document is null; we can assume the document has been
+        // if the container is null; we can assume the container has been
         // deleted (it's not longer being created by the provider); so we find
-        // the document and remove it
-        if(null == mainCellDocument) {
-            for(int i = 0; i < documents.size(); i++) {
-                if(documents.get(i).getId().equals(documentId)) {
-                    documents.remove(i);
+        // the container and remove it
+        if(null == cellContainer) {
+            for(int i = 0; i < containers.size(); i++) {
+                if(containers.get(i).getId().equals(containerId)) {
+                    containers.remove(i);
                     break;
                 }
             }
+            /*
             final MainCellDocument[] historyKeys =
                 (MainCellDocument[]) documentHistory.keySet().toArray(new MainCellDocument[] {});
             for(int i = 0; i < historyKeys.length; i++) {
@@ -731,58 +747,72 @@ public class BrowserMainDocumentModel {
                     break;
                 }
             }
+            */
         }
-        // the document is not null; therefore it is either new; or updated
+        // the container is not null; therefore it is either new; or updated
         else {
 
-            // the document is new
-            if(!documents.contains(mainCellDocument)) {
-                documents.add(0, mainCellDocument);
-                documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
-                documentTeam.put(mainCellDocument, new MainCellTeam(mainCellDocument, readTeam(mainCellDocument)));
+            // the container is new
+            if(!containers.contains(cellContainer)) {
+                containers.add(0, cellContainer);
+                containerDocuments.put(cellContainer, readDocuments(cellContainer));
+                
+                /*
+                documentHistory.put(cellContainer, readHistory(cellContainer));
+                documentTeam.put(cellContainer, new MainCellTeam(cellContainer, readTeam(cellContainer)));
+                */
             }
-            // the document has been updated
+            // the container has been updated
             else {
-                final int index = documents.indexOf(mainCellDocument);
+                /*
+                final int index = containers.indexOf(cellContainer);
 
                 // preserve expand\collapse state
-                mainCellDocument.setExpanded(documents.get(index).isExpanded());
+                cellContainer.setExpanded(containers.get(index).isExpanded());
 
-                documents.remove(index);
+                containers.remove(index);
 
                 // if the reload is the result of a remote event add the document
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                if(remote) { documents.add(0, mainCellDocument); }
-                else { documents.add(index, mainCellDocument); }
-                documentTeam.put(mainCellDocument, new MainCellTeam(mainCellDocument, readTeam(mainCellDocument)));
-                documentHistory.put(mainCellDocument, readHistory(mainCellDocument));
+                if(remote) { containers.add(0, cellContainer); }
+                else { containers.add(index, cellContainer); }
+                documentTeam.put(mainCellDocument, new MainCellTeam(cellContainer, readTeam(cellContainer)));
+                documentHistory.put(cellContainer, readHistory(cellContainer));
 
-                dirtyCells.add(mainCellDocument);
-                dirtyCells.addAll(documentHistory.get(mainCellDocument));
-                dirtyCells.add(documentTeam.get(mainCellDocument));
+                dirtyCells.add(cellContainer);
+                dirtyCells.addAll(documentHistory.get(cellContainer));
+                dirtyCells.add(documentTeam.get(cellContainer));
+                */
             }
         }
     }
 
     /**
-     * Filter the list of documents. Update the visible cell list with documents
-     * as well as the history. Update the model with the visible cell list.
+     * Filter the list of containers. Update the visible cell list with containers
+     * as well as the documents. Update the model with the visible cell list.
      * 
      */
     private void syncModel() {
         debug();
-        // filter documents
-        final List<MainCellDocument> filteredDocuments = cloneDocuments();
+        // filter containers
+        final List<CellContainer> filteredContainers = cloneContainers();
+        /*
         ArtifactFilterManager.filter(filteredDocuments, documentFilter);
+        */
         // update all visible cells
         visibleCells.clear();
-        for(final MainCellDocument mcd : filteredDocuments) {
-            visibleCells.add(mcd);
-            if(mcd.isExpanded()) {
-                visibleCells.add(documentTeam.get(mcd));
-                visibleCells.addAll(documentHistory.get(mcd));
+        for(final CellContainer cc : filteredContainers) {
+            visibleCells.add(cc);
+            if(cc.isExpanded()) {
+                visibleCells.addAll(containerDocuments.get(cc));
             }
+            /*
+            if(cc.isExpanded()) {
+                visibleCells.add(documentTeam.get(cc));
+                visibleCells.addAll(documentHistory.get(cc));
+            }
+            */
         }
 
         // add visible cells not in the model; as well as update cell
@@ -805,7 +835,7 @@ public class BrowserMainDocumentModel {
         for(final MainCell mc : mcModel) {
             if(!visibleCells.contains(mc)) { jListModel.removeElement(mc); }
         }
-
+/*
         // update dirty cells
         final Iterator<MainCell> iDirty = dirtyCells.iterator();
         MainCell mcDirty;
@@ -820,7 +850,7 @@ public class BrowserMainDocumentModel {
 
         if(isDocumentListFiltered()) { browser.fireFilterApplied(); }
         else { browser.fireFilterRevoked(); }
-
+*/
         debug();
     }
 
@@ -828,7 +858,7 @@ public class BrowserMainDocumentModel {
      * Unique keys used in the {@link DOCUMENT_FILTERS} collection.
      * 
      */
-    private enum DocumentFilterKey {
+/*    private enum DocumentFilterKey {
         KEY_HOLDER_FALSE, KEY_HOLDER_TRUE, SEARCH, STATE_ACTIVE, STATE_CLOSED
-    }
+    }*/
 }

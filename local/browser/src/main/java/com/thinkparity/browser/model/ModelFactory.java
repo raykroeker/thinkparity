@@ -5,6 +5,7 @@ package com.thinkparity.browser.model;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.download.DownloadModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
@@ -39,11 +40,14 @@ public class ModelFactory {
     /** The parity artifact interface. */
 	private ArtifactModel artifactModel;
     
-    /** The parity contact interface. */
-    private ContactModel contactModel;
+    /** The parity container (package) interface. */
+    private ContainerModel containerModel;   
     
     /** The parity document interface. */
-	private DocumentModel documentModel;  
+	private DocumentModel documentModel;
+      
+    /** The parity contact interface. */
+    private ContactModel contactModel;  
 
     /** The parity download interface. */
     private DownloadModel download;
@@ -91,6 +95,10 @@ public class ModelFactory {
 	public ArtifactModel getArtifactModel(final Class clasz) {
 		return artifactModel;
 	}
+    
+    public ContainerModel getContainerModel(final Class clasz) {
+        return containerModel;
+    }
 
 	public ContactModel getContactModel(final Class clasz) {
         return contactModel;
@@ -177,13 +185,14 @@ public class ModelFactory {
 	}
 
     /**
-     * Initialize the model factory.
-     * 
-     */
-    public void initialize() {
-        if(!isInitialized) {
-            artifactModel = ArtifactModel.getModel();
-            documentModel = DocumentModel.getModel();
+	 * Initialize the model factory.
+	 * 
+	 */
+	public void initialize() {
+		if(!isInitialized) {
+			artifactModel = ArtifactModel.getModel();
+            containerModel = ContainerModel.getModel();            
+			documentModel = DocumentModel.getModel();
             contactModel = ContactModel.getModel();
             download = DownloadModel.getModel();
             indexModel = IndexModel.getModel();

@@ -42,6 +42,7 @@ import com.thinkparity.browser.platform.action.artifact.Search;
 import com.thinkparity.browser.platform.action.contact.CreateInvitation;
 import com.thinkparity.browser.platform.action.contact.DeleteContact;
 import com.thinkparity.browser.platform.action.contact.OpenContact;
+import com.thinkparity.browser.platform.action.container.CreateContainer;
 import com.thinkparity.browser.platform.action.document.*;
 import com.thinkparity.browser.platform.action.session.AcceptInvitation;
 import com.thinkparity.browser.platform.action.session.DeclineInvitation;
@@ -70,6 +71,8 @@ import com.thinkparity.model.xmpp.JabberId;
  * @version 1.1
  */
 public class Browser extends AbstractApplication {
+    
+    Long containerId = null;
 
 	/**
 	 * Instance of the browser.
@@ -110,8 +113,6 @@ public class Browser extends AbstractApplication {
 	/** The browser's connection. */
     private Connection connection;
 
-    private BrowserTab currentTab = BrowserTab.DOCUMENTS_TAB;
-
 	/** The browser's event dispatcher. */
 	private EventDispatcher ed;
 	
@@ -139,7 +140,14 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	private final BrowserState state;
+    
     /**
+     * The current tab (documents or contacts)
+     */
+    private enum BrowserTab { PACKAGES_TAB, DOCUMENTS_TAB, CONTACTS_TAB }
+    private BrowserTab currentTab = BrowserTab.PACKAGES_TAB;
+
+	/**
 	 * Create a Browser [Singleton]
 	 * 
 	 */
@@ -168,21 +176,40 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Set the search results in the search filter and apply it to the document
+     * Set the search results in the search filter and apply it to the current
      * list.
      * 
      * @param searchResult
      *            The search results.
      */
 	public void applySearchFilter(final List<IndexHit> searchResult) {
-        if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
+        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
+            getContainersAvatar().applySearchFilter(searchResult);            
+        }
+        else if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
 	        getMainAvatar().applySearchFilter(searchResult);
         }
         else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
             getContactsAvatar().applySearchFilter(searchResult);
         }
 	}
-    
+
+    /**
+     * Remove the search filter from the current list.
+     *
+     */
+    public void removeSearchFilter() {
+        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
+            getContainersAvatar().removeSearchFilter();
+        }
+        else if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
+            getMainAvatar().removeSearchFilter();
+        }
+        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
+            getContactsAvatar().removeSearchFilter();
+        }
+    }
+
     /**
      * Apply an artifact state filter.
      * 
@@ -275,6 +302,15 @@ public class Browser extends AbstractApplication {
 	public void displayContactSearch() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEARCH_PARTNER);
 	}
+    
+    /**
+     * Display the "new container" dialog (to create new packages).
+     * If the user presses OK, runCreateContainer(name) is called.
+     * 
+     */
+    public void displayNewContainerDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.NEW_CONTAINER_DIALOGUE);
+    }
 
     /**
      * Display a document rename dialog.
@@ -319,14 +355,15 @@ public class Browser extends AbstractApplication {
 	public void displaySessionManageContacts() {
         // TO DO fix up! Change this method and set up tabs properly
         //displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
-        if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
+        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
             setCurrentTab(BrowserTab.CONTACTS_TAB);
             displayContactListAvatar();
         }
         else {
-            setCurrentTab(BrowserTab.DOCUMENTS_TAB);
-            displayDocumentListAvatar();
+            setCurrentTab(BrowserTab.PACKAGES_TAB);
+            displayContainerListAvatar();
         }
+        // DOCUMENTS_TAB disabled
 	}
 
     /**
@@ -412,6 +449,21 @@ public class Browser extends AbstractApplication {
             public void run() { getMainAvatar().syncDocument(documentId, Boolean.FALSE); }
         });
     }
+    
+    /**
+     * Notify the application that a document has been created.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param documentId
+     *            The document id.
+     */
+    public void fireDocumentCreated(final long containerId, final Long documentId, final Boolean remote) {
+        setCustomStatusMessage("DocumentCreated");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContainersAvatar().syncDocument(containerId, documentId, remote); }
+        });
+    }
 
 	/**
 	 * Notify the application that a document has been created.
@@ -425,6 +477,38 @@ public class Browser extends AbstractApplication {
 			public void run() { getMainAvatar().syncDocument(documentId, remote); }
 		});
 	}
+    
+    /**
+     * Notify the application that a container has been created.
+     * 
+     * @param containerId
+     *            The container id.         
+     */
+    public void fireContainerCreated(final Long containerId, final Boolean remote) {
+        this.containerId = containerId;
+        setCustomStatusMessage("ContainerCreated");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContainersAvatar().syncContainer(containerId, remote); }
+        });
+        // TO DO remove this!
+        this.containerId = containerId;
+        final File file1 = new File("C:\\RBM\\ThinkParity\\a.txt");
+        runCreateDocument(containerId,file1);
+    }
+    
+    /**
+     * Notify the application that a contact has been added.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void fireContactAdded(final JabberId contactId, final Boolean remote) {
+        setCustomStatusMessage("ContactAdded");
+        // refresh the contact list
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContactsAvatar().syncContact(contactId, remote); }
+        });
+    }
 
     /**
 	 * Notify the application that a document has been deleted.
@@ -690,19 +774,6 @@ public class Browser extends AbstractApplication {
     }
 
 	/**
-     * Remove the search filter from the document list.
-     *
-     */
-    public void removeSearchFilter() {
-        if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
-            getMainAvatar().removeSearchFilter();
-        }
-        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
-            getContactsAvatar().removeSearchFilter();
-        }
-    }
-
-	/**
      * Remove the artifact state filter.
      * 
      * @see BrowserMainAvatar#removeStateFilter()
@@ -716,7 +787,7 @@ public class Browser extends AbstractApplication {
 	public void restore(final Platform platform) {
 		assertStatusChange(ApplicationStatus.RESTORING);
         
-        setCurrentTab(BrowserTab.DOCUMENTS_TAB);
+        setCurrentTab(BrowserTab.PACKAGES_TAB);
 		reOpenMainWindow();
 
 		setStatus(ApplicationStatus.RESTORING);
@@ -831,16 +902,64 @@ public class Browser extends AbstractApplication {
 		data.set(Close.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_CLOSE, data);
 	}
+    
+    /**
+     * Run the create container (package) action.
+     * 
+     */
+    public void runCreateContainer() {
+        // Note: passing null for data or null for NAME will crash.
+        final Data data = new Data(1);
+        data.set(CreateContainer.DataKey.NAME, "");
+        invoke(ActionId.CONTAINER_CREATE, data);
+    }
 
     /**
-	 * Run the create document action.
+     * Create a container (package).
+     * 
+     * @param name
+     *            The container name.
+     */
+    public void runCreateContainer(final String name) {
+        final Data data = new Data(1);
+        data.set(CreateContainer.DataKey.NAME, name);
+        invoke(ActionId.CONTAINER_CREATE, data);
+    }
+    
+    /**
+     * Run the create document action.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param file
+     *            The document file.
+     */
+    public void runCreateDocument(final Long containerId, final File file) {
+        final Data data = new Data(2);
+        data.set(Create.DataKey.FILE, file);
+        data.set(Create.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.DOCUMENT_CREATE, data);        
+    }
+
+    /**
+	 * Run the create document action, browse to select the document.
+     * 
+     * @param containerId
+     *            The container id.
 	 *
 	 */
-	public void runCreateDocument() {
-		if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(mainWindow)) {
-		    runCreateDocument(jFileChooser.getSelectedFile());
+	public void runCreateDocument(final Long containerId) {
+	    if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(mainWindow)) {
+		    runCreateDocument(containerId, jFileChooser.getSelectedFile());
 		}
 	}
+    
+    // TO DO... erase this one.
+    public void runCreateDocument() {
+        if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(mainWindow)) {
+            runCreateDocument(containerId, jFileChooser.getSelectedFile());
+        }
+    }   
 
     /**
      * Create a document.
@@ -849,20 +968,22 @@ public class Browser extends AbstractApplication {
      *            The document file.
      */
     public void runCreateDocument(final File file) {
-        final Data data = new Data(1);
+        final Data data = new Data(2);
         data.set(Create.DataKey.FILE, file);
+        data.set(Create.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.DOCUMENT_CREATE, data);
     }
-
-    /**
+    
+	/**
      * Create multiple documents.
      * 
      * @param files
      *            The files.
      */
     public void runCreateDocuments(final List<File> files) {
-        final Data data = new Data(1);
+        final Data data = new Data(2);
         data.set(CreateDocuments.DataKey.FILES, files);
+        data.set(CreateDocuments.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CREATE_DOCUMENTS, data);
     }
 
@@ -1138,11 +1259,11 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Display the contacts list.
-     *
+     * Display the container list.
+     * 
      */
-    void displayContactListAvatar() {
-        displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_CONTACTS);
+    void displayContainerListAvatar() {
+        displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_CONTAINERS);
     }
 
     /**
@@ -1152,7 +1273,15 @@ public class Browser extends AbstractApplication {
 	void displayDocumentListAvatar() {
 		displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_MAIN);
 	}
-
+    
+    /**
+     * Display the contact list.
+     *
+     */
+    void displayContactListAvatar() {
+        displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_CONTACTS);
+    }
+    
 	/**
 	 * Display the browser info.
 	 *
@@ -1343,9 +1472,18 @@ public class Browser extends AbstractApplication {
 		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
 		return jFileChooser;
 	}
-
+    
     /**
-     * Convenience method to obtain the main avatar.
+     * Convenience method to obtain the container list avatar.
+     * 
+     * @return The containers avatar.
+     */
+    private BrowserContainersAvatar getContainersAvatar() {
+        return (BrowserContainersAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTAINERS);
+    }
+
+	/**
+     * Convenience method to obtain the main (documents) avatar.
      * 
      * @return The main avatar.
      */
@@ -1471,9 +1609,4 @@ public class Browser extends AbstractApplication {
             });
         }
     }
-
-    /**
-     * The current tab (documents or contacts)
-     */
-    private enum BrowserTab { CONTACTS_TAB, DOCUMENTS_TAB }
 }

@@ -19,6 +19,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
@@ -210,6 +211,15 @@ public abstract class AbstractAction {
         for(final Object o : list) { users.add((User) o); }
         return users;
     }
+    
+    /**
+     * Obtain the container model api.
+     * 
+     * @return The container model api.
+     */
+    protected ContainerModel getContainerModel() {
+        return modelFactory.getContainerModel(getClass());
+    }  
 
 	/**
 	 * Obtain the document model api.
@@ -218,7 +228,7 @@ public abstract class AbstractAction {
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}
+	}   
     
     /**
      * Obtain the contact model api.

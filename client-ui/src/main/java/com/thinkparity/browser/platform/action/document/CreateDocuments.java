@@ -12,6 +12,7 @@ import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.document.Create.DataKey;
 
 /**
  * @author raykroeker@gmail.com
@@ -53,15 +54,17 @@ public class CreateDocuments extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		final List<File> files = getDataFiles(data, DataKey.FILES);
 
         final Create create = new Create(browser);
-        final Data createData = new Data(1);
+        final Data createData = new Data(2);
         for(final File file : files) {
             createData.set(Create.DataKey.FILE, file);
+            createData.set(Create.DataKey.CONTAINER_ID, containerId);
             create.invoke(createData);
         }
 	}
 
-	public enum DataKey { FILES }
+	public enum DataKey { FILES, CONTAINER_ID }
 }

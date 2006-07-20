@@ -25,9 +25,10 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
+import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.FilterChain;
-import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.artifact.Active;
 import com.thinkparity.model.parity.model.filter.artifact.Closed;
 import com.thinkparity.model.parity.model.filter.artifact.IsKeyHolder;
@@ -40,6 +41,9 @@ import com.thinkparity.model.parity.model.index.IndexHit;
  * @version 1.1
  */
 public class BrowserMainDocumentModel {
+    
+    /** Temporary code. This saves a container ID. */
+    private Long containerId = null;
 
     /**
      * Collection of all filters used by the document model.
@@ -73,6 +77,9 @@ public class BrowserMainDocumentModel {
 
     /** A map of documents to their history. */
     private final Map<MainCellDocument, List<MainCellHistoryItem>> documentHistory;
+    
+    /** A list of all containers (packages). */
+    private final List<Container> containers;
 
     /** A list of all documents. */
     private final List<MainCellDocument> documents;
@@ -97,6 +104,7 @@ public class BrowserMainDocumentModel {
         super();
         this.browser = browser;
         this.documentFilter = new FilterChain<Artifact>();
+        this.containers = new LinkedList<Container>();
         this.documents = new LinkedList<MainCellDocument>();
         this.documentHistory = new Hashtable<MainCellDocument, List<MainCellHistoryItem>>(10, 0.65F);
         this.documentTeam = new HashMap<MainCellDocument, MainCellTeam>(10, 10.0F);
@@ -105,6 +113,11 @@ public class BrowserMainDocumentModel {
         this.dirtyCells = new LinkedList<MainCell>();
         this.pseudoSelection = new LinkedList<MainCell>();
         this.visibleCells = new LinkedList<MainCell>();
+    }
+
+    /* Temporary code. This version of code uses exactly one container. */
+    public void setContainer(Long containerId) {
+        this.containerId = containerId;
     }
 
     /**
@@ -204,6 +217,7 @@ public class BrowserMainDocumentModel {
      */
     void debug() {
         if(browser.getPlatform().isDevelopmentMode()) {
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + containers.size() + " PACKAGES]");
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + documents.size() + " DOCUMENTS]");
             Integer historyItems = 0;
             for(final MainCellDocument mcd : documents) {
@@ -213,7 +227,13 @@ public class BrowserMainDocumentModel {
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + visibleCells.size() + " VISIBLE CELLS]");
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + dirtyCells.size() + " DIRTY CELLS]");
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [" + jListModel.size() + " MODEL ELEMENTS]");
-
+            
+            // packages
+            logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [PACKAGES (" + containers.size() + ")]");
+            for(final Container c : containers) {
+                logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL]\t[" + c.getName() + "]");
+            }
+                
             // documents
             logger.debug("[BROWSER2] [APP] [B2] [MAIN MODEL] [DOCUMENTS (" + documents.size() + ")]");
             for(final MainCellDocument mcd : documents) {
@@ -554,18 +574,27 @@ public class BrowserMainDocumentModel {
     /**
      * Initialize the document model
      * <ol>
+     * <li>Load the containers from the provider.
      * <li>Load the documents from the provider.
      * <li>Load the history from the provider.
      * <li>Synchronize the data with the model.
      * <ol>
      */
     private void initModel() {
-        // read the documents from the provider into the list
+        // read the containers from the provider into the list.
+        // it will be called "MyContainer".
+        // only the first container will be used (this is temporary code)
+        containers.clear();
         documents.clear();
-        documents.addAll(readDocuments());
-        for(final MainCellDocument mcd : documents) {
-            documentHistory.put(mcd, readHistory(mcd));
-            documentTeam.put(mcd, new MainCellTeam(mcd, readTeam(mcd)));
+        containers.addAll(readContainers());
+        if(!containers.isEmpty()) {
+            final Container c = containers.get(0);
+            // read the documents from the provider into the list
+            documents.addAll(readDocuments(c));
+            for(final MainCellDocument mcd : documents) {
+                documentHistory.put(mcd, readHistory(mcd));
+                documentTeam.put(mcd, new MainCellTeam(mcd, readTeam(mcd)));
+            }           
         }
         syncModel();
     }
@@ -597,16 +626,28 @@ public class BrowserMainDocumentModel {
     private MainCellDocument readDocument(final Long documentId) {
         return (MainCellDocument) contentProvider.getElement(0, documentId);
     }
+    
+    /**
+     * Read the containers (packages) from the provider.
+     * 
+     * @return The containers.
+     */
+    private List<Container> readContainers() {
+        final List<Container> l = new LinkedList<Container>();
+        final Container[] a = (Container[]) contentProvider.getElements(6,null);
+        for(final Container c : a) { l.add(c); }
+        return l;
+    }
 
     /**
      * Read the documents from the provider.
      * 
      * @return The documents.
      */
-    private List<MainCellDocument> readDocuments() {
+    private List<MainCellDocument> readDocuments(final Container container) {
         final List<MainCellDocument> l = new LinkedList<MainCellDocument>();
         final MainCellDocument[] a =
-                (MainCellDocument[]) contentProvider.getElements(0, null);
+                (MainCellDocument[]) contentProvider.getElements(0, container);
         for(final MainCellDocument mcd : a) { l.add(mcd); }
         return l;
     }

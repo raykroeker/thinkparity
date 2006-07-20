@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.provider.contact.ContactInfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
+import com.thinkparity.browser.application.browser.display.provider.container.ContainersProvider;
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.InfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.MainProvider;
@@ -17,6 +18,7 @@ import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.Profile;
@@ -60,10 +62,19 @@ public class ProviderFactory {
 		return singleton.doGetInfoProvider();
 	}
     
-	/**
-     * Obtain the main provider.
+    /**
+     * Obtain the containers provider.
      * 
-     * @return The main provider.
+     * @return The containers provider.
+     */
+    public static ContentProvider getContainersProvider() {
+        return singleton.doGetContainersProvider();
+    }
+    
+	/**
+     * Obtain the main (documents) provider.
+     * 
+     * @return The main (documents) provider.
      */
 	public static ContentProvider getMainProvider() {
 		return singleton.doGetMainProvider();
@@ -88,13 +99,16 @@ public class ProviderFactory {
 
 	/** The parity artifact interface. */
 	protected final ArtifactModel artifactModel;
-
-	/** The contact interface. */
-    protected final ContactModel cModel;
+    
+    /** The parity container (package) interface. */
+    protected final ContainerModel ctrModel;
     
     /** The parity document interface. */
 	protected final DocumentModel dModel;
 
+    /** The contact interface. */
+    protected final ContactModel cModel;
+    
 	/** An apache logger. */
 	protected final Logger logger;
 
@@ -115,8 +129,11 @@ public class ProviderFactory {
 
     /** The user's profile. */
     private final Profile profile;
-
-	/** The main provider. */
+    
+    /** The containers (packages) provider. */
+    private final ContentProvider containersProvider;
+    
+	/** The main (documents) provider. */
 	private final ContentProvider mainProvider;
     
     /** The contacts provider. */
@@ -136,6 +153,7 @@ public class ProviderFactory {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
+        this.ctrModel = modelFactory.getContainerModel(getClass());
 		this.dModel = modelFactory.getDocumentModel(getClass());
         this.cModel = modelFactory.getContactModel(getClass());
 		this.logger = LoggerFactory.getLogger(getClass());
@@ -144,10 +162,10 @@ public class ProviderFactory {
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 
         this.profile = pModel.read();
-
 		this.historyProvider = new HistoryProvider(profile, artifactModel, dModel, sModel);
 		this.infoProvider = new InfoProvider(profile);
-		this.mainProvider = new MainProvider(profile, artifactModel, cModel, dModel, systemMessageModel);
+        this.containersProvider = new ContainersProvider(profile, artifactModel, ctrModel, dModel, cModel, systemMessageModel);
+		this.mainProvider = new MainProvider(profile, artifactModel, ctrModel, cModel, dModel, systemMessageModel);
 		this.manageContactsProvider = new ManageContactsProvider(profile, cModel);
         this.contactInfoProvider = new ContactInfoProvider(profile, cModel);
 		this.sendArtifactProvider = new SendArtifactProvider(profile, artifactModel, cModel, dModel);
@@ -177,12 +195,23 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetInfoProvider() { return infoProvider; }
     
+    /**
+     * Obtain the containers provider.
+     * 
+     * @return The containers provider.
+     */
+    private ContentProvider doGetContainersProvider() {
+        return containersProvider;
+    }
+    
 	/**
-	 * Obtain the main provider.
+	 * Obtain the main (documents) provider.
 	 * 
-	 * @return The main provider.
+	 * @return The main (documents) provider.
 	 */
-	private ContentProvider doGetMainProvider() { return mainProvider; }
+	private ContentProvider doGetMainProvider() {
+        return mainProvider;
+    }
 
     /**
 	 * Obtain the manage contacts provider.

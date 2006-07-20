@@ -11,6 +11,7 @@ import com.thinkparity.browser.application.browser.display.avatar.contact.Contac
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
 import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
 import com.thinkparity.browser.application.browser.display.avatar.contact.SearchPartner;
+import com.thinkparity.browser.application.browser.display.avatar.container.NewContainerDialogue;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
@@ -47,18 +48,24 @@ public class AvatarFactory {
 	 * 
 	 */
 	private final AvatarRegistry avatarRegistry;
-
-	/**
-     * The contacts list avatar.
-     * 
-     */
-    private Avatar browserContacts;
     
     /**
-	 * The message list avatar.
+     * The container list avatar.
+     * 
+     */
+    private Avatar browserContainers;
+
+	/**
+	 * The document list avatar.
 	 * 
 	 */
 	private Avatar browserMain;
+    
+    /**
+     * The contact list avatar.
+     * 
+     */
+    private Avatar browserContacts;
 
 	/**
 	 * The browser title avatar.
@@ -82,19 +89,6 @@ public class AvatarFactory {
 	}
 
 	/**
-     * Create the contacts list avatar.
-     * 
-     * @return The contacts list avatar.
-     */
-    private Avatar createBrowserContacts() {
-        if(null == browserContacts) {
-            browserContacts = new BrowserContactsAvatar();
-            browserContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
-        }
-        return browserContacts;
-    }
-
-	/**
 	 * Create the browser info avatar.
 	 * 
 	 * @return The browser info avatar.
@@ -106,9 +100,22 @@ public class AvatarFactory {
 	}
     
     /**
-	 * Create the message list avatar.
+     * Create the container list avatar.
+     * 
+     * @return The container list avatar.
+     */
+    private Avatar createBrowserContainers() {
+        if(null == browserContainers) {
+            browserContainers = new BrowserContainersAvatar();
+            browserContainers.setContentProvider(ProviderFactory.getContainersProvider());            
+        }
+        return browserContainers;
+    }
+
+	/**
+	 * Create the document list avatar.
 	 * 
-	 * @return The message list avatar.
+	 * @return The document list avatar.
 	 */
 	private Avatar createBrowserMain() {
 		if(null == browserMain) {
@@ -117,6 +124,19 @@ public class AvatarFactory {
 		}
 		return browserMain;
 	}
+    
+    /**
+     * Create the contact list avatar.
+     * 
+     * @return The contact list avatar.
+     */
+    private Avatar createBrowserContacts() {
+        if(null == browserContacts) {
+            browserContacts = new BrowserContactsAvatar();
+            browserContacts.setContentProvider(ProviderFactory.getManageContactsProvider());
+        }
+        return browserContacts;
+    }
 
 	/**
 	 * Create the browser title avatar.
@@ -217,6 +237,17 @@ public class AvatarFactory {
 	}
     
     /**
+     * Create the new container dialogue avatar.
+     * 
+     * @return The new container dialogue avatar.
+     */
+    private Avatar createNewContainerDialogue() {
+        final Avatar newContainerAvatar = new NewContainerDialogue();
+        // No content provider required
+        return newContainerAvatar;
+    }
+
+    /**
      * Create the status avatar.
      * 
      * @return An avatar.
@@ -243,6 +274,9 @@ public class AvatarFactory {
 		case BROWSER_INFO:
 			avatar = createBrowserInfo();
 			break;
+        case BROWSER_CONTAINERS:
+            avatar = createBrowserContainers();
+            break;
 		case BROWSER_MAIN:
 			avatar = createBrowserMain();
 			break;
@@ -278,6 +312,9 @@ public class AvatarFactory {
 			break;
         case CONTACT_INFO_DIALOGUE:
             avatar = createContactInfoDialogue();
+            break;
+        case NEW_CONTAINER_DIALOGUE:
+            avatar = createNewContainerDialogue();
             break;
         case INVITE:
             avatar = createInvite();

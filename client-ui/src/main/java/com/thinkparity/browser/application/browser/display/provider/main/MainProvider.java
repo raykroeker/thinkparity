@@ -10,8 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellHistoryItem;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellUser;
@@ -21,9 +19,13 @@ import com.thinkparity.browser.application.browser.display.provider.SingleConten
 import com.thinkparity.browser.application.browser.display.provider.contact.QuickShareProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.ShareProvider;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
+import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -40,6 +42,8 @@ import com.thinkparity.model.xmpp.user.User;
  * @version 1.1
  */
 public class MainProvider extends CompositeFlatSingleContentProvider {
+    
+    private final FlatContentProvider containersProvider;
 
 	private final SingleContentProvider documentProvider;
 
@@ -78,29 +82,45 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @param loggedInUser
      *            The thinkParity session user.
      */
-	public MainProvider(final Profile profile, final ArtifactModel aModel,
-            final ContactModel cModel, final DocumentModel dModel,
-            final SystemMessageModel mModel) {
-		super(profile);
-		this.documentProvider = new SingleContentProvider(profile) {
+    public MainProvider(final Profile profile, final ArtifactModel aModel,
+            final ContainerModel ctrModel, final ContactModel cModel,
+            final DocumentModel dModel, final SystemMessageModel mModel) {
+        super(profile);
+        this.containersProvider = new FlatContentProvider(profile) {
+            public Object[] getElements(final Object input) {
+                // An unsorted list of containers (packages)
+                final List<Container> containers = ctrModel.read();
+                return containers.toArray(new Container[] {});
+
+            }            
+        };        
+        this.documentProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long documentId = (Long) input;
 				try {
 					final Document document = dModel.get(documentId);
-                    return toDisplay(profile, document, aModel, dModel);
+                    return toDisplay(profile, document, ctrModel, aModel, dModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 		};
 		this.documentsProvider = new FlatContentProvider(profile) {
 			public Object[] getElements(final Object input) {
-				// sort by:
-				// 	+> remote update ? later b4 earlier
-				//	+> last update ? later b4 earlier
-				final AbstractArtifactComparator sort =
-					new RemoteUpdatedOnComparator(Boolean.FALSE);
-				sort.add(new UpdatedOnComparator(Boolean.FALSE));
-				return new MainCellDocument[] {};
+				try {
+					// sort by:
+					// 	+> remote update ? later b4 earlier
+					//	+> last update ? later b4 earlier
+					final AbstractArtifactComparator sort =
+						new RemoteUpdatedOnComparator(Boolean.FALSE);
+					sort.add(new UpdatedOnComparator(Boolean.FALSE));
+                    
+                    // The dModel.list method is deprecated.
+					//return toDisplay(dModel.list(sort), aModel, dModel, loggedInUserId);
+                    
+                    final Container c = (Container) input;
+                    return toDisplay(profile, ctrModel.readDocuments(c.getId(), sort), ctrModel, aModel, dModel);
+				}
+				catch(final ParityException px) { throw new RuntimeException(px); }
 			}
 
 		};
@@ -147,7 +167,7 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
                 return toDisplay(mcd, readTeam(profile, aModel, mcd.getId()));
             }
         };
-		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider, quickShareContactProvider, shareContactProvider, teamProvider};
+		this.flatProviders = new FlatContentProvider[] {documentsProvider, historyProvider, systemMessagesProvider, quickShareContactProvider, shareContactProvider, teamProvider, containersProvider};
 		this.singleProviders = new SingleContentProvider[] {documentProvider, systemMessageProvider};
 	}
 
@@ -230,7 +250,28 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
         return display.toArray(new MainCellHistoryItem[] {});
     }
 
-	/**
+    /**
+     * Obtain a displayable version of a list of documents.
+     * 
+     * @param documents
+     *            The documents.
+     * @param aModel
+     *            The parity artifact interface.
+     * @return The displayable documents.
+     */
+    private MainCellDocument[] toDisplay(final Profile profile,
+            final List<Document> documents, final ContainerModel ctrModel,
+            final ArtifactModel aModel, final DocumentModel dModel)
+            throws ParityException {
+        final List<MainCellDocument> display = new LinkedList<MainCellDocument>();
+
+        for (final Document d : documents) {
+            display.add(toDisplay(profile, d, ctrModel, aModel, dModel));
+        }
+        return display.toArray(new MainCellDocument[] {});
+    }
+
+    /**
      * Obtain the displable version of the document.
      * 
      * @param document
@@ -240,15 +281,17 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
      * @return The displayable version of the document.
      * @throws ParityException
      */
-	private MainCellDocument toDisplay(final Profile profile,
-            final Document document, final ArtifactModel aModel,
-            final DocumentModel dModel) throws ParityException {
-		if(null == document) { return null; }
-		else {
-			final MainCellDocument mcd = new MainCellDocument(
-                    dModel, document, readTeam(profile, aModel, document.getId()));
-            mcd.setKeyRequests(aModel.readKeyRequests(document.getId()));
-			return mcd;
-		}
-	}
+    private MainCellDocument toDisplay(final Profile profile,
+            final Document document, final ContainerModel ctrModel,
+            final ArtifactModel aModel, final DocumentModel dModel)
+            throws ParityException {
+        if (null == document) {
+            return null;
+        } else {
+            final MainCellDocument mcd = new MainCellDocument(dModel, document,
+                    readTeam(profile, aModel, document.getId()));
+            mcd.setKeyRequests(ctrModel.readKeyRequests(document.getId()));
+            return mcd;
+        }
+    }
 }

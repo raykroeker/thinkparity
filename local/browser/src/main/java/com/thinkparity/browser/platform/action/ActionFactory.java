@@ -115,6 +115,8 @@ public class ActionFactory {
             return new com.thinkparity.browser.platform.action.contact.DeleteContact(browser);
         case CONTACT_ADD:
             return new com.thinkparity.browser.platform.action.contact.CreateInvitation(browser);
+        case CONTAINER_CREATE:
+            return new com.thinkparity.browser.platform.action.container.CreateContainer(browser);
 		case DOCUMENT_CREATE:
 			return new com.thinkparity.browser.platform.action.document.Create(browser);
 		case DOCUMENT_CLOSE:

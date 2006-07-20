@@ -23,6 +23,9 @@ import com.thinkparity.model.xmpp.contact.Contact;
  */
 public class ContactInfo extends Avatar {
     
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
+    
     /** Creates new form ContactInfo */
     public ContactInfo() {
         super("ContactInfo", BrowserConstants.DIALOGUE_BACKGROUND);

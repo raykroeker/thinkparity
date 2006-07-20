@@ -47,6 +47,9 @@ import com.thinkparity.model.parity.model.index.IndexHit;
  * @version 1.1.2.25
  */
 public class BrowserMainAvatar extends Avatar {
+    
+    /** Temporary code. This saves a container ID. */
+    private Long containerId = null;
 
     /** The relative location of the "hot" zone in each cell. */
     private static final Point CELL_NODE_LOCATION = new Point(10, 2);
@@ -211,6 +214,19 @@ public class BrowserMainAvatar extends Avatar {
         if(mainDocumentModel.isDocumentVisible(selectedDocument))
             selectDocument(selectedDocument);
     }
+    
+    /**
+     * Synchronize the container in the list.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            Indicates whether the sync is the result of a remote event
+     */
+    public void syncContainer(final Long containerId, final Boolean remote) {
+        this.containerId = containerId;
+        mainDocumentModel.setContainer(containerId);
+    }
 
     /**
      * Synchronize the documents in the list.
@@ -274,7 +290,8 @@ public class BrowserMainAvatar extends Avatar {
                     //      we display the popup menu
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
-                    if(listIndex == jList.getSelectedIndex()) {
+                    final Integer selectedIndex = jList.getSelectedIndex();
+                    if ((selectedIndex != -1) && (listIndex == selectedIndex)) {
                         final MainCell mc = (MainCell) jList.getSelectedValue();
                         final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
                         cellBounds.x += CELL_NODE_LOCATION.x * mc.getTextInsetFactor();

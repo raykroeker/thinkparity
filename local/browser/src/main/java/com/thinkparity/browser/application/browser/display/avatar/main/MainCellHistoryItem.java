@@ -110,7 +110,7 @@ public class MainCellHistoryItem extends DocumentHistoryItem implements MainCell
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorderSelected()
      *
      */
-     public Border getBorderSelected() { return BorderFactory.createLineBorder(BrowserConstants.Colours.MAIN_CELL_DEFAULT_BORDER2); }
+    public Border getBorderSelected() { return BorderFactory.createLineBorder(BrowserConstants.Colours.MAIN_CELL_DEFAULT_BORDER2); }
 
     /**
      * Obtain the document.

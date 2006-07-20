@@ -232,7 +232,7 @@ Examples:
                 <include name="README.txt"/>
                 <include name="LICENSE.txt"/>
             </fileset>
-            <fileset dir="${target.classes.dir}">
+            <fileset dir="${target.classes.dir}/remote/model">
                 <include name="changelog.html"/>
                 <include name="icon_large.gif"/>
                 <include name="icon_small.gif"/>
@@ -242,7 +242,7 @@ Examples:
         </copy>
         <!-- ${target.release.plugin.dir}/classes -->
         <copy todir="${target.release.plugin.dir}/classes">
-            <fileset dir="${target.classes.dir}">
+            <fileset dir="${target.classes.dir}/remote/model">
                 <include name="log4j.properties"/>
             </fileset>
         </copy>
@@ -251,22 +251,19 @@ Examples:
         <copy todir="${target.release.plugin.dir}/lib">
             <fileset file="${vendor.log4j.lib}"/>
         </copy>
-        <!-- model -->
+        <!-- remote/model -->
         <jar destfile="${target.release.plugin.dir}/lib/model.jar">
             <manifest>
             </manifest>
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/server/**/*"/>
-                <include name="com/thinkparity/model/**/*"/>
-            </fileset>
+            <fileset dir="${target.classes.dir}/remote/model"/>
         </jar>
-        <!-- codebase -->
+        <!-- common/codebase -->
+        <!-- remote/codebase -->
         <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
             <manifest>
             </manifest>
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/codebase/**/*"/>
-            </fileset>
+            <fileset dir="${target.classes.dir}/common/codebase"/>
+            <fileset dir="${target.classes.dir}/remote/codebase"/>
         </jar>
         <!-- release jar -->
         <jar destfile="${target.release.dir}/${release.name}-${release.version}-plugin.jar">

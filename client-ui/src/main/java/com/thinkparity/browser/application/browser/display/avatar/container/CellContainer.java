@@ -80,10 +80,14 @@ public class CellContainer extends Container implements MainCell  {
      * Create a CellContainer.
      */
     public CellContainer(final ContainerModel ctrModel, final Container c) {
-//            final Set<User> team) {
-        super(c.getCreatedBy(), c.getCreatedOn(), c.getDescription(),
-                c.getFlags(), c.getUniqueId(), c.getName(), c.getUpdatedBy(),
-                c.getUpdatedOn());
+        super();
+        setCreatedBy(c.getCreatedBy());
+        setCreatedOn(c.getCreatedOn());
+        add(c.getFlags());
+        setUniqueId(c.getUniqueId());
+        setName(c.getName());
+        setUpdatedBy(c.getUpdatedBy());
+        setUpdatedOn(c.getUpdatedOn());
         setId(c.getId());
         setRemoteInfo(c.getRemoteInfo());
         setState(c.getState());

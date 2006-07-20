@@ -9,6 +9,7 @@ import com.thinkparity.model.profile.Profile;
 
 import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
+import com.thinkparity.server.model.ParityServerModelException;
 
 /**
  * @author raymond@thinkparity.com
@@ -54,6 +55,10 @@ public class Read extends AbstractController {
      * @return A profile.
      */
     private Profile read(final JabberId jabberId) {
-        return getProfileModel().read(jabberId);
+        try { return getProfileModel().read(jabberId); }
+        catch(final ParityServerModelException psmx) {
+            logger.error(getApiId("[READ] [CANNOT READ PROFILE]"), psmx);
+            throw new RuntimeException(psmx);
+        }
     }
 }

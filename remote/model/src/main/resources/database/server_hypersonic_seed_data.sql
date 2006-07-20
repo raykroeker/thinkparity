@@ -1,48 +1,65 @@
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('omid','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('omid', '<vCard xmlns="vcard-temp"><FN>Omid Ejtemai</FN><N><FAMILY>Ejtemai</FAMILY><GIVEN>Omid</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>omid@thinkparity.com</USERID></EMAIL></vCard>');
+    values('omid', '<vCard xmlns="vcard-temp"><FN>Omid Ejtemai</FN><N><FAMILY>Ejtemai</FAMILY><GIVEN>Omid</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('omid', 'omid@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('raymond','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('raymond', '<vCard xmlns="vcard-temp"><FN>Raymond Kroeker</FN><N><FAMILY>Kroeker</FAMILY><GIVEN>Raymond</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>raymond@thinkparity.com</USERID></EMAIL></vCard>');
+    values('raymond', '<vCard xmlns="vcard-temp"><FN>Raymond Kroeker</FN><N><FAMILY>Kroeker</FAMILY><GIVEN>Raymond</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('raymond', 'raymond@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('robert','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('robert', '<vCard xmlns="vcard-temp"><FN>Robert MacMartin</FN><N><FAMILY>MacMartin</FAMILY><GIVEN>Robert</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>robert@thinkparity.com</USERID></EMAIL></vCard>');
+    values('robert', '<vCard xmlns="vcard-temp"><FN>Robert MacMartin</FN><N><FAMILY>MacMartin</FAMILY><GIVEN>Robert</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('robert', 'robert@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('djohnson','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('djohnson', '<vCard xmlns="vcard-temp"><FN>Don Johnson</FN><N><FAMILY>Johnson</FAMILY><GIVEN>Don</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>djohnson@thinkparity.com</USERID></EMAIL></vCard>');
+    values('djohnson', '<vCard xmlns="vcard-temp"><FN>Don Johnson</FN><N><FAMILY>Johnson</FAMILY><GIVEN>Don</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('djohnson', 'djohnson@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('emorrison','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('emorrison', '<vCard xmlns="vcard-temp"><FN>Emily Morrison</FN><N><FAMILY>Morrison</FAMILY><GIVEN>Emily</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>emorrison@thinkparity.com</USERID></EMAIL></vCard>');
+    values('emorrison', '<vCard xmlns="vcard-temp"><FN>Emily Morrison</FN><N><FAMILY>Morrison</FAMILY><GIVEN>Emily</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('emorrison', 'emorrison@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kmfarland','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('kmfarland', '<vCard xmlns="vcard-temp"><FN>Kevin MacFarland</FN><N><FAMILY>MacFarland</FAMILY><GIVEN>Kevin</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>kmfarland@thinkparity.com</USERID></EMAIL></vCard>');
+    values('kmfarland', '<vCard xmlns="vcard-temp"><FN>Kevin MacFarland</FN><N><FAMILY>MacFarland</FAMILY><GIVEN>Kevin</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('kmfarland', 'kmfarland@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('strimnell','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('strimnell', '<vCard xmlns="vcard-temp"><FN>Sarah Trimnell</FN><N><FAMILY>Trimnell</FAMILY><GIVEN>Sarah</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>strimnell@thinkparity.com</USERID></EMAIL></vCard>');
+    values('strimnell', '<vCard xmlns="vcard-temp"><FN>Sarah Trimnell</FN><N><FAMILY>Trimnell</FAMILY><GIVEN>Sarah</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('strimnell', 'strimnell@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('kenjiro','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('kenjiro', '<vCard xmlns="vcard-temp"><FN>Kenjiro MacMartin</FN><N><FAMILY>MacMartin</FAMILY><GIVEN>Kenjiro</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>kmacmartin@thinkparity.com</USERID></EMAIL></vCard>');
+    values('kenjiro', '<vCard xmlns="vcard-temp"><FN>Kenjiro MacMartin</FN><N><FAMILY>MacMartin</FAMILY><GIVEN>Kenjiro</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('kenjiro', 'kenjiro@thinkparity.com');
 
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('masako','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)
-    values('masako', '<vCard xmlns="vcard-temp"><FN>Masako</FN><N><FAMILY></FAMILY><GIVEN>Masako</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG><EMAIL><HOME/><INTERNET/><PREF/><USERID>masako@thinkparity.com</USERID></EMAIL></vCard>');
-
+    values('masako', '<vCard xmlns="vcard-temp"><FN>Masako</FN><N><FAMILY></FAMILY><GIVEN>Masako</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('masako', 'masako@thinkparity.com');
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('omid', 'raymond@thinkparity.dyndns.org', 'omid', NOW(), 'omid', NOW());

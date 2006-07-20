@@ -93,3 +93,10 @@ create table parityContact (
   foreign key (createdBy) references jiveUser(username),
   foreign key (updatedBy) references jiveUser(username)
 );
+
+create table parityUserEmail {
+  username varchar(32) not null,
+  email varchar not null,
+  primary key (email),
+  foreign key (username) references jiveUser(username)
+}

@@ -30,10 +30,6 @@ public interface ParityServerConstants {
             public static final String UNIQUE_ID = "uniqueId";
             public static final String VERSION_ID = "versionId";
         }
-        public static final class User {
-            public static final String JABBER_ID = "jabberId";
-            public static final String JABBER_IDS = "jabberIds";
-        }
         /** Profile Xml Constants */
         public static final class Profile {
             public static final String EMAIL = "email";
@@ -41,6 +37,10 @@ public interface ParityServerConstants {
             public static final String JABBER_ID = "jabberId";
             public static final String NAME = "name";
             public static final String ORGANIZATION = "organization";
+        }
+        public static final class User {
+            public static final String JABBER_ID = "jabberId";
+            public static final String JABBER_IDS = "jabberIds";
         }
     }
 }

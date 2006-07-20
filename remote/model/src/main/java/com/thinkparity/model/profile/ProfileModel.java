@@ -6,6 +6,7 @@ package com.thinkparity.model.profile;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModel;
+import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -51,7 +52,7 @@ public class ProfileModel extends AbstractModel {
      *            A jabber id.
      * @return A profile.
      */
-    public Profile read(final JabberId jabberId) {
+    public Profile read(final JabberId jabberId) throws ParityServerModelException {
         synchronized(implLock) { return impl.read(jabberId); }
     }
 

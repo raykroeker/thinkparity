@@ -3,11 +3,16 @@
  */
 package com.thinkparity.model.profile;
 
+import java.sql.SQLException;
+
 import org.dom4j.Element;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModelImpl;
+import com.thinkparity.server.model.ParityErrorTranslator;
+import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
 
@@ -31,6 +36,9 @@ class ProfileModelImpl extends AbstractModelImpl {
         return getModelId("[PROFILE]").append(" ").append(api);
     }
 
+    /** User db io. */
+    private final UserSql userSql;
+
     /**
      * Create ProfileModelImpl.
      *
@@ -39,6 +47,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     ProfileModelImpl(final Session session) {
         super(session);
+        this.userSql = new UserSql();
     }
 
     /**
@@ -48,7 +57,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      *            A jabber id.
      * @return A profile.
      */
-    Profile read(final JabberId jabberId) {
+    Profile read(final JabberId jabberId) throws ParityServerModelException {
         logger.info(getApiId("[READ]"));
         logger.debug(jabberId);
         assertEquals(getApiId("[READ] [CAN ONLY READ PERSONAL PROFILE]"), session.getJabberId(), jabberId);
@@ -56,6 +65,10 @@ class ProfileModelImpl extends AbstractModelImpl {
         final Element vCardElement = user.getVCard();
 
         final Profile profile = new Profile();
+        try { profile.addAllEmails(userSql.readEmail(jabberId)); }
+        catch(final SQLException sqlx) {
+            throw ParityErrorTranslator.translate(sqlx);
+        }
         profile.setId(user.getId());
         profile.setName((String) vCardElement.element("FN").getData());
         profile.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());

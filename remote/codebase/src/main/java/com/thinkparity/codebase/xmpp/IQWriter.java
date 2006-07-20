@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.xmpp.packet.IQ;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 
 /**
  * <b>Title:</b>thinkParity IQ Writer<br>
@@ -56,6 +58,18 @@ public abstract class IQWriter {
      *      The element value.
      */
     public final void writeCalendar(final String name, final Calendar value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    /**
+     * Write a jabber id value.
+     * 
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+    public final void writeJabberId(final String name, final JabberId value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 

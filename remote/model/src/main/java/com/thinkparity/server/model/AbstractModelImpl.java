@@ -65,20 +65,35 @@ public abstract class AbstractModelImpl {
 		this.session = session;
 	}
 
-	/**
-	 * Assert that the actual and expected jive id's are equal.
-	 * 
-	 * @param message
-	 *            The message.
-	 * @param actualJID
-	 *            The actual jive id.
-	 * @param expectedJID
-	 *            The expected jive id.
-	 */
-	protected void assertEquals(final String message, final JID actualJID,
-			final JID expectedJID) {
-		Assert.assertTrue(message, actualJID.equals(expectedJID));
-	}
+    /**
+     * Assert that the actual and expected jabber id's are equal.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected jabber id.
+     * @param actual
+     *            The actual jabber id.
+     */
+    protected void assertEquals(final Object assertion,
+            final JabberId expected, final JabberId actual) {
+        Assert.assertTrue(assertion, expected.equals(actual));
+    }
+
+    /**
+     * Assert that the actual and expected jive id's are equal.
+     * 
+     * @param message
+     *            The message.
+     * @param actualJID
+     *            The actual jive id.
+     * @param expectedJID
+     *            The expected jive id.
+     */
+    protected void assertEquals(final String message, final JID actualJID,
+            final JID expectedJID) {
+        Assert.assertTrue(message, actualJID.equals(expectedJID));
+    }
 
 	/**
 	 * Assert that the session user is the artifact key holder.

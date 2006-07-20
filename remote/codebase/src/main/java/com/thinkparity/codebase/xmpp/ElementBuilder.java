@@ -130,6 +130,24 @@ public class ElementBuilder {
     }
 
     /**
+     * Add a list of jabber id values.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param name
+     *            The element name.
+     * @param value
+     *            A list of jabber ids.
+     * @return The root element added.
+     */
+    public static final Element addJabberIdElements(final Element parent,
+            final String parentName, final String name, final List<JabberId> values) {
+        final Element element = addElement(parent, parentName, List.class);
+        for(final JabberId value : values) { addElement(element, name, value); }
+        return element;
+    }
+
+    /**
      * Add a list of long values.
      * 
      * @param parent

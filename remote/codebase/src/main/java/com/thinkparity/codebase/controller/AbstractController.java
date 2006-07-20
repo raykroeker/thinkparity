@@ -216,6 +216,19 @@ public abstract class AbstractController extends
     protected final void writeLong(final String name, final Long value) {
         iqWriter.writeLong(name, value);
     }
+
+    /**
+     * Write a jabber id value to the response query.
+     * 
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+    protected final void writeJabberId(final String name, final JabberId value) {
+        iqWriter.writeJabberId(name, value);
+    }
+
     /**
      * Write a string value to the response query.
      *

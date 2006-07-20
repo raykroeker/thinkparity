@@ -72,13 +72,7 @@ public class UserIOHandler extends AbstractIOHandler implements
     public void create(final User user) {
         final Session session = openSession();
         try {
-            session.prepareStatement(SQL_CREATE);
-            session.setQualifiedUsername(1, user.getId());
-            session.setString(2, user.getName());
-            session.setString(3, user.getOrganization());
-            if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("[CREATE]", "[COULD NOT CREATE USER]"));
-            user.setLocalId(session.getIdentity());
+            create(session, user);
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -126,6 +120,24 @@ public class UserIOHandler extends AbstractIOHandler implements
             throw hx;
         }
         finally { session.close(); }
+    }
+
+    /**
+     * Create a user.
+     * 
+     * @param session
+     *            A database session.
+     * @param user
+     *            A user.
+     */
+    void create(final Session session, final User user) {
+        session.prepareStatement(SQL_CREATE);
+        session.setQualifiedUsername(1, user.getId());
+        session.setString(2, user.getName());
+        session.setString(3, user.getOrganization());
+        if(1 != session.executeUpdate())
+            throw new HypersonicException(getErrorId("[CREATE]", "[COULD NOT CREATE USER]"));
+        user.setLocalId(session.getIdentity());
     }
 
     /**

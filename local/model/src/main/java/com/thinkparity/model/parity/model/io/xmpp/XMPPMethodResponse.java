@@ -12,6 +12,8 @@ import java.util.Map;
 
 import org.jivesoftware.smack.packet.IQ;
 
+import com.thinkparity.model.xmpp.JabberId;
+
 import com.thinkparity.migrator.Library;
 import com.thinkparity.migrator.Release;
 
@@ -42,6 +44,25 @@ public class XMPPMethodResponse extends IQ {
     /** @see org.jivesoftware.smack.packet.IQ#getChildElementXML() */
     public String getChildElementXML() { return "NO SUCH CHILD XML"; }
 
+    public byte[] readBytes(final String name) {
+        return (byte[]) result.get(name).javaValue;
+    }
+
+    public Calendar readResultCalendar(final String name) {
+        return (Calendar) result.get(name).javaValue;
+    }
+
+    /**
+     * Read a jabber idresult value.
+     * 
+     * @param name
+     *            The result name.
+     * @return A jabber id value.
+     */
+    public JabberId readResultJabberId(final String name) {
+        return (JabberId) result.get(name).javaValue;
+    }
+
     /**
      * Read a result value.
      * 
@@ -55,27 +76,6 @@ public class XMPPMethodResponse extends IQ {
         for(final Object genericLibrary : genericLibraries)
             libraries.add((Library) genericLibrary);
         return libraries;
-    }
-
-    public List<Release> readResultReleases(final String name) {
-        final List<Object> genericReleases = (List<Object>) result.get(name).javaValue;
-        final List<Release> releases = new LinkedList<Release>();
-        for(final Object genericRelease : genericReleases) {
-            releases.add((Release) genericRelease);
-        }
-        return releases;
-    }
-
-    public byte[] readBytes(final String name) {
-        return (byte[]) result.get(name).javaValue;
-    }
-
-    public byte[] readSmallBytes(final String name) {
-        return (byte[]) result.get(name).javaValue;
-    }
-
-    public Calendar readResultCalendar(final String name) {
-        return (Calendar) result.get(name).javaValue;
     }
 
     public Library.Type readResultLibraryType(final String name) {
@@ -93,6 +93,15 @@ public class XMPPMethodResponse extends IQ {
         return (Long) result.get(name).javaValue;
     }
 
+    public List<Release> readResultReleases(final String name) {
+        final List<Object> genericReleases = (List<Object>) result.get(name).javaValue;
+        final List<Release> releases = new LinkedList<Release>();
+        for(final Object genericRelease : genericReleases) {
+            releases.add((Release) genericRelease);
+        }
+        return releases;
+    }
+
     /**
      * Read a result value.
      * 
@@ -102,6 +111,21 @@ public class XMPPMethodResponse extends IQ {
      */
     public String readResultString(final String name) {
         return (String) result.get(name).javaValue;
+    }
+
+    /**
+     * Read a result list of strings.
+     * 
+     * @param name
+     *            The result name.
+     * @return A list of strings.
+     */
+    public List<String> readResultStrings(final String name) {
+        return (List<String>) result.get(name).javaValue;
+    }
+
+    public byte[] readSmallBytes(final String name) {
+        return (byte[]) result.get(name).javaValue;
     }
 
     /**

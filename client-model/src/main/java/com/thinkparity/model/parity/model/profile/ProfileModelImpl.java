@@ -3,17 +3,10 @@
  */
 package com.thinkparity.model.parity.model.profile;
 
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.ParityErrorTranslator;
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ProfileIOHandler;
-import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation</br>
@@ -42,7 +35,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      * Create ProfileModelImpl.
      *
      * @param workspace
-     *		The thinkParity workspace.
+     *      The thinkParity workspace.
      */
     ProfileModelImpl(final Workspace workspace) {
         super(workspace);
@@ -58,26 +51,12 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     Profile read() {
         logger.info(getApiId("[READ]"));
-        final InternalUserModel uModel = getInternalUserModel();
-        final JabberId currentUserId = currentUserId();
-        final User user = uModel.read(currentUserId);
-        if(null == user) {
-            assertOnline(getApiId("[READ] [USER NOT ONLINE]"));
-            try { uModel.create(currentUserId); }
-            catch(final ParityException px) {
-                throw ParityErrorTranslator.translateUnchecked(px);
-            }
-            return read();
+        Profile profile = profileIO.read(currentUserId());
+        if(null == profile) {
+            profile = getInternalSessionModel().readProfile();
+            profileIO.create(profile);
         }
-        else {
-            final Profile profile = new Profile();
-            profile.addEmail("user@domain.com");
-            profile.setId(user.getId());
-            profile.setLocalId(user.getLocalId());
-            profile.setName(user.getName());
-            profile.setOrganization(user.getOrganization());
-            return profile;
-        }
+        return profile;
     }
 
     /**

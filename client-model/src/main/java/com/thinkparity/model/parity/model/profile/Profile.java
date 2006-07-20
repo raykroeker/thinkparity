@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.VCard;
+
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -24,23 +26,44 @@ public class Profile extends User {
     /** A list of e-mail addresses. */
     private final List<String> emails;
 
+    /** A vCard. */
+    private VCard vCard;
+
 	/** Create Profile. */
 	public Profile() {
         super();
         this.emails = new ArrayList<String>();
     }
 
+    /**
+     * Add a list of e-mail addresses.
+     * 
+     * @param emails
+     *            A list of e-mail addresses.
+     * @return True if the list is modified false otherwise.
+     */
     public boolean addAllEmails(final List<String> emails) {
         final int originalSize = this.emails.size();
         for(final String email : emails) { addEmail(email); }
         return originalSize < this.emails.size();
     }
 
+    /**
+     * Add an e-mail address.
+     * 
+     * @param email
+     *            An e-mail address.
+     * @return True if the list is modified false otherwise.
+     */
     public boolean addEmail(final String email) {
         if(emails.contains(email)) { return false; }
         else { return emails.add(email); }
     }
 
+    /**
+     * Clear the list of e-mail addresses.
+     *
+     */
     public void clearEmails() { emails.clear(); }
 
     /**
@@ -52,11 +75,39 @@ public class Profile extends User {
         return Collections.unmodifiableList(emails);
     }
 
+    /**
+     * Obtain the vCard
+     *
+     * @return The VCard.
+     */
+    public VCard getVCard() { return vCard; }
+
+    /**
+     * Remove a list of e-mail addresses.
+     * 
+     * @param emails
+     *            A list of e-mail addresses.
+     * @return True if the list is modified; false otherwise.
+     */
     public boolean removeAllEmails(final List<String> emails) {
         return this.emails.removeAll(emails);
     }
 
+    /**
+     * Remove an e-mail address.
+     * 
+     * @param email
+     *            An e-mail address.
+     * @return True if the list is modified; false otherwise.
+     */
     public boolean removeEmail(final String email) {
         return emails.remove(email);
     }
+
+    /**
+     * Set vCard.
+     *
+     * @param card The VCard.
+     */
+    public void setVCard(final VCard vCard) { this.vCard = vCard; }
 }

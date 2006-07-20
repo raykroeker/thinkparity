@@ -16,6 +16,7 @@ import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -118,6 +119,15 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { return getImpl().readContacts(); }
     }
 
+    /**
+     * Read the user's profile.
+     * 
+     * @return A profile.
+     */
+    public Profile readProfile() {
+        synchronized(getImplLock()) { return getImpl().readProfile(); }
+    }
+
 	public User readUser(final JabberId jabberId) throws ParityException {
 		synchronized(getImplLock()) { return getImpl().readUser(jabberId); }
 	}
@@ -210,6 +220,25 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
+     * Send a key response.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param jabberId
+     *            The user's jabber id.
+     * @param keyRepsonse
+     *            The response [ACCEPT,DENY]
+     * @throws ParityException
+     */
+    public void sendKeyResponse(final Long artifactId,
+            final JabberId jabberId, final KeyResponse keyResponse)
+            throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().sendKeyResponse(keyResponse, artifactId, jabberId);
+        }
+    }
+
+    /**
      * Subscribe to an artifact. The parity server is notified and will create a
      * subscription entry for the logged in user.
      * 
@@ -231,25 +260,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void updateUser(final User user) throws ParityException {
         synchronized(getImplLock()) {
             getImpl().updateUser(user);
-        }
-    }
-
-    /**
-     * Send a key response.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @param jabberId
-     *            The user's jabber id.
-     * @param keyRepsonse
-     *            The response [ACCEPT,DENY]
-     * @throws ParityException
-     */
-    public void sendKeyResponse(final Long artifactId,
-            final JabberId jabberId, final KeyResponse keyResponse)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().sendKeyResponse(keyResponse, artifactId, jabberId);
         }
     }
 }

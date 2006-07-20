@@ -6,6 +6,7 @@ package com.thinkparity.model.xmpp;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Packet;
 
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.smack.SmackException;
 
 /**
@@ -19,4 +20,6 @@ public interface XMPPCore {
 	public JabberId getJabberId();
     public Packet sendAndConfirmPacket(final Packet packet)
 			throws SmackException;
+    public void assertContainsResult(final Object assertion,
+            final XMPPMethodResponse response);
 }

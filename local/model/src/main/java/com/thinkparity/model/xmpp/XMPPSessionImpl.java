@@ -28,6 +28,8 @@ import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.*;
@@ -87,6 +89,9 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     /** The container xmpp interface. */
     private final XMPPContainer xmppContainer;
 
+    /** The thinkParity xmpp profile interface. */
+    private final XMPPProfile xmppProfile;
+
 	/** The document xmpp interface. */
     private final XMPPDocument xmppDocument;
 
@@ -118,6 +123,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         this.xmppContainer = new XMPPContainer(this);
         this.xmppDocument = new XMPPDocument(this);
 		this.xmppContact = new XMPPContact(this);
+        this.xmppProfile = new XMPPProfile(this);
 		this.xmppUser = new XMPPUser(this);
 
 		XMPPConnection.addConnectionListener(new ConnectionEstablishedListener() {
@@ -385,6 +391,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             xmppContainer.addPacketListeners(smackXMPPConnection);
             // add the document listeners
             xmppDocument.addPacketListeners(smackXMPPConnection);
+            // add the profile listeners
+            xmppProfile.addPacketListeners(smackXMPPConnection);
 			// add the user listeners
 			xmppUser.addPacketListeners(smackXMPPConnection);
 
@@ -482,6 +490,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#readProfile()
+     * 
+     */
+    public Profile readProfile() throws SmackException {
+        assertLoggedIn("[LMODEL] [XMPP] [READ PROFILE] [USER NOT ONLINE]");
+        return xmppProfile.read(getJabberId());
+    }
+
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#readUsers(java.util.Set)
      * 
      */
@@ -489,7 +506,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppUser.read(jabberIds);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeArtifactTeamMember(java.util.UUID)
 	 * 
 	 */
@@ -565,7 +582,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(iq);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#saveVCard(com.thinkparity.model.xmpp.user.UserVCard)
 	 * 
 	 */
@@ -584,7 +601,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(vCard);
 	}
 
-    /**
+	/**
 	 * Send a message to a list of users.
 	 * 
 	 * @param users
@@ -665,7 +682,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.invite(jabberId);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendKeyResponse(java.util.UUID,
 	 *      com.thinkparity.model.parity.model.session.KeyResponse,
 	 *      com.thinkparity.model.xmpp.user.User)
@@ -693,7 +710,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(iq);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendLogFileArchive(java.io.File)
 	 */
 	public void sendLogFileArchive(final File logFileArchive, final User user)
@@ -795,7 +812,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * Fire the keyRequestDenied event for all of the XMPPExtension listeners.
 	 * 
 	 * @param iq
@@ -876,4 +893,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}
+
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPCore#assertContainsResult(java.lang.Object,
+     *      com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse)
+     * 
+     */
+    public void assertContainsResult(final Object assertion,
+            final XMPPMethodResponse response) {
+        Assert.assertTrue(assertion, response.containsResult());
+    }
 }

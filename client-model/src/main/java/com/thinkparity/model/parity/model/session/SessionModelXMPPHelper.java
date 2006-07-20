@@ -13,6 +13,7 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
@@ -296,6 +297,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+     * Read the logged in user's profile.
+     * 
+     * @return A profile.
+     */
+	Profile readProfile() throws SmackException { return xmppSession.readProfile(); }
+
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -307,7 +315,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readUsers(jabberIds);
 	}
 
-    /**
+	/**
 	 * Send a close packet to the parity server.
 	 * 
 	 * @param artifactUniqueId
@@ -412,7 +420,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.sendLogFileArchive(logFileArchive, user);
 	}
 
-	/**
+    /**
 	 * Send a subscribe packet to the parity server.
 	 * 
 	 * @param artifactUniqueId
@@ -423,7 +431,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.addArtifactTeamMember(artifactUniqueId);
 	}
 
-    /**
+	/**
      * Update the user.
      * 
      * @param user
@@ -434,7 +442,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         xmppSession.updateUser(user);
     }
 
-	/**
+    /**
 	 * Event handler for the extension listener's artifact close event.
 	 * 
 	 * @param artifactUniqueId
@@ -532,7 +540,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
-    private void handleInvitationAccepted(final JabberId acceptedBy) {
+	private void handleInvitationAccepted(final JabberId acceptedBy) {
 		try { SessionModelImpl.notifyInvitationAccepted(acceptedBy); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
@@ -668,7 +676,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", rx);
 	}
 
-	private void unexpectedOccured(final SmackException sx) {
+    private void unexpectedOccured(final SmackException sx) {
 		// TODO  Implement rModel rollback.
 		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", sx);
 	}

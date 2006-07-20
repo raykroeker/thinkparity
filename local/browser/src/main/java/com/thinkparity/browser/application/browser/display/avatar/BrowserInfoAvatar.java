@@ -14,6 +14,7 @@ import javax.swing.*;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.MenuItemFactory;
+import com.thinkparity.browser.application.browser.display.provider.CompositeSingleContentProvider;
 import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
@@ -97,6 +98,16 @@ public class BrowserInfoAvatar extends Avatar {
      * 
      * @param infoMessageKey
      *            The localized message local key.
+     */
+    public void setInfoMessage(final String infoMessageKey) {
+        this.infoMessage = getString("Info." + infoMessageKey);
+    }
+
+    /**
+     * Set a localized message in the info label.
+     * 
+     * @param infoMessageKey
+     *            The localized message local key.
      * @param arguments
      *            The localized message arguments.
      */
@@ -104,16 +115,6 @@ public class BrowserInfoAvatar extends Avatar {
             final Object[] arguments) {
 		this.infoMessage = getString("Info." + infoMessageKey, arguments);
 	}
-
-    /**
-     * Set a localized message in the info label.
-     * 
-     * @param infoMessageKey
-     *            The localized message local key.
-     */
-    public void setInfoMessage(final String infoMessageKey) {
-        this.infoMessage = getString("Info." + infoMessageKey);
-    }
 
 	/**
 	 * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
@@ -270,6 +271,15 @@ public class BrowserInfoAvatar extends Avatar {
     }
 
     /**
+     * Read the profile name from the content provider.
+     * 
+     * @return The profile user's name.
+     */
+    private String readProfileName() {
+        return (String) ((CompositeSingleContentProvider) contentProvider).getElement(0, null);
+    }
+
+    /**
 	 * Reload the info label.
 	 *
 	 */
@@ -286,10 +296,6 @@ public class BrowserInfoAvatar extends Avatar {
             reloadTimer.setRepeats(false);
             reloadTimer.start();
         }
-        else {
-//            infoJLabel.setText(ModelUtil.getName(readLocalUser()));
-            // TODO Finish the info implementation.
-            infoJLabel.setText("Helena Bonham-Carter");
-        }
-	}
+        else { infoJLabel.setText(readProfileName()); }
+ 	}
 }

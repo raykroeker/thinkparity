@@ -28,6 +28,7 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -769,6 +770,22 @@ class SessionModelImpl extends AbstractModelImpl {
 			}
 		}
 	}
+
+    /**
+     * Read the logged in user's profile.
+     * 
+     * @return A profile.
+     */
+    Profile readProfile() {
+        logger.info(getApiId("[READ PROFILE]"));
+        assertOnline(getApiId("[READ PROFILE] [USER NOT ONLINE]"));
+        synchronized(xmppHelper) {
+            try { return xmppHelper.readProfile(); }
+            catch(final SmackException sx) {
+                throw ParityErrorTranslator.translateUnchecked(sx);
+            }
+        }
+    }
 
     /**
      * Read the logged in user's session.

@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.io.handler;
 
 import com.thinkparity.model.parity.model.io.IOHandler;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author raymond@thinkparity.com
@@ -12,6 +13,6 @@ import com.thinkparity.model.parity.model.profile.Profile;
  */
 public interface ProfileIOHandler extends IOHandler {
     public void create(final Profile profile);
-    public Profile read();
+    public Profile read(final JabberId jabberId);
     public void update(final Profile profile);
 }

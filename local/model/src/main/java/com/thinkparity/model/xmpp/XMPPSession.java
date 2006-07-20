@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -223,6 +224,13 @@ public interface XMPPSession {
 	public User readCurrentUser() throws SmackException;
 
     /**
+     * Read the user's profile.
+     * 
+     * @return A profile.
+     */
+    public Profile readProfile() throws SmackException;
+
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -233,7 +241,7 @@ public interface XMPPSession {
     public Set<User> readUsers(final Set<JabberId> jabberIds)
 			throws SmackException;
 
-	/**
+    /**
      * Remove the logged in user from the artifact team.
      * 
      * @param uniqueId
@@ -242,10 +250,10 @@ public interface XMPPSession {
      */
     public void removeArtifactTeamMember(final UUID uniqueId)
             throws SmackException;
-
     public void removeListener(final XMPPArtifactListener l);
     public void removeListener(final XMPPContactListener l);
     public void removeListener(final XMPPExtensionListener l);
+
     public void removeListener(final XMPPSessionListener l);
 
     /**

@@ -7,12 +7,7 @@ package com.thinkparity.model.parity.model.io.xmpp;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.DataFormatException;
 
 import org.apache.commons.codec.binary.Base64;
@@ -34,6 +29,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.JabberIdBuilder;
 
 import com.thinkparity.migrator.Library;
 
@@ -387,6 +383,16 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 return sValue;
             }
+            else if(javaType.equals(com.thinkparity.codebase.jabber.JabberId.class)) {
+                parser.next();
+                // NOTE The jabber id returned is not the same as the type.  This
+                // is due to not easily being able to refactor the jabber id class
+                // to a different package
+                final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
+                parser.next();
+                parser.next();
+                return jabberId;
+            }
             else if(javaType.equals(Long.class)) {
                 parser.next();
                 final Long lValue = Long.valueOf(parser.getText());
@@ -460,19 +466,20 @@ public class XMPPMethod extends IQ {
             }
             else if(javaType.equals(List.class)) {
                 parser.next();
-                final List<Object> list = new LinkedList<Object>();
-                while(true) {
-                    if(XmlPullParser.END_TAG == parser.getEventType()) {
-                        // the expectation is that name equals "libraries"
-                        if(name.equals(parseName(parser))) { break; }
-                        else {
-                            Assert.assertUnreachable("Libraries end tag.");
-                        }
-                    }
-                    else {
-                        final String listItemName = parseName(parser);
-                        final Class listItemJavaType = parseJavaType(parser);
-                        list.add(parseJavaObject(parser, listItemName, listItemJavaType));
+                final List list;
+                // the list is empty
+                if(XmlPullParser.END_TAG == parser.getEventType() &&
+                        name.equals(parseName(parser))) {
+                    list = Collections.emptyList();
+                }
+                else {
+                    list = new ArrayList();
+                    while(true) {
+                        // end of the list
+                        if(XmlPullParser.END_TAG == parser.getEventType() &&
+                                name.equals(parseName(parser))) { break; }
+                        ((ArrayList<Object>) list).add(
+                                parseJavaObject(parser, parseName(parser), parseJavaType(parser)));
                     }
                 }
                 parser.next();

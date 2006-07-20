@@ -19,6 +19,9 @@ public class InfoProvider extends CompositeSingleContentProvider {
 	/** An array of single providers. */
 	private final SingleContentProvider[] singleProviders;
 
+    /** Provides the profile name. */
+    private final SingleContentProvider profileName;
+
 	/**
      * Create a InfoProvider.
      * 
@@ -29,7 +32,10 @@ public class InfoProvider extends CompositeSingleContentProvider {
      */
 	public InfoProvider(final Profile profile) {
 		super(profile);
-		this.singleProviders = new SingleContentProvider[] {};
+        this.profileName = new SingleContentProvider(profile) {
+            public Object getElement(Object input) { return profile.getName(); }
+        };
+		this.singleProviders = new SingleContentProvider[] {profileName};
 	}
 
 	/**

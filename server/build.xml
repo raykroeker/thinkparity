@@ -12,6 +12,15 @@
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
     <property name="cvs.branch" value="v1_0"/>
 
+    <!-- output directories -->
+	<property name="target.dir" value="${basedir}/target"/>
+	<property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
+    <property name="target.release.dir" value="${target.dir}/release"/>
+	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+	<property name="target.test-report.dir" value="${target.dir}/test-report"/>
+	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
+
     <!-- input directories/files/paths -->
     <property name="vendor.dir" value="${basedir}/vendor"/>
     <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
@@ -35,13 +44,26 @@
         <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
     </path>
 
-    <!-- output directories -->
-	<property name="target.dir" value="${basedir}/target"/>
-	<property name="target.classes.dir" value="${target.dir}/classes"/>
-    <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
-    <property name="target.release.dir" value="${target.dir}/release"/>
-	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
-	<property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
+    <!-- classpath -->
+    <path id="project.classpath">
+		<pathelement location="${target.classes.dir}/common/codebase"/>
+		<pathelement location="${target.classes.dir}/remote/codebase"/>
+		<pathelement location="${target.classes.dir}/remote/model"/>
+
+		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
+		<pathelement location="${basedir}/vendor/messenger/2.3.1/messenger.jar"/>
+    </path>
+
+    <!-- test-classpath -->
+    <path id="project.test-classpath">
+        <path refid="project.classpath"/>
+
+        <pathelement location="${target.test-classes.dir}/common/codebase"/>
+        <pathelement location="${target.test-classes.dir}/common/junitx"/>
+        <pathelement location="${target.test-classes.dir}/remote/model"/>
+
+        <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
+    </path>
 
     <!-- checkout -->
     <target name="checkout">
@@ -49,10 +71,18 @@
         <echo message="${cvs.branch}"/>
         <echo message="${cvs.modules}"/>
         <echo message="${cvs.modules.ide}"/>
+        <sleep seconds="3"/>
         <!-- source trees -->
         <cvs cvsroot="${cvs.cvsroot}"
             command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
             dest="${basedir}"/>
+        <!-- ide files -->
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
+            dest="${basedir}"/>
+        <move todir="${basedir}">
+            <fileset dir="${basedir}/ide"/>
+        </move>
     </target>
 
     <!-- update -->
@@ -74,9 +104,21 @@
         <condition property="compile.innerDebug" value="${compile.debug}" else="true">
             <isset property="compile.debug"/>
         </condition>
-		<javac destdir="${target.classes.dir}" debug="${compile.innerDebug}">
-			<src refid="sourcepath"/>
-			<classpath refid="classpath"/>
+
+        <!-- common/codebase -->
+		<javac srcdir="common/codebase/src/main/java"
+                destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+		</javac>
+        <!-- remote/codebase -->
+		<javac srcdir="remote/codebase/src/main/java"
+                destdir="${target.classes.dir}/remote/codebase" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+		</javac>
+        <!-- remote/model -->
+		<javac srcdir="remote/model/src/main/java"
+                destdir="${target.classes.dir}/remote/model" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
 		</javac>
 	</target>
 
@@ -113,29 +155,47 @@ Examples:
 
     <!-- initialize output -->
 	<target name="init">
-        <mkdir dir="${target.classes.dir}"/>
-        <mkdir dir="${target.javadoc.dir}"/>
-		<mkdir dir="${target.test-classes.dir}"/>
+        <!-- target/classes/* -->
+        <mkdir dir="${target.classes.dir}/common/codebase"/>
+        <mkdir dir="${target.classes.dir}/remote/codebase"/>
+        <mkdir dir="${target.classes.dir}/remote/model"/>
+
+        <mkdir dir="${target.test-classes.dir}/common/codebase"/>
+        <mkdir dir="${target.test-classes.dir}/common/junitx"/>
+        <mkdir dir="${target.test-classes.dir}/remote/model"/>
+
         <mkdir dir="${target.test-sessions.dir}"/>
 	</target>
 
     <!-- document the source -->
     <target name="javadoc">
-        <javadoc access="private" classpathref="classpath"
-                destdir="${target.javadoc.dir}"
-                doctitle="thinkParity Remote Model"
-                group="Model com.thinkparity.server:com.thinkparity.server.*,Codebase com.thinkparity.codebase:com.thinkparity.codebase.*"
+        <!-- common/codebase -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/common/codebase"
+                doctitle="thinkParity Common Codebase"
                 packagenames="com.thinkparity.*"
-                sourcepathref="sourcepath"/>
+                sourcepath="${basedir}/common/codebase/src/main/java"/>
+        <!-- remote/codebase -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/remote/codebase"
+                doctitle="thinkParity Remote Codebase"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/remote/codebase//src/main/java"/>
+        <!-- remote/model -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/remote/model"
+                doctitle="thinkParity Remote Model"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/remote/model/src/main/java"/>
     </target>
 
     <!-- process resources -->
     <target name="process-resources">
-        <copy todir="${target.classes.dir}">
+        <!-- common/codebase -->
+        <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
-            <fileset dir="${basedir}/remote/model/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}" overwrite="true">
+        <copy todir="${target.classes.dir}/common/codebase" overwrite="true">
             <fileset dir="${basedir}/common/codebase/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
@@ -143,12 +203,16 @@ Examples:
                 <filtersfile file="${basedir}/common/codebase/build.filters"/>
             </filterset>
         </copy>
-        <copy todir="${target.classes.dir}" overwrite="true">
+        <!-- remote/model -->
+        <copy todir="${target.classes.dir}/remote/model">
+            <fileset dir="${basedir}/remote/model/src/main/resources"/>
+        </copy>
+        <copy todir="${target.classes.dir}/remote/model" overwrite="true">
             <fileset dir="${basedir}/remote/model/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
                 <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/remote/model/build.filters"/>
+                <filtersfile file="${basedir}/common/codebase/build.filters"/>
             </filterset>
         </copy>
     </target>
@@ -218,26 +282,40 @@ Examples:
 
     <!-- unit test -->
 	<target name="test" depends="test-compile">
-		<junit fork="on" forkmode="once" reloading="false" errorproperty="junit.didError" failureproperty="junit.didFail">
-			<classpath refid="classpath"/>
-			<classpath refid="test-classpath"/>
+		<junit fork="on" forkmode="once" reloading="false"
+		errorproperty="junit.didError" failureproperty="junit.didFail">
+			<classpath refid="project.test-classpath"/>
 			<formatter type="brief" usefile="false"/>
-			<batchtest todir="${target.test-sessions.dir}">
+
+            <!-- execute single test -->
+		    <test if="test" name="${test}" todir="${target.test-sessions.dir}">
+		        <formatter type="xml"/>
+		    </test>
+
+		    <!-- execute batch tests -->
+		    <batchtest unless="test" todir="${target.test-sessions.dir}">
                 <formatter type="xml"/>
-				<fileset dir="${target.test-classes.dir}" includes="**/*Test.class"/>
+                <fileset dir="${target.test-classes.dir}/common/codebase" includes="**/*Test.class"/>
+                <fileset dir="${target.test-classes.dir}/remote/model" includes="**/*Test.class"/>
 			</batchtest>
 		</junit>
-
-        <junitreport todir="${target.test-sessions.dir}">
-            <fileset dir="${target.test-sessions.dir}">
-                <include name="TEST-*.xml"/>
-            </fileset>
-            <report format="noframes" todir="${target.test-sessions.dir}"/>
-        </junitreport>
+        <antcall target="test-report" inheritRefs="true" inheritAll="true"/>
 
         <fail message="JUnit failure." if="junit.didFail"/>
         <fail message="JUnit error." if="junit.didError"/>
 	</target>
+
+    <!-- unit test report -->
+    <target name="test-report">
+        <delete dir="${target.test-report.dir}"/>
+        <mkdir dir="${target.test-report.dir}"/>
+        <junitreport todir="${target.test-report.dir}">
+            <fileset dir="${target.test-sessions.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report styledir="${basedir}" format="noframes" todir="${target.test-report.dir}"/>
+        </junitreport>
+    </target>
 
     <!-- compile tests -->
 	<target name="test-compile" depends="compile,test-process-resources">
@@ -246,17 +324,27 @@ Examples:
         <condition property="compile.innerDebug" value="${compile.debug}" else="true">
             <isset property="compile.debug"/>
         </condition>
-	
-		<javac destdir="${target.test-classes.dir}" debug="${compile.innerDebug}">
-			<src refid="test-sourcepath"/>
-			<classpath refid="classpath"/>
-			<classpath refid="test-classpath"/>
-		</javac>
+
+        <!-- common/junitx -->
+        <javac srcdir="common/junitx/src/main/java"
+                destdir="${target.test-classes.dir}/common/junitx" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
+        <!-- common/codebase -->
+        <javac srcdir="common/codebase/src/test/java"
+                destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
+        <!-- remote/model -->
+        <javac srcdir="remote/model/src/test/java"
+                destdir="${target.test-classes.dir}/remote/model" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
 	</target>
 
     <!-- process test resources -->
     <target name="test-process-resources">
-        <copy todir="${target.test-classes.dir}">
+        <copy todir="${target.test-classes.dir}/common/junitx/">
             <fileset dir="${basedir}/common/junitx/src/main/resources"/>
         </copy>
     </target>

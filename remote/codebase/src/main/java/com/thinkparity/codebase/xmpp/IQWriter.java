@@ -95,4 +95,19 @@ public abstract class IQWriter {
     public final void writeString(final String name, final String value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
+
+    /**
+     * Write string values.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param values
+     *            The element values.
+     */
+    public final void writeStrings(final String parentName, final String name,
+            final List<String> values) {
+        ElementBuilder.addStringElements(iq.getChildElement(), parentName, name, values);
+    }
 }

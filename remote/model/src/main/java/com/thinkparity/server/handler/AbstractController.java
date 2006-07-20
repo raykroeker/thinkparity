@@ -14,6 +14,7 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.model.profile.ProfileModel;
 import com.thinkparity.model.xmpp.IQReader;
 import com.thinkparity.model.xmpp.IQWriter;
 
@@ -47,6 +48,9 @@ public abstract class AbstractController extends
 
     /** A thinkParity container model interface. */
     private ContainerModel containerModel;
+
+    /** A thinkParity profile interface. */
+    private ProfileModel profileModel;
 
     /** A custom iq reader. */
     private IQReader iqReader;
@@ -84,6 +88,7 @@ public abstract class AbstractController extends
         };
         this.artifactModel = ArtifactModel.getModel(session);
         this.containerModel = ContainerModel.getModel(session);
+        this.profileModel = ProfileModel.getModel(session);
         return super.handleIQ(iq);
     }
 
@@ -105,6 +110,13 @@ public abstract class AbstractController extends
      * @see #handleIQ(IQ)
      */
     protected ArtifactModel getArtifactModel() { return artifactModel; }
+
+    /**
+     * Obtain the thinkParity profile interface.
+     * 
+     * @return A thinkParity profile interface.
+     */
+    protected ProfileModel getProfileModel() { return profileModel; }
 
     /**
      * Obtain the contianer model.

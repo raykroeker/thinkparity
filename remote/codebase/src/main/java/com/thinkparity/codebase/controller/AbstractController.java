@@ -229,6 +229,21 @@ public abstract class AbstractController extends
     }
 
     /**
+     * Write a list of string values to the response query.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param values
+     *            The element values.
+     */
+    protected final void writeStrings(final String parentName,
+            final String name, final List<String> values) {
+        iqWriter.writeStrings(parentName, name, values);
+    }
+
+    /**
      * Create an error response for the query, for the error.
      * 
      * @param iq

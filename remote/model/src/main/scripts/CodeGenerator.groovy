@@ -58,7 +58,7 @@ abstract class ModelClass {
 		this.className = className;
 		this.interfaceClassNames = interfaceClassNames;
 		this.name = modelGenerator.getName();
-		this.packageName = "com.thinkparity.server.model." + modelGenerator.getName().toLowerCase();
+		this.packageName = "com.thinkparity.model." + modelGenerator.getName().toLowerCase();
 		this.superClassName = superClassName;
 	}
 
@@ -66,7 +66,6 @@ abstract class ModelClass {
 		return new File(environment.getJava(), new StringBuffer()
 				.append("com").append(File.separator)
 				.append("thinkparity").append(File.separator)
-				.append("server").append(File.separator)
 				.append("model").append(File.separator)
 				.append(name.toLowerCase()).append(File.separator)
 				.append(className).append(".java")

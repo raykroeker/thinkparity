@@ -143,29 +143,28 @@ public class ElementBuilder {
     public static final Element addLongElements(final Element parent,
             final String parentName, final String name, final List<Long> values) {
         final Element element = addElement(parent, parentName, List.class);
-
         for(final Long value : values) { addElement(element, name, value); }
-
         return element;
     }
 
     /**
-     * Add a list of jabber id values.
+     * Add a list of string values.
      * 
      * @param parent
      *            The parent element.
+     * @param parentName
+     *            The parent element name.
      * @param name
      *            The element name.
-     * @param value
-     *            A list of jabber ids.
+     * @param values
+     *            A list of strings.
      * @return The root element added.
      */
-    public static final Element addJabberIdElements(final Element parent,
-            final String parentName, final String name, final List<JabberId> values) {
+    public static final Element addStringElements(final Element parent,
+            final String parentName, final String name,
+            final List<String> values) {
         final Element element = addElement(parent, parentName, List.class);
-
-        for(final JabberId value : values) { addElement(element, name, value); }
-
+        for(final String value : values) { addElement(element, name, value); }
         return element;
     }
 

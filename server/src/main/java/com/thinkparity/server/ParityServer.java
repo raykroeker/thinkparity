@@ -132,6 +132,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.container.Reactivate");
             initializeController("com.thinkparity.server.handler.document.Reactivate");
             initializeController("com.thinkparity.server.handler.document.SendDocument");
+            initializeController("com.thinkparity.server.handler.profile.Read");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");
             initializeController("com.thinkparity.server.handler.user.ReadUsers");
             initializeController("com.thinkparity.server.handler.user.SubscribeUser");

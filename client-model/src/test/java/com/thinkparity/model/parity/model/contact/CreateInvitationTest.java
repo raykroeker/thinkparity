@@ -42,8 +42,8 @@ public class CreateInvitationTest extends ContactTestCase {
         login();
         final ContactModel cModel = getContactModel();
         final ModelTestUser jUnitX = ModelTestUser.getX();
-        final String randomEmailAddress =
-                System.currentTimeMillis() + jUnitX.getEmailAddress();
+        final String randomEmailAddress = "raykroeker@gmail.com";
+                //System.currentTimeMillis() + jUnitX.getEmailAddress();
         datum = new Fixture(cModel, randomEmailAddress);
     }
 

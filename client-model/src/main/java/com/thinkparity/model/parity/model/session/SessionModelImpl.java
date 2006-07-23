@@ -504,23 +504,20 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Add a roster entry for the user. This will send a presence request to
-	 * user.
+	 * Invite a contact.
 	 * 
-	 * @param jabberId
-	 *            The jabber id of the contact to invite.
-	 * @throws ParityException
+	 * @param email
+	 *            An e-mail address.
 	 */
-	void inviteContact(final JabberId jabberId) throws ParityException {
+	void inviteContact(final String email) {
+        logger.info(getApiId("[INVITE CONTACT]"));
+        logger.debug(email);
+        assertOnline("[INVITE CONTACT] [USER NOT ONLINE]");
 		synchronized(xmppHelper) {
-			try { xmppHelper.inviteContact(jabberId); }
-			catch(SmackException sx) {
-				logger.error("addRosterEntry(User)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("addRosterEntry(User)", rx);
-				throw ParityErrorTranslator.translate(rx);
+			try { xmppHelper.inviteContact(email); }
+			catch(final SmackException sx) {
+				logger.error(getApiId("[INVITE CONTACT]"), sx);
+				throw ParityErrorTranslator.translateUnchecked(sx);
 			}
 		}
 	}

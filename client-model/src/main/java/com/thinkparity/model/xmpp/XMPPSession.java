@@ -294,13 +294,13 @@ public interface XMPPSession {
             final byte[] content) throws SmackException;
 
     /**
-     * Send an invitation to a user.
+     * Invite a contact.
      * 
-     * @param jabberId
-     *            The user id.
+     * @param email
+     *            An e-mail address.
      * @throws SmackException
      */
-	public void sendInvitation(final JabberId jabberId) throws SmackException;
+	public void inviteContact(final String email) throws SmackException;
 
     public void sendKeyResponse(final UUID artifactUniqueId,
             final KeyResponse keyResponse, final JabberId jabberId)

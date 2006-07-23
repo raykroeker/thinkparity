@@ -5,9 +5,12 @@ package com.thinkparity.server.model;
 
 import java.sql.SQLException;
 
-import org.dom4j.DocumentException;
+import javax.mail.MessagingException;
+
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.messenger.user.UserNotFoundException;
+
+import org.dom4j.DocumentException;
 
 /**
  * 
@@ -35,7 +38,7 @@ public class ParityErrorTranslator {
 		singletonLock = new Object();
 	}
 
-	/**
+    /**
 	 * Create a parity error based upon a dom4j
 	 * 
 	 * @param dx
@@ -95,10 +98,26 @@ public class ParityErrorTranslator {
 		synchronized(singletonLock) { return singleton.translateImpl(unfx); }
 	}
 
+	public static ParityModelException translateUnchecked(
+            final MessagingException mx) {
+        synchronized(singletonLock) { return singleton.doTranslateUnchecked(mx); }
+    }
+
 	/**
 	 * Create a ParityErrorTranslator [Singleton]
 	 */
 	private ParityErrorTranslator() { super(); }
+
+	/**
+     * Translate an error into an unchecked runtime model error.
+     * 
+     * @param cause
+     *            The throwable cause.
+     * @return An unchecked model error.
+     */
+	private ParityModelException doTranslateUnchecked(final Throwable cause) {
+	    return new ParityModelException(cause);
+    }
 
 	/**
 	 * Create a parity error based upon a dom4j document exception.
@@ -146,7 +165,7 @@ public class ParityErrorTranslator {
 		return new ParityServerModelException(ux);
 	}
 
-	/**
+    /**
 	 * Translate a jive messenger user not found error into a parity server
 	 * error.
 	 * 

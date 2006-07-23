@@ -81,6 +81,7 @@ class ContactModelImpl extends AbstractModelImpl {
         invitation.setCreatedOn(currentDateTime());
         invitation.setEmail(email);
         contactIO.createInvitation(invitation, currentUser());
+        getInternalSessionModel().inviteContact(email);
         return contactIO.readInvitation(email);
     }
 

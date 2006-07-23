@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.jivesoftware.messenger.vcard.VCardManager;
 
+import org.dom4j.Element;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModelImpl;
@@ -40,9 +42,15 @@ class UserModelImpl extends AbstractModelImpl {
 	User readUser(final JabberId jabberId) {
 		logger.info("[RMODEL] [USER] [READ USER]");
 		logger.debug(jabberId);
+        final Element vCard = vCardManager.getVCard(jabberId.getUsername());
+        final String name = (String) vCard.element("FN").getData();
+        final String organization = (String) vCard.element("ORG").element("ORGNAME").getData();
+        
 		final User user = new User();
 		user.setId(jabberId);
-		user.setVCard(vCardManager.getVCard(jabberId.getUsername()));
+        user.setName(name);
+        user.setOrganization(organization);
+		user.setVCard(vCard);
 		return user;
 	}
 

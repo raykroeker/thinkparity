@@ -202,15 +202,14 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	User getUser() throws SmackException { return xmppSession.readCurrentUser(); }
 
 	/**
-	 * Add a user to the roster. This will send a presence visibility request to
-	 * the user.
+	 * Send a contact invitation.
 	 * 
-	 * @param jabberId
-	 *            The jabber id of the contact to invite.
+	 * @param email
+	 *            An e-mail address.
 	 * @throws SmackException
 	 */
-	void inviteContact(final JabberId jabberId) throws SmackException {
-		xmppSession.sendInvitation(jabberId);
+	void inviteContact(final String email) throws SmackException {
+		xmppSession.inviteContact(email);
 	}
 
 	/**

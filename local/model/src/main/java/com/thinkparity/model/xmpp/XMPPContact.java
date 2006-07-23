@@ -17,6 +17,7 @@ import org.jivesoftware.smack.provider.ProviderManager;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.contact.*;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -144,18 +145,18 @@ class XMPPContact {
 	}
 
 	/**
-	 * Send an invitation to a contact.
-	 * 
-	 * @param contact
-	 *            The contact.
-	 * @throw SmackException
-	 */
-	void invite(final JabberId contact) throws SmackException {
+     * Invite a contact.
+     * 
+     * @param email
+     *            An e-mail address.
+     * @throw SmackException
+     */
+	void invite(final String email) throws SmackException {
 		logger.info("[XMPP] [CONTACT] [INVITE]");
-		logger.debug(contact);
-		final IQ iq = new IQInviteContact(contact);
-		iq.setType(IQ.Type.SET);
-		xmppCore.sendAndConfirmPacket(iq);
+		logger.debug(email);
+        final XMPPMethod method = new XMPPMethod("contact:invite");
+        method.setParameter("email", email);
+        method.execute(xmppCore.getConnection());
 	}
 
 	/**

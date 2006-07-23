@@ -6,6 +6,15 @@ package com.thinkparity.server.model.contact;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 
@@ -14,11 +23,15 @@ import org.xmpp.packet.IQ;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.model.util.smtp.MessageFactory;
+import com.thinkparity.model.util.smtp.TransportManager;
+
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.contact.InvitationSql;
+import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
 import com.thinkparity.server.model.user.UserModel;
@@ -30,17 +43,24 @@ import com.thinkparity.server.org.xmpp.packet.contact.IQInviteContact;
  */
 class ContactModelImpl extends AbstractModelImpl {
 
+	private static final StringBuffer getApiId(final String api) {
+        return getModelId("[CONTACT]").append(" ").append(api);
+    }
+
 	/**
 	 * Contact sql interface.
 	 * 
 	 */
 	private final ContactSql contactSql;
 
-	/**
+    /**
 	 * Invitation sql interface.
 	 * 
 	 */
 	private final InvitationSql invitationSql;
+
+	/** User db io. */
+    private final UserSql userSql;
 
 	/**
 	 * Create a ArtifactModelImpl.
@@ -49,10 +69,11 @@ class ContactModelImpl extends AbstractModelImpl {
 	ContactModelImpl(final Session session) {
 		super(session);
 		this.contactSql = new ContactSql();
+        this.userSql = new UserSql();
 		this.invitationSql = new InvitationSql();
 	}
 
-	void acceptInvitation(final JabberId from, final JabberId to)
+    void acceptInvitation(final JabberId from, final JabberId to)
 			throws ParityServerModelException {
 		logger.info("acceptInvitation(JabberId,JabberId)");
 		logger.debug(from);
@@ -72,7 +93,7 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	Invitation createInvitation(final JabberId to) throws ParityServerModelException {
+    Invitation createInvitation(final JabberId to) throws ParityServerModelException {
 		logger.info("createInvitation(JabberId)");
 		logger.debug(to);
 		try {
@@ -128,6 +149,21 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	void invite(final String email) {
+        logger.info(getApiId("[INVITE]"));
+        logger.debug(email);
+        final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
+        try {
+            final User user = getUserModel().readUser(session.getJabberId());
+            createInvitation(mimeMessage, email, user);
+            addRecipients(mimeMessage, email);
+        }
+        catch(final MessagingException mx) {
+            throw ParityErrorTranslator.translateUnchecked(mx);
+        }
+        TransportManager.deliver(mimeMessage);
+    }
+
 	Contact readContact(final JabberId jabberId) {
 		logger.info("[RMODEL] [CONTACT] [READ CONTACT]");
 		logger.debug(jabberId);
@@ -138,7 +174,7 @@ class ContactModelImpl extends AbstractModelImpl {
 		return contact;
 	}
 
-	List<Contact> readContacts() throws ParityServerModelException {
+    List<Contact> readContacts() throws ParityServerModelException {
 		logger.info("readContacts()");
 		try {
 			final UserModel userModel = getUserModel();
@@ -160,7 +196,7 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	Invitation readInvitation(final JabberId from)
+    Invitation readInvitation(final JabberId from)
 			throws ParityServerModelException {
 		logger.info("readInvitation(JabberId)");
 		logger.debug(from);
@@ -170,4 +206,24 @@ class ContactModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(sqlx);
 		}
 	}
+
+	private void addRecipients(final MimeMessage mimeMessage, final String email)
+            throws MessagingException {
+        mimeMessage.addRecipient(
+                Message.RecipientType.TO,
+                new InternetAddress(email, Boolean.TRUE));
+    }
+
+	private void createInvitation(final MimeMessage mimeMessage,
+            final String email, final User inviter) throws MessagingException {
+        final InvitationText text = new InvitationText(Locale.getDefault(), email, inviter);
+	    mimeMessage.setSubject(text.getSubject());
+
+        final MimeBodyPart invitationBody = new MimeBodyPart();
+        invitationBody.setContent(text.getBody(), text.getBodyType());
+
+        final Multipart invitation = new MimeMultipart();
+        invitation.addBodyPart(invitationBody);
+        mimeMessage.setContent(invitation);
+    }
 }

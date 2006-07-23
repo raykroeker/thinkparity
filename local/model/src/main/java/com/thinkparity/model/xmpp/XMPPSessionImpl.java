@@ -678,8 +678,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
 	 * 
 	 */
-	public void sendInvitation(final JabberId jabberId) throws SmackException {
-		xmppContact.invite(jabberId);
+	public void inviteContact(final String email) throws SmackException {
+		xmppContact.invite(email);
 	}
 
     /**

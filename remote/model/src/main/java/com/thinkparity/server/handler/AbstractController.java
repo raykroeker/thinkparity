@@ -19,6 +19,7 @@ import com.thinkparity.model.xmpp.IQReader;
 import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.model.artifact.ArtifactModel;
+import com.thinkparity.server.model.contact.ContactModel;
 import com.thinkparity.server.model.container.ContainerModel;
 import com.thinkparity.server.model.session.Session;
 
@@ -46,17 +47,20 @@ public abstract class AbstractController extends
     /** A thinkParity artifact model interface. */
     private ArtifactModel artifactModel;
 
+    /** A thinkParity contact model interface. */
+    private ContactModel contactModel;
+
     /** A thinkParity container model interface. */
     private ContainerModel containerModel;
-
-    /** A thinkParity profile interface. */
-    private ProfileModel profileModel;
 
     /** A custom iq reader. */
     private IQReader iqReader;
 
     /** A custom iq writer. */
     private IQWriter iqWriter;
+
+    /** A thinkParity profile interface. */
+    private ProfileModel profileModel;
 
     /** Create AbstractController. */
     public AbstractController(final String action) { super(action); }
@@ -87,6 +91,7 @@ public abstract class AbstractController extends
             public JID getJID() { return iq.getFrom(); }
         };
         this.artifactModel = ArtifactModel.getModel(session);
+        this.contactModel = ContactModel.getModel(session);
         this.containerModel = ContainerModel.getModel(session);
         this.profileModel = ProfileModel.getModel(session);
         return super.handleIQ(iq);
@@ -112,11 +117,11 @@ public abstract class AbstractController extends
     protected ArtifactModel getArtifactModel() { return artifactModel; }
 
     /**
-     * Obtain the thinkParity profile interface.
-     * 
-     * @return A thinkParity profile interface.
+     * Obtain the contact model.
+     * @return The contact model.
+     * @see #handleIQ(IQ)
      */
-    protected ProfileModel getProfileModel() { return profileModel; }
+    protected ContactModel getContactModel() { return contactModel; }
 
     /**
      * Obtain the contianer model.
@@ -125,4 +130,11 @@ public abstract class AbstractController extends
      * @see #handleIQ(IQ)
      */
     protected ContainerModel getContainerModel() { return containerModel; }
+
+    /**
+     * Obtain the thinkParity profile interface.
+     * 
+     * @return A thinkParity profile interface.
+     */
+    protected ProfileModel getProfileModel() { return profileModel; }
 }

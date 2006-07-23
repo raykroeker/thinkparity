@@ -262,4 +262,16 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             getImpl().updateUser(user);
         }
     }
+
+    /**
+     * Add a roster entry for the user. This will send a presence request to
+     * user.
+     * 
+     * @param user
+     *            The user to add to the roster.
+     * @throws ParityException
+     */
+    public void inviteContact(final String email) {
+        synchronized(getImplLock()) { getImpl().inviteContact(email); }
+    }
 }

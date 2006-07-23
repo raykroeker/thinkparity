@@ -27,7 +27,7 @@ public class ContactModel extends AbstractModel {
 		return contactModel;
 	}
 
-	/**
+    /**
 	 * Contact model implementation.
 	 * 
 	 */
@@ -82,17 +82,12 @@ public class ContactModel extends AbstractModel {
 	}
 
 	/**
-	 * Read the invitation.
-	 * 
-	 * @param to
-	 *            To whom the invitation is addressed.
-	 * @return The invitation.
-	 * @throws ParityServerModelException
-	 */
-	public Invitation readInvitation(final JabberId from)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.readInvitation(from); }
-	}
+     * 
+     * @param email
+     */
+    public void invite(final String email) {
+        synchronized(implLock) { impl.invite(email); }
+    }
 
 	/**
      * Read the contact info for the jabber id.
@@ -108,5 +103,18 @@ public class ContactModel extends AbstractModel {
 
 	public List<Contact> readContacts() throws ParityServerModelException {
 		synchronized(implLock) { return impl.readContacts(); }
+	}
+
+	/**
+	 * Read the invitation.
+	 * 
+	 * @param to
+	 *            To whom the invitation is addressed.
+	 * @return The invitation.
+	 * @throws ParityServerModelException
+	 */
+	public Invitation readInvitation(final JabberId from)
+			throws ParityServerModelException {
+		synchronized(implLock) { return impl.readInvitation(from); }
 	}
 }

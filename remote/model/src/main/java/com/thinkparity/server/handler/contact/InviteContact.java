@@ -3,41 +3,39 @@
  */
 package com.thinkparity.server.handler.contact;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-
-import org.xmpp.packet.IQ;
-
-import com.thinkparity.codebase.jabber.JabberId;
-
-import com.thinkparity.server.handler.IQAction;
-import com.thinkparity.server.handler.IQHandler;
-import com.thinkparity.server.model.ParityServerModelException;
-import com.thinkparity.server.model.contact.ContactModel;
-import com.thinkparity.server.model.session.Session;
+import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.handler.AbstractController;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class InviteContact extends IQHandler {
+public class InviteContact extends AbstractController {
 
-	/**
+	protected static StringBuffer getApiId(final String api) {
+        return getControllerId("[INVITE]").append(" ").append(api);
+    }
+
+    /**
 	 * Create a InviteContact.
 	 * 
 	 */
-	public InviteContact() { super(IQAction.INVITECONTACT); }
+	public InviteContact() { super("contact:invite"); }
 
-	/**
-	 * @see com.thinkparity.server.handler.IQHandler#handleIQ(org.xmpp.packet.IQ,
-	 *      com.thinkparity.server.model.session.Session)
-	 * 
-	 */
-	public IQ handleIQ(final IQ iq, final Session session)
-			throws ParityServerModelException, UnauthorizedException {
-		logger.info("[RMODEL] [CONTACT] [INVITE]");
-		final JabberId to = extractJabberId(iq);
-		final ContactModel contactModel = getContactModel(session);
-		contactModel.createInvitation(to);
-		return createResult(iq);
-	}
+    /**
+     * @see com.thinkparity.codebase.controller.AbstractController#service()
+     */
+    @Override
+    public void service() {
+        logger.info(getApiId("[SERVICE]"));
+        invite(readString(Xml.Contact.EMAIL));
+    }
+
+    /**
+     * Invite a contact.
+     * 
+     * @param email
+     *            An e-mail address.
+     */
+    private void invite(final String email) { getContactModel().invite(email); }
 }

@@ -128,18 +128,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Add a roster entry for the user. This will send a presence request to
-	 * user.
-	 * 
-	 * @param user
-	 *            The user to add to the roster.
-	 * @throws ParityException
-	 */
-	public void inviteContact(final JabberId jabberId) throws ParityException {
-		synchronized(implLock) { impl.inviteContact(jabberId); }
-	}
-
-	/**
 	 * Determine whether or not the parity session has been established.
 	 * @return Boolean
 	 */

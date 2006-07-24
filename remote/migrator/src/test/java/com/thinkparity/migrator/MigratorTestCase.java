@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.raykroeker.junitx.TestCase;
 import com.raykroeker.junitx.TestSession;
+import com.thinkparity.migrator.Constants.CalpurniaPropertyNames;
 import com.thinkparity.migrator.model.library.LibraryModel;
 import com.thinkparity.migrator.model.release.ReleaseModel;
 import com.thinkparity.migrator.util.ChecksumUtil;
@@ -30,7 +31,10 @@ public abstract class MigratorTestCase extends TestCase {
         final TestSession testSession = TestCase.getTestSession();
         final File dbDirectory = new File(testSession.getSessionDirectory(), "db.io");
         final File dbFile = new File(dbDirectory, "db");
-        System.setProperty("hsqldb.file", dbFile.getAbsolutePath());
+
+        System.setProperty(CalpurniaPropertyNames.DB_PASSWORD, "");
+        System.setProperty(CalpurniaPropertyNames.DB_URL, "jdbc:hsqldb:file:" + dbFile.getAbsolutePath());
+        System.setProperty(CalpurniaPropertyNames.DB_USERNAME, "sa");
     }
 
     /**

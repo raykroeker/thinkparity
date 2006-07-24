@@ -11,6 +11,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.migrator.LoggerFactory;
+import com.thinkparity.migrator.Constants.CalpurniaPropertyNames;
 
 /**
  * @author raykroeker@gmail.com
@@ -30,12 +31,10 @@ public class HypersonicUtil {
 		singleton = new HypersonicUtil();
 		singletonLock = new Object();
 
-        connectionURL = new StringBuffer("jdbc:hsqldb:file:")
-            .append(System.getProperty("hsqldb.file"))
-            .toString();
+        connectionURL = System.getProperty(CalpurniaPropertyNames.DB_URL);
 		connectionInfo = new Properties();
-		connectionInfo.setProperty("user", "sa");
-		connectionInfo.setProperty("password", "");
+		connectionInfo.setProperty("user", System.getProperty(CalpurniaPropertyNames.DB_USERNAME));
+		connectionInfo.setProperty("password", System.getProperty(CalpurniaPropertyNames.DB_PASSWORD));
 		connectionInfo.setProperty("hsqldb.default_table_type", "cached");
 	}
 

@@ -15,6 +15,14 @@ public final class Constants {
     /** Create Constants. */
     private Constants() { super(); }
 
+    /** Calpurnia Property Names */
+    public static final class CalpurniaPropertyNames {
+        public static final String DB_DRIVER = "com.thinkparity.calpurnia.db.driver";
+        public static final String DB_PASSWORD = "com.thinkparity.calpurnia.db.password";
+        public static final String DB_URL = "com.thinkparity.calpurnia.db.url";
+        public static final String DB_USERNAME = "com.thinkparity.calpurnia.db.username";
+    }
+
     /** Database constants. */
     public static class Database {
         public static final String DIRECTORY = "db";

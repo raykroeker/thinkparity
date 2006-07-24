@@ -11,11 +11,14 @@ import java.util.List;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.messenger.IQRouter;
 import org.jivesoftware.messenger.XMPPServer;
 import org.jivesoftware.messenger.container.PluginManager;
 import org.jivesoftware.messenger.handler.IQHandler;
+import org.jivesoftware.util.JiveGlobals;
 
+import com.thinkparity.migrator.Constants.CalpurniaPropertyNames;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSessionManager;
 
@@ -77,6 +80,20 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
     private void destroyPluginLogging() { LogManager.shutdown(); }
 
     /**
+     * Import a jive property.
+     * 
+     * @param propertyName
+     *            The local property name.
+     * @return The previous local property value.
+     */
+    private String importProperty(final String propertyName) {
+        final String jivePropertyValue = JiveGlobals.getProperty(propertyName);
+        final String calpurniaPropertyValue = System.getProperty(propertyName);
+        System.setProperty(propertyName, jivePropertyValue);
+        return calpurniaPropertyValue;
+    }
+
+    /**
      * Intialize the controller and add it to the route table.
      * 
      * @param controllerName
@@ -119,13 +136,10 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
     }
 
     private void initializePluginDatabase(final File pluginDirectory) {
-        final File databaseDirectory =
-                new File(pluginDirectory, Constants.Database.DIRECTORY);
-        final File databaseFile =
-                new File(databaseDirectory, Constants.Database.FILE);
-        System.setProperty("hsqldb.file", databaseFile.getAbsolutePath());
-        logger.info("hsqldb.file:" + databaseFile.getAbsolutePath());
-
+        importProperty(CalpurniaPropertyNames.DB_DRIVER);
+        importProperty(CalpurniaPropertyNames.DB_PASSWORD);
+        importProperty(CalpurniaPropertyNames.DB_URL);
+        importProperty(CalpurniaPropertyNames.DB_USERNAME);
         // opening and closing a session will cause the db layer to initialize
         final HypersonicSession session =
             HypersonicSessionManager.openSession();

@@ -31,13 +31,6 @@ public interface ParityServerConstants {
             public static final String FROM_ADDRESS = "thinkparity.noreply@thinkparity.com";
             public static final String FROM_PERSONAL = "thinkParity Team";
         }
-        /** Internet WWW Constants. */
-        public static final class WWW {
-            /** WWW Base. */
-            public static final String BASE = "thinkparity.dyndns.org";
-            /** WWW Suffix. */
-            public static final String SUFFIX = "thinkparity";
-        }
     }
 
     /** Xml constants. */

@@ -8,10 +8,10 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.Application;
+import com.thinkparity.codebase.http.Link;
+import com.thinkparity.codebase.http.LinkFactory;
 
-import com.thinkparity.model.util.http.Link;
-import com.thinkparity.model.util.http.LinkFactory;
-
+import com.thinkparity.server.Version;
 import com.thinkparity.server.model.user.User;
 
 /**
@@ -48,7 +48,7 @@ public class InvitationText {
         this.inviter = inviter;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
-        this.linkFactory = LinkFactory.getInstance(Application.ROSALINE);
+        this.linkFactory = LinkFactory.getInstance(Application.ROSALINE, Version.getMode());
     }
 
     /**

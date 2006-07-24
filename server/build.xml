@@ -184,15 +184,6 @@ Examples:
         <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}/common/codebase" overwrite="true">
-            <fileset dir="${basedir}/common/codebase/src/main/filters"/>
-            <filterset begintoken="$${" endtoken="}">
-                <filter token="pom.version" value="${release.version}"/>
-                <filter token="com.thinkparity.parity.buildId" value="${build.id}"/>
-                <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/common/codebase/build.filters"/>
-            </filterset>
-        </copy>
         <!-- remote/model -->
         <copy todir="${target.classes.dir}/remote/model">
             <fileset dir="${basedir}/remote/model/src/main/resources"/>
@@ -203,7 +194,6 @@ Examples:
                 <filter token="pom.version" value="${release.version}"/>
                 <filter token="com.thinkparity.parity.buildId" value="${build.id}"/>
                 <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/common/codebase/build.filters"/>
             </filterset>
         </copy>
     </target>

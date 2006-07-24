@@ -4,56 +4,16 @@
 package com.thinkparity.codebase;
 
 import com.thinkparity.codebase.config.Config;
-import com.thinkparity.codebase.config.ConfigFactory;
 
 /**
- * The version class is used to obtain name\version info from the codebase
- * library.
+ * <b>Title:</b>thinkParity Version<br>
+ * <b>Description:</b>An abstraction of version information for a thinkParity
+ * application.
  * 
  * @author raykroeker@gmail.com
  * @version 1.2.2.4
  */
-public class Version {
-
-	/** A singleton instance. */
-	private static final Version SINGLETON;
-
-	static { SINGLETON = new Version(ConfigFactory.newInstance(Version.class)); }
-
-	/**
-	 * Obtain the build id.
-	 * 
-	 * @return A build id string.
-	 */
-    public static String getBuildId() { return SINGLETON.doGetBuildId(); }
-
-    /**
-     * Obtain the operating mode.
-     *
-     * @return An operating mode.
-     */
-    public static Mode getMode() { return SINGLETON.doGetMode(); }
-
-	/**
-	 * Obtain the name.
-	 * 
-	 * @return A name string.
-	 */
-	public static  String getName() { return SINGLETON.doGetName(); }
-
-    /**
-     * Obtain the release id.
-     *
-     * @return A release id.
-     */
-    public static String getReleaseId() { return SINGLETON.doGetReleaseId(); }
-
-	/**
-	 * Obtain the version.
-	 * 
-	 * @return A version string.
-	 */
-    public static  String getVersion() { return SINGLETON.doGetVersion(); }
+public abstract class Version {
 
     /** The version properties file. */
     private final Config config;

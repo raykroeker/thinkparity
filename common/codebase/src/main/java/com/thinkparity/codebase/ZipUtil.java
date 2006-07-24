@@ -34,13 +34,11 @@ public class ZipUtil {
 	private static final String ASSERT_ZIP_FILE_CREATE;
 
 	static {
-		ASSERT_NOT_ZIP_FILE_EXISTS = new StringBuffer("[")
-			.append(Version.getName())
-			.append("] Zip file ''{0}'' already exists.").toString();
+		ASSERT_NOT_ZIP_FILE_EXISTS = new StringBuffer("")
+			.append("Zip file ''{0}'' already exists.").toString();
 
 		ASSERT_ZIP_FILE_CREATE = new StringBuffer("[")
-			.append(Version.getName())
-			.append("] Zip file ''{0}'' could not be created.").toString();
+			.append("Zip file ''{0}'' could not be created.").toString();
 	}
 
 	/**

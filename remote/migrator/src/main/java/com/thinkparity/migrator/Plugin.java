@@ -57,9 +57,13 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
     public void initializePlugin(final PluginManager manager,
             final File pluginDirectory) {
         initializePluginLogging(pluginDirectory);
-        initializePluginDatabase(pluginDirectory);
-        initializeControllers();
-
+        try {
+            initializePluginDatabase(pluginDirectory);
+            initializeControllers();
+        }
+        catch(final Throwable t) {
+            logger.fatal("[RMIGRATOR] [PLUGIN] [INITIALIZE]", t);
+        }
         logger.info(Version.toInfo());
     }
 
@@ -141,8 +145,7 @@ public class Plugin implements org.jivesoftware.messenger.container.Plugin {
         importProperty(CalpurniaPropertyNames.DB_URL);
         importProperty(CalpurniaPropertyNames.DB_USERNAME);
         // opening and closing a session will cause the db layer to initialize
-        final HypersonicSession session =
-            HypersonicSessionManager.openSession();
+        final HypersonicSession session = HypersonicSessionManager.openSession();
         session.close();
     }
 

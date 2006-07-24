@@ -32,6 +32,7 @@ public abstract class MigratorTestCase extends TestCase {
         final File dbDirectory = new File(testSession.getSessionDirectory(), "db.io");
         final File dbFile = new File(dbDirectory, "db");
 
+        System.setProperty(CalpurniaPropertyNames.DB_DRIVER, "org.hsqldb.jdbcDriver");
         System.setProperty(CalpurniaPropertyNames.DB_PASSWORD, "");
         System.setProperty(CalpurniaPropertyNames.DB_URL, "jdbc:hsqldb:file:" + dbFile.getAbsolutePath());
         System.setProperty(CalpurniaPropertyNames.DB_USERNAME, "sa");

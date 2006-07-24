@@ -19,23 +19,25 @@ import com.thinkparity.migrator.Constants.CalpurniaPropertyNames;
  */
 public class HypersonicUtil {
 
-	private static final Properties connectionInfo;
+	private static final Properties INFO;
 
-	private static final String connectionURL;
+    private static final String DRIVER;
 
-	private static final HypersonicUtil singleton;
+	private static final HypersonicUtil SINGLETON;
 
-	private static final Object singletonLock;
+	private static final String URL;
 
 	static {
-		singleton = new HypersonicUtil();
-		singletonLock = new Object();
+		SINGLETON = new HypersonicUtil();
 
-        connectionURL = System.getProperty(CalpurniaPropertyNames.DB_URL);
-		connectionInfo = new Properties();
-		connectionInfo.setProperty("user", System.getProperty(CalpurniaPropertyNames.DB_USERNAME));
-		connectionInfo.setProperty("password", System.getProperty(CalpurniaPropertyNames.DB_PASSWORD));
-		connectionInfo.setProperty("hsqldb.default_table_type", "cached");
+        URL = System.getProperty(CalpurniaPropertyNames.DB_URL);
+
+        INFO = new Properties();
+        INFO.setProperty("user", System.getProperty(CalpurniaPropertyNames.DB_USERNAME));
+        INFO.setProperty("password", System.getProperty(CalpurniaPropertyNames.DB_PASSWORD));
+        INFO.setProperty("hsqldb.default_table_type", "cached");
+
+        DRIVER = System.getProperty(CalpurniaPropertyNames.DB_DRIVER);
 	}
 
 	/**
@@ -44,7 +46,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	static void checkpoint() throws HypersonicException {
-		synchronized(singletonLock) { singleton.doCheckpoint(); }
+		synchronized(SINGLETON) { SINGLETON.doCheckpoint(); }
 	}
 
 	/**
@@ -53,7 +55,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	static void compact() throws HypersonicException {
-		synchronized(singletonLock) { singleton.doCompact(); }
+		synchronized(SINGLETON) { SINGLETON.doCompact(); }
 	}
 
 	/**
@@ -62,7 +64,7 @@ public class HypersonicUtil {
 	 * @return A jdbc connection to the database.
 	 */
 	static Connection createConnection() throws HypersonicException {
-		return singleton.doCreateConnection();
+		return SINGLETON.doCreateConnection();
 	}
 
 	/**
@@ -71,7 +73,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	static void registerDriver() {
-		synchronized(singletonLock) { singleton.doRegisterDriver(); }
+		synchronized(SINGLETON) { SINGLETON.doRegisterDriver(); }
 	}
 
 	/**
@@ -80,7 +82,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	static void setInitialProperties() throws HypersonicException {
-		synchronized(singletonLock) { singleton.doSetInitialProperties(); }
+		synchronized(SINGLETON) { SINGLETON.doSetInitialProperties(); }
 	}
 
 	/**
@@ -89,7 +91,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	static void shutdown() throws HypersonicException {
-		synchronized(singletonLock) { singleton.doCompact(); }
+		synchronized(SINGLETON) { SINGLETON.doCompact(); }
 	}
 
 	/**
@@ -151,13 +153,21 @@ public class HypersonicUtil {
 	 * @return A jdbc connection to the database.
 	 */
 	private Connection doCreateConnection() throws HypersonicException {
+        logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [CREATE CONNECTION]");
 		try {
+            logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [CREATE CONNECTION] [B4 DRIVER MANAGER GET CONNECTION]");
 			final Connection connection =
-				DriverManager.getConnection(connectionURL, connectionInfo);
+				DriverManager.getConnection(URL, INFO);
+            logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [CREATE CONNECTION] [AFTER DRIVER MANAGER GET CONNECTION]");
 			connection.setAutoCommit(false);
 			return connection;
 		}
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		catch(final SQLException sqlx) {
+		    logger.fatal(URL);
+            logger.fatal(INFO);
+            logger.fatal("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [CREATE CONNECTION] [COULD NOT CREATE CONNECTION]", sqlx);
+            throw new HypersonicException(sqlx);
+        }
 	}
 
 	/**
@@ -169,7 +179,7 @@ public class HypersonicUtil {
 		logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [REGISTER DRIVER]");
 		if(!isDriverRegistered) {
 			try {
-				Class.forName("org.hsqldb.jdbcDriver");
+				Class.forName(DRIVER);
 				isDriverRegistered = Boolean.TRUE;
 			}
 			catch(final ClassNotFoundException cnfx) {
@@ -190,11 +200,11 @@ public class HypersonicUtil {
 		logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [SET INITIAL PROPERTIES]");
 		if(!isInitalPropertiesSet) {
 			// set custom hypersonic settings
+            logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [SET INITIAL PROPERTIES] [B4 OPEN SESSION]");
 			final HypersonicSession session = HypersonicSessionManager.openSession();
+            logger.info("[RMIGRATOR] [IO] [HYPERSONIC UTIL] [SET INITIAL PROPERTIES] [B4 OPEN SESSION]");
 			try {
-				final String[] sql = {
-						"SET PROPERTY \"sql.tx_no_multi_rewrite\" TRUE"
-				};
+				final String[] sql = {"SET PROPERTY \"sql.tx_no_multi_rewrite\" TRUE"};
 				session.execute(sql);
 			}
 			finally { session.close(); }

@@ -139,6 +139,7 @@ class HypersonicMigrator {
 	 * 
 	 */
 	private void initializeSchema() {
+        logger.info("[INITIALIZE SCHEMA]");
 		final HypersonicSession session = HypersonicSessionManager.openSession();
 		try {
 			createSchema(session);

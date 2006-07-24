@@ -23,6 +23,9 @@ import com.thinkparity.migrator.io.md.MetaDataType;
  */
 public class HypersonicSessionManager {
 
+	/** An apache logger. */
+    protected static final Logger logger;
+
 	/**
 	 * Contains all open sessions to the hsqldb database.
 	 * 
@@ -33,6 +36,7 @@ public class HypersonicSessionManager {
 		"select VALUE from META_DATA where META_DATA_TYPE_ID=? and KEY=?";
 
 	static {
+        logger = LoggerFactory.getLogger(HypersonicSessionManager.class);
 		sessions = new Vector<HypersonicSession>();
 		HypersonicUtil.registerDriver();
 		HypersonicUtil.setInitialProperties();
@@ -64,7 +68,7 @@ public class HypersonicSessionManager {
 		finally { session.close(); }
 	}
 
-	/**
+    /**
 	 * Obtain a list of all of the parity tables in the hypersonic database.
 	 * 
 	 * @return A list of tables.
@@ -94,6 +98,7 @@ public class HypersonicSessionManager {
 	 * @return The new database session.
 	 */
 	public static HypersonicSession openSession() {
+        logger.info("[RMIGRATOR] [IO] [SESSION MANAGER] [OPEN SESSION]");
 		final HypersonicSession session = new HypersonicSession(HypersonicUtil.createConnection());
 		sessions.add(session);
 		return session;

@@ -41,6 +41,13 @@ public class Version extends com.thinkparity.codebase.Version {
     public static String getName() { return SINGLETON.doGetName(); }
 
     /**
+     * Obtain the release id.
+     *
+     * @return A release id.
+     */
+    public static String getReleaseId() { return SINGLETON.doGetReleaseId(); }
+
+    /**
      * Obtain the version.
      * 
      * @return A version string.
@@ -53,13 +60,6 @@ public class Version extends com.thinkparity.codebase.Version {
      * @return An info string.
      */
     public static String toInfo() { return SINGLETON.doGetInfo(); }
-
-    /**
-     * Obtain the release id.
-     *
-     * @return A release id.
-     */
-    public static String getReleaseId() { return SINGLETON.doGetReleaseId(); }
 
     /**
      * Create a Version.

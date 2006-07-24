@@ -3,6 +3,8 @@
  */
 package com.thinkparity.migrator.io.hsqldb.util;
 
+import org.apache.log4j.Logger;
+
 import com.thinkparity.migrator.io.hsqldb.HypersonicException;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSession;
 import com.thinkparity.migrator.io.hsqldb.HypersonicSessionManager;
@@ -22,12 +24,19 @@ public class HypersonicValidator {
         new HypersonicValidator().doValidate();
     }
 
+    /** An apache logger. */
+    protected final Logger logger;
+
 	/**
 	 * Create a HypersonicValidator.
 	 */
-	private HypersonicValidator() { super(); }
+	private HypersonicValidator() {
+        super();
+        this.logger = Logger.getLogger(getClass());
+    }
 
     private void doValidate() {
+        logger.info("[VALIDATE]");
 		validateSession();
 		new HypersonicMigrator().migrate();
 	}

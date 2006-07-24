@@ -30,25 +30,6 @@
     <property name="vendor.dir" value="${basedir}/vendor"/>
     <property name="vendor.log4j.lib" value="${vendor.dir}/log4j/1.2.13/log4j.jar"/>
     <property name="vendor.commons-codec.lib" value="${vendor.dir}/commons-codec/1.3/commons-codec.jar"/>   
-	<path id="sourcepath">
-		<pathelement location="${basedir}/common/codebase/src/main/java"/>
-		<pathelement location="${basedir}/remote/model/src/main/java"/>
-        <pathelement location="${basedir}/remote/codebase/src/main/java"/>
-	</path>
-	<path id="test-sourcepath">
-		<pathelement location="${basedir}/common/junitx/src/main/java"/>
-		<pathelement location="${basedir}/common/codebase/src/test/java"/>
-		<pathelement location="${basedir}/remote/model/src/test/java"/>
-	</path>
-	<path id="classpath">
-		<pathelement location="${target.classes.dir}"/>
-		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
-		<pathelement location="${basedir}/vendor/messenger/2.3.1/messenger.jar"/>
-	</path>
-    <path id="test-classpath">
-        <pathelement location="${target.test-classes.dir}"/>
-        <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
-    </path>
 
     <!-- classpath -->
     <path id="project.classpath">

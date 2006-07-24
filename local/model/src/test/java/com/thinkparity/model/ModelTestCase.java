@@ -11,7 +11,6 @@ import java.util.Calendar;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
@@ -19,7 +18,6 @@ import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
-import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
@@ -41,17 +39,9 @@ public abstract class ModelTestCase extends TestCase {
 	static {
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
-		// set staging system
-        if(Mode.DEVELOPMENT == Version.getMode()) {
-            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
-        }
-        else if(Mode.TESTING == Version.getMode()) {
-            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
-        }
-        else if(Mode.PRODUCTION == Version.getMode()) {
-            System.setProperty("parity.serverhost", "rkutil.raykroeker.com");
-        }
-        else { Assert.assertUnreachable("[RMODEL] [TEST INIT] [UNKNOWN OP MODE]"); }
+        System.setProperty("parity.serverhost", "thinkparity.dyndns.org");
+        System.setProperty("parity.serverport", "5225");
+
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();
 		testSession.setData("modelTestUser", modelTestUser);

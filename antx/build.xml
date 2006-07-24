@@ -2,6 +2,11 @@
 <project name="calpurnia" default="help" basedir=".">
     <property name="build.sysclasspath" value="ignore"/>
 
+    <!-- build configuration -->
+    <tstamp>
+        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="GMT"/>
+    </tstamp>
+
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>
     <property name="release.version" value="1.0.0-RC7"/>
@@ -224,15 +229,6 @@ Examples:
         <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}/common/codebase" overwrite="true">
-            <fileset dir="${basedir}/common/codebase/src/main/filters"/>
-            <filterset begintoken="$${" endtoken="}">
-                <filter token="pom.version" value="${release.version}"/>
-                <filter token="com.thinkparity.parity.buildId" value="${build.id}"/>
-                <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/common/codebase/build.filters"/>
-            </filterset>
-        </copy>
         <!-- remote/migrator -->
         <copy todir="${target.classes.dir}/remote/migrator">
             <fileset dir="${basedir}/remote/migrator/src/main/resources"/>
@@ -243,7 +239,6 @@ Examples:
                 <filter token="pom.version" value="${release.version}"/>
                 <filter token="com.thinkparity.parity.buildId" value="${build.id}"/>
                 <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/common/codebase/build.filters"/>
             </filterset>
         </copy>
     </target>
@@ -263,7 +258,7 @@ Examples:
                 <include name="README.txt"/>
                 <include name="LICENSE.txt"/>
             </fileset>
-            <fileset dir="${target.classes.dir}">
+            <fileset dir="${target.classes.dir}/remote/migrator">
                 <include name="changelog.html"/>
                 <include name="icon_large.gif"/>
                 <include name="icon_small.gif"/>
@@ -273,7 +268,7 @@ Examples:
         </copy>
         <!-- ${target.release.plugin.dir}/classes -->
         <copy todir="${target.release.plugin.dir}/classes">
-            <fileset dir="${target.classes.dir}">
+            <fileset dir="${target.classes.dir}/remote/migrator">
                 <include name="log4j.properties"/>
             </fileset>
         </copy>
@@ -281,23 +276,25 @@ Examples:
         <mkdir dir="${target.release.plugin.dir}/lib"/>
         <copy todir="${target.release.plugin.dir}/lib">
             <fileset file="${vendor.log4j.lib}"/>
+            <fileset file="${vendor.commons-codec.lib}"/>
         </copy>
+        <!-- common/migrator -->
+        <!-- remote/migrator -->
         <jar destfile="${target.release.plugin.dir}/lib/migrator.jar">
             <manifest>
             </manifest>
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/migrator/**/*"/>
-                <include name="io/**/*"/>
-            </fileset>
+            <fileset dir="${target.classes.dir}/common/migrator"/>
+            <fileset dir="${target.classes.dir}/remote/migrator"/>
         </jar>
+        <!-- common/codebase -->
+        <!-- remote/codebase -->
         <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
             <manifest>
             </manifest>
-            <fileset dir="${target.classes.dir}">
-                <include name="com/thinkparity/codebase/**/*"/>
-            </fileset>
+            <fileset dir="${target.classes.dir}/common/codebase"/>
+            <fileset dir="${target.classes.dir}/remote/codebase"/>
         </jar>
-
+        <!-- release jar -->
         <jar destfile="${target.release.dir}/${release.name}-${release.version}-plugin.jar">
             <manifest>
             </manifest>

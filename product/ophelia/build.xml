@@ -337,25 +337,9 @@ Examples:
         <copy todir="${target.classes.dir}/common/codebase">
             <fileset dir="${basedir}/common/codebase/src/main/resources"/>
         </copy>
-        <copy todir="${target.classes.dir}/common/codebase" overwrite="true">
-            <fileset dir="${basedir}/common/codebase/src/main/filters"/>
-            <filterset begintoken="$${" endtoken="}">
-                <filter token="pom.version" value="${release.version}"/>
-                <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/common/codebase/build.filters"/>
-            </filterset>
-        </copy>
         <!-- model -->
         <copy todir="${target.classes.dir}/local/model">
             <fileset dir="${basedir}/local/model/src/main/resources"/>
-        </copy>
-        <copy todir="${target.classes.dir}/local/model" overwrite="true">
-            <fileset dir="${basedir}/local/model/src/main/filters"/>
-            <filterset begintoken="$${" endtoken="}">
-                <filter token="pom.version" value="${release.version}"/>
-                <filtersfile file="${basedir}/build.filters"/>
-                <filtersfile file="${basedir}/local/model/build.filters"/>
-            </filterset>
         </copy>
         <!-- browser -->
         <copy todir="${target.classes.dir}/local/browser">
@@ -365,6 +349,7 @@ Examples:
             <fileset dir="${basedir}/local/browser/src/main/filters"/>
             <filterset begintoken="$${" endtoken="}">
                 <filter token="pom.version" value="${release.version}"/>
+                <filter token="com.thinkparity.parity.buildId" value="${build.id}"/>
                 <filtersfile file="${basedir}/build.filters"/>
                 <filtersfile file="${basedir}/local/browser/build.filters"/>
             </filterset>

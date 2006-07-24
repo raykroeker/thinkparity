@@ -35,12 +35,16 @@ public abstract class ModelTestCase extends TestCase {
 	 * 
 	 */
 	private static final TestSession testSession;
+    
+    static final String TEST_SERVERHOST = "thinkparity.dyndns.org";
+
+    static final Integer TEST_SERVERPORT = 5224;
 
 	static {
 		// set non ssl mode
 		System.setProperty("parity.insecure", "true");
-        System.setProperty("parity.serverhost", "thinkparity.dyndns.org");
-        System.setProperty("parity.serverport", "5225");
+        System.setProperty("parity.serverhost", TEST_SERVERHOST);
+        System.setProperty("parity.serverport", TEST_SERVERPORT.toString());
 
 		testSession = TestCase.getTestSession();
 		final ModelTestUser modelTestUser = ModelTestUser.getJUnit();

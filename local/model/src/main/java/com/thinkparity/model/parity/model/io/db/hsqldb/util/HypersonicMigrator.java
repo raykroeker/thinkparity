@@ -14,7 +14,6 @@ import com.thinkparity.codebase.config.ConfigFactory;
 
 import com.thinkparity.model.Constants;
 import com.thinkparity.model.LoggerFactory;
-import com.thinkparity.model.Version;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
@@ -122,7 +121,7 @@ class HypersonicMigrator {
 	}
 
 	void migrate() throws HypersonicException {
-		final String actualVersionId = Version.getBuildId();
+		final String actualVersionId = Constants.Release.VERSION;
 		final String expectedVersionId = getExpectedVersionId();
 		if(null == expectedVersionId) { initializeSchema(); }
 		else if(actualVersionId.equals(expectedVersionId)) {
@@ -193,7 +192,7 @@ class HypersonicMigrator {
 		session.prepareStatement(INSERT_SEED_VERSION);
 		session.setTypeAsInteger(1, MetaDataType.STRING);
 		session.setString(2, Constants.MetaData.RELEASE_ID_KEY);
-		session.setString(3, Version.getReleaseId());
+		session.setString(3, Constants.Release.VERSION);
 		if(1 != session.executeUpdate())
 			throw new HypersonicException(
 					"Could not insert version seed.");

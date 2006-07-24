@@ -18,22 +18,22 @@ public class ModelTestUser {
 
 	public static ModelTestUser getJUnit() {
 		return new ModelTestUser(
-				"junit@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit");
+				"junit@thinkparity.com", "parity", "parity", ModelTestCase.TEST_SERVERHOST, ModelTestCase.TEST_SERVERPORT, "junit");
 	}
 
     public static ModelTestUser getX() {
 		return new ModelTestUser(
-                "junit.x@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.x");
+                "junit.x@thinkparity.com", "parity", "parity", ModelTestCase.TEST_SERVERHOST, ModelTestCase.TEST_SERVERPORT, "junit.x");
 	}
 
     public static ModelTestUser getY() {
         return new ModelTestUser(
-                "junit.y@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.y");
+                "junit.y@thinkparity.com", "parity", "parity", ModelTestCase.TEST_SERVERHOST, ModelTestCase.TEST_SERVERPORT, "junit.y");
     }
 
     public static ModelTestUser getZ() {
         return new ModelTestUser(
-                "junit.z@thinkparity.com", "parity", "parity", "rkutil.raykroeker.com", 5222, "junit.z");
+                "junit.z@thinkparity.com", "parity", "parity", ModelTestCase.TEST_SERVERHOST, ModelTestCase.TEST_SERVERPORT, "junit.z");
     }
 
     private final String emailAddress;

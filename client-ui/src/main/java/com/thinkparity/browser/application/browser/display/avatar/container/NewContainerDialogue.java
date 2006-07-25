@@ -6,6 +6,9 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.container;
 
+import java.io.File;
+import java.util.List;
+
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -13,6 +16,8 @@ import javax.swing.text.Document;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog.DataKey;
+import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -28,7 +33,7 @@ public class NewContainerDialogue extends Avatar {
     
     /** Creates new form NewContainerDialogue */
     public NewContainerDialogue() {
-        super("NewContainerDialogue", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("NewContainerDialog", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         initNameJTextField();
         newContainerJPanel.setBackground(BrowserConstants.DIALOGUE_BACKGROUND);
@@ -53,10 +58,10 @@ public class NewContainerDialogue extends Avatar {
     }
     
     public void reload() {
+        // Adjust the embedded assistance if a list of documents is provided.
+        prepareExplanationText();
+        
         // Clear controls and set focus, and disable the OK button.
-        // A story about enabling the OK control...
-        //    - ActionPerformed on a JTextField will happen when press enter.
-        //    - TextChanged message is received after user presses letter but before extractName() will see it.
         nameJTextField.setText("");
         okJButton.setEnabled(Boolean.FALSE);
         nameJTextField.requestFocusInWindow();
@@ -73,14 +78,23 @@ public class NewContainerDialogue extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        explanationJLabel = new javax.swing.JLabel();
+        explanationJTextArea = new javax.swing.JTextArea();
         newContainerJPanel = new javax.swing.JPanel();
         nameJLabel = new javax.swing.JLabel();
         nameJTextField = new javax.swing.JTextField();
         okJButton = new javax.swing.JButton();
         cancelJButton = new javax.swing.JButton();
 
-        explanationJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("NewContainerDialog.Explanation"));
+        explanationJTextArea.setColumns(20);
+        explanationJTextArea.setEditable(false);
+        explanationJTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
+        explanationJTextArea.setLineWrap(true);
+        explanationJTextArea.setRows(5);
+        explanationJTextArea.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("NewContainerDialog.Explanation"));
+        explanationJTextArea.setWrapStyleWord(true);
+        explanationJTextArea.setBorder(null);
+        explanationJTextArea.setFocusable(false);
+        explanationJTextArea.setOpaque(false);
 
         newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("NewContainerDialog.BorderTitle")));
         nameJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("NewContainerDialog.Name"));
@@ -93,7 +107,7 @@ public class NewContainerDialogue extends Avatar {
                 .addContainerGap()
                 .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 90, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+                .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
                 .addContainerGap())
         );
         newContainerJPanelLayout.setVerticalGroup(
@@ -124,17 +138,17 @@ public class NewContainerDialogue extends Avatar {
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(199, Short.MAX_VALUE)
+                .addContainerGap(201, Short.MAX_VALUE)
                 .add(okJButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(cancelJButton)
                 .addContainerGap())
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         layout.linkSize(new java.awt.Component[] {cancelJButton, okJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -143,7 +157,7 @@ public class NewContainerDialogue extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(explanationJLabel)
+                .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -171,6 +185,10 @@ public class NewContainerDialogue extends Avatar {
         document.addDocumentListener( new DocumentHandler() );        
     }
     
+    // Enable or disable the OK control. Some notes:
+    //    - ActionPerformed on a JTextField will happen when press enter.
+    //    - TextChanged message is received after user presses letter but before extractName() will see it.
+    //    - The correct way to enable and disable the OK control is with the document interface.    
     class DocumentHandler implements DocumentListener {
         // Handle insertions into the text field
         public void insertUpdate( DocumentEvent event ) {
@@ -201,13 +219,33 @@ public class NewContainerDialogue extends Avatar {
         SwingUtilities.getWindowAncestor(this).dispose();
     }
     
+    /**
+     * Prepare explanation text.
+     */
+    private void prepareExplanationText() {
+        // Adjust the embedded assistance if a list of documents is provided.
+        explanationJTextArea.setText(getString("Explanation"));          
+        if(null != input) {
+            final Integer numFiles = (Integer) ((Data) input).get(DataKey.NUM_FILES);
+            if (numFiles == 1) {
+                final String firstFileName = (String) ((Data) input).get(DataKey.FIRST_FILE_NAME);
+                explanationJTextArea.setText(getString("ExplanationForOneFile", new Object[] { firstFileName }));                
+            }
+            else if (numFiles > 1) {
+                final String firstFileName = (String) ((Data) input).get(DataKey.FIRST_FILE_NAME);
+                explanationJTextArea.setText(getString("ExplanationForManyFiles", new Object[] { firstFileName, numFiles }));
+            }
+        }        
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelJButton;
-    private javax.swing.JLabel explanationJLabel;
+    private javax.swing.JTextArea explanationJTextArea;
     private javax.swing.JLabel nameJLabel;
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JPanel newContainerJPanel;
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables
-    
+
+    public enum DataKey { NUM_FILES, FIRST_FILE_NAME }
 }

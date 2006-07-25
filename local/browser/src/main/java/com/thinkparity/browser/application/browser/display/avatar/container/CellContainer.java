@@ -7,6 +7,8 @@ package com.thinkparity.browser.application.browser.display.avatar.container;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
@@ -18,10 +20,13 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellI
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 
+import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerModel;
+import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author rob_masako@shaw.ca
@@ -64,10 +69,13 @@ public class CellContainer extends Container implements MainCell  {
     private ContainerModel ctrModel;
     
     /** The parity document interface. */
-    //private DocumentModel dModel;
+    private DocumentModel dModel;
 
     /** An image cache. */
     private final MainCellImageCache imageCache;
+    
+    /** The list of documents for this container */
+    private final List<Document> documents;
 
     /** The container's key requests. */
     //private final List<KeyRequest> keyRequests;
@@ -79,7 +87,7 @@ public class CellContainer extends Container implements MainCell  {
     /**
      * Create a CellContainer.
      */
-    public CellContainer(final ContainerModel ctrModel, final Container c) {
+    public CellContainer(final ContainerModel ctrModel, final DocumentModel dModel, final Container c) {
         super();
         setCreatedBy(c.getCreatedBy());
         setCreatedOn(c.getCreatedOn());
@@ -93,15 +101,17 @@ public class CellContainer extends Container implements MainCell  {
         setState(c.getState());
         
         this.ctrModel = ctrModel;
+        this.dModel = dModel;
         this.imageCache = new MainCellImageCache();
         
         this.closed = getState() == ArtifactState.CLOSED;
         this.urgent = Boolean.FALSE;
         this.seen = contains(ArtifactFlag.SEEN);        
-        this.keyHolder = contains(ArtifactFlag.KEY);        
+        this.keyHolder = contains(ArtifactFlag.KEY); 
+        
+        this.documents = new LinkedList<Document>();
         
         /*
-        this.dModel = dModel;
         this.keyRequests = new LinkedList<KeyRequest>();
         this.team = team;
 */
@@ -295,10 +305,20 @@ public class CellContainer extends Container implements MainCell  {
      * @return True if the working version has not been modified; false
      * otherwise.
      */
-//    public Boolean isWorkingVersionEqual() {
-//        try { return dModel.isWorkingVersionEqual(getId()); }
-//        catch(final ParityException px) { throw new RuntimeException(px); }
-//    }
+    public Boolean isWorkingVersionEqual() {
+        Boolean isWorkingVersionEqual = Boolean.TRUE;
+        try {
+            for(final Document d : documents) {
+                if (!dModel.isWorkingVersionEqual(d.getId())) {
+                    isWorkingVersionEqual = Boolean.FALSE;
+                    break;
+                }
+            }
+        }
+        catch(final ParityException px) { throw new RuntimeException(px); }
+        
+        return isWorkingVersionEqual;
+    }
 
     /**
      * Set the expanded flag.
@@ -307,6 +327,17 @@ public class CellContainer extends Container implements MainCell  {
      *            The expanded flag.
      */
     public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
+    
+    /**
+     * Set the container's documents.
+     * 
+     * @param documents
+     *            The list of documents in this container.
+     */
+    public void setDocuments(final List<Document> documents) {
+        this.documents.clear();
+        this.documents.addAll(documents);
+    }
 
     /**
      * Set the document's key requests. This will affect the urgent status of

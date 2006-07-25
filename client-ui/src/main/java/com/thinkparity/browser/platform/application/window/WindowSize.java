@@ -40,6 +40,8 @@ class WindowSize {
 		sizeMap = new Hashtable<AvatarId, Object>(2, 1.0F);
         // DIMENSION Confirmation Dialogue 300x125
         sizeMap.put(AvatarId.CONFIRM_DIALOGUE, new Dimension(300, 125));
+        // DIMENSION Error Dialogue 300x125
+        sizeMap.put(AvatarId.ERROR_DIALOGUE, new Dimension(300, 125));
         // DIMENSION Rename Dialogue 300x125
         sizeMap.put(AvatarId.RENAME_DIALOGUE, new Dimension(300, 70));
 		// DIMENSION Send Dialogue 405x308

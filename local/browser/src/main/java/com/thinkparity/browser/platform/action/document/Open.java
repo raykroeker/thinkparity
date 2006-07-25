@@ -66,11 +66,12 @@ public class Open extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		getDocumentModel().open(documentId);
 		getArtifactModel().applyFlagSeen(documentId);
 
-		browser.fireDocumentUpdated(documentId);
+		browser.fireDocumentUpdated(containerId, documentId);
 	}
 
 	/**
@@ -78,5 +79,5 @@ public class Open extends AbstractAction {
 	 * 
 	 * @see Data
 	 */
-	public enum DataKey { DOCUMENT_ID }
+	public enum DataKey { CONTAINER_ID, DOCUMENT_ID }
 }

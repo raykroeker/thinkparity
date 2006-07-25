@@ -59,23 +59,29 @@ public class Create extends AbstractAction {
 	public void invoke(final Data data) throws Exception {
 		final File file = (File) data.get(DataKey.FILE);
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        
+        // Test if this is a folder instead of a file. Folders are rejected.
+        if (!file.isDirectory()) {
+            final InputStream inputStream = new FileInputStream(file);
+            Document document = null;
+            try {
+                document = getDocumentModel().create(containerId,
+                        file.getName(), inputStream);
+                // Add the document to the container
+                getContainerModel().addDocument(containerId, document.getId());
+            } finally {
+                inputStream.close();
+            }
 
-        final InputStream inputStream = new FileInputStream(file);
-        Document document = null;
-        try {
-    		document =
-    			getDocumentModel().create(containerId, file.getName(), inputStream);
-            // Add the document to the container
-            getContainerModel().addDocument(containerId, document.getId());
+            getArtifactModel().applyFlagSeen(document.getId());
+
+            browser.fireDocumentCreated(containerId, document.getId(),
+                    Boolean.FALSE);
+
+            // Test code
+            // final List<Document> documents =
+            // getContainerModel().readDocuments(containerId);
         }
-        finally { inputStream.close(); }
-        
-        getArtifactModel().applyFlagSeen(document.getId());
-
-		browser.fireDocumentCreated(containerId, document.getId(), Boolean.FALSE);
-        
-        // Test code
-        //final List<Document> documents = getContainerModel().readDocuments(containerId);
 	}
 
 	public enum DataKey { FILE, CONTAINER_ID }

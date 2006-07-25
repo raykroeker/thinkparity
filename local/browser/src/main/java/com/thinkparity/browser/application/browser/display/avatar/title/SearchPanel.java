@@ -12,18 +12,16 @@ import java.awt.event.ActionListener;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.Timer;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
-import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
-import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
@@ -96,8 +94,8 @@ public class SearchPanel extends AbstractJPanel {
 		addMouseMotionListener(mouseInputAdapter);
 		setLayout(new GridBagLayout());
 		setOpaque(false);
-        setTransferHandler(new CreateDocumentTxHandler(container.getController()));
-        CopyActionEnforcer.applyEnforcer(this);
+        //setTransferHandler(new CreateDocumentTxHandler(container.getController()));
+        //CopyActionEnforcer.applyEnforcer(this);
 		initComponents();
 	}
 
@@ -134,7 +132,7 @@ public class SearchPanel extends AbstractJPanel {
 				searchJTextFieldRemoveUpdate(e);
 			}
 		});
-		searchJTextField.setTransferHandler(new CreateDocumentTxHandler(getBrowser()));
+		//searchJTextField.setTransferHandler(new CreateDocumentTxHandler(getBrowser()));
 		searchLeftJLabel = LabelFactory.create(SEARCH_LEFT_ICON);
 		searchRightJLabel = LabelFactory.create(SEARCH_RIGHT_ICON);
 

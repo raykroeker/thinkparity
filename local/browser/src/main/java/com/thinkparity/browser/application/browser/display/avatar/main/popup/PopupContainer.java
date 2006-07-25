@@ -78,55 +78,7 @@ public class PopupContainer implements Popup {
         else if(Connection.OFFLINE == application.getConnection()) { triggerOffline(application, jPopupMenu, e); }
         else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [CONTAINER POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]"); }
     }
-    
-    /**
-     * Trigger a container popup when the user is online.
-     *
-     * @param application
-     *      The browser application.
-     * @param jPopupMenu
-     *      The popup menu to populate.
-     * @param e
-     *      The source mouse event
-     */
-    private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
-        if (null==container) {  // No selected container, ie. right clicked on a blank area
-            jPopupMenu.add(new NewContainer(application));
-        }
-        else {
-            jPopupMenu.add(new AddDocument(application));
-        }
-        
-/*        jPopupMenu.add(new Open(application));
-        if(!document.isDistributed()) {
-            jPopupMenu.add(new Rename(application));
-        }*/
-    }    
-   
-    /**
-     * Trigger a container popup when the user is offline.
-     *
-     * @param application
-     *      The browser application.
-     * @param jPopupMenu
-     *      The popup menu to populate.
-     * @param e
-     *      The source mouse event
-     */
-    private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
-        if (null==container) {  // No selected container, ie. right clicked on a blank area
-            jPopupMenu.add(new NewContainer(application));
-        }
-        else {
-            jPopupMenu.add(new AddDocument(application));
-        }
-        
-/*        jPopupMenu.add(new Open(application));
-        if(!document.isDistributed()) {
-            jPopupMenu.add(new Rename(application));
-        }*/
-    }   
-    
+
     /**
      * Obtain a localised string.
      *
@@ -147,9 +99,65 @@ public class PopupContainer implements Popup {
      *            format data.
      * @return A localised string.
      */
-/*    private String getString(final String localKey, final Object[] arguments) {
+    private String getString(final String localKey, final Object[] arguments) {
         return l18n.getString(localKey, arguments);
-    }*/
+    }
+    
+    /**
+     * Trigger a container popup when the user is online.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The popup menu to populate.
+     * @param e
+     *      The source mouse event
+     */
+    private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
+        if (null==container) {  // No selected container, ie. right clicked on a blank area
+            // MENU_ITEM New container
+            jPopupMenu.add(new NewContainer(application));
+        }
+        else {
+            // MENU_ITEM Add document
+            jPopupMenu.add(new AddDocument(application));
+            if(container.isKeyHolder()) {
+                if(!container.isWorkingVersionEqual()) {
+                    // MENU_ITEM Publish
+                    jPopupMenu.add(new Publish(application));
+                }
+            }
+        }
+    }      
+   
+    /**
+     * Trigger a container popup when the user is offline.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The popup menu to populate.
+     * @param e
+     *      The source mouse event
+     */
+    private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
+        if (null==container) {  // No selected container, ie. right clicked on a blank area
+            // MENU_ITEM New container
+            jPopupMenu.add(new NewContainer(application));
+        }
+        else {
+            // MENU_ITEM Add document
+            jPopupMenu.add(new AddDocument(application));
+            if(container.isKeyHolder()) {
+                if(!container.isWorkingVersionEqual()) {
+                    // MENU_ITEM Publish
+                    jPopupMenu.add(new Publish(application));
+                }
+            }
+        }
+    }   
+    
+
     
 
     /**
@@ -187,7 +195,6 @@ public class PopupContainer implements Popup {
         final Set<User> team = document.getTeam();
 
         // MENU_ITEM Open
-        jPopupMenu.add(new Open(application));
         if(document.isClosed()) {
             // MENU_ITEM Reactivate
             if(document.isClosed()) {
@@ -319,11 +326,33 @@ public class PopupContainer implements Popup {
             super(getString("AddDocument"), getString("AddDocumentMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.runCreateDocument();
+                    application.runCreateDocument(container.getId());
                 }
             });
         }
     }
+    
+    /** A publish {@link JMenuItem}. */
+    private class Publish extends JMenuItem {
+
+            /** @see java.io.Serializable */
+            private static final long serialVersionUID = 1;
+
+            /**
+             * Create a Publish JMenuItem.
+             *
+             * @param application
+             *            The browser application.
+             */
+            private Publish(final Browser application) {
+                super(getString("Publish"), getString("PublishMnemonic").charAt(0));
+                addActionListener(new ActionListener() {
+                    public void actionPerformed(final ActionEvent e) {
+                        application.runPublishContainer(container.getId());
+                    }
+                });
+            }
+        }
         
     /** An accept key request {@link JMenuItem}. */
 /*    private class AcceptKeyRequest extends JMenuItem {
@@ -419,49 +448,7 @@ public class PopupContainer implements Popup {
         }
     }*/
 
-    /** An open {@link JMenuItem}. */
-/*    private class Open extends JMenuItem {
 
-        *//** @see java.io.Serializable *//*
-        private static final long serialVersionUID = 1;
-
-        *//**
-         * Create the Open menu item.
-         *
-         * @param application
-         *            The browser application.
-         *//*
-        private Open(final Browser application) {
-            super(getString("Open"), getString("OpenMnemonic").charAt(0));
-            this.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    application.runOpenDocument(document.getId());
-                }
-            });
-        }
-    }*/
-
-    /** A publish {@link JMenuItem}. */
-/*    private class Publish extends JMenuItem {
-
-        *//** @see java.io.Serializable *//*
-        private static final long serialVersionUID = 1;
-
-        *//**
-         * Create a Send JMenuItem.
-         *
-         * @param application
-         *            The browser application.
-         *//*
-        private Publish(final Browser application) {
-            super(getString("Publish"), getString("PublishMnemonic").charAt(0));
-            addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    application.runPublishDocument();
-                }
-            });
-        }
-    }*/
 
     /** A quick share {@link JMenuItem}. */
 /*    private class QuickShare extends JMenuItem {

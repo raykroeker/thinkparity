@@ -70,8 +70,8 @@ public class BrowserInfoAvatar extends Avatar {
 	    super("BrowserInfo");
 	    setLayout(new GridBagLayout());
 	    setOpaque(false);
-        setTransferHandler(new CreateDocumentTxHandler(getController()));
-        CopyActionEnforcer.applyEnforcer(this);
+        //setTransferHandler(new CreateDocumentTxHandler(getController()));
+        //CopyActionEnforcer.applyEnforcer(this);
 	    initComponents();
 	}
 

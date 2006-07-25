@@ -174,7 +174,7 @@ public class BrowserContactsAvatar extends Avatar {
      *            Whether or not the source of the syncrhonization is remote.
      */
     public void syncInvitation(final Long invitationId, final Boolean remote) {
-        Assert.assertNotYetImplemented("BrowserContactsAvatar#syncInvitation(Long,Boolean)");
+        //Assert.assertNotYetImplemented("BrowserContactsAvatar#syncInvitation(Long,Boolean)");
     }
 
     /**

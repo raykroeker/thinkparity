@@ -4,8 +4,6 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.display.avatar.contact.AddContact;
 import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
@@ -16,7 +14,10 @@ import com.thinkparity.browser.application.browser.display.avatar.document.Renam
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
+import com.thinkparity.browser.platform.application.dialog.ErrorDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -154,6 +155,11 @@ public class AvatarFactory {
     private Avatar createConfirmDialogue() {
         return new ConfirmDialog();
     }
+    
+    /** Create an error dialogue avatar. */
+    private Avatar createErrorDialogue() {
+        return new ErrorDialog();
+    }
 
     /**
      * Create the add contact avatar. Note; no provider required.
@@ -288,6 +294,9 @@ public class AvatarFactory {
 			break;
         case CONFIRM_DIALOGUE:
             avatar = createConfirmDialogue();
+            break;
+        case ERROR_DIALOGUE:
+            avatar = createErrorDialogue();
             break;
         case CONTACT_ADD:
             avatar = createContactAdd();

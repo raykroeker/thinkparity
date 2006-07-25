@@ -4,6 +4,7 @@
  */
 package com.thinkparity.browser.platform.action.container;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.document.CreateDocuments.DataKey;
 
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.document.Document;
@@ -58,10 +60,19 @@ public class CreateContainer extends AbstractAction {
      */
     public void invoke(final Data data) throws Exception {
         final String containerName = (String) data.get(DataKey.NAME);
+        final Integer numFiles = (Integer) data.get(DataKey.NUM_FILES);
+        
         if ((null == containerName) || (containerName.length() == 0 )) {
             // Launch the NewContainerDialog. If the user presses OK, it will call
             // this action with a name and end up in the "else" clause below.
-            browser.displayNewContainerDialog();
+            if (numFiles>0) {
+                final List<File> files = getDataFiles(data, DataKey.FILES);
+                final File firstFile = files.get(0);
+                browser.displayNewContainerDialog(numFiles,firstFile.getName());
+            }
+            else {
+                browser.displayNewContainerDialog();
+            }
         }
         else {
             Container container = getContainerModel().create(containerName);
@@ -69,6 +80,6 @@ public class CreateContainer extends AbstractAction {
         }                   
     }
 
-    public enum DataKey { NAME }
+    public enum DataKey { NAME, NUM_FILES, FILES }
 
 }

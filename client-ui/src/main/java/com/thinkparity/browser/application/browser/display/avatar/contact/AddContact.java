@@ -132,23 +132,23 @@ public class AddContact extends Avatar {
         emailJLabel = LabelFactory.create();
         emailJTextField = TextFactory.create();
 
-        addContactJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("CreateInvitation.Title")));
+        addContactJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("AddContact.Title")));
         addContactJPanel.setOpaque(false);
-        addJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("CreateInvitation.AddButton"));
+        addJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("AddContact.AddButton"));
         addJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                addJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addJButtonActionPerformed(evt);
             }
         });
 
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("CreateInvitation.CancelButton"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("AddContact.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
-        emailJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("CreateInvitation.EmailLabel"));
+        emailJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("AddContact.EmailLabel"));
 
         org.jdesktop.layout.GroupLayout addContactJPanelLayout = new org.jdesktop.layout.GroupLayout(addContactJPanel);
         addContactJPanel.setLayout(addContactJPanelLayout);
@@ -167,6 +167,9 @@ public class AddContact extends Avatar {
                         .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)))
                 .addContainerGap())
         );
+
+        addContactJPanelLayout.linkSize(new java.awt.Component[] {addJButton, cancelJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         addContactJPanelLayout.setVerticalGroup(
             addContactJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, addContactJPanelLayout.createSequentialGroup()

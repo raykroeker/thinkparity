@@ -33,7 +33,7 @@ public class Publish extends AbstractAction {
 
 	static {
 		ICON = null;
-		ID = ActionId.DOCUMENT_OPEN;
+		ID = ActionId.CONTAINER_PUBLISH;
 		NAME = "Publish";
 	}
 
@@ -42,7 +42,7 @@ public class Publish extends AbstractAction {
 
 	/** Create Publish. */
 	public Publish(final Browser application) {
-		super("Document.Publish", ID, NAME, ICON);
+		super("Container.Publish", ID, NAME, ICON);
 		this.application = application;
 	}
 
@@ -51,11 +51,11 @@ public class Publish extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
-		getDocumentModel().publish(documentId);
-		getArtifactModel().applyFlagSeen(documentId);
+		final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+		getContainerModel().publish(containerId);
+		getArtifactModel().applyFlagSeen(containerId);
 
-		application.fireDocumentUpdated(documentId);
+		application.fireContainerUpdated(containerId);
 	}
 
 	/**
@@ -63,5 +63,5 @@ public class Publish extends AbstractAction {
 	 * 
 	 * @see Data
 	 */
-	public enum DataKey { DOCUMENT_ID }
+	public enum DataKey { CONTAINER_ID }
 }

@@ -70,11 +70,25 @@ public class CellDocument extends Document implements MainCell  {
         setState(d.getState());
         
         this.container = container;
-        //this.dModel = dModel;
+        this.dModel = dModel;
         this.imageCache = new MainCellImageCache();        
 
         this.urgent = Boolean.FALSE;
         this.seen = contains(ArtifactFlag.SEEN);        
+    }
+    
+    /**
+     * Get the parent container id
+     */
+    public Long getContainerId() {
+        return container.getId();
+    }
+    
+    /**
+     * Get the parent container cell
+     */
+    public CellContainer getContainer() {
+        return container;
     }
 
     /**
@@ -225,7 +239,7 @@ public class CellDocument extends Document implements MainCell  {
      * 
      * @return True if the document has been distributed.
      */
-    //public Boolean isDistributed() { return dModel.isDistributed(getId()); }
+    public Boolean isDistributed() { return dModel.isDistributed(getId()); }
 
     /**
      * Determine whether or not the document cell has been seen.

@@ -407,7 +407,7 @@ public class BrowserMainDocumentModel {
         }    
         if(mainCell instanceof MainCellDocument) {
             final MainCellDocument mcd = (MainCellDocument) mainCell;
-            browser.runOpenDocument(mcd.getId());
+            browser.runOpenDocument(containerId,mcd.getId());
         }
         else if(mainCell instanceof MainCellHistoryItem) {
             final MainCellHistoryItem mch = (MainCellHistoryItem) mainCell;
@@ -468,12 +468,12 @@ public class BrowserMainDocumentModel {
     void triggerPopup(final MainCell mainCell, final Component invoker, final MouseEvent e,
             final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        if(mainCell instanceof MainCellDocument) {
+/*        if(mainCell instanceof MainCellDocument) {
             new PopupDocument(contentProvider, (MainCellDocument) mainCell).trigger(browser, jPopupMenu, e);
         }
         else if(mainCell instanceof MainCellHistoryItem) {
             new PopupHistoryItem((MainCellHistoryItem) mainCell).trigger(browser, jPopupMenu, e);
-        }
+        }*/
         logger.info("[LBROWSER] [APPLICATION] [BROWSER] [DOCUMENT AVATAR] [TRIGGER POPUP]");
         logger.debug(browser.getConnection());
         jPopupMenu.show(invoker, x, y);

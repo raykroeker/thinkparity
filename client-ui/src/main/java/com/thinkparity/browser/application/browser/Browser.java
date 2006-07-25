@@ -17,12 +17,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.*;
 import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
+import com.thinkparity.browser.application.browser.display.avatar.container.NewContainerDialogue;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -51,11 +50,14 @@ import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
+import com.thinkparity.browser.platform.application.dialog.ErrorDialog;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -236,12 +238,40 @@ public class Browser extends AbstractApplication {
                 mainWindow);
         mainWindow.dispatchEvent(new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
     }
+    
+    /**
+     * Handle a user error.
+     * 
+     * @param messageKey
+     *            The error message localization key.
+     */
+    public void userError(final String messageKey) {
+        final Data input = new Data(1);
+        input.set(ErrorDialog.DataKey.MESSAGE_KEY, messageKey);
+        open(WindowId.ERROR, AvatarId.ERROR_DIALOGUE, input);
+    }
+    
+    /**
+     * Handle a user error.
+     *
+     * @param messageKey
+     *            The error message localization key.
+     * @param messageArguments
+     *            Message arguments.
+     */
+    public void userError(final String messageKey,
+            final Object[] messageArguments) {
+        final Data input = new Data(2);
+        input.set(ErrorDialog.DataKey.MESSAGE_KEY, messageKey);
+        input.set(ErrorDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
+        open(WindowId.ERROR, AvatarId.ERROR_DIALOGUE, input);
+    }
 
     /**
      * Open a confirmation dialog.
      * 
      * @param messageKey
-     *            The confirmation mesage localization key.
+     *            The confirmation message localization key.
      * @return True if the user confirmed in the affirmative.
      */
     public Boolean confirm(final String messageKey) {
@@ -254,7 +284,7 @@ public class Browser extends AbstractApplication {
      * Open a confirmation dialog.
      * 
      * @param messageKey
-     *            The confirmation mesage localization key.
+     *            The confirmation message localization key.
      * @return True if the user confirmed in the affirmative.
      */
     public Boolean confirm(final String messageKey,
@@ -309,20 +339,46 @@ public class Browser extends AbstractApplication {
      * 
      */
     public void displayNewContainerDialog() {
+        final Integer numFiles = 0;
+        final String firstFileName = "";
+        displayNewContainerDialog(numFiles, firstFileName);
+    }
+    
+    /**
+     * Display the "new container" dialog (to create new packages).
+     * If the user presses OK, runCreateContainer(name) is called.
+     * This version has the number of files to be added and the name of the
+     * first file that will be added after the container is created.
+     * (Note that this method does not add the documents.)
+     * 
+     * @param numFiles
+     *          Number of documents that will be added later
+     * @param firstFileName
+     *          The name of one of the first document that will be added later
+     */
+    public void displayNewContainerDialog(final Integer numFiles,
+            final String firstFileName) {
+        final Data input = new Data(2);
+        input.set(NewContainerDialogue.DataKey.NUM_FILES, numFiles);
+        input.set(NewContainerDialogue.DataKey.FIRST_FILE_NAME, firstFileName);
+        setInput(AvatarId.NEW_CONTAINER_DIALOGUE, input);
         displayAvatar(WindowId.POPUP, AvatarId.NEW_CONTAINER_DIALOGUE);
     }
 
     /**
      * Display a document rename dialog.
      * 
+     * @param containerId
+     *            A container id.
      * @param documentId
      *            A document id.
      * @param documentName
      *            A document name.
      */
-    public void displayRenameDocument(final Long documentId,
+    public void displayRenameDocument(final Long containerId, final Long documentId,
             final String documentName) {
-        final Data input = new Data(2);
+        final Data input = new Data(3);
+        input.set(RenameDialog.DataKey.CONTAINER_ID, containerId);
         input.set(RenameDialog.DataKey.DOCUMENT_ID, documentId);
         input.set(RenameDialog.DataKey.DOCUMENT_NAME, documentName);
         setInput(AvatarId.RENAME_DIALOGUE, input);
@@ -431,6 +487,7 @@ public class Browser extends AbstractApplication {
      *            True if the closing was the result of a remote event; false if
      *            the closing was a local event.
      */
+//qqq
     public void fireDocumentClosed(final Long documentId, final Boolean remote) {
         setCustomStatusMessage("DocumentClosed");
         SwingUtilities.invokeLater(new Runnable() {
@@ -444,6 +501,7 @@ public class Browser extends AbstractApplication {
      * @param documentId
      *      The document id.
      */
+//  qqq
     public void fireDocumentConfirmationReceived(final Long documentId) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getMainAvatar().syncDocument(documentId, Boolean.FALSE); }
@@ -471,6 +529,7 @@ public class Browser extends AbstractApplication {
 	 * @param documentId
 	 *            The document id.
 	 */
+//  qqq
 	public void fireDocumentCreated(final Long documentId, final Boolean remote) {
         setCustomStatusMessage("DocumentCreated");
 		SwingUtilities.invokeLater(new Runnable() {
@@ -490,10 +549,6 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getContainersAvatar().syncContainer(containerId, remote); }
         });
-        // TO DO remove this!
-        this.containerId = containerId;
-        final File file1 = new File("C:\\RBM\\ThinkParity\\a.txt");
-        runCreateDocument(containerId,file1);
     }
     
     /**
@@ -516,6 +571,7 @@ public class Browser extends AbstractApplication {
 	 * @param documentId
 	 *            The document id.
 	 */
+//  qqq
 	public void fireDocumentDeleted(final Long documentId) {
         setCustomStatusMessage("DocumentDeleted");
 		SwingUtilities.invokeLater(new Runnable() {
@@ -537,6 +593,7 @@ public class Browser extends AbstractApplication {
      * @param documentId
      *            The document id.
      */
+//  qqq
 	public void fireDocumentReceived(final Long documentId) {
         setCustomStatusMessage("DocumentReceived");
 
@@ -558,6 +615,7 @@ public class Browser extends AbstractApplication {
      * @param documentIds
      *            The document ids.
      */
+//  qqq
     public void fireDocumentsCreated(final List<Long> documentIds) {
         if(documentIds.size() > 1) { setCustomStatusMessage("DocumentsCreated"); }
         else { setCustomStatusMessage("DocumentCreated"); }
@@ -579,6 +637,7 @@ public class Browser extends AbstractApplication {
      * @param documentId
      *      A document id.
      */
+//  qqq
     public void fireDocumentTeamMemberAdded(final Long documentId) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getMainAvatar().syncDocument(documentId, Boolean.TRUE); }
@@ -592,6 +651,7 @@ public class Browser extends AbstractApplication {
      * @param documentId
      *      A document id.
      */
+//  qqq
     public void fireDocumentTeamMemberRemoved(final Long documentId) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getMainAvatar().syncDocument(documentId, Boolean.TRUE); }
@@ -605,10 +665,39 @@ public class Browser extends AbstractApplication {
 	 * @param documentId
 	 *            The document that has changed.
 	 */
+    public void fireDocumentUpdated(final Long containerId, final Long documentId) {
+        fireDocumentUpdated(containerId, documentId, Boolean.FALSE);
+    }
+    
+    public void fireDocumentUpdated(final Long containerId, final Long documentId, final Boolean remoteReload) {
+        setCustomStatusMessage("DocumentUpdated");
+        // refresh the document in the main list
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getContainersAvatar().syncDocument(containerId, documentId, remoteReload);
+            }
+        });        
+    }
+    
+    public void fireContainerUpdated(final long containerId) {
+        fireContainerUpdated(containerId, Boolean.FALSE);
+    }
+    
+    public void fireContainerUpdated(final Long containerId, final Boolean remoteReload) {
+        setCustomStatusMessage("ContainerUpdated");
+        // refresh the container in the main list
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((BrowserContainersAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTAINERS)).syncContainer(containerId, remoteReload);
+            }
+        });        
+    }
+
+//  qqq
 	public void fireDocumentUpdated(final Long documentId) {
 		fireDocumentUpdated(documentId, Boolean.FALSE);
 	}
-
+//  qqq
 	public void fireDocumentUpdated(final Long documentId, final Boolean remoteReload) {
         setCustomStatusMessage("DocumentUpdated");
 		// refresh the document in the main list
@@ -904,25 +993,43 @@ public class Browser extends AbstractApplication {
 	}
     
     /**
-     * Run the create container (package) action.
+     * Run the create container (package) action. The user will
+     * determine the name.
      * 
      */
     public void runCreateContainer() {
         // Note: passing null for data or null for NAME will crash.
-        final Data data = new Data(1);
+        final int numFiles = 0;
+        final Data data = new Data(2);
         data.set(CreateContainer.DataKey.NAME, "");
+        data.set(CreateContainer.DataKey.NUM_FILES, numFiles);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
 
     /**
-     * Create a container (package).
+     * Create a container (package) with a specified name.
      * 
      * @param name
      *            The container name.
      */
     public void runCreateContainer(final String name) {
-        final Data data = new Data(1);
+        final int numFiles = 0;
+        final Data data = new Data(2);
         data.set(CreateContainer.DataKey.NAME, name);
+        data.set(CreateContainer.DataKey.NUM_FILES, numFiles);
+        invoke(ActionId.CONTAINER_CREATE, data);
+    }
+    
+    /**
+     * Create a container (package) with one or more new documents.
+     * The user will determine the container name.
+     */
+    public void runCreateContainer(final List<File> files) {
+        final Integer numFiles = files.size();
+        final Data data = new Data(3);
+        data.set(CreateContainer.DataKey.NAME, "");
+        data.set(CreateContainer.DataKey.NUM_FILES, numFiles);        
+        data.set(CreateContainer.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
     
@@ -940,6 +1047,21 @@ public class Browser extends AbstractApplication {
         data.set(Create.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.DOCUMENT_CREATE, data);        
     }
+    
+    /**
+     * Create multiple documents.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param files
+     *            The files.
+     */
+    public void runCreateDocuments(final Long containerId, final List<File> files) {
+        final Data data = new Data(2);
+        data.set(CreateDocuments.DataKey.FILES, files);
+        data.set(CreateDocuments.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CREATE_DOCUMENTS, data);
+    }    
 
     /**
 	 * Run the create document action, browse to select the document.
@@ -953,13 +1075,6 @@ public class Browser extends AbstractApplication {
 		    runCreateDocument(containerId, jFileChooser.getSelectedFile());
 		}
 	}
-    
-    // TO DO... erase this one.
-    public void runCreateDocument() {
-        if(JFileChooser.APPROVE_OPTION == getJFileChooser().showOpenDialog(mainWindow)) {
-            runCreateDocument(containerId, jFileChooser.getSelectedFile());
-        }
-    }   
 
     /**
      * Create a document.
@@ -967,6 +1082,7 @@ public class Browser extends AbstractApplication {
      * @param file
      *            The document file.
      */
+    // TO DO... throw out.
     public void runCreateDocument(final File file) {
         final Data data = new Data(2);
         data.set(Create.DataKey.FILE, file);
@@ -980,6 +1096,7 @@ public class Browser extends AbstractApplication {
      * @param files
      *            The files.
      */
+    // TO DO... throw out.
     public void runCreateDocuments(final List<File> files) {
         final Data data = new Data(2);
         data.set(CreateDocuments.DataKey.FILES, files);
@@ -1081,9 +1198,11 @@ public class Browser extends AbstractApplication {
 	 * @param documentId
 	 *            The document id.
 	 */
-	public void runOpenDocument(final Long documentId) {
+	public void runOpenDocument(final Long containerId, final Long documentId) {
+        Assert.assertNotNull("Cannot open document in null container.", containerId);
         Assert.assertNotNull("Cannot open null document.", documentId);
-		final Data data = new Data(1);
+		final Data data = new Data(2);
+        data.set(Open.DataKey.CONTAINER_ID, containerId);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
 	}
@@ -1106,10 +1225,16 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
     
-    /** Publish the selected document. */
-    public void runPublishDocument() {
+    /**
+     *  Publish the selected container.
+     *  
+     *  @param containerId
+     *              The container id.
+     *              
+     */
+    public void runPublishContainer(final Long containerId) {
         final Data data = new Data(1);
-        data.set(Publish.DataKey.DOCUMENT_ID, session.getSelectedDocumentId());
+        data.set(Publish.DataKey.CONTAINER_ID, containerId);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { invoke(ActionId.PUBLISH_DOCUMENT, data); }
         });
@@ -1130,11 +1255,14 @@ public class Browser extends AbstractApplication {
     /**
      * Run the document rename action.
      * 
+     * @param containerId
+     *            A container id.
      * @param documentId
      *            A document id.
      */
-    public void runRenameDocument(final Long documentId) {
-        final Data data = new Data(1);
+    public void runRenameDocument(final Long containerId, final Long documentId) {
+        final Data data = new Data(2);
+        data.set(Rename.DataKey.CONTAINER_ID, containerId);
         data.set(Rename.DataKey.DOCUMENT_ID, documentId);
         invoke(ActionId.DOCUMENT_RENAME, data);
     }
@@ -1143,14 +1271,17 @@ public class Browser extends AbstractApplication {
     /**
      * Run the document rename action.
      * 
+     * @param containerId
+     *            A container id.
      * @param documentId
      *            A document id.
      * @param documentName
      *            An document name.
      */
-    public void runRenameDocument(final Long documentId,
+    public void runRenameDocument(final Long containerId, final Long documentId,
             final String documentName) {
-        final Data data = new Data(2);
+        final Data data = new Data(3);
+        data.set(Rename.DataKey.CONTAINER_ID, containerId);        
         data.set(Rename.DataKey.DOCUMENT_ID, documentId);
         data.set(Rename.DataKey.DOCUMENT_NAME, documentName);
         invoke(ActionId.DOCUMENT_RENAME, data);

@@ -110,6 +110,15 @@ public class RenameDialog extends Avatar {
      * @return The name.
      */
     private String extractName() { return SwingUtil.extract(nameJTextField); }
+    
+    /**
+     * Obtain the input container id.
+     * 
+     * @return A container id.
+     */
+    private Long getInputContainerId() {
+        return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
+    }
 
     /**
      * Obtain the input artifact id.
@@ -195,9 +204,10 @@ public class RenameDialog extends Avatar {
 
     private void renameJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_renameJButtonActionPerformed
         if(isInputValid()) {
+            final Long containerId = getInputContainerId();
             final Long documentId = getInputDocumentId();
             final String documentName = extractName();
-            getController().runRenameDocument(documentId, documentName);
+            getController().runRenameDocument(containerId, documentId, documentName);
             disposeWindow();
         }
     }//GEN-LAST:event_renameJButtonActionPerformed
@@ -206,5 +216,5 @@ public class RenameDialog extends Avatar {
     private javax.swing.JTextField nameJTextField;
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { DOCUMENT_ID, DOCUMENT_NAME }
+    public enum DataKey { CONTAINER_ID, DOCUMENT_ID, DOCUMENT_NAME }
 }

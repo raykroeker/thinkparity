@@ -24,6 +24,7 @@ import com.thinkparity.browser.application.browser.display.avatar.container.Cell
 import com.thinkparity.browser.application.browser.display.avatar.container.CellDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupContainer;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 /**
@@ -74,7 +75,7 @@ public class BrowserContainersModel {
     private final Map<CellContainer, List<CellDocument>> containerDocuments;
 
     /** The team cell for the document. */
-    //private final Map<MainCellDocument, MainCellTeam> documentTeam;
+    //private final Map<CellDocument, CellTeam> documentTeam;
     
     /** The swing list model. */
     private final DefaultListModel jListModel;
@@ -106,6 +107,44 @@ public class BrowserContainersModel {
         this.pseudoSelection = new LinkedList<MainCell>();
         */
         this.visibleCells = new LinkedList<MainCell>();
+    }
+    
+
+    /**
+     * Get the list of document names associated with this cellContainer
+     * (this method accesses existing lists rather than using the provider)
+     * 
+     * @param cellContainer
+     *              The cellContainer
+     * @return A list of document names.
+     */
+    public List<String> getDocumentNames(final CellContainer cellContainer) {
+        final List<String> l = new LinkedList<String>();        
+        for(final CellDocument cd : containerDocuments.get(cellContainer)) {
+            l.add(cd.getName());
+        }
+        return l;
+    }
+
+    /**
+     * Get the document id, given the document name.
+     * (this method accesses existing lists rather than using the provider)
+     * 
+     * @param cellContainer
+     *              The cellContainer
+     * @param documentName
+     *              The document name
+     * @return The document id
+     */
+    public Long getDocumentId(final CellContainer cellContainer, final String documentName) {
+        Long documentId = null;
+        for(final CellDocument cd : containerDocuments.get(cellContainer)) {
+            if (cd.getName().equals(documentName)) {
+                documentId = cd.getId();
+                break;
+            }
+        }
+        return documentId;        
     }
 
     /**
@@ -359,10 +398,11 @@ public class BrowserContainersModel {
     }
 
     /**
-     * Synchronize the container with the list. The content provider is queried
-     * for the container and if it can be obtained; it will either be added to or
-     * updated in the list. If it cannot be found; it will be removed from the
-     * list.
+     * Synchronize the container with the list.
+     * Called, for example, if a new container is added.
+     * The content provider is queried for the container and if it can be obtained,
+     * it will either be added to or updated in the list. If it cannot be found,
+     * it will be removed from the list.
      * 
      * @param containerId
      *            The container id.
@@ -371,7 +411,24 @@ public class BrowserContainersModel {
      *            not.
      */
     void syncContainer(final Long containerId, final Boolean remote) {
-        syncContainerInternal(containerId, remote);
+        syncContainerInternal(containerId, null, remote);
+        syncModel();
+    }
+    
+    /**
+     * Synchronize the document in the container list.
+     * Called, for example, if a new document is created in the container.
+     * This will move the container to the top, and also expand the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param documentId
+     *            The document id.           
+     * @param remote
+     *            Indicates whether the sync is the result of a remote event
+     */
+    public void syncDocument(final Long containerId, final Long documentId, final Boolean remote) {
+        syncContainerInternal(containerId, documentId, remote);
         syncModel();
     }
 
@@ -402,23 +459,26 @@ public class BrowserContainersModel {
      * @param mainCell
      *            The main cell.
      */
-/*    void triggerDoubleClick(final MainCell mainCell) {
+    void triggerDoubleClick(final MainCell mainCell) {
         debug();
+        if(mainCell instanceof CellContainer) {
+            triggerExpand(mainCell);
+        }
+        else if(mainCell instanceof CellDocument) {
+            final CellDocument cd = (CellDocument) mainCell;
+            browser.runOpenDocument(cd.getContainerId(), cd.getId());
+        }
+        
         // RBM 13/06/05 #36 Double click will open the document instead of expanding
         // The old line of code commented out:
         // triggerExpand(mainCell);
-        if(browser.getPlatform().isDevelopmentMode()) {
-            logger.debug("Opening document " + mainCell.getText());
-        }    
-        if(mainCell instanceof MainCellDocument) {
-            final MainCellDocument mcd = (MainCellDocument) mainCell;
-            browser.runOpenDocument(mcd.getId());
-        }
+/*
         else if(mainCell instanceof MainCellHistoryItem) {
             final MainCellHistoryItem mch = (MainCellHistoryItem) mainCell;
             browser.runOpenDocumentVersion(mch.getDocumentId(),mch.getVersionId());
         }
-    }*/
+*/
+    }
 
     /**
      * Trigger a drag event for the cell.
@@ -478,6 +538,9 @@ public class BrowserContainersModel {
         if ((null==mainCell) ||    // null if right-click on an empty area of the JList
             (mainCell instanceof CellContainer)) {
             new PopupContainer(contentProvider, (CellContainer) mainCell).trigger(browser, jPopupMenu, e);                
+        }
+        else if (mainCell instanceof CellDocument) {
+            new PopupDocument(contentProvider, (CellDocument) mainCell).trigger(browser, jPopupMenu, e);
         }
 //new PopupHistoryItem((MainCellHistoryItem) mainCell).trigger(browser, jPopupMenu, e);
         logger.info("[LBROWSER] [APPLICATION] [BROWSER] [CONTAINERS AVATAR] [TRIGGER POPUP]");
@@ -718,6 +781,8 @@ public class BrowserContainersModel {
      * 
      * @param containerId
      *            The container id.
+     * @parem documentId
+     *            The document id (or null if it is a container change only)
      * @param remote
      *            Whether or not the reload is the result of a remote event or
      *            not.
@@ -725,7 +790,7 @@ public class BrowserContainersModel {
      * @see #syncContainer(Long, Boolean)
      * @see #syncModel()
      */
-    private void syncContainerInternal(final Long containerId, final Boolean remote) {
+    private void syncContainerInternal(final Long containerId, final Long documentId, final Boolean remote) {
         final CellContainer cellContainer = readContainer(containerId);
 
         // if the container is null; we can assume the container has been
@@ -762,21 +827,31 @@ public class BrowserContainersModel {
                 documentTeam.put(cellContainer, new MainCellTeam(cellContainer, readTeam(cellContainer)));
                 */
             }
-            // the container has been updated
+            // The container has been updated
+            // If document is not null then it could be, for example, a new document
             else {
-                /*
                 final int index = containers.indexOf(cellContainer);
 
-                // preserve expand\collapse state
-                cellContainer.setExpanded(containers.get(index).isExpanded());
+                // preserve expand\collapse state, except if there is a new document
+                // then force it to expand.
+                if (documentId!=null) {
+                    cellContainer.setExpanded(Boolean.TRUE);
+                }
+                else {
+                    cellContainer.setExpanded(containers.get(index).isExpanded());
+                }
 
-                containers.remove(index);
-
-                // if the reload is the result of a remote event add the document
+                // if the reload is the result of a remote event add the container
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
+                containers.remove(index);
                 if(remote) { containers.add(0, cellContainer); }
                 else { containers.add(index, cellContainer); }
+                
+                // Update the document list for this container ("put" replaces the old value)
+                containerDocuments.put(cellContainer, readDocuments(cellContainer));
+                
+                /*
                 documentTeam.put(mainCellDocument, new MainCellTeam(cellContainer, readTeam(cellContainer)));
                 documentHistory.put(cellContainer, readHistory(cellContainer));
 
@@ -822,10 +897,18 @@ public class BrowserContainersModel {
                 jListModel.add(visibleCells.indexOf(mc), mc);
             }
             else {
-                if(jListModel.indexOf(mc) != visibleCells.indexOf(mc)) {
+                // Always replace the element in the jList Model. The value of the
+                // expanded flag may have changed in syncContainerInternal().
+                jListModel.removeElement(mc);
+                jListModel.add(visibleCells.indexOf(mc), mc);
+                /*
+                final int jIndex = jListModel.indexOf(mc);
+                final int vIndex = visibleCells.indexOf(mc);
+                if(jIndex != vIndex) {
                     jListModel.removeElement(mc);
-                    jListModel.add(visibleCells.indexOf(mc), mc);
+                    jListModel.add(vIndex, mc);
                 }
+                */
             }
         }
 

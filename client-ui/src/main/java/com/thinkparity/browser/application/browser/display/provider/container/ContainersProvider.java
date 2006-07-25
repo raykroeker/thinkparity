@@ -85,12 +85,12 @@ public class ContainersProvider extends CompositeFlatSingleContentProvider {
             public Object getElement(final Object input) {
                 final Long containerId = (Long) input;
                 final Container container = ctrModel.read(containerId);
-                return toDisplay(container, ctrModel);
+                return toDisplay(container, ctrModel, dModel);
             }
         };
         this.containersProvider = new FlatContentProvider(profile) {
             public Object[] getElements(final Object input) {
-                return toDisplay(ctrModel.read(), ctrModel);
+                return toDisplay(ctrModel.read(), ctrModel, dModel);
             }            
         };
         /*
@@ -211,15 +211,17 @@ public class ContainersProvider extends CompositeFlatSingleContentProvider {
      *          The containers
      * @param ctrModel
      *          The parity container interface.
+     * @param dModel
+     *          The parity document interface.
      *          
      * @return The displayable containers.
      */
     private CellContainer[] toDisplay(final List<Container> containers,
-            final ContainerModel ctrModel) {
+            final ContainerModel ctrModel, final DocumentModel dModel) {
         final List<CellContainer> display = new LinkedList<CellContainer>();
 
         for(final Container c : containers) {
-            display.add(toDisplay(c, ctrModel));
+            display.add(toDisplay(c, ctrModel, dModel));
         }
         return display.toArray(new CellContainer[] {});      
     }
@@ -231,17 +233,23 @@ public class ContainersProvider extends CompositeFlatSingleContentProvider {
      *          The container
      * @param ctrModel
      *          The parity container interface.
+     * @param dModel
+     *          The parity document interface.
      *          
      * @return The displayable container.
      */
 // TO DO need team passed to CellContainer? KeyRequests?
     private CellContainer toDisplay(final Container container,
-            final ContainerModel ctrModel) {
+            final ContainerModel ctrModel, final DocumentModel dModel) {
         if(null == container) {
             return null;
         }
         else {
-            final CellContainer cc = new CellContainer(ctrModel, container);
+            final CellContainer cc = new CellContainer(ctrModel, dModel, container);
+            try {
+                cc.setDocuments(ctrModel.readDocuments(cc.getId()));
+            }
+            catch(final ParityException px) { throw new RuntimeException(px); }
 //          cc.setKeyRequests(ctrModel.readKeyRequests(container.getId()));
             return cc;
         }   

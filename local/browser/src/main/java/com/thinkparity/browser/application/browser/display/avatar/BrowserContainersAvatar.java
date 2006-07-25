@@ -12,6 +12,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -24,7 +25,7 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
-import com.thinkparity.browser.application.browser.dnd.UpdateDocumentTxHandler;
+import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -211,11 +212,11 @@ public class BrowserContainersAvatar extends Avatar {
         final CellContainer selectedContainer = getSelectedContainer();
         containersModel.syncContainer(containerId, remote);
         if(containersModel.isContainerVisible(selectedContainer))
-            selectContainer(selectedContainer);        
+            selectContainer(selectedContainer);  
     }
     
     /**
-     * Syncrhonize the document in the container list.
+     * Synchronize the document in the container list.
      * Called, for example, if a new document is created in the container.
      * This will move the container to the top, and also expand the container.
      * 
@@ -227,8 +228,10 @@ public class BrowserContainersAvatar extends Avatar {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncDocument(final Long containerId, final Long documentId, final Boolean remote) {
-        // TO DO
-        syncContainer(containerId, remote);
+        final CellContainer selectedContainer = getSelectedContainer();
+        containersModel.syncDocument(containerId, documentId, remote);
+        if(containersModel.isContainerVisible(selectedContainer))
+            selectContainer(selectedContainer);
     }
 
     /**
@@ -307,26 +310,28 @@ public class BrowserContainersAvatar extends Avatar {
         jList.setDragEnabled(true);
         jList.setLayoutOrientation(JList.VERTICAL);
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        jList.setTransferHandler(new UpdateDocumentTxHandler(getController(), jList));
+        jList.setTransferHandler(new CreateDocumentTxHandler(getController(), jList, containersModel));
+        // Available in Java version 6... Improve the behavior of selection during drag and drop.
+        // so that it does not change the selection.
+        //  -- jList.setDropMode(DropMode.ON);
+        //CopyActionEnforcer.applyEnforcer(this);
         jList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(final MouseEvent e) {
-                /*
                 if(2 == e.getClickCount()) {
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
                     // Don't process double click if it is on white space below the last document
                     final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
-                    if(SwingUtil.regionContains(cellBounds, p)){
-                        jList.setSelectedIndex(listIndex);                    
-                        mainDocumentModel.triggerDoubleClick((MainCell) jList.getSelectedValue());    
+                    if(SwingUtil.regionContains(cellBounds, p)){                 
+                        containersModel.triggerDoubleClick((MainCell) jList.getSelectedValue());  
+                        jList.setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
                     }
                 }
-                */
-                /*else*/ if(1 == e.getClickCount()) {
+                else if(1 == e.getClickCount()) {
                     // first; we grab the index of the list item of the event
                     // second; we grab the bounds of the list item's icon
                     // third; we check to see that the icon was clicked and if it was
-                    //      we display the popup menu
+                    //      we trigger expand.
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
                     final Integer selectedIndex = jList.getSelectedIndex();
@@ -337,9 +342,9 @@ public class BrowserContainersAvatar extends Avatar {
                         cellBounds.y += CELL_NODE_LOCATION.y;
                         cellBounds.width = CELL_NODE_SIZE.width;
                         cellBounds.height = CELL_NODE_SIZE.height;
-                        if(SwingUtil.regionContains(cellBounds, p)) {
-                            jList.setSelectedIndex(listIndex);
+                        if(SwingUtil.regionContains(cellBounds, p)) {                            
                             containersModel.triggerExpand(mc);
+                            jList.setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
                         }
                     }
                 }

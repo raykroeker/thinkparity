@@ -49,18 +49,19 @@ public class Rename extends AbstractAction {
 
 	/** @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data) */
 	public void invoke(final Data data) throws Exception {
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
         final String documentName = (String) data.get(DataKey.DOCUMENT_NAME);
 
         if(null == documentName) {
             final Document document = getDocumentModel().get(documentId);
-            browser.displayRenameDocument(documentId, document.getName());
+            browser.displayRenameDocument(containerId, documentId, document.getName());
         }
         else {
             getDocumentModel().rename(documentId, documentName);
-            browser.fireDocumentUpdated(documentId);
+            browser.fireDocumentUpdated(containerId,documentId);
         }
 	}
 
-	public enum DataKey { DOCUMENT_ID, DOCUMENT_NAME }
+	public enum DataKey { CONTAINER_ID, DOCUMENT_ID, DOCUMENT_NAME }
 }

@@ -7,6 +7,7 @@
 package com.thinkparity.browser.application.browser.display.avatar.title;
 
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -14,15 +15,12 @@ import javax.swing.event.MouseInputAdapter;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
-import com.thinkparity.browser.application.browser.dnd.CreateDocumentTxHandler;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.javax.swing.dnd.CopyActionEnforcer;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 import com.thinkparity.codebase.assertion.Assert;
-import java.awt.event.MouseEvent;
 
 /**
  *
@@ -87,8 +85,8 @@ public class ButtonPanel2 extends AbstractJPanel {
         this.avatar = avatar;
         addMouseListener(mouseInputAdapter);
         addMouseMotionListener(mouseInputAdapter);
-        setTransferHandler(new CreateDocumentTxHandler(getBrowser()));
-        CopyActionEnforcer.applyEnforcer(this);
+        //setTransferHandler(new CreateDocumentTxHandler(getBrowser()));
+        //CopyActionEnforcer.applyEnforcer(this);
         this.contactMouseAdapter = new MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 contactsJLabelMouseClicked(e);

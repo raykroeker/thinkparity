@@ -89,15 +89,15 @@ public class ConfirmDialog extends Avatar {
 
         confirmJButton.setText("!Yes!");
         confirmJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                confirmJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmJButtonActionPerformed(evt);
             }
         });
 
         denyJButton.setText("!No!");
         denyJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                denyJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                denyJButtonActionPerformed(evt);
             }
         });
 
@@ -125,6 +125,9 @@ public class ConfirmDialog extends Avatar {
                         .add(confirmJButton)))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {confirmJButton, denyJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()

@@ -80,6 +80,7 @@ public class WindowFactory {
 			final BrowserWindow browserWindow) {
 		switch(windowId) {
 		case CONFIRM: return doCreateConfirm(browserWindow);
+        case ERROR: return doCreateError(browserWindow);
 		case POPUP: return doCreatePopup(browserWindow);
         case RENAME: return doCreateRename(browserWindow);
 		default:
@@ -96,6 +97,19 @@ public class WindowFactory {
      */
     private Window doCreateConfirm(final BrowserWindow browserWindow) {
         final Window window = new ConfirmWindow(browserWindow);
+        register(window);
+        return window;
+    }
+    
+    /**
+     * Create the error window.
+     * 
+     * @param browserWindow
+     *            The browser window.
+     * @return A window.
+     */
+    private Window doCreateError(final BrowserWindow browserWindow) {
+        final Window window = new ErrorWindow(browserWindow);
         register(window);
         return window;
     }

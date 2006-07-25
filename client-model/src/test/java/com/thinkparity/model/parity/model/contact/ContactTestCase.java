@@ -26,12 +26,12 @@ abstract class ContactTestCase extends ModelTestCase {
      * @param contact
      *            The contact.
      */
-    protected static void assertNotNull(final String assertion,
+    private static void assertNotNull(final String assertion,
             final Contact contact) {
         assertNotNull(assertion + " [CONTACT IS NULL]", (Object) contact);
         assertNotNull(assertion + " [CONTACT EMAIL IS NULL]", contact.getEmails());
         assertNotNull(assertion + " [CONTACT ID IS NULL]", contact.getId());
-        assertNotNull(assertion + " [CONTACT LOCAL ID IS NULL]", contact.getLocalId());
+//        assertNotNull(assertion + " [CONTACT LOCAL ID IS NULL]", contact.getLocalId());
         assertNotNull(assertion + " [CONTACT NAME IS NULL]", contact.getName());
     }
 

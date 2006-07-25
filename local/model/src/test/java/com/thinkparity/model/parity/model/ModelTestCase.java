@@ -42,6 +42,7 @@ import com.thinkparity.model.parity.model.library.LibraryModel;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.release.InternalReleaseModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -63,11 +64,11 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 
     static {
         // init user
-        final InternalUserModel uModel = UserModel.getInternalModel(new Context(ModelTestCase.class));
+        final ProfileModel pModel = ProfileModel.getModel();
         final SessionModel sModel = SessionModel.getModel();
         try {
             sModel.login(ModelTestUser.getJUnit().getCredentials());
-            uModel.create(ModelTestUser.getJUnit().getJabberId());
+            pModel.read();
         }
         catch(final ParityException px) {
             final StringWriter sw = new StringWriter();

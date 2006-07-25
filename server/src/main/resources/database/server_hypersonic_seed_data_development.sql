@@ -61,6 +61,13 @@ insert into jiveVCard (USERNAME,VALUE)
 insert into parityUserEmail (USERNAME,EMAIL)
     values('junit.y', 'junit.y@thinkparity.com');
 
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('junit.z','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('junit.z', '<vCard xmlns="vcard-temp"><FN>JUnit.Z thinkParity</FN><N><FAMILY>thinkParity</FAMILY><GIVEN>JUnit.Z</GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('junit.z', 'junit.z@thinkparity.com');
+
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('rkroeker', 'ahalaby@rkutil.raykroeker.com', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
@@ -131,13 +138,26 @@ insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDB
     values ('junit', 'junit.x@rkutil.raykroeker.com', 'junit', NOW(), 'junit', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('junit', 'junit.y@rkutil.raykroeker.com', 'junit', NOW(), 'junit', NOW());
+insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
+    values ('junit', 'junit.z@rkutil.raykroeker.com', 'junit', NOW(), 'junit', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('junit.x', 'junit@rkutil.raykroeker.com', 'junit.x', NOW(), 'junit.x', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('junit.x', 'junit.y@rkutil.raykroeker.com', 'junit.x', NOW(), 'junit.x', NOW());
+insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
+    values ('junit.x', 'junit.z@rkutil.raykroeker.com', 'junit.x', NOW(), 'junit.x', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('junit.y', 'junit@rkutil.raykroeker.com', 'junit.y', NOW(), 'junit.y', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
     values ('junit.y', 'junit.x@rkutil.raykroeker.com', 'junit.y', NOW(), 'junit.y', NOW());
+insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
+    values ('junit.y', 'junit.z@rkutil.raykroeker.com', 'junit.y', NOW(), 'junit.y', NOW());
+
+insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
+    values ('junit.z', 'junit@rkutil.raykroeker.com', 'junit.z', NOW(), 'junit.z', NOW());
+insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
+    values ('junit.z', 'junit.x@rkutil.raykroeker.com', 'junit.z', NOW(), 'junit.z', NOW());
+insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
+    values ('junit.z', 'junit.y@rkutil.raykroeker.com', 'junit.z', NOW(), 'junit.z', NOW());

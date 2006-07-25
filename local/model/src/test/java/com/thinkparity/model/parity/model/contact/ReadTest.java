@@ -30,7 +30,7 @@ public class ReadTest extends ContactTestCase {
 	 */
 	public void testRead() {
 		final List<Contact> contacts = datum.cModel.read();
-			
+
 		assertNotNull(NAME, contacts);
 		assertEquals(NAME + " [CONTACTS SIZE DOES NOT MATCH EXPECTATION]",
                 datum.eSize.intValue(), contacts.size());
@@ -43,7 +43,7 @@ public class ReadTest extends ContactTestCase {
 		super.setUp();
 		login();
         final ContactModel cModel = getContactModel();
-		datum = new Fixture(cModel, 0);
+		datum = new Fixture(cModel, 3);
 	}
 
 	/**

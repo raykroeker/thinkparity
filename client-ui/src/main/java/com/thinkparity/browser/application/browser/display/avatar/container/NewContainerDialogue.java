@@ -7,6 +7,7 @@
 package com.thinkparity.browser.application.browser.display.avatar.container;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
@@ -99,6 +100,12 @@ public class NewContainerDialogue extends Avatar {
         newContainerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("NewContainerDialog.BorderTitle")));
         nameJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("NewContainerDialog.Name"));
 
+        nameJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameJTextFieldActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout newContainerJPanelLayout = new org.jdesktop.layout.GroupLayout(newContainerJPanel);
         newContainerJPanel.setLayout(newContainerJPanelLayout);
         newContainerJPanelLayout.setHorizontalGroup(
@@ -137,17 +144,15 @@ public class NewContainerDialogue extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(201, Short.MAX_VALUE)
-                .add(okJButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(cancelJButton)
-                .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(okJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton))
+                    .add(explanationJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                    .add(newContainerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -167,11 +172,17 @@ public class NewContainerDialogue extends Avatar {
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void nameJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameJTextFieldActionPerformed
+        if(isInputValid()) {
+            createContainer();
+            disposeWindow();
+        }
+    }//GEN-LAST:event_nameJTextFieldActionPerformed
     
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
         if(isInputValid()) {
-            final String containerName = nameJTextField.getText();
-            getController().runCreateContainer(containerName);
+            createContainer();
             disposeWindow();
         }
     }//GEN-LAST:event_okJButtonActionPerformed
@@ -227,17 +238,62 @@ public class NewContainerDialogue extends Avatar {
         explanationJTextArea.setText(getString("Explanation"));          
         if(null != input) {
             final Integer numFiles = (Integer) ((Data) input).get(DataKey.NUM_FILES);
-            if (numFiles == 1) {
-                final String firstFileName = (String) ((Data) input).get(DataKey.FIRST_FILE_NAME);
-                explanationJTextArea.setText(getString("ExplanationForOneFile", new Object[] { firstFileName }));                
-            }
-            else if (numFiles > 1) {
-                final String firstFileName = (String) ((Data) input).get(DataKey.FIRST_FILE_NAME);
-                explanationJTextArea.setText(getString("ExplanationForManyFiles", new Object[] { firstFileName, numFiles }));
+            if (numFiles > 0) {
+                final List<File> files = getDataFiles((Data) input, DataKey.FILES);
+                if (numFiles == 1) {
+                    final String name = (String) files.get(0).getName();
+                    explanationJTextArea.setText(
+                            getString("ExplanationForOneFile",
+                            new Object[] { name }));
+                } else if (numFiles == 2) {
+                    final String name1 = (String) files.get(0).getName();
+                    final String name2 = (String) files.get(1).getName();
+                    explanationJTextArea.setText(
+                            getString("ExplanationForTwoFiles",
+                            new Object[] { name1, name2 }));
+                } else if (numFiles > 2) {
+                    final String name1 = (String) files.get(0).getName();
+                    final String name2 = (String) files.get(1).getName();
+                    explanationJTextArea.setText(
+                            getString("ExplanationForManyFiles",
+                            new Object[] { name1, name2, numFiles }));
+                }
             }
         }        
     }
     
+    /**
+     * If the user presses "OK" or Enter, and input is valid, create the container
+     */
+    private void createContainer() {
+        final String containerName = nameJTextField.getText();
+        final Integer numFiles = (Integer) ((Data) input)
+                .get(DataKey.NUM_FILES);
+        if (numFiles > 0) {
+            final List<File> files = getDataFiles((Data) input, DataKey.FILES);
+            getController().runCreateContainer(containerName, files);
+        } else {
+            getController().runCreateContainer(containerName);
+        }     
+    }
+    
+    /**
+     * Convert the data element found at the given key to a list of files.
+     * 
+     * @param data
+     *            The action data.
+     * @param key
+     *            The data element key.
+     * @return A list of files.
+     */
+    private List<File> getDataFiles(final Data data, final Enum<?> key) {
+        final List<?> list = (List<?>) data.get(key);
+        if(null == list) { return null; }
+        final List<File> files = new ArrayList<File>();
+        for(final Object o : list) { files.add((File) o); }
+        return files;
+    }    
+      
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelJButton;
     private javax.swing.JTextArea explanationJTextArea;
@@ -247,5 +303,5 @@ public class NewContainerDialogue extends Avatar {
     private javax.swing.JButton okJButton;
     // End of variables declaration//GEN-END:variables
 
-    public enum DataKey { NUM_FILES, FIRST_FILE_NAME }
+    public enum DataKey { NUM_FILES, FILES }
 }

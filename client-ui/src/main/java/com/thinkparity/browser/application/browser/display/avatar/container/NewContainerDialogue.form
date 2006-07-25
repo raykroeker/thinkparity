@@ -11,16 +11,14 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
-              <EmptySpace pref="201" max="32767" attributes="0"/>
-              <Component id="okJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-          </Group>
-          <Group type="102" alignment="1" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="okJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Component id="explanationJTextArea" alignment="0" pref="327" max="32767" attributes="0"/>
                   <Component id="newContainerJPanel" alignment="0" max="32767" attributes="1"/>
               </Group>
@@ -114,6 +112,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="nameJTextField">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nameJTextFieldActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

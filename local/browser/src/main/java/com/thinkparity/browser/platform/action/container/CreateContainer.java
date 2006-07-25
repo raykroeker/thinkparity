@@ -63,20 +63,27 @@ public class CreateContainer extends AbstractAction {
         final Integer numFiles = (Integer) data.get(DataKey.NUM_FILES);
         
         if ((null == containerName) || (containerName.length() == 0 )) {
-            // Launch the NewContainerDialog. If the user presses OK, it will call
-            // this action with a name and end up in the "else" clause below.
+            // Launch the NewContainerDialog to get the container name.
+            // If the user presses OK, it will call back into this action
+            // with the name provided.
             if (numFiles>0) {
                 final List<File> files = getDataFiles(data, DataKey.FILES);
-                final File firstFile = files.get(0);
-                browser.displayNewContainerDialog(numFiles,firstFile.getName());
+                browser.displayNewContainerDialog(files);
             }
             else {
                 browser.displayNewContainerDialog();
             }
         }
         else {
+            // Create the container
             Container container = getContainerModel().create(containerName);
             browser.fireContainerCreated(container.getId(), Boolean.FALSE);
+            
+            // If there are files then add them to the container
+            if ((null!=container) && (numFiles>0)) {
+                final List<File> files = getDataFiles(data, DataKey.FILES);
+                browser.runCreateDocuments(container.getId(),files);
+            }
         }                   
     }
 

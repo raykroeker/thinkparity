@@ -335,32 +335,33 @@ public class Browser extends AbstractApplication {
     
     /**
      * Display the "new container" dialog (to create new packages).
-     * If the user presses OK, runCreateContainer(name) is called.
+     * If the user presses OK, runCreateContainer() is called and
+     * provided with the container name.
      * 
      */
     public void displayNewContainerDialog() {
         final Integer numFiles = 0;
-        final String firstFileName = "";
-        displayNewContainerDialog(numFiles, firstFileName);
+        final Data input = new Data(1);
+        input.set(NewContainerDialogue.DataKey.NUM_FILES, numFiles);
+        setInput(AvatarId.NEW_CONTAINER_DIALOGUE, input);
+        displayAvatar(WindowId.POPUP, AvatarId.NEW_CONTAINER_DIALOGUE);
     }
     
     /**
      * Display the "new container" dialog (to create new packages).
-     * If the user presses OK, runCreateContainer(name) is called.
-     * This version has the number of files to be added and the name of the
-     * first file that will be added after the container is created.
-     * (Note that this method does not add the documents.)
+     * If the user presses OK, runCreateContainer() is called and
+     * provided with the container name.
+     * This version has a list of files that will be added after the
+     * container is created.
      * 
-     * @param numFiles
-     *          Number of documents that will be added later
-     * @param firstFileName
-     *          The name of one of the first document that will be added later
-     */
-    public void displayNewContainerDialog(final Integer numFiles,
-            final String firstFileName) {
+     * @param files
+     *          List of files that will be added later
+     */    
+    public void displayNewContainerDialog(final List<File> files) {
+        final Integer numFiles = files.size();
         final Data input = new Data(2);
         input.set(NewContainerDialogue.DataKey.NUM_FILES, numFiles);
-        input.set(NewContainerDialogue.DataKey.FIRST_FILE_NAME, firstFileName);
+        input.set(NewContainerDialogue.DataKey.FILES, files);        
         setInput(AvatarId.NEW_CONTAINER_DIALOGUE, input);
         displayAvatar(WindowId.POPUP, AvatarId.NEW_CONTAINER_DIALOGUE);
     }
@@ -994,7 +995,7 @@ public class Browser extends AbstractApplication {
     
     /**
      * Run the create container (package) action. The user will
-     * determine the name.
+     * determine the container name.
      * 
      */
     public void runCreateContainer() {
@@ -1023,11 +1024,32 @@ public class Browser extends AbstractApplication {
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
+     * 
+     * @param files
+     *          List of files that will be added later      
      */
     public void runCreateContainer(final List<File> files) {
         final Integer numFiles = files.size();
         final Data data = new Data(3);
         data.set(CreateContainer.DataKey.NAME, "");
+        data.set(CreateContainer.DataKey.NUM_FILES, numFiles);        
+        data.set(CreateContainer.DataKey.FILES, files);
+        invoke(ActionId.CONTAINER_CREATE, data);
+    }
+    
+    /**
+     * Create a container (package) with a specified name and with
+     * one or more new documents.
+     * 
+     * @param name
+     *            The container name.
+     * @param files
+     *          List of files that will be added later
+     */
+    public void runCreateContainer(final String name, final List<File> files) {
+        final Integer numFiles = files.size();
+        final Data data = new Data(3);
+        data.set(CreateContainer.DataKey.NAME, name);
         data.set(CreateContainer.DataKey.NUM_FILES, numFiles);        
         data.set(CreateContainer.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);

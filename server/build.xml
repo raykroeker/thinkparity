@@ -4,18 +4,18 @@
 
     <!-- build configuration -->
     <tstamp>
-        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="GMT"/>
+        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
 
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>
-    <property name="release.version" value="1.0.0-RC7"/>
+    <property name="release.version" value="1.0.0-RC8"/>
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.modules" value="common/codebase common/junitx remote/codebase remote/model lib/junit lib/log4j lib/commons-codec lib/messenger"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
-    <property name="cvs.branch" value="REL_v1_0_RC7"/>
+    <property name="cvs.branch" value="v1_0"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>

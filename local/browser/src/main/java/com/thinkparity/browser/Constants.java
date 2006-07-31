@@ -1,9 +1,11 @@
 /*
  * Created On: Fri May 26 2006 16:27 PDT
- * $Id$
  */
 package com.thinkparity.browser;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.MessageFormat;
 
@@ -13,7 +15,7 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  * Browser constants.
  *
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.7
  */
 public final class Constants {
 

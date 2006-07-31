@@ -4,6 +4,8 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.display.avatar.contact.AddContact;
 import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
@@ -16,8 +18,6 @@ import com.thinkparity.browser.application.browser.display.provider.ProviderFact
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.browser.platform.application.dialog.ErrorDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -67,12 +67,6 @@ public class AvatarFactory {
      * 
      */
     private Avatar browserContacts;
-
-	/**
-	 * The browser title avatar.
-	 * 
-	 */
-	private Avatar browserTitle;
 
 	/**
 	 * The session send form avatar.
@@ -138,18 +132,6 @@ public class AvatarFactory {
         }
         return browserContacts;
     }
-
-	/**
-	 * Create the browser title avatar.
-	 * 
-	 * @return The browser title avatar.
-	 */
-	private Avatar createBrowserTitle() {
-		if(null == browserTitle) {
-			browserTitle = new BrowserTitleAvatar();
-		}
-		return browserTitle;
-	}
 
     /** Create the confirmation dialogue avatar. */
     private Avatar createConfirmDialogue() {
@@ -253,16 +235,6 @@ public class AvatarFactory {
         return newContainerAvatar;
     }
 
-    /**
-     * Create the status avatar.
-     * 
-     * @return An avatar.
-     */
-    private Avatar createStatus() {
-        final Avatar status = new Status();
-        return status;
-    }
-
 	/**
 	 * Create an avatar and register it.
 	 * 
@@ -290,7 +262,7 @@ public class AvatarFactory {
             avatar = createBrowserContacts();
             break;
 		case BROWSER_TITLE:
-			avatar = createBrowserTitle();
+			avatar = new BrowserTitle();
 			break;
         case CONFIRM_DIALOGUE:
             avatar = createConfirmDialogue();
@@ -300,6 +272,9 @@ public class AvatarFactory {
             break;
         case CONTACT_ADD:
             avatar = createContactAdd();
+            break;
+        case CONTENT:
+            avatar = new BrowserContent();
             break;
         case RENAME_DIALOGUE:
             avatar = createRenameDialogue();
@@ -329,7 +304,7 @@ public class AvatarFactory {
             avatar = createInvite();
             break;
         case STATUS:
-            avatar = createStatus();
+            avatar = new BrowserStatus();
             break;
 		default: throw Assert.createUnreachable("Unknown avatar:  " + id);
 		}

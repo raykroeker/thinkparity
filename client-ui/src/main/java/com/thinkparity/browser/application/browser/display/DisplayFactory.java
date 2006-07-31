@@ -5,10 +5,10 @@ package com.thinkparity.browser.application.browser.display;
 
 import java.awt.Dimension;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.BrowserWindow;
 import com.thinkparity.browser.platform.application.display.Display;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -122,8 +122,8 @@ public class DisplayFactory {
     private Display createStatus() {
         if(null == status) {
             status = new StatusDisplay();
-            // HEIGHT Status Display 23
-            applySize(status, 23);
+            // HEIGHT Status Display 34
+            applySize(status, 34);
         }
         return status;
     }

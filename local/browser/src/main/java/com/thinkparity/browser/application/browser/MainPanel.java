@@ -5,17 +5,17 @@ package com.thinkparity.browser.application.browser;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.swing.BoxLayout;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.display.DisplayFactory;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.Display;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -44,7 +44,7 @@ public class MainPanel extends AbstractJPanel {
 		this.displayMap = new Hashtable<DisplayId, Display>(
                 DisplayId.values().length, 1.0F);
 
-		initMainPanelComponents();
+		initComponents();
 	}
 
 	/**
@@ -80,27 +80,46 @@ public class MainPanel extends AbstractJPanel {
 	}
 
 	/**
-	 * Add a display to the main panel.
-	 * 
-	 * @param display
-	 *            The display to add.
-	 */
-	private void add(final Display display) {
+     * Add a display to the main panel.
+     * 
+     * @param display
+     *            The display to be added.
+     * @param constraints
+     *            An object expressing layout contraints for this component
+     */
+	private void add(final Display display, final Object constraints) {
 		displayMap.put(display.getId(), display);
-		add((Component) display);
+		add((Component) display, constraints);
 	}
 
-	/**
-	 * Initialize the main panel components. This consists of adding all of the
-	 * displays to the main panel.
-	 * 
-	 */
-	private void initMainPanelComponents() {
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    /**
+     * Initialize the main panel components. This consists of adding all of the
+     * displays to the main panel.
+     * 
+     */
+    private void initComponents() {
+        final GridBagConstraints gbc = new GridBagConstraints();
+        setLayout(new GridBagLayout());
 
-		add(DisplayFactory.create(DisplayId.TITLE));
-		add(DisplayFactory.create(DisplayId.INFO));
-		add(DisplayFactory.create(DisplayId.CONTENT));
-        add(DisplayFactory.create(DisplayId.STATUS));
-	}
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridy = 0;
+        gbc.ipady = 41;
+        gbc.weightx = 1.0;
+        add(DisplayFactory.create(DisplayId.TITLE), gbc.clone());
+
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridy++;
+        gbc.ipady = 0;
+        gbc.weighty = 1.0;
+        add(DisplayFactory.create(DisplayId.CONTENT), gbc.clone());
+
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridy++;
+        gbc.ipady = 0;
+        gbc.weighty = 0.0;
+        add(DisplayFactory.create(DisplayId.STATUS), gbc.clone());
+    }
 }

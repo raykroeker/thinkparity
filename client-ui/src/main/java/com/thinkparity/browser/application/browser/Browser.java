@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -16,6 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
@@ -56,8 +59,6 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -113,9 +114,11 @@ public class Browser extends AbstractApplication {
 	/** The browser's connection. */
     private Connection connection;
 
+	private BrowserTab currentTab = BrowserTab.PACKAGES_TAB;
+	
 	/** The browser's event dispatcher. */
 	private EventDispatcher ed;
-	
+
 	/**
 	 * The file chooser.
 	 * 
@@ -128,8 +131,8 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	private BrowserWindow mainWindow;
-
-	/**
+    
+    /**
 	 * Contains the browser's session information.
 	 * 
 	 */
@@ -140,15 +143,7 @@ public class Browser extends AbstractApplication {
 	 * 
 	 */
 	private final BrowserState state;
-    
     /**
-     * The current tab (documents or contacts)
-     */
-    // TO DO get rid of this once the new GUI is in place.
-    private enum BrowserTab { PACKAGES_TAB, DOCUMENTS_TAB, CONTACTS_TAB }
-    private BrowserTab currentTab = BrowserTab.PACKAGES_TAB;
-
-	/**
 	 * Create a Browser [Singleton]
 	 * 
 	 */
@@ -175,8 +170,8 @@ public class Browser extends AbstractApplication {
     public void applyKeyHolderFilter(final Boolean keyHolder) {
         getContainersAvatar().applyKeyHolderFilter(keyHolder);
     }
-    
-    /**
+
+	/**
      * Set the search results in the search filter and apply it to the current
      * list.
      * 
@@ -195,24 +190,7 @@ public class Browser extends AbstractApplication {
             getContactsAvatar().applySearchFilter(searchResult);
         }
 	}
-
-    /**
-     * Remove the search filter from the current list.
-     *
-     */
-    // TO DO Fix this.
-    public void removeSearchFilter() {
-        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
-            getContainersAvatar().removeSearchFilter();
-        }
-        else if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
-            getMainAvatar().removeSearchFilter();
-        }
-        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
-            getContactsAvatar().removeSearchFilter();
-        }
-    }
-
+    
     /**
      * Apply an artifact state filter.
      * 
@@ -238,34 +216,6 @@ public class Browser extends AbstractApplication {
                 "[LBROWSER] [APPLICATION] [BROWSER] [CLOSE BROWSER WINDOW] [BROWSER WINDOW IS NULL]",
                 mainWindow);
         mainWindow.dispatchEvent(new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
-    }
-    
-    /**
-     * Handle a user error (show an error dialog).
-     * 
-     * @param messageKey
-     *            The error message localization key.
-     */
-    public void userError(final String messageKey) {
-        final Data input = new Data(1);
-        input.set(ErrorDialog.DataKey.MESSAGE_KEY, messageKey);
-        open(WindowId.ERROR, AvatarId.ERROR_DIALOGUE, input);
-    }
-    
-    /**
-     * Handle a user error (show an error dialog).
-     *
-     * @param messageKey
-     *            The error message localization key.
-     * @param messageArguments
-     *            Message arguments.
-     */
-    public void userError(final String messageKey,
-            final Object[] messageArguments) {
-        final Data input = new Data(2);
-        input.set(ErrorDialog.DataKey.MESSAGE_KEY, messageKey);
-        input.set(ErrorDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
-        open(WindowId.ERROR, AvatarId.ERROR_DIALOGUE, input);
     }
 
     /**
@@ -295,12 +245,18 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
         return confirm(input);
     }
-
+    
     /**
      * Debug the main list.
      *
      */
 	public void debugMain() { getContainersAvatar().debug(); }
+    
+    // TO DO fix up
+    public void displayAddNewDocumentTeamMember(final Long documentId) {
+        setInput(AvatarId.ADD_TEAM_MEMBER, documentId);
+        displayAvatar(WindowId.POPUP, AvatarId.ADD_TEAM_MEMBER);
+    }
 
     /**
      * Display the invite dialogue.
@@ -330,7 +286,7 @@ public class Browser extends AbstractApplication {
 	public void displayContactSearch() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEARCH_PARTNER);
 	}
-    
+
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -344,7 +300,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.NEW_CONTAINER_DIALOGUE, input);
         displayAvatar(WindowId.POPUP, AvatarId.NEW_CONTAINER_DIALOGUE);
     }
-    
+
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -363,12 +319,6 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.NEW_CONTAINER_DIALOGUE, input);
         displayAvatar(WindowId.POPUP, AvatarId.NEW_CONTAINER_DIALOGUE);
     }
-    
-    // TO DO fix up
-    public void displayAddNewDocumentTeamMember(final Long documentId) {
-        setInput(AvatarId.ADD_TEAM_MEMBER, documentId);
-        displayAvatar(WindowId.POPUP, AvatarId.ADD_TEAM_MEMBER);
-    }   
 
     /**
      * Display a document rename dialog.
@@ -389,8 +339,8 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.RENAME_DIALOGUE, input);
         displayAvatar(WindowId.RENAME, AvatarId.RENAME_DIALOGUE);
     }
-
-	/**
+    
+    /**
      * Display send version.
      * 
      */
@@ -401,16 +351,16 @@ public class Browser extends AbstractApplication {
 		input.set(SessionSendVersion.DataKey.VERSION_ID, versionId);
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_SEND_VERSION, input);
 	}
-
-	/**
+    
+    /**
 	 * Display the invite partner dialogue.
 	 *
 	 */
 	public void displaySessionInvitePartner() {
 		displayAvatar(WindowId.POPUP, AvatarId.SESSION_INVITE_PARTNER);
 	}
-
-	/**
+    
+    /**
 	 * Display the manage contacts dialogue.
 	 *
 	 */
@@ -426,7 +376,7 @@ public class Browser extends AbstractApplication {
             displayContainerListAvatar();
         }
         // DOCUMENTS_TAB disabled
-	}
+	}   
 
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
@@ -444,8 +394,8 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
-   
-    /**
+
+	/**
      * Notify the application that a contact has been added.
      * 
      * @param contactId
@@ -461,8 +411,8 @@ public class Browser extends AbstractApplication {
             public void run() { getContactsAvatar().syncContact(contactId, remote); }
         });
     }
-    
-    /**
+
+	/**
      * 
      * Notify the application that a contact has been deleted.
      * 
@@ -486,8 +436,8 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
-    /**
+
+	/**
      * Notify the application that a contact has been invited.
      * 
      * @param contactId
@@ -498,6 +448,34 @@ public class Browser extends AbstractApplication {
         // refresh the contact list
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getContactsAvatar().syncInvitation(invitationId, remote); }
+        });
+    }
+
+    /**
+     * Notify the application a container has been closed.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            True if the closing was the result of a remote event; false if
+     *            the closing was a local event.
+     */
+    public void fireContainerClosed(final Long containerId, final Boolean remote) {
+        setCustomStatusMessage("ContainerClosed");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContainersAvatar().syncContainer(containerId, remote); }
+        });
+    }
+   
+    /**
+     * Notify the application a container confirmation has been received.
+     *
+     * @param containerId
+     *            The container id.
+     */
+    public void fireContainerConfirmationReceived(final Long containerId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContainersAvatar().syncContainer(containerId, Boolean.FALSE); }
         });
     }
     
@@ -532,51 +510,6 @@ public class Browser extends AbstractApplication {
             public void run() { getContainersAvatar().syncContainer(containerId, remote); }
         });
     }
-
-    /**
-     * Notify the application that a container has in some way been updated.
-     *
-     * @param containerId
-     *            The container that has changed.
-     */
-    public void fireContainerUpdated(final long containerId) {
-        fireContainerUpdated(containerId, Boolean.FALSE);
-    }
-
-    /**
-     * Notify the application that a container has in some way been updated.
-     *
-     * @param containerId
-     *            The container that has changed.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.     
-     */
-    public void fireContainerUpdated(final Long containerId, final Boolean remoteReload) {
-        setCustomStatusMessage("ContainerUpdated");
-        // refresh the container in the main list
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ((BrowserContainersAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTAINERS)).syncContainer(containerId, remoteReload);
-            }
-        });        
-    }
-    
-    /**
-     * Notify the application a container has been closed.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param remote
-     *            True if the closing was the result of a remote event; false if
-     *            the closing was a local event.
-     */
-    public void fireContainerClosed(final Long containerId, final Boolean remote) {
-        setCustomStatusMessage("ContainerClosed");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getContainersAvatar().syncContainer(containerId, remote); }
-        });
-    }
     
     /**
      * Notify the application that a container has been received (ie. package published)
@@ -598,15 +531,58 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Notify the application a container confirmation has been received.
+     * Notify the application a team member has been added to the container.
      *
      * @param containerId
      *            The container id.
      */
-    public void fireContainerConfirmationReceived(final Long containerId) {
+    public void fireContainerTeamMemberAdded(final Long containerId) {
+        setCustomStatusMessage("ContainerTeamMemberAdded");
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getContainersAvatar().syncContainer(containerId, Boolean.FALSE); }
+            public void run() { getContainersAvatar().syncContainer(containerId, Boolean.TRUE); }
         });
+    }
+
+    /**
+     * Notify the application a team member has been removed from the document.
+     *
+     * @param containerId
+     *            The container id.
+     */
+    public void fireContainerTeamMemberRemoved(final Long containerId) {
+        setCustomStatusMessage("ContainerTeamMemberRemoved");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContainersAvatar().syncContainer(containerId, Boolean.TRUE); }
+        });
+    }
+
+    /**
+     * Notify the application that a container has in some way been updated.
+     *
+     * @param containerId
+     *            The container that has changed.
+     */
+    public void fireContainerUpdated(final long containerId) {
+        fireContainerUpdated(containerId, Boolean.FALSE);
+    }
+    
+    /**
+     * Notify the application that a container has in some way been updated.
+     *
+     * @param containerId
+     *            The container that has changed.
+     * @param remote
+     *            True if the action was the result of a remote event; false if
+     *            the action was a local event.     
+     */
+    public void fireContainerUpdated(final Long containerId, final Boolean remoteReload) {
+        setCustomStatusMessage("ContainerUpdated");
+        // refresh the container in the main list
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((BrowserContainersAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTAINERS)).syncContainer(containerId, remoteReload);
+            }
+        });        
     }
     
     /**
@@ -643,8 +619,46 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getContainersAvatar().syncDocument(containerId, documentId, remote); }
         });
+    }
+    
+    /**
+	 * Notify the application that a document has been deleted.
+	 * 
+	 * @param documentId
+	 *            The document id.
+	 */
+//  qqq
+	public void fireDocumentDeleted(final Long documentId) {
+        setCustomStatusMessage("DocumentDeleted");
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
+			}
+		});
+		// refresh the document main list
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, Boolean.FALSE);
+			}
+		});
+	}
+    
+    //  qqq
+    public void fireDocumentUpdated(final Long documentId) {
+        fireDocumentUpdated(documentId, Boolean.FALSE);
     }    
        
+    //  qqq
+    public void fireDocumentUpdated(final Long documentId, final Boolean remoteReload) {
+        setCustomStatusMessage("DocumentUpdated");
+        // refresh the document in the main list
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, remoteReload);
+            }
+        });
+    }
+
     /**
      * Notify the application that a document has in some way been updated.
      *
@@ -677,81 +691,17 @@ public class Browser extends AbstractApplication {
             }
         });        
     }
-
-    /**
-     * Notify the application a team member has been added to the container.
-     *
-     * @param containerId
-     *            The container id.
-     */
-    public void fireContainerTeamMemberAdded(final Long containerId) {
-        setCustomStatusMessage("ContainerTeamMemberAdded");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getContainersAvatar().syncContainer(containerId, Boolean.TRUE); }
-        });
-    }
     
-    /**
-     * Notify the application a team member has been removed from the document.
-     *
-     * @param containerId
-     *            The container id.
-     */
-    public void fireContainerTeamMemberRemoved(final Long containerId) {
-        setCustomStatusMessage("ContainerTeamMemberRemoved");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getContainersAvatar().syncContainer(containerId, Boolean.TRUE); }
-        });
-    }
-
-//  qqq
-    public void fireDocumentUpdated(final Long documentId) {
-        fireDocumentUpdated(documentId, Boolean.FALSE);
-    }
-//  qqq
-    public void fireDocumentUpdated(final Long documentId, final Boolean remoteReload) {
-        setCustomStatusMessage("DocumentUpdated");
-        // refresh the document in the main list
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, remoteReload);
-            }
-        });
-    }
-
-    /**
-	 * Notify the application that a document has been deleted.
-	 * 
-	 * @param documentId
-	 *            The document id.
-	 */
-//  qqq
-	public void fireDocumentDeleted(final Long documentId) {
-        setCustomStatusMessage("DocumentDeleted");
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				((BrowserInfoAvatar) avatarRegistry.get(AvatarId.BROWSER_INFO)).reload();
-			}
-		});
-		// refresh the document main list
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				((BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN)).syncDocument(documentId, Boolean.FALSE);
-			}
-		});
-	}
-
     /** Notify the application the filters are on. */
     public void fireFilterApplied() {
         setFilterStatusMessage("FilterOn");
     }
 
-    /** Notify the application the filters are off. */
+/** Notify the application the filters are off. */
     public void fireFilterRevoked() {
         setFilterStatusMessage("FilterOff");
     }
-
-    /**
+/**
      * Notify the application that a system message has been created.
      * 
      * @param systemMessageId
@@ -783,18 +733,18 @@ public class Browser extends AbstractApplication {
 */
 	}
 
-	/**
+    /**
      * @see com.thinkparity.browser.platform.application.Application#getConnection()
      */
     public Connection getConnection() { return connection; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#getId()
 	 * 
 	 */
 	public ApplicationId getId() { return ApplicationId.BROWSER2; }
 
-	/**
+    /**
      * Obtain a logger for the class from the applilcation.
      *
      *
@@ -805,7 +755,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().getLogger(clasz);
     }
 
-	/**
+    /**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform the application is running on.
@@ -839,7 +789,7 @@ public class Browser extends AbstractApplication {
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate()
 	 * 
 	 */
@@ -851,13 +801,13 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
 	}
-    
-    /** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
+
+	/** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
 
-    /**
+	/**
      * Determine whether or not the main avatar's filter is enabled.
      * 
      * @return True if it is; false otherwise.
@@ -875,7 +825,7 @@ public class Browser extends AbstractApplication {
 		if(!isBrowserWindowMinimized()) { mainWindow.setExtendedState(JFrame.ICONIFIED); }
 	}
 
-	/**
+    /**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -887,14 +837,31 @@ public class Browser extends AbstractApplication {
 		newL.y += l.y;
 		mainWindow.setLocation(newL);
 	}
-
-	/**
+    
+    /**
      * Remove the key holder filter.
      * 
      * @see BrowserMainAvatar#removeKeyHolderFilter()
      */
     public void removeKeyHolderFilter() {
         getContainersAvatar().removeKeyHolderFilter();
+    }
+
+    /**
+     * Remove the search filter from the current list.
+     *
+     */
+    // TO DO Fix this.
+    public void removeSearchFilter() {
+        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
+            getContainersAvatar().removeSearchFilter();
+        }
+        else if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
+            getMainAvatar().removeSearchFilter();
+        }
+        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
+            getContactsAvatar().removeSearchFilter();
+        }
     }
 
 	/**
@@ -904,7 +871,20 @@ public class Browser extends AbstractApplication {
      */
     public void removeStateFilter() { getContainersAvatar().removeStateFilter(); }
 
-    /**
+	/**
+     * Resize the browser window.
+     * 
+     * @param s
+     *            The new browser's relative size.
+     */
+    public void resizeBrowserWindow(final Dimension s) {
+        final Dimension newS = mainWindow.getSize();
+        newS.width += s.width;
+        newS.height += s.height;
+        mainWindow.setSize(newS);
+    }
+
+	/**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
@@ -928,53 +908,6 @@ public class Browser extends AbstractApplication {
 	public void restoreState(final State state) {}
 
     /**
-     * Run the add contact action.
-     *
-     */
-    public void runAddContact() {
-        runAddContact(null);
-    }
-    
-    /**
-     * Run the open contact action.
-     * 
-     * @param contactId
-     *            The contact id.
-     */
-    public void runOpenContact(final JabberId contactId) {
-        Assert.assertNotNull("Cannot open null contact.", contactId);
-        final Data data = new Data(1);
-        data.set(OpenContact.DataKey.CONTACT_ID, contactId);
-        invoke(ActionId.CONTACT_OPEN, data);
-    }
-
-    /**
-     * Run the add contact action.
-     * 
-     * @param newContactEmail
-     *              New contact email.
-     */
-    public void runAddContact(final String newContactEmail) {
-        final Data data = new Data(1);
-        if(null != newContactEmail)
-            data.set(CreateInvitation.DataKey.CONTACT_EMAIL, newContactEmail);
-        invoke(ActionId.CONTACT_ADD, data);
-    }    
-
-    /**
-     * Run the delete contact action.
-     * 
-     * @param contactId
-     *            The contact id.
-     */
-    public void runDeleteContact(final JabberId contactId) {
-        Assert.assertNotNull("Cannot delete null contact.", contactId);
-        final Data data = new Data(1);
-        data.set(DeleteContact.DataKey.CONTACT_ID, contactId);
-        invoke(ActionId.CONTACT_DELETE, data);        
-    }    
-  
-	/**
 	 * Accept an invitation.
 	 * 
 	 * @param systemMessageId
@@ -985,18 +918,6 @@ public class Browser extends AbstractApplication {
 		data.set(AcceptInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.SESSION_ACCEPT_INVITATION, data);
 	}
-    
-    /**
-     * Decline an invitation.
-     * 
-     * @param systemMessageId
-     *            The system message id.
-     */
-    public void runDeclineContactInvitation(final Long systemMessageId) {
-        final Data data = new Data(1);
-        data.set(DeclineInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
-        invoke(ActionId.SESSION_DECLINE_INVITATION, data);
-    }
 
 	/**
 	 * Run the accept key request action.
@@ -1013,79 +934,33 @@ public class Browser extends AbstractApplication {
 		data.set(AcceptKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
 		invoke(ActionId.ARTIFACT_ACCEPT_KEY_REQUEST, data);
 	}
-    
-    /**
-     * Run the decline key request action.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param keyRequestId
-     *            The key request id.
-     */
-    public void runDeclineKeyRequest(final Long artifactId,
-            final Long keyRequestId) {
-        final Data data = new Data(2);
-        data.set(DeclineKeyRequest.DataKey.ARTIFACT_ID, artifactId);
-        data.set(DeclineKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
-        invoke(ActionId.ARTIFACT_DECLINE_KEY_REQUEST, data);
-    }      
-    
-    /**
-     * Run the decline all key requests action.
-     *
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void runDeclineAllKeyRequests(final Long artifactId) {
-        final Data data = new Data(1);
-        data.set(DeclineAllKeyRequests.DataKey.ARTIFACT_ID, artifactId);
-        invoke(ActionId.ARTIFACT_DECLINE_ALL_KEY_REQUESTS, data);
-    }
 
     /**
-     * Run the key requested action.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void runKeyRequested(final Long artifactId) {
-        final Data data = new Data(1);
-        data.set(KeyRequested.DataKey.ARTIFACT_ID, artifactId);
-        invoke(ActionId.ARTIFACT_KEY_REQUESTED, data);
-    }
-    
-    /**
-     * Run the request key action.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void runRequestKey(final Long artifactId) {
-        final Data data = new Data(1);
-        data.set(RequestKey.DataKey.ARTIFACT_ID, artifactId);
-        invoke(ActionId.ARTIFACT_REQUEST_KEY, data);
-    }
-    
-    /**
-     * Run the send key action for a document.
+     * Run the add contact action.
      *
-     * @param documentId
-     *      A document id.
-     * @param userId
-     *      A user id.
      */
-    public void runSendDocumentKey(final Long documentId, final JabberId userId) {
-        final Data data = new Data(2);
-        data.set(SendKey.DataKey.DOCUMENT_ID, documentId);
-        data.set(SendKey.DataKey.USER_ID, userId);
-        invoke(ActionId.DOCUMENT_SEND_KEY, data);
-    }    
+    public void runAddContact() {
+        runAddContact(null);
+    }
+    
+    /**
+     * Run the add contact action.
+     * 
+     * @param newContactEmail
+     *              New contact email.
+     */
+    public void runAddContact(final String newContactEmail) {
+        final Data data = new Data(1);
+        if(null != newContactEmail)
+            data.set(CreateInvitation.DataKey.CONTACT_EMAIL, newContactEmail);
+        invoke(ActionId.CONTACT_ADD, data);
+    }
 
     /** Add a team member to the selected container. */
     // TO DO Remove dependency on selected container id?
     public void runAddNewDocumentTeamMember() {
         runAddNewDocumentTeamMember(session.getSelectedContainerId(), (JabberId) null);
-    }
+    }    
 
     /**
      * Add a team member to the selected document.
@@ -1104,8 +979,8 @@ public class Browser extends AbstractApplication {
             jabberIds.add(jabberId);
         }
         runAddNewDocumentTeamMember(documentId, jabberIds);
-    }
-
+    }    
+  
 	/**
      * Add a team member to the selected document.
      * 
@@ -1124,8 +999,20 @@ public class Browser extends AbstractApplication {
             public void run() { invoke(ActionId.ADD_TEAM_MEMBER, data); }
         });
     }
-
+    
     /**
+	 * Run the close document action.
+	 * 
+	 * @param documentId
+	 *            The document unique id.
+	 */
+	public void runCloseDocument(final Long documentId) { 
+		final Data data = new Data(1);
+		data.set(Close.DataKey.DOCUMENT_ID, documentId);
+		invoke(ActionId.DOCUMENT_CLOSE, data);
+	}
+
+	/**
      * Run the create container (package) action. The user will
      * determine the container name.
      * 
@@ -1135,20 +1022,6 @@ public class Browser extends AbstractApplication {
         final int numFiles = 0;
         final Data data = new Data(2);
         data.set(CreateContainer.DataKey.NAME, "");
-        data.set(CreateContainer.DataKey.NUM_FILES, numFiles);
-        invoke(ActionId.CONTAINER_CREATE, data);
-    }
-
-    /**
-     * Create a container (package) with a specified name.
-     * 
-     * @param name
-     *            The container name.
-     */
-    public void runCreateContainer(final String name) {
-        final int numFiles = 0;
-        final Data data = new Data(2);
-        data.set(CreateContainer.DataKey.NAME, name);
         data.set(CreateContainer.DataKey.NUM_FILES, numFiles);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
@@ -1167,8 +1040,22 @@ public class Browser extends AbstractApplication {
         data.set(CreateContainer.DataKey.NUM_FILES, numFiles);        
         data.set(CreateContainer.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
-    }
+    }      
     
+    /**
+     * Create a container (package) with a specified name.
+     * 
+     * @param name
+     *            The container name.
+     */
+    public void runCreateContainer(final String name) {
+        final int numFiles = 0;
+        final Data data = new Data(2);
+        data.set(CreateContainer.DataKey.NAME, name);
+        data.set(CreateContainer.DataKey.NUM_FILES, numFiles);
+        invoke(ActionId.CONTAINER_CREATE, data);
+    }
+
     /**
      * Create a container (package) with a specified name and with
      * one or more new documents.
@@ -1185,7 +1072,7 @@ public class Browser extends AbstractApplication {
         data.set(CreateContainer.DataKey.NUM_FILES, numFiles);        
         data.set(CreateContainer.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
-    } 
+    }
     
     /**
      * Run the create document action, browse to select the document.
@@ -1213,8 +1100,8 @@ public class Browser extends AbstractApplication {
         data.set(Create.DataKey.FILE, file);
         data.set(Create.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.DOCUMENT_CREATE, data);        
-    }
-    
+    }    
+
     /**
      * Create multiple documents.
      * 
@@ -1228,7 +1115,60 @@ public class Browser extends AbstractApplication {
         data.set(CreateDocuments.DataKey.FILES, files);
         data.set(CreateDocuments.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CREATE_DOCUMENTS, data);
-    }        
+    }
+
+    /**
+     * Run the decline all key requests action.
+     *
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void runDeclineAllKeyRequests(final Long artifactId) {
+        final Data data = new Data(1);
+        data.set(DeclineAllKeyRequests.DataKey.ARTIFACT_ID, artifactId);
+        invoke(ActionId.ARTIFACT_DECLINE_ALL_KEY_REQUESTS, data);
+    }
+
+	/**
+     * Decline an invitation.
+     * 
+     * @param systemMessageId
+     *            The system message id.
+     */
+    public void runDeclineContactInvitation(final Long systemMessageId) {
+        final Data data = new Data(1);
+        data.set(DeclineInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
+        invoke(ActionId.SESSION_DECLINE_INVITATION, data);
+    }
+
+    /**
+     * Run the decline key request action.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param keyRequestId
+     *            The key request id.
+     */
+    public void runDeclineKeyRequest(final Long artifactId,
+            final Long keyRequestId) {
+        final Data data = new Data(2);
+        data.set(DeclineKeyRequest.DataKey.ARTIFACT_ID, artifactId);
+        data.set(DeclineKeyRequest.DataKey.KEY_REQUEST_ID, keyRequestId);
+        invoke(ActionId.ARTIFACT_DECLINE_KEY_REQUEST, data);
+    }
+
+    /**
+     * Run the delete contact action.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void runDeleteContact(final JabberId contactId) {
+        Assert.assertNotNull("Cannot delete null contact.", contactId);
+        final Data data = new Data(1);
+        data.set(DeleteContact.DataKey.CONTACT_ID, contactId);
+        invoke(ActionId.CONTACT_DELETE, data);        
+    }
     
     /**
      * Run the delete document action.
@@ -1240,21 +1180,9 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.DOCUMENT_ID, documentId);
         invoke(ActionId.DOCUMENT_DELETE, data);
-    }    
+    }
     
     /**
-	 * Run the close document action.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 */
-	public void runCloseDocument(final Long documentId) { 
-		final Data data = new Data(1);
-		data.set(Close.DataKey.DOCUMENT_ID, documentId);
-		invoke(ActionId.DOCUMENT_CLOSE, data);
-	}
-    
-	/**
      * Run the delete system message action
      * 
      * @param systemMessageId
@@ -1264,14 +1192,39 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(DeleteSystemMessage.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
 		invoke(ActionId.SYSTEM_MESSAGE_DELETE, data);
-	}
-
-	/**
+	} 
+    
+    /**
+     * Run the key requested action.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void runKeyRequested(final Long artifactId) {
+        final Data data = new Data(1);
+        data.set(KeyRequested.DataKey.ARTIFACT_ID, artifactId);
+        invoke(ActionId.ARTIFACT_KEY_REQUESTED, data);
+    }
+    
+    /**
      * Run the move to front action.
      *
      */
     public void runMoveBrowserToFront() { mainWindow.toFront(); }
-
+    
+    /**
+     * Run the open contact action.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void runOpenContact(final JabberId contactId) {
+        Assert.assertNotNull("Cannot open null contact.", contactId);
+        final Data data = new Data(1);
+        data.set(OpenContact.DataKey.CONTACT_ID, contactId);
+        invoke(ActionId.CONTACT_OPEN, data);
+    }        
+    
     /**
 	 * Run the open document action.
 	 * 
@@ -1285,7 +1238,7 @@ public class Browser extends AbstractApplication {
         data.set(Open.DataKey.CONTAINER_ID, containerId);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
-	}
+	}    
     
     /**
 	 * Run the open document version action.
@@ -1305,7 +1258,7 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
     
-    /**
+	/**
      *  Publish the selected container.
      *  
      *  @param containerId
@@ -1320,7 +1273,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-    /**
+	/**
      * Run the document reactivate action.
      * 
      * @param documentId
@@ -1346,8 +1299,7 @@ public class Browser extends AbstractApplication {
         data.set(Rename.DataKey.DOCUMENT_ID, documentId);
         invoke(ActionId.DOCUMENT_RENAME, data);
     }
-
-
+    
     /**
      * Run the document rename action.
      * 
@@ -1366,6 +1318,18 @@ public class Browser extends AbstractApplication {
         data.set(Rename.DataKey.DOCUMENT_NAME, documentName);
         invoke(ActionId.DOCUMENT_RENAME, data);
     }
+    
+    /**
+     * Run the request key action.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void runRequestKey(final Long artifactId) {
+        final Data data = new Data(1);
+        data.set(RequestKey.DataKey.ARTIFACT_ID, artifactId);
+        invoke(ActionId.ARTIFACT_REQUEST_KEY, data);
+    }
 
     /**
      * Run a search for an artifact on the criteria.
@@ -1380,11 +1344,42 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
+     * Run the send key action for a document.
+     *
+     * @param documentId
+     *      A document id.
+     * @param userId
+     *      A user id.
+     */
+    public void runSendDocumentKey(final Long documentId, final JabberId userId) {
+        final Data data = new Data(2);
+        data.set(SendKey.DataKey.DOCUMENT_ID, documentId);
+        data.set(SendKey.DataKey.USER_ID, userId);
+        invoke(ActionId.DOCUMENT_SEND_KEY, data);
+    }
+
+
+    /**
 	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
 	public void saveState(final State state) {}
-  
+
+    /**
+     * Select a contact.
+     * 
+     * @param contactId
+     *            The contact id.
+     */
+    public void selectContact(final JabberId contactId) {
+        final JabberId oldSelection = session.getSelectedContactId();
+        session.setSelectedContactId(contactId);
+
+        if(null != oldSelection && !oldSelection.equals(contactId)) {
+            clearStatus(BrowserStatusArea.CUSTOM);
+        }
+    }
+
     /**
      * Select a container.
      * 
@@ -1396,25 +1391,10 @@ public class Browser extends AbstractApplication {
         session.setSelectedContainerId(containerId);
 
         if(null != oldSelection && !oldSelection.equals(containerId)) {
-            clearStatusMessage(Status.Area.CUSTOM);
+            clearStatus(BrowserStatusArea.CUSTOM);
         }        
     }
-    
-	/**
-     * Select a contact.
-     * 
-     * @param contactId
-     *            The contact id.
-     */
-    public void selectContact(final JabberId contactId) {
-        final JabberId oldSelection = session.getSelectedContactId();
-        session.setSelectedContactId(contactId);
-
-        if(null != oldSelection && !oldSelection.equals(contactId)) {
-            clearStatusMessage(Status.Area.CUSTOM);
-        }
-    }
-
+  
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#start()
 	 * 
@@ -1437,25 +1417,53 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.RUNNING);
 		notifyStart();
 	}
-
-    public void toggleStatusImage() {
+    
+	public void toggleStatusImage() {
         ((com.thinkparity.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
-    
+
     /**
-     * Display the container list.
+     * Handle a user error (show an error dialog).
      * 
+     * @param messageKey
+     *            The error message localization key.
      */
-    void displayContainerListAvatar() {
-        displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_CONTAINERS);
+    public void userError(final String messageKey) {
+        final Data input = new Data(1);
+        input.set(ErrorDialog.DataKey.MESSAGE_KEY, messageKey);
+        open(WindowId.ERROR, AvatarId.ERROR_DIALOGUE, input);
     }
 
+    /**
+     * Handle a user error (show an error dialog).
+     *
+     * @param messageKey
+     *            The error message localization key.
+     * @param messageArguments
+     *            Message arguments.
+     */
+    public void userError(final String messageKey,
+            final Object[] messageArguments) {
+        final Data input = new Data(2);
+        input.set(ErrorDialog.DataKey.MESSAGE_KEY, messageKey);
+        input.set(ErrorDialog.DataKey.MESSAGE_ARGUMENTS, messageArguments);
+        open(WindowId.ERROR, AvatarId.ERROR_DIALOGUE, input);
+    }
+    
     /**
      * Display the contact list.
      *
      */
     void displayContactListAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_CONTACTS);
+    }
+
+    /**
+     * Display the container list.
+     * 
+     */
+    void displayContainerListAvatar() {
+        displayAvatar(DisplayId.CONTENT, AvatarId.BROWSER_CONTAINERS);
     }
     
 	/**
@@ -1470,7 +1478,15 @@ public class Browser extends AbstractApplication {
     void displayStatusAvatar() {
         displayAvatar(DisplayId.STATUS, AvatarId.STATUS);
     }
-    
+
+    /**
+     * Display the content avatar.
+     *
+     */
+    void displayContentAvatar() {
+        displayAvatar(DisplayId.CONTENT, AvatarId.CONTENT);
+    }
+
     /**
 	 * Display the browser's title avatar.
 	 *
@@ -1478,27 +1494,30 @@ public class Browser extends AbstractApplication {
 	void displayTitleAvatar() {
     	displayAvatar(DisplayId.TITLE, AvatarId.BROWSER_TITLE);
 	}
-	/** Notify the session has been terminated. */
+
+    /** Notify the session has been terminated. */
     void fireConnectionOffline() {
         connection = Connection.OFFLINE;
-        getStatusAvatar().reloadStatusMessage(
-                Status.Area.CONNECTION, "ConnectionOffline");
-        getTitleAvatar().reloadConnectionStatus(Connection.OFFLINE);
+        setStatus(BrowserStatusArea.CONNECTION, "ConnectionOffline");
     }
 
-	/** Notify the session has been established. */
+    /** Notify the session has been established. */
     void fireConnectionOnline() {
         connection = Connection.ONLINE;
-        getStatusAvatar().reloadStatusMessage(
-                Status.Area.CONNECTION, "ConnectionOnline");
-        getTitleAvatar().reloadConnectionStatus(Connection.ONLINE);
+        setStatus(BrowserStatusArea.CONNECTION, "ConnectionOnline");
     }
 
-    private void clearStatusMessage(final Status.Area area) {
-        final Status status = getStatusAvatar();
-        if(null != status) {
+    /**
+     * Clear any status messages.
+     * 
+     * @param area
+     *            The status area.
+     */
+    private void clearStatus(final BrowserStatusArea area) {
+        final BrowserStatus browserStatus = getBrowserStatus();
+        if(null != browserStatus) {
             SwingUtilities.invokeLater(new Runnable() {
-                public void run() { status.clearStatusMessage(area); }
+                public void run() { browserStatus.clear(area); }
             });
         }
     }
@@ -1619,20 +1638,20 @@ public class Browser extends AbstractApplication {
 	}
 
 	/**
+     * Convenience method to obtain the status avatar.
+     * 
+     * @return The status avatar.
+     */
+    private BrowserStatus getBrowserStatus() {
+        return (BrowserStatus) avatarRegistry.get(AvatarId.STATUS);
+    }
+
+    /**
      * Obtain the confirmation avatar.
      * @return The confirmation avatar.
      */
     private ConfirmDialog getConfirmAvatar() {
         return (ConfirmDialog) avatarRegistry.get(AvatarId.CONFIRM_DIALOGUE);
-    }
-
-    /**
-     * Convenience method to obtain the container list avatar.
-     * 
-     * @return The containers avatar.
-     */
-    private BrowserContainersAvatar getContainersAvatar() {
-        return (BrowserContainersAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTAINERS);
     }
     
     /**
@@ -1645,6 +1664,15 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Convenience method to obtain the container list avatar.
+     * 
+     * @return The containers avatar.
+     */
+    private BrowserContainersAvatar getContainersAvatar() {
+        return (BrowserContainersAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTAINERS);
+    }
+
+    /**
      * Convenience method to get the current tab.
      * 
      * @return The current tab.
@@ -1653,7 +1681,7 @@ public class Browser extends AbstractApplication {
         return currentTab;
     }
 
-    /**
+	/**
 	 * Obtain the file chooser.
 	 * 
 	 * @return The file chooser.
@@ -1663,7 +1691,7 @@ public class Browser extends AbstractApplication {
 		return jFileChooser;
 	}
 
-	/**
+    /**
      * Convenience method to obtain the main (documents) avatar.
      * 
      * @return The main avatar.
@@ -1672,25 +1700,7 @@ public class Browser extends AbstractApplication {
         return (BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN);
     }
 
-	/**
-     * Convenience method to obtain the status avatar.
-     * 
-     * @return The status avatar.
-     */
-    private Status getStatusAvatar() {
-        return (Status) avatarRegistry.get(AvatarId.STATUS);
-    }
-
-    /**
-     * Convenience method to obtain the title avatar.
-     * 
-     * @return The title avatar.
-     */
-    private BrowserTitleAvatar getTitleAvatar() {
-        return (BrowserTitleAvatar) avatarRegistry.get(AvatarId.BROWSER_TITLE);
-    }
-    
-    private void invoke(final ActionId actionId, final Data data) {
+	private void invoke(final ActionId actionId, final Data data) {
 		try {
 			final AbstractAction action = getActionFromCache(actionId);
 			action.invoke(data);
@@ -1706,7 +1716,7 @@ public class Browser extends AbstractApplication {
 		return null != mainWindow && mainWindow.isVisible();
 	}
 
-	private void open(final WindowId windowId,
+    private void open(final WindowId windowId,
             final AvatarId avatarId, final Data input) {
         final Window window = WindowFactory.create(windowId, mainWindow);
 
@@ -1716,7 +1726,8 @@ public class Browser extends AbstractApplication {
         window.open(avatar);
     }
 
-    /**
+
+	/**
 	 * Open the main browser window.
 	 *
 	 */
@@ -1725,8 +1736,7 @@ public class Browser extends AbstractApplication {
 		mainWindow.open();
 	}
 
-
-	private void reOpenMainWindow() {
+    private void reOpenMainWindow() {
         mainWindow = new BrowserWindow(this);
         mainWindow.reOpen();
     }
@@ -1745,7 +1755,7 @@ public class Browser extends AbstractApplication {
      *            The status message key.
      */
     private void setCustomStatusMessage(final String messageKey) {
-        setStatusMessage(Status.Area.CUSTOM, messageKey);
+        setStatus(BrowserStatusArea.CUSTOM, messageKey);
     }
 
     /**
@@ -1755,7 +1765,7 @@ public class Browser extends AbstractApplication {
      *            The filter message key.
      */
     private void setFilterStatusMessage(final String messageKey) {
-        setStatusMessage(Status.Area.FILTER, messageKey);
+        setStatus(BrowserStatusArea.FILTER, messageKey);
     }
 
     /**
@@ -1780,14 +1790,29 @@ public class Browser extends AbstractApplication {
 		}
 	}
 
-    private void setStatusMessage(final Status.Area area, final String messageKey) {
-        final Avatar avatar = getStatusAvatar();
-        if(null != avatar) {
+    /**
+     * Set a status message.
+     * 
+     * @param area
+     *            The status area.
+     * @param messageKey
+     *            The status message key.
+     */
+    private void setStatus(final BrowserStatusArea area,
+            final String messageKey) {
+        final BrowserStatus browserStatus = getBrowserStatus();
+        if(null != browserStatus) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    ((Status) avatar).reloadStatusMessage(area, messageKey);
+                    browserStatus.setMessage(area, messageKey);
                 }
             });
         }
     }
+
+    /**
+     * The current tab (documents or contacts)
+     */
+    // TODO get rid of this once the new GUI is in place.
+    private enum BrowserTab { CONTACTS_TAB, DOCUMENTS_TAB, PACKAGES_TAB }
 }

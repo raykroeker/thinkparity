@@ -22,7 +22,6 @@ import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.session.SessionModel;
-import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 
 
@@ -64,9 +63,6 @@ public class FirstRunHelper {
     /** The thinkParity session interface. */
     private final SessionModel sModel;
 
-    /** The thinkParity user interface. */
-    private final UserModel uModel;
-
     /** The user profile avatar. */
     private UserProfileAvatar userProfileAvatar;
 
@@ -82,7 +78,6 @@ public class FirstRunHelper {
         this.logger = platform.getLogger(getClass());
         this.pModel = platform.getModelFactory().getProfileModel(getClass());
         this.sModel = platform.getModelFactory().getSessionModel(getClass());
-        this.uModel = platform.getModelFactory().getUserModel(getClass());
         this.wModel = platform.getModelFactory().getWorkspaceModel(getClass());
     }
 
@@ -115,7 +110,6 @@ public class FirstRunHelper {
             
             final String name = userProfileAvatar.getFullName();
             final String email = userProfileAvatar.getEmail();
-            final String organization = userProfileAvatar.getOrganization();
             if(null != name && null != email) {
                 profile.addEmail(email);
                 pModel.update(profile);

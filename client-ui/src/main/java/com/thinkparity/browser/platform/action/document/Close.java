@@ -59,7 +59,8 @@ public class Close extends AbstractAction {
 			getArtifactModel().applyFlagSeen(documentId);
 		}
 
-        browser.fireDocumentClosed(documentId, Boolean.FALSE);
+        // Changed so it will compile. Not correct.
+        browser.fireContainerClosed(documentId, Boolean.FALSE);
 	}
 
 	/**

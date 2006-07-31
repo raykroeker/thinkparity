@@ -554,6 +554,7 @@ public class BrowserContainersModel {
      * @param mainCell
      *            The main cell.
      */
+    // Make sure to call browser.selectContainer().
 /*    void triggerSelection(final MainCell mainCell) {
         pseudoSelection.clear();
 

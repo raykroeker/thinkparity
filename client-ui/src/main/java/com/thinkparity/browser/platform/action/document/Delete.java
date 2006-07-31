@@ -57,7 +57,8 @@ public class Delete extends AbstractAction {
 
         if(browser.confirm("DocumentDelete.ConfirmDeleteMessage", new Object[] {document.getName()})) {
             getDocumentModel().delete(documentId);
-            browser.fireDocumentDeleted(documentId);
+            // Changed so it will compile. Not correct.
+            browser.fireContainerDeleted(documentId, Boolean.FALSE);
         }
 	}
 

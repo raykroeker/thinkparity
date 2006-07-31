@@ -490,7 +490,7 @@ public class BrowserMainDocumentModel {
 
         if(mainCell instanceof MainCellDocument) {
             final MainCellDocument mcd = (MainCellDocument) mainCell;
-            browser.selectDocument(mcd.getId());
+            //browser.selectDocument(mcd.getId());
 
             pseudoSelect(mcd);
             // this means that expand and collapse need to

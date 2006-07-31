@@ -103,7 +103,7 @@ public class UpdateDocumentTxHandler extends TransferHandler {
     public boolean importData(final JComponent comp, final Transferable t) {
         if(!canImport(comp, t.getTransferDataFlavors())) { return false; }
 
-        List data = null;
+/*        List data = null;
         try { data = (List) t.getTransferData(DataFlavor.javaFileListFlavor); }
         catch(final UnsupportedFlavorException ufx) {
             logger.error(IMPORT_UFX, ufx);
@@ -134,7 +134,7 @@ public class UpdateDocumentTxHandler extends TransferHandler {
             catch(final ParityException px) {
                 logger.error(IMPORT_PX, px);
             }       
-        }
+        }*/
         return false;
     }
 }

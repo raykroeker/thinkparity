@@ -12,7 +12,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -30,6 +29,7 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.index.IndexHit;
 
@@ -78,20 +78,18 @@ public class BrowserContainersAvatar extends Avatar {
     }
 
     /**
-     * Apply a key holder filter to the main list.
+     * Apply a key holder filter to the containers list.
      * 
      * @param keyHolder
-     *            If true; results are filtered where the user has the key if
+     *            If true; results are filtered where the user has the key. If
      *            false; results are filtered where the user does not have the
      *            key.
      * 
      * @see #removeKeyHolderFilter()
      */
-    /*
     public void applyKeyHolderFilter(final Boolean keyHolder) {
-        mainDocumentModel.applyKeyHolderFilter(keyHolder);
+        //mainDocumentModel.applyKeyHolderFilter(keyHolder);
     }
-    */
 
     /**
      * Apply the search results to filter the main list.
@@ -115,17 +113,19 @@ public class BrowserContainersAvatar extends Avatar {
      * 
      * @see #removeStateFilter()
      */
-    /*
     public void applyStateFilter(final ArtifactState state) {
-        mainDocumentModel.applyStateFilter(state);
+        //mainDocumentModel.applyStateFilter(state);
     }
-    */
 
     /** Clear all filters. */
-    //public void clearFilters() { mainDocumentModel.clearDocumentFilters(); }
+    public void clearFilters() {
+        //mainDocumentModel.clearDocumentFilters();
+    }
     
     /** Debug the model. */
-    //public void debug() { mainDocumentModel.debug(); }
+    public void debug() {
+        //mainDocumentModel.debug();
+    }
 
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
@@ -144,11 +144,10 @@ public class BrowserContainersAvatar extends Avatar {
      *
      * @return True if it is; false otherwise.
      */
-    /*
     public Boolean isFilterEnabled() {
-        return mainDocumentModel.isDocumentListFiltered();
+        return Boolean.FALSE;   // remove this line
+        //return mainDocumentModel.isDocumentListFiltered();
     }
-    */
 
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
@@ -161,11 +160,9 @@ public class BrowserContainersAvatar extends Avatar {
      *
      * @see #applyKeyHolderFilter(Boolean)
      */
-    /*
     public void removeKeyHolderFilter() {
-        mainDocumentModel.removeKeyHolderFilters();
+        //mainDocumentModel.removeKeyHolderFilters();
     }
-    */
 
     /**
      * Remove the search filter from the list.
@@ -181,7 +178,9 @@ public class BrowserContainersAvatar extends Avatar {
      * 
      * @see #applyStateFilter(ArtifactState)
      */
-    //public void removeStateFilter() { mainDocumentModel.removeStateFilters(); }
+    public void removeStateFilter() {
+        //mainDocumentModel.removeStateFilters();
+    }
     
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setContentProvider(com.thinkparity.browser.application.browser.display.provider.ContentProvider)

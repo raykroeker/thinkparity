@@ -16,6 +16,9 @@ class EventDispatcher {
 
 	/** The browser application. */
 	protected final Browser browser;
+    
+    /** The container listener. */
+    private ContainerListener containerListener;
 
 	/** The document listener. */
 	private DocumentListener documentListener;
@@ -45,6 +48,9 @@ class EventDispatcher {
 	 *
 	 */
 	void end() {
+        browser.getContainerModel().removeListener(containerListener);
+        containerListener = null;
+        
 		browser.getDocumentModel().removeListener(documentListener);
 		documentListener = null;
 		
@@ -63,6 +69,9 @@ class EventDispatcher {
 	 *
 	 */
 	void start() {
+        containerListener = createContainerListener();
+        browser.getContainerModel().addListener(containerListener);
+        
 		documentListener = createDocumentListener();
 		browser.getDocumentModel().addListener(documentListener);
 
@@ -75,74 +84,119 @@ class EventDispatcher {
 		systemMessageListener = createSystemMessageListener();
 		browser.getSystemMessageModel().addListener(systemMessageListener);
 	}
+    
+    /**
+     * Create a container listener.
+     * Some notes as of July 28, 2006...
+     *   - Closing and reactivating a package won't be supported (in the GUI)
+     *   - Adding and removing documents won't be a remote event since this will
+     *     be done in a draft, and then show up when the package is published.
+     *   - Deleting a package won't be a remote event since this can only be
+     *     done in the draft, before the package is published for the first time.
+     * 
+     * @return A container listener.
+     */
+    // TO DO Need to add: archived, published, confirmation received, 3 key messages, 2 team messages
+    private ContainerListener createContainerListener() {
+        return new ContainerAdapter() {
+            public void containerClosed(final ContainerEvent e) {
+                if(e.isRemote()) {
+                    browser.getArtifactModel().removeFlagSeen(e.getContainer().getId());
+                    // Note we don't use "remote" because the effect of this would be
+                    // to put the closed container at the top of the list.
+                    browser.fireContainerUpdated(e.getContainer().getId());
+                }                
+            }
+            public void containerReactivated(final ContainerEvent e) {
+                if(e.isRemote()) {
+                    browser.fireContainerUpdated(e.getContainer().getId(), Boolean.TRUE);
+                }                
+            }            
+            public void containerCreated(final ContainerEvent e) {
+                if(e.isRemote()) {
+                    browser.fireContainerCreated(e.getContainer().getId(), Boolean.TRUE);
+                }                
+            }
+            public void containerDeleted(final ContainerEvent e) {
+                // This is never a remote event because it can only happen before the new package is published.
+                browser.fireContainerDeleted(e.getContainer().getId(), Boolean.TRUE);
+            }
+            public void documentAdded(final ContainerEvent e) {
+                // This is never a remote event. You would instead get an event when the package is published.
+                browser.fireDocumentCreated(e.getContainer().getId(), e.getDocument().getId(), Boolean.TRUE);
+            }
+            public void documentRemoved(final ContainerEvent e) {
+                // This is never a remote event. You would instead get an event when the package is published.
+                browser.fireDocumentDeleted(e.getContainer().getId(), e.getDocument().getId(), Boolean.TRUE);
+            }
+            // TO DO the following don't exist, yet.
+/*
+            public void teamMemberAdded(final ContainerEvent e) {
+                if(e.isRemote()) {
+                    browser.fireContainerTeamMemberAdded(e.getContainer().getId());
+                }
+            }
+            public void teamMemberRemoved(ContainerEvent e) {
+                if(e.isRemote()) {
+                    browser.fireContainerTeamMemberRemoved(e.getContainer().getId());
+                }
+            }
+*/
+        };     
+    }
 
     /**
      * Create a document listener.
+     * Some notes as of July 28, 2006...
+     *  - Close is discontinued, replaced by the container event "containerClosed"
+     *  - Reactivate is discontinued, replaced by the container event "containerReactivated"
+     *  - Created is discontinued, replaced by the container event "documentAdded"
+     *  - Deleted is discontinued, replaced by the container event "documentRemoved"
+     *  - Archived is discontinued, will be replaced by a container event.
+     *  - Published is discontinued, will be replaced by a container event.
+     *  - Updated is discontinued.
+     *  - teamMemberAdded is discontinued, will be replaced by a container event.
+     *  - teamMemberRemoved is discontinued, will be replaced by a container event.
+     *  - keyRequestAccepted is discontinued.
+     *  - keyRequestDeclined is discontinued.
+     *  - keyRequested is discontinued.
      * 
      * @return A document listener.
      */
+    // TO DO Remove these events
 	private DocumentListener createDocumentListener() {
 		return new DocumentAdapter() {
+/*
             public void confirmationReceived(final DocumentEvent e) {
                 if(e.isRemote()) {
                     browser.fireDocumentConfirmationReceived(e.getDocument().getId());
                 }
-            }
-            public void documentClosed(final DocumentEvent e) {
-                if(e.isRemote()) {
-                    browser.getArtifactModel().removeFlagSeen(e.getDocument().getId());
-                    browser.fireDocumentUpdated(e.getDocument().getId());
-                }
-            }
-            public void documentCreated(final DocumentEvent e) {
-                if(e.isRemote()) {
-                    browser.fireDocumentCreated(e.getDocument().getId(), Boolean.TRUE);
-                }
-            }
-            public void documentUpdated(final DocumentEvent e) {
-                if(e.isRemote()) {
-                    browser.fireDocumentUpdated(e.getDocument().getId(), Boolean.TRUE);
-                }
-            }
+            }   
             public void keyRequestAccepted(final DocumentEvent e) {
                 if(e.isRemote()) {
-                    browser.fireDocumentUpdated(e.getDocument().getId(), e.isRemote());
+                    browser.fireDocumentUpdated(null, e.getDocument().getId(), e.isRemote());
                 }
             }
             public void keyRequestDeclined(final DocumentEvent e) {
                 if(e.isRemote()) {
-                    browser.fireDocumentUpdated(e.getDocument().getId(), e.isRemote());
+                    browser.fireDocumentUpdated(null, e.getDocument().getId(), e.isRemote());
                 }
             }
             public void keyRequested(final DocumentEvent e) {
                 if(e.isRemote()) {
-                    browser.fireDocumentUpdated(e.getDocument().getId(), e.isRemote());
+                    browser.fireDocumentUpdated(null, e.getDocument().getId(), e.isRemote());
                 }
-
-            }
-            public void documentReactivated(DocumentEvent e) {
-                if(e.isRemote())
-                    browser.fireDocumentUpdated(e.getDocument().getId(), Boolean.TRUE);
-            }
-            public void teamMemberAdded(final DocumentEvent e) {
-                if(e.isRemote()) {
-                    browser.fireDocumentTeamMemberAdded(e.getDocument().getId());
-                }
-            }
-            public void teamMemberRemoved(DocumentEvent e) {
-                if(e.isRemote())
-                    browser.fireDocumentTeamMemberRemoved(e.getDocument().getId());
-            }
+            }*/
 		};
 	}
 
 	private KeyListener createSessionModelKeyListener() {
 		return new KeyListener() {
 			public void keyRequestAccepted(final KeyEvent e) {
-				browser.fireDocumentUpdated(e.getArtifactId(), Boolean.TRUE);
+				browser.fireContainerUpdated(e.getArtifactId(), Boolean.TRUE);
 			}
 			public void keyRequestDenied(final KeyEvent e) {
-				browser.fireDocumentUpdated(e.getArtifactId(), Boolean.TRUE);
+				browser.fireContainerUpdated(e.getArtifactId(), Boolean.TRUE);
 			}
 			public void keyRequested(final KeyEvent e) {
                 browser.runKeyRequested(e.getArtifactId());

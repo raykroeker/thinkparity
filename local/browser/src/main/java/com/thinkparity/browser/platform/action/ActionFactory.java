@@ -85,7 +85,7 @@ public class ActionFactory {
 		switch(actionId) {
         case ADD_TEAM_MEMBER:
             return new com.thinkparity.browser.platform.action.document.AddNewTeamMember(browser);
-        case PUBLISH_DOCUMENT:
+        case CONTAINER_PUBLISH:
             return new com.thinkparity.browser.platform.action.document.Publish(browser);
         case CREATE_DOCUMENTS:
             return new com.thinkparity.browser.platform.action.document.CreateDocuments(browser);

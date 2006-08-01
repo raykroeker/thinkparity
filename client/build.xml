@@ -4,18 +4,19 @@
 
     <!-- build configuration -->
     <tstamp>
-        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="GMT"/>
+        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
 
     <!-- release configuration -->
-    <property name="release.version" value="1.0.0-RC7"/>
+    <property name="release.name" value="${ant.project.name}"/>
+    <property name="release.version" value="1.0.0-RC8"/>
     <property name="release.serverhost" value="thinkparity.dyndns.org"/>
 
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
+    <property name="cvs.branch" value="v1_0"/>
     <property name="cvs.modules" value="common/codebase common/junitx common/migrator local/browser local/model local/thinkparity vendor/commons-codec/1.3 vendor/hsqldb/1.8.0.2 vendor/jdic/0.9.1 vendor/i686/win32/jdic/0.9.1 vendor/junit/3.8.1 vendor/log4j/1.2.13 vendor/lucene/1.9.1 vendor/smack/2.2.1 vendor/smackx/2.2.1 vendor/swing-layout/1.0 vendor/xpp3/1.1.3.4.O vendor/xstream/1.1.2"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/ophelia"/>
-    <property name="cvs.branch" value="v1_0"/>
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>

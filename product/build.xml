@@ -30,6 +30,7 @@ Examples:
         <mail subject="Pre-release reminder" messagefile="notify.release-reminder-message">
             <from address="thinkparity.development@gmail.com" name="thinkParity R &amp; D"/>
             <to address="raykroeker@gmail.com" name="Raymond Kroeker"/>
+            <to address="rob_masako@shaw.ca" name="Robert MacMartin"/>
         </mail>
     </target>
 </project>

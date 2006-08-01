@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.MessageFormat;
 
+import javax.swing.Icon;
+
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 /**
@@ -59,6 +61,19 @@ public final class Constants {
         public static final class BrowserTitle {
             public static final BufferedImage LOGO =
                     ImageIOUtil.read("BrowserTitle_Logo.png");
+        }
+    }
+
+    public static final class Icons {
+        public static final class BrowserTitle {
+            public static final Icon CONTACTS_TAB =
+                ImageIOUtil.readIcon("BrowserTitle_ContactsTab.png");
+        public static final Icon CONTACTS_TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_ContactsTabSelected.png");
+        public static final Icon CONTAINERS_TAB =
+                ImageIOUtil.readIcon("BrowserTitle_ContainersTab.png");
+        public static final Icon CONTAINERS_TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_ContainersTabSelected.png");
         }
     }
 

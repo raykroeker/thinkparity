@@ -12,32 +12,52 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
-              <Component id="browserTitleMenu1" pref="311" max="32767" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="browserTitleControls" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="browserTitleSearch" alignment="1" min="-2" max="-2" attributes="0"/>
-              </Group>
+              <Component id="browserTitleMenu" min="-2" pref="262" max="-2" attributes="0"/>
+              <EmptySpace pref="139" max="32767" attributes="0"/>
+              <Component id="browserTitleControls" min="-2" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="1" attributes="0">
+              <Component id="browserTitleTabs" min="-2" pref="219" max="-2" attributes="0"/>
+              <EmptySpace pref="64" max="32767" attributes="0"/>
+              <Component id="browserTitleSearch" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <Component id="browserTitleControls" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="25" max="32767" attributes="0"/>
+              <EmptySpace pref="10" max="32767" attributes="0"/>
               <Component id="browserTitleSearch" min="-2" max="-2" attributes="0"/>
           </Group>
-          <Component id="browserTitleMenu1" alignment="0" pref="73" max="32767" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <Component id="browserTitleMenu" pref="34" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="browserTitleTabs" min="-2" max="-2" attributes="0"/>
+          </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
     <Component class="com.thinkparity.browser.application.browser.display.avatar.BrowserTitleSearch" name="browserTitleSearch">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="browserTitleSearch.setBrowserTitle(this);"/>
+      </AuxValues>
     </Component>
     <Component class="com.thinkparity.browser.application.browser.display.avatar.BrowserTitleControls" name="browserTitleControls">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="browserTitleControls.setBrowserTitle(this);"/>
+      </AuxValues>
     </Component>
-    <Component class="com.thinkparity.browser.application.browser.display.avatar.BrowserTitleMenu" name="browserTitleMenu1">
+    <Component class="com.thinkparity.browser.application.browser.display.avatar.BrowserTitleMenu" name="browserTitleMenu">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="browserTitleMenu.setBrowserTitle(this);"/>
+      </AuxValues>
+    </Component>
+    <Component class="com.thinkparity.browser.application.browser.display.avatar.BrowserTitleTabs" name="browserTitleTabs">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="browserTitleTabs.setBrowserTitle(this);"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

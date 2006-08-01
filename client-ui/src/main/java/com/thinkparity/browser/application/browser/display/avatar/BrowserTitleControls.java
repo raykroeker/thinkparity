@@ -9,9 +9,7 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 /**
@@ -20,20 +18,20 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  */
 public class BrowserTitleControls extends AbstractJPanel {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-    
     /** Close label icon. */
     private static final Icon CLOSE_ICON;
-
+    
     /** Close label rollover icon. */
     private static final Icon CLOSE_ROLLOVER_ICON;
-    
+
     /** Min label icon. */
     private static final Icon MIN_ICON;
-
+    
     /** Min label rollover icon. */
     private static final Icon MIN_ROLLOVER_ICON;
+
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
     
     static {
         CLOSE_ICON = ImageIOUtil.readIcon("CloseButton.png");
@@ -44,15 +42,37 @@ public class BrowserTitleControls extends AbstractJPanel {
     }
     
     /** The avatar the button title controls reside upon. */
-    private final Avatar avatar;
+    private BrowserTitle browserTitle;
 
     /** Creates new form BrowserTitleControls */
-    public BrowserTitleControls(final Avatar avatar) {
+    public BrowserTitleControls() {
         super("BrowserTitleControls.ButtonPanel");
-        this.avatar = avatar;
         initComponents();
     }
-    
+
+    /**
+     * Set the browser title.
+     * 
+     * @param browserTitle
+     *            The browser title.
+     */
+    void setBrowserTitle(final BrowserTitle browserTitle) {
+        this.browserTitle = browserTitle;
+    }
+
+    private void closeJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseClicked
+        browserTitle.getController().closeBrowserWindow();
+        closeJLabelMouseExited(evt);
+    }//GEN-LAST:event_closeJLabelMouseClicked
+
+    private void closeJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseEntered
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    }//GEN-LAST:event_closeJLabelMouseEntered
+
+    private void closeJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseExited
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ICON);
+    }//GEN-LAST:event_closeJLabelMouseExited
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -112,21 +132,8 @@ public class BrowserTitleControls extends AbstractJPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
-    private void closeJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseClicked
-        getBrowser().closeBrowserWindow();
-        closeJLabelMouseExited(evt);
-    }//GEN-LAST:event_closeJLabelMouseClicked
-
-    private void closeJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseExited
-        ((JLabel) evt.getSource()).setIcon(CLOSE_ICON);
-    }//GEN-LAST:event_closeJLabelMouseExited
-
-    private void closeJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseEntered
-        ((JLabel) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
-    }//GEN-LAST:event_closeJLabelMouseEntered
-
     private void minimizeJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeJLabelMouseClicked
-        getBrowser().minimize();
+        browserTitle.getController().minimize();
         minimizeJLabelMouseExited(evt);
     }//GEN-LAST:event_minimizeJLabelMouseClicked
 
@@ -137,13 +144,6 @@ public class BrowserTitleControls extends AbstractJPanel {
     private void minimizeJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeJLabelMouseExited
         ((JLabel) evt.getSource()).setIcon(MIN_ICON);
     }//GEN-LAST:event_minimizeJLabelMouseExited
-
-    /**
-     * Obtain the browser application.
-     * 
-     * @return The browser application.
-     */
-    private Browser getBrowser() { return avatar.getController(); }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

@@ -11,9 +11,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 
 import com.thinkparity.browser.Constants.Colors;
-import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
  *
@@ -25,13 +23,22 @@ public class BrowserTitleMenu extends AbstractJPanel {
     private static final long serialVersionUID = 1;
     
     /** The avatar the button title menu reside upon. */
-    private final Avatar avatar;
+    private BrowserTitle browserTitle;
 
     /** Creates new form BrowserTitleMenu */
-    public BrowserTitleMenu(final Avatar avatar) {
+    public BrowserTitleMenu() {
         super("BrowserTitleMenu.MenuPanel");
-        this.avatar = avatar;
         initComponents();
+    }
+
+    /**
+     * Set the browser title.
+     * 
+     * @param browserTitle
+     *            The browser title.
+     */
+    void setBrowserTitle(final BrowserTitle browserTitle) {
+        this.browserTitle = browserTitle;
     }
 
     /**
@@ -131,18 +138,11 @@ public class BrowserTitleMenu extends AbstractJPanel {
     }//GEN-LAST:event_newJLabelMouseExited
 
     private void newJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseClicked
-        getBrowser().runAddContact();
+        browserTitle.getController().runAddContact();
         newJLabelMouseExited(evt);
     }//GEN-LAST:event_newJLabelMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel signUpJLabel;
     // End of variables declaration//GEN-END:variables
-    
-    /**
-     * Obtain the browser application.
-     * 
-     * @return The browser application.
-     */
-    private Browser getBrowser() { return avatar.getController(); }
 }

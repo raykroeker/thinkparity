@@ -17,13 +17,22 @@ public class BrowserTitleSearch extends javax.swing.JPanel {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField searchJTextField;
-    // End of variables declaration//GEN-END:variables
-    
+    /** The browser title container. */
+    private BrowserTitle browserTitle;
+
     /** Creates new form BrowserTitleSearch */
     public BrowserTitleSearch() {
         initComponents();
+    }
+
+    /**
+     * Set browserTitle.
+     * 
+     * @param browserTitle
+     *            The BrowserTitle.
+     */
+    public void setBrowserTitle(final BrowserTitle browserTitle) {
+        this.browserTitle = browserTitle;
     }
     
     
@@ -74,4 +83,7 @@ public class BrowserTitleSearch extends javax.swing.JPanel {
 
     }// </editor-fold>//GEN-END:initComponents
     
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField searchJTextField;
+    // End of variables declaration//GEN-END:variables
 }

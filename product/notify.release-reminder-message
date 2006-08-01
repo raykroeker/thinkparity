@@ -1,5 +1,5 @@
-  Just a quick reminder that a release is happening today at ${release.timestamp}.
-  Please commit all completed code.
+  Just a quick reminder that a release is happening today at
+  ${release.timestamp}.  Please commit all completed code.
 
 
 ================================================================================

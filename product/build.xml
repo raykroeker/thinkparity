@@ -28,9 +28,8 @@ Examples:
     </target>
 
     <target name="notify">
-        <mail mailhost="tpdev.thinkparity.com" from="${notify.from}"
-                tolist="${notify.to}" cclist="${notify.cc}"
-                bcclist="${notify.bcc}"
-                subject="${notify.subject}" message="${notify.message}"/>
+        <mail from="${notify.from}" tolist="${notify.to}" cclist="${notify.cc}"
+                bcclist="${notify.bcc}" subject="${notify.subject}"
+                message="${notify.message}"/>
     </target>
 </project>

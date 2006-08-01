@@ -19,7 +19,6 @@ Options:
     -Dnotify.bcc            Notification bcc list.  (comma separated)
     -Dnotify.subject        Notification subject.
     -Dnotify.message        Notification message.
-    -Dnotify.message.file   Notification message file.
 
 Targets:
     notify
@@ -29,12 +28,9 @@ Examples:
     </target>
 
     <target name="notify">
-        <mail mailhost="tpdev.thinkparity.com" from="thinkparity.development@gmail.com"
-                tolist="raykroeker@gmail.com"
-                subject="test inline subject" message="test inline message"/>
-<!--        <mail mailhost="tpdev.thinkparity.com" from="${notify.from}"
+        <mail mailhost="tpdev.thinkparity.com" from="${notify.from}"
                 tolist="${notify.to}" cclist="${notify.cc}"
                 bcclist="${notify.bcc}"
-                subject="${notify.subject}" message="${notify.message}"/> -->
+                subject="${notify.subject}" message="${notify.message}"/>
     </target>
 </project>

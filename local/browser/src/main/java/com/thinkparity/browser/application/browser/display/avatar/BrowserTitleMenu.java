@@ -11,18 +11,26 @@ import java.awt.Graphics;
 import java.awt.Point;
 
 import com.thinkparity.browser.Constants.Colors;
+import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
  *
  * @author raymond@thinkparity.com
  */
-public class BrowserTitleMenu extends javax.swing.JPanel {
+public class BrowserTitleMenu extends AbstractJPanel {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+    
+    /** The avatar the button title menu reside upon. */
+    private final Avatar avatar;
 
     /** Creates new form BrowserTitleMenu */
-    public BrowserTitleMenu() {
+    public BrowserTitleMenu(final Avatar avatar) {
+        super("BrowserTitleMenu.MenuPanel");
+        this.avatar = avatar;
         initComponents();
     }
 
@@ -71,6 +79,18 @@ public class BrowserTitleMenu extends javax.swing.JPanel {
 
         setOpaque(false);
         newJLabel.setText(java.util.ResourceBundle.getBundle("localization/BrowserLocalization").getString("com.thinkparity.browser.application.browser.display.avatar.BrowserTitle.New"));
+        newJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                newJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                newJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                newJLabelMouseExited(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets(7, 10, 0, 0);
@@ -102,7 +122,27 @@ public class BrowserTitleMenu extends javax.swing.JPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
+    private void newJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseEntered
+// TODO add your handling code here:
+    }//GEN-LAST:event_newJLabelMouseEntered
+
+    private void newJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseExited
+// TODO add your handling code here:
+    }//GEN-LAST:event_newJLabelMouseExited
+
+    private void newJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseClicked
+        getBrowser().runAddContact();
+        newJLabelMouseExited(evt);
+    }//GEN-LAST:event_newJLabelMouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel signUpJLabel;
     // End of variables declaration//GEN-END:variables
+    
+    /**
+     * Obtain the browser application.
+     * 
+     * @return The browser application.
+     */
+    private Browser getBrowser() { return avatar.getController(); }
 }

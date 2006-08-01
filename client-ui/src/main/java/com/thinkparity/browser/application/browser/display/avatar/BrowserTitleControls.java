@@ -6,17 +6,50 @@
 
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import javax.swing.Icon;
+import javax.swing.JLabel;
+
+import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.browser.platform.util.ImageIOUtil;
+
 /**
  *
  * @author raymond@thinkparity.com
  */
-public class BrowserTitleControls extends javax.swing.JPanel {
+public class BrowserTitleControls extends AbstractJPanel {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+    
+    /** Close label icon. */
+    private static final Icon CLOSE_ICON;
+
+    /** Close label rollover icon. */
+    private static final Icon CLOSE_ROLLOVER_ICON;
+    
+    /** Min label icon. */
+    private static final Icon MIN_ICON;
+
+    /** Min label rollover icon. */
+    private static final Icon MIN_ROLLOVER_ICON;
+    
+    static {
+        CLOSE_ICON = ImageIOUtil.readIcon("CloseButton.png");
+        CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("CloseButtonRollover.png");
+
+        MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
+        MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("MinimizeButtonRollover.png");
+    }
+    
+    /** The avatar the button title controls reside upon. */
+    private final Avatar avatar;
 
     /** Creates new form BrowserTitleControls */
-    public BrowserTitleControls() {
+    public BrowserTitleControls(final Avatar avatar) {
+        super("BrowserTitleControls.ButtonPanel");
+        this.avatar = avatar;
         initComponents();
     }
     
@@ -38,6 +71,18 @@ public class BrowserTitleControls extends javax.swing.JPanel {
 
         setOpaque(false);
         closeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Close.png")));
+        closeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                closeJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                closeJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                closeJLabelMouseExited(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -45,6 +90,18 @@ public class BrowserTitleControls extends javax.swing.JPanel {
         add(closeJLabel, gridBagConstraints);
 
         minimizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Minimize.png")));
+        minimizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                minimizeJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                minimizeJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                minimizeJLabelMouseExited(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -54,7 +111,39 @@ public class BrowserTitleControls extends javax.swing.JPanel {
         add(minimizeJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-    
+
+    private void closeJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseClicked
+        getBrowser().closeBrowserWindow();
+        closeJLabelMouseExited(evt);
+    }//GEN-LAST:event_closeJLabelMouseClicked
+
+    private void closeJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseExited
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ICON);
+    }//GEN-LAST:event_closeJLabelMouseExited
+
+    private void closeJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJLabelMouseEntered
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    }//GEN-LAST:event_closeJLabelMouseEntered
+
+    private void minimizeJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeJLabelMouseClicked
+        getBrowser().minimize();
+        minimizeJLabelMouseExited(evt);
+    }//GEN-LAST:event_minimizeJLabelMouseClicked
+
+    private void minimizeJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeJLabelMouseEntered
+        ((JLabel) evt.getSource()).setIcon(MIN_ROLLOVER_ICON);
+    }//GEN-LAST:event_minimizeJLabelMouseEntered
+
+    private void minimizeJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minimizeJLabelMouseExited
+        ((JLabel) evt.getSource()).setIcon(MIN_ICON);
+    }//GEN-LAST:event_minimizeJLabelMouseExited
+
+    /**
+     * Obtain the browser application.
+     * 
+     * @return The browser application.
+     */
+    private Browser getBrowser() { return avatar.getController(); }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

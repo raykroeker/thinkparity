@@ -81,8 +81,8 @@ public class BrowserTitle extends Avatar {
         com.thinkparity.browser.application.browser.display.avatar.BrowserTitleSearch browserTitleSearch;
 
         browserTitleSearch = new com.thinkparity.browser.application.browser.display.avatar.BrowserTitleSearch();
-        browserTitleControls = new com.thinkparity.browser.application.browser.display.avatar.BrowserTitleControls();
-        browserTitleMenu1 = new com.thinkparity.browser.application.browser.display.avatar.BrowserTitleMenu();
+        browserTitleControls = new com.thinkparity.browser.application.browser.display.avatar.BrowserTitleControls(this);
+        browserTitleMenu1 = new com.thinkparity.browser.application.browser.display.avatar.BrowserTitleMenu(this);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

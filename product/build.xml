@@ -23,8 +23,10 @@ Examples:
     </target>
 
     <!-- notify -->
-    <target name="notify">
-        <mail from="${notify.from}" tolist="${notify.to}"
-                subject="${notify.subject}" message="${notify.message}"/>
+    <target name="notify.release-reminder">
+        <mail subject="Pre-release reminder" messagefile="notify.release-reminder-message">
+            <from address="thinkparity.development@gmail.com" name="thinkParity R &amp; D"/>
+            <to address="raykroeker@gmail.com" name="Raymond Kroeker"/>
+        </mail>
     </target>
 </project>

@@ -114,7 +114,8 @@ public class Browser extends AbstractApplication {
 	/** The browser's connection. */
     private Connection connection;
 
-	private BrowserTab currentTab = BrowserTab.PACKAGES_TAB;
+    /** The currently selected tab. */
+	private BrowserTitleTab currentTab = BrowserTitleTab.NONE;
 	
 	/** The browser's event dispatcher. */
 	private EventDispatcher ed;
@@ -180,13 +181,10 @@ public class Browser extends AbstractApplication {
      */
     // TO DO Fix this.
 	public void applySearchFilter(final List<IndexHit> searchResult) {
-        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
+        if (getCurrentTab() == BrowserTitleTab.CONTAINERS) {
             getContainersAvatar().applySearchFilter(searchResult);            
         }
-        else if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
-	        getMainAvatar().applySearchFilter(searchResult);
-        }
-        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
+        else if (getCurrentTab() == BrowserTitleTab.CONTACTS) {
             getContactsAvatar().applySearchFilter(searchResult);
         }
 	}
@@ -361,18 +359,54 @@ public class Browser extends AbstractApplication {
 	}
     
     /**
+     * Display the containers (packages) tab. If "forced" is true then
+     * force the tab to draw and force the correct tab icon to be drawn.
+     * 
+     * @param forced
+     *            True to force drawing.
+     */
+    public void displayContainersTab(Boolean forced) {
+        if (forced || (getCurrentTab() != BrowserTitleTab.CONTAINERS)) {
+            setCurrentTab(BrowserTitleTab.CONTAINERS);
+            displayContainerListAvatar();
+        }
+        
+        getTitleAvatar().updateTabIcon(BrowserTitleTab.CONTAINERS);
+    }
+    
+    /**
+     * Display the containers (packages) tab.
+     */
+    public void displayContainersTab() {
+        if (getCurrentTab() != BrowserTitleTab.CONTAINERS) {
+            setCurrentTab(BrowserTitleTab.CONTAINERS);
+            displayContainerListAvatar();            
+        }
+    }
+    
+    /**
+     * Display the contacts tab
+     */
+    public void displayContactsTab() {
+        if (getCurrentTab() != BrowserTitleTab.CONTACTS) {
+            setCurrentTab(BrowserTitleTab.CONTACTS);
+            displayContactListAvatar();            
+        }
+    }
+    
+    /**
 	 * Display the manage contacts dialogue.
 	 *
 	 */
 	public void displaySessionManageContacts() {
         // TO DO fix up! Change this method and set up tabs properly
         //displayAvatar(WindowId.POPUP, AvatarId.SESSION_MANAGE_CONTACTS);
-        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
-            setCurrentTab(BrowserTab.CONTACTS_TAB);
+        if (getCurrentTab() == BrowserTitleTab.CONTAINERS) {
+            setCurrentTab(BrowserTitleTab.CONTACTS);
             displayContactListAvatar();
         }
         else {
-            setCurrentTab(BrowserTab.PACKAGES_TAB);
+            setCurrentTab(BrowserTitleTab.CONTAINERS);
             displayContainerListAvatar();
         }
         // DOCUMENTS_TAB disabled
@@ -853,13 +887,10 @@ public class Browser extends AbstractApplication {
      */
     // TO DO Fix this.
     public void removeSearchFilter() {
-        if (getCurrentTab() == BrowserTab.PACKAGES_TAB) {
+        if (getCurrentTab() == BrowserTitleTab.CONTAINERS) {
             getContainersAvatar().removeSearchFilter();
         }
-        else if (getCurrentTab() == BrowserTab.DOCUMENTS_TAB) {
-            getMainAvatar().removeSearchFilter();
-        }
-        else if (getCurrentTab() == BrowserTab.CONTACTS_TAB) {
+        else if (getCurrentTab() == BrowserTitleTab.CONTACTS) {
             getContactsAvatar().removeSearchFilter();
         }
     }
@@ -891,7 +922,6 @@ public class Browser extends AbstractApplication {
 	public void restore(final Platform platform) {
 		assertStatusChange(ApplicationStatus.RESTORING);
         
-        setCurrentTab(BrowserTab.PACKAGES_TAB);
 		reOpenMainWindow();
 
 		setStatus(ApplicationStatus.RESTORING);
@@ -1671,13 +1701,22 @@ public class Browser extends AbstractApplication {
     private BrowserContainersAvatar getContainersAvatar() {
         return (BrowserContainersAvatar) avatarRegistry.get(AvatarId.BROWSER_CONTAINERS);
     }
+    
+    /**
+     * Convenience method to obtain the browser title avatar.
+     * 
+     * @return The containers avatar.
+     */
+    private BrowserTitle getTitleAvatar() {
+        return (BrowserTitle) avatarRegistry.get(AvatarId.BROWSER_TITLE);
+    }
 
     /**
      * Convenience method to get the current tab.
      * 
      * @return The current tab.
      */
-	private BrowserTab getCurrentTab() {
+	private BrowserTitleTab getCurrentTab() {
         return currentTab;
     }
 
@@ -1744,7 +1783,7 @@ public class Browser extends AbstractApplication {
     /**
      * Set the current tab.
      */
-    private void setCurrentTab(BrowserTab currentTab) {
+    private void setCurrentTab(BrowserTitleTab currentTab) {
         this.currentTab = currentTab;
     }
 
@@ -1809,10 +1848,4 @@ public class Browser extends AbstractApplication {
             });
         }
     }
-
-    /**
-     * The current tab (documents or contacts)
-     */
-    // TODO get rid of this once the new GUI is in place.
-    private enum BrowserTab { CONTACTS_TAB, DOCUMENTS_TAB, PACKAGES_TAB }
 }

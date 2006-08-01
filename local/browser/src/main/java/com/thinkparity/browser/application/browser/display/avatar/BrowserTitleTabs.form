@@ -17,7 +17,7 @@
     <Component class="javax.swing.JLabel" name="containersJLabel">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/images/BrowserTitle_ContainersTab.png"/>
+          <Image iconType="3" name="/images/BrowserTitle_ContainersTabSelected.png"/>
         </Property>
       </Properties>
       <Events>
@@ -43,6 +43,7 @@
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="contactsJLabelMouseClicked"/>
       </Events>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="&#xa;"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
       </AuxValues>

@@ -28,6 +28,9 @@ public class BrowserTitle extends Avatar {
 
     /** Used to drag the window by this avatar. */
     private final MouseInputAdapter mouseInputAdapter;
+    
+    /** Browser title tabs. */
+    private com.thinkparity.browser.application.browser.display.avatar.BrowserTitleTabs browserTitleTabs = null;
 
     /**
      * Creates new form BrowserTitle
@@ -74,13 +77,25 @@ public class BrowserTitle extends Avatar {
     public void select(final BrowserTitleTab tab) {
         switch(tab) {
         case CONTACTS:
-            getController().displaySessionManageContacts();
+            getController().displayContactsTab();
             break;
         case CONTAINERS:
-            getController().displaySessionManageContacts();
+            getController().displayContainersTab();
             break;
         default:
             Assert.assertUnreachable("[BROWSER TITLE] [SELECT] [UNKNOWN TAB] [" + tab + "]");
+        }
+    }
+    
+    /**
+     * Update tab icon.
+     * 
+     * @param tab
+     *            The selected tab.
+     */
+    public void updateTabIcon(final BrowserTitleTab tab) {
+        if (null!=browserTitleTabs) {
+            browserTitleTabs.updateTabIcon(tab);
         }
     }
 
@@ -130,6 +145,7 @@ public class BrowserTitle extends Avatar {
         browserTitleMenu.setBrowserTitle(this);
         browserTitleTabs = new com.thinkparity.browser.application.browser.display.avatar.BrowserTitleTabs();
         browserTitleTabs.setBrowserTitle(this);
+        this.browserTitleTabs = browserTitleTabs;
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

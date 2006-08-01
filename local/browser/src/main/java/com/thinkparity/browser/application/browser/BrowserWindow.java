@@ -140,6 +140,7 @@ public class BrowserWindow extends AbstractJFrame {
         browser.displayTitleAvatar();
         browser.displayContentAvatar();
         browser.displayStatusAvatar();
+        browser.displayContainersTab(Boolean.TRUE);
     }
 
 	/**

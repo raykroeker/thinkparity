@@ -4,13 +4,17 @@
 package com.thinkparity.browser.application.browser.display.avatar;
 
 import com.thinkparity.browser.Constants.Icons;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.platform.util.State;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  *
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class BrowserTitleTabs extends javax.swing.JPanel {
+public class BrowserTitleTabs extends AbstractJPanel {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
@@ -20,6 +24,7 @@ public class BrowserTitleTabs extends javax.swing.JPanel {
 
     /** Creates new form BrowserTitleTabs */
     public BrowserTitleTabs() {
+        super("BrowserTitleTabs");
         initComponents();
     }
 
@@ -32,6 +37,29 @@ public class BrowserTitleTabs extends javax.swing.JPanel {
     void setBrowserTitle(final BrowserTitle browserTitle) {
         this.browserTitle = browserTitle;
     }
+    
+    /**
+     * Update the tab icon. This is called when the browser
+     * is reopened.
+     * 
+     * @param tab
+     *          The selected tab.
+     */
+    void updateTabIcon(final BrowserTitleTab tab) {
+        switch(tab) {
+        case CONTACTS:
+            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_SELECTED);
+            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);
+            break;
+        case CONTAINERS:
+            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);
+            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_SELECTED);
+            break;
+        default:
+            Assert.assertUnreachable("[BROWSER TITLETABS] [SELECT] [UNKNOWN TAB] [" + tab + "]");
+        }
+    }
+    
     private void contactsJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactsJLabelMouseClicked
         contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_SELECTED);
         containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);
@@ -58,10 +86,10 @@ public class BrowserTitleTabs extends javax.swing.JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
-        containersJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContainersTab.png")));
+        containersJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContainersTabSelected.png")));
         containersJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                containersJLabelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                containersJLabelMouseClicked(evt);
             }
         });
 
@@ -71,8 +99,8 @@ public class BrowserTitleTabs extends javax.swing.JPanel {
 
         contactsJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContactsTab.png")));
         contactsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                contactsJLabelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                contactsJLabelMouseClicked(evt);
             }
         });
 

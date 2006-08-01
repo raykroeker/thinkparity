@@ -56,7 +56,7 @@
     </Component>
     <Component class="com.thinkparity.browser.application.browser.display.avatar.BrowserTitleTabs" name="browserTitleTabs">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="browserTitleTabs.setBrowserTitle(this);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="browserTitleTabs.setBrowserTitle(this);&#xa;this.browserTitleTabs = browserTitleTabs;"/>
       </AuxValues>
     </Component>
   </SubComponents>

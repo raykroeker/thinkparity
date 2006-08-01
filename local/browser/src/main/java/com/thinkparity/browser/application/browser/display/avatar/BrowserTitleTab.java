@@ -7,4 +7,4 @@ package com.thinkparity.browser.application.browser.display.avatar;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public enum BrowserTitleTab { CONTACTS, CONTAINERS }
+public enum BrowserTitleTab { CONTAINERS, CONTACTS, NONE }

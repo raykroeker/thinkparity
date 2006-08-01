@@ -7,16 +7,11 @@
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
 
-    <!-- notification distribution lists -->
-    <property name="notify.from" value="thinkparity.development@gmail.com"/>
-
     <!-- print help -->
     <target name="help">
         <echo>
 Options:
     -Dnotify.to             Notification to list.   (comma separated)
-    -Dnotify.cc             Notification cc list.   (comma separated)
-    -Dnotify.bcc            Notification bcc list.  (comma separated)
     -Dnotify.subject        Notification subject.
     -Dnotify.message        Notification message.
 
@@ -27,9 +22,9 @@ Examples:
         </echo>
     </target>
 
+    <!-- notify -->
     <target name="notify">
-        <mail from="${notify.from}" tolist="${notify.to}" cclist="${notify.cc}"
-                bcclist="${notify.bcc}" subject="${notify.subject}"
-                message="${notify.message}"/>
+        <mail from="${notify.from}" tolist="${notify.to}"
+                subject="${notify.subject}" message="${notify.message}"/>
     </target>
 </project>

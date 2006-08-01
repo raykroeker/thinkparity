@@ -32,8 +32,11 @@
           <Dimension value="[11, 20]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="searchJTextField.setBorder(new TopBottomBorder(Colors.BrowserTitle.SEARCH_OUTLINE));&#xa;searchJTextField.setBackground(Colors.BrowserTitle.SEARCH_BACKGROUND);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="searchJTextField.setBorder(new TopBottomBorder(Colors.BrowserTitle.SEARCH_OUTLINE));&#xa;searchJTextField.setBackground(Colors.BrowserTitle.SEARCH_BACKGROUND);&#xa;searchJTextField.getDocument().addDocumentListener(new DocumentListener() {&#xa;        public void changedUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldChangedUpdate(e);&#xa;        }&#xa;        public void insertUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldInsertUpdate(e);&#xa;        }&#xa;        public void removeUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldRemoveUpdate(e);&#xa;        }&#xa;});"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
       </AuxValues>

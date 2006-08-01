@@ -46,7 +46,7 @@ public class BrowserTitleControls extends AbstractJPanel {
 
     /** Creates new form BrowserTitleControls */
     public BrowserTitleControls() {
-        super("BrowserTitleControls.ButtonPanel");
+        super("BrowserTitleControls");
         initComponents();
     }
 

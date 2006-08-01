@@ -5,23 +5,37 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import com.thinkparity.browser.Constants.Colors;
+import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.javax.swing.border.TopBottomBorder;
 
 /**
  *
  * @author raymond@thinkparity.com
  */
-public class BrowserTitleSearch extends javax.swing.JPanel {
+public class BrowserTitleSearch extends AbstractJPanel {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+    
+    /**
+     * The timer that will delay searches by 1/2 second
+     */
+    private Timer timer = null;
 
     /** The browser title container. */
     private BrowserTitle browserTitle;
 
     /** Creates new form BrowserTitleSearch */
     public BrowserTitleSearch() {
+        super("BrowserTitleSearch");
         initComponents();
     }
 
@@ -51,6 +65,17 @@ public class BrowserTitleSearch extends javax.swing.JPanel {
         searchJTextField = new javax.swing.JTextField();
         searchJTextField.setBorder(new TopBottomBorder(Colors.BrowserTitle.SEARCH_OUTLINE));
         searchJTextField.setBackground(Colors.BrowserTitle.SEARCH_BACKGROUND);
+        searchJTextField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(final DocumentEvent e) {
+                searchJTextFieldChangedUpdate(e);
+            }
+            public void insertUpdate(final DocumentEvent e) {
+                searchJTextFieldInsertUpdate(e);
+            }
+            public void removeUpdate(final DocumentEvent e) {
+                searchJTextFieldRemoveUpdate(e);
+            }
+        });
         leftJLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
@@ -65,6 +90,12 @@ public class BrowserTitleSearch extends javax.swing.JPanel {
         add(rightJLabel, gridBagConstraints);
 
         searchJTextField.setPreferredSize(new java.awt.Dimension(11, 20));
+        searchJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchJTextFieldActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -82,8 +113,41 @@ public class BrowserTitleSearch extends javax.swing.JPanel {
         add(leftJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void searchJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchJTextFieldActionPerformed
+        if (timer!=null) {
+            timer.stop();
+        }
+        browserTitle.getController().runSearchArtifact(searchJTextField.getText());
+    }//GEN-LAST:event_searchJTextFieldActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField searchJTextField;
     // End of variables declaration//GEN-END:variables
+
+    private void searchJTextFieldRemoveUpdate(final DocumentEvent e) {
+        searchFieldUpdated(e);
+    }
+
+    private void searchJTextFieldInsertUpdate(final DocumentEvent e) {
+        searchFieldUpdated(e);
+    }
+
+    private void searchJTextFieldChangedUpdate(final DocumentEvent e) {}
+    
+    private void searchFieldUpdated(final DocumentEvent e) {
+        if (timer==null) {
+            int delay = 500;  // 500 milliseconds
+            timer = new Timer(delay,new ActionListener() {
+                public void actionPerformed(final ActionEvent timerEvent) {
+                    timer.stop();
+                    browserTitle.getController().runSearchArtifact(searchJTextField.getText());
+                }
+            });
+            timer.start();
+        }
+        else {
+            timer.restart();
+        }
+    }
 }

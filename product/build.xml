@@ -24,6 +24,9 @@ Examples:
 
     <!-- notify -->
     <target name="notify.release-reminder">
+        <tstamp>
+            <format property="release.timestamp" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
+        </tstamp>
         <mail subject="Pre-release reminder" messagefile="notify.release-reminder-message">
             <from address="thinkparity.development@gmail.com" name="thinkParity R &amp; D"/>
             <to address="raykroeker@gmail.com" name="Raymond Kroeker"/>

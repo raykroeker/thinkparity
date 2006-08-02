@@ -9,8 +9,14 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Rectangle;
+
+import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.Constants.Colors;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.display.avatar.menu.PopupNew;
 import com.thinkparity.browser.javax.swing.AbstractJPanel;
 
 /**
@@ -24,6 +30,18 @@ public class BrowserTitleMenu extends AbstractJPanel {
     
     /** The avatar the button title menu reside upon. */
     private BrowserTitle browserTitle;
+    
+    /** Popup menus */
+    private JPopupMenu jPopupMenuNew = null;
+    private JPopupMenu jPopupMenuHelp = null;
+    
+    /** Labels (saved so locations can be calculated) */
+    private JLabel savedNewJLabel;
+    private JLabel savedHelpJLabel;
+    
+    /** Locations for popup menus */
+    private Point jPopupMenuNewLocation = null;
+    private Point jPopupMenuHelpLocation = null;
 
     /** Creates new form BrowserTitleMenu */
     public BrowserTitleMenu() {
@@ -77,8 +95,10 @@ public class BrowserTitleMenu extends AbstractJPanel {
         javax.swing.JLabel spacerJLabel;
 
         newJLabel = new javax.swing.JLabel();
+        savedNewJLabel = newJLabel;
         profileJLabel = new javax.swing.JLabel();
         helpJLabel = new javax.swing.JLabel();
+        savedHelpJLabel = helpJLabel;
         signUpJLabel = new javax.swing.JLabel();
         spacerJLabel = new javax.swing.JLabel();
 
@@ -95,6 +115,9 @@ public class BrowserTitleMenu extends AbstractJPanel {
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 newJLabelMouseExited(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                newJLabelMouseReleased(evt);
             }
         });
 
@@ -129,6 +152,9 @@ public class BrowserTitleMenu extends AbstractJPanel {
 
     }// </editor-fold>//GEN-END:initComponents
 
+    private void newJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseReleased
+    }//GEN-LAST:event_newJLabelMouseReleased
+
     private void newJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseEntered
 // TODO add your handling code here:
     }//GEN-LAST:event_newJLabelMouseEntered
@@ -138,11 +164,58 @@ public class BrowserTitleMenu extends AbstractJPanel {
     }//GEN-LAST:event_newJLabelMouseExited
 
     private void newJLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseClicked
-        browserTitle.getController().runAddContact();
-        newJLabelMouseExited(evt);
+        if (popupShowing()) {
+            hideAllPopups();
+        }
+        else {
+            showNewMenu(evt);
+        }
     }//GEN-LAST:event_newJLabelMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel signUpJLabel;
     // End of variables declaration//GEN-END:variables
+    
+    private void calculatePopupLocations() {
+        final Rectangle newJLabelBounds = savedNewJLabel.getBounds(null);
+        jPopupMenuNewLocation = new Point();
+        jPopupMenuNewLocation.setLocation(newJLabelBounds.getX(),newJLabelBounds.getY()+newJLabelBounds.getHeight()); 
+        final Rectangle helpJLabelBounds = savedHelpJLabel.getBounds(null);
+        jPopupMenuHelpLocation = new Point();
+        jPopupMenuHelpLocation.setLocation(helpJLabelBounds.getX(),helpJLabelBounds.getY()+helpJLabelBounds.getHeight());                
+    }
+
+    // TODO This doesn't work because the popup becomes invisible just before this is called, I think.
+    // I am trying to create normal menu behavior, ie. a click toggles whether the menu popup shows or not.
+    private Boolean popupShowing() {
+        Boolean showing = Boolean.FALSE;
+        if ((null!=jPopupMenuNew) && (jPopupMenuNew.isVisible())) {
+            showing = Boolean.TRUE;
+        }
+        else if ((null!=jPopupMenuHelp) && (jPopupMenuHelp.isVisible())) {
+            showing = Boolean.TRUE;
+        }
+        return showing;
+    }
+    
+    private void hideAllPopups() {
+        if (null!=jPopupMenuNew) {
+            jPopupMenuNew.setVisible(false);
+        }
+        if (null!=jPopupMenuHelp) {
+            jPopupMenuHelp.setVisible(false);
+        }        
+    }
+    
+    private void showNewMenu(java.awt.event.MouseEvent evt) {
+        calculatePopupLocations();
+        if (null==jPopupMenuNew) {
+            jPopupMenuNew = MenuFactory.createPopup();
+            new PopupNew().trigger(browserTitle.getController(), jPopupMenuNew, evt);
+            jPopupMenuNew.show(this, (int)jPopupMenuNewLocation.getX(), (int)jPopupMenuNewLocation.getY());
+        }
+        else {
+            jPopupMenuNew.setVisible(true);
+        }
+    }
 }

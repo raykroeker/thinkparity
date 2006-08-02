@@ -36,7 +36,7 @@ public class ReadDocumentsTest extends ContainerTestCase {
      */
     public void testReadDocuments() {
         List<Document> documents = null;
-        try { documents = datum.cModel.readDocuments(datum.containerId); }
+        try { documents = datum.cModel.readDocuments(datum.containerId, datum.versionId); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
 
         assertNotNull(NAME, documents);
@@ -59,12 +59,11 @@ public class ReadDocumentsTest extends ContainerTestCase {
 
         final ContainerModel cModel = getContainerModel();
         final Container eContainer = cModel.create(NAME);
+        final ContainerVersion version = cModel.readLatestVersion(eContainer.getId());
         final List<Document> eDocuments = new LinkedList<Document>();
-        eDocuments.addAll(cModel.readDocuments(eContainer.getId()));
-        final Document document = create(getInputFiles()[0]);
-        eDocuments.add(document);
-        cModel.addDocument(eContainer.getId(), document.getId());
-        datum = new Fixture(cModel, eContainer.getId(), eDocuments);
+        eDocuments.addAll(cModel.readDocuments(eContainer.getId(), version.getVersionId()));
+
+        datum = new Fixture(cModel, eContainer.getId(), eDocuments, version.getVersionId());
 
         cModel.addListener(datum);
     }
@@ -85,11 +84,13 @@ public class ReadDocumentsTest extends ContainerTestCase {
         private final ContainerModel cModel;
         private final Long containerId;
         private final List<Document> eDocuments;
+        private final Long versionId;
         private Fixture(final ContainerModel cModel, final Long containerId,
-                final List<Document> eDocuments) {
+                final List<Document> eDocuments, final Long versionId) {
             this.cModel = cModel;
             this.containerId = containerId;
             this.eDocuments = eDocuments;
+            this.versionId = versionId;
         }
         public void draftCreated(ContainerEvent e) {
             fail(NAME + " [DRAFT CREATED EVENT FIRED]");

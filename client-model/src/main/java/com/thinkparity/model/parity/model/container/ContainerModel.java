@@ -267,12 +267,14 @@ public class ContainerModel {
      * 
      * @param containerId
      *            A container id.
+     * @param versionId
+     *            A version id.
      * @return A list of documents.
      * @throws ParityException
      */
-    public List<Document> readDocuments(final Long containerId)
-            throws ParityException {
-        synchronized(implLock) { return impl.readDocuments(containerId); }
+    public List<Document> readDocuments(final Long containerId,
+            final Long versionId) throws ParityException {
+        synchronized(implLock) { return impl.readDocuments(containerId, versionId); }
     }
 
     /**
@@ -280,14 +282,17 @@ public class ContainerModel {
      * 
      * @param containerId
      *            A container id.
+     * @param versionId
+     *            A version id.
      * @param comparator
      *            A document comparator.
      * @return A list of documents.
      * @throws ParityException
      */
     public List<Document> readDocuments(final Long containerId,
-            final Comparator<Artifact> comparator) throws ParityException {
-        synchronized(implLock) { return impl.readDocuments(containerId, comparator); }
+            final Long versionId, final Comparator<Artifact> comparator)
+            throws ParityException {
+        synchronized(implLock) { return impl.readDocuments(containerId, versionId, comparator); }
     }
 
     /**
@@ -295,6 +300,8 @@ public class ContainerModel {
      * 
      * @param containerId
      *            A container id.
+     * @param versionId
+     *            A version id.
      * @param comparator
      *            A document comparator.
      * @param filter
@@ -303,9 +310,9 @@ public class ContainerModel {
      * @throws ParityException
      */
     public List<Document> readDocuments(final Long containerId,
-            final Comparator<Artifact> comparator,
+            final Long versionId, final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) throws ParityException {
-        synchronized(implLock) { return impl.readDocuments(containerId, comparator, filter); }
+        synchronized(implLock) { return impl.readDocuments(containerId, versionId, comparator, filter); }
     }
 
     /**
@@ -313,14 +320,16 @@ public class ContainerModel {
      * 
      * @param containerId
      *            A container id.
+     * @param versionId
+     *            A version id.
      * @param filter
      *            A document filter.
      * @return A list of document versions.
      * @throws ParityException
      */
-    public List<Document> readDocuments(final Long containerId,
+    public List<Document> readDocuments(final Long containerId, final Long versionId,
             final Filter<? super Artifact> filter) throws ParityException {
-        synchronized(implLock) { return impl.readDocuments(containerId, filter); }
+        synchronized(implLock) { return impl.readDocuments(containerId, versionId, filter); }
     }
 
     /**

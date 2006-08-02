@@ -4,7 +4,7 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import java.util.List;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
@@ -36,14 +36,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
     public void testRemoveDocument() {
         try { datum.cModel.removeDocument(datum.containerId, datum.documentId); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
-
-        List<Document> documents = null;
-        try { documents = datum.cModel.readDocuments(datum.containerId); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
-
-        assertNotNull(NAME, documents);
-        assertEquals(NAME + " [DOCUMENT'S SIZE DOES NOT MATCH EXPECTATION]", 0, documents.size());
-        assertTrue(NAME + " [DOCUMENT REMOVED EVENT DID NOT FIRE]", datum.didNotify);
+        Assert.assertNotYetImplemented("RemoveDocumentTest#testRemoveDocument");
     }
 
     /**

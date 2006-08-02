@@ -151,23 +151,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     void addDocument(final Long containerId, final Long documentId)
             throws ParityException {
-        logger.info(getApiId("[ADD DOCUMENT]"));
-        logger.debug(containerId);
-        logger.debug(documentId);
-        assertIsKeyHolder(getApiId("[ADD DOCUMENT] [CANNOT ADD DOCUMENT WITHOUT KEY]"), containerId);
-        final List<Document> documents = readDocuments(containerId);
-        assertDoesNotContain(getApiId("[ADD DOCUMENT] [DOCUMENT ALREADY ADDED]"),
-                documents, documentId);
-
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final DocumentVersion latestDocument = dModel.readLatestVersion(documentId);
-        containerIO.addVersion(latestVersion.getArtifactId(),
-                latestVersion.getVersionId(), latestDocument.getArtifactId(),
-                latestDocument.getVersionId(), latestDocument.getArtifactType());
-        // fire event
-        notifyDocumentAdded(read(containerId), dModel.get(documentId),
-                localEventGenerator);
+        throw Assert.createNotYetImplemented("ContainerModelImpl#addDocument(Long)");
     }
 
     /**
@@ -194,35 +178,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      *            A container id.
      */
     void close(final Long containerId) throws ParityException {
-        logger.info(getApiId("[CLOSE]"));
-        logger.debug(containerId);
-        assertOnline(getApiId("[CLOSE] [USER NOT ONLINE]"));
-        assertIsKeyHolder(getApiId("[CLOSE] [USER NOT KEY HOLDER]"), containerId);
-
-        // update state
-        final InternalArtifactModel aModel = getInternalArtifactModel();
-        aModel.updateState(containerId, ArtifactState.CLOSED);
-
-        // lock documents
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final List<Document> documents = readDocuments(containerId);
-        for(final Document document : documents) {
-            dModel.lock(document.getId());
-        }
-        
-        // remote close
-        getInternalSessionModel().sendClose(containerId);
-
-        // remove key - needs to be done post remote close
-        removeFlagKey(containerId);
-
-        // audit
-        final JabberId currentUserId = currentUserId();
-        final Calendar currentDateTime = currentDateTime();
-        auditor.close(containerId, currentUserId, currentDateTime, currentUserId, currentDateTime);
-
-        // fire event
-        notifyContainerClosed(read(containerId), currentUser(), localEventGenerator);
+        throw Assert.createNotYetImplemented("ContainerModelImpl#close(Long)");
     }
 
     /**
@@ -366,30 +322,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     void handleClose(final Long containerId, final JabberId closedBy,
             final Calendar closedOn) throws ParityException {
-        logger.info(getApiId("[HANDLE CLOSE]"));
-        logger.debug(containerId);
-        logger.debug(closedBy);
-        logger.debug(closedOn);
-        final Calendar currentDateTime = currentDateTime();
-
-        // update remote info
-        final InternalArtifactModel aModel = getInternalArtifactModel();
-        aModel.updateRemoteInfo(containerId, closedBy, currentDateTime);
-        // update state
-        aModel.updateState(containerId, ArtifactState.CLOSED);
-
-        // lock documents
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final List<Document> documents = readDocuments(containerId);
-        for(final Document document : documents) {
-            dModel.lock(document.getId());
-        }
-
-        // audit
-        auditor.close(containerId, closedBy, closedOn, currentUserId(), currentDateTime);
-
-        // fire event
-        notifyContainerClosed(read(containerId), currentUser(), remoteEventGenerator);
+        throw Assert.createNotYetImplemented("ContainerModelImpl#handleClose(Long,JabberId)");
     }
 
     /**
@@ -478,15 +411,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return True if the container has been locally modified.
      */
     Boolean isLocallyModified(final Long containerId) throws ParityException {
-        logger.info(getApiId("[IS LOCALLY MODIFIED]"));
-        logger.debug(containerId);
-        // check if the documents have been modified
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final List<Document> documents = readDocuments(containerId);
-        for(final Document document : documents) {
-            if(!dModel.isWorkingVersionEqual(document.getId())) { return Boolean.TRUE; }
-        }
-        return Boolean.FALSE;
+        throw Assert.createNotYetImplemented("ContainerModelImpl#isLocallyModified(Long)");
     }
 
     /**
@@ -496,14 +421,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      *            The container id.
      */
     void lock(final Long containerId) throws ParityException {
-        logger.info(getApiId("[LOCK]"));
-        logger.debug(containerId);
-        // lock the documents
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final List<Document> documents = readDocuments(containerId);
-        for(final Document document : documents) {
-            dModel.lock(document.getId());
-        }
+        throw Assert.createNotYetImplemented("ContainerModelImpl#lock(Long)");
     }
 
     /**
@@ -679,13 +597,16 @@ class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param containerId
      *            A container id.
+     * @param versionId
+     *            A version id.
      * @return A list of documents.
      * @throws ParityException
      */
-    List<Document> readDocuments(final Long containerId) throws ParityException {
+    List<Document> readDocuments(final Long containerId, final Long versionId)
+            throws ParityException {
         logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
-        return readDocuments(containerId, defaultDocumentComparator, defaultDocumentFilter);
+        return readDocuments(containerId, versionId, defaultDocumentComparator, defaultDocumentFilter);
     }
 
     /**
@@ -693,15 +614,17 @@ class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param containerId
      *            A container id.
+     * @param versionId
+     *            A version id.
      * @param comparator
      *            A document comparator.
      * @return A list of documents.
      * @throws ParityException
      */
-    List<Document> readDocuments(final Long containerId,
+    List<Document> readDocuments(final Long containerId, final Long versionId,
             final Comparator<Artifact> comparator) throws ParityException {
         logger.info(getApiId("[READ DOCUMENTS]"));
-        return readDocuments(containerId, comparator, defaultDocumentFilter);
+        return readDocuments(containerId, versionId, comparator, defaultDocumentFilter);
     }
 
     /**
@@ -709,6 +632,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param containerId
      *            A container id.
+     * @versionId A version id.
      * @param comparator
      *            A document comparator.
      * @param filter
@@ -716,16 +640,16 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of documents.
      * @throws ParityException
      */
-    List<Document> readDocuments(final Long containerId,
+    List<Document> readDocuments(final Long containerId, final Long versionId,
             final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter) throws ParityException {
         logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
+        logger.debug(versionId);
         logger.debug(comparator);
         logger.debug(filter);
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        final List<Document> documents =
-            containerIO.readDocuments(containerId, latestVersion.getVersionId());
+        final List<Document> documents = containerIO.readDocuments(
+                containerId, versionId);
         ArtifactFilterManager.filter(documents, filter);
         ModelSorter.sortDocuments(documents, comparator);
         return documents;
@@ -736,17 +660,20 @@ class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param containerId
      *            A container id.
+     * @param versionId
+     *            A version id.
      * @param filter
      *            A document filter.
      * @return A list of documents.
      * @throws ParityException
      */
-    List<Document> readDocuments(final Long containerId,
+    List<Document> readDocuments(final Long containerId, final Long versionId,
             final Filter<? super Artifact> filter) throws ParityException {
         logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
+        logger.debug(versionId);
         logger.debug(filter);
-        return readDocuments(containerId, defaultDocumentComparator, filter);
+        return readDocuments(containerId, versionId, defaultDocumentComparator, filter);
     }
 
     /**
@@ -974,22 +901,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     void removeDocument(final Long containerId, final Long documentId)
             throws ParityException {
-        logger.info(getApiId("[REMOVE DOCUMENT]"));
-        logger.debug(containerId);
-        logger.debug(documentId);
-        assertIsKeyHolder(getApiId("[REMOVE DOCUMENT] [CANNOT REMOVE DOCUMENT WITHOUT KEY]"), containerId);
-        final List<Document> documents = readDocuments(containerId);
-        assertContains(getApiId("[ADD DOCUMENT] [DOCUMENT ALREADY ADDED]"),
-                documents, documentId);
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final DocumentVersion latestDocument = dModel.readLatestVersion(documentId);
-        containerIO.removeVersion(latestVersion.getArtifactId(),
-                latestVersion.getVersionId(), latestDocument.getArtifactId(),
-                latestDocument.getVersionId());
-        // fire event
-        notifyDocumentRemoved(read(containerId), dModel.get(documentId),
-                localEventGenerator);
+        throw Assert.createNotYetImplemented("ContainerModelImpl#removeDocument(Long)");
     }
 
     /**

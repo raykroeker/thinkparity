@@ -4,7 +4,7 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import java.util.List;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
@@ -37,14 +37,7 @@ public class AddDocumentTest extends ContainerTestCase {
         try { datum.cModel.addDocument(datum.containerId, datum.documentId); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
 
-        List<Document> documents = null;
-        try { documents = datum.cModel.readDocuments(datum.containerId); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
-
-        assertNotNull(NAME, documents);
-        assertEquals(NAME + " [DOCUMENT'S SIZE DOES NOT MATCH EXPECTATION]", 1, documents.size());
-        assertEquals(NAME, datum.eDocument, documents.get(0));
-        assertTrue(NAME + " [ADD DOCUMENT EVENT NOT FIRED]", datum.didNotify);
+        throw Assert.createNotYetImplemented("AddDocumentTest#testAddDocument()");
     }
 
     /**

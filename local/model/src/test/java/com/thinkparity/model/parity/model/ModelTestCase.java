@@ -804,13 +804,10 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	protected void tearDown() throws Exception { super.tearDown(); }
 
     private void addTeamToContainer(final Long containerId) throws Exception {
-        final ModelTestUser userX = ModelTestUser.getX();
-        getContainerModel().share(containerId, userX.getJabberId());
-    
-        final ModelTestUser userY = ModelTestUser.getY();
-        getContainerModel().share(containerId, userY.getJabberId());
-    
-        final ModelTestUser userZ = ModelTestUser.getZ();
-        getContainerModel().share(containerId, userZ.getJabberId());
+        final List<User> team = getContainerModel().readTeam(containerId);
+        team.add(ModelTestUser.getX().getUser());
+        team.add(ModelTestUser.getY().getUser());
+        team.add(ModelTestUser.getZ().getUser());
+        getContainerModel().updateTeam(containerId, team);
     }
 }

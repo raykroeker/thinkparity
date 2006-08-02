@@ -46,11 +46,11 @@ abstract class ContainerTestCase extends ModelTestCase {
      * @see junit.framework.TestCase#setUp()
      * 
      */
-    protected void setUp() throws Exception {}
+    protected void setUp() throws Exception { super.setUp(); }
 
     /**
      * @see junit.framework.TestCase#tearDown()
      * 
      */
-    protected void tearDown() throws Exception {}
+    protected void tearDown() throws Exception { super.tearDown(); }
 }

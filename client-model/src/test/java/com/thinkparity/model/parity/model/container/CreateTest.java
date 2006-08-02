@@ -7,7 +7,6 @@ package com.thinkparity.model.parity.model.container;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.api.events.ContainerListener;
-import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
 /**
  * <b>Title:</b>thinkParity Container Create Test<br>
@@ -40,13 +39,6 @@ public class CreateTest extends ContainerTestCase {
         assertEquals(NAME + " [CONTAINER NAME DOES NOT MATCH EXPECTATION]",
                 datum.containerName, container.getName());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotify);
-        try {
-            assertTrue(NAME + " [CONTAINER KEY HOLDER DOES NOT MATCH EXPECTATION]",
-                    getSessionModel().isLoggedInUserKeyHolder(container.getId()));
-            assertTrue(NAME + " [CONTAINER KEY HOLDER DOES NOT MATCH EXPECTATION]",
-                    getArtifactModel().isFlagApplied(container.getId(), ArtifactFlag.KEY));
-        }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
 
         final ContainerVersion latestVersion = datum.cModel.readLatestVersion(container.getId());
         assertNotNull(NAME, latestVersion);

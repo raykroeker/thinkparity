@@ -20,6 +20,7 @@ import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
@@ -427,6 +428,17 @@ public class ContainerModel {
     }
 
     /**
+     * Read the team for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of users.
+     */
+    public List<User> readTeam(final Long containerId) {
+        synchronized(getImplLock()) { return getImpl().readTeam(containerId); }
+    }
+
+    /**
      * Remove a document from a container.
      * 
      * @param containerId
@@ -465,17 +477,15 @@ public class ContainerModel {
     }
 
     /**
-     * Share the container with a user. The user will receive the latest version
-     * of the container and become part of the container's team.
+     * Update the team for the container.
      * 
      * @param containerId
-     *            The container id.
-     * @param jabberId
-     *            The jabber id.
+     *            A container id.
+     * @param team
+     *            A list of users.
      */
-    public void share(final Long containerId, final JabberId jabberId)
-            throws ParityException {
-        synchronized(implLock) { impl.share(containerId, jabberId); }
+    public void updateTeam(final Long containerId, final List<User> team) {
+        synchronized(getImplLock()) { getImpl().updateTeam(containerId, team); }
     }
 
     /**

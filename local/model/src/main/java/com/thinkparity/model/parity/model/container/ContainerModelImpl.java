@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.thinkparity.codebase.CollectionsUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityException;
@@ -232,7 +233,6 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     Container create(final String name) throws ParityException {
         logger.info(getApiId("[CREATE]"));
-        assertOnline(getApiId("[CREATE] [USER NOT ONLINE]"));
         final Credentials credentials = readCredentials();
         final Calendar currentDateTime = currentDateTime();
 
@@ -246,24 +246,15 @@ class ContainerModelImpl extends AbstractModelImpl {
         container.setUpdatedBy(credentials.getUsername());
         container.setUpdatedOn(currentDateTime);
 
-        // remote create
-        getInternalSessionModel().sendCreate(container);
-
         // local create
         containerIO.create(container);
 
         // create version
         createVersion(container);
 
-        // apply key
-        final InternalArtifactModel iAModel = getInternalArtifactModel();
-        iAModel.applyFlagKey(container.getId());
-
         // create remote info
+        final InternalArtifactModel iAModel = getInternalArtifactModel();
         iAModel.createRemoteInfo(container.getId(), currentUserId(), currentDateTime);
-
-        // add team member
-        iAModel.addTeamMember(container.getId(), currentUserId());
 
         // audit
         auditor.create(container.getId(), currentUserId(), currentDateTime);
@@ -891,7 +882,6 @@ class ContainerModelImpl extends AbstractModelImpl {
         return readKeyRequests(containerId, defaultKeyRequestComparator, filter);
     }
 
-
     /**
      * Read the latest container version.
      * 
@@ -903,6 +893,20 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ LATEST VERSION]"));
         logger.debug(containerId);
         return containerIO.readLatestVersion(containerId);
+    }
+
+
+    /**
+     * Read the team for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of users.
+     */
+    List<User> readTeam(final Long containerId) {
+        logger.info(getApiId("[READ TEAM]"));
+        logger.debug(containerId);
+        return CollectionsUtil.proxy(getInternalArtifactModel().readTeam(containerId));
     }
 
     /**
@@ -1013,6 +1017,20 @@ class ContainerModelImpl extends AbstractModelImpl {
         send(readLatestVersion(containerId), user);
     }
     
+    /**
+     * Update the team for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param team
+     *            A list of users.
+     */
+    void updateTeam(final Long containerId, final List<User> team) {
+        logger.info(getApiId("[UPDATE TEAM]"));
+        logger.debug(containerId);
+        logger.debug(team);
+    }
+
     /**
      * Accept a key request made by a user.
      * 

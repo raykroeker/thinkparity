@@ -51,7 +51,7 @@ import com.thinkparity.model.xmpp.user.UserVCard;
  */
 public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 
-	/**
+    /**
 	 * Interal logger implemenation.
 	 */
 	private static final Logger logger =
@@ -83,23 +83,23 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	/** The artifact xmpp interface. */
 	private final XMPPArtifact xmppArtifact;
 
-    /** The contact xmpp interface. */
+	/** The contact xmpp interface. */
 	private final XMPPContact xmppContact;
 
     /** The container xmpp interface. */
     private final XMPPContainer xmppContainer;
 
-    /** The thinkParity xmpp profile interface. */
-    private final XMPPProfile xmppProfile;
-
-	/** The document xmpp interface. */
+    /** The document xmpp interface. */
     private final XMPPDocument xmppDocument;
 
-	private Vector<XMPPExtensionListener> xmppExtensionListeners;
+    private Vector<XMPPExtensionListener> xmppExtensionListeners;
 
 	private final Object xmppExtensionListenersLock = new Object();
 
 	private Vector<XMPPContactListener> xmppPresenceListeners;
+
+	/** The thinkParity xmpp profile interface. */
+    private final XMPPProfile xmppProfile;
 
 	private Vector<XMPPSessionListener> xmppSessionListeners;
 
@@ -171,7 +171,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.addListener(l);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPContainerListener)
      * 
      */
@@ -179,7 +179,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppContainer.addListener(l);
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPDocumentListener)
      * 
      */
@@ -216,6 +216,16 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
+     * @see com.thinkparity.model.xmpp.XMPPCore#assertContainsResult(java.lang.Object,
+     *      com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse)
+     * 
+     */
+    public void assertContainsResult(final Object assertion,
+            final XMPPMethodResponse response) {
+        Assert.assertTrue(assertion, response.containsResult());
+    }
+
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#closeArtifact(java.util.UUID)
 	 * 
 	 */
@@ -250,6 +260,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		logger.debug(iq);
 		sendAndConfirmPacket(iq);
 	}
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#createDraft(java.util.UUID)
+     */
+    public void createDraft(final UUID uniqueId) {
+        logger.info("[XMPP SESSION] [CREATE DRAFT]");
+        logger.debug(uniqueId);
+        xmppArtifact.createDraft(uniqueId);
+    }
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#declineInvitation(com.thinkparity.model.xmpp.JabberId)
@@ -307,6 +326,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
+	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
+	 * 
+	 */
+	public void inviteContact(final String email) throws SmackException {
+		xmppContact.invite(email);
+	}
+
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#isLoggedIn()
 	 */
 	public Boolean isLoggedIn() {
@@ -405,7 +432,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#logout()
 	 */
 	public void logout() throws SmackException {
@@ -424,7 +451,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#reactivate(com.thinkparity.model.parity.model.container.ContainerVersion,
      *      java.util.List, java.util.List, com.thinkparity.model.xmpp.JabberId,
      *      java.util.Calendar)
@@ -460,7 +487,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppUser.read(response.getKeyHolder());
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactTeam(java.util.UUID)
      * 
      */
@@ -477,7 +504,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppContact.read();
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#readCurrentUser()
 	 * 
 	 */
@@ -498,7 +525,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.read(getJabberId());
     }
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readUsers(java.util.Set)
      * 
      */
@@ -555,7 +582,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppExtensionListeners.remove(xmppExtensionListener);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPSessionListener)
 	 */
 	public void removeListener(final XMPPSessionListener xmppSessionListener) {
@@ -582,7 +609,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(iq);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#saveVCard(com.thinkparity.model.xmpp.user.UserVCard)
 	 * 
 	 */
@@ -663,7 +690,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppDocument.sendReactivate(team, uniqueId, versionId, name, bytes);
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#sendDocument(java.util.Set,
      *      java.util.UUID, java.lang.String, byte[])
      * 
@@ -675,14 +702,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
-	 * 
-	 */
-	public void inviteContact(final String email) throws SmackException {
-		xmppContact.invite(email);
-	}
-
-    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendKeyResponse(java.util.UUID,
 	 *      com.thinkparity.model.parity.model.session.KeyResponse,
 	 *      com.thinkparity.model.xmpp.user.User)
@@ -795,7 +814,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * Fire the keyRequestAccepted event for all of the XMPPExtension listeners.
 	 * 
 	 * @param iq
@@ -893,14 +912,4 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			throw XMPPErrorTranslator.translate(ix);
 		}
 	}
-
-    /**
-     * @see com.thinkparity.model.xmpp.XMPPCore#assertContainsResult(java.lang.Object,
-     *      com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse)
-     * 
-     */
-    public void assertContainsResult(final Object assertion,
-            final XMPPMethodResponse response) {
-        Assert.assertTrue(assertion, response.containsResult());
-    }
 }

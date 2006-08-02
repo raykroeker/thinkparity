@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -166,6 +167,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
      */
     protected static String getErrorId(final String api, final String error) {
         return getApiId(api).append(" ").append(error).toString();
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createDraft(com.thinkparity.model.parity.model.container.ContainerDraft)
+     */
+    public void createDraft(final ContainerDraft draft) {
+        final Session session = openSession();
+        try {
+            artifactIO.createDraft(session, draft);
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
     }
 
     /** Generic artifact io. */

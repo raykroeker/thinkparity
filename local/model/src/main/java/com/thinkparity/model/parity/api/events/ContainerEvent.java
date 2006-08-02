@@ -1,16 +1,16 @@
 /*
  * Created On: Jun 29, 2006 8:58:06 AM
- * $Id$
  */
 package com.thinkparity.model.parity.api.events;
 
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.4.3
  */
 public class ContainerEvent {
 
@@ -19,6 +19,9 @@ public class ContainerEvent {
 
     /** A document. */
     private final Document document;
+
+    /** A draft. */
+    private final ContainerDraft draft;
 
     /** The event source. */
     private final Source source;
@@ -35,7 +38,7 @@ public class ContainerEvent {
      *            The container.
      */
     public ContainerEvent(final Source source, final Container container) {
-        this(source, container, null, null);
+        this(source, container, null, null, null);
     }
 
     /**
@@ -50,7 +53,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final Document document) {
-        this(source, container, null, document);
+        this(source, container, null, null, document);
     }
 
     /**
@@ -65,7 +68,19 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final User user) {
-        this(source, container, user, null);
+        this(source, container, null, user, null);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event source.
+     * @param draft
+     *            The draft.
+     */
+    public ContainerEvent(final Source source, final ContainerDraft draft) {
+        this(source, null, draft, null, null);
     }
 
     /**
@@ -75,16 +90,19 @@ public class ContainerEvent {
      *            The event source
      * @param container
      *            The container.
+     * @param draft
+     *            The draft.
      * @param user
      *            The user.
      * @param document
      *            A document.
      */
-    public ContainerEvent(final Source source, final Container container,
-            final User user, final Document document) {
+    private ContainerEvent(final Source source, final Container container,
+            final ContainerDraft draft, final User user, final Document document) {
         super();
         this.source = source;
         this.container = container;
+        this.draft = draft;
         this.user = user;
         this.document = document;
     }
@@ -101,9 +119,14 @@ public class ContainerEvent {
      *
      * @return The Document.
      */
-    public Document getDocument() {
-        return document;
-    }
+    public Document getDocument() { return document; }
+
+    /**
+     * Obtain the draft.
+     * 
+     * @return The draft.
+     */
+    public ContainerDraft getDraft() { return draft; }
 
     /**
      * Obtain the user

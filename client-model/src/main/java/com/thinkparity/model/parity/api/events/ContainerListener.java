@@ -66,4 +66,28 @@ public interface ContainerListener {
      *            The container event.
      */
     public void documentRemoved(final ContainerEvent e);
+
+    /**
+     * A container draft was created.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void draftCreated(final ContainerEvent e);
+
+    /**
+     * A team member was added to a container.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void teamMemberAdded(final ContainerEvent e);
+
+    /**
+     * A team member was added to a container.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void teamMemberRemoved(final ContainerEvent e);
 }

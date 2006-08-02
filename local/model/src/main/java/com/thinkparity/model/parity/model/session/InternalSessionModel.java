@@ -56,6 +56,16 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
 	/**
+     * Create a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    public void createDraft(final UUID uniqueId) {
+        synchronized(getImplLock()) { getImpl().createDraft(uniqueId); }
+    }
+
+    /**
 	 * Obtain the currently logged in user.
 	 * 
 	 * @return The logged in user.
@@ -64,6 +74,18 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	public User getLoggedInUser() throws ParityException {
 		synchronized(getImplLock()) { return getImpl().readUser(); }
 	}
+
+	/**
+     * Add a roster entry for the user. This will send a presence request to
+     * user.
+     * 
+     * @param user
+     *            The user to add to the roster.
+     * @throws ParityException
+     */
+    public void inviteContact(final String email) {
+        synchronized(getImplLock()) { getImpl().inviteContact(email); }
+    }
 
     /**
      * Reactivate a container version.
@@ -145,7 +167,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) { return getImpl().readUsers(jabberIds); }
 	}
 
-	/**
+    /**
 	 * Send a close packet to the parity server.
 	 * 
 	 * @param artifactId
@@ -263,15 +285,4 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
-     * Add a roster entry for the user. This will send a presence request to
-     * user.
-     * 
-     * @param user
-     *            The user to add to the roster.
-     * @throws ParityException
-     */
-    public void inviteContact(final String email) {
-        synchronized(getImplLock()) { getImpl().inviteContact(email); }
-    }
 }

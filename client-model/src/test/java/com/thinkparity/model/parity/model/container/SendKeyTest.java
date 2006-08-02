@@ -94,6 +94,15 @@ public class SendKeyTest extends ContainerTestCase {
             this.containerId = containerId;
             this.jabberId = jabberId;
         }
+        public void draftCreated(ContainerEvent e) {
+            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
+        }
+        public void teamMemberAdded(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
+        }
+        public void teamMemberRemoved(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
+        }
         public void containerClosed(ContainerEvent e) {
             fail(NAME + " [CONTAINER CLOSED EVENT FIRED]");
         }

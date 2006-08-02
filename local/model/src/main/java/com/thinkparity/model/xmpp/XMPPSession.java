@@ -78,7 +78,7 @@ public interface XMPPSession {
      */
     public void addListener(final XMPPContainerListener l);
 
-	/**
+    /**
      * Add an xmpp document event listener.
      * 
      * @param l
@@ -86,10 +86,10 @@ public interface XMPPSession {
      */
     public void addListener(final XMPPDocumentListener l);
 
-    public void addListener(final XMPPExtensionListener l);
-	public void addListener(final XMPPSessionListener l);
+	public void addListener(final XMPPExtensionListener l);
 
-    /**
+    public void addListener(final XMPPSessionListener l);
+	/**
      * Close an artifact.
      * 
      * @param uniqueId
@@ -120,6 +120,14 @@ public interface XMPPSession {
 	public void createArtifact(final UUID uniqueId) throws SmackException;
 
     /**
+     * Create a draft for an artifact.
+     * 
+     * @param artifact
+     *            An artifact.
+     */
+    public void createDraft(final UUID uniqueId);
+
+    /**
      * Decline an invitation from a user.
      * 
      * @param jabberId
@@ -127,6 +135,15 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void declineInvitation(final JabberId jabberId) throws SmackException;
+
+    /**
+     * Invite a contact.
+     * 
+     * @param email
+     *            An e-mail address.
+     * @throws SmackException
+     */
+	public void inviteContact(final String email) throws SmackException;
 
     /**
      * Determine if the user is logged in.
@@ -185,7 +202,7 @@ public interface XMPPSession {
             final List<JabberId> team, final JabberId reactivatedBy,
             final Calendar reactivatedOn) throws SmackException;
 
-    /**
+	/**
      * Read the artifact key holder.
      * 
      * @param artifactUniqueId
@@ -196,7 +213,7 @@ public interface XMPPSession {
 	public User readArtifactKeyHolder(final UUID uniqueId)
             throws SmackException;
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -223,14 +240,14 @@ public interface XMPPSession {
      */
 	public User readCurrentUser() throws SmackException;
 
-    /**
+	/**
      * Read the user's profile.
      * 
      * @return A profile.
      */
     public Profile readProfile() throws SmackException;
 
-	/**
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -240,7 +257,6 @@ public interface XMPPSession {
      */
     public Set<User> readUsers(final Set<JabberId> jabberIds)
 			throws SmackException;
-
     /**
      * Remove the logged in user from the artifact team.
      * 
@@ -252,6 +268,7 @@ public interface XMPPSession {
             throws SmackException;
     public void removeListener(final XMPPArtifactListener l);
     public void removeListener(final XMPPContactListener l);
+
     public void removeListener(final XMPPExtensionListener l);
 
     public void removeListener(final XMPPSessionListener l);
@@ -292,15 +309,6 @@ public interface XMPPSession {
 	public void sendDocumentVersion(final Set<JabberId> sendTo,
             final UUID uniqueId, final Long versionId, final String name,
             final byte[] content) throws SmackException;
-
-    /**
-     * Invite a contact.
-     * 
-     * @param email
-     *            An e-mail address.
-     * @throws SmackException
-     */
-	public void inviteContact(final String email) throws SmackException;
 
     public void sendKeyResponse(final UUID artifactUniqueId,
             final KeyResponse keyResponse, final JabberId jabberId)

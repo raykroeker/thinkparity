@@ -51,7 +51,6 @@ public class CreateTest extends ContainerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        login();
         final ContainerModel cModel = getContainerModel();
         datum = new Fixture(cModel, NAME);
         cModel.addListener(datum);
@@ -63,7 +62,6 @@ public class CreateTest extends ContainerTestCase {
      */
     protected void tearDown() throws Exception {
         getContainerModel().removeListener(datum);
-        logout();
         datum = null;
         super.tearDown();
     }
@@ -77,6 +75,15 @@ public class CreateTest extends ContainerTestCase {
             this.cModel = cModel;
             this.containerName = containerName;
             this.didNotify = Boolean.FALSE;
+        }
+        public void draftCreated(ContainerEvent e) {
+            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
+        }
+        public void teamMemberAdded(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
+        }
+        public void teamMemberRemoved(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
         }
         public void containerClosed(ContainerEvent e) {
             fail(NAME + " [CONTAINER CLOSED EVENT FIRED]");

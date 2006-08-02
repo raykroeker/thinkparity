@@ -172,6 +172,14 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     }
 
     /**
+     * Create a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    void createDraft(final UUID uniqueId) { xmppSession.createDraft(uniqueId); }
+
+	/**
 	 * Decline an invitation to the user's contact list.
 	 * 
 	 * @param jabberId
@@ -273,7 +281,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         xmppSession.reactivate(version, documentVersions, team, reactivatedBy, reactivatedOn);
     }
 
-	/**
+    /**
 	 * Obtain a list of contacts for an artifact.
 	 * 
 	 * @param uniqueId
@@ -285,7 +293,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readArtifactTeam(uniqueId);
 	}
 
-    /**
+	/**
 	 * Read the logged in user's contacts.
 	 * 
 	 * @return A list of contacts.
@@ -295,14 +303,14 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readContacts();
 	}
 
-	/**
+    /**
      * Read the logged in user's profile.
      * 
      * @return A profile.
      */
 	Profile readProfile() throws SmackException { return xmppSession.readProfile(); }
 
-    /**
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -405,7 +413,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.sendKeyResponse(artifactUniqueId, keyResponse, jabberId);
 	}
 
-	/**
+    /**
 	 * Send the log file archive to the parity server.
 	 * 
 	 * @param logFileArchive
@@ -419,7 +427,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.sendLogFileArchive(logFileArchive, user);
 	}
 
-    /**
+	/**
 	 * Send a subscribe packet to the parity server.
 	 * 
 	 * @param artifactUniqueId
@@ -430,7 +438,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.addArtifactTeamMember(artifactUniqueId);
 	}
 
-	/**
+    /**
      * Update the user.
      * 
      * @param user
@@ -522,7 +530,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final RuntimeException rx) { unexpectedOccured(rx); }
     }
 
-    /**
+	/**
 	 * Event handler for the extension listener's document received event.
 	 * 
 	 * @param xmppDocument
@@ -670,7 +678,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", px);
 	}
 
-	private void unexpectedOccured(final RuntimeException rx) {
+    private void unexpectedOccured(final RuntimeException rx) {
 		// TODO  Implement rModel rollback.
 		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", rx);
 	}
@@ -679,4 +687,5 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		// TODO  Implement rModel rollback.
 		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", sx);
 	}
+
 }

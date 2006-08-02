@@ -16,6 +16,7 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.artifact.*;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
@@ -27,7 +28,7 @@ import com.thinkparity.model.xmpp.user.User;
  */
 class XMPPArtifact {
 
-	private static final List<XMPPArtifactListener> listeners;
+    private static final List<XMPPArtifactListener> listeners;
 
 	static {
 		listeners = new LinkedList<XMPPArtifactListener>();
@@ -71,7 +72,6 @@ class XMPPArtifact {
 		}
 	}
 
-
 	/**
 	 * Add the packet listeners to the connection.
 	 * 
@@ -103,6 +103,7 @@ class XMPPArtifact {
                 new PacketTypeFilter(IQConfirmArtifactReceipt.class));
 	}
 
+
 	/**
      * Confirm artifact receipt.
      * 
@@ -125,6 +126,20 @@ class XMPPArtifact {
         iq.setType(IQ.Type.SET);
         xmppCore.sendAndConfirmPacket(iq);
 	}
+
+	/**
+     * Create a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    void createDraft(final UUID uniqueId) {
+        logger.info("[XMPP] [ARTIFACT] [CREATE DRAFT]");
+        logger.debug(uniqueId);
+        final XMPPMethod method = new XMPPMethod("artifact:createdraft");
+        method.setParameter("uniqueId", uniqueId);
+        method.execute(xmppCore.getConnection());
+    }
 
     /**
      * Read the artifact team.

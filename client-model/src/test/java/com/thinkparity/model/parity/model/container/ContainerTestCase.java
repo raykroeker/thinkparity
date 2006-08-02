@@ -20,6 +20,21 @@ import com.thinkparity.model.parity.model.ModelTestCase;
 abstract class ContainerTestCase extends ModelTestCase {
 
     /**
+     * Assert the draft is not null.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param draft
+     *            A draft.
+     */
+    protected static void assertNotNull(final String assertion,
+            final ContainerDraft draft) {
+        assertNotNull(assertion + " [DRAFT IS NULL]", (Object) draft);
+        assertNotNull(assertion + " [DRAFT ID IS NULL]", draft.getId());
+        assertNotNull(assertion + " [DRAFT VERSION ID IS NULL]", draft.getVersionId());
+    }
+
+    /**
      * Assert the containers are not null.
      * 
      * @param assertion
@@ -46,11 +61,11 @@ abstract class ContainerTestCase extends ModelTestCase {
      * @see junit.framework.TestCase#setUp()
      * 
      */
-    protected void setUp() throws Exception { super.setUp(); }
+    protected void setUp() throws Exception {}
 
     /**
      * @see junit.framework.TestCase#tearDown()
      * 
      */
-    protected void tearDown() throws Exception { super.tearDown(); }
+    protected void tearDown() throws Exception {}
 }

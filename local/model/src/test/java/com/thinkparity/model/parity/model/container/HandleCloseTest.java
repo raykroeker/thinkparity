@@ -5,7 +5,7 @@
 package com.thinkparity.model.parity.model.container;
 
 import java.util.Calendar;
-import java.util.Set;
+import java.util.List;
 
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.ParityException;
@@ -36,7 +36,7 @@ public class HandleCloseTest extends ContainerTestCase {
 
     /** Test the parity container interface handle close api. */ 
 	public void testHandleClose() {
-        Set<User> team;
+        List<User> team;
         try { datum.cInternalModel.handleClose(datum.containerId, datum.closedBy, datum.closedOn); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
 
@@ -44,7 +44,7 @@ public class HandleCloseTest extends ContainerTestCase {
         assertNotNull(NAME, container);
         assertEquals(NAME + " [CONTAINER STATE DOES NOT MATCH EXPECTATION]", container.getState(), ArtifactState.CLOSED);
 
-        team = datum.aModel.readTeam(datum.containerId);
+        team = datum.cModel.readTeam(datum.containerId);
         assertNotNull(NAME, team);
         assertEquals(NAME + " [TEAM SIZE DOES NOT MATCH EXPECTATION]", datum.eTeamSize.intValue(), team.size());
 	}
@@ -66,9 +66,9 @@ public class HandleCloseTest extends ContainerTestCase {
         modifyDocument(document);
         cModel.publish(container.getId());
         aModel.sendKey(container.getId(), jUnitX.getJabberId());
-        datum = new Fixture(aModel, jUnitX.getJabberId(), currentDateTime(),
+        datum = new Fixture(cModel, jUnitX.getJabberId(), currentDateTime(),
                 getInternalContainerModel(), container.getId(),
-                aModel.readTeam(container.getId()).size());
+                cModel.readTeam(container.getId()).size());
 	}
 
     /**
@@ -83,23 +83,32 @@ public class HandleCloseTest extends ContainerTestCase {
 	}
 
 	private class Fixture implements ContainerListener {
-        private final ArtifactModel aModel;
+        private final ContainerModel cModel;
         private final InternalContainerModel cInternalModel;
         private final JabberId closedBy;
 		private final Calendar closedOn;
 		private final Long containerId;
         private final Integer eTeamSize;
-		private Fixture(final ArtifactModel aModel, final JabberId closedBy,
+		private Fixture(final ContainerModel cModel, final JabberId closedBy,
                 final Calendar closedOn,
                 final InternalContainerModel cInternalModel,
                 final Long containerId, final Integer eTeamSize) {
-            this.aModel = aModel;
+            this.cModel = cModel;
             this.closedBy = closedBy;
             this.closedOn = closedOn;
 			this.cInternalModel = cInternalModel;
 			this.containerId = containerId;
             this.eTeamSize = eTeamSize;
 		}
+        public void draftCreated(ContainerEvent e) {
+            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
+        }
+        public void teamMemberAdded(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
+        }
+        public void teamMemberRemoved(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
+        }
         public void containerClosed(final ContainerEvent e) {
             fail(NAME + " [CONTAINER CLOSED EVENT FIRED]");
         }

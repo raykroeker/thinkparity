@@ -13,7 +13,6 @@ import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
-import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
@@ -84,7 +83,7 @@ public class ContainerModel {
         synchronized(implLock) { impl.acceptKeyRequest(keyRequestId); }
     }
 
-	/**
+    /**
      * Add a document to a container.
      * 
      * @param containerId
@@ -132,7 +131,7 @@ public class ContainerModel {
         Assert.assertNotYetImplemented("");
     }
 
-    /**
+	/**
      * Close a container.
      * 
      * @param containerId
@@ -151,6 +150,17 @@ public class ContainerModel {
      */
     public Container create(final String name) throws ParityException {
         synchronized(implLock) { return impl.create(name); }
+    }
+
+    /**
+     * Create a container draft.
+     * 
+     * @param containerId
+     *            The container id.
+     * @return A container draft.
+     */
+    public ContainerDraft createDraft(final Long containerId) {
+        synchronized(getImplLock()) { return getImpl().createDraft(containerId); }
     }
 
     /**
@@ -314,54 +324,6 @@ public class ContainerModel {
     }
 
     /**
-     * Read the container history.
-     * 
-     * @return A list of container history items.
-     */
-    public List<ContainerHistoryItem> readHistory(final Long containerId) {
-        synchronized(implLock) { return impl.readHistory(containerId); }
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param comparator
-     *            A history item comparator
-     * @return A list of container history items.
-     */
-    public List<ContainerHistoryItem> readHistory(final Long containerId,
-            final Comparator<HistoryItem> comparator) {
-        synchronized(implLock) { return impl.readHistory(containerId, comparator); }
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param comparator
-     *            A history item comparator
-     * @param filter
-     *            A history item filter.
-     * @return A list of container history items.
-     */
-    public List<ContainerHistoryItem> readHistory(final Long containerId,
-            final Comparator<HistoryItem> comparator,
-            final Filter<? super HistoryItem> filter) {
-        synchronized(implLock) { return impl.readHistory(containerId, comparator, filter); }
-    }
-
-    /**
-     * Read the container history.
-     * 
-     * @param filter
-     *            A history item filter.
-     * @return A list of container history items.
-     */
-    public List<ContainerHistoryItem> readHistory(final Long containerId,
-            final Filter<? super HistoryItem> filter) {
-        synchronized(implLock) { return impl.readHistory(containerId, filter); }
-    }
-
-    /**
      * Read a list of key requests for the container.
      * 
      * @param containerId
@@ -416,7 +378,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readKeyRequests(containerId, filter); }
     }
 
-	/**
+    /**
      * Read the latest container version.
      * 
      * @param containerId
@@ -427,7 +389,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readLatestVersion(containerId); }
     }
 
-    /**
+	/**
      * Read the team for the container.
      * 
      * @param containerId
@@ -436,6 +398,20 @@ public class ContainerModel {
      */
     public List<User> readTeam(final Long containerId) {
         synchronized(getImplLock()) { return getImpl().readTeam(containerId); }
+    }
+
+    /**
+     * Read a container version.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            The version id.
+     * @return A container version.
+     */
+    public ContainerVersion readVersion(final Long containerId,
+            final Long versionId) {
+        synchronized(implLock) { return impl.readVersion(containerId, versionId); }
     }
 
     /**

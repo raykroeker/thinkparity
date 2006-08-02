@@ -13,6 +13,7 @@ import java.util.Set;
 import com.thinkparity.codebase.CollectionsUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.api.events.ContainerEvent.Source;
@@ -267,6 +268,29 @@ class ContainerModelImpl extends AbstractModelImpl {
         notifyContainerCreated(postCreation, localEventGenerator);
 
         return postCreation;
+    }
+
+    /**
+     * Create a container draft.
+     * 
+     * @param containerId
+     *            The container id.
+     * @return A container draft.
+     */
+    ContainerDraft createDraft(final Long containerId) {
+        logger.info(getApiId("[CREATE DRAFT]"));
+        logger.debug(containerId);
+        assertOnline(getApiId("[CREATE DRAFT] [USER NOT ONLINE]"));
+        final Container container = read(containerId);
+        if(!isDistributed(containerId)) { createDistributed(container); }
+        final ContainerVersion version = createVersion(containerId);
+        final ContainerDraft draft = new ContainerDraft();
+        draft.setId(containerId);
+        draft.setVersionId(version.getVersionId());
+        containerIO.createDraft(draft);
+        getInternalSessionModel().createDraft(container.getUniqueId());
+        notifyDraftCreated(draft, localEventGenerator);
+        return draft;
     }
 
     /**
@@ -895,7 +919,6 @@ class ContainerModelImpl extends AbstractModelImpl {
         return containerIO.readLatestVersion(containerId);
     }
 
-
     /**
      * Read the team for the container.
      * 
@@ -906,7 +929,25 @@ class ContainerModelImpl extends AbstractModelImpl {
     List<User> readTeam(final Long containerId) {
         logger.info(getApiId("[READ TEAM]"));
         logger.debug(containerId);
-        return CollectionsUtil.proxy(getInternalArtifactModel().readTeam(containerId));
+        final Set<User> team = getInternalArtifactModel().readTeam(containerId);
+        if(team.isEmpty()) { return new ArrayList<User>(0); }
+        else { return CollectionsUtil.proxy(getInternalArtifactModel().readTeam(containerId)); }
+    }
+
+    /**
+     * Read a container version.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param versionId
+     *            The version id.
+     * @return A container version.
+     */
+    ContainerVersion readVersion(final Long containerId, final Long versionId) {
+        logger.info(getApiId("[READ VERSION]"));
+        logger.debug(containerId);
+        logger.debug(versionId);
+        return containerIO.readVersion(containerId, versionId);
     }
 
     /**
@@ -921,6 +962,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         return containerIO.readVersions(containerId);
     }
+
 
     /**
      * Remove a document from a container.
@@ -1016,7 +1058,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         // send
         send(readLatestVersion(containerId), user);
     }
-    
+
     /**
      * Update the team for the container.
      * 
@@ -1075,7 +1117,7 @@ class ContainerModelImpl extends AbstractModelImpl {
                 latestVersion.getVersionId(), currentUserId, currentDateTime,
                 jabberId);
     }
-
+    
     /**
      * Assert that the list of documents contains the document id.
      * 
@@ -1112,6 +1154,19 @@ class ContainerModelImpl extends AbstractModelImpl {
             final List<Document> documents, final Long documentId) {
         for(final Document document : documents)
             Assert.assertNotTrue(assertion, document.getId().equals(documentId));
+    }
+
+    /**
+     * Create the container in the distributed network.
+     * 
+     * @param container
+     *            The container.
+     */
+    private void createDistributed(final Container container) {
+        try { getInternalSessionModel().sendCreate(container); }
+        catch(final ParityException px) {
+            throw ParityErrorTranslator.translateUnchecked(px);
+        }
     }
 
     /**
@@ -1305,6 +1360,22 @@ class ContainerModelImpl extends AbstractModelImpl {
             }
         }
         
+    }
+
+    /**
+     * Notify that a container draft was created.
+     * 
+     * @param draft
+     *            The draft.
+     * @param eventGenerator
+     *            The container event generator.
+     */
+    private void notifyDraftCreated(final ContainerDraft draft, final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.draftCreated(eventGenerator.generate(draft));
+            }
+        }
     }
 
     private List<DocumentVersionContent> readDocumentVersionContents(

@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -43,6 +44,14 @@ public interface ContainerIOHandler {
      *            The container.
      */
     public void create(final Container container);
+
+    /**
+     * Create a draft.
+     * 
+     * @param draft
+     *            A draft.
+     */
+    public void createDraft(final ContainerDraft draft);
 
     /**
      * Create a container version.

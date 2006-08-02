@@ -105,23 +105,32 @@ public class DeleteTest extends ContainerTestCase {
             this.containerId = containerId;
             this.didNotify = Boolean.FALSE;
         }
-        public void containerClosed(final ContainerEvent e) {
+        public void draftCreated(ContainerEvent e) {
+            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
+        }
+        public void teamMemberAdded(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
+        }
+        public void teamMemberRemoved(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
+        }
+        public void containerClosed(ContainerEvent e) {
             fail(NAME + " [CONTAINER CLOSED EVENT WAS FIRED]");
         }
-        public void containerCreated(final ContainerEvent e) {
+        public void containerCreated(ContainerEvent e) {
             fail(NAME + " [CONTAINER CREATED EVENT WAS FIRED]");
         }
-        public void containerDeleted(final ContainerEvent e) {
+        public void containerDeleted(ContainerEvent e) {
             didNotify = Boolean.TRUE;
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
             assertNull(NAME + " [CONTAINER IS NOT NULL]", e.getContainer());
             assertNull(NAME + " [USER IS NOT NULL]", e.getUser());
         }
-        public void containerReactivated(final ContainerEvent e) {
+        public void containerReactivated(ContainerEvent e) {
             fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");
         }
-        public void documentAdded(final ContainerEvent e) {
+        public void documentAdded(ContainerEvent e) {
             fail(NAME + " [DOCUMENT ADDED EVENT WAS FIRED]");
         }
         public void documentRemoved(final ContainerEvent e) {

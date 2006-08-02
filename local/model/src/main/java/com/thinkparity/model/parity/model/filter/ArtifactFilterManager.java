@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 
 /**
  * <b>Title:</b>thinkParity Model Artifact Filter Manager<br>
@@ -37,10 +38,23 @@ public class ArtifactFilterManager {
 		SINGLETON.doFilter(list, filter);
 	}
 
+    /**
+     * Filter a list of artifact versions.
+     * 
+     * @param list
+     *            The list of artifact versions.
+     * @param filter
+     *            An artifact version filter.
+     */
+    public static void filterVersions(final List<? extends ArtifactVersion> list,
+            final Filter<? super ArtifactVersion> filter) {
+        SINGLETON.doFilterVersions(list, filter);
+    }
+
 	/** Create ArtifactFilterManager. */
 	private ArtifactFilterManager() { super(); }
 
-	/**
+    /**
      * Filter a list of artifacts.
      * 
      * @param list
@@ -48,12 +62,29 @@ public class ArtifactFilterManager {
      * @param filter
      *            The artifact filter.
      */
-	private void doFilter(final List<? extends Artifact> list,
-			final Filter<? super Artifact> filter) {
+    private void doFilter(final List<? extends Artifact> list,
+            final Filter<? super Artifact> filter) {
         Artifact artifact;
-		for(final Iterator<? extends Artifact> i = list.iterator(); i.hasNext();) {
+        for(final Iterator<? extends Artifact> i = list.iterator(); i.hasNext();) {
             artifact = i.next();
-			if(filter.doFilter(artifact)) { i.remove(); }
-		}
-	}
+            if(filter.doFilter(artifact)) { i.remove(); }
+        }
+    }
+
+    /**
+     * Filter a list of artifacts.
+     * 
+     * @param list
+     *            The list of artifacts.
+     * @param filter
+     *            The artifact filter.
+     */
+    private void doFilterVersions(final List<? extends ArtifactVersion> list,
+            final Filter<? super ArtifactVersion> filter) {
+        ArtifactVersion artifactVersion;
+        for(final Iterator<? extends ArtifactVersion> i = list.iterator(); i.hasNext();) {
+            artifactVersion = i.next();
+            if(filter.doFilter(artifactVersion)) { i.remove(); }
+        }
+    }
 }

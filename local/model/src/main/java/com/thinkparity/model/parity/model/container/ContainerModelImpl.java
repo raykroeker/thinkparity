@@ -935,6 +935,9 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         logger.debug(comparator);
         logger.debug(filter);
+        final List<ContainerVersion> versions = containerIO.readVersions(containerId);
+        ArtifactFilterManager.filterVersions(versions, filter);
+        ModelSorter.sortContainerVersions(versions, comparator);
         return containerIO.readVersions(containerId);
     }
 

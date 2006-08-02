@@ -11,6 +11,7 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
@@ -31,6 +32,11 @@ public class ModelSorter {
 
     public static void sortContainers(final List<Container> list,
             final Comparator<Artifact> comparator) {
+        Collections.sort(list, comparator);
+    }
+
+    public static void sortContainerVersions(final List<ContainerVersion> list,
+            final Comparator<ArtifactVersion> comparator) {
         Collections.sort(list, comparator);
     }
 

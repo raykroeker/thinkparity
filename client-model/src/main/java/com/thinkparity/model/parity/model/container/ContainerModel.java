@@ -12,6 +12,7 @@ import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
@@ -421,6 +422,71 @@ public class ContainerModel {
     public ContainerVersion readVersion(final Long containerId,
             final Long versionId) {
         synchronized(implLock) { return impl.readVersion(containerId, versionId); }
+    }
+
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A list of versions.
+     */
+    public List<ContainerVersion> readVersions(final Long containerId) {
+        synchronized(getImplLock()) {
+            return getImpl().readVersions(containerId);
+        }
+    }
+
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A container version comparator.
+     * @return A list of versions.
+     */
+    public List<ContainerVersion> readVersions(final Long containerId,
+            final Comparator<ArtifactVersion> comparator) {
+        synchronized(getImplLock()) {
+            return getImpl().readVersions(containerId, comparator);
+        }
+    }
+
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A container version comparator.
+     * @param filter
+     *            A container version filter.
+     * @return A list of versions.
+     */
+    public List<ContainerVersion> readVersions(final Long containerId,
+            final Comparator<ArtifactVersion> comparator,
+            final Filter<? super ArtifactVersion> filter) {
+        synchronized(getImplLock()) {
+            return getImpl().readVersions(containerId, comparator, filter);
+        }
+    }
+
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param filter
+     *            A container version filter.
+     * 
+     * @return A list of versions.
+     */
+    public List<ContainerVersion> readVersions(final Long containerId,
+            final Filter<? super ArtifactVersion> filter) {
+        synchronized(getImplLock()) {
+            return getImpl().readVersions(containerId, filter);
+        }
     }
 
     /**

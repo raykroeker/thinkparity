@@ -21,6 +21,7 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
@@ -96,6 +97,12 @@ class ContainerModelImpl extends AbstractModelImpl {
     /** A default key request filter. */
     private final Filter<? super KeyRequest> defaultKeyRequestFilter;
 
+    /** The default container version comparator. */
+    private final Comparator<ArtifactVersion> defaultVersionComparator;
+
+    /** The default container version filter. */
+    private final Filter<? super ArtifactVersion> defaultVersionFilter;
+
     /** A container index writer. */
     private final ContainerIndexor indexor;
 
@@ -123,9 +130,28 @@ class ContainerModelImpl extends AbstractModelImpl {
         this.defaultHistoryFilter = new com.thinkparity.model.parity.model.filter.history.DefaultFilter();
         this.defaultKeyRequestComparator = null;
         this.defaultKeyRequestFilter = null;
+        this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
+        this.defaultVersionFilter = new com.thinkparity.model.parity.model.filter.container.DefaultVersionFilter();
         this.indexor = new ContainerIndexor(getContext());
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
         this.remoteEventGenerator = new ContainerEventGenerator(Source.REMOTE);
+    }
+
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A container version comparator.
+     * @return A list of versions.
+     */
+    public List<ContainerVersion> readVersions(final Long containerId,
+            final Comparator<ArtifactVersion> comparator) {
+        logger.info(getApiId("[READ VERSIONS]"));
+        logger.debug(containerId);
+        logger.debug(comparator);
+        return readVersions(containerId, comparator, defaultVersionFilter);
     }
 
     /**
@@ -846,6 +872,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         return containerIO.readLatestVersion(containerId);
     }
 
+
     /**
      * Read the team for the container.
      * 
@@ -887,9 +914,47 @@ class ContainerModelImpl extends AbstractModelImpl {
     List<ContainerVersion> readVersions(final Long containerId) {
         logger.info(getApiId("[READ VERSIONS]"));
         logger.debug(containerId);
+        return readVersions(containerId, defaultVersionComparator);
+    }
+   
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A container version comparator.
+     * @param filter
+     *            A container version filter.
+     * @return A list of versions.
+     */
+    List<ContainerVersion> readVersions(final Long containerId,
+            final Comparator<ArtifactVersion> comparator,
+            final Filter<? super ArtifactVersion> filter) {
+        logger.info(getApiId("[READ VERSIONS]"));
+        logger.debug(containerId);
+        logger.debug(comparator);
+        logger.debug(filter);
         return containerIO.readVersions(containerId);
     }
 
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param filter
+     *            A container version filter.
+     * 
+     * @return A list of versions.
+     */
+    List<ContainerVersion> readVersions(final Long containerId,
+            final Filter<? super ArtifactVersion> filter) {
+        logger.info(getApiId("[READ VERSIONS]"));
+        logger.debug(containerId);
+        logger.debug(filter);
+        return readVersions(containerId, defaultVersionComparator, filter);
+    }
 
     /**
      * Remove a document from a container.

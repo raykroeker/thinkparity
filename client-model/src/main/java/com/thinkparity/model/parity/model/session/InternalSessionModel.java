@@ -3,8 +3,10 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,6 +17,7 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -288,4 +291,21 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
+    /**
+     * Send a container to a list of users.
+     * 
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents.
+     * @param users
+     *            A list of users.
+     */
+    public void send(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<User> users) {
+        synchronized(getImplLock()) {
+            getImpl().send(container, documents, users);
+        }
+    }
 }

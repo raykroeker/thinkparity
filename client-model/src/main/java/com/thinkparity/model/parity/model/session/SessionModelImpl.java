@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.session;
 
+import java.io.InputStream;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -935,6 +936,32 @@ class SessionModelImpl extends AbstractModelImpl {
 			SessionModelImpl.sessionListeners.remove(sessionListener);
 		}
 	}
+
+    /**
+     * Send a container to a list of users.
+     * 
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents.
+     * @param users
+     *            A list of users.
+     */
+    void send(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<User> users) {
+        logger.info(getApiId("[SEND]"));
+        logger.debug(container);
+        logger.debug(documents);
+        logger.debug(users);
+        synchronized(xmppHelper) {
+            try { xmppHelper.send(container, documents, users); }
+            catch(final SmackException sx) {
+                logger.error(getApiId("[SEND]"), sx);
+                throw ParityErrorTranslator.translateUnchecked(sx);
+            }
+        }
+    }
 
 	/**
 	 * Send a particular revision to a list of users. The version is obtained

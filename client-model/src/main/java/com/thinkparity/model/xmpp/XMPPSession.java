@@ -4,12 +4,15 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.KeyResponse;
@@ -284,6 +287,19 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void requestArtifactKey(final UUID uniqueId) throws SmackException;
+
+    /**
+     * Send a container version.
+     * 
+     * @param version
+     *            A container version.
+     * @param users
+     *            A list of users.
+     * @throws SmackException
+     */
+    public void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final List<User> users) throws SmackException;
 
     /**
      * Execute a remote method call to reactivate a document.

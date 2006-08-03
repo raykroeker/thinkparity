@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb;
 
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class Session {
 	 */
 	protected final Logger logger;
 
-	/**
+    /**
 	 * The sql connection.
 	 * 
 	 */
@@ -78,7 +79,7 @@ public class Session {
 		this.id = JVMUniqueId.nextId();
 	}
 
-    public void close() {
+	public void close() {
 		assertOpen("Cannot close a closed session.");
 		try {
 			close(preparedStatement, resultSet);
@@ -88,7 +89,7 @@ public class Session {
 		SessionManager.close(this);
 	}
 
-	public void commit() {
+    public void commit() {
 		assertOpen("commit()");
 		try { connection.commit(); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
@@ -155,7 +156,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public ContainerDraftArtifactState getArtifactStateFromInteger(
+	public ContainerDraftArtifactState getArtifactStateFromInteger(
             final String columnName) {
         assertOpen("getArtifactStateFromInteger(String)");
         assertOpenResult("getArtifactStateFromInteger(String)");
@@ -164,16 +165,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-    public TeamMemberState getTeamMemberStateFromInteger(
-            final String columnName) {
-        assertOpen("getArtifactTeamMemberStateFromInteger(String)");
-        assertOpenResult("getArtifactTeamMemberStateFromInteger(String)");
-        debugSql(columnName);
-        try { return TeamMemberState.fromId(resultSet.getInt(columnName)); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-    }
-
-	public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
+    public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
 		assertOpen("getAuditEventTypeFromInteger(String)");
 		assertOpenResult("getAuditEventTypeFromInteger(String)");
 		debugSql(columnName);
@@ -181,7 +173,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public byte[] getBytes(final String columnName) {
+    public byte[] getBytes(final String columnName) {
 		assertOpen("getBytes(String)");
 		assertOpenResult("getBytes(String)");
 		try { return resultSet.getBytes(columnName); }
@@ -226,7 +218,7 @@ public class Session {
 	 */
 	public JVMUniqueId getId() { return id; }
 
-    public Long getIdentity() {
+	public Long getIdentity() {
 		ResultSet resultSet = null;
 		try {
 			resultSet = list("CALL IDENTITY()");
@@ -237,7 +229,23 @@ public class Session {
 		finally { close(resultSet); }
 	}
 
-	public Integer getInteger(final String columnName) {
+	/**
+     * Obtain the input stream from the result.
+     * 
+     * @param columnName
+     *            The column name.
+     * @return An input stream.
+     * @see ResultSet#getBinaryStream(String)
+     */
+    public InputStream getInputStream(final String columnName) {
+        assertOpen("[GET INPUT STREAM]");
+        assertOpenResult("[GET INPUT STREAM]");
+        debugSql(columnName);
+        try { return resultSet.getBinaryStream(columnName); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
+    public Integer getInteger(final String columnName) {
         assertOpen("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         assertOpenResult("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         debugSql(columnName);
@@ -306,6 +314,15 @@ public class Session {
 		try { return SystemMessageType.fromId(resultSet.getInt(columnName)); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
+
+	public TeamMemberState getTeamMemberStateFromInteger(
+            final String columnName) {
+        assertOpen("getArtifactTeamMemberStateFromInteger(String)");
+        assertOpenResult("getArtifactTeamMemberStateFromInteger(String)");
+        debugSql(columnName);
+        try { return TeamMemberState.fromId(resultSet.getInt(columnName)); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
 
 	public ArtifactType getTypeFromInteger(final String columnName) {
 		assertOpen("getTypeFromInteger(String)");
@@ -436,19 +453,19 @@ public class Session {
 	}
 
     public void setStateAsInteger(final Integer index,
-            final TeamMemberState state) {
-        assertOpen("setStateAsInteger(Integer,ArtifactTeamMemberState)");
-        assertPreparedStatement("setStateAsInteger(Integer,ArtifactTeamMemberState)");
-        debugSql(null == state ? null : state.toString(), index);
+            final ContainerDraftArtifactState state) {
+        assertOpen("setStateAsInteger(Integer,ContainerDraftArtifactState)");
+        assertPreparedStatement("setStateAsInteger(Integer,ContainerDraftArtifactState)");
+        debugSql(null == state ? null : state.getId(), index);
         try { preparedStatement.setInt(index, state.getId()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
 	public void setStateAsInteger(final Integer index,
-            final ContainerDraftArtifactState state) {
-        assertOpen("setStateAsInteger(Integer,ContainerDraftArtifactState)");
-        assertPreparedStatement("setStateAsInteger(Integer,ContainerDraftArtifactState)");
-        debugSql(null == state ? null : state.getId(), index);
+            final TeamMemberState state) {
+        assertOpen("setStateAsInteger(Integer,ArtifactTeamMemberState)");
+        assertPreparedStatement("setStateAsInteger(Integer,ArtifactTeamMemberState)");
+        debugSql(null == state ? null : state.toString(), index);
         try { preparedStatement.setInt(index, state.getId()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
@@ -462,18 +479,18 @@ public class Session {
 	}
 
 	public void setStateAsString(final Integer index,
-            final TeamMemberState state) {
-        assertOpen("setStateAsString(Integer,ArtifactTeamMemberState)");
-        assertPreparedStatement("setStateAsString(Integer,ArtifactTeamMemberState)");
+            final ContainerDraftArtifactState state) {
+        assertOpen("setStateAsString(Integer,ContainerDraftArtifactState)");
+        assertPreparedStatement("ContainerDraftArtifactState(Integer,ContainerDraftArtifactState)");
         debugSql(null == state ? null : state.toString(), index);
         try { preparedStatement.setString(index, state.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
 	public void setStateAsString(final Integer index,
-            final ContainerDraftArtifactState state) {
-        assertOpen("setStateAsString(Integer,ContainerDraftArtifactState)");
-        assertPreparedStatement("ContainerDraftArtifactState(Integer,ContainerDraftArtifactState)");
+            final TeamMemberState state) {
+        assertOpen("setStateAsString(Integer,ArtifactTeamMemberState)");
+        assertPreparedStatement("setStateAsString(Integer,ArtifactTeamMemberState)");
         debugSql(null == state ? null : state.toString(), index);
         try { preparedStatement.setString(index, state.toString()); }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }

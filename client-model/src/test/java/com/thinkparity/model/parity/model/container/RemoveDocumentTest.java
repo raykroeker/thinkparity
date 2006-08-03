@@ -37,7 +37,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
         assertTrue(NAME + " [REMOVE DOCUMENT EVENT NOT FIRED]", datum.didNotify);
         final Container container = datum.containerModel.read(datum.container.getId());
         assertNotNull(NAME + " [CONTAINER IS NULL]", container);
-        final ContainerDraft draft = container.getDraft();
+        final ContainerDraft draft = container.getLocalDraft();
         assertNotNull(NAME + " [CONTAINER DRAFT IS NULL]", draft);
         final List<Document> documents = draft.getDocuments();
         assertNotNull(NAME + " [CONTAINER DRAFT DOCUMENTS ARE NULL]", documents);

@@ -3,12 +3,8 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.io.InputStream;
+import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -36,7 +32,6 @@ import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContainerIOHandler;
 import com.thinkparity.model.parity.model.session.Credentials;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
@@ -138,36 +133,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read a container draft.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container draft.
-     */
-    public ContainerDraft readDraft(final Long containerId) {
-        logger.info(getApiId("[READ DRAFT]"));
-        logger.debug(containerId);
-        return containerIO.readDraft(containerId);
-    }
-
-    /**
-     * Read a list of versions for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A container version comparator.
-     * @return A list of versions.
-     */
-    public List<ContainerVersion> readVersions(final Long containerId,
-            final Comparator<ArtifactVersion> comparator) {
-        logger.info(getApiId("[READ VERSIONS]"));
-        logger.debug(containerId);
-        logger.debug(comparator);
-        return readVersions(containerId, comparator, defaultVersionFilter);
-    }
-
-    /**
      * Accept a key request made by a user.
      * 
      * @param keyRequestId
@@ -256,9 +221,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // local create
         containerIO.create(container);
 
-        // create version
-        createVersion(container);
-
         // create remote info
         final InternalArtifactModel iAModel = getInternalArtifactModel();
         iAModel.createRemoteInfo(container.getId(), currentUserId(), currentDateTime);
@@ -272,7 +234,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // fire event
         final Container postCreation = read(container.getId());
         notifyContainerCreated(postCreation, localEventGenerator);
-
         return postCreation;
     }
 
@@ -634,6 +595,19 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read a container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container draft.
+     */
+    ContainerDraft readDraft(final Long containerId) {
+        logger.info(getApiId("[READ DRAFT]"));
+        logger.debug(containerId);
+        return containerIO.readDraft(containerId);
+    }
+
+    /**
      * Read the container history.
      * 
      * @param containerId
@@ -789,7 +763,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         return containerIO.readLatestVersion(containerId);
     }
 
-
     /**
      * Read the team for the container.
      * 
@@ -802,6 +775,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         return getInternalArtifactModel().readTeam2(containerId);
     }
+
 
     /**
      * Read a container version.
@@ -830,6 +804,23 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ VERSIONS]"));
         logger.debug(containerId);
         return readVersions(containerId, defaultVersionComparator);
+    }
+
+    /**
+     * Read a list of versions for the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param comparator
+     *            A container version comparator.
+     * @return A list of versions.
+     */
+    List<ContainerVersion> readVersions(final Long containerId,
+            final Comparator<ArtifactVersion> comparator) {
+        logger.info(getApiId("[READ VERSIONS]"));
+        logger.debug(containerId);
+        logger.debug(comparator);
+        return readVersions(containerId, comparator, defaultVersionFilter);
     }
    
     /**
@@ -1452,32 +1443,20 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private void send(final ContainerVersion version, final List<User> users)
             throws ParityException {
-        for(final User user : users) { send(version, user); }
-    }
-
-    /**
-     * Send a container version to a user.
-     * 
-     * @param version
-     *            A container version.
-     * @param user
-     *            A user.
-     * @throws ParityException
-     */
-    private void send(final ContainerVersion version, final User user)
-            throws ParityException {
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final InternalSessionModel sModel = getInternalSessionModel();
-        final List<Document> documents = containerIO.readDocuments(
-                version.getArtifactId(), version.getVersionId());
-        DocumentVersion latestVersion;
-        final List<User> users = new LinkedList<User>();
+        final InternalDocumentModel documentModel = getInternalDocumentModel();
+        final Map<DocumentVersion, InputStream> documentVersions =
+            new HashMap<DocumentVersion, InputStream>();
+        final List<Document> documents =
+                readDocuments(version.getArtifactId(), version.getVersionId());
+        DocumentVersion documentVersion;
         for(final Document document : documents) {
-            latestVersion = dModel.readLatestVersion(document.getId());
-            users.clear();
-            users.add(user);
-            sModel.send(users, document.getId(), latestVersion.getVersionId());
+            documentVersion = documentModel.readLatestVersion(document.getId());
+            documentVersions.put(documentVersion,
+                    documentModel.openStream(
+                            documentVersion.getArtifactId(),
+                            documentVersion.getVersionId()));
         }
+        getInternalSessionModel().send(version, documentVersions, users);
     }
 
     /**

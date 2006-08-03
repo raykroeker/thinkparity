@@ -79,6 +79,17 @@ public final class Constants {
     }
 
     public static final class Xml {
+        public static final class Artifact {
+            public static final String BYTES = "bytes";
+            public static final String NAME = "name";
+            public static final String TYPE = "type";
+            public static final String UNIQUE_ID = "uniqueId";
+            public static final String VERSION_ID = "versionId";
+        }
+        public static final class Container {
+            public static final String ARTIFACT_COUNT = "artifactCount";
+            public static final String ARTIFACT_INDEX = "artifactIndex";
+        }
         public static final class EventHandler {
             public static final class Artifact {
                 public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:teammemberadded";
@@ -88,12 +99,6 @@ public final class Constants {
             public static final class Artifact {
                 public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
             }
-        }
-        public static final class Artifact {
-            public static final String BYTES = "bytes";
-            public static final String NAME = "name";
-            public static final String UNIQUE_ID = "uniqueId";
-            public static final String VERSION_ID = "versionId";
         }
         public static final class User {
             public static final String JABBER_ID = "jabberId";

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.document;
 
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -119,6 +120,22 @@ public class InternalDocumentModel extends DocumentModel implements
 	}
 
     /**
+     * Open an input stream to read a document version. Note: It is a good idea
+     * to buffer the input stream.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A version id.
+     * @return An input stream.
+     */
+	public InputStream openStream(final Long documentId, final Long versionId) {
+	    synchronized(getImplLock()) {
+            return getImpl().openStream(documentId, versionId);
+        }
+    }
+
+	/**
      * Read a document.
      * 
      * @param documentId
@@ -142,7 +159,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-	/**
+    /**
 	 * Use the document model to receive a document from another parity user.
 	 * 
 	 * @param xmppDocument

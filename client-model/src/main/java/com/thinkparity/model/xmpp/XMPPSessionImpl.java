@@ -4,6 +4,8 @@
 package com.thinkparity.model.xmpp;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import org.apache.log4j.Logger;
@@ -26,6 +28,7 @@ import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
@@ -684,6 +687,16 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             final UUID uniqueId, final Long versionId, final String name,
             final byte[] bytes) throws SmackException {
         xmppDocument.sendReactivate(team, uniqueId, versionId, name, bytes);
+    }
+
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#send(com.thinkparity.model.parity.model.container.ContainerVersion, java.util.List)
+     */
+    public void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final List<User> users) throws SmackException {
+        try { xmppContainer.send(version, documentVersions, users); }
+        catch(final IOException iox) { throw XMPPErrorTranslator.translate(iox); }
     }
 
     /**

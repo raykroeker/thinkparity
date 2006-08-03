@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.io.IOException;
+
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.XMPPError;
 
@@ -17,28 +19,12 @@ import com.thinkparity.model.smack.SmackException;
  */
 public class XMPPErrorTranslator {
 
-	/**
-	 * Singleton instance.
-	 * @see XMPPErrorTranslator#singletonLock
-	 */
-	private static final XMPPErrorTranslator singleton;
+	/** Singleton instance. */
+	private static final XMPPErrorTranslator SINGLETON;
 
-	/**
-	 * Singleton synchronization lock.
-	 * @see XMPPErrorTranslator#singleton
-	 */
-	private static final Object singletonLock;
+	static { SINGLETON = new XMPPErrorTranslator(); }
 
-	static {
-		singleton = new XMPPErrorTranslator();
-		singletonLock = new Object();
-	}
-
-	static SmackException translate(final XMPPError xmppError) {
-		synchronized(singletonLock) { return singleton.doTranslate(xmppError); }
-	}
-
-	/**
+    /**
 	 * Create a new smack interface error based upon a java interrupted error.
 	 * 
 	 * @param ix
@@ -46,7 +32,15 @@ public class XMPPErrorTranslator {
 	 * @return The smack interface error.
 	 */
 	static SmackException translate(final InterruptedException ix) {
-		synchronized(singletonLock) { return singleton.translateImpl(ix); }
+		return SINGLETON.doTranslate(ix);
+	}
+
+	static SmackException translate(final IOException iox) {
+        return SINGLETON.doTranslate(iox);
+    }
+
+	static SmackException translate(final XMPPError xmppError) {
+        return SINGLETON.doTranslate(xmppError);
 	}
 
 	/**
@@ -57,7 +51,7 @@ public class XMPPErrorTranslator {
 	 * @return The smack interface error.
 	 */
 	static SmackException translate(final XMPPException xmppx) {
-		synchronized(singletonLock) { return singleton.translateImpl(xmppx); }
+        return SINGLETON.doTranslate(xmppx);
 	}
 
 	/**
@@ -66,25 +60,14 @@ public class XMPPErrorTranslator {
 	private XMPPErrorTranslator() { super(); }
 
 	/**
-	 * Create a new smack interface error based upon a java interrupted error.
-	 * 
-	 * @param ix
-	 *            The java interrupted error.
-	 * @return The smack interface error.
-	 */
-	private SmackException translateImpl(final InterruptedException ix) {
-		return new SmackException(ix);
-	}
-
-	/**
 	 * Create a new smack interface error based upon an xmppp error.
 	 * 
 	 * @param xmppx
 	 *            The xmpp error.
 	 * @return The smack interface error.
 	 */
-	private SmackException translateImpl(final XMPPException xmppx) {
-		return new SmackException(xmppx);
+	private SmackException doTranslate(final Exception x) {
+		return new SmackException(x);
 	}
 
 	private SmackException doTranslate(final XMPPError xmppError) {

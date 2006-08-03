@@ -713,6 +713,23 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+     * Open an input stream to read a document version. Note: It is a good idea
+     * to buffer the input stream.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A version id.
+     * @return An input stream.
+     */
+    InputStream openStream(final Long documentId, final Long versionId) {
+        logger.info(getApiId("[OPEN STREAM]"));
+        logger.debug(documentId);
+        logger.debug(versionId);
+        return documentIO.openStream(documentId, versionId);
+    }
+
+	/**
 	 * Open a document version. Extract the version's content and open it.
 	 * 
 	 * @param documentId
@@ -783,7 +800,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 getVersion(documentId, version.getVersionId()), localEventGen);
     }
 
-	/**
+    /**
      * Reactivate a document.
      * 
      * @param documentId
@@ -947,7 +964,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Receive an xmpp document. If no local document exists; create it; then
 	 * insert the xmpp document as a version of the local document.
 	 * 
@@ -1123,7 +1140,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyKeyRequested(readUser(requestedBy), d, remoteEventGen);
 	}
 
-	/**
+    /**
 	 * Unlock a document.
 	 * 
 	 * @param documentId
@@ -1324,7 +1341,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.delete(document.getId());
     }
 
-    /**
+	/**
      * Determine if an artifact exists.
      * 
      * @param uniqueId
@@ -1358,7 +1375,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return new LocalFile(workspace, document, version);
 	}
 
-	/**
+    /**
 	 * Insert a version for a document.
 	 * @param documentId The document.
 	 * @param version The version to insert.
@@ -1391,7 +1408,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Check and see if this version is the latest version.
 	 * 
 	 * @param version
@@ -1404,7 +1421,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return latestLocalVersion.getVersionId().equals(version.getVersionId());
 	}
 
-	/**
+    /**
      * Fire confirmation received.
      *
      * @param document
@@ -1422,7 +1439,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
 	 * Fire document created.
 	 * 
 	 * @param document
@@ -1438,7 +1455,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Fire document created.
      * 
      * @param user
@@ -1511,7 +1528,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
 	 * Fire document updated.
 	 * 
 	 * @param document
@@ -1546,7 +1563,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Fire key request declined.
      * 
      * @param user
@@ -1584,7 +1601,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Read the latest document version content.
      * 
      * @param documentId
@@ -1597,7 +1614,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         return documentIO.readLatestVersionContent(documentId);
     }
 
-	private User readUser(final JabberId jabberId) throws ParityException {
+    private User readUser(final JabberId jabberId) throws ParityException {
         return getInternalSessionModel().readUser(jabberId);
     }
 

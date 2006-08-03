@@ -27,6 +27,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
@@ -102,6 +103,15 @@ public class XMPPMethod extends IQ {
         return childElementXML.toString();
     }
 
+    public final void setDocumentVersionParameters(final String listname,
+            final String name, final List<DocumentVersionContent> values) {
+        final List<Parameter> parameters = new ArrayList<Parameter>(values.size());
+        for(final DocumentVersionContent value : values) {
+            parameters.add(new Parameter(name, DocumentVersionContent.class, value));
+        }
+        this.parameters.add(new Parameter(listname, List.class, parameters));
+    }
+
     /**
      * Set a list of jabber id parameters.
      * 
@@ -119,15 +129,6 @@ public class XMPPMethod extends IQ {
             parameters.add(new Parameter(name, JabberId.class, value));
         }
         this.parameters.add(new Parameter(listName, List.class, parameters));
-    }
-
-    public final void setDocumentVersionParameters(final String listname,
-            final String name, final List<DocumentVersionContent> values) {
-        final List<Parameter> parameters = new ArrayList<Parameter>(values.size());
-        for(final DocumentVersionContent value : values) {
-            parameters.add(new Parameter(name, DocumentVersionContent.class, value));
-        }
-        this.parameters.add(new Parameter(listname, List.class, parameters));
     }
 
     public final void setLibraryParameters(final String listName, final String name,
@@ -148,12 +149,20 @@ public class XMPPMethod extends IQ {
         this.parameters.add(new Parameter(listName, List.class, parameters));
     }
 
+    public final void setParameter(final String name, final ArtifactType value) {
+        parameters.add(new Parameter(name, ArtifactType.class, value));
+    }
+
     public final void setParameter(final String name, final byte[] value) {
         parameters.add(new Parameter(name, byte[].class, value));
     }
 
     public final void setParameter(final String name, final Calendar value) {
         parameters.add(new Parameter(name, Calendar.class, value));
+    }
+
+    public final void setParameter(final String name, final Integer value) {
+        parameters.add(new Parameter(name, Integer.class, value));
     }
 
     public final void setParameter(final String name, final JabberId value) {

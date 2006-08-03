@@ -4,14 +4,17 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.smack.SmackException;
@@ -337,6 +340,23 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+     * Send a container.
+     * 
+     * @param version
+     *            A container version.
+     * @param documentVersions
+     *            A map of document versions to their content.
+     * @param users
+     *            A list of users.
+     * @throws SmackException
+     */
+    void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final List<User> users) throws SmackException {
+        xmppSession.send(version, documentVersions, users);
+    }
+
+    /**
 	 * Send a close packet to the parity server.
 	 * 
 	 * @param artifactUniqueId

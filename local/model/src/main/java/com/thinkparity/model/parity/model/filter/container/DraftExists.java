@@ -30,6 +30,6 @@ public class DraftExists extends AbstractFilter<Container> {
 	 * 
 	 */
 	public Boolean doFilter(final Container o) {
-		return null == o.getDraft();
+		return null == o.getLocalDraft();
 	}
 }

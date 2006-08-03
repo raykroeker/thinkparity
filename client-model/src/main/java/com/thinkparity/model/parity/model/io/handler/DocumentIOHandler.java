@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.io.handler;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,7 +26,7 @@ public interface DocumentIOHandler extends IOHandler {
      */
 	public void create(final Document document);
 
-	/**
+    /**
      * Create a new document version.
      * 
      * @param version
@@ -57,13 +58,24 @@ public interface DocumentIOHandler extends IOHandler {
 	public Document get(final Long documentId);
 
 	public Document get(final UUID documentUniqueId);
-	
-    public DocumentVersion getVersion(final Long documentId,
-			final Long versionId);
 
+	public DocumentVersion getVersion(final Long documentId,
+			final Long versionId);
+	
     public List<Document> list();
 
-	public List<DocumentVersion> listVersions(final Long documentId);
+    public List<DocumentVersion> listVersions(final Long documentId);
+
+	/**
+     * Open an input stream to the document's content.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A version id.
+     * @return An input stream.
+     */
+    public InputStream openStream(final Long documentId, final Long versionId);
 
     /**
      * Read the latest version for a document.

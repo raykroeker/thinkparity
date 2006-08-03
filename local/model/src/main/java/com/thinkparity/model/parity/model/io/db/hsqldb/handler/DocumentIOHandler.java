@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -36,12 +37,12 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("values (?,?,?,?,?,?) ")
 		.toString();
 
-	private static final String SQL_DELETE =
+    private static final String SQL_DELETE =
 		new StringBuffer("delete from DOCUMENT ")
 		.append("where DOCUMENT_ID=?")
 		.toString();
 
-	private static final String SQL_DELETE_VERSION =
+    private static final String SQL_DELETE_VERSION =
 		new StringBuffer("delete from DOCUMENT_VERSION ")
 		.append("where DOCUMENT_ID=? and DOCUMENT_VERSION_ID=?")
 		.toString();
@@ -69,7 +70,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where A.ARTIFACT_UNIQUE_ID=?")
 		.toString();
 
-    /** Sql to read a document version. */
+	/** Sql to read a document version. */
     private static final String SQL_GET_VERSION =
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
@@ -92,7 +93,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("order by A.ARTIFACT_ID asc")
 		.toString();
 
-	private static final String SQL_LIST_VERSIONS =
+    private static final String SQL_LIST_VERSIONS =
 		new StringBuffer("select DOCUMENT_ID,DOCUMENT_VERSION_ID,")
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CONTENT_COMPRESSION,CONTENT_ENCODING,")
@@ -103,6 +104,13 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where DV.DOCUMENT_ID=? ")
 		.append("order by DV.DOCUMENT_VERSION_ID asc")
 		.toString();
+
+	/** Sql to open a stream to the document version's content. */
+    private static final String SQL_OPEN_STREAM =
+            new StringBuffer("select DV.CONTENT ")
+            .append("from DOCUMENT_VERSION DV ")
+            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
+            .toString();
 
 	/** Sql to read a document version content. */
     private static final String SQL_READ_VERSION_CONTENT =
@@ -117,13 +125,13 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
             .toString();
 
-    private static final String SQL_UPDATE =
+	private static final String SQL_UPDATE =
 		new StringBuffer("update ARTIFACT ")
 		.append("set UPDATED_ON=?,ARTIFACT_NAME=?,ARTIFACT_STATE_ID=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-	private static final String SQL_UPDATE_CONTENT =
+    private static final String SQL_UPDATE_CONTENT =
 		new StringBuffer("update DOCUMENT ")
 		.append("set CONTENT=?,CONTENT_ENCODING=?,CONTENT_CHECKSUM=?,")
 		.append("CONTENT_COMPRESSION=? ")
@@ -160,7 +168,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
         return getApiId(api).append(" ").append(error).toString();
     }
 
-    /**
+	/**
 	 * Generic artifact io.
 	 * 
 	 */
@@ -175,7 +183,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		this.artifactIO = new ArtifactIOHandler();
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#create(com.thinkparity.model.parity.model.document.Document)
      * 
      */
@@ -374,7 +382,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		finally { session.close(); }
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#list()
 	 */
 	public List<Document> list() {
@@ -414,6 +422,22 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 		}
 		finally { session.close(); }
 	}
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#openStream(java.lang.Long, java.lang.Long)
+     */
+    public InputStream openStream(final Long documentId, final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_OPEN_STREAM);
+            session.setLong(1, documentId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            if(session.nextResult()) { return session.getInputStream(""); }
+            else { return null; }
+        }
+        finally { session.close(); }
+    }
 
 	/**
      * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#readLatestVersion(java.lang.Long)

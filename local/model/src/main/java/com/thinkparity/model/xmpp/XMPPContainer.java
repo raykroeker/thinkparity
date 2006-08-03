@@ -3,11 +3,9 @@
  */
 package com.thinkparity.model.xmpp;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.UUID;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -22,12 +20,16 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.StreamUtil;
 
+import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
+import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.model.xmpp.events.XMPPContainerListener;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity XMPP Container <br>
@@ -120,6 +122,17 @@ class XMPPContainer {
         });
     }
 
+    /**
+     * Obtain an api id.
+     * 
+     * @param api
+     *            An api.
+     * @return An api id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return new StringBuffer("[XMPP] [CONTAINER] ").append(api);
+    }
+
     /** Core xmpp functionality. */
     private final XMPPCore core;
 
@@ -147,7 +160,6 @@ class XMPPContainer {
             LISTENERS.add(l);
         }
     }
-
     /**
      * Add the requisite packet LISTENERS to the xmpp connection.
      * 
@@ -163,6 +175,7 @@ class XMPPContainer {
                 },
                 new PacketTypeFilter(HandleReactivateIQ.class));
     }
+
     /**
      * Call the remote artifact:reactivate method.
      * 
@@ -190,6 +203,37 @@ class XMPPContainer {
         method.setParameter("reactivatedOn", reactivatedOn);
         method.setDocumentVersionParameters("documentVersions", "documentVersion", documentVersions);
         method.execute(core.getConnection());
+    }
+
+    /**
+     * Send a container version.
+     * 
+     * @param version
+     *            A version.
+     * @param users
+     *            A list of users.
+     */
+    void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final List<User> users) throws IOException {
+        logger.info(getApiId("[SEND]"));
+        logger.debug(version);
+        logger.debug(users);
+        final XMPPMethod method = new XMPPMethod("container:sendversion");
+        method.setParameter(Xml.Artifact.UNIQUE_ID, version.getArtifactUniqueId());
+        method.setParameter(Xml.Container.ARTIFACT_COUNT, documentVersions.keySet().size());
+
+        final Iterator<DocumentVersion> i = documentVersions.keySet().iterator();
+        DocumentVersion documentVersion;
+        int documentVersionIndex = 0;
+        while(i.hasNext()) {
+            documentVersion = i.next();
+            method.setParameter(Xml.Container.ARTIFACT_INDEX, documentVersionIndex++);
+            method.setParameter(Xml.Artifact.TYPE, documentVersion.getArtifactType());
+            method.setParameter(Xml.Artifact.BYTES,
+                    StreamUtil.read(documentVersions.get(documentVersion)));
+            method.execute(core.getConnection());
+        }
     }
 
     /**

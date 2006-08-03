@@ -12,8 +12,8 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author rob_masako@shaw.ca
@@ -38,7 +38,7 @@ public class ManageTeamProvider extends CompositeFlatContentProvider {
         this.teamProvider = new FlatContentProvider(profile) {
             public Object[] getElements(final Object input) {
                 final Long containerId = (Long) input;
-                return containerModel.readTeam(containerId).toArray(new User[] {});
+                return containerModel.readTeam(containerId).toArray(new TeamMember[] {});
             }              
         };
         this.contactsProvider = new FlatContentProvider(profile) {

@@ -6,7 +6,6 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.container;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,13 +14,13 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.application.browser.display.avatar.container.NewContainerDialogue.DataKey;
 import com.thinkparity.browser.application.browser.display.avatar.session.ContactCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatContentProvider;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -74,6 +73,7 @@ public class ManageTeam extends Avatar {
             loadContacts(contactsModel, getContacts());
             teamModel.clear();
             loadTeamMembers(teamModel, getTeamMembers());
+            removeTeamMembersFromContacts();
         }
     }
     
@@ -92,9 +92,9 @@ public class ManageTeam extends Avatar {
      * 
      * @return The list of team members.
      */
-    private User[] getTeamMembers() {
+    private TeamMember[] getTeamMembers() {
         final Long containerId = (Long) ((Data) input).get(DataKey.CONTAINER_ID);
-        return (User[]) ((CompositeFlatContentProvider) contentProvider)
+        return (TeamMember[]) ((CompositeFlatContentProvider) contentProvider)
                  .getElements(1,containerId);
     }
     
@@ -123,9 +123,26 @@ public class ManageTeam extends Avatar {
      *            The list of team members.
      */
     private void loadTeamMembers(final DefaultListModel listModel,
-            final User[] teamMembers) {
-        for(final User teamMember : teamMembers) {
-            listModel.addElement(teamMember);
+            final TeamMember[] teamMembers) {
+        for(final TeamMember teamMember : teamMembers) {
+            final User user = (User) teamMember;           
+            listModel.addElement(user);
+        }
+    }
+    
+    /**
+     * Remove team members from the contacts list.
+     */
+    private void removeTeamMembersFromContacts() {
+        for (int t=0; t<teamModel.getSize(); t++) {
+            final User teamMember = (User) teamModel.getElementAt(t);
+            for (int c=0; c<contactsModel.getSize(); c++) {
+                final User contact = (User) contactsModel.getElementAt(c);
+                if (teamMember.getId()==contact.getId()) {
+                    contactsModel.removeElement(contact);
+                    break;
+                }
+            }
         }
     }
     

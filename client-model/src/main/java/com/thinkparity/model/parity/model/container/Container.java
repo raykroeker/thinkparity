@@ -15,12 +15,29 @@ import com.thinkparity.model.parity.model.artifact.ArtifactType;
  */
 public class Container extends Artifact {
 
+    /** A draft for the container. */
+    private ContainerDraft draft;
+
 	/** Create Container. */
 	public Container() { super(); }
+
+    /**
+     * Obtain the draft
+     *
+     * @return The ContainerDraft.
+     */
+    public ContainerDraft getDraft() { return draft; }
 
     /**
      * @see com.thinkparity.model.parity.model.artifact.Artifact#getType()
      * 
      */
     public ArtifactType getType() { return ArtifactType.CONTAINER; }
+
+    /**
+     * Set draft.
+     *
+     * @param draft The ContainerDraft.
+     */
+    public void setDraft(final ContainerDraft draft) { this.draft = draft; }
 }

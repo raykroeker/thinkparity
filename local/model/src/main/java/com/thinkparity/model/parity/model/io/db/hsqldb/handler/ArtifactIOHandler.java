@@ -5,7 +5,12 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
 import java.util.*;
 
-import com.thinkparity.model.parity.model.artifact.*;
+import com.thinkparity.model.parity.model.artifact.Artifact;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.artifact.ArtifactRemoteInfo;
+import com.thinkparity.model.parity.model.artifact.ArtifactState;
+import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.xmpp.JabberId;
@@ -122,13 +127,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("from ARTIFACT_VERSION_META_DATA ")
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
-
-	/** Sql to create an artifact draft. */
-    private static final String SQL_CREATE_DRAFT =
-            new StringBuffer("insert into ARTIFACT_DRAFT ")
-            .append("(ARTIFACT_ID,ARTIFACT_VERSION_ID) ")
-            .append("values (?,?)")
-            .toString();
 
 	/**
 	 * Sql to create the remote info.
@@ -590,22 +588,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		deleteFlags(session, artifact.getId());
 		insertFlags(session, artifact.getId(), artifact.getFlags());
 	}
-
-	/**
-     * Create an artifact draft.
-     * 
-     * @param session
-     *            The database session.
-     * @param draft
-     *            The artifact draft.
-     */
-    void createDraft(final Session session, final ArtifactDraft draft) {
-        session.prepareStatement(SQL_CREATE_DRAFT);
-        session.setLong(1, draft.getId());
-        session.setLong(2, draft.getVersionId());
-        if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("[CREATE DRAFT]", "[COULD NOT CREATE DRAFT]"));
-    }
 
 	/**
 	 * Create a new artifact version.

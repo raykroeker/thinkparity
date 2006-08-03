@@ -15,7 +15,6 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.DocumentEvent;
 import com.thinkparity.model.parity.api.events.DocumentListener;
-import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.util.MD5Util;
 
 /**
@@ -47,7 +46,7 @@ public class CreateTest extends DocumentTestCase {
             document = null;
             try {
                 datum.documentModel.addListener(datum);
-                document = datum.documentModel.create(datum.containerId, datum.name, datum.inputStream);
+                document = datum.documentModel.create(datum.name, datum.inputStream);
             }
             catch(final ParityException px) { fail(createFailMessage(px)); }
             finally {
@@ -84,7 +83,6 @@ public class CreateTest extends DocumentTestCase {
 		String name;
 		String documentContentChecksum;
 
-        final Container container = getContainerModel().create(NAME);
         InputStream fis;
 		for(File testFile : getInputFiles()) {
 			name = testFile.getName();
@@ -95,7 +93,7 @@ public class CreateTest extends DocumentTestCase {
             finally { fis.close(); }
 
             fis = new FileInputStream(testFile);
-            data.add(new Fixture(container.getId(), documentContentChecksum, documentModel, 1, fis, name));
+            data.add(new Fixture(documentContentChecksum, documentModel, 1, fis, name));
 		}
 	}
 
@@ -115,19 +113,16 @@ public class CreateTest extends DocumentTestCase {
 	 * @see CreateTest#tearDown()
 	 */
 	private class Fixture implements DocumentListener {
-        private final Long containerId;
         private Boolean didNotify;
 		private final String documentContentChecksum;
 		private final DocumentModel documentModel;
 		private final int expectedVersionsSize;
 		private final InputStream inputStream;
 		private final String name;
-		private Fixture(final Long containerId,
-                final String documentContentChecksum,
+		private Fixture(final String documentContentChecksum,
                 final DocumentModel documentModel,
                 final int expectedVersionsSize, final InputStream inputStream,
                 final String name) {
-            this.containerId = containerId;
             this.didNotify = Boolean.FALSE;
 			this.documentContentChecksum = documentContentChecksum;
 			this.documentModel = documentModel;

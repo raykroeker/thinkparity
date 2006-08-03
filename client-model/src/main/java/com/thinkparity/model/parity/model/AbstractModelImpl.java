@@ -1,6 +1,5 @@
 /*
  * Created On: Aug 6, 2005
- * $Id$
  */
 package com.thinkparity.model.parity.model;
 
@@ -169,6 +168,18 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Assert a draft exists for the container.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param containerId
+     *            A container id.
+     */
+    protected void assertContainerDraftExists(final Object assertion, final Long containerId) {
+        Assert.assertNotNull(assertion, getInternalContainerModel().readDraft(containerId));
+    }
+
+	/**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -181,12 +192,12 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-	protected void assertIsKeyHolder(final Object assertion,
+    protected void assertIsKeyHolder(final Object assertion,
             final Long artifactId) throws ParityException {
         assertIsKeyHolder(assertion.toString(), artifactId);
     }
 
-    /**
+	/**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -200,7 +211,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-	/**
+    /**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -225,7 +236,7 @@ public abstract class AbstractModelImpl {
 		Assert.assertTrue(ASSERT_IS_SET_USERNAME, isSetCredentials());
 	}
 
-    /**
+	/**
      * Ensure the user is not online.
      * 
      * @param assertion
@@ -243,7 +254,7 @@ public abstract class AbstractModelImpl {
 		Assert.assertNotYetImplemented("The calling method has not yet been implemented.");
 	}
 
-	/**
+    /**
      * Assert the user is online.
      *
      * @param assertion
@@ -253,11 +264,11 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isOnline());
     }
 
-    protected void assertOnline(final StringBuffer api) {
+	protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
-	/**
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -287,7 +298,7 @@ public abstract class AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Build a jabber id from a parity user.
 	 * 
 	 * @param user
@@ -358,7 +369,7 @@ public abstract class AbstractModelImpl {
         else { return JabberIdBuilder.parseUsername(credentials.getUsername()); }
 	}
 
-	protected Long getArtifactId(final UUID artifactUniqueId)
+    protected Long getArtifactId(final UUID artifactUniqueId)
 			throws ParityException {
 		// NOTE I'm assuming document
 		final InternalDocumentModel iDModel = getInternalDocumentModel();
@@ -413,7 +424,7 @@ public abstract class AbstractModelImpl {
         return ContainerModel.getInternalModel(context);
     }
 
-    /**
+	/**
      * Obtain the internal parity document interface.
      * 
      * @return The internal parity document interface.
@@ -422,7 +433,7 @@ public abstract class AbstractModelImpl {
 		return DocumentModel.getInternalModel(context);
 	}
 
-	/**
+    /**
      * Obtain the internal parity download interface.
      *
      * @return The internal parity download interface.
@@ -449,7 +460,7 @@ public abstract class AbstractModelImpl {
         return getInternalSystemMessageModel();
     }
 
-    /**
+	/**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -458,7 +469,7 @@ public abstract class AbstractModelImpl {
         return ReleaseModel.getInternalModel(getContext());
     }
 
-	/**
+    /**
      * Obtain the internal parity session interface.
      * 
      * @return The internal parity session interface.
@@ -467,14 +478,14 @@ public abstract class AbstractModelImpl {
 		return SessionModel.getInternalModel(getContext());
 	}
 
-    /**
+	/**
      * Obtain the internal parity system message interface.
      * 
      * @return The internal parity system message interface.
      */
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
 		return SystemMessageModel.getInternalModel(context);
-	}
+	};
 
 	/**
      * Obtain the internal parity user interface.
@@ -483,7 +494,7 @@ public abstract class AbstractModelImpl {
      */
     protected InternalUserModel getInternalUserModel() {
         return UserModel.getInternalModel(context);
-    };
+    }
 
 	/**
 	 * Obtain the model's localization.
@@ -505,7 +516,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-	protected StringBuffer getLogId(final Release release) {
+    protected StringBuffer getLogId(final Release release) {
         if(null == release) { return new StringBuffer("null"); }
         else {
             return new StringBuffer()

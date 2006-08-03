@@ -126,4 +126,15 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
             return getImpl().readAuditEvents(containerId);
         }
     }
+
+    /**
+     * Read the container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container draft.
+     */
+    public ContainerDraft readDraft(final Long containerId) {
+        synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
+    }
 }

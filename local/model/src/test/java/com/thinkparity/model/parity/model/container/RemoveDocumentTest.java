@@ -36,6 +36,8 @@ public class RemoveDocumentTest extends ContainerTestCase {
     public void testRemoveDocument() {
         try { datum.cModel.removeDocument(datum.containerId, datum.documentId); }
         catch(final ParityException px) { fail(createFailMessage(px)); }
+
+        assertTrue(NAME + " [REMOVE DOCUMENT EVENT NOT FIRED]", datum.didNotify);
         Assert.assertNotYetImplemented("RemoveDocumentTest#testRemoveDocument");
     }
 

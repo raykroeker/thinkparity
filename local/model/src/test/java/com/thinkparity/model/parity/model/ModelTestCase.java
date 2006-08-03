@@ -27,6 +27,7 @@ import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.container.ContainerHistoryItem;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
@@ -97,6 +98,22 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 			Document document) {
 		ModelTestCaseHelper.assertContains(documentList, document);
 	}
+
+    /**
+     * Assert that the expected draft matches the actual.
+     * 
+     * @param assertion
+     *            The assertion.
+     * @param expected
+     *            The expected draft.
+     * @param actual
+     *            The actual draft.
+     */
+    protected static void assertEquals(final Object assertion,
+            final ContainerDraft expected, final ContainerDraft actual) {
+        assertEquals(assertion + " [CONTAINER DRAFT DOES NOT MATCH EXPECTATION]", (Object) expected, (Object) actual);
+        assertEquals(assertion + " [CONTAINER'S ARTIFACTS DO NOT MATCH EXPECTATION]", expected.getContainerId(), actual.getContainerId());
+    }
 
     /**
      * Assert that the expected container matches the actual.
@@ -499,24 +516,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 */
 	protected ModelTestCase(final String name) { super(name); }
 
-	/**
-     * Add a document to a container.
-     * 
-     * @param container
-     *            A container.
-     * @param inputFile
-     *            An input file.
-     * @return A document.
-     * @throws IOException
-     * @throws ParityException
-     */
-    protected Document addDocument(final Container container, final File inputFile) throws IOException, ParityException {
-        final Document document = create(getInputFiles()[0]);
-        getContainerModel().addDocument(container.getId(), document.getId());
-        return document;
-    }
-
-    protected void addTeam(final Container container) throws Exception {
+	protected void addTeam(final Container container) throws Exception {
         addTeamToContainer(container.getId());
     }
 
@@ -531,11 +531,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      */
     protected Document create(final File file) throws IOException,
             ParityException {
-        final FileInputStream fis = new FileInputStream(file);
-        try {
-            return getInternalDocumentModel().create(null, file.getName(), fis);
-        }
-        finally { fis.close(); }
+        return createDocument(file);
     }
 
     /**
@@ -548,6 +544,30 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
     protected Container createContainer(final String name)
             throws ParityException {
         return getInternalContainerModel().create(name);
+    }
+
+    /**
+     * Create a container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container draft.
+     */
+    protected ContainerDraft createContainerDraft(final Long containerId) {
+        return getInternalContainerModel().createDraft(containerId);
+    }
+
+    /**
+     * Create a document.
+     * 
+     * @param inputFile
+     *            An input file.
+     * @return A document.
+     * @throws IOException
+     * @throws ParityException
+     */
+    protected Document createDocument(final File inputFile) throws IOException, ParityException {
+        return getDocumentModel().create(inputFile.getName(), new FileInputStream(inputFile));
     }
 
     /**

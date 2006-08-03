@@ -348,7 +348,7 @@ public abstract class Artifact {
 	public void setCustomDescription(final String description) {
 		customProperties.setProperty("description", description);
 	}
-
+	
 	/**
 	 * Set the custom name for the parity object. The name is set on a per-user
 	 * basis.
@@ -359,7 +359,6 @@ public abstract class Artifact {
 	public void setCustomName(final String name) {
 		customProperties.setProperty("name", name);
 	}
-	
 	/**
 	 * Set a named custom property. The custom property is set on a per-user
 	 * basis.
@@ -373,6 +372,7 @@ public abstract class Artifact {
 			final String customPropertyValue) {
 		customProperties.setProperty(customPropertyName, customPropertyValue);
 	}
+
 	/**
 	 * Set the artifact flags.
 	 * 
@@ -444,7 +444,7 @@ public abstract class Artifact {
 		this.updatedBy = updatedBy;
 	}
 
-	/**
+    /**
 	 * Set the update date.
 	 * 
 	 * @param updatedOn
@@ -454,7 +454,7 @@ public abstract class Artifact {
 		this.updatedOn = updatedOn;
 	}
 
-	/**
+    /**
 	 * Create a default instance of the custom properties.
 	 * 
 	 * @return The default custom properties.

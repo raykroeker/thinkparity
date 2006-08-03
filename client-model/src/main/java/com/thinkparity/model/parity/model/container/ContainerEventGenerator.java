@@ -30,17 +30,6 @@ class ContainerEventGenerator {
     }
 
     /**
-     * Generate a container event for a draft.
-     * 
-     * @param draft
-     *            A draft.
-     * @return A container event.
-     */
-    ContainerEvent generate(final ContainerDraft draft) {
-        return new ContainerEvent(source, draft);
-    }
-
-    /**
      * Generate a container event for a container.
      * 
      * @param container
@@ -56,12 +45,15 @@ class ContainerEventGenerator {
      * 
      * @param container
      *            A container.
+     * @param draft
+     *            A draft.
      * @param document
      *            A document.
      * @return A container event.
      */
-    ContainerEvent generate(final Container container, final Document document) {
-        return new ContainerEvent(source, container, document);
+    ContainerEvent generate(final Container container,
+            final ContainerDraft draft, final Document document) {
+        return new ContainerEvent(source, container, draft, document);
     }
 
     /**
@@ -75,5 +67,16 @@ class ContainerEventGenerator {
      */
     ContainerEvent generate(final Container container, final User user) {
         return new ContainerEvent(source, container, user);
+    }
+
+    /**
+     * Generate a container event for a draft.
+     * 
+     * @param draft
+     *            A draft.
+     * @return A container event.
+     */
+    ContainerEvent generate(final ContainerDraft draft) {
+        return new ContainerEvent(source, draft);
     }
 }

@@ -11,6 +11,7 @@ import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
+import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -56,15 +57,16 @@ public class AcceptKeyRequestTest extends ContainerTestCase {
         super.setUp();
         login();
         final ArtifactModel aModel = getArtifactModel();
-        final ContainerModel cModel = getContainerModel();
+        final ContainerModel containerModel = getContainerModel();
         final ModelTestUser jUnitY = ModelTestUser.getY();
         final Container container = createContainer(NAME);
-        addDocument(container, getInputFiles()[0]);
+        final Document document = createDocument(getInputFiles()[0]);
+        containerModel.addDocument(container.getId(), document.getId());
         addTeam(container);
         final KeyRequest keyRequest = requestKey(container, jUnitY);
-        datum = new Fixture(aModel, cModel, container.getId(),
+        datum = new Fixture(aModel, containerModel, container.getId(),
                 jUnitY.getJabberId(), keyRequest.getId());
-        cModel.addListener(datum);
+        containerModel.addListener(datum);
     }
 
     /**

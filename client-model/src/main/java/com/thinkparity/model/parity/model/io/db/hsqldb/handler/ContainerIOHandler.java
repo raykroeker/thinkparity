@@ -6,9 +6,11 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
+import com.thinkparity.model.parity.model.container.ContainerDraftArtifactState;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -35,6 +37,20 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             new StringBuffer("insert into CONTAINER ")
             .append("(CONTAINER_ID) ")
             .append("values (?)")
+            .toString();
+
+    /** Sql to create a draft. */
+    private static final String SQL_CREATE_DRAFT =
+            new StringBuffer("insert into CONTAINER_DRAFT ")
+            .append("(CONTAINER_DRAFT_ID) ")
+            .append("values (?)")
+            .toString();
+
+    /** Sql to create a draft artifact relationship. */
+    private static final String SQL_CREATE_DRAFT_ARTIFACT_REL =
+            new StringBuffer("insert into CONTAINER_DRAFT_ARTIFACT_REL ")
+            .append("(CONTAINER_DRAFT_ID,ARTIFACT_ID,ARTIFACT_STATE_ID) ")
+            .append("values (?,?,?)")
             .toString();
                     
     /** Sql to create a container version. */
@@ -108,6 +124,28 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
             .toString();
 
+    /** Sql to read a draft. */
+    private static final String SQL_READ_DRAFT =
+            new StringBuffer("select CONTAINER_DRAFT_ID ")
+            .append("from CONTAINER_DRAFT CD ")
+            .append("where CD.CONTAINER_DRAFT_ID=?")
+            .toString();
+
+    /** Sql to read draft documents. */
+    private static final String SQL_READ_DRAFT_DOCUMENTS =
+        new StringBuffer("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
+        .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
+        .append("A.ARTIFACT_UNIQUE_ID,A.CREATED_BY,A.CREATED_ON,")
+        .append("A.UPDATED_BY,A.UPDATED_ON,")
+        .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
+        .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
+        .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAVR ")
+        .append("inner join ARTIFACT A on CDAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
+        .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
+        .append("left join ARTIFACT_REMOTE_INFO ARI on A.ARTIFACT_ID=ARI.ARTIFACT_ID ")
+        .append("where CDAVR.CONTAINER_DRAFT_ID=?")
+        .toString();
+
     /** Sql to read a container version. */
     private static final String SQL_READ_VERSION =
             new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
@@ -169,22 +207,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         return getApiId(api).append(" ").append(error).toString();
     }
 
-    /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createDraft(com.thinkparity.model.parity.model.container.ContainerDraft)
-     */
-    public void createDraft(final ContainerDraft draft) {
-        final Session session = openSession();
-        try {
-            artifactIO.createDraft(session, draft);
-            session.commit();
-        }
-        catch(final HypersonicException hx) {
-            session.rollback();
-            throw hx;
-        }
-        finally { session.close(); }
-    }
-
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
 
@@ -240,6 +262,55 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE CONTAINER]"));
             session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createDraft(com.thinkparity.model.parity.model.container.ContainerDraft)
+     */
+    public void createDraft(final ContainerDraft draft) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_DRAFT);
+            session.setLong(1, draft.getContainerId());
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("[CREATE DRAFT]", "[COULD NOT CREATE DRAFT]"));
+            
+            session.prepareStatement(SQL_CREATE_DRAFT_ARTIFACT_REL);
+            session.setLong(1, draft.getContainerId());
+            for(final Artifact artifact : draft.getArtifacts()) {
+                session.setLong(2, artifact.getId());
+                session.setStateAsInteger(3, draft.getArtifactState(artifact.getId()));
+                if(1 != session.executeUpdate())
+                    throw new HypersonicException(getErrorId("[CREATE DRAFT]", "[COULD NOT CREATE DRAFT DOCUMENT]"));
+            }
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createDraftArtifactRel(java.lang.Long, java.lang.Long, com.thinkparity.model.parity.model.container.ContainerDraftArtifactState)
+     */
+    public void createDraftArtifactRel(final Long containerId,
+            final Long artifactId, final ContainerDraftArtifactState state) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_DRAFT_ARTIFACT_REL);
+            session.setLong(1, containerId);
+            session.setLong(2, artifactId);
+            session.setStateAsInteger(3, state);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("[CREATE DRAFT ARTIFACT REL]", "[COULD NOT CREATE DRAFT ARTIFACT REL]"));
         }
         catch(final HypersonicException hx) {
             session.rollback();
@@ -389,6 +460,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#readDraft(java.lang.Long)
+     */
+    public ContainerDraft readDraft(final Long containerId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DRAFT);
+            session.setLong(1, containerId);
+            session.executeQuery();
+            if(session.nextResult()) { return extractDraft(session); }
+            else { return null; }
+        }
+        finally { session.close(); }
+    }
+
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#readVersion(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -508,8 +594,23 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         container.setUpdatedBy(session.getString("UPDATED_BY"));
         container.setUpdatedOn(session.getCalendar("UPDATED_ON"));
 
+        container.setDraft(readDraft(container.getId()));
         container.setFlags(artifactIO.getFlags(container.getId()));
         return container;
+    }
+
+    /**
+     * Extract the draft from the session.
+     * 
+     * @param session
+     *            A database session.
+     * @return A draft.
+     */
+    ContainerDraft extractDraft(final Session session) {
+        final ContainerDraft draft = new ContainerDraft();
+        draft.setContainerId(session.getLong("CONTAINER_DRAFT_ID"));
+        draft.addAllDocuments(readDraftDocuments(draft.getContainerId()));
+        return draft;
     }
 
     /**
@@ -551,5 +652,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
         dv.setMetaData(documentIO.getVersionMetaData(dv.getArtifactId(), dv.getVersionId()));
         return dv;
+    }
+
+    /**
+     * Read the draft documents.
+     * 
+     * @param draftId
+     *            A draft id.
+     * @return A list of documents.
+     */
+    private List<Document> readDraftDocuments(final Long draftId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DRAFT_DOCUMENTS);
+            session.setLong(1, draftId);
+            session.executeQuery();
+            final List<Document> documents = new ArrayList<Document>();
+            while(session.nextResult()) {
+                documents.add(documentIO.extractDocument(session));
+            }
+            return documents;
+        }
+        finally { session.close(); }
     }
 }

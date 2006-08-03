@@ -4,7 +4,6 @@
  */
 package com.thinkparity.model.parity.model.contact;
 
-import com.thinkparity.model.ModelTestUser;
 
 /**
  * <b>Title:</b>thinkParity Contact Create Test<br>
@@ -41,7 +40,6 @@ public class CreateInvitationTest extends ContactTestCase {
         super.setUp();
         login();
         final ContactModel cModel = getContactModel();
-        final ModelTestUser jUnitX = ModelTestUser.getX();
         final String randomEmailAddress = "raykroeker@gmail.com";
                 //System.currentTimeMillis() + jUnitX.getEmailAddress();
         datum = new Fixture(cModel, randomEmailAddress);

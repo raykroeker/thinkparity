@@ -4,7 +4,6 @@
 package com.thinkparity.model.parity.model.document;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.container.Container;
 
 /**
  * @author raykroeker@gmail.com
@@ -39,10 +38,7 @@ public class IsWorkingVersionEqualTest extends DocumentTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-
-        final Container container = createContainer(NAME);
-        final Document document = addDocument(container, getInputFiles()[0]);
-
+        final Document document = createDocument(getInputFiles()[0]);
         datum = new Fixture(getDocumentModel(), document.getId(), Boolean.TRUE);
     }
 

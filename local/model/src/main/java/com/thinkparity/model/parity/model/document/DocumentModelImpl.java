@@ -75,7 +75,7 @@ class DocumentModelImpl extends AbstractModelImpl {
     private static final String LOG_UWV_ERROR_IOX_2 =
         LOG_UWV + "[IO ERROR ON CLOSE]";
 
-	/** A logger info statement. */
+    /** A logger info statement. */
     private static final String LOG_UWV_INFO = LOG_UWV;
 
 	private static StringBuffer getApiId(final String api) {
@@ -95,13 +95,13 @@ class DocumentModelImpl extends AbstractModelImpl {
 	/** The default history comparator. */
 	private final Comparator<? super HistoryItem> defaultHistoryComparator;
 
-    /** The default history filter. */
+	/** The default history filter. */
     private final Filter<? super HistoryItem> defaultHistoryFilter;
 
-	/** The default document version comparator. */
+    /** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
-    /** A document reader/writer. */
+	/** A document reader/writer. */
 	private final DocumentIOHandler documentIO;
 
     /** A document indexor. */
@@ -110,10 +110,10 @@ class DocumentModelImpl extends AbstractModelImpl {
     /** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-	/** A document event generator for remote events. */
+    /** A document event generator for remote events. */
     private final DocumentModelEventGenerator remoteEventGen;
 
-    /**
+	/**
 	 * Create a DocumentModelImpl
 	 * 
 	 * @param workspace
@@ -169,7 +169,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Add a team member to the document.
      * 
      * @param documentId
@@ -219,7 +219,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return archive(documentId, ProgressIndicator.emptyIndicator());
 	}
 
-    /**
+	/**
 	 * 
 	 * @param documentId
 	 * @param progressIndicator
@@ -272,7 +272,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 getVersion(documentId, versionId), remoteEventGen);
     }
 
-	/**
+    /**
      * Create a document and attach it to a container. This will take a name,
      * and input stream of a file and create a document.
      * 
@@ -283,13 +283,11 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @return The document.
      * @throws ParityException
      */
-    Document create(final Long containerId, final String name,
-            final InputStream inputStream) throws ParityException {
+    Document create(final String name, final InputStream inputStream)
+            throws ParityException {
         logger.info(getApiId("[CREATE]"));
-        logger.debug(containerId);
         logger.debug(name);
         logger.debug(inputStream);
-        assertOnline("[LMODEL] [DOCUMENT] [CREATE] [USER IS NOT ONLINE]");
         assertIsSetCredentials();
         try {
             final Calendar currentDateTime = currentDateTime();
@@ -334,7 +332,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Create a duplicate document version.
      * 
      * @param documentId
@@ -359,7 +357,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		getInternalArtifactModel().declineKeyRequest(keyRequestId);
 	}
 
-	/**
+    /**
 	 * Delete a document.
 	 * 
 	 * @param documentId
@@ -392,7 +390,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		notifyDocumentDeleted(null, localEventGen);
 	}
 
-    /**
+	/**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param id
@@ -410,7 +408,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain a document with the specified unique id.
 	 * 
 	 * @param documentUniqueId
@@ -570,7 +568,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyDocumentReactivated(readUser(reactivatedBy), document, version, remoteEventGen);
     }
 
-    /**
+	/**
 	 * Determine whether or not the working version of the document is different
 	 * from the last version.
 	 * 
@@ -607,7 +605,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * A key request for a document was accepted.
      * 
      * @param documentId
@@ -675,7 +673,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 readUser(declinedBy), get(documentId), remoteEventGen);
     }
 
-    /**
+	/**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -689,7 +687,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return list(defaultComparator);
 	}
 
-	/**
+    /**
 	 * Obtain a list of sorted documents.
 	 * 
 	 * @param comparator
@@ -925,7 +923,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 getVersion(documentId, version.getVersionId()), localEventGen);
     }
 
-    /**
+	/**
      * Reactivate a document.
      * 
      * @param documentId
@@ -964,6 +962,23 @@ class DocumentModelImpl extends AbstractModelImpl {
 
         // fire event
         notifyDocumentReactivated(readUser(currentUserId()), document, version, localEventGen);
+    }
+
+    /**
+     * Read a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A document.
+     */
+    Document read(final Long documentId) {
+        logger.info(getApiId("[READ]"));
+        logger.debug(documentId);
+        try { return get(documentId); }
+        catch(final ParityException px) {
+            logger.error(getErrorId("[READ]", "[CANNOT READ DOCUMENT]"), px);
+            throw ParityErrorTranslator.translateUnchecked(px);
+        }
     }
 
     /**

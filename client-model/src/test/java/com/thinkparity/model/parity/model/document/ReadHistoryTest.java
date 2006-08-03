@@ -1,6 +1,5 @@
 /*
  * Created On: Feb 22, 2006
- * $Id$
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -48,7 +47,9 @@ public class ReadHistoryTest extends DocumentTestCase {
 		super.setUp();
 		final DocumentModel dModel = getDocumentModel();
         final Container container = createContainer(NAME);
-        final Document document = addDocument(container, getInputFiles()[0]);
+        final Document document = createDocument(getInputFiles()[0]);
+        createContainerDraft(container.getId());
+        getContainerModel().addDocument(container.getId(), document.getId());
         modifyDocument(document);
         getContainerModel().publish(container.getId());
         getContainerModel().close(container.getId());

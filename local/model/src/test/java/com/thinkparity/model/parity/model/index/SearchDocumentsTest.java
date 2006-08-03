@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.container.Container;
+import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 
@@ -51,12 +52,14 @@ public class SearchDocumentsTest extends IndexTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
         login();
-        final DocumentModel dModel = getDocumentModel();
-        final IndexModel iModel = getIndexModel();
+        final ContainerModel containerModel = getContainerModel();
+        final DocumentModel documentModel = getDocumentModel();
+        final IndexModel indexModel = getIndexModel();
 
         final Container container = createContainer(NAME);
-        final Document eDocument = addDocument(container, getInputFiles()[0]);
-		datum = new Fixture(dModel, eDocument.getName(), iModel);
+        final Document document = createDocument(getInputFiles()[0]);
+        containerModel.addDocument(container.getId(), document.getId());
+		datum = new Fixture(documentModel, document.getName(), indexModel);
 	}
 
 	/**

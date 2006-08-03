@@ -53,7 +53,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @author CreateModel.groovy
  * @version 1.1.2.3
  */
-class ContainerModelImpl extends AbstractModelImpl {
+public class ContainerModelImpl extends AbstractModelImpl {
 
     /** A list of container listeners. */
     private static final List<ContainerListener> LISTENERS = new LinkedList<ContainerListener>();
@@ -172,12 +172,22 @@ class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param containerId
      *            A container id.
-     * @param documentId
-     *            A document id.
+     * @param inputStream
+     *            An input stream.
      */
-    void addDocument(final Long containerId, final Long documentId)
-            throws ParityException {
-        throw Assert.createNotYetImplemented("ContainerModelImpl#addDocument(Long)");
+    void addDocument(final Long containerId, final Long documentId) {
+        logger.info(getApiId("[ADD DOCUMENT]"));
+        logger.debug(containerId);
+        logger.debug(documentId);
+        assertContainerDraftExists(getApiId("[ADD DOCUMENT] [DRAFT DOES NOT EXIST]"), containerId);
+        containerIO.createDraftArtifactRel(
+                containerId, documentId,
+                ContainerDraftArtifactState.ADDED);
+
+        final Container postAdditionContainer = read(containerId);        
+        final ContainerDraft postAdditionDraft = readDraft(containerId);
+        final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
+        notifyDocumentAdded(postAdditionContainer, postAdditionDraft, postAdditionDocument, localEventGenerator);
     }
 
     /**
@@ -265,14 +275,24 @@ class ContainerModelImpl extends AbstractModelImpl {
         assertOnline(getApiId("[CREATE DRAFT] [USER NOT ONLINE]"));
         final Container container = read(containerId);
         if(!isDistributed(containerId)) { createDistributed(container); }
+
         final ContainerVersion version = createVersion(containerId);
+        final List<Document> documents = readDocuments(version.getArtifactId(), version.getVersionId());
+
+        // create
         final ContainerDraft draft = new ContainerDraft();
-        draft.setId(containerId);
-        draft.setVersionId(version.getVersionId());
+        draft.setContainerId(containerId);
+        draft.addAllDocuments(documents);
         containerIO.createDraft(draft);
+
+        // remote create
         getInternalSessionModel().createDraft(container.getUniqueId());
-        notifyDraftCreated(draft, localEventGenerator);
-        return draft;
+
+        // fire event
+        final ContainerDraft postCreation = readDraft(containerId);
+        notifyDraftCreated(postCreation, localEventGenerator);
+
+        return postCreation;
     }
 
     /**
@@ -628,8 +648,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of documents.
      * @throws ParityException
      */
-    List<Document> readDocuments(final Long containerId, final Long versionId)
-            throws ParityException {
+    List<Document> readDocuments(final Long containerId, final Long versionId) {
         logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
         return readDocuments(containerId, versionId, defaultDocumentComparator, defaultDocumentFilter);
@@ -648,7 +667,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
-            final Comparator<Artifact> comparator) throws ParityException {
+            final Comparator<Artifact> comparator) {
         logger.info(getApiId("[READ DOCUMENTS]"));
         return readDocuments(containerId, versionId, comparator, defaultDocumentFilter);
     }
@@ -668,7 +687,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
             final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) throws ParityException {
+            final Filter<? super Artifact> filter) {
         logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
         logger.debug(versionId);
@@ -694,7 +713,7 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
     List<Document> readDocuments(final Long containerId, final Long versionId,
-            final Filter<? super Artifact> filter) throws ParityException {
+            final Filter<? super Artifact> filter) {
         logger.info(getApiId("[READ DOCUMENTS]"));
         logger.debug(containerId);
         logger.debug(versionId);
@@ -714,6 +733,19 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         final ContainerVersion latestVersion = readLatestVersion(containerId);
         return containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
+    }
+
+    /**
+     * Read a container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container draft.
+     */
+    public ContainerDraft readDraft(final Long containerId) {
+        logger.info(getApiId("[READ DRAFT]"));
+        logger.debug(containerId);
+        return containerIO.readDraft(containerId);
     }
 
     /**
@@ -1230,25 +1262,6 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Fire a container closed notification.
-     * 
-     * @param container
-     *            A container.
-     * @param user
-     *            A user.
-     * @param eventGenerator
-     *            An event generator.
-     */
-    private void notifyContainerClosed(final Container container,
-            final User user, final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.containerClosed(eventGenerator.generate(container, user));
-            }
-        }
-    }
-
-    /**
      * Fire a container created notification.
      * 
      * @param container
@@ -1306,17 +1319,19 @@ class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param container
      *            A container.
+     * @param draft
+     *            A draft.
      * @param document
      *            A document.
      * @param eventGenerator
      *            An event generator.
      */
     private void notifyDocumentAdded(final Container container,
-            final Document document,
+            final ContainerDraft draft, final Document document,
             final ContainerEventGenerator eventGenerator) {
         synchronized(LISTENERS) {
             for(final ContainerListener l : LISTENERS) {
-                l.documentAdded(eventGenerator.generate(container, document));
+                l.documentAdded(eventGenerator.generate(container, draft, document));
             }
         }
     }
@@ -1326,17 +1341,19 @@ class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param container
      *            A container.
+     * @param draft
+     *            A draft.
      * @param document
      *            A document.
      * @param eventGenerator
      *            An event generator.
      */
     private void notifyDocumentRemoved(final Container container,
-            final Document document,
+            final ContainerDraft draft, final Document document,
             final ContainerEventGenerator eventGenerator) {
         synchronized(LISTENERS) {
             for(final ContainerListener l : LISTENERS) {
-                l.documentRemoved(eventGenerator.generate(container, document));
+                l.documentRemoved(eventGenerator.generate(container, draft, document));
             }
         }
         

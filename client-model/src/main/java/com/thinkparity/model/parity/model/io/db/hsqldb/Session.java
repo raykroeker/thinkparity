@@ -18,6 +18,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
+import com.thinkparity.model.parity.model.container.ContainerDraftArtifactState;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
@@ -415,6 +416,15 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+	public void setStateAsInteger(final Integer index,
+            final ContainerDraftArtifactState state) {
+        assertOpen("setStateAsInteger(Integer,ContainerDraftArtifactState)");
+        assertPreparedStatement("setStateAsInteger(Integer,ContainerDraftArtifactState)");
+        debugSql(null == state ? null : state.getId(), index);
+        try { preparedStatement.setInt(index, state.getId()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
 	public void setStateAsString(final Integer index, final ArtifactState state) {
 		assertOpen("setStateAsString(Integer,ArtifactState)");
 		assertPreparedStatement("setStateAsString(Integer,ArtifactState)");
@@ -423,7 +433,16 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setString(final Integer index, final String string) {
+	public void setStateAsString(final Integer index,
+            final ContainerDraftArtifactState state) {
+        assertOpen("setStateAsString(Integer,ContainerDraftArtifactState)");
+        assertPreparedStatement("ContainerDraftArtifactState(Integer,ContainerDraftArtifactState)");
+        debugSql(null == state ? null : state.toString(), index);
+        try { preparedStatement.setString(index, state.toString()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
+    public void setString(final Integer index, final String string) {
 		assertOpen("setString(Integer,String)");
 		assertPreparedStatement("setString(Integer,String)");
 		debugSql(string, index);
@@ -431,7 +450,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final ArtifactType type) {
+    public void setTypeAsInteger(final Integer index, final ArtifactType type) {
 		assertOpen("setTypeAsInteger(Integer,ArtifactType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,ArtifactType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -439,7 +458,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setTypeAsInteger(final Integer index, final AuditEventType type) {
+	public void setTypeAsInteger(final Integer index, final AuditEventType type) {
 		assertOpen("setTypeAsInteger(Integer,AuditEventType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,AuditEventType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -455,7 +474,7 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setTypeAsInteger(final Integer index, final MetaDataType type) {
+    public void setTypeAsInteger(final Integer index, final MetaDataType type) {
 		assertOpen("setTypeAsInteger(Integer,MetaDataType)");
 		assertPreparedStatement("setTypeAsInteger(Integer,MetaDataType)");
 		debugSql(null == type ? null : type.getId(), index);
@@ -463,13 +482,13 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setTypeAsInteger(final Integer index, final SystemMessageType type) {
-		assertOpen("setTypeAsInteger(Integer,SystemMessageType)");
-		assertPreparedStatement("setTypeAsInteger(Integer,SystemMessageType)");
-		debugSql(null == type ? null : type.getId(), index);
-		try { preparedStatement.setInt(index, type.getId()); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-	}
+    public void setTypeAsInteger(final Integer index, final SystemMessageType type) {
+        assertOpen("setTypeAsInteger(Integer,SystemMessageType)");
+        assertPreparedStatement("setTypeAsInteger(Integer,SystemMessageType)");
+        debugSql(null == type ? null : type.getId(), index);
+        try { preparedStatement.setInt(index, type.getId()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
 
 	public void setTypeAsString(final Integer index, final ArtifactType type) {
 		assertOpen("setTypeAsString(Integer,ArtifactType)");

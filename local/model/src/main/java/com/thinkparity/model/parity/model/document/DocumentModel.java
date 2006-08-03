@@ -126,9 +126,9 @@ public class DocumentModel {
      * @return The document.
      * @throws ParityException
      */
-	public Document create(final Long containerId, final String name,
-            final InputStream inputStream) throws ParityException {
-		synchronized(implLock) { return impl.create(containerId, name, inputStream); }
+	public Document create(final String name, final InputStream inputStream)
+            throws ParityException {
+		synchronized(implLock) { return impl.create(name, inputStream); }
 	}
 
 	/**

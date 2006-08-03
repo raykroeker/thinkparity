@@ -48,12 +48,14 @@ public class ContainerEvent {
      *            The event source.
      * @param container
      *            The container.
+     * @param draft
+     *            The draft.
      * @param document
      *            The document.
      */
     public ContainerEvent(final Source source, final Container container,
-            final Document document) {
-        this(source, container, null, null, document);
+            final ContainerDraft draft, final Document document) {
+        this(source, container, draft, null, document);
     }
 
     /**

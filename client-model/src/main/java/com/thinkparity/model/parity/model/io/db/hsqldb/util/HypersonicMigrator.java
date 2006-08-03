@@ -17,6 +17,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
+import com.thinkparity.model.parity.model.container.ContainerDraftArtifactState;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
@@ -41,6 +42,8 @@ class HypersonicMigrator {
     private static final String INSERT_SEED_ARTIFACT_STATE;
 
     private static final String INSERT_SEED_ARTIFACT_TYPE;
+
+    private static final String INSERT_SEED_CONTAINER_DRAFT_ARTIFACT_STATE;
 
     private static final String INSERT_SEED_META_DATA_TYPE;
 
@@ -73,7 +76,6 @@ class HypersonicMigrator {
                 CONFIG.getProperty("CreateArtifactRemoteInfo"),
                 CONFIG.getProperty("CreateArtifactVersion"),
                 CONFIG.getProperty("CreateArtifactVersionMetaData"),
-                CONFIG.getProperty("CreateArtifactDraft"),
                 CONFIG.getProperty("CreateArtifactAuditType"),
                 CONFIG.getProperty("CreateArtifactAudit"),
                 CONFIG.getProperty("CreateArtifactAuditMetaData"),
@@ -85,6 +87,9 @@ class HypersonicMigrator {
                 CONFIG.getProperty("CreateContainer"),
                 CONFIG.getProperty("CreateContainerVersion"),
                 CONFIG.getProperty("CreateContainerVersionArtifactVersionRel"),
+                CONFIG.getProperty("CreateContainerDraft"),
+                CONFIG.getProperty("CreateContainerDraftArtifactState"),
+                CONFIG.getProperty("CreateContainerDraftArtifactRel"),
                 CONFIG.getProperty("CreateDocument"),
                 CONFIG.getProperty("CreateDocumentVersion"),
                 CONFIG.getProperty("CreateIndexUserName"),
@@ -103,6 +108,8 @@ class HypersonicMigrator {
         INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
 
         INSERT_SEED_ARTIFACT_AUDIT_TYPE = CONFIG.getProperty("InsertSeedArtifactAuditType");
+
+        INSERT_SEED_CONTAINER_DRAFT_ARTIFACT_STATE = CONFIG.getProperty("InsertSeedContainerDraftArtifactState");
 
         INSERT_SEED_SYSTEM_MESSAGE_TYPE = CONFIG.getProperty("InsertSeedSystemMessageType");
 
@@ -231,6 +238,15 @@ class HypersonicMigrator {
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
                         "Could not insert artifact audit type seed data:  " + aat);
+        }
+
+        session.prepareStatement(INSERT_SEED_CONTAINER_DRAFT_ARTIFACT_STATE);
+        for(final ContainerDraftArtifactState state : ContainerDraftArtifactState.values()) {
+            session.setStateAsInteger(1, state);
+            session.setStateAsString(2, state);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not insert draft artifact state seed data:  " + state);
         }
 
         session.prepareStatement(INSERT_SEED_SYSTEM_MESSAGE_TYPE);

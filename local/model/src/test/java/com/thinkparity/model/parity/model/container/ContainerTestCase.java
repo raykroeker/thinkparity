@@ -8,6 +8,7 @@ package com.thinkparity.model.parity.model.container;
 import java.util.List;
 
 import com.thinkparity.model.parity.model.ModelTestCase;
+import com.thinkparity.model.parity.model.artifact.Artifact;
 
 
 /**
@@ -30,8 +31,12 @@ abstract class ContainerTestCase extends ModelTestCase {
     protected static void assertNotNull(final String assertion,
             final ContainerDraft draft) {
         assertNotNull(assertion + " [DRAFT IS NULL]", (Object) draft);
-        assertNotNull(assertion + " [DRAFT ID IS NULL]", draft.getId());
-        assertNotNull(assertion + " [DRAFT VERSION ID IS NULL]", draft.getVersionId());
+        assertNotNull(assertion + " [DRAFT ID IS NULL]", draft.getContainerId());
+        assertNotNull(assertion + " [DRAFT ARTIFACTS ARE IS NULL]", draft.getArtifacts());
+        for(final Artifact artifact : draft.getArtifacts()) {
+            assertNotNull(assertion + " [DRAFT ARTIFACT STATE IS NULL]", draft.getArtifactState(artifact.getId()));
+        }
+        assertNotNull(assertion + " [DRAFT DOCUMENTS ARE IS NULL]", draft.getDocuments());
     }
 
     /**

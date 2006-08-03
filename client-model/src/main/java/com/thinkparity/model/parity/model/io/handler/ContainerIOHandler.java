@@ -9,6 +9,7 @@ import java.util.List;
 import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
+import com.thinkparity.model.parity.model.container.ContainerDraftArtifactState;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -52,6 +53,19 @@ public interface ContainerIOHandler {
      *            A draft.
      */
     public void createDraft(final ContainerDraft draft);
+
+    /**
+     * Create a draft artifact relationship.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param artifactId
+     *            An artifact id.
+     * @param state
+     *            The artifact state.
+     */
+    public void createDraftArtifactRel(final Long containerId,
+            final Long artifactId, final ContainerDraftArtifactState state);
 
     /**
      * Create a container version.
@@ -118,6 +132,15 @@ public interface ContainerIOHandler {
      */
     public List<DocumentVersion> readDocumentVersions(final Long containerId,
             final Long versionId);
+
+    /**
+     * Read a container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container draft.
+     */
+    public ContainerDraft readDraft(final Long containerId);
 
     /**
      * Read the latest container version.

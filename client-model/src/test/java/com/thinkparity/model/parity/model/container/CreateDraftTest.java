@@ -34,13 +34,8 @@ public class CreateDraftTest extends ContainerTestCase {
 
         assertNotNull(NAME, draft);
         assertEquals(NAME + " [DRAFT ID DOES NOT MATCH EXPECTATION]",
-                datum.containerId, draft.getId());
-        assertEquals(NAME + " [DRAFT VERSION ID DOES NOT MATCH EXPECTATION]",
-                datum.eVersionId, draft.getVersionId());
+                datum.containerId, draft.getContainerId());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotify);
-
-        final ContainerVersion version = datum.cModel.readVersion(draft.getId(), draft.getVersionId());
-        assertNotNull(NAME, version);
 
         try {
             assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
@@ -58,9 +53,8 @@ public class CreateDraftTest extends ContainerTestCase {
         login();
         final ContainerModel cModel = getContainerModel();
         final Container container = createContainer(NAME);
-        final ContainerVersion version = cModel.readLatestVersion(container.getId());
         addTeam(container);
-        datum = new Fixture(cModel, container.getId(), version.getVersionId() + 1);
+        datum = new Fixture(cModel, container.getId());
         cModel.addListener(datum);
     }
 
@@ -80,11 +74,9 @@ public class CreateDraftTest extends ContainerTestCase {
         private final ContainerModel cModel;
         private final Long containerId;
         private Boolean didNotify;
-        private final Long eVersionId;
-        private Fixture(final ContainerModel cModel, final Long containerId, final Long eVersionId) {
+        private Fixture(final ContainerModel cModel, final Long containerId) {
             this.cModel = cModel;
             this.containerId = containerId;
-            this.eVersionId = eVersionId;
             this.didNotify = Boolean.FALSE;
         }
         public void containerClosed(ContainerEvent e) {

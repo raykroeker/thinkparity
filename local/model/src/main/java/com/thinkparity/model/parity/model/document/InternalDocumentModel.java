@@ -22,7 +22,7 @@ import com.thinkparity.model.xmpp.JabberId;
 public class InternalDocumentModel extends DocumentModel implements
         InternalModel {
 
-	/**
+    /**
 	 * Create a InternalDocumentModel.
 	 * 
 	 * @param workspace
@@ -60,7 +60,7 @@ public class InternalDocumentModel extends DocumentModel implements
 		}
 	}
 
-    /**
+	/**
      * Confirm that the document sent previously has been received by the
      * specified user.
      * 
@@ -134,7 +134,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-	/**
+    /**
      * A key request for a document was declined.
      * 
      * @param documentId
@@ -149,7 +149,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-    /**
+	/**
 	 * Lock a document.
 	 * 
 	 * @param documentId
@@ -159,6 +159,30 @@ public class InternalDocumentModel extends DocumentModel implements
 	public void lock(final Long documentId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().lock(documentId); }
 	}
+
+    /**
+     * Read a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A document.
+     */
+    public Document read(final Long documentId) {
+        synchronized(getImplLock()) { return getImpl().read(documentId); }
+    }
+
+	/**
+     * Read a list of audit events for a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return A list of audit events.
+     */
+	public List<AuditEvent> readAuditEvents(final Long documentId) {
+	    synchronized(getImplLock()) {
+            return getImpl().readAuditEvents(documentId);
+        }
+    }
 
 	/**
 	 * Use the document model to receive a document from another parity user.
@@ -193,7 +217,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-	public void requestKey(final Long documentId, final JabberId requestedBy)
+    public void requestKey(final Long documentId, final JabberId requestedBy)
 			throws ParityException {
 		synchronized(getImplLock()) { getImpl().requestKey(documentId, requestedBy); }
 	}
@@ -208,17 +232,4 @@ public class InternalDocumentModel extends DocumentModel implements
 	public void unlock(final Long documentId) throws ParityException {
 		synchronized(getImplLock()) { getImpl().unlock(documentId); }
 	}
-
-    /**
-     * Read a list of audit events for a document.
-     * 
-     * @param documentId
-     *            A document id.
-     * @return A list of audit events.
-     */
-	public List<AuditEvent> readAuditEvents(final Long documentId) {
-	    synchronized(getImplLock()) {
-            return getImpl().readAuditEvents(documentId);
-        }
-    }
 }

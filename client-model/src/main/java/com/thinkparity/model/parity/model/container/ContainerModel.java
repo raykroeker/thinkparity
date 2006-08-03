@@ -92,8 +92,7 @@ public class ContainerModel {
      * @param documentId
      *            A document id.
      */
-    public void addDocument(final Long containerId, final Long documentId)
-            throws ParityException {
+    public void addDocument(final Long containerId, final Long documentId) {
         synchronized(getImplLock()) {
             getImpl().addDocument(containerId, documentId);
         }

@@ -4,9 +4,8 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import com.thinkparity.codebase.assertion.Assert;
+import java.util.List;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.document.Document;
@@ -34,11 +33,18 @@ public class RemoveDocumentTest extends ContainerTestCase {
      *
      */
     public void testRemoveDocument() {
-        try { datum.cModel.removeDocument(datum.containerId, datum.documentId); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
-
+        datum.containerModel.removeDocument(datum.container.getId(), datum.document.getId());
         assertTrue(NAME + " [REMOVE DOCUMENT EVENT NOT FIRED]", datum.didNotify);
-        Assert.assertNotYetImplemented("RemoveDocumentTest#testRemoveDocument");
+        final Container container = datum.containerModel.read(datum.container.getId());
+        assertNotNull(NAME + " [CONTAINER IS NULL]", container);
+        final ContainerDraft draft = container.getDraft();
+        assertNotNull(NAME + " [CONTAINER DRAFT IS NULL]", draft);
+        final List<Document> documents = draft.getDocuments();
+        assertNotNull(NAME + " [CONTAINER DRAFT DOCUMENTS ARE NULL]", documents);
+        assertTrue(NAME + " [DRAFT DOCUMENTS CONTAINS ADDED DOCUMENT]", documents.contains(datum.document));
+        assertEquals(NAME + " [DRAFT DOCUMENT STATE DOES NOT MATCH EXPECTATION]",
+                ContainerDraftArtifactState.REMOVED,
+                draft.getArtifactState(datum.document.getId()));
     }
 
     /**
@@ -48,14 +54,13 @@ public class RemoveDocumentTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login();
-
-        final ContainerModel cModel = getContainerModel();
-        final Container eContainer = cModel.create(NAME);
-        final Document eDocument = create(getInputFiles()[0]);
-        cModel.addDocument(eContainer.getId(), eDocument.getId());
-        datum = new Fixture(cModel, eContainer.getId(), eDocument.getId());
-
-        cModel.addListener(datum);
+        final ContainerModel containerModel = getContainerModel();
+        final Container container = containerModel.create(NAME);
+        createContainerDraft(container.getId());
+        final Document document = create(getInputFiles()[0]);
+        containerModel.addDocument(container.getId(), document.getId());
+        datum = new Fixture(container, containerModel, document);
+        containerModel.addListener(datum);
     }
 
     /**
@@ -71,30 +76,20 @@ public class RemoveDocumentTest extends ContainerTestCase {
 
     /** Test data definition. */
     private class Fixture implements ContainerListener {
-        private final ContainerModel cModel;
-        private final Long containerId;
+        private final Container container;
+        private final ContainerModel containerModel;
         private Boolean didNotify;
-        private final Long documentId;
-        private Fixture(final ContainerModel cModel, final Long containerId,
-                final Long documentId) {
-            this.cModel = cModel;
-            this.containerId = containerId;
+        private final Document document;
+        private Fixture(final Container container,
+                final ContainerModel containerModel, final Document document) {
+            this.container= container;
+            this.containerModel = containerModel;
             this.didNotify = Boolean.FALSE;
-            this.documentId = documentId;
-        }
-        public void draftCreated(ContainerEvent e) {
-            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
-        }
-        public void teamMemberAdded(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
-        }
-        public void teamMemberRemoved(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
+            this.document = document;
         }
         public void containerClosed(final ContainerEvent e) {
             fail(NAME + " [CONTAINER CLOSED EVENT WAS FIRED]");
         }
-
         public void containerCreated(final ContainerEvent e) {
             fail(NAME + " [CONTAINER CREATED EVENT WAS FIRED]");
         }
@@ -104,6 +99,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
         public void containerReactivated(final ContainerEvent e) {
             fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");
         }
+
         public void documentAdded(final ContainerEvent e) {
             fail(NAME + " [DOCUMENT ADDED EVENT WAS FIRED]");
         }
@@ -111,9 +107,19 @@ public class RemoveDocumentTest extends ContainerTestCase {
             datum.didNotify = Boolean.TRUE;
             assertTrue(NAME + " [EVENT IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT IS REMOTE]", !e.isRemote());
-            assertNotNull(NAME + " [EVENT CONTAINER IS NULL]", e.getContainer());
-            assertNotNull(NAME + " [EVENT DOCUMENT IS NULL]", e.getDocument());
+            assertEquals(NAME + " [EVENT CONTAINER DOES NOT MATCH EXPECTATION]", datum.container, e.getContainer());
+            assertEquals(NAME + " [EVENT DOCUMENT DOES NOT MATCH EXPECTATION]", datum.document, e.getDocument());
+            assertNotNull(NAME + " [EVENT DOCUMENT IS NULL]", e.getDraft());
             assertNull(NAME + " [EVENT USER IS NOT NULL]", e.getUser());
+        }
+        public void draftCreated(ContainerEvent e) {
+            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
+        }
+        public void teamMemberAdded(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
+        }
+        public void teamMemberRemoved(ContainerEvent e) {
+            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
         }
     }
 }

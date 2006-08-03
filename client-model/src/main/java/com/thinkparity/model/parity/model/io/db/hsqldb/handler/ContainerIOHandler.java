@@ -66,6 +66,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CONTAINER_ID=?")
             .toString();
 
+    /** Sql to delete a draft artifact relationship. */
+    private static final String SQL_DELETE_DRAFT_ARTIFACT_REL =
+            new StringBuffer("delete from CONTAINER_DRAFT_ARTIFACT_REL ")
+            .append("where CONTAINER_DRAFT_ID=? ")
+            .append("and ARTIFACT_ID=?")
+            .toString();
+
     /** Sql to delete a container version. */
     private static final String SQL_DELETE_VERSION =
             new StringBuffer("delete from CONTAINER_VERSION ")
@@ -138,7 +145,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("A.ARTIFACT_UNIQUE_ID,A.CREATED_BY,A.CREATED_ON,")
         .append("A.UPDATED_BY,A.UPDATED_ON,")
         .append("ARI.UPDATED_BY REMOTE_UPDATED_BY,")
-        .append("ARI.UPDATED_ON REMOTE_UPDATED_ON ")
+        .append("ARI.UPDATED_ON REMOTE_UPDATED_ON, ")
+        .append("CDAVR.ARTIFACT_STATE_ID DRAFT_ARTIFACT_STATE_ID ")
         .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAVR ")
         .append("inner join ARTIFACT A on CDAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
         .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
@@ -311,6 +319,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setStateAsInteger(3, state);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE DRAFT ARTIFACT REL]", "[COULD NOT CREATE DRAFT ARTIFACT REL]"));
+            session.commit();
         }
         catch(final HypersonicException hx) {
             session.rollback();
@@ -353,6 +362,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[DELETE]", "[CANNOT DELETE CONTAINER]"));
             artifactIO.delete(session, containerId);
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#deleteDraftArtifactRel(java.lang.Long, java.lang.Long)
+     */
+    public void deleteDraftArtifactRel(final Long containerId, final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_DRAFT_ARTIFACT_REL);
+            session.setLong(1, containerId);
+            session.setLong(2, artifactId);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("[DELETE DRAFT ARTIFACT REL]", "[COULD NOT DELETE DRAFT ARTIFACT REL]"));
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -609,7 +638,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     ContainerDraft extractDraft(final Session session) {
         final ContainerDraft draft = new ContainerDraft();
         draft.setContainerId(session.getLong("CONTAINER_DRAFT_ID"));
-        draft.addAllDocuments(readDraftDocuments(draft.getContainerId()));
+        addAllDraftDocuments(draft);
         return draft;
     }
 
@@ -635,6 +664,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
        return version;
     }
 
+    /**
+     * Add all draft documents to the draft.
+     * 
+     * @param draft
+     *            A draft.
+     */
+    private void addAllDraftDocuments(final ContainerDraft draft) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DRAFT_DOCUMENTS);
+            session.setLong(1, draft.getContainerId());
+            session.executeQuery();
+            while(session.nextResult()) {
+                draft.addDocument(
+                        documentIO.extractDocument(session),
+                        session.getArtifactStateFromInteger("DRAFT_ARTIFACT_STATE_ID"));
+            }
+        }
+        finally { session.close(); }
+    }
+
     private DocumentVersion extractDocumentVersion(final Session session) {
         final DocumentVersion dv = new DocumentVersion();
         dv.setArtifactId(session.getLong("DOCUMENT_ID"));
@@ -652,27 +702,5 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
         dv.setMetaData(documentIO.getVersionMetaData(dv.getArtifactId(), dv.getVersionId()));
         return dv;
-    }
-
-    /**
-     * Read the draft documents.
-     * 
-     * @param draftId
-     *            A draft id.
-     * @return A list of documents.
-     */
-    private List<Document> readDraftDocuments(final Long draftId) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_DRAFT_DOCUMENTS);
-            session.setLong(1, draftId);
-            session.executeQuery();
-            final List<Document> documents = new ArrayList<Document>();
-            while(session.nextResult()) {
-                documents.add(documentIO.extractDocument(session));
-            }
-            return documents;
-        }
-        finally { session.close(); }
     }
 }

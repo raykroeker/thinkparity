@@ -137,4 +137,5 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
     public ContainerDraft readDraft(final Long containerId) {
         synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
     }
+
 }

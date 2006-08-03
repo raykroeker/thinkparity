@@ -33,7 +33,7 @@ import com.thinkparity.migrator.Library;
  */
 public class Session {
 
-	/**
+    /**
 	 * An apache logger.
 	 * 
 	 */
@@ -64,7 +64,7 @@ public class Session {
 	 */
 	private ResultSet resultSet;
 
-    /**
+	/**
 	 * Create a Session.
 	 * 
 	 * @param connection
@@ -77,7 +77,7 @@ public class Session {
 		this.id = JVMUniqueId.nextId();
 	}
 
-	public void close() {
+    public void close() {
 		assertOpen("Cannot close a closed session.");
 		try {
 			close(preparedStatement, resultSet);
@@ -183,6 +183,15 @@ public class Session {
 		}
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
+
+	public ContainerDraftArtifactState getArtifactStateFromInteger(
+            final String columnName) {
+        assertOpen("getArtifactStateFromInteger(String)");
+        assertOpenResult("getArtifactStateFromInteger(String)");
+        debugSql(columnName);
+        try { return ContainerDraftArtifactState.fromId(resultSet.getInt(columnName)); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
 
 	public ArtifactFlag getFlagFromInteger(final String columnName) {
 		assertOpen("getFlagFromInteger(String)");

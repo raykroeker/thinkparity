@@ -35,29 +35,19 @@ public class ContainerDraft {
     }
 
     /**
-     * Add all documents.
-     * 
-     * @param documents
-     *            A list of documents.
-     * @return True if the list is modified.
-     */
-    public boolean addAllDocuments(final List<Document> documents) {
-        final int originalSize = this.documents.size();
-        for(final Document document : documents)
-            addDocument(document);
-        return originalSize == this.documents.size();
-    }
-
-    /**
      * Add a document to the draft.
      * 
      * @param document
      *            A document.
      * @return True if the list of documents is modified.
      */
-    public boolean addDocument(final Document document) {
+    public boolean addDocument(final Document document,
+            final ContainerDraftArtifactState state) {
         if(documents.contains(document)) { return false; }
-        else { return documents.add(document); }
+        else {
+            stateMap.put(document.getId(), state);
+            return documents.add(document);
+        }
     }
 
     /**
@@ -138,7 +128,10 @@ public class ContainerDraft {
      */
     public boolean removeDocument(final Document document) {
         if(!documents.contains(document)) { return false; }
-        else { return documents.remove(document); }
+        else {
+            stateMap.remove(document.getId());
+            return documents.remove(document);
+        }
     }
 
     /**

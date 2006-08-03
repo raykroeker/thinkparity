@@ -138,6 +138,19 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read a container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container draft.
+     */
+    public ContainerDraft readDraft(final Long containerId) {
+        logger.info(getApiId("[READ DRAFT]"));
+        logger.debug(containerId);
+        return containerIO.readDraft(containerId);
+    }
+
+    /**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -282,7 +295,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // create
         final ContainerDraft draft = new ContainerDraft();
         draft.setContainerId(containerId);
-        draft.addAllDocuments(documents);
+        for(final Document document : documents)
+            draft.addDocument(document, ContainerDraftArtifactState.NONE);
         containerIO.createDraft(draft);
 
         // remote create
@@ -736,19 +750,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read a container draft.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container draft.
-     */
-    public ContainerDraft readDraft(final Long containerId) {
-        logger.info(getApiId("[READ DRAFT]"));
-        logger.debug(containerId);
-        return containerIO.readDraft(containerId);
-    }
-
-    /**
      * Read the container history.
      * 
      * @param containerId
@@ -999,9 +1000,19 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @param documentId
      *            A document id.
      */
-    void removeDocument(final Long containerId, final Long documentId)
-            throws ParityException {
-        throw Assert.createNotYetImplemented("ContainerModelImpl#removeDocument(Long)");
+    void removeDocument(final Long containerId, final Long documentId) {
+        logger.info(getApiId("[ADD DOCUMENT]"));
+        logger.debug(containerId);
+        logger.debug(documentId);
+        assertContainerDraftExists(getApiId("[ADD DOCUMENT] [DRAFT DOES NOT EXIST]"), containerId);
+        containerIO.deleteDraftArtifactRel(containerId, documentId);
+        containerIO.createDraftArtifactRel(containerId, documentId,
+                ContainerDraftArtifactState.REMOVED);
+
+        final Container postAdditionContainer = read(containerId);        
+        final ContainerDraft postAdditionDraft = readDraft(containerId);
+        final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
+        notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, postAdditionDocument, localEventGenerator);
     }
 
     /**

@@ -84,6 +84,17 @@ public interface ContainerIOHandler {
     public void delete(final Long containerId);
 
     /**
+     * Delete the draft artifact relationship.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param artifactId
+     *            An artifact id.
+     */
+    public void deleteDraftArtifactRel(final Long containerId,
+            final Long artifactId);
+
+    /**
      * Delete a container version.
      * 
      * @param containerId

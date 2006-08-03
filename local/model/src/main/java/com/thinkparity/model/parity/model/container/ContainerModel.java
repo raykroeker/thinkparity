@@ -387,7 +387,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readKeyRequests(containerId, filter); }
     }
 
-    /**
+	/**
      * Read the latest container version.
      * 
      * @param containerId
@@ -398,7 +398,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readLatestVersion(containerId); }
     }
 
-	/**
+    /**
      * Read the team for the container.
      * 
      * @param containerId
@@ -496,8 +496,7 @@ public class ContainerModel {
      * @param documentId
      *            A document id.
      */
-    public void removeDocument(final Long containerId, final Long documentId)
-            throws ParityException {
+    public void removeDocument(final Long containerId, final Long documentId) {
         synchronized(implLock) { impl.removeDocument(containerId, documentId); }
     }
 

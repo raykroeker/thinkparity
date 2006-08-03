@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.container;
 
+import java.util.List;
+
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.document.Document;
@@ -33,6 +35,17 @@ public class AddDocumentTest extends ContainerTestCase {
         datum.containerModel.addDocument(datum.container.getId(), datum.document.getId());
 
         assertTrue(NAME + " [DOCUMENT ADDED EVENT NOT FIRED]", datum.didNotify);
+        final Container container = datum.containerModel.read(datum.container.getId());
+        assertNotNull(NAME + " [CONTAINER IS NULL]", container);
+        final ContainerDraft draft = container.getDraft();
+        assertNotNull(NAME + " [CONTAINER DRAFT IS NULL]", draft);
+        final List<Document> documents = draft.getDocuments();
+        assertNotNull(NAME + " [CONTAINER DRAFT DOCUMENTS ARE NULL]", documents);
+        assertTrue(NAME + " [DRAFT DOCUMENTS DOES NOT CONTAIN ADDED DOCUMENT]", documents.contains(datum.document));
+        assertEquals(NAME + " [DRAFT DOCUMENT STATE DOES NOT MATCH EXPECTATION]",
+                ContainerDraftArtifactState.ADDED,
+                draft.getArtifactState(datum.document.getId()));
+
     }
 
     /**

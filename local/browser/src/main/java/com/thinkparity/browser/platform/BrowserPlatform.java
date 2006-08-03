@@ -311,7 +311,7 @@ public class BrowserPlatform implements Platform {
      *
      * @return True if a newer release is available.
      */
-    private Boolean isUpdateAvailable() { return updateHelper.isAvailable(); }
+    private Boolean isUpdateAvailable() { return Boolean.FALSE; }
 
     /** @see com.thinkparity.browser.platform.Platform#isOnline() */
     public Boolean isOnline() { return onlineHelper.isOnline(); }

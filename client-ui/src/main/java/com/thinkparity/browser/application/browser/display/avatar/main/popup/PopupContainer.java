@@ -74,9 +74,18 @@ public class PopupContainer implements Popup {
      *
      */
     public void trigger(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
-        if(Connection.ONLINE == application.getConnection()) { triggerOnline(application, jPopupMenu, e); }
-        else if(Connection.OFFLINE == application.getConnection()) { triggerOffline(application, jPopupMenu, e); }
-        else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [CONTAINER POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]"); }
+        if (null == container) {
+            // No selected container, ie. right clicked on a blank area
+            triggerNoContainerSelected(application, jPopupMenu, e);
+        } else {
+            if (Connection.ONLINE == application.getConnection()) {
+                triggerOnline(application, jPopupMenu, e);
+            } else if (Connection.OFFLINE == application.getConnection()) {
+                triggerOffline(application, jPopupMenu, e);
+            } else {
+                Assert.assertUnreachable("[LBROWSER] [APPLICATION] [BROWSER] [AVATAR] [CONTAINER POPUP] [TRIGGER] [UNKNOWN CONNECTION STATUS]");
+            }
+        }
     }
 
     /**
@@ -104,6 +113,21 @@ public class PopupContainer implements Popup {
     }
     
     /**
+     * Trigger a container popup when no container is selected.
+     *
+     * @param application
+     *      The browser application.
+     * @param jPopupMenu
+     *      The popup menu to populate.
+     * @param e
+     *      The source mouse event
+     */
+    private void triggerNoContainerSelected(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
+        // MENU_ITEM New container
+        jPopupMenu.add(new NewContainer(application));
+    }
+    
+    /**
      * Trigger a container popup when the user is online.
      *
      * @param application
@@ -114,51 +138,44 @@ public class PopupContainer implements Popup {
      *      The source mouse event
      */
     private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
-        if (null==container) {  // No selected container, ie. right clicked on a blank area
-            // MENU_ITEM New container
-            jPopupMenu.add(new NewContainer(application));
-        }
-        else {
-            // MENU_ITEM Add document
-            jPopupMenu.add(new AddDocument(application));
-            if(container.isKeyHolder()) {
-                if(!container.isWorkingVersionEqual()) {
-                    // MENU_ITEM Publish
-                    jPopupMenu.add(new Publish(application));
-                }
+        // MENU_ITEM Manage team
+        jPopupMenu.add(new ManageTeam(application));
+        /*
+        // MENU_ITEM Add document
+        jPopupMenu.add(new AddDocument(application));
+        if (container.isKeyHolder()) {
+            if (!container.isWorkingVersionEqual()) {
+                // MENU_ITEM Publish
+                jPopupMenu.add(new Publish(application));
             }
         }
+        */
     }      
    
     /**
      * Trigger a container popup when the user is offline.
-     *
+     * 
      * @param application
-     *      The browser application.
+     *            The browser application.
      * @param jPopupMenu
-     *      The popup menu to populate.
+     *            The popup menu to populate.
      * @param e
-     *      The source mouse event
+     *            The source mouse event
      */
     private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
-        if (null==container) {  // No selected container, ie. right clicked on a blank area
-            // MENU_ITEM New container
-            jPopupMenu.add(new NewContainer(application));
-        }
-        else {
-            // MENU_ITEM Add document
-            jPopupMenu.add(new AddDocument(application));
-            if(container.isKeyHolder()) {
-                if(!container.isWorkingVersionEqual()) {
-                    // MENU_ITEM Publish
-                    jPopupMenu.add(new Publish(application));
-                }
+        // MENU_ITEM Manage team
+        jPopupMenu.add(new ManageTeam(application));
+        /*
+        // MENU_ITEM Add document
+        jPopupMenu.add(new AddDocument(application));
+        if (container.isKeyHolder()) {
+            if (!container.isWorkingVersionEqual()) {
+                // MENU_ITEM Publish
+                jPopupMenu.add(new Publish(application));
             }
         }
+        */
     }   
-    
-
-    
 
     /**
      * Create the share menu item.
@@ -287,6 +304,28 @@ public class PopupContainer implements Popup {
         }
     }
 */
+    
+    /** A "manage team" {@link JMenuItem}. */    
+    private class ManageTeam extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create a ManageTeam JMenuItem.
+         * 
+         * @param application
+         *            The browser application.
+         */
+        private ManageTeam(final Browser application) {
+            super(getString("ManageTeam"), getString("ManageTeamMnemonic").charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runManageTeam(container.getId());
+                }
+            });
+        }
+    }
     
     /** A "new container" {@link JMenuItem}. */    
     private class NewContainer extends JMenuItem {

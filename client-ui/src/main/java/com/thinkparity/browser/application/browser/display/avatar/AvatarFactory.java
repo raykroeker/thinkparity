@@ -4,13 +4,12 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.display.avatar.contact.AddContact;
 import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
 import com.thinkparity.browser.application.browser.display.avatar.contact.Manage;
 import com.thinkparity.browser.application.browser.display.avatar.contact.SearchPartner;
+import com.thinkparity.browser.application.browser.display.avatar.container.ManageTeam;
 import com.thinkparity.browser.application.browser.display.avatar.container.NewContainerDialogue;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
@@ -18,6 +17,8 @@ import com.thinkparity.browser.application.browser.display.provider.ProviderFact
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.browser.platform.application.dialog.ErrorDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -234,6 +235,17 @@ public class AvatarFactory {
         // No content provider required
         return newContainerAvatar;
     }
+    
+    /**
+     * Create the manage team avatar.
+     * 
+     * @return The manage team avatar.
+     */
+    private Avatar createManageTeam() {
+        final Avatar manageTeamAvatar = new ManageTeam();
+        manageTeamAvatar.setContentProvider(ProviderFactory.getManageTeamProvider());
+        return manageTeamAvatar;
+    }
 
 	/**
 	 * Create an avatar and register it.
@@ -299,6 +311,9 @@ public class AvatarFactory {
             break;
         case NEW_CONTAINER_DIALOGUE:
             avatar = createNewContainerDialogue();
+            break;
+        case MANAGE_TEAM:
+            avatar = createManageTeam();
             break;
         case INVITE:
             avatar = createInvite();

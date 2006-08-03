@@ -18,12 +18,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.*;
 import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
+import com.thinkparity.browser.application.browser.display.avatar.container.ManageTeam;
 import com.thinkparity.browser.application.browser.display.avatar.container.NewContainerDialogue;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
 import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
@@ -45,6 +44,7 @@ import com.thinkparity.browser.platform.action.contact.CreateInvitation;
 import com.thinkparity.browser.platform.action.contact.DeleteContact;
 import com.thinkparity.browser.platform.action.contact.OpenContact;
 import com.thinkparity.browser.platform.action.container.CreateContainer;
+import com.thinkparity.browser.platform.action.container.ManageContainerTeam;
 import com.thinkparity.browser.platform.action.document.*;
 import com.thinkparity.browser.platform.action.session.AcceptInvitation;
 import com.thinkparity.browser.platform.action.session.DeclineInvitation;
@@ -60,10 +60,13 @@ import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -257,6 +260,19 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the manage team dialog.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void displayManageTeam(final Long containerId) {
+        final Data input = new Data(1);
+        input.set(ManageTeam.DataKey.CONTAINER_ID, containerId);
+        setInput(AvatarId.MANAGE_TEAM, input);
+        displayAvatar(WindowId.POPUP, AvatarId.MANAGE_TEAM);        
+    }
+
+    /**
      * Display the invite dialogue.
      *
      */   
@@ -297,7 +313,7 @@ public class Browser extends AbstractApplication {
         input.set(NewContainerDialogue.DataKey.NUM_FILES, numFiles);
         setInput(AvatarId.NEW_CONTAINER_DIALOGUE, input);
         displayAvatar(WindowId.POPUP, AvatarId.NEW_CONTAINER_DIALOGUE);
-    }
+    } 
 
     /**
      * Display the "new container" dialog (to create new packages).
@@ -588,6 +604,22 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() { getContainersAvatar().syncContainer(containerId, Boolean.TRUE); }
         });
+    }
+    
+    /**
+     * Notify the application that the team has changed.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            True if the action was the result of a remote event; false if
+     *            the action was a local event.   
+     */
+    public void fireContainerTeamChanged(final Long containerId, final Boolean remote) {
+        setCustomStatusMessage("ContainerTeamChanged");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContainersAvatar().syncContainer(containerId, remote); }
+        });        
     }
 
     /**
@@ -1103,6 +1135,35 @@ public class Browser extends AbstractApplication {
         data.set(CreateContainer.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
+    
+    /**
+     * Manage the team for the container. The user will set team members
+     * in a dialog.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void runManageTeam(final Long containerId) {
+        final Data data = new Data(1);
+        data.set(ManageContainerTeam.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.MANAGE_TEAM, data);           
+    }
+    
+    /**
+     * Manage the team for the container. Team members are specified
+     * as a parameter.
+     *
+     * @param containerId
+     *            The container id.
+     * @param teamMembers
+     *            List of team members      
+     */
+    public void runManageTeam(final Long containerId, final List<User> teamMembers) {
+        final Data data = new Data(2);
+        data.set(ManageContainerTeam.DataKey.CONTAINER_ID, containerId);
+        data.set(ManageContainerTeam.DataKey.TEAM_MEMBERS, teamMembers);
+        invoke(ActionId.MANAGE_TEAM, data);
+    }   
     
     /**
      * Run the create document action, browse to select the document.

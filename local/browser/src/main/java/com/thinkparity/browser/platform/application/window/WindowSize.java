@@ -63,6 +63,8 @@ class WindowSize {
         sizeMap.put(AvatarId.CONTACT_INFO_DIALOGUE, new Dimension(300,170));
         // DIMENSION New Container
         sizeMap.put(AvatarId.NEW_CONTAINER_DIALOGUE, new Dimension(350,150));
+        // DIMENSION Manage Team
+        sizeMap.put(AvatarId.MANAGE_TEAM, new Dimension(470, 350));
         // DIMENSION Invite Contact
         sizeMap.put(AvatarId.INVITE, new Dimension(300,200));
         // DIMENSION Add Contact

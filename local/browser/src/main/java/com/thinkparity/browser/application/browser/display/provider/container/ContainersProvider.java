@@ -20,11 +20,11 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerModel;
+import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * @author rob_masako@shaw.ca
@@ -109,7 +109,8 @@ public class ContainersProvider extends CompositeFlatSingleContentProvider {
             public Object[] getElements(final Object input) {
                 final CellContainer c = (CellContainer) input;
                 try {
-                    return toDisplay(c, dModel, ctrModel.readDocuments(c.getId()));
+                    final ContainerVersion containerVersion = ctrModel.readLatestVersion(c.getId());
+                    return toDisplay(c, dModel, ctrModel.readDocuments(c.getId(),containerVersion.getVersionId()));
                 }
                 catch(final ParityException px) { throw new RuntimeException(px); }
             }
@@ -247,7 +248,8 @@ public class ContainersProvider extends CompositeFlatSingleContentProvider {
         else {
             final CellContainer cc = new CellContainer(ctrModel, dModel, container);
             try {
-                cc.setDocuments(ctrModel.readDocuments(cc.getId()));
+                final ContainerVersion containerVersion = ctrModel.readLatestVersion(cc.getId());
+                cc.setDocuments(ctrModel.readDocuments(cc.getId(),containerVersion.getVersionId()));
             }
             catch(final ParityException px) { throw new RuntimeException(px); }
 //          cc.setKeyRequests(ctrModel.readKeyRequests(container.getId()));

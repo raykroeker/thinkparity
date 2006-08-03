@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.display.provider.contact.ContactInfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
 import com.thinkparity.browser.application.browser.display.provider.container.ContainersProvider;
+import com.thinkparity.browser.application.browser.display.provider.container.ManageTeamProvider;
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.InfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.MainProvider;
@@ -79,6 +80,15 @@ public class ProviderFactory {
 	public static ContentProvider getMainProvider() {
 		return singleton.doGetMainProvider();
 	}
+    
+    /**
+     * Obtain the manage team provider.
+     * 
+     * @return The manage team provider.
+     */
+    public static ContentProvider getManageTeamProvider() {
+        return singleton.doGetManageTeamProvider();
+    }
 
     /**
 	 * Obtain the manage contacts provider.
@@ -136,6 +146,9 @@ public class ProviderFactory {
 	/** The main (documents) provider. */
 	private final ContentProvider mainProvider;
     
+    /** The manage team provider. */
+    private final ContentProvider manageTeamProvider;
+    
     /** The contacts provider. */
 	private final ContentProvider manageContactsProvider;
 
@@ -166,6 +179,7 @@ public class ProviderFactory {
 		this.infoProvider = new InfoProvider(profile);
         this.containersProvider = new ContainersProvider(profile, artifactModel, ctrModel, dModel, cModel, systemMessageModel);
 		this.mainProvider = new MainProvider(profile, artifactModel, ctrModel, cModel, dModel, systemMessageModel);
+        this.manageTeamProvider = new ManageTeamProvider(profile, ctrModel, cModel);
 		this.manageContactsProvider = new ManageContactsProvider(profile, cModel);
         this.contactInfoProvider = new ContactInfoProvider(profile, cModel);
 		this.sendArtifactProvider = new SendArtifactProvider(profile, artifactModel, cModel, dModel);
@@ -211,6 +225,15 @@ public class ProviderFactory {
 	 */
 	private ContentProvider doGetMainProvider() {
         return mainProvider;
+    }
+    
+    /**
+     * Obtain the manage team provider.
+     * 
+     * @return The manage team provider.
+     */
+    private ContentProvider doGetManageTeamProvider() {
+        return manageTeamProvider;
     }
 
     /**

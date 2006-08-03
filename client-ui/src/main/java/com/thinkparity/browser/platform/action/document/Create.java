@@ -65,8 +65,7 @@ public class Create extends AbstractAction {
             final InputStream inputStream = new FileInputStream(file);
             Document document = null;
             try {
-                document = getDocumentModel().create(containerId,
-                        file.getName(), inputStream);
+                document = getDocumentModel().create(file.getName(), inputStream);
                 // Add the document to the container
                 getContainerModel().addDocument(containerId, document.getId());
             } finally {

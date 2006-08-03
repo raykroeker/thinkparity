@@ -26,6 +26,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerModel;
+import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -118,7 +119,8 @@ public class MainProvider extends CompositeFlatSingleContentProvider {
 					//return toDisplay(dModel.list(sort), aModel, dModel, loggedInUserId);
                     
                     final Container c = (Container) input;
-                    return toDisplay(profile, ctrModel.readDocuments(c.getId(), sort), ctrModel, aModel, dModel);
+                    final ContainerVersion containerVersion = ctrModel.readLatestVersion(c.getId());
+                    return toDisplay(profile, ctrModel.readDocuments(c.getId(), containerVersion.getVersionId(), sort), ctrModel, aModel, dModel);
 				}
 				catch(final ParityException px) { throw new RuntimeException(px); }
 			}

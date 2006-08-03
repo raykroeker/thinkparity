@@ -79,6 +79,16 @@ public final class Constants {
     }
 
     public static final class Xml {
+        public static final class EventHandler {
+            public static final class Artifact {
+                public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:teammemberadded";
+            }
+        }
+        public static final class Method {
+            public static final class Artifact {
+                public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
+            }
+        }
         public static final class Artifact {
             public static final String BYTES = "bytes";
             public static final String NAME = "name";

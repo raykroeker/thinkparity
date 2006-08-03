@@ -110,7 +110,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
             assertEquals(NAME + " [EVENT CONTAINER DOES NOT MATCH EXPECTATION]", datum.container, e.getContainer());
             assertEquals(NAME + " [EVENT DOCUMENT DOES NOT MATCH EXPECTATION]", datum.document, e.getDocument());
             assertNotNull(NAME + " [EVENT DOCUMENT IS NULL]", e.getDraft());
-            assertNull(NAME + " [EVENT USER IS NOT NULL]", e.getUser());
+            assertNull(NAME + " [EVENT USER IS NOT NULL]", e.getTeamMember());
         }
         public void draftCreated(ContainerEvent e) {
             fail(NAME + " [DRAFT CREATED EVENT FIRED]");

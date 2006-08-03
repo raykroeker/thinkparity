@@ -3,6 +3,10 @@
  */
 package com.thinkparity.model.parity.model.container;
 
+import java.util.List;
+
+import com.thinkparity.model.parity.model.user.TeamMember;
+
 
 /**
  * @author raymond@thinkparity.com
@@ -20,7 +24,8 @@ public class ReadTeamTest extends ContainerTestCase {
     public ReadTeamTest() { super(NAME); }
 
     public void testReadTeam() {
-        datum.cModel.readTeam(datum.containerId);
+        final List<TeamMember> team = datum.cModel.readTeam(datum.containerId);
+        assertNotNull(NAME + " [TEAM IS NULL]", team);
     }
 
     /**

@@ -104,7 +104,7 @@ public class CreateDraftTest extends ContainerTestCase {
             assertNotNull(NAME, e.getDraft());
             assertNull(NAME, e.getContainer());
             assertNull(NAME, e.getDocument());
-            assertNull(NAME, e.getUser());
+            assertNull(NAME, e.getTeamMember());
         }
         public void teamMemberAdded(ContainerEvent e) {
             fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");

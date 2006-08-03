@@ -45,14 +45,17 @@ public interface XMPPSession {
     public void acceptInvitation(final JabberId jabberId) throws SmackException;
 
     /**
-     * Add the logged in user as a team member.
+     * Add a team member. This will create the team member relationship in the
+     * distributed network with a pending state.
      * 
-     * @param uniqueId
-     *            The artifact unique id.
+     * @param artifactId
+     *            An artifact id.
+     * @param jabberId
+     *            A jabber id.
      * @throws SmackException
      */
-    public void addArtifactTeamMember(final UUID artifactUniqueId)
-            throws SmackException;
+    public void addTeamMember(final UUID artifactUniqueId,
+            final JabberId jabberId) throws SmackException;
 
     /**
      * Add an xmpp artifact event listener.

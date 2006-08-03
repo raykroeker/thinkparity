@@ -7,7 +7,7 @@ package com.thinkparity.model.parity.model.container;
 
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.parity.model.user.TeamMember;
 
 /**
  * @author raymond@thinkparity.com
@@ -65,8 +65,8 @@ class ContainerEventGenerator {
      *            A user.
      * @return A container event.
      */
-    ContainerEvent generate(final Container container, final User user) {
-        return new ContainerEvent(source, container, user);
+    ContainerEvent generate(final Container container, final TeamMember teamMember) {
+        return new ContainerEvent(source, container, teamMember);
     }
 
     /**

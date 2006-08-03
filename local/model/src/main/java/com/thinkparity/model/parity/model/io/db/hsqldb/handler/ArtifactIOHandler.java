@@ -13,6 +13,8 @@ import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
+import com.thinkparity.model.parity.model.user.TeamMember;
+import com.thinkparity.model.parity.model.user.TeamMemberState;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -141,8 +143,8 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	/** Sql to create a team member relationship. */
     private static final String SQL_CREATE_TEAM_REL =
         new StringBuffer("insert into ARTIFACT_TEAM_REL ")
-        .append("(ARTIFACT_ID,USER_ID) ")
-        .append("values (?,?)")
+        .append("(ARTIFACT_ID,USER_ID,USER_STATE_ID) ")
+        .append("values (?,?,?)")
         .toString();
 
 	/**
@@ -182,7 +184,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
     /** Sql to read the team relationship. */
     private static final String SQL_READ_TEAM_REL =
         new StringBuffer("select U.NAME,U.JABBER_ID,")
-        .append("U.USER_ID,U.ORGANIZATION ")
+        .append("U.USER_ID,U.ORGANIZATION,ATR.ARTIFACT_ID,ATR.USER_STATE_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=?")
@@ -291,15 +293,16 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
      *      java.lang.Long)
      * 
      */
-    public void createTeamRel(final Long artifactId, final Long userId)
-            throws HypersonicException {
+    public void createTeamRel(final Long artifactId, final Long userId,
+            final TeamMemberState state) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_TEAM_REL);
             session.setLong(1, artifactId);
             session.setLong(2, userId);
+            session.setStateAsInteger(3, state);
             if(1 != session.executeUpdate())
-                throw new HypersonicException("[LMODEL] [ARTIFACT] [IO] [CREATE TEAM REL]");
+                throw new HypersonicException(getErrorId("[CREATE TEAM REL]", "[COULD NOT CREATE TEAM RELATIONSHIP]"));
 
             session.commit();
         }
@@ -447,6 +450,33 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * Read the team for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return The team.
+     * @throws HypersonicException
+     */
+    public List<TeamMember> readTeamRel2(final Long artifactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_TEAM_REL);
+            session.setLong(1, artifactId);
+            session.executeQuery();
+
+            final List<TeamMember> team = new ArrayList<TeamMember>();
+            while(session.nextResult()) { team.add(extractTeamMember(session)); }
+            return team;
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+
+    }
+
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readType(java.lang.Long)
      */
     public ArtifactType readType(final Long artifactId) {
@@ -476,7 +506,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#setFlags(java.lang.Long,
 	 *      java.util.List)
 	 * 
@@ -713,6 +743,24 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
     }
 
 	/**
+     * Extract a team member from the session.
+     * 
+     * @param session
+     *            The database session.
+     * @return A team member.
+     */
+    TeamMember extractTeamMember(final Session session) {
+        final TeamMember teamMember = new TeamMember();
+        teamMember.setArtifactId(session.getLong("ARTIFACT_ID"));
+        teamMember.setId(session.getQualifiedUsername("JABBER_ID"));
+        teamMember.setLocalId(session.getLong("USER_ID"));
+        teamMember.setName(session.getString("NAME"));
+        teamMember.setOrganization(session.getString("ORGANIZATION"));
+        teamMember.setState(session.getTeamMemberStateFromInteger("USER_STATE_ID"));
+        return teamMember;
+    }
+
+    /**
 	 * Obtain the artifact version meta data.
 	 * 
 	 * @param session
@@ -739,7 +787,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		return metaData;
 	}
 
-	/**
+    /**
 	 * Set the flags for the artifact.
 	 * 
 	 * @param session

@@ -93,7 +93,7 @@ public class CreateTest extends ContainerTestCase {
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
             assertNotNull(NAME, e.getContainer());
-            assertNull(NAME, e.getUser());
+            assertNull(NAME, e.getTeamMember());
             assertNull(NAME, e.getDocument());
         }
         public void containerDeleted(final ContainerEvent e) {

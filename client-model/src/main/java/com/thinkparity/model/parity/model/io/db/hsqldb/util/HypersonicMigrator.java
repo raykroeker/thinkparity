@@ -24,6 +24,7 @@ import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Table;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
+import com.thinkparity.model.parity.model.user.TeamMemberState;
 
 /**
  * @author raykroeker@gmail.com
@@ -40,6 +41,8 @@ class HypersonicMigrator {
     private static final String INSERT_SEED_ARTIFACT_FLAG;
 
     private static final String INSERT_SEED_ARTIFACT_STATE;
+
+    private static final String INSERT_SEED_ARTIFACT_TEAM_REL_STATE;
 
     private static final String INSERT_SEED_ARTIFACT_TYPE;
 
@@ -72,6 +75,7 @@ class HypersonicMigrator {
                 CONFIG.getProperty("CreateArtifact"),
                 CONFIG.getProperty("CreateArtifactFlag"),
                 CONFIG.getProperty("CreateArtifactFlagRel"),
+                CONFIG.getProperty("CreateArtifactTeamRelState"),
                 CONFIG.getProperty("CreateArtifactTeamRel"),
                 CONFIG.getProperty("CreateArtifactRemoteInfo"),
                 CONFIG.getProperty("CreateArtifactVersion"),
@@ -104,6 +108,8 @@ class HypersonicMigrator {
         INSERT_SEED_ARTIFACT_FLAG = CONFIG.getProperty("InsertSeedArtifactFlag");
 
         INSERT_SEED_ARTIFACT_STATE = CONFIG.getProperty("InsertSeedArtifactState");
+
+        INSERT_SEED_ARTIFACT_TEAM_REL_STATE = CONFIG.getProperty("InsertSeedArtifactTeamRelState");
 
         INSERT_SEED_ARTIFACT_TYPE = CONFIG.getProperty("InsertSeedArtifactType");
 
@@ -220,6 +226,15 @@ class HypersonicMigrator {
             if(1 != session.executeUpdate())
                 throw new HypersonicException(
                         "Could not insert artifact state seed data:  " + as);
+        }
+
+        session.prepareStatement(INSERT_SEED_ARTIFACT_TEAM_REL_STATE);
+        for(final TeamMemberState state : TeamMemberState.values()) {
+            session.setStateAsInteger(1, state);
+            session.setStateAsString(2, state);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not insert artifact team member state data:  " + state);
         }
 
         session.prepareStatement(INSERT_SEED_ARTIFACT_TYPE);

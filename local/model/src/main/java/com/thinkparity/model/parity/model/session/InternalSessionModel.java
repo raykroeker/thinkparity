@@ -88,6 +88,21 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
+     * Add a team member. This will create the team member relationship in the
+     * distributed network with a pending state.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param jabberId
+     *            A jabber id.
+     */
+    public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        synchronized(getImplLock()) {
+            getImpl().addTeamMember(uniqueId, jabberId);
+        }
+    }
+
+    /**
      * Reactivate a container version.
      * 
      * @param version
@@ -258,18 +273,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) {
             getImpl().sendKeyResponse(keyResponse, artifactId, jabberId);
         }
-    }
-
-    /**
-     * Subscribe to an artifact. The parity server is notified and will create a
-     * subscription entry for the logged in user.
-     * 
-     * @param artifact
-     *            The artifact to subscribe to.
-     * @throws ParityException
-     */
-    public void sendSubscribe(final Artifact artifact) throws ParityException {
-        synchronized(getImplLock()) { getImpl().sendSubscribe(artifact); }
     }
 
     /**

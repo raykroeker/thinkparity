@@ -70,9 +70,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     final Long versionId, final JabberId receivedFrom) {
                 handleConfirmationReceipt(uniqueId, versionId, receivedFrom);
             }
-			public void teamMemberAdded(final UUID artifactUniqueId,
-					final User teamMember) {
-				handleTeamMemberAdded(artifactUniqueId, teamMember);
+			public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
+				handleTeamMemberAdded(uniqueId, jabberId);
 			}
             public void teamMemberRemoved(final UUID artifactUniqueId,
 					final User teamMember) {
@@ -156,6 +155,21 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
     /**
+     * Add a team member. This will create the team member relationship in the
+     * distributed network with a pending state.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param jabberId
+     *            A jabber id.
+     * @throws SmackException
+     */
+    void addTeamMember(final UUID uniqueId, final JabberId jabberId)
+            throws SmackException {
+        xmppSession.addTeamMember(uniqueId, jabberId);
+    }
+
+    /**
      * Send an artifact received confirmation receipt.
      * 
      * @param receivedFrom
@@ -171,7 +185,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
        xmppSession.confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
     }
 
-    /**
+	/**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -261,7 +275,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.processOfflineQueue();
 	}
 
-	/**
+    /**
      * Reactivate a container version.
      * 
      * @param version
@@ -281,7 +295,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         xmppSession.reactivate(version, documentVersions, team, reactivatedBy, reactivatedOn);
     }
 
-    /**
+	/**
 	 * Obtain a list of contacts for an artifact.
 	 * 
 	 * @param uniqueId
@@ -293,7 +307,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readArtifactTeam(uniqueId);
 	}
 
-	/**
+    /**
 	 * Read the logged in user's contacts.
 	 * 
 	 * @return A list of contacts.
@@ -303,7 +317,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readContacts();
 	}
 
-    /**
+	/**
      * Read the logged in user's profile.
      * 
      * @return A profile.
@@ -395,7 +409,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.requestArtifactKey(artifactUniqueId);
 	}
 
-	/**
+    /**
      * Send the response to a document key request to the user (via the parity
      * server).
      * 
@@ -413,7 +427,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.sendKeyResponse(artifactUniqueId, keyResponse, jabberId);
 	}
 
-    /**
+	/**
 	 * Send the log file archive to the parity server.
 	 * 
 	 * @param logFileArchive
@@ -425,17 +439,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException {
 		xmppSession.sendLogFileArchive(logFileArchive, user);
-	}
-
-	/**
-	 * Send a subscribe packet to the parity server.
-	 * 
-	 * @param artifactUniqueId
-	 *            The object unique id.
-	 * @throws SmackException
-	 */
-	void sendSubscribe(final UUID artifactUniqueId) throws SmackException {
-		xmppSession.addArtifactTeamMember(artifactUniqueId);
 	}
 
     /**
@@ -503,7 +506,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final RuntimeException rx) { unexpectedOccured(rx); }
     }
 
-    /**
+	/**
      * Event handler for the extension listener's document reactivated event.
      * 
      * @param reactivatedBy
@@ -653,9 +656,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      * @param teamMember
      *            The new team member.
      */
-	private void handleTeamMemberAdded(final UUID artifactUniqueId,
-			final User teamMember) {
-		try { SessionModelImpl.notifyTeamMemberAdded(artifactUniqueId, teamMember); }
+	private void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
+		try { SessionModelImpl.handleTeamMemberAdded(uniqueId, jabberId); }
 		catch(final ParityException px) { unexpectedOccured(px); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
@@ -673,7 +675,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
-	private void unexpectedOccured(final ParityException px) {
+    private void unexpectedOccured(final ParityException px) {
 		// TODO  Implement rModel rollback.
 		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", px);
 	}
@@ -687,5 +689,4 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		// TODO  Implement rModel rollback.
 		logger.fatal("[LMODEL] [SESSION] [XMPP] [HANDLE REVENT]", sx);
 	}
-
 }

@@ -141,18 +141,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.accept(jabberId);
 	}
 
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#addArtifactTeamMember(java.util.UUID)
-	 * 
-	 */
-	public void addArtifactTeamMember(final UUID uniqueId)
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#addTeamMember(java.util.UUID,
+     *      com.thinkparity.model.xmpp.JabberId)
+     * 
+     */
+	public void addTeamMember(final UUID uniqueId, final JabberId jabberId)
             throws SmackException {
-		logger.info("[LMODEL] [XMPP] [ARTIFACT] [ADD TEAM MEMBER]");
-		logger.debug(uniqueId);
-		final IQArtifact iq = new IQArtifactSubscribe(uniqueId);
-		iq.setType(IQ.Type.SET);
-		logger.debug(iq);
-		sendAndConfirmPacket(iq);
+	    xmppArtifact.addTeamMember(uniqueId, jabberId);
 	}
 
 	/**

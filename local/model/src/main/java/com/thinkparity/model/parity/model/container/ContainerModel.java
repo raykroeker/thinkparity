@@ -17,6 +17,7 @@ import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
@@ -195,17 +196,6 @@ public class ContainerModel {
      */
     public void publish(final Long containerId) throws ParityException {
         synchronized(implLock) { impl.publish(containerId); }
-    }
-
-    /**
-     * Reactivate a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @throws ParityException
-     */
-    public void reactivate(final Long containerId) throws ParityException {
-        synchronized(implLock) { impl.reactivate(containerId); }
     }
 
     /**
@@ -405,7 +395,7 @@ public class ContainerModel {
      *            A container id.
      * @return A list of users.
      */
-    public List<User> readTeam(final Long containerId) {
+    public List<TeamMember> readTeam(final Long containerId) {
         synchronized(getImplLock()) { return getImpl().readTeam(containerId); }
     }
 
@@ -533,8 +523,8 @@ public class ContainerModel {
      * @param team
      *            A list of users.
      */
-    public void updateTeam(final Long containerId, final List<User> team) {
-        synchronized(getImplLock()) { getImpl().updateTeam(containerId, team); }
+    public void updateTeam(final Long containerId, final List<User> teamMembers) {
+        synchronized(getImplLock()) { getImpl().updateTeam(containerId, teamMembers); }
     }
 
     /**

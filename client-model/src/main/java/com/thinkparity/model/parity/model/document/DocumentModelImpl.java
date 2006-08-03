@@ -169,47 +169,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
-     * Add a team member to the document.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param jabberId
-     *            The team member.
-     * @throws ParityException
-     */
-    void addTeamMember(final Long documentId, final JabberId teamMember)
-            throws ParityException {
-        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
-        logger.debug(documentId);
-        logger.debug(teamMember);
-
-        final InternalArtifactModel iAModel = getInternalArtifactModel();
-        final Set<User> team = iAModel.readTeam(documentId);
-        Boolean isOnTeam = Boolean.FALSE;
-        for(final User teamUser : team) {
-            if(teamUser.getId().equals(teamMember)) {
-                isOnTeam = Boolean.TRUE;
-                break;
-            }
-        }
-
-        if(!isOnTeam) {
-            // save the new team member locally
-            getInternalArtifactModel().addTeamMember(documentId, teamMember);
-        }
-
-        // re-index
-        updateIndex(documentId);
-
-        // audit
-        auditor.confirmAddTeamMember(
-                documentId, currentUserId(), currentDateTime(), teamMember);
-        // fire event
-        notifyTeamMemberAdded(
-                readUser(teamMember), get(documentId), remoteEventGen);
-    }
-
 	/**
 	 * @param documentId
 	 * @return
@@ -468,105 +427,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
-
-	/**
-     * Handle a reactivate request from the remote model.
-     * 
-     * @param reactivatedBy
-     *            By whom the document was reactivated.
-     * @param team
-     *            The team.
-     * @param uniqueId
-     *            The unique id.
-     * @param versionId
-     *            The version id.
-     * @param name
-     *            The name.
-     * @param content
-     *            The content.
-     */
-    void handleReactivate(final JabberId reactivatedBy,
-            final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final String name, final byte[] bytes)
-            throws ParityException {
-        logger.info(getApiId("[HANDLE REACTIVATE]"));
-        logger.debug(reactivatedBy);
-        logger.debug(team);
-        logger.debug(uniqueId);
-        logger.debug(versionId);
-        logger.debug(name);
-        logger.debug(bytes);
-        final Calendar currentDateTime = currentDateTime();
-        final Document document;
-        final DocumentVersion version;
-
-        // re-create
-        if(!doesExist(uniqueId)) {
-            // create the document
-            document = new Document();
-            document.setCreatedBy(reactivatedBy.getUsername());
-            document.setCreatedOn(currentDateTime);
-            document.setName(name);
-            document.setState(ArtifactState.ACTIVE);
-            document.setUniqueId(uniqueId);
-            document.setUpdatedBy(reactivatedBy.getUsername());
-            document.setUpdatedOn(currentDateTime);
-
-            // create the document
-            documentIO.create(document);
-
-            // create the local file
-            final LocalFile localFile = getLocalFile(document);
-            try { localFile.write(bytes); }
-            catch(final IOException iox) {
-                throw ParityErrorTranslator.translate(iox);
-            }
-
-            // create the remote info row
-            final InternalArtifactModel iAModel = getInternalArtifactModel();
-            iAModel.createRemoteInfo(document.getId(), reactivatedBy, currentDateTime);
-
-            // add team members
-            // TODO Add the team as a whole; better yet add an api to create the
-            // team from the remote app in the model
-            for(final JabberId jabberId : team) {
-                iAModel.addTeamMember(document.getId(), jabberId);
-            }
-
-            // index the creation
-            indexor.create(document.getId(), document.getName());
-
-            // create a version similar to receiving a doc
-            try {
-                receiveUpdate(reactivatedBy, uniqueId, document.getId(),
-                        versionId, name, bytes);
-            }
-            catch(final IOException iox) {
-                throw ParityErrorTranslator.translate(iox);
-            }
-            version = readLatestVersion(document.getId());
-        }
-        else {
-            document = get(uniqueId);
-            version = getVersion(document.getId(), versionId);
-
-            // update state
-            getInternalArtifactModel().updateState(document.getId(), ArtifactState.ACTIVE);
-
-            // update remote info
-            getInternalArtifactModel().updateRemoteInfo(document.getId(),
-                    reactivatedBy, currentDateTime);
-        }
-        // send a subscription request
-        final InternalSessionModel isModel = getInternalSessionModel();
-        isModel.sendSubscribe(document);
-
-        // audit reactivation
-        auditor.reactivate(document.getId(), currentDateTime, currentUserId(),
-                versionId, reactivatedBy, currentDateTime);
-        // fire event
-        notifyDocumentReactivated(readUser(reactivatedBy), document, version, remoteEventGen);
-    }
 
 	/**
 	 * Determine whether or not the working version of the document is different
@@ -1192,31 +1052,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-     * Remove a team member from the document.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param jabberId
-     *            The team member.
-     * @throws ParityException
-     */
-    void removeTeamMember(final Long documentId, final JabberId jabberId)
-            throws ParityException {
-        logger.info("[LMODEL] [DOCUMENT] [REMOVE TEAM MEMBER]");
-        logger.debug(documentId);
-        logger.debug(jabberId);
-        final User user = readUser(jabberId);
-        // remove the team member locally
-        getInternalArtifactModel().removeTeamMember(documentId, jabberId);
-
-        // re-index
-        updateIndex(documentId);
-
-        // fire event
-        notifyTeamMemberRemoved(user, get(documentId), remoteEventGen);
-    }
-
-	/**
      * Rename a document.
      *
      * @param documentId
@@ -1287,47 +1122,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         // fire event
         notifyKeyRequested(readUser(requestedBy), d, remoteEventGen);
 	}
-
-    /**
-     * Add a user to the document team.  This will iterate all
-     * versions of a document and send them to a user.
-     *
-     * @param documentId
-     *      The document id.
-     * @param teamMember
-     *      The user id to add.
-     */
-    void share(final Long documentId, final JabberId teamMember)
-            throws ParityException {
-        logger.info("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER]");
-        logger.debug(documentId);
-        logger.debug(teamMember);
-        assertOnline("[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [NOT ONLINE]");
-
-        // the user is not yet a team member; hence the user info must come
-        // from the session model and not the user model
-        final User user = getInternalSessionModel().readUser(teamMember);
-        final Set<User> teamUsers = getInternalArtifactModel().readTeam(documentId);
-        Assert.assertNotTrue(
-                "[LMODEL] [DOCUMENT] [ADD TEAM MEMBER] [USER ALREADY TEAM MEMBER]",
-                teamUsers.contains(user));
-
-        // save the new team member locally index
-        getInternalArtifactModel().addTeamMember(documentId, teamMember);
-
-        // update index
-        updateIndex(documentId);
-
-        // audit
-        auditor.addTeamMember(
-                documentId, currentUserId(), currentDateTime(), teamMember);
-
-        // send latest version
-        final DocumentVersion latestVersion = readLatestVersion(documentId);
-        final Set<User> users = new HashSet<User>();
-        users.add(user);
-        getInternalSessionModel().send(users, documentId, latestVersion.getVersionId());
-    }
 
 	/**
 	 * Unlock a document.
@@ -1790,44 +1584,6 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
-     * Fire team member added.
-     *
-     * @param user
-     *      A user.
-     * @param document
-     *      A document
-     * @param eventGen
-     *      The event generator.
-     */
-    private void notifyTeamMemberAdded(final User user, final Document document,
-            final DocumentModelEventGenerator eventGen) {
-        synchronized(DocumentModelImpl.LISTENERS) {
-            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-                l.teamMemberAdded(eventGen.generate(user, document));
-            }
-        }
-    }
-
-    /**
-     * Fire team member removed.
-     * 
-     * @param user
-     *            A user.
-     * @param document
-     *            A document.
-     * @param eventGen
-     *            The event generator.
-     */
-    private void notifyTeamMemberRemoved(final User user,
-            final Document document, final DocumentModelEventGenerator eventGen) {
-        synchronized(LISTENERS) {
-            for(final DocumentListener l : LISTENERS) {
-                l.teamMemberRemoved(eventGen.generate(user, document));
-            }
-        }
-    }
-
     /**
      * Read the latest document version content.
      * 
@@ -1881,16 +1637,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		// create the document file
 		final LocalFile file = getLocalFile(document);
 		file.write(bytes);
-
-		// send a subscription request
-		final InternalSessionModel isModel = getInternalSessionModel();
-        isModel.sendSubscribe(document);
-		
-		// add team members
-		final List<User> team = isModel.readArtifactTeamList(document.getId());
-        // TODO Add the team as a whole; better yet add an api to create the
-        // team from the remote app in the model
-        for(final User user : team) { iAModel.addTeamMember(document.getId(), user.getId()); }
 
 		// index the creation
 		indexor.create(document.getId(), document.getName());

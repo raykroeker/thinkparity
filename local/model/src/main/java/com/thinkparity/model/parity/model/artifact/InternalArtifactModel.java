@@ -9,9 +9,11 @@ import java.util.UUID;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -19,7 +21,7 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class InternalArtifactModel extends ArtifactModel {
 
-	/**
+    /**
 	 * Create a InternalArtifactModel.
 	 * 
 	 * @param context
@@ -33,26 +35,43 @@ public class InternalArtifactModel extends ArtifactModel {
 	}
 
 	/**
-     * Add a team member to the artifact.
+     * Add the team member. Add the user to the local team data in a pending
+     * state; and call the server's add team member api.
      * 
      * @param artifactId
      *            The artifact id.
-     * @param jabberId
-     *            The jabber id.
+     * @param user
+     *            The user.
      * @throws ParityException
      */
-    public void addTeamMember(final Long artifactId, final JabberId jabberId)
-            throws ParityException {
+    public void addTeamMember(final Long artifactId, final User user) {
         synchronized(getImplLock()) {
-            getImpl().addTeamMember(artifactId, jabberId);
+            getImpl().addTeamMember(artifactId, user);
         }
     }
 
-	public void applyFlagKey(final Long artifactId) {
+    /**
+     * Add the team members. Add the user to the local team data in a pending
+     * state; and call the server's add team member api.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param users
+     *            The users.
+     * @see ArtifactModelImpl#addTeamMember(Long, User)
+     * @throws ParityException
+     */
+    public void addTeamMembers(final Long artifactId, final List<User> users) {
+        synchronized(getImplLock()) {
+            getImpl().addTeamMembers(artifactId, users);
+        }
+    }
+
+    public void applyFlagKey(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().applyFlagKey(artifactId); }
 	}
 
-    /**
+	/**
      * Audit the confirmation receipt of the artifact.
      * 
      * @param artifactId
@@ -112,7 +131,7 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-	/**
+    /**
      * Create the artifact's remote info.
      * 
      * @param artifactId
@@ -141,7 +160,7 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-    /**
+	/**
      * Delete the team in its entirety.
      *
      * @param artifactId
@@ -156,6 +175,17 @@ public class InternalArtifactModel extends ArtifactModel {
     /**
      * Determine if an artifact exists.
      * 
+     * @param artifactId
+     *            The artifact id.
+     * @return True if the artifact exists; false otherwise.
+     */
+    public Boolean doesExist(final Long artifactId) {
+        synchronized(getImplLock()) { return getImpl().doesExist(artifactId); }
+    }
+
+    /**
+     * Determine if an artifact exists.
+     * 
      * @param uniqueId
      *            The unique id.
      * @return True if the artifact exists; false otherwise.
@@ -165,14 +195,19 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
     /**
-     * Determine if an artifact exists.
+     * Handle the remote event generated when a team member is added. This will
+     * download the user's info if required and create the team data locally.
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @return True if the artifact exists; false otherwise.
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param jabberId
+     *            The user's jabber id.
      */
-    public Boolean doesExist(final Long artifactId) {
-        synchronized(getImplLock()) { return getImpl().doesExist(artifactId); }
+    public void handleTeamMemberAdded(final UUID uniqueId,
+            final JabberId jabberId) throws ParityException {
+        synchronized(getImplLock()) {
+            getImpl().handleTeamMemberAdded(uniqueId, jabberId);
+        }
     }
 
 	/**
@@ -213,6 +248,16 @@ public class InternalArtifactModel extends ArtifactModel {
 	}
 
     /**
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+	public List<TeamMember> readTeam2(final Long artifactId) {
+	    synchronized(getImplLock()) { return getImpl().readTeam2(artifactId); }
+    }
+
+    /**
      * Read the artifact unique id.
      * 
      * @param artifactId
@@ -228,20 +273,25 @@ public class InternalArtifactModel extends ArtifactModel {
 	}
 
     /**
-     * Remove a team member from the artifact.
+     * Remove the team member. Removes the user from the local team data.
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @param jabberId
-     *            The jabber id.
-     * @throws ParityException
+     * @param teamMember
+     *            The team member.
      */
-    public void removeTeamMember(final Long artifactId, final JabberId jabberId) {
-        synchronized(getImplLock()) {
-            getImpl().removeTeamMember(artifactId, jabberId);
-        }
+    public void removeTeamMember(final TeamMember teamMember) {
+        synchronized(getImplLock()) { getImpl().removeTeamMember(teamMember); }
     }
 
+    /**
+     * Remove the team members. Removes the users from the local team data.
+     * 
+     * @param teamMembers
+     *            The team members.
+     */
+    public void removeTeamMembers(final List<TeamMember> teamMembers) {
+        synchronized(getImplLock()) { getImpl().removeTeamMembers(teamMembers); }
+    }
+    
     /**
      * Update the artifact's remote info.
      * 
@@ -258,7 +308,7 @@ public class InternalArtifactModel extends ArtifactModel {
 			getImpl().updateRemoteInfo(artifactId, updatedBy, updatedOn);
 		}
 	}
-    
+
     /**
      * Update an artifact's state.
      * 

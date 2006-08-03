@@ -14,11 +14,21 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
 
+import org.xmlpull.v1.XmlPullParser;
+
+import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.smackx.packet.artifact.*;
+import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
+import com.thinkparity.model.smackx.packet.artifact.IQArtifactReadContactsProvider;
+import com.thinkparity.model.smackx.packet.artifact.IQArtifactReadContactsResult;
+import com.thinkparity.model.smackx.packet.artifact.IQConfirmArtifactReceipt;
+import com.thinkparity.model.smackx.packet.artifact.IQConfirmReceiptProvider;
+import com.thinkparity.model.smackx.packet.artifact.IQReadContacts;
+import com.thinkparity.model.smackx.packet.artifact.IQTeamMemberRemovedNotification;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -30,16 +40,59 @@ class XMPPArtifact {
 
     private static final List<XMPPArtifactListener> listeners;
 
-	static {
+    static {
 		listeners = new LinkedList<XMPPArtifactListener>();
 
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactreadcontacts", new IQArtifactReadContactsProvider());
         ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactconfirmreceipt", new IQConfirmReceiptProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberadded", new IQTeamMemberAddedNotificationProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:notifyteammemberremoved", new IQTeamMemberRemovedNotificationProvider());
+
+        ProviderManager.addIQProvider("query", Xml.EventHandler.Artifact.TEAM_MEMBER_ADDED, new IQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                final HandleTeamMemberAddedIQ query = new HandleTeamMemberAddedIQ();
+
+                Integer eventType;
+                String name;
+                Boolean isComplete = Boolean.FALSE;
+                while(Boolean.FALSE == isComplete) {
+                    eventType = parser.next();
+                    name = parser.getName();
+
+                    if(XmlPullParser.START_TAG == eventType && Xml.Artifact.UNIQUE_ID.equals(name)) {
+                        parser.next();
+                        query.uniqueId = UUID.fromString(parser.getText());
+                        parser.next();
+                    }
+                    else if(XmlPullParser.END_TAG == eventType && Xml.Artifact.UNIQUE_ID.equals(name)) {
+                        parser.next();
+                    }
+                    else if(XmlPullParser.START_TAG == eventType && Xml.User.JABBER_ID.equals(name)) {
+                        parser.next();
+                        query.jabberId = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
+                        parser.next();
+                    }
+                    else if(XmlPullParser.END_TAG == eventType && Xml.User.JABBER_ID.equals(name)) {
+                        parser.next();
+                    }
+                    else { isComplete = Boolean.TRUE; }
+                }
+                return query;
+
+            }
+        });
 	}
 
-	/**
+    /**
+     * Obtain an api id.
+     * 
+     * @param api
+     *            An api.
+     * @return An api id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return new StringBuffer("[XMPP] [ARTIFACT] ").append(api);
+    }
+
+    /**
 	 * An apache logger.
 	 * 
 	 */
@@ -82,18 +135,10 @@ class XMPPArtifact {
 		xmppConnection.addPacketListener(
 				new PacketListener() {
 					public void processPacket(final Packet packet) {
-						notifyTeamMemberAdded((IQTeamMemberAddedNotification) packet);
+                        handleTeamMemberAdded((HandleTeamMemberAddedIQ) packet);
 					}
 				},
-				new PacketTypeFilter(IQTeamMemberAddedNotification.class));
-		xmppConnection.addPacketListener(
-				new PacketListener() {
-					public void processPacket(final Packet packet) {
-						notifyTeamMemberRemoved((IQTeamMemberRemovedNotification) packet);
-					}
-				},
-				new PacketTypeFilter(IQTeamMemberRemovedNotification.class));
-
+				new PacketTypeFilter(HandleTeamMemberAddedIQ.class));
 		xmppConnection.addPacketListener(
                 new PacketListener() {
                     public void processPacket(final Packet packet) {
@@ -103,6 +148,25 @@ class XMPPArtifact {
                 new PacketTypeFilter(IQConfirmArtifactReceipt.class));
 	}
 
+	/**
+     * Add a team member. This will create the team member relationship in the
+     * distributed network with a pending state.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param jabberId
+     *            A jabber id.
+     * @throws SmackException
+     */
+    void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        logger.info(getApiId("[ADD TEAM MEMBER]"));
+        logger.debug(uniqueId);
+        logger.debug(jabberId);
+        final XMPPMethod method = new XMPPMethod(Xml.Method.Artifact.ADD_TEAM_MEMBER);
+        method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
+        method.setParameter(Xml.User.JABBER_ID, jabberId);
+        method.execute(xmppCore.getConnection());
+    }
 
 	/**
      * Confirm artifact receipt.
@@ -141,7 +205,7 @@ class XMPPArtifact {
         method.execute(xmppCore.getConnection());
     }
 
-    /**
+	/**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -159,7 +223,7 @@ class XMPPArtifact {
 		return result.getContacts();
 	}
 
-	void removeListener(final XMPPArtifactListener l) {
+    void removeListener(final XMPPArtifactListener l) {
 		logger.info("[LMODEL] [XMPP] [REMOVE ARTIFACT LISTENER]");
 		logger.debug(l);
 		synchronized(listeners) {
@@ -190,16 +254,15 @@ class XMPPArtifact {
      * @param notificationPacket
      *            The notification packet.
      */
-	private void notifyTeamMemberAdded(final IQTeamMemberAddedNotification notificationPacket) {
+	private void handleTeamMemberAdded(final HandleTeamMemberAddedIQ query) {
 		synchronized(listeners) {
 			for(final XMPPArtifactListener l : listeners) {
-				l.teamMemberAdded(notificationPacket.getArtifactUniqueId(),
-						notificationPacket.getNewTeamMember());
+				l.teamMemberAdded(query.uniqueId, query.jabberId);
 			}
 		}
 	}
 
-    /**
+	/**
      * Receive a notification re team member removal.
      * 
      * @param notificationPacket
@@ -213,4 +276,17 @@ class XMPPArtifact {
 			}
 		}
 	}
+
+    /**
+     * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Added Query<br>
+     * <b>Description:</b>Provides a wrapper for the team member added remove
+     * event data.
+     */
+    private static class HandleTeamMemberAddedIQ extends AbstractThinkParityIQ {
+        /** The team member jabber id. */
+        private JabberId jabberId;
+
+        /** The artifact unique id. */
+        private UUID uniqueId;
+    }
 }

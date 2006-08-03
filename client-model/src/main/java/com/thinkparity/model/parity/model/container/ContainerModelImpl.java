@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.thinkparity.codebase.CollectionsUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.ParityErrorTranslator;
@@ -41,6 +40,7 @@ import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.JabberId;
@@ -200,7 +200,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
         final Container postAdditionContainer = read(containerId);        
         final ContainerDraft postAdditionDraft = readDraft(containerId);
         final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
-        notifyDocumentAdded(postAdditionContainer, postAdditionDraft, postAdditionDocument, localEventGenerator);
+        notifyDocumentAdded(postAdditionContainer, postAdditionDraft,
+                postAdditionDocument, localEventGenerator);
     }
 
     /**
@@ -386,85 +387,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Handle a remote reactivate event.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param versionId
-     *            The version id.
-     * @param name
-     *            The container name.
-     * @param team
-     *            The container team.
-     * @param reactivatedBy
-     *            By whom the container was reactivated.
-     * @param reactivatedOn
-     *            When the container was reactivated.
-     * @throws ParityException
-     */
-    void handleReactivate(final Long containerId, final Long versionId,
-            final String name, final List<JabberId> team,
-            final JabberId reactivatedBy, final Calendar reactivatedOn)
-            throws ParityException {
-        logger.info(getApiId("[HANDLE REACTIVATE]"));
-        logger.debug(containerId);
-        logger.debug(team);
-        logger.debug(versionId);
-        logger.debug(name);
-        final Calendar currentDateTime = currentDateTime();
-        final Container container;
-
-        if(doesExist(containerId)) {
-            container = read(containerId);
-
-            // update state
-            final InternalArtifactModel aModel = getInternalArtifactModel();
-            aModel.updateState(containerId, ArtifactState.ACTIVE);
-
-            // update remote info
-            aModel.updateRemoteInfo(containerId, reactivatedBy, currentDateTime);
-        }
-        else {
-            // create the container
-            container = new Container();
-            container.setCreatedBy(reactivatedBy.getUsername());
-            container.setCreatedOn(currentDateTime);
-            container.setName(name);
-            container.setState(ArtifactState.ACTIVE);
-            container.setType(ArtifactType.CONTAINER);
-            container.setUniqueId(UUIDGenerator.nextUUID());
-            container.setUpdatedBy(reactivatedBy.getUsername());
-            container.setUpdatedOn(currentDateTime);
-            containerIO.create(container);
-
-            // create the remote info row
-            final InternalArtifactModel iAModel = getInternalArtifactModel();
-            iAModel.createRemoteInfo(containerId, reactivatedBy, currentDateTime);
-
-            // add team members
-            // TODO Add the team as a whole; better yet add an api to create the
-            // team from the remote app in the model
-            for(final JabberId jabberId : team) {
-                iAModel.addTeamMember(containerId, jabberId);
-            }
-
-            // index the creation
-            indexor.create(containerId, name);
-        }
-        // send a subscription request
-        final InternalSessionModel isModel = getInternalSessionModel();
-        isModel.sendSubscribe(container);
-
-        // audit reactivation
-        auditor.reactivate(containerId, versionId, currentUserId(),
-                currentDateTime, reactivatedBy, reactivatedOn);
-
-        // fire event
-        notifyContainerReactivated(container, readUser(reactivatedBy),
-                remoteEventGenerator);
-    }
-
-    /**
      * Determine if the container has been locally modified.
      * 
      * @param containerId
@@ -529,44 +451,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
             getInternalSessionModel().readArtifactTeamList(containerId);
         team.remove(currentUserId());
         send(newVersion, team);
-    }
-
-    /**
-     * Reactivate a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @throws ParityException
-     */
-    void reactivate(final Long containerId) throws ParityException {
-        logger.info(getApiId("[REACTIVATE]"));
-        logger.debug(containerId);
-        assertOnline(getApiId("[REACTIVATE] [USER NOT ONLINE]"));
-        final JabberId currentUserId = currentUserId();
-        final Calendar currentDateTime = currentDateTime();
-
-        // update local state
-        final InternalArtifactModel aModel = getInternalArtifactModel();
-        aModel.updateState(containerId, ArtifactState.ACTIVE);
-        // apply key
-        aModel.applyFlagKey(containerId);
-
-        // update remote state
-        final List<JabberId> teamIds = readLocalTeamIds(containerId);
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        final List<DocumentVersionContent> documentVersions = readDocumentVersionContents(containerId);
-        getInternalSessionModel().reactivate(
-                latestVersion, documentVersions, teamIds,
-                currentUserId, currentDateTime);
-
-        // audit
-        auditor.reactivate(containerId, latestVersion.getVersionId(),
-                currentUserId(), currentDateTime, currentUserId,
-                currentDateTime);
-
-        // fire event
-        notifyContainerReactivated(read(containerId), currentUser(),
-                localEventGenerator);
     }
 
     /**
@@ -913,12 +797,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
      *            A container id.
      * @return A list of users.
      */
-    List<User> readTeam(final Long containerId) {
+    List<TeamMember> readTeam(final Long containerId) {
         logger.info(getApiId("[READ TEAM]"));
         logger.debug(containerId);
-        final Set<User> team = getInternalArtifactModel().readTeam(containerId);
-        if(team.isEmpty()) { return new ArrayList<User>(0); }
-        else { return CollectionsUtil.proxy(getInternalArtifactModel().readTeam(containerId)); }
+        return getInternalArtifactModel().readTeam2(containerId);
     }
 
     /**
@@ -1050,39 +932,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Share the container with a user. The user will receive the latest version
-     * of the container and become part of the container's team.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param jabberId
-     *            The jabber id.
-     */
-    void share(final Long containerId, final JabberId jabberId)
-            throws ParityException {
-        logger.info(getApiId("[SHARE]"));
-        logger.debug(containerId);
-        logger.debug(jabberId);
-        assertOnline(getApiId("[SHARE] [USER NOT ONLINE]"));
-        final User user = getInternalSessionModel().readUser(jabberId);
-        final Set<User> team = getInternalArtifactModel().readTeam(containerId);
-        Assert.assertNotTrue(getApiId("[SHARE] [USER ALREADY ON TEAM]"), team.contains(user));
-
-        // save the new team member locally
-        getInternalArtifactModel().addTeamMember(containerId, jabberId);
-
-        // update index
-        updateIndex(containerId);
-
-        // audit
-        auditor.addTeamMember(containerId, currentUserId(), currentDateTime(),
-                jabberId);
-
-        // send
-        send(readLatestVersion(containerId), user);
-    }
-
-    /**
      * Update the team for the container.
      * 
      * @param containerId
@@ -1090,10 +939,31 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @param team
      *            A list of users.
      */
-    void updateTeam(final Long containerId, final List<User> team) {
+    void updateTeam(final Long containerId, final List<User> users) {
         logger.info(getApiId("[UPDATE TEAM]"));
         logger.debug(containerId);
-        logger.debug(team);
+        logger.debug(users);
+        assertOnline(getApiId("[UPDATE TEAM] [USER NOT ONLINE]"));
+        if(!isDistributed(containerId)) { createDistributed(read(containerId)); }
+        try {
+            final List<TeamMember> originalTeam = readTeam(containerId);
+    
+            final List<User> usersToAdd = new ArrayList<User>();
+            for(final User user : users)
+                if(!contains(originalTeam, user))
+                    usersToAdd.add(user);
+            addTeamMembers(containerId, usersToAdd);
+    
+            final List<TeamMember> membersToRemove = new ArrayList<TeamMember>();
+            for(final TeamMember teamMember : originalTeam)
+                if(!contains(users, teamMember))
+                    membersToRemove.add(teamMember);
+            removeTeamMembers(containerId, membersToRemove);
+        }
+        catch(final ParityException px) {
+            logger.error(getApiId("[UPDATE TEAM]"), px);
+            throw ParityErrorTranslator.translateUnchecked(px);
+        }
     }
 
     /**
@@ -1140,7 +1010,36 @@ public class ContainerModelImpl extends AbstractModelImpl {
                 latestVersion.getVersionId(), currentUserId, currentDateTime,
                 jabberId);
     }
-    
+
+    /**
+     * Add team members to the container. The team members are added to the
+     * local db; then sent the latest version of the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param teamMembers
+     *            The team members.
+     * @throws ParityException
+     */
+    private void addTeamMembers(final Long containerId, final List<User> users)
+            throws ParityException {
+        // add team member data
+        getInternalArtifactModel().addTeamMembers(containerId, users);
+        // send package
+        send(readLatestVersion(containerId), users);
+        // index
+        updateIndex(containerId);
+
+        final Container postAdditionContainer = read(containerId);
+        final List<TeamMember> postAdditionTeam = readTeam(containerId);
+        for(final User user : users) {
+            for(final TeamMember postAdditionTeamMember : postAdditionTeam) {
+                if(user.getId().equals(postAdditionTeamMember.getId()))
+                    notifyTeamMemberAdded(postAdditionContainer, postAdditionTeamMember, localEventGenerator);
+            }
+        }
+    }
+
     /**
      * Assert that the list of documents contains the document id.
      * 
@@ -1179,6 +1078,38 @@ public class ContainerModelImpl extends AbstractModelImpl {
             Assert.assertNotTrue(assertion, document.getId().equals(documentId));
     }
 
+    /**
+     * Determine if the list of team members contains the user.
+     * 
+     * @param team
+     *            A list of team members.
+     * @param user
+     *            A user.
+     * @return True if the id of the user matches one of the team members.
+     */
+    private Boolean contains(final List<TeamMember> team, final User user) {
+        for(final TeamMember teamMember : team) {
+            if(teamMember.getId().equals(user.getId())) { return Boolean.TRUE; }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Determine if the list of users contains the team member.
+     * 
+     * @param users
+     *            A list of users.
+     * @param teamMember
+     *            A team member.
+     * @return True if the id of the team member matches one of the users.
+     */
+    private Boolean contains(final List<User> users, final TeamMember teamMember) {
+        for(final User user: users) {
+            if(user.getId().equals(teamMember.getId())) { return Boolean.TRUE; }
+        }
+        return Boolean.FALSE;
+    }
+    
     /**
      * Create the container in the distributed network.
      * 
@@ -1307,25 +1238,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Fire a container reactivated notification.
-     * 
-     * @param container
-     *            A container.
-     * @param user
-     *            A user.
-     * @param eventGenerator
-     *            An event generator.
-     */
-    private void notifyContainerReactivated(final Container container,
-            final User user, final ContainerEventGenerator eventGenerator) {
-        synchronized(LISTENERS) {
-            for(final ContainerListener l : LISTENERS) {
-                l.containerReactivated(eventGenerator.generate(container, user));
-            }
-        }
-    }
-
-    /**
      * Fire a document added notification.
      * 
      * @param container
@@ -1382,6 +1294,26 @@ public class ContainerModelImpl extends AbstractModelImpl {
         synchronized(LISTENERS) {
             for(final ContainerListener l : LISTENERS) {
                 l.draftCreated(eventGenerator.generate(draft));
+            }
+        }
+    }
+
+    /**
+     * Notify that a team member was added to the container's team.
+     * 
+     * @param container
+     *            A container.
+     * @param teamMember
+     *            A team member.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyTeamMemberAdded(final Container container,
+            final TeamMember teamMember,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized(LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.teamMemberAdded(eventGenerator.generate(container, teamMember));
             }
         }
     }
@@ -1489,6 +1421,24 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private void removeFlagKey(final Long containerId) {
         getInternalArtifactModel().removeFlagKey(containerId);
+    }
+
+    /**
+     * Add team members to the container. The team members are added to the
+     * local db; then sent the latest version of the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param teamMembers
+     *            The team members.
+     * @throws ParityException
+     */
+    private void removeTeamMembers(final Long containerId,
+            final List<TeamMember> teamMembers) throws ParityException {
+        // remove team member data
+        getInternalArtifactModel().removeTeamMembers(teamMembers);
+        // update index
+        updateIndex(containerId);
     }
 
     /**

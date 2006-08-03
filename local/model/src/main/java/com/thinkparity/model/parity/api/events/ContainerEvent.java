@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.api.events;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.parity.model.user.TeamMember;
 
 /**
  * @author raymond@thinkparity.com
@@ -26,8 +26,8 @@ public class ContainerEvent {
     /** The event source. */
     private final Source source;
 
-    /** User info. */
-    private final User user;
+    /** Team member info. */
+    private final TeamMember teamMember;
 
     /**
      * Create ContainerEvent.
@@ -65,12 +65,12 @@ public class ContainerEvent {
      *            The event source
      * @param container
      *            The container.
-     * @param user
-     *            The user.
+     * @param teamMember
+     *            The team member.
      */
     public ContainerEvent(final Source source, final Container container,
-            final User user) {
-        this(source, container, null, user, null);
+            final TeamMember teamMember) {
+        this(source, container, null, teamMember, null);
     }
 
     /**
@@ -94,19 +94,20 @@ public class ContainerEvent {
      *            The container.
      * @param draft
      *            The draft.
-     * @param user
-     *            The user.
+     * @param teamMember
+     *            The teamMember.
      * @param document
      *            A document.
      */
     private ContainerEvent(final Source source, final Container container,
-            final ContainerDraft draft, final User user, final Document document) {
+            final ContainerDraft draft, final TeamMember teamMember,
+            final Document document) {
         super();
         this.source = source;
         this.container = container;
         this.draft = draft;
-        this.user = user;
         this.document = document;
+        this.teamMember = teamMember;
     }
 
     /**
@@ -135,7 +136,7 @@ public class ContainerEvent {
      *
      * @return The User.
      */
-    public User getUser() { return user; }
+    public TeamMember getTeamMember() { return teamMember; }
 
     /**
      * Determine if the event is a local event.

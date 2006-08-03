@@ -24,6 +24,8 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
+import com.thinkparity.model.parity.model.user.TeamMember;
+import com.thinkparity.model.parity.model.user.TeamMemberState;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -99,15 +101,43 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		sendKey(keyRequestMessage.getArtifactId(), keyRequestMessage.getRequestedBy());
 	}
 
-	void addTeamMember(final Long artifactId, final JabberId jabberId) throws ParityException {
+    /**
+     * Add the team member. Add the user to the local team data in a pending
+     * state; and call the server's add team member api.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param user
+     *            The user.
+     * @throws ParityException
+     */
+	void addTeamMember(final Long artifactId, final User user) {
         logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
         logger.debug(artifactId);
-        logger.debug(jabberId);
-        final InternalUserModel iUModel = getInternalUserModel();
-        User user = iUModel.read(jabberId);
-        if(null == user) { user = iUModel.create(jabberId); }
+        logger.debug(user);
+        artifactIO.createTeamRel(artifactId, user.getLocalId(),
+                TeamMemberState.PENDING);
+        getInternalSessionModel().addTeamMember(
+                readUniqueId(artifactId), user.getId());
+    }
 
-        artifactIO.createTeamRel(artifactId, user.getLocalId());
+    /**
+     * Add the team members. Add the user to the local team data in a pending
+     * state; and call the server's add team member api.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param users
+     *            The users.
+     * @see ArtifactModelImpl#addTeamMember(Long, User)
+     * @throws ParityException
+     */
+    void addTeamMembers(final Long artifactId, final List<User> users) {
+        logger.info(getApiId("[ADD TEAM MEMBERS]"));
+        logger.debug(artifactId);
+        logger.debug(users);
+        for(final User user : users)
+            addTeamMember(artifactId, user);
     }
 
     /**
@@ -166,7 +196,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		auditor.keyRequestDenied(artifactId, createdBy, createdOn, deniedBy);
 	}
 
-	/**
+    /**
      * Confirm the reciept of an artifact.
      * 
      * @param receivedFrom
@@ -235,7 +265,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.deleteTeamRel(artifactId);
     }
 
-    Boolean doesExist(final Long artifactId) {
+	Boolean doesExist(final Long artifactId) {
         logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
         logger.debug(artifactId);
         return null != artifactIO.readUniqueId(artifactId);
@@ -245,6 +275,28 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
         logger.debug(uniqueId);
         return null != artifactIO.readId(uniqueId);
+    }
+
+    /**
+     * Handle the remote event generated when a team member is added. This will
+     * download the user's info if required and create the team data locally.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param jabberId
+     *            The user's jabber id.
+     */
+    void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId)
+            throws ParityException {
+        logger.info(getApiId("[HANDLE TEAM MEMBER ADDED]"));
+        logger.debug(uniqueId);
+        logger.debug(jabberId);
+        final InternalUserModel userModel = getInternalUserModel();
+        User user = userModel.read(jabberId);
+        if(null == user) { user = userModel.create(jabberId); }
+
+        artifactIO.createTeamRel(readId(uniqueId), user.getLocalId(),
+                TeamMemberState.PENDING);
     }
 
 	/**
@@ -348,6 +400,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
 	/**
+     * Read the artifact team.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    List<TeamMember> readTeam2(final Long artifactId) {
+        logger.info(getApiId("[READ TEAM2]"));
+        logger.debug(artifactId);
+        return artifactIO.readTeamRel2(artifactId);
+    }
+
+	/**
      * Read the artifact unique id.
      * 
      * @param artifactId
@@ -360,7 +424,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readUniqueId(artifactId);
     }
 
-	/**
+    /**
 	 * Remove the key flag.
 	 * 
 	 * @param artifactId
@@ -382,14 +446,32 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		removeFlag(artifactId, ArtifactFlag.SEEN);
 	}
 
-    void removeTeamMember(final Long artifactId, final JabberId jabberId) {
-        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
-        logger.debug(artifactId);
-        logger.debug(jabberId);
-        final InternalUserModel iUModel = getInternalUserModel();
-        final User user = iUModel.read(jabberId);
+    /**
+     * Remove the team member. Removes the user from the local team data.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param jabberId
+     *            The team member id.
+     * @throws ParityException
+     */
+	void removeTeamMember(final TeamMember teamMember) {
+        logger.info(getApiId("[REMOVE TEAM MEMBER]"));
+        logger.debug(teamMember);
+        artifactIO.deleteTeamRel(teamMember.getArtifactId(), teamMember.getLocalId());
+    }
 
-        artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+    /**
+     * Remove the team members. Removes the users from the local team data.
+     * 
+     * @param teamMembers
+     *            The team members.
+     */
+    void removeTeamMembers(final List<TeamMember> teamMembers) {
+        logger.info(getApiId("[REMOVE TEAM MEMBERS]"));
+        logger.debug(teamMembers);
+        for(final TeamMember teamMember : teamMembers)
+            removeTeamMember(teamMember);
     }
 
     /**
@@ -499,6 +581,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+
     /**
 	 * Create a key request based upon a key request system message.
 	 * 
@@ -514,7 +597,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		request.setId(message.getId());
 		return request;
 	}
-
 
     /**
 	 * Remove a flag from an artifact.
@@ -540,5 +622,4 @@ class ArtifactModelImpl extends AbstractModelImpl {
 					+ "] has no flag [" + flag + "].");
 		}
 	}
-
 }

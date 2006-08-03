@@ -22,6 +22,7 @@ import com.thinkparity.model.parity.model.container.ContainerDraftArtifactState;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
+import com.thinkparity.model.parity.model.user.TeamMemberState;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -154,6 +155,24 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+    public ContainerDraftArtifactState getArtifactStateFromInteger(
+            final String columnName) {
+        assertOpen("getArtifactStateFromInteger(String)");
+        assertOpenResult("getArtifactStateFromInteger(String)");
+        debugSql(columnName);
+        try { return ContainerDraftArtifactState.fromId(resultSet.getInt(columnName)); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
+    public TeamMemberState getTeamMemberStateFromInteger(
+            final String columnName) {
+        assertOpen("getArtifactTeamMemberStateFromInteger(String)");
+        assertOpenResult("getArtifactTeamMemberStateFromInteger(String)");
+        debugSql(columnName);
+        try { return TeamMemberState.fromId(resultSet.getInt(columnName)); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
 	public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
 		assertOpen("getAuditEventTypeFromInteger(String)");
 		assertOpenResult("getAuditEventTypeFromInteger(String)");
@@ -183,15 +202,6 @@ public class Session {
 		}
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
-
-	public ContainerDraftArtifactState getArtifactStateFromInteger(
-            final String columnName) {
-        assertOpen("getArtifactStateFromInteger(String)");
-        assertOpenResult("getArtifactStateFromInteger(String)");
-        debugSql(columnName);
-        try { return ContainerDraftArtifactState.fromId(resultSet.getInt(columnName)); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-    }
 
 	public ArtifactFlag getFlagFromInteger(final String columnName) {
 		assertOpen("getFlagFromInteger(String)");
@@ -417,13 +427,22 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setStateAsInteger(final Integer index, final ArtifactState state) {
+    public void setStateAsInteger(final Integer index, final ArtifactState state) {
 		assertOpen("setStateAsInteger(Integer,ArtifactState)");
 		assertPreparedStatement("setStateAsInteger(Integer,ArtifactState)");
 		debugSql(null == state ? null : state.toString(), index);
 		try { preparedStatement.setInt(index, state.getId()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
+
+    public void setStateAsInteger(final Integer index,
+            final TeamMemberState state) {
+        assertOpen("setStateAsInteger(Integer,ArtifactTeamMemberState)");
+        assertPreparedStatement("setStateAsInteger(Integer,ArtifactTeamMemberState)");
+        debugSql(null == state ? null : state.toString(), index);
+        try { preparedStatement.setInt(index, state.getId()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
 
 	public void setStateAsInteger(final Integer index,
             final ContainerDraftArtifactState state) {
@@ -441,6 +460,15 @@ public class Session {
 		try { preparedStatement.setString(index, state.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
+
+	public void setStateAsString(final Integer index,
+            final TeamMemberState state) {
+        assertOpen("setStateAsString(Integer,ArtifactTeamMemberState)");
+        assertPreparedStatement("setStateAsString(Integer,ArtifactTeamMemberState)");
+        debugSql(null == state ? null : state.toString(), index);
+        try { preparedStatement.setString(index, state.toString()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
 
 	public void setStateAsString(final Integer index,
             final ContainerDraftArtifactState state) {

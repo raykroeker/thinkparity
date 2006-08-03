@@ -65,33 +65,6 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
     }
 
     /**
-     * Handle a remote reactivate event.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param versionId
-     *            The version id.
-     * @param name
-     *            The container name.
-     * @param team
-     *            The container team.
-     * @param reactivatedBy
-     *            By whom the container was reactivated.
-     * @param reactivatedOn
-     *            When the container was reactivated.
-     * @throws ParityException
-     */
-    public void handleReactivate(final Long containerId, final Long versionId,
-            final String name, final List<JabberId> team,
-            final JabberId reactivatedBy, final Calendar reactivatedOn)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().handleReactivate(containerId, versionId, name, team,
-                    reactivatedBy, reactivatedOn);
-        }
-    }
-
-    /**
      * Determine if the container has been locally modified.
      * 
      * @param containerId

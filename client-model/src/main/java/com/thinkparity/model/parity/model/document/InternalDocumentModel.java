@@ -36,22 +36,6 @@ public class InternalDocumentModel extends DocumentModel implements
 		context.assertContextIsValid();
 	}
 
-	/**
-     * Add a team member to the document.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param jabberId
-     *            The team member.
-     * @throws ParityException
-     */
-    public void addTeamMember(final Long documentId, final JabberId jabberId)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().addTeamMember(documentId, jabberId);
-        }
-    }
-
 	public void auditRecieveKey(final Long artifactId,
             final JabberId createdBy, final Calendar createdOn,
             final JabberId receivedFrom) throws ParityException {
@@ -91,32 +75,6 @@ public class InternalDocumentModel extends DocumentModel implements
 	public Document get(final UUID documentUniqueId) throws ParityException {
 		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
 	}
-
-    /**
-     * Handle a reactivate request from the remote model.
-     * 
-     * @param reactivatedBy
-     *            By whom the document was reactivated.
-     * @param team
-     *            The team.
-     * @param uniqueId
-     *            The unique id.
-     * @param versionId
-     *            The version id.
-     * @param name
-     *            The name.
-     * @param content
-     *            The content.
-     */
-    public void handleReactivate(final JabberId reactivatedBy,
-            final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final String name, final byte[] content)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().handleReactivate(reactivatedBy, team, uniqueId, versionId,
-                    name, content);
-        }
-    }
 
     /**
      * A key request for a document was accepted.
@@ -200,22 +158,6 @@ public class InternalDocumentModel extends DocumentModel implements
                     receivedFrom, documentUniqueId, versionId, name, content);
         }
 	}
-
-	/**
-     * Remove a team member from the document.
-     * 
-     * @param documentId
-     *            The document id.
-     * @param jabberId
-     *            The team member.
-     * @throws ParityException
-     */
-    public void removeTeamMember(final Long documentId, final JabberId jabberId)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().removeTeamMember(documentId, jabberId);
-        }
-    }
 
     public void requestKey(final Long documentId, final JabberId requestedBy)
 			throws ParityException {

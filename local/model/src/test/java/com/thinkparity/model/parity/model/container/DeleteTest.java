@@ -125,7 +125,7 @@ public class DeleteTest extends ContainerTestCase {
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
             assertNull(NAME + " [CONTAINER IS NOT NULL]", e.getContainer());
-            assertNull(NAME + " [USER IS NOT NULL]", e.getUser());
+            assertNull(NAME + " [TEAM MEMBER IS NOT NULL]", e.getTeamMember());
         }
         public void containerReactivated(ContainerEvent e) {
             fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");

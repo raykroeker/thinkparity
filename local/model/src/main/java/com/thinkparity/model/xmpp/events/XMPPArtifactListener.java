@@ -28,8 +28,8 @@ public interface XMPPArtifactListener {
     public void confirmReceipt(final UUID uniqueId, final Long verionId,
             final JabberId receivedFrom);
 
-	public void teamMemberAdded(final UUID artifactUniqueId,
-			final User teamMember);
-	public void teamMemberRemoved(final UUID artifactUniqueId,
+	public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId);
+
+    public void teamMemberRemoved(final UUID artifactUniqueId,
 			final User teamMember);
 }

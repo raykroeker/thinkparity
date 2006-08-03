@@ -4,6 +4,7 @@
 package com.thinkparity.model;
 
 import com.thinkparity.model.parity.model.session.Credentials;
+import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
@@ -38,7 +39,7 @@ public class ModelTestUser {
 
     private final String emailAddress;
 	private final String password;
-	private final String resource;
+    private final String resource;
 	private final String serverHost;
 	private final Integer serverPort;
 	private final String username;
@@ -113,4 +114,13 @@ public class ModelTestUser {
 	 * @return The username.
 	 */
 	public String getUsername() { return username; }
+
+    /**
+     * Read the user from the user model.
+     * 
+     * @return A user.
+     */
+    public User readUser() {
+        return UserModel.getModel().read(getJabberId());
+    }
 }

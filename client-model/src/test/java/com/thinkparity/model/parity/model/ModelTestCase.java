@@ -63,12 +63,20 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase {
 
+    /** thinkParity context for the test suite. */
+    protected static final Context testContext;
+
     static {
+        testContext = new Context(ModelTestCase.class);
         // init user
         final ProfileModel pModel = ProfileModel.getModel();
-        final SessionModel sModel = SessionModel.getModel();
+        final SessionModel sessionModel = SessionModel.getModel();
+        final InternalUserModel userModel = UserModel.getInternalModel(testContext);
         try {
-            sModel.login(ModelTestUser.getJUnit().getCredentials());
+            sessionModel.login(ModelTestUser.getJUnit().getCredentials());
+            userModel.create(ModelTestUser.getX().getJabberId());
+            userModel.create(ModelTestUser.getY().getJabberId());
+            userModel.create(ModelTestUser.getZ().getJabberId());
             pModel.read();
         }
         catch(final ParityException px) {
@@ -77,7 +85,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
             fail(sw.toString());
         }
         finally {
-            try { sModel.logout(); }
+            try { sessionModel.logout(); }
             catch(final ParityException px) {
                 final StringWriter sw = new StringWriter();
                 px.printStackTrace(new PrintWriter(sw));
@@ -824,7 +832,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	protected void tearDown() throws Exception { super.tearDown(); }
 
     private void addTeamToContainer(final Long containerId) throws Exception {
-        final List<User> team = getContainerModel().readTeam(containerId);
+        final List<User> team = new ArrayList<User>();
         team.add(ModelTestUser.getX().getUser());
         team.add(ModelTestUser.getY().getUser());
         team.add(ModelTestUser.getZ().getUser());

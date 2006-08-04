@@ -37,7 +37,7 @@ import com.thinkparity.model.xmpp.user.User;
  */
 class ArtifactModelImpl extends AbstractModelImpl {
 
-	/**
+    /**
      * Obtain a logging api id.
      * 
      * @param api
@@ -101,7 +101,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		sendKey(keyRequestMessage.getArtifactId(), keyRequestMessage.getRequestedBy());
 	}
 
-    /**
+	/**
      * Add the team member. Add the user to the local team data in a pending
      * state; and call the server's add team member api.
      * 
@@ -213,7 +213,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         getInternalSessionModel().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
     }
 
-	/**
+    /**
      * Create the artifact's remote info.
      * 
      * @param artifactId
@@ -231,6 +231,21 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		logger.debug(updatedOn);
 		artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
+
+	/**
+     * Create the team for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return The single team member.
+     */
+    TeamMember createTeam(final Long artifactId) {
+        logger.info(getApiId("[CREATE TEAM]"));
+        logger.debug(artifactId);
+        artifactIO.createTeamRel(artifactId, currentUser().getLocalId(),
+                TeamMemberState.CONFIRMED);
+        return artifactIO.readTeamRel2(artifactId).get(0);
+    }
 
 	void declineKeyRequest(final Long keyRequestId) throws ParityException {
 		logger.info("[LMODEL] [ARTIFACT] [DENY KEY REQUEST]");

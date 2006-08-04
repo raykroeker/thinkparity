@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.user.TeamMember;
 
 /**
  * @author raymond@thinkparity.com
@@ -23,6 +24,9 @@ public class ContainerDraft {
 
     /** The documents. */
     private final List<Document> documents;
+
+    /** The draft owner. */
+    private TeamMember owner;
 
     /** A map of artifact ids to their respective states. */
     private final Map<Long, ContainerDraftArtifactState> stateMap;
@@ -100,6 +104,13 @@ public class ContainerDraft {
     }
 
     /**
+     * Obtain the draftOwner
+     *
+     * @return The TeamMember.
+     */
+    public TeamMember getOwner() { return owner; }
+
+    /**
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -141,6 +152,15 @@ public class ContainerDraft {
      */
     public void setContainerId(final Long containerId) {
         this.containerId = containerId;
+    }
+
+    /**
+     * Set draftOwner.
+     *
+     * @param draftOwner The TeamMember.
+     */
+    public void setOwner(final TeamMember owner) {
+        this.owner = owner;
     }
 
     /**

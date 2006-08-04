@@ -149,6 +149,16 @@ public class InternalArtifactModel extends ArtifactModel {
 	}
 
 	/**
+     * Create the team. This will add the current user to the team.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    public TeamMember createTeam(final Long artifactId) {
+        synchronized(getImplLock()) { return getImpl().createTeam(artifactId); }
+    }
+
+	/**
      * Delete the artifact's remote info.
      * 
      * @param artifactId
@@ -160,7 +170,7 @@ public class InternalArtifactModel extends ArtifactModel {
 		}
 	}
 
-	/**
+    /**
      * Delete the team in its entirety.
      *
      * @param artifactId
@@ -194,7 +204,7 @@ public class InternalArtifactModel extends ArtifactModel {
         synchronized(getImplLock()) { return getImpl().doesExist(uniqueId); }
     }
 
-    /**
+	/**
      * Handle the remote event generated when a team member is added. This will
      * download the user's info if required and create the team data locally.
      * 
@@ -210,7 +220,7 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-	/**
+    /**
      * Read the artifact id.
      * 
      * @param uniqueId
@@ -281,7 +291,7 @@ public class InternalArtifactModel extends ArtifactModel {
     public void removeTeamMember(final TeamMember teamMember) {
         synchronized(getImplLock()) { getImpl().removeTeamMember(teamMember); }
     }
-
+    
     /**
      * Remove the team members. Removes the users from the local team data.
      * 
@@ -291,7 +301,7 @@ public class InternalArtifactModel extends ArtifactModel {
     public void removeTeamMembers(final List<TeamMember> teamMembers) {
         synchronized(getImplLock()) { getImpl().removeTeamMembers(teamMembers); }
     }
-    
+
     /**
      * Update the artifact's remote info.
      * 

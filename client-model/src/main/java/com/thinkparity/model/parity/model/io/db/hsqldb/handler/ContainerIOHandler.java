@@ -42,8 +42,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to create a draft. */
     private static final String SQL_CREATE_DRAFT =
             new StringBuffer("insert into CONTAINER_DRAFT ")
-            .append("(CONTAINER_DRAFT_ID) ")
-            .append("values (?)")
+            .append("(CONTAINER_DRAFT_ID,CONTAINER_DRAFT_USER_ID) ")
+            .append("values (?,?)")
             .toString();
 
     /** Sql to create a draft artifact relationship. */
@@ -133,8 +133,10 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read a draft. */
     private static final String SQL_READ_DRAFT =
-            new StringBuffer("select CONTAINER_DRAFT_ID ")
-            .append("from CONTAINER_DRAFT CD ")
+            new StringBuffer("select ATR.ARTIFACT_ID,ATR.USER_ID,")
+            .append("ATR.USER_STATE_ID,U.JABBER_ID,U.NAME,U.ORGANIZATION,CD.CONTAINER_DRAFT_ID ")
+            .append("from ARTIFACT_TEAM_REL ATR inner join USER U on ATR.USER_ID=U.USER_ID ")
+            .append("inner join CONTAINER_DRAFT CD on ATR.ARTIFACT_ID=CD.CONTAINER_DRAFT_ID ")
             .append("where CD.CONTAINER_DRAFT_ID=?")
             .toString();
 
@@ -286,6 +288,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_CREATE_DRAFT);
             session.setLong(1, draft.getContainerId());
+            session.setLong(2, draft.getOwner().getLocalId());
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE DRAFT]", "[COULD NOT CREATE DRAFT]"));
             
@@ -638,6 +641,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     ContainerDraft extractDraft(final Session session) {
         final ContainerDraft draft = new ContainerDraft();
         draft.setContainerId(session.getLong("CONTAINER_DRAFT_ID"));
+        draft.setOwner(artifactIO.extractTeamMember(session));
         addAllDraftDocuments(draft);
         return draft;
     }

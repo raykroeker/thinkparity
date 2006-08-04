@@ -221,8 +221,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
         containerIO.create(container);
 
         // create remote info
-        final InternalArtifactModel iAModel = getInternalArtifactModel();
-        iAModel.createRemoteInfo(container.getId(), currentUserId(), currentDateTime);
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        artifactModel.createRemoteInfo(container.getId(), currentUserId(), currentDateTime);
 
         // audit
         auditor.create(container.getId(), currentUserId(), currentDateTime);
@@ -231,12 +231,22 @@ public class ContainerModelImpl extends AbstractModelImpl {
         indexor.create(container.getId(), container.getName());
 
         // fire event
-        createVersion(container.getId());
         final Container postCreation = read(container.getId());
         notifyContainerCreated(postCreation, localEventGenerator);
 
+        // create team
+        final TeamMember teamMember = artifactModel.createTeam(container.getId());
+
         // create first draft
-        createFirstDraft(container.getId());
+        final ContainerDraft draft = new ContainerDraft();
+        draft.setContainerId(container.getId());
+        draft.setOwner(teamMember);
+        containerIO.createDraft(draft);
+
+        // fire draft event
+        final ContainerDraft postCreationDraft = readDraft(container.getId());
+        notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
+
         return postCreation;
     }
 
@@ -1118,22 +1128,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         }
     }
     
-    /**
-     * Create the frist draft for a container.
-     * 
-     * @param containerId
-     *            The container id.
-     */
-    private void createFirstDraft(final Long containerId) {
-        final ContainerDraft draft = new ContainerDraft();
-        draft.setContainerId(containerId);
-        containerIO.createDraft(draft);
-
-        final Container postCreation = read(containerId);
-        final ContainerDraft postCreationDraft = readDraft(containerId);
-        notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
-    }
-
     /**
      * Create a container version.
      * 

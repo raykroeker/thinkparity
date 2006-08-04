@@ -50,7 +50,6 @@ public class SaveProfile extends AbstractAction {
         //saveDialogue.display();
         //saveDialogue.
 
-//        final UserModel uModel = UserModel.getModel();
 //        final User user = uModel.read(jabberId);
 //        user.setFirstName(saveDialogue.getFirstName());
 //        user.setOrganization(saveDialoge.getOrganization());

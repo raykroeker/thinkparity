@@ -3,6 +3,8 @@
  */
 package com.thinkparity.browser.platform;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.model.ModelFactory;
@@ -53,6 +55,13 @@ public class BrowserPlatformInitializer {
 
         // init model
         ModelFactory.getInstance().initialize();
+
+        final Properties properties = System.getProperties();
+        for(final Object key : properties.keySet()) {
+            logger.debug(new StringBuffer()
+                    .append(key).append(":")
+                    .append(properties.get(key)));
+        }
 	}
 
     private void initializePropertyParityArchive() {

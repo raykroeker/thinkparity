@@ -1347,7 +1347,9 @@ public class Browser extends AbstractApplication {
     
     /**
 	 * Run the open document action.
-	 * 
+	 *
+     * @param containerId
+     *            A container id.
 	 * @param documentId
 	 *            The document id.
 	 */
@@ -1362,17 +1364,21 @@ public class Browser extends AbstractApplication {
     
     /**
 	 * Run the open document version action.
-	 * 
+	 *
+     * @param containerId
+     *            A container id.
 	 * @param documentId
 	 *            The document id.
 	 * @param versionId
 	 *            The document's version id.
 	 */
-	public void runOpenDocumentVersion(final Long documentId,
+	public void runOpenDocumentVersion(final Long containerId, final Long documentId,
 			final Long versionId) {
+        Assert.assertNotNull("Cannot open document in null container.", containerId);        
         Assert.assertNotNull("Cannot open null document.", documentId);
         Assert.assertNotNull("Cannot open null document version.", versionId);
-		final Data data = new Data(2);
+		final Data data = new Data(3);
+        data.set(OpenVersion.DataKey.CONTAINER_ID, containerId);        
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);

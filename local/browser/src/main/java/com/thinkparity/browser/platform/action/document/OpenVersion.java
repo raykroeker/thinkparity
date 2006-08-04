@@ -9,6 +9,7 @@ import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.document.Open.DataKey;
 
 /**
  * @author raykroeker@gmail.com
@@ -66,12 +67,13 @@ public class OpenVersion extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Long versionId = (Long) data.get(DataKey.VERSION_ID);
 		getDocumentModel().openVersion(documentId, versionId);
 		getArtifactModel().applyFlagSeen(documentId);
 
-		browser.fireDocumentUpdated(documentId);
+		browser.fireDocumentUpdated(containerId, documentId);
 	}
 
 	/**
@@ -79,5 +81,5 @@ public class OpenVersion extends AbstractAction {
 	 * 
 	 * @see Data
 	 */
-	public enum DataKey { DOCUMENT_ID, VERSION_ID }
+	public enum DataKey { CONTAINER_ID, DOCUMENT_ID, VERSION_ID }
 }

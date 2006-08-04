@@ -102,8 +102,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-     * Add the team member. Add the user to the local team data in a pending
-     * state; and call the server's add team member api.
+     * Add the team member. Add the user to the local team data in a local
+     * state. If the user has been locally removed (ie no publish has yet
+     * occured) that row will be replaced.
      * 
      * @param artifactId
      *            The artifact id.
@@ -115,10 +116,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
         logger.debug(artifactId);
         logger.debug(user);
-        artifactIO.createTeamRel(artifactId, user.getLocalId(),
-                TeamMemberState.PENDING);
-        getInternalSessionModel().addTeamMember(
-                readUniqueId(artifactId), user.getId());
+        final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
+        if(contains(team, user)) {
+            final TeamMember teamMember = get(team, user);
+            Assert.assertTrue(
+                    getApiId("[ADD TEAM MEMBER] [CANNOT ADD USER MORE THAN ONCE]"),
+                    TeamMemberState.LOCAL_REMOVED == teamMember.getState());
+            artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+        }
+        artifactIO.createTeamRel(
+                artifactId, user.getLocalId(), TeamMemberState.LOCAL_ADDED);
     }
 
     /**
@@ -239,12 +246,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            An artifact id.
      * @return The single team member.
      */
-    TeamMember createTeam(final Long artifactId) {
+    List<TeamMember> createTeam(final Long artifactId) {
         logger.info(getApiId("[CREATE TEAM]"));
         logger.debug(artifactId);
-        artifactIO.createTeamRel(artifactId, currentUser().getLocalId(),
-                TeamMemberState.CONFIRMED);
-        return artifactIO.readTeamRel2(artifactId).get(0);
+        addTeamMember(artifactId, currentUser());
+        return readTeam2(artifactId);
     }
 
 	void declineKeyRequest(final Long keyRequestId) throws ParityException {
@@ -309,9 +315,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
         final InternalUserModel userModel = getInternalUserModel();
         User user = userModel.read(jabberId);
         if(null == user) { user = userModel.create(jabberId); }
-
-        artifactIO.createTeamRel(readId(uniqueId), user.getLocalId(),
-                TeamMemberState.PENDING);
+        artifactIO.createTeamRel(
+                readId(uniqueId), user.getLocalId(), TeamMemberState.DISTRIBUTED);
     }
 
 	/**
@@ -462,18 +467,23 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Remove the team member. Removes the user from the local team data.
+     * Remove a team member. Update the local team data in a locally removed
+     * state. If the user has been locally added (ie no publish has yet occured)
+     * that row will be deleted.
      * 
      * @param artifactId
      *            The artifact id.
-     * @param jabberId
-     *            The team member id.
-     * @throws ParityException
+     * @param user
+     *            The user.
      */
 	void removeTeamMember(final TeamMember teamMember) {
         logger.info(getApiId("[REMOVE TEAM MEMBER]"));
         logger.debug(teamMember);
         artifactIO.deleteTeamRel(teamMember.getArtifactId(), teamMember.getLocalId());
+        if(TeamMemberState.DISTRIBUTED == teamMember.getState()) {
+            artifactIO.createTeamRel(
+                    teamMember.getArtifactId(), teamMember.getLocalId(), TeamMemberState.LOCAL_REMOVED);
+        }
     }
 
     /**

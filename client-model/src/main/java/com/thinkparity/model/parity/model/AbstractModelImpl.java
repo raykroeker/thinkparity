@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,6 +54,7 @@ import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -761,6 +763,78 @@ public abstract class AbstractModelImpl {
      * @return True if the credentials have been set; false otherwise.
      */
     private Boolean isSetCredentials() { return null != readCredentials(); }
+
+    /**
+     * Determine if the list of team members contains the user.
+     * 
+     * @param team
+     *            A list of team members.
+     * @param user
+     *            A user.
+     * @return True if the id of the user matches one of the team members.
+     */
+    protected Boolean contains(final List<TeamMember> team, final User user) {
+        return -1 != indexOf(team, user);
+    }
+
+    /**
+     * Determine if the list of users contains the team member.
+     * 
+     * @param users
+     *            A list of users.
+     * @param teamMember
+     *            A team member.
+     * @return True if the id of the team member matches one of the users.
+     */
+    protected Boolean contains(final List<User> users, final TeamMember teamMember) {
+        return -1 != indexOf(users, teamMember);
+    }
+
+    /**
+     * Find the user in a team.
+     * 
+     * @param team
+     *            The team.
+     * @param user
+     *            The user to look for.
+     * @return The team member.
+     */
+    protected TeamMember get(final List<TeamMember> team, final User user) {
+        return team.get(indexOf(team, user));
+    }
+
+    /**
+     * Obtain the index of the user in the team.
+     * 
+     * @param team
+     *            The team.
+     * @param user
+     *            A user.
+     * @return The index of the user in the team; or -1 if the user does not
+     *         exist in the list.
+     */
+    private int indexOf(final List<TeamMember> team, final User user) {
+        for(int i = 0; i < team.size(); i++)
+            if(team.get(i).getId().equals(user.getId())) { return i; }
+        return -1;
+    }
+
+    /**
+     * Obtain the index of a team member in a user list.
+     * 
+     * @param users
+     *            A user list.
+     * @param teamMember
+     *            A team member.
+     * @return The index of the team member in the users list or -1 if the team
+     *         member does not exist in the list.
+     */
+    private int indexOf(final List<User> users, final TeamMember teamMember) {
+        for(int i = 0; i < users.size(); i++) {
+            if(users.get(i).getId().equals(teamMember.getId())) { return i; }
+        }
+        return -1;
+    }
 
     /** Configuration keys. */
     private static class ConfigurationKeys {

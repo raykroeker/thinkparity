@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.container;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
-import com.thinkparity.model.parity.api.events.ContainerListener;
 
 /**
  * <b>Title:</b>thinkParity Container Create Test<br>
@@ -38,7 +37,8 @@ public class CreateTest extends ContainerTestCase {
         assertNotNull(NAME, container);
         assertEquals(NAME + " [CONTAINER NAME DOES NOT MATCH EXPECTATION]",
                 datum.containerName, container.getName());
-        assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotify);
+        assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotifyContainerCreated);
+        assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotifyDraftCreated);
 
         final ContainerVersion latestVersion = datum.cModel.readLatestVersion(container.getId());
         assertNotNull(NAME, latestVersion);
@@ -67,46 +67,36 @@ public class CreateTest extends ContainerTestCase {
     }
 
     /** Test data definition. */
-    private class Fixture implements ContainerListener {
+    private class Fixture extends ContainerTestCase.Fixture {
         private final ContainerModel cModel;
         private final String containerName;
-        private Boolean didNotify;
+        private Boolean didNotifyContainerCreated;
+        private Boolean didNotifyDraftCreated;
         private Fixture(final ContainerModel cModel, final String containerName) {
             this.cModel = cModel;
             this.containerName = containerName;
-            this.didNotify = Boolean.FALSE;
+            this.didNotifyContainerCreated = Boolean.FALSE;
+            this.didNotifyDraftCreated = Boolean.FALSE;
         }
-        public void draftCreated(ContainerEvent e) {
-            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
-        }
-        public void teamMemberAdded(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
-        }
-        public void teamMemberRemoved(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
-        }
-        public void containerClosed(ContainerEvent e) {
-            fail(NAME + " [CONTAINER CLOSED EVENT FIRED]");
-        }
+        @Override
         public void containerCreated(final ContainerEvent e) {
-            datum.didNotify = Boolean.TRUE;
+            datum.didNotifyContainerCreated = Boolean.TRUE;
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
             assertNotNull(NAME, e.getContainer());
-            assertNull(NAME, e.getTeamMember());
             assertNull(NAME, e.getDocument());
+            assertNull(NAME, e.getDraft());
+            assertNull(NAME, e.getTeamMember());
         }
-        public void containerDeleted(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER DELETED EVENT FIRED]");
-        }
-        public void containerReactivated(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");
-        }
-        public void documentAdded(final ContainerEvent e) {
-            fail(NAME + " [DOCUMENT ADDED EVENT FIRED]");
-        }
-        public void documentRemoved(final ContainerEvent e) {
-            fail(NAME + " [DOCUMENT REMOVED EVENT WAS FIRED]");
+        @Override
+        public void draftCreated(ContainerEvent e) {
+            datum.didNotifyDraftCreated = Boolean.TRUE;
+            assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
+            assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
+            assertNotNull(NAME, e.getContainer());
+            assertNull(NAME, e.getDocument());
+            assertNotNull(NAME, e.getDraft());
+            assertNull(NAME, e.getTeamMember());
         }
     }
 }

@@ -43,7 +43,7 @@ public class AddTeamMemberTest extends ContainerTestCase {
             if(teamMember.getId().equals(datum.user.getId())) {
                 didContainUser = Boolean.TRUE;
                 assertEquals(NAME + " [TEAM MEMBER DOES NOT MATCH USER]", datum.user, (User) teamMember);
-                assertEquals(NAME + " [TEAM MEMBER STATE DOES NOT MATCH EXPECTATION]", TeamMemberState.PENDING, teamMember.getState());
+                assertEquals(NAME + " [TEAM MEMBER STATE DOES NOT MATCH EXPECTATION]", TeamMemberState.LOCAL_ADDED, teamMember.getState());
                 break;
             }
         }
@@ -56,7 +56,6 @@ public class AddTeamMemberTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        login();
         final ContainerModel containerModel = getContainerModel();
         final Container container = createContainer(NAME);
         final User user = ModelTestUser.getX().readUser();
@@ -71,7 +70,6 @@ public class AddTeamMemberTest extends ContainerTestCase {
     protected void tearDown() throws Exception {
         datum.containerModel.removeListener(datum);
         datum = null;
-        logout();
         super.tearDown();
     }
 

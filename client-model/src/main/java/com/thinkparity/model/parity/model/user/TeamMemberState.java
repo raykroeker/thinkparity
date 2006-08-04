@@ -11,7 +11,7 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum TeamMemberState {
 
-    CONFIRMED(0), PENDING(1);
+    DISTRIBUTED(0), LOCAL_ADDED(1), LOCAL_REMOVED(2);
     
     /**
      * Obtain a state from its id.
@@ -22,8 +22,9 @@ public enum TeamMemberState {
      */
     public static TeamMemberState fromId(final Integer id) {
         switch(id) {
-        case 0: return CONFIRMED;
-        case 1: return PENDING;
+        case 0: return DISTRIBUTED;
+        case 1: return LOCAL_ADDED;
+        case 2: return LOCAL_REMOVED;
         default:
             throw Assert.createUnreachable("[CONTAINER] [UNKNOWN ARTIFACT TEAM MEMBER STATE]");
         }

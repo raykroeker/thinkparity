@@ -153,8 +153,9 @@ public class InternalArtifactModel extends ArtifactModel {
      * 
      * @param artifactId
      *            An artifact id.
+     * @return The new team.
      */
-    public TeamMember createTeam(final Long artifactId) {
+    public List<TeamMember> createTeam(final Long artifactId) {
         synchronized(getImplLock()) { return getImpl().createTeam(artifactId); }
     }
 

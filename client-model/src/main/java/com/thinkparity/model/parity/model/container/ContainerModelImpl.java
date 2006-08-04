@@ -230,23 +230,18 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // index
         indexor.create(container.getId(), container.getName());
 
-        // fire event
-        final Container postCreation = read(container.getId());
-        notifyContainerCreated(postCreation, localEventGenerator);
-
         // create team
-        final TeamMember teamMember = artifactModel.createTeam(container.getId());
+        final List<TeamMember> teamMember = artifactModel.createTeam(container.getId());
+
+        // create version
+        createVersion(container.getId());
 
         // create first draft
-        final ContainerDraft draft = new ContainerDraft();
-        draft.setContainerId(container.getId());
-        draft.setOwner(teamMember);
-        containerIO.createDraft(draft);
+        final Container postCreation = read(container.getId());
+        createFirstDraft(postCreation, teamMember);
 
-        // fire draft event
-        final ContainerDraft postCreationDraft = readDraft(container.getId());
-        notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
-
+        // fire event
+        notifyContainerCreated(postCreation, localEventGenerator);
         return postCreation;
     }
 
@@ -806,7 +801,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         return containerIO.readVersion(containerId, versionId);
     }
 
-
     /**
      * Read the container versions.
      * 
@@ -819,6 +813,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         return readVersions(containerId, defaultVersionComparator);
     }
+
 
     /**
      * Read a list of versions for the container.
@@ -860,7 +855,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         ModelSorter.sortContainerVersions(versions, comparator);
         return containerIO.readVersions(containerId);
     }
-   
+
     /**
      * Read a list of versions for the container.
      * 
@@ -878,7 +873,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(filter);
         return readVersions(containerId, defaultVersionComparator, filter);
     }
-
+   
     /**
      * Remove a document from a container.
      * 
@@ -948,17 +943,15 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[UPDATE TEAM]"));
         logger.debug(containerId);
         logger.debug(users);
-        assertOnline(getApiId("[UPDATE TEAM] [USER NOT ONLINE]"));
-        if(!isDistributed(containerId)) { createDistributed(read(containerId)); }
         try {
             final List<TeamMember> originalTeam = readTeam(containerId);
-    
+
             final List<User> usersToAdd = new ArrayList<User>();
             for(final User user : users)
                 if(!contains(originalTeam, user))
                     usersToAdd.add(user);
             addTeamMembers(containerId, usersToAdd);
-    
+
             final List<TeamMember> membersToRemove = new ArrayList<TeamMember>();
             for(final TeamMember teamMember : originalTeam)
                 if(!contains(users, teamMember))
@@ -1046,76 +1039,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Assert that the list of documents contains the document id.
-     * 
-     * @param assertion
-     *            An assertion message.
-     * @param documents
-     *            A list of documents.
-     * @param documentId
-     *            A document id.
-     */
-    private void assertContains(final Object assertion,
-            final List<Document> documents, final Long documentId) {
-        Boolean didContain = Boolean.FALSE;
-        for(final Document document : documents) {
-            if(document.getId().equals(documentId)) {
-                didContain = Boolean.TRUE;
-                break;
-            }
-        }
-        Assert.assertTrue(assertion, didContain);
-    }
-
-    /**
-     * Assert that the list of documents does not contain the document.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param documents
-     *            A list of documents.
-     * @param documentId
-     *            A document id.
-     */
-    private void assertDoesNotContain(final Object assertion,
-            final List<Document> documents, final Long documentId) {
-        for(final Document document : documents)
-            Assert.assertNotTrue(assertion, document.getId().equals(documentId));
-    }
-
-    /**
-     * Determine if the list of team members contains the user.
-     * 
-     * @param team
-     *            A list of team members.
-     * @param user
-     *            A user.
-     * @return True if the id of the user matches one of the team members.
-     */
-    private Boolean contains(final List<TeamMember> team, final User user) {
-        for(final TeamMember teamMember : team) {
-            if(teamMember.getId().equals(user.getId())) { return Boolean.TRUE; }
-        }
-        return Boolean.FALSE;
-    }
-
-    /**
-     * Determine if the list of users contains the team member.
-     * 
-     * @param users
-     *            A list of users.
-     * @param teamMember
-     *            A team member.
-     * @return True if the id of the team member matches one of the users.
-     */
-    private Boolean contains(final List<User> users, final TeamMember teamMember) {
-        for(final User user: users) {
-            if(user.getId().equals(teamMember.getId())) { return Boolean.TRUE; }
-        }
-        return Boolean.FALSE;
-    }
-
-    /**
      * Create the container in the distributed network.
      * 
      * @param container
@@ -1127,7 +1050,33 @@ public class ContainerModelImpl extends AbstractModelImpl {
             throw ParityErrorTranslator.translateUnchecked(px);
         }
     }
-    
+
+    /**
+     * Create the first draft for a cotnainer.
+     * 
+     * @param container
+     *            A container.
+     * @param teamMember
+     *            The team.
+     * @return The first draft.
+     */
+    private ContainerDraft createFirstDraft(final Container container,
+            final List<TeamMember> team) {
+        Assert.assertTrue(
+                getApiId("[CREATE FIRST DRAFT] [TEAM DOES NOT CONTAIN CURRENT USER]"),
+                contains(team, currentUser()));
+        final TeamMember owner = get(team, currentUser());
+        final ContainerDraft draft = new ContainerDraft();
+        draft.setContainerId(container.getId());
+        draft.setOwner(owner);
+        containerIO.createDraft(draft);
+
+        // fire draft event
+        final ContainerDraft postCreation = readDraft(container.getId());
+        notifyDraftCreated(container, postCreation, localEventGenerator);
+        return postCreation;
+    }
+
     /**
      * Create a container version.
      * 
@@ -1186,7 +1135,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // delete the container
         containerIO.delete(containerId);
     }
-
+    
     /**
      * Delete the remote info for this container.
      * 

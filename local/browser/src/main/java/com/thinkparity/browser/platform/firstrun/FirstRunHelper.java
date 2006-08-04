@@ -18,6 +18,7 @@ import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.Credentials;
@@ -54,14 +55,17 @@ public class FirstRunHelper {
     /** An apache logger. */
     final Logger logger;
 
+    /** The thinkParity contact interface. */
+    private final ContactModel contactModel;
+
     /** The login avatar. */
     private LoginAvatar loginAvatar;
 
     /** The thinkParity profile interface. */
-    private final ProfileModel pModel;
+    private final ProfileModel profileModel;
 
-    /** The thinkParity session interface. */
-    private final SessionModel sModel;
+    /** The thinKParity session interface. */
+    private final SessionModel sessionModel;
 
     /** The user profile avatar. */
     private UserProfileAvatar userProfileAvatar;
@@ -76,8 +80,9 @@ public class FirstRunHelper {
     public FirstRunHelper(final Platform platform) {
         super();
         this.logger = platform.getLogger(getClass());
-        this.pModel = platform.getModelFactory().getProfileModel(getClass());
-        this.sModel = platform.getModelFactory().getSessionModel(getClass());
+        this.profileModel = platform.getModelFactory().getProfileModel(getClass());
+        this.contactModel = platform.getModelFactory().getContactModel(getClass());
+        this.sessionModel = platform.getModelFactory().getSessionModel(getClass());
         this.wModel = platform.getModelFactory().getWorkspaceModel(getClass());
     }
 
@@ -99,11 +104,11 @@ public class FirstRunHelper {
             final Credentials credentials = new Credentials();
             credentials.setPassword(password);
             credentials.setUsername(username);
-            try { sModel.login(credentials); }
+            try { sessionModel.login(credentials); }
             catch(final ParityException px) { throw new BrowserException("", px); }
-            Assert.assertTrue("", sModel.isLoggedIn());
+            Assert.assertTrue("", sessionModel.isLoggedIn());
 
-            final Profile profile = pModel.read();
+            final Profile profile = profileModel.read();
             userProfileAvatar = new UserProfileAvatar(this);
             userProfileAvatar.setInput(profile);
             openWindow(userProfileAvatar.getTitle(), userProfileAvatar);
@@ -112,7 +117,8 @@ public class FirstRunHelper {
             final String email = userProfileAvatar.getEmail();
             if(null != name && null != email) {
                 profile.addEmail(email);
-                pModel.update(profile);
+                profileModel.update(profile);
+                contactModel.download();
                 return Boolean.TRUE;
             }
             else { return Boolean.FALSE; }

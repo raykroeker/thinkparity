@@ -44,6 +44,7 @@ import com.thinkparity.browser.platform.action.contact.CreateInvitation;
 import com.thinkparity.browser.platform.action.contact.DeleteContact;
 import com.thinkparity.browser.platform.action.contact.OpenContact;
 import com.thinkparity.browser.platform.action.container.CreateContainer;
+import com.thinkparity.browser.platform.action.container.CreateDraft;
 import com.thinkparity.browser.platform.action.container.ManageContainerTeam;
 import com.thinkparity.browser.platform.action.document.*;
 import com.thinkparity.browser.platform.action.session.AcceptInvitation;
@@ -1189,7 +1190,7 @@ public class Browser extends AbstractApplication {
      */
     public void runCreateDraft(final Long containerId) {
         final Data data = new Data(1);
-        data.set(ManageContainerTeam.DataKey.CONTAINER_ID, containerId);
+        data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CREATE_DRAFT, data);         
     }
     

@@ -231,6 +231,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         indexor.create(container.getId(), container.getName());
 
         // fire event
+        createVersion(container.getId());
         final Container postCreation = read(container.getId());
         notifyContainerCreated(postCreation, localEventGenerator);
 

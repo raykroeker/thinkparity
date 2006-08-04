@@ -45,6 +45,21 @@ public class ContainerEvent {
      * Create ContainerEvent.
      * 
      * @param source
+     *            The event source
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final ContainerDraft draft) {
+        this(source, container, draft, null, null);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
      *            The event source.
      * @param container
      *            The container.

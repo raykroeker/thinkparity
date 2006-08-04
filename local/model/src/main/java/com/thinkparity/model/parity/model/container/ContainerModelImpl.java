@@ -23,7 +23,6 @@ import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.Filter;
@@ -234,6 +233,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // fire event
         final Container postCreation = read(container.getId());
         notifyContainerCreated(postCreation, localEventGenerator);
+
+        // create first draft
+        createFirstDraft(container.getId());
         return postCreation;
     }
 
@@ -265,10 +267,11 @@ public class ContainerModelImpl extends AbstractModelImpl {
         getInternalSessionModel().createDraft(container.getUniqueId());
 
         // fire event
-        final ContainerDraft postCreation = readDraft(containerId);
-        notifyDraftCreated(postCreation, localEventGenerator);
+        final Container postCreation= read(containerId);
+        final ContainerDraft postCreationDraft = readDraft(containerId);
+        notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
 
-        return postCreation;
+        return postCreationDraft;
     }
 
     /**
@@ -776,7 +779,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         return getInternalArtifactModel().readTeam2(containerId);
     }
 
-
     /**
      * Read a container version.
      * 
@@ -792,6 +794,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(versionId);
         return containerIO.readVersion(containerId, versionId);
     }
+
 
     /**
      * Read the container versions.
@@ -822,7 +825,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(comparator);
         return readVersions(containerId, comparator, defaultVersionFilter);
     }
-   
+
     /**
      * Read a list of versions for the container.
      * 
@@ -846,7 +849,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         ModelSorter.sortContainerVersions(versions, comparator);
         return containerIO.readVersions(containerId);
     }
-
+   
     /**
      * Read a list of versions for the container.
      * 
@@ -1100,7 +1103,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         }
         return Boolean.FALSE;
     }
-    
+
     /**
      * Create the container in the distributed network.
      * 
@@ -1112,6 +1115,22 @@ public class ContainerModelImpl extends AbstractModelImpl {
         catch(final ParityException px) {
             throw ParityErrorTranslator.translateUnchecked(px);
         }
+    }
+    
+    /**
+     * Create the frist draft for a container.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    private void createFirstDraft(final Long containerId) {
+        final ContainerDraft draft = new ContainerDraft();
+        draft.setContainerId(containerId);
+        containerIO.createDraft(draft);
+
+        final Container postCreation = read(containerId);
+        final ContainerDraft postCreationDraft = readDraft(containerId);
+        notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
     }
 
     /**
@@ -1181,17 +1200,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private void deleteRemote(final Long containerId) throws ParityException {
         getInternalSessionModel().sendDelete(containerId);
-    }
-
-    /**
-     * Determine if the container exists.
-     * 
-     * @param containerId
-     *            The container id.
-     * @return True if the container exists; false otherwise.
-     */
-    private Boolean doesExist(final Long containerId) {
-        return getInternalArtifactModel().doesExist(containerId);
     }
 
     /**
@@ -1281,10 +1289,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @param eventGenerator
      *            The container event generator.
      */
-    private void notifyDraftCreated(final ContainerDraft draft, final ContainerEventGenerator eventGenerator) {
+    private void notifyDraftCreated(final Container container,
+            final ContainerDraft draft,
+            final ContainerEventGenerator eventGenerator) {
         synchronized(LISTENERS) {
             for(final ContainerListener l : LISTENERS) {
-                l.draftCreated(eventGenerator.generate(draft));
+                l.draftCreated(eventGenerator.generate(container, draft));
             }
         }
     }
@@ -1309,22 +1319,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         }
     }
 
-    private List<DocumentVersionContent> readDocumentVersionContents(
-            final Long containerId) throws ParityException {
-        logger.info(getApiId("[READ DOCUMENT VERSIONS]"));
-        logger.debug(containerId);
-        final InternalDocumentModel dModel = getInternalDocumentModel();
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        final List<DocumentVersion> documentVersions =
-                containerIO.readDocumentVersions(containerId, latestVersion.getVersionId());
-        final List<DocumentVersionContent> documentVersionContents =
-                new ArrayList<DocumentVersionContent>(documentVersions.size());
-        for(final DocumentVersion documentVersion : documentVersions) {
-            documentVersionContents.add(dModel.getVersionContent(documentVersion.getArtifactId(), documentVersion.getVersionId()));
-        }
-        return documentVersionContents;
-    }
-
     /**
      * Read a key request.
      * 
@@ -1334,46 +1328,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private KeyRequest readKeyRequest(final Long keyRequestId) {
         return getInternalArtifactModel().readKeyRequest(keyRequestId);
-    }
-
-    /**
-     * Read the local team for a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A list of users.
-     */
-    private List<User> readLocalTeam(final Long containerId) {
-        final Set<User> localTeam = getInternalArtifactModel().readTeam(containerId);
-        final List<User> team = new ArrayList<User>();
-        for(final User teamMember : localTeam) { team.add(teamMember); }
-        return team;
-    }
-
-    /**
-     * Read the local team ids for a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A list of user ids.
-     */
-    private List<JabberId> readLocalTeamIds(final Long containerId) {
-        final List<User> team = readLocalTeam(containerId);
-        final List<JabberId> teamIds = new ArrayList<JabberId>(team.size());
-        for(final User teamMember : team) { teamIds.add(teamMember.getId()); }
-        return teamIds;
-    }
-
-    /**
-     * Read a user for a jabber id.
-     * 
-     * @param jabberId
-     *            A jabber id.
-     * @return A user.
-     * @throws ParityException
-     */
-    private User readUser(final JabberId jabberId) throws ParityException {
-        return getInternalSessionModel().readUser(jabberId);
     }
 
     /**

@@ -13,9 +13,11 @@ import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.contact.FilterManager;
 import com.thinkparity.model.parity.model.filter.user.DefaultFilter;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContactIOHandler;
+import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.sort.contact.NameComparator;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
@@ -99,6 +101,25 @@ class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Download the contacts from the server and create the local data.
+     *
+     */
+    void download() {
+        logger.info(getApiId("[DOWNLOAD]"));
+        logger.warn(getApiId("[DOWNLOAD]"));
+        try {
+            final List<Contact> remoteContacts = getInternalSessionModel().readContactList();
+            for(final Contact remoteContact : remoteContacts) {
+                contactIO.create(remoteContact);
+            }
+        }
+        catch(final ParityException px) {
+            logger.error(getApiId("[DOWNLOAD]"), px);
+            throw ParityErrorTranslator.translateUnchecked(px);
+        }
+    }
+
+    /**
      * Read a list of contacts.
      * 
      * @return A list of contacts.
@@ -121,6 +142,7 @@ class ContactModelImpl extends AbstractModelImpl {
         return read(comparator, defaultFilter);
     }
 
+
     /**
      * Read a list of contacts.
      * 
@@ -135,16 +157,11 @@ class ContactModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
         logger.debug(filter);
-        try { return getInternalSessionModel().readContactList(); }
-        catch(final ParityException px) {
-            throw ParityErrorTranslator.translateUnchecked(px);
-        }
-//        final List<Contact> contacts = contactIO.read();
-//        FilterManager.filter(contacts, filter);
-//        ModelSorter.sortContacts(contacts, comparator);
-//        return contacts;
+        final List<Contact> contacts = contactIO.read();
+        FilterManager.filter(contacts, filter);
+        ModelSorter.sortContacts(contacts, comparator);
+        return contacts;
     }
-
 
     /**
      * Read a list of contacts.

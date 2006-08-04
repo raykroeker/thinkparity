@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.VCard;
+
 import com.thinkparity.model.parity.model.user.UserEmail;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -19,10 +21,10 @@ public class Contact extends User {
 	/** The contact's e-mails. */
     private final List<String> emails;
 
-    /**
-	 * Create a Contact.
-	 * 
-	 */
+    /** The contact's vcard. */
+    private VCard vCard;
+
+    /** Create Contact. */
 	public Contact() {
         super();
         this.emails = new ArrayList<String>();
@@ -73,6 +75,13 @@ public class Contact extends User {
     }
 
     /**
+     * Obtain the vcard
+     *
+     * @return The VCard.
+     */
+    public VCard getVCard() { return vCard; }
+
+    /**
      * Remove all e-mails.
      * 
      * @param emails
@@ -93,4 +102,11 @@ public class Contact extends User {
     public boolean removeEmail(final UserEmail email) {
         return emails.remove(email);
     }
+
+    /**
+     * Set vcard.
+     *
+     * @param vcard The VCard.
+     */
+    public void setVCard(final VCard vcard) { this.vCard = vcard; }
 }

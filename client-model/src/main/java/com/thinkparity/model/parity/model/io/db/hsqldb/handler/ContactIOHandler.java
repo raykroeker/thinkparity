@@ -21,6 +21,13 @@ import com.thinkparity.model.xmpp.user.User;
 public class ContactIOHandler extends AbstractIOHandler implements
         com.thinkparity.model.parity.model.io.handler.ContactIOHandler {
 
+    /** Sql to create a contact. */
+    private static final String SQL_CREATE =
+            new StringBuffer("insert into CONTACT ")
+            .append("(CONTACT_ID,CONTACT_VCARD) ")
+            .append("values (?,?)")
+            .toString();
+
     /** Sql to create a contact invitation. */
     private static final String SQL_CREATE_INVITATION =
             new StringBuffer("insert into CONTACT_INVITATION ")
@@ -45,9 +52,10 @@ public class ContactIOHandler extends AbstractIOHandler implements
 
     /** Sql to read contact e-mail addresses. */
     private static final String SQL_READ_EMAIL =
-            new StringBuffer("select CE.EMAIL")
+            new StringBuffer("select E.EMAIL ")
             .append("from CONTACT C ")
-            .append("inner join CONTACT_EMAIL CE on C.CONTACT_ID=CE.CONTACT_ID ")
+            .append("inner join CONTACT_EMAIL_REL CER on C.CONTACT_ID=CER.CONTACT_ID ")
+            .append("inner join EMAIL E on CER.EMAIL_ID=E.EMAIL_ID ")
             .append("where C.CONTACT_ID=?")
             .toString();
 
@@ -95,17 +103,41 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** The email db io. */
     private final EmailIOHandler emailIO;
 
+    /** The user db io. */
+    private final UserIOHandler userIO;
+
     /** Create ContactIOHandler. */
     public ContactIOHandler() {
         super();
         this.emailIO = new EmailIOHandler();
+        this.userIO = new UserIOHandler();
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#create()
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#create(com.thinkparity.model.xmpp.contact.Contact)
+     * 
      */
-    public void create() {
-        throw Assert.createNotYetImplemented("ContactIOHandler#create");
+    public void create(final Contact contact) {
+        final Session session = openSession();
+        try {
+            userIO.create(session, contact);
+
+            session.prepareStatement(SQL_CREATE);
+            session.setLong(1, contact.getLocalId());
+            session.setString(2, contact.getVCard().toXML());
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("[CREATE CONTACT]", "[CREATE CONTACT] [COULD NOT CREATE CONTACT]"));
+
+            for(final String email : contact.getEmails())
+                emailIO.create(session, email);
+
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
     }
 
     /**
@@ -266,6 +298,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_READ_EMAIL);
             session.setLong(1, contactId);
+            session.executeQuery();
             final List<String> emails = new ArrayList<String>();
             while(session.nextResult()) { emails.add(extractEmail(session)); }
             return emails;

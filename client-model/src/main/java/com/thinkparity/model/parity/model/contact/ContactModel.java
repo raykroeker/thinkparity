@@ -23,7 +23,7 @@ import com.thinkparity.model.xmpp.contact.Contact;
  */
 public class ContactModel {
 
-	/**
+    /**
 	 * Create a Contact interface.
 	 * 
 	 * @param context
@@ -63,7 +63,7 @@ public class ContactModel {
 		this.implLock = new Object();
 	}
 
-    /**
+	/**
      * Create an e-mail contact invitation.
      * 
      * @param email
@@ -83,6 +83,14 @@ public class ContactModel {
      */
     public void delete(final JabberId contactId) {
         synchronized(implLock) { impl.delete(contactId); }
+    }
+
+    /**
+     * Download the contacts from the server and create local contacts.
+     *
+     */
+    public void download() {
+        synchronized(getImplLock()) { getImpl().download(); }
     }
 
     /**

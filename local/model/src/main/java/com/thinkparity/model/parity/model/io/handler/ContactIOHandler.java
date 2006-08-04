@@ -14,7 +14,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @version
  */
 public interface ContactIOHandler {
-    public void create();
+    public void create(final Contact contact);
     public void createInvitation(final ContactInvitation invitation,
             final User createdBy);
     public void delete();

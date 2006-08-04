@@ -27,9 +27,6 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
  */
 public class CellDocument extends Document implements MainCell  {
     
-    /** The document's container. */
-    private final CellContainer container;
-
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
 
@@ -46,58 +43,44 @@ public class CellDocument extends Document implements MainCell  {
         TEXT_MAX_LENGTH = 60;
     }
 
-    /** A flag indicating whether or not the cell is urgent. */
-    private Boolean urgent = Boolean.FALSE;    
-    
-    /** A flag indicating whether or not the cell has been seen. */
-    private Boolean seen = Boolean.FALSE;    
+    /** The document's container. */
+    private final CellContainer container;
 
     /** The parity document interface. */
-    private DocumentModel dModel;
-
+    private DocumentModel dModel;    
+    
     /** An image cache. */
-    private final MainCellImageCache imageCache;
+    private final MainCellImageCache imageCache;    
+
+    /** A flag indicating whether or not the cell has been seen. */
+    private Boolean seen = Boolean.FALSE;
+
+    /** A flag indicating whether or not the cell is urgent. */
+    private Boolean urgent = Boolean.FALSE;
 
     /**
      * Create a CellDocument.
      */
-    public CellDocument(final CellContainer container, final DocumentModel dModel, final Document d ) {
-        super(d.getCreatedBy(), d.getCreatedOn(), d.getDescription(),
-                d.getFlags(), d.getUniqueId(), d.getName(), d.getUpdatedBy(),
-                d.getUpdatedOn());
-        setId(d.getId());
-        setRemoteInfo(d.getRemoteInfo());
-        setState(d.getState());
-        
+    public CellDocument(final CellContainer container, final Document document) {
+        super(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
+                document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
+                document.getUpdatedOn());
+        setId(document.getId());
+        setRemoteInfo(document.getRemoteInfo());
+        setState(document.getState());
         this.container = container;
-        this.dModel = dModel;
         this.imageCache = new MainCellImageCache();        
-
-        this.urgent = Boolean.FALSE;
         this.seen = contains(ArtifactFlag.SEEN);        
+        this.urgent = Boolean.FALSE;
     }
     
-    /**
-     * Get the parent container id
-     */
-    public Long getContainerId() {
-        return container.getId();
-    }
-    
-    /**
-     * Get the parent container cell
-     */
-    public CellContainer getContainer() {
-        return container;
-    }
-
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#canImport()
      * 
      */
     // TO DO is this right?
     public boolean canImport() { return false; }
-
+    
     /**
      * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
      * 
@@ -106,12 +89,6 @@ public class CellDocument extends Document implements MainCell  {
         return super.equals(obj);
     }
 
-    /**
-     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#fireSelection()
-     * 
-     */
-    //public void fireSelection() {}
-    
     /**
      * Obtain the background image for a cell.
      * 
@@ -123,7 +100,7 @@ public class CellDocument extends Document implements MainCell  {
         else if(isUrgent()) { return imageCache.read(DocumentImage.BG_URGENT); }
         else { return imageCache.read(DocumentImage.BG_DEFAULT); }
     }
-    
+
     /**
      * Obtain the background image for a selected cell.
      * 
@@ -137,11 +114,31 @@ public class CellDocument extends Document implements MainCell  {
     }
 
     /**
+     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#fireSelection()
+     * 
+     */
+    //public void fireSelection() {}
+    
+    /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorder()
      * 
      */
     // TO DO is this right?
     public Border getBorder() { return null; }
+    
+    /**
+     * Get the parent container cell
+     */
+    public CellContainer getContainer() {
+        return container;
+    }
+
+    /**
+     * Get the parent container id
+     */
+    public Long getContainerId() {
+        return container.getId();
+    }
 
     /**
      * Obtain an info icon.

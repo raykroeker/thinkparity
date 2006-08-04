@@ -7,8 +7,6 @@ package com.thinkparity.browser.application.browser.display.avatar.container;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
@@ -20,13 +18,9 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellI
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.container.Container;
-import com.thinkparity.model.parity.model.container.ContainerModel;
-import com.thinkparity.model.parity.model.document.Document;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author rob_masako@shaw.ca
@@ -65,56 +59,28 @@ public class CellContainer extends Container implements MainCell  {
     /** A flag indicating whether or not the user is the key holder. */
     private Boolean keyHolder = Boolean.FALSE;
     
-    /** The parity container interface. */
-    private ContainerModel ctrModel;
-    
-    /** The parity document interface. */
-    private DocumentModel dModel;
-
     /** An image cache. */
     private final MainCellImageCache imageCache;
     
-    /** The list of documents for this container */
-    private final List<Document> documents;
-
-    /** The container's key requests. */
-    //private final List<KeyRequest> keyRequests;
-
-    /** The container team. */
-    //private final Set<User> team;
-
-
-    /**
-     * Create a CellContainer.
-     */
-    public CellContainer(final ContainerModel ctrModel, final DocumentModel dModel, final Container c) {
+    /** Create CellContainer. */
+    public CellContainer(final Container container) {
         super();
-        setCreatedBy(c.getCreatedBy());
-        setCreatedOn(c.getCreatedOn());
-        add(c.getFlags());
-        setUniqueId(c.getUniqueId());
-        setName(c.getName());
-        setUpdatedBy(c.getUpdatedBy());
-        setUpdatedOn(c.getUpdatedOn());
-        setId(c.getId());
-        setRemoteInfo(c.getRemoteInfo());
-        setState(c.getState());
-        
-        this.ctrModel = ctrModel;
-        this.dModel = dModel;
-        this.imageCache = new MainCellImageCache();
-        
+        setCreatedBy(container.getCreatedBy());
+        setCreatedOn(container.getCreatedOn());
+        add(container.getFlags());
+        setUniqueId(container.getUniqueId());
+        setName(container.getName());
+        setUpdatedBy(container.getUpdatedBy());
+        setUpdatedOn(container.getUpdatedOn());
+        setId(container.getId());
+        setDraft(container.getDraft());
+        setRemoteInfo(container.getRemoteInfo());
+        setState(container.getState());
         this.closed = getState() == ArtifactState.CLOSED;
-        this.urgent = Boolean.FALSE;
-        this.seen = contains(ArtifactFlag.SEEN);        
+        this.imageCache = new MainCellImageCache();
         this.keyHolder = contains(ArtifactFlag.KEY); 
-        
-        this.documents = new LinkedList<Document>();
-        
-        /*
-        this.keyRequests = new LinkedList<KeyRequest>();
-        this.team = team;
-*/
+        this.seen = contains(ArtifactFlag.SEEN);        
+        this.urgent = Boolean.FALSE;
     }
 
     /**
@@ -129,12 +95,6 @@ public class CellContainer extends Container implements MainCell  {
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
 
-    /**
-     * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#fireSelection()
-     * 
-     */
-    //public void fireSelection() {}
-    
     /**
      * Obtain the background image for a cell.
      * 
@@ -240,7 +200,7 @@ public class CellContainer extends Container implements MainCell  {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextInsetFactor()
      * 
      */
-    public Float getTextInsetFactor() { return 1.0F; }
+    public Float getTextInsetFactor() { return 3.0F; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getToolTip()
@@ -293,61 +253,10 @@ public class CellContainer extends Container implements MainCell  {
     public Boolean isKeyHolder() { return keyHolder; }
 
     /**
-     * Determine whether or not the document has been distributed.
-     * 
-     * @return True if the document has been distributed.
-     */
-    //public Boolean isDistributed() { return dModel.isDistributed(getId()); }
-
-    /**
-     * Determine whether or not the working version has been modified.
-     *
-     * @return True if the working version has not been modified; false
-     * otherwise.
-     */
-    public Boolean isWorkingVersionEqual() {
-        Boolean isWorkingVersionEqual = Boolean.TRUE;
-        try {
-            for(final Document d : documents) {
-                if (!dModel.isWorkingVersionEqual(d.getId())) {
-                    isWorkingVersionEqual = Boolean.FALSE;
-                    break;
-                }
-            }
-        }
-        catch(final ParityException px) { throw new RuntimeException(px); }
-        
-        return isWorkingVersionEqual;
-    }
-
-    /**
      * Set the expanded flag.
      * 
      * @param expanded
      *            The expanded flag.
      */
     public void setExpanded(final Boolean expanded) { this.expanded = expanded; }
-    
-    /**
-     * Set the container's documents.
-     * 
-     * @param documents
-     *            The list of documents in this container.
-     */
-    public void setDocuments(final List<Document> documents) {
-        this.documents.clear();
-        this.documents.addAll(documents);
-    }
-
-    /**
-     * Set the document's key requests. This will affect the urgent status of
-     * the document.
-     * 
-     * @param keyRequests
-     *            The document's key request.
-     */
-/*    public void setKeyRequests(final List<KeyRequest> keyRequests) {
-        this.keyRequests.clear();
-        this.keyRequests.addAll(keyRequests);
-    }*/
 }

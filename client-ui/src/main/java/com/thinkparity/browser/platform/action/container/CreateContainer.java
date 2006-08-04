@@ -34,7 +34,7 @@ public class CreateContainer extends AbstractAction {
     static {
         ICON = null;
         ID = ActionId.CONTAINER_CREATE;
-        NAME = "Create Package";
+        NAME = "CreateContainer";
     }
 
     /**

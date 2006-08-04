@@ -4,33 +4,19 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.main.popup;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import javax.swing.JComponent;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.container.CellContainer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.Platform.Connection;
-
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.parity.model.artifact.KeyRequest;
-import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author rob_masako@shaw.ca
@@ -140,23 +126,15 @@ public class PopupContainer implements Popup {
     private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         // MENU_ITEM Manage team
         jPopupMenu.add(new ManageTeam(application));
-        // MENU_ITEM Create draft
-        // This menu is available if this user doesn't have the draft
-        // and also no other user has the draft.
-        if ((!container.isSetLocalDraft()) && (!container.isSetDraftOwner())) {
+        // if no-one currently has a draft
+        if(!container.isSetDraft()) {
+            // MENU_ITEM Create draft
             jPopupMenu.add(new CreateDraft(application));            
         }
-
-        /*
-        // MENU_ITEM Add document
-        jPopupMenu.add(new AddDocument(application));
-        if (container.isKeyHolder()) {
-            if (!container.isWorkingVersionEqual()) {
-                // MENU_ITEM Publish
-                jPopupMenu.add(new Publish(application));
-            }
+        else {
+            // MENU_ITEM Add document
+            jPopupMenu.add(new AddDocument(application));
         }
-        */
     }      
    
     /**
@@ -172,16 +150,11 @@ public class PopupContainer implements Popup {
     private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         // MENU_ITEM Manage team
         jPopupMenu.add(new ManageTeam(application));
-        /*
-        // MENU_ITEM Add document
-        jPopupMenu.add(new AddDocument(application));
-        if (container.isKeyHolder()) {
-            if (!container.isWorkingVersionEqual()) {
-                // MENU_ITEM Publish
-                jPopupMenu.add(new Publish(application));
-            }
+        // if you have the draft
+        if(container.isSetDraft()) {
+            // MENU_ITEM Add document
+            jPopupMenu.add(new AddDocument(application));
         }
-        */
     }   
 
     /**

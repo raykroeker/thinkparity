@@ -118,7 +118,9 @@ public class ActionFactory {
         case CONTAINER_CREATE:
             return new com.thinkparity.browser.platform.action.container.CreateContainer(browser);
         case MANAGE_TEAM:
-            return new com.thinkparity.browser.platform.action.container.ManageContainerTeam(browser);            
+            return new com.thinkparity.browser.platform.action.container.ManageContainerTeam(browser);
+        case CREATE_DRAFT:
+            return new com.thinkparity.browser.platform.action.container.CreateDraft(browser);
 		case DOCUMENT_CREATE:
 			return new com.thinkparity.browser.platform.action.document.Create(browser);
 		case DOCUMENT_CLOSE:

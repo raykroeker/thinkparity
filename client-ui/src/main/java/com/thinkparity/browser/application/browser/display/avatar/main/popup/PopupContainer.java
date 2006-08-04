@@ -140,6 +140,13 @@ public class PopupContainer implements Popup {
     private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         // MENU_ITEM Manage team
         jPopupMenu.add(new ManageTeam(application));
+        // MENU_ITEM Create draft
+        // This menu is available if this user doesn't have the draft
+        // and also no other user has the draft.
+        if ((!container.isSetLocalDraft()) && (!container.isSetDraftOwner())) {
+            jPopupMenu.add(new CreateDraft(application));            
+        }
+
         /*
         // MENU_ITEM Add document
         jPopupMenu.add(new AddDocument(application));
@@ -322,6 +329,28 @@ public class PopupContainer implements Popup {
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     application.runManageTeam(container.getId());
+                }
+            });
+        }
+    }
+    
+    /** A "create draft" {@link JMenuItem}. */    
+    private class CreateDraft extends JMenuItem {
+
+        /** @see java.io.Serializable */
+        private static final long serialVersionUID = 1;
+
+        /**
+         * Create a ManageTeam JMenuItem.
+         * 
+         * @param application
+         *            The browser application.
+         */
+        private CreateDraft(final Browser application) {
+            super(getString("CreateDraft"), getString("CreateDraftMnemonic").charAt(0));
+            addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    application.runCreateDraft(container.getId());
                 }
             });
         }

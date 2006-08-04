@@ -621,6 +621,22 @@ public class Browser extends AbstractApplication {
             public void run() { getContainersAvatar().syncContainer(containerId, remote); }
         });        
     }
+    
+    /**
+     * Notify the application that the draft has been added.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param remote
+     *            True if the action was the result of a remote event; false if
+     *            the action was a local event.   
+     */
+    public void fireContainerDraftCreated(final Long containerId, final Boolean remote) {
+        setCustomStatusMessage("ContainerDraftCreated");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { getContainersAvatar().syncContainer(containerId, remote); }
+        });         
+    }
 
     /**
      * Notify the application that a container has in some way been updated.
@@ -1163,7 +1179,19 @@ public class Browser extends AbstractApplication {
         data.set(ManageContainerTeam.DataKey.CONTAINER_ID, containerId);
         data.set(ManageContainerTeam.DataKey.TEAM_MEMBERS, teamMembers);
         invoke(ActionId.MANAGE_TEAM, data);
-    }   
+    }
+    
+    /**
+     * Create a draft for the container.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public void runCreateDraft(final Long containerId) {
+        final Data data = new Data(1);
+        data.set(ManageContainerTeam.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CREATE_DRAFT, data);         
+    }
     
     /**
      * Run the create document action, browse to select the document.
@@ -1790,15 +1818,6 @@ public class Browser extends AbstractApplication {
 		if(null == jFileChooser) { jFileChooser = new JFileChooser(); }
 		return jFileChooser;
 	}
-
-    /**
-     * Convenience method to obtain the main (documents) avatar.
-     * 
-     * @return The main avatar.
-     */
-    private BrowserMainAvatar getMainAvatar() {
-        return (BrowserMainAvatar) avatarRegistry.get(AvatarId.BROWSER_MAIN);
-    }
 
 	private void invoke(final ActionId actionId, final Data data) {
 		try {

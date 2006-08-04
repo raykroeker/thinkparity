@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.*;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDraftDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
@@ -411,7 +411,7 @@ public class BrowserMainDocumentModel {
         }
         else if(mainCell instanceof MainCellHistoryItem) {
             final MainCellHistoryItem mch = (MainCellHistoryItem) mainCell;
-            browser.runOpenDocumentVersion(mch.getDocumentId(),mch.getVersionId());
+            //browser.runOpenDocumentVersion(mch.getDocumentId(),mch.getVersionId());
         }
     }
 

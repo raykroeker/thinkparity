@@ -132,8 +132,9 @@ public class CellContainer extends Container implements MainCell  {
      * @return An image icon.
      */
     public ImageIcon getInfoIcon() {
-        if(isKeyHolder()) { return imageCache.read(DocumentIcon.INFO_IS_KEYHOLDER); }
-        else { return imageCache.read(DocumentIcon.INFO_IS_NOT_KEYHOLDER); }
+        return null;
+        //if(isKeyHolder()) { return imageCache.read(DocumentIcon.INFO_IS_KEYHOLDER); }
+        //else { return imageCache.read(DocumentIcon.INFO_IS_NOT_KEYHOLDER); }
     }
 
     /**
@@ -200,7 +201,7 @@ public class CellContainer extends Container implements MainCell  {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextInsetFactor()
      * 
      */
-    public Float getTextInsetFactor() { return 3.0F; }
+    public Float getTextInsetFactor() { return 1.0F; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getToolTip()
@@ -215,7 +216,7 @@ public class CellContainer extends Container implements MainCell  {
      * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
      * 
      */
-    //public int hashCode() { return super.hashCode(); }
+    public int hashCode() { return super.hashCode(); }
 
     /**
      * Determine whether or not the container is closed.

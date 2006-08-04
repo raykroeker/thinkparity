@@ -18,19 +18,17 @@ import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.container.CellContainer;
-import com.thinkparity.browser.application.browser.display.avatar.container.CellDocument;
 import com.thinkparity.browser.application.browser.display.avatar.container.CellDraft;
 import com.thinkparity.browser.application.browser.display.avatar.container.MainCellContainerVersion;
 import com.thinkparity.browser.application.browser.display.avatar.container.MainCellDraftDocument;
 import com.thinkparity.browser.application.browser.display.avatar.container.MainCellVersionDocument;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupContainer;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDocument;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDraft;
+import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDraftDocument;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 
 import com.thinkparity.model.parity.model.container.ContainerDraft;
@@ -133,16 +131,24 @@ public class BrowserContainersModel {
      * @return True if the cell is expanded; false otherwise.
      */
     public Boolean isExpanded(final MainCell mainCell) {
-        if(mainCell instanceof CellContainer) {
+        if (mainCell instanceof CellContainer) {
             return ((CellContainer) mainCell).isExpanded();
         }
-        else { return Boolean.FALSE; }
+        else if (mainCell instanceof CellDraft) {
+            return ((CellDraft) mainCell).isExpanded();
+        }
+        else if (mainCell instanceof MainCellContainerVersion) {
+            return ((MainCellContainerVersion) mainCell).isExpanded();
+        }
+        else {
+            return Boolean.FALSE;
+        }
     }
 
     /**
      * Synchronize the document in the container list.
-     * Called, for example, if a new document is created in the container.
-     * This will move the container to the top, and also expand the container.
+     * Called, for example, if a new document is created in the container (ie. draft).
+     * This will move the container to the top, and also expand the container & draft.
      * 
      * @param containerId
      *            The container id.
@@ -152,7 +158,14 @@ public class BrowserContainersModel {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncDocument(final Long containerId, final Long documentId, final Boolean remote) {
-        Assert.assertNotYetImplemented("BrowserContainersModel#syncDocument");
+        syncDocumentInternal(containerId, documentId, remote);
+        final CellContainer container = readContainer(containerId);
+        container.setExpanded(Boolean.TRUE);
+        final CellDraft containerDraft = containerDrafts.get(container);
+        if (null != containerDraft) {
+            containerDraft.setExpanded(Boolean.TRUE);
+        }
+        syncModel();
     }
 
     /**
@@ -238,12 +251,22 @@ public class BrowserContainersModel {
      */
     void triggerDoubleClick(final MainCell mainCell) {
         debug();
-        if(mainCell instanceof CellContainer) {
+        if (mainCell instanceof CellContainer) {
             triggerExpand(mainCell);
         }
-        else if(mainCell instanceof CellDocument) {
-            final CellDocument cd = (CellDocument) mainCell;
+        else if (mainCell instanceof CellDraft) {
+            triggerExpand(mainCell);
+        }
+        else if (mainCell instanceof MainCellContainerVersion) {
+            triggerExpand(mainCell);
+        }
+        else if (mainCell instanceof MainCellDraftDocument) {
+            final MainCellDraftDocument cd = (MainCellDraftDocument) mainCell;
             browser.runOpenDocument(cd.getContainerId(), cd.getId());
+        }
+        else if (mainCell instanceof MainCellVersionDocument) {
+            final MainCellVersionDocument cv = (MainCellVersionDocument) mainCell;
+            //browser.runOpenDocumentVersion(cv.getContainerId(), cv.getId());           
         }
     }
 
@@ -254,14 +277,35 @@ public class BrowserContainersModel {
      *            The main cell.
      */
     void triggerExpand(final MainCell mainCell) {
-        if(mainCell instanceof CellContainer) {
+        if (mainCell instanceof CellContainer) {
             final CellContainer cc = (CellContainer) mainCell;
             if(isExpanded(cc)) {
-                collapse(cc);
+                cc.setExpanded(Boolean.FALSE);
             }
             else {
-                expand(cc);
+                cc.setExpanded(Boolean.TRUE);
             }
+            syncModel();
+        }
+        else if (mainCell instanceof CellDraft) {
+            final CellDraft cd = (CellDraft) mainCell;
+            if(isExpanded(cd)) {
+                cd.setExpanded(Boolean.FALSE);
+            }
+            else {
+                cd.setExpanded(Boolean.TRUE);
+            }
+            syncModel();            
+        }
+        else if (mainCell instanceof MainCellContainerVersion) {
+            final MainCellContainerVersion cv = (MainCellContainerVersion) mainCell;
+            if(isExpanded(cv)) {
+                cv.setExpanded(Boolean.FALSE);
+            }
+            else {
+                cv.setExpanded(Boolean.TRUE);
+            }
+            syncModel();             
         }
     }
 
@@ -278,8 +322,11 @@ public class BrowserContainersModel {
             (mainCell instanceof CellContainer)) {
             new PopupContainer(contentProvider, (CellContainer) mainCell).trigger(browser, jPopupMenu, e);                
         }
-        else if (mainCell instanceof CellDocument) {
-            new PopupDocument(contentProvider, (CellDocument) mainCell).trigger(browser, jPopupMenu, e);
+        else if (mainCell instanceof CellDraft) {
+            new PopupDraft(contentProvider, (CellDraft) mainCell).trigger(browser, jPopupMenu, e);
+        }
+        else if (mainCell instanceof MainCellDraftDocument) {
+            new PopupDraftDocument(contentProvider, (MainCellDraftDocument) mainCell).trigger(browser, jPopupMenu, e);
         }
         logger.info("[LBROWSER] [APPLICATION] [BROWSER] [CONTAINERS AVATAR] [TRIGGER POPUP]");
         logger.debug(browser.getConnection());
@@ -295,28 +342,6 @@ public class BrowserContainersModel {
         final List<CellContainer> clone = new LinkedList<CellContainer>();
         clone.addAll(containers);
         return clone;
-    }
-
-    /**
-     * Collapse the details for the container.
-     * 
-     * @param cc
-     *            The cell container.
-     */
-    private void collapse(final CellContainer cc) {
-        cc.setExpanded(Boolean.FALSE);
-        syncModel();
-    }
-
-    /**
-     * Expand the details for the container.
-     * 
-     * @param cc
-     *            The cell container.
-     */
-    private void expand(final CellContainer cc) {
-        cc.setExpanded(Boolean.TRUE);
-        syncModel();
     }
 
     private Object getDebugId(final String message, final Object ... arguments) {
@@ -412,6 +437,43 @@ public class BrowserContainersModel {
         for(final MainCellVersionDocument c : a) { l.add(c); }
         return l;
     }
+    
+    /**
+     * Synchronize the container and document with the list. This method
+     * is called when there is a change to documents in a container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @parem documentId
+     *            The document id (or null if it is a container change only)
+     * @param remote
+     *            Whether or not the reload is the result of a remote event or
+     *            not.
+     * 
+     * @see #syncDocument(Long, Long, Boolean)
+     * @see #syncModel()
+     */
+    private void syncDocumentInternal(final Long containerId, final Long documentId,
+            final Boolean remote) {
+        final CellContainer container = readContainer(containerId);
+        if (null!=container) {
+            // Get the draft
+            if(container.isSetDraft()) {
+                final CellDraft draft = toDisplay(container, container.getDraft());
+                containerDrafts.put(container, draft);
+                final List<MainCellDraftDocument> mcDocuments = toDisplay(draft, draft.getDocuments());
+                draftDocuments.put(draft, mcDocuments);
+            }
+            // Get the versions
+            containerVersions.clear();
+            final List<MainCellContainerVersion> versions = readVersions(container);
+            containerVersions.put(container, versions);
+            versionDocuments.clear();
+            for(final MainCellContainerVersion version : versions) {
+                versionDocuments.put(version, readVersionDocuments(version));
+            }
+        }
+    }
 
     /**
      * Synchronize the container with the list. The content provider is queried
@@ -449,13 +511,16 @@ public class BrowserContainersModel {
         else {
             // the container is new
             if(!containers.contains(container)) {
+                containers.add(0, container);
+                
+                // Get the draft
                 if(container.isSetDraft()) {
                     final CellDraft draft = toDisplay(container, container.getDraft());
                     containerDrafts.put(container, draft);
                     final List<MainCellDraftDocument> mcDocuments = toDisplay(draft, draft.getDocuments());
                     draftDocuments.put(draft, mcDocuments);
                 }
-                // versions
+                // Get the versions
                 containerVersions.clear();
                 final List<MainCellContainerVersion> versions = readVersions(container);
                 containerVersions.put(container, versions);
@@ -489,25 +554,33 @@ public class BrowserContainersModel {
         final List<CellContainer> filteredContainers = cloneContainers();
         // update all visible cells
         visibleCells.clear();
-        for(final CellContainer cc : filteredContainers) {
+        for (final CellContainer cc : filteredContainers) {
             visibleCells.add(cc);
-            if(cc.isExpanded()) {
+            if (cc.isExpanded()) {
                 // if a draft exists display it
                 final CellDraft containerDraft = containerDrafts.get(cc);
-                if(null != containerDraft) {
+                if (null != containerDraft) {
                     visibleCells.add(containerDraft);
-                    // add draft documents
-                    final List<MainCellDraftDocument> draftDocuments = this.draftDocuments.get(containerDraft);
-                    if(null != draftDocuments) { visibleCells.addAll(draftDocuments); }
+                    if (containerDraft.isExpanded()) {
+                        // add draft documents
+                        final List<MainCellDraftDocument> draftDocuments = this.draftDocuments.get(containerDraft);
+                        if (null != draftDocuments) {
+                            visibleCells.addAll(draftDocuments);
+                        }                        
+                    }
                 }
                 // if versions exist display them
                 final List<MainCellContainerVersion> containerVersions = this.containerVersions.get(cc);
-                if(null != containerVersions) {
-                    visibleCells.addAll(containerVersions);
-                    // add version documents
-                    final List<MainCellVersionDocument> versionDocuments = this.versionDocuments.get(cc);
-                    if(null != versionDocuments) {
-                        visibleCells.addAll(versionDocuments);
+                if (null != containerVersions) {
+                    for (final MainCellContainerVersion cv : containerVersions) {
+                        visibleCells.add(cv);
+                        if (cv.isExpanded()) {
+                            // add version documents
+                            final List<MainCellVersionDocument> versionDocuments = this.versionDocuments.get(cv);
+                            if (null != versionDocuments) {
+                                visibleCells.addAll(versionDocuments);
+                            }
+                        }
                     }
                 }
             }

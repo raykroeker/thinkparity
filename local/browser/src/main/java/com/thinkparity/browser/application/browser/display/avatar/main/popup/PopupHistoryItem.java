@@ -103,7 +103,7 @@ public class PopupHistoryItem implements Popup {
             super(getString("OpenVersion"), getString("OpenMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.runOpenDocumentVersion(historyItem.getDocumentId(), historyItem.getVersionId());
+                    //application.runOpenDocumentVersion(historyItem.getDocumentId(), historyItem.getVersionId());
                 }
             });
         }

@@ -10,7 +10,10 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.border.Border;
 
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 
 import com.thinkparity.model.parity.model.document.Document;
 
@@ -22,6 +25,25 @@ public class MainCellDraftDocument extends Document implements MainCell  {
     
     /** The document's draft. */
     private final CellDraft draft;
+    
+    /** The cell's text foreground color. */
+    private static final Color TEXT_FG;
+
+    /** The cell's text foreground colour for closed documents. */
+    private static final Color TEXT_FG_CLOSED;
+
+    /** Maximum length of a document cell's text. */
+    private static final Integer TEXT_MAX_LENGTH;
+
+    static {
+        TEXT_FG = Color.BLACK;
+        TEXT_FG_CLOSED = new Color(127, 131, 134, 255);
+
+        TEXT_MAX_LENGTH = 60;
+    }
+    
+    /** An image cache. */
+    private final MainCellImageCache imageCache;    
 
     /** Create a CellDocument. */
     public MainCellDraftDocument(final CellDraft draft, final Document document) {
@@ -32,6 +54,7 @@ public class MainCellDraftDocument extends Document implements MainCell  {
         setRemoteInfo(document.getRemoteInfo());
         setState(document.getState());
         this.draft = draft;
+        this.imageCache = new MainCellImageCache(); 
     }
 
     /**
@@ -43,14 +66,14 @@ public class MainCellDraftDocument extends Document implements MainCell  {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBackground()
      */
     public BufferedImage getBackground() {
-        return null;
+        return imageCache.read(DocumentImage.BG_DEFAULT);
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBackgroundSelected()
      */
     public BufferedImage getBackgroundSelected() {
-        return null;
+        return imageCache.read(DocumentImage.BG_SEL_DEFAULT);
     }
 
     /**
@@ -84,20 +107,27 @@ public class MainCellDraftDocument extends Document implements MainCell  {
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getText()
      */
-    public String getText() { return getName(); }
+    public String getText() {
+        if(TEXT_MAX_LENGTH < getName().length()) {
+            return getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
+        }
+        else {
+            return getName();
+        }
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextFont()
      */
     public Font getTextFont() {
-        return null;
+        return BrowserConstants.Fonts.DefaultFont;
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextForeground()
      */
     public Color getTextForeground() {
-        return null;
+        return TEXT_FG;
     }
 
     /**
@@ -109,6 +139,14 @@ public class MainCellDraftDocument extends Document implements MainCell  {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getToolTip()
      */
     public String getToolTip() {
-        return null;
+        if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
+        else { return null; }
+    }
+
+    /**
+     * Get the parent container id
+     */
+    public Long getContainerId() {
+        return draft.getContainerId();
     }
 }

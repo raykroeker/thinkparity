@@ -131,10 +131,6 @@ public class PopupContainer implements Popup {
             // MENU_ITEM Create draft
             jPopupMenu.add(new CreateDraft(application));            
         }
-        else {
-            // MENU_ITEM Add document
-            jPopupMenu.add(new AddDocument(application));
-        }
     }      
    
     /**
@@ -150,11 +146,6 @@ public class PopupContainer implements Popup {
     private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         // MENU_ITEM Manage team
         jPopupMenu.add(new ManageTeam(application));
-        // if you have the draft
-        if(container.isSetDraft()) {
-            // MENU_ITEM Add document
-            jPopupMenu.add(new AddDocument(application));
-        }
     }   
 
     /**
@@ -350,50 +341,7 @@ public class PopupContainer implements Popup {
             });
         }
     }
-    
-    /** A "add document" {@link JMenuItem}. */    
-    private class AddDocument extends JMenuItem {
 
-        /** @see java.io.Serializable */
-        private static final long serialVersionUID = 1;
-
-        /**
-         * Create a AddContainer JMenuItem.
-         * 
-         * @param application
-         *            The browser application.
-         */
-        private AddDocument(final Browser application) {
-            super(getString("AddDocument"), getString("AddDocumentMnemonic").charAt(0));
-            addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    application.runCreateDocument(container.getId());
-                }
-            });
-        }
-    }
-    
-    /** A publish {@link JMenuItem}. */
-    private class Publish extends JMenuItem {
-
-            /** @see java.io.Serializable */
-            private static final long serialVersionUID = 1;
-
-            /**
-             * Create a Publish JMenuItem.
-             *
-             * @param application
-             *            The browser application.
-             */
-            private Publish(final Browser application) {
-                super(getString("Publish"), getString("PublishMnemonic").charAt(0));
-                addActionListener(new ActionListener() {
-                    public void actionPerformed(final ActionEvent e) {
-                        application.runPublishContainer(container.getId());
-                    }
-                });
-            }
-        }
         
     /** An accept key request {@link JMenuItem}. */
 /*    private class AcceptKeyRequest extends JMenuItem {

@@ -13,6 +13,9 @@ import javax.swing.border.Border;
 
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
@@ -24,12 +27,31 @@ import com.thinkparity.model.parity.model.document.Document;
  * @version $Revision$
  */
 public class CellDraft extends ContainerDraft implements MainCell  {
-
+    
     /** The parent cell. */
     private final CellContainer container; 
     
+    /** The cell's text foreground color. */
+    private static final Color TEXT_FG;
+
+    /** The cell's text foreground colour for closed containers. */
+    private static final Color TEXT_FG_CLOSED;
+
+    /** Maximum length of a container cell's text. */
+    private static final Integer TEXT_MAX_LENGTH;
+
+    static {
+        TEXT_FG = Color.BLACK;
+        TEXT_FG_CLOSED = new Color(127, 131, 134, 255);
+
+        TEXT_MAX_LENGTH = 60;
+    }
+    
     /** A flag indicating the expand\collapse status. */
-    private Boolean expanded = Boolean.FALSE;
+    private Boolean expanded = Boolean.FALSE; 
+    
+    /** An image cache. */
+    private final MainCellImageCache imageCache;
 
     /** The draft cell localization. */
     private final MainCellL18n localization;
@@ -45,6 +67,7 @@ public class CellDraft extends ContainerDraft implements MainCell  {
         }
         this.container = container;
         this.localization = new MainCellL18n("MainCellContainerDraft");
+        this.imageCache = new MainCellImageCache();
     }
 
     /**
@@ -66,7 +89,9 @@ public class CellDraft extends ContainerDraft implements MainCell  {
      * 
      * @return A buffered image.
      */
-    public BufferedImage getBackground() { return null; }
+    public BufferedImage getBackground() {
+        return imageCache.read(DocumentImage.BG_DEFAULT);
+    }
 
     /**
      * Obtain the background image for a selected cell.
@@ -74,7 +99,9 @@ public class CellDraft extends ContainerDraft implements MainCell  {
      * 
      * @return A buffered image.
      */
-    public BufferedImage getBackgroundSelected() { return null; }
+    public BufferedImage getBackgroundSelected() {
+        return imageCache.read(DocumentImage.BG_SEL_DEFAULT);
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getBorder()
@@ -94,13 +121,18 @@ public class CellDraft extends ContainerDraft implements MainCell  {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getNodeIcon()
      * 
      */
-    public ImageIcon getNodeIcon() { return null; }
+    public ImageIcon getNodeIcon() {
+        return imageCache.read(DocumentIcon.NODE_DEFAULT);
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getNodeIconSelected()
      * 
      */
-    public ImageIcon getNodeIconSelected() { return null; }
+    public ImageIcon getNodeIconSelected() {
+        if(isExpanded()) { return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED); }
+        else { return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT); }
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getText()
@@ -118,19 +150,21 @@ public class CellDraft extends ContainerDraft implements MainCell  {
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextForeground()
      * 
      */
-    public Color getTextForeground() { return null; }
+    public Color getTextForeground() { return TEXT_FG; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextInsetFactor()
      * 
      */
-    public Float getTextInsetFactor() { return 6.0F; }
+    public Float getTextInsetFactor() { return 3.0F; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getToolTip()
      * 
      */
-    public String getToolTip() { return getText(); }
+    public String getToolTip() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()

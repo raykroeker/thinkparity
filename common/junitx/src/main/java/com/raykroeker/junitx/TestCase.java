@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.StringUtil.Separator;
+
 /**
  * The TestCase is an intermediate abstraction between the JUnit library's
  * main test case and the actual test cases. It provides additional
@@ -20,6 +22,10 @@ import org.apache.log4j.Logger;
  * @author raykroeker@gmail.com
  */
 public abstract class TestCase extends junit.framework.TestCase {
+
+	protected static void assertEquals(final Iterable expected, final Iterable actual) {}
+
+	protected static void assertEquals(final String message, final Iterable expected, final Iterable actual) {}
 
 	/**
 	 * Obtain the test session.
@@ -84,7 +90,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 		}
 	}
 
-	/**
+    /**
 	 * Clear the session data.
 	 *
 	 */
@@ -104,6 +110,21 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
+     * Create a failure message.
+     * 
+     * @param message
+     *            A message.
+     * @param t
+     *            A throwable.
+     * @return A failure message.
+     */
+    protected String createFailMessage(final Object message, final Throwable t) {
+        return new StringBuffer()
+                .append(message).append(Separator.SystemNewLine)
+                .append(TestCaseHelper.createFailMessage(t)).toString();
+    }
+
+	/**
 	 * Create a failure message for the throwable.
 	 * 
 	 * @param t
@@ -111,7 +132,7 @@ public abstract class TestCase extends junit.framework.TestCase {
 	 * @return The failure message.
 	 */
 	protected String createFailMessage(final Throwable t) {
-		return TestCaseHelper.createFailMessage(t);
+		return createFailMessage(getName(), t);
 	}
 
 	/**
@@ -121,16 +142,6 @@ public abstract class TestCase extends junit.framework.TestCase {
 	 */
 	protected File[] getInputFiles() throws IOException {
 		return TestCaseHelper.getInputFiles();
-	}
-
-	/**
-	 * Obtain a list of modified input files.
-	 * 
-	 * @return A list of modified input files.
-	 * @throws IOException
-	 */
-	protected File[] getModFiles() throws IOException {
-		return TestCaseHelper.getModFiles();
 	}
 
 	/**
@@ -153,6 +164,16 @@ public abstract class TestCase extends junit.framework.TestCase {
 	}
 
 	/**
+	 * Obtain a list of modified input files.
+	 * 
+	 * @return A list of modified input files.
+	 * @throws IOException
+	 */
+	protected File[] getModFiles() throws IOException {
+		return TestCaseHelper.getModFiles();
+	}
+
+	/**
 	 * Obtain random text of a given length.
 	 * 
 	 * @param textLength
@@ -172,7 +193,6 @@ public abstract class TestCase extends junit.framework.TestCase {
 	protected void removeSessionData(final String key) {
 		testCaseHelper.removeSessionDataItem(key);
 	}
-
 	/**
 	 * Read the byte content from a file.
 	 * 
@@ -198,7 +218,4 @@ public abstract class TestCase extends junit.framework.TestCase {
 		finally { fis.close(); }
 		return byteBuffer.array();
 	}
-
-	protected static void assertEquals(final Iterable expected, final Iterable actual) {}
-	protected static void assertEquals(final String message, final Iterable expected, final Iterable actual) {}
 }

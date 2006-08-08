@@ -27,16 +27,20 @@ public class LinkFactory {
     private static final Map<Mode, String> PREFIXES;
 
     /** A map of all http applications to their web suffix. */
-    private static final Map<Application, String> SUFFIXES;
+    private static final Map<Application, Map<Mode, String>> SUFFIXES;
 
     static {
         PREFIXES = new HashMap<Mode, String>(3, 1.0F);
-        PREFIXES.put(Mode.DEVELOPMENT, "https://perth.");
-        PREFIXES.put(Mode.TESTING, "https://brisbane.");
-        PREFIXES.put(Mode.PRODUCTION, "https://adelaide.");
+        PREFIXES.put(Mode.DEVELOPMENT, "http://");
+        PREFIXES.put(Mode.TESTING, "https://");
+        PREFIXES.put(Mode.PRODUCTION, "https://");
 
-        SUFFIXES = new HashMap<Application, String>(1, 1.0F);
-        SUFFIXES.put(Application.ROSALINE, "/rosaline");
+        SUFFIXES = new HashMap<Application, Map<Mode, String>>(1, 1.0F);
+        final Map<Mode, String> ROSALINE = new HashMap<Mode, String>();
+        ROSALINE.put(Mode.DEVELOPMENT, ":8082/katherina");
+        ROSALINE.put(Mode.TESTING, ":8081/katherina");
+        ROSALINE.put(Mode.PRODUCTION, ":8080/katherina");
+        SUFFIXES.put(Application.ROSALINE, ROSALINE);
     }
 
     /**
@@ -64,7 +68,7 @@ public class LinkFactory {
     private LinkFactory(final Application application, final Mode mode) {
         super();
         prefix = PREFIXES.get(mode);
-        suffix = SUFFIXES.get(application);
+        suffix = SUFFIXES.get(application).get(mode);
     }
 
     /**

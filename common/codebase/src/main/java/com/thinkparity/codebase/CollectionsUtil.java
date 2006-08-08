@@ -3,6 +3,7 @@
  */
 package com.thinkparity.codebase;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -15,6 +16,19 @@ import java.util.List;
 public class CollectionsUtil {
 
 	/**
+     * Clone a list 1 level deep.
+     * 
+     * @param l
+     *            A list of type T.
+     * @return A list of type T.
+     */
+    public static <T> List<T> clone(final List<T> l) {
+        final List<T> clone = new ArrayList<T>(l.size());
+        Collections.copy(l, clone);
+        return clone;
+    }
+
+    /**
 	 * Proxy a collection to a list.
 	 * 
 	 * @param c
@@ -28,6 +42,21 @@ public class CollectionsUtil {
 		for(final T t : c) { l.add(t); }
 		return l;
 	}
+
+    /**
+     * Create a list of T from an array.
+     * 
+     * @param <T>
+     *            Any type.
+     * @param a
+     *            An array of type t.
+     * @return A list of type T.
+     */
+    public static <T> List<T> fromArray(final T[] a) {
+        final List<T> l = new ArrayList<T>(a.length);
+        for(final T t : a) { l.add(t); }
+        return l;
+    }
 
 	/**
 	 * Create a CollectionsUtil [Singleton]

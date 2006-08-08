@@ -6,6 +6,7 @@ package com.thinkparity.codebase;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -21,6 +22,13 @@ public class StackUtil {
 
     /** The depth of the execution point. */
     private static final Integer EXECUTION_POINT_DEPTH = 0;
+
+    /** A filter to remove StackUtil. */
+    private static final Filter STACK_UTIL_FILTER = new Filter() {
+        public Boolean accept(final StackTraceElement stackElement) {
+            return !stackElement.getClassName().equals(StackUtil.class.getName());
+            }
+        };
 
     /**
      * Obtain the caller's formatted text.
@@ -85,7 +93,7 @@ public class StackUtil {
         return getFrameClassName(CALLER_DEPTH);
     }
 
-    /**
+	/**
      * Obtain the caller's line number.
      * 
      * @return The line number.
@@ -94,7 +102,7 @@ public class StackUtil {
         return getFrameLineNumber(CALLER_DEPTH);
     }
 
-	/**
+    /**
 	 * Obtain the caller's method name.
 	 * 
 	 * @return The name of the immediate caller.
@@ -139,7 +147,7 @@ public class StackUtil {
         return getFrameLineNumber(EXECUTION_POINT_DEPTH);
     }
 
-    /**
+	/**
      * Obtain the execution point's method name.
      * 
      * @return The method name.
@@ -148,7 +156,7 @@ public class StackUtil {
         return getFrameMethodName(EXECUTION_POINT_DEPTH);
     }
 
-	/**
+    /**
      * Obtain a stack frame.
      * 
      * @param depth
@@ -161,6 +169,23 @@ public class StackUtil {
     }
 
 	/**
+     * Obtain a filtered stack frame.
+     * 
+     * @param filters
+     *            A list of stack filters.
+     * @return A stack trace element.
+     */
+    public static StackTraceElement getFrame(final List<StackUtil.Filter> filters) {
+        final ArrayList<Filter> internalFilters =
+            new ArrayList<Filter>(filters.size() + 1);
+        internalFilters.add(STACK_UTIL_FILTER);
+        internalFilters.addAll(filters);
+        final StackTraceElement[] stack = createFilteredStack(
+                internalFilters.toArray(new Filter[] {}));
+        return 0 < stack.length ? stack[0] : null;
+    }
+
+    /**
 	 * Obtain the frame's class and method name.
 	 * 
 	 * @param depth
@@ -177,7 +202,7 @@ public class StackUtil {
         }
 	}
 
-    /**
+	/**
      * Obtain the frame's class name.
      * 
      * @param depth
@@ -189,7 +214,7 @@ public class StackUtil {
         return null == frame ? null : frame.getClassName();
     }
 
-	/**
+    /**
      * Obtain the frame's line number
      * 
      * @param depth
@@ -202,7 +227,7 @@ public class StackUtil {
                 ? null : frame.getLineNumber();
     }
 
-    /**
+	/**
      * Obtain the frame's method name.
      * 
      * @param depth
@@ -215,18 +240,14 @@ public class StackUtil {
                 ? null : frame.getMethodName();
     }
 
-	/**
+    /**
      * Create a filtered stack. The stack returned will not inlcude any
      * references to StackUtil.
      * 
      * @return A stack trace.
      */
     private static StackTraceElement[] createFilteredStack() {
-        return createFilteredStack(new Filter[] {new Filter() {
-            public Boolean accept(final StackTraceElement stackElement) {
-                return !stackElement.getClassName().equals(StackUtil.class.getName());
-            }
-        }});
+        return createFilteredStack(new Filter[] {STACK_UTIL_FILTER});
     }
 
     /**
@@ -239,12 +260,17 @@ public class StackUtil {
     private static StackTraceElement[] createFilteredStack(final Filter[] filters) {
         final ArrayList<StackTraceElement> filteredStack = new ArrayList<StackTraceElement>();
         final StackTraceElement[] stack = new Throwable().getStackTrace();
+        Boolean doFilter;
         for(final StackTraceElement stackElement : stack) {
+            // if any filter rejects the element; do not include it in the list
+            doFilter = Boolean.FALSE;
             for(final Filter filter : filters) {
-                if(filter.accept(stackElement)) {
-                    filteredStack.add(stackElement);
+                if(!filter.accept(stackElement)) {
+                    doFilter = Boolean.TRUE;
+                    break;
                 }
             }
+            if(!doFilter) { filteredStack.add(stackElement); }
         }
         return filteredStack.toArray(new StackTraceElement[] {});
     }
@@ -261,7 +287,7 @@ public class StackUtil {
      * @author raymond@thinkparity.com
      * @version $Revision$
      */
-    private interface Filter {
+    public interface Filter {
 
         /**
          * Determine whether or not to filter the stack trace element.

@@ -4,6 +4,7 @@
 package com.thinkparity.codebase;
 
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -23,20 +24,63 @@ import com.thinkparity.codebase.config.ConfigFactory;
 public abstract class NetworkUtil {
 
 	/**
+	 * Represents the localhost ip address.
+	 */
+	private static InetAddress localHost;
+
+	/**
 	 * Config for NetworkUtil
 	 */
 	private static final Config networkUtilConfig =
 		ConfigFactory.newInstance(NetworkUtil.class);
 
 	/**
-	 * Represents the localhost ip address.
+	 * Obtain the host address of the localhost.
+	 * @return <code>java.lang.String</code>
+	 * @throws UnknownHostException
 	 */
-	private static InetAddress localHost;
+	public static synchronized String getIp() throws UnknownHostException {
+		initLocalHost(false);
+		return localHost.getHostAddress();
+	}
 
 	/**
-	 * Create a new NetworkUtil [Singleton]
+	 * Obtain the host name of the localhost.
+	 * @return <code>java.lang.String</code>
+	 * @throws UnknownHostException
 	 */
-	private NetworkUtil() {super();}
+	public static synchronized String getMachine()
+		throws UnknownHostException {
+		initLocalHost(false);
+		return localHost.getHostName();
+	}
+
+    /**
+     * Determine if the host is reachable on the given port. This is done by
+     * opening a simple socket to the host on the given port. If any error
+     * occurs the host is deemed unreachable.
+     * 
+     * @param host
+     *            A host name or ip.
+     * @param port
+     *            A port.
+     * @return True if this socket can be opened and closed; false otherwise.
+     */
+    public static Boolean isTargetReachable(final String host,
+            final Integer port) {
+        Socket socket = null;
+        try {
+            socket = new Socket(host, port);
+            return Boolean.TRUE;
+        }
+        catch(final Throwable t) { return Boolean.FALSE; }
+        finally {
+            if(null != socket) {
+                try { socket.close(); }
+                catch(final Throwable t) { return Boolean.FALSE; }
+            }
+        }
+    }
 
 	/**
 	 * Ping the specified host and return a colon separated list of all hosts and their
@@ -60,28 +104,7 @@ public abstract class NetworkUtil {
 				.append(addresses[i].getHostAddress());
 		}
 		return pingResult.toString();
-	}
-
-	/**
-	 * Obtain the host address of the localhost.
-	 * @return <code>java.lang.String</code>
-	 * @throws UnknownHostException
-	 */
-	public static synchronized String getIp() throws UnknownHostException {
-		initLocalHost(false);
-		return localHost.getHostAddress();
 	} 
-
-	/**
-	 * Obtain the host name of the localhost.
-	 * @return <code>java.lang.String</code>
-	 * @throws UnknownHostException
-	 */
-	public static synchronized String getMachine()
-		throws UnknownHostException {
-		initLocalHost(false);
-		return localHost.getHostName();
-	}
 
 	/**
 	 * Initialize the localhost's internet address.
@@ -94,5 +117,10 @@ public abstract class NetworkUtil {
 			localHost= InetAddress.getLocalHost();
 		}
 	}
+
+	/**
+	 * Create a new NetworkUtil [Singleton]
+	 */
+	private NetworkUtil() {super();}
 
 }

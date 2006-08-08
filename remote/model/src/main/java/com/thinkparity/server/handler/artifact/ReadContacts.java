@@ -36,7 +36,7 @@ public class ReadContacts extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("[RMODEL] [ARTIFACT] [READ CONTACTS]");
+        logApiId();
 		final List<Contact> contacts =
 			getArtifactModel(session).readContacts(extractUniqueId(iq));
 		return createResult(iq, session, contacts); 

@@ -31,7 +31,7 @@ public class DeleteArtifact extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("[RMODEL] [ARTIFACT] [DELETE]");
+        logApiId();
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		artifactModel.delete(extractUniqueId(iq));
 		return createResult(iq);

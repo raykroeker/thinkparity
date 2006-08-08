@@ -22,7 +22,7 @@ import com.thinkparity.server.model.session.Session;
  */
 public class ArtifactModel extends AbstractModel {
 
-	/**
+    /**
 	 * Obtain a handle to the artifact model.
 	 * 
 	 * @return A handle to the artifact model.
@@ -32,7 +32,7 @@ public class ArtifactModel extends AbstractModel {
 		return artifactModel;
 	}
 
-	/**
+    /**
 	 * Artifact model implementation.
 	 */
 	private final ArtifactModelImpl impl;
@@ -65,6 +65,18 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { impl.acceptKeyRequest(artifactUniqueId, jid); }
 	}
 
+    /**
+     * Add a user to an artifact's team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A user's jabber id.
+     */
+	public void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        synchronized(implLock) { impl.addTeamMember(uniqueId, jabberId); }
+    }
+
 	/**
 	 * Close an artifact.
 	 * 
@@ -95,18 +107,28 @@ public class ArtifactModel extends AbstractModel {
         }
     }
 
-    /**
+	/**
 	 * Create an artifact.
 	 * 
-	 * @param artifactUniqueId
-	 *            The artifact id.
+	 * @param uniqueId
+	 *            The artifact unique id.
 	 * @return The new artifact.
 	 * @throws ParityServerModelException
 	 */
-	public Artifact create(final UUID artifactUniqueId)
-			throws ParityServerModelException {
-		synchronized(implLock) { return impl.create(artifactUniqueId); }
+	public Artifact create(final UUID uniqueId)
+            throws ParityServerModelException {
+		synchronized(implLock) { return impl.create(uniqueId); }
 	}
+
+    /**
+     * Create a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     */
+    public void createDraft(final UUID uniqueId) {
+        synchronized(implLock) { impl.createDraft(uniqueId); }
+    }
 
 	public void delete(final UUID artifactUniqueId)
 			throws ParityServerModelException {
@@ -193,29 +215,5 @@ public class ArtifactModel extends AbstractModel {
 	public void requestKey(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		synchronized(implLock) { impl.requestKey(artifactUniqueId); }
-	}
-
-	/**
-	 * SubscribeUser a user to an artifact.
-	 * 
-	 * @param artifact
-	 *            The artifact to subscribe the user to.
-	 * @throws ParityServerModelException
-	 */
-	public void subscribe(final Artifact artifact)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.subscribe(artifact); }
-	}
-
-	/**
-	 * Unsubscribe a user from an artifact.
-	 * 
-	 * @param artifact
-	 *            The artifact to unsubscribe the user from.
-	 * @throws ParityServerModelException
-	 */
-	public void unsubscribe(final Artifact artifact)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.unsubscribe(artifact); }
 	}
 }

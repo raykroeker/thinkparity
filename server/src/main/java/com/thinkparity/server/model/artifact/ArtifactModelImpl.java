@@ -1,6 +1,5 @@
 /*
  * Created On: Nov 29, 2005
- * $Id$
  */
 package com.thinkparity.server.model.artifact;
 
@@ -21,6 +20,7 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.server.ParityServerConstants.Xml.Event;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -28,6 +28,7 @@ import com.thinkparity.server.model.contact.Contact;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSql;
 import com.thinkparity.server.model.io.sql.artifact.ArtifactSubscriptionSql;
 import com.thinkparity.server.model.session.Session;
+import com.thinkparity.server.model.user.User;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 import com.thinkparity.server.org.xmpp.packet.IQAcceptKeyRequest;
 import com.thinkparity.server.org.xmpp.packet.IQArtifact;
@@ -53,33 +54,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	private static final String ASSERT_KEYHOLDER_SESSION =
 		"Cannot accept key request if the user is not the current keyholder.";
 
-    private static StringBuffer getApiErrorId(final String api,
-            final String error) {
-        return getApiLogId(api).append(" ").append(error);
-    }
-
-    private static StringBuffer getApiLogId(final String api) {
-        return getModelLogId().append(" ").append(api);
-    }
-
-	private static StringBuffer getModelLogId() {
-        return new StringBuffer("[RMODEL] [ARTIFACT MODEL]");
-    }
-
-	/**
-	 * Artifact sql interface.
-	 */
+    /** Artifact sql io. */
 	private final ArtifactSql artifactSql;
 
-	/**
-	 * Artifact subscription sql.
-	 */
+    /** Artifact subscription sql io. */
 	private final ArtifactSubscriptionSql artifactSubscriptionSql;
 
-	/**
-	 * The VCard manager.
-	 * 
-	 */
+	/** An event generator. */
+    private final ArtifactEventGenerator eventGenerator;
+
+	/** The jive VCard manager. */
 	private final VCardManager vCardManager;
 
 	/**
@@ -89,6 +73,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		super(session);
 		this.artifactSql = new ArtifactSql();
 		this.artifactSubscriptionSql = new ArtifactSubscriptionSql();
+        this.eventGenerator = new ArtifactEventGenerator();
 		this.vCardManager = VCardManager.getInstance();
 	}
 
@@ -133,7 +118,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 */
 	void acceptKeyRequest(final UUID artifactUniqueId, final JID jid)
 			throws ParityServerModelException {
-		logger.info("acceptKeyRequest(UUID,JID)");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		logger.debug(jid);
 		try {
@@ -165,6 +150,25 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+     * Add a user to an artifact's team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A user's jabber id.
+     */
+    void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        logApiId();
+        logger.debug(uniqueId);
+        logger.debug(jabberId);
+        try {
+            final User user = getUserModel().readUser(jabberId);
+            notifyTeamMemberAdded(get(uniqueId), user, eventGenerator);
+        }
+        catch(final Throwable t) { throw translateError(t); }
+    }
+
+	/**
 	 * Close an artifact.
 	 * 
 	 * @param artifactUniqueId
@@ -172,7 +176,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void close(final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info(getApiLogId("[CLOSE]"));
+		logApiId();
 		logger.debug(artifactUniqueId);
 		final Artifact artifact = get(artifactUniqueId);
 		assertIsKeyHolder(artifact);
@@ -197,18 +201,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
             // delete artifact
             artifactSql.delete(artifact.getArtifactId());
 		}
-		catch(final SQLException sqlx) {
-			logger.error(getApiErrorId("[CLOSE]", "[SQL ERROR]"), sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final RuntimeException rx) {
-            logger.error(getApiErrorId("[CLOSE]", "[UNKNOWN ERROR]"), rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-		catch(final UnauthorizedException ux) {
-            logger.error(getApiErrorId("[CLOSE]", "[AUTHORIZATION ERROR]"), ux);
-			throw ParityErrorTranslator.translate(ux);
-		}
+		catch(final SQLException sqlx) { throw translateError(sqlx); }
+		catch(final RuntimeException rx) { throw translateError(rx); }
+		catch(final UnauthorizedException ux) { throw translateError(ux); }
 	}
 
 	/**
@@ -222,7 +217,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
 	void confirmReceipt(final UUID uniqueId, final Long versionId,
             final JabberId receivedFrom) throws ParityServerModelException {
-	    logger.info("[RMODEL] [ARTIFACT] [CONFIRM RECEIPT]");
+        logApiId();
         logger.debug(uniqueId);
         logger.debug(versionId);
         logger.debug(receivedFrom);
@@ -249,18 +244,18 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @return The new artifact.
 	 * @throws ParityServerModelException
 	 */
-	Artifact create(final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info("create(UUID)");
-		logger.debug(artifactUniqueId);
+	Artifact create(final UUID uniqueId) throws ParityServerModelException {
+		logApiId();
+		logger.debug(uniqueId);
 		try {
-			final String artifactKeyHolder = session.getJID().getNode();
-			artifactSql.insert(artifactUniqueId, artifactKeyHolder,
+            final JabberId sessionJabberId = session.getJabberId();
+			artifactSql.insert(uniqueId, sessionJabberId.getUsername(),
 					Artifact.State.ACTIVE, session.getJabberId());
-			final Artifact artifact = artifactSql.select(artifactUniqueId);
+			final Artifact artifact = artifactSql.select(uniqueId);
 			// also add a subscription for the creator
 			final Integer artifactId = artifact.getArtifactId();
 			final String username = session.getJID().getNode();
-			artifactSubscriptionSql.insert(artifactId, username, session.getJabberId());
+			artifactSubscriptionSql.insert(artifactId, username, sessionJabberId);
 			return artifact;
 		}
 		catch(SQLException sqlx) {
@@ -273,8 +268,36 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+	/**
+     * Create a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     */
+    void createDraft(final UUID uniqueId) {
+        logApiId();
+        logger.debug(uniqueId);
+        try {
+            assertSystemIsKeyHolder("[SYSTEM IS NOT KEY HOLDER]", uniqueId);
+            final Artifact artifact = get(uniqueId);
+            artifactSql.updateKeyHolder(
+                    artifact.getArtifactId(), session.getJabberId().getUsername(),
+                    session.getJabberId());
+            notifyDraftCreated(artifact, eventGenerator);
+        }
+        catch(final ParityServerModelException psmx) {
+            throw translateError(psmx);
+        }
+        catch(final SQLException sqlx) {
+            throw translateError(sqlx);
+        }
+        catch(final UnauthorizedException ux) {
+            throw translateError(ux);
+        }
+    }
+
     void delete(final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info("delete(UUID)");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		final Artifact artifact = get(artifactUniqueId);
         assertIsNotDistributed("", artifactUniqueId);
@@ -310,7 +333,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 */
 	void denyKeyRequest(final UUID artifactUniqueId, final JID jid)
 			throws ParityServerModelException {
-		logger.info("denyKeyRequest(UUID,JID)");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		logger.debug(jid);
 		try {
@@ -330,7 +353,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * ArtifactFlag the artifact.
 	 * 
 	 * @param artifactId
@@ -341,7 +364,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 */
 	void flag(final Artifact artifact, final ParityObjectFlag artifactFlag)
 			throws ParityServerModelException {
-		logger.info("flag(Artifact,ArtifactFlag)");
+        logApiId();
 		logger.debug(artifact);
 		logger.debug(artifactFlag);
 		try {
@@ -372,7 +395,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain a handle to an artifact for a given artifact unique id.
 	 * 
 	 * @param artifactUniqueId
@@ -380,7 +403,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	Artifact get(final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info("get(UUID)");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		try { return artifactSql.select(artifactUniqueId); }
 		catch(SQLException sqlx) {
@@ -393,7 +416,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Set the keyholder for the given artifact.
 	 * 
 	 * @param artifactUniqueId
@@ -404,7 +427,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	JID getKeyHolder(final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info("getKeyHolder(UUID)");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		try {
 			final Artifact artifact = artifactSql.select(artifactUniqueId);
@@ -424,7 +447,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 
 	List<ArtifactSubscription> getSubscription(
 			final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info("getArtifactSubscription(UUID)");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		try {
 			final Artifact artifact = get(artifactUniqueId);
@@ -441,7 +464,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	List<Artifact> listForKeyHolder() throws ParityServerModelException {
-		logger.info("listForKeyHolder()");
+        logApiId();
 		try { return artifactSql.listForKeyHolder(session.getJID()); }
 		catch(final SQLException sqlx) {
 			logger.error("Could not obtain artifacts for key holder.", sqlx);
@@ -453,10 +476,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    void reactivate(final List<JabberId> team, final UUID uniqueId,
+	void reactivate(final List<JabberId> team, final UUID uniqueId,
             final Long versionId, final String name, final byte[] bytes)
             throws ParityServerModelException {
-        logger.info("[RMODEL] [ARTIFACT] [REACTIVATE]");
+        logApiId();
         logger.debug(team);
         logger.debug(uniqueId);
         logger.debug(versionId);
@@ -488,7 +511,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 
 	List<Contact> readContacts(final UUID artifactUniqueId)
 			throws ParityServerModelException {
-		logger.info("[SERVER] [MODEL] [ARTIFACT] [READ CONTACTS]");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		try {
 			final List<ArtifactSubscription> s =getSubscription(artifactUniqueId);
@@ -518,7 +541,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void requestKey(final UUID artifactUniqueId) throws ParityServerModelException {
-		logger.info("requestKey(UUID)");
+        logApiId();
 		logger.debug(artifactUniqueId);
 		try {
 			final JID keyHolderJID = getKeyHolder(artifactUniqueId);
@@ -537,7 +560,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * SubscribeUser a user to an artifact.
 	 * 
 	 * @param artifact
@@ -545,7 +568,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void subscribe(final Artifact artifact) throws ParityServerModelException {
-		logger.info("[RMODEL] [ARTIFACT] [SUBSCRIBE]");
+        logApiId();
 		logger.debug(artifact);
 		try {
 			final Integer artifactId = artifact.getArtifactId();
@@ -595,7 +618,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void unsubscribe(final Artifact artifact) throws ParityServerModelException {
-		logger.info(getApiLogId("[UNSUBSCRIBE]"));
+		logApiId();
 		logger.debug(artifact);
 		try {
 			final Integer artifactId = artifact.getArtifactId();
@@ -706,12 +729,50 @@ class ArtifactModelImpl extends AbstractModelImpl {
         else { return Boolean.FALSE; }
     }
 
+	/**
+     * Notify an artifact's team a draft was created.
+     * 
+     * @param teamIds
+     *            A list of team members.
+     * @param eventGenerator
+     *            An artifact event generator.
+     */
+	private void notifyDraftCreated(final Artifact artifact,
+            final ArtifactEventGenerator eventGenerator)
+            throws ParityServerModelException, UnauthorizedException {
+	    final IQ notification = eventGenerator.generate(
+                Event.Artifact.DRAFT_CREATED, artifact.getArtifactUUID());
+        notifyTeam(artifact.getArtifactUUID(), notification);
+    }
+
+    /**
+     * Notify an artifact's team; a team member was added.
+     * 
+     * @param artifact
+     *            An artifact.
+     * @param user
+     *            A user.
+     * @param eventGenerator
+     *            An event generator.
+     * @throws ParityServerModelException
+     * @throws UnauthorizedException
+     */
+    private void notifyTeamMemberAdded(final Artifact artifact,
+            final User user, final ArtifactEventGenerator eventGenerator)
+            throws ParityServerModelException, UnauthorizedException {
+        final IQ notification = eventGenerator.generate(
+                Event.Artifact.TEAM_MEMBER_ADDED, artifact.getArtifactUUID(),
+                user.getId());
+        notifyTeam(artifact.getArtifactUUID(), notification);
+    }
+
     private List<ArtifactSubscription> proxy(
 			final Collection<ArtifactSubscription> c) {
 		final List<ArtifactSubscription> l = new LinkedList<ArtifactSubscription>();
 		for(final ArtifactSubscription as : c) { l.add(as); }
 		return l;
 	}
+
     /**
 	 * Update the artifact's state.
 	 * 

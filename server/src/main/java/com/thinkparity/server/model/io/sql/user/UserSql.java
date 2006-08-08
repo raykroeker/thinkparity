@@ -37,7 +37,7 @@ public class UserSql extends AbstractSql {
         ResultSet rs = null;
         try {
             cx = getCx();
-            debugSql(SQL_READ_EMAIL);
+            logStatement(SQL_READ_EMAIL);
             ps = cx.prepareStatement(SQL_READ_EMAIL);
             set(ps, 1, jabberId.getUsername());
             rs = ps.executeQuery();

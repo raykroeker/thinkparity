@@ -41,7 +41,7 @@ public class SendDocument extends IQHandler {
      */
     public IQ handleIQ(final IQ iq, final Session session)
             throws ParityServerModelException, UnauthorizedException {
-        logger.info("[RMODEL] [DOCUMENT] [SEND]");
+        logApiId();
         final DocumentModel dModel = getDocumentModel(session);
         dModel.sendVersion(extractJabberIdSet(iq), extractUniqueId(iq),
                 extractVersionId(iq), extractName(iq), extractBytes(iq));

@@ -80,6 +80,18 @@ create table parityContactInvitation (
   foreign key (createdBy) references jiveUser(username),
   foreign key (updatedBy) references jiveUser(username)
 );
+create table parityContactEmailInvitation (
+  invitationFrom varchar(32) not null,
+  invitationTo varchar(32) not null,
+  createdBy varchar(32) not null,
+  createdOn timestamp default current_timestamp not null,
+  updatedBy varchar(32) not null,
+  updatedOn varchar(32) not null,
+  primary key (invitationFrom,invitationTo),
+  foreign key (invitationFrom) references jiveUser(username),
+  foreign key (createdBy) references jiveUser(username),
+  foreign key (updatedBy) references jiveUser(username)
+);
 
 create table parityContact (
   username varchar(32) not null,

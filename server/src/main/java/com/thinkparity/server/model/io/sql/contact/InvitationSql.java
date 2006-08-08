@@ -44,14 +44,14 @@ public class InvitationSql extends AbstractSql {
 
 	public void create(final JabberId from, final JabberId to,
 			final JabberId createdBy) throws SQLException {
-		logger.info("create(JabberId,JabberId)");
+        logApiId();
 		logger.debug(from);
 		logger.debug(to);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			debugSql(SQL_CREATE);
+            logStatement(SQL_CREATE);
 			ps = cx.prepareStatement(SQL_CREATE);
 			set(ps, 1, from.getQualifiedUsername());
 			set(ps, 2, to.getQualifiedUsername());
@@ -65,14 +65,14 @@ public class InvitationSql extends AbstractSql {
 
 	public void delete(final JabberId from, final JabberId to)
 			throws SQLException {
-		logger.info("delete(JabberId,JabberId)");
+        logApiId();
 		logger.debug(from);
 		logger.debug(to);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			debugSql(SQL_DELETE);
+            logStatement(SQL_DELETE);
 			ps = cx.prepareStatement(SQL_DELETE);
 			ps.setString(1, from.getQualifiedUsername());
 			ps.setString(2, to.getQualifiedUsername());
@@ -83,7 +83,7 @@ public class InvitationSql extends AbstractSql {
 	}
 
 	public Invitation read(final JabberId from, final JabberId to) throws SQLException {
-		logger.info("read(JabberId,JabberId)");
+        logApiId();
 		logger.debug(from);
 		logger.debug(to);
 		Connection cx = null;
@@ -91,7 +91,7 @@ public class InvitationSql extends AbstractSql {
 		ResultSet rs = null;
 		try {
 			cx = getCx();
-			debugSql(SQL_READ);
+            logStatement(SQL_READ);
 			ps = cx.prepareStatement(SQL_READ);
 			ps.setString(1, from.getQualifiedUsername());
 			ps.setString(2, to.getQualifiedUsername());

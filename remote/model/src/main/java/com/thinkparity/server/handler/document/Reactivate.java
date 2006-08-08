@@ -19,17 +19,6 @@ import com.thinkparity.server.model.ParityServerModelException;
  */
 public class Reactivate extends AbstractController {
 
-    /**
-     * Obtain an api log id.
-     * 
-     * @param api
-     *            An api.
-     * @return An api log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getControllerId("[REACTIVATE]").append(" ").append(api);
-    }
-
     /** Create Reactivate. */
     public Reactivate() { super("document:reactivate"); }
 
@@ -38,7 +27,7 @@ public class Reactivate extends AbstractController {
      * 
      */
     public void service() {
-        logger.info(getApiId("[SERVICE]"));
+        logApiId();
         reactivate(readJabberIds(Xml.User.JABBER_IDS, Xml.User.JABBER_ID),
                 readUUID(Xml.Artifact.UNIQUE_ID),
                 readLong(Xml.Artifact.VERSION_ID),

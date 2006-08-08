@@ -3,14 +3,11 @@
  */
 package com.thinkparity.server.model.container;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.model.artifact.ArtifactType;
 
 import com.thinkparity.server.model.AbstractModel;
-import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -49,30 +46,13 @@ public class ContainerModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-    /**
-     * Reactivate a container.
-     * 
-     * @param uniqueId
-     *            The container unique id.
-     * @param versionId
-     *            The container version id.
-     * @param name
-     *            The container name.
-     * @param team
-     *            The container team.
-     * @param reactivatedBy
-     *            Who reactivated the container.
-     * @param reactivatedOn
-     *            When the container was reactivated.
-     * @throws ParityServerModelException
-     */
-	public void reactivate(final UUID uniqueId, final Long versionId,
-            final String name, final List<JabberId> team,
-            final JabberId reactivatedBy, final Calendar reactivatedOn)
-            throws ParityServerModelException {
-	    synchronized (implLock) {
-            impl.reactivate(uniqueId, versionId, name, team, reactivatedBy,
-                    reactivatedOn);
+    public void publishArtifact(final UUID uniqueId, final Long versionId,
+            final Integer count, final Integer index,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final ArtifactType type, final byte[] bytes) {
+        synchronized(getImplLock()) {
+            getImpl().publishArtifact(uniqueId, versionId, count, index,
+                    artifactUniqueId, artifactVersionId, type, bytes);
         }
     }
 

@@ -6,12 +6,27 @@ package com.thinkparity.server.model.user;
 import org.dom4j.Element;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
+
+import com.thinkparity.server.ParityServerConstants.Jabber;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.4
  */
 public class User {
+
+    /** thinkParity user. */
+    public static final User THINK_PARITY;
+
+    static final String NAME_SEP = " ";
+
+    static {
+        THINK_PARITY = new User();
+        THINK_PARITY.setId(
+                JabberIdBuilder.parseQualifiedJabberId(
+                        Jabber.SYSTEM_QUALIFIED_JABBER_ID));
+    }
 
     /** The user's id. */
 	private JabberId id;

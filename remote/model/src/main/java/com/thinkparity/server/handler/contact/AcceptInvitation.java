@@ -35,7 +35,7 @@ public class AcceptInvitation extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("[RMODEL] [CONTACT] [ACCEPT INVITATION]");
+        logApiId();
 		final JabberId jabberId = extractJabberId(iq);
 		final ContactModel contactModel = getContactModel(session);
 		final Invitation invitation = contactModel.readInvitation(jabberId);

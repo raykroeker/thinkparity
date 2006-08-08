@@ -35,7 +35,7 @@ class DocumentModelImpl extends AbstractModelImpl {
     void sendVersion(final Set<JabberId> sendTo, final UUID uniqueId,
             final Long versionId, final String name, final byte[] content)
             throws ParityServerModelException {
-        logger.info("[RMODEL] [DOCUMENT] [SEND VERSION]");
+        logApiId();
         logger.debug(sendTo);
         logger.debug(uniqueId);
         logger.debug(versionId);

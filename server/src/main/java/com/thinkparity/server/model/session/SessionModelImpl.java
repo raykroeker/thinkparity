@@ -54,7 +54,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void send(final QueueItem queueItem) throws ParityServerModelException {
-		logger.info("send(QueueItem)");
+        logApiId();
 		logger.debug(queueItem);
 		final JID jid = JIDBuilder.build(queueItem.getUsername());
 		try {

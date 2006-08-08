@@ -59,10 +59,10 @@ public class InvitationText {
      * @return The invitation body.
      */
     public String getBody() {
-        final Link acceptInvitation = linkFactory.create("Contact", "AcceptInvitation");
+        final Link acceptInvitation = linkFactory.create("user", "invite");
         acceptInvitation.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
 
-        final Link createAccount = linkFactory.create("Account", "Create");
+        final Link createAccount = linkFactory.create("user", "create");
         createAccount.addParameter("Email", invitee);
         createAccount.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
         createAccount.addParameter("PostCompletion", "AcceptInvitation");

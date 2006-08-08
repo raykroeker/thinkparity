@@ -30,7 +30,7 @@ public class ProcessOfflineQueue extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("[RMODEL] [QUEUE] [PROCESS OFFLINE]");
+        logApiId();
 		final QueueModel queueModel = getQueueModel(session);
 		queueModel.processOfflineQueue();
 		return createResult(iq);

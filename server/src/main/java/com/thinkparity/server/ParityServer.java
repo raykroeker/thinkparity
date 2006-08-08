@@ -18,6 +18,8 @@ import org.jivesoftware.messenger.container.Plugin;
 import org.jivesoftware.messenger.container.PluginManager;
 import org.jivesoftware.messenger.handler.IQHandler;
 
+import com.thinkparity.server.ParityServerConstants.Logging;
+
 /**
  * thinkParity Remote Model Plugin
  * 
@@ -88,23 +90,22 @@ public class ParityServer implements Plugin {
     private void initializeController(final String controllerName) {
         try { controllers.add((IQHandler) Class.forName(controllerName).newInstance()); }
         catch(final ClassNotFoundException cnfx) {
-            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", cnfx);
+            logger.fatal(Logging.PLUGIN_LOG_ID, cnfx);
         }
         catch(final IllegalAccessException iax) {
-            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", iax);
+            logger.fatal(Logging.PLUGIN_LOG_ID, iax);
         }
         catch(final InstantiationException ix) {
-            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", ix);
+            logger.fatal(Logging.PLUGIN_LOG_ID, ix);
         }
         catch(final Throwable t) {
-            logger.fatal("[RMODEL] [PLUGIN] [INIT CONTROLLER]", t);
+            logger.fatal(Logging.PLUGIN_LOG_ID, t);
         }
         final IQHandler controller = controllers.get(controllers.size() - 1);
         iqRouter.addHandler(controller);
-        final String info = MessageFormat.format(
-                "[RMODEL] [PLUGIN] [INIT CONTROLLER] [{0} REGISTERED]",
-                new Object[] {controller.getInfo().getNamespace()});
-        logger.info(info);
+        logger.info(MessageFormat.format("[{0}] [{1}]",
+                Logging.PLUGIN_LOG_ID,
+                controller.getInfo().getNamespace().toUpperCase()));
     }
 
     /**
@@ -114,9 +115,11 @@ public class ParityServer implements Plugin {
 	private void initializeControllers() {
         synchronized(controllers) {
             initializeController("com.thinkparity.server.handler.artifact.AcceptKeyRequest");
+            initializeController("com.thinkparity.server.handler.artifact.AddTeamMember");
             initializeController("com.thinkparity.server.handler.artifact.CloseArtifact");
             initializeController("com.thinkparity.server.handler.artifact.ConfirmReceipt");
             initializeController("com.thinkparity.server.handler.artifact.CreateArtifact");
+            initializeController("com.thinkparity.server.handler.artifact.CreateDraft");
             initializeController("com.thinkparity.server.handler.artifact.DeleteArtifact");
             initializeController("com.thinkparity.server.handler.artifact.DenyKeyRequest");
             initializeController("com.thinkparity.server.handler.artifact.FlagArtifact");
@@ -129,14 +132,12 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.contact.DeclineInvitation");
             initializeController("com.thinkparity.server.handler.contact.InviteContact");
             initializeController("com.thinkparity.server.handler.contact.ReadContacts");
-            initializeController("com.thinkparity.server.handler.container.Reactivate");
+            initializeController("com.thinkparity.server.handler.container.Publish");
             initializeController("com.thinkparity.server.handler.document.Reactivate");
             initializeController("com.thinkparity.server.handler.document.SendDocument");
             initializeController("com.thinkparity.server.handler.profile.Read");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");
             initializeController("com.thinkparity.server.handler.user.ReadUsers");
-            initializeController("com.thinkparity.server.handler.user.SubscribeUser");
-            initializeController("com.thinkparity.server.handler.user.UnsubscribeUser");
         }
 	}
 
@@ -148,6 +149,6 @@ public class ParityServer implements Plugin {
 	 */
 	private void initializePluginLogging(final File pluginDirectory) {
         System.setProperty("rModel.pluginDirectory", pluginDirectory.getAbsolutePath());
-        logger = LoggerFactory.getLogger(getClass());
+        logger = Logger.getLogger(getClass());
 	}
 }

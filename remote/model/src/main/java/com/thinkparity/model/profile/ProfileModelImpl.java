@@ -25,17 +25,6 @@ import com.thinkparity.server.model.user.User;
  */
 class ProfileModelImpl extends AbstractModelImpl {
 
-   /**
-     * Obtain an apache api log id.
-     * 
-     * @param api
-     *            The api.
-     * @return The log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("[PROFILE]").append(" ").append(api);
-    }
-
     /** User db io. */
     private final UserSql userSql;
 
@@ -58,9 +47,9 @@ class ProfileModelImpl extends AbstractModelImpl {
      * @return A profile.
      */
     Profile read(final JabberId jabberId) throws ParityServerModelException {
-        logger.info(getApiId("[READ]"));
+        logApiId();
         logger.debug(jabberId);
-        assertEquals(getApiId("[READ] [CAN ONLY READ PERSONAL PROFILE]"), session.getJabberId(), jabberId);
+        assertEquals("[CAN ONLY READ PERSONAL PROFILE]", session.getJabberId(), jabberId);
         final User user = getUserModel().readUser(jabberId);
         final Element vCardElement = user.getVCard();
 

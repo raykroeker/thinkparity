@@ -7,8 +7,6 @@ import org.apache.log4j.Logger;
 
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.server.LoggerFactory;
-
 /**
  * Abstraction of an xmpp internet query. Used primarily to insert a logger and
  * some common functionality.
@@ -32,7 +30,7 @@ public abstract class IQParity extends IQ {
 	protected IQParity(final Action action) {
 		super();
 		this.action = action;
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

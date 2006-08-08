@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.xmpp.packet.IQ;
 
+import com.thinkparity.model.artifact.ArtifactType;
+
 /**
  * <b>Title:</b>thinkParity Model IQ Reader <br>
  * <b>Description:</b>An xmpp internet query reader for the model.
@@ -19,6 +21,19 @@ public class IQReader extends com.thinkparity.codebase.xmpp.IQReader {
 
     /** Create IQReader. */
     public IQReader(final IQ iq) { super(iq); }
+
+    /**
+     * Read an artifact type parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @return The artifact type.
+     */
+    public final ArtifactType readArtifactType(final String name) {
+        final String sData = readString(name);
+        if(null == sData) { return null; }
+        else { return ArtifactType.valueOf(sData); }
+    }
 
     /**
      * Read a unique id.

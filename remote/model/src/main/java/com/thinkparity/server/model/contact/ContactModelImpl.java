@@ -31,7 +31,6 @@ import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.contact.InvitationSql;
-import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
 import com.thinkparity.server.model.user.UserModel;
@@ -42,10 +41,6 @@ import com.thinkparity.server.org.xmpp.packet.contact.IQInviteContact;
  * @version 1.1.2.5
  */
 class ContactModelImpl extends AbstractModelImpl {
-
-	private static final StringBuffer getApiId(final String api) {
-        return getModelId("[CONTACT]").append(" ").append(api);
-    }
 
 	/**
 	 * Contact sql interface.
@@ -59,9 +54,6 @@ class ContactModelImpl extends AbstractModelImpl {
 	 */
 	private final InvitationSql invitationSql;
 
-	/** User db io. */
-    private final UserSql userSql;
-
 	/**
 	 * Create a ArtifactModelImpl.
 	 * 
@@ -69,13 +61,15 @@ class ContactModelImpl extends AbstractModelImpl {
 	ContactModelImpl(final Session session) {
 		super(session);
 		this.contactSql = new ContactSql();
-        this.userSql = new UserSql();
 		this.invitationSql = new InvitationSql();
 	}
 
+    /**
+     * TODO accept distributed invitation 0.25
+     */
     void acceptInvitation(final JabberId from, final JabberId to)
 			throws ParityServerModelException {
-		logger.info("acceptInvitation(JabberId,JabberId)");
+		logApiId();
 		logger.debug(from);
 		logger.debug(to);
 		try {
@@ -94,7 +88,7 @@ class ContactModelImpl extends AbstractModelImpl {
 	}
 
     Invitation createInvitation(final JabberId to) throws ParityServerModelException {
-		logger.info("createInvitation(JabberId)");
+        logApiId();
 		logger.debug(to);
 		try {
 			final Invitation invitation = invitationSql.read(session.getJabberId(), to);
@@ -121,9 +115,12 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+    /**
+     * TODO decline distributed invitation 0.25
+     */
 	void declineInvitation(final JabberId from, final JabberId to)
 		throws ParityServerModelException {
-		logger.info("declineInvitation(JabberId,JabberId)");
+        logApiId();
 		logger.debug(from);
 		logger.debug(to);
 		try {
@@ -138,9 +135,19 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+    /**
+     * TODO create controller 0.25; delete contact data 0.25; delete distributed
+     * contact 0.25
+     */
+    void delete(final JabberId jabberId) {}
+
+    /**
+     * TODO create controller 0.25; read e-mail invitation data 0.25; delete
+     * e-mail invitation data 0.25;
+     */
 	void deleteInvitation(final JabberId from)
 			throws ParityServerModelException {
-		logger.info("deleteInvitation(JabberId)");
+        logApiId();
 		logger.debug(from);
 		try { invitationSql.delete(from, session.getJabberId()); }
 		catch(final SQLException sqlx) {
@@ -149,8 +156,12 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
+    /**
+     * TODO read user for e-mail 0.5; create e-mail invitation data 0.5; create
+     * invitation data 0.5; create distributed invitation 0.5
+     */
 	void invite(final String email) {
-        logger.info(getApiId("[INVITE]"));
+        logApiId();
         logger.debug(email);
         final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
         try {
@@ -158,14 +169,12 @@ class ContactModelImpl extends AbstractModelImpl {
             createInvitation(mimeMessage, email, user);
             addRecipients(mimeMessage, email);
         }
-        catch(final MessagingException mx) {
-            throw ParityErrorTranslator.translateUnchecked(mx);
-        }
+        catch(final MessagingException mx) { throw translateError(mx); }
         TransportManager.deliver(mimeMessage);
     }
 
 	Contact readContact(final JabberId jabberId) {
-		logger.info("[RMODEL] [CONTACT] [READ CONTACT]");
+        logApiId();
 		logger.debug(jabberId);
 		final User user = getUserModel().readUser(jabberId);
 		final Contact contact = new Contact();
@@ -175,7 +184,7 @@ class ContactModelImpl extends AbstractModelImpl {
 	}
 
     List<Contact> readContacts() throws ParityServerModelException {
-		logger.info("readContacts()");
+        logApiId();
 		try {
 			final UserModel userModel = getUserModel();
 			final List<JabberId> contactIds = contactSql.read(session.getJabberId());
@@ -198,7 +207,7 @@ class ContactModelImpl extends AbstractModelImpl {
 
     Invitation readInvitation(final JabberId from)
 			throws ParityServerModelException {
-		logger.info("readInvitation(JabberId)");
+        logApiId();
 		logger.debug(from);
 		try { return invitationSql.read(from, session.getJabberId()); }
 		catch(final SQLException sqlx) {

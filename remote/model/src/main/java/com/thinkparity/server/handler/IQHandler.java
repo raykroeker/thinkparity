@@ -5,6 +5,7 @@ package com.thinkparity.server.handler;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,12 +23,13 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
 
+import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.server.LoggerFactory;
 import com.thinkparity.server.ParityServerConstants;
+import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.model.artifact.ArtifactModel;
@@ -50,7 +52,7 @@ import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 public abstract class IQHandler extends
 		org.jivesoftware.messenger.handler.IQHandler {
 
-	/**
+    /**
 	 * Handle to an apache logger.
 	 */
 	protected final Logger logger;
@@ -68,7 +70,7 @@ public abstract class IQHandler extends
 		this.iqHandlerInfo = new IQHandlerInfo(
 				ParityServerConstants.IQ_PARITY_INFO_NAME,
 				action.getNamespace());
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 	}
 
 	/** @see org.jivesoftware.messenger.handler.IQHandler#getInfo() */
@@ -162,7 +164,7 @@ public abstract class IQHandler extends
 		return JabberIdBuilder.parseQualifiedJabberId((String) jidElement.getData());
 	}
 
-    protected List<JabberId> extractJabberIds(final IQ iq) {
+	protected List<JabberId> extractJabberIds(final IQ iq) {
 		final Element childElement = iq.getChildElement();
 		final Element jidListElement = getElement(childElement, ElementName.JIDS);
 		final List jidElements = getElements(jidListElement, ElementName.JID);
@@ -175,7 +177,7 @@ public abstract class IQHandler extends
 		return jabberIds;
 	}
 
-	protected Set<JabberId> extractJabberIdSet(final IQ iq) {
+    protected Set<JabberId> extractJabberIdSet(final IQ iq) {
         final Element childElement = iq.getChildElement();
         final Element jidListElement = getElement(childElement, ElementName.JIDS);
         final List jidElements = getElements(jidListElement, ElementName.JID);
@@ -201,7 +203,7 @@ public abstract class IQHandler extends
 		return JIDBuilder.buildQualified((String) jidElement.getData());
 	}
 
-    protected String extractName(final IQ iq) {
+	protected String extractName(final IQ iq) {
         final Element e = iq.getChildElement();
         final Element name = e.element(ElementName.NAME.getName());
         return (String) name.getData();
@@ -232,6 +234,16 @@ public abstract class IQHandler extends
         final Element e = iq.getChildElement();
         final Element versionId = e.element(ElementName.VERSIONID.getName());
         return Long.parseLong((String) versionId.getData());
+    }
+
+    /** Log an api id. */
+    protected final void logApiId() {
+        if(logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
+                    Logging.CONTROLLER_LOG_ID,
+                    StackUtil.getCallerClassName().toUpperCase(),
+                    StackUtil.getCallerMethodName().toUpperCase()));
+        }
     }
 
     /**

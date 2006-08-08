@@ -31,7 +31,7 @@ public class CloseArtifact extends IQHandler {
 	 */
 	public IQ handleIQ(IQ iq, Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("[RMODEL] [ARTIFACT] [CLOSE]");
+        logApiId();
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		artifactModel.close(extractUniqueId(iq));
 		return createResult(iq);

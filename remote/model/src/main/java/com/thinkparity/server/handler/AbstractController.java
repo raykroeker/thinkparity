@@ -4,6 +4,7 @@
  */
 package com.thinkparity.server.handler;
 
+import java.text.MessageFormat;
 import java.util.UUID;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
@@ -11,13 +12,16 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.profile.ProfileModel;
 import com.thinkparity.model.xmpp.IQReader;
 import com.thinkparity.model.xmpp.IQWriter;
 
+import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.artifact.ArtifactModel;
 import com.thinkparity.server.model.contact.ContactModel;
 import com.thinkparity.server.model.container.ContainerModel;
@@ -32,17 +36,6 @@ import com.thinkparity.server.model.session.Session;
  */
 public abstract class AbstractController extends
         com.thinkparity.codebase.controller.AbstractController {
-
-    /**
-     * Obtain a controller log id.
-     * 
-     * @param controller
-     *            A controller.
-     * @return A controller log id.
-     */
-    protected static StringBuffer getControllerId(final String controller) {
-        return new StringBuffer("[MODEL] [CONTROLLER] ").append(controller);
-    }
 
     /** A thinkParity artifact model interface. */
     private ArtifactModel artifactModel;
@@ -97,15 +90,14 @@ public abstract class AbstractController extends
         return super.handleIQ(iq);
     }
 
-    /**
-     * Read a unique id parameter.
-     * 
-     * @param name
-     *            The parameter name.
-     * @return The unique id.
-     */
-    public UUID readUUID(final String name) {
-        return iqReader.readUUID(name);
+    /** Log an api id. */
+    protected final void logApiId() {
+        if(logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
+                    Logging.CONTROLLER_LOG_ID,
+                    StackUtil.getCallerClassName().toUpperCase(),
+                    StackUtil.getCallerMethodName().toUpperCase()));
+        }
     }
 
     /**
@@ -137,4 +129,26 @@ public abstract class AbstractController extends
      * @return A thinkParity profile interface.
      */
     protected ProfileModel getProfileModel() { return profileModel; }
+
+    /**
+     * Read an artifact type parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @return The artifact type.
+     */ 
+    protected final ArtifactType readArtifactType(final String name) {
+        return iqReader.readArtifactType(name);
+    }
+
+    /**
+     * Read a unique id parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @return The unique id.
+     */
+    protected final UUID readUUID(final String name) {
+        return iqReader.readUUID(name);
+    }
 }

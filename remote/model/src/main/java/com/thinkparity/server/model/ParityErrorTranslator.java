@@ -5,12 +5,12 @@ package com.thinkparity.server.model;
 
 import java.sql.SQLException;
 
-import javax.mail.MessagingException;
-
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.jivesoftware.messenger.user.UserNotFoundException;
 
 import org.dom4j.DocumentException;
+
+import com.thinkparity.server.model.session.Session;
 
 /**
  * 
@@ -98,9 +98,18 @@ public class ParityErrorTranslator {
 		synchronized(singletonLock) { return singleton.translateImpl(unfx); }
 	}
 
-	public static ParityModelException translateUnchecked(
-            final MessagingException mx) {
-        synchronized(singletonLock) { return singleton.doTranslateUnchecked(mx); }
+
+
+    /**
+     * Translate a messaging error into an unchecked parity error.
+     * 
+     * @param mx
+     *            A messaging error.
+     * @return A parity error.
+     */
+    public static ParityModelException translateUnchecked(
+            final Session session, final Object errorId, final Throwable t) {
+        return singleton.doTranslateUnchecked(errorId, t);
     }
 
 	/**
@@ -115,8 +124,9 @@ public class ParityErrorTranslator {
      *            The throwable cause.
      * @return An unchecked model error.
      */
-	private ParityModelException doTranslateUnchecked(final Throwable cause) {
-	    return new ParityModelException(cause);
+	private ParityModelException doTranslateUnchecked(final Object errorId,
+            final Throwable cause) {
+	    return new ParityModelException(errorId.toString(), cause);
     }
 
 	/**

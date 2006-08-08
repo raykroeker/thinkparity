@@ -1,6 +1,5 @@
 /*
  * Created On: Thu May 11 2006 11:41 PDT
- * $Id$
  */
 package com.thinkparity.codebase.xmpp;
 
@@ -27,7 +26,7 @@ import com.thinkparity.codebase.util.Base64;
  * <b>Description:</b> Reads jive server iq packets.
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.4
  */
 public abstract class IQReader {
 
@@ -62,6 +61,19 @@ public abstract class IQReader {
                     new SimpleTimeZone(0, "GMT"));
         }
         catch(final ParseException px) { throw new RuntimeException(px); }
+    }
+
+    /**
+     * Read an integer parameter from the internet query.
+     * 
+     * @param name
+     *            The parameter name.
+     * @return An integer value.
+     */
+    public final Integer readInteger(final String name) {
+        final String sData = readString(name);
+        if(null == sData) { return null; }
+        else { return Integer.valueOf(sData); }
     }
 
     /**

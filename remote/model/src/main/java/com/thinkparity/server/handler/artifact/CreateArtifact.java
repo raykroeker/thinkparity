@@ -4,6 +4,7 @@
 package com.thinkparity.server.handler.artifact;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.server.handler.IQAction;
@@ -29,7 +30,7 @@ public class CreateArtifact extends IQHandler {
 	 */
 	public IQ handleIQ(final IQ iq, final Session session)
 			throws ParityServerModelException, UnauthorizedException {
-		logger.info("[RMODEL] [ARTIFACT] [CREATE]");
+        logApiId();
 		final ArtifactModel artifactModel = getArtifactModel(session);
 		artifactModel.create(extractUniqueId(iq));
 		return createResult(iq);

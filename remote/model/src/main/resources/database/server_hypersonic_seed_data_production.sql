@@ -1,3 +1,27 @@
+insert into jiveProperty (NAME,PROPVALUE)
+    values('xmpp.auth.anonymous', 'true');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('xmpp.domain', 'thinkparity.dyndns.org');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('xmpp.socket.plain.port', '5222');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('xmpp.socket.ssl.port', '5223');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('com.thinkparity.calpurnia.db.driver', 'org.hsqldb.jdbcDriver');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('com.thinkparity.calpurnia.db.password', '');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('com.thinkparity.calpurnia.db.url;jdbc:hsqldb', 'file:/home/jive/thinkParity/production/hsqldb/calpurnia/db');
+insert into jiveProperty (NAME,PROPVALUE)
+    values('com.thinkparity.calpurnia.db.username', 'sa');
+
+insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
+    values('thinkparity','parity',0,0);
+insert into jiveVCard (USERNAME,VALUE)
+    values('thinkparity', '<vCard xmlns="vcard-temp"><FN>thinkParity Solutions Inc.</FN><N><FAMILY>thinkParity Solutions Inc.</FAMILY><GIVEN></GIVEN></N><ORG><ORGNAME>thinkParity Solutions Inc.</ORGNAME></ORG></vCard>');
+insert into parityUserEmail (USERNAME,EMAIL)
+    values('thinkparity', 'thinkParity@thinkparity.com');
+
 insert into jiveUser (USERNAME,PASSWORD,CREATIONDATE,MODIFICATIONDATE)
     values('omid','parity',0,0);
 insert into jiveVCard (USERNAME,VALUE)

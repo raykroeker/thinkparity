@@ -63,34 +63,55 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 
 	public void delete(final Integer artifactId, final String username)
 			throws SQLException {
-		logger.info("delete(Integer,String)");
+        logApiId();
 		logger.debug(artifactId);
 		logger.debug(username);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			debugSql(DELETE);
+            logStatement(DELETE);
 			ps = cx.prepareStatement(DELETE);
-			debugSql(1, artifactId);
+            logStatementParameter(1, artifactId);
 			ps.setInt(1, artifactId);
-			debugSql(2, username);
+            logStatementParameter(2, username);
 			ps.setString(2, username);
 			Assert.assertTrue("delete(Integer,String)", 1 == ps.executeUpdate());
 		}
 		finally { close(cx, ps); }
 	}
 
+	public Boolean existSubscriptions(final Integer artifactId)
+			throws SQLException {
+        logApiId();
+		logger.debug(artifactId);
+		Connection cx = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			cx = getCx();
+            logStatement(SQL_EXIST_SUBSCRIPTIONS);
+			ps = cx.prepareStatement(SQL_EXIST_SUBSCRIPTIONS);
+            logStatementParameter(1, artifactId);
+			ps.setInt(1, artifactId);
+			rs = ps.executeQuery();
+			rs.next();
+			if(0 < rs.getInt("SUBSCRIPTION_COUNT")) { return Boolean.TRUE; }
+			else { return Boolean.FALSE; }
+		}
+		finally { close(cx, ps, rs); }
+	}
+
 	public Integer insert(final Integer artifactId, final String username, final JabberId createdBy)
 			throws SQLException {
-		logger.info("insert(Integer,String)");
+        logApiId();
 		logger.debug(artifactId);
 		logger.debug(username);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			debugSql(INSERT);
+            logStatement(INSERT);
 			ps = cx.prepareStatement(INSERT);
 			final Integer artifactSubscriptionId = nextId(this);
 			set(ps, 1, artifactSubscriptionId);
@@ -108,16 +129,16 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 
 	public Collection<ArtifactSubscription> select(final Integer artifactId)
 			throws SQLException {
-		logger.info("select(Integer)");
+        logApiId();
 		logger.debug(artifactId);
 		Connection cx = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			cx = getCx();
-			debugSql(SELECT);
+            logStatement(SELECT);
 			ps = cx.prepareStatement(SELECT);
-			debugSql(1, artifactId);
+            logStatementParameter(1, artifactId);
 			ps.setInt(1, artifactId);
 			rs = ps.executeQuery();
 			final Collection<ArtifactSubscription> subscriptions =
@@ -132,7 +153,7 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 
 	public Integer selectCount(final Integer artifactId, final String username)
 			throws SQLException {
-		logger.info("selectCount(Integer,String)");
+        logApiId();
 		logger.debug(artifactId);
 		logger.debug(username);
 		Connection cx = null;
@@ -140,11 +161,11 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		ResultSet rs = null;
 		try {
 			cx = getCx();
-			debugSql(SELECT_COUNT);
+            logStatement(SELECT_COUNT);
 			ps = cx.prepareStatement(SELECT_COUNT);
-			debugSql(1, artifactId);
+            logStatementParameter(1, artifactId);
 			ps.setInt(1, artifactId);
-			debugSql(2, username);
+            logStatementParameter(2, username);
 			ps.setString(2, username);
 			rs = ps.executeQuery();
 			rs.next();
@@ -165,26 +186,5 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		final JID jid = JIDBuilder.build(username);
 		as.setJabberId(JabberIdBuilder.parseJID(jid));
 		return as;
-	}
-
-	public Boolean existSubscriptions(final Integer artifactId)
-			throws SQLException {
-		logger.info("existSubscriptions(Integer)");
-		logger.debug(artifactId);
-		Connection cx = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			cx = getCx();
-			debugSql(SQL_EXIST_SUBSCRIPTIONS);
-			ps = cx.prepareStatement(SQL_EXIST_SUBSCRIPTIONS);
-			debugSql(1, artifactId);
-			ps.setInt(1, artifactId);
-			rs = ps.executeQuery();
-			rs.next();
-			if(0 < rs.getInt("SUBSCRIPTION_COUNT")) { return Boolean.TRUE; }
-			else { return Boolean.FALSE; }
-		}
-		finally { close(cx, ps, rs); }
 	}
 }

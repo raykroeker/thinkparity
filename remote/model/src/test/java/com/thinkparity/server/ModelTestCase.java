@@ -68,7 +68,15 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /** @see com.raykroeker.junitx.TestCase#tearDown() */
-    protected void tearDown() throws Exception { super.tearDown(); }
+    protected void tearDown() throws Exception {
+        stopWildfire();
+        stopHypersonic();
+        super.tearDown();
+    }
+
+    private void stopHypersonic() {}
+
+    private void stopWildfire() {}
 
     /**
      * Start the hsqldb database on localhost in a separate process.

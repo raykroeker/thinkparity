@@ -13,7 +13,7 @@ public class ParityModelException extends RuntimeException {
     private static final long serialVersionUID = 1;
 
     /** Create ParityModelException. */
-    ParityModelException(final Throwable cause) {
-        super(cause);
+    ParityModelException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }

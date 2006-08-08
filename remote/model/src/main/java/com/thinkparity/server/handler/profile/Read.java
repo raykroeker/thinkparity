@@ -17,17 +17,6 @@ import com.thinkparity.server.model.ParityServerModelException;
  */
 public class Read extends AbstractController {
 
-    /**
-     * Obtain an api log id.
-     * 
-     * @param api
-     *            An api.
-     * @return An api log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getControllerId("[READ]").append(" ").append(api);
-    }
-
     /** Create Read. */
     public Read() { super("profile:read"); }
 
@@ -36,7 +25,7 @@ public class Read extends AbstractController {
      */
     @Override
     public void service() {
-        logger.info(getApiId("[SERVICE]"));
+        logApiId();
         final Profile profile = read(readJabberId("jabberId"));
 
         if(null != profile) {
@@ -57,7 +46,7 @@ public class Read extends AbstractController {
     private Profile read(final JabberId jabberId) {
         try { return getProfileModel().read(jabberId); }
         catch(final ParityServerModelException psmx) {
-            logger.error(getApiId("[READ] [CANNOT READ PROFILE]"), psmx);
+            logger.error(psmx);
             throw new RuntimeException(psmx);
         }
     }

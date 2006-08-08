@@ -6,6 +6,7 @@ package com.thinkparity.codebase.xmpp;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import org.xmpp.packet.IQ;
 
@@ -123,5 +124,17 @@ public abstract class IQWriter {
     public final void writeStrings(final String parentName, final String name,
             final List<String> values) {
         ElementBuilder.addStringElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    /**
+     * Write unique id value.
+     * 
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+    public final void writeUniqueId(final String name, final UUID value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 }

@@ -50,7 +50,7 @@ public class ContactSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			debugSql(SQL_CREATE);
+            logStatement(SQL_CREATE);
 			ps = cx.prepareStatement(SQL_CREATE);
 			set(ps, 1, username.getUsername());
 			set(ps, 2, contact.getQualifiedUsername());
@@ -68,7 +68,7 @@ public class ContactSql extends AbstractSql {
 		PreparedStatement ps = null;
 		try {
 			cx = getCx();
-			debugSql(SQL_DELETE);
+            logStatement(SQL_DELETE);
 			ps = cx.prepareStatement(SQL_DELETE);
 			ps.setString(1, username.getUsername());
 			ps.setString(2, contact.getQualifiedUsername());
@@ -84,7 +84,7 @@ public class ContactSql extends AbstractSql {
 		ResultSet rs = null;
 		try {
 			cx = getCx();
-			debugSql(SQL_READ);
+            logStatement(SQL_READ);
 			ps = cx.prepareStatement(SQL_READ);
 			ps.setString(1, username.getUsername());
 			rs = ps.executeQuery();

@@ -40,7 +40,7 @@ class UserModelImpl extends AbstractModelImpl {
 	}
 
 	User readUser(final JabberId jabberId) {
-		logger.info("[RMODEL] [USER] [READ USER]");
+        logApiId();
 		logger.debug(jabberId);
         final Element vCard = vCardManager.getVCard(jabberId.getUsername());
         final String name = (String) vCard.element("FN").getData();
@@ -56,7 +56,7 @@ class UserModelImpl extends AbstractModelImpl {
 
 	List<User> readUsers(final List<JabberId> jabberIds)
 			throws ParityServerModelException {
-		logger.info("readUsers()");
+        logApiId();
 		try {
 			final List<User> users = new LinkedList<User>();
 			User user;

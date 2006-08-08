@@ -53,7 +53,7 @@ class QueueModelImpl extends AbstractModelImpl {
 	 */
 	QueueItem enqueue(final JID jid, final IQ iq)
 			throws ParityServerModelException {
-		logger.info("enqueue(JID,String)");
+        logApiId();
 		logger.debug(jid);
 		logger.debug(iq);
 		try {
@@ -79,7 +79,7 @@ class QueueModelImpl extends AbstractModelImpl {
 	 * @throws ParityServerModelException
 	 */
 	void processOfflineQueue() throws ParityServerModelException {
-		logger.info("processQueue()");
+        logApiId();
 		try {
 			final Collection<QueueItem> queueItems = list();
 			final SessionModel sessionModel = getSessionModel();

@@ -21,6 +21,7 @@ public class IQReadContacts extends IQParity {
 
 	public IQReadContacts(final List<Contact> contacts) {
 		this(Action.READCONTACTS, NamespaceName.IQ_READ_CONTACTS, contacts);
+        logger.debug(contacts);
 	}
 
 	/**
@@ -40,6 +41,8 @@ public class IQReadContacts extends IQParity {
 		Element contactElement;
 		Element vCardElement;
 		for(final Contact contact : contacts) {
+            logger.debug(contact);
+            logger.debug(contact.getVCard());
 			// contact
 			contactElement = ElementBuilder.addElement(contactsElement, ElementName.CONTACT);
 			// jid

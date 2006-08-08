@@ -3,19 +3,18 @@
  */
 package com.thinkparity.server.model.container;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.UUID;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 
-import com.thinkparity.codebase.jabber.JabberId;
+import org.xmpp.packet.IQ;
 
+import com.thinkparity.model.artifact.ArtifactType;
+
+import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.model.AbstractModelImpl;
-import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.session.Session;
-import com.thinkparity.server.org.xmpp.packet.container.IQReactivateContainer;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -26,16 +25,8 @@ import com.thinkparity.server.org.xmpp.packet.container.IQReactivateContainer;
  */
 class ContainerModelImpl extends AbstractModelImpl {
 
-   /**
-     * Obtain an apache api log id.
-     * 
-     * @param api
-     *            The api.
-     * @return The log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("[CONTAINER]").append(" ").append(api);
-    }
+    /** A container event generator. */
+    private final ContainerEventGenerator eventGenerator;
 
     /**
      * Create ContainerModelImpl.
@@ -43,58 +34,92 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @param session
      *		The user's session.
      */
-    ContainerModelImpl(final Session session) { super(session); }
+    ContainerModelImpl(final Session session) {
+        super(session);
+        this.eventGenerator = new ContainerEventGenerator();
+    }
 
     /**
-     * Reactivate a container. Send a re-activation packet to each of the team
-     * members.
+     * Publish an artifact version.
      * 
      * @param uniqueId
      *            The container unique id.
      * @param versionId
      *            The container version id.
-     * @param name
-     *            The container name.
-     * @param team
-     *            The container team.
-     * @param reactivatedBy
-     *            Who reactivated the container.
-     * @param reactivatedOn
-     *            When the container was reactivated.
-     * @throws ParityServerModelException
+     * @param count
+     *            The total artifact count.
+     * @param index
+     *            The artifact index.
+     * @param artifactUniqueId
+     *            The artifact unique id.
+     * @param artifactVersionId
+     *            The artifact version id.
+     * @param type
+     *            The artifact type.
+     * @param bytes
+     *            The artifact bytes.
      */
-    void reactivate(final UUID uniqueId, final Long versionId,
-            final String name, final List<JabberId> team,
-            final JabberId reactivatedBy, final Calendar reactivatedOn)
-            throws ParityServerModelException {
-        logger.info(getApiId("[REACTIVATE]"));
+    public void publishArtifact(final UUID uniqueId, final Long versionId,
+            final Integer count, final Integer index,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final ArtifactType type, final byte[] bytes) {
+        logApiId();
         logger.debug(uniqueId);
-        logger.debug(versionId);
-        logger.debug(name);
-        logger.debug(team);
-        logger.debug(reactivatedBy);
-        logger.debug(reactivatedOn);
-
-        final IQReactivateContainer query = new IQReactivateContainer();
-        query.setUniqueId(uniqueId);
-        query.setVersionId(versionId);
-        query.setName(name);
-        query.setTeam(team);
-        query.setReactivatedBy(reactivatedBy);
-        query.setReactivatedOn(reactivatedOn);
-        for(final JabberId jabberId : team) {
-            // don't send re-activation to self and don't send it if
-            // the user is no longer active
-            if(!jabberId.equals(session.getJabberId())) {
-                if(isActive(jabberId)) {
-                    query.setFrom(reactivatedBy.getJID());
-                    query.setTo(jabberId.getJID());
-                    try { send(jabberId, query); }
-                    catch(final UnauthorizedException ux) {
-                        throw ParityErrorTranslator.translate(ux);
-                    }
-                }
-            }
+        logger.debug(count);
+        logger.debug(index);
+        logger.debug(type);
+        logger.debug(bytes);
+        try {
+            doPublishArtifact(uniqueId, versionId, count, index,
+                    artifactUniqueId, artifactVersionId, type, bytes);
         }
+        catch(final Throwable t) { throw translateError(t); }
+    }
+
+    /**
+     * @see ContainerModelImpl#publishArtifact(UUID, Long, Integer, Integer,
+     *      UUID, Long, ArtifactType, byte[])
+     * 
+     */
+    private void doPublishArtifact(final UUID uniqueId, final Long versionId,
+            final Integer count, final Integer index,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final ArtifactType type, final byte[] bytes)
+            throws ParityServerModelException, UnauthorizedException {
+        notifyArtifactPublished(uniqueId, versionId, artifactUniqueId,
+                artifactVersionId, type, bytes, eventGenerator);
+    }
+
+    /**
+     * Send a notification that an artifact was published for a container.
+     * 
+     * @param containerArtifact
+     *            The container.
+     * @param containerVersionId
+     *            The container version id.
+     * @param artifact
+     *            The artifact.
+     * @param artifactVersionId
+     *            The artifact version id.
+     * @param artifactType
+     *            The artifact type.
+     * @param artifactBytes
+     *            The artifact bytes
+     * @param eventGenerator
+     *            The event generator.
+     * @throws ParityServerModelException
+     * @throws UnauthorizedException
+     */
+    private void notifyArtifactPublished(final UUID containerUniqueId,
+            final Long containerVersionId, final UUID artifactUniqueId,
+            final Long artifactVersionId, final ArtifactType artifactType,
+            final byte[] artifactBytes,
+            final ContainerEventGenerator eventGenerator)
+            throws ParityServerModelException, UnauthorizedException {
+        final IQ notification = eventGenerator.generate(
+                Xml.Event.Container.ARTIFACT_PUBLISHED, containerUniqueId,
+                containerVersionId, artifactUniqueId, artifactVersionId,
+                artifactType, artifactBytes);
+        notifyTeam(containerUniqueId, notification);
     }
 }

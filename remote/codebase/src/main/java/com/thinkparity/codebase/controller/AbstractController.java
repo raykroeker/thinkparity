@@ -135,6 +135,17 @@ public abstract class AbstractController extends
     }
 
     /**
+     * Read an integer parameter.
+     * 
+     * @param name
+     *            The parameter name.
+     * @return An integer value.
+     */
+    protected final Integer readInteger(final String name) { 
+        return iqReader.readInteger(name);
+    }
+
+    /**
      * Read a jabber id parameter.
      * 
      * @param name
@@ -206,18 +217,6 @@ public abstract class AbstractController extends
     }
 
     /**
-     * Write a long value to the response query.
-     * 
-     * @param name
-     *      The element name.
-     * @param value
-     *      The element value.
-     */
-    protected final void writeLong(final String name, final Long value) {
-        iqWriter.writeLong(name, value);
-    }
-
-    /**
      * Write a jabber id value to the response query.
      * 
      * @param name
@@ -227,6 +226,18 @@ public abstract class AbstractController extends
      */
     protected final void writeJabberId(final String name, final JabberId value) {
         iqWriter.writeJabberId(name, value);
+    }
+
+    /**
+     * Write a long value to the response query.
+     * 
+     * @param name
+     *      The element name.
+     * @param value
+     *      The element value.
+     */
+    protected final void writeLong(final String name, final Long value) {
+        iqWriter.writeLong(name, value);
     }
 
     /**

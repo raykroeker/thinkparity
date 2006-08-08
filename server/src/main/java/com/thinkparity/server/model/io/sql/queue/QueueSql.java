@@ -55,7 +55,7 @@ public class QueueSql extends AbstractSql {
 	public QueueSql() { super(); }
 
 	public void delete(final Integer queueId) throws SQLException {
-		logger.info("delete(Integer)");
+        logApiId();
 		logger.debug(queueId);
 		Connection cx = null;
 		PreparedStatement ps = null;
@@ -70,7 +70,7 @@ public class QueueSql extends AbstractSql {
 
 	public Integer insert(final String username, final String message,
 			final JabberId createdBy) throws SQLException {
-		logger.info("insert(String,String)");
+        logApiId();
 		logger.debug(username);
 		logger.debug(message);
 		Connection cx = null;
@@ -95,7 +95,7 @@ public class QueueSql extends AbstractSql {
 	}
 
 	public QueueItem select(final Integer queueId) throws SQLException {
-		logger.info("select(Integer)");
+        logApiId();
 		logger.debug(queueId);
 		Connection cx = null;
 		PreparedStatement ps = null;
@@ -112,7 +112,7 @@ public class QueueSql extends AbstractSql {
 	}
 
 	public Collection<QueueItem> select(final String username) throws SQLException {
-		logger.info("select(Integer)");
+        logApiId();
 		logger.debug(username);
 		Connection cx = null;
 		PreparedStatement ps = null;

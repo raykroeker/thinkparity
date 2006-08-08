@@ -32,7 +32,7 @@ public class ConfirmReceipt extends IQHandler {
      */
     public IQ handleIQ(final IQ iq, final Session session)
             throws ParityServerModelException, UnauthorizedException {
-        logger.info("[RMODEL] [ARTIFACT] [CONFIRM RECEIPT]");
+        logApiId();
         final ArtifactModel artifactModel = getArtifactModel(session);
         artifactModel.confirmReceipt(extractUniqueId(iq), extractVersionId(iq), extractJabberId(iq));
         return createResult(iq);

@@ -12,14 +12,7 @@ import com.thinkparity.server.handler.AbstractController;
  */
 public class InviteContact extends AbstractController {
 
-	protected static StringBuffer getApiId(final String api) {
-        return getControllerId("[INVITE]").append(" ").append(api);
-    }
-
-    /**
-	 * Create a InviteContact.
-	 * 
-	 */
+    /** Create InviteContact. */
 	public InviteContact() { super("contact:invite"); }
 
     /**
@@ -27,7 +20,7 @@ public class InviteContact extends AbstractController {
      */
     @Override
     public void service() {
-        logger.info(getApiId("[SERVICE]"));
+        logApiId();
         invite(readString(Xml.Contact.EMAIL));
     }
 

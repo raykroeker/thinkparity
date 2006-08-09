@@ -1,30 +1,24 @@
 /*
- * Apr 27, 2005
+ * Created On: Apr 27, 2005
  */
 package com.thinkparity.codebase.assertion;
 
 /**
- * UnreachableCodeAssertion
- * @author raykroeker@gmail.com
- * @version 1.1
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.2
  */
-public class UnreachableCodeAssertion extends RuntimeException {
+public class UnreachableCodeAssertion extends Assertion {
+
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
 
 	/**
-	 * Required when extending <code>java.lang.Exception</code>
-	 */
-	private static final long serialVersionUID = 1;
-
-	/**
-	 * Create a new UnreachableCodeAssertion
-	 */
-	private UnreachableCodeAssertion() { super(); }
-
-	/**
-	 * Create a new UnreachableCodeAssertion
+	 * Create UnreachableCodeAssertion.
 	 * 
-	 * @param message
-	 *            <code>java.lang.String</code>
+	 * @param message An assertion messsage.
 	 */
-	UnreachableCodeAssertion(String message) { super(message); }
+	UnreachableCodeAssertion(final String message) { super(message); }
+
+	/** Create UnreachableCodeAssertion. */
+	private UnreachableCodeAssertion() { super(); }
 }

@@ -1,30 +1,24 @@
 /*
- * Apr 27, 2005
+ * Created On: Apr 27, 2005
  */
 package com.thinkparity.codebase.assertion;
 
 /**
- * NotTrueAssertion
- * @author raykroeker@gmail.com
- * @version 1.1
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.2
  */
-public class NotTrueAssertion extends RuntimeException {
+public class NotTrueAssertion extends Assertion {
+
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
 
 	/**
-	 * Required when inheriting from <code>java.lang.Exception</code>
-	 */
-	private static final long serialVersionUID = 1;
-
-	/**
-	 * Create a NotTrueAssertion
-	 */
-	private NotTrueAssertion() { super(); }
-
-	/**
-	 * Create a NotTrueAssertion
+	 * Create NotTrueAssertion.
 	 * 
-	 * @param message
-	 *            <code>java.lang.String</code>
+	 * @param message An assertion message.
 	 */
 	NotTrueAssertion(final String message) { super(message); }
+
+	/** Create NotTrueAssertion. */
+	private NotTrueAssertion() { super(); }
 }

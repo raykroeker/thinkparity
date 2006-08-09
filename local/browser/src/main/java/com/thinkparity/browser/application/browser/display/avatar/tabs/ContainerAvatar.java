@@ -1,8 +1,7 @@
 /**
  * Created On: 13-Jul-06 11:02:44 AM
- * $Id$
  */
-package com.thinkparity.browser.application.browser.display.avatar;
+package com.thinkparity.browser.application.browser.display.avatar.tabs;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,7 +18,8 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
-import com.thinkparity.browser.application.browser.display.avatar.container.CellContainer;
+import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.avatar.container.MainCellContainer;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellRenderer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
@@ -38,9 +38,9 @@ import com.thinkparity.model.parity.model.index.IndexHit;
  * and the documents inside the containers.
  * 
  * @author rob_masako@shaw.ca
- * @version $Revision$
+ * @version 1.1.2.5
  */
-public class BrowserContainersAvatar extends Avatar {
+public class ContainerAvatar extends Avatar {
     
     /** The relative location of the "hot" zone in each cell. */
     private static final Point CELL_NODE_LOCATION = new Point(10, 2);
@@ -59,20 +59,12 @@ public class BrowserContainersAvatar extends Avatar {
     private JList jList;
     
     /** The model. */
-    private final BrowserContainersModel containersModel;
-    
-    /**
-     * The search filter.
-     * 
-     * @see #applySearchFilter(List)
-     * @see #removeSearchFilter()
-     */
-    //private Search searchFilter;
+    private final ContainerAvatarModel model;
 
-    /** Create a BrowserContainersAvatar. */
-    BrowserContainersAvatar() {
+    /** Create ContainerAvatar. */
+    public ContainerAvatar() {
         super("BrowserContainersAvatar", ScrollPolicy.NONE, Color.WHITE);
-        this.containersModel = new BrowserContainersModel(getController());
+        this.model = new ContainerAvatarModel(getController());
         setLayout(new GridBagLayout());
         initComponents();
     }
@@ -187,7 +179,7 @@ public class BrowserContainersAvatar extends Avatar {
      * 
      */
     public void setContentProvider(final ContentProvider contentProvider) {
-        containersModel.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
+        model.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
         // set initial selection
         if(0 < jList.getModel().getSize()) { jList.setSelectedIndex(0); }
     }
@@ -208,9 +200,9 @@ public class BrowserContainersAvatar extends Avatar {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncContainer(final Long containerId, final Boolean remote) {
-        final CellContainer selectedContainer = getSelectedContainer();
-        containersModel.syncContainer(containerId, remote);
-        if(containersModel.isContainerVisible(selectedContainer))
+        final MainCellContainer selectedContainer = getSelectedContainer();
+        model.syncContainer(containerId, remote);
+        if(model.isContainerVisible(selectedContainer))
             selectContainer(selectedContainer);  
     }
     
@@ -227,9 +219,9 @@ public class BrowserContainersAvatar extends Avatar {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncDocument(final Long containerId, final Long documentId, final Boolean remote) {
-        final CellContainer selectedContainer = getSelectedContainer();
-        containersModel.syncDocument(containerId, documentId, remote);
-        if(containersModel.isContainerVisible(selectedContainer))
+        final MainCellContainer selectedContainer = getSelectedContainer();
+        model.syncDocument(containerId, documentId, remote);
+        if(model.isContainerVisible(selectedContainer))
             selectContainer(selectedContainer);
     }
 
@@ -287,10 +279,10 @@ public class BrowserContainersAvatar extends Avatar {
      * 
      * @return The selected container.
      */
-    private CellContainer getSelectedContainer() {
+    private MainCellContainer getSelectedContainer() {
         final MainCell mc = (MainCell) jList.getSelectedValue();
-        if(mc instanceof CellContainer) {
-            return (CellContainer) mc;
+        if(mc instanceof MainCellContainer) {
+            return (MainCellContainer) mc;
         }
         return null;
     }
@@ -304,12 +296,12 @@ public class BrowserContainersAvatar extends Avatar {
         //  * is a single selection list
         //  * spans the width of the entire avatar
         //  * uses a custom cell renderer
-        jList = new JList(containersModel.getListModel());
+        jList = new JList(model.getListModel());
         jList.setCellRenderer(new MainCellRenderer());
         jList.setDragEnabled(true);
         jList.setLayoutOrientation(JList.VERTICAL);
         jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        jList.setTransferHandler(new CreateDocumentTxHandler(getController(), jList, containersModel));
+        jList.setTransferHandler(new CreateDocumentTxHandler(getController(), jList, model));
         // Available in Java version 6... Improve the behavior of selection during drag and drop.
         // so that it does not change the selection.
         //  -- jList.setDropMode(DropMode.ON);
@@ -322,7 +314,7 @@ public class BrowserContainersAvatar extends Avatar {
                     // Don't process double click if it is on white space below the last document
                     final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
                     if(SwingUtil.regionContains(cellBounds, p)){                 
-                        containersModel.triggerDoubleClick((MainCell) jList.getSelectedValue());  
+                        model.triggerDoubleClick((MainCell) jList.getSelectedValue());  
                         jList.setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
                     }
                 }
@@ -342,7 +334,7 @@ public class BrowserContainersAvatar extends Avatar {
                         cellBounds.width = CELL_NODE_SIZE.width;
                         cellBounds.height = CELL_NODE_SIZE.height;
                         if(SwingUtil.regionContains(cellBounds, p)) {                            
-                            containersModel.triggerExpand(mc);
+                            model.triggerExpand(mc);
                             jList.setSelectedIndex(listIndex);   // Otherwise all lines get unselected.
                         }
                     }
@@ -359,16 +351,16 @@ public class BrowserContainersAvatar extends Avatar {
                     final Integer listIndex = jList.locationToIndex(p);
                     final Integer selectedIndex = jList.getSelectedIndex();
                     if (selectedIndex==-1) {  // No entries in the list
-                        containersModel.triggerPopup(null, jList, e, e.getX(), e.getY());
+                        model.triggerPopup(null, jList, e, e.getX(), e.getY());
                     }
                     else { // Check if the click is below the bottom entry in the list
                         final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
                         if (SwingUtil.regionContains(cellBounds,p)) {
                             jList.setSelectedIndex(listIndex);
-                            containersModel.triggerPopup((MainCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
+                            model.triggerPopup((MainCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
                         }
                         else {   // Below the bottom entry
-                            containersModel.triggerPopup(null, jList, e, e.getX(), e.getY());
+                            model.triggerPopup(null, jList, e, e.getX(), e.getY());
                         }
                     }
                 }
@@ -414,7 +406,7 @@ public class BrowserContainersAvatar extends Avatar {
      * @param cc
      *            The container cell.
      */
-    private void selectContainer(final CellContainer cc) {
+    private void selectContainer(final MainCellContainer cc) {
         jList.setSelectedValue(cc, true);
     }
 }

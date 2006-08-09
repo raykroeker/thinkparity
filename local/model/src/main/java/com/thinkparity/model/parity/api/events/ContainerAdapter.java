@@ -60,7 +60,13 @@ public class ContainerAdapter implements ContainerListener {
      * @see com.thinkparity.model.parity.api.events.ContainerListener#draftCreated(com.thinkparity.model.parity.api.events.ContainerEvent)
      * 
      */
-    public void draftCreated(ContainerEvent e) {}
+    public void draftCreated(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.model.parity.api.events.ContainerListener#draftPublished(com.thinkparity.model.parity.api.events.ContainerEvent)
+     * 
+     */
+    public void draftPublished(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.model.parity.api.events.ContainerListener#teamMemberAdded(com.thinkparity.model.parity.api.events.ContainerEvent)

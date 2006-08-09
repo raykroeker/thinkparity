@@ -10,12 +10,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.display.avatar.container.CellDocument;
+import com.thinkparity.browser.application.browser.display.avatar.container.MainCellVersionDocument;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.Platform.Connection;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -32,7 +32,7 @@ public class PopupDocument implements Popup {
     private final CompositeFlatSingleContentProvider contentProvider;
 
     /** The document main cell. */
-    private final CellDocument document;
+    private final MainCellVersionDocument document;
 
     /** The popup localisation. */
     private final PopupL18n l18n;
@@ -47,7 +47,7 @@ public class PopupDocument implements Popup {
      */
     public PopupDocument(
             final CompositeFlatSingleContentProvider contentProvider,
-            final CellDocument document) {
+            final MainCellVersionDocument document) {
         super();
         this.contentProvider = contentProvider;
         this.document = document;
@@ -100,9 +100,6 @@ public class PopupDocument implements Popup {
      */
     private void triggerOnline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         jPopupMenu.add(new Open(application));
-        if (!document.isDistributed()) {
-            jPopupMenu.add(new Rename(application));
-        }
         jPopupMenu.addSeparator();
         jPopupMenu.add(new Revert(application));
         jPopupMenu.add(new Remove(application));
@@ -120,9 +117,6 @@ public class PopupDocument implements Popup {
      */
     private void triggerOffline(final Browser application, final JPopupMenu jPopupMenu, final MouseEvent e) {
         jPopupMenu.add(new Open(application));
-        if (!document.isDistributed()) {
-            jPopupMenu.add(new Rename(application));
-        }
         jPopupMenu.addSeparator();
         jPopupMenu.add(new Revert(application));
         jPopupMenu.add(new Remove(application));
@@ -144,7 +138,7 @@ public class PopupDocument implements Popup {
             super(getString("Open"), getString("OpenMnemonic").charAt(0));
             this.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.runOpenDocument(document.getContainerId(),document.getId());
+                    application.runOpenDocument(document.getId());
                 }
             });
         }
@@ -165,7 +159,7 @@ public class PopupDocument implements Popup {
             super(getString("Rename"), getString("RenameMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.runRenameDocument(document.getContainerId(),document.getId());
+                    application.runRenameDocument(document.getId());
                 }
             });
         }
@@ -186,7 +180,7 @@ public class PopupDocument implements Popup {
             super(getString("Revert"), getString("RevertMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.userError("ErrorNotImplemented");
+                    application.displayErrorDialog("ErrorNotImplemented");
                 }
             });
         }
@@ -207,7 +201,7 @@ public class PopupDocument implements Popup {
             super(getString("Remove"), getString("RemoveMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.userError("ErrorNotImplemented");
+                    application.displayErrorDialog("ErrorNotImplemented");
                 }
             });
         }

@@ -79,9 +79,11 @@ public class JabberId {
 
     /**
      * @see java.lang.Object#toString()
-     * 
      */
+    @Override
     public String toString() {
-        return getClass().getName() + "\\" +getQualifiedJabberId();
+        return new StringBuffer(getClass().getName()).append("//")
+                .append(getQualifiedJabberId())
+                .toString();
     }
 }

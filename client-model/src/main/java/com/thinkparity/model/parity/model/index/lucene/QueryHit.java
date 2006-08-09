@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.index.lucene;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactType;
 
 /**
  * @author raykroeker@gmail.com

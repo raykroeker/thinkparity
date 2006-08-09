@@ -78,9 +78,9 @@ public class TeamMember extends User {
      */
     @Override
     public String toString() {
-        return new StringBuffer()
-                .append(getClass()).append("//").append(getId())
-                .append(":").append(artifactId)
+        return new StringBuffer(getClass().getName()).append("//")
+                .append(getId())
+                .append("/").append(artifactId)
                 .toString();
     }
 }

@@ -4,7 +4,6 @@
 package com.thinkparity.model.parity.model.session;
 
 import com.thinkparity.model.ModelTestUser;
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.ModelTestCase;
 
 /**
@@ -27,12 +26,10 @@ public class LoginTest extends ModelTestCase {
 	 * Test the session model login api.
 	 */
 	public void testLogin() {
-		try { datum.sessionModel.login(datum.credentials); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
+		datum.sessionModel.login(datum.credentials);
 			
 		assertTrue(datum.sessionModel.isLoggedIn());
-        try { datum.sessionModel.logout(); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
+        datum.sessionModel.logout();
 	}
 
 	/**

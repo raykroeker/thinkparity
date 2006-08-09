@@ -70,6 +70,22 @@ class ContainerEventGenerator {
     }
 
     /**
+     * Generate a container event for a container; draft and version.
+     * 
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     * @param version
+     *            A container version.
+     * @return A container event.
+     */
+    ContainerEvent generate(final Container container,
+            final ContainerDraft draft, final ContainerVersion version) {
+        return new ContainerEvent(source, container, draft, version);
+    }
+
+    /**
      * Generate a container event for a container and a user.
      * 
      * @param container

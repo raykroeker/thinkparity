@@ -13,7 +13,6 @@ import java.util.*;
 
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.Constants.Compression;
 import com.thinkparity.model.Constants.Encoding;
@@ -25,7 +24,6 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
@@ -39,13 +37,11 @@ import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.DocumentIOHandler;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 import com.thinkparity.model.parity.util.UUIDGenerator;
-import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -63,27 +59,11 @@ class DocumentModelImpl extends AbstractModelImpl {
     /** A method id. */
     private static final String LOG_UWV = "[LMODEL] [DOCUMENT] [UPDATE WORKING VERSION] ";
 
-    /** A logger error statement. */
-    private static final String LOG_UWV_ERROR_FNFX =
-        LOG_UWV + "[FILE NOT FOUND]";
-
-    /** A logger error statement. */
-    private static final String LOG_UWV_ERROR_IOX =
-        LOG_UWV + "[IO ERROR]";
-
-    /** A logger error statement. */
-    private static final String LOG_UWV_ERROR_IOX_2 =
-        LOG_UWV + "[IO ERROR ON CLOSE]";
-
     /** A logger info statement. */
     private static final String LOG_UWV_INFO = LOG_UWV;
 
 	private static StringBuffer getApiId(final String api) {
         return getModelId("DOCUMENT").append(" ").append(api);
-    }
-
-	private static String getErrorId(final String api, final String error) {
-        return getApiId(api).append(" ").append(error).toString();
     }
 
 	/** A document auditor. */
@@ -132,24 +112,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 		this.indexor = new DocumentIndexor(getContext());
         this.localEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.LOCAL);
         this.remoteEventGen = new DocumentModelEventGenerator(DocumentEvent.Source.REMOTE);
-	}
-
-    /**
-     * @see com.thinkparity.model.parity.model.AbstractModelImpl#isDistributed(java.lang.Long)
-     * 
-     */
-    protected Boolean isDistributed(Long artifactId) {
-        return super.isDistributed(artifactId);
-    }
-
-    /**
-	 * Accept the key request.
-	 * 
-	 * @param keyRequestId
-	 *            The key request id.
-	 */
-	void acceptKeyRequest(final Long keyRequestId) throws ParityException {
-		getInternalArtifactModel().acceptKeyRequest(keyRequestId);
 	}
 
     /**
@@ -232,66 +194,28 @@ class DocumentModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Create a document and attach it to a container. This will take a name,
-     * and input stream of a file and create a document.
+     * Create a document.
      * 
      * @param name
      *            The document name.
-     * @param inputStream
-     *            The document content's input stream.
+     * @param content
+     *            The document's content input stream.
      * @return The document.
-     * @throws ParityException
      */
-    Document create(final String name, final InputStream inputStream)
-            throws ParityException {
-        logger.info(getApiId("[CREATE]"));
-        logger.debug(name);
-        logger.debug(inputStream);
+    Document create(final String name, final InputStream content) {
+        logApiId();
+        debugVariable("name", name);
+        debugVariable("content", content);
         assertIsSetCredentials();
-        try {
-            final Calendar currentDateTime = currentDateTime();
-
-            // create the document
-            final Document document = new Document(readCredentials().getUsername(),
-                    currentDateTime, null, Collections.<ArtifactFlag>emptyList(),
-                    UUIDGenerator.nextUUID(), name, readCredentials().getUsername(),
-                    currentDateTime);
-            document.setState(ArtifactState.ACTIVE);
-            documentIO.create(document);
-
-            // create the local file
-            final LocalFile localFile = getLocalFile(document);
-            final byte[] content = StreamUtil.read(inputStream);
-            localFile.write(content);
-
-            // create a version
-            createVersion(document.getId(), content);
-
-            // create remote info
-            final InternalArtifactModel aModel = getInternalArtifactModel();
-            aModel.createRemoteInfo(document.getId(), currentUserId(), currentDateTime);
-
-            // audit the creation
-            auditor.create(document.getId(), currentUserId(), document.getCreatedOn());
-
-            // index the document
-            indexor.create(document.getId(), document.getName());
-
-            // fire event
-            notifyDocumentCreated(get(document.getId()), localEventGen);
-            return get(document.getId());
-        }
-        catch(final IOException iox) {
-            logger.error("[LMODEL] [DOCUMENT] [CREATE] [IO ERROR]", iox);
-            throw ParityErrorTranslator.translate(iox);
-        }
-        catch(final RuntimeException rx) {
-            logger.error("[LMODEL] [DOCUMENT] [CREATE] [UNEXPECTED ERROR]", rx);
-            throw ParityErrorTranslator.translate(rx);
-        }
+        // create
+        final Document document = create(UUIDGenerator.nextUUID(), 1L, name,
+                content, currentUserId(), currentDateTime());
+        // fire event
+        notifyDocumentCreated(document, localEventGen);
+        return document;
     }
 
-	/**
+    /**
      * Create a duplicate document version.
      * 
      * @param documentId
@@ -299,24 +223,16 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @return The new version.
      * @throws ParityException
      */
-    DocumentVersion createVersion(final Long documentId)
-            throws ParityException {
-        final DocumentVersionContent latestVersionContent =
-            readLatestVersionContent(documentId);
-        return createVersion(documentId, latestVersionContent.getContent());
+    DocumentVersion createVersion(final Long documentId) {
+        logApiId();
+        debugVariable("documentId", documentId);
+        final DocumentVersion version = readLatestVersion(documentId);
+        return createVersion(documentId, nextVersionId(documentId),
+                openVersionStream(version.getArtifactId(), version
+                        .getVersionId()), currentUserId(), currentDateTime());
     }
 
-    /**
-	 * Accept the key request.
-	 * 
-	 * @param keyRequestId
-	 *            The key request id.
-	 */
-	void declineKeyRequest(final Long keyRequestId) throws ParityException {
-		getInternalArtifactModel().declineKeyRequest(keyRequestId);
-	}
-
-    /**
+	/**
 	 * Delete a document.
 	 * 
 	 * @param documentId
@@ -329,27 +245,13 @@ class DocumentModelImpl extends AbstractModelImpl {
         assertOnline("[LMODEL] [DOCUMENT MODEL] [DELETE] [USER IS NOT ONLINE]");
 
         final Document document = get(documentId);
-        if(isClosed(document)) { deleteLocal(document); }
-        else {
-            if(isKeyHolder(documentId)) {
-                if(!isDistributed(documentId)) { deleteLocal(document); }
-                else {
-                    throw Assert.createUnreachable(
-                            "[LMODEL] [DOCUMENT] [DELETE] [CAN ONLY DELETE CLOSED DOCUMENTS IF YOU ARE THE KEY HOLDER]");
-                }
-            }
-            else {
-                getInternalSessionModel().sendDelete(document.getId());
-
-                deleteLocal(document);
-            }
-        }
+        deleteLocal(document);
 
         // fire event
 		notifyDocumentDeleted(null, localEventGen);
 	}
 
-	/**
+    /**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param id
@@ -357,14 +259,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @return The document
 	 * @throws ParityException
 	 */
-	Document get(final Long id) throws ParityException {
+	Document get(final Long id) {
 		logger.info("get(Long)");
 		logger.debug(id);
-		try { return documentIO.get(id); }
-		catch(RuntimeException rx) {
-			logger.error("get(Long)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		return documentIO.get(id);
 	}
 
     /**
@@ -374,14 +272,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document unique id.
 	 * @return The document.
 	 */
-	Document get(final UUID documentUniqueId) throws ParityException {
+	Document get(final UUID documentUniqueId) {
 		logger.info("get(UUID)");
 		logger.debug(documentUniqueId);
 		try { return documentIO.get(documentUniqueId); }
-		catch(final RuntimeException rx) {
-			logger.error("get(UUID)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		catch(final Throwable t) { throw translateError(getApiId("[GET]"), t); }
 	}
 
 	/**
@@ -394,19 +289,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @return The document version.
 	 * @throws ParityException
 	 */
-	DocumentVersion getVersion(final Long documentId, final Long versionId)
-			throws ParityException {
+	DocumentVersion getVersion(final Long documentId, final Long versionId) {
 		logger.info("getVersion(Long,Long)");
 		logger.debug(documentId);
 		logger.debug(versionId);
 		try { return documentIO.getVersion(documentId, versionId); }
-		catch(RuntimeException rx) {
-			logger.error("getVersion(UUID,String)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		catch(final Throwable t) {
+            throw translateError(getApiId("[GET VERSION]"), t);
 		}
 	}
 
-	/**
+    /**
 	 * Obtain the content for a specific version.
 	 * 
 	 * @param documentId
@@ -417,16 +310,97 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	DocumentVersionContent getVersionContent(final Long documentId,
-			final Long versionId) throws ParityException {
+			final Long versionId) {
 		logger.info("getVersionContent(Long,Long)");
 		logger.debug(documentId);
 		logger.debug(versionId);
 		try { return documentIO.readVersionContent(documentId, versionId); }
-		catch(RuntimeException rx) {
-			logger.error("getVersionContent(DocumentVersion)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		catch(final Throwable t) {
+			throw translateError(getApiId("[GET VERSION CONTENT]"), t);
 		}
 	}
+
+    /**
+     * Handle the publish of a document from the thinkParity network. The
+     * implementation is identical to sending a document.
+     * 
+     * @param publishedBy
+     *            By whom the document was published.
+     * @param publishedOn
+     *            When the document was published.
+     * @param uniqueId
+     *            The document unique id.
+     * @param versionId
+     *            The document version id.
+     * @param name
+     *            The document name.
+     * @param content
+     *            The document content.
+     */
+    DocumentVersion handleDocumentPublished(final JabberId publishedBy,
+            final Calendar publishedOn, final UUID uniqueId, final Long versionId,
+            final String name, final InputStream content) {
+        logApiId();
+        debugVariable("publishedBy", publishedBy);
+        debugVariable("publishedOn", publishedOn);
+        debugVariable("uniqueId", uniqueId);
+        debugVariable("versionId", versionId);
+        debugVariable("name", name);
+        debugVariable("content", content);
+        return handleDocumentSent(publishedBy, publishedOn, uniqueId,
+                versionId, name, content);
+    }
+
+    /**
+     * Handle the receipt of a document from the thinkParity network. If the
+     * document does not exist; it will be created; if the version does not
+     * exist it will be created.
+     * 
+     * @param sentBy
+     *            By whom the document was sent.
+     * @param sentOn
+     *            When the document was sent.
+     * @param uniqueId
+     *            The document unique id.
+     * @param versionId
+     *            The document version id.
+     * @param name
+     *            The document name.
+     * @param content
+     *            The document content.
+     */
+    DocumentVersion handleDocumentSent(final JabberId sentBy,
+            final Calendar sentOn, final UUID uniqueId, final Long versionId,
+            final String name, final InputStream content) {
+        logApiId();
+        debugVariable("sentBy", sentBy);
+        debugVariable("sentOn", sentOn);
+        debugVariable("uniqueId", uniqueId);
+        debugVariable("versionId", versionId);
+        debugVariable("name", name);
+        debugVariable("content", content);
+        final InternalArtifactModel artifactModel  = getInternalArtifactModel();
+        final Document document;
+        final DocumentVersion version;
+        if(artifactModel.doesExist(uniqueId)) {
+            logWarning("[DOCUMENT EXISTS]");
+            document = get(uniqueId);
+            if(artifactModel.doesVersionExist(document.getId(), versionId)) {
+                logWarning("[DOCUMENT VERSION EXISTS]");
+                version = getVersion(document.getId(), versionId);
+            }
+            else {
+                version = createVersion(document.getId(), versionId, content,
+                        sentBy, sentOn);
+            }
+        }
+        else {
+            document = create(uniqueId, versionId, name, content,
+                    sentBy, sentOn);
+            version = getVersion(document.getId(), versionId);
+        }
+        return version;
+    }
 
 	/**
 	 * Determine whether or not the working version of the document is different
@@ -435,37 +409,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @return True if the working version is different from the last version.
 	 * @throws ParityException
 	 */
-	Boolean isWorkingVersionEqual(final Long documentId)
-			throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL]");
+	Boolean isDraftModified(final Long documentId) {
+		logger.info(getApiId("[IS DRAFT MODIFIED]"));
 		logger.debug(documentId);
-		try {
-			final Document document = get(documentId);
+        try { return determineIsDraftModified(documentId); }
+        catch(final ParityException px) {
+            throw translateError(getApiId("[IS DRAFT MODIFIED]"), px);
+        }
+    }
 
-			final LocalFile localFile = getLocalFile(document);
-			localFile.read();
-			final String workingVersionChecksum = localFile.getFileChecksum();
-
-			final DocumentVersion version = readLatestVersion(documentId);
-			// we might have no recorded versions (initial point)
-			if(null == version) { return Boolean.FALSE; }
-			else {
-				return version.getChecksum().equals(workingVersionChecksum);
-			}
-		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL] [IO ERROR]", iox);
-            logger.error(documentId);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL] [UNKNOWN ERROR]", rx);
-            logger.error(documentId);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-    /**
+	/**
      * A key request for a document was accepted.
      * 
      * @param documentId
@@ -500,7 +453,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyKeyRequestAccepted(readUser(acceptedBy), get(documentId), remoteEventGen);
     }
 
-	/**
+    /**
      * A key request for a document was declined.
      * 
      * @param documentId
@@ -533,7 +486,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 readUser(declinedBy), get(documentId), remoteEventGen);
     }
 
-	/**
+    /**
 	 * Obtain a list of documents.
 	 * 
 	 * @return A list of documents sorted by name.
@@ -547,7 +500,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return list(defaultComparator);
 	}
 
-    /**
+	/**
 	 * Obtain a list of sorted documents.
 	 * 
 	 * @param comparator
@@ -593,7 +546,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return documents;
 	}
 
-	/**
+    /**
      * Obtain a filtered list of documents.
      * 
      * @param filter
@@ -619,8 +572,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @see #listVersions(UUID, Comparator)
 	 */
-	Collection<DocumentVersion> listVersions(final Long documentId)
-			throws ParityException {
+	List<DocumentVersion> listVersions(final Long documentId) {
 		logger.info("listVersions(Long)");
 		logger.debug(documentId);
 		return listVersions(documentId, defaultVersionComparator);
@@ -639,22 +591,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * 
 	 * @see ComparatorBuilder
 	 */
-	Collection<DocumentVersion> listVersions(final Long documentId,
-			final Comparator<ArtifactVersion> comparator)
-			throws ParityException {
+	List<DocumentVersion> listVersions(final Long documentId,
+			final Comparator<ArtifactVersion> comparator) {
 		logger.info("listVersions(Document)");
 		logger.debug(documentId);
 		logger.debug(comparator);
-		try {
-			final List<DocumentVersion> versions =
-				documentIO.listVersions(documentId);
-			ModelSorter.sortDocumentVersions(versions, comparator);
-			return versions;
-		}
-		catch(RuntimeException rx) {
-			logger.error("listVersions(Document)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
+		final List<DocumentVersion> versions = documentIO.listVersions(documentId);
+		ModelSorter.sortDocumentVersions(versions, comparator);
+		return versions;
 	}
 
 	/**
@@ -692,7 +636,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	void open(final Long documentId) throws ParityException {
+	void open(final Long documentId) {
 		logger.info("[LMODEL] [DOCUMENT] [OPEN]");
 		logger.debug(documentId);
 		try {
@@ -702,32 +646,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final LocalFile localFile = getLocalFile(document);
 			localFile.open();
 		}
-		catch(IOException iox) {
-			logger.error("open(UUID)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
-			logger.error("open(UUID)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		catch(final Throwable t) {
+            throw translateError(getApiId("[OPEN]"), t);
 		}
 	}
-
-	/**
-     * Open an input stream to read a document version. Note: It is a good idea
-     * to buffer the input stream.
-     * 
-     * @param documentId
-     *            A document id.
-     * @param versionId
-     *            A version id.
-     * @return An input stream.
-     */
-    InputStream openStream(final Long documentId, final Long versionId) {
-        logger.info(getApiId("[OPEN STREAM]"));
-        logger.debug(documentId);
-        logger.debug(versionId);
-        return documentIO.openStream(documentId, versionId);
-    }
 
 	/**
 	 * Open a document version. Extract the version's content and open it.
@@ -761,87 +683,23 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-     * Publish a document.  Publishing a document involves the following
-     * process:<ol>
-     *  <li>Check if the working version differs from the latest version. If<ul>
-     *      <li>True:  Create a new version.
-     *      <li>False:  Do nothing.
-     *  <li>Send the latest version to all team members.
-     * </ol>
-     *
-     * @param documentId
-     *      The document id.
-     */
-    void publish(final Long documentId) throws ParityException {
-        logger.info("[LMODEL] [DOCUMENT] [SEND]");
-        logger.debug(documentId);
-        assertOnline("[LMODEL] [DOCUMENT] [SEND] [USER IS NOT ONLINE]");
-        assertIsKeyHolder("[LMODEL] [DOCUMENT] [SEND] [USER IS NOT KEYHOLDER]", documentId);
-        // we assume here that we are publishing a new version
-        Assert.assertNotTrue(
-                "[LMODEL] [DOCUMENT] [SEND] [WORKING VERSION EQUALS LATEST VERSION]",
-                isWorkingVersionEqual(documentId));
-
-        final DocumentVersion version = createVersion(documentId);
-
-        // read the team
-        final Set<User> teamUsers = getInternalArtifactModel().readTeam(documentId);
-        teamUsers.remove(currentUser());
-
-        // audit
-        auditor.publish(documentId, version.getVersionId(),
-                currentDateTime(), currentUserId());
-
-        // send to the team
-        getInternalSessionModel().send(teamUsers, documentId, version.getVersionId());
-
-        // fire event
-        notifyDocumentPublished(get(documentId),
-                getVersion(documentId, version.getVersionId()), localEventGen);
-    }
-
-    /**
-     * Reactivate a document.
+     * Open an input stream to read the document version. Note: It is a good
+     * idea to buffer the input stream.
      * 
      * @param documentId
-     *            The document id.
-     * @throws ParityException
+     *            A document id.
+     * @param versionId
+     *            A document version id.
+     * @return A list of document versions and their streams.
      */
-    void reactivate(final Long documentId) throws ParityException {
-        logger.info(getApiId("[REACTIVATE]"));
-        assertOnline(getErrorId("[REACTIVATE]", "[CANNOT REACTIVATE WHILE OFFLINE]"));
-        assertIsClosed(getErrorId("[REACTIVATE]", "[CANNOT REACTIVATE A CLOSED DOCUMENT]"), get(documentId));
-
-        // update the local state
-        final Document document = get(documentId);
-        assertStateTransition(document.getState(), ArtifactState.ACTIVE);
-        document.setState(ArtifactState.ACTIVE);
-        documentIO.update(document);
-
-        // set key locally
-        final InternalArtifactModel iAModel = getInternalArtifactModel();
-        iAModel.applyFlagKey(documentId);
-
-        // reactivate remotely
-        final DocumentVersion version = readLatestVersion(documentId);
-        final DocumentVersionContent versionContent = getVersionContent(documentId, version.getVersionId());
-        final Set<User> users = iAModel.readTeam(documentId);
-        final List<JabberId> team = new ArrayList<JabberId>();
-        for(final User user : users) { team.add(user.getId()); }
-        getInternalSessionModel().sendDocumentReactivate(team,
-                document.getUniqueId(), version.getVersionId(),
-                document.getName(), versionContent.getContent());
-
-        // audit
-        final Calendar currentDateTime = currentDateTime();
-        auditor.reactivate(documentId, currentDateTime, currentUserId(),
-                version.getVersionId(), currentUserId(), currentDateTime);
-
-        // fire event
-        notifyDocumentReactivated(readUser(currentUserId()), document, version, localEventGen);
+    InputStream openVersionStream(final Long documentId, final Long versionId) {
+        logger.info(getApiId("[OPEN VERSION STREAM]"));
+        logger.debug(documentId);
+        logger.debug(versionId);
+        return documentIO.openStream(documentId, versionId);
     }
 
-    /**
+	/**
      * Read a document.
      * 
      * @param documentId
@@ -851,11 +709,7 @@ class DocumentModelImpl extends AbstractModelImpl {
     Document read(final Long documentId) {
         logger.info(getApiId("[READ]"));
         logger.debug(documentId);
-        try { return get(documentId); }
-        catch(final ParityException px) {
-            logger.error(getErrorId("[READ]", "[CANNOT READ DOCUMENT]"), px);
-            throw ParityErrorTranslator.translateUnchecked(px);
-        }
+        return get(documentId);
     }
 
     /**
@@ -953,106 +807,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 *            The document id.
 	 * @return The latest version.
 	 */
-	DocumentVersion readLatestVersion(final Long documentId)
-			throws ParityException {
+	DocumentVersion readLatestVersion(final Long documentId) {
 		logger.info("getLatestVersion(Long)");
 		logger.debug(documentId);
 		try { return documentIO.readLatestVersion(documentId); }
-		catch(RuntimeException rx) {
-			logger.error("Could not obtain latest version.", rx);
-			throw ParityErrorTranslator.translate(rx);
+		catch(final Throwable t) {
+            throw translateError(getApiId("[READ LATEST VERSION]"), t);
 		}
 	}
 
-	/**
-	 * Receive an xmpp document. If no local document exists; create it; then
-	 * insert the xmpp document as a version of the local document.
-	 * 
-	 * @param xmppDocument
-	 *            The xmpp document.
-	 * @throws ParityException
-	 */
-	void receive(final JabberId receivedFrom, final UUID uniqueId,
-            final Long versionId, final String name, final byte[] content)
-            throws ParityException, SmackException {
-		logger.info("[LMODEL] [DOCUMENT] [RECEIVE]");
-		try {
-			Document document = get(uniqueId);
-			if(null == document) {
-				document = receiveCreate(receivedFrom, uniqueId, versionId,
-                        name, content);
-
-				// if key holder:  apply flag key
-				final InternalSessionModel iSModel = getInternalSessionModel();
-				if(iSModel.isLoggedInUserKeyHolder(document.getId())) {
-					final InternalArtifactModel iAModel = getInternalArtifactModel();
-					iAModel.applyFlagKey(document.getId());
-				}
-
-				final Document d = get(document.getId());
-                final Calendar currentDateTime = currentDateTime();
-				// audit create
-				auditor.createRemote(
-                        d.getId(), currentUserId(), currentDateTime,
-                        receivedFrom);
-                // audit receive
-                auditor.receive(d.getId(), currentDateTime, currentUserId(),
-                        versionId, receivedFrom, currentUserId(),
-                        currentDateTime);
-
-                // confirm the document receipt
-                final InternalArtifactModel iAModel = getInternalArtifactModel();
-                iAModel.confirmReceipt(receivedFrom, document.getId(), versionId);
-
-                // fire event
-                {
-                    final User receivedFromUser =
-                        getInternalUserModel().read(receivedFrom);
-                    notifyDocumentCreated(receivedFromUser, document, remoteEventGen);
-                }
-			}
-			else {
-				final DocumentVersion version =
-                    getVersion(document.getId(), versionId);
-				// i have this version.  wtf biotch
-				if(null == version) {
-					document.setUpdatedOn(currentDateTime());
-                    receiveUpdate(receivedFrom, uniqueId, document.getId(), versionId, name, content);
-
-					// if key holder:  apply flag key
-					final InternalSessionModel iSModel = getInternalSessionModel();
-					if(iSModel.isLoggedInUserKeyHolder(document.getId())) {
-						final InternalArtifactModel iAModel = getInternalArtifactModel();
-						iAModel.applyFlagKey(document.getId());
-					}
-				}
-
-				// audit the receiving
-				final Document d = get(document.getId());
-                final Calendar currentDateTime = currentDateTime();
-				auditor.receive(d.getId(), currentDateTime, currentUserId(),
-                        versionId, receivedFrom, currentUserId(),
-                        currentDateTime);
-
-                // confirm the document receipt
-                final InternalArtifactModel iAModel = getInternalArtifactModel();
-                iAModel.confirmReceipt(receivedFrom, document.getId(), versionId);
-
-				// fire event
-				if(null == version) { notifyDocumentUpdated(document, remoteEventGen); }
-			}
-		}
-		catch(IOException iox) {
-			logger.error("receiveDocument(XMPPDocument)", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(RuntimeException rx) {
-			logger.error("receiveDocument(XMPPDocument)", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-	/**
+    /**
 	 * Remove a document listener.
 	 * 
 	 * @param l
@@ -1076,50 +840,47 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @param documentName
      *      A document name.
      */
-    void rename(final Long documentId, final String documentName)
-            throws ParityException {
+    void rename(final Long documentId, final String documentName) {
         logger.info("[LMODEL] [DOCUMENT] [RENAME]");
         logger.debug(documentId);
         logger.debug(documentName);
-        assertIsNotDistributed("[RENAME]", documentId);
-        final Collection<DocumentVersion> dVersions = listVersions(documentId);
-        Assert.assertTrue(
-                "[LMODEL] [DOCUMENT] [RENAME] [CANNOT RENAME A PUBLISHED DOCUMENT]",
-                dVersions.size() == 1);
-        final Document d = get(documentId);
-        final DocumentVersion dVersion = dVersions.iterator().next();
-        final String originalName = d.getName();
-
-        // delete the local files
-        LocalFile dFile = getLocalFile(d);
-        LocalFile dVersionFile = getLocalFile(d, dVersion);
-		dFile.delete();
-        dVersionFile.delete();
-
-        // rename the document and version
-        d.setName(documentName);
-        dVersion.setName(documentName);
-        documentIO.update(d);
-        documentIO.updateVersion(dVersion);
-
-        // write the local files
-        dFile = getLocalFile(d);
-        final DocumentVersionContent versionContent =
-                documentIO.readVersionContent(documentId, dVersion.getVersionId());
-        dVersionFile = getLocalFile(d, dVersion);
-
         try {
+            final Collection<DocumentVersion> dVersions = listVersions(documentId);
+            Assert.assertTrue(
+                    "[LMODEL] [DOCUMENT] [RENAME] [CANNOT RENAME A PUBLISHED DOCUMENT]",
+                    dVersions.size() == 1);
+            final Document d = get(documentId);
+            final DocumentVersion dVersion = dVersions.iterator().next();
+            final String originalName = d.getName();
+    
+            // delete the local files
+            LocalFile dFile = getLocalFile(d);
+            LocalFile dVersionFile = getLocalFile(d, dVersion);
+    		dFile.delete();
+            dVersionFile.delete();
+    
+            // rename the document and version
+            d.setName(documentName);
+            dVersion.setName(documentName);
+            documentIO.update(d);
+            documentIO.updateVersion(dVersion);
+    
+            // write the local files
+            dFile = getLocalFile(d);
+            final DocumentVersionContent versionContent =
+                    documentIO.readVersionContent(documentId, dVersion.getVersionId());
+            dVersionFile = getLocalFile(d, dVersion);
+    
             dFile.write(versionContent.getContent());
             dVersionFile.write(versionContent.getContent());
-        }
-        catch(final IOException iox) {
-            logger.error("[LMODEL] [DOCUMENT] [RENAME] [IO ERROR]", iox);
-            throw ParityErrorTranslator.translate(iox);
-        }
 
-        // audit the rename
-        auditor.rename(documentId, currentDateTime(), currentUserId(),
-                originalName,documentName);
+            // audit the rename
+            auditor.rename(documentId, currentDateTime(), currentUserId(),
+                    originalName,documentName);
+        }
+        catch(final Throwable t) {
+            throw translateError(getApiId("[RENAME]"), t);
+        }
     }
 
 	void requestKey(final Long documentId, final JabberId requestedBy)
@@ -1140,7 +901,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         notifyKeyRequested(readUser(requestedBy), d, remoteEventGen);
 	}
 
-    /**
+	/**
 	 * Unlock a document.
 	 * 
 	 * @param documentId
@@ -1167,7 +928,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Update the working version of a document.
      * 
      * @param documentId
@@ -1184,83 +945,88 @@ class DocumentModelImpl extends AbstractModelImpl {
         final LocalFile localFile = getLocalFile(get(documentId));
         InputStream is = null;
         try {
-            is = createInputStream(updateFile);
-            localFile.write(createInputStream(updateFile));
+            is = openInputStream(updateFile);
+            localFile.write(is);
         }
-        catch(final FileNotFoundException fnfx) {
-            logger.error(LOG_UWV_ERROR_FNFX, fnfx);
-            throw ParityErrorTranslator.translate(fnfx);
-        }
-        catch(final IOException iox) {
-            logger.error(LOG_UWV_ERROR_IOX, iox);
-            throw ParityErrorTranslator.translate(iox);
+        catch(final Throwable t) {
+            throw translateError(getApiId("[UPDATE WORKING VERSION]"), t);
         }
         finally {
-            if(null != is) {
-                try { is.close(); }
-                catch(final IOException iox) {
-                    logger.error(LOG_UWV_ERROR_IOX_2, iox);
-                    throw ParityErrorTranslator.translate(iox);
-                }
+            try { is.close(); }
+            catch(final Throwable t) {
+                throw translateError(getApiId("[UPDATE WORKING VERSION]"), t);
             }
         }
     }
 
     /**
-     * Assert that a document has not yet been sent to anyone.
-     *
-     * @param assertion
-     *      Assertion text.
-     * @param documentId
-     *      A document id.
+     * Create a document.
+     * @param uniqueId
      */
-    private void assertIsNotDistributed(final String assertion, final Long documentId)
-            throws ParityException {
-        final StringBuffer buffer = new StringBuffer("[LMODEL] [DOCUMENT] ")
-                .append(assertion)
-                .append(" [DOCUMENT HAS ALREADY BEEN DISTRIBUTED]");
-        Assert.assertNotTrue(buffer.toString(), isDistributed(documentId));
+    private Document create(final UUID uniqueId, final Long versionId,
+            final String name, final InputStream content,
+            final JabberId createdBy, final Calendar createdOn) {
+        try {
+            // create the document
+            final Document document = new Document();
+            document.setCreatedBy(createdBy.getUsername());
+            document.setCreatedOn(createdOn);
+            document.setFlags(Collections.<ArtifactFlag>emptyList());
+            document.setUniqueId(uniqueId);
+            document.setName(name);
+            document.setUpdatedBy(document.getCreatedBy());
+            document.setUpdatedOn(document.getCreatedOn());
+            document.setState(ArtifactState.ACTIVE);
+            documentIO.create(document);
+
+            // create the local file
+            final LocalFile localFile = getLocalFile(document);
+            localFile.write(StreamUtil.read(content));
+
+            // create a version
+            createVersion(document.getId(), versionId, content, createdBy,
+                    createdOn);
+
+            // create remote info
+            final InternalArtifactModel aModel = getInternalArtifactModel();
+            aModel.createRemoteInfo(document.getId(), createdBy, createdOn);
+
+            // audit the creation
+            auditor.create(document.getId(), createdBy, document.getCreatedOn());
+
+            // index the document
+            indexor.create(document.getId(), document.getName());
+
+            return read(document.getId());
+        }
+        catch(final Throwable t) {
+            throw translateError(getApiId("[CREATE]"), t);
+        }
     }
 
     /**
-     * Create an input stream from the input file.
+     * Create a document version.
      * 
-     * @param inputFile
-     *            The input file.
-     * @return An input stream.
-     * @throws FileNotFoundException
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A document version id.
+     * @param content
+     *            The document's content.
+     * @param createdBy
+     *            Who creatd the version.
+     * @param createdOn
+     *            When the version was created.
+     * @return A new document version.
      */
-    private InputStream createInputStream(final File inputFile)
-            throws FileNotFoundException {
-        return new BufferedInputStream(new FileInputStream(inputFile));
-    }
-
-    /**
-	 * Create a new document version based upon an existing document. This will
-	 * check the cache for updates to the document, write the updates to the
-	 * document, then create a new version based upon that document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @param action
-	 *            The action causing the version creation.
-	 * @param actionData
-	 *            The data associated with the version creation action.
-	 * @return The newly created version.
-	 * 
-	 * TODO If the user has ownership of the document; the local copy should
-	 * *NEVER* be overwritten.
-	 * 
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             If the logged in user is not the key holder.
-	 */
 	private DocumentVersion createVersion(final Long documentId,
-            final byte[] content) throws ParityException {
-		logger.info(getApiId("[CREATE VERSION]"));
-		logger.debug(documentId);
-        logger.debug(content);
-        assertOnline("[LMODEL] [DOCUMENT] [CREATE VERSION] [USER IS NOT ONLINE]");
+            final Long versionId, final InputStream content,
+            final JabberId createdBy, final Calendar createdOn) {
+		logApiId();
+        debugVariable("documentId", documentId);
+        debugVariable("versionId", versionId);
+        debugVariable("content", content);
+        assertOnline("[USER NOT ONLINE]");
 		try {
 			final Document document = get(documentId);
 
@@ -1273,16 +1039,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 			version.setArtifactId(documentId);
 			version.setArtifactType(document.getType());
 			version.setArtifactUniqueId(document.getUniqueId());
-			version.setChecksum(MD5Util.md5Hex(content));
+			version.setChecksum(MD5Util.md5Hex(StreamUtil.read(content)));
 			version.setCompression(Compression.NONE);
-			version.setCreatedBy(document.getCreatedBy());
-			version.setCreatedOn(document.getCreatedOn());
+			version.setCreatedBy(createdBy.getUsername());
+			version.setCreatedOn(createdOn);
 			version.setEncoding(Encoding.BASE_64);
 			version.setName(document.getName());
-			version.setUpdatedBy(document.getUpdatedBy());
-			version.setUpdatedOn(document.getUpdatedOn());
+			version.setUpdatedBy(version.getCreatedBy());
+			version.setUpdatedOn(version.getCreatedOn());
+            version.setVersionId(versionId);
 			final DocumentVersionContent versionContent = new DocumentVersionContent();
-			versionContent.setContent(content);
+			versionContent.setContent(StreamUtil.read(content));
 			versionContent.setVersion(version);
             documentIO.createVersion(version, versionContent);
 
@@ -1292,19 +1059,14 @@ class DocumentModelImpl extends AbstractModelImpl {
 			versionLocalFile.lock();
 
 			// update the document updated by\on
-			document.setUpdatedBy(readCredentials().getUsername());
-			document.setUpdatedOn(currentDateTime());
+			document.setUpdatedBy(version.getCreatedBy());
+			document.setUpdatedOn(version.getUpdatedOn());
 			documentIO.update(document);
 
 			return version;
 		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [DOCUMENT] [CREATE VERSION] [IO ERROR]", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[LMODEL] [DOCUMENT] [CREATE VERSION] [UNEXPECTED ERROR]", rx);
-			throw ParityErrorTranslator.translate(rx);
+		catch(final Throwable t) {
+			throw translateError(getApiId("[CREATE VERSION]"), t);
 		}
 	}
 
@@ -1341,18 +1103,36 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.delete(document.getId());
     }
 
-	/**
-     * Determine if an artifact exists.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @return True if the artifact exists; false otherwise.
-     */
-    private Boolean doesExist(final UUID uniqueId) {
-        return getInternalArtifactModel().doesExist(uniqueId);
-    }
+    /** {@link #isDraftModified(Long)} */
+	private Boolean determineIsDraftModified(final Long documentId)
+            throws ParityException {
+		try {
+			final Document document = get(documentId);
 
-	/**
+			final LocalFile localFile = getLocalFile(document);
+			localFile.read();
+			final String workingVersionChecksum = localFile.getFileChecksum();
+
+			final DocumentVersion version = readLatestVersion(documentId);
+			// we might have no recorded versions (initial point)
+			if(null == version) { return Boolean.TRUE; }
+			else {
+				return !version.getChecksum().equals(workingVersionChecksum);
+			}
+		}
+		catch(final IOException iox) {
+			logger.error("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL] [IO ERROR]", iox);
+            logger.error(documentId);
+			throw ParityErrorTranslator.translate(iox);
+		}
+		catch(final RuntimeException rx) {
+			logger.error("[LMODEL] [DOCUMENT] [IS WORKING VERSION EQUAL] [UNKNOWN ERROR]", rx);
+            logger.error(documentId);
+			throw ParityErrorTranslator.translate(rx);
+		}
+	}
+
+    /**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
@@ -1375,51 +1155,17 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return new LocalFile(workspace, document, version);
 	}
 
-    /**
-	 * Insert a version for a document.
-	 * @param documentId The document.
-	 * @param version The version to insert.
-	 */
-	private void insertVersion(final Long documentId,
-			final DocumentVersion version,
-			final DocumentVersionContent versionContent) throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [INSERT VERSION");
-		logger.debug(documentId);
-		logger.debug(version);
-		logger.debug(versionContent);
-		try {
-			final Document document = get(documentId);
-
-			// insert version info into db
-			documentIO.createVersion(version.getVersionId(), version, versionContent);
-
-			// create version local file
-			final LocalFile versionFile = getLocalFile(document, version);
-			versionFile.write(versionContent.getContent());
-			versionFile.lock();
-		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [DOCUMENT] [INSERT VERSION] [IO ERROR]", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[LMODEL] [DOCUMENT] [INSERT VERSION] [UNEXPECTED ERROR]", rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
 	/**
-	 * Check and see if this version is the latest version.
-	 * 
-	 * @param version
-	 *            A document version.
-	 * @return True if this is the latest local version of the document.
-	 */
-	private Boolean isLatestLocalVersion(final DocumentVersion version) {
-		final DocumentVersion latestLocalVersion =
-			documentIO.readLatestVersion(version.getArtifactId());
-		return latestLocalVersion.getVersionId().equals(version.getVersionId());
-	}
+     * Obtain the next version id for a document.
+     * 
+     * @param documentId
+     *            A document id.
+     * @return The next version id.
+     */
+    private Long nextVersionId(final Long documentId) {
+        final DocumentVersion latestVersion = readLatestVersion(documentId);
+        return latestVersion.getVersionId() + 1;
+    }
 
     /**
      * Fire confirmation received.
@@ -1439,7 +1185,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Fire document created.
 	 * 
 	 * @param document
@@ -1455,26 +1201,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
-     * Fire document created.
-     * 
-     * @param user
-     *            A user.
-     * @param document
-     *            A document.
-     * @param eventGen
-     *            An event generator.
-     */
-    private void notifyDocumentCreated(final User user,
-            final Document document, final DocumentModelEventGenerator eventGen) {
-        synchronized(DocumentModelImpl.LISTENERS) {
-            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-                l.documentCreated(eventGen.generate(user, document));
-            }
-        }
-    }
-
-    /**
+	/**
 	 * Fire document deleted.
 	 * 
 	 * @param document
@@ -1491,60 +1218,6 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Fire document published.
-     *
-     * @param document
-     *      The document.
-     * @param eventGen
-     *      The event generator.
-     */
-    private void notifyDocumentPublished(final Document document,
-            final DocumentVersion version,
-            final DocumentModelEventGenerator eventGen) {
-        synchronized(DocumentModelImpl.LISTENERS) {
-            for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-                l.documentPublished(eventGen.generate(document, version));
-            }
-        }
-    }
-
-    /**
-     * Fire document reactivated.
-     * 
-     * @param document
-     *            A document.
-     * @param version
-     *            A document version.
-     * @param eventGen
-     *            An event generator.
-     */
-    private void notifyDocumentReactivated(final User user,
-            final Document document, final DocumentVersion version,
-            final DocumentModelEventGenerator eventGen) {
-        synchronized(LISTENERS) {
-            for(final DocumentListener l : LISTENERS) {
-                l.documentReactivated(eventGen.generate(user, document, version));
-            }
-        }
-    }
-
-	/**
-	 * Fire document updated.
-	 * 
-	 * @param document
-     *      A document.
-	 * @param eventGen
-     *      The event generator.
-	 */
-	private void notifyDocumentUpdated(final Document document, final DocumentModelEventGenerator eventGen) {
-		synchronized(DocumentModelImpl.LISTENERS) {
-			for(final DocumentListener l : DocumentModelImpl.LISTENERS) {
-				l.documentUpdated(eventGen.generate(document));
-			}
-		}
-	}
-
-	/**
      * Fire key request accepted.
      * 
      * @param user
@@ -1563,7 +1236,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Fire key request declined.
      * 
      * @param user
@@ -1601,6 +1274,19 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
+    /**
+     * Create an input stream from the input file.
+     * 
+     * @param inputFile
+     *            The input file.
+     * @return An input stream.
+     * @throws FileNotFoundException
+     */
+    private InputStream openInputStream(final File inputFile)
+            throws FileNotFoundException {
+        return new BufferedInputStream(new FileInputStream(inputFile), 512);
+    }
+
 	/**
      * Read the latest document version content.
      * 
@@ -1617,131 +1303,4 @@ class DocumentModelImpl extends AbstractModelImpl {
     private User readUser(final JabberId jabberId) throws ParityException {
         return getInternalSessionModel().readUser(jabberId);
     }
-
-    /**
-	 * This is the first time this particular document has been recieved. We
-	 * need to create the document; send a subscription request; then receive
-	 * update.
-	 * 
-	 * @param xmppDocument
-	 *            The xmpp document.
-	 * @return The new document.
-	 * @throws ParityException
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 */
-	private Document receiveCreate(final JabberId receivedFrom,
-            final UUID uniqueId, final Long versionId, final String name,
-            final byte[] bytes) throws ParityException, FileNotFoundException,
-            IOException {
-		final Calendar currentDateTime = currentDateTime();
-		// create the document
-		final Document document = new Document();
-		document.setCreatedBy(receivedFrom.getUsername());
-		document.setCreatedOn(currentDateTime);
-		document.setName(name);
-		document.setState(ArtifactState.ACTIVE);
-		document.setUniqueId(uniqueId);
-		document.setUpdatedBy(receivedFrom.getUsername());
-		document.setUpdatedOn(currentDateTime);
-
-		documentIO.create(document);
-
-		// create the remote info row
-		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		iAModel.createRemoteInfo(document.getId(), receivedFrom, currentDateTime);
-
-		// create the document file
-		final LocalFile file = getLocalFile(document);
-		file.write(bytes);
-
-		// index the creation
-		indexor.create(document.getId(), document.getName());
-
-		// update the document
-		receiveUpdate(receivedFrom, uniqueId, document.getId(), versionId, name, bytes);
-		return document;
-	}
-
-    /**
-	 * Insert the corresponding version for the xmpp document received. Check to
-	 * see if this is the latest version locally; and if it is; update the
-	 * document\document content. Notify that a version has been received.
-	 * 
-	 * @param xmppDocument
-	 *            The xmpp document received.
-	 * @param document
-	 *            The existing local document.
-	 * @throws FileNotFoundException
-	 * @throws IOException
-	 * @throws ParityException
-	 */
-	private void receiveUpdate(final JabberId receivedFrom,
-            final UUID uniqueId, final Long documentId, final Long versionId,
-            final String name, final byte[] bytes)
-            throws FileNotFoundException, IOException, ParityException {
-	    final Calendar currentDateTime = currentDateTime();
-
-        final DocumentVersion version = new DocumentVersion();
-		version.setArtifactId(documentId);
-		version.setArtifactType(ArtifactType.DOCUMENT);
-		version.setArtifactUniqueId(uniqueId);
-		version.setCreatedBy(receivedFrom.getUsername());
-		version.setCreatedOn(currentDateTime);
-		version.setName(name);
-		version.setUpdatedBy(currentUserId().getUsername());
-		version.setUpdatedOn(currentDateTime);
-		version.setVersionId(versionId);
-
-		final DocumentContent content = new DocumentContent();
-		content.setChecksum(MD5Util.md5Hex(bytes));
-		content.setContent(bytes);
-		content.setDocumentId(documentId);
-
-		final DocumentVersionContent versionContent = new DocumentVersionContent();
-		versionContent.setContent(bytes);
-        versionContent.setVersion(version);
-
-		insertVersion(version.getArtifactId(), version, versionContent);
-
-		if(isLatestLocalVersion(version)) {
-            final Document d = get(documentId);
-			d.setUpdatedBy(currentUserId().getUsername());
-
-			// update the db
-			documentIO.update(d);
-
-			// update the local file
-			final LocalFile localFile = getLocalFile(d);
-			localFile.delete();
-			localFile.write(content.getContent());
-		}
-
-		// if not key holder:  lock
-		final InternalSessionModel iSModel = getInternalSessionModel();
-		if(!iSModel.isLoggedInUserKeyHolder(documentId)) {
-			lock(documentId);
-		}
-
-		// remove flag seen
-		final InternalArtifactModel iAModel = getInternalArtifactModel();
-		iAModel.removeFlagSeen(documentId);
-
-		// update remote info
-		iAModel.updateRemoteInfo(documentId, receivedFrom, currentDateTime);
-	}
-
-    /**
-     * Update the index info for the document.
-     * 
-     * @param documentId
-     *            The document id.
-     * @throws ParityException
-     */
-	private void updateIndex(final Long documentId) throws ParityException {
-		logger.info("[LMODEL] [DOCUMENT] [UPDATE INDEX]");
-		logger.debug(documentId);
-		indexor.delete(documentId);
-		indexor.create(documentId, get(documentId).getName());
-	}
 }

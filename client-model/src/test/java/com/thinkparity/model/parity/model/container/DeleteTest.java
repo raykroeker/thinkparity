@@ -1,20 +1,17 @@
 /*
  * Created On: Jun 28, 2006 8:29:43 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.container;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
-import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.4.5
  */
 public class DeleteTest extends ContainerTestCase {
 
@@ -87,8 +84,7 @@ public class DeleteTest extends ContainerTestCase {
      *            The test datum.
      */
     private void testDelete(final Fixture datum) {
-        try { datum.cModel.delete(datum.containerId); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
+        datum.cModel.delete(datum.containerId);
         
         final Container container = datum.cModel.read(datum.containerId);
         assertNull(NAME + " [CONTAINER IS NOT NULL]", container);
@@ -96,7 +92,7 @@ public class DeleteTest extends ContainerTestCase {
     }
 
     /** Test data definition. */
-    private class Fixture implements ContainerListener {
+    private class Fixture extends ContainerTestCase.Fixture {
         private final ContainerModel cModel;
         private final Long containerId;
         private Boolean didNotify;
@@ -105,36 +101,13 @@ public class DeleteTest extends ContainerTestCase {
             this.containerId = containerId;
             this.didNotify = Boolean.FALSE;
         }
-        public void draftCreated(ContainerEvent e) {
-            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
-        }
-        public void teamMemberAdded(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
-        }
-        public void teamMemberRemoved(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
-        }
-        public void containerClosed(ContainerEvent e) {
-            fail(NAME + " [CONTAINER CLOSED EVENT WAS FIRED]");
-        }
-        public void containerCreated(ContainerEvent e) {
-            fail(NAME + " [CONTAINER CREATED EVENT WAS FIRED]");
-        }
+        @Override
         public void containerDeleted(ContainerEvent e) {
             didNotify = Boolean.TRUE;
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
             assertNull(NAME + " [CONTAINER IS NOT NULL]", e.getContainer());
             assertNull(NAME + " [TEAM MEMBER IS NOT NULL]", e.getTeamMember());
-        }
-        public void containerReactivated(ContainerEvent e) {
-            fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");
-        }
-        public void documentAdded(ContainerEvent e) {
-            fail(NAME + " [DOCUMENT ADDED EVENT WAS FIRED]");
-        }
-        public void documentRemoved(final ContainerEvent e) {
-            fail(NAME + " [DOCUMENT REMOVED EVENT WAS FIRED]");
         }
     }
 }

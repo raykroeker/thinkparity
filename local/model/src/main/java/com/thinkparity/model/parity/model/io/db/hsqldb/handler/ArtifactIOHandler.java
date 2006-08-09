@@ -5,11 +5,11 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
 import java.util.*;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactRemoteInfo;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
@@ -168,6 +168,14 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
+    /** Sql to determine if an artifact version exists. */
+    private static final String SQL_DOES_VERSION_EXIST =
+            new StringBuffer("select COUNT(*) \"COUNT\" ")
+            .append("from ARTIFACT A ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+            .toString();
+
     private static final String SQL_READ_ID =
         new StringBuffer("select A.ARTIFACT_ID ")
         .append("from ARTIFACT A ")
@@ -197,7 +205,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where ARTIFACT_ID=?")
             .toString();
 
-    /** Sql to read the artifact type. */
+	/** Sql to read the artifact type. */
     private static final String SQL_READ_TYPE =
             new StringBuffer("select A.ARTIFACT_TYPE_ID ")
             .append("from ARTIFACT A ")
@@ -238,7 +246,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         return getIOId("[ARTIFACT]").append(" ").append(api);
     }
 
-	/**
+    /**
      * Obtain a log4j error id.
      * 
      * @param api
@@ -251,10 +259,10 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         return getApiId(api).append(" ").append(error).toString();
     }
 
-    /** The user io interface. */
+	/** The user io interface. */
     private final UserIOHandler userIO;
 
-	/**
+    /**
 	 * Create a ArtifactIOHandler.
 	 */
 	public ArtifactIOHandler() {
@@ -313,7 +321,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    /**
+	/**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteRemoteInfo(java.lang.Long)
      * 
      */
@@ -353,7 +361,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -373,6 +381,26 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         catch(final HypersonicException hx) {
             session.rollback();
             throw hx;
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#doesVersionExist(java.lang.Long,
+     *      java.lang.Long)
+     * 
+     */
+    public Boolean doesVersionExist(Long artifactId, Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_VERSION_EXIST);
+            session.setLong(1, artifactId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+
+            session.nextResult();
+            if(0 == session.getInteger("COUNT")) { return Boolean.FALSE; }
+            else { return Boolean.TRUE; }
         }
         finally { session.close(); }
     }
@@ -591,6 +619,26 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
+	 * Obtain the next version id for the given artifact.
+	 * 
+	 * @param session
+	 *            The database session.
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return The next version id.
+	 */
+	protected Long getNextVersionId(final Session session,
+			final Long artifactId) {
+		session.prepareStatement(SELECT_PREVIOUS_ARTIFACT_VERSION_ID);
+		session.setLong(1, artifactId);
+		session.executeQuery();
+		if(session.nextResult()) {
+			return session.getLong("PREVIOUS_VERSION_ID") + 1L;
+		}
+		else { return 1L; }
+	}
+
+	/**
 	 * Create the artifact.
 	 * 
 	 * @param session
@@ -620,36 +668,18 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * Create a new artifact version.
-	 * 
-	 * @param session
-	 *            The database session.
-	 * @param version
-	 *            The artifact version.
-	 * @throws HypersonicException
-	 */
-	void createVersion(final Session session, final ArtifactVersion version)
-			throws HypersonicException {
-		final Long versionId = getNextVersionId(session, version.getArtifactId());
-		createVersion(session, versionId, version);
-	}
-
-	/**
 	 * Create a specific artifact version.
 	 * 
 	 * @param session
 	 *            The database session.
-	 * @param versionId
-	 *            The artifact version id.
 	 * @param version
 	 *            The artifact version.
 	 * @throws HypersonicException
 	 */
-	void createVersion(final Session session, final Long versionId,
-			final ArtifactVersion version) throws HypersonicException {
+	void createVersion(final Session session, final ArtifactVersion version) {
 		session.prepareStatement(INSERT_ARTIFACT_VERSION);
 		session.setLong(1, version.getArtifactId());
-		session.setLong(2, versionId);
+		session.setLong(2, version.getVersionId());
 		session.setString(3, version.getName());
 		session.setTypeAsString(4, version.getArtifactType());
 		session.setUniqueId(5, version.getArtifactUniqueId());
@@ -658,11 +688,10 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setString(8, version.getUpdatedBy());
 		session.setCalendar(9, version.getUpdatedOn());
 		if(1 != session.executeUpdate())
-			throw new HypersonicException("Could not create version.");
+			throw new HypersonicException(getErrorId("[CREATE VERSION]", "[COULD NOT CREATE VERSION]"));
 
-		version.setVersionId(versionId);
-
-		setVersionMetaData(session, version.getArtifactId(), versionId, version.getMetaData());
+		setVersionMetaData(session, version.getArtifactId(), version
+                .getVersionId(), version.getMetaData());
 	}
 
 	/**
@@ -742,7 +771,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         return remoteInfo;
     }
 
-	/**
+    /**
      * Extract a team member from the session.
      * 
      * @param session
@@ -851,26 +880,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 			flags.add(session.getFlagFromInteger("ARTIFACT_FLAG_ID"));
 		}
 		return flags;
-	}
-
-    /**
-	 * Obtain the next version id for the given artifact.
-	 * 
-	 * @param session
-	 *            The database session.
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return The next version id.
-	 */
-	private Long getNextVersionId(final Session session,
-			final Long artifactId) {
-		session.prepareStatement(SELECT_PREVIOUS_ARTIFACT_VERSION_ID);
-		session.setLong(1, artifactId);
-		session.executeQuery();
-		if(session.nextResult()) {
-			return session.getLong("PREVIOUS_VERSION_ID") + 1L;
-		}
-		else { return 1L; }
 	}
 
     /**

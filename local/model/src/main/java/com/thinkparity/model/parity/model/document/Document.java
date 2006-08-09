@@ -7,9 +7,9 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.UUID;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 
 /**
  * The document is the parity object that started the revolution. It is used as

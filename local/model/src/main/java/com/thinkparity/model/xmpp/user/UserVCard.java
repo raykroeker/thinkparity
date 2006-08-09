@@ -148,10 +148,15 @@ public class UserVCard {
         this.organization = organization;
 	}
 
-    /** @see java.lang.Object#toString() */
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
 	public String toString() {
-		return getClass().getName()
-			+ "\\" + name + "\\" + email;
+		return new StringBuffer(getClass().getName()).append("//")
+                .append(name)
+                .append("/").append(email)
+                .toString();
 	}
 
     private UserNameBuilder createNameBuilder(final String first,

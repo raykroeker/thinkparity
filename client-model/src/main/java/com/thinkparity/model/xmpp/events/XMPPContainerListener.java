@@ -4,9 +4,9 @@
 package com.thinkparity.model.xmpp.events;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -14,8 +14,15 @@ import com.thinkparity.model.xmpp.JabberId;
  * @version 1.1
  */
 public interface XMPPContainerListener {
-    public void handleReactivate(final UUID uniqueId,
-            final Long versionId, final String name, final List<JabberId> team,
-            final JabberId reactivatedBy, final Calendar reactivatedOn);
-
+    public void handleArtifactPublished(final JabberId publishedBy,
+            final Calendar publishedOn, final UUID containerUniqueId,
+            final Long containerVersionId, final Integer count,
+            final Integer index, final UUID uniqueId, final Long versionId,
+            final String name, final ArtifactType type, final byte[] bytes);
+    public void handleArtifactSent(final JabberId sentBy,
+            final Calendar sentOn, final UUID containerUniqueId,
+            final Long containerVersionId, final String containerName,
+            final Integer count, final Integer index, final UUID uniqueId,
+            final Long versionId, final String name, final ArtifactType type,
+            final byte[] bytes);
 }

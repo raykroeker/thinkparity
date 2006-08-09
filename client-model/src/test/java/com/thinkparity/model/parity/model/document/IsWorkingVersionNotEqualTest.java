@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.document;
 
-import com.thinkparity.model.parity.ParityException;
 
 /**
  * @author raykroeker@gmail.com
@@ -25,10 +24,8 @@ public class IsWorkingVersionNotEqualTest extends DocumentTestCase {
      * 
      */
     public void testIsWorkingVersionEqualTest() {
-        Boolean isEqual = null;
-        try { isEqual = datum.dModel.isWorkingVersionEqual(datum.documentId); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
-        assertEquals(NAME + " [IS EQUAL DOES NOT MATCH EXPECTATION]", isEqual, datum.eIsEqual);
+        final Boolean isDraftModified = datum.dModel.isDraftModified(datum.documentId);
+        assertEquals(NAME + " [IS EQUAL DOES NOT MATCH EXPECTATION]", isDraftModified, datum.isDraftModified);
     }
 
     /**
@@ -40,7 +37,7 @@ public class IsWorkingVersionNotEqualTest extends DocumentTestCase {
         super.setUp();
         final Document document = createDocument(getInputFiles()[0]);
         modifyDocument(document);
-        datum = new Fixture(getDocumentModel(), document.getId(), Boolean.FALSE);
+        datum = new Fixture(getDocumentModel(), document.getId(), Boolean.TRUE);
     }
 
     /**
@@ -57,12 +54,12 @@ public class IsWorkingVersionNotEqualTest extends DocumentTestCase {
     private class Fixture {
         private final DocumentModel dModel;
         private final Long documentId;
-        private final Boolean eIsEqual;
+        private final Boolean isDraftModified;
         private Fixture(final DocumentModel dModel, final Long documentId,
-                final Boolean eIsEqual) {
+                final Boolean isDraftModified) {
             this.documentId = documentId;
             this.dModel = dModel;
-            this.eIsEqual = eIsEqual;
+            this.isDraftModified = isDraftModified;
         }
     }
 }

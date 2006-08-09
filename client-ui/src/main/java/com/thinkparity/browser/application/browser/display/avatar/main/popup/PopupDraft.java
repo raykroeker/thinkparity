@@ -11,12 +11,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.display.avatar.container.CellDraft;
+import com.thinkparity.browser.application.browser.display.avatar.container.MainCellDraft;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.Platform.Connection;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author rob_masako@shaw.ca
@@ -33,7 +33,7 @@ public class PopupDraft implements Popup {
     private final CompositeFlatSingleContentProvider contentProvider;
 
     /** The document main cell. */
-    private final CellDraft draft;
+    private final MainCellDraft draft;
 
     /** The popup localisation. */
     private final PopupL18n l18n;
@@ -48,7 +48,7 @@ public class PopupDraft implements Popup {
      */
     public PopupDraft(
             final CompositeFlatSingleContentProvider contentProvider,
-            final CellDraft draft) {
+            final MainCellDraft draft) {
         super();
         this.contentProvider = contentProvider;
         this.draft = draft;
@@ -138,7 +138,7 @@ public class PopupDraft implements Popup {
             super(getString("AddDocument"), getString("AddDocumentMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.runCreateDocument(draft.getContainerId());
+                    application.runCreateDocuments(draft.getContainerId());
                 }
             });
         }

@@ -126,9 +126,8 @@ public class DocumentModel {
      * @return The document.
      * @throws ParityException
      */
-	public Document create(final String name, final InputStream inputStream)
-            throws ParityException {
-		synchronized(implLock) { return impl.create(name, inputStream); }
+	public Document create(final String name, final InputStream inputStream) {
+		synchronized(getImplLock()) { return getImpl().create(name, inputStream); }
 	}
 
 	/**
@@ -166,7 +165,7 @@ public class DocumentModel {
 	 * @return The document.
 	 * @throws ParityException
 	 */
-	public Document get(final Long documentId) throws ParityException {
+	public Document get(final Long documentId) {
 		synchronized(implLock) { return impl.get(documentId); }
 	}
 
@@ -181,7 +180,7 @@ public class DocumentModel {
 	 * @throws ParityException
 	 */
 	public DocumentVersion getVersion(final Long documentId,
-			final Long versionId) throws ParityException {
+			final Long versionId) {
 		synchronized(implLock) { return impl.getVersion(documentId, versionId); }
 	}
 
@@ -196,35 +195,22 @@ public class DocumentModel {
 	 * @throws ParityException
 	 */
 	public DocumentVersionContent getVersionContent(final Long documentId,
-			final Long versionId) throws ParityException {
+			final Long versionId) {
 		synchronized(implLock) {
 			return impl.getVersionContent(documentId, versionId);
 		}
 	}
 
     /**
-     * Determine whether or not the document has been distributed.
+     * Determine whether or not the draft of the document has been modified by
+     * the user.
      * 
      * @param documentId
      *            The document id.
-     * @return True if the document has been distributed; false otherwise.
+     * @return True if the draft of the document has been modified.
      */
-    public Boolean isDistributed(final Long documentId) {
-        synchronized(implLock) { return impl.isDistributed(documentId); }
-    }
-
-    /**
-     * Determine whether or not the working version of the document is equal to
-     * the last version.
-     * 
-     * @param documentId
-     *            The document id.
-     * @return True if the working version is different from the last version.
-     * @throws ParityException
-     */
-    public Boolean isWorkingVersionEqual(final Long documentId)
-            throws ParityException {
-        synchronized(implLock) { return impl.isWorkingVersionEqual(documentId); }
+    public Boolean isDraftModified(final Long documentId) {
+        synchronized(implLock) { return impl.isDraftModified(documentId); }
     }
 
     /**
@@ -278,7 +264,7 @@ public class DocumentModel {
 	 * @see ComparatorBuilder
 	 * @see #listVersions(Long, Comparator)
 	 */
-	public Collection<DocumentVersion> listVersions(final Long documentId)
+	public List<DocumentVersion> listVersions(final Long documentId)
 			throws ParityException {
 		synchronized(implLock) { return impl.listVersions(documentId); }
 	}
@@ -311,7 +297,7 @@ public class DocumentModel {
 	 *            The document unique id.
 	 * @throws ParityException
 	 */
-	public void open(final Long documentId) throws ParityException {
+	public void open(final Long documentId) {
 		synchronized(implLock) { impl.open(documentId); }
 	}
 
@@ -416,8 +402,7 @@ public class DocumentModel {
      * @return The latest document version.
      * @throws ParityException
      */
-    public DocumentVersion readLatestVersion(final Long documentId)
-            throws ParityException {
+    public DocumentVersion readLatestVersion(final Long documentId) {
         synchronized(implLock) {
             return impl.readLatestVersion(documentId);
         }
@@ -441,8 +426,7 @@ public class DocumentModel {
      * @param documentName
      *      A document name.
      */
-    public void rename(final Long documentId, final String documentName)
-            throws ParityException {
+    public void rename(final Long documentId, final String documentName) {
         synchronized(implLock) { impl.rename(documentId, documentName); }
     }
 

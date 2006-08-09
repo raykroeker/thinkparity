@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.api.events;
 
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
+import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.user.TeamMember;
 
@@ -29,6 +30,9 @@ public class ContainerEvent {
     /** Team member info. */
     private final TeamMember teamMember;
 
+    /** A container version. */
+    private final ContainerVersion version;
+
     /**
      * Create ContainerEvent.
      * 
@@ -38,7 +42,7 @@ public class ContainerEvent {
      *            The container.
      */
     public ContainerEvent(final Source source, final Container container) {
-        this(source, container, null, null, null);
+        this(source, container, null, null, null, null);
     }
 
     /**
@@ -53,7 +57,24 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft) {
-        this(source, container, draft, null, null);
+        this(source, container, draft, null, null, null);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event source
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     * @param version
+     *            A container version.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final ContainerDraft draft, final ContainerVersion version) {
+        this(source, container, draft, version, null, null);
     }
 
     /**
@@ -70,7 +91,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final Document document) {
-        this(source, container, draft, null, document);
+        this(source, container, draft, null, null, document);
     }
 
     /**
@@ -85,7 +106,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember) {
-        this(source, container, null, teamMember, null);
+        this(source, container, null, null, teamMember, null);
     }
 
     /**
@@ -97,7 +118,7 @@ public class ContainerEvent {
      *            The draft.
      */
     public ContainerEvent(final Source source, final ContainerDraft draft) {
-        this(source, null, draft, null, null);
+        this(source, null, draft, null, null, null);
     }
 
     /**
@@ -109,20 +130,23 @@ public class ContainerEvent {
      *            The container.
      * @param draft
      *            The draft.
+     * @param version
+     *            The version.
      * @param teamMember
      *            The teamMember.
      * @param document
      *            A document.
      */
     private ContainerEvent(final Source source, final Container container,
-            final ContainerDraft draft, final TeamMember teamMember,
-            final Document document) {
+            final ContainerDraft draft, final ContainerVersion version,
+            final TeamMember teamMember, final Document document) {
         super();
         this.source = source;
         this.container = container;
         this.draft = draft;
         this.document = document;
         this.teamMember = teamMember;
+        this.version = version;
     }
 
     /**
@@ -152,6 +176,13 @@ public class ContainerEvent {
      * @return The User.
      */
     public TeamMember getTeamMember() { return teamMember; }
+
+    /**
+     * Obtain the version
+     *
+     * @return The ContainerVersion.
+     */
+    public ContainerVersion getVersion() { return version; }
 
     /**
      * Determine if the event is a local event.

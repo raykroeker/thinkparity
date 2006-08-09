@@ -18,7 +18,6 @@ import com.thinkparity.browser.application.browser.display.avatar.main.MainCellI
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
@@ -267,7 +266,7 @@ public class MainCellDocument extends Document implements MainCell {
      * 
      * @return True if the document has been distributed.
      */
-    public Boolean isDistributed() { return dModel.isDistributed(getId()); }
+    public Boolean isDistributed() { return null; }
 
     /**
      * Determine whether or not the document cell has been seen.
@@ -290,8 +289,7 @@ public class MainCellDocument extends Document implements MainCell {
      * otherwise.
      */
     public Boolean isWorkingVersionEqual() {
-        try { return dModel.isWorkingVersionEqual(getId()); }
-        catch(final ParityException px) { throw new RuntimeException(px); }
+	return !dModel.isDraftModified(getId());
     }
 
     /**

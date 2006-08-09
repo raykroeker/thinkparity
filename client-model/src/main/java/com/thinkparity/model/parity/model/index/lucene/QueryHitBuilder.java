@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Hit;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactType;
 
 /**
  * @author raykroeker@gmail.com

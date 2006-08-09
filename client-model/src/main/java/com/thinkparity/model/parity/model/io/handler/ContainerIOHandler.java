@@ -6,13 +6,13 @@ package com.thinkparity.model.parity.model.io.handler;
 
 import java.util.List;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
-import com.thinkparity.model.parity.model.container.ContainerDraftArtifactState;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raymond@thinkparity.com
@@ -62,10 +62,10 @@ public interface ContainerIOHandler {
      * @param artifactId
      *            An artifact id.
      * @param state
-     *            The artifact state.
+     *            The state of the artifact within the draft.
      */
     public void createDraftArtifactRel(final Long containerId,
-            final Long artifactId, final ContainerDraftArtifactState state);
+            final Long artifactId, final ContainerDraft.ArtifactState state);
 
     /**
      * Create a container version.
@@ -82,6 +82,14 @@ public interface ContainerIOHandler {
      *            The container id.
      */
     public void delete(final Long containerId);
+
+    /**
+     * Delete a container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void deleteDraft(final Long containerId);
 
     /**
      * Delete the draft artifact relationship.
@@ -105,20 +113,24 @@ public interface ContainerIOHandler {
     public void deleteVersion(final Long containerId, final Long versionId);
 
     /**
-     * Read a list of containers.
-     * 
-     * @return A list of containers.
-     */
-    public List<Container> read();
-
-    /**
      * Read a container.
      * 
      * @param containerId
      *            A container id.
+     * @param localUser
+     *            The local user.
      * @return A container.
      */
-    public Container read(final Long containerId);
+    public Container read(final Long containerId, final User localUser);
+
+    /**
+     * Read a list of containers.
+     * 
+     * @param localUser
+     *            The local user.
+     * @return A list of containers.
+     */
+    public List<Container> read(final User localUser);
 
     /**
      * Read the documents attached to a container version.

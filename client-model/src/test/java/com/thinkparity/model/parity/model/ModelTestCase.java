@@ -48,6 +48,7 @@ import com.thinkparity.model.parity.model.release.InternalReleaseModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -72,8 +73,8 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         final ProfileModel pModel = ProfileModel.getModel();
         final SessionModel sessionModel = SessionModel.getModel();
         final InternalUserModel userModel = UserModel.getInternalModel(testContext);
+        sessionModel.login(ModelTestUser.getJUnit().getCredentials());
         try {
-            sessionModel.login(ModelTestUser.getJUnit().getCredentials());
             userModel.create(ModelTestUser.getX().getJabberId());
             userModel.create(ModelTestUser.getY().getJabberId());
             userModel.create(ModelTestUser.getZ().getJabberId());
@@ -84,14 +85,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
             px.printStackTrace(new PrintWriter(sw));
             fail(sw.toString());
         }
-        finally {
-            try { sessionModel.logout(); }
-            catch(final ParityException px) {
-                final StringWriter sw = new StringWriter();
-                px.printStackTrace(new PrintWriter(sw));
-                fail(sw.toString());
-            }
-        }
+        sessionModel.logout();
     }
 
     /**
@@ -499,12 +493,12 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	private Preferences preferences;
 
 	/**
-	 * The session model.
-	 * 
-	 */
-	private SessionModel sessionModel;
-	
-	/**
+     * The session model.
+     * 
+     */
+    private SessionModel sessionModel;
+
+    /**
 	 * The parity workspace.
 	 * 
 	 */
@@ -524,7 +518,23 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 */
 	protected ModelTestCase(final String name) { super(name); }
 
-	protected void addTeam(final Container container) throws Exception {
+	/**
+     * Add all of the input test files to the container as documents.
+     * 
+     * @param container
+     *            A container.
+     */
+    protected void addDocuments(final Container container) throws IOException,
+            ParityException {
+        final ContainerModel containerModel = getContainerModel();
+        Document document;
+        for(final File inputFile : getInputFiles()) {
+            document = createDocument(inputFile);
+            containerModel.addDocument(container.getId(), document.getId());
+        }
+    }
+
+    protected void addTeam(final Container container) throws Exception {
         addTeamToContainer(container.getId());
     }
 
@@ -660,7 +670,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         return iuModel;
     }
 
-	protected File[] getModFiles() throws IOException {
+    protected File[] getModFiles() throws IOException {
         final File[] modFiles = new File[5];
         System.arraycopy(super.getModFiles(), 0, modFiles, 0, 5);
         return modFiles;
@@ -679,16 +689,16 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	}
 
 	/**
-	 * Obtain the session model.
-	 * 
-	 * @return The session model.
-	 */
-	protected SessionModel getSessionModel() {
-		if(null == sessionModel) {
-			sessionModel = SessionModel.getModel();
-		}
-		return sessionModel;
-	}
+     * Obtain the session model.
+     * 
+     * @return The session model.
+     */
+    protected SessionModel getSessionModel() {
+    	if(null == sessionModel) {
+    		sessionModel = SessionModel.getModel();
+    	}
+    	return sessionModel;
+    }
 
 	/**
 	 * Obtain the parity workspace.
@@ -713,7 +723,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		}
 		return workspaceModel;
 	}
-	
+
     /**
      * Determine if the session model is currently logged in.
      * 
@@ -730,8 +740,8 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 * @return True if the error is caused by a NotYetImplementedAssertion and
 	 *         the current operating system is linux.
 	 */
-	protected boolean isNYIAOnLinux(final ParityException px) {
-		Throwable cause = px.getCause();
+	protected boolean isNYIAOnLinux(final Throwable t) {
+		Throwable cause = t.getCause();
 		while(null != cause) {
 			if(NotYetImplementedAssertion.class.isAssignableFrom(cause.getClass())) {
 				switch(OSUtil.getOS()) {
@@ -745,31 +755,27 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		return false;
 	}
 
-	/**
+    /**
      * Establish a session for the model test user. If the session is already
      * established (happens when a test errors in the setup phase) an error is
      * logged and the session is re-establihsed.
      * 
      */
-	protected void login() {
+    protected void login() {
         if(isLoggedIn()) {
             logger.warn(getName() + " [USER ALREADY LOGGED IN]");
             logout();
         }
+    
+    	final ModelTestUser modelTestUser = getModelTestUser();
+    	getSessionModel().login(modelTestUser.getCredentials()); 
+    }
 
-		final ModelTestUser modelTestUser = getModelTestUser();
-		try { getSessionModel().login(modelTestUser.getCredentials()); }
-		catch(final ParityException px) { throw new RuntimeException(px); }
-	}
-
-	/**
+    /**
      * Terminate an existing session.
      *
      */
-	protected void logout() {
-		try { getSessionModel().logout(); }
-		catch(final ParityException px) { throw new RuntimeException(px); }
-	}
+    protected void logout() { getSessionModel().logout(); }
 
     protected void modifyDocument(final Document document) throws Exception {
         modifyDocument(document.getId());
@@ -785,6 +791,16 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
                 ("jUnit Test MOD " +
                 DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
         getDocumentModel().updateWorkingVersion(documentId, tempFile);
+    }
+
+    /**
+     * Publish a container.
+     * 
+     * @param container
+     *            A container.
+     */
+    protected void publishContainer(final Container container) {
+        getInternalContainerModel().publish(container.getId());
     }
 
     /**
@@ -832,10 +848,13 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	protected void tearDown() throws Exception { super.tearDown(); }
 
     private void addTeamToContainer(final Long containerId) throws Exception {
-        final List<User> team = new ArrayList<User>();
-        team.add(ModelTestUser.getX().getUser());
-        team.add(ModelTestUser.getY().getUser());
-        team.add(ModelTestUser.getZ().getUser());
-        getContainerModel().updateTeam(containerId, team);
+        final ContainerModel containerModel = getInternalContainerModel();
+        final List<TeamMember> team = containerModel.readTeam(containerId);
+        final List<User> newTeam = new ArrayList<User>();
+        newTeam.addAll(team);
+        newTeam.add(ModelTestUser.getX().readUser());
+        newTeam.add(ModelTestUser.getY().readUser());
+        newTeam.add(ModelTestUser.getZ().readUser());
+        getContainerModel().updateTeam(containerId, newTeam);
     }
 }

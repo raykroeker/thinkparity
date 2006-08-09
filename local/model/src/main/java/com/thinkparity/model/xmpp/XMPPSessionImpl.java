@@ -24,13 +24,10 @@ import org.jivesoftware.smackx.packet.VCard;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.LoggerFactory;
-import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersionContent;
-import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.KeyResponse;
@@ -145,16 +142,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
     /**
-     * @see com.thinkparity.model.xmpp.XMPPSession#addTeamMember(java.util.UUID,
-     *      com.thinkparity.model.xmpp.JabberId)
-     * 
-     */
-	public void addTeamMember(final UUID uniqueId, final JabberId jabberId)
-            throws SmackException {
-	    xmppArtifact.addTeamMember(uniqueId, jabberId);
-	}
-
-	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPArtifactListener)
      * 
      */
@@ -178,7 +165,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppContainer.addListener(l);
     }
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPDocumentListener)
      * 
      */
@@ -186,7 +173,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppDocument.addListener(l);
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 * 
 	 */
@@ -212,6 +199,16 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		Assert.assertTrue("Cannot re-register the same session listener.",
 				!xmppSessionListeners.contains(xmppSessionListener));
 		xmppSessionListeners.add(xmppSessionListener);
+	}
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#addTeamMember(java.util.UUID,
+     *      com.thinkparity.model.xmpp.JabberId)
+     * 
+     */
+	public void addTeamMember(final UUID uniqueId, final JabberId jabberId)
+            throws SmackException {
+	    xmppArtifact.addTeamMember(uniqueId, jabberId);
 	}
 
 	/**
@@ -377,14 +374,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 					new PacketFilter() {
 						public boolean accept(final Packet packet) { return true; }
 					});
-			// close artifact
-			smackXMPPConnection.addPacketListener(
-					new PacketListener() {
-						public void processPacket(final Packet packet) {
-							notifyXMPPExtension_closeArtifact((IQCloseArtifact) packet);
-						}
-					},
-					new PacketTypeFilter(IQCloseArtifact.class));
 			// key request
 			smackXMPPConnection.addPacketListener(
 					new PacketListener() {
@@ -450,24 +439,18 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-    /**
-     * @see com.thinkparity.model.xmpp.XMPPSession#reactivate(com.thinkparity.model.parity.model.container.ContainerVersion,
-     *      java.util.List, java.util.List, com.thinkparity.model.xmpp.JabberId,
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#publish(com.thinkparity.model.parity.model.container.ContainerVersion,
+     *      java.util.Map, com.thinkparity.model.xmpp.JabberId,
      *      java.util.Calendar)
      * 
      */
-    public void reactivate(final ContainerVersion version,
-            final List<DocumentVersionContent> documentVersions,
-            final List<JabberId> team, final JabberId reactivatedBy,
-            final Calendar reactivatedOn) throws SmackException {
-        logger.info("[XMPP] [REACTIVATE CONTAINER]");
-        logger.debug(version);
-        logger.debug(documentVersions);
-        logger.debug(team);
-        logger.debug(reactivatedBy);
-        logger.debug(reactivatedOn);
-        xmppContainer.reactivate(version, documentVersions, team,
-                reactivatedBy, reactivatedOn);
+    public void publish(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final JabberId publishedBy, final Calendar publishedOn)
+            throws SmackException {
+        try { xmppContainer.publish(version, documentVersions, publishedBy, publishedOn); }
+        catch(final IOException iox) { throw XMPPErrorTranslator.translate(iox); }
     }
 
 	/**
@@ -495,7 +478,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppArtifact.readTeam(uniqueId);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
@@ -503,7 +486,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppContact.read();
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#readCurrentUser()
 	 * 
 	 */
@@ -524,24 +507,12 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return xmppProfile.read(getJabberId());
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#readUsers(java.util.Set)
      * 
      */
 	public Set<User> readUsers(final Set<JabberId> jabberIds) throws SmackException {
 		return xmppUser.read(jabberIds);
-	}
-
-	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#removeArtifactTeamMember(java.util.UUID)
-	 * 
-	 */
-	public void removeArtifactTeamMember(final UUID artifactUniqueId) throws SmackException {
-		logger.info("sendDelete(UUID)");
-		logger.debug(artifactUniqueId);
-		final XMPPMethod method = new XMPPMethod("unsubscribeuser");
-        method.setParameter(Xml.Artifact.UNIQUE_ID, artifactUniqueId);
-        method.execute(getConnection());
 	}
 
 	/**
@@ -596,16 +567,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * @see com.thinkparity.model.xmpp.XMPPSession#requestArtifactKey(java.util.UUID)
-	 * 
-	 */
-	public void requestArtifactKey(final UUID artifactUniqueId)
-			throws SmackException {
-		logger.info("sendKeyRequest(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQKeyRequest(artifactUniqueId);
-		iq.setType(IQ.Type.SET);
-		sendAndConfirmPacket(iq);
+     * Remove a team member from the artifact team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A jabber id.
+     */
+    public void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        xmppArtifact.removeTeamMember(uniqueId, jabberId);
 	}
 
 	/**
@@ -628,30 +598,19 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	}
 
 	/**
-	 * Send a message to a list of users.
-	 * 
-	 * @param users
-	 *            The list of users to send the message to.
-	 * @param message
-	 *            The message to send.
-	 * @see com.thinkparity.model.xmpp.XMPPSession#send(java.util.Collection,
-	 *      java.lang.String)
-	 */
-	public void send(Collection<User> users, String message)
-			throws SmackException {
-		logger.info("send(Collection<User>,String)");
-		logger.debug(users);
-		logger.debug(message);
-		for(final User user : users) {
-			final Chat chat =
-				smackXMPPConnection.createChat(user.getUsername());
-			final Message messagePacket = chat.createMessage();
-			messagePacket.setBody(message);
-			sendPacket(messagePacket);
-		}
-	}
+     * @see com.thinkparity.model.xmpp.XMPPSession#send(ContainerVersion, Map,
+     *      User, JabberId, Calendar)
+     *
+     */
+    public void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final User user, final JabberId sentBy, final Calendar sentOn)
+            throws SmackException {
+        try { xmppContainer.send(version, documentVersions, user, sentBy, sentOn); }
+        catch(final IOException iox) { throw XMPPErrorTranslator.translate(iox); }
+    }
 
-	/**
+    /**
 	 * Send the packet and wait for a response. If the response conains an
 	 * error; a SmackException will be thrown.
 	 * 
@@ -678,7 +637,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return confirmationPacket;
 	}
 
-	/**
+    /**
      * Execute a remote method call to reactivate a document.
      * 
      * @throws SmackException
@@ -687,16 +646,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
             final UUID uniqueId, final Long versionId, final String name,
             final byte[] bytes) throws SmackException {
         xmppDocument.sendReactivate(team, uniqueId, versionId, name, bytes);
-    }
-
-    /**
-     * @see com.thinkparity.model.xmpp.XMPPSession#send(com.thinkparity.model.parity.model.container.ContainerVersion, java.util.List)
-     */
-    public void send(final ContainerVersion version,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final List<User> users) throws SmackException {
-        try { xmppContainer.send(version, documentVersions, users); }
-        catch(final IOException iox) { throw XMPPErrorTranslator.translate(iox); }
     }
 
     /**
@@ -803,23 +752,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	private void doNotifyConnectionEstablished(final XMPPConnection xmppConnection) {
 		for(final XMPPSessionListener l : xmppSessionListeners) {
 			l.sessionEstablished();
-		}
-	}
-
-	/**
-	 * Fire the artifact closed event for all of the xmpp extension listeners.
-	 * 
-	 * @param artifactClose
-	 *            The close artifact iq.
-	 */
-	private void notifyXMPPExtension_closeArtifact(
-			final IQCloseArtifact artifactClose) {
-		synchronized(xmppExtensionListenersLock) {
-			for(final XMPPExtensionListener l : xmppExtensionListeners) {
-				l.artifactClosed(
-						artifactClose.getArtifactUUID(),
-						artifactClose.getClosedBy());
-			}
 		}
 	}
 

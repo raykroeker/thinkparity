@@ -4,8 +4,12 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import com.thinkparity.model.parity.ParityException;
+import java.util.List;
+
+import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
+import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
+import com.thinkparity.model.parity.model.user.TeamMember;
 
 /**
  * <b>Title:</b>thinkParity Container Create Test<br>
@@ -30,19 +34,27 @@ public class CreateTest extends ContainerTestCase {
      *
      */
     public void testCreate() {
-        Container container = null;
-        try { container = datum.cModel.create(datum.containerName); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
+        final Container container = datum.containerModel.create(datum.containerName);
 
         assertNotNull(NAME, container);
         assertEquals(NAME + " [CONTAINER NAME DOES NOT MATCH EXPECTATION]",
                 datum.containerName, container.getName());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotifyContainerCreated);
+
+        final ContainerDraft draft = datum.containerModel.readDraft(container.getId());
+        assertNotNull(NAME, draft);
+        assertEquals(NAME + " [DRAFT OWNER DOES NOT MATCH EXPECTATION]",
+                ModelTestUser.getJUnit().getJabberId() , draft.getOwner().getId());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotifyDraftCreated);
 
-        final ContainerVersion latestVersion = datum.cModel.readLatestVersion(container.getId());
-        assertNotNull(NAME, latestVersion);
-        assertEquals(NAME, container, latestVersion);
+        assertTrue(
+                NAME + " [FLAG KEY NOT APPLIED]",
+                getInternalArtifactModel().isFlagApplied(container.getId(), ArtifactFlag.KEY));
+
+        final List<TeamMember> team = datum.containerModel.readTeam(container.getId());
+        assertEquals(NAME + " [TEAM SIZE DOES NOT MATCH EXPECTATION]", 1, team.size());
+        assertEquals(NAME + " [TEAM MEMBER NOT MATCH EXPECTATION]",
+                ModelTestUser.getJUnit().readUser().getId(), team.get(0).getId());
     }
 
     /**
@@ -68,12 +80,12 @@ public class CreateTest extends ContainerTestCase {
 
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final ContainerModel cModel;
+        private final ContainerModel containerModel;
         private final String containerName;
         private Boolean didNotifyContainerCreated;
         private Boolean didNotifyDraftCreated;
         private Fixture(final ContainerModel cModel, final String containerName) {
-            this.cModel = cModel;
+            this.containerModel = cModel;
             this.containerName = containerName;
             this.didNotifyContainerCreated = Boolean.FALSE;
             this.didNotifyDraftCreated = Boolean.FALSE;

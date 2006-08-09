@@ -12,7 +12,7 @@ import org.apache.lucene.document.Field;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

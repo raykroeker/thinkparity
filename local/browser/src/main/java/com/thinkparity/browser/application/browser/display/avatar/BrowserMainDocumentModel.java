@@ -14,14 +14,12 @@ import javax.swing.ListModel;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.*;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupDraftDocument;
-import com.thinkparity.browser.application.browser.display.avatar.main.popup.PopupHistoryItem;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -407,7 +405,7 @@ public class BrowserMainDocumentModel {
         }    
         if(mainCell instanceof MainCellDocument) {
             final MainCellDocument mcd = (MainCellDocument) mainCell;
-            browser.runOpenDocument(containerId,mcd.getId());
+            browser.runOpenDocument(mcd.getId());
         }
         else if(mainCell instanceof MainCellHistoryItem) {
             final MainCellHistoryItem mch = (MainCellHistoryItem) mainCell;

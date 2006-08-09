@@ -1,14 +1,16 @@
 /*
- * Jul 16, 2005
+ * Created On: Jul 16, 2005
  */
-package com.thinkparity.model.parity.model.artifact;
+package com.thinkparity.model.artifact;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
- * ArtifactType
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Artifact Type<br>
+ * <b>Description:</b>Provides an enumerated type for artifacts.
+ * 
+ * @author raymond@gmail.com
+ * @version 1.1.2.4
  */
 public enum ArtifactType {
 
@@ -26,23 +28,20 @@ public enum ArtifactType {
         case 1: return CONTAINER;
 		case 0: return DOCUMENT;
 		default:
-			throw Assert.createUnreachable("Unknown artifact type id:  " + id);
+            throw Assert.createUnreachable("[ARTIFACT] [UNKNOWN ARTIFACT TYPE]");
 		}
 	}
 
-	/**
-	 * The artifact type id.
-	 * 
-	 */
+	/** The artifact type id. */
 	private Integer id;
 
 	/**
-	 * Create a ArtifactType.
-	 * 
-	 * @param id
-	 *            The artifact type id.
-	 */
-	private ArtifactType(final Integer id) { this.id = id; }
+     * Create ArtifactType.
+     * 
+     * @param id
+     *            The artifact type id.
+     */
+    private ArtifactType(final Integer id) { this.id = id; }
 
 	/**
 	 * Obtain the artifact type id.

@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
@@ -20,7 +19,6 @@ import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -73,19 +71,6 @@ public class ContainerModel {
 	}
 
     /**
-     * Accept a key request made by a user.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param jabberId
-     *            The user making the request.
-     */
-    public void acceptKeyRequest(final Long keyRequestId)
-            throws ParityException {
-        synchronized(implLock) { impl.acceptKeyRequest(keyRequestId); }
-    }
-
-    /**
      * Add a document to a container.
      * 
      * @param containerId
@@ -132,16 +117,6 @@ public class ContainerModel {
         Assert.assertNotYetImplemented("");
     }
 
-	/**
-     * Close a container.
-     * 
-     * @param containerId
-     *            A container id.
-     */
-    public void close(final Long containerId) throws ParityException {
-        synchronized(implLock) { impl.close(containerId); }
-    }
-
     /**
      * Create a container.
      * 
@@ -149,8 +124,8 @@ public class ContainerModel {
      *            The container name.
      * @return The new container.
      */
-    public Container create(final String name) throws ParityException {
-        synchronized(implLock) { return impl.create(name); }
+    public Container create(final String name) {
+        synchronized(getImplLock()) { return getImpl().create(name); }
     }
 
     /**
@@ -165,25 +140,12 @@ public class ContainerModel {
     }
 
     /**
-     * Decline a key request made by a user.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param jabberId
-     *            The user making the request.
-     */
-    public void declineKeyRequest(final Long keyRequestId)
-            throws ParityException {
-        synchronized(implLock) { impl.declineKeyRequest(keyRequestId); }
-    }
-
-    /**
      * Delete a container.
      * 
      * @param containerId
      *            A container id.
      */
-    public void delete(final Long containerId) throws ParityException {
+    public void delete(final Long containerId) {
         synchronized(implLock) { impl.delete(containerId); }
     }
 
@@ -192,9 +154,8 @@ public class ContainerModel {
      * 
      * @param containerId
      *            The container id.
-     * @throws ParityException
      */
-    public void publish(final Long containerId) throws ParityException {
+    public void publish(final Long containerId) {
         synchronized(implLock) { impl.publish(containerId); }
     }
 
@@ -260,10 +221,9 @@ public class ContainerModel {
      * @param versionId
      *            A version id.
      * @return A list of documents.
-     * @throws ParityException
      */
     public List<Document> readDocuments(final Long containerId,
-            final Long versionId) throws ParityException {
+            final Long versionId) {
         synchronized(implLock) { return impl.readDocuments(containerId, versionId); }
     }
 
@@ -277,11 +237,9 @@ public class ContainerModel {
      * @param comparator
      *            A document comparator.
      * @return A list of documents.
-     * @throws ParityException
      */
     public List<Document> readDocuments(final Long containerId,
-            final Long versionId, final Comparator<Artifact> comparator)
-            throws ParityException {
+            final Long versionId, final Comparator<Artifact> comparator) {
         synchronized(implLock) { return impl.readDocuments(containerId, versionId, comparator); }
     }
 
@@ -297,11 +255,10 @@ public class ContainerModel {
      * @param filter
      *            A document filter.
      * @return A list of documents.
-     * @throws ParityException
      */
     public List<Document> readDocuments(final Long containerId,
             final Long versionId, final Comparator<Artifact> comparator,
-            final Filter<? super Artifact> filter) throws ParityException {
+            final Filter<? super Artifact> filter) {
         synchronized(implLock) { return impl.readDocuments(containerId, versionId, comparator, filter); }
     }
 
@@ -315,11 +272,21 @@ public class ContainerModel {
      * @param filter
      *            A document filter.
      * @return A list of document versions.
-     * @throws ParityException
      */
     public List<Document> readDocuments(final Long containerId, final Long versionId,
-            final Filter<? super Artifact> filter) throws ParityException {
+            final Filter<? super Artifact> filter) {
         synchronized(implLock) { return impl.readDocuments(containerId, versionId, filter); }
+    }
+
+    /**
+     * Read a draft for the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @return A container draft; or null if none exists.
+     */
+    public ContainerDraft readDraft(final Long containerId) {
+        synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
     }
 
     /**
@@ -364,7 +331,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readKeyRequests(containerId, comparator, filter); }
     }
 
-    /**
+	/**
      * Read a list of key requests for the container.
      * 
      * @param containerId
@@ -377,7 +344,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readKeyRequests(containerId, filter); }
     }
 
-	/**
+    /**
      * Read the latest container version.
      * 
      * @param containerId
@@ -498,21 +465,6 @@ public class ContainerModel {
      */
     public void removeListener(final ContainerListener listener) {
         synchronized(implLock) { impl.removeListener(listener); }
-    }
-
-    /**
-     * Send the container's key to a user. All pending key requests not made by
-     * the recipient of the key will be declined. This is the same as accepting
-     * a key request if one exists for a user.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param jabberId
-     *            The jabber id.
-     */
-    public void sendKey(final Long containerId, final JabberId jabberId)
-            throws ParityException {
-        synchronized(implLock) { impl.sendKey(containerId, jabberId); }
     }
 
     /**

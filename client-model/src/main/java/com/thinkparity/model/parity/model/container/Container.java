@@ -3,8 +3,8 @@
  */
 package com.thinkparity.model.parity.model.container;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 
 /**
  * <b>Title:</b>thinkParity Container<br>
@@ -15,18 +15,11 @@ import com.thinkparity.model.parity.model.artifact.ArtifactType;
  */
 public class Container extends Artifact {
 
-    /** A draft for the container. */
-    private ContainerDraft draft;
+    /** A flag indicating whether or not there exists a local draft. */
+    private Boolean localDraft;
 
     /** Create Container. */
 	public Container() { super(); }
-
-	/**
-     * Obtain the draft
-     *
-     * @return The ContainerDraft.
-     */
-    public ContainerDraft getDraft() { return draft; }
 
     /**
      * @see com.thinkparity.model.parity.model.artifact.Artifact#getType()
@@ -35,18 +28,24 @@ public class Container extends Artifact {
     public ArtifactType getType() { return ArtifactType.CONTAINER; }
 
     /**
-     * Determine if the local draft is set.
-     * 
-     * @return True if the local draft is set.
+     * @see #isSetLocalDraft()
      */
-    public Boolean isSetDraft() { return null != draft; }
+    public Boolean isSetDraft() { return isSetLocalDraft(); }
 
     /**
-     * Set draft.
-     *
-     * @param draft The ContainerDraft.
+     * Determine if there exists a local draft.
+     * 
+     * @return True if there exists a local draft; false otherwise.
      */
-    public void setDraft(final ContainerDraft draft) {
-        this.draft = draft;
+    public Boolean isSetLocalDraft() { return localDraft; }
+
+    /**
+     * Set the local draft flag.
+     * 
+     * @param localDraft
+     *            The local draft flag.
+     */
+    public void setLocalDraft(final Boolean localDraft) {
+        this.localDraft = localDraft;
     }
 }

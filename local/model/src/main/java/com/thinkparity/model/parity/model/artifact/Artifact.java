@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.note.Note;
 
 /**

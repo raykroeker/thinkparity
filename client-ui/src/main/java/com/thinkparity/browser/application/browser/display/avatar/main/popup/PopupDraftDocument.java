@@ -10,12 +10,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.container.MainCellDraftDocument;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.Platform.Connection;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -140,7 +140,7 @@ public class PopupDraftDocument implements Popup {
             super(getString("Open"), getString("OpenMnemonic").charAt(0));
             this.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.runOpenDocument(document.getContainerId(),document.getId());
+                    application.runOpenDocument(document.getId());
                 }
             });
         }
@@ -161,7 +161,7 @@ public class PopupDraftDocument implements Popup {
             super(getString("Rename"), getString("RenameMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.runRenameDocument(document.getContainerId(),document.getId());
+                    application.runRenameDocument(document.getId());
                 }
             });
         }
@@ -182,7 +182,7 @@ public class PopupDraftDocument implements Popup {
             super(getString("Revert"), getString("RevertMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.userError("ErrorNotImplemented");
+                    application.displayErrorDialog("ErrorNotImplemented");
                 }
             });
         }
@@ -203,7 +203,7 @@ public class PopupDraftDocument implements Popup {
             super(getString("Remove"), getString("RemoveMnemonic").charAt(0));
             addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    application.userError("ErrorNotImplemented");
+                    application.displayErrorDialog("ErrorNotImplemented");
                 }
             });
         }

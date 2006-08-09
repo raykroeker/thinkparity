@@ -9,7 +9,6 @@ import java.util.List;
 import com.thinkparity.model.ModelTestUser;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.parity.model.user.TeamMemberState;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -32,22 +31,13 @@ public class AddTeamMemberTest extends ContainerTestCase {
      *
      */
     public void testAddTeamMember() {
-        final List<User> users = new ArrayList<User>();
-        users.add(datum.user);
-        datum.containerModel.updateTeam(datum.container.getId(), users);
+        final List<TeamMember> team = datum.containerModel.readTeam(datum.container.getId());
+        final List<User> newTeam = new ArrayList<User>(team.size());
+        newTeam.addAll(team);
+        newTeam.add(datum.user);
+        datum.containerModel.updateTeam(datum.container.getId(), newTeam);
 
         assertTrue(NAME + " [ADD TEAM MEMBER EVENT DID NOT FIRE]", datum.didNotify);
-        final List<TeamMember> teamMembers = datum.containerModel.readTeam(datum.container.getId());
-        Boolean didContainUser = Boolean.FALSE;
-        for(final TeamMember teamMember : teamMembers) {
-            if(teamMember.getId().equals(datum.user.getId())) {
-                didContainUser = Boolean.TRUE;
-                assertEquals(NAME + " [TEAM MEMBER DOES NOT MATCH USER]", datum.user, (User) teamMember);
-                assertEquals(NAME + " [TEAM MEMBER STATE DOES NOT MATCH EXPECTATION]", TeamMemberState.LOCAL_ADDED, teamMember.getState());
-                break;
-            }
-        }
-        assertTrue(NAME + " [TEAM MEMBERS DOES NOT CONTAIN ADDED TEAM MEMBER]", didContainUser);
     }
 
     /**
@@ -90,7 +80,17 @@ public class AddTeamMemberTest extends ContainerTestCase {
         public void teamMemberAdded(ContainerEvent e) {
             datum.didNotify = Boolean.TRUE;
             assertEquals(NAME + " [EVENT CONTAINER DOES NOT MATCH EXPECTATION]", datum.container, e.getContainer());
+            assertNotNull(NAME + " [EVENT CONTAINER IS NULL]", e.getContainer());
+            assertNull(NAME + " [EVENT DOCUMENT IS NOT NULL]", e.getDocument());
+            assertNull(NAME + " [EVENT DRAFT IS NOT NULL]", e.getDraft());
             assertNotNull(NAME + " [EVENT TEAM MEMBER IS NULL]", e.getTeamMember());
+            final TeamMember actual = e.getTeamMember();
+            assertEquals(NAME + " [EVENT TEAM MEMBER JABBER ID DOES NOT MATCH EXPECTATION]", user.getId(), actual.getId());
+            assertEquals(NAME + " [EVENT TEAM MEMBER USER ID DOES NOT MATCH EXPECTATION]", user.getLocalId(), actual.getLocalId());
+            assertEquals(NAME + " [EVENT TEAM MEMBER NAME DOES NOT MATCH EXPECTATION]", user.getName(), actual.getName());
+            assertEquals(NAME + " [EVENT TEAM MEMBER ORGANIZATION DOES NOT MATCH EXPECTATION]", user.getOrganization(), actual.getOrganization());
+            assertEquals(NAME + " [EVENT TEAM MEMBER SIMPLE USERNAME DOES NOT MATCH EXPECTATION]", user.getSimpleUsername(), actual.getSimpleUsername());
+            assertEquals(NAME + " [EVENT TEAM MEMBER USERNAME DOES NOT MATCH EXPECTATION]", user.getUsername(), actual.getUsername());
         }
     }
 }

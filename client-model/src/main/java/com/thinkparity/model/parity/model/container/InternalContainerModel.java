@@ -6,7 +6,9 @@ package com.thinkparity.model.parity.model.container;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
@@ -48,22 +50,76 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
     }
 
     /**
-     * Handle a remote close event.
+     * Handle the artifact sent event for the container.
      * 
-     * @param containerId
-     *            The container id.
-     * @param closedBy
-     *            By whom the container was closed.
-     * @param closedOn
-     *            When the container was closed.
+     * @param sentBy
+     *            Who sent the artifact.
+     * @param sentOn
+     *            When the artifact was sent.
+     * @param containerUniqueId
+     *            The container unique id.
+     * @param containerVersionId
+     *            The container version id.
+     * @param count
+     *            The artifact count.
+     * @param index
+     *            The artifact index.
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param versionId
+     *            The artifact version id.
+     * @param type
+     *            The artifact type.
+     * @param bytes
+     *            The artifact bytes.
      */
-    public void handleClose(final Long containerId, final JabberId closedBy,
-            final Calendar closedOn) throws ParityException {
+    public void handleArtifactPublished(final JabberId publishedBy,
+            final Calendar publishedOn, final UUID containerUniqueId,
+            final Long containerId, final Long containerVersionId,
+            final UUID uniqueId, final Long id, final Long versionId,
+            final String name, final ArtifactType type, final byte[] bytes) {
         synchronized(getImplLock()) {
-            getImpl().handleClose(containerId, closedBy, closedOn);
+            getImpl().handleArtifactPublished(publishedBy, publishedOn,
+                    containerUniqueId, containerVersionId, uniqueId, id,
+                    versionId, name, type, bytes);
         }
     }
-
+    /**
+     * Handle the artifact sent event for the container.
+     * 
+     * @param sentBy
+     *            Who sent the artifact.
+     * @param sentOn
+     *            When the artifact was sent.
+     * @param containerUniqueId
+     *            The container unique id.
+     * @param containerVersionId
+     *            The container version id.
+     * @param count
+     *            The artifact count.
+     * @param index
+     *            The artifact index.
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param versionId
+     *            The artifact version id.
+     * @param type
+     *            The artifact type.
+     * @param bytes
+     *            The artifact bytes.
+     */
+    public void handleArtifactSent(final JabberId sentBy,
+            final Calendar sentOn, final UUID containerUniqueId,
+            final Long containerId, final Long containerVersionId,
+            final String containerName, final UUID uniqueId, final Long id,
+            final Long versionId, final String name, final ArtifactType type,
+            final byte[] bytes) {
+        synchronized(getImplLock()) {
+            getImpl().handleArtifactSent(sentBy, sentOn, containerUniqueId,
+                    containerVersionId, containerName, uniqueId, id, versionId,
+                    name, type, bytes);
+        }
+    }
     /**
      * Determine if the container has been locally modified.
      * 

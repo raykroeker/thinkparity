@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.UUID;
 
+import com.thinkparity.model.artifact.ArtifactType;
+
 /**
  * ArtifactVersion
  * 

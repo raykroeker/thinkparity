@@ -48,7 +48,6 @@ public class CreateTest extends DocumentTestCase {
                 datum.documentModel.addListener(datum);
                 document = datum.documentModel.create(datum.name, datum.inputStream);
             }
-            catch(final ParityException px) { fail(createFailMessage(px)); }
             finally {
                 datum.documentModel.removeListener(datum);
                 try { datum.inputStream.close(); }
@@ -56,9 +55,7 @@ public class CreateTest extends DocumentTestCase {
             }
 			assertNotNull(document);
 
-            latestVersion = null;
-            try { latestVersion = datum.documentModel.readLatestVersion(document.getId()); }
-            catch(final ParityException px) { fail(createFailMessage(px)); }
+            latestVersion = datum.documentModel.readLatestVersion(document.getId());
 			assertNotNull(NAME, latestVersion);
 			assertEquals(latestVersion.getChecksum(), datum.documentContentChecksum);
 

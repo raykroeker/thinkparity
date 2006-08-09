@@ -64,12 +64,14 @@ public class ArtifactRemoteInfo {
 		this.updatedOn = updatedOn;
 	}
 
-	/** @see java.lang.Object#toString() */
+	/**
+     * @see java.lang.Object#toString()
+     */
+    @Override
     public String toString() {
-        return new StringBuffer(getClass().getName())
-                .append(":updatedBy=").append(updatedBy)
-                .append(",updatedOn=").append(updatedOn)
+        return new StringBuffer(getClass().getName()).append("//")
+                .append(updatedBy)
+                .append("/").append(updatedOn)
                 .toString();
     }
-
 }

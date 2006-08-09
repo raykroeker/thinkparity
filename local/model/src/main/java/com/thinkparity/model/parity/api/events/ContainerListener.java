@@ -76,6 +76,14 @@ public interface ContainerListener {
     public void draftCreated(final ContainerEvent e);
 
     /**
+     * A container draft was published.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void draftPublished(final ContainerEvent e);
+
+    /**
      * A team member was added to a container.
      * 
      * @param e

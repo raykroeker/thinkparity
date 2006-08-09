@@ -6,9 +6,9 @@ package com.thinkparity.model.parity.model;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.crypto.BadPaddingException;
@@ -17,15 +17,22 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.NetworkUtil;
+import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.l10n.L18n;
+import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.model.LoggerFactory;
+import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
+import com.thinkparity.model.parity.ParityUncheckedException;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
@@ -51,6 +58,7 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.release.InternalReleaseModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
 import com.thinkparity.model.parity.model.session.Credentials;
+import com.thinkparity.model.parity.model.session.Environment;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
@@ -114,6 +122,17 @@ public abstract class AbstractModelImpl {
 		return sessionModelContext;
 	}
 
+	/**
+     * Obtain an api id for the model abstraction.
+     * 
+     * @param api
+     *            An api.
+     * @return An api id.
+     */
+    private static StringBuffer getApiId(final String api) {
+        return getModelId("ABSTRACTION").append(" ").append(api);
+    }
+
 	/** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
@@ -135,12 +154,12 @@ public abstract class AbstractModelImpl {
 	 */
 	protected final Logger logger;
 
-	/**
+    /**
 	 * Handle to the parity model preferences.
 	 */
 	protected final Preferences preferences;
 
-    /**
+	/**
 	 * Handle to the parity model workspace.
 	 */
 	protected final Workspace workspace;
@@ -148,7 +167,7 @@ public abstract class AbstractModelImpl {
 	/** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-	/** The encryption cipher. */
+    /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
     /** The secret key spec. */
@@ -169,7 +188,7 @@ public abstract class AbstractModelImpl {
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
 
-    /**
+	/**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -181,7 +200,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotNull(assertion, getInternalContainerModel().readDraft(containerId));
     }
 
-	/**
+    /**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -194,12 +213,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-    protected void assertIsKeyHolder(final Object assertion,
-            final Long artifactId) throws ParityException {
-        assertIsKeyHolder(assertion.toString(), artifactId);
-    }
-
-	/**
+    /**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -207,8 +221,9 @@ public abstract class AbstractModelImpl {
      *            The assertion message.
      * @param artifactId
      *            The artifact id.
+     * @see #isKeyHolder(Long)
      */
-    protected void assertIsKeyHolder(final String assertion,
+    protected void assertIsKeyHolder(final Object assertion,
             final Long artifactId) throws ParityException {
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
@@ -220,13 +235,27 @@ public abstract class AbstractModelImpl {
      *            The assertion message.
      * @param artifactId
      *            The artifact id.
+     * @see #isKeyHolder(Long)
      */
 	protected void assertIsNotKeyHolder(final String assertion,
             final Long artifactId) throws ParityException {
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
-    /**
+	/**
+     * Assert that the environment is online.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param environment
+     *            An environment.
+     */
+    protected void assertIsReachable(final Object assertion,
+            final Environment environment) {
+        Assert.assertTrue(assertion, isReachable(environment));
+    }
+
+	/**
 	 * Assert that the model framework is initialized to a state where the user
 	 * can start to create artifacts. This requires:
 	 * <ol>
@@ -238,13 +267,13 @@ public abstract class AbstractModelImpl {
 		Assert.assertTrue(ASSERT_IS_SET_USERNAME, isSetCredentials());
 	}
 
-	/**
+    /**
      * Ensure the user is not online.
      * 
      * @param assertion
      *            The assertion.
      */
-    protected void assertNotIsOnline(final String assertion) {
+    protected void assertNotIsOnline(final Object assertion) {
         Assert.assertNotTrue(assertion, isOnline());
     }
 
@@ -266,7 +295,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isOnline());
     }
 
-	protected void assertOnline(final StringBuffer api) {
+    protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
@@ -325,6 +354,32 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+     * Determine if the list of team members contains the user.
+     * 
+     * @param team
+     *            A list of team members.
+     * @param user
+     *            A user.
+     * @return True if the id of the user matches one of the team members.
+     */
+    protected Boolean contains(final List<TeamMember> team, final User user) {
+        return -1 != indexOf(team, user);
+    }
+
+	/**
+     * Determine if the list of users contains the team member.
+     * 
+     * @param users
+     *            A list of users.
+     * @param teamMember
+     *            A team member.
+     * @return True if the id of the team member matches one of the users.
+     */
+    protected Boolean contains(final List<User> users, final TeamMember teamMember) {
+        return -1 != indexOf(users, teamMember);
+    }
+
+	/**
      * Create the user credentials.
      * 
      * @param username
@@ -349,7 +404,7 @@ public abstract class AbstractModelImpl {
         return readCredentials();
     }
 
-	/**
+    /**
      * Obtain the current user.
      *
      * @return The current user.
@@ -360,7 +415,7 @@ public abstract class AbstractModelImpl {
         else { return getInternalUserModel().read(currentUserId); }
     }
 
-	/**
+    /**
 	 * Obtain the current user id.
 	 * 
 	 * @return The jabber id of the current user.
@@ -370,6 +425,35 @@ public abstract class AbstractModelImpl {
         if(null == credentials) { return null; }
         else { return JabberIdBuilder.parseUsername(credentials.getUsername()); }
 	}
+
+    /**
+     * Debug a variable. Note that only the variable value will be rendered.
+     * 
+     * @param name
+     *            The variable name.
+     * @param value
+     *            The variable value.
+     */
+    protected void debugVariable(final String name, final Object value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0}:{1}",
+                    name,
+                    Log4JHelper.render(logger, value)));
+        }
+    }
+
+    /**
+     * Find the user in a team.
+     * 
+     * @param team
+     *            The team.
+     * @param user
+     *            The user to look for.
+     * @return The team member.
+     */
+    protected TeamMember get(final List<TeamMember> team, final User user) {
+        return team.get(indexOf(team, user));
+    }
 
     protected Long getArtifactId(final UUID artifactUniqueId)
 			throws ParityException {
@@ -390,7 +474,7 @@ public abstract class AbstractModelImpl {
 	 */
 	protected Context getContext() { return context; }
 
-    /**
+	/**
      * Obtain the internal parity artifact interface.
      * 
      * @return The internal parity artifact interface.
@@ -444,16 +528,16 @@ public abstract class AbstractModelImpl {
         return DownloadModel.getInternalModel(context);
     }
 
-    /**
+	/**
      * Obtain the internal parity library interface.
      *
      * @return The internal parity library interface.
      */
     protected InternalLibraryModel getInternalLibraryModel() {
         return LibraryModel.getInternalModel(context);
-    }
+    };
 
-    /**
+	/**
      * Obtain the thinkParity internal message interface.
      * 
      * @return The thinkParity internal message interface.
@@ -471,7 +555,7 @@ public abstract class AbstractModelImpl {
         return ReleaseModel.getInternalModel(getContext());
     }
 
-    /**
+	/**
      * Obtain the internal parity session interface.
      * 
      * @return The internal parity session interface.
@@ -480,16 +564,16 @@ public abstract class AbstractModelImpl {
 		return SessionModel.getInternalModel(getContext());
 	}
 
-	/**
+    /**
      * Obtain the internal parity system message interface.
      * 
      * @return The internal parity system message interface.
      */
 	protected InternalSystemMessageModel getInternalSystemMessageModel() {
 		return SystemMessageModel.getInternalModel(context);
-	};
+	}
 
-	/**
+    /**
      * Obtain the internal parity user interface.
      * 
      * @return The internal parity user interface.
@@ -498,14 +582,14 @@ public abstract class AbstractModelImpl {
         return UserModel.getInternalModel(context);
     }
 
-	/**
+    /**
 	 * Obtain the model's localization.
 	 * 
 	 * @return The model's localization.
 	 */
 	protected L18n getL18n() { return l18n; }
 
-	protected StringBuffer getLogId(final Library library) {
+    protected StringBuffer getLogId(final Library library) {
         if(null == library) { return new StringBuffer("null"); }
         else {
             return new StringBuffer()
@@ -559,28 +643,16 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Determine whether or not an artifact is distributed; ie if it has been
-     * sent to anyone.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @return True if the artifact has not yet been sent; false otherwise.
-     */
-    protected Boolean isDistributed(final Long artifactId) {
-        final Set<User> team = getInternalArtifactModel().readTeam(artifactId);
-        team.remove(currentUser());
-        return team.size() > 0;
-    }
-
-    /**
-     * Determine whether or not the artifact has the key flag applied.
+     * Check the local flag; as well as the key holder on the server.
      * 
      * @param artifactId
      *            The artifact id.
      * @return True if the user is the keyholder; false otherwise.
      */
     protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
-        return getInternalArtifactModel().isFlagApplied(artifactId, ArtifactFlag.KEY);
+        assertOnline(getApiId("[IS KEY HOLDER] [USER NOT ONLINE]"));
+        return getInternalArtifactModel().isFlagApplied(artifactId, ArtifactFlag.KEY) &&
+            getInternalSessionModel().isLoggedInUserKeyHolder(artifactId);
     }
 
     /**
@@ -590,6 +662,43 @@ public abstract class AbstractModelImpl {
      */
     protected Boolean isOnline() {
         return getInternalSessionModel().isLoggedIn();
+    }
+
+    /**
+     * Log the api id of the caller.
+     *
+     */
+    protected void logApiId() {
+        if(logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("{0}#{1}",
+                    StackUtil.getCallerClassName(),
+                    StackUtil.getCallerMethodName()));
+        }
+    }
+
+    /**
+     * Log a warning message.
+     * 
+     * @param message A warning message.
+     */
+    protected void logWarning(final Object message) {
+        if(Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
+            logger.warn(Log4JHelper.render(logger, message));
+        }
+    }
+
+    /**
+     * Log a warning with a error.
+     * 
+     * @param message
+     *            A warning message.
+     * @param t
+     *            An error.
+     */
+    protected void logWarning(final Object message, final Throwable t) {
+        if(Level.WARN.isGreaterOrEqual(logger.getEffectiveLevel())) {
+            logger.warn(Log4JHelper.render(logger, message), t);
+        }
     }
 
     /**
@@ -628,6 +737,30 @@ public abstract class AbstractModelImpl {
             catch(final NoSuchPaddingException nspx) { throw new RuntimeException("", nspx); }
 
             return credentials;
+        }
+    }
+
+    /**
+     * Translate an error into a parity unchecked error.
+     * 
+     * @param message
+     *            An error message.
+     * @param t
+     *            An error.
+     */
+    protected RuntimeException translateError(final Object errorId,
+            final Throwable t) {
+        if (ParityUncheckedException.class.isAssignableFrom(t.getClass())) {
+            return (ParityUncheckedException) t;
+        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
+            return (Assertion) t;
+        }
+        else {
+            final Object internalErrorId = new StringBuffer()
+                    .append(errorId).append(" - ").append(t.getMessage());
+
+            logger.error(internalErrorId, t);
+            return ParityErrorTranslator.translateUnchecked(context, internalErrorId, t);
         }
     }
 
@@ -758,52 +891,6 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Determine whether or not the user's credentials have been set.
-     * 
-     * @return True if the credentials have been set; false otherwise.
-     */
-    private Boolean isSetCredentials() { return null != readCredentials(); }
-
-    /**
-     * Determine if the list of team members contains the user.
-     * 
-     * @param team
-     *            A list of team members.
-     * @param user
-     *            A user.
-     * @return True if the id of the user matches one of the team members.
-     */
-    protected Boolean contains(final List<TeamMember> team, final User user) {
-        return -1 != indexOf(team, user);
-    }
-
-    /**
-     * Determine if the list of users contains the team member.
-     * 
-     * @param users
-     *            A list of users.
-     * @param teamMember
-     *            A team member.
-     * @return True if the id of the team member matches one of the users.
-     */
-    protected Boolean contains(final List<User> users, final TeamMember teamMember) {
-        return -1 != indexOf(users, teamMember);
-    }
-
-    /**
-     * Find the user in a team.
-     * 
-     * @param team
-     *            The team.
-     * @param user
-     *            The user to look for.
-     * @return The team member.
-     */
-    protected TeamMember get(final List<TeamMember> team, final User user) {
-        return team.get(indexOf(team, user));
-    }
-
-    /**
      * Obtain the index of the user in the team.
      * 
      * @param team
@@ -835,6 +922,25 @@ public abstract class AbstractModelImpl {
         }
         return -1;
     }
+
+    /**
+     * Determine whether the environment is online.
+     * 
+     * @param environment
+     *            An environment.
+     * @return True if the environment is reachable; false otherwise.
+     */
+    private Boolean isReachable(final Environment environment) {
+        return NetworkUtil.isTargetReachable(
+                environment.getServerHost(), environment.getServerPort());
+    }
+
+    /**
+     * Determine whether or not the user's credentials have been set.
+     * 
+     * @return True if the credentials have been set; false otherwise.
+     */
+    private Boolean isSetCredentials() { return null != readCredentials(); }
 
     /** Configuration keys. */
     private static class ConfigurationKeys {

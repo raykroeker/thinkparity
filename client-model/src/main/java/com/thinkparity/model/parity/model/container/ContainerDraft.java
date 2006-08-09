@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.user.TeamMember;
@@ -19,6 +21,9 @@ import com.thinkparity.model.parity.model.user.TeamMember;
  */
 public class ContainerDraft {
 
+    /** A map of artifact ids to their respective states. */
+    private final Map<Long, ArtifactState> artifactsState;
+
     /** The container id. */
     private Long containerId;
 
@@ -28,16 +33,12 @@ public class ContainerDraft {
     /** The draft owner. */
     private TeamMember owner;
 
-    /** A map of artifact ids to their respective states. */
-    private final Map<Long, ContainerDraftArtifactState> stateMap;
-
     /** Create ContainerDraft. */
     public ContainerDraft() {
         super();
         this.documents = new ArrayList<Document>();
-        this.stateMap = new HashMap<Long, ContainerDraftArtifactState>(7, 0.75F);
+        this.artifactsState = new HashMap<Long, ArtifactState>(7, 0.75F);
     }
-
     /**
      * Add a document to the draft.
      * 
@@ -45,13 +46,9 @@ public class ContainerDraft {
      *            A document.
      * @return True if the list of documents is modified.
      */
-    public boolean addDocument(final Document document,
-            final ContainerDraftArtifactState state) {
+    public boolean addDocument(final Document document) {
         if(documents.contains(document)) { return false; }
-        else {
-            stateMap.put(document.getId(), state);
-            return documents.add(document);
-        }
+        else { return documents.add(document); }
     }
 
     /**
@@ -83,8 +80,8 @@ public class ContainerDraft {
      *            The artifact id.
      * @return The artifact state.
      */
-    public ContainerDraftArtifactState getArtifactState(final Long artifactId) {
-        return stateMap.get(artifactId);
+    public ArtifactState getState(final Artifact artifact) {
+        return artifactsState.get(artifact.getId());
     }
 
     /**
@@ -93,6 +90,10 @@ public class ContainerDraft {
      * @return The Long.
      */
     public Long getContainerId() { return containerId; }
+
+    public Document getDocument(final Long documentId) {
+        throw Assert.createNotYetImplemented("ContainerDraft#getDocument");
+    }
 
     /**
      * Obtain a list of documents in the draft.
@@ -103,11 +104,6 @@ public class ContainerDraft {
         return Collections.unmodifiableList(documents);
     }
 
-    /**
-     * Obtain the draftOwner
-     *
-     * @return The TeamMember.
-     */
     public TeamMember getOwner() { return owner; }
 
     /**
@@ -115,6 +111,10 @@ public class ContainerDraft {
      */
     @Override
     public int hashCode() { return containerId.hashCode(); }
+
+    public ArtifactState putState(final Artifact artifact, final ArtifactState state) {
+        return this.artifactsState.put(artifact.getId(), state);
+    }
 
     /**
      * Remove a list of documents.
@@ -140,7 +140,7 @@ public class ContainerDraft {
     public boolean removeDocument(final Document document) {
         if(!documents.contains(document)) { return false; }
         else {
-            stateMap.remove(document.getId());
+            artifactsState.remove(document.getId());
             return documents.remove(document);
         }
     }
@@ -154,22 +154,17 @@ public class ContainerDraft {
         this.containerId = containerId;
     }
 
-    /**
-     * Set draftOwner.
-     *
-     * @param draftOwner The TeamMember.
-     */
-    public void setOwner(final TeamMember owner) {
-        this.owner = owner;
-    }
+    public void setOwner(final TeamMember owner) { this.owner = owner; }
 
     /**
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return new StringBuffer()
-                .append(getClass()).append("//").append(containerId)
+        return new StringBuffer(getClass().getName()).append("//")
+                .append("/").append(containerId)
                 .toString();
     }
+
+    public enum ArtifactState { ADDED, NONE, REMOVED }
 }

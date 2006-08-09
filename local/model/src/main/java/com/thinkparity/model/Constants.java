@@ -86,19 +86,44 @@ public final class Constants {
             public static final String UNIQUE_ID = "uniqueId";
             public static final String VERSION_ID = "versionId";
         }
+        public static final class Contact {
+            public static final String EMAIL = "email";
+        }
         public static final class Container {
             public static final String ARTIFACT_COUNT = "artifactCount";
             public static final String ARTIFACT_INDEX = "artifactIndex";
+            public static final String CONTAINER_NAME = "containerName";
+            public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
+            public static final String CONTAINER_VERSION_ID = "containerVersionId";
+            public static final String PUBLISHED_BY = "publishedBy";
+            public static final String PUBLISHED_ON = "publishedOn";
+            public static final String SENT_BY = "sentBy";
+            public static final String SENT_ON = "sentOn";
         }
         public static final class EventHandler {
             public static final class Artifact {
                 public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:teammemberadded";
+            }
+            public static final class Container {
+                public static final String ARTIFACT_PUBLISHED = "jabber:iq:parity:artifactpublished";
+                public static final String ARTIFACT_SENT = "jabber:iq:parity:artifactsent";
             }
         }
         public static final class Method {
             public static final class Artifact {
                 public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
             }
+            public static final class Container {
+                public static final String PUBLISH = "container:publish";
+                public static final String SEND = "container:send";
+            }
+        }
+        public static final class Profile {
+            public static final String EMAIL = "email";
+            public static final String EMAILS = "emails";
+            public static final String JABBER_ID = "jabberId";
+            public static final String NAME = "name";
+            public static final String ORGANIZATION = "organization";
         }
         public static final class User {
             public static final String JABBER_ID = "jabberId";

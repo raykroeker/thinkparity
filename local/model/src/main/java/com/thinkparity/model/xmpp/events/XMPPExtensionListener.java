@@ -13,16 +13,10 @@ import com.thinkparity.model.xmpp.JabberId;
  *
  */
 public interface XMPPExtensionListener {
-
-	public void artifactClosed(final UUID artifactUniqueId,
-			final JabberId artifactClosedBy);
-
 	public void keyRequestAccepted(final UUID artifactUniqueId,
 			final JabberId acceptedBy);
-
 	public void keyRequestDenied(final UUID artifactUUID,
 			final JabberId deniedBy);
-
 	public void keyRequested(final UUID artifactUniqueId,
 			final JabberId requestedBy);
 }

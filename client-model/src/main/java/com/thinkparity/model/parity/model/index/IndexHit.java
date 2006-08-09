@@ -3,7 +3,7 @@
  */
 package com.thinkparity.model.parity.model.index;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactType;
 
 /**
  * @author raykroeker@gmail.com

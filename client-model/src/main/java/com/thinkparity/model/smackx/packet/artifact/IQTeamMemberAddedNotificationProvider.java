@@ -16,7 +16,6 @@ import org.xmlpull.v1.XmlPullParser;
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.smack.provider.IQParityProvider;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
-import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**

@@ -39,8 +39,7 @@ public class SearchDocumentsTest extends IndexTestCase {
         assertTrue(NAME + " [NO DOCUMENTS RETURNED]", indexHits.size() > 0);
         Document document = null;
         for(final IndexHit indexHit : indexHits) {
-            try { document = datum.dModel.get(indexHit.getId()); }
-            catch(final ParityException px) { fail(createFailMessage(px)); }
+            document = datum.dModel.get(indexHit.getId());
             assertNotNull(NAME, document);
         }
 	}

@@ -26,7 +26,7 @@ import com.thinkparity.model.parity.model.container.Container;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class CellContainer extends Container implements MainCell  {
+public class MainCellContainer extends Container implements MainCell  {
 
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
@@ -63,7 +63,7 @@ public class CellContainer extends Container implements MainCell  {
     private final MainCellImageCache imageCache;
     
     /** Create CellContainer. */
-    public CellContainer(final Container container) {
+    public MainCellContainer(final Container container) {
         super();
         setCreatedBy(container.getCreatedBy());
         setCreatedOn(container.getCreatedOn());
@@ -73,7 +73,7 @@ public class CellContainer extends Container implements MainCell  {
         setUpdatedBy(container.getUpdatedBy());
         setUpdatedOn(container.getUpdatedOn());
         setId(container.getId());
-        setDraft(container.getDraft());
+        setLocalDraft(container.isSetLocalDraft());
         setRemoteInfo(container.getRemoteInfo());
         setState(container.getState());
         this.closed = getState() == ArtifactState.CLOSED;

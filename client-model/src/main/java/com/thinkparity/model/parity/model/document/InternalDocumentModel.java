@@ -1,5 +1,5 @@
 /*
- * Feb 13, 2006
+ * Created On: Feb 13, 2006
  */
 package com.thinkparity.model.parity.model.document;
 
@@ -13,12 +13,11 @@ import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.workspace.Workspace;
-import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.25
  */
 public class InternalDocumentModel extends DocumentModel implements
         InternalModel {
@@ -37,7 +36,7 @@ public class InternalDocumentModel extends DocumentModel implements
 		context.assertContextIsValid();
 	}
 
-	public void auditRecieveKey(final Long artifactId,
+    public void auditRecieveKey(final Long artifactId,
             final JabberId createdBy, final Calendar createdOn,
             final JabberId receivedFrom) throws ParityException {
 		synchronized(getImplLock()) {
@@ -65,7 +64,7 @@ public class InternalDocumentModel extends DocumentModel implements
         }
     }
 
-    /**
+	/**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentUniqueId
@@ -73,10 +72,61 @@ public class InternalDocumentModel extends DocumentModel implements
 	 * @return The document.
 	 * @throws ParityException
 	 */
-	public Document get(final UUID documentUniqueId) throws ParityException {
+	public Document get(final UUID documentUniqueId) {
 		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
 	}
 
+    /**
+     * Handle the receipt of a document from the thinkParity network.
+     * 
+     * @param uniqueId
+     *            A unique id.
+     * @param versionId
+     *            A version id.
+     * @param name
+     *            A name.
+     * @param createdBy
+     *            The creator.
+     * @param createdOn
+     *            The creation date.
+     * @param content
+     *            The content's input stream.
+     * @return The document version.
+     */
+    public DocumentVersion handleDocumentPublished(final JabberId publishedBy,
+            final Calendar publishedOn, final UUID uniqueId, final Long versionId,
+            final String name, final InputStream content) {
+        synchronized(getImplLock()) {
+            return getImpl().handleDocumentPublished(publishedBy, publishedOn, uniqueId,
+                    versionId, name, content);
+        }
+    }
+
+    /**
+     * Handle the receipt of a document from the thinkParity network.
+     * 
+     * @param uniqueId
+     *            A unique id.
+     * @param versionId
+     *            A version id.
+     * @param name
+     *            A name.
+     * @param createdBy
+     *            The creator.
+     * @param createdOn
+     *            The creation date.
+     * @param content
+     *            The content's input stream.
+     * @return The document version.
+     */
+    public DocumentVersion handleDocumentSent(final JabberId sentBy,
+            final Calendar sentOn, final UUID uniqueId, final Long versionId,
+            final String name, final InputStream content) {
+        synchronized(getImplLock()) {
+            return getImpl().handleDocumentSent(sentBy, sentOn, uniqueId,
+                    versionId, name, content);
+        }
+    }
     /**
      * A key request for a document was accepted.
      * 
@@ -125,13 +175,12 @@ public class InternalDocumentModel extends DocumentModel implements
      * 
      * @param documentId
      *            A document id.
-     * @param versionId
-     *            A version id.
      * @return An input stream.
      */
-	public InputStream openStream(final Long documentId, final Long versionId) {
+	public InputStream openVersionStream(final Long documentId,
+            final Long versionId) {
 	    synchronized(getImplLock()) {
-            return getImpl().openStream(documentId, versionId);
+            return getImpl().openVersionStream(documentId, versionId);
         }
     }
 
@@ -158,28 +207,6 @@ public class InternalDocumentModel extends DocumentModel implements
             return getImpl().readAuditEvents(documentId);
         }
     }
-
-    /**
-	 * Use the document model to receive a document from another parity user.
-	 * 
-	 * @param xmppDocument
-	 *            The xmpp document received from another parity user.
-	 * @throws ParityException
-	 */
-	public void receive(final JabberId receivedFrom,
-            final UUID documentUniqueId, final Long versionId,
-            final String name, final byte[] content) throws ParityException,
-            SmackException {
-		synchronized(getImplLock()) {
-            getImpl().receive(
-                    receivedFrom, documentUniqueId, versionId, name, content);
-        }
-	}
-
-    public void requestKey(final Long documentId, final JabberId requestedBy)
-			throws ParityException {
-		synchronized(getImplLock()) { getImpl().requestKey(documentId, requestedBy); }
-	}
 
     /**
 	 * Unlock a document.

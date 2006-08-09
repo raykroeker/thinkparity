@@ -5,7 +5,13 @@ package com.thinkparity.model.xmpp;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -14,20 +20,19 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StreamUtil;
 
 import com.thinkparity.model.Constants.Xml;
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
+import com.thinkparity.model.smackx.packet.AbstractThinkParityIQProvider;
 import com.thinkparity.model.xmpp.events.XMPPContainerListener;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -48,74 +53,167 @@ class XMPPContainer {
 
     static {
         LISTENERS = new ArrayList<XMPPContainerListener>();
-        // register the handle reactivate remote event listener
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:container:handlereactivate", new IQProvider() {
-            public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                final HandleReactivateIQ query = new HandleReactivateIQ();
 
-                Integer eventType;
-                String name;
+        ProviderManager.addIQProvider("query", Xml.EventHandler.Container.ARTIFACT_PUBLISHED, new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser(parser);
+                final HandleArtifactPublishedIQ query = new HandleArtifactPublishedIQ();
+
                 Boolean isComplete = Boolean.FALSE;
                 while(Boolean.FALSE == isComplete) {
-                    eventType = parser.next();
-                    name = parser.getName();
+                    next(1);
+                    if (isStartTag(Xml.Container.PUBLISHED_BY)) {
+                        next(1);
+                        query.publishedBy = readJabberId();
+                        next(1);
+                    }
+                    else if (isEndTag(Xml.Container.PUBLISHED_BY)) {
+                        next(1);  
+                    } else if (isStartTag(Xml.Container.PUBLISHED_ON)) {
+                        next(1);
+                        query.publishedOn = readCalendar();
+                        next(1);
+                    }
+                    else if (isEndTag(Xml.Container.PUBLISHED_ON)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
+                        next(1);
+                        query.containerUniqueId = readUniqueId();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
+                        next(1);
+                    } else if(isStartTag(Xml.Container.CONTAINER_VERSION_ID)) {
+                        next(1);
+                        query.containerVersionId = readLong();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.CONTAINER_VERSION_ID)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.ARTIFACT_COUNT)) {
+                        next(1);
+                        query.count = readInteger();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.ARTIFACT_COUNT)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.ARTIFACT_INDEX)) {
+                        next(1);
+                        query.index = readInteger();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.ARTIFACT_INDEX)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.UNIQUE_ID)) {
+                        next(1);
+                        query.uniqueId = readUniqueId();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.UNIQUE_ID)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.VERSION_ID)) {
+                        next(1);
+                        query.versionId = readLong();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.VERSION_ID)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.TYPE)) {
+                        next(1);
+                        query.type = readArtifactType();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.TYPE)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.BYTES)) {
+                        next(1);
+                        query.bytes = readBytes();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.BYTES)) {
+                        next(1);
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
+        ProviderManager.addIQProvider("query", Xml.EventHandler.Container.ARTIFACT_SENT, new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser(parser);
+                final HandleArtifactSentIQ query = new HandleArtifactSentIQ();
 
-                    if(XmlPullParser.START_TAG == eventType && "uuid".equals(name)) {
-                        parser.next();
-                        query.uniqueId = UUID.fromString(parser.getText());
-                        parser.next();
+                Boolean isComplete = Boolean.FALSE;
+                while(Boolean.FALSE == isComplete) {
+                    next(1);
+                    if (isStartTag(Xml.Container.SENT_BY)) {
+                        next(1);
+                        query.sentBy = readJabberId();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.SENT_BY)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.SENT_ON)) {
+                        next(1);
+                        query.sentOn = readCalendar();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.SENT_ON)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
+                        next(1);
+                        query.containerUniqueId = readUniqueId();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
+                        next(1);
+                    } else if(isStartTag(Xml.Container.CONTAINER_VERSION_ID)) {
+                        next(1);
+                        query.containerVersionId = readLong();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.CONTAINER_VERSION_ID)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.CONTAINER_NAME)) {
+                        next(1);
+                        query.containerName = readString();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.CONTAINER_NAME)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.ARTIFACT_COUNT)) {
+                        next(1);
+                        query.count = readInteger();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.ARTIFACT_COUNT)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Container.ARTIFACT_INDEX)) {
+                        next(1);
+                        query.index = readInteger();
+                        next(1);
+                    } else if (isEndTag(Xml.Container.ARTIFACT_INDEX)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.UNIQUE_ID)) {
+                        next(1);
+                        query.uniqueId = readUniqueId();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.UNIQUE_ID)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.VERSION_ID)) {
+                        next(1);
+                        query.versionId = readLong();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.VERSION_ID)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.NAME)) {
+                        next(1);
+                        query.name = readString();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.NAME)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.TYPE)) {
+                        next(1);
+                        query.type = readArtifactType();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.TYPE)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Artifact.BYTES)) {
+                        next(1);
+                        query.bytes = readBytes();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.BYTES)) {
+                        next(1);
+                    } else {
+                        isComplete = Boolean.TRUE;
                     }
-                    else if(XmlPullParser.END_TAG == eventType && "uuid".equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.START_TAG == eventType && "versionid".equals(name)) {
-                        parser.next();
-                        query.versionId = Long.parseLong(parser.getText());
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && "versionid".equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.START_TAG == eventType && "name".equals(name)) {
-                        parser.next();
-                        query.name = parser.getText();
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && "name".equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.START_TAG == eventType && "reactivatedBy".equals(name)) {
-                        parser.next();
-                        query.reactivatedBy = JabberIdBuilder.parseQualifiedJabberId(parser.getText());
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && "reactivatedBy".equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.START_TAG == eventType && "reactivatedOn".equals(name)) {
-                        parser.next();
-                        query.reactivatedOn = DateUtil.parse(parser.getText(),
-                                DateUtil.DateImage.ISO, new SimpleTimeZone(0, "GMT"));
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && "reactivatedOn".equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.START_TAG == eventType && "team".equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && "team".equals(name)) {
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && "teamMember".equals(name)) {
-                        parser.next();
-                        query.team.add(JabberIdBuilder.parseQualifiedJabberId(parser.getText()));
-                        parser.next();
-                    }
-                    else if(XmlPullParser.END_TAG == eventType && "teamMember".equals(name)) {
-                        parser.next();
-                    }
-                    else { isComplete = Boolean.TRUE; }
                 }
                 return query;
             }
@@ -170,39 +268,18 @@ class XMPPContainer {
         xmppConnection.addPacketListener(
                 new PacketListener() {
                     public void processPacket(final Packet packet) {
-                        handleReactivate((HandleReactivateIQ) packet);
+                        handleArtifactPublished((HandleArtifactPublishedIQ) packet);
                     }
                 },
-                new PacketTypeFilter(HandleReactivateIQ.class));
-    }
-
-    /**
-     * Call the remote artifact:reactivate method.
-     * 
-     * @param team
-     *            The artifact team.
-     * @param uniqueId
-     *            The artifact unique id.
-     */
-    void reactivate(final ContainerVersion version,
-            final List<DocumentVersionContent> documentVersions,
-            final List<JabberId> team, final JabberId reactivatedBy,
-            final Calendar reactivatedOn) {
-        logger.info("[LMODEL] [XMPP] [CONTAINER] [REACTIVATE]");
-        logger.debug(version);
-        logger.debug(documentVersions);
-        logger.debug(team);
-        logger.debug(reactivatedBy);
-        logger.debug(reactivatedOn);
-        final XMPPMethod method = new XMPPMethod("container:reactivate");
-        method.setParameter("uniqueId", version.getArtifactUniqueId());
-        method.setParameter("versionId", version.getVersionId());
-        method.setParameter("name", version.getName());
-        method.setJabberIdParameters("team", "teamMember", team);
-        method.setParameter("reactivatedBy", reactivatedBy);
-        method.setParameter("reactivatedOn", reactivatedOn);
-        method.setDocumentVersionParameters("documentVersions", "documentVersion", documentVersions);
-        method.execute(core.getConnection());
+                new PacketTypeFilter(HandleArtifactPublishedIQ.class));
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        logger.debug("packet:" + packet.toXML());
+                        handleArtifactSent((HandleArtifactSentIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleArtifactSentIQ.class));
     }
 
     /**
@@ -213,38 +290,100 @@ class XMPPContainer {
      * @param users
      *            A list of users.
      */
-    void send(final ContainerVersion version,
+    void publish(final ContainerVersion version,
             final Map<DocumentVersion, InputStream> documentVersions,
-            final List<User> users) throws IOException {
-        logger.info(getApiId("[SEND]"));
+            final JabberId publishedBy, final Calendar publishedOn)
+            throws IOException {
+        logger.info(getApiId("[PUBLISH]"));
         logger.debug(version);
-        logger.debug(users);
-        final XMPPMethod method = new XMPPMethod("container:sendversion");
-        method.setParameter(Xml.Artifact.UNIQUE_ID, version.getArtifactUniqueId());
-        method.setParameter(Xml.Container.ARTIFACT_COUNT, documentVersions.keySet().size());
+        final XMPPMethod method = new XMPPMethod(Xml.Method.Container.PUBLISH);
 
-        final Iterator<DocumentVersion> i = documentVersions.keySet().iterator();
-        DocumentVersion documentVersion;
-        int documentVersionIndex = 0;
-        while(i.hasNext()) {
-            documentVersion = i.next();
-            method.setParameter(Xml.Container.ARTIFACT_INDEX, documentVersionIndex++);
-            method.setParameter(Xml.Artifact.TYPE, documentVersion.getArtifactType());
-            method.setParameter(Xml.Artifact.BYTES,
-                    StreamUtil.read(documentVersions.get(documentVersion)));
+        int i = 0;
+        final Set<Entry<DocumentVersion, InputStream>> entries = documentVersions.entrySet();
+        for(final Entry<DocumentVersion, InputStream> entry : entries) {
+            method.setParameter(Xml.Container.PUBLISHED_BY, publishedBy);
+            method.setParameter(Xml.Container.PUBLISHED_ON, publishedOn);
+            method.setParameter(Xml.Container.CONTAINER_UNIQUE_ID, version.getArtifactUniqueId());
+            method.setParameter(Xml.Container.CONTAINER_VERSION_ID, version.getVersionId());
+            method.setParameter(Xml.Container.ARTIFACT_COUNT, entries.size());
+            method.setParameter(Xml.Container.ARTIFACT_INDEX, i++);
+
+            method.setParameter(Xml.Artifact.UNIQUE_ID, entry.getKey().getArtifactUniqueId());
+            method.setParameter(Xml.Artifact.VERSION_ID, entry.getKey().getVersionId());
+            method.setParameter(Xml.Artifact.TYPE, entry.getKey().getArtifactType());
+            method.setParameter(Xml.Artifact.BYTES, StreamUtil.read(entry.getValue()));
             method.execute(core.getConnection());
         }
     }
 
     /**
-     * Handle the reactivate event generated by the remote model.
+     * Send a container.
+     * 
+     * @param version
+     *            A container version.
+     * @param documentVersions
+     *            A list of document versions.
+     * @param user
+     *            A user.
+     */
+    void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final User user, final JabberId sentBy, final Calendar sentOn)
+            throws IOException {
+        logger.info(getApiId("[SEND]"));
+        logger.debug(version);
+        logger.debug(documentVersions);
+        logger.debug(user);
+        final XMPPMethod method = new XMPPMethod(Xml.Method.Container.SEND);
+
+        int i = 0;
+        final Set<Entry<DocumentVersion, InputStream>> entries = documentVersions.entrySet();
+        for(final Entry<DocumentVersion, InputStream> entry : entries) {
+            method.setParameter(Xml.User.JABBER_ID, user.getId());
+            method.setParameter(Xml.Container.SENT_BY, sentBy);
+            method.setParameter(Xml.Container.SENT_ON, sentOn);
+            method.setParameter(Xml.Container.CONTAINER_UNIQUE_ID, version.getArtifactUniqueId());
+            method.setParameter(Xml.Container.CONTAINER_VERSION_ID, version.getVersionId());
+            method.setParameter(Xml.Container.CONTAINER_NAME, version.getName());
+            method.setParameter(Xml.Container.ARTIFACT_COUNT, entries.size());
+            method.setParameter(Xml.Container.ARTIFACT_INDEX, i++);
+
+            method.setParameter(Xml.Artifact.UNIQUE_ID, entry.getKey().getArtifactUniqueId());
+            method.setParameter(Xml.Artifact.VERSION_ID, entry.getKey().getVersionId());
+            method.setParameter(Xml.Artifact.NAME, entry.getKey().getName());
+            method.setParameter(Xml.Artifact.TYPE, entry.getKey().getArtifactType());
+            method.setParameter(Xml.Artifact.BYTES, StreamUtil.read(entry.getValue()));
+            method.execute(core.getConnection());
+        }
+    }
+
+    /**
+     * Handle the artifact published event generated by the remote model.
      *
      */
-    private void handleReactivate(final HandleReactivateIQ query) {
+    private void handleArtifactPublished(final HandleArtifactPublishedIQ query) {
         synchronized(LISTENERS) {
             for(final XMPPContainerListener l : LISTENERS) {
-                l.handleReactivate(query.uniqueId, query.versionId, query.name,
-                        query.team, query.reactivatedBy, query.reactivatedOn);
+                l.handleArtifactPublished(query.publishedBy, query.publishedOn,
+                        query.containerUniqueId, query.containerVersionId,
+                        query.count, query.index, query.uniqueId,
+                        query.versionId, query.name, query.type, query.bytes);
+            }
+        }
+    }
+
+    /**
+     * Handle the artifact sent event generated by the remote model.
+     *
+     */
+    private void handleArtifactSent(final HandleArtifactSentIQ query) {
+        synchronized(LISTENERS) {
+            for(final XMPPContainerListener l : LISTENERS) {
+                l.handleArtifactSent(query.sentBy, query.sentOn,
+                        query.containerUniqueId, query.containerVersionId,
+                        query.containerName, query.count, query.index,
+                        query.uniqueId, query.versionId, query.name,
+                        query.type, query.bytes);
             }
         }
     }
@@ -254,30 +393,68 @@ class XMPPContainer {
      * <b>Description:</b>Provides a wrapper for data coming from the remote
      * event.
      * 
-     * @see XMPPContainer#handleReactivate(HandleReactivateIQ)
+     * @see XMPPContainer#handleArtifactPublished(com.thinkparity.model.xmpp.XMPPContainer.HandleArtifactPublishedIQ)
      * @see XMPPContainer#addPacketListeners(XMPPConnection)
      */
-    private static class HandleReactivateIQ extends AbstractThinkParityIQ {
+    private static class HandleArtifactPublishedIQ extends HandleArtifactSentIQ {
 
-        /** Container name. */
-        private String name;
+        /** By whom the artifact was published. */
+        private JabberId publishedBy;
 
-        /** Who reactivated the container. */
-        private JabberId reactivatedBy;
+        /** When the artifact was published. */
+        private Calendar publishedOn;
 
-        /** When the container was reactivated. */
-        private Calendar reactivatedOn;
+        /** Create HandleArtifactPublishedIQ. */
+        private HandleArtifactPublishedIQ() { super(); }
+    }
 
-        /** Container team. */
-        private final List<JabberId> team = new ArrayList<JabberId>();
+    /**
+     * <b>Title:</b>thinkParity XMPP Container Handle Artifact Sent Query <br>
+     * <b>Description:</b>Provides a wrapper for data coming from the remote
+     * event.
+     * 
+     * @see XMPPContainer#handleArtifactSent(com.thinkparity.model.xmpp.XMPPContainer.HandleArtifactPublishedIQ)
+     * @see XMPPContainer#addPacketListeners(XMPPConnection)
+     */
+    private static class HandleArtifactSentIQ extends AbstractThinkParityIQ {
 
-        /** Container unique id. */
-        private UUID uniqueId;
+        /** The bytes. */
+        protected byte[] bytes;
 
-        /** Container version id. */
-        private Long versionId;
+        /** The container unique id. */
+        protected UUID containerUniqueId;
 
-        /** Create HandleReactivateIQ. */
-        private HandleReactivateIQ() { super(); }
+        /** The container version id. */
+        protected Long containerVersionId;
+
+        /** The artifact count. */
+        protected Integer count;
+
+        /** The artifact index. */
+        protected Integer index;
+
+        /** The type. */
+        protected ArtifactType type;
+
+        /** The unique id. */
+        protected UUID uniqueId;
+
+        /** The version id. */
+        protected Long versionId;
+
+        /** The container name. */
+        private String containerName;
+
+        /** The artifact name. */
+        protected String name;
+
+        /** Who sent the artifact. */
+        private JabberId sentBy;
+
+        /** When the artifact was sent. */
+        private Calendar sentOn;
+
+        /** Create HandleArtifactPublishedIQ. */
+        private HandleArtifactSentIQ() { super(); }
     }
 }

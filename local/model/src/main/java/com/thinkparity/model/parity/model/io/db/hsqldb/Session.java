@@ -15,11 +15,11 @@ import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.DateUtil.DateImage;
 
 import com.thinkparity.model.LoggerFactory;
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
-import com.thinkparity.model.parity.model.container.ContainerDraftArtifactState;
+import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
@@ -156,15 +156,6 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public ContainerDraftArtifactState getArtifactStateFromInteger(
-            final String columnName) {
-        assertOpen("getArtifactStateFromInteger(String)");
-        assertOpenResult("getArtifactStateFromInteger(String)");
-        debugSql(columnName);
-        try { return ContainerDraftArtifactState.fromId(resultSet.getInt(columnName)); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-    }
-
     public AuditEventType getAuditEventTypeFromInteger(final String columnName) {
 		assertOpen("getAuditEventTypeFromInteger(String)");
 		assertOpenResult("getAuditEventTypeFromInteger(String)");
@@ -172,6 +163,14 @@ public class Session {
 		try { return AuditEventType.fromId(resultSet.getInt(columnName)); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
+
+    public Boolean getBoolean(final String columnName) {
+        assertOpen("[GET BOOLEAN]");
+        assertOpenResult("[GET BOOLEAN]");
+        debugSql(columnName);
+        try { return resultSet.getBoolean(columnName); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
 
     public byte[] getBytes(final String columnName) {
 		assertOpen("getBytes(String)");
@@ -298,6 +297,15 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+	public ContainerDraft.ArtifactState getContainerStateFromString(
+            final String columnName) {
+        assertOpen("getStateFromString(String)");
+        assertOpenResult("getStateFromString(String)");
+        debugSql(columnName);
+        try { return ContainerDraft.ArtifactState.valueOf(resultSet.getString(columnName)); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
 	public String getString(final String columnName) {
 		assertOpen("getString(String)");
 		assertOpenResult("getString(String)");
@@ -339,12 +347,12 @@ public class Session {
 		try { return ArtifactType.valueOf(resultSet.getString(columnName)); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
-
 	public UUID getUniqueId(final String columnName) {
 		assertOpen("getString(String)");
 		assertOpenResult("getString(String)");
 		return UUID.fromString(getString(columnName));
 	}
+
 	/**
 	 * @see java.lang.Object#hashCode()
 	 * 
@@ -395,6 +403,14 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+	public void setEnumTypeAsString(final Integer index, final Enum<?> enumType) {
+        assertOpen("setEnumAsString(Integer,Enum<?>)");
+        assertPreparedStatement("setEnumAsString(Integer,Enum<?>)");
+        debugSql(null == enumType ? null : enumType.toString(), index);
+        try { preparedStatement.setString(index, enumType.toString()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
 	public void setFlagAsInteger(final Integer index, final ArtifactFlag flag) {
 		assertOpen("setFlagAsInteger(Integer,ArtifactFlag)");
 		assertPreparedStatement("setFlagAsInteger(Integer,ArtifactFlag)");
@@ -427,7 +443,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-	public void setMetaDataAsString(final Integer index, final MetaData metaData) {
+    public void setMetaDataAsString(final Integer index, final MetaData metaData) {
 		assertOpen("setMetaDataAsString(Integer,MetaData)");
 		assertPreparedStatement("setMetaDataAsString(Integer,MetaData)");
 		debugSql(null == metaData ? null : metaData.toString(), index);
@@ -453,15 +469,6 @@ public class Session {
 	}
 
     public void setStateAsInteger(final Integer index,
-            final ContainerDraftArtifactState state) {
-        assertOpen("setStateAsInteger(Integer,ContainerDraftArtifactState)");
-        assertPreparedStatement("setStateAsInteger(Integer,ContainerDraftArtifactState)");
-        debugSql(null == state ? null : state.getId(), index);
-        try { preparedStatement.setInt(index, state.getId()); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-    }
-
-	public void setStateAsInteger(final Integer index,
             final TeamMemberState state) {
         assertOpen("setStateAsInteger(Integer,ArtifactTeamMemberState)");
         assertPreparedStatement("setStateAsInteger(Integer,ArtifactTeamMemberState)");
@@ -477,15 +484,6 @@ public class Session {
 		try { preparedStatement.setString(index, state.toString()); }
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
-
-	public void setStateAsString(final Integer index,
-            final ContainerDraftArtifactState state) {
-        assertOpen("setStateAsString(Integer,ContainerDraftArtifactState)");
-        assertPreparedStatement("ContainerDraftArtifactState(Integer,ContainerDraftArtifactState)");
-        debugSql(null == state ? null : state.toString(), index);
-        try { preparedStatement.setString(index, state.toString()); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-    }
 
 	public void setStateAsString(final Integer index,
             final TeamMemberState state) {

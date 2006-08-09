@@ -23,12 +23,9 @@ import com.thinkparity.model.parity.model.document.Document;
  */
 public class MainCellDraftDocument extends Document implements MainCell  {
     
-    /** The document's draft. */
-    private final CellDraft draft;
-    
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
-
+    
     /** The cell's text foreground colour for closed documents. */
     private static final Color TEXT_FG_CLOSED;
 
@@ -41,19 +38,30 @@ public class MainCellDraftDocument extends Document implements MainCell  {
 
         TEXT_MAX_LENGTH = 60;
     }
+
+    /** The document's draft. */
+    private final MainCellDraft draftDisplay;
     
     /** An image cache. */
     private final MainCellImageCache imageCache;    
 
-    /** Create a CellDocument. */
-    public MainCellDraftDocument(final CellDraft draft, final Document document) {
+    /**
+     * Create MainCellDraftDocument.
+     * 
+     * @param draftDisplay
+     *            A draft display cell.
+     * @param document
+     *            A document.
+     */
+    public MainCellDraftDocument(final MainCellDraft draftDisplay,
+            final Document document) {
         super(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
                 document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
                 document.getUpdatedOn());
         setId(document.getId());
         setRemoteInfo(document.getRemoteInfo());
         setState(document.getState());
-        this.draft = draft;
+        this.draftDisplay = draftDisplay;
         this.imageCache = new MainCellImageCache(); 
     }
 
@@ -82,6 +90,28 @@ public class MainCellDraftDocument extends Document implements MainCell  {
     public Border getBorder() {
         return null;
     }
+
+    /**
+     * Obtain the container display cell.
+     * 
+     * @return The container display cell.
+     * @see MainCellDraftDocument#getDraftDisplay()
+     */
+    public MainCellContainer getContainerDisplay() {
+        return getDraftDisplay().getContainerDisplay();
+    }
+
+    /**
+     * Get the parent container id
+     */
+    public Long getContainerId() { return draftDisplay.getContainerId(); }
+
+    /**
+     * Obtain the draft display cell.
+     * 
+     * @return The draft display cell.
+     */
+    public MainCellDraft getDraftDisplay() { return draftDisplay; }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getInfoIcon()
@@ -141,12 +171,5 @@ public class MainCellDraftDocument extends Document implements MainCell  {
     public String getToolTip() {
         if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
         else { return null; }
-    }
-
-    /**
-     * Get the parent container id
-     */
-    public Long getContainerId() {
-        return draft.getContainerId();
     }
 }

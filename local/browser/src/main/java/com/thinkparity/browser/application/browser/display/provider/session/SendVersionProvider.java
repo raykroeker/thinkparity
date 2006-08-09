@@ -15,7 +15,6 @@ import com.thinkparity.browser.application.browser.display.provider.CompositeFla
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.profile.Profile;
@@ -60,8 +59,7 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
 		this.documentProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long documentId = assertValidInput(input);
-				try { return dModel.get(documentId); }
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				return dModel.get(documentId);
 			}
 		};
 		this.teamProvider = new FlatContentProvider(profile) {
@@ -78,8 +76,7 @@ public class SendVersionProvider extends CompositeFlatSingleContentProvider {
 			public Object getElement(final Object input) {
 				final Long documentId = (Long) ((Pair) input).getFirst();
 				final Long versionId = (Long) ((Pair) input).getSecond();
-				try { return dModel.getVersion(documentId, versionId); }
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				return dModel.getVersion(documentId, versionId);
 			}
 		};
 		this.flatProviders = new FlatContentProvider[] {teamProvider};

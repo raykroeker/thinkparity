@@ -14,7 +14,7 @@ import javax.swing.JPopupMenu;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.display.avatar.container.CellContainer;
+import com.thinkparity.browser.application.browser.display.avatar.container.MainCellContainer;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.platform.Platform.Connection;
 
@@ -33,7 +33,7 @@ public class PopupContainer implements Popup {
     private final CompositeFlatSingleContentProvider contentProvider;
 
     /** The document main cell. */
-    private final CellContainer container;
+    private final MainCellContainer container;
 
     /** The popup localisation. */
     private final PopupL18n l18n;
@@ -48,7 +48,7 @@ public class PopupContainer implements Popup {
      */
     public PopupContainer(
             final CompositeFlatSingleContentProvider contentProvider,
-            final CellContainer container) {
+            final MainCellContainer container) {
         super();
         this.contentProvider = contentProvider;
         this.container = container;

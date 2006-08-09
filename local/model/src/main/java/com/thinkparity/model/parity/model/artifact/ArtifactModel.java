@@ -66,19 +66,6 @@ public class ArtifactModel extends AbstractModel {
 	}
 
 	/**
-	 * Accept the key request.
-	 * 
-	 * @param keyRequestId
-	 *            The key request id.
-	 * 
-	 * @throws ParityException
-	 */
-	public void acceptKeyRequest(final Long keyRequestId)
-			throws ParityException {
-		synchronized(implLock) { impl.acceptKeyRequest(keyRequestId); }
-	}
-
-	/**
 	 * Apply the seen flag to the artifact.
 	 * 
 	 * @param artifactId
@@ -86,17 +73,6 @@ public class ArtifactModel extends AbstractModel {
 	 */
 	public void applyFlagSeen(final Long artifactId) {
 		synchronized(implLock) { impl.applyFlagSeen(artifactId); }
-	}
-
-	/**
-	 * Decline a key request.
-	 * 
-	 * @param keyRequestId
-	 *            The key request id.
-	 * @throws ParityException
-	 */
-	public void declineKeyRequest(final Long keyRequestId) throws ParityException {
-		synchronized(implLock) { impl.declineKeyRequest(keyRequestId); }
 	}
 
 	/**
@@ -164,17 +140,6 @@ public class ArtifactModel extends AbstractModel {
 	public void removeFlagSeen(final Long artifactId) {
 		synchronized(implLock) { impl.removeFlagSeen(artifactId); }
 	}
-
-	/**
-     * Send the key for an artifact.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void sendKey(final Long artifactId, final JabberId jabberId)
-            throws ParityException {
-        synchronized(getImplLock()) { getImpl().sendKey(artifactId, jabberId); }
-    }
 
     /**
 	 * Obtain the implemenatation.

@@ -33,8 +33,7 @@ public class RenameTest extends DocumentTestCase {
         Document document;
         DocumentVersion documentVersion;
         for(final Fixture datum : data) {
-            try { datum.dModel.rename(datum.documentId, datum.documentName); }
-            catch(final ParityException px) { fail(createFailMessage(px)); }
+            datum.dModel.rename(datum.documentId, datum.documentName);
 
             document = null;
             documentVersion = null;

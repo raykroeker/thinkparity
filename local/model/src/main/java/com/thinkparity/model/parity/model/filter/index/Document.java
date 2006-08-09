@@ -6,7 +6,7 @@ package com.thinkparity.model.parity.model.filter.index;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.index.IndexHit;
 

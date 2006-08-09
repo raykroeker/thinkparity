@@ -6,13 +6,14 @@ package com.thinkparity.model.smackx.packet;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -27,7 +28,7 @@ public class IQGetKeyHolderProvider implements IQProvider {
 	 */
 	public IQGetKeyHolderProvider() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

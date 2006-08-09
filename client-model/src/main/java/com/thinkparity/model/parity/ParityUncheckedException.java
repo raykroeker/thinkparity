@@ -21,8 +21,8 @@ public class ParityUncheckedException extends RuntimeException {
      * @param cause
      *            The cause of the error.
      */
-	ParityUncheckedException(final Throwable cause) {
-		super(cause);
+	ParityUncheckedException(final String message, final Throwable cause) {
+		super(message, cause);
 		fillInStackTrace();
 	}
 }

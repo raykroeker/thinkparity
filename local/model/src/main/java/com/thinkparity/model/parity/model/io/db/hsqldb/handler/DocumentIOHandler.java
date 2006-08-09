@@ -239,39 +239,6 @@ public class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#createVersion(java.lang.Long,
-	 *      com.thinkparity.model.parity.model.document.DocumentVersion,
-	 *      com.thinkparity.model.parity.model.document.DocumentVersionContent)
-	 * 
-	 */
-	public void createVersion(final Long versionId,
-			final DocumentVersion version,
-			final DocumentVersionContent versionContent) {
-		final Session session = openSession();
-		try {
-			artifactIO.createVersion(session, versionId, version);
-
-			session.prepareStatement(SQL_CREATE_VERSION);
-			session.setLong(1, version.getArtifactId());
-			session.setLong(2, version.getVersionId());
-			session.setBytes(3, versionContent.getContent());
-			session.setString(4, version.getEncoding());
-			session.setString(5, version.getChecksum());
-			session.setInt(6, version.getCompression());
-			if(1 != session.executeUpdate())
-				throw new HypersonicException(
-                        getErrorId("[CREATE VERSION]", "[COULD NOT CREATE DOCUMENT VERSION]"));
-			version.setVersionId(version.getVersionId());
-			session.commit();
-		}
-		catch(final HypersonicException hx) {
-			session.rollback();
-			throw hx;
-		}
-		finally { session.close(); }
-	}
-
-	/**
 	 * @see com.thinkparity.model.parity.model.io.handler.DocumentIOHandler#delete(java.lang.Long)
 	 * 
 	 */
@@ -433,7 +400,7 @@ public class DocumentIOHandler extends AbstractIOHandler implements
             session.setLong(1, documentId);
             session.setLong(2, versionId);
             session.executeQuery();
-            if(session.nextResult()) { return session.getInputStream(""); }
+            if(session.nextResult()) { return session.getInputStream("CONTENT"); }
             else { return null; }
         }
         finally { session.close(); }

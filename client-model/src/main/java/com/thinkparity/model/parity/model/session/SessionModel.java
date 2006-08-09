@@ -3,14 +3,9 @@
  */
 package com.thinkparity.model.parity.model.session;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.events.KeyEvent;
 import com.thinkparity.model.parity.api.events.KeyListener;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
@@ -159,7 +154,7 @@ public class SessionModel extends AbstractModel {
      * 
      * @throws ParityException
      */
-    public void login() throws ParityException {
+    public void login() {
         synchronized(implLock) { impl.login(); }
     }
 
@@ -171,8 +166,7 @@ public class SessionModel extends AbstractModel {
 	 *            The user's credentials.
 	 * @throws ParityException
 	 */
-	public void login(final Credentials credentials)
-			throws ParityException {
+	public void login(final Credentials credentials) {
 		synchronized(implLock) { impl.login(credentials); }
 	}
 
@@ -180,7 +174,7 @@ public class SessionModel extends AbstractModel {
 	 * Terminate the current parity session.
 	 * @throws ParityException
 	 */
-	public void logout() throws ParityException {
+	public void logout() {
 		synchronized(implLock) { impl.logout(); }
 	}
 
@@ -222,46 +216,6 @@ public class SessionModel extends AbstractModel {
 	 */
 	public void removeListener(final SessionListener sessionListener) {
 		synchronized(implLock) { impl.removeListener(sessionListener); }
-	}
-
-	/**
-	 * Send a specific document version to the list of users.
-	 * 
-	 * @param users
-	 *            The list of users.
-	 * @param documentId
-	 *            The document id.
-	 * @param versionId
-	 *            The version id.
-	 * @throws ParityException
-	 */
-	public void send(final Collection<User> users, final Long documentId,
-			final Long versionId) throws ParityException {
-		synchronized(implLock) { impl.send(users, documentId, versionId); }
-	}
-
-    /**
-     * Reactivate a document.
-     *
-     */
-    public void sendDocumentReactivate(final List<JabberId> team,
-            final UUID uniqueId, final Long versionId, final String name,
-            final byte[] bytes) throws ParityException {
-        synchronized(implLock) {
-            impl.sendDocumentReactivate(team, uniqueId, versionId, name, bytes);
-        }
-    }
-
-    /**
-	 * Send a reqest for a document key to the parity server.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws ParityException
-	 * @see KeyListener#keyRequested(KeyEvent)
-	 */
-	public void sendKeyRequest(final Long artifactId) throws ParityException {
-		synchronized(implLock) { impl.sendKeyRequest(artifactId); }
 	}
 
     /**

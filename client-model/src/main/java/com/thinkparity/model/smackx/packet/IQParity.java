@@ -4,9 +4,9 @@
 package com.thinkparity.model.smackx.packet;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -48,7 +48,7 @@ public abstract class IQParity extends IQ {
 	/**
 	 * Handle to an apache logger.
 	 */
-	protected final Logger logger = ModelLoggerFactory.getLogger(getClass());
+	protected final Logger logger = Logger.getLogger(getClass());
 
 	/**
 	 * Create a parity iq.

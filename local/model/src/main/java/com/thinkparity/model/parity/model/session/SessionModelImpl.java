@@ -9,9 +9,9 @@ import java.util.*;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.api.events.KeyEvent;
 import com.thinkparity.model.parity.api.events.KeyListener;
 import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
@@ -26,7 +26,6 @@ import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.Profile;
@@ -63,12 +62,6 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @see SessionModelImpl#presenceListeners
 	 */
 	private static final Object presenceListenersLock;
-
-    /**
-	 * Static handle to the session model's auditor.
-	 * 
-	 */
-	private static final SessionModelAuditor sAuditor;
 
 	/**
 	 * The static session model context.
@@ -108,36 +101,81 @@ class SessionModelImpl extends AbstractModelImpl {
 		sessionListenersLock = new Object();
 		// session context
 		sContext = getSessionModelContext();
-		sAuditor = new SessionModelAuditor(sContext);
 		// create the xmpp helper
 		xmppHelper = new SessionModelXMPPHelper();
 	}
 
-	/**
-     * Handle the container reactivation.
+    /**
+     * Handle the artifact sent event for the container.
      * 
+     * @param containerUniqueId
+     *            The container unique id.
+     * @param containerVersionId
+     *            The container version id.
+     * @param count
+     *            The artifact count.
+     * @param index
+     *            The artifact index.
      * @param uniqueId
-     *            The unique id.
+     *            The artifact unique id.
      * @param versionId
-     *            The version id.
-     * @param name
-     *            The name.
-     * @param team
-     *            The team.
-     * @param reactivatedBy
-     *            Who reactivated the container.
-     * @param reactivatedOn
-     *            When the container was reactivated.
-     * @throws ParityException
+     *            The artifact version id.
+     * @param type
+     *            The artifact type.
+     * @param bytes
+     *            The artifact bytes.
      */
-    static void handleContainerReactivate(final UUID uniqueId,
-            final Long versionId, final String name, final List<JabberId> team,
-            final JabberId reactivatedBy, final Calendar reactivatedOn)
-            throws ParityException {
-        Assert.assertNotYetImplemented("SessionModelImpl#handleContainerReactivate");
+    static void handleContainerArtifactSent(final JabberId sentBy,
+            final Calendar sentOn, final UUID containerUniqueId,
+            final Long containerVersionId, final String containerName,
+            final Integer count, final Integer index, final UUID uniqueId,
+            final Long versionId, final String name, final ArtifactType type,
+            final byte[] bytes) throws ParityException {
+        final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
+        final Long containerId = artifactModel.readId(containerUniqueId);
+        final Long id = artifactModel.readId(uniqueId);
+        final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
+        containerModel.handleArtifactSent(sentBy, sentOn, containerUniqueId,
+                containerId, containerVersionId, containerName, uniqueId, id,
+                versionId, name, type, bytes);
     }
 
-	/**
+    /**
+     * Handle the artifact sent event for the container.
+     * 
+     * @param containerUniqueId
+     *            The container unique id.
+     * @param containerVersionId
+     *            The container version id.
+     * @param count
+     *            The artifact count.
+     * @param index
+     *            The artifact index.
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param versionId
+     *            The artifact version id.
+     * @param type
+     *            The artifact type.
+     * @param bytes
+     *            The artifact bytes.
+     */
+    static void handleContainerArtifactPublished(final JabberId publishedBy,
+            final Calendar publishedOn, final UUID containerUniqueId,
+            final Long containerVersionId, final Integer count,
+            final Integer index, final UUID uniqueId, final Long versionId,
+            final String name, final ArtifactType type, final byte[] bytes)
+            throws ParityException {
+        final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
+        final Long containerId = artifactModel.readId(containerUniqueId);
+        final Long id = artifactModel.readId(uniqueId);
+        final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
+        containerModel.handleArtifactPublished(publishedBy, publishedOn,
+                containerUniqueId, containerId, containerVersionId, uniqueId,
+                id, versionId, name, type, bytes);
+    }
+
+    /**
      * Handle the event that a new team member was added to the artifact.
      * 
      * @param artifactUniqueId
@@ -150,24 +188,6 @@ class SessionModelImpl extends AbstractModelImpl {
             final JabberId jabberId) throws ParityException {
 	    final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
         artifactModel.handleTeamMemberAdded(uniqueId, jabberId);
-	}
-
-	/**
-     * Handle the event generated by the server to close an artifact.
-     * 
-     * @param artifactUniqueId
-     *            The artifact unique id.
-     * @param artifactClosedBy
-     *            The user closing the document.
-     * @throws ParityException
-     */
-	static void notifyArtifactClosed(final UUID artifactUniqueId,
-			final JabberId artifactClosedBy) throws ParityException {
-        final InternalArtifactModel aModel = ArtifactModel.getInternalModel(sContext);
-        final Long artifactId = aModel.readId(artifactUniqueId);
-
-        final InternalContainerModel cModel = ContainerModel.getInternalModel(sContext);
-        cModel.handleClose(artifactId, artifactClosedBy, currentDateTime());
 	}
 
     /**
@@ -193,20 +213,6 @@ class SessionModelImpl extends AbstractModelImpl {
             throws ParityException {
         Assert.assertNotYetImplemented("SessionModelImpl#notifyDocumentReactivated");
     }
-
-    /**
-	 * Handle the event generated by xmppExtensionListenerImpl.  Here we create
-	 * a new document based upon the document version.
-	 * 
-	 * @param xmppDocument
-	 *            The xmpp document that has been received.
-	 */
-	static void notifyDocumentReceived(final JabberId receivedFrom,
-            final UUID uniqueId, final Long versionId, final String name,
-            final byte[] content) throws ParityException, SmackException {
-		DocumentModel.getInternalModel(sContext).receive(receivedFrom, uniqueId,
-                versionId, name, content);
-	}
 
     /**
 	 * @deprecated The accept\decline contact notifications are
@@ -257,38 +263,6 @@ class SessionModelImpl extends AbstractModelImpl {
             final JabberId deniedBy) throws ParityException, SmackException {
         final Document d = DocumentModel.getInternalModel(sContext).get(uniqueId);
         DocumentModel.getInternalModel(sContext).keyRequestDeclined(d.getId(), deniedBy);
-	}
-
-	/**
-	 * Notify all of the registered key listeners that a user has requested the
-	 * key for a given artifact.
-	 * 
-	 * @param user
-	 *            The requesting user.
-	 * @param artifactUUID
-	 *            The artifact.
-	 */
-	static void notifyKeyRequested(final UUID artifactUniqueId,
-			final JabberId requestedBy) throws ParityException, SmackException {
-		final Calendar currentDateTime = currentDateTime();
-		final InternalDocumentModel iDModel = DocumentModel.getInternalModel(sContext);
-		final Document document = iDModel.get(artifactUniqueId);
-
-		// request key
-		iDModel.requestKey(document.getId(), requestedBy);
-
-		// update the remote info row
-		final InternalArtifactModel iAModel =
-			ArtifactModel.getInternalModel(sContext);
-		iAModel.updateRemoteInfo(document.getId(), requestedBy, currentDateTime);
-
-		// audit key request
-		final User loggedInUser;
-		synchronized(xmppHelper) { loggedInUser =  xmppHelper.getUser(); }
-		sAuditor.requestKey(document.getId(), loggedInUser.getId(), currentDateTime, requestedBy, loggedInUser.getId());
-
-		// fire the key requested event
-		notifyKey_keyRequested(document.getId());
 	}
 
 	/**
@@ -354,24 +328,8 @@ class SessionModelImpl extends AbstractModelImpl {
         return getApiId(api).append(" ").append(error);
     }
 
-	/**
-	 * Fire the keyRequestDeclined event for all key listeners.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 */
-	private static void notifyKey_keyRequested(final Long artifactId) {
-		synchronized(keyListeners) {
-			final KeyEvent e = new KeyEvent(artifactId);
-			for(final KeyListener l : keyListeners) { l.keyRequested(e); }
-		}
-	}
-
-    /**
-	 * The session model auditor.
-	 * 
-	 */
-	private final SessionModelAuditor auditor;
+	/** The remote environment. */
+    private final Environment environment;
 
 	/**
 	 * Create a SessionModelImpl
@@ -381,10 +339,12 @@ class SessionModelImpl extends AbstractModelImpl {
 	 */
 	SessionModelImpl(final Workspace workspace) {
 		super(workspace);
-		this.auditor = new SessionModelAuditor(getContext());
+        this.environment = new Environment();
+        this.environment.setServerHost(workspace.getPreferences().getServerHost());
+        this.environment.setServerPort(workspace.getPreferences().getServerPort());
 	}
 
-	/**
+    /**
 	 * Accept an invitation to the user's contact list.
 	 * 
 	 * @param jabberId
@@ -405,7 +365,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Add a key listener to the session.
 	 * 
 	 * @param keyListener
@@ -451,7 +411,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		sessionListeners.add(sessionListener);
 	}
 
-	/**
+    /**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -467,13 +427,12 @@ class SessionModelImpl extends AbstractModelImpl {
         synchronized(xmppHelper) {
             try { xmppHelper.addTeamMember(uniqueId, jabberId); }
             catch(final SmackException sx) {
-                logger.error(getErrorId("[ADD TEAM MEMBER]", "[COULD NOT ADD TEAM MEMBER]"), sx);
-                throw ParityErrorTranslator.translateUnchecked(sx);
+                throw translateError(getApiId("[ADD TEAM MEMBER]"), sx);
             }
         }
     }
 
-    /**
+	/**
 	 * Send an artifact received confirmation receipt.
 	 * 
 	 * @param receivedFrom
@@ -495,6 +454,36 @@ class SessionModelImpl extends AbstractModelImpl {
 	    }
 	}
 
+
+	/**
+	 * Send an artifact creation packet to the parity server.
+	 * 
+	 * @param artifact
+	 *            The document.
+	 * @throws NotTrueAssertion
+	 *             <ul>
+	 *             <li>If the user is offline.
+	 *             <li>If the logged in user is not the key holder.
+	 *             </ul>
+	 * @throws ParityException
+	 */
+	void createArtifact(final Artifact artifact) throws ParityException {
+		logger.info(getApiId("[CREATE ARTIFACT]"));
+		logger.debug(artifact);
+        assertOnline(getApiId("[CREATE ARTIFACT]"));
+		synchronized(SessionModelImpl.xmppHelper) {
+			try { SessionModelImpl.xmppHelper.createArtifact(artifact.getUniqueId()); }
+			catch(SmackException sx) {
+				logger.error("sendCreate(Artifact)", sx);
+				throw ParityErrorTranslator.translate(sx);
+			}
+			catch(RuntimeException rx) {
+				logger.error("sendCreate(Artifact)", rx);
+				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
 	/**
      * Create a draft for an artifact.
      * 
@@ -507,7 +496,6 @@ class SessionModelImpl extends AbstractModelImpl {
         assertOnline(getApiId("[CREATE DRAFT] [USER NOT ONLINE]"));
         synchronized(xmppHelper) { xmppHelper.createDraft(uniqueId); }
     }
-
 
 	/**
 	 * Decline a user's invitation to their contact list.
@@ -544,8 +532,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelper) {
 			try { xmppHelper.inviteContact(email); }
 			catch(final SmackException sx) {
-				logger.error(getApiId("[INVITE CONTACT]"), sx);
-				throw ParityErrorTranslator.translateUnchecked(sx);
+				throw translateError(getApiId("[INVITE CONTACT]"), sx);
 			}
 		}
 	}
@@ -559,7 +546,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		synchronized(xmppHelper) { return xmppHelper.isLoggedIn(); }
 	}
 
-	/**
+    /**
 	 * Determine whether or not the logged in user is the artifact key holder.
 	 * 
 	 * @param artifactId
@@ -595,118 +582,66 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Establish a new xmpp session.
      * 
      * @throws ParityException
      */
-    void login() throws ParityException {
+    void login() {
         logger.info(getApiId("[LOGIN]"));
         login(readCredentials());
     }
 
     /**
-	 * Establish a new xmpp session.
+     * Establish a new xmpp session.
+     * 
+     * @param credentials
+     *            The user's credentials.
+     * @throws ParityException
+     */
+    void login(final Credentials credentials) {
+        logger.info(getApiId("[LOGIN]"));
+        logger.debug(credentials);
+        login(environment, credentials);
+    }
+
+    /**
+	 * Terminate the current session.
 	 * 
-	 * @param credentials
-	 *            The user's credentials.
 	 * @throws ParityException
 	 */
-	void login(final Credentials credentials) throws ParityException {
-		logger.info(getApiId("[LOGIN]"));
-		logger.debug(credentials);
-        assertNotIsOnline(getErrorId("[LOGIN]", "[USER ALREADY ONLINE]").toString());
-		final String host = preferences.getServerHost();
-		final Integer port = preferences.getServerPort();
+	void logout() {
+        assertOnline(getApiId("[LOGOUT]"));
 		synchronized(xmppHelper) {
-			try {
-				// check that the user's credentials match
-                final Credentials storedCredentials = readCredentials();
-				if(null != storedCredentials) {
-					Assert.assertTrue(
-							getErrorId("[LOGIN]", "[CANNOT MATCH USER CREDENTIALS]").toString(),
-							storedCredentials.equals(credentials));
-				}
-				// login
-				xmppHelper.login(host, port, credentials.getUsername(), credentials.getPassword());
-
-                // save the user's credentials
-				if(null == storedCredentials) {
-                    createCredentials(
-                            credentials.getUsername(), credentials.getPassword());
-                }
-
-				xmppHelper.processOfflineQueue();
-			}
+			try { xmppHelper.logout(); }
 			catch(final SmackException sx) {
-				logger.error("[LMODEL] [SESSION] [LOGIN] [XMPP ERROR])", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("[LMODEL] [SESSION] [LOGIN] [UNKNOWN ERROR])", rx);
-				throw ParityErrorTranslator.translate(rx);
+				throw translateError(getApiId("[LOGOUT]"), sx);
 			}
 		}
 	}
 
 	/**
-	 * Terminate the current session.
-	 * 
-	 * @throws ParityException
-	 */
-	void logout() throws ParityException {
-		synchronized(xmppHelper) {
-			assertIsLoggedIn("logout", xmppHelper);
-			try { xmppHelper.logout(); }
-			catch(SmackException sx) {
-				logger.error("logout()", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("logout()", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-    /**
-     * Reactivate a container version.
+     * Send a container to a list of users.
      * 
-     * @param version
-     *            The version.
-     * @param documentVersions
-     *            The document versions.
-     * @param team
-     *            The team.
-     * @param reactivatedBy
-     *            Who reactivated.
-     * @param reactivatedOn
-     *            When reactivated.
-     * @throws ParityException
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents.
+     * @param users
+     *            A list of users.
      */
-
-    void reactivate(final ContainerVersion version,
-            final List<DocumentVersionContent> documentVersions,
-            final List<JabberId> team, final JabberId reactivatedBy,
-            final Calendar reactivatedOn) throws ParityException {
-        logger.info(getApiId("[SEND REACTIVATE]"));
-        logger.debug(version);
-        logger.debug(team);
-        logger.debug(reactivatedBy);
-        logger.debug(reactivatedOn);
-        assertOnline(getApiId("[REACTIVATE] [USER NOT ONLINE]"));
+    void publish(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final JabberId publishedBy, final Calendar publishedOn) {
+        logger.info(getApiId("[PUBLISH]"));
+        logger.debug(container);
+        logger.debug(documents);
+        logger.debug(publishedBy);
+        logger.debug(publishedOn);
         synchronized(xmppHelper) {
-            try {
-                xmppHelper.reactivate(version, documentVersions, team,
-                        reactivatedBy, reactivatedOn);
-            }
+            try { xmppHelper.publish(container, documents, publishedBy, publishedOn); }
             catch(final SmackException sx) {
-                logger.error(getApiId("[REACTIVATE]"), sx);
-                throw ParityErrorTranslator.translate(sx);
-            }
-            catch(final RuntimeException rx) {
-                logger.error(getApiId("[REACTIVATE]"), rx);
-                throw ParityErrorTranslator.translate(rx);
+                throw translateError(getApiId("[PUBLISH]"), sx);
             }
         }
     }
@@ -735,7 +670,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -765,7 +700,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Read the session user's contact info.
      * 
      * @return The user's contact info.
@@ -775,7 +710,7 @@ class SessionModelImpl extends AbstractModelImpl {
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
     }
 
-	/**
+    /**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -807,7 +742,7 @@ class SessionModelImpl extends AbstractModelImpl {
         synchronized(xmppHelper) {
             try { return xmppHelper.readProfile(); }
             catch(final SmackException sx) {
-                throw ParityErrorTranslator.translateUnchecked(sx);
+                throw translateError(getApiId("[READ PROFILE]"), sx);
             }
         }
     }
@@ -823,7 +758,7 @@ class SessionModelImpl extends AbstractModelImpl {
         final Session session = new Session();
         try { session.setJabberId(xmppHelper.getUser().getId()); }
         catch(final SmackException sx) {
-            throw ParityErrorTranslator.translateUnchecked(sx);
+            throw translateError(getApiId("[READ SESSION]"), sx);
         }
         return session;
     }
@@ -862,7 +797,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		return readUsers(jabberIds).iterator().next();
 	}
 
-    /**
+	/**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -938,271 +873,43 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Send a container to a list of users.
+     * Remove a team member from the artifact team.
      * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents.
-     * @param users
-     *            A list of users.
-     */
-    void send(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
-            final List<User> users) {
-        logger.info(getApiId("[SEND]"));
-        logger.debug(container);
-        logger.debug(documents);
-        logger.debug(users);
-        synchronized(xmppHelper) {
-            try { xmppHelper.send(container, documents, users); }
-            catch(final SmackException sx) {
-                logger.error(getApiId("[SEND]"), sx);
-                throw ParityErrorTranslator.translateUnchecked(sx);
-            }
-        }
-    }
-
-	/**
-	 * Send a particular revision to a list of users. The version is obtained
-	 * from the document model; and streamed to the list of users.
-	 * 
-	 * @param users
-	 *            The list of users to send the document version to.
-	 * @param documentId
-	 *            The document id.
-	 * @param versionId
-	 *            The version id.
-	 * @throws ParityException
-	 */
-	void send(final Collection<User> users, final Long documentId,
-			final Long versionId) throws ParityException {
-		logger.info("send(Collection<User>,Long,Long)");
-		logger.debug(users);
-		logger.debug(documentId);
-		logger.debug(versionId);
-		synchronized(xmppHelper) {
-			try {
-				final InternalDocumentModel iDModel = getInternalDocumentModel();
-                final Document d = iDModel.get(documentId);
-				final DocumentVersion dv = iDModel.getVersion(documentId, versionId);
-				final DocumentVersionContent vc = iDModel.getVersionContent(documentId, versionId);
-
-				// send the document version
-				xmppHelper.sendDocumentVersion(extractIdSet(users),
-                        d.getUniqueId(), dv.getVersionId(), d.getName(),
-                        vc.getContent());
-
-				// audit the send
-                final Calendar currentDateTime = currentDateTime();
-				auditor.send(dv.getArtifactId(), currentDateTime,
-                        currentUserId(), dv.getVersionId(), currentUserId(),
-                        currentDateTime, users);
-			}
-			catch(final SmackException sx) {
-				logger.error("Could not send document version.", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("Could not send document version.", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
-	 * Send a close packet to the server.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws ParityException
-	 */
-	void sendClose(final Long artifactId) throws ParityException {
-		logger.info("[LMODEL] [SESSION] [SEND CLOSE]");
-		logger.debug(artifactId);
-        assertOnline("[LMODEL] [SESSION] [SEND CLOSE] [USER IS NOT ONLINE]");
-        assertIsKeyHolder(
-                "[LMODEL] [SESSION] [SEND CLOSE] [USER IS NOT KEYHOLDER]", artifactId);
-		synchronized(xmppHelper) {
-			try {
-				final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
-				xmppHelper.sendClose(artifactUniqueId);
-			}
-			catch(final SmackException sx) {
-				logger.error("Cannot call remote close api.", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("Cannot close artifact:  " + artifactId, rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-    /**
-	 * Send an artifact creation packet to the parity server.
-	 * 
-	 * @param artifact
-	 *            The document.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             <li>If the logged in user is not the key holder.
-	 *             </ul>
-	 * @throws ParityException
-	 */
-	void sendCreate(final Artifact artifact) throws ParityException {
-		logger.info("sendCreate(Artifact)");
-		logger.debug(artifact);
-		synchronized(SessionModelImpl.xmppHelper) {
-			assertIsLoggedIn("sendCreate(Artifact)", SessionModelImpl.xmppHelper);
-			try { SessionModelImpl.xmppHelper.sendCreate(artifact.getUniqueId()); }
-			catch(SmackException sx) {
-				logger.error("sendCreate(Artifact)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("sendCreate(Artifact)", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	/**
-	 * Send a delete packet to the parity server.  Note that sendDelete is a
-     * misnomer.  It deletes the current user's subscription adn only flags the
-     * remote document as deleted once all subscriptions have been removed.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user if offline.
-	 *             </ul>
-	 */
-	void sendDelete(final Long artifactId) throws ParityException {
-		logger.info("sendDelete(Long)");
-		logger.debug(artifactId);
-		synchronized(SessionModelImpl.xmppHelper) {
-			assertIsLoggedIn("Must be online to delete.", xmppHelper);
-			try {
-				final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
-				xmppHelper.sendDelete(artifactUniqueId);
-			}
-			catch(final SmackException sx) {
-				logger.error("Could not delete artifact:  " + artifactId, sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("Could not delete artifact:  " + artifactId, rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-	void sendDocumentReactivate(final List<JabberId> team, final UUID uniqueId,
-            final Long versionId, final String name, final byte[] bytes)
-            throws ParityException {
-        synchronized(SessionModelImpl.xmppHelper) {
-            assertIsLoggedIn("[SESSION MODEL] [SEND DOCUMENT REACTIVATE] [USER NOT LOGGED IN]", SessionModelImpl.xmppHelper);
-            try { xmppHelper.sendDocumentReactivate(team, uniqueId, versionId, name, bytes); }
-            catch(final SmackException sx) {
-                logger.error("[SESSION MODEL] [SEND DOCUMENT REACTIVATE] [UNKNOWN ERROR]", sx);
-                throw ParityErrorTranslator.translate(sx);
-            }
-        }
-    }
-
-    /**
-	 * Send the response to a key request. It is assumed that the logged in user
-	 * is the key holder. It is assumed that all key information is stored on
-	 * the parity server and never locally. It is assumed that they key will be
-	 * accompanied by the working document.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param requestedBy
-	 *            The jabber id of the user requesting the key.
-	 * @param keyResponse
-	 *            The response.
-	 */
-	void sendKey(final UUID artifactUniqueId, final JabberId jabberId)
-            throws ParityException {
-		logger.info(getApiId("[SEND KEY]"));
-		logger.debug(artifactUniqueId);
-        logger.debug(jabberId);
-        assertOnline(getApiId("[SEND KEY] [USER NOT ONLINE]"));
-        synchronized(xmppHelper) {
-            try {
-                xmppHelper.sendKeyResponse(artifactUniqueId, KeyResponse.ACCEPT, jabberId);
-            }
-            catch(final SmackException sx) {
-                logger.error(getApiId("[SEND KEY] [SMACK ERROR]"), sx);
-                throw ParityErrorTranslator.translate(sx);
-            }
-        }
-	}
-
-    /**
-	 * Send a reqest for a document key to the parity server.
-	 * 
-	 * @param artifactId
-	 *            The artifact unique id.
-	 * @throws ParityException
-	 * @see KeyListener#keyRequested(KeyEvent)
-	 */
-	void sendKeyRequest(final Long artifactId) throws ParityException {
-		logger.info("sendKeyRequest(Long)");
-		logger.debug(artifactId);
-		synchronized(SessionModelImpl.xmppHelper) {
-			assertIsLoggedIn("Cannot request key while offline.", xmppHelper);
-			try {
-				final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
-				xmppHelper.sendKeyRequest(artifactUniqueId);
-
-				// audit key request
-				final JabberId currentUserId = currentUserId();
-				final JabberId keyHolder = readArtifactKeyHolder(artifactUniqueId);
-				auditor.requestKey(artifactId, currentUserId, currentDateTime(),
-                        currentUserId, keyHolder);
-			}
-			catch(SmackException sx) {
-				logger.error("Cannot send key request.", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("Cannot send key request.", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
-	}
-
-    /**
-     * Send a key response [ACCEPT,DENY] to a user.
-     * 
-     * @param keyResponse
-     *            The key response.
-     * @param artifactId
-     *            An artifact id.
+     * @param uniqueId
+     *            An artifact unique id.
      * @param jabberId
      *            A jabber id.
-     * @throws ParityException
      */
-    void sendKeyResponse(final KeyResponse keyResponse, final Long artifactId,
-            final JabberId jabberId) throws ParityException {
-        logger.info(getApiId("[SEND KEY RESPONSE]"));
-        logger.debug(keyResponse);
-        logger.debug(artifactId);
+    void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        logger.info(getApiId("[REMOVE TEAM MEMBER]"));
+        logger.debug(uniqueId);
         logger.debug(jabberId);
         synchronized(xmppHelper) {
-            final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
-            try {
-                xmppHelper.sendKeyResponse(artifactUniqueId, keyResponse, jabberId);
-            }
+            xmppHelper.removeTeamMember(uniqueId, jabberId);
+        }
+    }
+
+    /**
+     * Send a container version.
+     * 
+     * @param version
+     *            A container version.
+     * @param documentVersions
+     *            A list of document versions.
+     * @param user
+     *            A user.
+     */
+    void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final User user, final JabberId sentBy, final Calendar sentOn) {
+        logger.info(getApiId("[SEND]"));
+        logger.debug(version);
+        logger.debug(documentVersions);
+        logger.debug(user);
+        synchronized(xmppHelper) {
+            try { xmppHelper.send(version, documentVersions, user, sentBy, sentOn); }
             catch(final SmackException sx) {
-                logger.error(getApiId("[SEND KEY RESPONSE] [SMACK ERROR]"), sx);
-                throw ParityErrorTranslator.translate(sx);
+                throw translateError(getApiId("[SEND]"), sx);
             }
         }
     }
@@ -1290,15 +997,46 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Extract a set of jabber ids from the list of users.
+     * Login to the environment with the credentials.
      * 
-     * @param users
-     *            A list of users.
-     * @return A set of jabber ids.
+     * @param environment
+     *            The environment to login to.
+     * @param credentials
+     *            The credentials to login with.
      */
-    private Set<JabberId> extractIdSet(final Iterable<User> users) {
-        final Set<JabberId> jabberIds = new HashSet<JabberId>();
-        for(final User user : users) { jabberIds.add(user.getId()); }
-        return jabberIds;
+    private void login(final Environment environment,
+            final Credentials credentials) {
+        logger.debug(environment);
+        logger.debug(credentials);
+        assertNotIsOnline(getApiId("[LOGIN] [USER ALREADY ONLINE]"));
+        assertIsReachable(getApiId("[LOGIN] [ENVIRONMENT NOT REACHABLE]"), environment);
+        synchronized(xmppHelper) {
+            try {
+                // check that the user's credentials match
+                final Credentials storedCredentials = readCredentials();
+                if(null != storedCredentials) {
+                    Assert.assertTrue(
+                            getErrorId("[LOGIN]", "[CANNOT MATCH USER CREDENTIALS]").toString(),
+                            storedCredentials.equals(credentials));
+                }
+                // login
+                xmppHelper.login(
+                        environment.getServerHost(),
+                        environment.getServerPort(),
+                        credentials.getUsername(),
+                        credentials.getPassword());
+
+                // save the user's credentials
+                if(null == storedCredentials) {
+                    createCredentials(
+                            credentials.getUsername(), credentials.getPassword());
+                }
+
+                xmppHelper.processOfflineQueue();
+            }
+            catch(final SmackException sx) {
+                throw translateError(getApiId("[LOGIN]"), sx);
+            }
+        }
     }
 }

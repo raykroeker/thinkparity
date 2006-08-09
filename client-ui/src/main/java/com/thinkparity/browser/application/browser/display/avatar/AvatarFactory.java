@@ -4,6 +4,8 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.display.avatar.contact.AddContact;
 import com.thinkparity.browser.application.browser.display.avatar.contact.ContactInfo;
 import com.thinkparity.browser.application.browser.display.avatar.contact.InvitePartner;
@@ -12,13 +14,11 @@ import com.thinkparity.browser.application.browser.display.avatar.contact.Search
 import com.thinkparity.browser.application.browser.display.avatar.container.ManageTeam;
 import com.thinkparity.browser.application.browser.display.avatar.container.NewContainerDialogue;
 import com.thinkparity.browser.application.browser.display.avatar.document.RenameDialog;
-import com.thinkparity.browser.application.browser.display.avatar.session.SessionSendVersion;
+import com.thinkparity.browser.application.browser.display.avatar.tabs.ContainerAvatar;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
 import com.thinkparity.browser.platform.application.dialog.ConfirmDialog;
 import com.thinkparity.browser.platform.application.dialog.ErrorDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -70,12 +70,6 @@ public class AvatarFactory {
     private Avatar browserContacts;
 
 	/**
-	 * The session send form avatar.
-	 * 
-	 */
-	private Avatar sessionSendForm;
-
-	/**
 	 * Create a AvatarFactory [Singleton, Factory]
 	 * 
 	 */
@@ -102,8 +96,8 @@ public class AvatarFactory {
      */
     private Avatar createBrowserContainers() {
         if(null == browserContainers) {
-            browserContainers = new BrowserContainersAvatar();
-            browserContainers.setContentProvider(ProviderFactory.getContainersProvider());            
+            browserContainers = new ContainerAvatar();
+            browserContainers.setContentProvider(ProviderFactory.getContainerProvider());            
         }
         return browserContainers;
     }
@@ -179,13 +173,6 @@ public class AvatarFactory {
         return new RenameDialog();
     }
 
-	private Avatar createSendVersion() {
-		final Avatar avatar = new SessionSendVersion();
-		avatar.setContentProvider(ProviderFactory.getSendVersionProvider());
-
-		return avatar;
-	}
-
 	/**
      * Create the session invite contact avatar.
      * 
@@ -211,19 +198,6 @@ public class AvatarFactory {
         final Avatar avatar = new SearchPartner();
         return avatar;
     }
-
-    /**
-	 * Create the session send form avatar.
-	 * 
-	 * @return The session send form avatar.
-	 */
-	private Avatar createSessionSendForm() {
-		if(null == sessionSendForm) {
-			sessionSendForm = new SessionSendFormAvatar();
-			sessionSendForm.setContentProvider(ProviderFactory.getSendArtifactProvider());
-		}
-		return sessionSendForm;
-	}
     
     /**
      * Create the new container dialogue avatar.
@@ -300,12 +274,6 @@ public class AvatarFactory {
         case SESSION_SEARCH_PARTNER:
             avatar = createSessionSearchPartner();
             break;
-		case SESSION_SEND_FORM:
-			avatar = createSessionSendForm();
-			break;
-		case SESSION_SEND_VERSION:
-			avatar = createSendVersion();
-			break;
         case CONTACT_INFO_DIALOGUE:
             avatar = createContactInfoDialogue();
             break;

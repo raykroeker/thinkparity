@@ -28,7 +28,6 @@ import com.thinkparity.model.smackx.packet.artifact.IQArtifactReadContactsResult
 import com.thinkparity.model.smackx.packet.artifact.IQConfirmArtifactReceipt;
 import com.thinkparity.model.smackx.packet.artifact.IQConfirmReceiptProvider;
 import com.thinkparity.model.smackx.packet.artifact.IQReadContacts;
-import com.thinkparity.model.smackx.packet.artifact.IQTeamMemberRemovedNotification;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -76,7 +75,6 @@ class XMPPArtifact {
                     else { isComplete = Boolean.TRUE; }
                 }
                 return query;
-
             }
         });
 	}
@@ -198,7 +196,7 @@ class XMPPArtifact {
      *            An artifact unique id.
      */
     void createDraft(final UUID uniqueId) {
-        logger.info("[XMPP] [ARTIFACT] [CREATE DRAFT]");
+        logger.info(getApiId("[CREATE DRAFT"));
         logger.debug(uniqueId);
         final XMPPMethod method = new XMPPMethod("artifact:createdraft");
         method.setParameter("uniqueId", uniqueId);
@@ -233,19 +231,21 @@ class XMPPArtifact {
 	}
 
 	/**
-     * Receive a notifcation re a artifact confirmation receipt.
+     * Remove a team member from the artifact team.
      * 
-     * @param confirmationPacket
-     *            The confirmation packet.
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A jabber id.
      */
-    private void notifyArtifactConfirmation(
-            final IQConfirmArtifactReceipt packet) {
-        synchronized(listeners) {
-            for(final XMPPArtifactListener l : listeners) {
-                l.confirmReceipt(packet.getArtifactUUID(),
-                        packet.getArtifactVersionId(), packet.getFromJabberId());
-            }
-        }
+    void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        logger.info(getApiId("[REMOVE TEAM MEMBER]"));
+        logger.debug(uniqueId);
+        logger.debug(jabberId);
+        final XMPPMethod method = new XMPPMethod("artifact:removeteammember");
+        method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
+        method.setParameter(Xml.User.JABBER_ID, jabberId);
+        method.execute(xmppCore.getConnection());
     }
 
 	/**
@@ -262,20 +262,21 @@ class XMPPArtifact {
 		}
 	}
 
-	/**
-     * Receive a notification re team member removal.
+    /**
+     * Receive a notifcation re a artifact confirmation receipt.
      * 
-     * @param notificationPacket
-     *            The notification packet.
+     * @param confirmationPacket
+     *            The confirmation packet.
      */
-	private void notifyTeamMemberRemoved(final IQTeamMemberRemovedNotification notificationPacket) {
-		synchronized(listeners) {
-			for(final XMPPArtifactListener l : listeners) {
-				l.teamMemberRemoved(notificationPacket.getArtifactUniqueId(),
-						notificationPacket.getTeamMember());
-			}
-		}
-	}
+    private void notifyArtifactConfirmation(
+            final IQConfirmArtifactReceipt packet) {
+        synchronized(listeners) {
+            for(final XMPPArtifactListener l : listeners) {
+                l.confirmReceipt(packet.getArtifactUUID(),
+                        packet.getArtifactVersionId(), packet.getFromJabberId());
+            }
+        }
+    }
 
     /**
      * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Added Query<br>

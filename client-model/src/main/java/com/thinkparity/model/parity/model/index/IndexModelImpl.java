@@ -20,10 +20,10 @@ import org.apache.lucene.store.FSDirectory;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.index.IndexFilterManager;
 import com.thinkparity.model.parity.model.index.lucene.DocumentBuilder;

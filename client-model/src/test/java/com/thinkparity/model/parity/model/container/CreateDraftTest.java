@@ -5,7 +5,6 @@ package com.thinkparity.model.parity.model.container;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
-import com.thinkparity.model.parity.api.events.ContainerListener;
 
 /**
  * <b>Title:</b>thinkParity Container Create Draft Test<br>
@@ -70,7 +69,7 @@ public class CreateDraftTest extends ContainerTestCase {
     }
 
     /** Test data definition. */
-    private class Fixture implements ContainerListener {
+    private class Fixture extends ContainerTestCase.Fixture {
         private final ContainerModel cModel;
         private final Long containerId;
         private Boolean didNotify;
@@ -79,24 +78,7 @@ public class CreateDraftTest extends ContainerTestCase {
             this.containerId = containerId;
             this.didNotify = Boolean.FALSE;
         }
-        public void containerClosed(ContainerEvent e) {
-            fail(NAME + " [CONTAINER CLOSED EVENT FIRED]");
-        }
-        public void containerCreated(ContainerEvent e) {
-            fail(NAME + " [CONTAINER CREATED EVENT FIRED]");
-        }
-        public void containerDeleted(ContainerEvent e) {
-            fail(NAME + " [CONTAINER DELETED EVENT FIRED]");
-        }
-        public void containerReactivated(ContainerEvent e) {
-            fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");
-        }
-        public void documentAdded(ContainerEvent e) {
-            fail(NAME + " [DOCUMENT ADDED EVENT FIRED]");
-        }
-        public void documentRemoved(ContainerEvent e) {
-            fail(NAME + " [DOCUMENT REMOVED EVENT WAS FIRED]");
-        }
+        @Override
         public void draftCreated(ContainerEvent e) {
             didNotify = Boolean.TRUE;
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
@@ -105,12 +87,6 @@ public class CreateDraftTest extends ContainerTestCase {
             assertNull(NAME, e.getContainer());
             assertNull(NAME, e.getDocument());
             assertNull(NAME, e.getTeamMember());
-        }
-        public void teamMemberAdded(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
-        }
-        public void teamMemberRemoved(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
         }
     }
 }

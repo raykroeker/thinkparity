@@ -4,10 +4,8 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
-import com.thinkparity.model.parity.api.events.ContainerListener;
-import com.thinkparity.model.parity.model.document.Document;
+
 
 
 /**
@@ -27,11 +25,9 @@ public class PublishTest extends ContainerTestCase {
 
     /** Test the publish api. */
     public void testPublish() {
-        try { datum.cModel.publish(datum.containerId); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
+        datum.containerModel.publish(datum.container.getId());
 
-        final ContainerVersion cVersion = datum.cModel.readLatestVersion(datum.containerId);
-        assertEquals(NAME + " [CONTAINER VERSION ID DOES NOT MATCH EXPECTATION]", datum.eVersionId, cVersion.getVersionId());
+        assertTrue(NAME + " [DRAFT PUBLISHED EVENT NOT FIRED]", datum.didNotify);
     }
 
     /**
@@ -41,14 +37,12 @@ public class PublishTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login();
-        final ContainerModel cModel = getContainerModel();
+        final ContainerModel containerModel = getContainerModel();
         final Container container = createContainer(NAME);
-        final Document document = create(getInputFiles()[0]);
-        cModel.addDocument(container.getId(), document.getId());
-        modifyDocument(document);
-        datum = new Fixture(cModel, container.getId(), 2L);
-
-        cModel.addListener(datum);
+        addTeam(container);
+        addDocuments(container);
+        datum = new Fixture(container, containerModel);
+        containerModel.addListener(datum);
     }
 
     /**
@@ -56,50 +50,26 @@ public class PublishTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        getContainerModel().removeListener(datum);
+        datum.containerModel.removeListener(datum);
         datum = null;
         logout();
         super.tearDown();
     }
 
     /** Test datumn fixture. */
-    private class Fixture implements ContainerListener {
-        private final ContainerModel cModel;
-        private final Long containerId;
-        private final Long eVersionId;
-        private Fixture(final ContainerModel cModel, final Long containerId,
-                final Long eVersionId) {
-            this.cModel = cModel;
-            this.containerId = containerId;
-            this.eVersionId = eVersionId;
+    private class Fixture extends ContainerTestCase.Fixture {
+        private final Container container;
+        private final ContainerModel containerModel;
+        private Boolean didNotify;
+        private Fixture(final Container container,
+                final ContainerModel containerModel) {
+            this.container = container;
+            this.containerModel = containerModel;
+            this.didNotify = Boolean.FALSE;
         }
-        public void draftCreated(ContainerEvent e) {
-            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
-        }
-        public void teamMemberAdded(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
-        }
-        public void teamMemberRemoved(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
-        }
-        public void containerClosed(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER CREATED EVENT FIRED]");
-        }
-        public void containerCreated(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER CREATED EVENT FIRED]");
-        }
-        public void containerDeleted(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER DELETED EVENT FIRED]");
-        }
-        public void containerReactivated(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");
-        }
-        public void documentAdded(final ContainerEvent e) {
-            fail(NAME + " [DOCUMENT ADDED EVENT FIRED]");
-        }
-        public void documentRemoved(final ContainerEvent e) {
-            fail(NAME + " [DOCUMENT REMOVED EVENT FIRED]");
+        @Override
+        public void draftPublished(ContainerEvent e) {
+            didNotify = Boolean.TRUE;
         }
     }
-
 }

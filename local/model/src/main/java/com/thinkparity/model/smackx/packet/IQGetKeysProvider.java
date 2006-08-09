@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 import com.thinkparity.model.smack.provider.IQParityProvider;
 
 /**
@@ -34,7 +35,7 @@ public class IQGetKeysProvider extends IQParityProvider {
 	 */
 	public IQGetKeysProvider() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

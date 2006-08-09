@@ -4,11 +4,11 @@
 package com.thinkparity.model.smack.provider;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
-import org.xmlpull.v1.XmlPullParser;
 
-import com.thinkparity.model.log4j.ModelLoggerFactory;
+import org.xmlpull.v1.XmlPullParser;
 
 /**
  * Parse parity iq request and convert into IQ objects.
@@ -29,7 +29,7 @@ public class IQParityProvider implements IQProvider {
 	 */
 	public IQParityProvider() {
         super();
-        this.logger = ModelLoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

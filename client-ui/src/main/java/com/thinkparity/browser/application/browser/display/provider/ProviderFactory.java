@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.provider.contact.ContactInfoProvider;
 import com.thinkparity.browser.application.browser.display.provider.contact.ManageContactsProvider;
-import com.thinkparity.browser.application.browser.display.provider.container.ContainersProvider;
+import com.thinkparity.browser.application.browser.display.provider.container.ContainerAvatarProvider;
 import com.thinkparity.browser.application.browser.display.provider.container.ManageTeamProvider;
 import com.thinkparity.browser.application.browser.display.provider.document.HistoryProvider;
 import com.thinkparity.browser.application.browser.display.provider.main.InfoProvider;
@@ -33,25 +33,34 @@ import com.thinkparity.model.parity.model.session.SessionModel;
 public class ProviderFactory {
 
 	/** Singleton instance. */
-	private static final ProviderFactory singleton;
+	private static final ProviderFactory SINGLETON;
 
-	static { singleton = new ProviderFactory(); }
+	static { SINGLETON = new ProviderFactory(); }
 
 	/** Obtain the contact info provider.
      * 
      * @return The contact info provider.
      */
     public static ContentProvider getContactInfoProvider() {
-        return singleton.doGetContactInfoProvider();
+        return SINGLETON.doGetContactInfoProvider();
     }
 
 	/**
+     * Obtain the container provider.
+     * 
+     * @return The container provider.
+     */
+    public static ContentProvider getContainerProvider() {
+        return SINGLETON.doGetContainersProvider();
+    }
+    
+    /**
 	 * Obtain the history content provider.
 	 * 
 	 * @return The history content provider.
 	 */
 	public static ContentProvider getHistoryProvider() {
-		return singleton.doGetHistoryProvider();
+		return SINGLETON.doGetHistoryProvider();
 	}
     
     /**
@@ -60,17 +69,8 @@ public class ProviderFactory {
 	 * @return The info provider.
 	 */
 	public static ContentProvider getInfoProvider() {
-		return singleton.doGetInfoProvider();
+		return SINGLETON.doGetInfoProvider();
 	}
-    
-    /**
-     * Obtain the containers provider.
-     * 
-     * @return The containers provider.
-     */
-    public static ContentProvider getContainersProvider() {
-        return singleton.doGetContainersProvider();
-    }
     
 	/**
      * Obtain the main (documents) provider.
@@ -78,52 +78,52 @@ public class ProviderFactory {
      * @return The main (documents) provider.
      */
 	public static ContentProvider getMainProvider() {
-		return singleton.doGetMainProvider();
+		return SINGLETON.doGetMainProvider();
 	}
     
-    /**
-     * Obtain the manage team provider.
-     * 
-     * @return The manage team provider.
-     */
-    public static ContentProvider getManageTeamProvider() {
-        return singleton.doGetManageTeamProvider();
-    }
-
     /**
 	 * Obtain the manage contacts provider.
 	 * 
 	 * @return The manage contacts provider.
 	 */
 	public static ContentProvider getManageContactsProvider() {
-		return singleton.doGetManageContactsProvider();
+		return SINGLETON.doGetManageContactsProvider();
 	}
 
+    /**
+     * Obtain the manage team provider.
+     * 
+     * @return The manage team provider.
+     */
+    public static ContentProvider getManageTeamProvider() {
+        return SINGLETON.doGetManageTeamProvider();
+    }
+
 	public static ContentProvider getSendArtifactProvider() {
-		return singleton.doGetSendArtifactProvider();
+		return SINGLETON.doGetSendArtifactProvider();
 	}
 
 	public static ContentProvider getSendVersionProvider() {
-		return singleton.doGetSendVersionProvider();
+		return SINGLETON.doGetSendVersionProvider();
 	}
 
 	/** The parity artifact interface. */
 	protected final ArtifactModel artifactModel;
     
-    /** The parity container (package) interface. */
-    protected final ContainerModel ctrModel;
-    
-    /** The parity document interface. */
-	protected final DocumentModel dModel;
-
     /** The contact interface. */
-    protected final ContactModel cModel;
+    protected final ContactModel contactModel;
+    
+    /** The parity container (package) interface. */
+    protected final ContainerModel containerModel;
+
+    /** The parity document interface. */
+	protected final DocumentModel documentModel;
     
 	/** An apache logger. */
 	protected final Logger logger;
 
 	/** The parity session interface. */
-	protected final SessionModel sModel;
+	protected final SessionModel sessionModel;
 
 	/** The parity system message interface. */
 	protected final SystemMessageModel systemMessageModel;
@@ -131,29 +131,29 @@ public class ProviderFactory {
 	/** The contact info provider. */
     private final ContentProvider contactInfoProvider;
 
+	/** The containers (packages) provider. */
+    private final ContentProvider containersProvider;
+
 	/** The document history provider. */
 	private final ContentProvider historyProvider;
 
-	/** The info pane provider. */
+    /** The info pane provider. */
 	private final ContentProvider infoProvider;
-
-    /** The user's profile. */
-    private final Profile profile;
     
-    /** The containers (packages) provider. */
-    private final ContentProvider containersProvider;
-    
-	/** The main (documents) provider. */
+    /** The main (documents) provider. */
 	private final ContentProvider mainProvider;
+    
+	/** The contacts provider. */
+	private final ContentProvider manageContactsProvider;
     
     /** The manage team provider. */
     private final ContentProvider manageTeamProvider;
     
-    /** The contacts provider. */
-	private final ContentProvider manageContactsProvider;
+    /** The user's profile. */
+    private final Profile profile;
 
 	/** A thinkParity profile interface. */
-    private final ProfileModel pModel;
+    private final ProfileModel profileModel;
 
 	/** The send artifact provider. */
 	private final ContentProvider sendArtifactProvider;
@@ -166,24 +166,24 @@ public class ProviderFactory {
 		super();
 		final ModelFactory modelFactory = ModelFactory.getInstance();
 		this.artifactModel = modelFactory.getArtifactModel(getClass());
-        this.ctrModel = modelFactory.getContainerModel(getClass());
-		this.dModel = modelFactory.getDocumentModel(getClass());
-        this.cModel = modelFactory.getContactModel(getClass());
+        this.containerModel = modelFactory.getContainerModel(getClass());
+		this.documentModel = modelFactory.getDocumentModel(getClass());
+        this.contactModel = modelFactory.getContactModel(getClass());
 		this.logger = LoggerFactory.getLogger(getClass());
-        this.pModel = modelFactory.getProfileModel(getClass());
-		this.sModel = modelFactory.getSessionModel(getClass());
+        this.profileModel = modelFactory.getProfileModel(getClass());
+		this.sessionModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 
-        this.profile = pModel.read();
-		this.historyProvider = new HistoryProvider(profile, artifactModel, dModel, sModel);
+        this.profile = profileModel.read();
+		this.historyProvider = new HistoryProvider(profile, artifactModel, documentModel, sessionModel);
 		this.infoProvider = new InfoProvider(profile);
-        this.containersProvider = new ContainersProvider(profile, artifactModel, ctrModel, dModel, cModel, systemMessageModel);
-		this.mainProvider = new MainProvider(profile, artifactModel, ctrModel, cModel, dModel, systemMessageModel);
-        this.manageTeamProvider = new ManageTeamProvider(profile, ctrModel, cModel);
-		this.manageContactsProvider = new ManageContactsProvider(profile, cModel);
-        this.contactInfoProvider = new ContactInfoProvider(profile, cModel);
-		this.sendArtifactProvider = new SendArtifactProvider(profile, artifactModel, cModel, dModel);
-		this.sendVersionProvider = new SendVersionProvider(profile, artifactModel, dModel, sModel);
+        this.containersProvider = new ContainerAvatarProvider(profile, containerModel, documentModel);
+		this.mainProvider = new MainProvider(profile, artifactModel, containerModel, contactModel, documentModel, systemMessageModel);
+        this.manageTeamProvider = new ManageTeamProvider(profile, containerModel, contactModel);
+		this.manageContactsProvider = new ManageContactsProvider(profile, contactModel);
+        this.contactInfoProvider = new ContactInfoProvider(profile, contactModel);
+		this.sendArtifactProvider = new SendArtifactProvider(profile, artifactModel, contactModel, documentModel);
+		this.sendVersionProvider = new SendVersionProvider(profile, artifactModel, documentModel, sessionModel);
 	}
 
 	/**
@@ -196,20 +196,6 @@ public class ProviderFactory {
     }
 
 	/**
-	 * Obtain the history content provider.
-	 * 
-	 * @return The history content provider.
-	 */
-	private ContentProvider doGetHistoryProvider() { return historyProvider; }
-
-	/**
-	 * Obtain the info content provider.
-	 * 
-	 * @return The info content provider.
-	 */
-	private ContentProvider doGetInfoProvider() { return infoProvider; }
-    
-    /**
      * Obtain the containers provider.
      * 
      * @return The containers provider.
@@ -217,6 +203,20 @@ public class ProviderFactory {
     private ContentProvider doGetContainersProvider() {
         return containersProvider;
     }
+
+	/**
+	 * Obtain the history content provider.
+	 * 
+	 * @return The history content provider.
+	 */
+	private ContentProvider doGetHistoryProvider() { return historyProvider; }
+    
+    /**
+	 * Obtain the info content provider.
+	 * 
+	 * @return The info content provider.
+	 */
+	private ContentProvider doGetInfoProvider() { return infoProvider; }
     
 	/**
 	 * Obtain the main (documents) provider.
@@ -228,15 +228,6 @@ public class ProviderFactory {
     }
     
     /**
-     * Obtain the manage team provider.
-     * 
-     * @return The manage team provider.
-     */
-    private ContentProvider doGetManageTeamProvider() {
-        return manageTeamProvider;
-    }
-
-    /**
 	 * Obtain the manage contacts provider.
 	 * 
 	 * @return The manage contacts provider.
@@ -244,6 +235,15 @@ public class ProviderFactory {
 	private ContentProvider doGetManageContactsProvider() {
 		return manageContactsProvider;
 	}
+
+    /**
+     * Obtain the manage team provider.
+     * 
+     * @return The manage team provider.
+     */
+    private ContentProvider doGetManageTeamProvider() {
+        return manageTeamProvider;
+    }
 
 	/**
 	 * Obtain the user provider.

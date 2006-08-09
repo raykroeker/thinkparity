@@ -6,13 +6,15 @@ package com.thinkparity.model.parity.model.sort.user;
 
 import java.util.Comparator;
 
+import com.thinkparity.model.parity.model.sort.AbstractComparator;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class NameComparator extends AbstractComparator implements Comparator<User> {
+public class NameComparator extends AbstractComparator<User> implements
+        Comparator<User> {
 
     /**
      * Create NameComparator.

@@ -62,6 +62,13 @@ public class Credentials {
      */
     public void setUsername(final String username) { this.username = username; }
 
-    /** @see java.lang.Object#toString() */
-    public String toString() { return getClass().getName() + "\\" + username; }
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return new StringBuffer(getClass().getName()).append("//")
+                .append(username)
+                .toString();
+    }
 }

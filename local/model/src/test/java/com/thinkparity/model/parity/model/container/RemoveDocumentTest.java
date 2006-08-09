@@ -7,7 +7,6 @@ package com.thinkparity.model.parity.model.container;
 import java.util.List;
 
 import com.thinkparity.model.parity.api.events.ContainerEvent;
-import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.document.Document;
 
 /**
@@ -37,14 +36,13 @@ public class RemoveDocumentTest extends ContainerTestCase {
         assertTrue(NAME + " [REMOVE DOCUMENT EVENT NOT FIRED]", datum.didNotify);
         final Container container = datum.containerModel.read(datum.container.getId());
         assertNotNull(NAME + " [CONTAINER IS NULL]", container);
-        final ContainerDraft draft = container.getDraft();
+        final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());
         assertNotNull(NAME + " [CONTAINER DRAFT IS NULL]", draft);
         final List<Document> documents = draft.getDocuments();
         assertNotNull(NAME + " [CONTAINER DRAFT DOCUMENTS ARE NULL]", documents);
         assertTrue(NAME + " [DRAFT DOCUMENTS CONTAINS ADDED DOCUMENT]", documents.contains(datum.document));
         assertEquals(NAME + " [DRAFT DOCUMENT STATE DOES NOT MATCH EXPECTATION]",
-                ContainerDraftArtifactState.REMOVED,
-                draft.getArtifactState(datum.document.getId()));
+                ContainerDraft.ArtifactState.REMOVED, draft.getState(datum.document));
     }
 
     /**
@@ -56,7 +54,6 @@ public class RemoveDocumentTest extends ContainerTestCase {
         login();
         final ContainerModel containerModel = getContainerModel();
         final Container container = containerModel.create(NAME);
-        createContainerDraft(container.getId());
         final Document document = create(getInputFiles()[0]);
         containerModel.addDocument(container.getId(), document.getId());
         datum = new Fixture(container, containerModel, document);
@@ -75,7 +72,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
     }
 
     /** Test data definition. */
-    private class Fixture implements ContainerListener {
+    private class Fixture extends ContainerTestCase.Fixture {
         private final Container container;
         private final ContainerModel containerModel;
         private Boolean didNotify;
@@ -87,22 +84,7 @@ public class RemoveDocumentTest extends ContainerTestCase {
             this.didNotify = Boolean.FALSE;
             this.document = document;
         }
-        public void containerClosed(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER CLOSED EVENT WAS FIRED]");
-        }
-        public void containerCreated(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER CREATED EVENT WAS FIRED]");
-        }
-        public void containerDeleted(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER DELETED EVENT WAS FIRED]");
-        }
-        public void containerReactivated(final ContainerEvent e) {
-            fail(NAME + " [CONTAINER REACTIVATED EVENT WAS FIRED]");
-        }
-
-        public void documentAdded(final ContainerEvent e) {
-            fail(NAME + " [DOCUMENT ADDED EVENT WAS FIRED]");
-        }
+        @Override
         public void documentRemoved(final ContainerEvent e) {
             datum.didNotify = Boolean.TRUE;
             assertTrue(NAME + " [EVENT IS NOT LOCAL]", e.isLocal());
@@ -111,15 +93,6 @@ public class RemoveDocumentTest extends ContainerTestCase {
             assertEquals(NAME + " [EVENT DOCUMENT DOES NOT MATCH EXPECTATION]", datum.document, e.getDocument());
             assertNotNull(NAME + " [EVENT DOCUMENT IS NULL]", e.getDraft());
             assertNull(NAME + " [EVENT USER IS NOT NULL]", e.getTeamMember());
-        }
-        public void draftCreated(ContainerEvent e) {
-            fail(NAME + " [DRAFT CREATED EVENT FIRED]");
-        }
-        public void teamMemberAdded(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER ADDED EVENT FIRED]");
-        }
-        public void teamMemberRemoved(ContainerEvent e) {
-            fail(NAME + " [TEAM MEMBER REMOVED EVENT FIRED]");
         }
     }
 }

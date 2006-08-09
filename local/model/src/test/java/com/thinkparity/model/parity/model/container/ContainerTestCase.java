@@ -1,6 +1,5 @@
 /*
  * Created On: Jun 27, 2006 4:01:02 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.container;
 
@@ -11,38 +10,15 @@ import com.thinkparity.model.parity.api.events.ContainerEvent;
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.artifact.Artifact;
-import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.xmpp.user.User;
-
 
 /**
  * <b>Title:</b>thinkParity Container Test Abstraction<br>
  * <b>Description:</b>A thinkParity container test abstraction.
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.7
  */
 abstract class ContainerTestCase extends ModelTestCase {
-
-    /**
-     * Assert that a user and a team member are as equal as possible.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param expected
-     *            The expected user.
-     * @param actual
-     *            The actual team member.
-     */
-    protected static void assertEquals(final Object assertion,
-            final User expected, final TeamMember actual) {
-        assertEquals(assertion + " [USER ID DOES NOT MATCH EXPECTATION]", expected.getId(), actual.getId());
-        assertEquals(assertion + " [USER ID DOES NOT MATCH EXPECTATION]", expected.getLocalId(), actual.getLocalId());
-        assertEquals(assertion + " [USER ID DOES NOT MATCH EXPECTATION]", expected.getName(), actual.getName());
-        assertEquals(assertion + " [USER ID DOES NOT MATCH EXPECTATION]", expected.getOrganization(), actual.getOrganization());
-        assertEquals(assertion + " [USER ID DOES NOT MATCH EXPECTATION]", expected.getSimpleUsername(), actual.getSimpleUsername());
-        assertEquals(assertion + " [USER ID DOES NOT MATCH EXPECTATION]", expected.getUsername(), actual.getUsername());
-    }
 
     /**
      * Assert the draft is not null.
@@ -58,9 +34,9 @@ abstract class ContainerTestCase extends ModelTestCase {
         assertNotNull(assertion + " [DRAFT ID IS NULL]", draft.getContainerId());
         assertNotNull(assertion + " [DRAFT ARTIFACTS ARE IS NULL]", draft.getArtifacts());
         for(final Artifact artifact : draft.getArtifacts()) {
-            assertNotNull(assertion + " [DRAFT ARTIFACT STATE IS NULL]", draft.getArtifactState(artifact.getId()));
+            assertNotNull(assertion + " [DRAFT ARTIFACT STATE IS NULL]", draft.getState(artifact));
         }
-        assertNotNull(assertion + " [DRAFT DOCUMENTS ARE IS NULL]", draft.getDocuments());
+        assertNotNull(assertion + " [DRAFT OWNER IS NULL]", draft.getOwner());
     }
 
     /**
@@ -126,6 +102,9 @@ abstract class ContainerTestCase extends ModelTestCase {
         }
         public void draftCreated(ContainerEvent e) {
             fail(getName() + " [DRAFT CREATED EVENT FIRED]");
+        }
+        public void draftPublished(ContainerEvent e) {
+            fail(getName() + " [DRAFT PUBLISHED EVENT FIRED]");
         }
         public void teamMemberAdded(ContainerEvent e) {
             fail(getName() + " [TEAM MEMBER ADDED EVENT FIRED]");

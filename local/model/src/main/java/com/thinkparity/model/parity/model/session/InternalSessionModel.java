@@ -10,15 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
-
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
@@ -32,6 +29,22 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class InternalSessionModel extends SessionModel implements InternalModel {
 
+    /**
+     * Send a container.
+     * 
+     * @param version
+     *            A container version.
+     * @param documents
+     *            A list of documents and their input.
+     */
+    public void send(final ContainerVersion version,
+            final Map<DocumentVersion, InputStream> documentVersions,
+            final User user, final JabberId sentBy, final Calendar sentOn) {
+        synchronized(getImplLock()) {
+            getImpl().send(version, documentVersions, user, sentBy, sentOn);
+        }
+    }
+
 	/**
 	 * Create a InternalSessionModel.
 	 * 
@@ -42,53 +55,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		super(workspace);
 		context.assertContextIsValid();
 	}
-
-    /**
-     * Send an artifact received confirmation receipt.
-     * 
-     * @param receivedFrom
-     *            From whom the artifact was received.
-     * @param uniqueId
-     *            The artifact unique id.
-     */
-    public void confirmArtifactReceipt(final JabberId receivedFrom,
-            final UUID uniqueId, final Long versionId) throws SmackException {
-        synchronized(getImplLock()) {
-            getImpl().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
-        }
-    }
-
-	/**
-     * Create a draft for an artifact.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     */
-    public void createDraft(final UUID uniqueId) {
-        synchronized(getImplLock()) { getImpl().createDraft(uniqueId); }
-    }
-
-    /**
-	 * Obtain the currently logged in user.
-	 * 
-	 * @return The logged in user.
-	 * @throws ParityException
-	 */
-	public User getLoggedInUser() throws ParityException {
-		synchronized(getImplLock()) { return getImpl().readUser(); }
-	}
-
-	/**
-     * Add a roster entry for the user. This will send a presence request to
-     * user.
-     * 
-     * @param user
-     *            The user to add to the roster.
-     * @throws ParityException
-     */
-    public void inviteContact(final String email) {
-        synchronized(getImplLock()) { getImpl().inviteContact(email); }
-    }
 
     /**
      * Add a team member. This will create the team member relationship in the
@@ -105,28 +71,66 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
-     * Reactivate a container version.
+	/**
+     * Send an artifact received confirmation receipt.
      * 
-     * @param version
-     *            The version.
-     * @param documentVersions
-     *            The document versions.
-     * @param team
-     *            The team.
-     * @param reactivatedBy
-     *            Who reactivated.
-     * @param reactivatedOn
-     *            When reactivated.
+     * @param receivedFrom
+     *            From whom the artifact was received.
+     * @param uniqueId
+     *            The artifact unique id.
+     */
+    public void confirmArtifactReceipt(final JabberId receivedFrom,
+            final UUID uniqueId, final Long versionId) throws SmackException {
+        synchronized(getImplLock()) {
+            getImpl().confirmArtifactReceipt(receivedFrom, uniqueId, versionId);
+        }
+    }
+
+    /**
+     * Create a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    public void createDraft(final UUID uniqueId) {
+        synchronized(getImplLock()) { getImpl().createDraft(uniqueId); }
+    }
+
+	/**
+	 * Obtain the currently logged in user.
+	 * 
+	 * @return The logged in user.
+	 * @throws ParityException
+	 */
+	public User getLoggedInUser() throws ParityException {
+		synchronized(getImplLock()) { return getImpl().readUser(); }
+	}
+
+    /**
+     * Add a roster entry for the user. This will send a presence request to
+     * user.
+     * 
+     * @param user
+     *            The user to add to the roster.
      * @throws ParityException
      */
-    public void reactivate(final ContainerVersion version,
-            final List<DocumentVersionContent> documentVersions,
-            final List<JabberId> team, final JabberId reactivatedBy,
-            final Calendar reactivatedOn) throws ParityException {
+    public void inviteContact(final String email) {
+        synchronized(getImplLock()) { getImpl().inviteContact(email); }
+    }
+
+    /**
+     * Publish a container.
+     * 
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents and their contents.
+     */
+    public void publish(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final JabberId publishedBy, final Calendar publishedOn) {
         synchronized(getImplLock()) {
-            getImpl().reactivate(version, documentVersions, team,
-                    reactivatedBy, reactivatedOn);
+            getImpl().publish(container, documents, publishedBy, publishedOn);
         }
     }
 
@@ -184,22 +188,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 			throws ParityException {
 		synchronized(getImplLock()) { return getImpl().readUsers(jabberIds); }
 	}
-
+	
     /**
-	 * Send a close packet to the parity server.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             <li>If the logged in user is not the key holder.
-	 *             </ul>
-	 * @throws ParityException
-	 */
-	public void sendClose(final Long artifactId) throws ParityException {
-		synchronized(getImplLock()) { getImpl().sendClose(artifactId); }
-	}
+     * Remove a team member from the artifact team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A jabber id.
+     */
+    public void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        synchronized(getImplLock()) {
+            getImpl().removeTeamMember(uniqueId, jabberId);
+        }
+    }
 
     /**
 	 * Send a creation packet to the parity server.
@@ -208,75 +210,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 	 *            The document.
 	 * @throws ParityException
 	 */
-	public void sendCreate(final Artifact artifact) throws ParityException {
-		synchronized(getImplLock()) { getImpl().sendCreate(artifact); }
+	public void createArtifact(final Artifact artifact) throws ParityException {
+		synchronized(getImplLock()) { getImpl().createArtifact(artifact); }
 	}
-
-    /**
-	 * Send a delete packet to the parity server.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @throws ParityException
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             </ul>
-	 */
-	public void sendDelete(final Long artifactId) throws ParityException {
-		synchronized(getImplLock()) { getImpl().sendDelete(artifactId); }
-	}
-
-    /**
-     * Send the artifact key to a user.
-     * 
-     * @param artifactUniqueId
-     *            The artifact unique id.
-     * @param jabberId
-     *            The user to send the key to.
-     */
-    public void sendKey(final UUID artifactUniqueId, final JabberId jabberId)
-            throws ParityException {
-        synchronized(getImplLock()) { getImpl().sendKey(artifactUniqueId, jabberId); }
-    }
-
-    /**
-     * Send a key response [ACCEPT,DENY] to a user.
-     * 
-     * @param keyResponse
-     *            The key response.
-     * @param artifactId
-     *            An artifact id.
-     * @param jabberId
-     *            A jabber id.
-     * @throws ParityException
-     */
-    public void sendKeyResponse(final KeyResponse keyResponse,
-            final Long artifactId, final JabberId jabberId)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().sendKeyResponse(keyResponse, artifactId, jabberId);
-        }
-    }
-
-    /**
-     * Send a key response.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @param jabberId
-     *            The user's jabber id.
-     * @param keyRepsonse
-     *            The response [ACCEPT,DENY]
-     * @throws ParityException
-     */
-    public void sendKeyResponse(final Long artifactId,
-            final JabberId jabberId, final KeyResponse keyResponse)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().sendKeyResponse(keyResponse, artifactId, jabberId);
-        }
-    }
 
     /**
      * Update the local user's remote information.
@@ -288,24 +224,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void updateUser(final User user) throws ParityException {
         synchronized(getImplLock()) {
             getImpl().updateUser(user);
-        }
-    }
-
-    /**
-     * Send a container to a list of users.
-     * 
-     * @param container
-     *            A container.
-     * @param documents
-     *            A list of documents.
-     * @param users
-     *            A list of users.
-     */
-    public void send(final ContainerVersion container,
-            final Map<DocumentVersion, InputStream> documents,
-            final List<User> users) {
-        synchronized(getImplLock()) {
-            getImpl().send(container, documents, users);
         }
     }
 }

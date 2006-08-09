@@ -64,8 +64,7 @@ public class SendArtifactProvider extends CompositeFlatSingleContentProvider {
 		this.documentProvider = new SingleContentProvider(profile) {
 			public Object getElement(final Object input) {
 				final Long documentId = assertValidInput(input);
-				try { return dModel.get(documentId); }
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				return dModel.get(documentId);
 			}
 		};
 		this.flatProviders = new FlatContentProvider[] {shareContactProvider};

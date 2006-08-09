@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.filter.Filter;
@@ -114,8 +113,7 @@ class ContactModelImpl extends AbstractModelImpl {
             }
         }
         catch(final ParityException px) {
-            logger.error(getApiId("[DOWNLOAD]"), px);
-            throw ParityErrorTranslator.translateUnchecked(px);
+            throw translateError(getApiId("[DOWNLOAD]"), px);
         }
     }
 

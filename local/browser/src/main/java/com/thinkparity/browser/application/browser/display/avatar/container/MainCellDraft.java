@@ -26,14 +26,11 @@ import com.thinkparity.model.parity.model.document.Document;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class CellDraft extends ContainerDraft implements MainCell  {
-    
-    /** The parent cell. */
-    private final CellContainer container; 
+public class MainCellDraft extends ContainerDraft implements MainCell  {
     
     /** The cell's text foreground color. */
-    private static final Color TEXT_FG;
-
+    private static final Color TEXT_FG; 
+    
     /** The cell's text foreground colour for closed containers. */
     private static final Color TEXT_FG_CLOSED;
 
@@ -46,6 +43,9 @@ public class CellDraft extends ContainerDraft implements MainCell  {
 
         TEXT_MAX_LENGTH = 60;
     }
+
+    /** The parent cell. */
+    private final MainCellContainer containerDisplay;
     
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE; 
@@ -59,13 +59,14 @@ public class CellDraft extends ContainerDraft implements MainCell  {
     /**
      * Create a CellContainer.
      */
-    public CellDraft(final CellContainer container, final ContainerDraft draft) {
+    public MainCellDraft(final MainCellContainer containerDisplay, final ContainerDraft draft) {
         super();
         setContainerId(draft.getContainerId());
         for(final Document document : draft.getDocuments()) {
-            addDocument(document, draft.getArtifactState(document.getId()));
+            addDocument(document);
+            putState(document, draft.getState(document));
         }
-        this.container = container;
+        this.containerDisplay = containerDisplay;
         this.localization = new MainCellL18n("MainCellContainerDraft");
         this.imageCache = new MainCellImageCache();
     }
@@ -76,13 +77,13 @@ public class CellDraft extends ContainerDraft implements MainCell  {
      */
     public boolean canImport() { return Boolean.FALSE; }
 
-
     /**
      * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
      * 
      */
     public boolean equals(final Object obj) { return super.equals(obj); }
-    
+
+
     /**
      * Obtain the background image for a cell.
      * 
@@ -92,7 +93,7 @@ public class CellDraft extends ContainerDraft implements MainCell  {
     public BufferedImage getBackground() {
         return imageCache.read(DocumentImage.BG_DEFAULT);
     }
-
+    
     /**
      * Obtain the background image for a selected cell.
      * 
@@ -108,6 +109,13 @@ public class CellDraft extends ContainerDraft implements MainCell  {
      * 
      */
     public Border getBorder() { return new DocumentDefault(); }
+
+    /**
+     * Obtain the container display cell.
+     * 
+     * @return The container display cell.
+     */
+    public MainCellContainer getContainerDisplay() { return containerDisplay; }
 
     /**
      * Obtain an info icon.

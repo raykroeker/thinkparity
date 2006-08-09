@@ -6,13 +6,13 @@ package com.thinkparity.model.smackx.packet;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.model.log4j.ModelLoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -27,7 +27,7 @@ public class IQCloseArtifactProvider implements IQProvider {
 	 */
 	public IQCloseArtifactProvider() {
 		super();
-		this.logger = ModelLoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

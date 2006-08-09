@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.zip.DataFormatException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.XMPPConnection;
@@ -27,7 +28,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
@@ -45,7 +46,12 @@ import com.thinkparity.migrator.Library;
  */
 public class XMPPMethod extends IQ {
 
+    /** An apache logger. */
+    protected static final Logger logger;
+
     static {
+        logger = Logger.getLogger(XMPPMethod.class);
+
         ProviderManager.addIQProvider("query", "jabber:iq:parity:response", new XMPPMethodResponseProvider());
     }
 
@@ -86,10 +92,15 @@ public class XMPPMethod extends IQ {
         try { Thread.sleep(75); }
         catch(final InterruptedException ix) {}
 
+        // the timeout is used because the timeout is not expected to be long;
+        // and it helps debug non-implemented responses
         try { return ((XMPPMethodResponse) idCollector.nextResult()); }
         catch(final ClassCastException ccx) {
-            throw new XMPPException("[XMPP] [XMPP METHOD] [REMOTE METHOD NOT AVAILABLE]", ccx);
+            throw new XMPPException(
+                    MessageFormat.format("[XMPP] [XMPP METHOD] [REMOTE METHOD NOT AVAILABLE] [{0}]", name), ccx);
         }
+        // re-set the parameters post execution
+        finally { parameters.clear(); }
     }
 
     /** @see org.jivesoftware.smack.packet.IQ#getChildElementXML() */
@@ -100,6 +111,7 @@ public class XMPPMethod extends IQ {
             .append("\">")
             .append(getParametersXML())
             .append("</query>");
+        logger.debug(MessageFormat.format("[XML LENGTH] [{0}]", childElementXML.length()));
         return childElementXML.toString();
     }
 
@@ -262,7 +274,10 @@ public class XMPPMethod extends IQ {
     }
 
     private String getParameterXMLValue(final Parameter parameter) {
-        if(parameter.javaType.equals(byte[].class)) {
+        if(parameter.javaType.equals(ArtifactType.class)) {
+            return parameter.javaValue.toString();
+        }
+        else if(parameter.javaType.equals(byte[].class)) {
             return encode(compress((byte[]) parameter.javaValue));
         }
         else if(parameter.javaType.equals(Calendar.class)) {
@@ -278,7 +293,7 @@ public class XMPPMethod extends IQ {
                     .append(getParameterXML(new Parameter("bytes", byte[].class, dvc.getContent())))
                     .toString();
         }
-        else if(parameter.javaType.equals(String.class)) {
+        else if(parameter.javaType.equals(Integer.class)) {
             return parameter.javaValue.toString();
         }
         else if(parameter.javaType.equals(JabberId.class)) {
@@ -302,13 +317,16 @@ public class XMPPMethod extends IQ {
 
             return xmlValue.toString();
         }
+        else if(parameter.javaType.equals(String.class)) {
+            return parameter.javaValue.toString();
+        }
         else if(parameter.javaType.equals(UUID.class)) {
             return parameter.javaValue.toString();
         }
         else {
             final String assertion =
-                MessageFormat.format("[RMODEL] [XMPP METHOD] [GET PARAMTER XML VALUE] [UNKNOWN JAVA TYPE] [{0}]",
-                        new Object[] {parameter.javaType.getName()});
+                MessageFormat.format("[XMPP METHOD] [GET PARAMTER XML VALUE] [UNKNOWN JAVA TYPE] [{0}]",
+                        parameter.javaType.getName());
             throw new XMPPException(assertion);
         }
     }

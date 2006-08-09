@@ -160,13 +160,16 @@ public class User {
 		this.organization = organization;
 	}
 
-    /** @see java.lang.Object#toString() */
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
     public String toString() {
-        final StringBuffer toString = new StringBuffer(getClass().getName())
-                .append("//").append(id)
+        return new StringBuffer(getClass().getName()).append("//")
+                .append(id)
                 .append("/").append(localId)
                 .append("/").append(name)
-                .append("/").append(organization);
-        return toString.toString();
+                .append("/").append(organization)
+                .toString();
     }
 }

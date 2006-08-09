@@ -12,7 +12,6 @@ import com.thinkparity.browser.application.browser.display.provider.CompositeFla
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentHistoryItem;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -82,8 +81,7 @@ public class HistoryProvider extends CompositeFlatSingleContentProvider {
 				Assert.assertOfType(
 						"The history provider requries java.lang.Long input.",
 						Long.class, input);
-				try { return dModel.get((Long) input); }
-				catch(final ParityException px) { throw new RuntimeException(px); }
+				return dModel.get((Long) input);
 			}
 		};
 		this.historyProvider = new FlatContentProvider(profile) {

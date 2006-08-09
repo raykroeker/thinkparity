@@ -41,12 +41,11 @@ public class ReadLatestVersionTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login();
+        final InternalContainerModel containerModel = getInternalContainerModel();
+        final Container container = createContainer(NAME);
+        publishContainer(container);
 
-        final InternalContainerModel cModel = getInternalContainerModel();
-        final Container eContainer = cModel.create(NAME);
-        final ContainerVersion eVersion = cModel.createVersion(eContainer.getId());
-
-        datum = new Fixture(cModel, eContainer.getId(), eVersion);
+        datum = new Fixture(containerModel, container.getId(), null);
     }
 
     /**

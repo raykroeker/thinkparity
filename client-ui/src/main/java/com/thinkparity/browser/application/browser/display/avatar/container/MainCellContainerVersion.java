@@ -28,7 +28,7 @@ public class MainCellContainerVersion extends ContainerVersion implements
         MainCell {
 
     /** The container cell. */
-    private final CellContainer container;
+    private final MainCellContainer container;
     
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
@@ -56,7 +56,7 @@ public class MainCellContainerVersion extends ContainerVersion implements
     private final MainCellL18n localization;
 
     /** Create MainCellContainerVersion. */
-    public MainCellContainerVersion(final CellContainer container,
+    public MainCellContainerVersion(final MainCellContainer container,
             final ContainerVersion containerVersion) {
         super();
         this.setArtifactId(containerVersion.getArtifactId());
@@ -140,7 +140,9 @@ public class MainCellContainerVersion extends ContainerVersion implements
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getText()
      * 
      */
-    public String getText() { return localization.getString("", new Object[] {getVersionId()}); }
+    public String getText() {
+        return localization.getString("Text", new Object[] {getVersionId()});
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.avatar.main.MainCell#getTextFont()

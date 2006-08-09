@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.user.TeamMemberState;
@@ -70,7 +70,7 @@ public interface ArtifactIOHandler {
      */
     public void deleteTeamRel(final Long artifactId) throws HypersonicException;
 
-	/**
+    /**
      * Delete an artifact team relationship.
      * 
      * @param artifactId
@@ -81,6 +81,17 @@ public interface ArtifactIOHandler {
      */
     public void deleteTeamRel(final Long artifactId, final Long userId)
             throws HypersonicException;
+
+	/**
+     * Determine if the artifact version exists.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param versionId
+     *            An artifact version id.
+     * @return True if the artifact version exists.
+     */
+	public Boolean doesVersionExist(final Long artifactId, final Long versionId);
 
 	/**
 	 * Obtain a list of all flags for an artifact.

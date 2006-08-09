@@ -52,7 +52,6 @@ public class ReadHistoryTest extends DocumentTestCase {
         getContainerModel().addDocument(container.getId(), document.getId());
         modifyDocument(document);
         getContainerModel().publish(container.getId());
-        getContainerModel().close(container.getId());
 		datum = new Fixture(dModel, document.getId());
 	}
 

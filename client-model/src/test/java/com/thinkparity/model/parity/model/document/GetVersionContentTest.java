@@ -6,8 +6,6 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Vector;
 
-import com.thinkparity.model.parity.ParityException;
-
 /**
  * Test the document model get version content api.
  * 
@@ -32,11 +30,8 @@ public class GetVersionContentTest extends DocumentTestCase {
 	public void testGetVersionContent() {
 		DocumentVersionContent versionContent = null;
 		for(Fixture datum : data) {
-		    try {
-		        versionContent = datum.documentModel.getVersionContent(
-                        datum.documentId, datum.versionId);
-            }
-		    catch(final ParityException px) { fail(createFailMessage(px)); }
+	        versionContent = datum.documentModel.getVersionContent(
+                    datum.documentId, datum.versionId);
 			assertNotNull(NAME, versionContent);
 			assertEquals(NAME, datum.eVersionContent, versionContent);
 		}

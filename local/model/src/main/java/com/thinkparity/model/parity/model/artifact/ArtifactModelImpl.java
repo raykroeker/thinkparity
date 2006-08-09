@@ -14,15 +14,11 @@ import com.thinkparity.codebase.assertion.TrueAssertion;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
-import com.thinkparity.model.parity.model.container.InternalContainerModel;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler;
-import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.message.system.KeyRequestMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
-import com.thinkparity.model.parity.model.session.KeyResponse;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.user.TeamMemberState;
@@ -70,35 +66,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		super(workspace);
 		this.artifactIO = IOFactory.getDefault().createArtifactHandler();
 		this.auditor = new ArtifactModelAuditor(getContext());
-	}
-
-	/**
-	 * Accept the key request.
-	 * 
-	 * @param keyRequestId
-	 *            The key request id.
-	 */
-	void acceptKeyRequest(final Long keyRequestId) throws ParityException {
-		logger.info("[LMODEL] [ARTIFACT] [ACCEPT KEY REQUEST]");
-		logger.debug(keyRequestId);
-		final InternalSystemMessageModel iSMModel = getInternalSystemMessageModel();
-		final KeyRequestMessage keyRequestMessage =
-			(KeyRequestMessage) iSMModel.read(keyRequestId);
-		// send a denial to all others
-		final List<KeyRequest> requests = readKeyRequests(keyRequestMessage.getArtifactId());
-		for(final KeyRequest request : requests) {
-			if(request.getId().equals(keyRequestId)) {
-				iSMModel.delete(request.getId());
-				continue;
-			}
-			if(request.getRequestedBy().equals(keyRequestMessage.getRequestedBy())) {
-				iSMModel.delete(request.getId());
-				continue;
-			}
-			declineKeyRequest(request.getId());
-		}
-		// send acceptance
-		sendKey(keyRequestMessage.getArtifactId(), keyRequestMessage.getRequestedBy());
 	}
 
 	/**
@@ -253,21 +220,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return readTeam2(artifactId);
     }
 
-	void declineKeyRequest(final Long keyRequestId) throws ParityException {
-		logger.info("[LMODEL] [ARTIFACT] [DENY KEY REQUEST]");
-		logger.debug(keyRequestId);
-		final InternalSystemMessageModel iSMModel =
-			getInternalSystemMessageModel();
-		final KeyRequestMessage keyRequestMessage =
-			(KeyRequestMessage) iSMModel.read(keyRequestId);
-		iSMModel.delete(keyRequestMessage.getId());
-
-		getInternalSessionModel().sendKeyResponse(
-				keyRequestMessage.getArtifactId(),
-				keyRequestMessage.getRequestedBy(), KeyResponse.DENY);
-
-	}
-
 	/**
      * Delete the artifact's remote info.
      * 
@@ -286,10 +238,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.deleteTeamRel(artifactId);
     }
 
-	Boolean doesExist(final Long artifactId) {
+    Boolean doesExist(final Long artifactId) {
         logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
         logger.debug(artifactId);
         return null != artifactIO.readUniqueId(artifactId);
+    }
+
+    Boolean doesVersionExist(final Long artifactId, final Long versionId) {
+        logApiId();
+        debugVariable("artifactId", artifactId);
+        debugVariable("versionId", versionId);
+        return null != artifactIO.doesVersionExist(artifactId, versionId);
     }
 
     Boolean doesExist(final UUID uniqueId) {
@@ -312,11 +271,29 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[HANDLE TEAM MEMBER ADDED]"));
         logger.debug(uniqueId);
         logger.debug(jabberId);
+        final Long artifactId = readId(uniqueId);
         final InternalUserModel userModel = getInternalUserModel();
         User user = userModel.read(jabberId);
         if(null == user) { user = userModel.create(jabberId); }
-        artifactIO.createTeamRel(
-                readId(uniqueId), user.getLocalId(), TeamMemberState.DISTRIBUTED);
+
+        // if receiving your own team member added event you have just been
+        // added to the team; so download the entire team.
+        if(user.equals(currentUser())) {
+            final List<User> remoteTeam =
+                getInternalSessionModel().readArtifactTeamList(artifactId);
+            JabberId remoteUserId;
+            for(User remoteUser : remoteTeam) {
+                remoteUserId = remoteUser.getId();
+                remoteUser = userModel.read(remoteUserId);
+                if(null == remoteUser) { remoteUser = userModel.create(remoteUserId); }
+                artifactIO.createTeamRel(artifactId, remoteUser
+                        .getLocalId(), TeamMemberState.DISTRIBUTED);
+            }
+        }
+        else {
+            artifactIO.createTeamRel(artifactId, user.getLocalId(),
+                    TeamMemberState.DISTRIBUTED);
+        }
     }
 
 	/**
@@ -497,54 +474,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.debug(teamMembers);
         for(final TeamMember teamMember : teamMembers)
             removeTeamMember(teamMember);
-    }
-
-    /**
-     * Send the key for an artifact to a user.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param jabberId
-     *            The jabber id.
-     */
-	void sendKey(final Long artifactId, final JabberId jabberId)
-            throws ParityException {
-	    logger.info(getApiId("[SEND KEY]"));
-        logger.debug(artifactId);
-        logger.debug(jabberId);
-        assertOnline(getApiId("[SEND KEY] [USER NOT ONLINE]"));
-
-        final ArtifactType type = artifactIO.readType(artifactId);
-        final Artifact artifact;
-        final ArtifactVersion artifactVersion;
-        switch(type) {
-        case CONTAINER:
-            final InternalContainerModel cModel = getInternalContainerModel();
-            if(cModel.isLocallyModified(artifactId))
-                cModel.publish(artifactId);
-            artifact = cModel.read(artifactId);
-            artifactVersion = cModel.readLatestVersion(artifactId);
-            cModel.lock(artifactId);
-            break;
-        case DOCUMENT:
-            throw Assert.createUnreachable(
-                    getApiId("[SEND KEY] [UNABLE TO SEND KEY FOR TYPE] [DOCUMENT]"));
-        default:
-            throw Assert.createUnreachable(
-                    getApiId("[SEND KEY] [UNKOWN ARTIFACT TYPE] [")
-                    .append(type).append("]"));
-        }
-        // remote send
-        final InternalSessionModel sModel = getInternalSessionModel();
-        sModel.sendKey(artifact.getUniqueId(), jabberId);
-        // remove local key
-        removeFlagKey(artifactId);
-        // audit
-        final Calendar currentDateTime = currentDateTime();
-        final JabberId currentUserId = currentUserId();
-        auditor.sendKey(artifactId, currentDateTime, currentUserId,
-                artifactVersion.getVersionId(), currentUserId, currentDateTime,
-                jabberId);
     }
 
     /**

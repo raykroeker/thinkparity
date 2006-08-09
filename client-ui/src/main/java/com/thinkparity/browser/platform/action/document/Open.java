@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.platform.action.document;
 
-import javax.swing.Icon;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -16,48 +14,20 @@ import com.thinkparity.browser.platform.action.Data;
  */
 public class Open extends AbstractAction {
 
-	/**
-	 * The action small ICON.
-	 * 
-	 */
-	private static final Icon ICON;
+	/** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
 
-	/**
-	 * The action id.
-	 * 
-	 */
-	private static final ActionId ID;
-
-	/**
-	 * The action NAME.
-	 * 
-	 */
-	private static final String NAME;
-
-	/**
-	 * @see java.io.Serializable
-	 * 
-	 */
-	private static final long serialVersionUID = 1;
-
-	static {
-		ICON = null;
-		ID = ActionId.DOCUMENT_OPEN;
-		NAME = "Open Document";
-	}
-
-	/**
-	 * The browser application.
-	 * 
-	 */
+	/** The browser application. */
 	private final Browser browser;
 
 	/**
-	 * Create an Open.
-	 * 
-	 */
+     * Create Open.
+     * 
+     * @param browser
+     *            The browser application.
+     */
 	public Open(final Browser browser) {
-		super("Document.Open", ID, NAME, ICON);
+		super(null, ActionId.DOCUMENT_OPEN, null, null);
 		this.browser = browser;
 	}
 
@@ -66,18 +36,13 @@ public class Open extends AbstractAction {
 	 * 
 	 */
 	public void invoke(final Data data) throws Exception {
-        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		getDocumentModel().open(documentId);
 		getArtifactModel().applyFlagSeen(documentId);
 
-		browser.fireDocumentUpdated(containerId, documentId);
+		browser.fireDocumentUpdated(documentId);
 	}
 
-	/**
-	 * The key used to set\get the data.
-	 * 
-	 * @see Data
-	 */
-	public enum DataKey { CONTAINER_ID, DOCUMENT_ID }
+	/** Data keys. */
+	public enum DataKey { DOCUMENT_ID }
 }

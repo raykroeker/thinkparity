@@ -4,8 +4,6 @@
  */
 package com.thinkparity.browser.platform.action.document;
 
-import javax.swing.ImageIcon;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -21,18 +19,6 @@ import com.thinkparity.model.parity.model.document.Document;
  */
 public class Rename extends AbstractAction {
 
-	private static final ImageIcon ICON;
-
-	private static final ActionId ID;
-
-	private static final String NAME;
-
-	static {
-		ICON = null;
-		ID = ActionId.ARTIFACT_ACCEPT_KEY_REQUEST;
-		NAME = "KeyRequested";
-	}
-
 	/** The browser application. */
 	private final Browser browser;
 
@@ -43,7 +29,7 @@ public class Rename extends AbstractAction {
      *      The browser application.
 	 */
 	public Rename(final Browser browser) {
-		super(NAME, ID, NAME, ICON);
+		super(null, ActionId.DOCUMENT_RENAME, null, null);
 		this.browser = browser;
 	}
 

@@ -6,19 +6,20 @@
 
 package com.thinkparity.browser.platform.application.dialog;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
-import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.platform.action.Data;
-import com.thinkparity.browser.platform.application.dialog.ConfirmDialog.DataKey;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 
 /**
  *
- * @author  Administrator
+ * @author rob_masako@shaw.ca; raymond@thinkparity.com
  */
 public class ErrorDialog extends Avatar {
     
@@ -31,49 +32,32 @@ public class ErrorDialog extends Avatar {
         initComponents();
     }
 
-    public void setState(final State state) {
-    }
-
-    public State getState() {
-        return null;
-    }
-
-    public AvatarId getId() {
-        return AvatarId.ERROR_DIALOGUE;
-    }
+    public AvatarId getId() { return AvatarId.ERROR_DIALOGUE; }
     
+    public State getState() { return null; }
+
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
      * 
      */
     public void reload() {
-        errorMessageJTextArea.setText("");
-        if(null != input) {
-            errorMessageJTextArea.setText(getString(
-                    getErrorMessageKey(),
-                    getErrorMessageArguments()));
-        }
-        okJButton.requestFocusInWindow();
+        reloadErrorMessage();
+        reloadError();
     }
-    
+
+    public void setState(final State state) {}
+
+    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_closeJButtonActionPerformed
+
     /**
-     * Obtain the error message key from the input data.
-     * 
-     * @return The error message key.
+     * Dispose of the window.
      */
-    private String getErrorMessageKey() {
-        return (String) ((Data) input).get(DataKey.MESSAGE_KEY);
+    private void disposeWindow() {
+        SwingUtilities.getWindowAncestor(this).dispose();
     }
-    
-    /**
-     * Obtain the error arguments from the input data.
-     * 
-     * @return The error message arguments.
-     */
-    private Object[] getErrorMessageArguments() {
-        return (Object[]) ((Data) input).get(DataKey.MESSAGE_ARGUMENTS);
-    }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -81,64 +65,123 @@ public class ErrorDialog extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        okJButton = new javax.swing.JButton();
-        errorMessageJTextArea = TextFactory.createArea();
+        javax.swing.JButton closeJButton;
+        javax.swing.JScrollPane errorJScrollPane;
 
-        okJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ErrorDialog.Ok"));
-        okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+        closeJButton = new javax.swing.JButton();
+        errorMessageJLabel = new javax.swing.JLabel();
+        errorJScrollPane = new javax.swing.JScrollPane();
+        errorJTextArea = new javax.swing.JTextArea();
+
+        closeJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ErrorDialog.Ok"));
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
             }
         });
 
-        errorMessageJTextArea.setColumns(20);
-        errorMessageJTextArea.setEditable(false);
-        errorMessageJTextArea.setLineWrap(true);
-        errorMessageJTextArea.setRows(5);
-        errorMessageJTextArea.setWrapStyleWord(true);
-        errorMessageJTextArea.setBorder(null);
-        errorMessageJTextArea.setFocusable(false);
-        errorMessageJTextArea.setOpaque(false);
-        errorMessageJTextArea.setBorder(null);
+        errorJTextArea.setColumns(20);
+        errorJTextArea.setRows(5);
+        errorJScrollPane.setViewportView(errorJTextArea);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(okJButton)
-                    .add(errorMessageJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap(303, Short.MAX_VALUE)
+                        .add(closeJButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(errorMessageJTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 18, Short.MAX_VALUE)
+                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(okJButton)
+                .add(errorJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(closeJButton)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
-        disposeWindow();
-    }//GEN-LAST:event_okJButtonActionPerformed
-    
     /**
-     * Dispose of the window.
+     * Read the input error.
+     * 
+     * @return An error string.
      */
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
+    private String readInputError() {
+        if(null == input) { return null; }
+        else {
+            final Throwable t = (Throwable) ((Data) input).get(DataKey.ERROR);
+            final StringWriter sw = new StringWriter();
+            t.printStackTrace(new PrintWriter(sw));
+            return sw.toString();
+        }
     }
-    
+
+    /**
+     * Read the error message key from the input.
+     * 
+     * @return An error message key.
+     */
+    private Object[] readInputErrorMessageArguments() {
+        if(null == input) { return null; }
+        else { return (Object[]) ((Data) input).get(DataKey.ERROR_MESSAGE_ARGUMENTS); }
+    }
+
+    /**
+     * Read the error message key from the input.
+     * 
+     * @return An error message key.
+     */
+    private String readInputErrorMessageKey() {
+        if(null == input) { return null; }
+        else { return (String) ((Data) input).get(DataKey.ERROR_MESSAGE_KEY); }
+    }
+
+    /**
+     * Reload the error text area.
+     *
+     */
+    private void reloadError() {
+        errorJTextArea.setText("");
+        final String error = readInputError();
+        if(null != error) { errorJTextArea.setText(error); }
+    }
+
+    /**
+     * Reload the error message label.
+     *
+     */
+    private void reloadErrorMessage() {
+        errorMessageJLabel.setText("");
+        final String errorMessageKey = readInputErrorMessageKey();
+        final Object[] errorMessageArguments = readInputErrorMessageArguments();
+        if(null != errorMessageKey) {
+            if(null != errorMessageArguments) {
+                errorMessageJLabel.setText(getString(errorMessageKey, errorMessageArguments));
+            }
+            else {
+                errorMessageJLabel.setText(getString(errorMessageKey));
+            }
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea errorMessageJTextArea;
-    private javax.swing.JButton okJButton;
+    private javax.swing.JTextArea errorJTextArea;
+    private javax.swing.JLabel errorMessageJLabel;
     // End of variables declaration//GEN-END:variables
-    
+
     /** Data keys. */
-    public enum DataKey { MESSAGE_KEY, MESSAGE_ARGUMENTS }   
+    public enum DataKey { ERROR, ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY }   
 }

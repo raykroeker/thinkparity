@@ -10,8 +10,8 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
+import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
-import com.thinkparity.model.parity.model.artifact.ArtifactType;
 
 /**
  * @author raykroeker@gmail.com

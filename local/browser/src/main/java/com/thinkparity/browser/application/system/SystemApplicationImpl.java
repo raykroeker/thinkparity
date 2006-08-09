@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.system;
 
+import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,17 +46,17 @@ class SystemApplicationImpl extends Thread {
 	 */
 	public void run() {
 		while(running) {
-			sysApp.logger.info("[BROWSER2] [APP] [SYS] [IMPL] [RUNNING]");
+			sysApp.logApiId();
 			try { synchronized(this) { wait(); } }
 			catch(final InterruptedException ix) {
-				sysApp.logger.info("[BROWSER2] [APP] [SYS] [IMPL] [INTERRUPTED]");
+				sysApp.logApiId("INTERRUPTED");
 			}
             // do not try to process the queue if after waking up
             // we are no longer running
             if(running) {
     			try { processQueue(); }
     			catch(final RuntimeException rx) {
-    				sysApp.logger.error("[BROWSER2] [APP] [SYS] [IMPL RUNNING]", rx);
+    				sysApp.translateError(rx);
     				throw rx;
     			}
             }
@@ -88,14 +89,6 @@ class SystemApplicationImpl extends Thread {
         synchronized(this) { notifyAll(); }
 	}
 
-	String getString(final String localKey) {
-		return sysApp.getString(localKey);
-	}
-
-	String getString(final String localKey, final Object[] arguments) {
-		return sysApp.getString(localKey, arguments);
-	}
-
 	/**
 	 * Notification that an artifact has been received.
 	 * 
@@ -109,7 +102,20 @@ class SystemApplicationImpl extends Thread {
 		}
 	}
 
-	/**
+	String getString(final String localKey) {
+		return sysApp.getString(localKey);
+	}
+
+	String getString(final String localKey, final Object[] arguments) {
+		return sysApp.getString(localKey, arguments);
+	}
+
+	/** Set the menu for the system tray. */
+    void reloadConnectionStatus(final Platform.Connection cx) {
+        synchronized(this) { sysTray.reloadConnection(cx); }
+    }
+
+    /**
 	 * Reset the number of queue items.
 	 *
 	 */
@@ -119,11 +125,6 @@ class SystemApplicationImpl extends Thread {
 			notifyAll();
 		}
 	}
-
-    /** Set the menu for the system tray. */
-    void reloadConnectionStatus(final Platform.Connection cx) {
-        synchronized(this) { sysTray.reloadConnectionStatus(cx); }
-    }
 
 	/**
 	 * Obtain the total number of queued events.
@@ -137,7 +138,7 @@ class SystemApplicationImpl extends Thread {
 	 *
 	 */
 	private void processQueue() {
-		sysApp.logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [PROCESS QUEUE (" + getQueueTotal()  + ")]");
+        sysApp.logApiId(MessageFormat.format("{0}", getQueueTotal()));
         if(0 < getQueueTotal()) {
             TrayNotification notification;
             synchronized(this) {

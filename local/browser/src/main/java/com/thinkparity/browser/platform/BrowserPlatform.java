@@ -4,16 +4,21 @@
 package com.thinkparity.browser.platform;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.Mode;
+import com.thinkparity.codebase.StackUtil;
+
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.Version;
 import com.thinkparity.browser.Constants.Directories;
 import com.thinkparity.browser.Constants.Java;
+import com.thinkparity.browser.Constants.Logging;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.application.Application;
@@ -27,8 +32,6 @@ import com.thinkparity.browser.platform.update.UpdateHelper;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.profile.Profile;
 
-import com.thinkparity.codebase.Mode;
-
 import com.thinkparity.model.parity.model.workspace.Preferences;
 
 /**
@@ -39,7 +42,7 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
  */
 public class BrowserPlatform implements Platform {
 
-	/**
+    /**
      * Obtain a log id for the platform class.
      * 
      * @return A log id.
@@ -66,11 +69,14 @@ public class BrowserPlatform implements Platform {
 	 */
 	private final AvatarRegistry avatarRegistry;
 
-    /** The platform's first run helper. */
+	/** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
-	/** The parity model factory. */
+    /** The parity model factory. */
 	private final ModelFactory modelFactory;
+
+	/** The platform online helper. */
+    private final OnlineHelper onlineHelper;
 
 	/**
 	 * The platform settings.
@@ -84,10 +90,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	private final Preferences preferences;
 
-    /** The platform online helper. */
-    private final OnlineHelper onlineHelper;
-
-	/** The platform update helper. */
+    /** The platform update helper. */
     private final UpdateHelper updateHelper;
 
 	/**
@@ -161,13 +164,13 @@ public class BrowserPlatform implements Platform {
 	 */
 	public Preferences getPreferences() { return preferences; }
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.Platform#getWindowRegistry()
 	 * 
 	 */
 	public WindowRegistry getWindowRegistry() { return windowRegistry; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.Platform#hibernate(com.thinkparity.browser.platform.application.ApplicationId)
 	 * 
 	 */
@@ -177,6 +180,9 @@ public class BrowserPlatform implements Platform {
 
 	/** @see com.thinkparity.browser.platform.Platform#isDevelopmentMode() */
 	public Boolean isDevelopmentMode() { return Version.getMode() == Mode.DEVELOPMENT; }
+
+	/** @see com.thinkparity.browser.platform.Platform#isOnline() */
+    public Boolean isOnline() { return onlineHelper.isOnline(); }
 
 	/** @see com.thinkparity.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
@@ -189,7 +195,7 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyEnd(final Application application) {
-        logger.info(getLogId("[NOTIFY END]"));
+        logApiId();
         logger.debug(application);
 	}
 
@@ -198,7 +204,7 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyHibernate(final Application application) {
-		logger.info(getLogId("[NOTIFY HIBERNATE]"));
+		logApiId();
         logger.debug(application);
 	}
 
@@ -207,7 +213,7 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyRestore(final Application application) {
-        logger.info(getLogId("[NOTIFY RESTORE]"));
+        logApiId();
         logger.debug(application);
 	}
 
@@ -216,7 +222,7 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void notifyStart(final Application application) {
-        logger.info(getLogId("[NOTIFY START]"));
+        logApiId();
         logger.debug(application);
 	}
 
@@ -225,7 +231,7 @@ public class BrowserPlatform implements Platform {
 
     /** @see com.thinkparity.browser.platform.Platform#restart(java.util.Properties) */
     public void restart(final Properties properties) {
-        logger.info(getLogId("[RESTART]"));
+        logApiId();
         logger.debug(properties);
 
         // attach a process to the jvm shutdown
@@ -262,7 +268,7 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public void restore(final ApplicationId applicationId) {
-		logger.info(getLogId("[RESTORE]"));
+		logApiId();
         logger.debug(applicationId);
 		applicationRegistry.get(applicationId).restore(this);
 	}
@@ -272,7 +278,7 @@ public class BrowserPlatform implements Platform {
      * 
      */
 	public void start() {
-        logger.info(getLogId("[START]"));
+        logApiId();
         if(isUpdateAvailable()) { update(); }
         else {
             if(isFirstRun()) {
@@ -292,14 +298,24 @@ public class BrowserPlatform implements Platform {
 
     /** Update the browser. */
     public void update() {
-        logger.info(getLogId("[UPDATE]"));
+        logApiId();
         updateHelper.update();
     }
 
-    /** Perform first run initialization. */
+    /** Log an api id. */
+    protected void logApiId() {
+        if(logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
+                    Logging.PLATFORM_LOG_ID,
+                    StackUtil.getCallerClassName().toUpperCase(),
+                    StackUtil.getCallerMethodName().toUpperCase()));
+        }
+    }
+
+	/** Perform first run initialization. */
     private Boolean firstRun() { return firstRunHelper.firstRun(); }
 
-	/**
+    /**
      * Determine if this is the first time the platform has been run.
      *
      * @return True if this is the first run of the platform.
@@ -312,7 +328,4 @@ public class BrowserPlatform implements Platform {
      * @return True if a newer release is available.
      */
     private Boolean isUpdateAvailable() { return Boolean.FALSE; }
-
-    /** @see com.thinkparity.browser.platform.Platform#isOnline() */
-    public Boolean isOnline() { return onlineHelper.isOnline(); }
 }

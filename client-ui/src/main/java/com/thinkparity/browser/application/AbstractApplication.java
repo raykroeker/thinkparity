@@ -3,13 +3,24 @@
  */
 package com.thinkparity.browser.application;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.l10n.L18n;
+import com.thinkparity.codebase.l10n.L18nContext;
+import com.thinkparity.codebase.log4j.Log4JHelper;
+
+import com.thinkparity.browser.BrowserException;
+import com.thinkparity.browser.Constants.Logging;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
@@ -21,10 +32,6 @@ import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.l10n.ApplicationL18n;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
-
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.l10n.L18n;
-import com.thinkparity.codebase.l10n.L18nContext;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
@@ -41,20 +48,46 @@ public abstract class AbstractApplication implements Application {
 	/** Application listeners. */
 	private static final Map<Class, Set<ApplicationListener>> APPLICATION_LISTENERS;
 
-	static {
+    /** A list of stack filters for {@link #logApiId()}. */
+	private static final List<StackUtil.Filter> LOG_API_ID_STACK_FILTERS;
+
+    static {
 		APPLICATION_LISTENERS = new HashMap<Class, Set<ApplicationListener>>();
+        LOG_API_ID_STACK_FILTERS = new ArrayList<StackUtil.Filter>(1);
+        LOG_API_ID_STACK_FILTERS.add(new StackUtil.Filter() {
+            public Boolean accept(final StackTraceElement stackElement) {
+                return !stackElement.getMethodName().equals("logApiId");
+            }
+        });
+        LOG_API_ID_STACK_FILTERS.add(new StackUtil.Filter() {
+            public Boolean accept(final StackTraceElement stackElement) {
+                return !(stackElement.getClassName().equals(AbstractApplication.class.getName()) &&
+                        stackElement.getMethodName().equals("getCallerFrame"));
+            }
+        });
 	}
 
 	/**
-	 * Application localization.
-	 * 
-	 */
+     * Obtain the caller class name. This method uses a stack filter to remove
+     * all "logApiId()" stack trace elements from the stack before returning the
+     * caller.
+     * 
+     * @param filters
+     *            A list of stack util filters.
+     * @return A stack trace element..
+     */
+    private static StackTraceElement getCallerFrame(
+            final List<StackUtil.Filter> filters) {
+        return StackUtil.getFrame(filters);
+    }
+
+	/** Application localization. */
 	protected final L18n l18n;
 
-	/** An apache logger. */
+    /** An apache logger. */
 	protected final Logger logger;
 
-    /** An avatar registry. */
+	/** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
 	/** Application persistence. */
@@ -103,8 +136,8 @@ public abstract class AbstractApplication implements Application {
 			APPLICATION_LISTENERS.put(getClass(), listeners);
 		}
 	}
-
-	/**
+    
+    /**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -112,8 +145,8 @@ public abstract class AbstractApplication implements Application {
 	public ArtifactModel getArtifactModel() {
 		return platform.getModelFactory().getArtifactModel(getClass());
 	}
-    
-    /**
+
+	/**
      * Obtain the parity container interface.
      * 
      * @return The parity container interface.
@@ -215,6 +248,25 @@ public abstract class AbstractApplication implements Application {
 	}
 
 	/**
+     * Debug a variable.
+     * 
+     * @param name
+     *            The variable name.
+     * @param value
+     *            The variable value.
+     */
+    protected void debugVariable(final String name, final Object value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("[{0} {1}] [{2}] [{3}] [{4}:{5}]",
+                    Logging.APPLICATION_LOG_ID,
+                    getId().toString().toUpperCase(),
+                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getClassName().toUpperCase(),
+                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getMethodName().toUpperCase(),
+                    name, Log4JHelper.render(logger, value)));
+        }
+    }
+
+	/**
 	 * Check the registry for the avatar; if it does not exist create it;
 	 * otherwise just return it.
 	 * 
@@ -238,17 +290,45 @@ public abstract class AbstractApplication implements Application {
 		return persistence.get(key, defaultValue);
 	}
 
-	protected String getPref(final String key, final String defaultValue) {
+    protected String getPref(final String key, final String defaultValue) {
 		return persistence.get(key, defaultValue);
 	}
 
-	protected String getString(final String localKey) {
+    protected String getString(final String localKey) {
 		return l18n.getString(localKey);
 	}
 
-	protected String getString(final String localKey, final Object[] arguments) {
+    protected String getString(final String localKey, final Object[] arguments) {
 		return l18n.getString(localKey, arguments);
 	}
+
+    /** Log an api id. */
+    protected void logApiId() {
+        if(logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("[{0} {1}] [{2}] [{3}]",
+                    Logging.APPLICATION_LOG_ID,
+                    getId().toString().toUpperCase(),
+                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getClassName().toUpperCase(),
+                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getMethodName().toUpperCase()));
+        }
+    }
+
+    /**
+     * Log an api id.
+     * 
+     * @param message
+     *            A message to log.
+     */
+    protected void logApiId(final Object message) {
+        if(logger.isInfoEnabled()) {
+            logger.info(MessageFormat.format("[{0} {1}] [{2}] [{3}] [{4}]",
+                    Logging.APPLICATION_LOG_ID,
+                    getId().toString().toUpperCase(),
+                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getClassName().toUpperCase(),
+                    getCallerFrame(LOG_API_ID_STACK_FILTERS).getMethodName().toUpperCase(),
+                    message));
+        }
+    }
 
 	/**
 	 * Notify all application listeners that the application has ended.
@@ -323,6 +403,24 @@ public abstract class AbstractApplication implements Application {
 		this.status = status;
 	}
 
+    /**
+     * Translate an application error into a browser exception.
+     * 
+     * @param t
+     *            An application error.
+     * @return A browser exception.
+     */
+	protected BrowserException translateError(final Throwable t) {
+	    if(BrowserException.class.isAssignableFrom(t.getClass())) {
+            return (BrowserException) t;
+        }
+        else {
+            final Object errorId = getErrorId(t);
+            logger.error(errorId, t);
+            return new BrowserException(errorId.toString(), t);
+        }
+    }
+
     private void assertIsOneOf(final ApplicationStatus[] acceptableStatus,
 			final ApplicationStatus targetStatus) {
 		for(final ApplicationStatus status : acceptableStatus) {
@@ -332,6 +430,21 @@ public abstract class AbstractApplication implements Application {
 				"Cannot move application status from:  " +
 				this.status + " to:  " + targetStatus + ".");
 	}
+
+    /**
+     * Obtain an error id.
+     * 
+     * @param t
+     *            An error.
+     * @return An error id.
+     */
+    private Object getErrorId(final Throwable t) {
+        return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
+                Logging.APPLICATION_LOG_ID,
+                StackUtil.getFrameClassName(2).toUpperCase(),
+                StackUtil.getFrameMethodName(2).toUpperCase(),
+                t.getMessage());
+    }
 
     /**
 	 * Obtain the listeners for this class from the static list. Note that the

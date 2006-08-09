@@ -3,10 +3,10 @@
  */
 package com.thinkparity.browser.platform.action;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.Platform;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -87,28 +87,12 @@ public class ActionFactory {
             return new com.thinkparity.browser.platform.action.document.AddNewTeamMember(browser);
         case CONTAINER_PUBLISH:
             return new com.thinkparity.browser.platform.action.document.Publish(browser);
-        case CREATE_DOCUMENTS:
-            return new com.thinkparity.browser.platform.action.document.CreateDocuments(browser);
-        case DOCUMENT_REACTIVATE:
-            return new com.thinkparity.browser.platform.action.document.Reactivate(browser);
-        case DOCUMENT_SEND_KEY:
-            return new com.thinkparity.browser.platform.action.document.SendKey(browser);
-		case ARTIFACT_ACCEPT_KEY_REQUEST:
-			return new com.thinkparity.browser.platform.action.artifact.AcceptKeyRequest(browser);
-		case ARTIFACT_DECLINE_KEY_REQUEST:
-			return new com.thinkparity.browser.platform.action.artifact.DeclineKeyRequest(browser);
-		case ARTIFACT_DECLINE_ALL_KEY_REQUESTS:
-			return new com.thinkparity.browser.platform.action.artifact.DeclineAllKeyRequests(browser);
-        case ARTIFACT_KEY_REQUESTED:
-            return new com.thinkparity.browser.platform.action.artifact.KeyRequested(browser);
+        case DOCUMENT_UPDATE_DRAFT:
+            return new com.thinkparity.browser.platform.action.document.UpdateDocumentDraft(browser);
         case DOCUMENT_RENAME:
             return new com.thinkparity.browser.platform.action.document.Rename(browser);
-		case ARTIFACT_REQUEST_KEY:
-			return new com.thinkparity.browser.platform.action.artifact.RequestKey(browser);
 		case ARTIFACT_SEARCH:
 			return new com.thinkparity.browser.platform.action.artifact.Search(browser);
-        case ARTIFACT_SEND_VERSION:
-            return new com.thinkparity.browser.platform.action.artifact.SendVersion(browser);
         case CONTACT_OPEN:
             return new com.thinkparity.browser.platform.action.contact.OpenContact(browser);
         case CONTACT_DELETE:
@@ -121,10 +105,8 @@ public class ActionFactory {
             return new com.thinkparity.browser.platform.action.container.ManageContainerTeam(browser);
         case CREATE_DRAFT:
             return new com.thinkparity.browser.platform.action.container.CreateDraft(browser);
-		case DOCUMENT_CREATE:
-			return new com.thinkparity.browser.platform.action.document.Create(browser);
-		case DOCUMENT_CLOSE:
-		    return new com.thinkparity.browser.platform.action.document.Close(browser);
+		case CONTAINER_ADD_DOCUMENT:
+			return new com.thinkparity.browser.platform.action.container.AddDocument(browser);
 		case DOCUMENT_DELETE:
 			return new com.thinkparity.browser.platform.action.document.Delete(browser);
 		case DOCUMENT_OPEN:

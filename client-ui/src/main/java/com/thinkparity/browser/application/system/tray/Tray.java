@@ -8,17 +8,14 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
 
-import org.apache.log4j.Logger;
-
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.system.SystemApplication;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -33,7 +30,7 @@ public class Tray {
 	 */
 	private static Icon readTrayIcon() { return ImageIOUtil.readIcon("SystemTray.png"); }
 
-	/** Indicates whether or not the system tray is installed. */
+    /** Indicates whether or not the system tray is installed. */
 	private Boolean isInstalled;
 
     /** A menu builder for the system tray application. */
@@ -48,9 +45,6 @@ public class Tray {
     /** The system tray icon. */
 	private TrayIcon systemTrayIcon;
 
-    /** An apache logger. */
-    protected final Logger logger;
-
     /**
 	 * Create a Tray.
 	 * 
@@ -59,7 +53,6 @@ public class Tray {
 	 */
 	public Tray(final SystemApplication systemApplication) {
 		super();
-        this.logger = LoggerFactory.getLogger(getClass());
         this.menuBuilder = new TrayMenuBuilder(systemApplication);
 		this.isInstalled = Boolean.FALSE;
 		this.systemApplication = systemApplication;
@@ -102,7 +95,7 @@ public class Tray {
 		systemTray.addTrayIcon(systemTrayIcon);
 		isInstalled = Boolean.TRUE;
 
-        reloadConnectionStatus(systemApplication.getConnection());
+        reloadConnection(systemApplication.getConnection());
 	}
 
     /**
@@ -111,30 +104,21 @@ public class Tray {
      * @param cx
      *      The platform connection.
      */
-    public void reloadConnectionStatus(final Platform.Connection cx) {
-        logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [RELOAD CONNECTION]");
-        logger.debug(cx);
-        if(Platform.Connection.OFFLINE == cx) { updateMenuOffline(); }
-        else if(Platform.Connection.ONLINE == cx) { updateMenuOnline(); }
-        else { Assert.assertUnreachable("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [RELOAD CONNECTION]"); }
-    }
-
-    /** Update the offline menu. */
-    private void updateMenuOffline() {
-        logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [UPDATE MENU OFFLINE]");
-        menuBuilder.editProfile.setEnabled(false);
-        menuBuilder.logout.setEnabled(false);
-        menuBuilder.login.setEnabled(true);
-        systemTrayIcon.setToolTip("thinkParity (offline)");
-    }
-
-    /** Update the online menu. */
-    private void updateMenuOnline() {
-        logger.info("[LBROWSER] [APPLICATION] [SYSTEM] [TRAY] [UPDATE MENU ONLINE]");
-        menuBuilder.editProfile.setEnabled(true);
-        menuBuilder.logout.setEnabled(true);
-        menuBuilder.login.setEnabled(false);
-        systemTrayIcon.setToolTip("thinkParity (online)");
+    public void reloadConnection(final Platform.Connection cx) {
+        systemApplication.logApiId();
+        systemApplication.debugVariable("cx", cx);
+        switch(cx) {
+        case OFFLINE:
+            updateMenuOffline();
+            setCaption();
+            break;
+        case ONLINE:
+            updateMenuOnline();
+            setCaption();
+            break;
+        default:
+            Assert.assertUnreachable("[UNKNOWN CONNECTION]");
+        }
     }
 
     /** Uninstall the system tray. */
@@ -154,13 +138,30 @@ public class Tray {
 	Boolean isInstalled() { return isInstalled; }
 
     /**
+     * Create the caption for the system tray. The caption will include the
+     * platform's connection status.
+     * 
+     * @return A buffer containing the caption.
+     */
+    private StringBuffer createCaption() {
+        switch(systemApplication.getConnection()) {
+        case OFFLINE:
+                return new StringBuffer(getString("OFFLINE"));
+        case ONLINE:
+            return new StringBuffer(getString("ONLINE"));
+        default:
+            throw Assert.createUnreachable("[UNKNOWN CONNECTION]");
+        }
+    }
+
+    /**
      * Display an informational notification.
      * 
      * @param notification
      *            The notification.
      */
     private void displayInfo(final TrayNotification notification) {
-        if ( notification.getMessage().length()>0) {
+        if(notification.getMessage().length() > 0) {
             systemTrayIcon.displayMessage(
                     systemApplication.getString("Notification.InfoCaption"),
                     notification.getMessage(), TrayIcon.INFO_MESSAGE_TYPE);
@@ -168,27 +169,55 @@ public class Tray {
     }
 
     /**
-     * Set the system tray icon caption.
+     * Obtain a localized string from the system application.
+     * 
+     * @param key
+     *            A local key.
+     * @return A localized string.
+     */
+    private String getString(final String key) {
+        return systemApplication.getString(key);
+    }
+
+    /**
+     * Obtain a localized string from the system application.
+     * 
+     * @param key
+     *            A local key.
+     * @param argument
+     *            A formatting argument.
+     * @return A localized string.
+     */
+    private String getString(final String key, final String argument) {
+        return systemApplication.getString(key, new String[] {argument});
+    }
+
+    /**
+     * Set the system tray icon caption.  The platform connection status will
+     * always be displayed in the icon.
+     * 
+     */
+    private void setCaption() {
+        systemTrayIcon.setCaption(createCaption().toString());
+    }
+
+    /**
+     * Set the system tray icon caption for a notification. The platform
+     * connection status will always be displayed; in addition to the
+     * notification.
      * 
      * @param notification
      *            The notification.
-     *            
-     *            RBM June 15, 2006 The caption appears to overwrite the tooltip which is
-     *            strange behavior. Changed to only use setToolTip() and never setCaption().
      */
     private void setCaption(final TrayNotification notification) {
-        String toolTip = "thinkParity ";
-        final Platform.Connection cx = systemApplication.getConnection();
-        if(Platform.Connection.OFFLINE == cx) {
-            toolTip += "(offline)";
-        }
-        else {
-            toolTip += "(online)";
-        }
-        String notifyMessage = notification.getMessage();
-        if ( notifyMessage.length()>0) {
-            toolTip += "\nLast update: " + notifyMessage;
-        }    
-        systemTrayIcon.setToolTip(toolTip);
+        systemTrayIcon.setCaption(createCaption()
+                .append(getString("LastUpdate", notification.getMessage()))
+                .toString());
     }
+
+    /** Update the offline menu. */
+    private void updateMenuOffline() {}
+
+    /** Update the online menu. */
+    private void updateMenuOnline() {}
 }

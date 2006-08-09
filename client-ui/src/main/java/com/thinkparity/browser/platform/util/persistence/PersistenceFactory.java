@@ -13,9 +13,9 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
-import com.thinkparity.browser.model.ModelFactory;
-
 import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.browser.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -80,11 +80,17 @@ public class PersistenceFactory {
 				return Boolean.parseBoolean(get(key, defaultValue.toString()));
 			}
 
-			public Dimension get(String key, Dimension defaultValue) {
+            public Dimension get(String key, Dimension defaultValue) {
 				return new Dimension(
 						get(key + ".width", defaultValue.width),
 						get(key + ".height", defaultValue.height));
 			}
+
+            public File get(final String key, final File defaultValue) {
+                final String sValue = javaProperties.getProperty(key, null);
+                if(null == sValue) { return defaultValue; }
+                return new File(sValue);
+            }
 
 			public int get(final String key, final int defaultValue) {
 				try {
@@ -114,6 +120,10 @@ public class PersistenceFactory {
 				set(key + ".height", value.height);
 				set(key + ".width", value.width);
 			}
+
+			public void set(final String key, final File value) {
+                javaProperties.setProperty(key, value.getAbsolutePath());
+            }
 
             public void set(String key, int value) {
 				javaProperties.setProperty(contextualize(key), String.valueOf(value));

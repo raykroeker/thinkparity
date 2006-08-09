@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.system.tray.TrayNotification;
 import com.thinkparity.browser.model.util.ModelUtil;
@@ -36,9 +37,6 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class SystemApplication extends AbstractApplication {
 
-	/** An apache logger. */
-	final Logger logger;
-
 	/** The action registry. */
     private final ActionRegistry actionRegistry;
 
@@ -55,17 +53,24 @@ public class SystemApplication extends AbstractApplication {
 	private SystemApplicationImpl impl;
 
 	/**
-	 * Create a System.
-	 * 
-	 * @param platform
-	 *            The platform.
-	 */
+     * Create SystemApplication.
+     * 
+     * @param platform
+     *            A thinkParity platform.
+     */
 	public SystemApplication(final Platform platform) {
 		super(platform, L18nContext.SYS_APP);
         this.actionRegistry = new ActionRegistry();
         this.applicationRegistry = new ApplicationRegistry();
-		this.logger = platform.getLogger(getClass());
 	}
+
+    /**
+     * @see com.thinkparity.browser.application.AbstractApplication#debugVariable(java.lang.String, java.lang.Object)
+     */
+    @Override
+    public void debugVariable(final String name, final Object value) {
+        super.debugVariable(name, value);
+    }
 
 	/** Display the about dialogue. */
     public void displayAbout() {}
@@ -84,7 +89,7 @@ public class SystemApplication extends AbstractApplication {
 	 * 
 	 */
 	public void end(final Platform platform) {
-		logger.info("[BROWSER2] [APP] [SYS] [END]");
+		logApiId();
 
 		impl.end();
 		impl = null;
@@ -125,7 +130,7 @@ public class SystemApplication extends AbstractApplication {
 	 * 
 	 */
 	public void hibernate(final Platform platform) {
-		logger.info("[BROWSER2] [APP] [SYS] [HIBERNATE]");
+        logApiId();
 
 		impl.end();
 		impl = null;
@@ -152,11 +157,17 @@ public class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * @see com.thinkparity.browser.application.AbstractApplication#logApiId()
+     */
+    @Override
+    public void logApiId() { super.logApiId(); }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
 	 * 
 	 */
 	public void restore(final Platform platform) {
-		logger.info("[BROWSER2] [APP] [SYS] [RESTORE]");
+        logApiId();
 
 		impl = new SystemApplicationImpl(this);
 		impl.start();
@@ -180,7 +191,7 @@ public class SystemApplication extends AbstractApplication {
         if(!actionRegistry.contains(ActionId.PLATFORM_QUIT))
             ActionFactory.createAction(ActionId.PLATFORM_QUIT, getPlatform());
 
-        run(ActionId.PLATFORM_QUIT, new Data(0));
+        runLater(ActionId.PLATFORM_QUIT, new Data(0));
     }
 
     /** Run the login action. */
@@ -245,7 +256,7 @@ public class SystemApplication extends AbstractApplication {
 	 * 
 	 */
 	public void start(final Platform platform) {
-		logger.info("[BROWSER2] [APP] [SYS] [START]");
+        logApiId();
 
         connection = getSessionModel().isLoggedIn() ?
                 Connection.ONLINE : Connection.OFFLINE;
@@ -259,6 +270,20 @@ public class SystemApplication extends AbstractApplication {
 		notifyStart();
 	}
 
+    /**
+     * @see com.thinkparity.browser.application.AbstractApplication#logApiId(java.lang.Object)
+     */
+    @Override
+    protected void logApiId(final Object message) { super.logApiId(message); }
+
+    /**
+     * @see com.thinkparity.browser.application.AbstractApplication#translateError(java.lang.Throwable)
+     */
+    @Override
+    protected BrowserException translateError(final Throwable t) {
+        return super.translateError(t);
+    }
+
     /** Notify the connection is offline. */
     void fireConnectionOffline() {
         connection = Connection.OFFLINE;
@@ -270,7 +295,6 @@ public class SystemApplication extends AbstractApplication {
         connection = Connection.ONLINE;
         impl.reloadConnectionStatus(connection);
     }
-
     /**
      * Notify a document key has been closed.
      * 
@@ -282,6 +306,7 @@ public class SystemApplication extends AbstractApplication {
                 "Notification.DocumentClosedMessage",
                 new Object[] {document.getName()}));
     }
+
     /**
      * Notify a document key has created.
      * 
@@ -331,13 +356,13 @@ public class SystemApplication extends AbstractApplication {
                 "Notification.DocumentKeyRequestedMessage",
                 new Object[] {getName(user), document.getName()}));
     }
-
     void fireDocumentReactivated(final User user, final Document document,
             final DocumentVersion version) {
         fireNotification(getString(
                 "Notification.DocumentReactivatedMessage",
                 new Object[] {document.getName(), getName(user)}));
     }
+
     /**
      * Notify a document team member has been added.
      *

@@ -35,7 +35,8 @@ public interface Platform extends ApplicationListener {
 	public BrowserPlatformPersistence getPersistence();
 	public Preferences getPreferences();
 	public WindowRegistry getWindowRegistry();
-	/**
+
+    /**
 	 * Request that the application hibernate.
 	 * 
 	 * @param applicationId

@@ -17,7 +17,6 @@ import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
@@ -104,8 +103,7 @@ public class FirstRunHelper {
             final Credentials credentials = new Credentials();
             credentials.setPassword(password);
             credentials.setUsername(username);
-            try { sessionModel.login(credentials); }
-            catch(final ParityException px) { throw new BrowserException("", px); }
+            sessionModel.login(credentials);
             Assert.assertTrue("", sessionModel.isLoggedIn());
 
             final Profile profile = profileModel.read();

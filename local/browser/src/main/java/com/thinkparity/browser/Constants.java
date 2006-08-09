@@ -11,6 +11,8 @@ import java.text.MessageFormat;
 
 import javax.swing.Icon;
 
+import com.thinkparity.codebase.Application;
+
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
 /**
@@ -20,6 +22,14 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  * @version 1.1.2.7
  */
 public final class Constants {
+
+    /** Lookup keys. */
+    public static final class Keys {
+        public static final class Persistence {
+            public static final String JFILECHOOSER_CURRENT_DIRECTORY =
+                "javax.swing.JFileChooser.currentDirectory";
+        }
+    }
 
     /** Colour constants. */
     public static final class Colors {
@@ -57,13 +67,6 @@ public final class Constants {
         public static final String DEFAULT_PROFILE = "Default";
     }
 
-    public static final class Images {
-        public static final class BrowserTitle {
-            public static final BufferedImage LOGO =
-                    ImageIOUtil.read("BrowserTitle_Logo.png");
-        }
-    }
-
     public static final class Icons {
         public static final class BrowserTitle {
             public static final Icon CONTACTS_TAB =
@@ -74,6 +77,13 @@ public final class Constants {
                 ImageIOUtil.readIcon("BrowserTitle_ContainersTab.png");
         public static final Icon CONTAINERS_TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_ContainersTabSelected.png");
+        }
+    }
+
+    public static final class Images {
+        public static final class BrowserTitle {
+            public static final BufferedImage LOGO =
+                    ImageIOUtil.read("BrowserTitle_Logo.png");
         }
     }
 
@@ -105,6 +115,12 @@ public final class Constants {
 
     }
 
+    /** Logging constants. */
+    public static final class Logging {
+        public static final String APPLICATION_LOG_ID = Application.OPHELIA + "] [APPLICATION";
+        public static final String PLATFORM_LOG_ID = Application.OPHELIA + "] [PLATFORM";
+    }
+
     public static final class Network {
         public static final Integer TIMEOUT = 750;
         public static final Integer TTL = 0;
@@ -117,7 +133,7 @@ public final class Constants {
     }
 
     public static final class Session {
+        public static final Long CONNECT_TIMER_PERIOD = 1 * 60 * 1000L;
         public static final Long RECONNECT_DELAY = 1 * 60 * 1000L;
-        public static final Long RECONNECT_PERIOD = 1 * 60 * 1000L;
     }
 }

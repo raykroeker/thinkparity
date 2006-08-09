@@ -5,10 +5,6 @@ package com.thinkparity.browser.application.browser.dnd;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -17,32 +13,15 @@ import javax.swing.TransferHandler;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCell;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellDocument;
 import com.thinkparity.browser.javax.swing.dnd.TxUtils;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
-import com.thinkparity.model.parity.ParityException;
-import com.thinkparity.model.parity.model.document.DocumentModel;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class UpdateDocumentTxHandler extends TransferHandler {
-
-    /** An apache error message. */
-    private static final String IMPORT_IOX =
-        "[BROWSER2] [APP] [B2] [DND] [IMPORT DATA] [IO ERROR]";
-
-    /** An apache error message. */
-    private static final String IMPORT_PX =
-        "[BROWSER2] [APP] [B2] [DND] [IMPORT DATA] [PARITY LMODEL ERROR]";
-
-    /** An apache error message. */
-    private static final String IMPORT_UFX =
-        "[BROWSER2] [APP] [B2] [DND] [IMPORT DATA] [UNSUPPORTED DROP DATA ERROR]";
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
@@ -52,9 +31,6 @@ public class UpdateDocumentTxHandler extends TransferHandler {
 
     /** The browser application. */
     private final Browser application;
-
-    /** The parity document interface. */
-    private final DocumentModel dModel;
 
     /** The list we are droping on. */
     private final JList jList;
@@ -69,7 +45,6 @@ public class UpdateDocumentTxHandler extends TransferHandler {
      */
     public UpdateDocumentTxHandler(final Browser application, final JList jList) {
         this.application = application;
-        this.dModel = application.getDocumentModel();
         this.jList = jList;
         this.logger = LoggerFactory.getLogger(getClass());
     }

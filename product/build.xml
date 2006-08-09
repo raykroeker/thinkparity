@@ -7,6 +7,10 @@
         <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
     </tstamp>
 
+    <!-- release configuration -->
+    <property name="release.name" value="${ant.project.name}"/>
+    <property name="release.version" value="1.0.0-RC10"/>
+
     <!-- print help -->
     <target name="help">
         <echo>

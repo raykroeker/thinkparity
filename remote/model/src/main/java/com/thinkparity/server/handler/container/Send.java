@@ -17,10 +17,10 @@ import com.thinkparity.server.handler.AbstractController;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class Publish extends AbstractController {
+public class Send extends AbstractController {
 
     /** Create SendVersion. */
-    public Publish() { super("container:publish"); }
+    public Send() { super("container:send"); }
 
     /**
      * @see com.thinkparity.codebase.controller.AbstractController#service()
@@ -28,23 +28,26 @@ public class Publish extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        publishArtifact(readUUID(Xml.Container.CONTAINER_UNIQUE_ID),
+        sendArtifact(readJabberId(Xml.Container.SENT_BY),
+                readCalendar(Xml.Container.SENT_ON),
+                readJabberId(Xml.User.JABBER_ID),
+                readUUID(Xml.Container.CONTAINER_UNIQUE_ID),
                 readLong(Xml.Container.CONTAINER_VERSION_ID),
+                readString(Xml.Container.CONTAINER_NAME),
                 readInteger(Xml.Container.ARTIFACT_COUNT),
                 readInteger(Xml.Container.ARTIFACT_INDEX),
                 readUUID(Xml.Artifact.UNIQUE_ID),
                 readLong(Xml.Artifact.VERSION_ID),
+                readString(Xml.Artifact.NAME),
                 readArtifactType(Xml.Artifact.TYPE),
-                readByteArray(Xml.Artifact.BYTES),
-                readJabberId(Xml.Container.PUBLISHED_BY),
-                readCalendar(Xml.Container.PUBLISHED_ON));
+                readByteArray(Xml.Artifact.BYTES));
     }
 
     /**
-     * Publish the artifact version.
+     * Send the artifact version.
      * 
-     * @param containerModel
-     *            The container model.
+     * @param jabberId
+     *            The jabber id.
      * @param uniqueId
      *            The unique id.
      * @param versionId
@@ -62,13 +65,14 @@ public class Publish extends AbstractController {
      * @param bytes
      *            The artifact bytes.
      */
-    private void publishArtifact(final UUID uniqueId, final Long versionId,
-            final Integer count, final Integer index,
+    private void sendArtifact(final JabberId sentBy, final Calendar sentOn,
+            final JabberId jabberId, final UUID uniqueId, final Long versionId,
+            final String name, final Integer count, final Integer index,
             final UUID artifactUniqueId, final Long artifactVersionId,
-            final ArtifactType type, final byte[] bytes,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        getContainerModel().publishArtifact(uniqueId, versionId, count, index,
-                artifactUniqueId, artifactVersionId, type, bytes, publishedBy,
-                publishedOn);
+            final String artifactName, final ArtifactType type,
+            final byte[] bytes) {
+        getContainerModel().sendArtifact(sentBy, sentOn, jabberId, uniqueId,
+                versionId, name, count, index, artifactUniqueId,
+                artifactVersionId, artifactName, type, bytes);
     }
 }

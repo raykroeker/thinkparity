@@ -1,6 +1,5 @@
 /*
  * Created On: Dec 7, 2005
- * $Id$
  */
 package com.thinkparity.codebase.xmpp;
 
@@ -21,8 +20,8 @@ import com.thinkparity.codebase.util.Base64;
  * <b>Title:</b>thinkParity Remote Element Builder <br>
  * <b>Description:</b>A dom element builder for the jive server plugins.
  * 
- * @author raykroeker@gmail.com
- * @version $Revision$
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.5
  */
 public class ElementBuilder {
 
@@ -63,6 +62,22 @@ public class ElementBuilder {
         final String valueString = DateUtil.format(
                 valueGMT, DateUtil.DateImage.ISO);
         return addElement(parent, name, Calendar.class, valueString);
+    }
+
+    /**
+     * Add an integer value.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param name
+     *            The element name.
+     * @param value
+     *            An integer.
+     * @return The element.
+     */
+    public static final Element addElement(final Element parent,
+            final String name, final Integer value) {
+        return addElement(parent, name, Integer.class, value.toString());
     }
 
     /**

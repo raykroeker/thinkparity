@@ -3,7 +3,10 @@
  */
 package com.thinkparity.server.model.container;
 
+import java.util.Calendar;
 import java.util.UUID;
+
+import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.artifact.ArtifactType;
 
@@ -49,10 +52,25 @@ public class ContainerModel extends AbstractModel {
     public void publishArtifact(final UUID uniqueId, final Long versionId,
             final Integer count, final Integer index,
             final UUID artifactUniqueId, final Long artifactVersionId,
-            final ArtifactType type, final byte[] bytes) {
+            final ArtifactType type, final byte[] bytes,
+            final JabberId publishedBy, final Calendar publishedOn) {
         synchronized(getImplLock()) {
             getImpl().publishArtifact(uniqueId, versionId, count, index,
-                    artifactUniqueId, artifactVersionId, type, bytes);
+                    artifactUniqueId, artifactVersionId, type, bytes,
+                    publishedBy, publishedOn);
+        }
+    }
+
+    public void sendArtifact(final JabberId sentBy, final Calendar sentOn,
+            final JabberId jabberId, final UUID uniqueId, final Long versionId,
+            final String name, final Integer count, final Integer index,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType type,
+            final byte[] bytes) {
+        synchronized(getImplLock()) {
+            getImpl().sendArtifact(sentBy, sentOn, jabberId, uniqueId,
+                    versionId, name, count, index, artifactUniqueId,
+                    artifactVersionId, artifactName, type, bytes);
         }
     }
 

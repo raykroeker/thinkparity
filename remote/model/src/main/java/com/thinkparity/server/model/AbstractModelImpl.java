@@ -22,6 +22,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.artifact.Artifact;
@@ -232,6 +233,23 @@ public abstract class AbstractModelImpl {
                     Logging.MODEL_LOG_ID,
                     StackUtil.getCallerClassName().toUpperCase(),
                     StackUtil.getCallerMethodName().toUpperCase()));
+        }
+    }
+
+    /**
+     * Debug a named variable. Note that the logging renderer will be used only
+     * for the value.
+     * 
+     * @param name
+     *            A variable name.
+     * @param value
+     *            A variable.
+     */
+    protected final void debugVariable(final String name, final Object value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0}:{1}",
+                    name,
+                    Log4JHelper.render(logger, value)));
         }
     }
 

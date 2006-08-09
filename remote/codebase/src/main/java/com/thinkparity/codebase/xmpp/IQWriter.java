@@ -63,6 +63,18 @@ public abstract class IQWriter {
     }
 
     /**
+     * Write an integer value.
+     * 
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+    public final void writeInteger(final String name, final Integer value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    /**
      * Write a jabber id value.
      * 
      * @param name

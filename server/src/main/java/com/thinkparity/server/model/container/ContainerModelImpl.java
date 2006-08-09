@@ -3,13 +3,17 @@
  */
 package com.thinkparity.server.model.container;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 
 import org.xmpp.packet.IQ;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.model.AbstractModelImpl;
@@ -59,10 +63,10 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @param bytes
      *            The artifact bytes.
      */
-    public void publishArtifact(final UUID uniqueId, final Long versionId,
+    void publishArtifact(final UUID uniqueId, final Long versionId,
             final Integer count, final Integer index,
             final UUID artifactUniqueId, final Long artifactVersionId,
-            final ArtifactType type, final byte[] bytes) {
+            final ArtifactType type, final byte[] bytes, final JabberId publishedBy, final Calendar publishedOn) {
         logApiId();
         logger.debug(uniqueId);
         logger.debug(count);
@@ -71,7 +75,55 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(bytes);
         try {
             doPublishArtifact(uniqueId, versionId, count, index,
-                    artifactUniqueId, artifactVersionId, type, bytes);
+                    artifactUniqueId, artifactVersionId, type, bytes,
+                    publishedBy, publishedOn);
+        }
+        catch(final Throwable t) { throw translateError(t); }
+    }
+
+    /**
+     * Send an artifact version.
+     * 
+     * @param uniqueId
+     *            The container unique id.
+     * @param versionId
+     *            The container version id.
+     * @param count
+     *            The total artifact count.
+     * @param index
+     *            The artifact index.
+     * @param artifactUniqueId
+     *            The artifact unique id.
+     * @param artifactVersionId
+     *            The artifact version id.
+     * @param type
+     *            The artifact type.
+     * @param bytes
+     *            The artifact bytes.
+     */
+    void sendArtifact(final JabberId sentBy, final Calendar sentOn,
+            final JabberId jabberId, final UUID uniqueId, final Long versionId,
+            final String name, final Integer count, final Integer index,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType type,
+            final byte[] bytes) {
+        logApiId();
+        debugVariable("sentBy", sentBy);
+        debugVariable("sentOn", sentOn);
+        debugVariable("uniqueId", uniqueId);
+        debugVariable("versionId", versionId);
+        debugVariable("name", name);
+        debugVariable("count", count);
+        debugVariable("index", index);
+        debugVariable("artifactUniqueId", artifactUniqueId);
+        debugVariable("artifactVersionId", artifactVersionId);
+        debugVariable("artifactName", artifactName);
+        debugVariable("type", type);
+        debugVariable("bytes", bytes);
+        try {
+            doSendArtifact(sentBy, sentOn, jabberId, uniqueId, versionId, name,
+                    count, index, artifactUniqueId, artifactVersionId,
+                    artifactName, type, bytes);
         }
         catch(final Throwable t) { throw translateError(t); }
     }
@@ -84,10 +136,44 @@ class ContainerModelImpl extends AbstractModelImpl {
     private void doPublishArtifact(final UUID uniqueId, final Long versionId,
             final Integer count, final Integer index,
             final UUID artifactUniqueId, final Long artifactVersionId,
-            final ArtifactType type, final byte[] bytes)
+            final ArtifactType type, final byte[] bytes,
+            final JabberId publishedBy, final Calendar publishedOn)
             throws ParityServerModelException, UnauthorizedException {
-        notifyArtifactPublished(uniqueId, versionId, artifactUniqueId,
-                artifactVersionId, type, bytes, eventGenerator);
+        notifyArtifactPublished(uniqueId, versionId, count, index,
+                artifactUniqueId, artifactVersionId, type, bytes, publishedBy,
+                publishedOn, eventGenerator);
+    }
+
+    /**
+     * @see ContainerModelImpl#sendArtifact(JabberId, UUID, Long, String,
+     *      Integer, Integer, UUID, Long, String, ArtifactType, byte[])
+     * 
+     */
+    private void doSendArtifact(final JabberId sentBy, final Calendar sentOn,
+            final JabberId jabberId, final UUID uniqueId, final Long versionId,
+            final String name, final Integer count, final Integer index,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType type,
+            final byte[] bytes) throws ParityServerModelException,
+            UnauthorizedException {
+        final IQ artifactIQ = new IQ();
+        artifactIQ.setTo(jabberId.getQualifiedUsername());
+        artifactIQ.setType(IQ.Type.set);
+        artifactIQ.setChildElement("query","jabber:iq:parity:" + Xml.Event.Container.ARTIFACT_SENT);
+        final IQWriter artifactWriter = new IQWriter(artifactIQ);
+        artifactWriter.writeJabberId(Xml.Container.SENT_BY, sentBy);
+        artifactWriter.writeCalendar(Xml.Container.SENT_ON, sentOn);
+        artifactWriter.writeUniqueId(Xml.Container.CONTAINER_UNIQUE_ID, uniqueId);
+        artifactWriter.writeLong(Xml.Container.CONTAINER_VERSION_ID, versionId);
+        artifactWriter.writeString(Xml.Container.CONTAINER_NAME, name);
+        artifactWriter.writeInteger(Xml.Container.ARTIFACT_COUNT, count);
+        artifactWriter.writeInteger(Xml.Container.ARTIFACT_INDEX, index);
+        artifactWriter.writeUniqueId(Xml.Artifact.UNIQUE_ID, artifactUniqueId);
+        artifactWriter.writeLong(Xml.Artifact.VERSION_ID, artifactVersionId);
+        artifactWriter.writeString(Xml.Artifact.NAME, artifactName);
+        artifactWriter.writeArtifactType(Xml.Artifact.TYPE, type);
+        artifactWriter.writeBytes(Xml.Artifact.BYTES, bytes);
+        send(jabberId, artifactWriter.getIQ());
     }
 
     /**
@@ -111,15 +197,17 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @throws UnauthorizedException
      */
     private void notifyArtifactPublished(final UUID containerUniqueId,
-            final Long containerVersionId, final UUID artifactUniqueId,
+            final Long containerVersionId, final Integer artifactCount,
+            final Integer artifactIndex, final UUID artifactUniqueId,
             final Long artifactVersionId, final ArtifactType artifactType,
-            final byte[] artifactBytes,
+            final byte[] artifactBytes, final JabberId publishedBy,
+            final Calendar publishedOn,
             final ContainerEventGenerator eventGenerator)
             throws ParityServerModelException, UnauthorizedException {
-        final IQ notification = eventGenerator.generate(
-                Xml.Event.Container.ARTIFACT_PUBLISHED, containerUniqueId,
-                containerVersionId, artifactUniqueId, artifactVersionId,
-                artifactType, artifactBytes);
+        final IQ notification = eventGenerator.generatePublishEvent(containerUniqueId,
+                containerVersionId, artifactCount, artifactIndex,
+                artifactUniqueId, artifactVersionId, artifactType,
+                artifactBytes, publishedBy, publishedOn);
         notifyTeam(containerUniqueId, notification);
     }
 }

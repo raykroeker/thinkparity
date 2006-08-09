@@ -63,8 +63,13 @@ public interface ParityServerConstants {
         public static final class Container {
             public static final String ARTIFACT_COUNT = "artifactCount";
             public static final String ARTIFACT_INDEX = "artifactIndex";
+            public static final String CONTAINER_NAME = "containerName";
             public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
             public static final String CONTAINER_VERSION_ID = "containerVersionId";
+            public static final String PUBLISHED_BY = "publishedBy";
+            public static final String PUBLISHED_ON = "publishedOn";
+            public static final String SENT_BY = "sentBy";
+            public static final String SENT_ON = "sentOn";
         }
         public static final class Event {
             public static final class Artifact {
@@ -73,6 +78,7 @@ public interface ParityServerConstants {
             }
             public static final class Container {
                 public static final String ARTIFACT_PUBLISHED = "artifactpublished";
+                public static final String ARTIFACT_SENT = "artifactsent";
             }
         }
         public static final class Profile {

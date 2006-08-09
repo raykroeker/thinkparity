@@ -162,7 +162,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.debug(uniqueId);
         logger.debug(jabberId);
         try {
+            final Artifact artifact = get(uniqueId);
             final User user = getUserModel().readUser(jabberId);
+            final String username = jabberId.getUsername();
+            artifactSubscriptionSql.insert(artifact.getArtifactId(), username,
+                    session.getJabberId());
             notifyTeamMemberAdded(get(uniqueId), user, eventGenerator);
         }
         catch(final Throwable t) { throw translateError(t); }
@@ -252,10 +256,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			artifactSql.insert(uniqueId, sessionJabberId.getUsername(),
 					Artifact.State.ACTIVE, session.getJabberId());
 			final Artifact artifact = artifactSql.select(uniqueId);
-			// also add a subscription for the creator
-			final Integer artifactId = artifact.getArtifactId();
-			final String username = session.getJID().getNode();
-			artifactSubscriptionSql.insert(artifactId, username, sessionJabberId);
 			return artifact;
 		}
 		catch(SQLException sqlx) {

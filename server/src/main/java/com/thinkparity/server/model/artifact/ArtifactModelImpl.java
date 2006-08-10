@@ -402,17 +402,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	 *            An artifact unique id.
 	 * @throws ParityServerModelException
 	 */
-	Artifact get(final UUID artifactUniqueId) throws ParityServerModelException {
+	Artifact get(final UUID artifactUniqueId) {
         logApiId();
 		logger.debug(artifactUniqueId);
 		try { return artifactSql.select(artifactUniqueId); }
-		catch(SQLException sqlx) {
-			logger.error("get(UUID)", sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(RuntimeException rx) {
-			logger.error("get(UUID)", rx);
-			throw ParityErrorTranslator.translate(rx);
+		catch(final Throwable t) {
+            throw translateError(t);
 		}
 	}
 

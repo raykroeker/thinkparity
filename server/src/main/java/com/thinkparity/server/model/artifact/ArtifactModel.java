@@ -171,7 +171,7 @@ public class ArtifactModel extends AbstractModel {
 	 *            An artifact unique id.
 	 * @throws ParityServerModelException
 	 */
-	public Artifact get(final UUID artifactUniqueId) throws ParityServerModelException {
+	public Artifact get(final UUID artifactUniqueId) {
 		synchronized(implLock) { return impl.get(artifactUniqueId); }
 	}
 

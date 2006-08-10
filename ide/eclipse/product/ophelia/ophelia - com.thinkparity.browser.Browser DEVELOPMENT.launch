@@ -5,7 +5,7 @@
 <listEntry value="4"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ophelia"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dparity.install=&quot;${thinkparity_home}\target&quot; -Djava.library.path=&quot;${thinkparity_home}\vendor\i686\win32\jdic\0.9.1&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dparity.install=&quot;${thinkparity_home}\ophelia\target&quot; -Djava.library.path=&quot;${thinkparity_home}\ophelia\vendor\i686\win32\jdic\0.9.1&quot; -Dparity.serverport=5226"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>

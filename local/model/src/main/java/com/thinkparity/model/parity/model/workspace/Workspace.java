@@ -1,10 +1,10 @@
 /*
- * Aug 6, 2005
+ * Created On: Aug 6, 2005
  */
 package com.thinkparity.model.parity.model.workspace;
 
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
 
 /**
  * Workspace
@@ -13,19 +13,19 @@ import java.net.URL;
  */
 public interface Workspace {
 
-	/**
+    /**
+     * Create a temporary file within the workspace.
+     * 
+     * @return A new file.
+     */
+    public File createTempFile() throws IOException;
+
+    /**
 	 * Obtain the data directory.
 	 * 
 	 * @return The data directory.
 	 */
 	public File getDataDirectory();
-
-	/**
-	 * Obtain the URL representing the data directory for the parity workspace.
-	 * 
-	 * @return URL
-	 */
-	public URL getDataURL();
 
 	/**
 	 * Obtain the index directory.
@@ -35,30 +35,16 @@ public interface Workspace {
 	public File getIndexDirectory();
 
 	/**
-	 * Obtain a Zip archive of the workspace logs.
-	 * 
-	 * @return A zip archive of the workspace logs.
-	 */
-	public File getLogArchive();
-
-	/**
-	 * Obtain the URL representing the log directory for the parity workspace.
-	 * 
-	 * @return URL
-	 */
-	public URL getLoggerURL();
-
-	/**
-	 * Obtain the preferences for the workspace.
-	 * 
-	 * @return <code>Preferences</code>
-	 */
+     * Obtain the preferences for the workspace.
+     * 
+     * @return thinkParity preferences.
+     */
 	public Preferences getPreferences();
 
 	/**
-	 * Obtain the URL representing the directory for the parity workspace.
-	 * 
-	 * @return URL
-	 */
-	public URL getWorkspaceURL();
+     * Obtain the workspace directory.
+     * 
+     * @return A file.
+     */
+    public File getWorkspaceDirectory();
 }

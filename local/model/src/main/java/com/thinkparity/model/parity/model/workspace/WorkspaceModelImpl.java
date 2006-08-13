@@ -1,8 +1,11 @@
 /*
- * Jul 23, 2005
+ * Created On: Jul 23, 2005
  */
 package com.thinkparity.model.parity.model.workspace;
 
+import com.thinkparity.model.ShutdownHook;
+import com.thinkparity.model.Constants.ShutdownHookNames;
+import com.thinkparity.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 
 /**
@@ -13,23 +16,36 @@ import com.thinkparity.model.parity.model.AbstractModelImpl;
  */
 class WorkspaceModelImpl extends AbstractModelImpl {
 
-	/**
-	 * Singleton instance.
-	 */
-	private static final Workspace cachedWorkspace;
+	/** Singleton workspace. */
+	private static final Workspace WORKSPACE;
 
-	static { cachedWorkspace = new WorkspaceHelper().openWorkspace(); }
+    /** Singleton workspace helper. */
+    private static final WorkspaceHelper WORKSPACE_HELPER;
 
-	/**
-     * Obtain a logging id for an api.
-     * 
-     * @param api
-     *            The api.
-     * @return A logging id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("[WORKSPACE]").append(" ").append(api);
-    }
+	static {
+        WORKSPACE_HELPER = new WorkspaceHelper();
+        WORKSPACE = WORKSPACE_HELPER.openWorkspace();
+
+        addShutdownHook(new ShutdownHook() {
+            @Override
+            public String getDescription() {
+                return ShutdownHookNames.WORKSPACE;
+            }
+            @Override
+            public String getName() {
+                return ShutdownHookNames.WORKSPACE;
+            }
+            @Override
+            public Integer getPriority() {
+                return ShutdownHookPriorities.WORKSPACE;
+            }
+            @Override
+            public void run() {
+                WORKSPACE_HELPER.savePreferences();
+                WORKSPACE_HELPER.deleteTempDirectory();
+            }
+        });
+	}
 
 	/**
 	 * Create a WorkspaceModelImpl.
@@ -42,7 +58,9 @@ class WorkspaceModelImpl extends AbstractModelImpl {
 	 * 
 	 * @return The workspace.
 	 */
-	Workspace getWorkspace() { return WorkspaceModelImpl.cachedWorkspace; }
+	Workspace getWorkspace() {
+        return WorkspaceModelImpl.WORKSPACE;
+	}
 
     /**
      * Determine if this is the first run of the workspace.
@@ -50,7 +68,7 @@ class WorkspaceModelImpl extends AbstractModelImpl {
      * @return True if this is the first run of the workspace; false otherwise.
      */
     Boolean isFirstRun() {
-        logger.info(getApiId("[IS FIRST RUN]"));
+        logApiId();
         return null == readCredentials();
     }
 }

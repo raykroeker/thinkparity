@@ -4,9 +4,6 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.util.Vector;
-
-import com.thinkparity.model.parity.ParityException;
 
 /**
  * Test the document model open version api.
@@ -16,47 +13,21 @@ import com.thinkparity.model.parity.ParityException;
  */
 public class OpenVersionTest extends DocumentTestCase {
 
-	/**
-	 * Test data fixture.
-	 * @author raykroeker@gmail.com
-	 * @version 1.1
-	 */
-	private class Fixture {
-		private final Long documentId;
-		private final DocumentModel documentModel;
-		private final Long versionId;
-		private Fixture(final Long documentId,
-				final DocumentModel documentModel, final Long versionId) {
-			this.documentId = documentId;
-			this.documentModel = documentModel;
-			this.versionId = versionId;
-		}
-	}
+    /** Test name. */
+    private static final String NAME = "[TEST OPEN VERSION]";
 
-	/**
-	 * Test data.
-	 */
-	private Vector<Fixture> data;
+	/** Test datum. */
+	private Fixture datum;
 
-	/**
-	 * Create a OpenVersionTest.
-	 */
-	public OpenVersionTest() { super("testOpenVersion"); }
+	/** Create OpenVersionTest. */
+	public OpenVersionTest() { super(NAME); }
 
 	/**
 	 * Test the document model open version api.
 	 *
 	 */
 	public void testOpenVersion() {
-		try {
-			for(Fixture datum : data) {
-				try {
-					datum.documentModel.openVersion(datum.documentId, datum.versionId);
-				}
-				catch(ParityException px) { if(!isNYIAOnLinux(px)) { throw px; } }
-			}
-		}
-		catch(Throwable t) { fail(createFailMessage(t)); }
+	    datum.documentModel.openVersion(datum.version.getArtifactId(), datum.version.getVersionId());
 	}
 
 	/**
@@ -64,28 +35,30 @@ public class OpenVersionTest extends DocumentTestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		data = new Vector<Fixture>(3);
+		final File inputFile = getInputFile("JUnitTestFramework.txt");
 		final DocumentModel documentModel = getDocumentModel();
-		final File testFile = getInputFile("JUnitTestFramework.txt");
-		final Document document = create(testFile);
-		DocumentVersion version;
+		final Document document = createDocument(inputFile);
+        modifyDocument(document);
+        final DocumentVersion version = createDocumentVersion(document);
 
-		version = documentModel.createVersion(document.getId());
-		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
-
-		version = documentModel.createVersion(document.getId());
-		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
-
-		version = documentModel.createVersion(document.getId());
-		data.add(new Fixture(document.getId(), documentModel, version.getVersionId()));
+		datum = new Fixture(documentModel, version);
 	}
 
 	/**
 	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		data.clear();
-		data = null;
+		datum = null;
 		super.tearDown();
+	}
+
+	/** Test datum definition. */
+	private class Fixture {
+		private final DocumentModel documentModel;
+		private final DocumentVersion version;
+		private Fixture(final DocumentModel documentModel, final DocumentVersion version) {
+			this.documentModel = documentModel;
+			this.version = version;
+		}
 	}
 }

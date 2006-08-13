@@ -124,7 +124,6 @@ public class DocumentModel {
      * @param inputStream
      *            The document content's input stream.
      * @return The document.
-     * @throws ParityException
      */
 	public Document create(final String name, final InputStream inputStream) {
 		synchronized(getImplLock()) { return getImpl().create(name, inputStream); }
@@ -138,24 +137,12 @@ public class DocumentModel {
 	 * @param documentId
 	 *            The document unique id.
 	 * @return The newly created version.
-	 * @throws ParityException
 	 */
-	public DocumentVersion createVersion(final Long documentId)
-			throws ParityException {
+	public DocumentVersion createVersion(final Long documentId) {
 		synchronized(implLock) {
 			return impl.createVersion(documentId);
 		}
 	}
-
-    /**
-     * @deprecated =>
-     *             {@link com.thinkparity.model.parity.model.container.ContainerModel#removeDocument(Long, Long)}
-     * 
-     */
-    @Deprecated
-    public void delete(final Long documentId) throws ParityException {
-        throw Assert.createUnreachable("DocumentModel#delete(java.lang.Long)) => ContainerModel#removeDocument(java.lang.Long)");
-    }
 
     /**
 	 * Obtain a document with a specified id.
@@ -163,10 +150,9 @@ public class DocumentModel {
 	 * @param documentId
 	 *            The document id.
 	 * @return The document.
-	 * @throws ParityException
 	 */
 	public Document get(final Long documentId) {
-		synchronized(implLock) { return impl.get(documentId); }
+		synchronized(implLock) { return impl.read(documentId); }
 	}
 
 	/**
@@ -177,11 +163,10 @@ public class DocumentModel {
 	 * @param versionId
 	 *            The version id.
 	 * @return The document version.
-	 * @throws ParityException
 	 */
 	public DocumentVersion getVersion(final Long documentId,
 			final Long versionId) {
-		synchronized(implLock) { return impl.getVersion(documentId, versionId); }
+		synchronized(implLock) { return impl.readVersion(documentId, versionId); }
 	}
 
     /**
@@ -192,7 +177,6 @@ public class DocumentModel {
 	 * @param versionId
 	 *            The version id.
 	 * @return The content.
-	 * @throws ParityException
 	 */
 	public DocumentVersionContent getVersionContent(final Long documentId,
 			final Long versionId) {
@@ -259,13 +243,11 @@ public class DocumentModel {
 	 *            The document unique id.
 	 * @return The list of document versions; ordered by the version id
 	 *         ascending.
-	 * @throws ParityException
 	 * 
 	 * @see ComparatorBuilder
 	 * @see #listVersions(Long, Comparator)
 	 */
-	public List<DocumentVersion> listVersions(final Long documentId)
-			throws ParityException {
+	public List<DocumentVersion> listVersions(final Long documentId) {
 		synchronized(implLock) { return impl.listVersions(documentId); }
 	}
 
@@ -278,13 +260,11 @@ public class DocumentModel {
 	 * @param comparator
 	 *            The document version sorter.
 	 * @return The list of document versions.
-	 * @throws ParityException
 	 * 
 	 * @see ComparatorBuilder
 	 */
 	public Collection<DocumentVersion> listVersions(final Long documentId,
-			final Comparator<ArtifactVersion> comparator)
-			throws ParityException {
+			final Comparator<ArtifactVersion> comparator) {
 		synchronized(implLock) {
 			return impl.listVersions(documentId, comparator);
 		}
@@ -295,7 +275,6 @@ public class DocumentModel {
 	 * 
 	 * @param documentId
 	 *            The document unique id.
-	 * @throws ParityException
 	 */
 	public void open(final Long documentId) {
 		synchronized(implLock) { impl.open(documentId); }
@@ -308,10 +287,8 @@ public class DocumentModel {
 	 *            The document unique id.
 	 * @param versionId
 	 *            The version to open.
-	 * @throws ParityException
 	 */
-	public void openVersion(final Long documentId, final Long versionId)
-			throws ParityException {
+	public void openVersion(final Long documentId, final Long versionId) {
 		synchronized(implLock) { impl.openVersion(documentId, versionId); }
 	}
 
@@ -400,7 +377,6 @@ public class DocumentModel {
      * @param documentId
      *            The document id.
      * @return The latest document version.
-     * @throws ParityException
      */
     public DocumentVersion readLatestVersion(final Long documentId) {
         synchronized(implLock) {
@@ -441,18 +417,16 @@ public class DocumentModel {
     }
 
     /**
-     * Update the working version of a document.
+     * Update the draft of a document.
      * 
      * @param documentId
      *            The document id.
-     * @param updateFile
-     *            The new working version.
-     * @throws ParityException
+     * @param content
+     *            The new content.
      */
-    public void updateWorkingVersion(final Long documentId,
-            final File updateFile) throws ParityException {
+    public void updateDraft(final Long documentId, final InputStream content) {
         synchronized(implLock) {
-            impl.updateWorkingVersion(documentId, updateFile);
+            impl.updateDraft(documentId, content);
         }
     }
 

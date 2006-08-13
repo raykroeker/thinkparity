@@ -195,6 +195,17 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
     /**
+     * Determine if an artifact exists.
+     * 
+     * @param uniqueId
+     *            The unique id.
+     * @return True if the artifact exists; false otherwise.
+     */
+    public Boolean doesExist(final UUID uniqueId) {
+        synchronized(getImplLock()) { return getImpl().doesExist(uniqueId); }
+    }
+
+    /**
      * Determine if the artifact version exists.
      * 
      * @param artifactId
@@ -209,17 +220,6 @@ public class InternalArtifactModel extends ArtifactModel {
         }
     }
 
-    /**
-     * Determine if an artifact exists.
-     * 
-     * @param uniqueId
-     *            The unique id.
-     * @return True if the artifact exists; false otherwise.
-     */
-    public Boolean doesExist(final UUID uniqueId) {
-        synchronized(getImplLock()) { return getImpl().doesExist(uniqueId); }
-    }
-
 	/**
      * Handle the remote event generated when a team member is added. This will
      * download the user's info if required and create the team data locally.
@@ -230,9 +230,24 @@ public class InternalArtifactModel extends ArtifactModel {
      *            The user's jabber id.
      */
     public void handleTeamMemberAdded(final UUID uniqueId,
-            final JabberId jabberId) throws ParityException {
+            final JabberId jabberId) {
         synchronized(getImplLock()) {
             getImpl().handleTeamMemberAdded(uniqueId, jabberId);
+        }
+    }
+
+    /**
+     * Handle the team member removed remote event.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A jabber id.
+     */
+    public void handleTeamMemberRemoved(final UUID uniqueId,
+            final JabberId jabberId) {
+        synchronized (getImplLock()) {
+            getImpl().handleTeamMemberRemoved(uniqueId, jabberId);
         }
     }
 
@@ -274,6 +289,19 @@ public class InternalArtifactModel extends ArtifactModel {
 	}
 
     /**
+     * Read the latest version id for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return A version id.
+     */
+    public Long readLatestVersionId(final Long artifactId) {
+        synchronized(getImplLock()) {
+            return getImpl().readLatestVersionId(artifactId);
+        }
+    }
+
+    /**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -297,7 +325,7 @@ public class InternalArtifactModel extends ArtifactModel {
     public void removeFlagKey(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().removeFlagKey(artifactId); }
 	}
-
+    
     /**
      * Remove the team member. Removes the user from the local team data.
      * 
@@ -307,7 +335,7 @@ public class InternalArtifactModel extends ArtifactModel {
     public void removeTeamMember(final TeamMember teamMember) {
         synchronized(getImplLock()) { getImpl().removeTeamMember(teamMember); }
     }
-    
+
     /**
      * Remove the team members. Removes the users from the local team data.
      * 

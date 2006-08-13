@@ -11,7 +11,7 @@ import java.util.Vector;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class GetVersionTest extends DocumentTestCase {
+public class ReadVersionTest extends DocumentTestCase {
 
 	private class Fixture {
 		private final Long documentId;
@@ -34,7 +34,7 @@ public class GetVersionTest extends DocumentTestCase {
 	/**
 	 * Create a GetVersionTest.
 	 */
-	public GetVersionTest() { super("testGetVersion"); }
+	public ReadVersionTest() { super("testGetVersion"); }
 
 	/**
 	 * Test the document model getVersion api.

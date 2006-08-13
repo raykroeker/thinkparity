@@ -21,12 +21,6 @@ import com.thinkparity.model.parity.model.container.ContainerModel;
 public class ContainerAdapter implements ContainerListener {
 
     /**
-     * @see com.thinkparity.model.parity.api.events.ContainerListener#containerClosed(com.thinkparity.model.parity.api.events.ContainerEvent)
-     * 
-     */
-    public void containerClosed(final ContainerEvent e) {}
-
-    /**
      * @see com.thinkparity.model.parity.api.events.ContainerListener#containerCreated(com.thinkparity.model.parity.api.events.ContainerEvent)
      * 
      */
@@ -37,12 +31,6 @@ public class ContainerAdapter implements ContainerListener {
      * 
      */
     public void containerDeleted(final ContainerEvent e) {}
-
-    /**
-     * @see com.thinkparity.model.parity.api.events.ContainerListener#containerReactivated(com.thinkparity.model.parity.api.events.ContainerEvent)
-     * 
-     */
-    public void containerReactivated(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.model.parity.api.events.ContainerListener#documentAdded(com.thinkparity.model.parity.api.events.ContainerEvent)

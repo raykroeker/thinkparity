@@ -8,24 +8,25 @@ package com.thinkparity.model.parity.model.document;
  * @author raykroeker@gmail.com
  * @version $Revision$
  */
-public class IsWorkingVersionNotEqualTest extends DocumentTestCase {
+public class IsDraftModifiedTest extends DocumentTestCase {
 
     /** Test name. */
-    private static final String NAME = "[LMODEL] [DOCUMENT] [TEST IS WORKING VERSION EQUAL]";
+    private static final String NAME = "[[TEST IS DRAFT MODIFIED]";
 
     /** Fixture datum. */
     private Fixture datum;
 
     /** Create IsWorkingVersionEqualTest. */
-    public IsWorkingVersionNotEqualTest() { super(NAME); }
+    public IsDraftModifiedTest() { super(NAME); }
 
     /**
-     * Test the IsWorkingVersionEqualTest api.
+     * Test the is draft modified api.
      * 
      */
-    public void testIsWorkingVersionEqualTest() {
+    public void testIsDraftModified() {
         final Boolean isDraftModified = datum.dModel.isDraftModified(datum.documentId);
-        assertEquals(NAME + " [IS EQUAL DOES NOT MATCH EXPECTATION]", isDraftModified, datum.isDraftModified);
+        assertEquals("[IS DRAFT MODIFIED DOES NOT MATCH EXPECTATION]",
+                isDraftModified, datum.isDraftModified);
     }
 
     /**

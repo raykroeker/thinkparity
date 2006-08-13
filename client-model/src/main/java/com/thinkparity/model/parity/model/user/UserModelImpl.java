@@ -56,7 +56,7 @@ class UserModelImpl extends AbstractModelImpl {
         logger.debug(name);
         logger.debug(organization);
         final InternalSessionModel isModel = getInternalSessionModel();
-        final User remoteUser = isModel.readUser(currentUserId());
+        final User remoteUser = isModel.readUser(localUserId());
         remoteUser.setName(name);
         remoteUser.setOrganization(organization);
         userIO.create(remoteUser);
@@ -67,7 +67,7 @@ class UserModelImpl extends AbstractModelImpl {
     User read() {
         logger.info(getApiId("[READ]"));
         // NOTE User has not yet logged in.
-        final JabberId currentUserId = currentUserId();
+        final JabberId currentUserId = localUserId();
         if(null == currentUserId) { return null; }
         else { return userIO.read(currentUserId); }
     }

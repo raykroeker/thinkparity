@@ -16,7 +16,7 @@ import com.thinkparity.model.parity.api.events.ContainerEvent;
 public class CreateDraftTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "[LMODEL] [CONTAINER] [CREATE DRAFT TEST]";
+    private static final String NAME = "[CREATE DRAFT TEST]";
 
     /** Test datum. */
     private Fixture datum;
@@ -29,7 +29,7 @@ public class CreateDraftTest extends ContainerTestCase {
      *
      */
     public void testCreateDraft() {
-        final ContainerDraft draft =  datum.cModel.createDraft(datum.containerId);
+        final ContainerDraft draft =  datum.containerModel.createDraft(datum.containerId);
 
         assertNotNull(NAME, draft);
         assertEquals(NAME + " [DRAFT ID DOES NOT MATCH EXPECTATION]",
@@ -50,11 +50,13 @@ public class CreateDraftTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login();
-        final ContainerModel cModel = getContainerModel();
+        final ContainerModel containerModel = getContainerModel();
         final Container container = createContainer(NAME);
         addTeam(container);
-        datum = new Fixture(cModel, container.getId());
-        cModel.addListener(datum);
+        addDocuments(container);
+        publish(container);
+        datum = new Fixture(containerModel, container.getId());
+        containerModel.addListener(datum);
     }
 
     /**
@@ -63,18 +65,18 @@ public class CreateDraftTest extends ContainerTestCase {
      */
     protected void tearDown() throws Exception {
         logout();
-        getContainerModel().removeListener(datum);
+        datum.containerModel.removeListener(datum);
         datum = null;
         super.tearDown();
     }
 
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final ContainerModel cModel;
+        private final ContainerModel containerModel;
         private final Long containerId;
         private Boolean didNotify;
-        private Fixture(final ContainerModel cModel, final Long containerId) {
-            this.cModel = cModel;
+        private Fixture(final ContainerModel containerModel, final Long containerId) {
+            this.containerModel = containerModel;
             this.containerId = containerId;
             this.didNotify = Boolean.FALSE;
         }
@@ -84,7 +86,7 @@ public class CreateDraftTest extends ContainerTestCase {
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
             assertNotNull(NAME, e.getDraft());
-            assertNull(NAME, e.getContainer());
+            assertNotNull(NAME, e.getContainer());
             assertNull(NAME, e.getDocument());
             assertNull(NAME, e.getTeamMember());
         }

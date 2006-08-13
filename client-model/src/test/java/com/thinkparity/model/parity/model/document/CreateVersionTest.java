@@ -4,9 +4,10 @@
 package com.thinkparity.model.parity.model.document;
 
 import java.io.File;
-import java.util.Vector;
 
 import com.thinkparity.codebase.FileUtil;
+
+import com.thinkparity.model.parity.util.MD5Util;
 
 /**
  * Test the document model create version api.
@@ -16,11 +17,11 @@ import com.thinkparity.codebase.FileUtil;
  */
 public class CreateVersionTest extends DocumentTestCase {
 
-    /** The test name. */
-    private static final String NAME = "[LMODEL] [DOCUMENT] [TEST CREATE VERSION]";
+    /** Test name. */
+    private static final String NAME = "[TEST CREATE VERSION]";
     
-	/** Test data. */
-	private Vector<Fixture> data;
+	/** Test datum. */
+	private Fixture datum;
 
 	/**
 	 * Create a CreateVersionTest.
@@ -31,68 +32,60 @@ public class CreateVersionTest extends DocumentTestCase {
 	 * Test the document model create version api.
 	 */
 	public void testCreateVersion() {
-		try {
-			DocumentVersion version;
-			DocumentVersionContent versionContent;
-			for(Fixture datum : data) {
-				datum.documentModel.createVersion(datum.document.getId());
+		final DocumentVersion version = datum.documentModel.createVersion(datum.document.getId());
 
-                version = datum.documentModel.readLatestVersion(datum.document.getId());
-				assertNotNull(version);
-				assertEquals(datum.document.getId(), version.getArtifactId());
-				assertEquals(datum.document.getType(), version.getArtifactType());
-				assertEquals(datum.document.getUniqueId(), version.getArtifactUniqueId());
-				assertEquals(datum.document.getCreatedBy(), version.getCreatedBy());
-				assertEquals(datum.document.getCreatedOn(), version.getCreatedOn());
-				assertEquals(datum.document.getName(), version.getName());
-				assertEquals(datum.document.getUpdatedBy(), version.getUpdatedBy());
-				assertEquals(datum.document.getUpdatedOn(), version.getUpdatedOn());
+        assertNotNull(NAME, version);
+		assertEquals(datum.document.getId(), version.getArtifactId());
+		assertEquals(datum.document.getType(), version.getArtifactType());
+		assertEquals(datum.document.getUniqueId(), version.getArtifactUniqueId());
+		assertEquals(datum.document.getCreatedBy(), version.getCreatedBy());
+		assertEquals(datum.document.getName(), version.getName());
+		assertEquals(datum.document.getUpdatedBy(), version.getUpdatedBy());
+        
+        final DocumentVersionContent versionContent =
+            datum.documentModel.getVersionContent(
+                    version.getArtifactId(), version.getVersionId());
+        assertNotNull(NAME, versionContent);
+        assertEquals(NAME, datum.documentBytes, versionContent.getContent());
 
-                versionContent =
-                    datum.documentModel.getVersionContent(
-                            datum.document.getId(), version.getVersionId());
-                assertNotNull(NAME, versionContent);
-                assertEquals(NAME, datum.content, versionContent.getContent());
-			}
-		}
-		catch(final Throwable t) { fail(createFailMessage(t)); }
-	}
+        assertEquals(NAME + " [DOCUMENT BYTES CHECKSUM DOES NOT MATCH EXPECTATION]",
+                datum.documentChecksum, version.getChecksum());
+    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		data = new Vector<Fixture>(getInputFilesLength());
+		final File inputFile = getInputFiles()[0];
+        final byte[] inputFileBytes = FileUtil.readBytes(inputFile);
 		final DocumentModel documentModel = getDocumentModel();
-		Document document;
-
-		for(File testFile : getInputFiles()) {
-			document = create(testFile);
-			data.add(new Fixture(FileUtil.readBytes(testFile), document, documentModel));
-		}
-	}
+        final Document document = createDocument(inputFile);
+		datum = new Fixture(document, inputFileBytes, MD5Util
+                .md5Hex(inputFileBytes), documentModel);
+    }
 
 	/**
 	 * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		data.clear();
-		data = null;
+		datum = null;
 		super.tearDown();
 	}
 
 	/**
 	 * Test data fixture.
 	 */
-	private class Fixture {
-        private final byte[] content;
+	private class Fixture extends DocumentTestCase.Fixture {
 		private final Document document;
+		private final byte[] documentBytes;
+        private final String documentChecksum;
 		private final DocumentModel documentModel;
-		private Fixture(final byte[] content, final Document document,
-                final DocumentModel documentModel) {
-            this.content = content;
+		private Fixture(final Document document, final byte[] documentBytes,
+                final String documentChecksum, final DocumentModel documentModel) {
 			this.document = document;
+            this.documentChecksum = documentChecksum;
+            this.documentBytes = documentBytes;
 			this.documentModel = documentModel;
 		}
 	}

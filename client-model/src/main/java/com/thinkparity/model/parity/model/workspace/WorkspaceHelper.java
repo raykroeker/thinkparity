@@ -6,13 +6,16 @@ package com.thinkparity.model.parity.model.workspace;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.text.MessageFormat;
 
-import com.thinkparity.codebase.ZipUtil;
+import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.Constants.Directories;
+import com.thinkparity.model.Constants.DirectoryNames;
+import com.thinkparity.model.Constants.Files;
 
 /**
  * 
@@ -21,59 +24,61 @@ import com.thinkparity.model.Constants.Directories;
  */
 class WorkspaceHelper {
 
-	/**
-	 * Create a WorkspaceHelper.
-	 * 
-	 */
-	WorkspaceHelper() { super(); }
+    /** The workspace root directory. */
+    private final File workspaceDirectory;
 
-	/**
+    /** The workspace preferences helper. */
+    private final PreferencesHelper workspacePreferencesHelper;
+
+    /** The workspace temp directory. */
+    private final File workspaceTempDirectory;
+
+    /** Create WorkspaceHelper. */
+	WorkspaceHelper() {
+        super();
+        this.workspaceDirectory = initRoot();
+        this.workspacePreferencesHelper = new PreferencesHelper(workspaceDirectory);
+        this.workspaceTempDirectory =
+            new File(workspaceDirectory, DirectoryNames.Workspace.TEMP);
+	}
+
+    /**
+     * Delete the workspace temp directory.
+     *
+     */
+    void deleteTempDirectory() {
+        if(workspaceTempDirectory.exists())
+            FileUtil.deleteTree(workspaceTempDirectory);
+    }
+
+    /**
 	 * Open the parity workspace.
 	 * 
 	 * @return An interface with which the client can interact with the
 	 *         workspace.
 	 */
 	Workspace openWorkspace() {
-		final URL workspaceRootURL = initRoot();
-		final File workspaceRoot = new File(workspaceRootURL.getFile());
-
-		return new Workspace() {
-			/**
-			 * URL to the data directory within the workspace.
-			 * 
-			 */
-			final URL dataURL = initChild(workspaceRootURL, "data");
-
-			/**
-			 * File the index resides in.
-			 * 
-			 */
-			final File indexDirectory = initChild(workspaceRoot, "index");
-
-			/**
-			 * URL to the log file directory within the workspace.
-			 * 
-			 */
-			final URL loggerURL = initChild(workspaceRootURL, "logs");
-
-			/**
-			 * Workspace preferences.
-			 */
-			final Preferences preferences =
-				new PreferencesHelper(workspaceRoot).getPreferences();
+	    // data directory
+	    final File dataDirectory = initChild(workspaceDirectory, DirectoryNames.Workspace.DATA);
+        // index directory
+        final File indexDirectory = initChild(workspaceDirectory, DirectoryNames.Workspace.INDEX);
+        // workspace
+		final Workspace workspace = new Workspace() {
+            public File createTempFile() throws IOException {
+                initChild(workspaceDirectory, DirectoryNames.Workspace.TEMP);
+                final StackTraceElement caller = StackUtil.getCaller();
+                final String tempFileSuffix = new StringBuffer(".")
+                    .append(StringUtil.searchAndReplace(caller.getClassName(), ".", "_"))
+                    .append("#").append(caller.getMethodName())
+                    .toString();
+                return File.createTempFile(Files.TEMP_FILE_PREFIX, tempFileSuffix, workspaceTempDirectory);
+            }
 
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataDirectory()
 			 * 
 			 */
-			public File getDataDirectory() {
-				return new File(dataURL.getFile());
-			}
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getDataURL()
-			 */
-			public URL getDataURL() { return dataURL; }
+			public File getDataDirectory() { return dataDirectory; }
 
 			/**
 			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getIndexDirectory()
@@ -82,37 +87,28 @@ class WorkspaceHelper {
 			public File getIndexDirectory() { return indexDirectory; }
 
 			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getLogArchive()
+			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getPreferences()
 			 */
-			public File getLogArchive() {
-				final File logFileDirectory = new File(loggerURL.getFile());
-				final File logFileArchive = new File(workspaceRootURL.getFile(), "Logs.zip");
-				if(logFileArchive.exists()) {
-					Assert.assertTrue(
-							"Cannot delete log file archive.",
-							logFileArchive.delete());
-				}
-				try { ZipUtil.createZipFile(logFileArchive, logFileDirectory); }
-				catch(final IOException iox) { throw new RuntimeException(iox); }
-				return logFileArchive;
+			public Preferences getPreferences() {
+                return workspacePreferencesHelper.getPreferences();
 			}
 
 			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getLoggerURL()
-			 */
-			public URL getLoggerURL() { return loggerURL; }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getPreferences()
-			 */
-			public Preferences getPreferences() { return preferences; }
-
-			/**
-			 * @see com.thinkparity.model.parity.model.workspace.Workspace#getWorkspaceURL()
-			 */
-			public URL getWorkspaceURL() { return workspaceRootURL; }
+             * @see com.thinkparity.model.parity.model.workspace.Workspace#getWorkspaceDirectory()
+             */
+            public File getWorkspaceDirectory() { return workspaceDirectory; }
 		};
+		deleteTempDirectory();
+        return workspace;
 	}
+
+    /**
+     * Save the workspace preferences.
+     *
+     */
+	void savePreferences() {
+        workspacePreferencesHelper.savePreferences();
+    }
 
 	/**
 	 * Initialize an immediate child of the workspace. This will create the
@@ -128,27 +124,9 @@ class WorkspaceHelper {
 		final File childFile = new File(workspaceDirectory, child);
 		if(!childFile.exists())
 			Assert.assertTrue(
-					"Cannot create workspace sub-directory:  " + child,
+                    MessageFormat.format("[CANNOT CREATE WORKSPACE CHILD {0}]", child),
 					childFile.mkdir());
 		return childFile;
-	}
-
-	/**
-	 * Initialize an immediate child of the workspace. This will create the
-	 * child (directory) if it does not already exist.
-	 * 
-	 * @param workspaceURL
-	 *            The workspace root url.
-	 * @param child
-	 *            The name of a child directory of the workspace.
-	 * @return The url of the child directory of the workspace.
-	 */
-	private URL initChild(final URL workspaceURL, final String child) {
-		try { return initChild(new File(workspaceURL.getFile()), child).toURL(); }
-		catch(MalformedURLException murlx) {
-			murlx.printStackTrace();
-			return null;
-		}
 	}
 
 	/**
@@ -156,17 +134,12 @@ class WorkspaceHelper {
 	 * root directory, and create it if it does not already exist; then convert
 	 * it to a URL.
 	 * 
-	 * @return The workspace root url.
+	 * @return The workspace directory.
 	 */
-	private URL initRoot() {
+	private File initRoot() {
 		if(!Directories.WORKSPACE.exists())
-			Assert.assertTrue(
-					"[LMODEL] [WORKSPACE INIT] [CANNOT BE CREATED]",
+			Assert.assertTrue("[WORKSPACE ROOT CANNOT BE CREATED]",
 					Directories.WORKSPACE.mkdirs());
-		try { return Directories.WORKSPACE.toURL(); }
-		catch(final MalformedURLException murlx) {
-			murlx.printStackTrace();
-			return null;
-		}
+		return Directories.WORKSPACE;
 	}
 }

@@ -8,6 +8,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -15,9 +17,11 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.StackUtil;
 
 import com.thinkparity.model.LoggerFactory;
-import com.thinkparity.model.parity.IParityModelConstants;
+import com.thinkparity.model.Constants.DirectoryNames;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+
+import com.thinkparity.Constants.FileNames;
 
 /**
  * @author raykroeker@gmail.com
@@ -42,14 +46,23 @@ public class HypersonicUtil {
         connectionURL = new StringBuffer("jdbc:hsqldb:file:")
             .append(workspace.getDataDirectory())
             .append(File.separator)
-            .append(IParityModelConstants.DIRECTORY_NAME_DB_DATA)
+            .append(DirectoryNames.Workspace.Data.DB)
             .append(File.separator)
-            .append(IParityModelConstants.FILE_NAME_DB_DATA)
+            .append(FileNames.Workspace.Data.DB)
             .toString();
 		connectionInfo = new Properties();
 		connectionInfo.setProperty("user", "sa");
 		connectionInfo.setProperty("password", "");
 		connectionInfo.setProperty("hsqldb.default_table_type", "cached");
+	}
+
+	/**
+	 * Issue a shutdown command to the hypersonic database.
+	 * 
+	 * @throws HypersonicException
+	 */
+	public static void shutdown() throws HypersonicException {
+		synchronized(singletonLock) { singleton.doShutdown(); }
 	}
 
 	/**
@@ -67,7 +80,7 @@ public class HypersonicUtil {
 	 * @throws HypersonicException
 	 */
 	static void compact() throws HypersonicException {
-		synchronized(singletonLock) { singleton.doCompact(); }
+		synchronized(singletonLock) { singleton.doShutdown(); }
 	}
 
 	/**
@@ -95,15 +108,6 @@ public class HypersonicUtil {
 	 */
 	static void setInitialProperties() throws HypersonicException {
 		synchronized(singletonLock) { singleton.doSetInitialProperties(); }
-	}
-
-	/**
-	 * Issue a shutdown command to the hypersonic database.
-	 * 
-	 * @throws HypersonicException
-	 */
-	static void shutdown() throws HypersonicException {
-		synchronized(singletonLock) { singleton.doCompact(); }
 	}
 
 	/**
@@ -148,18 +152,6 @@ public class HypersonicUtil {
 	}
 
     /**
-	 * Issue a compact command to the hypersonic database.
-	 *
-	 * @throws HypersonicException
-	 */
-	private void doCompact() throws HypersonicException {
-		logger.info("Issuing hypersonic compact.");
-		final Session session = openSession();
-		try { session.execute("SHUTDOWN COMPACT"); }
-		finally { session.close(); }
-	}
-
-	/**
 	 * Create a jdbc connection to the database.
 	 * 
 	 * @return A jdbc connection to the database.
@@ -215,6 +207,35 @@ public class HypersonicUtil {
 		else {
 			logger.warn("Initial hypersonic properties have already been set.");
 		}
+	}
+
+	/**
+	 * Issue a compact command to the hypersonic database.
+	 *
+	 * @throws HypersonicException
+	 */
+	private void doShutdown() throws HypersonicException {
+        // log and shut down all abandoned sessions
+	    final List<Session> sessions = SessionManager.getSessions();
+        synchronized (sessions) {
+            logger.warn(MessageFormat.format("{0} ABANDONDED SESSSIONS", sessions.size()));
+            StackTraceElement sessionCaller;
+            for (final Session session : sessions) {
+                sessionCaller = SessionManager.getSessionCaller(session);
+                logger.warn(MessageFormat
+                        .format("{0} - {1}.{2}({3}:{4})",
+                                session.getId(),
+                                sessionCaller.getClassName(),
+                                sessionCaller.getMethodName(),
+                                sessionCaller.getFileName(),
+                                sessionCaller.getLineNumber()));
+                session.close();
+            }
+        }
+        // shutdown the db
+		final Session session = openSession();
+		try { session.execute("SHUTDOWN COMPACT"); }
+		finally { session.close(); }
 	}
 
 	/**

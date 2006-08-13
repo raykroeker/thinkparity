@@ -14,7 +14,8 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.LoggerFactory;
-import com.thinkparity.model.parity.IParityModelConstants;
+import com.thinkparity.model.Constants.DirectoryNames;
+import com.thinkparity.model.Constants.IO;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.MD5Util;
 
@@ -29,7 +30,7 @@ import com.thinkparity.model.parity.util.MD5Util;
  */
 class LocalFile {
 
-	/**
+    /**
 	 * System runtime environment.
 	 */
 	private static final Runtime myRuntime;
@@ -153,6 +154,17 @@ class LocalFile {
 	}
 
 	/**
+     * Open the local file. Note that this stream is not buffered; and not
+     * closed.
+     * 
+     * @return An input stream.
+     * @throws FileNotFoundException
+     */
+    InputStream openStream() throws FileNotFoundException {
+        return new FileInputStream(file);
+    }
+
+	/**
 	 * Read the document local file into the bytes parameter. This will also
 	 * calculate the content's checksum.
 	 * 
@@ -166,7 +178,20 @@ class LocalFile {
 		fileChecksum = MD5Util.md5Hex(fileBytes);
 	}
 
-	/**
+    /**
+     * Rename the file.
+     * 
+     * @param filename
+     *            The new name.
+     */
+	void rename(final String filename) {
+        if (file.exists()) {
+    	    Assert.assertTrue("[CANNOT RENAME LOCAL FILE]",
+                    file.renameTo(new File(file.getParentFile(), filename)));
+        }
+    }
+
+    /**
 	 * Write the document local file.
 	 * 
 	 * @param bytes
@@ -188,11 +213,11 @@ class LocalFile {
      */
     void write(final InputStream is) throws FileNotFoundException, IOException {
         final OutputStream os = createOutputStream();
-        try { StreamUtil.copy(is, os, 512); }
+        try { StreamUtil.copy(is, os, IO.BUFFER_SIZE); }
         finally { os.close(); }
     }
 
-    /**
+	/**
      * Create an output stream for the local file.
      * 
      * @return The output stream.
@@ -238,7 +263,7 @@ class LocalFile {
 		return new File(getFileParent(workspace, version.getArtifactId()), name);
 	}
 
-	/**
+    /**
 	 * Obtain the parent file for the document.
 	 * 
 	 * @param document
@@ -246,9 +271,8 @@ class LocalFile {
 	 * @return The parent file.
 	 */
 	private File getFileParent(final Workspace workspace, final Long documentId) {
-		final File cache = new File(
-				workspace.getDataURL().getFile(),
-				IParityModelConstants.DIRECTORY_NAME_LOCAL_DATA);
+		final File cache = new File(workspace.getDataDirectory(),
+                DirectoryNames.Workspace.Data.LOCAL);
 		if(!cache.exists()) {
 			Assert.assertTrue("getFileParent(Document)", cache.mkdir());
 		}

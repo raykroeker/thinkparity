@@ -75,12 +75,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     final Long versionId, final JabberId receivedFrom) {
                 handleConfirmationReceipt(uniqueId, versionId, receivedFrom);
             }
-			public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
-				handleTeamMemberAdded(uniqueId, jabberId);
-			}
+			public void teamMemberAdded(final UUID uniqueId,
+                    final JabberId jabberId) {
+                handleTeamMemberAdded(uniqueId, jabberId);
+            }
             public void teamMemberRemoved(final UUID artifactUniqueId,
-					final User teamMember) {
-				handleTeamMemberRemoved(artifactUniqueId, teamMember);
+                    final JabberId jabberId) {
+				handleTeamMemberRemoved(artifactUniqueId, jabberId);
 			}
 		};
         this.xmppContainerListener = new XMPPContainerListener() {
@@ -203,17 +204,16 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     }
 
     /**
-	 * Send a create packet to the parity server.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @throws SmackException
-	 */
+     * Create an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
 	void createArtifact(final UUID uniqueId) throws SmackException {
 		xmppSession.createArtifact(uniqueId);
 	}
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -233,16 +233,14 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
-	 * Obtain the artifact key holder.
-	 * 
-	 * @param artifactUniqueId
-	 *            The artifact unique id.
-	 * @return The artifact key holder.
-	 */
-	User getArtifactKeyHolder(final UUID artifactUniqueId)
-			throws SmackException {
-		return xmppSession.readArtifactKeyHolder(artifactUniqueId);
-	}
+     * Delete an artifact.
+     * 
+     * @param uniqueId
+     *            A unique id.
+     */
+    void deleteArtifact(final UUID uniqueId) {
+        xmppSession.deleteArtifact(uniqueId);
+    }
 
 	/**
 	 * Obtain the user for the current session.
@@ -303,7 +301,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		xmppSession.processOfflineQueue();
 	}
 
-    /**
+	/**
      * Publish a container.
      * 
      * @param version
@@ -319,7 +317,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         xmppSession.publish(version, documentVersions, publishedBy, publishedOn);
     }
 
-	/**
+    /**
 	 * Obtain a list of contacts for an artifact.
 	 * 
 	 * @param uniqueId
@@ -331,7 +329,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readArtifactTeam(uniqueId);
 	}
 
-    /**
+	/**
 	 * Read the logged in user's contacts.
 	 * 
 	 * @return A list of contacts.
@@ -339,6 +337,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	List<Contact> readContacts() throws SmackException {
 		return xmppSession.readContacts();
+	}
+
+    /**
+	 * Obtain the artifact key holder.
+	 * 
+	 * @param uniqueId
+	 *            The artifact unique id.
+	 * @return A jabber id.
+	 */
+	JabberId readKeyHolder(final UUID uniqueId) {
+		return xmppSession.readKeyHolder(uniqueId);
 	}
 
 	/**
@@ -611,27 +620,29 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
     /**
-     * Handle the event that occurs when a team member is added.
+     * Handle the team member added remote event.
      * 
-     * @param teamMember
-     *            The new team member.
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A jabber id.
      */
 	private void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
 		try { SessionModelImpl.handleTeamMemberAdded(uniqueId, jabberId); }
-		catch(final ParityException px) { unexpectedOccured(px); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 
     /**
-     * Handle the event that occurs when a team member is removed.
+     * Handle the team member removed remote event.
      * 
-     * @param teamMember
-     *            The team member.
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A jabber id.
      */
-	private void handleTeamMemberRemoved(final UUID artifactUniqueId,
-			final User teamMember) {
-		try { SessionModelImpl.notifyTeamMemberRemoved(artifactUniqueId, teamMember); }
-		catch(final ParityException px) { unexpectedOccured(px); }
+	private void handleTeamMemberRemoved(final UUID uniqueId,
+            final JabberId jabberId) {
+		try { SessionModelImpl.handleTeamMemberRemoved(uniqueId, jabberId); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 

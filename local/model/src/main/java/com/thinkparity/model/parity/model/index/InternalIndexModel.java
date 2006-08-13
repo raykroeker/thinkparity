@@ -40,7 +40,7 @@ public class InternalIndexModel extends IndexModel {
 		}
 	}
 
-	public void deleteArtifact(final Long artifactId) throws ParityException {
+	public void deleteArtifact(final Long artifactId) {
 		synchronized(getImplLock()) { getImpl().deleteArtifactIndex(artifactId); }
 	}
 }

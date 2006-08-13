@@ -216,7 +216,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
     List<TeamMember> createTeam(final Long artifactId) {
         logger.info(getApiId("[CREATE TEAM]"));
         logger.debug(artifactId);
-        addTeamMember(artifactId, currentUser());
+        addTeamMember(artifactId, localUser());
         return readTeam2(artifactId);
     }
 
@@ -244,17 +244,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return null != artifactIO.readUniqueId(artifactId);
     }
 
+    Boolean doesExist(final UUID uniqueId) {
+        logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
+        logger.debug(uniqueId);
+        return null != artifactIO.readId(uniqueId);
+    }
+
     Boolean doesVersionExist(final Long artifactId, final Long versionId) {
         logApiId();
         debugVariable("artifactId", artifactId);
         debugVariable("versionId", versionId);
         return null != artifactIO.doesVersionExist(artifactId, versionId);
-    }
-
-    Boolean doesExist(final UUID uniqueId) {
-        logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
-        logger.debug(uniqueId);
-        return null != artifactIO.readId(uniqueId);
     }
 
     /**
@@ -266,37 +266,60 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param jabberId
      *            The user's jabber id.
      */
-    void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId)
-            throws ParityException {
-        logger.info(getApiId("[HANDLE TEAM MEMBER ADDED]"));
-        logger.debug(uniqueId);
-        logger.debug(jabberId);
-        final Long artifactId = readId(uniqueId);
-        final InternalUserModel userModel = getInternalUserModel();
-        User user = userModel.read(jabberId);
-        if(null == user) { user = userModel.create(jabberId); }
-
-        // if receiving your own team member added event you have just been
-        // added to the team; so download the entire team.
-        if(user.equals(currentUser())) {
-            final List<User> remoteTeam =
-                getInternalSessionModel().readArtifactTeamList(artifactId);
-            JabberId remoteUserId;
-            for(User remoteUser : remoteTeam) {
-                remoteUserId = remoteUser.getId();
-                remoteUser = userModel.read(remoteUserId);
-                if(null == remoteUser) { remoteUser = userModel.create(remoteUserId); }
-                artifactIO.createTeamRel(artifactId, remoteUser
-                        .getLocalId(), TeamMemberState.DISTRIBUTED);
+    void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
+        logApiId();
+        debugVariable("uniqueId", uniqueId);
+        debugVariable("jabberId", jabberId);
+        try {
+            final Long artifactId = readId(uniqueId);
+            final InternalUserModel userModel = getInternalUserModel();
+            User user = userModel.read(jabberId);
+            if(null == user) { user = userModel.create(jabberId); }
+    
+            // if receiving your own team member added event you have just been
+            // added to the team; so download the entire team.
+            if(user.equals(localUser())) {
+                final List<User> remoteTeam =
+                    getInternalSessionModel().readArtifactTeamList(artifactId);
+                JabberId remoteUserId;
+                for(User remoteUser : remoteTeam) {
+                    remoteUserId = remoteUser.getId();
+                    remoteUser = userModel.read(remoteUserId);
+                    if(null == remoteUser) { remoteUser = userModel.create(remoteUserId); }
+                    artifactIO.createTeamRel(artifactId, remoteUser
+                            .getLocalId(), TeamMemberState.DISTRIBUTED);
+                }
             }
-        }
-        else {
-            artifactIO.createTeamRel(artifactId, user.getLocalId(),
-                    TeamMemberState.DISTRIBUTED);
+            else {
+                artifactIO.createTeamRel(artifactId, user.getLocalId(),
+                        TeamMemberState.DISTRIBUTED);
+            }
+        } catch(final Throwable t) {
+            throw translateError("[HANDLE TEAM MEMBER ADDED]", t);
         }
     }
 
-	/**
+    /**
+     * Handle the remote event generated when a team member is removed.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param jabberId
+     *            The user's jabber id.
+     */
+    void handleTeamMemberRemoved(final UUID uniqueId, final JabberId jabberId) {
+        logApiId();
+        debugVariable("uniqueId", uniqueId);
+        debugVariable("jabberId", jabberId);
+        try {
+            final Long artifactId = readId(uniqueId);
+            artifactIO.deleteTeamRel(artifactId);
+        } catch(final Throwable t) {
+            throw translateError("[HANDLE TEAM MEMBER REMOVED]", t);
+        }
+    }
+
+    /**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -349,7 +372,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ KEY HOLDER]"));
         logger.debug(artifactId);
         assertOnline(getApiId("[READ KEY HOLDER]"));
-        return getInternalSessionModel().readArtifactKeyHolder(readUniqueId(artifactId));
+        return getInternalSessionModel().readKeyHolder(readUniqueId(artifactId));
     }
 
     /**
@@ -385,6 +408,19 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+     * Read the latest version id for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return A version id.
+     */
+    Long readLatestVersionId(final Long artifactId) {
+        logApiId();
+        debugVariable("artifactId", artifactId);
+        return artifactIO.readLatestVersionId(artifactId);
+    }
+
+	/**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -408,7 +444,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readTeamRel2(artifactId);
     }
 
-	/**
+    /**
      * Read the artifact unique id.
      * 
      * @param artifactId
@@ -512,6 +548,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.updateState(artifactId, state);
     }
 
+
     /**
 	 * Apply a flag to an artifact.
 	 * 
@@ -534,7 +571,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			artifactIO.updateFlags(artifactId, flags);
 		}
 	}
-
 
     /**
 	 * Create a key request based upon a key request system message.
@@ -576,4 +612,5 @@ class ArtifactModelImpl extends AbstractModelImpl {
 					+ "] has no flag [" + flag + "].");
 		}
 	}
+
 }

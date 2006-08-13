@@ -65,6 +65,16 @@ public class InternalDocumentModel extends DocumentModel implements
     }
 
 	/**
+     * Delete a document.
+     * 
+     * @param documentId
+     *            A document id.
+     */
+    public void delete(final Long documentId) {
+        synchronized(getImplLock()) { getImpl().delete(documentId); }
+    }
+
+    /**
 	 * Obtain a document with a specified id.
 	 * 
 	 * @param documentUniqueId
@@ -73,7 +83,7 @@ public class InternalDocumentModel extends DocumentModel implements
 	 * @throws ParityException
 	 */
 	public Document get(final UUID documentUniqueId) {
-		synchronized(getImplLock()) { return getImpl().get(documentUniqueId); }
+		synchronized(getImplLock()) { return getImpl().read(documentUniqueId); }
 	}
 
     /**
@@ -101,7 +111,6 @@ public class InternalDocumentModel extends DocumentModel implements
                     versionId, name, content);
         }
     }
-
     /**
      * Handle the receipt of a document from the thinkParity network.
      * 
@@ -127,6 +136,7 @@ public class InternalDocumentModel extends DocumentModel implements
                     versionId, name, content);
         }
     }
+
     /**
      * A key request for a document was accepted.
      * 
@@ -159,17 +169,6 @@ public class InternalDocumentModel extends DocumentModel implements
     }
 
 	/**
-	 * Lock a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 */
-	public void lock(final Long documentId) throws ParityException {
-		synchronized(getImplLock()) { getImpl().lock(documentId); }
-	}
-
-    /**
      * Open an input stream to read a document version. Note: It is a good idea
      * to buffer the input stream.
      * 
@@ -195,7 +194,7 @@ public class InternalDocumentModel extends DocumentModel implements
         synchronized(getImplLock()) { return getImpl().read(documentId); }
     }
 
-	/**
+    /**
      * Read a list of audit events for a document.
      * 
      * @param documentId
@@ -207,15 +206,4 @@ public class InternalDocumentModel extends DocumentModel implements
             return getImpl().readAuditEvents(documentId);
         }
     }
-
-    /**
-	 * Unlock a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 */
-	public void unlock(final Long documentId) throws ParityException {
-		synchronized(getImplLock()) { getImpl().unlock(documentId); }
-	}
 }

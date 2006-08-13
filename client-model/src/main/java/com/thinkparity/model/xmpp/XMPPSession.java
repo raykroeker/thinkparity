@@ -118,9 +118,8 @@ public interface XMPPSession {
      * 
      * @param uniqueId
      *            The artifact unique id.
-     * @throws SmackException
      */
-	public void createArtifact(final UUID uniqueId) throws SmackException;
+    public void createArtifact(final UUID uniqueId) throws SmackException;
 
     /**
      * Create a draft for an artifact.
@@ -138,6 +137,14 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public void declineInvitation(final JabberId jabberId) throws SmackException;
+
+    /**
+     * Delete an artifact
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     */
+    public void deleteArtifact(final UUID uniqueId);
 
     /**
      * Invite a contact.
@@ -200,17 +207,6 @@ public interface XMPPSession {
             throws SmackException;
 
 	/**
-     * Read the artifact key holder.
-     * 
-     * @param artifactUniqueId
-     *            The artifact unique id.
-     * @return The artifact key holder user info.
-     * @throws SmackException
-     */
-	public User readArtifactKeyHolder(final UUID uniqueId)
-            throws SmackException;
-
-    /**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -236,6 +232,15 @@ public interface XMPPSession {
      * @throws SmackException
      */
 	public User readCurrentUser() throws SmackException;
+
+    /**
+     * Read the artifact key holder.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @return A jabber id.
+     */
+	public JabberId readKeyHolder(final UUID uniqueId);
 
 	/**
      * Read the user's profile.

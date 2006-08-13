@@ -21,8 +21,10 @@ import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
+import com.thinkparity.model.smackx.packet.AbstractThinkParityIQProvider;
 import com.thinkparity.model.smackx.packet.artifact.IQArtifactReadContactsProvider;
 import com.thinkparity.model.smackx.packet.artifact.IQArtifactReadContactsResult;
 import com.thinkparity.model.smackx.packet.artifact.IQConfirmArtifactReceipt;
@@ -77,6 +79,32 @@ class XMPPArtifact {
                 return query;
             }
         });
+        ProviderManager.addIQProvider("query", Xml.EventHandler.Artifact.TEAM_MEMBER_REMOVED, new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser(parser);
+                final HandleTeamMemberRemovedIQ query = new HandleTeamMemberRemovedIQ();
+
+                Boolean isComplete = Boolean.FALSE;
+                while(Boolean.FALSE == isComplete) {
+                    next(1);
+                    if (isStartTag(Xml.Artifact.UNIQUE_ID)) {
+                        next(1);
+                        query.uniqueId = readUniqueId();
+                        next(1);
+                    } else if (isEndTag(Xml.Artifact.UNIQUE_ID)) {
+                        next(1);
+                    } else if (isStartTag(Xml.User.JABBER_ID)) {
+                        next(1);
+                        query.jabberId = readJabberId();
+                        next(1);
+                    } else if (isEndTag(Xml.User.JABBER_ID)) {
+                        next(1);
+                    }
+                    else { isComplete = Boolean.TRUE; }
+                }
+                return query;
+            }
+        });
 	}
 
     /**
@@ -96,7 +124,7 @@ class XMPPArtifact {
 	 */
 	private final Logger logger;
 
-	/**
+    /**
 	 * The xmpp core functionality.
 	 * 
 	 */
@@ -130,13 +158,20 @@ class XMPPArtifact {
 	 *            The xmpp connection.
 	 */
 	void addPacketListeners(final XMPPConnection xmppConnection) {
-		xmppConnection.addPacketListener(
-				new PacketListener() {
-					public void processPacket(final Packet packet) {
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
                         handleTeamMemberAdded((HandleTeamMemberAddedIQ) packet);
-					}
-				},
-				new PacketTypeFilter(HandleTeamMemberAddedIQ.class));
+                    }
+                },
+                new PacketTypeFilter(HandleTeamMemberAddedIQ.class));
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        handleTeamMemberRemoved((HandleTeamMemberRemovedIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleTeamMemberRemovedIQ.class));
 		xmppConnection.addPacketListener(
                 new PacketListener() {
                     public void processPacket(final Packet packet) {
@@ -204,6 +239,36 @@ class XMPPArtifact {
     }
 
 	/**
+     * Delete an artifact.
+     * @param uniqueId An artifact unique id.
+     */
+    void delete(final UUID uniqueId) {
+        logger.info(getApiId("[DELETE]"));
+        logger.debug(uniqueId);
+        final XMPPMethod delete = new XMPPMethod(Xml.Method.Artifact.DELETE);
+        delete.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
+        delete.execute(xmppCore.getConnection());
+    }
+
+	/**
+     * Read the artifact key holder.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @return A jabber id.
+     */
+    JabberId readKeyHolder(final UUID uniqueId) {
+        final XMPPMethod method = new XMPPMethod("artifact:readkeyholder");
+        method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
+        final XMPPMethodResponse result = method.execute(xmppCore.getConnection());
+        if (result.containsResult()) {
+            return result.readResultJabberId(Xml.User.JABBER_ID);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Read the artifact team.
      * 
      * @param uniqueId
@@ -221,7 +286,7 @@ class XMPPArtifact {
 		return result.getContacts();
 	}
 
-    void removeListener(final XMPPArtifactListener l) {
+	void removeListener(final XMPPArtifactListener l) {
 		logger.info("[LMODEL] [XMPP] [REMOVE ARTIFACT LISTENER]");
 		logger.debug(l);
 		synchronized(listeners) {
@@ -248,11 +313,11 @@ class XMPPArtifact {
         method.execute(xmppCore.getConnection());
     }
 
-	/**
+    /**
      * Receive a notification re team member addition
      * 
-     * @param notificationPacket
-     *            The notification packet.
+     * @param query
+     *            The internet query.
      */
 	private void handleTeamMemberAdded(final HandleTeamMemberAddedIQ query) {
 		synchronized(listeners) {
@@ -261,6 +326,20 @@ class XMPPArtifact {
 			}
 		}
 	}
+
+    /**
+     * Receive a notification regarding the removal of a team member.
+     * 
+     * @param query
+     *            The internet query.
+     */
+    private void handleTeamMemberRemoved(final HandleTeamMemberRemovedIQ query) {
+        synchronized (listeners) {
+            for(final XMPPArtifactListener l : listeners) {
+                l.teamMemberRemoved(query.uniqueId, query.jabberId);
+            }
+        }
+    }
 
     /**
      * Receive a notifcation re a artifact confirmation receipt.
@@ -280,10 +359,23 @@ class XMPPArtifact {
 
     /**
      * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Added Query<br>
-     * <b>Description:</b>Provides a wrapper for the team member added remove
+     * <b>Description:</b>Provides a wrapper for the team member added remote
      * event data.
      */
     private static class HandleTeamMemberAddedIQ extends AbstractThinkParityIQ {
+        /** The team member jabber id. */
+        private JabberId jabberId;
+
+        /** The artifact unique id. */
+        private UUID uniqueId;
+    }
+
+    /**
+     * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Removed Query<br>
+     * <b>Description:</b>Provides a wrapper for the team member removed remote
+     * event data.
+     */
+    private static class HandleTeamMemberRemovedIQ extends AbstractThinkParityIQ {
         /** The team member jabber id. */
         private JabberId jabberId;
 

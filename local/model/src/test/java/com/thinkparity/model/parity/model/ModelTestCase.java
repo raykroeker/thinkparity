@@ -1,13 +1,9 @@
 /*
- * Aug 6, 2005
+ * Created On: Aug 6, 2005
  */
 package com.thinkparity.model.parity.model;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +22,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
+import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerDraft;
 import com.thinkparity.model.parity.model.container.ContainerHistoryItem;
@@ -73,11 +70,13 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         final ProfileModel pModel = ProfileModel.getModel();
         final SessionModel sessionModel = SessionModel.getModel();
         final InternalUserModel userModel = UserModel.getInternalModel(testContext);
+        final ContactModel contactModel = ContactModel.getModel();
         sessionModel.login(ModelTestUser.getJUnit().getCredentials());
         try {
             userModel.create(ModelTestUser.getX().getJabberId());
             userModel.create(ModelTestUser.getY().getJabberId());
             userModel.create(ModelTestUser.getZ().getJabberId());
+            contactModel.download();
             pModel.read();
         }
         catch(final ParityException px) {
@@ -519,19 +518,36 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	protected ModelTestCase(final String name) { super(name); }
 
 	/**
+     * Add a document to a container.
+     * 
+     * @param container
+     *            A container.
+     * @param inputFile
+     *            An input file.
+     * @return A document.
+     * @throws IOException
+     */
+    protected Document addDocument(final Container container, final File inputFile)
+            throws IOException {
+        final Document document = createDocument(inputFile);
+        getContainerModel().addDocument(container.getId(), document.getId());
+        return document;
+    }
+
+    /**
      * Add all of the input test files to the container as documents.
      * 
      * @param container
      *            A container.
+     *            @return A list of documents.
      */
-    protected void addDocuments(final Container container) throws IOException,
-            ParityException {
-        final ContainerModel containerModel = getContainerModel();
-        Document document;
+    protected List<Document> addDocuments(final Container container)
+            throws IOException {
+        final List<Document> documents = new ArrayList<Document>();
         for(final File inputFile : getInputFiles()) {
-            document = createDocument(inputFile);
-            containerModel.addDocument(container.getId(), document.getId());
+            documents.add(addDocument(container, inputFile));
         }
+        return documents;
     }
 
     protected void addTeam(final Container container) throws Exception {
@@ -584,8 +600,19 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      * @throws IOException
      * @throws ParityException
      */
-    protected Document createDocument(final File inputFile) throws IOException, ParityException {
+    protected Document createDocument(final File inputFile) throws IOException {
         return getDocumentModel().create(inputFile.getName(), new FileInputStream(inputFile));
+    }
+
+    /**
+     * Create a document version.
+     * 
+     * @param document
+     *            A document.
+     * @return A version.
+     */
+    protected DocumentVersion createDocumentVersion(final Document document) {
+        return getDocumentModel().createVersion(document.getId());
     }
 
     /**
@@ -676,7 +703,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         return modFiles;
     }
 
-	/**
+    /**
 	 * Obtain the parity preferences.
 	 * 
 	 * @return The parity preferences.
@@ -712,7 +739,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 		return workspace;
 	}
 
-    /**
+	/**
 	 * Obtain a handle to the parity workspace model.
 	 * 
 	 * @return A handle to the parity workspace model.
@@ -777,20 +804,55 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      */
     protected void logout() { getSessionModel().logout(); }
 
-    protected void modifyDocument(final Document document) throws Exception {
-        modifyDocument(document.getId());
-    }
-
-    protected void modifyDocument(final Long documentId) throws Exception {
+    /**
+     * Modify a document.
+     * 
+     * @param document
+     *            A document.
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @see DocumentModel#updateDraft(Long, InputStream)
+     */
+    protected void modifyDocument(final Document document) throws FileNotFoundException, IOException  {
         final String prefix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
         final String suffix = DateUtil.format(DateUtil.getInstance(), DateImage.FileSafeDateTime);
         final File tempFile = File.createTempFile(prefix, suffix);
         tempFile.deleteOnExit();
-    
+
         FileUtil.writeBytes(tempFile,
                 ("jUnit Test MOD " +
                 DateUtil.format(DateUtil.getInstance(), DateImage.ISO)).getBytes());
-        getDocumentModel().updateWorkingVersion(documentId, tempFile);
+        final InputStream content = new FileInputStream(tempFile);
+        try {
+            getDocumentModel().updateDraft(document.getId(), content);
+        } finally {
+            content.close();
+        }
+    }
+
+    /**
+     * Modify all of the documents in the container's draft.
+     * 
+     * @param container
+     *            A container.
+     */
+    protected void modifyDocuments(final Container container)
+            throws FileNotFoundException, IOException {
+        final ContainerModel containerModel = getContainerModel();
+        final ContainerDraft draft = containerModel.readDraft(container.getId());
+        for(final Document document : draft.getDocuments()) {
+            modifyDocument(document);
+        }
+    }
+
+    /**
+     * Publish the container.
+     * 
+     * @param container
+     *            The container.
+     */
+    protected void publish(final Container container) {
+        getContainerModel().publish(container.getId());
     }
 
     /**

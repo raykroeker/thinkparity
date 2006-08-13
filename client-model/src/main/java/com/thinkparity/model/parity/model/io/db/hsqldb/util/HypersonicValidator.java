@@ -7,7 +7,7 @@ import java.io.File;
 
 import com.thinkparity.codebase.StackUtil;
 
-import com.thinkparity.model.parity.IParityModelConstants;
+import com.thinkparity.model.Constants.DirectoryNames;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
@@ -32,7 +32,7 @@ public class HypersonicValidator {
 		super();
 		this.databaseDirectory = new File(
 				workspace.getDataDirectory(),
-				IParityModelConstants.DIRECTORY_NAME_DB_DATA);
+                DirectoryNames.Workspace.Data.DB);
 	}
 
 	public void validate() throws HypersonicException {

@@ -115,6 +115,15 @@ public interface ArtifactIOHandler {
     public Long readId(final UUID uniqueId) throws HypersonicException;
 
     /**
+     * Read the latest version id.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return A version id.
+     */
+    public Long readLatestVersionId(final Long artifactId);
+
+    /**
      * Read the artifact state.
      * 
      * @param artifactId
@@ -162,7 +171,7 @@ public interface ArtifactIOHandler {
      */
     public UUID readUniqueId(final Long artifactId);
 
-    /**
+	/**
 	 * Set the flags for the artifact.
 	 * 
 	 * @param session
@@ -191,7 +200,7 @@ public interface ArtifactIOHandler {
 			final JabberId updatedBy, final Calendar updatedOn)
 			throws HypersonicException;
 
-	/**
+    /**
      * Update the artifact state.
      * 
      * @param artifactId
@@ -199,5 +208,4 @@ public interface ArtifactIOHandler {
      * @param The artifact state.
      */
     public void updateState(final Long artifactId, final ArtifactState state);
-
 }

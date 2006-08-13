@@ -177,22 +177,30 @@ class IndexModelImpl extends AbstractModelImpl {
      *            The artifact id.
      * @throws ParityException
      */
-	void deleteArtifactIndex(final Long artifactId) throws ParityException {
+	void deleteArtifactIndex(final Long artifactId) {
 		logger.info("[LMODEL] [INDEX] [DELETE ARTIFACT INDEX]");
 		logger.debug(artifactId);
-		final IndexReader indexReader = openIndexReader();
+		IndexReader indexReader = null;
 		try {
+            indexReader = openIndexReader();
 			final Field idField = IDX_ARTIFACT_ID.toSearchField();
 			final Term idTerm = new Term(idField.name(), artifactId.toString());
 			Assert.assertTrue(
 					"[LMODEL] [INDEX] [DELETE ARTIFACT INDEX] [CORRUPT INDEX]",
 					1 == indexReader.deleteDocuments(idTerm));
+		} catch(final Throwable t) {
+            throw translateError("[DELETE ARTIFACT INDEX]", t);
+		} finally {
+            if (null != indexReader) {
+                try {
+                    closeIndexReader(indexReader);
+                } catch(final Throwable t) {
+                    throw translateError(
+                            "[DELETE ARTIFACT INDEX] [COULD NOT CLOSE INDEX READER]",
+                            t);
+                }
+            }
 		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [INDEX] [DELETE ARTIFACT INDEX] [IO ERROR]", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		finally { closeIndexReader(indexReader); }
 	}
 
     /**
@@ -203,8 +211,7 @@ class IndexModelImpl extends AbstractModelImpl {
      * @return A list of index hits representing containers.
      * @throws ParityException
      */
-    List<IndexHit> searchContainers(final String expression)
-            throws ParityException {
+    List<IndexHit> searchContainers(final String expression) {
         return searchArtifacts(expression, containerFilter);
     }
 
@@ -228,15 +235,9 @@ class IndexModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
 	private void closeIndexReader(final IndexReader indexReader)
-			throws ParityException {
-		try {
-			indexReader.close();
-			getIndexDirectory().close();
-		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [INDEX] [CLOSE READER] [IO ERROR]", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+            throws IOException {
+	    indexReader.close();
+		getIndexDirectory().close();
 	}
 
 	/**
@@ -297,12 +298,8 @@ class IndexModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 *             If the index reader cannot be opened.
 	 */
-	private IndexReader openIndexReader() throws ParityException {
-		try { return IndexReader.open(getIndexDirectory()); }
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [INDEX] [OPEN READER] [IO ERROR]", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+	private IndexReader openIndexReader() throws IOException {
+		return IndexReader.open(getIndexDirectory());
 	}
 
 	/**
@@ -340,12 +337,13 @@ class IndexModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
     private List<IndexHit> searchArtifacts(final String expression,
-            final Filter<? super IndexHit> filter) throws ParityException {
+            final Filter<? super IndexHit> filter) {
         logger.info(getApiId("[SEARCH ARTIFACTS]"));
         logger.debug(expression);
         logger.debug(filter);
-        final IndexReader indexReader = openIndexReader();
+        IndexReader indexReader = null;
         try {
+            indexReader = openIndexReader();
             final List<Field> fields = new LinkedList<Field>();
             fields.add(IDX_ARTIFACT_NAME.toSearchField());
             fields.add(IDX_ARTIFACT_CONTACTS.toSearchField());
@@ -363,6 +361,17 @@ class IndexModelImpl extends AbstractModelImpl {
             IndexFilterManager.filter(indexHits, filter);
             return indexHits;
         }
-        finally { closeIndexReader(indexReader); }
+        catch(final Throwable t) {
+            throw translateError("[SEARCH ARTIFACTS]", t);
+        }
+        finally {
+            if (null != indexReader) {
+                try {
+                    closeIndexReader(indexReader);
+                } catch(final Throwable t) {
+                    throw translateError("[SEARCH ARTIFACTS] [CLOSE INDEX READER]", t);
+                }
+            }
+        }
     }
 }

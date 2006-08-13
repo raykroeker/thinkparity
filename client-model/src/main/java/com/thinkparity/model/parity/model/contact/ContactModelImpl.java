@@ -78,10 +78,10 @@ class ContactModelImpl extends AbstractModelImpl {
         assertInvitationDoesNotExist(getApiId("[CREATE INVITATION] [CONTACT INVITATION ALREADY EXISTS]"), email);
 
         final ContactInvitation invitation = new ContactInvitation();
-        invitation.setCreatedBy(currentUserId());
+        invitation.setCreatedBy(localUserId());
         invitation.setCreatedOn(currentDateTime());
         invitation.setEmail(email);
-        contactIO.createInvitation(invitation, currentUser());
+        contactIO.createInvitation(invitation, localUser());
         getInternalSessionModel().inviteContact(email);
         return contactIO.readInvitation(email);
     }
@@ -206,9 +206,10 @@ class ContactModelImpl extends AbstractModelImpl {
      * @return A contact invitation.
      */
     ContactInvitation readInvitation(final String email) {
-        logger.info(getApiId("[READ INVITATION]"));
-        logger.debug(email);
-        return contactIO.readInvitation(email);
+        logApiId();
+        debugVariable("email", email);
+        try { return contactIO.readInvitation(email); }
+        catch(final Throwable t) { throw translateError("[READ INVITATION]", t); }
     }
 
     /**

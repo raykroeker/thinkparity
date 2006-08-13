@@ -248,7 +248,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#createArtifact(java.util.UUID)
 	 * 
 	 */
-	public void createArtifact(final UUID artifactUniqueId) throws SmackException {
+	public void createArtifact(final UUID artifactUniqueId)
+            throws SmackException {
 		logger.info("sendCreate(UUID)");
 		logger.debug(artifactUniqueId);
 		final IQArtifact iq = new IQArtifactCreate(artifactUniqueId);
@@ -266,13 +267,20 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.createDraft(uniqueId);
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#declineInvitation(com.thinkparity.model.xmpp.JabberId)
 	 * 
 	 */
 	public void declineInvitation(final JabberId jabberId) throws SmackException {
 		xmppContact.decline(jabberId);
 	}
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#deleteArtifact(java.util.UUID)
+     */
+    public void deleteArtifact(final UUID uniqueId) {
+        xmppArtifact.delete(uniqueId);
+    }
 
 	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#flag(java.util.UUID,
@@ -454,22 +462,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactKeyHolder(java.util.UUID)
-     * 
-     */
-	public User readArtifactKeyHolder(final UUID artifactUniqueId)
-			throws SmackException {
-		logger.info("getArtifactKeyHolder(UUID)");
-		logger.debug(artifactUniqueId);
-		final IQArtifact iq = new IQGetKeyHolder(artifactUniqueId);
-		iq.setType(IQ.Type.GET);
-		logger.debug(iq);
-		final IQGetKeyHolderResponse response =
-			(IQGetKeyHolderResponse) sendAndConfirmPacket(iq);
-		return xmppUser.read(response.getKeyHolder());
-	}
-
-	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readArtifactTeam(java.util.UUID)
      * 
      */
@@ -478,7 +470,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppArtifact.readTeam(uniqueId);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
@@ -486,7 +478,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppContact.read();
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#readCurrentUser()
 	 * 
 	 */
@@ -496,6 +488,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         final JabberId jabberId =
             JabberIdBuilder.parseQualifiedJabberId(qualifiedJabberId);
 		return xmppUser.read(jabberId);
+	}
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#readKeyHolder(java.util.UUID)
+     * 
+     */
+	public JabberId readKeyHolder(final UUID uniqueId) {
+		return xmppArtifact.readKeyHolder(uniqueId);
 	}
 
 	/**

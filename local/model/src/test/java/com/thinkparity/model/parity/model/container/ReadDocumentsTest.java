@@ -4,7 +4,6 @@
  */
 package com.thinkparity.model.parity.model.container;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.model.parity.model.document.Document;
@@ -19,7 +18,7 @@ import com.thinkparity.model.parity.model.document.Document;
 public class ReadDocumentsTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "[LMODEL] [CONTAINER] [READ DOCUMENTS TEST]";
+    private static final String NAME = "[READ DOCUMENTS TEST]";
 
     /** Test datum. */
     private Fixture datum;
@@ -27,20 +26,19 @@ public class ReadDocumentsTest extends ContainerTestCase {
     /** Create ReadDocumentsTest. */
     public ReadDocumentsTest() { super(NAME); }
 
-    /**
-     * Test the container model's read api.
-     *
-     */
+    /** Test the container model's read documents api. */
     public void testReadDocuments() {
-        final List<Document> documents = datum.cModel.readDocuments(datum.containerId, datum.versionId);
+        final List<Document> documents =
+            datum.containerModel.readDocuments(datum.container.getId(),
+                    datum.version.getVersionId());
 
         assertNotNull(NAME, documents);
-        assertEquals(NAME + " [DOCUMENT'S SIZE DOES NOT MATCH EXPECTATION]", datum.eDocuments.size(), documents.size());
-        for(final Document eDocument : datum.eDocuments) {
-            assertTrue(NAME + " [EXPECTED DOCUMENT LIST DOES NOT CONTAIN ACTUAL DOCUMENT]", documents.contains(eDocument));
+        assertEquals(NAME + " [DOCUMENT'S SIZE DOES NOT MATCH EXPECTATION]", datum.documents.size(), documents.size());
+        for(final Document document : datum.documents) {
+            assertTrue(NAME + " [EXPECTED DOCUMENT LIST DOES NOT CONTAIN ACTUAL DOCUMENT]", documents.contains(document));
         }
         for(final Document document : documents) {
-            assertTrue(NAME + " [ACTUAL DOCUMENT LIST DOES NOT CONTAIN EXPECTATION]", datum.eDocuments.contains(document));
+            assertTrue(NAME + " [ACTUAL DOCUMENT LIST DOES NOT CONTAIN EXPECTATION]", datum.documents.contains(document));
         }
     }
 
@@ -51,16 +49,14 @@ public class ReadDocumentsTest extends ContainerTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         login();
-
-        final ContainerModel cModel = getContainerModel();
-        final Container eContainer = cModel.create(NAME);
-        final ContainerVersion version = cModel.readLatestVersion(eContainer.getId());
-        final List<Document> eDocuments = new LinkedList<Document>();
-        eDocuments.addAll(cModel.readDocuments(eContainer.getId(), version.getVersionId()));
-
-        datum = new Fixture(cModel, eContainer.getId(), eDocuments, version.getVersionId());
-
-        cModel.addListener(datum);
+        final ContainerModel containerModel = getContainerModel();
+        final Container container = createContainer(NAME);
+        final List<Document> documents = addDocuments(container);
+        addTeam(container);
+        publish(container);
+        final ContainerVersion version = containerModel.readLatestVersion(container.getId());
+        datum = new Fixture(container, containerModel, documents, version);
+        datum.containerModel.addListener(datum);
     }
 
     /**
@@ -68,24 +64,24 @@ public class ReadDocumentsTest extends ContainerTestCase {
      * 
      */
     protected void tearDown() throws Exception {
-        getContainerModel().removeListener(datum);
-        logout();
+        datum.containerModel.removeListener(datum);
         datum = null;
+        logout();
         super.tearDown();
     }
 
     /** Test data definition. */
     private class Fixture extends ContainerTestCase.Fixture {
-        private final ContainerModel cModel;
-        private final Long containerId;
-        private final List<Document> eDocuments;
-        private final Long versionId;
-        private Fixture(final ContainerModel cModel, final Long containerId,
-                final List<Document> eDocuments, final Long versionId) {
-            this.cModel = cModel;
-            this.containerId = containerId;
-            this.eDocuments = eDocuments;
-            this.versionId = versionId;
+        private final Container container;
+        private final ContainerModel containerModel;
+        private final List<Document> documents;
+        private final ContainerVersion version;
+        private Fixture(final Container container, final ContainerModel containerModel, 
+                final List<Document> documents, final ContainerVersion version) {
+            this.container = container;
+            this.containerModel = containerModel;
+            this.documents = documents;
+            this.version = version;
         }
     }
 }

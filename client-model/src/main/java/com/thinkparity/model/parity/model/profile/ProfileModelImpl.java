@@ -51,7 +51,7 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     Profile read() {
         logger.info(getApiId("[READ]"));
-        Profile profile = profileIO.read(currentUserId());
+        Profile profile = profileIO.read(localUserId());
         if(null == profile) {
             profile = getInternalSessionModel().readProfile();
             profileIO.create(profile);

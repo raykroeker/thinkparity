@@ -37,35 +37,33 @@ class PreferencesHelper {
 		.append("The parity username cannot be modified after it has ")
 		.append("initially been set.").toString();
 
-	/**
-	 * The java properties file to read\write.
-	 */
-	private final File preferencesFile;
+	/** The java properties object. */
+    private final Properties javaProperties;
+
+    /** The java properties xml file to read\write. */
+	private final File javaPropertiesFile;
 
 	/**
-	 * Create a PreferencesHelper.
-	 */
+     * Create PreferencesHelper.
+     * 
+     * @param workspaceRoot
+     *            The workspace root directory.
+     */
 	PreferencesHelper(final File workspaceRoot) {
 		super();
-		this.preferencesFile = new File(workspaceRoot, "parity.xml");
+        this.javaProperties = new Properties();
+		this.javaPropertiesFile = new File(workspaceRoot, "parity.xml");
 	}
 
 	/**
-	 * Obtain a preferences interface for the parity workspace. This interface
-	 * allows the user to get\set specific preferences that will be persisted
-	 * between sessions.
-	 * 
-	 * @return The interface with which the client can interact.
-	 */
+     * Obtain a preferences interface for the parity workspace. This interface
+     * allows the user to get\set specific preferences that will be persisted
+     * between sessions.
+     * 
+     * @return The interface with which the client can interact.
+     */
 	Preferences getPreferences() {
-		final Properties javaProperties = loadPreferences();
-		// save the preferences on shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread("thinkParity - Save Preferences") {
-			public void run() {
-                setLastRun(javaProperties);
-                storePreferences(javaProperties);
-            }
-		});
+	    loadPreferences();
 
 		return new Preferences() {
 
@@ -119,6 +117,11 @@ class PreferencesHelper {
 
 			public Boolean isSetLocale() { return Boolean.TRUE; }
 
+			public Boolean isSetPassword() {
+				final String password = getPassword();
+				return (null != password && 0 < password.length());
+			}
+
 			public Boolean isSetUsername() {
 				final String username = getUsername();
 				return (null != username && 0 < username.length());
@@ -135,12 +138,24 @@ class PreferencesHelper {
 				Assert.assertNotTrue(ASSERT_NOT_IS_SET_USERNAME, isSetUsername());
 				javaProperties.setProperty("parity.username", username);
 			}
-
-			public Boolean isSetPassword() {
-				final String password = getPassword();
-				return (null != password && 0 < password.length());
-			}
 		};
+	}
+
+	/**
+	 * Store the java properties to the preferences file.
+	 * 
+	 * @param javaProperties
+	 *            The java properties to store.
+	 */
+	void savePreferences() {
+        setLastRun();
+		try {
+			javaProperties.storeToXML(new FileOutputStream(javaPropertiesFile), "");
+		}
+		catch(final IOException iox) {
+            throw WorkspaceException.translate(
+                    "[LMODEL] [WORKSPACE] [PREFS] [STORE PREFS] [IO ERROR]", iox);
+		}
 	}
 
 	/**
@@ -150,12 +165,11 @@ class PreferencesHelper {
 	 * @throws IOException
 	 */
 	private void initPreferences() throws IOException {
-		if(!preferencesFile.exists()) {
+		if(!javaPropertiesFile.exists()) {
 			Assert.assertTrue(
                     "[LMODEL] [WORKSPACE] [INIT PREFS] [CANNOT CREATE PREFS FILE]",
-                    preferencesFile.createNewFile());
-			final Properties javaProperties = new Properties();
-			storePreferences(javaProperties);
+                    javaPropertiesFile.createNewFile());
+			savePreferences();
 		}
 	}
 
@@ -164,12 +178,10 @@ class PreferencesHelper {
 	 * 
 	 * @return The java properties.
 	 */
-	private Properties loadPreferences() {
+	private void loadPreferences() {
 		try {
 			initPreferences();
-			final Properties javaProperties = new Properties();
-			javaProperties.loadFromXML(new FileInputStream(preferencesFile));
-			return javaProperties;
+			javaProperties.loadFromXML(new FileInputStream(javaPropertiesFile));
 		}
 		catch(final IOException iox) {
             throw WorkspaceException.translate(
@@ -177,24 +189,8 @@ class PreferencesHelper {
 		}
 	}
 
-	/**
-	 * Store the java properties to the preferences file.
-	 * 
-	 * @param javaProperties
-	 *            The java properties to store.
-	 */
-	private void storePreferences(final Properties javaProperties) {
-		try {
-			javaProperties.storeToXML(new FileOutputStream(preferencesFile), "");
-		}
-		catch(final IOException iox) {
-            throw WorkspaceException.translate(
-                    "[LMODEL] [WORKSPACE] [PREFS] [STORE PREFS] [IO ERROR]", iox);
-		}
-	}
-
     /** Set a last run timestamp in the properties. */
-    private void setLastRun(final Properties javaProperties) {
+    private void setLastRun() {
         javaProperties.setProperty(
             Constants.Preferences.Properties.LAST_RUN,
             String.valueOf(System.currentTimeMillis()));

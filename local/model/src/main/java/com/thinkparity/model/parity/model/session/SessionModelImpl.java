@@ -17,7 +17,6 @@ import com.thinkparity.model.parity.api.events.PresenceListener;
 import com.thinkparity.model.parity.api.events.SessionListener;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.Context;
-import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
@@ -125,19 +124,19 @@ class SessionModelImpl extends AbstractModelImpl {
      * @param bytes
      *            The artifact bytes.
      */
-    static void handleContainerArtifactSent(final JabberId sentBy,
-            final Calendar sentOn, final UUID containerUniqueId,
-            final Long containerVersionId, final String containerName,
-            final Integer count, final Integer index, final UUID uniqueId,
-            final Long versionId, final String name, final ArtifactType type,
-            final byte[] bytes) throws ParityException {
+    static void handleContainerArtifactPublished(final JabberId publishedBy,
+            final Calendar publishedOn, final UUID containerUniqueId,
+            final Long containerVersionId, final Integer count,
+            final Integer index, final UUID uniqueId, final Long versionId,
+            final String name, final ArtifactType type, final byte[] bytes)
+            throws ParityException {
         final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
         final Long containerId = artifactModel.readId(containerUniqueId);
         final Long id = artifactModel.readId(uniqueId);
         final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
-        containerModel.handleArtifactSent(sentBy, sentOn, containerUniqueId,
-                containerId, containerVersionId, containerName, uniqueId, id,
-                versionId, name, type, bytes);
+        containerModel.handleArtifactPublished(publishedBy, publishedOn,
+                containerUniqueId, containerId, containerVersionId, uniqueId,
+                id, versionId, name, type, bytes);
     }
 
     /**
@@ -160,19 +159,19 @@ class SessionModelImpl extends AbstractModelImpl {
      * @param bytes
      *            The artifact bytes.
      */
-    static void handleContainerArtifactPublished(final JabberId publishedBy,
-            final Calendar publishedOn, final UUID containerUniqueId,
-            final Long containerVersionId, final Integer count,
-            final Integer index, final UUID uniqueId, final Long versionId,
-            final String name, final ArtifactType type, final byte[] bytes)
-            throws ParityException {
+    static void handleContainerArtifactSent(final JabberId sentBy,
+            final Calendar sentOn, final UUID containerUniqueId,
+            final Long containerVersionId, final String containerName,
+            final Integer count, final Integer index, final UUID uniqueId,
+            final Long versionId, final String name, final ArtifactType type,
+            final byte[] bytes) throws ParityException {
         final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
         final Long containerId = artifactModel.readId(containerUniqueId);
         final Long id = artifactModel.readId(uniqueId);
         final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
-        containerModel.handleArtifactPublished(publishedBy, publishedOn,
-                containerUniqueId, containerId, containerVersionId, uniqueId,
-                id, versionId, name, type, bytes);
+        containerModel.handleArtifactSent(sentBy, sentOn, containerUniqueId,
+                containerId, containerVersionId, containerName, uniqueId, id,
+                versionId, name, type, bytes);
     }
 
     /**
@@ -185,12 +184,26 @@ class SessionModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
 	static void handleTeamMemberAdded(final UUID uniqueId,
-            final JabberId jabberId) throws ParityException {
+            final JabberId jabberId) {
 	    final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
         artifactModel.handleTeamMemberAdded(uniqueId, jabberId);
 	}
 
     /**
+     * Handle the team member removed remote event.
+     * 
+     * @param uniqueId
+     *            The artifact unique id.
+     * @param jabberId
+     *            A jabber id.
+     */
+	static void handleTeamMemberRemoved(final UUID uniqueId,
+			final JabberId jabberId) {
+        final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
+        artifactModel.handleTeamMemberRemoved(uniqueId, jabberId);
+	}
+
+	/**
      * Handle the even generated when the user an artifact was sent to has
      * confirmed receipt of the artifact.
      * 
@@ -207,14 +220,14 @@ class SessionModelImpl extends AbstractModelImpl {
         iDModel.confirmSend(d.getId(), versionId, confirmedBy);
     }
 
-	static void notifyDocumentReactivated(final JabberId reactivatedBy,
+    static void notifyDocumentReactivated(final JabberId reactivatedBy,
             final List<JabberId> team, final UUID uniqueId,
             final Long versionId, final String name, final byte[] content)
             throws ParityException {
         Assert.assertNotYetImplemented("SessionModelImpl#notifyDocumentReactivated");
     }
 
-    /**
+	/**
 	 * @deprecated The accept\decline contact notifications are
 	 * no longer required.
 	 */
@@ -306,20 +319,6 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
-     * Handle the event that a new team member was removed from the artifact.
-     * 
-     * @param artifactUniqueId
-     *            The artifact's unique id.
-     * @param newTeamMember
-     *            The team member.
-     * @throws ParityException
-     */
-	static void notifyTeamMemberRemoved(final UUID uniqueId,
-			final User teamMember) throws ParityException {
-	    Assert.assertNotYetImplemented("SessionModel#notifyTeamMemberRemoved(UUID,User)");
-	}
-
 	private static StringBuffer getApiId(final String api) {
         return getModelId("SESSION").append(" ").append(api);
     }
@@ -351,16 +350,11 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void acceptInvitation(final JabberId jabberId) throws ParityException {
+	void acceptInvitation(final JabberId jabberId) {
 		synchronized(xmppHelper) {
 			try { xmppHelper.acceptInvitation(jabberId); }
-			catch(SmackException sx) {
-				logger.error("acceptPresence(User)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("acceptPresence(User)", rx);
-				throw ParityErrorTranslator.translate(rx);
+			catch(final Throwable t) {
+                throw translateError("[ACCEPT INVITATION]", t);
 			}
 		}
 	}
@@ -454,37 +448,24 @@ class SessionModelImpl extends AbstractModelImpl {
 	    }
 	}
 
-
 	/**
-	 * Send an artifact creation packet to the parity server.
-	 * 
-	 * @param artifact
-	 *            The document.
-	 * @throws NotTrueAssertion
-	 *             <ul>
-	 *             <li>If the user is offline.
-	 *             <li>If the logged in user is not the key holder.
-	 *             </ul>
-	 * @throws ParityException
-	 */
-	void createArtifact(final Artifact artifact) throws ParityException {
-		logger.info(getApiId("[CREATE ARTIFACT]"));
-		logger.debug(artifact);
-        assertOnline(getApiId("[CREATE ARTIFACT]"));
-		synchronized(SessionModelImpl.xmppHelper) {
-			try { SessionModelImpl.xmppHelper.createArtifact(artifact.getUniqueId()); }
-			catch(SmackException sx) {
-				logger.error("sendCreate(Artifact)", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("sendCreate(Artifact)", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
+     * Send an artifact creation packet to the parity server.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+	void createArtifact(final UUID uniqueId) {
+		logApiId();
+		debugVariable("uniqueId", uniqueId);
+		synchronized (xmppHelper) {
+			try { xmppHelper.createArtifact(uniqueId); }
+            catch(final Throwable t) {
+                throw translateError("[CREATE ARTIFACT]", t);
+            }
 		}
 	}
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -504,20 +485,31 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void declineInvitation(final JabberId jabberId) throws ParityException {
+	void declineInvitation(final JabberId jabberId) {
 		synchronized(xmppHelper) {
-			assertIsLoggedIn("Cannot decline invitation while offline.", xmppHelper);
 			try { xmppHelper.declineInvitation(jabberId); }
-			catch(SmackException sx) {
-				logger.error("Could not decline invitation:  " + jabberId, sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(RuntimeException rx) {
-				logger.error("Could not decline invitation:  " + jabberId, rx);
-				throw ParityErrorTranslator.translate(rx);
+			catch(final Throwable t) {
+                throw translateError("[DECLINE INVITATION]", t);
 			}
 		}
 	}
+
+	/**
+     * Delete an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    void deleteArtifact(final UUID uniqueId) {
+        logApiId();
+        debugVariable("uniqueId", uniqueId);
+        synchronized (xmppHelper) {
+            try { xmppHelper.deleteArtifact(uniqueId); }
+            catch(final Throwable t) {
+                throw translateError("[DELETE ARTIFACT]", t);
+            }
+        }
+    }
 
 	/**
 	 * Invite a contact.
@@ -557,27 +549,16 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws NotTrueAssertion
 	 *             If the user is offline.
 	 */
-	Boolean isLoggedInUserKeyHolder(final Long artifactId) throws ParityException {
+	Boolean isLoggedInUserKeyHolder(final Long artifactId) {
 		logger.info("isLoggedInUserKeyHolder(Long)");
 		logger.debug(artifactId);
-		final UUID artifactUniqueId = readArtifactUniqueId(artifactId);
+		final UUID uniqueId = readArtifactUniqueId(artifactId);
 		synchronized(xmppHelper) {
-			assertIsLoggedIn(
-					"Cannot determine whether the logged in user is the key holder while offline.",
-					xmppHelper);
-			final User loggedInUser = readUser();
 			try {
-				final User keyHolder =
-					xmppHelper.getArtifactKeyHolder(artifactUniqueId);
-				return keyHolder.getSimpleUsername().equals(loggedInUser.getSimpleUsername());
-			}
-			catch(final SmackException sx) {
-				logger.error("Cannot determine whether the logged in user is the key holder.", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("Cannot determine whether the logged in user is the key holder.", rx);
-				throw ParityErrorTranslator.translate(rx);
+				final JabberId keyHolder = xmppHelper.readKeyHolder(uniqueId);
+				return keyHolder.equals(localUserId());
+			} catch (final Throwable t) {
+				throw translateError("[IS LOGGED IN USER KEY HOLDER]", t);
 			}
 		}
 	}
@@ -647,30 +628,6 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
 	/**
-     * Read the artifact key holder from the server.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @return The artifact key holder.
-     * @throws ParityException
-     */
-    JabberId readArtifactKeyHolder(final UUID artifactUniqueId)
-            throws ParityException {
-		logger.info(getApiId("[READ ARTIFACT KEY HOLDER]"));
-		logger.debug(artifactUniqueId);
-        assertOnline(getApiId("[READ ARTIFACT KEY HOLDER] [USER NOT ONLINE]"));
-		synchronized(xmppHelper) {
-			try {
-				return xmppHelper.getArtifactKeyHolder(artifactUniqueId).getId();
-			}
-			catch(final SmackException sx) {
-				logger.error(getApiId("[READ ARTIFACT KEY HOLDER] [SMACK ERROR]"), sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-		}
-	}
-
-    /**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -700,7 +657,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Read the session user's contact info.
      * 
      * @return The user's contact info.
@@ -710,7 +667,7 @@ class SessionModelImpl extends AbstractModelImpl {
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
     }
 
-    /**
+	/**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -727,6 +684,26 @@ class SessionModelImpl extends AbstractModelImpl {
 			catch(final RuntimeException rx) {
                 logger.error(getApiId("[READ CONTACTS] [UNKNOWN ERROR]"), rx);
 				throw ParityErrorTranslator.translate(rx);
+			}
+		}
+	}
+
+    /**
+     * Read the artifact key holder from the server.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @return The artifact key holder.
+     * @throws ParityException
+     */
+    JabberId readKeyHolder(final UUID uniqueId) {
+		logApiId();
+        debugVariable("uniqueId", uniqueId);
+		synchronized (xmppHelper) {
+			try {
+                return xmppHelper.readKeyHolder(uniqueId);
+			} catch (final Throwable t) {
+				throw translateError("[READ ARTIFACT KEY HOLDER]", t);
 			}
 		}
 	}
@@ -921,21 +898,8 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void sendLogFileArchive() throws ParityException {
-		synchronized(xmppHelper) {
-			assertIsLoggedIn("sendLogFile()", xmppHelper);
-			try {
-				xmppHelper.sendLogFileArchive(
-						workspace.getLogArchive(), preferences.getSystemUser());
-			}
-			catch(final SmackException sx) {
-				logger.error("sendLogFile()", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("sendLogFile()", rx);
-				throw ParityErrorTranslator.translate(rx);
-			}
-		}
+	    throw Assert
+                .createNotYetImplemented("SessionModelImpl#sendLogFileArchive");
 	}
 
     /**

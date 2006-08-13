@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.index;
 
 import java.util.List;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 
@@ -33,9 +32,7 @@ public class SearchContainersTest extends IndexTestCase {
      *
      */
     public void testSearch() {
-        List<IndexHit> indexHits = null;
-        try { indexHits = datum.iModel.searchContainers(datum.expression); }
-        catch(final ParityException px) { fail(createFailMessage(px)); }
+        final List<IndexHit> indexHits = datum.iModel.searchContainers(datum.expression);
 
         assertNotNull(NAME, indexHits);
         assertTrue(NAME + " [NO CONTAINERS RETURNED]", indexHits.size() > 0);

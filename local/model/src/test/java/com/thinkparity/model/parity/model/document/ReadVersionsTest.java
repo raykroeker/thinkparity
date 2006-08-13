@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.document;
 import java.io.File;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
@@ -17,41 +18,22 @@ import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
  * @author raykroeker@gmail.com
  * @version 1.1.2.2
  */
-public class ListVersionsTest extends DocumentTestCase {
+public class ReadVersionsTest extends DocumentTestCase {
 	
-	/**
-	 * Test data fixture.
-	 * 
-	 * @see ListVersionsTest#setUp()
-	 * @see ListVersionsTest#tearDown()
-	 */
-	private class Fixture {
-		private final Document document;
-		private final DocumentModel documentModel;
-		private final Integer numberOfVersions;
-		private Fixture(final Document document,
-				final DocumentModel documentModel, final Integer numberOfVersions) {
-			this.document = document;
-			this.documentModel = documentModel;
-			this.numberOfVersions = numberOfVersions;
-		}
-	}
+	/** Test name. */
+    private static final String NAME = "[TEST READ VERSIONS]";
 
-	/**
-	 * Test data.
-	 */
-	private Vector<Fixture> data;
+	/** Test data. */
+	private List<Fixture> data;
 
-	/**
-	 * Create a ListVersionsTest.
-	 */
-	public ListVersionsTest() { super("testListVersions"); }
+	/** Create ListVersionsTest. */
+	public ReadVersionsTest() { super(NAME); }
 
-	/**
+    /**
 	 * Test the document model listVersions api.
 	 *
 	 */
-	public void testListVersions() {
+	public void testReadVersions() {
 		try {
 			Collection<DocumentVersion> versions;
 			for(Fixture datum : data) {
@@ -91,21 +73,22 @@ public class ListVersionsTest extends DocumentTestCase {
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }
 	}
-
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		data = new Vector<Fixture>(getInputFilesLength());
+        final Integer VERSION_COUNT = 3;
 		final DocumentModel documentModel = getDocumentModel();
-		Document document;
-		for(File testFile : getInputFiles()) {
-			document = create(testFile);
-			documentModel.createVersion(document.getId());
-			documentModel.createVersion(document.getId());
-			documentModel.createVersion(document.getId());
-			data.add(new Fixture(document, documentModel, 4));
+
+        data = new Vector<Fixture>(getInputFilesLength());
+		for(final File testFile : getInputFiles()) {
+			final Document document = createDocument(testFile);
+            for(int i = 0; i < VERSION_COUNT; i++) {
+                modifyDocument(document);
+                documentModel.createVersion(document.getId());
+            }
+			data.add(new Fixture(document, documentModel, VERSION_COUNT));
 		}
 	}
 
@@ -116,5 +99,18 @@ public class ListVersionsTest extends DocumentTestCase {
 		data.clear();
 		data = null;
 		super.tearDown();
+	}
+
+	/** Test datum definition. */
+	private class Fixture {
+		private final Document document;
+		private final DocumentModel documentModel;
+		private final Integer numberOfVersions;
+		private Fixture(final Document document,
+				final DocumentModel documentModel, final Integer numberOfVersions) {
+			this.document = document;
+			this.documentModel = documentModel;
+			this.numberOfVersions = numberOfVersions;
+		}
 	}
 }

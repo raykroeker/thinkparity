@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +32,11 @@ import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.model.LoggerFactory;
+import com.thinkparity.model.ShutdownHook;
+import com.thinkparity.model.Constants.ShutdownHookNames;
+import com.thinkparity.model.Constants.ShutdownHookPriorities;
+import com.thinkparity.model.Constants.ThreadNames;
+import com.thinkparity.model.Constants.Versioning;
 import com.thinkparity.model.parity.ParityErrorTranslator;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.ParityUncheckedException;
@@ -50,6 +57,7 @@ import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.download.DownloadModel;
 import com.thinkparity.model.parity.model.download.InternalDownloadModel;
 import com.thinkparity.model.parity.model.io.IOFactory;
+import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicUtil;
 import com.thinkparity.model.parity.model.io.handler.ConfigurationIOHandler;
 import com.thinkparity.model.parity.model.library.InternalLibraryModel;
 import com.thinkparity.model.parity.model.library.LibraryModel;
@@ -99,12 +107,65 @@ public abstract class AbstractModelImpl {
 	 */
 	private static Context sessionModelContext;
 
+	/** A list of runnables to execute when the JVM shuts down. */
+    private static final List<ShutdownHook> shutdownHooks;
+
+    static {
+        shutdownHooks = new ArrayList<ShutdownHook>();
+        Runtime.getRuntime().addShutdownHook(new Thread(ThreadNames.SHUTDOWN_HOOK) {
+            @Override
+            public void run() {
+                synchronized(shutdownHooks) {
+                    Collections.sort(shutdownHooks);
+                    for(final ShutdownHook shutdownHook : shutdownHooks) {
+                        System.out.println(shutdownHook.getPriority() + ":" + shutdownHook.getName());
+                        shutdownHook.run();
+                    }
+                }
+            }
+        });
+
+        addShutdownHook(new ShutdownHook() {
+            @Override
+            public String getDescription() {
+                return ShutdownHookNames.HYPERSONIC;
+            }
+            @Override
+            public String getName() {
+                return ShutdownHookNames.HYPERSONIC;
+            }
+            @Override
+            public Integer getPriority() {
+                return ShutdownHookPriorities.HYPERSONIC;
+            }
+            @Override
+            public void run() {
+                HypersonicUtil.shutdown();
+            }
+        });
+    }
+
+	/**
+     * Add a shutdown hook.
+     * 
+     * @param hook
+     *            A runnable.
+     */
+    protected static boolean addShutdownHook(final ShutdownHook shutdownHook) {
+        if (shutdownHooks.contains(shutdownHook)) {
+            return false;
+        }
+        return shutdownHooks.add(shutdownHook);
+    }
+
 	/**
 	 * Obtain the current date\time.
 	 * 
 	 * @return The current date\time.
 	 */
-	protected static Calendar currentDateTime() { return DateUtil.getInstance(); }
+	protected static Calendar currentDateTime() {
+        return DateUtil.getInstance();
+	}
 
 	protected static StringBuffer getModelId(final String model) {
         return new StringBuffer("[LMODEL] [").append(model).append("]");
@@ -123,6 +184,19 @@ public abstract class AbstractModelImpl {
 	}
 
 	/**
+     * Remove a shutdown hook.
+     * 
+     * @param hook
+     *            A runnable.
+     */
+    protected static boolean removeShutdownHook(final ShutdownHook shutdownHook) {
+        if (!shutdownHooks.contains(shutdownHook)) {
+            return false;
+        }
+        return shutdownHooks.remove(shutdownHook);
+    }
+
+	/**
      * Obtain an api id for the model abstraction.
      * 
      * @param api
@@ -136,7 +210,7 @@ public abstract class AbstractModelImpl {
 	/** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
-	/**
+    /**
 	 * The parity model context.
 	 * 
 	 */
@@ -159,15 +233,15 @@ public abstract class AbstractModelImpl {
 	 */
 	protected final Preferences preferences;
 
-	/**
+    /**
 	 * Handle to the parity model workspace.
 	 */
 	protected final Workspace workspace;
 
-	/** The decryption cipher. */
+    /** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-    /** The encryption cipher. */
+	/** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
     /** The secret key spec. */
@@ -188,7 +262,7 @@ public abstract class AbstractModelImpl {
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}
 
-	/**
+    /**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -200,7 +274,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotNull(assertion, getInternalContainerModel().readDraft(containerId));
     }
 
-    /**
+	/**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -213,7 +287,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-    /**
+	/**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -255,7 +329,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isReachable(environment));
     }
 
-	/**
+    /**
 	 * Assert that the model framework is initialized to a state where the user
 	 * can start to create artifacts. This requires:
 	 * <ol>
@@ -277,7 +351,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotTrue(assertion, isOnline());
     }
 
-	/**
+    /**
 	 * Assert that the calling method has not yet been implemented.
 	 *
 	 */
@@ -285,7 +359,7 @@ public abstract class AbstractModelImpl {
 		Assert.assertNotYetImplemented("The calling method has not yet been implemented.");
 	}
 
-    /**
+	/**
      * Assert the user is online.
      *
      * @param assertion
@@ -295,11 +369,11 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isOnline());
     }
 
-    protected void assertOnline(final StringBuffer api) {
+	protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
-    /**
+	/**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -353,7 +427,7 @@ public abstract class AbstractModelImpl {
 		return jabberId;
 	}
 
-	/**
+    /**
      * Determine if the list of team members contains the user.
      * 
      * @param team
@@ -366,7 +440,7 @@ public abstract class AbstractModelImpl {
         return -1 != indexOf(team, user);
     }
 
-	/**
+    /**
      * Determine if the list of users contains the team member.
      * 
      * @param users
@@ -379,7 +453,7 @@ public abstract class AbstractModelImpl {
         return -1 != indexOf(users, teamMember);
     }
 
-	/**
+    /**
      * Create the user credentials.
      * 
      * @param username
@@ -403,28 +477,6 @@ public abstract class AbstractModelImpl {
 
         return readCredentials();
     }
-
-    /**
-     * Obtain the current user.
-     *
-     * @return The current user.
-     */
-    protected User currentUser() {
-        final JabberId currentUserId = currentUserId();
-        if(null == currentUserId) { return null; }
-        else { return getInternalUserModel().read(currentUserId); }
-    }
-
-    /**
-	 * Obtain the current user id.
-	 * 
-	 * @return The jabber id of the current user.
-	 */
-	protected JabberId currentUserId() {
-        final Credentials credentials = readCredentials();
-        if(null == credentials) { return null; }
-        else { return JabberIdBuilder.parseUsername(credentials.getUsername()); }
-	}
 
     /**
      * Debug a variable. Note that only the variable value will be rendered.
@@ -665,6 +717,40 @@ public abstract class AbstractModelImpl {
     }
 
     /**
+     * Obtain the team member for the local user.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @return The team member.
+     */
+    protected TeamMember localTeamMember(final Long artifactId) {
+        final List<TeamMember> team = getInternalArtifactModel().readTeam2(artifactId);
+        return get(team, localUser());
+    }
+
+    /**
+     * Obtain the local user.
+     *
+     * @return The current user.
+     */
+    protected User localUser() {
+        final JabberId currentUserId = localUserId();
+        if(null == currentUserId) { return null; }
+        else { return getInternalUserModel().read(currentUserId); }
+    }
+
+    /**
+	 * Obtain the local user id.
+	 * 
+	 * @return The jabber id of the local user.
+	 */
+	protected JabberId localUserId() {
+        final Credentials credentials = readCredentials();
+        if(null == credentials) { return null; }
+        else { return JabberIdBuilder.parseUsername(credentials.getUsername()); }
+	}
+
+    /**
      * Log the api id of the caller.
      *
      */
@@ -738,6 +824,18 @@ public abstract class AbstractModelImpl {
 
             return credentials;
         }
+    }
+
+    /**
+     * Read the next version id.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return The next version id.
+     */
+    protected Long readNextVersionId(final Long artifactId) {
+        final Long latestVersionId = getInternalArtifactModel().readLatestVersionId(artifactId);
+        return null == latestVersionId ? Versioning.START : latestVersionId + Versioning.INCREMENT;
     }
 
     /**

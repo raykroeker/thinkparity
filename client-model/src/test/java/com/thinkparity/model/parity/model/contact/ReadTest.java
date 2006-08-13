@@ -17,7 +17,7 @@ import com.thinkparity.model.xmpp.contact.Contact;
 public class ReadTest extends ContactTestCase {
 
     /** Test name. */
-    private static final String NAME = "[LMODEL] [CONTACT] [TEST READ]";
+    private static final String NAME = "[TEST READ]";
 
 	/** Test datum. */
 	private Fixture datum;

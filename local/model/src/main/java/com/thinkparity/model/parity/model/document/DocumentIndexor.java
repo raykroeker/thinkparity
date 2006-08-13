@@ -28,7 +28,7 @@ class DocumentIndexor extends AbstractIndexor {
 		getInternalIndexModel().createDocument(documentId, documentName);
 	}
 
-	void delete(final Long artifactId) throws ParityException {
+	void delete(final Long artifactId) {
 		getInternalIndexModel().deleteArtifact(artifactId);
 	}
 }

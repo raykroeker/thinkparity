@@ -6,18 +6,14 @@ package com.thinkparity.model.parity.model.io.db.hsqldb;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.log4j.Logger;
-
 import com.thinkparity.codebase.StackUtil;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.model.io.md.MetaData;
 import com.thinkparity.model.parity.model.io.md.MetaDataType;
 
@@ -41,20 +37,6 @@ public class SessionManager {
         sessionCallers = new HashMap<Session, Object>();
 		HypersonicUtil.registerDriver();
 		HypersonicUtil.setInitialProperties();
-		Runtime.getRuntime().addShutdownHook(new Thread("thinkParity - Shutdown Database") {
-			public void run() {
-				// remove abandoned sessions
-				final Logger logger = LoggerFactory.getLogger(SessionManager.class);
-				synchronized(sessions) {
-					logger.warn("Number of abandoned sessions:  " + sessions.size());
-					for(final Session session : sessions) {
-						logger.warn(session.getId() + " - " + formatCaller(session));
-						session.close();
-					}
-				}
-				HypersonicUtil.shutdown();
-			}
-		});
 	}
 
     /**
@@ -129,7 +111,26 @@ public class SessionManager {
             sessionCallers.remove(session);
         }
     }
-    
+
+    /**
+     * Obtain the creator of a session.
+     * 
+     * @param session
+     *            A session.
+     * @return The stack trace element of the caller.
+     */
+    static StackTraceElement getSessionCaller(final Session session) {
+        return (StackTraceElement) sessionCallers.get(session);
+    }
+
+    /**
+     * Obtain the list of sessions.
+     * 
+     * @return A list of sessions.
+     */
+    static List<Session> getSessions() {
+        return sessions;
+    }
 
 	/**
 	 * Close the result set.
@@ -162,24 +163,6 @@ public class SessionManager {
 		return t;
 	}
 
-	/**
-     * Format the session's caller.
-     * 
-     * @param session
-     *            The session.
-     * @return A formatted stack trace.
-     */
-    private static String formatCaller(final Session session) {
-        final StackTraceElement caller = (StackTraceElement) sessionCallers.get(session);
-        return MessageFormat.format(
-                "{0}.{3}({1}:{2})",
-                new Object[] {caller.getClassName(), caller.getFileName(),
-                        caller.getLineNumber(), caller.getMethodName()});
-    }
-
-	/**
-	 * Create a SessionManager [Singleton]
-	 * 
-	 */
+	/** Create SessionManager. */
 	private SessionManager() { super(); }
 }

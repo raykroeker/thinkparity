@@ -48,10 +48,10 @@ public class GetWorkspaceTest extends ModelTestCase {
 				workspace = datum.workspaceModel.getWorkspace();
 
 				assertNotNull(workspace);
-				assertNotNull(workspace.getDataURL());
-				assertNotNull(workspace.getLoggerURL());
-				assertNotNull(workspace.getPreferences());
-				assertNotNull(workspace.getWorkspaceURL());
+				assertNotNull(workspace.getDataDirectory());
+                assertNotNull(workspace.getIndexDirectory());
+                assertNotNull(workspace.getPreferences());
+                assertNotNull(workspace.getWorkspaceDirectory());
 			}
 		}
 		catch(Throwable t) { fail(createFailMessage(t)); }

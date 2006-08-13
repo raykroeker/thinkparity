@@ -11,6 +11,7 @@ import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.Constants.IO;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerListener;
@@ -134,6 +135,19 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read the latest container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    public ContainerVersion readLatestVersion(final Long containerId) {
+        logger.info(getApiId("[READ LATEST VERSION]"));
+        logger.debug(containerId);
+        return containerIO.readLatestVersion(containerId);
+    }
+
+    /**
      * Add a document to a container.
      * 
      * @param containerId
@@ -209,13 +223,16 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         assertOnline(getApiId("[CREATE DRAFT] [USER NOT ONLINE]"));
         final Container container = read(containerId);
-        if(!isDistributed(container)) { createDistributed(container); }
+        if(!isDistributed(container.getUniqueId())) {
+            createDistributed(container);
+        }
 
         final ContainerVersion version = createVersion(containerId);
         final List<Document> documents = readDocuments(version.getArtifactId(), version.getVersionId());
 
         // create
         final ContainerDraft draft = new ContainerDraft();
+        draft.setOwner(localTeamMember(containerId));
         draft.setContainerId(containerId);
         for(final Document document : documents)
             draft.addDocument(document);
@@ -243,7 +260,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logApiId();
         debugVariable("containerId", containerId);
         return createVersion(containerId, readNextVersionId(containerId),
-                currentUserId(), currentDateTime());
+                localUserId(), currentDateTime());
     }
 
     /**
@@ -255,27 +272,20 @@ public class ContainerModelImpl extends AbstractModelImpl {
     void delete(final Long containerId) {
         logApiId();
         debugVariable("containerId", containerId);
-        assertOnline(getApiId("[DELETE] [USER NOT ONLINE]"));
         try {
             final Container container = read(containerId);
-            if(isClosed(container)) { deleteLocal(containerId); }
-            else {
-                if(isKeyHolder(containerId)) {
-                    if(!isDistributed(container)) { deleteLocal(containerId); }
-                    else {
-                        throw Assert.createUnreachable(getApiId(""));
-                    }
-                }
-                else {
-                    deleteRemote(containerId);
-                    deleteLocal(containerId);
-                }
+            if (isDistributed(container.getUniqueId())) {
+                final TeamMember localTeamMember = localTeamMember(container.getId());
+                deleteLocal(container.getId());
+                getInternalSessionModel().removeTeamMember(
+                        container.getUniqueId(), localTeamMember.getId());
+            } else {
+                deleteLocal(container.getId());
             }
             // fire event
             notifyContainerDeleted(null, localEventGenerator);
-        }
-        catch(final Throwable t) {
-            throw translateError(getApiId("[DELETE]"), t);
+        } catch (final Throwable t) {
+            throw translateError("[DELETE]", t);
         }
     }
 
@@ -339,6 +349,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
                         artifactVersion.getVersionId(), artifactVersion
                         .getArtifactType());
             }
+
+            final Container postPublish = read(container.getId());
+            final ContainerVersion postPublishVersion =
+                readVersion(version.getArtifactId(), version.getVersionId());
+            notifyContainerPublished(postPublish, null, postPublishVersion,
+                    remoteEventGenerator);
         }
         catch(final Throwable t) {
             throw translateError(getApiId("[HANDLE ARTIFACT SENT]"), t);
@@ -480,7 +496,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
             final ContainerDraft draft = readDraft(containerId);
             final Calendar currentDateTime = currentDateTime();
             // if the artfiact doesn't exist on the server; create it there
-            if(!isDistributed(container)) { createDistributed(container); }
+            if (!isDistributed(container.getUniqueId())) {
+                createDistributed(container);
+            }
             // ensure the user is the key holder
             assertIsKeyHolder("[USER NOT KEY HOLDER]", containerId);
 
@@ -516,8 +534,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
                 switch(teamMember.getState()) {
                 case LOCAL_ADDED:
                     // the local user already has the version
-                    if(!teamMember.getId().equals(currentUserId()))
-                        send(version, teamMember, currentUserId(), currentDateTime);
+                    if(!teamMember.getId().equals(localUserId()))
+                        send(version, teamMember, localUserId(), currentDateTime);
                     break;
                     case DISTRIBUTED:       // do nothing
                     case LOCAL_REMOVED:     // do nothing
@@ -542,16 +560,17 @@ public class ContainerModelImpl extends AbstractModelImpl {
                     throw Assert.createUnreachable("[UNKNOWN TEAM MEMBER STATE]");
                 }
             }
-            // call remote publish
-            publish(version, currentUserId(), currentDateTime);
-            
+
             // delete draft
-//            for(final Artifact artifact : draft.getArtifacts()) {
-//                containerIO.deleteDraftArtifactRel(
-//                        container.getId(), artifact.getId());
-//            }
-//            containerIO.deleteDraft(container.getId());
-            
+            for(final Artifact artifact : draft.getArtifacts()) {
+                containerIO.deleteDraftArtifactRel(
+                        container.getId(), artifact.getId());
+            }
+            containerIO.deleteDraft(container.getId());
+
+            // call remote publish
+            publish(version, localUserId(), currentDateTime);
+
             // fire event
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion = readVersion(
@@ -600,7 +619,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
         logger.debug(filter);
-        final List<Container> containers = containerIO.read(currentUser());
+        final List<Container> containers = containerIO.read(localUser());
         ArtifactFilterManager.filter(containers, filter);
         ModelSorter.sortContainers(containers, comparator);
         return containers;        
@@ -629,7 +648,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
     Container read(final Long containerId) {
         logger.info(getApiId("[READ]"));
         logger.debug(containerId);
-        return containerIO.read(containerId, currentUser());
+        return containerIO.read(containerId, localUser());
     }
 
     /**
@@ -752,8 +771,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
     ContainerDraft readDraft(final Long containerId) {
         logger.info(getApiId("[READ DRAFT]"));
         logger.debug(containerId);
-        final ContainerDraft draft = containerIO.readDraft(containerId);
-        return draft;
+        return containerIO.readDraft(containerId);
     }
 
     /**
@@ -897,19 +915,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         logger.debug(filter);
         return readKeyRequests(containerId, defaultKeyRequestComparator, filter);
-    }
-
-    /**
-     * Read the latest container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container version.
-     */
-    ContainerVersion readLatestVersion(final Long containerId) {
-        logger.info(getApiId("[READ LATEST VERSION]"));
-        logger.debug(containerId);
-        return containerIO.readLatestVersion(containerId);
     }
 
     /**
@@ -1145,10 +1150,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      *            The container.
      */
     private void createDistributed(final Container container) {
-        try { getInternalSessionModel().createArtifact(container); }
-        catch(final ParityException px) {
-            throw translateError(getApiId("[CREATE DISTRIBUTED]"), px);
-        }
+        getInternalSessionModel().createArtifact(container.getUniqueId());
     }
 
     /**
@@ -1226,18 +1228,33 @@ public class ContainerModelImpl extends AbstractModelImpl {
      *            The container id.
      */
     private void deleteLocal(final Long containerId) throws ParityException {
-        final InternalArtifactModel aModel = getInternalArtifactModel();
+        // delete the draft
+        final ContainerDraft draft = readDraft(containerId);
+        if(null != draft) {
+            for(final Artifact artifact : draft.getArtifacts()) {
+                containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+            }
+            containerIO.deleteDraft(containerId);
+        }
         // delete the team
-        aModel.deleteTeam(containerId);
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        artifactModel.deleteTeam(containerId);
         // delete the remote info
-        aModel.deleteRemoteInfo(containerId);
+        artifactModel.deleteRemoteInfo(containerId);
         // delete the audit events
         getInternalAuditModel().delete(containerId);
         // delete versions
+        final InternalDocumentModel documentModel = getInternalDocumentModel();
         final List<ContainerVersion> versions = readVersions(containerId);
+        List<Document> documents;
         for(final ContainerVersion version : versions) {
             // remove the version's artifact versions
             containerIO.removeVersions(containerId, version.getVersionId());
+
+            documents = containerIO.readDocuments(version.getArtifactId(), version.getVersionId());
+            for(final Document document : documents) {
+                documentModel.delete(document.getId());
+            }
             // delete the version
             containerIO.deleteVersion(containerId, version.getVersionId());
         }
@@ -1245,16 +1262,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         indexor.delete(containerId);
         // delete the container
         containerIO.delete(containerId);
-    }
-
-    /**
-     * Delete the remote info for this container.
-     * 
-     * @param containerId
-     *            The container id.
-     */
-    private void deleteRemote(final Long containerId) throws ParityException {
-        throw Assert.createNotYetImplemented("ContainerModelImpl#deleteRemote");
     }
 
     /** @see ContainerModelImpl#create(String) */
@@ -1280,10 +1287,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
         artifactModel.applyFlagKey(container.getId());
 
         // create remote info
-        artifactModel.createRemoteInfo(container.getId(), currentUserId(), currentDateTime);
+        artifactModel.createRemoteInfo(container.getId(), localUserId(), currentDateTime);
 
         // audit
-        auditor.create(container.getId(), currentUserId(), currentDateTime);
+        auditor.create(container.getId(), localUserId(), currentDateTime);
 
         // index
         indexor.create(container.getId(), container.getName());
@@ -1310,7 +1317,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private Boolean doesExistLocalDraft(final Long containerId) {
         final ContainerDraft draft = readDraft(containerId);
         if(null != draft) {
-            return draft.getOwner().getId().equals(currentUserId());
+            return draft.getOwner().getId().equals(localUserId());
         }
         else { return Boolean.FALSE; }
     }
@@ -1339,7 +1346,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             throws IOException {
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final InputStream inputStream =
-            new BufferedInputStream(new ByteArrayInputStream(bytes), 512);
+            new BufferedInputStream(new ByteArrayInputStream(bytes), IO.BUFFER_SIZE);
         try {
             final DocumentVersion version = documentModel.handleDocumentPublished(
                     publishedBy, publishedOn, uniqueId, versionId, name, inputStream);
@@ -1369,7 +1376,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             final String name, final byte[] bytes) throws IOException {
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final InputStream inputStream =
-            new BufferedInputStream(new ByteArrayInputStream(bytes), 512);
+            new BufferedInputStream(new ByteArrayInputStream(bytes), IO.BUFFER_SIZE);
         try {
             final DocumentVersion version = documentModel.handleDocumentSent(
                     sentBy, sentOn, uniqueId, versionId, name, inputStream);
@@ -1379,14 +1386,16 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Determine if the container has been distributed.  A container is deemed
+     * Determine if the container has been distributed.
      * 
      * @param container
      *            A container.
      * @return True if the container has been distributed; false otherwise.
      */
-    private Boolean isDistributed(final Container container) {
-        return Boolean.FALSE;
+    private Boolean isDistributed(final UUID uniqueId) {
+        final JabberId keyHolder =
+            getInternalSessionModel().readKeyHolder(uniqueId);
+        return keyHolder != null;
     }
 
     /**
@@ -1589,32 +1598,18 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read the next version id.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return The next version id.
-     */
-    private Long readNextVersionId(final Long containerId) {
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        return null == latestVersion ? 1L : latestVersion.getVersionId() + 1L;
-    }
-
-    /**
-     * Add team members to the container. The team members are added to the
-     * local db; then sent the latest version of the container.
+     * Remove team members from the container. The team members are flagged as
+     * removed in the local db.
      * 
      * @param containerId
      *            The container id.
      * @param teamMembers
      *            The team members.
-     * @throws ParityException
      */
     private void removeTeamMembers(final Long containerId,
-            final List<TeamMember> teamMembers) throws ParityException {
+            final List<TeamMember> teamMembers) {
         // remove team member data
         getInternalArtifactModel().removeTeamMembers(teamMembers);
-
         // fire event
         final Container postAdditionContainer = read(containerId);
         for(final TeamMember teamMember : teamMembers) {
@@ -1638,19 +1633,5 @@ public class ContainerModelImpl extends AbstractModelImpl {
                 version,
                 readDocumentVersionStreams(version.getArtifactId(), version
                         .getVersionId()), user, sentBy, sentOn);
-    }
-
-    /**
-     * Update the container's index entry.
-     * 
-     * @param containerId
-     *            The container id.
-     * @throws ParityException
-     */
-    private void updateIndex(final Long containerId) throws ParityException {
-        logger.info("[LMODEL] [DOCUMENT] [UPDATE INDEX]");
-        logger.debug(containerId);
-        indexor.delete(containerId);
-        indexor.create(containerId, read(containerId).getName());
     }
 }

@@ -1,9 +1,7 @@
 /*
  * Created On: Jun 27, 2006 4:00:45 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.container;
-
 
 /**
  * <b>Title:</b>thinkParity Container Read Latest Version Test<br>
@@ -28,10 +26,10 @@ public class ReadLatestVersionTest extends ContainerTestCase {
      *
      */
     public void testReadLatestVersion() {
-        final ContainerVersion version = datum.cModel.readLatestVersion(datum.containerId);
+        final ContainerVersion version =
+            datum.containerModel.readLatestVersion(datum.container.getId());
 
         assertNotNull(NAME, version);
-        assertEquals(NAME, datum.eVersion, version);
     }
 
     /**
@@ -45,7 +43,7 @@ public class ReadLatestVersionTest extends ContainerTestCase {
         final Container container = createContainer(NAME);
         publishContainer(container);
 
-        datum = new Fixture(containerModel, container.getId(), null);
+        datum = new Fixture(container, containerModel);
     }
 
     /**
@@ -60,14 +58,12 @@ public class ReadLatestVersionTest extends ContainerTestCase {
 
     /** Test data definition. */
     private class Fixture {
-        private final ContainerModel cModel;
-        private final Long containerId;
-        private final ContainerVersion eVersion;
-        private Fixture(final ContainerModel cModel, final Long containerId,
-                final ContainerVersion eVersion) {
-            this.cModel = cModel;
-            this.containerId = containerId;
-            this.eVersion = eVersion;
+        private final Container container;
+        private final ContainerModel containerModel;
+        private Fixture(final Container container,
+                final ContainerModel containerModel) {
+            this.containerModel = containerModel;
+            this.container = container;
         }
     }
 }

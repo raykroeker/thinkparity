@@ -7,7 +7,6 @@ package com.thinkparity.model.xmpp.events;
 import java.util.UUID;
 
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -31,5 +30,5 @@ public interface XMPPArtifactListener {
 	public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId);
 
     public void teamMemberRemoved(final UUID artifactUniqueId,
-			final User teamMember);
+			final JabberId jabberId);
 }

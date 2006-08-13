@@ -20,14 +20,6 @@ import com.thinkparity.model.parity.model.container.ContainerModel;
 public interface ContainerListener {
 
     /**
-     * A container was closed.
-     * 
-     * @param e
-     *            The container event.
-     */
-    public void containerClosed(final ContainerEvent e);
-
-    /**
      * A container was created.
      * 
      * @param e
@@ -42,14 +34,6 @@ public interface ContainerListener {
      *            The container event.
      */
     public void containerDeleted(final ContainerEvent e);
-
-    /**
-     * A container was reactivated.
-     * 
-     * @param e
-     *            The container event.
-     */
-    public void containerReactivated(final ContainerEvent e);
 
     /**
      * A document was added to a container.

@@ -296,24 +296,27 @@ class XMPPContainer {
             throws IOException {
         logger.info(getApiId("[PUBLISH]"));
         logger.debug(version);
-        final XMPPMethod method = new XMPPMethod(Xml.Method.Container.PUBLISH);
+        final XMPPMethod publishArtifact = new XMPPMethod(Xml.Method.Container.PUBLISH_ARTIFACT);
 
         int i = 0;
         final Set<Entry<DocumentVersion, InputStream>> entries = documentVersions.entrySet();
         for(final Entry<DocumentVersion, InputStream> entry : entries) {
-            method.setParameter(Xml.Container.PUBLISHED_BY, publishedBy);
-            method.setParameter(Xml.Container.PUBLISHED_ON, publishedOn);
-            method.setParameter(Xml.Container.CONTAINER_UNIQUE_ID, version.getArtifactUniqueId());
-            method.setParameter(Xml.Container.CONTAINER_VERSION_ID, version.getVersionId());
-            method.setParameter(Xml.Container.ARTIFACT_COUNT, entries.size());
-            method.setParameter(Xml.Container.ARTIFACT_INDEX, i++);
-
-            method.setParameter(Xml.Artifact.UNIQUE_ID, entry.getKey().getArtifactUniqueId());
-            method.setParameter(Xml.Artifact.VERSION_ID, entry.getKey().getVersionId());
-            method.setParameter(Xml.Artifact.TYPE, entry.getKey().getArtifactType());
-            method.setParameter(Xml.Artifact.BYTES, StreamUtil.read(entry.getValue()));
-            method.execute(core.getConnection());
+            publishArtifact.setParameter(Xml.Container.PUBLISHED_BY, publishedBy);
+            publishArtifact.setParameter(Xml.Container.PUBLISHED_ON, publishedOn);
+            publishArtifact.setParameter(Xml.Container.CONTAINER_UNIQUE_ID, version.getArtifactUniqueId());
+            publishArtifact.setParameter(Xml.Container.CONTAINER_VERSION_ID, version.getVersionId());
+            publishArtifact.setParameter(Xml.Container.ARTIFACT_COUNT, entries.size());
+            publishArtifact.setParameter(Xml.Container.ARTIFACT_INDEX, i++);
+            publishArtifact.setParameter(Xml.Artifact.UNIQUE_ID, entry.getKey().getArtifactUniqueId());
+            publishArtifact.setParameter(Xml.Artifact.VERSION_ID, entry.getKey().getVersionId());
+            publishArtifact.setParameter(Xml.Artifact.TYPE, entry.getKey().getArtifactType());
+            publishArtifact.setParameter(Xml.Artifact.BYTES, StreamUtil.read(entry.getValue()));
+            publishArtifact.execute(core.getConnection());
         }
+        // publish the container
+        final XMPPMethod publish = new XMPPMethod(Xml.Method.Container.PUBLISH);
+        publish.setParameter(Xml.Artifact.UNIQUE_ID, version.getArtifactUniqueId());
+        publish.execute(core.getConnection());
     }
 
     /**

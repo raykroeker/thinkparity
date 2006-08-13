@@ -1,5 +1,5 @@
 /*
- * Sat Apr 29 10:22:32 PDT 2006
+ * Created On: Sat Apr 29 10:22:32 PDT 2006
  */
 package com.thinkparity.model;
 
@@ -16,11 +16,11 @@ public final class Constants {
     public static final class Compression {
         public static final Integer NONE = 0;
     }
-
     public static final class Connection {
         public static final String SERVER_HOST = System.getProperty("parity.serverhost");
         public static final Integer SERVER_PORT = Integer.getInteger("parity.serverport");
     }
+
 
     public static final class Directories {
         public static final File ARCHIVE = new File(System.getProperty("parity.archive.directory"));
@@ -35,16 +35,34 @@ public final class Constants {
         public static final String DOWNLOAD = ".download";
         public static final String LIB = "lib";
         public static final String LIB_NATIVE_WIN32 = "win32";
+        public static final class Workspace {
+            public static final String DATA = "data";
+            public static final String INDEX = "index";
+            public static final String LOG = "logs";
+            public static final String TEMP = ".temp";
+            public static final class Data {
+                public static final String DB = "db.io";
+                public static final String LOCAL = "local";
+            }
+        }
     }
 
     public static final class Encoding {
         public static final String BASE_64 = "Base64";
     }
 
+    public static final class Files {
+        public static final String TEMP_FILE_PREFIX = "thinkParity.";
+    }
+
     public static final class Image {
         public static final String MAIN = "com.thinkparity.browser.Browser";
         public static final String MAIN_ARGS = "";
         public static final String PROPERTIES_FILENAME = "thinkParityImage.properties";
+    }
+
+    public static final class IO {
+        public static final Integer BUFFER_SIZE = 512;
     }
 
     public static final class Jabber {
@@ -74,8 +92,27 @@ public final class Constants {
         public static final String VERSION = "1.0.0-RC4";
     }
 
+    public static final class ShutdownHookNames {
+        public static final String HYPERSONIC = "thinkParity Hypersonic Database";
+        public static final String WORKSPACE = "thinkParity Workspace";
+    }
+
+    public static final class ShutdownHookPriorities {
+        public static final Integer HYPERSONIC = 9;
+        public static final Integer WORKSPACE = 0;
+    }
+
     public static final class Sundry {
         public static final String THINKPARITY_GROUP_ID = "com.thinkparity.parity";
+    }
+
+    public static final class ThreadNames {
+        public static final String SHUTDOWN_HOOK = "thinkParity Shutdown Hook";
+    }
+
+    public static final class Versioning {
+        public static final Long INCREMENT = 1L;
+        public static final Long START = 1L;
     }
 
     public static final class Xml {
@@ -103,6 +140,7 @@ public final class Constants {
         public static final class EventHandler {
             public static final class Artifact {
                 public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:teammemberadded";
+                public static final String TEAM_MEMBER_REMOVED = "jabber:iq:parity:teammemberremoved";
             }
             public static final class Container {
                 public static final String ARTIFACT_PUBLISHED = "jabber:iq:parity:artifactpublished";
@@ -112,9 +150,11 @@ public final class Constants {
         public static final class Method {
             public static final class Artifact {
                 public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
+                public static final String DELETE = "artifact:delete";
             }
             public static final class Container {
                 public static final String PUBLISH = "container:publish";
+                public static final String PUBLISH_ARTIFACT = "container:publishartifact";
                 public static final String SEND = "container:send";
             }
         }

@@ -77,7 +77,7 @@ public class ArtifactModel extends AbstractModel {
         synchronized(implLock) { impl.addTeamMember(uniqueId, jabberId); }
     }
 
-	/**
+    /**
 	 * Close an artifact.
 	 * 
 	 * @param artifactUniqueId
@@ -120,7 +120,7 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { return impl.create(uniqueId); }
 	}
 
-    /**
+	/**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -130,12 +130,7 @@ public class ArtifactModel extends AbstractModel {
         synchronized(implLock) { impl.createDraft(uniqueId); }
     }
 
-	public void delete(final UUID artifactUniqueId)
-			throws ParityServerModelException {
-		synchronized(implLock) { impl.delete(artifactUniqueId); }
-	}
-
-	/**
+    /**
 	 * Deny the key request for the artifact from the jid.
 	 * 
 	 * @param artifactUniqueId
@@ -190,7 +185,7 @@ public class ArtifactModel extends AbstractModel {
 		synchronized(implLock) { return impl.listForKeyHolder(); }
 	}
 
-    public void reactivate(final List<JabberId> team, final UUID uniqueId,
+	public void reactivate(final List<JabberId> team, final UUID uniqueId,
             final Long versionId, final String name, final byte[] bytes)
             throws ParityServerModelException {
         synchronized(implLock) {
@@ -198,10 +193,24 @@ public class ArtifactModel extends AbstractModel {
         }
     }
 
-	public List<Contact> readContacts(final UUID artifactUniqueId)
+    public List<Contact> readContacts(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		synchronized(implLock) { return impl.readContacts(artifactUniqueId); }
 	}
+
+	/**
+     * Remove a user from an artifact's team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A user's jabber id.
+     */
+    public void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        synchronized (implLock) {
+            impl.removeTeamMember(uniqueId, jabberId);
+        }
+    }
 
 	/**
 	 * Request the key from the artifact's key holder. If the key holder is

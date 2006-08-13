@@ -49,6 +49,10 @@ public class ContainerModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
+    public void publish(final UUID uniqueId) {
+        synchronized(getImplLock()) { getImpl().publish(uniqueId); }
+    }
+
     public void publishArtifact(final UUID uniqueId, final Long versionId,
             final Integer count, final Integer index,
             final UUID artifactUniqueId, final Long artifactVersionId,

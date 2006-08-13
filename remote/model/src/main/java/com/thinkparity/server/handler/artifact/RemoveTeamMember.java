@@ -3,8 +3,11 @@
  */
 package com.thinkparity.server.handler.artifact;
 
-import com.thinkparity.codebase.assertion.Assert;
+import java.util.UUID;
 
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
 
 /**
@@ -13,7 +16,7 @@ import com.thinkparity.server.handler.AbstractController;
  */
 public class RemoveTeamMember extends AbstractController {
 
-    /** Create AddTeamMember. */
+    /** Create RemoveTeamMember. */
     public RemoveTeamMember() { super("artifact:removeteammember"); }
 
     /**
@@ -21,6 +24,21 @@ public class RemoveTeamMember extends AbstractController {
      */
     @Override
     public void service() {
-        throw Assert.createNotYetImplemented("AddTeamMember#service");
+        logApiId();
+        removeTeamMember(
+                readUUID(Xml.Artifact.UNIQUE_ID),
+                readJabberId(Xml.User.JABBER_ID));
+    }
+
+    /**
+     * Remove a user from a team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A jabber id.
+     */
+    private void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        getArtifactModel().removeTeamMember(uniqueId, jabberId);
     }
 }

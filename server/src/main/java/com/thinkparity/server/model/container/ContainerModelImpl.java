@@ -11,13 +11,17 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.xmpp.IQWriter;
 
+import com.thinkparity.server.ParityServerConstants.Jabber;
 import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.artifact.Artifact;
+import com.thinkparity.server.model.io.sql.artifact.ArtifactSql;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -28,6 +32,9 @@ import com.thinkparity.server.model.session.Session;
  * @version 1.1
  */
 class ContainerModelImpl extends AbstractModelImpl {
+
+    /** Artifact db io. */
+    private final ArtifactSql artifactIO;
 
     /** A container event generator. */
     private final ContainerEventGenerator eventGenerator;
@@ -40,7 +47,30 @@ class ContainerModelImpl extends AbstractModelImpl {
      */
     ContainerModelImpl(final Session session) {
         super(session);
+        this.artifactIO = new ArtifactSql();
         this.eventGenerator = new ContainerEventGenerator();
+    }
+
+    /**
+     * Publish the container.
+     * 
+     * @param uniqueId
+     *            The container unique id.
+     */
+    void publish(final UUID uniqueId) {
+        logApiId();
+        debugVariable("uniqueId", uniqueId);
+        try {
+            final Artifact artifact = artifactIO.select(uniqueId);
+            final JabberId systemJabberId =
+                JabberIdBuilder.parseQualifiedJabberId(Jabber.SYSTEM_QUALIFIED_JABBER_ID);
+            artifactIO.updateKeyHolder(
+                    artifact.getArtifactId(),
+                    systemJabberId.getUsername(),
+                    session.getJabberId());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -204,10 +234,6 @@ class ContainerModelImpl extends AbstractModelImpl {
             final Calendar publishedOn,
             final ContainerEventGenerator eventGenerator)
             throws ParityServerModelException, UnauthorizedException {
-        final IQ notification = eventGenerator.generatePublishEvent(containerUniqueId,
-                containerVersionId, artifactCount, artifactIndex,
-                artifactUniqueId, artifactVersionId, artifactType,
-                artifactBytes, publishedBy, publishedOn);
-        notifyTeam(containerUniqueId, notification);
+        
     }
 }

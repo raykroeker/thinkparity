@@ -12,6 +12,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
+import com.thinkparity.server.model.artifact.Artifact;
 import com.thinkparity.server.org.jivesoftware.messenger.JIDBuilder;
 
 /**
@@ -43,9 +44,9 @@ public class ReadKeyHolder extends AbstractController {
      * @return A key holder jabber id.
      */
 	private JabberId readKeyHolder(final UUID uniqueId) {
-	    final String keyHolder =
-            getArtifactModel().get(uniqueId).getArtifactKeyHolder();
-        final JID jid = null == keyHolder ? null : JIDBuilder.build(keyHolder);
+        final Artifact artifact = getArtifactModel().get(uniqueId);
+        final JID jid = null == artifact ?
+                null : JIDBuilder.build(artifact.getArtifactKeyHolder());
         return null == jid ? null : JabberIdBuilder.parseJID(jid);
 	}
 }

@@ -58,7 +58,6 @@ public class ParityServer implements Plugin {
 	public void initializePlugin(PluginManager manager, File pluginDirectory) {
 		initializePluginLogging(pluginDirectory);
 		initializeControllers();
-
 		logger.info(Version.toInfo());
 	}
 
@@ -114,27 +113,22 @@ public class ParityServer implements Plugin {
 	 */
 	private void initializeControllers() {
         synchronized(controllers) {
-            initializeController("com.thinkparity.server.handler.artifact.AcceptKeyRequest");
             initializeController("com.thinkparity.server.handler.artifact.AddTeamMember");
-            initializeController("com.thinkparity.server.handler.artifact.CloseArtifact");
             initializeController("com.thinkparity.server.handler.artifact.ConfirmReceipt");
             initializeController("com.thinkparity.server.handler.artifact.CreateArtifact");
             initializeController("com.thinkparity.server.handler.artifact.CreateDraft");
-            initializeController("com.thinkparity.server.handler.artifact.DeleteArtifact");
-            initializeController("com.thinkparity.server.handler.artifact.DenyKeyRequest");
             initializeController("com.thinkparity.server.handler.artifact.FlagArtifact");
-            initializeController("com.thinkparity.server.handler.artifact.GetArtifactKeys");
-            initializeController("com.thinkparity.server.handler.artifact.GetKeyHolder");
             initializeController("com.thinkparity.server.handler.artifact.GetSubscription");
             initializeController("com.thinkparity.server.handler.artifact.ReadContacts");
-            initializeController("com.thinkparity.server.handler.artifact.RequestArtifactKey");
+            initializeController("com.thinkparity.server.handler.artifact.ReadKeyHolder");
+            initializeController("com.thinkparity.server.handler.artifact.RemoveTeamMember");
             initializeController("com.thinkparity.server.handler.contact.AcceptInvitation");
             initializeController("com.thinkparity.server.handler.contact.DeclineInvitation");
             initializeController("com.thinkparity.server.handler.contact.InviteContact");
             initializeController("com.thinkparity.server.handler.contact.ReadContacts");
-            initializeController("com.thinkparity.server.handler.container.Send");
             initializeController("com.thinkparity.server.handler.container.Publish");
-            initializeController("com.thinkparity.server.handler.document.Reactivate");
+            initializeController("com.thinkparity.server.handler.container.PublishArtifact");
+            initializeController("com.thinkparity.server.handler.container.Send");
             initializeController("com.thinkparity.server.handler.document.SendDocument");
             initializeController("com.thinkparity.server.handler.profile.Read");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");

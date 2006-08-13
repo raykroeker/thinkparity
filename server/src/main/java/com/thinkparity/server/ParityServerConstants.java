@@ -11,7 +11,7 @@ import com.thinkparity.codebase.Application;
  */
 public interface ParityServerConstants {
 
-	public static final String CLIENT_RESOURCE = "parity";
+    public static final String CLIENT_RESOURCE = "parity";
 
 	public static final String DISPATCHER_NAME =
 		"Parity XMPP Dispatcher";
@@ -24,7 +24,7 @@ public interface ParityServerConstants {
 
 	public static final String SERVER_NAME = "Parity XMPP Server";
 
-    /** Internet Constants */
+	/** Internet Constants */
     public static final class Internet {
         /** Internet Mail Constants. */
         public static final class Mail {
@@ -46,6 +46,10 @@ public interface ParityServerConstants {
         public static final Object MODEL_LOG_ID = Application.DESDEMONA + "] [MODEL";
         public static final Object PLUGIN_LOG_ID = Application.DESDEMONA + "] [PLUGIN";
         public static final Object SQL_LOG_ID = Application.DESDEMONA + "] [SQL IO";
+    }
+
+    public static final class PackageNames {
+        public static final String SERVER_HANDLER = "com.thinkparity.server.handler";
     }
 
     /** Xml constants. */
@@ -75,6 +79,7 @@ public interface ParityServerConstants {
             public static final class Artifact {
                 public static final String DRAFT_CREATED = "draftcreate";
                 public static final String TEAM_MEMBER_ADDED = "teammemberadded";
+                public static final String TEAM_MEMBER_REMOVED = "teammemberremoved";
             }
             public static final class Container {
                 public static final String ARTIFACT_PUBLISHED = "artifactpublished";

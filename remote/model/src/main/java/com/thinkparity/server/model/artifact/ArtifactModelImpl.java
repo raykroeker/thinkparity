@@ -5,6 +5,7 @@ package com.thinkparity.server.model.artifact;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +19,6 @@ import org.xmpp.packet.JID;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.server.ParityServerConstants.Xml.Event;
 import com.thinkparity.server.model.AbstractModelImpl;
@@ -149,7 +149,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Add a user to an artifact's team.
      * 
      * @param uniqueId
@@ -172,7 +172,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         catch(final Throwable t) { throw translateError(t); }
     }
 
-	/**
+    /**
 	 * Close an artifact.
 	 * 
 	 * @param artifactUniqueId
@@ -296,33 +296,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    void delete(final UUID artifactUniqueId) throws ParityServerModelException {
-        logApiId();
-		logger.debug(artifactUniqueId);
-		final Artifact artifact = get(artifactUniqueId);
-        assertIsNotDistributed("", artifactUniqueId);
-		try {
-			final JID jid = session.getJID();
-
-			artifactSubscriptionSql.delete(
-					artifact.getArtifactId(), jid.getNode());
-
-			// if there are no more subscriptions; flag the document for deletion
-			if(!artifactSubscriptionSql.existSubscriptions(artifact.getArtifactId())) {
-				updateState(artifact, Artifact.State.DELETED);
-			}
-		}
-		catch(final SQLException sqlx) {
-			logger.error("Could not delete artifact:  " + artifactUniqueId, sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
-		catch(final RuntimeException rx) {
-			logger.error("Could not delete artifact:  " + artifactUniqueId, rx);
-			throw ParityErrorTranslator.translate(rx);
-		}
-	}
-
-    /**
+	/**
 	 * Deny the key request for the artifact from the jid.
 	 * 
 	 * @param artifactUniqueId
@@ -440,13 +414,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	List<ArtifactSubscription> getSubscription(
-			final UUID artifactUniqueId) throws ParityServerModelException {
+    List<ArtifactSubscription> getSubscription(
+			final UUID uniqueId) throws ParityServerModelException {
         logApiId();
-		logger.debug(artifactUniqueId);
+		debugVariable("uniqueId", uniqueId);
 		try {
-			final Artifact artifact = get(artifactUniqueId);
-			return proxy(artifactSubscriptionSql.select(artifact.getArtifactId()));
+			final Artifact artifact = get(uniqueId);
+            if (null == artifact) {
+                return Collections.emptyList();
+            } else {
+                return artifactSubscriptionSql.select(artifact.getArtifactId());
+            }
 		}
 		catch(final SQLException sqlx) {
 			logger.error("getArtifactSubscription(UUID)", sqlx);
@@ -525,6 +503,37 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			throw ParityErrorTranslator.translate(rx);
 		}
 	}
+
+	/**
+     * Remove a user from an artifact's team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param jabberId
+     *            A user's jabber id.
+     */
+    void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
+        logApiId();
+        debugVariable("uniqueId", uniqueId);
+        debugVariable("jabberId", jabberId);
+        try {
+            final Artifact artifact = get(uniqueId);
+            final Integer artifactId = artifact.getArtifactId();
+            final ArtifactSubscription subscription =
+                artifactSubscriptionSql.read(artifactId, jabberId);
+            if(null != subscription) {
+                artifactSubscriptionSql.delete(artifactId, jabberId.getUsername());
+                // if all subscriptions are deleted; delete the artifact
+                if (!artifactSubscriptionSql.existSubscriptions(artifactId)) {
+                    artifactSql.delete(artifactId);
+                }
+            }
+
+            final User user = getUserModel().readUser(jabberId);
+            notifyTeamMemberRemoved(artifact, user, eventGenerator);
+        }
+        catch(final Throwable t) { throw translateError(t); }
+    }
 
 	/**
 	 * Request the key from the artifact's key holder. If the key holder is
@@ -656,11 +665,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	private void assertIsNotDistributed(final String assertion,
-            final UUID artifactUniqueId) throws ParityServerModelException {
-        Assert.assertTrue(assertion, isDistributed(artifactUniqueId));
-    }
-
 	/**
 	 * Create a flag iq packet to send to a subscription.
 	 * 
@@ -708,22 +712,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return assertion.toString();
 	}
 
-	private Boolean isDistributed(final UUID artifactUniqueId)
-            throws ParityServerModelException {
-        final Collection<ArtifactSubscription> subscription =
-            getSubscription(artifactUniqueId);
-        if(1 < subscription.size()) { return Boolean.TRUE; }
-        else if(1 == subscription.size()) {
-            final JabberId keyHolder =
-                JabberIdBuilder.parseJID(getKeyHolder(artifactUniqueId));
-            if(subscription.iterator().next().getJabberId().equals(keyHolder)) {
-                return Boolean.FALSE;
-            }
-            else { return Boolean.TRUE; }
-        }
-        else { return Boolean.FALSE; }
-    }
-
 	/**
      * Notify an artifact's team a draft was created.
      * 
@@ -761,12 +749,26 @@ class ArtifactModelImpl extends AbstractModelImpl {
         notifyTeam(artifact.getArtifactUUID(), notification);
     }
 
-    private List<ArtifactSubscription> proxy(
-			final Collection<ArtifactSubscription> c) {
-		final List<ArtifactSubscription> l = new LinkedList<ArtifactSubscription>();
-		for(final ArtifactSubscription as : c) { l.add(as); }
-		return l;
-	}
+    /**
+     * Notify an artifact's team; a team member was removed.
+     * 
+     * @param artifact
+     *            An artifact.
+     * @param user
+     *            A user.
+     * @param eventGenerator
+     *            An event generator.
+     * @throws ParityServerModelException
+     * @throws UnauthorizedException
+     */
+    private void notifyTeamMemberRemoved(final Artifact artifact,
+            final User user, final ArtifactEventGenerator eventGenerator)
+            throws ParityServerModelException, UnauthorizedException {
+        final IQ notification = eventGenerator.generate(
+                Event.Artifact.TEAM_MEMBER_REMOVED, artifact.getArtifactUUID(),
+                user.getId());
+        notifyTeam(artifact.getArtifactUUID(), notification);
+    }
 
     /**
 	 * Update the artifact's state.

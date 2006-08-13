@@ -1204,12 +1204,14 @@ public class Browser extends AbstractApplication {
 
     /** Notify the session has been terminated. */
     void fireConnectionOffline() {
-        setStatus(Connection.OFFLINE);
+        connection = Connection.OFFLINE;
+        setStatus(connection);
     }
 
     /** Notify the session has been established. */
     void fireConnectionOnline() {
-        setStatus(Connection.ONLINE);
+        connection = Connection.ONLINE;
+        setStatus(connection);
     }
 
     /**

@@ -7,9 +7,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Vector;
+import java.util.List;
 
 import org.jivesoftware.database.JiveID;
 
@@ -41,12 +41,12 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		.append("values (?,?,?,CURRENT_TIMESTAMP,?,?)")
 		.toString();
 
-	private static final String SELECT = new StringBuffer()
-		.append("select artifactSubscriptionId,artifactId,username,createdOn,")
-		.append("updatedOn from parityArtifactSubscription ")
-		.append("where artifactId=?").toString();
+    private static final String SELECT = new StringBuffer()
+    .append("select artifactSubscriptionId,artifactId,username,createdOn,")
+    .append("updatedOn from parityArtifactSubscription ")
+    .append("where artifactId=?").toString();
 
-	private static final String SELECT_COUNT = new StringBuffer()
+    private static final String SELECT_COUNT = new StringBuffer()
 		.append("select count(artifactSubscriptionId) ")
 		.append("from parityArtifactSubscription ")
 		.append("where artifactId=? and username=?").toString();
@@ -56,12 +56,20 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		.append("from parityArtifactSubscription ")
 		.append("where artifactId=?").toString();
 
+	/** Sql to read a single artifact subscription. */
+    private static final String SQL_READ =
+            new StringBuffer("select artifactSubscriptionId,artifactId,")
+            .append("username,createdOn,updatedOn ")
+            .append("from parityArtifactSubscription ")
+            .append("where artifactId=? and username=?")
+            .toString();
+
 	/**
 	 * Create a ArtifactSubscriptionSql.
 	 */
 	public ArtifactSubscriptionSql() { super(); }
 
-	public void delete(final Integer artifactId, final String username)
+    public void delete(final Integer artifactId, final String username)
 			throws SQLException {
         logApiId();
 		logger.debug(artifactId);
@@ -127,7 +135,34 @@ public class ArtifactSubscriptionSql extends AbstractSql {
 		finally { close(cx, ps); }
 	}
 
-	public Collection<ArtifactSubscription> select(final Integer artifactId)
+	public ArtifactSubscription read(final Integer artifactId,
+            final JabberId jabberId) throws SQLException {
+        logApiId();
+        debugVariable("artifactId", artifactId);
+        debugVariable("jabberId", jabberId);
+        Connection cx = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            cx = getCx();
+            logStatement(SQL_READ);
+            ps = cx.prepareStatement(SQL_READ);
+            logStatementParameter(1, artifactId);
+            logStatementParameter(2, jabberId.getUsername());
+            ps.setInt(1, artifactId);
+            ps.setString(2, jabberId.getUsername());
+            rs = ps.executeQuery();
+            if(rs.next()) {
+                return extract(rs);
+            } else {
+                return null;
+            }
+        } finally {
+            close(cx, ps, rs);
+        }
+    }
+
+	public List<ArtifactSubscription> select(final Integer artifactId)
 			throws SQLException {
         logApiId();
 		logger.debug(artifactId);
@@ -141,8 +176,8 @@ public class ArtifactSubscriptionSql extends AbstractSql {
             logStatementParameter(1, artifactId);
 			ps.setInt(1, artifactId);
 			rs = ps.executeQuery();
-			final Collection<ArtifactSubscription> subscriptions =
-				new Vector<ArtifactSubscription>(7);
+			final List<ArtifactSubscription> subscriptions =
+				new ArrayList<ArtifactSubscription>(7);
 			while(rs.next()) {
 				subscriptions.add(extract(rs));
 			}

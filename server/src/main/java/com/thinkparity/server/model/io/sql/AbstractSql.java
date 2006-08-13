@@ -16,6 +16,7 @@ import org.jivesoftware.database.SequenceManager;
 
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.log4j.Log4JHelper;
 
 import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.artifact.Artifact;
@@ -49,6 +50,23 @@ public abstract class AbstractSql {
 			if(!cx.isClosed()) { DbConnectionManager.closeConnection(cx); }
 		}
 	}
+
+    /**
+     * Debug a variable.
+     * 
+     * @param name
+     *            A variable name.
+     * @param value
+     *            A variable value.
+     */
+    protected final void debugVariable(final String name, final Object value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("[0] [{1}:{2}]",
+                    Logging.SQL_LOG_ID,
+                    name,
+                    Log4JHelper.render(logger, value)));
+        }
+    }
 
     protected Connection getCx() throws SQLException {
 		return DbConnectionManager.getConnection();

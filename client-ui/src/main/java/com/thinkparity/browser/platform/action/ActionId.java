@@ -4,18 +4,34 @@
 package com.thinkparity.browser.platform.action;
 
 /**
+ * <b>Title:</b>thinkParity Action Id<br>
+ * <b>Description:</b>The action id enumeration implies a package structure and
+ * an action name. The first (N; >= 1) nouns in the action id indicate the
+ * package names beneath the root action package. The middle verb and trailing
+ * (N; >= 0) nouns are the name of the action implementing class. A caveat to
+ * this rule is that nouns should not be repeated.
+ * 
+ * Examples:
+ * <ol>
+ * <li> Action id: PLATFORM_BROWSER_RESTORE<br>
+ * Package: com.thinkparity.browser.platform.action.platform.browser<br>
+ * Class: Restore
+ * <li>Action id: CONTAINER_ADD_DOCUMENT<br>
+ * Package: com.thinkparity.browser.platform.action.container<br>
+ * Class: AddDocument
+ * </ol>
+ * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.26
  */
 public enum ActionId {
-    ADD_TEAM_MEMBER, APPLICATION_QUIT, ARTIFACT_APPLY_FLAG_SEEN, ARTIFACT_SEARCH, CONTACT_ADD,
-    CONTACT_DELETE, CONTACT_OPEN, CONTAINER_CREATE,
-    CONTAINER_PUBLISH,
-    CREATE_DRAFT, CONTAINER_ADD_DOCUMENT,
-    DOCUMENT_DELETE, DOCUMENT_OPEN, DOCUMENT_OPEN_VERSION,
-    DOCUMENT_RENAME, DOCUMENT_UPDATE_DRAFT, MANAGE_TEAM,
-    MOVE_BROWSER_TO_FRONT, PLATFORM_LOGIN, PLATFORM_LOGOUT, PLATFORM_QUIT,
-    PLATFORM_RESTART, PLATFORM_SAVE_PROFILE, RESTORE_BROWSER,
-    SESSION_ACCEPT_INVITATION, SESSION_DECLINE_INVITATION, SESSION_SEND,
-    SYSTEM_MESSAGE_DELETE
+    ARTIFACT_APPLY_FLAG_SEEN, CONTACT_ACCEPT_INVITATION,
+    CONTACT_CREATE_INVITATION, CONTACT_DECLINE_INVITATION, CONTACT_DELETE,
+    CONTACT_READ, CONTACT_SEARCH, CONTAINER_ADD_DOCUMENT, CONTAINER_CREATE,
+    CONTAINER_CREATE_DRAFT, CONTAINER_PUBLISH, CONTAINER_REMOVE_DOCUMENT,
+    CONTAINER_SEARCH, CONTAINER_UPDATE_TEAM, DOCUMENT_OPEN,
+    DOCUMENT_OPEN_VERSION, DOCUMENT_RENAME, DOCUMENT_REVERT,
+    DOCUMENT_UPDATE_DRAFT, PLATFORM_BROWSER_MOVE_TO_FRONT,
+    PLATFORM_BROWSER_RESTORE, PLATFORM_LOGIN, PLATFORM_LOGOUT, PLATFORM_QUIT,
+    PLATFORM_RESTART
 }

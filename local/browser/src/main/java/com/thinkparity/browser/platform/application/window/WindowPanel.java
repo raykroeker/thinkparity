@@ -9,7 +9,8 @@ import java.awt.GridBagLayout;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.codebase.swing.AbstractJPanel;
+
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
@@ -58,7 +59,7 @@ class WindowPanel extends AbstractJPanel {
     }
 
 	/**
-     * @see com.thinkparity.browser.javax.swing.AbstractJPanel#debugGeometry()
+     * @see com.thinkparity.codebase.swing.AbstractJPanel#debugGeometry()
      * 
      */
 	public void debugGeometry() { super.debugGeometry(); }

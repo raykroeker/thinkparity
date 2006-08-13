@@ -3,13 +3,10 @@
  */
 package com.thinkparity.browser.platform.action.document;
 
-import javax.swing.Icon;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-import com.thinkparity.browser.platform.action.document.Open.DataKey;
 
 /**
  * @author raykroeker@gmail.com
@@ -17,39 +14,10 @@ import com.thinkparity.browser.platform.action.document.Open.DataKey;
  */
 public class OpenVersion extends AbstractAction {
 
-	/**
-	 * The action icon.
-	 * 
-	 */
-	private static final Icon ICON;
+	/** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
 
-	/**
-	 * The action id.
-	 * 
-	 */
-	private static final ActionId ID;
-
-	/**
-	 * The action name.
-	 * 
-	 */
-	private static final String NAME;
-
-	/**
-	 * @see java.io.Serializable
-	 */
-	private static final long serialVersionUID = 1;
-
-	static {
-		ICON = null;
-		ID = ActionId.DOCUMENT_OPEN_VERSION;
-		NAME = "Open Document Version";
-	}
-
-	/**
-	 * The browser application.
-	 * 
-	 */
+	/** The browser application. */
 	private final Browser browser;
 
 	/**
@@ -58,7 +26,7 @@ public class OpenVersion extends AbstractAction {
 	 * @param browser The browser application.
 	 */
 	public OpenVersion(final Browser browser) {
-		super("Document.OpenVersion", ID, NAME, ICON);
+		super(ActionId.DOCUMENT_OPEN_VERSION);
 		this.browser = browser;
 	}
 
@@ -66,14 +34,13 @@ public class OpenVersion extends AbstractAction {
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 * 
 	 */
-	public void invoke(final Data data) throws Exception {
-        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+	public void invoke(final Data data) {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		final Long versionId = (Long) data.get(DataKey.VERSION_ID);
 		getDocumentModel().openVersion(documentId, versionId);
 		getArtifactModel().applyFlagSeen(documentId);
 
-		browser.fireDocumentUpdated(containerId, documentId);
+		browser.fireDocumentUpdated(documentId, Boolean.FALSE);
 	}
 
 	/**
@@ -81,5 +48,5 @@ public class OpenVersion extends AbstractAction {
 	 * 
 	 * @see Data
 	 */
-	public enum DataKey { CONTAINER_ID, DOCUMENT_ID, VERSION_ID }
+	public enum DataKey { DOCUMENT_ID, VERSION_ID }
 }

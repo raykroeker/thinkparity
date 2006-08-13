@@ -4,8 +4,6 @@
  */
 package com.thinkparity.browser.platform.action.container;
 
-import javax.swing.Icon;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -16,18 +14,6 @@ import com.thinkparity.browser.platform.action.Data;
  * @version $Revision$
  */
 public class CreateDraft extends AbstractAction {
-
-    private static final Icon ICON;
-
-    private static final ActionId ID;
-
-    private static final String NAME;
-
-    static {
-        ICON = null;
-        ID = ActionId.CREATE_DRAFT;
-        NAME = "Create Draft";
-    }
 
     /**
      * The browser application.
@@ -42,7 +28,7 @@ public class CreateDraft extends AbstractAction {
      *            The browser application.
      */
     public CreateDraft(final Browser browser) {
-        super("Container.CreateDraft", ID, NAME, ICON);
+        super(ActionId.CONTAINER_CREATE_DRAFT);
         this.browser = browser;
     }
 
@@ -50,7 +36,7 @@ public class CreateDraft extends AbstractAction {
      * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
      * 
      */
-    public void invoke(final Data data) throws Exception {
+    public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         getContainerModel().createDraft(containerId);
         browser.fireContainerDraftCreated(containerId, Boolean.FALSE);          

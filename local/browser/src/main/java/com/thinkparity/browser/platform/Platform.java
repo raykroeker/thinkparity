@@ -8,10 +8,10 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
-import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationListener;
 import com.thinkparity.browser.platform.application.window.WindowRegistry;
+import com.thinkparity.browser.platform.util.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.workspace.Preferences;
 

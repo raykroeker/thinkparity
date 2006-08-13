@@ -9,7 +9,8 @@ package com.thinkparity.browser.platform.firstrun;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.SwingUtilities;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -19,8 +20,6 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  *
@@ -64,7 +63,7 @@ public class LoginAvatar extends Avatar {
         throw Assert.createNotYetImplemented("LoginAvatar#getState");
     }
 
-    /** @see com.thinkparity.browser.javax.swing.AbstractJPanel#isInputValid() */
+    /** @see com.thinkparity.codebase.swing.AbstractJPanel#isInputValid() */
     public Boolean isInputValid() {
         final String username = extractUsername();
         final String password = extractPassword();
@@ -90,10 +89,6 @@ public class LoginAvatar extends Avatar {
         password = username = null;
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
-
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
 
     private String extractPassword() { return SwingUtil.extract(passwordJPasswordField); }
 

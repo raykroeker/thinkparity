@@ -4,8 +4,6 @@
  */
 package com.thinkparity.browser.platform.application.dialog;
 
-import javax.swing.SwingUtilities;
-
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.TextFactory;
@@ -45,7 +43,7 @@ public class ConfirmDialog extends Avatar {
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
      * 
      */
-    public AvatarId getId() { return AvatarId.CONFIRM_DIALOGUE; }
+    public AvatarId getId() { return AvatarId.DIALOG_CONFIRM; }
 
     /**
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState()
@@ -151,14 +149,6 @@ public class ConfirmDialog extends Avatar {
         confirm = Boolean.FALSE;
         disposeWindow();
     }//GEN-LAST:event_denyJButtonActionPerformed
-
-    /**
-     * Dispose of the window.
-     *
-     */
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
 
     /**
      * Run the confirm action.

@@ -8,7 +8,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 
-import com.thinkparity.browser.javax.swing.border.MultiLineBorder;
+import com.thinkparity.codebase.swing.border.MultiLineBorder;
+
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 

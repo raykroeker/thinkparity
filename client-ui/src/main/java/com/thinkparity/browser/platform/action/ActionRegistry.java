@@ -14,7 +14,7 @@ import com.thinkparity.browser.application.browser.Browser;
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
- * @see ActionFactory#createAction(ActionId)
+ * @see ActionFactory#create(ActionId)
  * @see ActionFactory#createAction(ActionId, Browser)
  */
 public class ActionRegistry {

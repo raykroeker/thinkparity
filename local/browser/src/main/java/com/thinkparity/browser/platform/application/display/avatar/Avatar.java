@@ -11,13 +11,15 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.AbstractJPanel;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
-import com.thinkparity.browser.javax.swing.AbstractJPanel;
+import com.thinkparity.browser.platform.application.ApplicationId;
+import com.thinkparity.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.browser.platform.util.State;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -36,29 +38,17 @@ public abstract class Avatar extends AbstractJPanel {
         return new StringBuffer("[LBROWSER] [AVATAR] [").append(id).append("]");
     }
 
-    /**
-	 * The avatar's content provider.
-	 * 
-	 */
+    /** The avatar's content provider. */
 	protected ContentProvider contentProvider;
 
-	/**
-	 * The avatar's error.
-	 * 
-	 */
+	/** A list of the avatar's errors. */
 	protected final List<Throwable> errors;
 
-	/**
-	 * The avatar input.
-	 * 
-	 */
+	/** The avatar input. */
 	protected Object input;
 
-	/**
-	 * The main controller.
-	 * 
-	 */
-	private Browser controller;
+	/** The thinkparity application registry. */
+    private final ApplicationRegistry applicationRegistry;
 
 	/**
 	 * The avatar's scrolling policy.
@@ -66,7 +56,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 */
 	private final ScrollPolicy scrollPolicy;
 
-	/**
+    /**
 	 * Create a Avatar.
 	 * 
 	 * @param l18nContext
@@ -76,7 +66,7 @@ public abstract class Avatar extends AbstractJPanel {
 		this(l18nContext, ScrollPolicy.NONE);
 	}
 
-    /**
+	/**
      * Create an Avatar.
      * 
      * @param l18nContext
@@ -98,6 +88,7 @@ public abstract class Avatar extends AbstractJPanel {
 	 */
 	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy) {
 		super(l18nContext);
+        this.applicationRegistry = new ApplicationRegistry();
 		this.errors = new LinkedList<Throwable>();
 		this.scrollPolicy = scrollPolicy;
 	}
@@ -115,6 +106,7 @@ public abstract class Avatar extends AbstractJPanel {
 	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy,
 			final Color background) {
 		super(l18nContext, background);
+        this.applicationRegistry = new ApplicationRegistry();
 		this.errors = new LinkedList<Throwable>();
 		this.scrollPolicy = scrollPolicy;
 	}
@@ -147,13 +139,13 @@ public abstract class Avatar extends AbstractJPanel {
 	 */
 	public ContentProvider getContentProvider() { return contentProvider; }
 
-	/**
-	 * Obtain the main controller.
-	 *
-	 */
+    /**
+     * Obtain the browser application.
+     * 
+     * @return The browser application.
+     */
 	public Browser getController() {
-		if(null == controller) { controller = Browser.getInstance(); }
-		return controller;
+	    return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
 	}
 
 	/**
@@ -237,6 +229,14 @@ public abstract class Avatar extends AbstractJPanel {
 	public abstract void setState(final State state);
 
 	/**
+     * Dispose of the window.
+     * 
+     */
+    protected void disposeWindow() {
+        SwingUtilities.getWindowAncestor(this).dispose();
+    }
+
+	/**
      * Causes <i>doRun.run()</i> to be executed asynchronously on the AWT event
      * dispatching thread.
      * 
@@ -285,7 +285,7 @@ public abstract class Avatar extends AbstractJPanel {
 
 	}
 
-	private void setIsWorking() {
+    private void setIsWorking() {
 		final Component[] components = getComponents();
 		for(final Component c : components) {
 			if(c.getClass().isAssignableFrom(JButton.class)) {

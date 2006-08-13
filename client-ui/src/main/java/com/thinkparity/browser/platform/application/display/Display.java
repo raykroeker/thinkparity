@@ -12,14 +12,15 @@ import java.awt.event.AdjustmentListener;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.AbstractJPanel;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.application.browser.display.DisplayId;
-import com.thinkparity.browser.javax.swing.AbstractJPanel;
-import com.thinkparity.browser.platform.application.Application;
+import com.thinkparity.browser.platform.application.ApplicationId;
+import com.thinkparity.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar.ScrollPolicy;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * @author raykroeker@gmail.com
@@ -27,17 +28,11 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public abstract class Display extends AbstractJPanel {
 
-	/**
-	 * The avatar currently being displayed.
-	 * 
-	 */
+	/** The avatar currently being displayed. */
 	protected Avatar avatar;
 
-    /** The browser application. */
-    private Application application;
-
     /**
-	 * Create a Display.
+	 * Create Display.
 	 * 
 	 * @param l18nContext
 	 *            The localization context for the display.
@@ -127,7 +122,6 @@ public abstract class Display extends AbstractJPanel {
      * @return The browser application.
      */
     protected Browser getApplication() {
-        if(null == application) { application = Browser.getInstance(); }
-        return (Browser) application;
+        return (Browser) new ApplicationRegistry().get(ApplicationId.BROWSER);
     }
 }

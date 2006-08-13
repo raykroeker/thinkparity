@@ -9,9 +9,10 @@ import java.awt.Toolkit;
 
 import javax.swing.JDialog;
 
+import com.thinkparity.codebase.swing.AbstractJDialog;
+import com.thinkparity.codebase.swing.AbstractJFrame;
+
 import com.thinkparity.browser.application.browser.window.WindowId;
-import com.thinkparity.browser.javax.swing.AbstractJDialog;
-import com.thinkparity.browser.javax.swing.AbstractJFrame;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**
@@ -66,7 +67,10 @@ public abstract class Window extends AbstractJDialog {
         debugGeometry();
         debugLookAndFeel();
         getRootPane().setBorder(new WindowBorder());
-        setSize(windowSize.get(avatar.getId()));
+        if(windowSize.isSetSize(avatar.getId()))
+            setSize(windowSize.get(avatar.getId()));
+        else
+            pack();
         setLocation(calculateLocation());
         invalidate();
         setVisible(true);

@@ -11,10 +11,10 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.browser.application.browser.display.DisplayFactory;
 import com.thinkparity.browser.application.browser.display.DisplayId;
-import com.thinkparity.browser.javax.swing.AbstractJPanel;
 import com.thinkparity.browser.platform.application.display.Display;
 
 /**
@@ -48,7 +48,7 @@ public class MainPanel extends AbstractJPanel {
 	}
 
 	/**
-	 * @see com.thinkparity.browser.javax.swing.AbstractJPanel#debugGeometry()
+	 * @see com.thinkparity.codebase.swing.AbstractJPanel#debugGeometry()
 	 * 
 	 */
 	public void debugGeometry() {

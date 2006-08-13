@@ -11,8 +11,9 @@ import java.awt.Point;
 
 import javax.swing.BorderFactory;
 
+import com.thinkparity.codebase.swing.AbstractJDialog;
+
 import com.thinkparity.browser.application.browser.BrowserWindow;
-import com.thinkparity.browser.javax.swing.AbstractJDialog;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 
 /**

@@ -6,71 +6,51 @@ package com.thinkparity.browser.platform.action;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.platform.AbstractFactory;
+import com.thinkparity.browser.platform.BrowserPlatform;
 import com.thinkparity.browser.platform.Platform;
+import com.thinkparity.browser.platform.application.ApplicationId;
+import com.thinkparity.browser.platform.application.ApplicationRegistry;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class ActionFactory {
+public class ActionFactory extends AbstractFactory {
 
-	private static final ActionFactory singleton;
+    /** The singleton instance. */
+	private static final ActionFactory SINGLETON;
 
-	private static final Object singletonLock;
+	static { SINGLETON = new ActionFactory(); }
 
-	static {
-		singleton = new ActionFactory();
-		singletonLock = new Object();
-	}
-
-	/**
-	 * Create a new named action.
-	 * 
-	 * @param NAME
-	 *            The action NAME.
-	 * @return The action.
-	 */
-	public static AbstractAction createAction(final ActionId actionId) {
-		synchronized(singletonLock) { return singleton.doCreateAction(actionId); }
-	}
-
-    public static AbstractAction createAction(final ActionId actionId, final Browser browser) {
-        synchronized(singletonLock) { return singleton.doCreateAction(actionId, browser); }
-    }
-
-    public static AbstractAction createAction(final ActionId actionId, final Platform platform) {
-        synchronized(singletonLock) { return singleton.doCreateAction(actionId, platform); }
+    /**
+     * Create a thinkParity action.
+     * 
+     * @param id
+     *            An action id.
+     * @return A thinkParity action.
+     * @see ActionId
+     */
+    public static AbstractAction create(final ActionId id) {
+        return SINGLETON.doCreateAction(id);
     }
 
 	/** The action registry. */
     private final ActionRegistry actionRegistry;
 
-	/**
-	 * Create a ActionFactory [Singleton, Factory]
-	 * 
-	 */
+    /** The thinkParity browser application. */
+    private final Browser browser;
+
+    /** The thinkParity platform. */
+    private final Platform platform;
+
+	/** Create ActionFactory. */
 	private ActionFactory() {
         super();
         this.actionRegistry = new ActionRegistry();
+        this.browser = (Browser) new ApplicationRegistry().get(ApplicationId.BROWSER);
+        this.platform = BrowserPlatform.getInstance();
     }
-
-	/**
-	 * Create a new instance of a named action.
-	 * 
-	 * @param NAME
-	 *            The action to create.
-	 * @return A new instance of the action.
-	 */
-	private AbstractAction doCreateAction(final ActionId actionId) {
-		switch(actionId) {
-        case APPLICATION_QUIT:
-            return new com.thinkparity.browser.platform.action.QuitApplication();
-		case ARTIFACT_APPLY_FLAG_SEEN:
-			return new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen();
-        default:
-			throw Assert.createUnreachable("Unable to create action [" + actionId + "].");
-		}
-	}
 
     /**
 	 * Create an action for the browser application.
@@ -78,81 +58,103 @@ public class ActionFactory {
 	 * @param actionId
 	 *            The action id.
 	 * @param browser
-	 *            The browser application.
+	 *            The thinkParity browser application.
 	 * @return The action.
 	 */
-	private AbstractAction doCreateAction(final ActionId actionId, final Browser browser) {
+	private AbstractAction doCreateAction(final ActionId actionId) {
+        final AbstractAction action;
 		switch(actionId) {
-        case ADD_TEAM_MEMBER:
-            return new com.thinkparity.browser.platform.action.document.AddNewTeamMember(browser);
-        case CONTAINER_PUBLISH:
-            return new com.thinkparity.browser.platform.action.document.Publish(browser);
-        case DOCUMENT_UPDATE_DRAFT:
-            return new com.thinkparity.browser.platform.action.document.UpdateDocumentDraft(browser);
-        case DOCUMENT_RENAME:
-            return new com.thinkparity.browser.platform.action.document.Rename(browser);
-		case ARTIFACT_SEARCH:
-			return new com.thinkparity.browser.platform.action.artifact.Search(browser);
-        case CONTACT_OPEN:
-            return new com.thinkparity.browser.platform.action.contact.OpenContact(browser);
-        case CONTACT_DELETE:
-            return new com.thinkparity.browser.platform.action.contact.DeleteContact(browser);
-        case CONTACT_ADD:
-            return new com.thinkparity.browser.platform.action.contact.CreateInvitation(browser);
-        case CONTAINER_CREATE:
-            return new com.thinkparity.browser.platform.action.container.CreateContainer(browser);
-        case MANAGE_TEAM:
-            return new com.thinkparity.browser.platform.action.container.ManageContainerTeam(browser);
-        case CREATE_DRAFT:
-            return new com.thinkparity.browser.platform.action.container.CreateDraft(browser);
+        case ARTIFACT_APPLY_FLAG_SEEN:
+            action = new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen(browser);
+            break;
+
+        case CONTACT_ACCEPT_INVITATION:
+            action = new com.thinkparity.browser.platform.action.contact.AcceptInvitation(browser);
+            break;
+		case CONTACT_CREATE_INVITATION:
+            action = new com.thinkparity.browser.platform.action.contact.CreateInvitation(browser);
+            break;
+		case CONTACT_DECLINE_INVITATION:
+            action = new com.thinkparity.browser.platform.action.contact.DeclineInvitation(browser);
+            break;
+		case CONTACT_DELETE:
+		    action = new com.thinkparity.browser.platform.action.contact.Delete(browser);
+            break;
+		case CONTACT_READ:
+            action = new com.thinkparity.browser.platform.action.contact.Read(browser);
+            break;
+        case CONTACT_SEARCH:
+            action = new com.thinkparity.browser.platform.action.contact.Search(browser);
+            break;
+
 		case CONTAINER_ADD_DOCUMENT:
-			return new com.thinkparity.browser.platform.action.container.AddDocument(browser);
-		case DOCUMENT_DELETE:
-			return new com.thinkparity.browser.platform.action.document.Delete(browser);
+            action = new com.thinkparity.browser.platform.action.container.AddDocument(browser);
+            break;
+		case CONTAINER_CREATE:
+            action = new com.thinkparity.browser.platform.action.container.Create(browser);
+            break;
+		case CONTAINER_CREATE_DRAFT:
+            action = new com.thinkparity.browser.platform.action.container.CreateDraft(browser);
+            break;
+        case CONTAINER_PUBLISH:
+            action = new com.thinkparity.browser.platform.action.container.Publish(browser);
+            break;
+        case CONTAINER_REMOVE_DOCUMENT:
+            action = new com.thinkparity.browser.platform.action.container.RemoveDocument(browser);
+            break;
+        case CONTAINER_SEARCH:
+            action = new com.thinkparity.browser.platform.action.container.Search(browser);
+            break;
+        case CONTAINER_UPDATE_TEAM:
+            action = new com.thinkparity.browser.platform.action.container.UpdateTeam(browser);
+            break;
+
 		case DOCUMENT_OPEN:
-			return new com.thinkparity.browser.platform.action.document.Open(browser);
+            action = new com.thinkparity.browser.platform.action.document.Open(browser);
+            break;
 		case DOCUMENT_OPEN_VERSION:
-			return new com.thinkparity.browser.platform.action.document.OpenVersion(browser);
-		case SESSION_DECLINE_INVITATION:
-			return new com.thinkparity.browser.platform.action.session.DeclineInvitation(browser);
-		case SYSTEM_MESSAGE_DELETE:
-			return new com.thinkparity.browser.platform.action.system.message.DeleteSystemMessage(browser);
-		case SESSION_ACCEPT_INVITATION:
-			return new com.thinkparity.browser.platform.action.session.AcceptInvitation(browser);
-		default:
-			return doCreateAction(actionId);
+            action = new com.thinkparity.browser.platform.action.document.OpenVersion(browser);
+            break;
+		case DOCUMENT_RENAME:
+            action = new com.thinkparity.browser.platform.action.document.Rename(browser);
+            break;
+        case DOCUMENT_REVERT:
+            action = new com.thinkparity.browser.platform.action.document.Revert(browser);
+            break;
+		case DOCUMENT_UPDATE_DRAFT:
+            action = new com.thinkparity.browser.platform.action.document.UpdateDraft(browser);
+            break;
+
+        case PLATFORM_QUIT:
+            action = new com.thinkparity.browser.platform.action.platform.Quit(platform);
+            break;
+        case PLATFORM_RESTART:
+            action = new com.thinkparity.browser.platform.action.platform.Restart(platform);
+            break;
+        case PLATFORM_BROWSER_MOVE_TO_FRONT:
+            action = new com.thinkparity.browser.platform.action.platform.browser.MoveToFront(platform);
+            break;
+        case PLATFORM_BROWSER_RESTORE:
+            action = new com.thinkparity.browser.platform.action.platform.browser.Restore(platform);
+            break;
+
+        default:
+			throw Assert.createUnreachable("UNKNOWN ACTION ID");
 		}
+        register(action);
+        return action;
 	}
 
     /**
-     * Create a platform action.
+     * Register an action.
      * 
-     * @param actionId
-     *            The action id.
-     * @param platform
-     *            The platform.
-     * @return The action.
+     * @param action
+     *            A thinkParity action.
      */
-    private AbstractAction doCreateAction(final ActionId actionId, final Platform platform) {
-        final AbstractAction action;
-        switch(actionId) {
-        case PLATFORM_QUIT:
-            action = new com.thinkparity.browser.platform.action.QuitPlatform(platform);
-            break;
-        case PLATFORM_RESTART:
-            action = new com.thinkparity.browser.platform.action.RestartPlatform(platform);
-            break;
-        case MOVE_BROWSER_TO_FRONT:
-            action = new com.thinkparity.browser.platform.action.application.system.MoveBrowserToFront(platform);
-            break;
-        case RESTORE_BROWSER:
-            action = new com.thinkparity.browser.platform.action.application.system.RestoreBrower(platform);
-            break;
-        default:
-            throw Assert.createUnreachable(
-                    "[LBROWSER] [PLATFORM] [ACTION] [CREATE ACTION]");
+    private void register(final AbstractAction action) {
+        if (actionRegistry.contains(action.getId())) {
+            logWarning("REGISTRY CONTAINS ACTION " + action.getId());
         }
         actionRegistry.put(action);
-        return action;
     }
 }

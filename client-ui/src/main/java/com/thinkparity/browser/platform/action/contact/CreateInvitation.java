@@ -4,14 +4,10 @@
  */
 package com.thinkparity.browser.platform.action.contact;
 
-import javax.swing.Icon;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-
-import com.thinkparity.model.parity.model.contact.ContactInvitation;
 
 /**
  * @author rob_masako@shaw.ca
@@ -19,48 +15,15 @@ import com.thinkparity.model.parity.model.contact.ContactInvitation;
  */
 public class CreateInvitation extends AbstractAction {
 
-    /**
-     * The action small ICON.
-     * 
-     */
-    private static final Icon ICON;
-
-    /**
-     * The action id.
-     * 
-     */
-    private static final ActionId ID;
-
-    /**
-     * The action NAME.
-     * 
-     */
-    private static final String NAME;
-
-    /**
-     * @see java.io.Serializable
-     * 
-     */
+    /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
-    static {
-        ICON = null;
-        ID = ActionId.CONTACT_ADD;
-        NAME = "CreateInvitation";
-    }
-
-    /**
-     * The browser application.
-     * 
-     */
+    /** The browser application. */
     private final Browser browser;
     
-    /**
-     * Create an OpenContact.
-     * 
-     */
+    /** Create CreateInvitation. */
     public CreateInvitation(final Browser browser) {
-        super("CreateInvitation", ID, NAME, ICON);
+        super(ActionId.CONTACT_CREATE_INVITATION);
         this.browser = browser;
     }
     
@@ -68,14 +31,13 @@ public class CreateInvitation extends AbstractAction {
      * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
      * 
      */
-    public void invoke(final Data data) throws Exception {
+    public void invoke(final Data data) {
         final String contactEmail = (String) data.get(DataKey.CONTACT_EMAIL);
-        if (null==contactEmail) {
+        if (null == contactEmail) {
             browser.displayContactCreateInvitation();
         }
         else {
-            final ContactInvitation invitation = getContactModel().createInvitation(contactEmail);
-            browser.fireContactInvitationCreated(invitation.getId(), Boolean.FALSE);            
+            getContactModel().createInvitation(contactEmail);
         }
     }
 

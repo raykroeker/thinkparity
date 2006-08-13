@@ -8,7 +8,6 @@ package com.thinkparity.browser.platform.firstrun;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -42,7 +41,7 @@ public class UserProfileAvatar extends Avatar {
      * @return A logging api id.
      */
     private static StringBuffer getApiId(final String api) {
-        return getAvatarId(AvatarId.USER_PROFILE).append(" ").append(api);
+        return getAvatarId(AvatarId.DIALOG_PROFILE_UPDATE).append(" ").append(api);
     }
 
     private String email;
@@ -70,7 +69,7 @@ public class UserProfileAvatar extends Avatar {
     }
 
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId() */
-    public AvatarId getId() { return AvatarId.USER_PROFILE; }
+    public AvatarId getId() { return AvatarId.DIALOG_PROFILE_UPDATE; }
 
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState() */
     public State getState() {
@@ -108,10 +107,6 @@ public class UserProfileAvatar extends Avatar {
         fullName = email = organization = null;
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
-
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
 
     private String extractEMail() { return SwingUtil.extract(emailJTextField); }
 

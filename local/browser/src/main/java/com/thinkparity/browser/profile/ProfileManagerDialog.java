@@ -8,7 +8,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import com.thinkparity.browser.javax.swing.AbstractJDialog;
+import com.thinkparity.codebase.swing.AbstractJDialog;
+
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.WindowBorder;
 

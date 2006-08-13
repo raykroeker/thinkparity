@@ -4,7 +4,8 @@
  */
 package com.thinkparity.browser;
 
-import com.thinkparity.browser.javax.swing.Swing;
+import com.thinkparity.codebase.swing.Swing;
+
 import com.thinkparity.browser.platform.BrowserPlatform;
 import com.thinkparity.browser.profile.Profile;
 import com.thinkparity.browser.profile.ProfileManager;
@@ -26,7 +27,7 @@ public class Browser {
 	public static void main(String[] args) {
         Swing.init();
         final Profile profile = new ProfileManager().select();
-        if(null != profile) { new BrowserPlatform(profile).start(); }
+        if(null != profile) { BrowserPlatform.create(profile).start(); }
     }
 
 	/** Create Browser. */

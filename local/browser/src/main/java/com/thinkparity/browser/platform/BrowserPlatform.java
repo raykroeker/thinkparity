@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.Version;
@@ -20,7 +21,6 @@ import com.thinkparity.browser.Constants.Directories;
 import com.thinkparity.browser.Constants.Java;
 import com.thinkparity.browser.Constants.Logging;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
-import com.thinkparity.browser.model.ModelFactory;
 import com.thinkparity.browser.platform.application.Application;
 import com.thinkparity.browser.platform.application.ApplicationFactory;
 import com.thinkparity.browser.platform.application.ApplicationId;
@@ -30,6 +30,7 @@ import com.thinkparity.browser.platform.firstrun.FirstRunHelper;
 import com.thinkparity.browser.platform.online.OnlineHelper;
 import com.thinkparity.browser.platform.update.UpdateHelper;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+import com.thinkparity.browser.platform.util.model.ModelFactory;
 import com.thinkparity.browser.profile.Profile;
 
 import com.thinkparity.model.parity.model.workspace.Preferences;
@@ -42,7 +43,33 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
  */
 public class BrowserPlatform implements Platform {
 
-    /**
+    /** A singleton instance. */
+    private static BrowserPlatform SINGLETON;
+
+	/**
+     * Create an instance of the platform.
+     * 
+     * @param profile
+     *            A profile to open.
+     * @return The platform.
+     */
+    public static Platform create(final Profile profile) {
+        Assert.assertIsNull("PLATFORM ALREADY CREATED", SINGLETON);
+        SINGLETON = new BrowserPlatform(profile);
+        return BrowserPlatform.getInstance();
+    }
+
+	/**
+     * Obtain the platform instance.
+     * 
+     * @return The thinkParity platform.
+     */
+    public static Platform getInstance() {
+        Assert.assertNotNull("PLATFORM NOT YET CREATED", SINGLETON);
+        return SINGLETON;
+    }
+
+	/**
      * Obtain a log id for the platform class.
      * 
      * @return A log id.
@@ -57,7 +84,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	protected final Logger logger;
 
-	/**
+    /**
 	 * The application registry.
 	 * 
 	 */
@@ -72,10 +99,10 @@ public class BrowserPlatform implements Platform {
 	/** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
-    /** The parity model factory. */
+	/** The parity model factory. */
 	private final ModelFactory modelFactory;
 
-	/** The platform online helper. */
+    /** The platform online helper. */
     private final OnlineHelper onlineHelper;
 
 	/**
@@ -84,7 +111,7 @@ public class BrowserPlatform implements Platform {
 	 */
 	private final BrowserPlatformPersistence persistence;
 
-	/**
+    /**
 	 * The parity preferences.
 	 * 
 	 */
@@ -93,17 +120,19 @@ public class BrowserPlatform implements Platform {
     /** The platform update helper. */
     private final UpdateHelper updateHelper;
 
-	/**
+    /**
 	 * The window registry.
 	 * 
 	 */
 	private final WindowRegistry windowRegistry;
 
 	/**
-	 * Create a BrowserPlatform [Singleton]
-	 * 
-	 */
-	public BrowserPlatform(final Profile profile) {
+     * Create BrowserPlatform.
+     * 
+     * @param profile
+     *            A profile to open.
+     */
+	private BrowserPlatform(final Profile profile) {
         new BrowserPlatformInitializer(profile).initialize();
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
@@ -283,14 +312,14 @@ public class BrowserPlatform implements Platform {
         else {
             if(isFirstRun()) {
                 if(firstRun()) {
-                    ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
-                    ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
+                    ApplicationFactory.create(this, ApplicationId.BROWSER).start(this);
+                    ApplicationFactory.create(this, ApplicationId.SYSTEM).start(this);
                     ApplicationFactory.create(this, ApplicationId.SESSION).start(this);
                 }
             }
             else {
-                ApplicationFactory.create(this, ApplicationId.BROWSER2).start(this);
-                ApplicationFactory.create(this, ApplicationId.SYS_APP).start(this);
+                ApplicationFactory.create(this, ApplicationId.BROWSER).start(this);
+                ApplicationFactory.create(this, ApplicationId.SYSTEM).start(this);
                 ApplicationFactory.create(this, ApplicationId.SESSION).start(this);
             }
         }

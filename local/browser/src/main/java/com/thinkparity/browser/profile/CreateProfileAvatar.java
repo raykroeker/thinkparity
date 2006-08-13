@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.SwingUtilities;
+
+import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -19,9 +21,6 @@ import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
-
-import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  *
@@ -73,7 +72,7 @@ class CreateProfileAvatar extends Avatar {
         throw Assert.createNotYetImplemented("ProfileManagerAvatar#getState");
     }
     
-    /** @see com.thinkparity.browser.javax.swing.AbstractJPanel#isInputValid() */
+    /** @see com.thinkparity.codebase.swing.AbstractJPanel#isInputValid() */
     public Boolean isInputValid() {
         final String profileName = extractProfileName();
         if(FileUtil.isDirectoryNameValid(profileName)) {
@@ -140,11 +139,6 @@ class CreateProfileAvatar extends Avatar {
             disposeWindow();
         }
     }//GEN-LAST:event_createJButtonActionPerformed
-
-    /** Dispose of the window. */
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
 
     /**
      * Extract the profile name from the text control.

@@ -13,7 +13,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.system.tray.TrayNotification;
-import com.thinkparity.browser.model.util.ModelUtil;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionFactory;
@@ -25,6 +24,7 @@ import com.thinkparity.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
 import com.thinkparity.browser.platform.util.State;
+import com.thinkparity.browser.platform.util.model.ModelUtil;
 
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
@@ -107,7 +107,7 @@ public class SystemApplication extends AbstractApplication {
 	 * @see com.thinkparity.browser.platform.application.Application#getId()
 	 * 
 	 */
-	public ApplicationId getId() { return ApplicationId.SYS_APP; }
+	public ApplicationId getId() { return ApplicationId.SYSTEM; }
 
 	/**
      * @see com.thinkparity.browser.platform.application.Application#getLogger(java.lang.Class)
@@ -148,7 +148,7 @@ public class SystemApplication extends AbstractApplication {
      */
     public Boolean isBrowserRunning() {
         return ApplicationStatus.RUNNING ==
-            applicationRegistry.getStatus(ApplicationId.BROWSER2);
+            applicationRegistry.getStatus(ApplicationId.BROWSER);
     }
 
     /** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
@@ -182,55 +182,31 @@ public class SystemApplication extends AbstractApplication {
 	 * @see com.thinkparity.browser.platform.Saveable#restoreState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
-	public void restoreState(State state) {
-		throw Assert.createNotYetImplemented("System#restoreState");
-	}
+	public void restoreState(final State state) {}
 
     /** Run the exit platform action. */
     public void runExitPlatform() {
-        if(!actionRegistry.contains(ActionId.PLATFORM_QUIT))
-            ActionFactory.createAction(ActionId.PLATFORM_QUIT, getPlatform());
-
         runLater(ActionId.PLATFORM_QUIT, new Data(0));
     }
 
     /** Run the login action. */
     public void runLogin() {
-        if(!actionRegistry.contains(ActionId.PLATFORM_LOGIN))
-            ActionFactory.createAction(ActionId.PLATFORM_LOGIN, getPlatform());
-
         runLater(ActionId.PLATFORM_LOGIN, new Data(0));
-    }
-
-    /** Run the logout action. */
-    public void runLogout() {
-        if(!actionRegistry.contains(ActionId.PLATFORM_LOGOUT))
-            ActionFactory.createAction(ActionId.PLATFORM_LOGOUT, getPlatform());
-
-        run(ActionId.PLATFORM_LOGOUT, new Data(0));
     }
 
     /** Run the move to front action. */
     public void runMoveBrowserToFront() {
-        if(!actionRegistry.contains(ActionId.MOVE_BROWSER_TO_FRONT))
-            ActionFactory.createAction(ActionId.MOVE_BROWSER_TO_FRONT, getPlatform());
-
-        runLater(ActionId.MOVE_BROWSER_TO_FRONT, new Data(0));
+        runLater(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, new Data(0));
     }
 
     /** Run the restart platform action. */
     public void runRestartPlatform() {
-        if(!actionRegistry.contains(ActionId.PLATFORM_RESTART))
-            ActionFactory.createAction(ActionId.PLATFORM_RESTART, getPlatform());
         run(ActionId.PLATFORM_RESTART, new Data(0));
     }
 
     /** Run the restore browser action. */
 	public void runRestoreBrowser() {
-        if(!actionRegistry.contains(ActionId.RESTORE_BROWSER))
-            ActionFactory.createAction(ActionId.RESTORE_BROWSER, getPlatform());
-
-        runLater(ActionId.RESTORE_BROWSER, new Data(0));
+        runLater(ActionId.PLATFORM_BROWSER_RESTORE, new Data(0));
     }
 
     /**
@@ -425,10 +401,10 @@ public class SystemApplication extends AbstractApplication {
      */
     private void run(final ActionId actionId, final Data data) {
         try {
-            if(actionRegistry.contains(actionId)) {
+            if (actionRegistry.contains(actionId)) {
                 actionRegistry.get(actionId).invoke(data);
             }
-            else { ActionFactory.createAction(actionId).invoke(data); }
+            else { ActionFactory.create(actionId).invoke(data); }
         }
         catch(final Exception x) {
             logger.error("[LBROWSER] [APPLICATION] [SYSTEM] [RUN ACTION] [UNKNOWN ERROR]", x);

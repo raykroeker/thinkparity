@@ -7,7 +7,8 @@ package com.thinkparity.browser.profile;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.SwingUtilities;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -16,8 +17,6 @@ import com.thinkparity.browser.application.browser.component.TextFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  *
@@ -61,7 +60,7 @@ class DeleteProfileAvatar extends Avatar {
      */
     public String getTitle() { return getString("Title"); }
 
-    /** @see com.thinkparity.browser.javax.swing.AbstractJPanel#isInputValid() */
+    /** @see com.thinkparity.codebase.swing.AbstractJPanel#isInputValid() */
     public Boolean isInputValid() { return Boolean.TRUE; }
 
     /**
@@ -118,11 +117,6 @@ class DeleteProfileAvatar extends Avatar {
             disposeWindow();
         }
     }//GEN-LAST:event_deleteJButtonActionPerformed
-
-    /** Dispose of the window. */
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
 
     /** This method is called from within the constructor to
      * initialize the form.

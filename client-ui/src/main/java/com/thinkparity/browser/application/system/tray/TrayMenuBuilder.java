@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.thinkparity.browser.application.browser.component.MenuFactory;
@@ -21,29 +20,14 @@ import com.thinkparity.browser.application.system.SystemApplication;
  */
 class TrayMenuBuilder {
 
-    /** The about action. */
-    final Action about;
-
-    /** The auto-login action. */
-    final Action autoLogin;
-
     /** The browser action. */
     final Action browser;
-
-    /** The edit profile action. */
-    final Action editProfile;
 
     /** The exit action. */
     final Action exit;
 
     /** The restart action. */
     final Action restart;
-
-    /** The login action. */
-    final Action login;
-
-    /** The logout action. */
-    final Action logout;
 
     /** System application. */
     private final SystemApplication application;
@@ -52,32 +36,12 @@ class TrayMenuBuilder {
     TrayMenuBuilder(final SystemApplication application) {
         super();
         this.application = application;
-        this.about = new AbstractAction(getString("Menu.About")) {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-                application.displayAbout();
-            }};
-        this.about.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.AboutMnemonic").charAt(0)));
-
-        this.autoLogin = new AbstractAction(getString("Menu.AutoLogin")) {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-                application.setAutoLogin(((JCheckBoxMenuItem) e.getSource()).isSelected());
-            }};
-        this.autoLogin.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.AutoLoginMnemonic").charAt(0)));
-
         this.browser = new AbstractAction(getString("Menu.Browser")) {
             private static final long serialVersionUID = 1;
             public void actionPerformed(final ActionEvent e) {
                 application.runRestoreBrowser();
             }};
         this.browser.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.BrowserMnemonic").charAt(0)));
-            
-        this.editProfile = new AbstractAction(getString("Menu.EditProfile")) {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-            }};
-        this.editProfile.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.EditProfileMnemonic").charAt(0)));
 
         if(application.isDevelopmentMode()) {
             this.restart = new AbstractAction(getString("Menu.Restart")) {
@@ -95,20 +59,6 @@ class TrayMenuBuilder {
                 application.runExitPlatform();
             }};
         this.exit.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.ExitMnemonic").charAt(0)));
-
-        this.login = new AbstractAction(getString("Menu.Login")) {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-                application.runLogin();
-            }};
-        this.login.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.LoginMnemonic").charAt(0)));
-
-        this.logout = new AbstractAction(getString("Menu.Logout")) {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-                application.runLogout();
-            }};
-        this.logout.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.LogoutMnemonic").charAt(0)));
     }
 
     /**

@@ -15,10 +15,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import com.thinkparity.codebase.swing.AbstractJFrame;
+import com.thinkparity.codebase.swing.Swing.Constants.Images;
+
 import com.thinkparity.browser.Constants.Dimensions;
 import com.thinkparity.browser.application.browser.display.DisplayId;
-import com.thinkparity.browser.javax.swing.AbstractJFrame;
-import com.thinkparity.browser.javax.swing.Swing.Constants.Images;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
@@ -137,10 +138,11 @@ public class BrowserWindow extends AbstractJFrame {
         debugGeometry();
         debugLookAndFeel();
 
-        browser.displayTitleAvatar();
-        browser.displayContentAvatar();
-        browser.displayStatusAvatar();
-        browser.displayContainersTab(Boolean.TRUE);
+        browser.displayMainTitleAvatar();
+        browser.displayMainContentAvatar();
+        browser.displayMainStatusAvatar();
+
+        browser.displayTabContainerAvatar();
     }
 
 	/**

@@ -11,12 +11,13 @@ import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.application.browser.Browser;
-import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.codebase.assertion.Assertion;
+
+import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.platform.util.l10n.ActionLocalization;
 import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
+import com.thinkparity.browser.platform.util.model.ModelFactory;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
@@ -53,12 +54,6 @@ public abstract class AbstractAction {
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
 	/**
-	 * The main controller.
-	 * 
-	 */
-	private Browser controller;
-
-	/**
 	 * The action ICON.
 	 * 
 	 */
@@ -75,6 +70,20 @@ public abstract class AbstractAction {
 	 * 
 	 */
 	private String name;
+
+    /**
+     * Create AbstractAction.
+     * 
+     * @param id
+     *            An action id.
+     */
+    protected AbstractAction(final ActionId id) {
+        super();
+        this.id = id;
+        this.icon = null;
+        this.localization = new ActionLocalization(id.toString());
+        this.name = localization.getString("NAME");
+    }
 
 	/**
 	 * Create a AbstractAction.
@@ -111,7 +120,7 @@ public abstract class AbstractAction {
 	 */
 	public ActionId getId() { return id; }
 
-	/**
+    /**
 	 * Obtain the action NAME.
 	 * 
 	 * @return The action NAME.
@@ -124,7 +133,16 @@ public abstract class AbstractAction {
 	 * @param data
 	 *            The action data.
 	 */
-	public abstract void invoke(final Data data) throws Exception;
+	public abstract void invoke(final Data data);
+
+	/**
+     * Determine if the name is set.
+     * 
+     * @return True if the name is set; false otherwise.
+     */
+	public Boolean isSetName() {
+        return null != name;
+	}
 
 	/**
 	 * Set the action ICON.
@@ -152,16 +170,24 @@ public abstract class AbstractAction {
 	}
 
 	/**
-	 * Obtain the main controller.
-	 * 
-	 * @return The main controller.
-	 */
-	protected Browser getController() {
-		if(null == controller) { controller = Browser.getInstance(); }
-		return controller;
-	}
+     * Obtain the contact model api.
+     * 
+     * @return The contact model api.
+     */
+    protected ContactModel getContactModel() {
+        return modelFactory.getContactModel(getClass());
+    }
 
-	/**
+    /**
+     * Obtain the container model api.
+     * 
+     * @return The container model api.
+     */
+    protected ContainerModel getContainerModel() {
+        return modelFactory.getContainerModel(getClass());
+    }
+
+    /**
      * Convert the data element foudn at the given key to a list of files.
      * 
      * @param data
@@ -177,7 +203,7 @@ public abstract class AbstractAction {
         for(final Object o : list) { files.add((File) o); }
         return files;
     }
-
+    
     /**
      * Convert the data element found at the given key to a list of jabber ids.
      * 
@@ -193,9 +219,9 @@ public abstract class AbstractAction {
         final List<JabberId> jabberIds = new ArrayList<JabberId>();
         for(final Object o : list) { jabberIds.add((JabberId) o); }
         return jabberIds;
-    }
+    }  
 
-    /**
+	/**
      * Convert the data element found at the given key to a list of users.
      * 
      * @param data
@@ -210,34 +236,16 @@ public abstract class AbstractAction {
         final List<User> users = new ArrayList<User>();
         for(final Object o : list) { users.add((User) o); }
         return users;
-    }
+    }   
     
     /**
-     * Obtain the container model api.
-     * 
-     * @return The container model api.
-     */
-    protected ContainerModel getContainerModel() {
-        return modelFactory.getContainerModel(getClass());
-    }  
-
-	/**
 	 * Obtain the document model api.
 	 * 
 	 * @return The document model api.
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}   
-    
-    /**
-     * Obtain the contact model api.
-     * 
-     * @return The contact model api.
-     */
-    protected ContactModel getContactModel() {
-        return modelFactory.getContactModel(getClass());
-    }
+	}
 
 	/**
      * Obtain the parity index interface.
@@ -285,24 +293,27 @@ public abstract class AbstractAction {
 		return modelFactory.getSystemMessageModel(getClass());
 	}
 
-	/**
-	 * Register a parity error.
-	 * 
-	 * @param px
-	 *            The parity error.
-	 */
-	protected void registerError(final ParityException px) {
-		registerError((Throwable) px);
-	}
-
     /**
-	 * Register an error.
-	 * 
-	 * @param t
-	 *            The error.
-	 */
-	private void registerError(final Throwable t) {
-		// NOTE Error Handler Code
-		logger.error("", t);
-	}
+     * Translate an error into a browser runtime exception.
+     * 
+     * @param t
+     *            An error.
+     * @return A browser error.
+     */
+    protected RuntimeException translateError(final Throwable t) {
+        if (BrowserException.class.isAssignableFrom(t.getClass())) {
+            return (BrowserException) t;
+        } else if (Assertion.class.isAssignableFrom(t.getClass())) {
+            return (Assertion) t;
+        }
+        else {
+            final String internalErrorId = new StringBuffer()
+                    .append(getId()).append(" - ")
+                    .append(t.getMessage())
+                    .toString();
+            logger.error(internalErrorId, t);
+            return new BrowserException(internalErrorId, t);
+        }
+
+    }
 }

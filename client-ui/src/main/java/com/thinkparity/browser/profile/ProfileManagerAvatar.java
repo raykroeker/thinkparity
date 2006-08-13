@@ -10,7 +10,8 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
-import javax.swing.SwingUtilities;
+
+import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -19,8 +20,6 @@ import com.thinkparity.browser.application.browser.component.ScrollPaneFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 /**
  *
@@ -87,7 +86,7 @@ class ProfileManagerAvatar extends Avatar {
      */
     String getTitle() { return getString("Title"); }
 
-    /** @see com.thinkparity.browser.javax.swing.AbstractJPanel#isInputValid() */
+    /** @see com.thinkparity.codebase.swing.AbstractJPanel#isInputValid() */
     public Boolean isInputValid() {
         final Profile selectedProfile = extractSelectedProfile();
         if(null == selectedProfile) { return Boolean.FALSE; }
@@ -141,10 +140,6 @@ class ProfileManagerAvatar extends Avatar {
             manager.delete();
         }
     }//GEN-LAST:event_deleteJButtonActionPerformed
-
-    private void disposeWindow() {
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
 
     private void exitJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_exitJButtonActionPerformed
         selectedProfile = null;

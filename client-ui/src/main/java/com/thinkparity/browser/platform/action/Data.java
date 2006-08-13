@@ -6,6 +6,7 @@ package com.thinkparity.browser.platform.action;
 
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Data is a wrapper around a set of mapped name\values.
@@ -13,7 +14,7 @@ import java.util.Map;
  * @author raykroeker@gmail.com
  * @version $Revision$
  */
-public class Data {
+public class Data implements Cloneable {
 
 	/**
 	 * The underlying data container.  It contains a map of enumerated types
@@ -60,4 +61,27 @@ public class Data {
 	public Object set(final Enum<?> key, final Object value) {
 		return data.put(key, value);
 	}
+
+    /**
+     * Unset a data item.
+     * 
+     * @param key
+     *            The data item key.
+     * @return The data item's previous value.
+     */
+    public Object unset(final Enum<?> key) {
+        return data.remove(key);
+    }
+
+    /**
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() {
+        final Data clone = new Data(data.size());
+        for (final Entry<Enum<?>, Object> entry : data.entrySet()) {
+            clone.set(entry.getKey(), entry.getValue());
+        }
+        return clone;
+    }
 }

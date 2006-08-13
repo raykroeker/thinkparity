@@ -27,7 +27,7 @@ public class Open extends AbstractAction {
      *            The browser application.
      */
 	public Open(final Browser browser) {
-		super(null, ActionId.DOCUMENT_OPEN, null, null);
+		super(ActionId.DOCUMENT_OPEN);
 		this.browser = browser;
 	}
 
@@ -35,12 +35,12 @@ public class Open extends AbstractAction {
 	 * @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data)
 	 * 
 	 */
-	public void invoke(final Data data) throws Exception {
+	public void invoke(final Data data) {
 		final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
 		getDocumentModel().open(documentId);
 		getArtifactModel().applyFlagSeen(documentId);
 
-		browser.fireDocumentUpdated(documentId);
+		browser.fireDocumentUpdated(documentId, Boolean.FALSE);
 	}
 
 	/** Data keys. */

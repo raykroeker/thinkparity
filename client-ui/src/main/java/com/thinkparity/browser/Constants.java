@@ -23,27 +23,22 @@ import com.thinkparity.browser.platform.util.ImageIOUtil;
  */
 public final class Constants {
 
-    /** Lookup keys. */
-    public static final class Keys {
-        public static final class Persistence {
-            public static final String JFILECHOOSER_CURRENT_DIRECTORY =
-                "javax.swing.JFileChooser.currentDirectory";
-        }
-    }
-
     /** Colour constants. */
     public static final class Colors {
-        public static final class BrowserStatus {
-            public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
-            public static final Color BG_GRAD_START = Color.WHITE;
-            public static final Color TOP_BORDER = new Color(92, 102, 127, 255);
-        }
-        public static final class BrowserTitle {
-            public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
-            public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);
-            public static final Color SEARCH_BACKGROUND = new Color(237, 241, 244, 255);
-            public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
-            public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
+        public static final class Browser {
+            public static final class MainStatus {
+                public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
+                public static final Color BG_GRAD_START = Color.WHITE;
+                public static final Color CONNECTION_FOREGROUND = new Color(255, 96, 6, 255);
+                public static final Color TOP_BORDER = new Color(92, 102, 127, 255);
+            }
+            public static final class MainTitle {
+                public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
+                public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);
+                public static final Color SEARCH_BACKGROUND = new Color(237, 241, 244, 255);
+                public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
+                public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
+            }
         }
     }
 
@@ -115,6 +110,14 @@ public final class Constants {
 
     }
 
+    /** Lookup keys. */
+    public static final class Keys {
+        public static final class Persistence {
+            public static final String JFILECHOOSER_CURRENT_DIRECTORY =
+                "javax.swing.JFileChooser.currentDirectory";
+        }
+    }
+
     /** Logging constants. */
     public static final class Logging {
         public static final String APPLICATION_LOG_ID = Application.OPHELIA + "] [APPLICATION";
@@ -130,6 +133,10 @@ public final class Constants {
         public static final String ARTIFACT_ID = "lBrowser";
         public static final String GROUP_ID = "com.thinkparity.parity";
         public static final String VERSION = Version.getVersion();
+    }
+
+    public static final class Search {
+        public static final Integer ACTIVATION_DELAY = 500; // Milliseconds
     }
 
     public static final class Session {

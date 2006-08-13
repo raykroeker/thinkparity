@@ -3,8 +3,9 @@
  */
 package com.thinkparity.browser.application.browser;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.api.events.*;
-import com.thinkparity.model.parity.model.message.system.SystemMessage;
 
 /**
  * The browser's event dispatcher.
@@ -78,39 +79,28 @@ class EventDispatcher {
      * 
      * @return A container listener.
      */
-    // TO DO Need to add: archived, published, confirmation received, 3 key messages, 2 team messages
     private ContainerListener createContainerListener() {
         return new ContainerAdapter() {
             @Override
-            public void containerClosed(final ContainerEvent e) {
-                if(e.isRemote()) {
-                    browser.getArtifactModel().removeFlagSeen(e.getContainer().getId());
-                    // Note we don't use "remote" because the effect of this would be
-                    // to put the closed container at the top of the list.
-                    browser.fireContainerUpdated(e.getContainer().getId());
-                }                
-            }
-            @Override
             public void containerCreated(final ContainerEvent e) {
-                if(e.isRemote()) {
-                    browser.fireContainerCreated(e.getContainer().getId(), Boolean.TRUE);
-                }                
-            }            
+                browser.fireContainerCreated(e.getContainer().getId(), e.isRemote());
+            }
             @Override
             public void containerDeleted(final ContainerEvent e) {
-                // This is never a remote event because it can only happen before the new package is published.
-                browser.fireContainerDeleted(e.getContainer().getId(), Boolean.TRUE);
+                browser.fireContainerDeleted(e.getContainer().getId(), Boolean.FALSE);
             }
             @Override
-            public void containerReactivated(final ContainerEvent e) {
-                if(e.isRemote()) {
-                    browser.fireContainerUpdated(e.getContainer().getId(), Boolean.TRUE);
-                }                
+            public void documentAdded(final ContainerEvent e) {
+                browser.fireContainerDocumentAdded(
+                        e.getContainer().getId(), e.getDocument().getId());
             }
             @Override
             public void documentRemoved(final ContainerEvent e) {
-                // This is never a remote event. You would instead get an event when the package is published.
-                browser.fireDocumentDeleted(e.getContainer().getId(), e.getDocument().getId(), Boolean.TRUE);
+                browser.fireContainerDocumentRemoved(e.getDocument().getId());
+            }
+            @Override
+            public void draftPublished(final ContainerEvent e) {
+                throw Assert.createNotYetImplemented("ContainerListener#draftPublished");
             }
             @Override
             public void teamMemberAdded(final ContainerEvent e) {
@@ -149,7 +139,8 @@ class EventDispatcher {
 		return new SystemMessageListener() {
 			public void systemMessageCreated(
 					final SystemMessageEvent systemMessageEvent) {
-				browser.fireSystemMessageCreated(((SystemMessage) systemMessageEvent.getSource()).getId());
+				throw Assert
+                        .createNotYetImplemented("EventDispatcher$SystemMessageListener#systemMessageCreated");
 			}
 		};
 	}

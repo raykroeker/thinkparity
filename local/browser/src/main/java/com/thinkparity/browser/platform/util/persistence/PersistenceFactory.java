@@ -15,7 +15,7 @@ import java.util.Properties;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.platform.util.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.workspace.Workspace;
 
@@ -167,7 +167,7 @@ public class PersistenceFactory {
 	 * @return The java file.
 	 */
 	private File getFile(final Workspace workspace) {
-		return new File(workspace.getWorkspaceURL().getFile(), "thinkParity.properties");
+		return new File(workspace.getWorkspaceDirectory(), "thinkParity.properties");
 	}
 
     /**

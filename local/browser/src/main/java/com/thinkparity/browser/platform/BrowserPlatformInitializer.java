@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.model.ModelFactory;
+import com.thinkparity.browser.platform.util.model.ModelFactory;
 import com.thinkparity.browser.profile.Profile;
 
 /**

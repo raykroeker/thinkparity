@@ -10,8 +10,9 @@ import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 
-import com.thinkparity.browser.javax.swing.AbstractJFrame;
-import com.thinkparity.browser.javax.swing.Swing.Constants.Images;
+import com.thinkparity.codebase.swing.AbstractJFrame;
+import com.thinkparity.codebase.swing.Swing.Constants.Images;
+
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.WindowBorder;
 

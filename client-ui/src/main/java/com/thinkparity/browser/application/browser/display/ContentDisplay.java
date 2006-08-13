@@ -5,7 +5,8 @@ package com.thinkparity.browser.application.browser.display;
 
 import java.awt.Color;
 
-import com.thinkparity.browser.javax.swing.border.MultiLineBorder;
+import com.thinkparity.codebase.swing.border.MultiLineBorder;
+
 import com.thinkparity.browser.platform.application.display.Display;
 
 /**

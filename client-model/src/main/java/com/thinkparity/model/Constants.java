@@ -51,6 +51,14 @@ public final class Constants {
         public static final String BASE_64 = "Base64";
     }
 
+    public static final class FileNames {
+        public static final class Workspace {
+            public static final class Data {
+                public static final String DB = "db";
+            }
+        }
+    }
+
     public static final class Files {
         public static final String TEMP_FILE_PREFIX = "thinkParity.";
     }

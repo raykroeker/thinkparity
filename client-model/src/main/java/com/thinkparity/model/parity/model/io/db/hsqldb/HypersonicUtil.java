@@ -18,10 +18,9 @@ import com.thinkparity.codebase.StackUtil;
 
 import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.Constants.DirectoryNames;
+import com.thinkparity.model.Constants.FileNames;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-
-import com.thinkparity.Constants.FileNames;
 
 /**
  * @author raykroeker@gmail.com

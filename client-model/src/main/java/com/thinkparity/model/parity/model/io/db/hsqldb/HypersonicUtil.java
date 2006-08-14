@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StackUtil;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.Constants.DirectoryNames;
 import com.thinkparity.model.Constants.FileNames;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -135,7 +134,7 @@ public class HypersonicUtil {
 		super();
 		this.isDriverRegistered = Boolean.FALSE;
 		this.isInitalPropertiesSet = Boolean.FALSE;
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

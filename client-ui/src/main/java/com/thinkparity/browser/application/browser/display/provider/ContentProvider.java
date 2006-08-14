@@ -5,8 +5,6 @@ package com.thinkparity.browser.application.browser.display.provider;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
 import com.thinkparity.model.parity.model.profile.Profile;
 
 /**
@@ -29,7 +27,7 @@ public abstract class ContentProvider {
      */
 	protected ContentProvider(final Profile profile) {
         super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
         this.profile = profile;
     }
 }

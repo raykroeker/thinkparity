@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.platform.util.l10n.JFrameLocalization;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
  * An abstraction of a swing JFrame.  Used by all thinkParity main windows.
@@ -44,7 +43,7 @@ public abstract class AbstractJFrame extends JFrame {
 		super();
 		this.containerTools = new ContainerTools(this);
 		this.localization = new JFrameLocalization(l18Context);
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

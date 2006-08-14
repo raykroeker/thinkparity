@@ -13,8 +13,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
 /**
  * Swing drag'n'drop transfer utilities.
  * 
@@ -62,7 +60,7 @@ public class TxUtils {
     /** Create a TxUtils [Singleton] */
     private TxUtils() {
         super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
     }
 
     /**

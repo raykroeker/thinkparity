@@ -11,8 +11,6 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
 import com.thinkparity.codebase.StringUtil.Separator;
 
 /**
@@ -40,7 +38,7 @@ class ContainerTools {
 	ContainerTools(final Container container) {
 		super();
 		this.container = container;
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

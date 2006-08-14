@@ -100,7 +100,7 @@ class EventDispatcher {
             }
             @Override
             public void draftPublished(final ContainerEvent e) {
-                throw Assert.createNotYetImplemented("ContainerListener#draftPublished");
+                browser.fireContainerCreated(e.getContainer().getId(), e.isRemote());
             }
             @Override
             public void teamMemberAdded(final ContainerEvent e) {

@@ -18,7 +18,6 @@ import javax.swing.JComponent;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -38,7 +37,7 @@ abstract class ComponentFactory {
 	 */
 	protected ComponentFactory() {
 		super();
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

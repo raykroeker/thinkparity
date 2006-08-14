@@ -9,8 +9,6 @@ import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
 /**
  * ResourceBundleHelper This helper class is used to obtain sets of resources
  * from a bundle within a set l18Context. This is useful when the eventual user
@@ -58,7 +56,7 @@ public class ResourceBundleHelper {
 		super();
 		this.bundle = bundle;
 		this.l18Context = l18Context;
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		logger.info("[PLATFORM] [UTIL] [L18N] [INIT]");
 		logger.debug(l18Context);
 	}

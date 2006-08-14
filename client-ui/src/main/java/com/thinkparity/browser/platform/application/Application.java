@@ -9,6 +9,8 @@ import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.Saveable;
 import com.thinkparity.browser.platform.Platform.Connection;
 
+import com.thinkparity.model.parity.model.profile.Profile;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -77,7 +79,7 @@ public interface Application extends Saveable {
      */
 	public Boolean isDevelopmentMode();
 
-	/**
+    /**
 	 * Add a listener to the application. The listener is used to generate
 	 * status change events.
 	 * 
@@ -93,6 +95,14 @@ public interface Application extends Saveable {
      *      The platform.
 	 */
 	public void restore(final Platform platform);
+
+	/**
+     * Set the thinkParity user's profile.
+     * 
+     * @param profile
+     *            A thinkParity user's profile.
+     */
+    public void setProfile(final Profile profile);
 
     /**
 	 * Start the application.

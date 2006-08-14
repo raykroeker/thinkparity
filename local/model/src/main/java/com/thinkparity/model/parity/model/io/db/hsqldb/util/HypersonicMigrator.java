@@ -12,7 +12,6 @@ import com.thinkparity.codebase.config.Config;
 import com.thinkparity.codebase.config.ConfigFactory;
 
 import com.thinkparity.model.Constants;
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -124,7 +123,7 @@ class HypersonicMigrator {
      */
     HypersonicMigrator() {
         super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
     }
 
     void migrate() throws HypersonicException {

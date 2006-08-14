@@ -14,7 +14,6 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.DateUtil.DateImage;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -75,7 +74,7 @@ public class Session {
 	Session(final Connection connection) {
 		super();
 		this.connection = connection;
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.id = JVMUniqueId.nextId();
 	}
 

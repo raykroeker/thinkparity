@@ -11,14 +11,14 @@
 ;General
 
   ;Name and file
-  Name "thinkParity ${pom.artifactId}"
-  OutFile "thinkParity ${pom.artifactId} ${pom.version}.exe"
+  Name "thinkParity"
+  OutFile "thinkParity-${pom.version}.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\thinkParity\${pom.artifactId}"
+  InstallDir "$PROGRAMFILES\thinkParity"
   
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\thinkParity\${pom.artifactId}" ""
+  InstallDirRegKey HKCU "Software\thinkParity" ""
 ;--------------------------------
 ;Variables
 
@@ -37,7 +37,7 @@
 
   ;Start Menu Folder Page Configuration
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU" 
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\thinkParity\${pom.artifactId}" 
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\thinkParity" 
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
 
   !insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
@@ -54,7 +54,7 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "thinkParity ${pom.artifactId}" SecParityBrowser
+Section "thinkParity" SecParityBrowser
 
   SetOutPath "$INSTDIR"
 
@@ -66,7 +66,7 @@ Section "thinkParity ${pom.artifactId}" SecParityBrowser
   File thinkParity.properties
 
   ;Store installation folder
-  WriteRegStr HKCU "Software\thinkParity\${pom.artifactId}" "" $INSTDIR
+  WriteRegStr HKCU "Software\thinkParity" "" $INSTDIR
 
   ;Create shortcuts
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
@@ -84,7 +84,7 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecParityBrowser ${LANG_ENGLISH} "thinkParity ${pom.artifactId}"
+  LangString DESC_SecParityBrowser ${LANG_ENGLISH} "thinkParity"
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -128,6 +128,6 @@ Section "Uninstall"
   RMDir /r "$INSTDIR"
   RMDIR "$PROGRAMFILES\thinkParity"
 
-  DeleteRegKey /ifempty HKCU "Software\thinkParity\${pom.artifactId}"
+  DeleteRegKey /ifempty HKCU "Software\thinkParity"
 
 SectionEnd

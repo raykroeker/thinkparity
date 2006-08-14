@@ -6,7 +6,6 @@ package com.thinkparity.model.parity.model.io.xmpp.handler;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.Constants.Connection;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPSession;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPSessionManager;
@@ -25,7 +24,7 @@ abstract class AbstractIOHandler {
     /** Create AbstractIOHandler. */
     protected AbstractIOHandler() {
         super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
     }
 
     /**

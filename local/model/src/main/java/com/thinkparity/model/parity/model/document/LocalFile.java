@@ -13,7 +13,6 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.Constants.DirectoryNames;
 import com.thinkparity.model.Constants.IO;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -77,7 +76,7 @@ class LocalFile {
 	 */
 	LocalFile(final Workspace workspace, final Document document) {
 		super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
         this.file = getFile(workspace, document);
 	}
 
@@ -92,7 +91,7 @@ class LocalFile {
 	LocalFile(final Workspace workspace, final Document document,
 			final DocumentVersion version) {
 		super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 		this.file = getFile(workspace, document, version);
 	}
 

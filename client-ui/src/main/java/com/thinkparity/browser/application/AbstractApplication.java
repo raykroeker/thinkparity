@@ -1,5 +1,5 @@
 /*
- * Feb 4, 2006
+ * Created On: Feb 4, 2006
  */
 package com.thinkparity.browser.application;
 
@@ -37,6 +37,7 @@ import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.SessionModel;
 
 /**
@@ -67,7 +68,7 @@ public abstract class AbstractApplication implements Application {
         });
 	}
 
-	/**
+    /**
      * Obtain the caller class name. This method uses a stack filter to remove
      * all "logApiId()" stack trace elements from the stack before returning the
      * caller.
@@ -81,20 +82,23 @@ public abstract class AbstractApplication implements Application {
         return StackUtil.getFrame(filters);
     }
 
-	/** Application localization. */
+    /** Application localization. */
 	protected final L18n l18n;
 
-    /** An apache logger. */
+	/** An apache logger. */
 	protected final Logger logger;
 
 	/** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
-	/** Application persistence. */
+    /** Application persistence. */
 	private final Persistence persistence;
 
 	/** The browser platform. */
 	private final Platform platform;
+
+	/** A thinkParity user's profile. */
+    private Profile profile;
 
 	/**
 	 * The current application status.
@@ -136,8 +140,8 @@ public abstract class AbstractApplication implements Application {
 			APPLICATION_LISTENERS.put(getClass(), listeners);
 		}
 	}
-    
-    /**
+
+	/**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -145,8 +149,8 @@ public abstract class AbstractApplication implements Application {
 	public ArtifactModel getArtifactModel() {
 		return platform.getModelFactory().getArtifactModel(getClass());
 	}
-
-	/**
+    
+    /**
      * Obtain the parity container interface.
      * 
      * @return The parity container interface.
@@ -202,6 +206,14 @@ public abstract class AbstractApplication implements Application {
 			APPLICATION_LISTENERS.put(getClass(), listeners);
 		}
 	}
+
+	/**
+     * @see com.thinkparity.browser.platform.application.Application#setProfile(com.thinkparity.model.parity.model.profile.Profile)
+     */
+    public void setProfile(final Profile profile) {
+        Assert.assertIsNull("PROFILE ALREADY SET", this.profile);
+        this.profile = profile;
+    }
 
 	/**
 	 * Assert the status change is valid.
@@ -294,6 +306,15 @@ public abstract class AbstractApplication implements Application {
 		return persistence.get(key, defaultValue);
 	}
 
+    /**
+     * Obtain the profile
+     *
+     * @return The Profile.
+     */
+    protected Profile getProfile() {
+        return profile;
+    }
+
     protected String getString(final String localKey) {
 		return l18n.getString(localKey);
 	}
@@ -313,7 +334,7 @@ public abstract class AbstractApplication implements Application {
         }
     }
 
-    /**
+	/**
      * Log an api id.
      * 
      * @param message
@@ -392,7 +413,7 @@ public abstract class AbstractApplication implements Application {
 		return p;
 	}
 
-	/**
+    /**
 	 * Set the status.
 	 * 
 	 * @param status

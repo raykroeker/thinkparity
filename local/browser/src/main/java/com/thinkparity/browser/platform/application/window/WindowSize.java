@@ -11,7 +11,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
  * Simple map of the avatar being displayed to the size of the window required.
@@ -54,7 +53,7 @@ class WindowSize {
 	 */
 	WindowSize() {
 		super();
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
     /**

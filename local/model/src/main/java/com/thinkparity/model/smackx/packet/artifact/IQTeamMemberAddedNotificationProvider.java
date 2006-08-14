@@ -13,7 +13,6 @@ import org.jivesoftware.smackx.provider.VCardProvider;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.smack.provider.IQParityProvider;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
@@ -33,7 +32,7 @@ public class IQTeamMemberAddedNotificationProvider extends IQParityProvider {
 	 */
 	public IQTeamMemberAddedNotificationProvider() {
 		super();
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.vCardProvider = new VCardProvider();
 	}
 

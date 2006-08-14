@@ -15,7 +15,6 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.platform.util.l10n.JFrameLocalization;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
  * An abstraction of the swing JDialog.
@@ -49,7 +48,7 @@ public abstract class AbstractJDialog extends JDialog {
 			final String l18nContext) {
 		super(owner, modal);
 		this.localization = new JFrameLocalization(l18nContext);
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

@@ -20,29 +20,49 @@ import com.thinkparity.browser.platform.Platform;
 public class ApplicationFactory {
 
 	/** The singleton instance. */
-	private static final ApplicationFactory SINGLETON;
+	private static ApplicationFactory SINGLETON;
 
-	static { SINGLETON = new ApplicationFactory(); }
+    /**
+     * Obtain an instance of an application factory.
+     * 
+     * @param platform
+     *            A platform.
+     * @return An application factory.
+     */
+	public static ApplicationFactory getInstance(final Platform platform) {
+        if (null == SINGLETON) {
+            SINGLETON = new ApplicationFactory(platform);
+        }
+        return SINGLETON;
+    }
 
-	/**
+	/** A thinkParity platform. */
+    private final Platform platform;
+
+    /** An application registry. */
+	private final ApplicationRegistry registry;
+
+    /**
+     * Create ApplicationFactory.
+     * 
+     * @param platform
+     *            An instance of the thinkParity platform.
+     */
+	private ApplicationFactory(final Platform platform) {
+		super();
+        this.platform = platform;
+		this.registry = new ApplicationRegistry();
+	}
+
+    /**
 	 * Create an application.
 	 * 
 	 * @param id
 	 *            The application id.
 	 * @return The applcation.
 	 */
-	public static Application create(final Platform platform,
-			final ApplicationId id) {
-		return SINGLETON.doCreate(platform, id);
-	}
-
-    /** The application registry. */
-	private final ApplicationRegistry registry;
-
-    /** Create ApplicationFactory. */
-	private ApplicationFactory() {
-		super();
-		this.registry = new ApplicationRegistry();
+	public Application create(final ApplicationId id) {
+		return SINGLETON.doCreate(id);
 	}
 
     /**
@@ -52,7 +72,7 @@ public class ApplicationFactory {
      *            The application id.
      * @return The application.
      */
-	private Application doCreate(final Platform platform, final ApplicationId id) {
+	private Application doCreate(final ApplicationId id) {
 		final Application application;
         switch(id) {
 		case BROWSER:
@@ -69,6 +89,7 @@ public class ApplicationFactory {
 		}
         register(application);
         application.addListener(platform);
+        application.setProfile(platform.getModelFactory().getProfileModel(getClass()).read());
         return application;
 	}
 

@@ -23,7 +23,6 @@ import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.IParityModelConstants;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
@@ -55,7 +54,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * Interal logger implemenation.
 	 */
 	private static final Logger logger =
-		LoggerFactory.getLogger(XMPPSessionImpl.class);
+		Logger.getLogger(XMPPSessionImpl.class);
 
 	/**
 	 * The number of milliseconds to sleep subsequent to each maual packet sent

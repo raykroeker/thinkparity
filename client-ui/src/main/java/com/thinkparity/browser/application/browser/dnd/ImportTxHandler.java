@@ -30,7 +30,6 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.containe
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.DraftDocumentCell;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.util.SwingUtil;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.model.ArtifactUtil;
 
 /**
@@ -88,7 +87,7 @@ public class ImportTxHandler extends TransferHandler {
         this.browser = browser;
         this.containerAvatarModel = containerAvatarModel;
         this.jList = jList;
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
     }
 
     /**

@@ -12,7 +12,6 @@ import com.thinkparity.browser.application.browser.display.provider.dialog.conta
 import com.thinkparity.browser.application.browser.display.provider.dialog.container.ManageTeamProvider;
 import com.thinkparity.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.browser.application.browser.display.provider.tab.container.ContainerProvider;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
@@ -86,7 +85,7 @@ public class ProviderFactory {
 		this.sessionModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
 
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
         this.profile = profileModel.read();
 	}
 

@@ -15,7 +15,6 @@ import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.user.IQReadUsers;
 import com.thinkparity.model.smackx.packet.user.IQReadUsersProvider;
@@ -65,7 +64,7 @@ class XMPPUser {
 	 */
 	public XMPPUser(final XMPPCore xmppCore) {
 		super();
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.xmppCore = xmppCore;
 	}
 

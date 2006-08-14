@@ -6,6 +6,9 @@ package com.thinkparity.browser.application.browser.display.avatar;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.Constants.Icons;
+import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
+
+import com.thinkparity.model.parity.model.profile.Profile;
 
 /**
  * <b>Title:</b>thinkParity Main Title Tabs<br>
@@ -20,6 +23,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
+    /** A thinkParity user's profile. */
+    private Profile profile;
+
     /** The tab. */
     private MainTitleAvatar.Tab tab;
 
@@ -30,12 +36,13 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
-     * Obtain the selected tab.
-     * 
-     * @return the selected tab.
+     * Set localProfile.
+     *
+     * @param localProfile The Profile.
      */
-    MainTitleAvatar.Tab getTab() {
-        return tab;
+    void setProfile(final Profile profile) {
+        this.profile = profile;
+        reloadDisplay();
     }
 
     /**
@@ -69,6 +76,8 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         containersJLabel = new javax.swing.JLabel();
         contactsJLabel = new javax.swing.JLabel();
 
+        nameJLabel = new javax.swing.JLabel();
+
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
@@ -92,10 +101,16 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
         add(contactsJLabel, gridBagConstraints);
+
+        nameJLabel.setFont(Fonts.DefaultFontBold);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 1, 2, 0);
+        add(nameJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 
@@ -106,24 +121,45 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      *
      */
     private void reloadDisplay() {
-        switch(tab) {
-        case CONTACT:
-            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_SELECTED);
-            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);
-            mainTitleAvatar.getController().displayTabContactAvatar();
-            break;
-        case CONTAINER:
-            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);
-            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_SELECTED);
-            mainTitleAvatar.getController().displayTabContainerAvatar();
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN TAB");
+        reloadDisplayTab();
+        reloadDisplayName();
+    }
+    /**
+     * Reload the name label.
+     * 
+     */
+    private void reloadDisplayName() {
+        nameJLabel.setText("");
+        if(null != profile) {
+            nameJLabel.setText(profile.getName());
+        }
+    }
+    /**
+     * Reload the tab images; and display the correct avatar in the browser.
+     * 
+     */
+    private void reloadDisplayTab() {
+        if(null != tab) {
+            switch(tab) {
+            case CONTACT:
+                contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_SELECTED);
+                containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);
+                mainTitleAvatar.getController().displayTabContactAvatar();
+                break;
+            case CONTAINER:
+                contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);
+                containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_SELECTED);
+                mainTitleAvatar.getController().displayTabContainerAvatar();
+                break;
+            default:
+                Assert.assertUnreachable("UNKNOWN TAB");
+            }
         }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel contactsJLabel;
     private javax.swing.JLabel containersJLabel;
+    private javax.swing.JLabel nameJLabel;
     // End of variables declaration//GEN-END:variables
 }

@@ -970,10 +970,25 @@ class SessionModelImpl extends AbstractModelImpl {
      */
     private void login(final Environment environment,
             final Credentials credentials) {
+        login(1, environment, credentials);
+    }
+
+    /**
+     * Login to the environment with the credentials.
+     * 
+     * @param attempt
+     *            The attempt number.
+     * @param environment
+     *            The environment to login to.
+     * @param credentials
+     *            The credentials to login with.
+     */
+    private void login(final Integer attempt, final Environment environment,
+            final Credentials credentials) {
         logger.debug(environment);
         logger.debug(credentials);
-        assertNotIsOnline(getApiId("[LOGIN] [USER ALREADY ONLINE]"));
-        assertIsReachable(getApiId("[LOGIN] [ENVIRONMENT NOT REACHABLE]"), environment);
+        assertNotIsOnline("USER ALREADY ONLINE");
+        assertIsReachable("ENVIRONMENT NOT REACHABLE", environment);
         synchronized(xmppHelper) {
             try {
                 // check that the user's credentials match
@@ -1001,6 +1016,6 @@ class SessionModelImpl extends AbstractModelImpl {
             catch(final SmackException sx) {
                 throw translateError(getApiId("[LOGIN]"), sx);
             }
-        }
+        }        
     }
 }

@@ -14,7 +14,6 @@ import javax.swing.ImageIcon;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.browser.platform.util.ImageIOUtil;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 
 /**
  * A cache of images for the main cell.
@@ -34,7 +33,7 @@ public class MainCellImageCache {
     private static final Map<String, Object> IMAGE_CACHE;
 
     static {
-        slogger = LoggerFactory.getLogger(MainCellImageCache.class);
+        slogger = Logger.getLogger(MainCellImageCache.class);
 
         ICON_CACHE = new Hashtable<String, Object>(20, 0.75F);
         IMAGE_CACHE = new Hashtable<String, Object>(20, 0.75F);
@@ -101,7 +100,7 @@ public class MainCellImageCache {
     /** Creates a new instance of MainCellImageCache */
     public MainCellImageCache() {
         super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
     }
 
     /** Debug the cache. */

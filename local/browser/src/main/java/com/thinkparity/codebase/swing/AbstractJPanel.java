@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 import com.thinkparity.browser.platform.util.l10n.JPanelLocalization;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
@@ -114,7 +113,7 @@ public class AbstractJPanel extends JPanel {
 		super();
 		this.containerTools = new ContainerTools(this);
 		this.localization = new JPanelLocalization(l18nContext);
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 		addMouseListener(debugMouseAdapter);
 		setOpaque(true);
 		setBackground(background);

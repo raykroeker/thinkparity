@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.StackUtil;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.model.parity.model.io.md.MetaData;
@@ -57,7 +56,7 @@ abstract class AbstractIOHandler {
 	 */
 	protected AbstractIOHandler() {
 		super();
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

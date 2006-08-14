@@ -22,7 +22,6 @@ import com.thinkparity.browser.Constants.Dimensions;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.window.WindowBorder2;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
@@ -75,7 +74,7 @@ public class BrowserWindow extends AbstractJFrame {
 	BrowserWindow(final Browser browser) throws HeadlessException {
 		super("BrowserWindow");
 		this.browser = browser;
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
         this.persistence = PersistenceFactory.getPersistence(getClass());
 		getRootPane().setBorder(new WindowBorder2());
         addWindowListener(new WindowAdapter() {

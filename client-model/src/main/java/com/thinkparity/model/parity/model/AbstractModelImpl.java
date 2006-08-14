@@ -31,7 +31,6 @@ import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.l10n.L18n;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.ShutdownHook;
 import com.thinkparity.model.Constants.ShutdownHookNames;
 import com.thinkparity.model.Constants.ShutdownHookPriorities;
@@ -110,7 +109,12 @@ public abstract class AbstractModelImpl {
 	/** A list of runnables to execute when the JVM shuts down. */
     private static final List<ShutdownHook> shutdownHooks;
 
+    /** A static logger instance. */
+    private static final Logger sLogger;
+
     static {
+        sLogger = Logger.getLogger(AbstractModelImpl.class);
+
         shutdownHooks = new ArrayList<ShutdownHook>();
         Runtime.getRuntime().addShutdownHook(new Thread(ThreadNames.SHUTDOWN_HOOK) {
             @Override
@@ -118,7 +122,7 @@ public abstract class AbstractModelImpl {
                 synchronized(shutdownHooks) {
                     Collections.sort(shutdownHooks);
                     for(final ShutdownHook shutdownHook : shutdownHooks) {
-                        System.out.println(shutdownHook.getPriority() + ":" + shutdownHook.getName());
+                        sLogger.info(shutdownHook.getPriority() + ":" + shutdownHook.getName());
                         shutdownHook.run();
                     }
                 }
@@ -257,7 +261,7 @@ public abstract class AbstractModelImpl {
 		super();
 		this.context = new Context(getClass());
 		this.l18n = new Localization(LocalizationContext.MODEL);
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 		this.workspace = workspace;
 		this.preferences = (null == workspace ? null : workspace.getPreferences());
 	}

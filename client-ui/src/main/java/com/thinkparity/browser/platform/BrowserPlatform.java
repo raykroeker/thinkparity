@@ -1,5 +1,5 @@
 /*
- * Feb 4, 2006
+ * Created On: Feb 4, 2006
  */
 package com.thinkparity.browser.platform;
 
@@ -29,7 +29,6 @@ import com.thinkparity.browser.platform.application.window.WindowRegistry;
 import com.thinkparity.browser.platform.firstrun.FirstRunHelper;
 import com.thinkparity.browser.platform.online.OnlineHelper;
 import com.thinkparity.browser.platform.update.UpdateHelper;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
 import com.thinkparity.browser.profile.Profile;
 
@@ -84,16 +83,13 @@ public class BrowserPlatform implements Platform {
 	 */
 	protected final Logger logger;
 
-    /**
-	 * The application registry.
-	 * 
-	 */
+    /** An application factory. */
+    private final ApplicationFactory applicationFactory;
+
+    /** An application registry. */
 	private final ApplicationRegistry applicationRegistry;
 
-	/**
-	 * The avatar registry.
-	 * 
-	 */
+	/** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
 	/** The platform's first run helper. */
@@ -134,13 +130,14 @@ public class BrowserPlatform implements Platform {
      */
 	private BrowserPlatform(final Profile profile) {
         new BrowserPlatformInitializer(profile).initialize();
+        this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
 		this.windowRegistry = new WindowRegistry();
 		this.modelFactory = ModelFactory.getInstance();
 		this.preferences = modelFactory.getPreferences(getClass());
 
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.persistence = new BrowserPlatformPersistence(this);
 
         this.firstRunHelper = new FirstRunHelper(this);
@@ -170,7 +167,7 @@ public class BrowserPlatform implements Platform {
 	 * 
 	 */
 	public Logger getLogger(final Class clasz) {
-		return LoggerFactory.getLogger(clasz);
+		return Logger.getLogger(clasz);
 	}
 
 	/**
@@ -193,13 +190,13 @@ public class BrowserPlatform implements Platform {
 	 */
 	public Preferences getPreferences() { return preferences; }
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.Platform#getWindowRegistry()
 	 * 
 	 */
 	public WindowRegistry getWindowRegistry() { return windowRegistry; }
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.Platform#hibernate(com.thinkparity.browser.platform.application.ApplicationId)
 	 * 
 	 */
@@ -213,13 +210,13 @@ public class BrowserPlatform implements Platform {
 	/** @see com.thinkparity.browser.platform.Platform#isOnline() */
     public Boolean isOnline() { return onlineHelper.isOnline(); }
 
-	/** @see com.thinkparity.browser.platform.Platform#isTestingMode() */
+    /** @see com.thinkparity.browser.platform.Platform#isTestingMode() */
 	public Boolean isTestingMode() {
 		if(isDevelopmentMode()) { return Boolean.TRUE; }
 		return Version.getMode() == Mode.TESTING;
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.application.ApplicationListener#notifyEnd(com.thinkparity.browser.platform.application.Application)
 	 * 
 	 */
@@ -228,7 +225,7 @@ public class BrowserPlatform implements Platform {
         logger.debug(application);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.browser.platform.application.ApplicationListener#notifyHibernate(com.thinkparity.browser.platform.application.Application)
 	 * 
 	 */
@@ -237,7 +234,7 @@ public class BrowserPlatform implements Platform {
         logger.debug(application);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.browser.platform.application.ApplicationListener#notifyRestore(com.thinkparity.browser.platform.application.Application)
 	 * 
 	 */
@@ -255,7 +252,7 @@ public class BrowserPlatform implements Platform {
         logger.debug(application);
 	}
 
-	/** @see com.thinkparity.browser.platform.Platform#restart() */
+    /** @see com.thinkparity.browser.platform.Platform#restart() */
     public void restart() { restart(System.getProperties()); }
 
     /** @see com.thinkparity.browser.platform.Platform#restart(java.util.Properties) */
@@ -312,15 +309,15 @@ public class BrowserPlatform implements Platform {
         else {
             if(isFirstRun()) {
                 if(firstRun()) {
-                    ApplicationFactory.create(this, ApplicationId.BROWSER).start(this);
-                    ApplicationFactory.create(this, ApplicationId.SYSTEM).start(this);
-                    ApplicationFactory.create(this, ApplicationId.SESSION).start(this);
+                    applicationFactory.create(ApplicationId.BROWSER).start(this);
+                    applicationFactory.create(ApplicationId.SYSTEM).start(this);
+                    applicationFactory.create(ApplicationId.SESSION).start(this);
                 }
             }
             else {
-                ApplicationFactory.create(this, ApplicationId.BROWSER).start(this);
-                ApplicationFactory.create(this, ApplicationId.SYSTEM).start(this);
-                ApplicationFactory.create(this, ApplicationId.SESSION).start(this);
+                applicationFactory.create(ApplicationId.BROWSER).start(this);
+                applicationFactory.create(ApplicationId.SYSTEM).start(this);
+                applicationFactory.create(ApplicationId.SESSION).start(this);
             }
         }
 	}

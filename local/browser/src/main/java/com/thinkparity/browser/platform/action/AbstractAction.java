@@ -15,7 +15,6 @@ import com.thinkparity.codebase.assertion.Assertion;
 
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.platform.util.l10n.ActionLocalization;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
@@ -45,7 +44,7 @@ public abstract class AbstractAction {
 	 * 
 	 */
 	protected final Logger logger =
-		LoggerFactory.getLogger(getClass());
+		Logger.getLogger(getClass());
 
 	/**
 	 * Parity model factory.

@@ -64,7 +64,6 @@ import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.application.window.Window;
 import com.thinkparity.browser.platform.util.State;
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
@@ -83,7 +82,7 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public class Browser extends AbstractApplication {
 
-	/** An apache logger. */
+    /** An apache logger. */
 	protected final Logger logger;
 
 	/** Action registry. */
@@ -135,7 +134,7 @@ public class Browser extends AbstractApplication {
 		this.actionRegistry = new ActionRegistry();
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
 		this.avatarRegistry = new AvatarRegistry();
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
         this.persistence = PersistenceFactory.getPersistence(getClass());
 		this.session= new BrowserSession(this);
 	}
@@ -148,7 +147,7 @@ public class Browser extends AbstractApplication {
      *            The search results.
      */
 	public void applySearchFilter(final List<IndexHit> searchResult) {
-        switch(getMainTitleAvatar().getTab()) {
+        switch(getMainTitleAvatarTab()) {
         case CONTAINER:
             getTabContainerAvatar().applySearchFilter(searchResult);            
             break;
@@ -156,9 +155,18 @@ public class Browser extends AbstractApplication {
             getTabContactAvatar().applySearchFilter(searchResult);
             break;
         default:
-            Assert.assertUnreachable("Browser#applySearchFilter");
+            Assert.assertUnreachable("UNKNOWN TAB");
         }
 	}
+
+    /**
+     * Obtain the tab input from the main title avatar.
+     * 
+     * @return A tab.
+     */
+    private MainTitleAvatar.Tab getMainTitleAvatarTab() {
+        return (MainTitleAvatar.Tab) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB);
+    }
 
     /**
      * Clear the non-search filters for the containers list.
@@ -770,7 +778,7 @@ public class Browser extends AbstractApplication {
      *
      */
     public void removeSearchFilter() {
-        switch(getMainTitleAvatar().getTab()) {
+        switch(getMainTitleAvatarTab()) {
         case CONTACT:
             getTabContactAvatar().removeSearchFilter();
             break;
@@ -1066,7 +1074,7 @@ public class Browser extends AbstractApplication {
      */
 	public void runSearch(final String expression) {
 	    final Data data = new Data(1);
-        switch(getMainTitleAvatar().getTab()) {
+        switch(getMainTitleAvatarTab()) {
         case CONTACT:
             data.set(com.thinkparity.browser.platform.action.contact.Search.DataKey.EXPRESSION, expression);
             runSearchContact(data);
@@ -1199,6 +1207,10 @@ public class Browser extends AbstractApplication {
 
     /** Display the main title avatar. */
 	void displayMainTitleAvatar() {
+        final Data input = new Data(2);
+        input.set(MainTitleAvatar.DataKey.PROFILE, getProfile());
+        input.set(MainTitleAvatar.DataKey.TAB, MainTitleAvatar.Tab.CONTAINER);
+        setInput(AvatarId.MAIN_TITLE, input);
     	displayAvatar(DisplayId.TITLE, AvatarId.MAIN_TITLE);
 	}
 

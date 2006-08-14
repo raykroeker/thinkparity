@@ -8,8 +8,6 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 
@@ -122,7 +120,7 @@ public class RandomData {
 	 */
 	public RandomData() {
 		super();
-		this.logger = LoggerFactory.getLogger(getClass());
+		this.logger = Logger.getLogger(getClass());
 		this.random = new Random();
 	}
 

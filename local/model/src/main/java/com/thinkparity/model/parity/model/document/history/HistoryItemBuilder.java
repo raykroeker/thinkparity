@@ -14,7 +14,6 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.l10n.L18n;
 
-import com.thinkparity.model.LoggerFactory;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.audit.AuditEventType;
 import com.thinkparity.model.parity.model.audit.event.*;
@@ -45,7 +44,7 @@ public class HistoryItemBuilder {
 	public HistoryItemBuilder(final L18n l18n) {
 		super();
 		this.l18n = l18n;
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
 	}
 
 	/**

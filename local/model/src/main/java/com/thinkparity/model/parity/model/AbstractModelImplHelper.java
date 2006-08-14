@@ -5,8 +5,6 @@ package com.thinkparity.model.parity.model;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.model.LoggerFactory;
-
 /**
  * AbstractModelImplHelper
  * @author raykroeker@gmail.com
@@ -22,6 +20,6 @@ public abstract class AbstractModelImplHelper {
 	 */
 	protected AbstractModelImplHelper() {
         super();
-        this.logger = LoggerFactory.getLogger(getClass());
+        this.logger = Logger.getLogger(getClass());
     }
 }

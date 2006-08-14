@@ -214,7 +214,6 @@ public class FileSystemHelper extends AbstractModelImplHelper {
      */
     private void synchronizeDir(final File source, final File target)
             throws FileNotFoundException, IOException {
-        System.out.println("Synchronizing directories: " + source.getAbsolutePath() + ", " + target.getAbsolutePath());
         // create a backup of the target
         final File targetBackup = new File(target.getParentFile(), "." + target.getName());
         Assert.assertTrue(

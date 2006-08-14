@@ -12,8 +12,6 @@ import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.browser.platform.util.log4j.LoggerFactory;
-
 import com.thinkparity.codebase.ResourceUtil;
 
 /**
@@ -31,7 +29,7 @@ public class ImageIOUtil {
 
 	/** An apache logger. */
 	protected static final Logger logger =
-		LoggerFactory.getLogger(ImageIOUtil.class);
+		Logger.getLogger(ImageIOUtil.class);
 
 	/**
 	 * Read the image. The image is assumed to be in /images/imageName

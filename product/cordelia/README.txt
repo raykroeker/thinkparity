@@ -1,13 +1,11 @@
-  Calpurnia Pisonis
-    Daughter of Lucius Calpurnius Piso Frugi, was a Roman woman, third and last
-wife of Julius Caesar. They married in 59 BC with no children resulting from
-the union. According to sources1 Calpurnia had a premonition of her husband's
-murder and tried to warn him in vain. In Shakespeare's play, Calpurnia has a
-dream that a statue of Caesar is flowing with blood as many Romans wash their
-hands in the blood. 
+  Cordelia
+    The youngest of the king's three daughters in the play King Lear, by William
+Shakespeare. King Lear at first thinks her ungrateful to him because she refuses
+to flatter him as her sisters do; he soon finds out that she is the only one of
+the three who genuinely cares for him.  
 
-    The calpurnia product is a remote (server based) product that manages the
-auto-upgrade content on the server.
+    The cordelia product is a local (client side) internal product that
+manages the auto-upgrade content on the server.
 
 Build Tools:
     1.  The Apache Ant Project:   1.6.5   http://ant.apache.org
@@ -31,22 +29,23 @@ Checkout Source
     1.  ant checkout
 
 Source Tree
-    +>calpurnia
+    +>cordelia
     	+>.externalToolBuilders		// Eclipse IDE
         +>common                    // All location generic code (non local;
             +>codebase              // non-remote) code lives in common.
             +>junitx
             +>migrator
-        +>remote                     // All remote generic code lives in local.
-            +>codebase
-            +>migrator
+        +>local
             +>model
         +>vendor                    // All vendor libraries live in vendor
             +>commons-codec         // organized by the library then version.
-            +>hsqldb
             +>junit
             +>log4j
-            +>messenger
+            +>smack
+            +>smackx
+            +>swing-layout
+            +>xpp3
+            +>xstream
         +.classpath                                         // Eclipse IDE
         +.cvsignore
         +.project                                           // Eclipse IDE

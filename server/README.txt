@@ -4,6 +4,8 @@ Shakespeare. She is Othello's wife, and the daughter of Senator Brabantio. She
 is both lightskinned and innocent; Shakespeare uses her as a symbol of purity
 to contrast malevolent Iago and his worldly wife, Emilia.
 
+    The desdemona product is a remote (server side) internal product that
+manages the user's containers; documents and profiles
 
 Build Tools:
     1.  The Apache Ant Project:   1.6.5   http://ant.apache.org

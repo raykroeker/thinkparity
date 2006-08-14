@@ -4,6 +4,8 @@ young noblewoman of Denmark, daughter to Polonius, sister to Laertes, and love
 interest of Hamlet. She is a loyal and duitiful daughter, who obeys her father's
 instruction to "lock herself from [Hamlet's] resort."
 
+    The ophelia product is the local (client side) product that manages the
+user's containers; documents; and profile.
 
 Build Tools:
     1.  The Apache Ant Project:   1.6.5   http://ant.apache.org
@@ -26,7 +28,7 @@ Build Tools Installation:
         7.  Install nsis-2.1.14.exe
 
 Checkout Source
-    1.  ant checkout checkout.ide
+    1.  ant checkout
 
 Source Tree
     +>ophelia

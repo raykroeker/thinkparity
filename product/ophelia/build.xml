@@ -20,7 +20,7 @@
 
     <!-- output directories -->
 	<property name="target.dir" value="${basedir}/target"/>
-    <property name="target.assembly.dir" value="${target.dir}/assembly"/>
+    <property name="target.release.dir" value="${target.dir}/release"/>
 	<property name="target.classes.dir" value="${target.dir}/classes"/>
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
 	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
@@ -132,8 +132,8 @@
             <fileset dir="${target.classes.dir}/local/browser"/>
         </jar>
 
-        <mkdir dir="${target.assembly.dir}/${release.version}/core"/>
-        <mkdir dir="${target.assembly.dir}/${release.version}/lib"/>
+        <mkdir dir="${target.release.dir}/${release.version}/core"/>
+        <mkdir dir="${target.release.dir}/${release.version}/lib"/>
         <!-- launch4j -->
         <property environment="env"/>
         <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
@@ -142,24 +142,24 @@
         <launch4j>
             <config dontWrapJar="true" headerType="0"
                     jarPath="thinkParity.jar"
-                    outfile="${target.assembly.dir}/thinkParity.exe"
+                    outfile="${target.release.dir}/thinkParity.exe"
                     errTitle="thinkParity - Error" customProcName="true"
                     stayAlive="false"
                     icon="${target.classes.dir}/local/browser/images/ThinkParity32x32.ico">
                     <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=${release.serverhost} -Dparity.serverport=${release.serverport}"/>
             </config>
         </launch4j>
-        <copy todir="${target.assembly.dir}">
+        <copy todir="${target.release.dir}">
             <fileset file="${basedir}/LICENSE.txt"/>
             <fileset file="${basedir}/README.txt"/>
             <fileset file="${target.classes.dir}/local/thinkparity.jar"/>
             <fileset file="${target.classes.dir}/local/browser/thinkParity.properties"/>
             <fileset file="${target.classes.dir}/local/browser/lBrowser.nsi"/>
         </copy>
-        <copy todir="${target.assembly.dir}/${release.version}">
+        <copy todir="${target.release.dir}/${release.version}">
             <fileset file="${target.classes.dir}/local/browser/thinkParityImage.properties"/>
         </copy>
-        <copy todir="${target.assembly.dir}/${release.version}/core">
+        <copy todir="${target.release.dir}/${release.version}/core">
             <fileset dir="${target.classes.dir}">
                 <include name="common/codebase.jar"/>
                 <include name="common/migrator.jar"/>
@@ -168,7 +168,7 @@
             </fileset>
             <mapper type="flatten"/>
         </copy>
-        <copy todir="${target.assembly.dir}/${release.version}/lib">
+        <copy todir="${target.release.dir}/${release.version}/lib">
             <fileset dir="${basedir}/vendor">
                 <include name="**/*.jar"/>
                 <exclude name="**/*-sources.jar"/>
@@ -177,7 +177,7 @@
             </fileset>
             <mapper type="flatten"/>
         </copy>
-        <copy todir="${target.assembly.dir}/${release.version}/lib/win32">
+        <copy todir="${target.release.dir}/${release.version}/lib/win32">
             <fileset dir="${basedir}/vendor">
                 <include name="**/*.dll"/>
             </fileset>
@@ -185,7 +185,7 @@
         </copy>
         <!-- nsis -->
         <property name="nsis.install.dir" value="${env.ProgramFiles}\NSIS"/>
-        <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.assembly.dir}">
+        <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.release.dir}">
             <arg value="lBrowser.nsi"/>
         </exec>
     </target>

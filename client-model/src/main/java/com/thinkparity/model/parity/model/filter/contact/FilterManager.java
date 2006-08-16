@@ -6,6 +6,9 @@ package com.thinkparity.model.parity.model.filter.contact;
 import java.util.Iterator;
 import java.util.List;
 
+import com.thinkparity.model.parity.model.contact.ContactInvitation;
+import com.thinkparity.model.parity.model.contact.IncomingInvitation;
+import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -34,6 +37,16 @@ public class FilterManager {
         SINGLETON.doFilter(list, filter);
     }
 
+    public static void filterIncomingInvitations(final List<IncomingInvitation> list,
+            final Filter<? super ContactInvitation> filter) {
+        SINGLETON.doFilterIncomingInvitations(list, filter);
+    }
+
+    public static void filterOutgoingInvitations(final List<OutgoingInvitation> list,
+            final Filter<? super ContactInvitation> filter) {
+        SINGLETON.doFilterOutgoingInvitations(list, filter);
+    }
+
     /** Create FilterManager. */
     private FilterManager() { super(); }
 
@@ -51,6 +64,40 @@ public class FilterManager {
         for(final Iterator<Contact> i = list.iterator(); i.hasNext();) {
             contact = i.next();
             if(filter.doFilter(contact)) { i.remove(); }
+        }
+    }
+
+    /**
+     * Filter a list of contact invitations.
+     * 
+     * @param list
+     *            A list of contacts.
+     * @param filter
+     *            A contact filter.
+     */
+    private void doFilterIncomingInvitations(final List<IncomingInvitation> list,
+            final Filter<? super ContactInvitation> filter) {
+        IncomingInvitation invitation;
+        for(final Iterator<IncomingInvitation> i = list.iterator(); i.hasNext();) {
+            invitation = i.next();
+            if(filter.doFilter(invitation)) { i.remove(); }
+        }
+    }
+
+    /**
+     * Filter a list of contact invitations.
+     * 
+     * @param list
+     *            A list of contacts.
+     * @param filter
+     *            A contact filter.
+     */
+    private void doFilterOutgoingInvitations(final List<OutgoingInvitation> list,
+            final Filter<? super ContactInvitation> filter) {
+        OutgoingInvitation invitation;
+        for(final Iterator<OutgoingInvitation> i = list.iterator(); i.hasNext();) {
+            invitation = i.next();
+            if(filter.doFilter(invitation)) { i.remove(); }
         }
     }
 }

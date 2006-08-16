@@ -39,6 +39,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		context.assertContextIsValid();
 	}
 
+    /**
+     * Accept an invitation to the user's contact list.
+     * 
+     * @param jabberId
+     *            The user's jabber id.
+     * @throws ParityException
+     */
+    public void acceptInvitation(final JabberId jabberId) {
+        synchronized (getImplLock()) {
+            getImpl().acceptInvitation(jabberId);
+        }
+    }
+
 	/**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
@@ -149,7 +162,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A list of contacts.
      * @throws ParityException
      */
-    public List<Contact> readContactList() throws ParityException {
+    public List<Contact> readContactList() {
         synchronized(getImplLock()) { return getImpl().readContacts(); }
     }
 
@@ -176,7 +189,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { return getImpl().readProfile(); }
     }
 
-    public User readUser(final JabberId jabberId) throws ParityException {
+    public User readUser(final JabberId jabberId) {
 		synchronized(getImplLock()) { return getImpl().readUser(jabberId); }
 	}
 	

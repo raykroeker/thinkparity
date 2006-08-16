@@ -270,8 +270,8 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#declineInvitation(com.thinkparity.model.xmpp.JabberId)
 	 * 
 	 */
-	public void declineInvitation(final JabberId jabberId) throws SmackException {
-		xmppContact.decline(jabberId);
+	public void declineInvitation(final JabberId invitedBy) throws SmackException {
+		xmppContact.decline(invitedBy);
 	}
 
 	/**

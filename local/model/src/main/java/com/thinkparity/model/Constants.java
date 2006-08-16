@@ -124,6 +124,9 @@ public final class Constants {
     }
 
     public static final class Xml {
+        public static final class All {
+            public static final String EXECUTED_ON = "executedOn";
+        }
         public static final class Artifact {
             public static final String BYTES = "bytes";
             public static final String NAME = "name";
@@ -132,7 +135,11 @@ public final class Constants {
             public static final String VERSION_ID = "versionId";
         }
         public static final class Contact {
+            public static final String ACCEPTED_BY = "acceptedBy";
+            public static final String DECLINED_BY = "declinedBy";
             public static final String EMAIL = "email";
+            public static final String INVITED_BY = "invitedBy";
+            public static final String INVITED_ON = "invitedOn";
         }
         public static final class Container {
             public static final String ARTIFACT_COUNT = "artifactCount";

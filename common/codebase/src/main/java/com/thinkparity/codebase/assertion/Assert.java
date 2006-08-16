@@ -13,6 +13,23 @@ public class Assert {
     /** The assertion message to use when the message provided is null. */
     private static final String NULL_MESSAGE = "";
 
+    /**
+     * Asssert that the index provided is within bounds of the given array.
+     * 
+     * @param message
+     *            An assertion message.
+     * @param index
+     *            An index.
+     * @param array
+     *            An array.
+     */
+    public static <T> void assertInBounds(final Object message,
+            final Integer index, final T[] array) {
+        if (index < 0 || index > array.length - 1) {
+            throw new IndexOutOfBoundsAssertion(message.toString());
+        }
+    }
+
 	/**
 	 * Assert that the object reference provided is null. If it is not, throw a
 	 * NotNullPointerAssertion.

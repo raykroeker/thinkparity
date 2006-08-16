@@ -68,17 +68,6 @@ public class SessionModel extends AbstractModel {
 	}
 
 	/**
-	 * Accept an invitation to the user's contact list.
-	 * 
-	 * @param jabberId
-	 *            The user's jabber id.
-	 * @throws ParityException
-	 */
-	public void acceptInvitation(final JabberId jabberId) {
-		synchronized(implLock) { impl.acceptInvitation(jabberId); }
-	}
-
-	/**
 	 * Add a key listener to the session.
 	 * 
 	 * @param keyListener

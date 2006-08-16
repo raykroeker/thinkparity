@@ -39,11 +39,12 @@ public interface XMPPSession {
     /**
      * Accept an invitation from a user.
      * 
-     * @param jabberId
-     *            The user id.
+     * @param invitedBy
+     *            The inviting user.
      * @throws SmackException
      */
-    public void acceptInvitation(final JabberId jabberId) throws SmackException;
+    public void acceptInvitation(final JabberId invitedBy) throws SmackException;
+
     /**
      * Add an xmpp artifact event listener.
      * 
@@ -130,13 +131,13 @@ public interface XMPPSession {
     public void createDraft(final UUID uniqueId);
 
     /**
-     * Decline an invitation from a user.
+     * Decline an invitation.
      * 
-     * @param jabberId
-     *            The user id.
+     * @param invitedBy
+     *            The inviting user.
      * @throws SmackException
      */
-    public void declineInvitation(final JabberId jabberId) throws SmackException;
+    public void declineInvitation(final JabberId invitedBy) throws SmackException;
 
     /**
      * Delete an artifact

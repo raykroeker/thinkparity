@@ -28,6 +28,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
 import com.thinkparity.model.xmpp.JabberId;
@@ -81,6 +82,9 @@ public class XMPPMethod extends IQ {
      * @return An xmpp method response.
      */
     public XMPPMethodResponse execute(final XMPPConnection xmppConnection) {
+        // add an executed on parameter
+        setParameter(Xml.All.EXECUTED_ON, DateUtil.getInstance());
+
         // create a collector for the response
         final PacketCollector idCollector = createPacketCollector(xmppConnection);
         // send the internet query

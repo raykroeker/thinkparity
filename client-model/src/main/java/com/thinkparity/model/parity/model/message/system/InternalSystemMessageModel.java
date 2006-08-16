@@ -29,7 +29,7 @@ public class InternalSystemMessageModel extends SystemMessageModel {
 	}
 
     public void createContactInvitation(final JabberId invitedBy) {
-		synchronized(getImplLock()) {
+		synchronized (getImplLock()) {
 			getImpl().createContactInvitation(invitedBy);
 		}
 	}

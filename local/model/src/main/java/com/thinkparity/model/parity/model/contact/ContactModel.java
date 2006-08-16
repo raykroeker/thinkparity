@@ -7,6 +7,7 @@ package com.thinkparity.model.parity.model.contact;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.model.parity.api.events.ContactListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -35,7 +36,7 @@ public class ContactModel {
 		return new InternalContactModel(workspace, context);
 	}
 
-	/**
+    /**
 	 * Create a Contact interface.
 	 * 
 	 * @return The Contact interface.
@@ -45,10 +46,10 @@ public class ContactModel {
 		return new ContactModel(workspace);
 	}
 
-	/** The model implementation. */
+    /** The model implementation. */
 	private final ContactModelImpl impl;
 
-	/** The model implementation synchronization lock. */
+    /** The model implementation synchronization lock. */
 	private final Object implLock;
 
 	/**
@@ -63,6 +64,30 @@ public class ContactModel {
 		this.implLock = new Object();
 	}
 
+    /**
+     * Accept the incoming invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     */
+    public void acceptIncomingInvitation(final Long invitationId) {
+        synchronized (getImplLock()) {
+            getImpl().acceptIncomingInvitation(invitationId);
+        }
+    }
+
+    /**
+     * Add a contact listener.
+     * 
+     * @param listener
+     *            A contact listener.
+     */
+    public void addListener(final ContactListener listener) {
+        synchronized (getImplLock()) {
+            getImpl().addListener(listener);
+        }
+    }
+
 	/**
      * Create an e-mail contact invitation.
      * 
@@ -70,11 +95,23 @@ public class ContactModel {
      *            An e-mail address.
      * @return The new contact invitation.
      */
-    public ContactInvitation createInvitation(final String email) {
-        synchronized(implLock) { return impl.createInvitation(email); }
+    public OutgoingInvitation createOutgoingInvitation(final String email) {
+        synchronized(implLock) { return impl.createOutgoingInvitation(email); }
     }
 
-    /**
+	/**
+     * Accept the incoming invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     */
+    public void declineIncomingInvitation(final Long invitationId) {
+        synchronized (getImplLock()) {
+            getImpl().declineIncomingInvitation(invitationId);
+        }
+    }
+
+	/**
      * Delete a contact.
      * 
      * @param contactId
@@ -83,6 +120,18 @@ public class ContactModel {
      */
     public void delete(final JabberId contactId) {
         synchronized(implLock) { impl.delete(contactId); }
+    }
+
+    /**
+     * Delete an outgoing invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     */
+    public void deleteOutgoingInvitation(final Long invitationId) {
+        synchronized (getImplLock()) {
+            getImpl().deleteOutgoingInvitation(invitationId);
+        }
     }
 
     /**
@@ -147,6 +196,142 @@ public class ContactModel {
      */
     public Contact read(final JabberId contactId) {
         synchronized(implLock) { return impl.read(contactId); }
+    }
+
+    /**
+     * Read an outgoing invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @return An outgoing invitation.
+     */
+    public IncomingInvitation readIncomingInvitation(final Long invitationId) {
+        synchronized (getImplLock()) {
+            return getImpl().readIncomingInvitation(invitationId);
+        }
+    }
+
+    /**
+     * Read a list of incoming invitations.
+     * 
+     * @return A list of incoming invitations.
+     */
+    public List<IncomingInvitation> readIncomingInvitations() {
+        synchronized (getImplLock()) {
+            return getImpl().readIncomingInvitations();
+        }
+    }
+
+    /**
+     * Read a list of incoming invitations.
+     * 
+     * @return A list of incoming invitations.
+     */
+    public List<IncomingInvitation> readIncomingInvitations(
+            final Comparator<ContactInvitation> comparator) {
+        synchronized (getImplLock()) {
+            return getImpl().readIncomingInvitations(comparator);
+        }
+    }
+
+    /**
+     * Read a list of incoming invitations.
+     * 
+     * @return A list of incoming invitations.
+     */
+    public List<IncomingInvitation> readIncomingInvitations(
+            final Comparator<ContactInvitation> comparator,
+            final Filter<? super ContactInvitation> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readIncomingInvitations(comparator, filter);
+        }
+    }
+
+
+    /**
+     * Read a list of incoming invitations.
+     * 
+     * @return A list of incoming invitations.
+     */
+    public List<IncomingInvitation> readIncomingInvitations(
+            final Filter<? super ContactInvitation> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readIncomingInvitations(filter);
+        }
+    }
+
+    /**
+     * Read an outgoing invitation.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @return An outgoing invitation.
+     */
+    public OutgoingInvitation readOutgoingInvitation(final Long invitationId) {
+        synchronized (getImplLock()) {
+            return getImpl().readOutgoingInvitation(invitationId);
+        }
+    }
+
+    /**
+     * Read a list of outgoing invitations.
+     * 
+     * @return A list of outgoing invitations.
+     */
+    public List<OutgoingInvitation> readOutgoingInvitations() {
+        synchronized (getImplLock()) {
+            return getImpl().readOutgoingInvitations();
+        }
+    }
+
+    /**
+     * Read a list of outgoing invitations.
+     * 
+     * @return A list of outgoing invitations.
+     */
+    public List<OutgoingInvitation> readOutgoingInvitations(
+            final Comparator<ContactInvitation> comparator) {
+        synchronized (getImplLock()) {
+            return getImpl().readOutgoingInvitations(comparator);
+        }
+    }
+
+
+    /**
+     * Read a list of outgoing invitations.
+     * 
+     * @return A list of outgoing invitations.
+     */
+    public List<OutgoingInvitation> readOutgoingInvitations(
+            final Comparator<ContactInvitation> comparator,
+            final Filter<? super ContactInvitation> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readOutgoingInvitations(comparator, filter);
+        }
+    }
+
+    /**
+     * Read a list of outgoing invitations.
+     * 
+     * @return A list of outgoing invitations.
+     */
+    public List<OutgoingInvitation> readOutgoingInvitations(
+            final Filter<? super ContactInvitation> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readOutgoingInvitations(filter);
+        }
+    }
+
+    /**
+     * Remove a contact listener.
+     * 
+     * @param listener
+     *            A contact listener.
+     */
+    public void removeListener(final ContactListener listener) {
+        synchronized (getImplLock()) {
+            getImpl().removeListener(listener);
+        }
     }
 
 	/**

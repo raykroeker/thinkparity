@@ -32,7 +32,7 @@ class UserModelImpl extends AbstractModelImpl {
         this.userIO = IOFactory.getDefault().createUserIOHandler();
     }
 
-    User create(final JabberId jabberId) throws ParityException {
+    User create(final JabberId jabberId) {
         logger.info(getApiId("[CREATE]"));
         logger.debug(jabberId);
         final User remoteUser = getInternalSessionModel().readUser(jabberId);

@@ -10,6 +10,9 @@ import java.util.List;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
+import com.thinkparity.model.parity.model.contact.ContactInvitation;
+import com.thinkparity.model.parity.model.contact.IncomingInvitation;
+import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
@@ -40,7 +43,7 @@ public class ModelSorter {
         Collections.sort(list, comparator);
     }
 
-	public static void sortDocuments(final List<Document> list,
+    public static void sortDocuments(final List<Document> list,
 			final Comparator<Artifact> comparator) {
 		Collections.sort(list, comparator);
 	}
@@ -50,7 +53,7 @@ public class ModelSorter {
 		Collections.sort(list, comparator);
 	}
 
-    /**
+	/**
      * Sort a history.
      * 
      * @param history
@@ -63,10 +66,22 @@ public class ModelSorter {
         Collections.sort(history, comparator);
     }
 
-	public static void sortMessages(final List<SystemMessage> list,
+    public static void sortIncomingContactInvitations(
+            final List<IncomingInvitation> list,
+            final Comparator<? super ContactInvitation> comparator) {
+        Collections.sort(list, comparator);
+    }
+
+    public static void sortMessages(final List<SystemMessage> list,
             final Comparator<SystemMessage> comparator) {
 		Collections.sort(list, comparator);
 	}
+
+    public static void sortOutgoingContactInvitations(
+            final List<OutgoingInvitation> list,
+            final Comparator<? super ContactInvitation> comparator) {
+        Collections.sort(list, comparator);
+    }
 
 	/**
 	 * Create a ModelSorter [Singleton]

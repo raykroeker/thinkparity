@@ -48,7 +48,6 @@ abstract class ContactTestCase extends ModelTestCase {
         assertNotNull(assertion + " [CONTACT INVITATION IS NULL]", (Object) invitation);
         assertNotNull(assertion + " [CONTACT INVITATION CREATOR IS NULL]", invitation.getCreatedBy());
         assertNotNull(assertion + " [CONTACT INVITATION CREATION DATE IS NULL]", invitation.getCreatedOn());
-        assertNotNull(assertion + " [CONTACT INVITATION EMAIL IS NULL]", invitation.getEmail());
         assertNotNull(assertion + " [CONTACT INVITATION ID IS NULL]", invitation.getId());
     }
 

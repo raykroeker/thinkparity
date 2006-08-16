@@ -601,7 +601,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     List<Container> read(final Comparator<Artifact> comparator) {
         logger.info(getApiId("[READ]"));
         logger.debug(comparator);
-        logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
         return read(comparator, defaultFilter);
     }
 

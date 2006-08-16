@@ -135,14 +135,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 			}
 		};
 		this.xmppPresenceListener = new XMPPContactListener() {
-			public void invitationAccepted(final JabberId acceptedBy) {
-				handleInvitationAccepted(acceptedBy);
+			public void handleInvitationAccepted(final JabberId acceptedBy,
+                    final Calendar acceptedOn) {
+				handleContactInvitationAccepted(acceptedBy, acceptedOn);
 			}
-			public void invitationDeclined(final JabberId declinedBy) {
-				handleInvitationDeclined(declinedBy);
+			public void handleInvitationDeclined(final JabberId declinedBy,
+                    final Calendar declinedOn) {
+				handleContactInvitationDeclined(declinedBy, declinedOn);
 			}
-			public void invitationExtended(final JabberId invitedBy) {
-				handleInvitationExtended(invitedBy);
+			public void handleInvitationExtended(final JabberId invitedBy,
+                    final Calendar invitedOn) {
+				handleContactInvitationExtended(invitedBy, invitedOn);
 			}
 		};
 		this.xmppSessionListener = new XMPPSessionListener() {
@@ -443,7 +446,39 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final RuntimeException rx) { unexpectedOccured(rx); }
     }
 
-    /**
+    private void handleContactInvitationAccepted(final JabberId acceptedBy,
+            final Calendar acceptedOn) {
+		try {
+            SessionModelImpl.handleContactInvitationAccepted(acceptedBy, acceptedOn);
+		} catch (final RuntimeException rx) {
+            unexpectedOccured(rx);
+        }
+	}
+
+    private void handleContactInvitationDeclined(final JabberId declinedBy,
+            final Calendar declinedOn) {
+		try {
+            SessionModelImpl.handleContactInvitationDeclined(declinedBy, declinedOn);
+		} catch (final RuntimeException rx) {
+            unexpectedOccured(rx);
+		}
+	}
+
+	/**
+     * Handle the contact invitation extended remote event.
+     * 
+     * @param invitedBy
+     *            By whom the invitation was extended.
+     * @param invitedOn
+     *            When the invitation was extended.
+     */
+	private void handleContactInvitationExtended(final JabberId invitedBy,
+            final Calendar invitedOn) {
+		try { SessionModelImpl.handleInvitationExtended(invitedBy, invitedOn); }
+		catch(final RuntimeException rx) { unexpectedOccured(rx); }
+	}
+
+	/**
      * Handle the artifact published event for the container.
      * 
      * @param containerUniqueId
@@ -476,7 +511,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final ParityException px) { unexpectedOccured(px); }
     }
 
-    /**
+	/**
      * Handle the artifact sent event for the container.
      * 
      * @param containerUniqueId
@@ -510,7 +545,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final ParityException px) { unexpectedOccured(px); }
     }
 
-	/**
+    /**
      * Event handler for the extension listener's document reactivated event.
      * 
      * @param reactivatedBy
@@ -536,21 +571,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final ParityException px) { unexpectedOccured(px); }
         catch(final RuntimeException rx) { unexpectedOccured(rx); }
     }
-
-	private void handleInvitationAccepted(final JabberId acceptedBy) {
-		try { SessionModelImpl.notifyInvitationAccepted(acceptedBy); }
-		catch(final RuntimeException rx) { unexpectedOccured(rx); }
-	}
-
-	private void handleInvitationDeclined(final JabberId declinedBy) {
-		try { SessionModelImpl.notifyInvitationDeclined(declinedBy); }
-		catch(final RuntimeException rx) { unexpectedOccured(rx); }
-	}
-
-	private void handleInvitationExtended(final JabberId invitedBy) {
-		try { SessionModelImpl.notifyInvitationExtended(invitedBy); }
-		catch(final RuntimeException rx) { unexpectedOccured(rx); }
-	}
 
 	/**
 	 * Event handler for the extension listener's key request accepted event.

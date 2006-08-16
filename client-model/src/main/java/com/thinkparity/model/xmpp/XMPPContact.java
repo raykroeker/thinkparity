@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,11 +16,18 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 
+import org.xmlpull.v1.XmlPullParser;
+
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.smack.SmackException;
-import com.thinkparity.model.smackx.packet.contact.*;
+import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
+import com.thinkparity.model.smackx.packet.AbstractThinkParityIQProvider;
+import com.thinkparity.model.smackx.packet.contact.IQReadContacts;
+import com.thinkparity.model.smackx.packet.contact.IQReadContactsProvider;
+import com.thinkparity.model.smackx.packet.contact.IQReadContactsResult;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPContactListener;
 
@@ -37,9 +45,55 @@ class XMPPContact {
 		listeners = new LinkedList<XMPPContactListener>();
 		listenersLock = new Object();
 
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:invitecontact", new IQInviteContactProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:acceptcontactinvitation", new IQAcceptContactInvitationProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:declinecontactinvitation", new IQDeclineContactInvitationProvider());
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:invitationextended", new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser(parser);
+                final HandleInvitationExtendedIQ query = new HandleInvitationExtendedIQ();
+
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                    next(1);
+                    if (isStartTag(Xml.Contact.INVITED_BY)) {
+                        next(1);
+                        query.invitedBy = readJabberId();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.INVITED_BY)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Contact.INVITED_ON)) {
+                        next(1);
+                        query.invitedOn = readCalendar();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.INVITED_ON)) {
+                        next(1);
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
+		ProviderManager.addIQProvider("query", "jabber:iq:parity:invitationaccepted", new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser(parser);
+                final HandleInvitationAcceptedIQ query = new HandleInvitationAcceptedIQ();
+
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                }
+                return query;
+            }
+        });
+        ProviderManager.addIQProvider("query", "jabber:iq:parity:invitationdeclined", new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser(parser);
+                final HandleInvitationDeclinedIQ query = new HandleInvitationDeclinedIQ();
+
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                }
+                return query;
+            }
+        });
 		ProviderManager.addIQProvider("query", "jabber:iq:parity:readcontacts", new IQReadContactsProvider());
 	}
 
@@ -66,51 +120,20 @@ class XMPPContact {
 	}
 
 	/**
-	 * Accept the contact invitation.
-	 * 
-	 * @param contact
-	 *            The contact.
-	 * @throws SmackException
-	 */
-	void accept(final JabberId contact) throws SmackException {
+     * Accept the contact invitation.
+     * 
+     * @param invitedBy
+     *            By whome the invitation was extended.
+     * @throws SmackException
+     */
+	void accept(final JabberId invitedBy) throws SmackException {
 		logger.info("[XMPP] [CONTACT] [ACCEPT INVITATION]");
-		logger.debug(contact);
-		final IQ iq = new IQAcceptContactInvitation(contact);
-		iq.setType(IQ.Type.SET);
-		xmppCore.sendAndConfirmPacket(iq);
-	}
+        logger.debug(invitedBy);
+		final XMPPMethod accept = new XMPPMethod("contact:acceptinvitation");
+        accept.setParameter(Xml.Contact.INVITED_BY, invitedBy);
+        accept.setParameter(Xml.Contact.ACCEPTED_BY, xmppCore.getJabberId());
 
-	/**
-	 * Add required listeners to the xmpp connection.
-	 * 
-	 * @param xmppConnection
-	 *            The xmpp connection.
-	 */
-	void addPacketListeners(final XMPPConnection xmppConnection) {
-		// invite contact
-		xmppConnection.addPacketListener(
-				new PacketListener() {
-					public void processPacket(final Packet packet) {
-						notifyInvitation((IQInviteContact) packet);
-					}
-				},
-				new PacketTypeFilter(IQInviteContact.class));
-		// accept invitation
-		xmppConnection.addPacketListener(
-				new PacketListener() {
-					public void processPacket(final Packet packet) {
-						notifyInvitationAccepted((IQAcceptContactInvitation) packet);
-					}
-				},
-				new PacketTypeFilter(IQAcceptContactInvitation.class));
-		// decline invitation
-		xmppConnection.addPacketListener(
-				new PacketListener() {
-					public void processPacket(final Packet packet) {
-						notifyInvitationDeclined((IQDeclineContactInvitation) packet);
-					}
-				},
-				new PacketTypeFilter(IQDeclineContactInvitation.class));
+		accept.execute(xmppCore.getConnection());
 	}
 
 	/**
@@ -130,18 +153,50 @@ class XMPPContact {
 	}
 
 	/**
-	 * Decline a contact invitation.
+	 * Add required listeners to the xmpp connection.
 	 * 
-	 * @param contact
-	 *            The contact.
-	 * @throws SmackException
+	 * @param xmppConnection
+	 *            The xmpp connection.
 	 */
-	void decline(final JabberId contact) throws SmackException {
-		logger.info("[XMPP] [CONTACT] [DECLINE INVITATION]");
-		logger.debug(contact);
-		final IQ iq = new IQDeclineContactInvitation(contact);
-		iq.setType(IQ.Type.SET);
-		xmppCore.sendAndConfirmPacket(iq);
+	void addPacketListeners(final XMPPConnection xmppConnection) {
+		// invite contact
+		xmppConnection.addPacketListener(
+				new PacketListener() {
+					public void processPacket(final Packet packet) {
+						notifyInvitationExtended((HandleInvitationExtendedIQ) packet);
+					}
+				},
+				new PacketTypeFilter(HandleInvitationExtendedIQ.class));
+		// accept invitation
+		xmppConnection.addPacketListener(
+				new PacketListener() {
+					public void processPacket(final Packet packet) {
+						notifyInvitationAccepted((HandleInvitationAcceptedIQ) packet);
+					}
+				},
+				new PacketTypeFilter(HandleInvitationAcceptedIQ.class));
+		// decline invitation
+		xmppConnection.addPacketListener(
+				new PacketListener() {
+					public void processPacket(final Packet packet) {
+						notifyInvitationDeclined((HandleInvitationDeclinedIQ) packet);
+					}
+				},
+				new PacketTypeFilter(HandleInvitationDeclinedIQ.class));
+	}
+
+	/**
+     * Decline a contact invitation.
+     * 
+     * @param invitedBy
+     *            The user who extended the invitation.
+     * @throws SmackException
+     */
+	void decline(final JabberId invitedBy) throws SmackException {
+		final XMPPMethod decline = new XMPPMethod("contact:declineinvitation");
+        decline.setParameter(Xml.Contact.INVITED_BY, invitedBy);
+        decline.setParameter(Xml.Contact.DECLINED_BY, xmppCore.getJabberId());
+        decline.execute(xmppCore.getConnection());
 	}
 
 	/**
@@ -174,30 +229,15 @@ class XMPPContact {
 	}
 
 	/**
-	 * Notify the listeners that an invitation has been received.
-	 * 
-	 * @param invitation
-	 *            The invitation.
-	 */
-	private void notifyInvitation(final IQInviteContact invitation) {
-		synchronized(listenersLock) {
-			for(final XMPPContactListener l : listeners) {
-				l.invitationExtended(invitation.getContact());
-			}
-		}
-	}
-
-	/**
 	 * Notify the listeners that an invitation has been accepted.
 	 * 
 	 * @param acceptance
 	 *            The invitation acceptance.
 	 */
-	private void notifyInvitationAccepted(
-			final IQAcceptContactInvitation acceptance) {
-		synchronized(listenersLock) {
+	private void notifyInvitationAccepted(final HandleInvitationAcceptedIQ query) {
+		synchronized (listenersLock) {
 			for(final XMPPContactListener l : listeners) {
-				l.invitationAccepted(acceptance.getContact());
+				l.handleInvitationAccepted(query.acceptedBy, query.acceptedOn);
 			}
 		}
 	}
@@ -208,12 +248,67 @@ class XMPPContact {
 	 * @param declination.
 	 *            The invitation declination.
 	 */
-	private void notifyInvitationDeclined(
-			final IQDeclineContactInvitation declination) {
-		synchronized(listenersLock) {
+	private void notifyInvitationDeclined(final HandleInvitationDeclinedIQ query) {
+		synchronized (listenersLock) {
 			for(final XMPPContactListener l : listeners) {
-				l.invitationDeclined(declination.getContact());
+				l.handleInvitationDeclined(query.declinedBy, query.declinedOn);
 			}
 		}
 	}
+
+	/**
+	 * Notify the listeners that an invitation has been received.
+	 * 
+	 * @param invitation
+	 *            The invitation.
+	 */
+	private void notifyInvitationExtended(final HandleInvitationExtendedIQ query) {
+		synchronized (listenersLock) {
+			for(final XMPPContactListener l : listeners) {
+				l.handleInvitationExtended(query.invitedBy, query.invitedOn);
+			}
+		}
+	}
+
+    /**
+     * <b>Title:</b>thinkParity XMPP Handle Invitation Accepted Query<br>
+     * <b>Description:</b>Provides a wrapper fr the invitation accepted remote
+     * event.<br>
+     */
+    private static class HandleInvitationAcceptedIQ extends AbstractThinkParityIQ {
+
+        /** The acceptor. */
+        private JabberId acceptedBy;
+
+        /** The acceptance date. */
+        private Calendar acceptedOn;
+    }
+
+    /**
+     * <b>Title:</b>thinkParity XMPP Handle Invitation Declined Query<br>
+     * <b>Description:</b>Provides a wrapper fr the invitation declined remote
+     * event.<br>
+     */
+    private static class HandleInvitationDeclinedIQ extends AbstractThinkParityIQ {
+
+        /** The declined user. */
+        private JabberId declinedBy;
+
+        /** The declined date. */
+        private Calendar declinedOn;
+    }
+
+    /**
+     * <b>Title:</b>thinkParity XMPP Handle Invitation Extended Query<br>
+     * <b>Description:</b>Provides a wrapper fr the invitation extended remote
+     * event.<br>
+     */
+    private static class HandleInvitationExtendedIQ extends AbstractThinkParityIQ {
+
+        /** The inviter. */
+        private JabberId invitedBy;
+
+        /** The invitation date. */
+        private Calendar invitedOn;
+    }
 }

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.model.parity.model.user;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -25,6 +24,18 @@ public class InternalUserModel extends UserModel implements InternalModel {
     }
 
     /**
+     * Create a user.  This api will download the user's info as set
+     * on the server and save it to the database.
+     *
+     * @param jabberId
+     *      The user's jabber id.
+     * @return The user.
+     */
+    public User create(final JabberId jabberId) {
+        synchronized(getImplLock()) { return getImpl().create(jabberId); }
+    }
+
+    /**
      * Read a user.
      *
      * @param userId
@@ -33,17 +44,5 @@ public class InternalUserModel extends UserModel implements InternalModel {
      */
     public User read(final Long userId) {
         synchronized(getImplLock()) { return getImpl().read(userId); }
-    }
-
-    /**
-     * Create a user.  This api will download the user's info as set
-     * on the server and save it to the database.
-     *
-     * @param jabberId
-     *      The user's jabber id.
-     * @return The user.
-     */
-    public User create(final JabberId jabberId) throws ParityException {
-        synchronized(getImplLock()) { return getImpl().create(jabberId); }
     }
 }

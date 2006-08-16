@@ -254,8 +254,8 @@ public abstract class DateUtil {
 		return calendar.getActualMaximum(java.util.Calendar.DAY_OF_WEEK)
 			== calendar.get(java.util.Calendar.DAY_OF_WEEK);
 	}
-	
-	/**
+
+    /**
      * Determine whether or not the dates occur on the same day.
      * 
      * @param c1
@@ -269,7 +269,49 @@ public abstract class DateUtil {
             && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH)
             && c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH);
     }
-	
+
+    /**
+     * Determine whether or not the dates occur within the same month.
+     * 
+     * @param c1
+     *            A calendar.
+     * @param c2
+     *            A calendar.
+     * @return True if the difference between the dates is less than 7 days.
+     */
+    public static Boolean isSameMonth(final Calendar c1, final Calendar c2) {
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+            && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
+    }
+
+    /**
+     * Determine whether or not the dates occur within the same month.
+     * 
+     * @param c1
+     *            A calendar.
+     * @param c2
+     *            A calendar.
+     * @return True if the difference between the dates is less than 7 days.
+     */
+    public static Boolean isSameYear(final Calendar c1, final Calendar c2) {
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR);
+    }
+
+    /**
+     * Determine whether or not the dates occur within a week.
+     * 
+     * @param c1
+     *            A calendar.
+     * @param c2
+     *            A calendar.
+     * @return True if the difference between the dates is less than 7 days.
+     */
+    public static Boolean isWithinWeek(final Calendar c1, final Calendar c2) {
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+            && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH)
+            && Math.abs(c1.get(Calendar.DAY_OF_MONTH) - c2.get(Calendar.DAY_OF_MONTH)) < 7;
+    }
+
 	/**
 	 * Parse the string for a <code>java.util.Calendar</code> which matches 
 	 * dateImage.  Uses the default <code>java.util.TimeZone</code> and 

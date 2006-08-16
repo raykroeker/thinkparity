@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.io.db.hsqldb;
 
 import java.io.InputStream;
 import java.sql.*;
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -674,13 +675,16 @@ public class Session {
 	}
 
 	private void debugSql(final String sql, final Integer sqlIndex) {
-		final StringBuffer message = new StringBuffer("[LMODEL] [IO] [HSQLDB] [SQL] ");
-		if(null != sqlIndex) {
-			message.append("[")
-				.append(sqlIndex)
-				.append("] ");
-		}
-		logger.debug(message.append(sql));
+        if(logger.isDebugEnabled()) {
+            final String pattern;
+            if(null == sqlIndex) {
+                pattern = "SQL Statement:{1}";
+            } else {
+                pattern = "SQL Variable:{0}:{1}";
+            }
+            logger.debug(MessageFormat.format(pattern, sqlIndex, sql));
+            
+        }
 	}
 
     private ResultSet list(final String sql) {

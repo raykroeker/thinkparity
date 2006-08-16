@@ -79,9 +79,9 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
             contactModel.download();
             pModel.read();
         }
-        catch(final ParityException px) {
+        catch(final Throwable t) {
             final StringWriter sw = new StringWriter();
-            px.printStackTrace(new PrintWriter(sw));
+            t.printStackTrace(new PrintWriter(sw));
             fail(sw.toString());
         }
         sessionModel.logout();

@@ -66,6 +66,8 @@ class HypersonicMigrator {
                 CONFIG.getProperty("CreateContact"),
                 CONFIG.getProperty("CreateContactEmailRel"),
                 CONFIG.getProperty("CreateContactInvitation"),
+                CONFIG.getProperty("CreateContactInvitationIncoming"),
+                CONFIG.getProperty("CreateContactInvitationOutgoing"),
                 CONFIG.getProperty("CreateArtifactState"),
                 CONFIG.getProperty("CreateArtifactType"),
                 CONFIG.getProperty("CreateArtifact"),

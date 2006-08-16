@@ -62,23 +62,28 @@ public class ActionFactory extends AbstractFactory {
 	 * @return The action.
 	 */
 	private AbstractAction doCreateAction(final ActionId actionId) {
+        logApiId();
+        debugVariable("actionId", actionId);
         final AbstractAction action;
 		switch(actionId) {
         case ARTIFACT_APPLY_FLAG_SEEN:
             action = new com.thinkparity.browser.platform.action.artifact.ApplyFlagSeen(browser);
             break;
 
-        case CONTACT_ACCEPT_INVITATION:
-            action = new com.thinkparity.browser.platform.action.contact.AcceptInvitation(browser);
+        case CONTACT_ACCEPT_INCOMING_INVITATION:
+            action = new com.thinkparity.browser.platform.action.contact.AcceptIncomingInvitation(browser);
             break;
-		case CONTACT_CREATE_INVITATION:
-            action = new com.thinkparity.browser.platform.action.contact.CreateInvitation(browser);
+		case CONTACT_CREATE_INCOMING_INVITATION:
+            action = new com.thinkparity.browser.platform.action.contact.CreateIncomingInvitation(browser);
             break;
-		case CONTACT_DECLINE_INVITATION:
-            action = new com.thinkparity.browser.platform.action.contact.DeclineInvitation(browser);
+		case CONTACT_DECLINE_INCOMING_INVITATION:
+            action = new com.thinkparity.browser.platform.action.contact.DeclineIncomingInvitation(browser);
             break;
 		case CONTACT_DELETE:
 		    action = new com.thinkparity.browser.platform.action.contact.Delete(browser);
+            break;
+        case CONTACT_DELETE_OUTGOING_INVITATION:
+            action = new com.thinkparity.browser.platform.action.contact.DeleteOutgoingInvitation(browser);
             break;
 		case CONTACT_READ:
             action = new com.thinkparity.browser.platform.action.contact.Read(browser);

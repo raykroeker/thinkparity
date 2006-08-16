@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.thinkparity.codebase.NetworkUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
 
@@ -29,19 +30,40 @@ public class BrowserPlatformInitializer {
         final Properties log4j = ConfigFactory.newInstance("log4j.properties");
         switch(Version.getMode()) {
         case DEVELOPMENT:
-            log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE,NETWORK");
+            if(isNetworkTargetReachable(log4j)) {
+                log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE,NETWORK");
+            } else {
+                log4j.setProperty("log4j.logger.com.thinkparity", "DEBUG,CONSOLE,FILE");
+            }
             break;
         case PRODUCTION:
             log4j.setProperty("log4j.logger.com.thinkparity", "WARN,FILE");
             break;
         case TESTING:
-            log4j.setProperty("log4j.logger.com.thinkparity", "INFO,FILE,NETWORK");
+            if(isNetworkTargetReachable(log4j)) {
+                log4j.setProperty("log4j.logger.com.thinkparity", "INFO,FILE,NETWORK");
+            } else {
+                log4j.setProperty("log4j.logger.com.thinkparity", "INFO,FILE");
+            }
             break;
         default:
             Assert.assertUnreachable("");
         }
         PropertyConfigurator.configure(log4j);
         Logger.getLogger(BrowserPlatformInitializer.class).info("PLATFORM INIT");
+    }
+
+    /**
+     * Determine if the network target for logging is reachable.
+     * 
+     * @param log4j
+     *            The log4j configuration.
+     * @return True if the network host is reachable on the given port.
+     */
+    private static Boolean isNetworkTargetReachable(final Properties log4j) {
+        return NetworkUtil.isTargetReachable(
+                log4j.getProperty("log4j.appender.NETWORK.RemoteHost"),
+                Integer.parseInt(log4j.getProperty("log4j.appender.NETWORK.Port")));
     }
 
     private static void initParityServerHost() {

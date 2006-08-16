@@ -15,6 +15,7 @@ import javax.swing.border.Border;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
@@ -137,7 +138,9 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
-    public Float getTextInsetFactor() { return 6.0F; }
+    public Float getTextInsetFactor() {
+        return InsetFactors.LEVEL_2;
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getToolTip()

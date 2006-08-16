@@ -13,7 +13,7 @@ import com.thinkparity.browser.platform.action.Data;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class CreateInvitation extends AbstractAction {
+public class CreateIncomingInvitation extends AbstractAction {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
@@ -21,9 +21,9 @@ public class CreateInvitation extends AbstractAction {
     /** The browser application. */
     private final Browser browser;
     
-    /** Create CreateInvitation. */
-    public CreateInvitation(final Browser browser) {
-        super(ActionId.CONTACT_CREATE_INVITATION);
+    /** Create CreateIncomingInvitation. */
+    public CreateIncomingInvitation(final Browser browser) {
+        super(ActionId.CONTACT_CREATE_INCOMING_INVITATION);
         this.browser = browser;
     }
     
@@ -37,7 +37,7 @@ public class CreateInvitation extends AbstractAction {
             browser.displayContactCreateInvitation();
         }
         else {
-            getContactModel().createInvitation(contactEmail);
+            getContactModel().createOutgoingInvitation(contactEmail);
         }
     }
 

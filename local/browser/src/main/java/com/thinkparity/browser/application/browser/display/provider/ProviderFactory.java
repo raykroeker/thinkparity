@@ -22,6 +22,7 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
+import com.thinkparity.model.parity.model.user.UserModel;
 
 /**
  * @author raykroeker@gmail.com
@@ -51,6 +52,9 @@ public class ProviderFactory {
 
     /** A thinkParity contact interface. */
     protected final ContactModel contactModel;
+
+    /** A thinkParity user interface. */
+    protected final UserModel userModel;
 
     /** A thinkParity container interface. */
     protected final ContainerModel containerModel;
@@ -84,6 +88,7 @@ public class ProviderFactory {
         this.profileModel = modelFactory.getProfileModel(getClass());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
 		this.systemMessageModel = modelFactory.getSystemMessageModel(getClass());
+        this.userModel = modelFactory.getUserModel(getClass());
 
 		this.logger = Logger.getLogger(getClass());
         this.profile = profileModel.read();
@@ -106,7 +111,7 @@ public class ProviderFactory {
             provider = new ReadContactProvider(profile, contactModel);
             break;
         case TAB_CONTACT:
-            provider = new ContactProvider(profile, contactModel);
+            provider = new ContactProvider(profile, contactModel, userModel);
             break;
         case TAB_CONTAINER:
             provider = new ContainerProvider(profile, containerModel, documentModel);

@@ -18,13 +18,16 @@ class EventDispatcher {
 	/** The browser application. */
 	protected final Browser browser;
     
-    /** A thinkParity container interface listener. */
+    /** A thinkParity contact interface listener. */
+    private ContactListener contactListener;
+
+	/** A thinkParity container interface listener. */
     private ContainerListener containerListener;
 
 	/** A thinkParity session interface listener.*/
 	private SessionListener sessionSessionListener;
 
-	/** A thinkParity system message interface listener. */
+    /** A thinkParity system message interface listener. */
 	private SystemMessageListener systemMessageListener;
 
 	/**
@@ -43,6 +46,9 @@ class EventDispatcher {
 	 *
 	 */
 	void end() {
+        browser.removeListener(contactListener);
+        contactListener = null;
+
         browser.getContainerModel().removeListener(containerListener);
         containerListener = null;
         
@@ -58,6 +64,9 @@ class EventDispatcher {
 	 *
 	 */
 	void start() {
+        contactListener = createContactListener();
+        browser.addListener(contactListener);
+
         containerListener = createContainerListener();
         browser.getContainerModel().addListener(containerListener);
         
@@ -68,6 +77,23 @@ class EventDispatcher {
 		browser.getSystemMessageModel().addListener(systemMessageListener);
 	}
     
+    private ContactListener createContactListener() {
+        return new ContactAdapter() {
+            @Override
+            public void incomingInvitationCreated(ContactEvent e) {
+                browser.fireIncomingContactInvitationCreated(e.getIncomingInvitation().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingInvitationCreated(final ContactEvent e) {
+                browser.fireOutgoingContactInvitationCreated(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+            @Override
+            public void outgoingInvitationDeleted(ContactEvent e) {
+                browser.fireOutgoingContactInvitationDeleted(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+        };
+    }
+
     /**
      * Create a container listener.
      * Some notes as of July 28, 2006...
@@ -117,7 +143,7 @@ class EventDispatcher {
         };     
     }
 
-    /**
+	/**
      * Create a session listener.
      * 
      * @return A session listener.
@@ -135,7 +161,8 @@ class EventDispatcher {
         };
     }
 
-	private SystemMessageListener createSystemMessageListener() {
+
+    private SystemMessageListener createSystemMessageListener() {
 		return new SystemMessageListener() {
 			public void systemMessageCreated(
 					final SystemMessageEvent systemMessageEvent) {

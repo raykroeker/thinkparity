@@ -136,7 +136,7 @@ public class MainTitleAvatarMenuPanel extends MainTitleAvatarAbstractPanel {
         if (null == newJPopupMenu) {
             newJPopupMenu = MenuFactory.createPopup();
             newJPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
-            newJPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INVITATION, new Data(0)));
+            newJPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
         }
         final Rectangle jLabelBounds = ((JLabel) evt.getSource()).getBounds();
         newJPopupMenu.show(this, jLabelBounds.x, jLabelBounds.y + jLabelBounds.height);

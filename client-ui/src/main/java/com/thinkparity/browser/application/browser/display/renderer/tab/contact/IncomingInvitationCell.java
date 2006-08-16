@@ -1,7 +1,7 @@
-/**
- * Created On: 17-Jul-06 1:57:42 PM
+/*
+ * Created On: Aug 14, 2006 11:57:59 AM
  */
-package com.thinkparity.browser.application.browser.display.renderer.tab.container;
+package com.thinkparity.browser.application.browser.display.renderer.tab.contact;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -13,64 +13,48 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.FuzzyDateFormat;
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.browser.Constants.DateFormats;
 import com.thinkparity.browser.Constants.InsetFactors;
-import com.thinkparity.browser.application.browser.BrowserConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
-import com.thinkparity.browser.platform.action.document.Open;
-import com.thinkparity.browser.platform.action.document.Rename;
+import com.thinkparity.browser.platform.action.contact.AcceptIncomingInvitation;
+import com.thinkparity.browser.platform.action.contact.DeclineIncomingInvitation;
+import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
-import com.thinkparity.model.parity.model.document.Document;
+import com.thinkparity.model.parity.model.contact.IncomingInvitation;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
- * @author rob_masako@shaw.ca, raykroeker@gmail.com
+ * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class DraftDocumentCell extends Document implements TabCell  {
-    
-    /** The cell's text foreground color. */
-    private static final Color TEXT_FG;
+public class IncomingInvitationCell extends IncomingInvitation implements TabCell {
 
-    /** Maximum length of a document cell's text. */
-    private static final Integer TEXT_MAX_LENGTH;
+    /** A thinkParity fuzzy date format. */
+    private final FuzzyDateFormat fuzzyDateFormat;
 
-    static {
-        TEXT_FG = Color.BLACK;
-        TEXT_MAX_LENGTH = 60;
-    }
+    /** The invited by user. */
+    private User invitedBy;
 
-    /** The document's draft. */
-    private final DraftCell draft;
-
-    /** An image cache. */
-    private final MainCellImageCache imageCache;
+    /** The invitation cell localization. */
+    private final MainCellL18n localization;
 
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
-    
-    /**
-     * Create MainCellDraftDocument.
-     * 
-     * @param draftDisplay
-     *            A draft display cell.
-     * @param document
-     *            A document.
-     */
-    public DraftDocumentCell(final DraftCell draft, final Document document) {
-        super(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
-                document.getFlags(), document.getUniqueId(), document.getName(), document.getUpdatedBy(),
-                document.getUpdatedOn());
-        setId(document.getId());
-        setRemoteInfo(document.getRemoteInfo());
-        setState(document.getState());
-        this.draft = draft;
-        this.imageCache = new MainCellImageCache();
+
+    /** Create IncomingInvitationCell. */
+    public IncomingInvitationCell() {
+        super();
+        this.fuzzyDateFormat = DateFormats.FUZZY;
+        this.localization = new MainCellL18n("IncomingInvitation");
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
 
@@ -78,14 +62,14 @@ public class DraftDocumentCell extends Document implements TabCell  {
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBackground()
      */
     public BufferedImage getBackground() {
-        return imageCache.read(DocumentImage.BG_DEFAULT);
+        return null;
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBackgroundSelected()
      */
     public BufferedImage getBackgroundSelected() {
-        return imageCache.read(DocumentImage.BG_SEL_DEFAULT);
+        return null;
     }
 
     /**
@@ -100,6 +84,15 @@ public class DraftDocumentCell extends Document implements TabCell  {
      */
     public ImageIcon getInfoIcon() {
         return null;
+    }
+
+    /**
+     * Obtain the invitedBy
+     *
+     * @return The User.
+     */
+    public User getInvitedBy() {
+        return invitedBy;
     }
 
     /**
@@ -120,71 +113,77 @@ public class DraftDocumentCell extends Document implements TabCell  {
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getParent()
      */
     public TabCell getParent() {
-        return draft;
+        return null;
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getText()
      */
     public String getText() {
-        if(TEXT_MAX_LENGTH < getName().length()) {
-            return getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
-        }
-        else {
-            return getName();
-        }
+        return localization.getString("Text", new Object[] {
+                invitedBy.getName(), fuzzyDateFormat.format(createdOn) });
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextFont()
      */
     public Font getTextFont() {
-        return BrowserConstants.Fonts.DefaultFont;
+        return Fonts.DefaultFont;
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextForeground()
      */
     public Color getTextForeground() {
-        return TEXT_FG;
+        return null;
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      */
     public Float getTextInsetFactor() {
-        return InsetFactors.LEVEL_2;
+        return InsetFactors.LEVEL_0;
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getToolTip()
      */
     public String getToolTip() {
-        if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
-        else { return null; }
+        return getText();
+    }
+
+    /**
+     * Set invitedBy.
+     *
+     * @param invitedBy The User.
+     */
+    public void setInvitedBy(final User invitedBy) {
+        this.invitedBy = invitedBy;
     }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
-    public void triggerPopup(Connection connection, Component invoker, MouseEvent e, int x, int y) {
+    public void triggerPopup(final Connection connection,
+            final Component invoker, final MouseEvent e, final int x,
+            final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+        switch(connection) {
+        case ONLINE:
+            final Data acceptData = new Data(1);
+            acceptData.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, acceptData));
 
-        final Data openData = new Data(1);
-        openData.set(Open.DataKey.DOCUMENT_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN, openData));
+            final Data declineData = new Data(1);
+            declineData.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, declineData));
 
-        final Data renameData = new Data(1);
-        renameData.set(Rename.DataKey.DOCUMENT_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_RENAME, renameData));
-
-        jPopupMenu.addSeparator();
-
-        final Data revertData = new Data(1);
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_REVERT, revertData));
-
-        final Data removeData = new Data(1);
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData));
-
+            jPopupMenu.show(invoker, x, y);
+            break;
+        case OFFLINE:
+            break;
+        default:
+            Assert.assertUnreachable("UNKNOWN CONECTION");
+        }
     }
 }

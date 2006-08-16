@@ -23,7 +23,6 @@ import com.thinkparity.browser.Constants.Keys;
 import com.thinkparity.browser.application.AbstractApplication;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.browser.application.browser.display.avatar.MainStatusAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.ErrorAvatar;
@@ -42,9 +41,9 @@ import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.ActionRegistry;
 import com.thinkparity.browser.platform.action.Data;
-import com.thinkparity.browser.platform.action.contact.AcceptInvitation;
-import com.thinkparity.browser.platform.action.contact.CreateInvitation;
-import com.thinkparity.browser.platform.action.contact.DeclineInvitation;
+import com.thinkparity.browser.platform.action.contact.AcceptIncomingInvitation;
+import com.thinkparity.browser.platform.action.contact.CreateIncomingInvitation;
+import com.thinkparity.browser.platform.action.contact.DeclineIncomingInvitation;
 import com.thinkparity.browser.platform.action.contact.Delete;
 import com.thinkparity.browser.platform.action.contact.Read;
 import com.thinkparity.browser.platform.action.container.AddDocument;
@@ -94,12 +93,6 @@ public class Browser extends AbstractApplication {
 	 */
 	private final Map<AvatarId, Object> avatarInputMap;
 
-	/**
-	 * The avatar registry.
-	 * 
-	 */
-	private final AvatarRegistry avatarRegistry;
-
 	/** The browser's connection. */
     private Connection connection;
 
@@ -133,7 +126,6 @@ public class Browser extends AbstractApplication {
 		super(platform, L18nContext.BROWSER2);
 		this.actionRegistry = new ActionRegistry();
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
-		this.avatarRegistry = new AvatarRegistry();
 		this.logger = Logger.getLogger(getClass());
         this.persistence = PersistenceFactory.getPersistence(getClass());
 		this.session= new BrowserSession(this);
@@ -160,15 +152,6 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
-     * Obtain the tab input from the main title avatar.
-     * 
-     * @return A tab.
-     */
-    private MainTitleAvatar.Tab getMainTitleAvatarTab() {
-        return (MainTitleAvatar.Tab) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB);
-    }
-
-    /**
      * Clear the non-search filters for the containers list.
      *
      * @see #removeSearchFilter()
@@ -193,7 +176,7 @@ public class Browser extends AbstractApplication {
         input.set(ConfirmDialog.DataKey.MESSAGE_KEY, messageKey);
         return confirm(input);
     }
-    
+
     /**
      * Open a confirmation dialog.
      * 
@@ -214,7 +197,7 @@ public class Browser extends AbstractApplication {
      *
      */
 	public void debugMain() { getTabContainerAvatar().debug(); }
-
+    
     /**
      * Display the invite dialogue.
      *
@@ -236,7 +219,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -255,7 +238,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_CREATE);
     }
-
+    
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -265,7 +248,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-    
+
     /**
      * Display an error dialog.
      *
@@ -278,7 +261,7 @@ public class Browser extends AbstractApplication {
             final Object[] errorMessageArguments) {
         displayErrorDialog(errorMessageKey, errorMessageArguments, null);
     }
-
+    
     /**
      * Display an error dialog
      * 
@@ -312,7 +295,7 @@ public class Browser extends AbstractApplication {
             final Throwable error) {
         displayErrorDialog(errorMessageKey, null, error);
     }
-    
+
     /**
      * Display the contact info dialogue.
      *
@@ -342,8 +325,8 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_RENAME, input);
         displayAvatar(WindowId.RENAME, AvatarId.DIALOG_RENAME);
     }
-
-	/** Display the contact avatar tab. */
+    
+    /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTACT);
     }
@@ -353,7 +336,7 @@ public class Browser extends AbstractApplication {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTAINER);
     }
 
-    /**
+	/**
      * Display the manage team dialog.
      * 
      * @param containerId
@@ -365,7 +348,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_UPDATE_TEAM, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_UPDATE_TEAM);        
     }
-   
+
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
@@ -382,7 +365,7 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
-    
+   
     /**
      * Notify the application that a contact has been added.
      * 
@@ -415,22 +398,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
-    /**
-     * Notify the application that a contact has been invited.
-     * 
-     * @param contactId
-     *            The contact id.
-     */
-    public void fireContactInvitationCreated(final Long invitationId, final Boolean remote) {
-        setStatus("ContactInvitationCreated");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().syncInvitation(invitationId, remote);
-            }
-        });
-    }
-    
+
     /**
      * Notify the application a container has been closed.
      * 
@@ -476,7 +444,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
+
     /**
      * Notify the application that a container has been deleted.
      * 
@@ -533,7 +501,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-
+    
     /**
      * Notify the application that the draft has been added.
      * 
@@ -610,7 +578,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE); }
         });
     }
-
+    
     /**
      * Notify the application that a container has in some way been updated.
      *
@@ -662,7 +630,64 @@ public class Browser extends AbstractApplication {
         });
     }
 
-	/**
+    /**
+     * Notify the application than an incoming contact invitation has been
+     * created.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireIncomingContactInvitationCreated(final Long invitationId,
+            final Boolean remote) {
+        setStatus("IncomingContactInvitationDeleted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application than an outgoing contact invitation has been
+     * created.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireOutgoingContactInvitationCreated(final Long invitationId,
+            final Boolean remote) {
+        setStatus("OutgoingContactInvitationDeleted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that an outgoing contact invitation has been
+     * deleted.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            True if the notification is the result of a remote event.
+     */
+    public void fireOutgoingContactInvitationDeleted(final Long invitationId,
+            final Boolean remote) {
+        setStatus("OutgoingContactInvitationDeleted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
      * @see com.thinkparity.browser.platform.application.Application#getConnection()
      */
     public Connection getConnection() { return connection; }
@@ -712,12 +737,12 @@ public class Browser extends AbstractApplication {
 	 */
 	public Object getSelectedSystemMessage() { return null; }
 
-    /**
+	/**
 	 * Close the main window.
 	 *
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
-    
+
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate()
 	 * 
@@ -730,13 +755,13 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
 	}
-
+    
     /** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
 
-	/**
+    /**
      * Determine whether or not the main avatar's filter is enabled.
      * 
      * @return True if it is; false otherwise.
@@ -790,7 +815,7 @@ public class Browser extends AbstractApplication {
         }
     }
 
-    /**
+	/**
      * Resize the browser window.
      * 
      * @param s
@@ -801,7 +826,7 @@ public class Browser extends AbstractApplication {
         newS.width += s.width;
         newS.height += s.height;
         mainWindow.setSize(newS);
-    }    
+    }
 
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
@@ -818,25 +843,25 @@ public class Browser extends AbstractApplication {
 		assertStatusChange(ApplicationStatus.RUNNING);
 		setStatus(ApplicationStatus.RUNNING);
 	}    
-  
-	/**
+
+    /**
 	 * @see com.thinkparity.browser.platform.Saveable#restoreState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
-	public void restoreState(final State state) {}
-
-    /**
+	public void restoreState(final State state) {}    
+  
+	/**
 	 * Accept an invitation.
 	 * 
 	 * @param systemMessageId
 	 *            The system message id.
 	 */
-	public void runAcceptContactInvitation(final Long systemMessageId) {
+	public void runAcceptContactIncomingInvitation(final Long invitationId) {
 		final Data data = new Data(1);
-		data.set(AcceptInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
-		invoke(ActionId.CONTACT_ACCEPT_INVITATION, data);
+		data.set(AcceptIncomingInvitation.DataKey.INVITATION_ID, invitationId);
+		invoke(ActionId.CONTACT_ACCEPT_INCOMING_INVITATION, data);
 	}
-    
+
     /**
      * Run the create document action, browse to select the document.
      * 
@@ -867,7 +892,7 @@ public class Browser extends AbstractApplication {
         data.set(AddDocument.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_ADD_DOCUMENT, data);
     }
-
+    
     /**
      * Run the add contact action.
      *
@@ -875,7 +900,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContactInvitation() {
         runCreateContactInvitation(null);
     }
-    
+
     /**
      * Run the add contact action.
      * 
@@ -885,10 +910,10 @@ public class Browser extends AbstractApplication {
     public void runCreateContactInvitation(final String newContactEmail) {
         final Data data = new Data(1);
         if(null != newContactEmail)
-            data.set(CreateInvitation.DataKey.CONTACT_EMAIL, newContactEmail);
-        invoke(ActionId.CONTACT_CREATE_INVITATION, data);
+            data.set(CreateIncomingInvitation.DataKey.CONTACT_EMAIL, newContactEmail);
+        invoke(ActionId.CONTACT_CREATE_INCOMING_INVITATION, data);
     }
-
+    
     /**
      * Run the create container (package) action. The user will
      * determine the container name.
@@ -918,7 +943,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final String name) {
         runCreateContainer(name, null);
     }
-    
+
     /**
      * Run the create container action. If name and files are both not set; a
      * dialog will be used to prompt the user.
@@ -947,7 +972,7 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
-    }        
+    }
     
     /**
      * Decline an invitation.
@@ -955,11 +980,11 @@ public class Browser extends AbstractApplication {
      * @param systemMessageId
      *            The system message id.
      */
-    public void runDeclineContactInvitation(final Long systemMessageId) {
+    public void runDeclineContactIncomingInvitation(final Long invitationId) {
         final Data data = new Data(1);
-        data.set(DeclineInvitation.DataKey.SYSTEM_MESSAGE_ID, systemMessageId);
-        invoke(ActionId.CONTACT_DECLINE_INVITATION, data);
-    }    
+        data.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, data);
+    }        
     
     /**
      * Run the delete contact action.
@@ -972,9 +997,9 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
-    }
+    }    
     
-	/**
+    /**
 	 * Run the open document action.
 	 *
      * @param containerId
@@ -987,7 +1012,7 @@ public class Browser extends AbstractApplication {
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
 	}
-
+    
 	/**
 	 * Run the open document version action.
 	 *
@@ -1006,7 +1031,7 @@ public class Browser extends AbstractApplication {
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
 
-    /**
+	/**
      *  Publish the selected container.
      *  
      *  @param containerId
@@ -1116,7 +1141,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateTeam.DataKey.TEAM_MEMBERS, teamMembers);
         invoke(ActionId.CONTAINER_UPDATE_TEAM, data);
     }
-  
+
     /**
      * Update the document with the file.
      * 
@@ -1131,14 +1156,14 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-    
-	/**
+  
+    /**
 	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
 	public void saveState(final State state) {}
-
-    /**
+    
+	/**
      * Select a contact.
      * 
      * @param contactId
@@ -1167,7 +1192,7 @@ public class Browser extends AbstractApplication {
             clearStatus();
         }        
     }
-    
+
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#start()
 	 * 
@@ -1190,7 +1215,7 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.RUNNING);
 		notifyStart();
 	}
-
+    
     public void toggleStatusImage() {
         ((com.thinkparity.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }
@@ -1303,7 +1328,7 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-	private void displayAvatar(final WindowId windowId,
+    private void displayAvatar(final WindowId windowId,
 			final AvatarId avatarId, final Data input) {
 		Assert.assertNotNull("Cannot display on a null window.", windowId);
 		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
@@ -1317,7 +1342,7 @@ public class Browser extends AbstractApplication {
 		});
 	}
 
-    /** Dispose the main window. */
+	/** Dispose the main window. */
     private void disposeBrowserWindow() {
         Assert.assertNotNull(
                 "[LBROWSER] [APPLICATION] [BROWSER] [DISPOSE BROWSER WINDOW] [BROWSER WINDOW IS NULL]",
@@ -1343,7 +1368,7 @@ public class Browser extends AbstractApplication {
         }
 	}
 
-	/**
+    /**
 	 * Obtain the input for an avatar.
 	 * 
 	 * @param avatarId
@@ -1354,12 +1379,12 @@ public class Browser extends AbstractApplication {
 		return avatarInputMap.get(avatarId);
 	}
 
-    /**
+	/**
      * Obtain the confirmation avatar.
      * @return The confirmation avatar.
      */
     private ConfirmDialog getConfirmAvatar() {
-        return (ConfirmDialog) avatarRegistry.get(AvatarId.DIALOG_CONFIRM);
+        return (ConfirmDialog) getAvatar(AvatarId.DIALOG_CONFIRM);
     }
 
     /**
@@ -1378,22 +1403,31 @@ public class Browser extends AbstractApplication {
 		return jFileChooser;
 	}
 
-	/**
+    /**
      * Obtain the main status avatar.
      * 
      * @return The main status avatar.
      */
     private MainStatusAvatar getMainStatusAvatar() {
-        return (MainStatusAvatar) avatarRegistry.get(AvatarId.MAIN_STATUS);
+        return (MainStatusAvatar) getAvatar(AvatarId.MAIN_STATUS);
     }
 
-    /**
+	/**
      * Obtain the main title avatar.
      * 
      * @return The main title avatar.
      */
     private MainTitleAvatar getMainTitleAvatar() {
-        return (MainTitleAvatar) avatarRegistry.get(AvatarId.MAIN_TITLE);
+        return (MainTitleAvatar) getAvatar(AvatarId.MAIN_TITLE);
+    }
+
+    /**
+     * Obtain the tab input from the main title avatar.
+     * 
+     * @return A tab.
+     */
+    private MainTitleAvatar.Tab getMainTitleAvatarTab() {
+        return (MainTitleAvatar.Tab) ((Data) getMainTitleAvatar().getInput()).get(MainTitleAvatar.DataKey.TAB);
     }
     
     /**
@@ -1402,7 +1436,7 @@ public class Browser extends AbstractApplication {
      * @return The contact tab avatar.
      */
     private ContactAvatar getTabContactAvatar() {
-        return (ContactAvatar) avatarRegistry.get(AvatarId.TAB_CONTACT);
+        return (ContactAvatar) getAvatar(AvatarId.TAB_CONTACT);
     }
 
     /**
@@ -1411,7 +1445,7 @@ public class Browser extends AbstractApplication {
      * @return The container tab avatar.
      */
     private ContainerAvatar getTabContainerAvatar() {
-        return (ContainerAvatar) avatarRegistry.get(AvatarId.TAB_CONTAINER);
+        return (ContainerAvatar) getAvatar(AvatarId.TAB_CONTAINER);
     }
 
 	private void invoke(final ActionId actionId, final Data data) {

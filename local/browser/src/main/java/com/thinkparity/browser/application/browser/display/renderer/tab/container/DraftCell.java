@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
@@ -169,7 +170,9 @@ public class DraftCell extends ContainerDraft implements TabCell  {
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getTextInsetFactor()
      * 
      */
-    public Float getTextInsetFactor() { return 3.0F; }
+    public Float getTextInsetFactor() {
+        return InsetFactors.LEVEL_1;
+    }
 
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getToolTip()

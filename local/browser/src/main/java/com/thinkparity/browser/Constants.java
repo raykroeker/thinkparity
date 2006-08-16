@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 import javax.swing.Icon;
 
 import com.thinkparity.codebase.Application;
+import com.thinkparity.codebase.FuzzyDateFormat;
 
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 
@@ -40,6 +41,11 @@ public final class Constants {
                 public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
             }
         }
+    }
+
+    /** Date format objects. */
+    public static final class DateFormats {
+        public static final FuzzyDateFormat FUZZY = new FuzzyDateFormat();
     }
 
     /** Dimension constatns. */
@@ -80,6 +86,12 @@ public final class Constants {
             public static final BufferedImage LOGO =
                     ImageIOUtil.read("BrowserTitle_Logo.png");
         }
+    }
+
+    public static final class InsetFactors {
+        public static final Float LEVEL_0 = 1.0F;
+        public static final Float LEVEL_1 = 3.0F;
+        public static final Float LEVEL_2 = LEVEL_1 * 2;
     }
 
     /** Java constants. */

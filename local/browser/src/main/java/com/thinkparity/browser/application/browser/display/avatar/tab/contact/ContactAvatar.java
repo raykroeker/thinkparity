@@ -19,14 +19,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
-import com.thinkparity.browser.application.browser.display.provider.FlatSingleContentProvider;
-import com.thinkparity.browser.application.browser.display.renderer.tab.TabCellRenderer;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
-import com.thinkparity.browser.application.browser.display.renderer.tab.contact.ContactCell;
+import com.thinkparity.browser.application.browser.display.renderer.tab.TabCellRenderer;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -46,11 +43,11 @@ public class ContactAvatar extends Avatar {
     /** @see java.io.Serializable */
 	private static final long serialVersionUID = 1;
 
-    /** The model. */
-    private final ContactAvatarModel model;
-    
     /** The swing JList. */
 	private JList jList;
+    
+    /** The model. */
+    private final ContactAvatarModel model;
     
     /** Create a BrowserContactsAvatar. */
     public ContactAvatar() {
@@ -106,9 +103,10 @@ public class ContactAvatar extends Avatar {
      * 
      */
     public void setContentProvider(final ContentProvider contentProvider) {
-        model.setContentProvider((FlatSingleContentProvider) contentProvider);
-        // set initial selection
-        if(0 < jList.getModel().getSize()) { jList.setSelectedIndex(0); }
+        model.setContentProvider((CompositeFlatSingleContentProvider) contentProvider);
+        if(0 < jList.getModel().getSize()) {
+            jList.setSelectedIndex(0);
+        }
     }
     
     /**
@@ -126,22 +124,42 @@ public class ContactAvatar extends Avatar {
      *            Indicates whether the sync is the result of a remote event
      */
     public void syncContact(final JabberId contactId, final Boolean remote) {
-        final ContactCell selectedContact = getSelectedContact();
+        final TabCell selectedCell = getSelectedCell();
         model.syncContact(contactId, remote);
-        if(model.isContactVisible(selectedContact))
-            selectContact(selectedContact);
+        if(model.isCellVisible(selectedCell))
+            selectCell(selectedCell);
+    }
+
+    /**
+     * Synchronize the incoming invitation in the list.
+     * 
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            Whether or not the the source is a remote event.
+     */
+    public void syncIncomingInvitation(final Long invitationId,
+            final Boolean remote) {
+        final TabCell selectedCell = getSelectedCell();
+        model.syncIncomingInvitation(invitationId, remote);
+        if (model.isCellVisible(selectedCell))
+            selectCell(selectedCell);
     }
 
     /**
      * Synchronize an invitation in the list.
      * 
      * @param invitationId
-     *            A contact invitation id.
+     *            An invitation id.
      * @param remote
-     *            Whether or not the source of the syncrhonization is remote.
+     *            Whether or not the the source is a remote event.
      */
-    public void syncInvitation(final Long invitationId, final Boolean remote) {
-        throw Assert.createNotYetImplemented("ContactAvatar#syncInvitation");
+    public void syncOutgoingInvitation(final Long invitationId,
+            final Boolean remote) {
+        final TabCell selectedCell = getSelectedCell();
+        model.syncOutgoingInvitation(invitationId, remote);
+        if (model.isCellVisible(selectedCell))
+            selectCell(selectedCell);
     }
 
     /**
@@ -149,12 +167,8 @@ public class ContactAvatar extends Avatar {
      * 
      * @return The selected contact.
      */
-    private ContactCell getSelectedContact() {
-        final TabCell mc = (TabCell) jList.getSelectedValue();
-        if(mc instanceof ContactCell) {
-            return (ContactCell) mc;
-        }
-        return null;
+    private TabCell getSelectedCell() {
+        return (TabCell) jList.getSelectedValue();
     }
     
     /**
@@ -215,12 +229,12 @@ public class ContactAvatar extends Avatar {
     }    
 
     /**
-     * Select a contact cell.
+     * Select a cell.
      * 
-     * @param mcd
-     *            The contact cell.
+     * @param tabCell
+     *            A display cell.
      */
-    private void selectContact(final ContactCell cc) {
-        jList.setSelectedValue(cc, true);
+    private void selectCell(final TabCell tabCell) {
+        jList.setSelectedValue(tabCell, true);
     }
 }

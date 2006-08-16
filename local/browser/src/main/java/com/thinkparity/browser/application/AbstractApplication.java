@@ -33,6 +33,7 @@ import com.thinkparity.browser.platform.util.l10n.ApplicationL18n;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
+import com.thinkparity.model.parity.api.events.ContactListener;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
@@ -141,7 +142,17 @@ public abstract class AbstractApplication implements Application {
 		}
 	}
 
-	/**
+    /**
+     * Add a contact listener.
+     * 
+     * @param contactListener
+     *            A contact listener.
+     */
+    public void addListener(final ContactListener listener) {
+        platform.getModelFactory().getContactModel(getClass()).addListener(listener);
+    }
+
+    /**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -149,7 +160,7 @@ public abstract class AbstractApplication implements Application {
 	public ArtifactModel getArtifactModel() {
 		return platform.getModelFactory().getArtifactModel(getClass());
 	}
-    
+
     /**
      * Obtain the parity container interface.
      * 
@@ -159,7 +170,7 @@ public abstract class AbstractApplication implements Application {
         return platform.getModelFactory().getContainerModel(getClass());
     }
 
-	/**
+    /**
 	 * Obtain the parity document interface.
 	 * 
 	 * @return The parity document interface.
@@ -206,6 +217,16 @@ public abstract class AbstractApplication implements Application {
 			APPLICATION_LISTENERS.put(getClass(), listeners);
 		}
 	}
+
+	/**
+     * Remove a contact listener.
+     * 
+     * @param contactListener
+     *            A contact listener.
+     */
+    public void removeListener(final ContactListener listener) {
+        platform.getModelFactory().getContactModel(getClass()).removeListener(listener);
+    }
 
 	/**
      * @see com.thinkparity.browser.platform.application.Application#setProfile(com.thinkparity.model.parity.model.profile.Profile)

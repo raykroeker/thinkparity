@@ -107,8 +107,8 @@ public class SessionModel extends AbstractModel {
 	 * @see SessionModel#acceptPresence(User)
 	 * @throws ParityException
 	 */
-	public void declineInvitation(final JabberId jabberId) {
-		synchronized(implLock) { impl.declineInvitation(jabberId); }
+	public void declineInvitation(final String invitedAs, final JabberId invitedBy) {
+		synchronized(implLock) { impl.declineInvitation(invitedAs, invitedBy); }
 	}
 
 	/**

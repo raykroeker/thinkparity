@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import org.jivesoftware.messenger.IQHandlerInfo;
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+import org.jivesoftware.util.JiveProperties;
 
 import org.dom4j.Branch;
 import org.dom4j.Element;
@@ -24,11 +25,12 @@ import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketError;
 
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
-import com.thinkparity.server.ParityServerConstants;
+import com.thinkparity.server.ParityServerConstants.JivePropertyNames;
 import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.artifact.Artifact;
@@ -68,7 +70,7 @@ public abstract class IQHandler extends
 	protected IQHandler(final IQAction action) {
 		super(action.toString());
 		this.iqHandlerInfo = new IQHandlerInfo(
-				ParityServerConstants.IQ_PARITY_INFO_NAME,
+				Xml.NAME,
 				action.getNamespace());
         this.logger = Logger.getLogger(getClass());
 	}
@@ -84,10 +86,20 @@ public abstract class IQHandler extends
 		logger.debug(iq);
 		try {
 			final Session session = new Session() {
-				final JID jid = iq.getFrom();
-				final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(jid.toString());
-				public JabberId getJabberId() { return jabberId; }
-				public JID getJID() { return jid; }
+                private final JabberId jabberId = JabberIdBuilder.parseQualifiedJabberId(iq.getFrom().toString());
+                private final JiveProperties jiveProperties = JiveProperties.getInstance();
+
+                public JabberId getJabberId() {
+                    return jabberId;
+                }
+
+                public JID getJID() {
+                    return iq.getFrom();
+                }
+
+                public String getXmppDomain() {
+                    return (String) jiveProperties.get(JivePropertyNames.XMPP_DOMAIN);
+                }
 			};
 			logger.debug(session);
 			final IQ resultIQ = handleIQ(iq, session);

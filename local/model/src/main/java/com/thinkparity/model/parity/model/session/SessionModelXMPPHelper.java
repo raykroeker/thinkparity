@@ -139,13 +139,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     final Calendar acceptedOn) {
 				handleContactInvitationAccepted(acceptedBy, acceptedOn);
 			}
-			public void handleInvitationDeclined(final JabberId declinedBy,
-                    final Calendar declinedOn) {
-				handleContactInvitationDeclined(declinedBy, declinedOn);
+			public void handleInvitationDeclined(final String invitedAs,
+                    final JabberId declinedBy, final Calendar declinedOn) {
+				handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
 			}
-			public void handleInvitationExtended(final JabberId invitedBy,
-                    final Calendar invitedOn) {
-				handleContactInvitationExtended(invitedBy, invitedOn);
+			public void handleInvitationExtended(final String invitedAs,
+                    final JabberId invitedBy, final Calendar invitedOn) {
+				handleContactInvitationExtended(invitedAs, invitedBy, invitedOn);
 			}
 		};
 		this.xmppSessionListener = new XMPPSessionListener() {
@@ -231,8 +231,8 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 *            The user's jabber id.
 	 * @throws SmackException
 	 */
-	void declineInvitation(final JabberId jabberId) throws SmackException {
-		xmppSession.declineInvitation(jabberId);
+	void declineInvitation(final String invitedAs, final JabberId jabberId) throws SmackException {
+		xmppSession.declineInvitation(invitedAs, jabberId);
 	}
 
 	/**
@@ -333,6 +333,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
 	/**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
+    Contact readContact(final JabberId contactId) throws SmackException {
+        return xmppSession.readContact(contactId);
+    }
+
+    /**
 	 * Read the logged in user's contacts.
 	 * 
 	 * @return A list of contacts.
@@ -455,10 +466,10 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         }
 	}
 
-    private void handleContactInvitationDeclined(final JabberId declinedBy,
-            final Calendar declinedOn) {
+    private void handleContactInvitationDeclined(final String invitedAs,
+            final JabberId declinedBy, final Calendar declinedOn) {
 		try {
-            SessionModelImpl.handleContactInvitationDeclined(declinedBy, declinedOn);
+            SessionModelImpl.handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
 		} catch (final RuntimeException rx) {
             unexpectedOccured(rx);
 		}
@@ -472,9 +483,9 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      * @param invitedOn
      *            When the invitation was extended.
      */
-	private void handleContactInvitationExtended(final JabberId invitedBy,
-            final Calendar invitedOn) {
-		try { SessionModelImpl.handleInvitationExtended(invitedBy, invitedOn); }
+	private void handleContactInvitationExtended(final String invitedAs,
+            final JabberId invitedBy, final Calendar invitedOn) {
+		try { SessionModelImpl.handleInvitationExtended(invitedAs,invitedBy, invitedOn); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }
 	}
 

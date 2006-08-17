@@ -4,9 +4,10 @@
 package com.thinkparity.server.org.jivesoftware.messenger;
 
 import org.jivesoftware.messenger.XMPPServer;
+
 import org.xmpp.packet.JID;
 
-import com.thinkparity.server.ParityServerConstants;
+import com.thinkparity.codebase.Constants.Jabber;
 
 /**
  * @author raykroeker@gmail.com
@@ -68,7 +69,7 @@ public class JIDBuilder {
 	 * @return The JID for the username for this xmpp server.
 	 */
 	private JID buildImpl(final String username) {
-		return xmppServer.createJID(username, ParityServerConstants.CLIENT_RESOURCE);
+		return xmppServer.createJID(username, Jabber.RESOURCE);
 	}
 
 	/**

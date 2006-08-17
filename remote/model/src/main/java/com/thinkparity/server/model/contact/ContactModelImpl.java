@@ -4,6 +4,7 @@
 package com.thinkparity.server.model.contact;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -18,9 +19,9 @@ import javax.mail.internet.MimeMultipart;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
 
+import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.util.smtp.MessageFactory;
@@ -31,6 +32,7 @@ import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.contact.InvitationSql;
+import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
 import com.thinkparity.server.model.user.UserModel;
@@ -48,42 +50,59 @@ class ContactModelImpl extends AbstractModelImpl {
 	 */
 	private final ContactSql contactSql;
 
+    /** A contact event generator. */
+    private final ContactEventGenerator eventGenerator;
+
     /**
 	 * Invitation sql interface.
 	 * 
 	 */
 	private final InvitationSql invitationSql;
 
-	/**
+	/** User sql io. */
+    private final UserSql userSql;
+
+    /**
 	 * Create a ArtifactModelImpl.
 	 * 
 	 */
 	ContactModelImpl(final Session session) {
 		super(session);
 		this.contactSql = new ContactSql();
+        this.eventGenerator = new ContactEventGenerator();
 		this.invitationSql = new InvitationSql();
+        this.userSql = new UserSql();
 	}
 
     /**
-     * TODO accept distributed invitation 0.25
+     * Accept the invitation. Create the contact relationships and notify the
+     * invitor.
+     * 
+     * @param invitedAs
+     *            The original invitation e-mail address.
+     * @param invitedBy
+     *            The invitor.
+     * @param acceptedBy
+     *            The invitee.
+     * @param acceptedOn
+     *            When the acceptance was made.
      */
-    void acceptInvitation(final JabberId from, final JabberId to)
-			throws ParityServerModelException {
+    void acceptInvitation(final JabberId invitedBy, final JabberId acceptedBy,
+            final Calendar acceptedOn) {
 		logApiId();
-		logger.debug(from);
-		logger.debug(to);
+        debugVariable("invitedBy", invitedBy);
+        debugVariable("acceptedBy", acceptedBy);
+        debugVariable("acceptedOn", acceptedOn);
 		try {
-			final Invitation invitation = invitationSql.read(from, to);
-			Assert.assertNotNull("Cannot accept a null invitation.", invitation);
+			contactSql.create(acceptedBy, invitedBy, session.getJabberId());
+			contactSql.create(invitedBy, acceptedBy, session.getJabberId());
 
-			contactSql.create(from, to, session.getJabberId());
-			contactSql.create(to, from, session.getJabberId());
-
-			invitationSql.delete(from, to);
+            final IQ notification =
+                eventGenerator.generateInvitationAccepted(acceptedBy, acceptedOn);
+            send(invitedBy, notification);
 		}
-		catch(final SQLException sqlx) {
-			logger.error("could not accept invitation:  " + from + ", " + to, sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
+		catch(final Throwable t) {
+            throw translateError(t);
 		}
 	}
 
@@ -116,23 +135,29 @@ class ContactModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * TODO decline distributed invitation 0.25
+     * Decline the invitation. Send the invitee a notifiaction.
+     * 
+     * @param invitedBy
+     *            The invitor.
+     * @param declinedBy
+     *            The invitee.
+     * @param declinedOn
+     *            When the acceptance was made.
      */
-	void declineInvitation(final JabberId from, final JabberId to)
-		throws ParityServerModelException {
+	void declineInvitation(final String invitedAs, final JabberId invitedBy,
+            final JabberId declinedBy, final Calendar declinedOn) {
         logApiId();
-		logger.debug(from);
-		logger.debug(to);
-		try {
-			final Invitation invitation = invitationSql.read(from, to);
-			Assert.assertNotNull("Cannot decline a null invitation.", invitation);
-
-			invitationSql.delete(from, to);
-		}
-		catch(final SQLException sqlx) {
-			logger.error("could not decline invitation:  " + from + ", " + to, sqlx);
-			throw ParityErrorTranslator.translate(sqlx);
-		}
+        debugVariable("invitedBy", invitedBy);
+        debugVariable("invitedAs", invitedAs);
+        debugVariable("declinedBy", declinedBy);
+        debugVariable("declinedOn", declinedOn);
+        try {
+            final IQ notification = eventGenerator.generateInvitationDeclined(
+                    invitedAs, declinedBy, declinedOn);
+            send(invitedBy, notification);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
 	}
 
     /**
@@ -160,27 +185,49 @@ class ContactModelImpl extends AbstractModelImpl {
      * TODO read user for e-mail 0.5; create e-mail invitation data 0.5; create
      * invitation data 0.5; create distributed invitation 0.5
      */
-	void invite(final String email) {
+	void invite(final String email, final Calendar invitedOn) {
         logApiId();
-        logger.debug(email);
-        final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
+        debugVariable("email", email);
         try {
-            final User user = getUserModel().readUser(session.getJabberId());
-            createInvitation(mimeMessage, email, user);
-            addRecipients(mimeMessage, email);
+            final UserModel userModel = getUserModel();
+            final User invitee = userModel.readUser(email);
+            if (null == invitee) {
+                final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
+                try {
+                    final User user = getUserModel().readUser(session.getJabberId());
+                    createInvitation(mimeMessage, email, user);
+                    addRecipients(mimeMessage, email);
+                }
+                catch(final MessagingException mx) { throw translateError(mx); }
+                TransportManager.deliver(mimeMessage);
+            } else {
+                final IQ notification =
+                    eventGenerator.generateInvitationExtended(
+                            email, session.getJabberId(), invitedOn);
+                send(invitee.getId(), notification);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        catch(final MessagingException mx) { throw translateError(mx); }
-        TransportManager.deliver(mimeMessage);
     }
 
-	Contact readContact(final JabberId jabberId) {
+	Contact readContact(final JabberId contactId) {
         logApiId();
-		logger.debug(jabberId);
-		final User user = getUserModel().readUser(jabberId);
-		final Contact contact = new Contact();
-		contact.setId(user.getId());
-		contact.setVCard(user.getVCard());
-		return contact;
+		debugVariable("contactId", contactId);
+		try {
+		    final User user = getUserModel().readUser(contactId);
+            final Element vCardElement = user.getVCard();
+
+            final Contact contact = new Contact();
+            contact.addAllEmails(userSql.readEmail(contactId));
+            contact.setId(user.getId());
+            contact.setName((String) vCardElement.element("FN").getData());
+            contact.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());
+            contact.setVCard(user.getVCard());
+            return contact;
+	    } catch (final Throwable t) {
+            throw translateError(t);
+        }
 	}
 
     List<Contact> readContacts() throws ParityServerModelException {

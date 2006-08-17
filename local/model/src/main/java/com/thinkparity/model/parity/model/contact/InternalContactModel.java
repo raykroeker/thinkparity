@@ -47,18 +47,21 @@ public class InternalContactModel extends ContactModel implements InternalModel 
             getImpl().handleInvitationAccepted(acceptedBy, acceptedOn);
         }
     }
+
     /**
      * Handle the invitation extended remote event.
      * 
+     * @param invitedAs
+     *            The original invitation e-mail address.
      * @param declinedBy
      *            By whom the invitation was declined.
      * @param declinedOn
      *            When the invitation was declined.
      */
-    public void handleInvitationDeclined(final JabberId declinedBy,
-            final Calendar declinedOn) {
+    public void handleInvitationDeclined(final String invitedAs,
+            final JabberId declinedBy, final Calendar declinedOn) {
         synchronized (getImplLock()) {
-            getImpl().handleInvitationDeclined(declinedBy, declinedOn);
+            getImpl().handleInvitationDeclined(invitedAs, declinedBy, declinedOn);
         }
     }
 
@@ -70,10 +73,10 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param invitedOn
      *            When the invitation was extended.
      */
-    public void handleInvitationExtended(final JabberId invitedBy,
+    public void handleInvitationExtended(final String invitedAs, final JabberId invitedBy,
             final Calendar invitedOn) {
         synchronized (getImplLock()) {
-            getImpl().handleInvitationExtended(invitedBy, invitedOn);
+            getImpl().handleInvitationExtended(invitedAs, invitedBy, invitedOn);
         }
     }
 }

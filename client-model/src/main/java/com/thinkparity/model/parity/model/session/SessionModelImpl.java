@@ -105,6 +105,34 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Handle the acceptance of an invitation.
+     * 
+     * @param acceptedBy
+     *            By whom the invitation was accepted.
+     * @param acceptedOn
+     *            When the invitation was accepted.
+     */
+    static void handleContactInvitationAccepted(final JabberId acceptedBy,
+            final Calendar acceptedOn) {
+        ContactModel.getInternalModel(sContext).handleInvitationAccepted(acceptedBy, acceptedOn);
+    }
+
+    /**
+     * Handle the declination of an invitation.
+     * 
+     * @param invitedAs
+     *            The original invitation e-mail address.
+     * @param declinedBy
+     *            By whom the invitation was declined.
+     * @param declinedOn
+     *            When the invitation was declined.
+     */
+    static void handleContactInvitationDeclined(final String invitedAs,
+            final JabberId declinedBy, final Calendar declinedOn) {
+        ContactModel.getInternalModel(sContext).handleInvitationDeclined(invitedAs, declinedBy, declinedOn);
+    }
+
+    /**
      * Handle the artifact sent event for the container.
      * 
      * @param containerUniqueId
@@ -174,15 +202,15 @@ class SessionModelImpl extends AbstractModelImpl {
                 versionId, name, type, bytes);
     }
 
-    /**
+	/**
      * Create an incoming invitation for the user.
      * 
      * @param invitedBy
      *            From whome the invitation was extended.
      */
-	static void handleInvitationExtended(final JabberId invitedBy,
-            final Calendar invitedOn) {
-		ContactModel.getInternalModel(sContext).handleInvitationExtended(invitedBy, invitedOn);
+	static void handleInvitationExtended(final String invitedAs,
+            final JabberId invitedBy, final Calendar invitedOn) {
+		ContactModel.getInternalModel(sContext).handleInvitationExtended(invitedAs, invitedBy, invitedOn);
 	}
 
     /**
@@ -231,37 +259,11 @@ class SessionModelImpl extends AbstractModelImpl {
         iDModel.confirmSend(d.getId(), versionId, confirmedBy);
     }
 
-	static void notifyDocumentReactivated(final JabberId reactivatedBy,
+    static void notifyDocumentReactivated(final JabberId reactivatedBy,
             final List<JabberId> team, final UUID uniqueId,
             final Long versionId, final String name, final byte[] content)
             throws ParityException {
         Assert.assertNotYetImplemented("SessionModelImpl#notifyDocumentReactivated");
-    }
-
-    /**
-     * Handle the acceptance of an invitation.
-     * 
-     * @param acceptedBy
-     *            By whom the invitation was accepted.
-     * @param acceptedOn
-     *            When the invitation was accepted.
-     */
-    static void handleContactInvitationAccepted(final JabberId acceptedBy,
-            final Calendar acceptedOn) {
-        ContactModel.getInternalModel(sContext).handleInvitationAccepted(acceptedBy, acceptedOn);
-    }
-
-    /**
-     * Handle the declination of an invitation.
-     * 
-     * @param declinedBy
-     *            By whom the invitation was declined.
-     * @param declinedOn
-     *            When the invitation was declined.
-     */
-    static void handleContactInvitationDeclined(final JabberId declinedBy,
-            final Calendar declinedOn) {
-        ContactModel.getInternalModel(sContext).handleInvitationDeclined(declinedBy, declinedOn);
     }
 
 	/**
@@ -361,15 +363,35 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
+    public Contact readContact(final JabberId contactId) {
+        logApiId();
+        debugVariable("contactId", contactId);
+        synchronized (xmppHelper) {
+            try {
+                return xmppHelper.readContact(contactId);
+            } catch (final Throwable t) {
+                throw translateError("READ CONTACT", t);
+            }
+            
+        }
+    }
+
+	/**
 	 * Accept an invitation to the user's contact list.
 	 * 
 	 * @param jabberId
 	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void acceptInvitation(final JabberId jabberId) {
+	void acceptInvitation(final JabberId invitedBy) {
 		synchronized(xmppHelper) {
-			try { xmppHelper.acceptInvitation(jabberId); }
+			try { xmppHelper.acceptInvitation(invitedBy); }
 			catch(final Throwable t) {
                 throw translateError("[ACCEPT INVITATION]", t);
 			}
@@ -408,7 +430,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Add a session listener to the session.
 	 * 
 	 * @param sessionListener
@@ -422,7 +444,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		sessionListeners.add(sessionListener);
 	}
 
-    /**
+	/**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -465,7 +487,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	    }
 	}
 
-	/**
+    /**
      * Send an artifact creation packet to the parity server.
      * 
      * @param uniqueId
@@ -482,7 +504,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -502,9 +524,9 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void declineInvitation(final JabberId jabberId) {
+	void declineInvitation(final String invitedAs, final JabberId invitedBy) {
 		synchronized(xmppHelper) {
-			try { xmppHelper.declineInvitation(jabberId); }
+			try { xmppHelper.declineInvitation(invitedAs, invitedBy); }
 			catch(final Throwable t) {
                 throw translateError("[DECLINE INVITATION]", t);
 			}
@@ -546,7 +568,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Determine whether or not a user is logged in.
 	 * 
 	 * @return True if the user is logged in, false otherwise.
@@ -603,7 +625,7 @@ class SessionModelImpl extends AbstractModelImpl {
         login(environment, credentials);
     }
 
-    /**
+	/**
 	 * Terminate the current session.
 	 * 
 	 * @throws ParityException
@@ -644,7 +666,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param artifactId

@@ -10,12 +10,15 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 
+import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.AbstractFactory;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.ActionRegistry;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.application.ApplicationId;
+import com.thinkparity.browser.platform.application.ApplicationRegistry;
 
 /**
  * <b>Title:</b>thinkParity Popup Item Factory<br>
@@ -136,7 +139,11 @@ public class PopupItemFactory extends AbstractFactory {
          * 
          */
         public void actionPerformed(final ActionEvent e) {
-            action.invoke(data);
+            try {
+                action.invoke(data);
+            } catch(final Throwable t) {
+                ((Browser) new ApplicationRegistry().get(ApplicationId.BROWSER)).displayErrorDialog(t.getLocalizedMessage(), t);
+            }
         }
 
         /**

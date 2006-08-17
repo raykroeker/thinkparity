@@ -26,4 +26,11 @@ public interface Session {
 	 * @return The jabber id.
 	 */
 	public JabberId getJabberId();
+
+    /**
+     * Obtain the server xmpp domain.
+     * 
+     * @return The server xmpp domain.
+     */
+    public String getXmppDomain();
 }

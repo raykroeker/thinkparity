@@ -3,43 +3,49 @@
  */
 package com.thinkparity.server.handler.contact;
 
-import org.jivesoftware.messenger.auth.UnauthorizedException;
-
-import org.xmpp.packet.IQ;
+import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.handler.IQAction;
-import com.thinkparity.server.handler.IQHandler;
-import com.thinkparity.server.model.ParityServerModelException;
-import com.thinkparity.server.model.contact.ContactModel;
-import com.thinkparity.server.model.contact.Invitation;
-import com.thinkparity.server.model.session.Session;
+import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.handler.AbstractController;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public class AcceptInvitation extends IQHandler {
+public class AcceptInvitation extends AbstractController {
 
 	/**
 	 * Create a InviteContact.
 	 * 
 	 */
-	public AcceptInvitation() { super(IQAction.ACCEPTCONTACTINVITATION); }
+	public AcceptInvitation() { super("contact:acceptinvitation"); }
 
 	/**
-	 * @see com.thinkparity.server.handler.IQHandler#handleIQ(org.xmpp.packet.IQ,
-	 *      com.thinkparity.server.model.session.Session)
-	 * 
-	 */
-	public IQ handleIQ(final IQ iq, final Session session)
-			throws ParityServerModelException, UnauthorizedException {
+     * @see com.thinkparity.codebase.controller.AbstractController#service()
+     */
+    @Override
+    public void service() {
         logApiId();
-		final JabberId jabberId = extractJabberId(iq);
-		final ContactModel contactModel = getContactModel(session);
-		final Invitation invitation = contactModel.readInvitation(jabberId);
-		contactModel.acceptInvitation(invitation.getFrom(), invitation.getTo());
-		return createResult(iq);
-	}
+        acceptInvitation(
+                readJabberId(Xml.Contact.INVITED_BY),
+                readJabberId(Xml.Contact.ACCEPTED_BY),
+                readCalendar(Xml.All.EXECUTED_ON));
+    }
+
+    /**
+     * Accept an invitation.
+     * 
+     * @param invitedBy
+     *            The original invitation creator.
+     * @param acceptedBy
+     *            The invitation acceptor.
+     * @param acceptedOn
+     *            When the invitation was accepted.
+     */
+    private void acceptInvitation(final JabberId invitedBy,
+            final JabberId acceptedBy, final Calendar acceptedOn) {
+        getContactModel().acceptInvitation(invitedBy, acceptedBy, acceptedOn);
+    }
 }

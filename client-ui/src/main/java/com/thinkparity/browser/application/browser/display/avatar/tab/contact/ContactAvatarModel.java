@@ -656,12 +656,16 @@ public class ContactAvatarModel {
      * @return An incoming invitation display cell.
      */
     private IncomingInvitationCell toDisplay(final IncomingInvitation incoming) {
-        final IncomingInvitationCell incomingCell = new IncomingInvitationCell();
-        incomingCell.setCreatedBy(incoming.getCreatedBy());
-        incomingCell.setCreatedOn(incoming.getCreatedOn());
-        incomingCell.setId(incoming.getId());
-        incomingCell.setInvitedBy(readUser(incoming.getUserId()));
-        return incomingCell;
+        if (null == incoming) {
+            return null;
+        } else {
+            final IncomingInvitationCell incomingCell = new IncomingInvitationCell();
+            incomingCell.setCreatedBy(incoming.getCreatedBy());
+            incomingCell.setCreatedOn(incoming.getCreatedOn());
+            incomingCell.setId(incoming.getId());
+            incomingCell.setInvitedByUser(readUser(incoming.getInvitedBy()));
+            return incomingCell;
+        }
     }
 
     /**

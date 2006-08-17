@@ -1,7 +1,6 @@
 package com.thinkparity.server.handler;
 
-import com.thinkparity.server.ParityServerConstants;
-
+import com.thinkparity.codebase.Constants.Xml;
 
 /**
  * List of possible actions available within the parity artifact handler.
@@ -16,7 +15,7 @@ public enum IQAction {
 	UNSUBSCRIBEUSER;
 
 	public String getNamespace() {
-		return new StringBuffer(ParityServerConstants.IQ_PARITY_INFO_NAMESPACE)
+		return new StringBuffer(Xml.NAMESPACE)
 			.append(":")
 			.append(toString().toLowerCase()).toString();
 	}

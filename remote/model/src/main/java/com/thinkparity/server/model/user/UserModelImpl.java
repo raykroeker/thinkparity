@@ -10,11 +10,14 @@ import org.jivesoftware.messenger.vcard.VCardManager;
 
 import org.dom4j.Element;
 
+import com.thinkparity.codebase.Constants.Jabber;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
+import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 
 /**
@@ -23,12 +26,15 @@ import com.thinkparity.server.model.session.Session;
  */
 class UserModelImpl extends AbstractModelImpl {
 
+	/** User sql io. */
+    private final UserSql userSql;
+
 	/**
 	 * The default vcard manager.
 	 */
 	private final VCardManager vCardManager;
 
-	/**
+    /**
 	 * Create a UserModelImpl.
 	 * 
 	 * @param session
@@ -36,12 +42,13 @@ class UserModelImpl extends AbstractModelImpl {
 	 */
 	UserModelImpl(final Session session) {
 		super(session);
+        this.userSql = new UserSql();
 		this.vCardManager = VCardManager.getInstance();
 	}
 
-	User readUser(final JabberId jabberId) {
+    User readUser(final JabberId jabberId) {
         logApiId();
-		logger.debug(jabberId);
+		debugVariable("jabberId", jabberId);
         final Element vCard = vCardManager.getVCard(jabberId.getUsername());
         final String name = (String) vCard.element("FN").getData();
         final String organization = (String) vCard.element("ORG").element("ORGNAME").getData();
@@ -53,6 +60,23 @@ class UserModelImpl extends AbstractModelImpl {
 		user.setVCard(vCard);
 		return user;
 	}
+
+    User readUser(final String email) {
+        logApiId();
+        debugVariable("email", email);
+        try {
+            final String username = userSql.readUsername(email);
+            if (null == username) {
+                return null;
+            } else {
+                final JabberId jabberId =
+                    JabberIdBuilder.build(username, session.getXmppDomain(), Jabber.RESOURCE);
+                return readUser(jabberId);
+            }
+        } catch(final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
 	List<User> readUsers(final List<JabberId> jabberIds)
 			throws ParityServerModelException {

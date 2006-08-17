@@ -26,6 +26,13 @@ class EmailIOHandler extends AbstractIOHandler {
             .append("where EMAIL_ID=?")
             .toString();
 
+    /** Sql to read an e-mail id from an e-mail address. */
+    private static final String SQL_READ_ID =
+            new StringBuffer("select EMAIL_ID ")
+            .append("from EMAIL E ")
+            .append("where E.EMAIL=?")
+            .toString();
+
     private static StringBuffer getApiId(final String api) {
         return getIOId("[EMAIL]").append(" ").append(api);
     }
@@ -59,5 +66,16 @@ class EmailIOHandler extends AbstractIOHandler {
         session.setLong(1, emailId);
         if(1 != session.executeUpdate())
             throw new HypersonicException(getErrorId("DELETE", "COULD NOT DELETE E-MAIL"));
+    }
+
+    Long readId(final Session session, final String email) {
+        session.prepareStatement(SQL_READ_ID);
+        session.setString(1, email);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getLong("EMAIL_ID");
+        } else {
+            return null;
+        }
     }
 }

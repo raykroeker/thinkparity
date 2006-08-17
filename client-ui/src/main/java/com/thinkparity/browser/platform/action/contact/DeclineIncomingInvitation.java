@@ -41,7 +41,7 @@ public class DeclineIncomingInvitation extends AbstractAction {
         final ContactModel contactModel = getContactModel();
         final UserModel userModel = getUserModel();
         final IncomingInvitation invitation = contactModel.readIncomingInvitation(invitationId);
-        final User invitedBy = userModel.read(invitation.getUserId());
+        final User invitedBy = userModel.read(invitation.getInvitedBy());
         if (browser.confirm(
                 "ContactIncomingInvitationDecline.ConfirmDeclineMessage",
                 new Object[] { invitedBy.getName() })) {

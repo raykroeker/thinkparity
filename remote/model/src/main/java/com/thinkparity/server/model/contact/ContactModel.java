@@ -3,6 +3,7 @@
  */
 package com.thinkparity.server.model.contact;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -47,9 +48,24 @@ public class ContactModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-	public void acceptInvitation(final JabberId from, final JabberId to)
-		throws ParityServerModelException {
-		synchronized(implLock) { impl.acceptInvitation(from, to); }
+    /**
+     * Accept an invitation. Create the contact relationship; and notify the
+     * user.
+     * 
+     * @param invitedAs
+     *            The original invitation e-mail.
+     * @param invitedBy
+     *            By whom the invitation was sent.
+     * @param acceptedBy
+     *            By whom the invitation was accepted
+     * @param acceptedOn
+     *            When the invitation was accepted.
+     */
+    public void acceptInvitation(final JabberId invitedBy,
+            final JabberId acceptedBy, final Calendar acceptedOn) {
+		synchronized (implLock) {
+            impl.acceptInvitation(invitedBy, acceptedBy, acceptedOn);
+		}
 	}
 
 	/**
@@ -64,9 +80,24 @@ public class ContactModel extends AbstractModel {
 		synchronized(implLock) { return impl.createInvitation(to); }
 	}
 
-	public void declineInvitation(final JabberId from, final JabberId to)
-		throws ParityServerModelException {
-		synchronized(implLock) { impl.declineInvitation(from , to); }
+	/**
+     * Decline the invitation. Send the invitee a notifiaction.
+     * 
+     * @param invitedAs
+     *            The original invitation e-mail.
+     * @param invitedBy
+     *            The invitor.
+     * @param declinedBy
+     *            The invitee.
+     * @param declinedOn
+     *            When the acceptance was made.
+     */
+	public void declineInvitation(final String invitedAs,
+            final JabberId invitedBy, final JabberId declinedBy,
+            final Calendar declinedOn) {
+		synchronized (implLock) {
+            impl.declineInvitation(invitedAs, invitedBy, declinedBy, declinedOn);
+        }
 	}
 
 	/**
@@ -85,8 +116,8 @@ public class ContactModel extends AbstractModel {
      * 
      * @param email
      */
-    public void invite(final String email) {
-        synchronized(implLock) { impl.invite(email); }
+    public void invite(final String email, final Calendar invitedOn) {
+        synchronized(implLock) { impl.invite(email, invitedOn); }
     }
 
 	/**

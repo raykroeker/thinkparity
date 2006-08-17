@@ -41,7 +41,7 @@ public class AcceptIncomingInvitation extends AbstractAction {
         final ContactModel contactModel = getContactModel();
         final UserModel userModel = getUserModel();
         final IncomingInvitation invitation = contactModel.readIncomingInvitation(invitationId);
-        final User invitedBy = userModel.read(invitation.getUserId());
+        final User invitedBy = userModel.read(invitation.getInvitedBy());
         if (browser.confirm(
                 "ContactIncomingInvitationAccept.ConfirmAcceptMessage",
                 new Object[] { invitedBy.getName() })) {

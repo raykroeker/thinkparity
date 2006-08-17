@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
@@ -18,10 +19,12 @@ import org.jivesoftware.smack.provider.ProviderManager;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.thinkparity.codebase.VCardBuilder;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQProvider;
@@ -53,7 +56,13 @@ class XMPPContact {
                 Boolean isComplete = Boolean.FALSE;
                 while (Boolean.FALSE == isComplete) {
                     next(1);
-                    if (isStartTag(Xml.Contact.INVITED_BY)) {
+                    if (isStartTag(Xml.Contact.INVITED_AS)) {
+                        next(1);
+                        query.invitedAs = readString();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.INVITED_AS)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Contact.INVITED_BY)) {
                         next(1);
                         query.invitedBy = readJabberId();
                         next(1);
@@ -79,6 +88,22 @@ class XMPPContact {
 
                 Boolean isComplete = Boolean.FALSE;
                 while (Boolean.FALSE == isComplete) {
+                    next(1);
+                    if (isStartTag(Xml.Contact.ACCEPTED_BY)) {
+                        next(1);
+                        query.acceptedBy = readJabberId();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.ACCEPTED_BY)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Contact.ACCEPTED_ON)) {
+                        next(1);
+                        query.acceptedOn = readCalendar();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.ACCEPTED_ON)) {
+                        next(1);
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
                 }
                 return query;
             }
@@ -90,6 +115,28 @@ class XMPPContact {
 
                 Boolean isComplete = Boolean.FALSE;
                 while (Boolean.FALSE == isComplete) {
+                    next(1);
+                    if (isStartTag(Xml.Contact.INVITED_AS)) {
+                        next(1);
+                        query.invitedAs = readString();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.INVITED_AS)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Contact.DECLINED_BY)) {
+                        next(1);
+                        query.declinedBy = readJabberId();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.DECLINED_BY)) {
+                        next(1);
+                    } else if (isStartTag(Xml.Contact.DECLINED_ON)) {
+                        next(1);
+                        query.declinedOn = readCalendar();
+                        next(1);
+                    } else if (isEndTag(Xml.Contact.DECLINED_ON)) {
+                        next(1);
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
                 }
                 return query;
             }
@@ -126,13 +173,13 @@ class XMPPContact {
      *            By whome the invitation was extended.
      * @throws SmackException
      */
-	void accept(final JabberId invitedBy) throws SmackException {
+	void accept(final JabberId invitedBy)
+            throws SmackException {
 		logger.info("[XMPP] [CONTACT] [ACCEPT INVITATION]");
         logger.debug(invitedBy);
 		final XMPPMethod accept = new XMPPMethod("contact:acceptinvitation");
         accept.setParameter(Xml.Contact.INVITED_BY, invitedBy);
         accept.setParameter(Xml.Contact.ACCEPTED_BY, xmppCore.getJabberId());
-
 		accept.execute(xmppCore.getConnection());
 	}
 
@@ -192,8 +239,10 @@ class XMPPContact {
      *            The user who extended the invitation.
      * @throws SmackException
      */
-	void decline(final JabberId invitedBy) throws SmackException {
+	void decline(final String invitedAs, final JabberId invitedBy)
+            throws SmackException {
 		final XMPPMethod decline = new XMPPMethod("contact:declineinvitation");
+        decline.setParameter(Xml.Contact.INVITED_AS, invitedAs);
         decline.setParameter(Xml.Contact.INVITED_BY, invitedBy);
         decline.setParameter(Xml.Contact.DECLINED_BY, xmppCore.getJabberId());
         decline.execute(xmppCore.getConnection());
@@ -210,7 +259,7 @@ class XMPPContact {
 		logger.info("[XMPP] [CONTACT] [INVITE]");
 		logger.debug(email);
         final XMPPMethod method = new XMPPMethod("contact:invite");
-        method.setParameter("email", email);
+        method.setParameter(Xml.Contact.EMAIL, email);
         method.execute(xmppCore.getConnection());
 	}
 
@@ -227,6 +276,25 @@ class XMPPContact {
 			(IQReadContactsResult) xmppCore.sendAndConfirmPacket(iq);
 		return result.getContacts();
 	}
+
+	/**
+     * Read a contact.
+     * 
+     * @return A contact.
+     */
+    Contact read(final JabberId contactId) throws XMPPException {
+        final XMPPMethod method = new XMPPMethod("contact:read");
+        method.setParameter(Xml.Contact.JABBER_ID, contactId);
+        final XMPPMethodResponse response = method.execute(xmppCore.getConnection());
+        xmppCore.assertContainsResult("RESPONSE IS EMPTY", response);
+        final Contact contact = new Contact();
+        contact.setId(response.readResultJabberId(Xml.Contact.JABBER_ID));
+        contact.setName(response.readResultString(Xml.Contact.NAME));
+        contact.setOrganization(response.readResultString(Xml.Contact.ORGANIZATION));
+        contact.setVCard(VCardBuilder.createVCard(response.readResultString(Xml.Contact.VCARD)));
+        contact.addAllEmails(response.readResultStrings("emails"));
+        return contact;
+    }
 
 	/**
 	 * Notify the listeners that an invitation has been accepted.
@@ -251,12 +319,13 @@ class XMPPContact {
 	private void notifyInvitationDeclined(final HandleInvitationDeclinedIQ query) {
 		synchronized (listenersLock) {
 			for(final XMPPContactListener l : listeners) {
-				l.handleInvitationDeclined(query.declinedBy, query.declinedOn);
+				l.handleInvitationDeclined(query.invitedAs, query.declinedBy,
+                        query.declinedOn);
 			}
 		}
 	}
 
-	/**
+    /**
 	 * Notify the listeners that an invitation has been received.
 	 * 
 	 * @param invitation
@@ -265,7 +334,7 @@ class XMPPContact {
 	private void notifyInvitationExtended(final HandleInvitationExtendedIQ query) {
 		synchronized (listenersLock) {
 			for(final XMPPContactListener l : listeners) {
-				l.handleInvitationExtended(query.invitedBy, query.invitedOn);
+				l.handleInvitationExtended(query.invitedAs, query.invitedBy, query.invitedOn);
 			}
 		}
 	}
@@ -296,6 +365,9 @@ class XMPPContact {
 
         /** The declined date. */
         private Calendar declinedOn;
+
+        /** The original invitation e-mail address. */
+        private String invitedAs;
     }
 
     /**
@@ -305,10 +377,14 @@ class XMPPContact {
      */
     private static class HandleInvitationExtendedIQ extends AbstractThinkParityIQ {
 
+        /** The invitation e-mail address. */
+        private String invitedAs;
+
         /** The inviter. */
         private JabberId invitedBy;
 
         /** The invitation date. */
         private Calendar invitedOn;
     }
+
 }

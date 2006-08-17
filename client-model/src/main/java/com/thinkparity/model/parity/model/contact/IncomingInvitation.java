@@ -11,8 +11,11 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class IncomingInvitation extends ContactInvitation {
 
-    /** A user id. */
-    private JabberId userId;
+    /** The invitation e-mail address. */
+    private String invitedAs;
+
+    /** A the inviting user. */
+    private JabberId invitedBy;
 
     /** Create IncomingInvitation. */
     public IncomingInvitation() {
@@ -20,12 +23,30 @@ public class IncomingInvitation extends ContactInvitation {
     }
 
     /**
+     * Obtain the invitedAs
+     *
+     * @return The String.
+     */
+    public String getInvitedAs() {
+        return invitedAs;
+    }
+
+    /**
      * Obtain the userId
      *
      * @return The Long.
      */
-    public JabberId getUserId() {
-        return userId;
+    public JabberId getInvitedBy() {
+        return invitedBy;
+    }
+
+    /**
+     * Set invitedAs.
+     *
+     * @param invitedAs The String.
+     */
+    public void setInvitedAs(final String invitedAs) {
+        this.invitedAs = invitedAs;
     }
 
     /**
@@ -33,8 +54,8 @@ public class IncomingInvitation extends ContactInvitation {
      *
      * @param userId The Long.
      */
-    public void setUserId(final JabberId userId) {
-        this.userId = userId;
+    public void setInvitedBy(final JabberId invitedBy) {
+        this.invitedBy = invitedBy;
     }
 
     /**

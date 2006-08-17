@@ -6,8 +6,11 @@
 
 package com.thinkparity.browser.application.browser.display.avatar.dialog;
 
+import java.awt.event.ActionEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import javax.swing.AbstractAction;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
@@ -27,11 +30,22 @@ public class ErrorAvatar extends Avatar {
     /** Creates new form ErrorDialog */
     public ErrorAvatar() {
         super("ErrorDialog", BrowserConstants.DIALOGUE_BACKGROUND);
+        bindEscapeKey("Cancel", new AbstractAction() {
+            /** @see java.io.Serializable */
+            private static final long serialVersionUID = 1;
+
+            /**
+             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+             */
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
         initComponents();
     }
 
     public AvatarId getId() { return AvatarId.DIALOG_ERROR; }
-    
+
     public State getState() { return null; }
 
     /**
@@ -156,7 +170,6 @@ public class ErrorAvatar extends Avatar {
         final String error = readInputError();
         if(null != error) { errorJTextArea.setText(error); }
     }
-
     /**
      * Reload the error message label.
      *

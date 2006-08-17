@@ -631,6 +631,28 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Notify the application that an incoming contact invitation has been
+     * accepted.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            A remote event indicator.
+     */
+    public void fireIncomingContactInvitationAccepted(final JabberId contactId,
+            final Long invitationId, final Boolean remote) {
+        setStatus("IncomingContactInvitationAccepted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncContact(contactId, remote);
+                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
      * Notify the application than an incoming contact invitation has been
      * created.
      * 
@@ -641,9 +663,51 @@ public class Browser extends AbstractApplication {
      */
     public void fireIncomingContactInvitationCreated(final Long invitationId,
             final Boolean remote) {
-        setStatus("IncomingContactInvitationDeleted");
+        setStatus("IncomingContactInvitationCreated");
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that an incoming contact invitation has been
+     * accepted.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            A remote event indicator.
+     */
+    public void fireIncomingContactInvitationDeclined(final Long invitationId,
+            final Boolean remote) {
+        setStatus("IncomingContactInvitationDeclined");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+            }
+        });
+    }
+
+    /**
+     * Notify the application that an outgoing invitation has been accepted.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @param invitationId
+     *            An invitation id.
+     * @param remote
+     *            A remote event indicator.
+     */
+    public void fireOutgoingContactInvitationAccepted(final JabberId contactId,
+            final Long invitationId, final Boolean remote) {
+        setStatus("OutgoingContactInvitationAccepted");
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().syncContact(contactId, remote);
                 getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
             }
         });

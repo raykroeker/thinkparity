@@ -28,6 +28,14 @@ public class UserSql extends AbstractSql {
             .append("where JU.USERNAME=?")
             .toString();
 
+    /** Sql to read a username from an e-mail address. */
+    private static final String SQL_READ_USERNAME =
+            new StringBuffer("select JU.USERNAME ")
+            .append("from parityUserEmail PUE ")
+            .append("inner join jiveUser JU on PUE.USERNAME=JU.USERNAME ")
+            .append("where PUE.EMAIL=?")
+            .toString();
+
     /** Create UserSql. */
     public UserSql() { super(); }
 
@@ -47,5 +55,33 @@ public class UserSql extends AbstractSql {
         }
         finally { close(cx, ps, rs); }
 
+    }
+
+    /**
+     * Read a jabber id for an e-mail addreses.
+     * 
+     * @param email
+     *            An e-mail address.
+     * @return A jabber id.
+     * @throws SQLException
+     */
+    public String readUsername(final String email) throws SQLException {
+        Connection cx = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            cx = getCx();
+            logStatement(SQL_READ_USERNAME);
+            ps = cx.prepareStatement(SQL_READ_USERNAME);
+            set(ps, 1, email);
+            rs = ps.executeQuery();
+            if(rs.next()) {
+                return rs.getString("USERNAME");
+            } else {
+                return null;
+            }
+        } finally {
+            close(cx, ps, rs);
+        }
     }
 }

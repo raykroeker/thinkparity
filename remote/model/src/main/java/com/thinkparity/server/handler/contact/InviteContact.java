@@ -3,12 +3,15 @@
  */
 package com.thinkparity.server.handler.contact;
 
+import java.util.Calendar;
+
 import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
+ * TODO Rename to extend invitation.
  */
 public class InviteContact extends AbstractController {
 
@@ -21,7 +24,7 @@ public class InviteContact extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        invite(readString(Xml.Contact.EMAIL));
+        invite(readString(Xml.Contact.EMAIL), readCalendar(Xml.All.EXECUTED_ON));
     }
 
     /**
@@ -30,5 +33,7 @@ public class InviteContact extends AbstractController {
      * @param email
      *            An e-mail address.
      */
-    private void invite(final String email) { getContactModel().invite(email); }
+    private void invite(final String email, final Calendar invitedOn) {
+        getContactModel().invite(email, invitedOn);
+    }
 }

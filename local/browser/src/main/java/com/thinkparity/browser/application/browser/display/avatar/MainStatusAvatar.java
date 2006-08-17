@@ -72,6 +72,17 @@ public class MainStatusAvatar extends Avatar {
     public void setState(final State state) {}
 
     /**
+     * Obtain a localized string for the connection.
+     * 
+     * @param connection
+     *            A platform connection.
+     * @return A localized string.
+     */
+    protected String getString(final Connection connection) {
+        return getString(connection.toString());
+    }
+
+    /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
@@ -84,6 +95,45 @@ public class MainStatusAvatar extends Avatar {
                     Browser.MainStatus.BG_GRAD_FINISH);
         }
         finally { g2.dispose(); }
+    }
+
+    /**
+     * Obtain the input connection.
+     * 
+     * @return A platform connection.
+     */
+    private Connection getInputConnection() {
+        if (null == input) {
+            return null;
+        } else {
+            return (Connection) ((Data) input).get(DataKey.CONNECTION);
+        }
+    }
+
+    /**
+     * Obtain the input custom message.
+     * 
+     * @return A string.
+     */
+    private String getInputCustomMessage() {
+        if (null == input) {
+            return null;
+        } else {
+            return (String) ((Data) input).get(DataKey.CUSTOM_MESSAGE);
+        }
+    }
+
+    /**
+     * Obtain the custom message localization arguments.
+     * 
+     * @return An object array.
+     */
+    private Object[] getInputCustomMessageArguments() {
+        if (null == input) {
+            return null;
+        } else {
+            return (Object[]) ((Data) input).get(DataKey.CUSTOM_MESSAGE_ARGUMENTS);
+        }
     }
 
     /** This method is called from within the constructor to
@@ -168,34 +218,21 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
-     * Obtain a localized string for the connection.
-     * 
-     * @param connection
-     *            A platform connection.
-     * @return A localized string.
-     */
-    protected String getString(final Connection connection) {
-        return getString(connection.toString());
-    }
-
-    /**
-     * Obtain the input connection.
-     * 
-     * @return A platform connection.
-     */
-    private Connection getInputConnection() {
-        if (null == input) {
-            return null;
-        } else {
-            return (Connection) ((Data) input).get(DataKey.CONNECTION);
-        }
-    }
-
-    /**
      * Reload the custom status message.
      *
      */
-    private void reloadCustom() {}
+    private void reloadCustom() {
+        customJLabel.setText("");
+        final String customMessage = getInputCustomMessage();
+        if (null != customMessage) {
+            final Object[] customMessageArguments = getInputCustomMessageArguments();
+            if (null == customMessageArguments) {
+                customJLabel.setText(getString(customMessage));
+            } else {
+                customJLabel.setText(getString(customMessage, customMessageArguments));
+            }
+        }
+    }
 
     private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseDragged
         getController().resizeBrowserWindow(

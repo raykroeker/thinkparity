@@ -53,6 +53,12 @@ public class UserModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
+    public User readUser(final String email) {
+        synchronized (implLock) {
+            return impl.readUser(email);
+        }
+    }
+
 	public User readUser(final JabberId jabberId) {
 		synchronized(implLock) { return impl.readUser(jabberId); }
 	}

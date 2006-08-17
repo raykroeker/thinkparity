@@ -46,9 +46,9 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            The user's jabber id.
      * @throws ParityException
      */
-    public void acceptInvitation(final JabberId jabberId) {
+    public void acceptInvitation(final JabberId invitedBy) {
         synchronized (getImplLock()) {
-            getImpl().acceptInvitation(jabberId);
+            getImpl().acceptInvitation(invitedBy);
         }
     }
 
@@ -157,6 +157,19 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
 	/**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
+    public Contact readContact(final JabberId contactId) {
+        synchronized (getImplLock()) {
+            return getImpl().readContact(contactId);
+        }
+    }
+
+    /**
      * Read the user's contact list.
      * 
      * @return A list of contacts.

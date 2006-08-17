@@ -17,6 +17,12 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public interface ContactIOHandler {
 
+    /**
+     * Create a contact.
+     * 
+     * @param contact
+     *            A contact.
+     */
     public void create(final Contact contact);
 
     /**

@@ -33,8 +33,8 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** Sql to create an incoming invitation. */
     private static final String SQL_CREATE_INCOMING_INVITATION =
             new StringBuffer("insert into CONTACT_INVITATION_INCOMING ")
-            .append("(CONTACT_INVITATION_ID,USER_ID) ")
-            .append("values (?,?)")
+            .append("(CONTACT_INVITATION_ID,INVITED_AS,INVITED_BY) ")
+            .append("values (?,?,?)")
             .toString();
 
     /** Sql to create the common invitation data. */
@@ -49,6 +49,12 @@ public class ContactIOHandler extends AbstractIOHandler implements
             new StringBuffer("insert into CONTACT_INVITATION_OUTGOING ")
             .append("(CONTACT_INVITATION_ID,EMAIL_ID) ")
             .append("values (?,?)")
+            .toString();
+
+    /** Sql to delete an incoming invitation. */
+    private static final String SQL_DELETE_INCOMING_INVITATION =
+            new StringBuffer("delete from CONTACT_INVITATION_INCOMING ")
+            .append("where CONTACT_INVITATION_ID=?")
             .toString();
 
     /** Sql to delete common contact invitation data. */
@@ -86,15 +92,16 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join EMAIL E on CER.EMAIL_ID=E.EMAIL_ID ")
             .append("where C.CONTACT_ID=?")
             .toString();
-
+   
     /** Sql to read an incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATION =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
-            .append("UI.JABBER_ID,CI.CONTACT_INVITATION_ID ")
+            .append("UI.JABBER_ID,CI.CONTACT_INVITATION_ID,E.EMAIL ")
             .append("from CONTACT_INVITATION CI ")
             .append("inner join CONTACT_INVITATION_INCOMING CII on ")
             .append("CI.CONTACT_INVITATION_ID=CII.CONTACT_INVITATION_ID ")
-            .append("inner join USER UI on CII.USER_ID=UI.USER_ID ")
+            .append("inner join USER UI on CII.INVITED_BY=UI.USER_ID ")
+            .append("inner join EMAIL E on CII.INVITED_AS=E.EMAIL_ID ")
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
             .append("where CII.CONTACT_INVITATION_ID=?")
             .toString();
@@ -102,20 +109,13 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** Sql to read all incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATIONS =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
-            .append("UI.JABBER_ID,CI.CONTACT_INVITATION_ID ")
+            .append("UI.JABBER_ID,CI.CONTACT_INVITATION_ID,E.EMAIL ")
             .append("from CONTACT_INVITATION CI ")
             .append("inner join CONTACT_INVITATION_INCOMING CII on ")
             .append("CI.CONTACT_INVITATION_ID=CII.CONTACT_INVITATION_ID ")
-            .append("inner join USER UI on CII.USER_ID=UI.USER_ID ")
+            .append("inner join USER UI on CII.INVITED_BY=UI.USER_ID ")
+            .append("inner join EMAIL E on CII.INVITED_AS=E.EMAIL_ID ")
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
-            .toString();
-   
-    /** Sql to read contact invitations. */
-    private static final String SQL_READ_INVITATIONS =
-            new StringBuffer("select U.JABBER_ID CREATED_BY,CI.CREATED_ON,E.EMAIL,CI.CONTACT_INVITATION_ID ")
-            .append("from CONTACT_INVITATION CI ")
-            .append("inner join EMAIL E on CI.EMAIL_ID=E.EMAIL_ID ")
-            .append("inner join USER U on CI.CREATED_BY = U.USER_ID")
             .toString();
 
     /** Sql to read an outgoing contact invitation. */
@@ -130,16 +130,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("where E.EMAIL=?")
             .toString();
 
-    /** Sql to read an outgoing invitation's e-mail id. */
-    private static final String SQL_READ_OUTGOING_INVITATION_EMAIL_ID =
-            new StringBuffer("select EMAIL_ID ")
-            .append("from CONTACT_INVITATION CI ")
-            .append("inner join CONTACT_INVITATION_OUTGOING CIO on")
-            .append("CI.CONTACT_INVITATION_ID=CIO.CONTACT_INVITATION_ID ")
-            .append("inner join EMAIL E on CIO.EMAIL_ID=E.EMAIL_ID ")
-            .append("where CI.CONTACT_INVITATION_ID=?")
-            .toString();
-
     /** Sql to read an outgoing invitation by its id. */
     private static final String SQL_READ_OUTGOING_INVITATION_BY_ID =
             new StringBuffer("select U.JABBER_ID,CI.CREATED_BY,CI.CREATED_ON,")
@@ -149,6 +139,16 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("CI.CONTACT_INVITATION_ID=CIO.CONTACT_INVITATION_ID ")
             .append("inner join EMAIL E on CIO.EMAIL_ID=E.EMAIL_ID ")
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
+            .append("where CI.CONTACT_INVITATION_ID=?")
+            .toString();
+
+    /** Sql to read an outgoing invitation's e-mail id. */
+    private static final String SQL_READ_OUTGOING_INVITATION_EMAIL_ID =
+            new StringBuffer("select EMAIL_ID ")
+            .append("from CONTACT_INVITATION CI ")
+            .append("inner join CONTACT_INVITATION_OUTGOING CIO on ")
+            .append("CI.CONTACT_INVITATION_ID=CIO.CONTACT_INVITATION_ID ")
+            .append("inner join EMAIL E on CIO.EMAIL_ID=E.EMAIL_ID ")
             .append("where CI.CONTACT_INVITATION_ID=?")
             .toString();
 
@@ -190,14 +190,10 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** The email db io. */
     private final EmailIOHandler emailIO;
 
-    /** The user db io. */
-    private final UserIOHandler userIO;
-
     /** Create ContactIOHandler. */
     public ContactIOHandler() {
         super();
         this.emailIO = new EmailIOHandler();
-        this.userIO = new UserIOHandler();
     }
 
     /**
@@ -207,8 +203,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
     public void create(final Contact contact) {
         final Session session = openSession();
         try {
-            userIO.create(session, contact);
-
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, contact.getLocalId());
             session.setString(2, contact.getVCard().toXML());
@@ -227,7 +221,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
-    
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#createIncomingInvitation(com.thinkparity.model.parity.model.contact.IncomingInvitation)
      * 
@@ -236,13 +229,15 @@ public class ContactIOHandler extends AbstractIOHandler implements
             final User user) {
         final Session session = openSession();
         try {
+            final Long emailId = emailIO.readId(session, incoming.getInvitedAs());
             createInvitation(session, incoming);
 
             session.prepareStatement(SQL_CREATE_INCOMING_INVITATION);
             session.setLong(1, incoming.getId());
-            session.setLong(2, user.getLocalId());
+            session.setLong(2, emailId);
+            session.setLong(3, user.getLocalId());
             if(1 != session.executeUpdate())
-                throw new HypersonicException(getErrorId("", ""));
+                throw new HypersonicException(getErrorId("CREATE INCOMING INVITATION", "COULD NOT CREATE INCOMING INVITATION"));
 
             session.commit();
         } catch (final HypersonicException hx) {
@@ -289,7 +284,20 @@ public class ContactIOHandler extends AbstractIOHandler implements
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#deleteIncomingInvitation(java.lang.Long)
      */
     public void deleteIncomingInvitation(final Long invitationId) {
-        throw Assert.createNotYetImplemented("ContactIOHandler#deleteIncomingInvitation");
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_INCOMING_INVITATION);
+            session.setLong(1, invitationId);
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("DELETE INCOMING INVITATION", "COULD NOT DELETE INCOMING INVITATION"));
+            deleteInvitation(session, invitationId);
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -303,7 +311,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("DELETE OUTGOING INVITATION", "COULD NOT DELETE OUTGOING INVITATION"));
             deleteInvitation(session, invitationId);
-
             emailIO.delete(session, readOutgoingInvitationEmailId(session, invitationId));
             session.commit();
         } catch(final HypersonicException hx) {
@@ -311,27 +318,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
             throw hx;
         } finally {
             session.close();
-        }
-    }
-
-    /**
-     * Read the outgoing invitation's e-mail id.
-     * 
-     * @param session
-     *            A database session.
-     * @param invitationId
-     *            An invitation id.
-     * @return An e-mail id.
-     */
-    private Long readOutgoingInvitationEmailId(final Session session,
-            final Long invitationId) {
-        session.prepareStatement(SQL_READ_OUTGOING_INVITATION_EMAIL_ID);
-        session.setLong(1, invitationId);
-        session.executeQuery();
-        if(session.nextResult()) {
-            return session.getLong("EMAIL_ID");
-        } else {
-            return null;
         }
     }
 
@@ -351,6 +337,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
+
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#read(java.lang.String)
      */
@@ -365,7 +352,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
     }
-
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#readIncomingInvitation(java.lang.Long)
      */
@@ -502,7 +488,8 @@ public class ContactIOHandler extends AbstractIOHandler implements
     IncomingInvitation extractIncomingInvitation(final Session session) {
         final IncomingInvitation incoming = new IncomingInvitation();
         extractInvitation(session, incoming);
-        incoming.setUserId(session.getQualifiedUsername("JABBER_ID"));
+        incoming.setInvitedAs(session.getString("EMAIL"));
+        incoming.setInvitedBy(session.getQualifiedUsername("JABBER_ID"));
         return incoming;
     }
 
@@ -586,5 +573,26 @@ public class ContactIOHandler extends AbstractIOHandler implements
             return emails;
         }
         finally { session.close(); }
+    }
+
+    /**
+     * Read the outgoing invitation's e-mail id.
+     * 
+     * @param session
+     *            A database session.
+     * @param invitationId
+     *            An invitation id.
+     * @return An e-mail id.
+     */
+    private Long readOutgoingInvitationEmailId(final Session session,
+            final Long invitationId) {
+        session.prepareStatement(SQL_READ_OUTGOING_INVITATION_EMAIL_ID);
+        session.setLong(1, invitationId);
+        session.executeQuery();
+        if(session.nextResult()) {
+            return session.getLong("EMAIL_ID");
+        } else {
+            return null;
+        }
     }
 }

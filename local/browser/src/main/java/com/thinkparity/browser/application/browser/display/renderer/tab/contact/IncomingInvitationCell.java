@@ -42,7 +42,7 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
     private final FuzzyDateFormat fuzzyDateFormat;
 
     /** The invited by user. */
-    private User invitedBy;
+    private User invitedByUser;
 
     /** The invitation cell localization. */
     private final MainCellL18n localization;
@@ -91,8 +91,8 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
      *
      * @return The User.
      */
-    public User getInvitedBy() {
-        return invitedBy;
+    public User getInvitedByUser() {
+        return invitedByUser;
     }
 
     /**
@@ -121,7 +121,7 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
      */
     public String getText() {
         return localization.getString("Text", new Object[] {
-                invitedBy.getName(), fuzzyDateFormat.format(createdOn) });
+                invitedByUser.getName(), fuzzyDateFormat.format(createdOn) });
     }
 
     /**
@@ -157,8 +157,8 @@ public class IncomingInvitationCell extends IncomingInvitation implements TabCel
      *
      * @param invitedBy The User.
      */
-    public void setInvitedBy(final User invitedBy) {
-        this.invitedBy = invitedBy;
+    public void setInvitedByUser(final User invitedBy) {
+        this.invitedByUser = invitedBy;
     }
 
     /**

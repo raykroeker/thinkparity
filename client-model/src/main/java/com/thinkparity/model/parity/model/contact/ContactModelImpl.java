@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.parity.model.contact;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -100,14 +101,16 @@ class ContactModelImpl extends AbstractModelImpl {
         logApiId();
         debugVariable("invitationId", invitationId);
         final IncomingInvitation invitation = readIncomingInvitation(invitationId);
+        // delete the invitation
+        contactIO.deleteIncomingInvitation(invitation.getId());
         // update contact list
         final InternalSessionModel sessionModel = getInternalSessionModel();
-        sessionModel.acceptInvitation(invitation.getUserId());
+        sessionModel.acceptInvitation(invitation.getInvitedBy());
         // create contact data
-        final Contact contact = readRemote(invitation.getUserId());
+        final Contact contact = readRemote(invitation.getInvitedBy());
+        final User user = getInternalUserModel().read(contact.getId());
+        contact.setLocalId(user.getLocalId());
         contactIO.create(contact);
-        // delete invitation
-        contactIO.deleteIncomingInvitation(invitation.getId());
         // fire event
         notifyIncomingInvitationAccepted(contact, invitation, localEventGenerator);
     }
@@ -165,12 +168,13 @@ class ContactModelImpl extends AbstractModelImpl {
         logApiId();
         debugVariable("invitationId", invitationId);
         // decline
-        final IncomingInvitation incoming = readIncomingInvitation(invitationId);
-        getInternalSessionModel().declineInvitation(incoming.getUserId());
+        final IncomingInvitation invitation = readIncomingInvitation(invitationId);
+        getInternalSessionModel().declineInvitation(
+                invitation.getInvitedAs(), invitation.getInvitedBy());
         // delete invitation data
-        contactIO.deleteIncomingInvitation(incoming.getId());
+        contactIO.deleteIncomingInvitation(invitation.getId());
         // fire event
-        notifyIncomingInvitationDeclined(incoming, localEventGenerator);
+        notifyIncomingInvitationDeclined(invitation, localEventGenerator);
     }
 
     /**
@@ -210,7 +214,7 @@ class ContactModelImpl extends AbstractModelImpl {
         logger.warn(getApiId("[DOWNLOAD]"));
         final List<Contact> remoteContacts = getInternalSessionModel().readContactList();
         for(final Contact remoteContact : remoteContacts) {
-            contactIO.create(remoteContact);
+//            contactIO.create(remoteContact);
         }
     }
 
@@ -228,14 +232,26 @@ class ContactModelImpl extends AbstractModelImpl {
        debugVariable("acceptedBy", acceptedBy);
        debugVariable("acceptedOn", acceptedOn);
        final Contact contact = readRemote(acceptedBy);
-       // delete invitation
-       final OutgoingInvitation outgoing =
-           contactIO.readOutgoingInvitation(contact.getEmails().get(0));
-       contactIO.deleteOutgoingInvitation(outgoing.getId());
+       // delete invitation(s)
+       final List<OutgoingInvitation> outgoingInvitations = new ArrayList<OutgoingInvitation>();
+       for (final String email : contact.getEmails()) {
+           outgoingInvitations.add(contactIO.readOutgoingInvitation(email));
+           contactIO.deleteOutgoingInvitation(
+                   outgoingInvitations.get(
+                           outgoingInvitations.size() - 1).getId());
+       }
        // create the contact data
+       final InternalUserModel userModel = getInternalUserModel();
+       User user = userModel.read(contact.getId());
+       if (null == user) {
+           user = userModel.create(contact.getId());
+       }
+       contact.setLocalId(user.getLocalId());
        contactIO.create(contact);
-       // fire event
-       notifyOutgoingInvitationAccepted(contact, outgoing, remoteEventGenerator);
+       // fire event(s)
+       for (final OutgoingInvitation outgoingInvitation : outgoingInvitations) {
+           notifyOutgoingInvitationAccepted(contact, outgoingInvitation, remoteEventGenerator);
+       }
    }
 
     /**
@@ -246,27 +262,17 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    void handleInvitationDeclined(final JabberId declinedBy,
-           final Calendar declinedOn) {
+    void handleInvitationDeclined(final String invitedAs,
+            final JabberId declinedBy, final Calendar declinedOn) {
        logApiId();
        debugVariable("declinedBy", declinedBy);
        debugVariable("declinedOn", declinedOn);
-
-       // download the user's info
-       final InternalUserModel userModel = getInternalUserModel();
-       User invitedByUser = userModel.read(declinedBy);
-       if (null == invitedByUser) {
-           invitedByUser = userModel.create(declinedBy);
-       }
-
-       final IncomingInvitation incoming = new IncomingInvitation();
-       incoming.setCreatedBy(localUser().getLocalId());
-       incoming.setCreatedOn(currentDateTime());
-       incoming.setUserId(invitedByUser.getId());
-       contactIO.createIncomingInvitation(incoming, invitedByUser);
-       // fire event
-       final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
-       notifyIncomingInvitationCreated(postCreation, localEventGenerator);
+       // delete invitation
+       final OutgoingInvitation invitation =
+               contactIO.readOutgoingInvitation(invitedAs);
+       contactIO.deleteOutgoingInvitation(invitation.getId());
+       // fire event(s)
+       notifyOutgoingInvitationDeclined(invitation, remoteEventGenerator);
    }
 
     /**
@@ -277,23 +283,23 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param invitedOn
      *            When the invitation was extended.
      */
-    void handleInvitationExtended(final JabberId invitedBy,
-            final Calendar invitedOn) {
+    void handleInvitationExtended(final String invitedAs,
+            final JabberId invitedBy, final Calendar invitedOn) {
         logApiId();
+        debugVariable("invitedAs", invitedAs);
         debugVariable("invitedBy", invitedBy);
         debugVariable("invitedOn", invitedOn);
-
-        // download the user's info
+        // create user data
         final InternalUserModel userModel = getInternalUserModel();
         User invitedByUser = userModel.read(invitedBy);
         if (null == invitedByUser) {
             invitedByUser = userModel.create(invitedBy);
         }
-
         final IncomingInvitation incoming = new IncomingInvitation();
         incoming.setCreatedBy(localUser().getLocalId());
         incoming.setCreatedOn(currentDateTime());
-        incoming.setUserId(invitedByUser.getId());
+        incoming.setInvitedAs(invitedAs);
+        incoming.setInvitedBy(invitedByUser.getId());
         contactIO.createIncomingInvitation(incoming, invitedByUser);
         // fire event
         final IncomingInvitation postCreation = contactIO.readIncomingInvitation(incoming.getId());
@@ -630,6 +636,24 @@ class ContactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Notify all listeners that an outgoing invitation has been declined.
+     * 
+     * @param invitation
+     *            The invitation.
+     * @param eventGenerator
+     *            An event generator.
+     */
+    private void notifyOutgoingInvitationDeclined(
+            final OutgoingInvitation invitation,
+            final ContactEventGenerator eventGenerator) {
+        synchronized (LISTENERS) {
+            for (final ContactListener l : LISTENERS) {
+                l.outgoingInvitationDeclined(eventGenerator.generate(invitation));
+            }
+        }
+    }
+
+    /**
      * Notify all listeners that an incoming invitation has been created.
      * 
      * @param incomingInvitation
@@ -658,14 +682,14 @@ class ContactModelImpl extends AbstractModelImpl {
         return null;
     }
 
+    /**
+     * Read a contact from the server.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
     private Contact readRemote(final JabberId contactId) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(contactId);
-        logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
-        final List<Contact> contacts = getInternalSessionModel().readContactList();
-        for(final Contact contact : contacts) {
-            if(contact.getId().equals(contactId)) { return contact; }
-        }
-        return null;
+        return getInternalSessionModel().readContact(contactId);
     }
 }

@@ -37,13 +37,14 @@ import com.thinkparity.model.xmpp.user.User;
 public interface XMPPSession {
 
     /**
-     * Accept an invitation from a user.
+     * Accept an invitation.
      * 
      * @param invitedBy
-     *            The inviting user.
+     *            The original invitor.
      * @throws SmackException
      */
-    public void acceptInvitation(final JabberId invitedBy) throws SmackException;
+    public void acceptInvitation(final JabberId invitedBy)
+            throws SmackException;
 
     /**
      * Add an xmpp artifact event listener.
@@ -133,11 +134,14 @@ public interface XMPPSession {
     /**
      * Decline an invitation.
      * 
+     * @param invitedAs
+     *            The orginal invitation e-mail address.
      * @param invitedBy
      *            The inviting user.
      * @throws SmackException
      */
-    public void declineInvitation(final JabberId invitedBy) throws SmackException;
+    public void declineInvitation(final String invitedAs,
+            final JabberId invitedBy) throws SmackException;
 
     /**
      * Delete an artifact
@@ -225,6 +229,15 @@ public interface XMPPSession {
      * @throws SmackException
      */
     public List<Contact> readContacts() throws SmackException;
+
+    /**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
+    public Contact readContact(final JabberId contactId) throws SmackException;
 
     /**
      * Read the logged in user.

@@ -55,8 +55,9 @@ public class ParityServer implements Plugin {
 	/**
 	 * @see org.jivesoftware.messenger.container.Plugin#initializePlugin(org.jivesoftware.messenger.container.PluginManager, java.io.File)
 	 */
-	public void initializePlugin(PluginManager manager, File pluginDirectory) {
-		initializePluginLogging(pluginDirectory);
+	public void initializePlugin(final PluginManager manager,
+            final File pluginDirectory) {
+		initLoggging(pluginDirectory);
 		initializeControllers();
 		logger.info(Version.toInfo());
 	}
@@ -125,6 +126,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.contact.AcceptInvitation");
             initializeController("com.thinkparity.server.handler.contact.DeclineInvitation");
             initializeController("com.thinkparity.server.handler.contact.InviteContact");
+            initializeController("com.thinkparity.server.handler.contact.Read");
             initializeController("com.thinkparity.server.handler.contact.ReadContacts");
             initializeController("com.thinkparity.server.handler.container.Publish");
             initializeController("com.thinkparity.server.handler.container.PublishArtifact");
@@ -137,13 +139,14 @@ public class ParityServer implements Plugin {
 	}
 
     /**
-	 * Initialize log4j for the parity server.
+	 * Initialize logging.
 	 * 
 	 * @param pluginDirectory
 	 *            The plugin directory.
 	 */
-	private void initializePluginLogging(final File pluginDirectory) {
-        System.setProperty("rModel.pluginDirectory", pluginDirectory.getAbsolutePath());
+	private void initLoggging(final File pluginDirectory) {
+        System.setProperty("thinkparity.log4j.file",
+                new File(pluginDirectory, "desdemona.log4j").getAbsolutePath());
         logger = Logger.getLogger(getClass());
 	}
 }

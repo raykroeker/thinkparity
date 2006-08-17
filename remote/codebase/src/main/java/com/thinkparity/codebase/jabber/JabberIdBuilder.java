@@ -24,6 +24,24 @@ public class JabberIdBuilder {
 	static { SINGLETON = new JabberIdBuilder(); }
 
     /**
+     * Build a jabber id.
+     * 
+     * @param username
+     *            A username.
+     * @param host
+     *            A host.
+     * @param resource
+     *            A resource.
+     * @return A jabber id.
+     */
+    public static JabberId build(final String username, final String host,
+            final String resource) {
+        synchronized (SINGLETON) {
+            return SINGLETON.doBuild(username, host, resource);
+        }
+    }
+
+	/**
      * Parse a jive JID.
      * 
      * @param jid
@@ -47,7 +65,7 @@ public class JabberIdBuilder {
 		}
 	}
 
-	/**
+    /**
 	 * Parse the qualified username and build a jabber id.
 	 * 
 	 * @param qualifiedUsername
@@ -94,6 +112,23 @@ public class JabberIdBuilder {
 	public String getQualifiedUsername() {
 		return qualifiedUsername;
 	}
+
+    /**
+     * Build a jabber id.
+     * 
+     * @param username
+     *            A username.
+     * @param host
+     *            A host.
+     * @param resource
+     *            A resource.
+     * @return A jabber id.
+     */
+    private JabberId doBuild(final String username, final String host,
+            final String resource) {
+        return doParseQualifiedJabberId(new StringBuffer(username).append('@')
+                .append(host).append('/').append(resource).toString());
+    }
 
 	/**
      * Parse a jive JID.

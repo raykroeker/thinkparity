@@ -60,7 +60,7 @@ class RenameProfileAvatar extends Avatar {
     public AvatarId getId() {
         throw Assert.createNotYetImplemented("ProfileManagerAvatar#getId");
     }
-    
+
     /**
      * Obtain the new profile name.
      *
@@ -159,6 +159,14 @@ class RenameProfileAvatar extends Avatar {
         return (Profile) ((Data) input).get(DataKey.SELECTED_PROFILE);
     }
 
+    private Profile getInputSelectedProfile() {
+        if (null == input) {
+            return null;
+        } else {
+            return (Profile) ((Data) input).get(DataKey.SELECTED_PROFILE);
+        }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -180,6 +188,7 @@ class RenameProfileAvatar extends Avatar {
 
         profileNameJTextField.setText("!Profile name value!");
 
+        renameJButton.setMnemonic('R');
         renameJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("RenameProfileAvatar.RenameButton"));
         renameJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -187,6 +196,7 @@ class RenameProfileAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setMnemonic('a');
         cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("RenameProfileAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -241,7 +251,14 @@ class RenameProfileAvatar extends Avatar {
     }
 
     /** Reload the name control. */
-    private void reloadName() { profileNameJTextField.setText(""); }
+    private void reloadName() {
+        profileNameJTextField.setText("");
+        final Profile selectedProfile = getInputSelectedProfile();
+        if (null != selectedProfile) {
+            profileNameJTextField.setText(selectedProfile.getName());
+            profileNameJTextField.selectAll();
+        }
+    }
     /**
      * Create event handler.
      *

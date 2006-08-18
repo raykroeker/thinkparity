@@ -142,6 +142,7 @@ class DeleteProfileAvatar extends Avatar {
         profileNameJTextField.setBorder(null);
         profileNameJTextField.setOpaque(false);
 
+        deleteJButton.setMnemonic('D');
         deleteJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DeleteProfileAvatar.DeleteButton"));
         deleteJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -149,6 +150,7 @@ class DeleteProfileAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setMnemonic('a');
         cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DeleteProfileAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {

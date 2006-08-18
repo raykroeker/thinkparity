@@ -5,9 +5,12 @@
 package com.thinkparity.browser.profile;
 
 import java.io.File;
+import java.util.Calendar;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
+import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
@@ -16,13 +19,21 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class Profile {
+public class Profile implements Comparable<Profile> {
 
     /** The profile file system. */
     private FileSystem fileSystem;
 
     /** Create Profile. */
     Profile() { super(); }
+
+    /**
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(final Profile o) {
+        final Long lastModified = fileSystem.getRoot().lastModified();
+        return -1 * lastModified.compareTo(o.fileSystem.getRoot().lastModified());
+    }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
@@ -71,6 +82,17 @@ public class Profile {
      *
      */
     void delete() { FileUtil.deleteTree(fileSystem.getRoot()); }
+
+    /**
+     * Obtain the last modified date of the profile.
+     * 
+     * @return The last modified date.
+     */
+    String getLastModified() {
+        final File root = fileSystem.getRoot();
+        final Calendar calendar = DateUtil.getInstance(root.lastModified());
+        return DateUtil.format(calendar, DateImage.ISO);
+    }
 
     /**
      * Rename the profile.

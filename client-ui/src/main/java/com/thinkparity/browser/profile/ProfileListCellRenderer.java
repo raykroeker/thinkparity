@@ -29,7 +29,8 @@ class ProfileListCellRenderer extends DefaultListCellRenderer {
             int index, boolean isSelected, boolean cellHasFocus) {
         final JLabel jLabel = (JLabel) super.getListCellRendererComponent(list, value,
                 index, isSelected, cellHasFocus);
-        jLabel.setText(((Profile) value).getName());
+        final Profile profile = (Profile) value;
+        jLabel.setText(new StringBuffer(profile.getLastModified()).append(" - ").append(profile.getName()).toString());
         return jLabel;
     }
 }

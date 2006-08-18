@@ -171,6 +171,7 @@ class CreateProfileAvatar extends Avatar {
 
         profileNameJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("CreateProfileAvatar.ProfileNameLabel"));
 
+        createJButton.setMnemonic('C');
         createJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("CreateProfileAvatar.CreateButton"));
         createJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -178,6 +179,7 @@ class CreateProfileAvatar extends Avatar {
             }
         });
 
+        cancelJButton.setMnemonic('a');
         cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("CreateProfileAvatar.CancelButton"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {

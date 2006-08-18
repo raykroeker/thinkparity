@@ -73,6 +73,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="renameJButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="82"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="RenameProfileAvatar.RenameButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -86,6 +87,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="cancelJButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="97"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="RenameProfileAvatar.CancelButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>

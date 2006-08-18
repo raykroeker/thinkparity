@@ -21,9 +21,9 @@
                           <Component id="renameJButton" alignment="1" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="profileJScrollPane" min="-2" pref="192" max="-2" attributes="0"/>
+                      <Component id="profileJScrollPane" min="-2" pref="244" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="eaJLabel" alignment="1" pref="332" max="32767" attributes="0"/>
+                  <Component id="eaJLabel" alignment="1" pref="389" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="exitJButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -40,7 +40,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="eaJLabel" min="-2" pref="61" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="profileJScrollPane" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
@@ -84,6 +84,7 @@
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
               <StringArray count="0"/>
             </Property>
+            <Property name="selectionMode" type="int" value="0"/>
           </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="profileJListMouseClicked"/>
@@ -99,6 +100,7 @@
     </Container>
     <Component class="javax.swing.JButton" name="startJButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="83"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="ProfileManagerAvatar.StartButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -112,6 +114,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="exitJButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="120"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="ProfileManagerAvatar.ExitButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -125,6 +128,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="renameJButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="82"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="ProfileManagerAvatar.RenameButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -138,6 +142,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="newJButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="78"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="ProfileManagerAvatar.NewButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -151,6 +156,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="deleteJButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="68"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="ProfileManagerAvatar.DeleteButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>

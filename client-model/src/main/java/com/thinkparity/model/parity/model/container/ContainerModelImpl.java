@@ -519,7 +519,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     void lock(final Long containerId) throws ParityException {
         throw Assert.createNotYetImplemented("ContainerModelImpl#lock(Long)");
     }
-
     /**
      * Publish the container. Publishing involves determining if the working
      * version of a document differes from the latest version and if so creating
@@ -536,6 +535,28 @@ public class ContainerModelImpl extends AbstractModelImpl {
             final List<TeamMember> teamMembers) {
         logApiId();
         debugVariable("containerId", containerId);
+        debugVariable("contacts", contacts);
+        debugVariable("teamMembers", teamMembers);
+        publish(containerId, null, contacts, teamMembers);
+    }
+
+    /**
+     * Publish the container. Publishing involves determining if the working
+     * version of a document differes from the latest version and if so creating
+     * a new version; then sending the latest version to all team members.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param contacts
+     *            A list of contacts to publish to.
+     * @param teamMembers
+     *            A list of team members to publish to.
+     */
+    void publish(final Long containerId, final String comment,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        logApiId();
+        debugVariable("containerId", containerId);
+        debugVariable("comment", comment);
         debugVariable("contacts", contacts);
         debugVariable("teamMembers", teamMembers);
         assertOnline("[USER NOT ONLINE]");

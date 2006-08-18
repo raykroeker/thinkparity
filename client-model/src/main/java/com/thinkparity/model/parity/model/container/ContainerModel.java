@@ -20,6 +20,7 @@ import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
@@ -163,6 +164,23 @@ public class ContainerModel {
             final List<TeamMember> teamMembers) {
         synchronized (getImplLock()) {
             getImpl().publish(containerId, contacts, teamMembers);
+        }
+    }
+
+    /**
+     * Publish the container.
+     * 
+     * @param containerId
+     *            The container id.
+     * @param teamMembers
+     *            A list of team members to publish to.
+     * @param contacts
+     *            A list of contacts to publish to.
+     */
+    public void publish(final Long containerId, final String comment,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        synchronized (getImplLock()) {
+            getImpl().publish(containerId, comment, contacts, teamMembers);
         }
     }
 
@@ -338,7 +356,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readKeyRequests(containerId, comparator, filter); }
     }
 
-	/**
+    /**
      * Read a list of key requests for the container.
      * 
      * @param containerId
@@ -360,6 +378,16 @@ public class ContainerModel {
      */
     public ContainerVersion readLatestVersion(final Long containerId) {
         synchronized(implLock) { return impl.readLatestVersion(containerId); }
+    }
+
+	public List<TeamMember> readPublishedTo(final Long containerId,
+            final Long versionId) {
+        throw Assert.createNotYetImplemented("ContainerModel#readPublishedTo(Long,Long)");
+    }
+
+    public List<User> readSharedWith(final Long containerId,
+            final Long versionId) {
+        throw Assert.createNotYetImplemented("ContainerModel#sharedWith(Long,Long)");
     }
 
     /**

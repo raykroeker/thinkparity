@@ -40,9 +40,17 @@ public class Publish extends AbstractAction {
 	 */
 	public void invoke(final Data data) {
 		final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        final List<Contact> contacts = getContactModel().read();
-        final List<TeamMember> teamMembers = getContainerModel().readTeam(containerId);
 		if (browser.confirm("Publish.Temp")) {
+            final List<Contact> contacts = getContactModel().read();
+            final List<TeamMember> teamMembers = getContainerModel().readTeam(containerId);
+            for (final Contact contact : contacts) {
+                for (final TeamMember teamMember : teamMembers) {
+                    if (teamMember.getId().equals(contact.getId())) {
+                        contacts.remove(contact);
+                    }
+                }
+            }
+
 		    getContainerModel().publish(containerId, contacts, teamMembers);
 		    getArtifactModel().applyFlagSeen(containerId);
         }

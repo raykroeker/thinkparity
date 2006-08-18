@@ -14,6 +14,7 @@ import java.util.UUID;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
@@ -202,11 +203,18 @@ public interface XMPPSession {
      * 
      * @param version
      *            A container version.
+     * @param teamMembers
+     *            A list of team members.
      * @param documentVersions
-     *            A list of document versions; and their content input streams.
+     *            A list of document versions and their input streams.
+     * @param publishedBy
+     *            The publisher.
+     * @param publishedOn
+     *            The publish date.
      * @throws SmackException
      */
     public void publish(final ContainerVersion version,
+            final List<TeamMember> teamMembers,
             final Map<DocumentVersion, InputStream> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn)
             throws SmackException;

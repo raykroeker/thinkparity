@@ -34,14 +34,13 @@ import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContainerIOHandler;
 import com.thinkparity.model.parity.model.session.Credentials;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -204,9 +203,49 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return The new container.
      */
     Container create(final String name) {
-        try { return doCreate(name); }
-        catch(final ParityException px) {
-            throw translateError(getApiId("[CREATE]"), px);
+        logApiId();
+        debugVariable("name", name);
+        try {
+            final Credentials credentials = readCredentials();
+            final Calendar currentDateTime = currentDateTime();
+    
+            final Container container = new Container();
+            container.setCreatedBy(credentials.getUsername());
+            container.setCreatedOn(currentDateTime);
+            container.setName(name);
+            container.setState(ArtifactState.ACTIVE);
+            container.setType(ArtifactType.CONTAINER);
+            container.setUniqueId(UUIDGenerator.nextUUID());
+            container.setUpdatedBy(credentials.getUsername());
+            container.setUpdatedOn(currentDateTime);
+            // local create
+            containerIO.create(container);
+    
+            // local key
+            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            artifactModel.applyFlagKey(container.getId());
+    
+            // create remote info
+            artifactModel.createRemoteInfo(container.getId(), localUserId(), currentDateTime);
+    
+            // audit
+            auditor.create(container.getId(), localUserId(), currentDateTime);
+    
+            // index
+            indexor.create(container.getId(), container.getName());
+    
+            // create team
+            final TeamMember teamMember = createTeam(container.getId());
+    
+            // create first draft
+            createFirstDraft(container.getId(), teamMember);
+    
+            // fire event
+            final Container postCreation = read(container.getId());
+            notifyContainerCreated(postCreation, localEventGenerator);
+            return postCreation;
+        } catch (final Throwable t) {
+            throw translateError("CREATE", t);
         }
     }
 
@@ -487,12 +526,18 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * a new version; then sending the latest version to all team members.
      * 
      * @param containerId
-     *            The conainter id.
-     * @throws ParityException
+     *            The container id.
+     * @param contacts
+     *            A list of contacts to publish to.
+     * @param teamMembers
+     *            A list of team members to publish to.
      */
-    void publish(final Long containerId) {
+    void publish(final Long containerId, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
         logApiId();
         debugVariable("containerId", containerId);
+        debugVariable("contacts", contacts);
+        debugVariable("teamMembers", teamMembers);
         assertOnline("[USER NOT ONLINE]");
         assertDoesExistLocalDraft("[LOCAL DRAFT DOES NOT EXIST]", containerId);
         try {
@@ -530,40 +575,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
                             draftDocumentLatestVersion.getArtifactType());
                 }
             }
-            
-            // send the locally acced team members the version
-            final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final List<TeamMember> team = artifactModel.readTeam2(container.getId());
-            for(final TeamMember teamMember : team) {
-                switch(teamMember.getState()) {
-                case LOCAL_ADDED:
-                    // the local user already has the version
-                    if(!teamMember.getId().equals(localUserId()))
-                        send(version, teamMember, localUserId(), currentDateTime);
-                    break;
-                    case DISTRIBUTED:       // do nothing
-                    case LOCAL_REMOVED:     // do nothing
-                        break;
-                    default:
-                        throw Assert.createUnreachable("[UNKNOWN TEAM MEMBER STATE]");
-                }
-            }
-            // add/remove team members
-            final InternalSessionModel sessionModel = getInternalSessionModel();
-            for(final TeamMember teamMember : team) {
-                switch(teamMember.getState()) {
-                case LOCAL_ADDED:
-                    sessionModel.addTeamMember(container.getUniqueId(), teamMember.getId());
-                    break;
-                case LOCAL_REMOVED:
-                    sessionModel.removeTeamMember(container.getUniqueId(), teamMember.getId());
-                    break;
-                case DISTRIBUTED:   // do nothing
-                    break;
-                default:
-                    throw Assert.createUnreachable("[UNKNOWN TEAM MEMBER STATE]");
-                }
-            }
 
             // delete draft
             for(final Artifact artifact : draft.getArtifacts()) {
@@ -572,8 +583,14 @@ public class ContainerModelImpl extends AbstractModelImpl {
             }
             containerIO.deleteDraft(container.getId());
 
+            // add all contacts as team members
+            final InternalArtifactModel artifactModel = getInternalArtifactModel();
+            for (final Contact contact : contacts) {
+                teamMembers.add(artifactModel.addTeamMember(
+                        container.getId(), contact.getId()));
+            }
             // call remote publish
-            publish(version, localUserId(), currentDateTime);
+            publish(version, teamMembers, localUserId(), currentDateTime);
 
             // fire event
             final Container postPublish = read(container.getId());
@@ -1096,65 +1113,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Update the team for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param team
-     *            A list of users.
-     */
-    void updateTeam(final Long containerId, final List<User> users) {
-        logger.info(getApiId("[UPDATE TEAM]"));
-        logger.debug(containerId);
-        logger.debug(users);
-        try {
-            final List<TeamMember> originalTeam = readTeam(containerId);
-
-            final List<User> usersToAdd = new ArrayList<User>();
-            for(final User user : users)
-                if(!contains(originalTeam, user))
-                    usersToAdd.add(user);
-            addTeamMembers(containerId, usersToAdd);
-
-            final List<TeamMember> membersToRemove = new ArrayList<TeamMember>();
-            for(final TeamMember teamMember : originalTeam)
-                if(!contains(users, teamMember))
-                    membersToRemove.add(teamMember);
-            removeTeamMembers(containerId, membersToRemove);
-        }
-        catch(final ParityException px) {
-            throw translateError(getApiId("[UPDATE TEAM]"), px);
-        }
-    }
-
-
-    /**
-     * Add team members to the container. The team members are added to the
-     * local db; then sent the latest version of the container.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param teamMembers
-     *            The team members.
-     * @throws ParityException
-     */
-    private void addTeamMembers(final Long containerId, final List<User> users)
-            throws ParityException {
-        // add team member data
-        getInternalArtifactModel().addTeamMembers(containerId, users);
-
-        // fire event
-        final Container postAdditionContainer = read(containerId);
-        final List<TeamMember> postAdditionTeam = readTeam(containerId);
-        for(final User user : users) {
-            for(final TeamMember postAdditionTeamMember : postAdditionTeam) {
-                if(user.getId().equals(postAdditionTeamMember.getId()))
-                    notifyTeamMemberAdded(postAdditionContainer, postAdditionTeamMember, localEventGenerator);
-            }
-        }
-    }
-
-    /**
      * Assert that a local draft exists.
      * 
      * @param assertion
@@ -1166,7 +1124,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             final Long containerId) {
         Assert.assertTrue(assertion, doesExistLocalDraft(containerId));
     }
-
+   
     /**
      * Assert the state transition for a draft artifact is valid.
      * 
@@ -1228,7 +1186,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             Assert.assertUnreachable("UNKNOWN STATE");
         }
     }
-   
+
     /**
      * Assert a draft exists for the container.
      * 
@@ -1362,49 +1320,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         indexor.delete(containerId);
         // delete the container
         containerIO.delete(containerId);
-    }
-
-    /** @see ContainerModelImpl#create(String) */
-    private Container doCreate(final String name) throws ParityException {
-        logger.info(getApiId("[CREATE]"));
-        final Credentials credentials = readCredentials();
-        final Calendar currentDateTime = currentDateTime();
-
-        final Container container = new Container();
-        container.setCreatedBy(credentials.getUsername());
-        container.setCreatedOn(currentDateTime);
-        container.setName(name);
-        container.setState(ArtifactState.ACTIVE);
-        container.setType(ArtifactType.CONTAINER);
-        container.setUniqueId(UUIDGenerator.nextUUID());
-        container.setUpdatedBy(credentials.getUsername());
-        container.setUpdatedOn(currentDateTime);
-        // local create
-        containerIO.create(container);
-
-        // local key
-        final InternalArtifactModel artifactModel = getInternalArtifactModel();
-        artifactModel.applyFlagKey(container.getId());
-
-        // create remote info
-        artifactModel.createRemoteInfo(container.getId(), localUserId(), currentDateTime);
-
-        // audit
-        auditor.create(container.getId(), localUserId(), currentDateTime);
-
-        // index
-        indexor.create(container.getId(), container.getName());
-
-        // create team
-        final TeamMember teamMember = createTeam(container.getId());
-
-        // create first draft
-        createFirstDraft(container.getId(), teamMember);
-
-        // fire event
-        final Container postCreation = read(container.getId());
-        notifyContainerCreated(postCreation, localEventGenerator);
-        return postCreation;
     }
     
     /**
@@ -1625,6 +1540,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @param eventGenerator
      *            An event generator.
      */
+    @SuppressWarnings("unused")
     private void notifyTeamMemberAdded(final Container container,
             final TeamMember teamMember,
             final ContainerEventGenerator eventGenerator) {
@@ -1645,6 +1561,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @param eventGenerator
      *            An event generator.
      */
+    @SuppressWarnings("unused")
     private void notifyTeamMemberRemoved(final Container container,
             final TeamMember teamMember,
             final ContainerEventGenerator eventGenerator) {
@@ -1660,13 +1577,18 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param version
      *            A container version.
-     * @throws ParityException
+     * @param teamMembers
+     *            A list of team members to publish to.
+     * @param publishedBy
+     *            The publisher.
+     * @param publishedOn
+     *            The publish date.
      */
     private void publish(final ContainerVersion version,
-            final JabberId publishedBy, final Calendar publishedOn)
-            throws ParityException {
+            final List<TeamMember> teamMembers, final JabberId publishedBy,
+            final Calendar publishedOn) {
         getInternalSessionModel().publish(
-                version,
+                version, teamMembers,
                 readDocumentVersionStreams(version.getArtifactId(), version
                         .getVersionId()), publishedBy, publishedOn);
     }
@@ -1681,7 +1603,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of document versions and their input streams.
      */
     private Map<DocumentVersion, InputStream> readDocumentVersionStreams(
-            final Long containerId, final Long versionId) throws ParityException {
+            final Long containerId, final Long versionId) {
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final Map<DocumentVersion, InputStream> documentVersionStreams =
             new HashMap<DocumentVersion, InputStream>();
@@ -1695,43 +1617,5 @@ public class ContainerModelImpl extends AbstractModelImpl {
                             documentVersion.getVersionId()));
         }
         return documentVersionStreams;
-    }
-
-    /**
-     * Remove team members from the container. The team members are flagged as
-     * removed in the local db.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param teamMembers
-     *            The team members.
-     */
-    private void removeTeamMembers(final Long containerId,
-            final List<TeamMember> teamMembers) {
-        // remove team member data
-        getInternalArtifactModel().removeTeamMembers(teamMembers);
-        // fire event
-        final Container postAdditionContainer = read(containerId);
-        for(final TeamMember teamMember : teamMembers) {
-            notifyTeamMemberRemoved(postAdditionContainer, teamMember, localEventGenerator);
-        }
-    }
-
-    /**
-     * Send a container version to a user.
-     * 
-     * @param version
-     *            A container version.
-     * @param user
-     *            A user.
-     * @throws ParityException
-     */
-    private void send(final ContainerVersion version, final User user,
-            final JabberId sentBy, final Calendar sentOn)
-            throws ParityException {
-        getInternalSessionModel().send(
-                version,
-                readDocumentVersionStreams(version.getArtifactId(), version
-                        .getVersionId()), user, sentBy, sentOn);
     }
 }

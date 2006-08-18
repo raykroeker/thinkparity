@@ -920,6 +920,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         newTeam.add(ModelTestUser.getX().readUser());
         newTeam.add(ModelTestUser.getY().readUser());
         newTeam.add(ModelTestUser.getZ().readUser());
-        getContainerModel().updateTeam(containerId, newTeam);
+//        getContainerModel().updateTeam(containerId, newTeam);
+        throw Assert.createNotYetImplemented("ModelTestCase#addTeamToContainer(Long)");
     }
 }

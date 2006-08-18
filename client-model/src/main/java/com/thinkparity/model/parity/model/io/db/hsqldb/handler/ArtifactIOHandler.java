@@ -14,7 +14,6 @@ import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.parity.model.user.TeamMemberState;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -143,8 +142,8 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	/** Sql to create a team member relationship. */
     private static final String SQL_CREATE_TEAM_REL =
         new StringBuffer("insert into ARTIFACT_TEAM_REL ")
-        .append("(ARTIFACT_ID,USER_ID,USER_STATE_ID) ")
-        .append("values (?,?,?)")
+        .append("(ARTIFACT_ID,USER_ID) ")
+        .append("values (?,?)")
         .toString();
 
 	/**
@@ -197,14 +196,28 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where A.ARTIFACT_ID=?")
             .toString();
 
-    /** Sql to read the team relationship. */
+    /**
+     * Sql to read the team relationship.
+     * 
+     * @see ArtifactIOHandler#SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER
+     */
     private static final String SQL_READ_TEAM_REL =
         new StringBuffer("select U.NAME,U.JABBER_ID,")
-        .append("U.USER_ID,U.ORGANIZATION,ATR.ARTIFACT_ID,ATR.USER_STATE_ID ")
+        .append("U.USER_ID,U.ORGANIZATION,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=?")
         .toString();
+
+    /**
+     * Sql to read the team relationship.
+     * 
+     * @see ArtifactIOHandler#SQL_READ_TEAM_REL
+     */
+    private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER =
+            new StringBuffer(SQL_READ_TEAM_REL)
+            .append(" and ATR.USER_ID=?")
+            .toString();
 
     /** Sql to count the team relationship rows for an artifact. */
     private static final String SQL_READ_TEAM_REL_COUNT =
@@ -309,14 +322,12 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
      *      java.lang.Long)
      * 
      */
-    public void createTeamRel(final Long artifactId, final Long userId,
-            final TeamMemberState state) {
+    public void createTeamRel(final Long artifactId, final Long userId) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_TEAM_REL);
             session.setLong(1, artifactId);
             session.setLong(2, userId);
-            session.setStateAsInteger(3, state);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE TEAM REL]", "[COULD NOT CREATE TEAM RELATIONSHIP]"));
 
@@ -478,6 +489,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         finally { session.close(); }
     }
 
+    
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readTeam(java.lang.Long)
      * 
@@ -498,6 +510,26 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             throw hx;
         }
         finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ArtifactIOHandler#readTeamRel(java.lang.Long, java.lang.Long)
+     */
+    public TeamMember readTeamRel(final Long artifactId, final Long userId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER);
+            session.setLong(1, artifactId);
+            session.setLong(2, userId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractTeamMember(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -808,7 +840,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
         teamMember.setLocalId(session.getLong("USER_ID"));
         teamMember.setName(session.getString("NAME"));
         teamMember.setOrganization(session.getString("ORGANIZATION"));
-        teamMember.setState(session.getTeamMemberStateFromInteger("USER_STATE_ID"));
         return teamMember;
     }
 

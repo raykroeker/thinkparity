@@ -31,6 +31,8 @@ import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
+import com.thinkparity.model.parity.model.user.TeamMember;
+import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQProvider;
 import com.thinkparity.model.xmpp.events.XMPPContainerListener;
@@ -283,14 +285,22 @@ class XMPPContainer {
     }
 
     /**
-     * Send a container version.
+     * Publish a container.
      * 
      * @param version
-     *            A version.
-     * @param users
-     *            A list of users.
+     *            A container version.
+     * @param teamMembers
+     *            A list of team members.
+     * @param documentVersions
+     *            A list of document versions and their input streams.
+     * @param publishedBy
+     *            The publisher.
+     * @param publishedOn
+     *            The publish date.
+     * @throws SmackException
      */
     void publish(final ContainerVersion version,
+            final List<TeamMember> teamMembers,
             final Map<DocumentVersion, InputStream> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn)
             throws IOException {
@@ -305,6 +315,7 @@ class XMPPContainer {
             publishArtifact.setParameter(Xml.Container.PUBLISHED_ON, publishedOn);
             publishArtifact.setParameter(Xml.Container.CONTAINER_UNIQUE_ID, version.getArtifactUniqueId());
             publishArtifact.setParameter(Xml.Container.CONTAINER_VERSION_ID, version.getVersionId());
+            publishArtifact.setParameter(Xml.Container.ARTIFACT_TEAM_MEMBERS, Xml.Container.ARTIFACT_TEAM_MEMBER, teamMembers);
             publishArtifact.setParameter(Xml.Container.ARTIFACT_COUNT, entries.size());
             publishArtifact.setParameter(Xml.Container.ARTIFACT_INDEX, i++);
             publishArtifact.setParameter(Xml.Artifact.UNIQUE_ID, entry.getKey().getArtifactUniqueId());

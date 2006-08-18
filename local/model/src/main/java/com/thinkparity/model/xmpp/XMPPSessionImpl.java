@@ -30,6 +30,7 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.KeyResponse;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.*;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -449,18 +450,23 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#publish(com.thinkparity.model.parity.model.container.ContainerVersion,
-     *      java.util.Map, com.thinkparity.model.xmpp.JabberId,
+     *      java.util.List, java.util.Map, com.thinkparity.model.xmpp.JabberId,
      *      java.util.Calendar)
      * 
      */
     public void publish(final ContainerVersion version,
+            final List<TeamMember> teamMembers,
             final Map<DocumentVersion, InputStream> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn)
             throws SmackException {
-        try { xmppContainer.publish(version, documentVersions, publishedBy, publishedOn); }
-        catch(final IOException iox) { throw XMPPErrorTranslator.translate(iox); }
+        try {
+            xmppContainer.publish(version, teamMembers, documentVersions,
+                    publishedBy, publishedOn);
+        } catch (final IOException iox) {
+            throw XMPPErrorTranslator.translate(iox);
+        }
     }
 
 	/**

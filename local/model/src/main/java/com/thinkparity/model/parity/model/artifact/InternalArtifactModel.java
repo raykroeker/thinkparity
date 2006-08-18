@@ -13,7 +13,6 @@ import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * @author raykroeker@gmail.com
@@ -40,30 +39,13 @@ public class InternalArtifactModel extends ArtifactModel {
      * 
      * @param artifactId
      *            The artifact id.
-     * @param user
-     *            The user.
+     * @param userId
+     *            The user id.
      * @throws ParityException
      */
-    public void addTeamMember(final Long artifactId, final User user) {
+    public TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
         synchronized(getImplLock()) {
-            getImpl().addTeamMember(artifactId, user);
-        }
-    }
-
-    /**
-     * Add the team members. Add the user to the local team data in a pending
-     * state; and call the server's add team member api.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param users
-     *            The users.
-     * @see ArtifactModelImpl#addTeamMember(Long, User)
-     * @throws ParityException
-     */
-    public void addTeamMembers(final Long artifactId, final List<User> users) {
-        synchronized(getImplLock()) {
-            getImpl().addTeamMembers(artifactId, users);
+            return getImpl().addTeamMember(artifactId, userId);
         }
     }
 
@@ -332,18 +314,8 @@ public class InternalArtifactModel extends ArtifactModel {
      * @param teamMember
      *            The team member.
      */
-    public void removeTeamMember(final TeamMember teamMember) {
-        synchronized(getImplLock()) { getImpl().removeTeamMember(teamMember); }
-    }
-
-    /**
-     * Remove the team members. Removes the users from the local team data.
-     * 
-     * @param teamMembers
-     *            The team members.
-     */
-    public void removeTeamMembers(final List<TeamMember> teamMembers) {
-        synchronized(getImplLock()) { getImpl().removeTeamMembers(teamMembers); }
+    public void removeTeamMember(final Long artifactId, final JabberId userId) {
+        synchronized(getImplLock()) { getImpl().removeTeamMember(artifactId, userId); }
     }
 
     /**

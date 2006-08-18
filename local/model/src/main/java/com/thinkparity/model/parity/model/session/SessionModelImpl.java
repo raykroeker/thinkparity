@@ -28,6 +28,7 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -651,17 +652,21 @@ class SessionModelImpl extends AbstractModelImpl {
      *            A list of users.
      */
     void publish(final ContainerVersion container,
+            final List<TeamMember> teamMembers,
             final Map<DocumentVersion, InputStream> documents,
             final JabberId publishedBy, final Calendar publishedOn) {
-        logger.info(getApiId("[PUBLISH]"));
-        logger.debug(container);
-        logger.debug(documents);
-        logger.debug(publishedBy);
-        logger.debug(publishedOn);
-        synchronized(xmppHelper) {
-            try { xmppHelper.publish(container, documents, publishedBy, publishedOn); }
-            catch(final SmackException sx) {
-                throw translateError(getApiId("[PUBLISH]"), sx);
+        logApiId();
+        debugVariable("container", container);
+        debugVariable("teamMembers", teamMembers);
+        debugVariable("documents", documents);
+        debugVariable("publishedBy", publishedBy);
+        debugVariable("publishedOn", publishedOn);
+        synchronized (xmppHelper) {
+            try {
+                xmppHelper.publish(container, teamMembers, documents,
+                        publishedBy, publishedOn);
+            } catch(final Throwable t) {
+                throw translateError("PUBLISH", t);
             }
         }
     }

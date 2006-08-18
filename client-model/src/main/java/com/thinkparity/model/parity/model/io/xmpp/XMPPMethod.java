@@ -31,6 +31,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -211,6 +212,25 @@ public class XMPPMethod extends IQ {
      */
     public final void setParameter(final String name, final String value) {
         parameters.add(new Parameter(name, String.class, value));
+    }
+
+    /**
+     * Set a list of team members parameter.
+     * 
+     * @param listName
+     *            The list parameter name.
+     * @param itemName
+     *            The item parameter name.
+     * @param value
+     *            The item value.
+     */
+    public final void setParameter(final String listName,
+            final String itemName, final List<TeamMember> values) {
+        final List<Parameter> parameters = new ArrayList<Parameter>(values.size());
+        for (final TeamMember value : values) {
+            parameters.add(new Parameter(itemName, JabberId.class, value.getId()));
+        }
+        this.parameters.add(new Parameter(listName, List.class, parameters));
     }
 
     /**

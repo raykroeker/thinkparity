@@ -21,7 +21,6 @@ import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageType;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.parity.model.user.TeamMemberState;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -79,39 +78,20 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The user.
      * @throws ParityException
      */
-	void addTeamMember(final Long artifactId, final User user) {
-        logger.info("[LMODEL] [ARTIFACT] [ADD TEAM MEMBER]");
-        logger.debug(artifactId);
-        logger.debug(user);
-        final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
-        if(contains(team, user)) {
-            final TeamMember teamMember = get(team, user);
-            Assert.assertTrue(
-                    getApiId("[ADD TEAM MEMBER] [CANNOT ADD USER MORE THAN ONCE]"),
-                    TeamMemberState.LOCAL_REMOVED == teamMember.getState());
-            artifactIO.deleteTeamRel(artifactId, user.getLocalId());
-        }
-        artifactIO.createTeamRel(
-                artifactId, user.getLocalId(), TeamMemberState.LOCAL_ADDED);
-    }
+	TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
+	    logApiId();
+        debugVariable("artifactId", artifactId);
+        debugVariable("artifactId", userId);
+        assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
 
-    /**
-     * Add the team members. Add the user to the local team data in a pending
-     * state; and call the server's add team member api.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @param users
-     *            The users.
-     * @see ArtifactModelImpl#addTeamMember(Long, User)
-     * @throws ParityException
-     */
-    void addTeamMembers(final Long artifactId, final List<User> users) {
-        logger.info(getApiId("[ADD TEAM MEMBERS]"));
-        logger.debug(artifactId);
-        logger.debug(users);
-        for(final User user : users)
-            addTeamMember(artifactId, user);
+        final InternalUserModel userModel = getInternalUserModel();
+        User user = userModel.read(userId);
+        if (null == user) {
+            user = userModel.create(userId);
+        }
+
+        artifactIO.createTeamRel(artifactId, user.getLocalId());
+        return artifactIO.readTeamRel(artifactId, user.getLocalId());
     }
 
     /**
@@ -206,7 +186,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		artifactIO.createRemoteInfo(artifactId, updatedBy, updatedOn);
 	}
 
-	/**
+    /**
      * Create the team for an artifact.
      * 
      * @param artifactId
@@ -214,9 +194,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @return The single team member.
      */
     List<TeamMember> createTeam(final Long artifactId) {
-        logger.info(getApiId("[CREATE TEAM]"));
-        logger.debug(artifactId);
-        addTeamMember(artifactId, localUser());
+        logApiId();
+        debugVariable("artifactId", artifactId);
+        addTeamMember(artifactId, localUserId());
         return readTeam2(artifactId);
     }
 
@@ -238,7 +218,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.deleteTeamRel(artifactId);
     }
 
-    Boolean doesExist(final Long artifactId) {
+	Boolean doesExist(final Long artifactId) {
         logger.info("[LMODEL] [ARTIFACT] [DOES EXIST]");
         logger.debug(artifactId);
         return null != artifactIO.readUniqueId(artifactId);
@@ -272,27 +252,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
         debugVariable("jabberId", jabberId);
         try {
             final Long artifactId = readId(uniqueId);
-            final InternalUserModel userModel = getInternalUserModel();
-            User user = userModel.read(jabberId);
-            if(null == user) { user = userModel.create(jabberId); }
-    
             // if receiving your own team member added event you have just been
             // added to the team; so download the entire team.
-            if(user.equals(localUser())) {
+            if(jabberId.equals(localUserId())) {
                 final List<User> remoteTeam =
                     getInternalSessionModel().readArtifactTeamList(artifactId);
-                JabberId remoteUserId;
-                for(User remoteUser : remoteTeam) {
-                    remoteUserId = remoteUser.getId();
-                    remoteUser = userModel.read(remoteUserId);
-                    if(null == remoteUser) { remoteUser = userModel.create(remoteUserId); }
-                    artifactIO.createTeamRel(artifactId, remoteUser
-                            .getLocalId(), TeamMemberState.DISTRIBUTED);
+                for (final User remoteUser : remoteTeam) {
+                    addTeamMember(artifactId, remoteUser.getId());
                 }
-            }
-            else {
-                artifactIO.createTeamRel(artifactId, user.getLocalId(),
-                        TeamMemberState.DISTRIBUTED);
+            } else {
+                addTeamMember(artifactId, jabberId);
             }
         } catch(final Throwable t) {
             throw translateError("[HANDLE TEAM MEMBER ADDED]", t);
@@ -331,7 +300,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return isFlagApplied(artifactId, ArtifactFlag.SEEN);
 	}
 
-	/**
+    /**
 	 * Determine whether or not an artifact has a flag applied.
 	 * 
 	 * @param artifactId
@@ -361,7 +330,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readId(uniqueId);
     }
 
-    /**
+	/**
      * Read the artifact key holder.
      * 
      * @param artifactId
@@ -407,7 +376,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return requests;
 	}
 
-	/**
+    /**
      * Read the latest version id for an artifact.
      * 
      * @param artifactId
@@ -444,7 +413,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readTeamRel2(artifactId);
     }
 
-    /**
+	/**
      * Read the artifact unique id.
      * 
      * @param artifactId
@@ -489,27 +458,13 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param user
      *            The user.
      */
-	void removeTeamMember(final TeamMember teamMember) {
-        logger.info(getApiId("[REMOVE TEAM MEMBER]"));
-        logger.debug(teamMember);
-        artifactIO.deleteTeamRel(teamMember.getArtifactId(), teamMember.getLocalId());
-        if(TeamMemberState.DISTRIBUTED == teamMember.getState()) {
-            artifactIO.createTeamRel(
-                    teamMember.getArtifactId(), teamMember.getLocalId(), TeamMemberState.LOCAL_REMOVED);
-        }
-    }
-
-    /**
-     * Remove the team members. Removes the users from the local team data.
-     * 
-     * @param teamMembers
-     *            The team members.
-     */
-    void removeTeamMembers(final List<TeamMember> teamMembers) {
-        logger.info(getApiId("[REMOVE TEAM MEMBERS]"));
-        logger.debug(teamMembers);
-        for(final TeamMember teamMember : teamMembers)
-            removeTeamMember(teamMember);
+	void removeTeamMember(final Long artifactId, final JabberId userId) {
+        logApiId();
+        debugVariable("artifactId", artifactId);
+        debugVariable("userId", userId);
+        assertTeamMember("USER IS NOT A TEAM MEMBER", artifactId, userId);
+        final User user = getInternalUserModel().read(userId);
+        artifactIO.deleteTeamRel(artifactId, user.getLocalId());
     }
 
     /**
@@ -548,7 +503,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
         artifactIO.updateState(artifactId, state);
     }
 
-
     /**
 	 * Apply a flag to an artifact.
 	 * 
@@ -571,6 +525,39 @@ class ArtifactModelImpl extends AbstractModelImpl {
 			artifactIO.updateFlags(artifactId, flags);
 		}
 	}
+
+
+    /**
+     * Assert that the user is not a team member.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param artifactId
+     *            An artifact id.
+     * @param userId
+     *            A user id.
+     */
+    private void assertNotTeamMember(final Object assertion,
+            final Long artifactId, final JabberId userId) {
+        final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
+        Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
+    }
+
+    /**
+     * Assert that the user is a team member.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param artifactId
+     *            An artifact id.
+     * @param userId
+     *            A user id.
+     */
+    private void assertTeamMember(final Object assertion,
+            final Long artifactId, final JabberId userId) {
+        final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
+        Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
+    }
 
     /**
 	 * Create a key request based upon a key request system message.

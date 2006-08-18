@@ -142,7 +142,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to read a draft. */
     private static final String SQL_READ_DRAFT =
             new StringBuffer("select ATR.ARTIFACT_ID,ATR.USER_ID,")
-            .append("ATR.USER_STATE_ID,U.JABBER_ID,U.NAME,U.ORGANIZATION,CD.CONTAINER_DRAFT_ID ")
+            .append("U.JABBER_ID,U.NAME,U.ORGANIZATION,CD.CONTAINER_DRAFT_ID ")
             .append("from ARTIFACT_TEAM_REL ATR inner join USER U on ATR.USER_ID=U.USER_ID ")
             .append("inner join CONTAINER_DRAFT CD on ATR.ARTIFACT_ID=CD.CONTAINER_DRAFT_ID ")
             .append("and CD.CONTAINER_DRAFT_USER_ID=ATR.USER_ID ")

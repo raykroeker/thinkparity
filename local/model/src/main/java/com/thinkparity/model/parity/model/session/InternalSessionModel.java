@@ -16,6 +16,7 @@ import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -136,19 +137,26 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { getImpl().inviteContact(email); }
     }
 
-	/**
-     * Publish a container.
+    /**
+     * Publish a container version.
      * 
      * @param container
-     *            A container.
+     *            A container version.
+     * @param teamMembers
+     *            A list of team members.
      * @param documents
-     *            A list of documents and their contents.
+     *            A list of documents and their input streams.
+     * @param publishedBy
+     *            The publisher.
+     * @param publishedOn
+     *            The publish date.
      */
     public void publish(final ContainerVersion container,
+            final List<TeamMember> teamMembers,
             final Map<DocumentVersion, InputStream> documents,
             final JabberId publishedBy, final Calendar publishedOn) {
-        synchronized(getImplLock()) {
-            getImpl().publish(container, documents, publishedBy, publishedOn);
+        synchronized (getImplLock()) {
+            getImpl().publish(container, teamMembers, documents, publishedBy, publishedOn);
         }
     }
 

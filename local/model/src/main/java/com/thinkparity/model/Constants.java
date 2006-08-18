@@ -152,6 +152,8 @@ public final class Constants {
         public static final class Container {
             public static final String ARTIFACT_COUNT = "artifactCount";
             public static final String ARTIFACT_INDEX = "artifactIndex";
+            public static final String ARTIFACT_TEAM_MEMBER = "artifactTeamMember";
+            public static final String ARTIFACT_TEAM_MEMBERS = "artifactTeamMembers";
             public static final String CONTAINER_NAME = "containerName";
             public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
             public static final String CONTAINER_VERSION_ID = "containerVersionId";

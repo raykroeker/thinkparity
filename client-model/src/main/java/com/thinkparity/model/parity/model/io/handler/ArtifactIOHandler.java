@@ -13,7 +13,6 @@ import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.parity.model.user.TeamMemberState;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -45,11 +44,8 @@ public interface ArtifactIOHandler {
      *            The artifact id.
      * @param userId
      *            The user id.
-     * @param state
-     *            The team member's state.
      */
-    public void createTeamRel(final Long artifactId, final Long userId,
-            final TeamMemberState state);
+    public void createTeamRel(final Long artifactId, final Long userId);
 
     /**
      * Delete the remote info for the artifact.
@@ -142,6 +138,18 @@ public interface ArtifactIOHandler {
      */
     public Set<User> readTeamRel(final Long artifactId)
             throws HypersonicException;
+
+    /**
+     * Read the team member for an artifact.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param userId
+     *            A local user id.
+     * @return The team member.
+     * @throws HypersonicException
+     */
+    public TeamMember readTeamRel(final Long artifactId, final Long userId);
 
     /**
      * Read the team for an artifact.

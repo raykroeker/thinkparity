@@ -153,6 +153,22 @@ public abstract class FileUtil {
 	}
 
     /**
+     * Test a potential directory name for validity.
+     *
+     * @param name
+     *      A directory name.
+     * @return True if a directory can be created with the name.
+     */
+    public static Boolean isDirectoryNameValid(final String name) {
+        final File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        final File testDirectory = new File(tempDir, name);
+        Boolean didCreate = Boolean.FALSE;
+        didCreate = testDirectory.mkdir();
+        if(didCreate) { testDirectory.delete(); }
+        return didCreate;
+    }
+
+    /**
      * Test a potential file name for validity.
      *
      * @param name
@@ -166,22 +182,6 @@ public abstract class FileUtil {
         try { didCreate = testFile.createNewFile(); }
         catch(final IOException iox) { didCreate = Boolean.FALSE; }
         if(didCreate) { testFile.delete(); }
-        return didCreate;
-    }
-
-    /**
-     * Test a potential directory name for validity.
-     *
-     * @param name
-     *      A directory name.
-     * @return True if a directory can be created with the name.
-     */
-    public static Boolean isDirectoryNameValid(final String name) {
-        final File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        final File testDirectory = new File(tempDir, name);
-        Boolean didCreate = Boolean.FALSE;
-        didCreate = testDirectory.mkdir();
-        if(didCreate) { testDirectory.delete(); }
         return didCreate;
     }
 
@@ -239,6 +239,20 @@ public abstract class FileUtil {
 	}
 
 	/**
+     * Modfiy the last update date of a directory.
+     * 
+     * @param file
+     *            A file.
+     */
+    public static void touch(final File file) {
+        if(null == file) { throw new NullPointerException(); }
+        if(!(file.exists() &&  file.canRead() && file.canWrite())) {
+            throw new IllegalArgumentException();
+        }
+        file.setLastModified(DateUtil.getInstance().getTimeInMillis());
+    }
+
+    /**
 	 * Write a byte[] to a file.
 	 * 
 	 * @param file

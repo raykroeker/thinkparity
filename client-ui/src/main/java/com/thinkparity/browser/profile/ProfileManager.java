@@ -44,14 +44,19 @@ public class ProfileManager {
      * @return A profile.
      */
     public Profile select() {
+        final Profile selectedProfile;
         if(Mode.TESTING == Version.getMode() || Mode.DEVELOPMENT == Version.getMode()) {
             managerAvatar = new ProfileManagerAvatar(this);
             managerAvatar.setInput(readProfiles());
             openWindow(managerAvatar.getTitle(), managerAvatar);
     
-            return managerAvatar.getSelectedProfile().setLastModified();
+            selectedProfile = managerAvatar.getSelectedProfile();
         }
-        else { return readDefaultProfile().setLastModified(); }
+        else { selectedProfile = readDefaultProfile(); }
+        if (null != selectedProfile) {
+            selectedProfile.setLastModified();
+        }
+        return selectedProfile;
     }
 
     /**

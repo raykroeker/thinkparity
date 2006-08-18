@@ -5,6 +5,7 @@ package com.thinkparity.browser.platform;
 
 import java.util.Properties;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -49,6 +50,7 @@ public class BrowserPlatformInitializer {
         default:
             Assert.assertUnreachable("");
         }
+        LogManager.resetConfiguration();
         PropertyConfigurator.configure(log4j);
         Logger.getLogger(BrowserPlatformInitializer.class).info("PLATFORM INIT");
     }

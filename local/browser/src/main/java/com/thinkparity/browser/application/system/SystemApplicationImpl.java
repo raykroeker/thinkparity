@@ -70,7 +70,7 @@ class SystemApplicationImpl extends Thread {
 	public synchronized void start() {
 		running = Boolean.TRUE;
 
-		sysTray = new Tray(sysApp);
+		sysTray = new Tray(sysApp, sysApp.getProfile());
         sysTray.install();
 
 		super.start();

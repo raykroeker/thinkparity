@@ -13,9 +13,12 @@ import org.jdesktop.jdic.tray.TrayIcon;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.browser.Version;
 import com.thinkparity.browser.application.system.SystemApplication;
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
+
+import com.thinkparity.model.parity.model.profile.Profile;
 
 /**
  * @author raykroeker@gmail.com
@@ -45,15 +48,19 @@ public class Tray {
     /** The system tray icon. */
 	private TrayIcon systemTrayIcon;
 
+    /** The local user's profile. */
+    private final Profile profile;
+
     /**
 	 * Create a Tray.
 	 * 
 	 * @param systemApplication
 	 *            The system application.
 	 */
-	public Tray(final SystemApplication systemApplication) {
+	public Tray(final SystemApplication systemApplication, final Profile profile) {
 		super();
         this.menuBuilder = new TrayMenuBuilder(systemApplication);
+        this.profile = profile;
 		this.isInstalled = Boolean.FALSE;
 		this.systemApplication = systemApplication;
 	}
@@ -146,9 +153,11 @@ public class Tray {
     private StringBuffer createCaption() {
         switch(systemApplication.getConnection()) {
         case OFFLINE:
-                return new StringBuffer(getString("OFFLINE"));
+            return new StringBuffer(getString(Version.getMode() + ".OFFLINE",
+                    new Object[] { profile.getName() }));
         case ONLINE:
-            return new StringBuffer(getString("ONLINE"));
+            return new StringBuffer(getString(Version.getMode() + ".ONLINE",
+                    new Object[] { profile.getName() }));
         default:
             throw Assert.createUnreachable("[UNKNOWN CONNECTION]");
         }
@@ -173,23 +182,12 @@ public class Tray {
      * 
      * @param key
      *            A local key.
-     * @return A localized string.
-     */
-    private String getString(final String key) {
-        return systemApplication.getString(key);
-    }
-
-    /**
-     * Obtain a localized string from the system application.
-     * 
-     * @param key
-     *            A local key.
      * @param argument
      *            A formatting argument.
      * @return A localized string.
      */
-    private String getString(final String key, final String argument) {
-        return systemApplication.getString(key, new String[] {argument});
+    private String getString(final String key, final Object[] arguments) {
+        return systemApplication.getString(key, arguments);
     }
 
     /**
@@ -211,7 +209,7 @@ public class Tray {
      */
     private void setCaption(final TrayNotification notification) {
         systemTrayIcon.setCaption(createCaption()
-                .append(getString("LastUpdate", notification.getMessage()))
+                .append(getString("LastUpdate", new Object[] {notification.getMessage()}))
                 .toString());
     }
 

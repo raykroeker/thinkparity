@@ -708,7 +708,7 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().syncContact(contactId, remote);
-                getTabContactAvatar().syncIncomingInvitation(invitationId, remote);
+                getTabContactAvatar().syncOutgoingInvitation(invitationId, remote);
             }
         });
     }

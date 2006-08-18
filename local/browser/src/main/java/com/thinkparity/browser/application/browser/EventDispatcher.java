@@ -81,7 +81,7 @@ class EventDispatcher {
         return new ContactAdapter() {
             @Override
             public void outgoingInvitationAccepted(final ContactEvent e) {
-                browser.fireOutgoingContactInvitationAccepted(e.getContact().getId(), e.getIncomingInvitation().getId(), e.isRemote());
+                browser.fireOutgoingContactInvitationAccepted(e.getContact().getId(), e.getOutgoingInvitation().getId(), e.isRemote());
             }
             @Override
             public void incomingInvitationAccepted(final ContactEvent e) {

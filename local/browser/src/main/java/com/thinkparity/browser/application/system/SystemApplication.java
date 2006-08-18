@@ -1,6 +1,5 @@
 /*
  * Created On:  Mar 17, 2006
- * $Id$
  */
 package com.thinkparity.browser.application.system;
 
@@ -29,6 +28,7 @@ import com.thinkparity.browser.platform.util.model.ModelUtil;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -245,6 +245,14 @@ public class SystemApplication extends AbstractApplication {
 
 		notifyStart();
 	}
+
+    /**
+     * @see com.thinkparity.browser.application.AbstractApplication#getProfile()
+     */
+    @Override
+    protected Profile getProfile() {
+        return super.getProfile();
+    }
 
     /**
      * @see com.thinkparity.browser.application.AbstractApplication#logApiId(java.lang.Object)

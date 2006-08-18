@@ -19,6 +19,7 @@ import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -154,8 +155,13 @@ public class ContainerModel {
      * 
      * @param containerId
      *            The container id.
+     * @param teamMembers
+     *            A list of team members to publish to.
+     * @param contacts
+     *            A list of contacts to publish to.
      */
-    public void publish(final Long containerId) {
+    public void publish(final Long containerId, final List<Contact> contacts,
+            final List<TeamMember> teamMembers) {
         synchronized(implLock) { impl.publish(containerId); }
     }
 

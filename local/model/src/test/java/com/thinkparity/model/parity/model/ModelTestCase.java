@@ -13,6 +13,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 
 import com.thinkparity.model.ModelTestUser;
@@ -852,7 +853,8 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      *            The container.
      */
     protected void publish(final Container container) {
-        getContainerModel().publish(container.getId());
+//        getContainerModel().publish(container.getId());
+        throw Assert.createNotYetImplemented("ModelTestCase#publish(Container)");
     }
 
     /**
@@ -862,7 +864,8 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      *            A container.
      */
     protected void publishContainer(final Container container) {
-        getInternalContainerModel().publish(container.getId());
+//        getInternalContainerModel().publish(container.getId());
+        throw Assert.createNotYetImplemented("ModelTestCase#publishContainer(Container)");
     }
 
     /**

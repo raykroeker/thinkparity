@@ -4,7 +4,13 @@
  */
 package com.thinkparity.model.parity.model.container;
 
+import java.util.List;
+
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.model.parity.api.events.ContainerEvent;
+import com.thinkparity.model.parity.model.user.TeamMember;
+import com.thinkparity.model.xmpp.contact.Contact;
 
 
 
@@ -25,7 +31,8 @@ public class PublishTest extends ContainerTestCase {
 
     /** Test the publish api. */
     public void testPublish() {
-        datum.containerModel.publish(datum.container.getId());
+        datum.containerModel.publish(
+                datum.container.getId(), datum.contacts, datum.teamMembers);
 
         assertTrue(NAME + " [DRAFT PUBLISHED EVENT NOT FIRED]", datum.didNotify);
     }
@@ -58,14 +65,19 @@ public class PublishTest extends ContainerTestCase {
 
     /** Test datumn fixture. */
     private class Fixture extends ContainerTestCase.Fixture {
+        private final List<Contact> contacts;
         private final Container container;
         private final ContainerModel containerModel;
         private Boolean didNotify;
+        private final List<TeamMember> teamMembers;
         private Fixture(final Container container,
                 final ContainerModel containerModel) {
+            this.contacts = null;
             this.container = container;
             this.containerModel = containerModel;
             this.didNotify = Boolean.FALSE;
+            this.teamMembers = null;
+            throw Assert.createNotYetImplemented("Fixture#<init>");
         }
         @Override
         public void draftPublished(ContainerEvent e) {

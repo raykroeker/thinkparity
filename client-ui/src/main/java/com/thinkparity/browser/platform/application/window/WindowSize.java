@@ -32,7 +32,7 @@ class WindowSize {
         // DIMENSION Rename Dialogue 300x125
         REGISTRY.put(AvatarId.DIALOG_RENAME, new Dimension(300, 70));
 		// DIMENSION Platform Login Window 385x173
-		REGISTRY.put(AvatarId.PLATFORM_LOGIN, new Dimension(358, 129));
+		REGISTRY.put(AvatarId.DIALOG_PLATFORM_LOGIN, new Dimension(358, 129));
 
         // DIMENSION Contact Info
         REGISTRY.put(AvatarId.DIALOG_CONTACT_READ, new Dimension(300,170));

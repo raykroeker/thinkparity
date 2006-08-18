@@ -184,7 +184,7 @@ public class DraftDocumentCell extends Document implements TabCell  {
         jPopupMenu.addSeparator();
 
         final Data revertData = new Data(1);
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_REVERT, revertData));
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REVERT_DOCUMENT, revertData));
 
         final Data removeData = new Data(1);
         removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());

@@ -123,8 +123,8 @@ public class ActionFactory extends AbstractFactory {
 		case DOCUMENT_RENAME:
             action = new com.thinkparity.browser.platform.action.document.Rename(browser);
             break;
-        case DOCUMENT_REVERT:
-            action = new com.thinkparity.browser.platform.action.document.Revert(browser);
+        case CONTAINER_REVERT_DOCUMENT:
+            action = new com.thinkparity.browser.platform.action.container.RevertDocument(browser);
             break;
 		case DOCUMENT_UPDATE_DRAFT:
             action = new com.thinkparity.browser.platform.action.document.UpdateDraft(browser);

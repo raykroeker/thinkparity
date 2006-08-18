@@ -1026,17 +1026,31 @@ public class ContainerModelImpl extends AbstractModelImpl {
      *            A document id.
      */
     void removeDocument(final Long containerId, final Long documentId) {
-        logger.info(getApiId("[ADD DOCUMENT]"));
-        logger.debug(containerId);
-        logger.debug(documentId);
-        assertDraftExists(getApiId("[ADD DOCUMENT] [DRAFT DOES NOT EXIST]"), containerId);
-        containerIO.deleteDraftArtifactRel(containerId, documentId);
-        containerIO.createDraftArtifactRel(containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
+        logApiId();
+        debugVariable("containerId", containerId);
+        debugVariable("documentId", documentId);
+        assertDraftExists("DRAFT DOES NOT EXIST", containerId);
+        assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
+                containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
+        final ContainerDraft draft = readDraft(containerId);
+        final Document document = draft.getDocument(documentId);
+        containerIO.deleteDraftArtifactRel(containerId, document.getId());
+        switch (draft.getState(document.getId())) {
+        case ADDED:     // delete the document
+            getInternalDocumentModel().delete(document.getId());
+            break;
+        case NONE:      // fall through
+        case REMOVED:   // flag as removed
+            containerIO.createDraftArtifactRel(
+                    containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);
+            break;
+        default:
+            Assert.assertUnreachable("UNKNOWN ARTIFACT STATE");
+        }
 
         final Container postAdditionContainer = read(containerId);        
         final ContainerDraft postAdditionDraft = readDraft(containerId);
-        final Document postAdditionDocument = getInternalDocumentModel().read(documentId);
-        notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, postAdditionDocument, localEventGenerator);
+        notifyDocumentRemoved(postAdditionContainer, postAdditionDraft, document, localEventGenerator);
     }
 
     /**
@@ -1054,6 +1068,19 @@ public class ContainerModelImpl extends AbstractModelImpl {
             if(!LISTENERS.contains(listener)) { return; }
             LISTENERS.remove(listener);
         }
+    }
+
+    /**
+     * Revert a document to it's pre-draft state.
+     * 
+     * @param documentId
+     *            A document id.
+     */
+    void revertDocument(final Long containerId, final Long documentId) {
+        logApiId();
+        debugVariable("containerId", containerId);
+        debugVariable("documentId", documentId);
+        throw Assert.createNotYetImplemented("ContainerModelImpl#revertDocument");
     }
 
     /**
@@ -1129,6 +1156,68 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Assert the state transition for a draft artifact is valid.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param containerId
+     *            A container id.
+     * @param artifactId
+     *            An artifact id.
+     * @param targetState
+     *            The target state.
+     */
+    private void assertDraftArtifactStateTransition(final Object assertion,
+            final Long containerId, final Long artifactId,
+            final ContainerDraft.ArtifactState targetState) {
+        final ContainerDraft draft = readDraft(containerId);
+        final Artifact artifact = draft.getArtifact(artifactId);
+        switch (draft.getState(artifact)) {
+        case ADDED:
+            switch (targetState) {
+            case ADDED:
+                Assert.assertUnreachable(assertion);
+                break;
+            case REMOVED:   // fall through
+            case NONE:      // valid state
+                break;
+            default:
+                Assert.assertUnreachable("UNKNOWN STATE");
+            }
+            break;
+        case REMOVED:
+            switch (targetState) {
+            case ADDED:     // valid state
+                break;
+            case REMOVED:
+                Assert.assertUnreachable(assertion);
+                break;
+            case NONE:      // valid state
+                break;
+            default:
+                Assert.assertUnreachable("UNKNOWN STATE");
+            }
+            break;
+        case NONE:
+            switch (targetState) {
+            case ADDED:
+                Assert.assertUnreachable(assertion);
+                break;
+            case REMOVED:   // valid state
+                break;
+            case NONE:
+                Assert.assertUnreachable(assertion);
+                break;
+            default:
+                Assert.assertUnreachable("UNKNOWN STATE");
+            }
+            break;
+        default:
+            Assert.assertUnreachable("UNKNOWN STATE");
+        }
+    }
+   
+    /**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -1141,7 +1230,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             final Long containerId) {
         assertContainerDraftExists(assertion, containerId);
     }
-   
+
     /**
      * Create the container in the distributed network.
      * 
@@ -1305,7 +1394,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         notifyContainerCreated(postCreation, localEventGenerator);
         return postCreation;
     }
-
+    
     /**
      * Determine whether or not a local draft exists.
      * 
@@ -1320,7 +1409,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         }
         else { return Boolean.FALSE; }
     }
-    
+
     /**
      * Handle the receipt of a document.
      * 

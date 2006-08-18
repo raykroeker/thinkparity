@@ -468,6 +468,18 @@ public class ContainerModel {
     }
 
     /**
+     * Revert a document to it's pre-draft state.
+     * 
+     * @param documentId
+     *            A document id.
+     */
+    public void revertDocument(final Long containerId, final Long documentId) {
+        synchronized (getImplLock()) {
+            getImpl().revertDocument(containerId, documentId);
+        }
+    }
+
+    /**
      * Update the team for the container.
      * 
      * @param containerId
@@ -486,7 +498,7 @@ public class ContainerModel {
 	 */
 	protected ContainerModelImpl getImpl() { return impl; }
 
-    /**
+	/**
 	 * Obtain the model implementation synchronization lock.
 	 * 
 	 * @return The model implementation synchrnoization lock.

@@ -2,9 +2,7 @@
  * Created On: Thu Jun 01 2006 16:37 PDT
  * $Id$
  */
-package com.thinkparity.browser.platform.action.document;
-
-import com.thinkparity.codebase.assertion.Assert;
+package com.thinkparity.browser.platform.action.container;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
@@ -17,22 +15,24 @@ import com.thinkparity.browser.platform.action.Data;
  * @author raykroeker@gmail.com
  * @version $Revision$
  */
-public class Revert extends AbstractAction {
+public class RevertDocument extends AbstractAction {
 
 	/**
-	 * Create Rename.
+	 * Create RevertDocument.
 	 * 
      * @param browser
      *      The browser application.
 	 */
-	public Revert(final Browser browser) {
-		super(ActionId.DOCUMENT_REVERT);
+	public RevertDocument(final Browser browser) {
+		super(ActionId.CONTAINER_REVERT_DOCUMENT);
 	}
 
 	/** @see com.thinkparity.browser.platform.action.AbstractAction#invoke(com.thinkparity.browser.platform.action.Data) */
 	public void invoke(final Data data) {
-		throw Assert.createNotYetImplemented("Revert#invoke");
+	    final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Long documentId = (Long) data.get(DataKey.DOCUMENT_ID);
+        getContainerModel().revertDocument(containerId, documentId);
 	}
 
-	public enum DataKey { DOCUMENT_ID }
+	public enum DataKey { CONTAINER_ID, DOCUMENT_ID }
 }

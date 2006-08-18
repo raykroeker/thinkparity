@@ -54,7 +54,7 @@ public class DraftDocumentCell extends Document implements TabCell  {
 
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
-    
+
     /**
      * Create MainCellDraftDocument.
      * 
@@ -75,6 +75,18 @@ public class DraftDocumentCell extends Document implements TabCell  {
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
 
+    /**
+     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof DraftDocumentCell) {
+            return ((DraftDocumentCell) obj).getId().equals(getId()) &&
+                ((DraftDocumentCell) obj).draft.getContainerId().equals(draft.getContainerId());
+        }
+        return false;
+    }
+    
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBackground()
      */
@@ -163,6 +175,25 @@ public class DraftDocumentCell extends Document implements TabCell  {
     public String getToolTip() {
         if(TEXT_MAX_LENGTH < getName().length()) { return getName(); }
         else { return null; }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return new StringBuffer(getClass().getName()).append("//")
+                .append(getId()).append("/")
+                .append(draft.getContainerId())
+                .toString();
     }
 
     /**

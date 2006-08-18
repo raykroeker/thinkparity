@@ -156,4 +156,35 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     public void triggerPopup(Connection connection, Component invoker, MouseEvent e, int x, int y) {
         throw Assert.createNotYetImplemented("ContainerVersionDocumentCell#triggerPopup");
     }
+
+    /**
+     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ContainerVersionDocumentCell) {
+            return ((ContainerVersionDocumentCell) obj).getId().equals(getId()) &&
+                ((ContainerVersionDocumentCell) obj).version.equals(version);
+        }
+        return false;
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return new StringBuffer(getClass().getName()).append("//")
+            .append(getId()).append("/")
+            .append(version.getVersionId())
+            .toString();
+    }
 }

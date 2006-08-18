@@ -19,6 +19,7 @@ import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -512,6 +513,11 @@ public class ContainerModel {
         synchronized (getImplLock()) {
             getImpl().revertDocument(containerId, documentId);
         }
+    }
+
+    public void share(final Long containerId, final Long versionId,
+            final JabberId userId) {
+        throw Assert.createNotYetImplemented("ContainerModel#getImpl");
     }
 
     /**

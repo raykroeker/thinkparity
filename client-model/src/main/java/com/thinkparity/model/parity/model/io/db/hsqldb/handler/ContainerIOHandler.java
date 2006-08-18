@@ -305,6 +305,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(1, draft.getContainerId());
             for(final Artifact artifact : draft.getArtifacts()) {
                 session.setLong(2, artifact.getId());
+                session.setStateAsString(3, draft.getState(artifact));
                 if(1 != session.executeUpdate())
                     throw new HypersonicException(getErrorId("[CREATE DRAFT]", "[COULD NOT CREATE DRAFT DOCUMENT]"));
             }

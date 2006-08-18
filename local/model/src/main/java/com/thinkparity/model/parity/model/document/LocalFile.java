@@ -184,10 +184,8 @@ class LocalFile {
      *            The new name.
      */
 	void rename(final String filename) {
-        if (file.exists()) {
-    	    Assert.assertTrue("[CANNOT RENAME LOCAL FILE]",
-                    file.renameTo(new File(file.getParentFile(), filename)));
-        }
+	    Assert.assertTrue("[CANNOT RENAME LOCAL FILE]",
+                file.renameTo(new File(file.getParentFile(), filename)));
     }
 
     /**

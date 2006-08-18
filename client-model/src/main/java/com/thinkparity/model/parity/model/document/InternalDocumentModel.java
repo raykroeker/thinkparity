@@ -206,4 +206,16 @@ public class InternalDocumentModel extends DocumentModel implements
             return getImpl().readAuditEvents(documentId);
         }
     }
+
+    /**
+     * Revert the document draft to its previous state.
+     * 
+     * @param documentId
+     *            A document id.
+     */
+    public void revertDraft(final Long documentId) {
+        synchronized (getImplLock()) {
+            getImpl().revertDraft(documentId);
+        }
+    }
 }

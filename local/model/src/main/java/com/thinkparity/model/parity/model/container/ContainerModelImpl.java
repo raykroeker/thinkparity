@@ -227,15 +227,19 @@ public class ContainerModelImpl extends AbstractModelImpl {
             createDistributed(container);
         }
 
-        final ContainerVersion version = createVersion(containerId);
-        final List<Document> documents = readDocuments(version.getArtifactId(), version.getVersionId());
+        final ContainerVersion latestVersion =
+                readLatestVersion(container.getId());
+        final List<Document> documents = readDocuments(
+                latestVersion.getArtifactId(), latestVersion.getVersionId());
 
         // create
         final ContainerDraft draft = new ContainerDraft();
         draft.setOwner(localTeamMember(containerId));
         draft.setContainerId(containerId);
-        for(final Document document : documents)
+        for(final Document document : documents) {
             draft.addDocument(document);
+            draft.putState(document, ContainerDraft.ArtifactState.NONE);
+        }
         containerIO.createDraft(draft);
 
         // remote create
@@ -1039,11 +1043,11 @@ public class ContainerModelImpl extends AbstractModelImpl {
         case ADDED:     // delete the document
             getInternalDocumentModel().delete(document.getId());
             break;
-        case NONE:      // fall through
-        case REMOVED:   // flag as removed
+        case NONE:
             containerIO.createDraftArtifactRel(
                     containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);
             break;
+        case REMOVED:   // fall through
         default:
             Assert.assertUnreachable("UNKNOWN ARTIFACT STATE");
         }
@@ -1080,7 +1084,15 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logApiId();
         debugVariable("containerId", containerId);
         debugVariable("documentId", documentId);
-        throw Assert.createNotYetImplemented("ContainerModelImpl#revertDocument");
+        assertDraftExists("DRAFT DOES NOT EXIST", containerId);
+        assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
+                containerId, documentId, ContainerDraft.ArtifactState.NONE);
+        final ContainerDraft draft = readDraft(containerId);
+        final Document document = draft.getDocument(documentId);
+        containerIO.deleteDraftArtifactRel(containerId, document.getId());
+        containerIO.createDraftArtifactRel(containerId, document.getId(),
+                ContainerDraft.ArtifactState.NONE);
+        getInternalDocumentModel().revertDraft(documentId);
     }
 
     /**

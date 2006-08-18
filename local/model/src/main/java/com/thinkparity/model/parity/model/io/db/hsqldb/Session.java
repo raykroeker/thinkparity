@@ -477,13 +477,21 @@ public class Session {
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
-	public void setStateAsString(final Integer index, final ArtifactState state) {
-		assertOpen("setStateAsString(Integer,ArtifactState)");
-		assertPreparedStatement("setStateAsString(Integer,ArtifactState)");
-		debugSql(null == state ? null : state.toString(), index);
-		try { preparedStatement.setString(index, state.toString()); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-	}
+    public void setStateAsString(final Integer index, final ArtifactState state) {
+        assertOpen("setStateAsString(Integer,ArtifactState)");
+        assertPreparedStatement("setStateAsString(Integer,ArtifactState)");
+        debugSql(null == state ? null : state.toString(), index);
+        try { preparedStatement.setString(index, state.toString()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
+    public void setStateAsString(final Integer index, final ContainerDraft.ArtifactState state) {
+        assertOpen("SESSION CONNECTION NOT OPEN");
+        assertPreparedStatement("SESSION STATEMENT NOT PREPARED");
+        debugSql(null == state ? null : state.toString(), index);
+        try { preparedStatement.setString(index, state.toString()); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
 
 	public void setStateAsString(final Integer index,
             final TeamMemberState state) {

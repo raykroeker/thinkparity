@@ -85,7 +85,7 @@ public class ContainerDraft {
      */
     public List<Artifact> getArtifacts() {
         final List<Artifact> artifacts = new ArrayList<Artifact>(this.artifacts.size());
-        artifacts.addAll(artifacts);
+        artifacts.addAll(this.artifacts);
         return Collections.unmodifiableList(artifacts);
     }
 

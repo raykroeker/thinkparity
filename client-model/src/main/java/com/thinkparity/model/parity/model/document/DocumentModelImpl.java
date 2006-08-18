@@ -799,13 +799,13 @@ class DocumentModelImpl extends AbstractModelImpl {
         try {
             final Document document = read(documentId);
             final String originalName = document.getName();
+            final LocalFile localFile = getLocalFile(document);
     
             // rename the document
             document.setName(documentName);
             documentIO.update(document);
     
             // rename the local file
-            final LocalFile localFile = getLocalFile(document);
             localFile.rename(documentName);
 
             // audit the rename
@@ -837,6 +837,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 	}
 
 	/**
+     * Revert a document draft to a version.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A version id.
+     */
+    void revertDraft(final Long documentId) {
+        logApiId();
+        debugVariable("documentId", documentId);
+        revertDraft(documentId, readLatestVersion(documentId).getVersionId());
+    }
+
+	/**
      * Update the working version of a document. Note that the content stream is
      * not closed.
      * 
@@ -856,7 +870,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Assert that the document's draft is modified.
      * 
      * @param assertion
@@ -1007,7 +1021,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		documentIO.delete(documentId);
     }
 
-    /**
+	/**
 	 * Create a document local file reference for a given document.
 	 * 
 	 * @param document
@@ -1018,7 +1032,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		return new LocalFile(workspace, document);
 	}
 
-	/**
+    /**
 	 * Create a document local file reference for a given version.
 	 * 
 	 * @param version
@@ -1048,7 +1062,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
 	 * Fire document created.
 	 * 
 	 * @param document
@@ -1064,7 +1078,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Fire document deleted.
 	 * 
 	 * @param document
@@ -1080,7 +1094,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Fire key request accepted.
      * 
      * @param user
@@ -1099,7 +1113,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Fire key request declined.
      * 
      * @param user
@@ -1139,5 +1153,20 @@ class DocumentModelImpl extends AbstractModelImpl {
 
     private User readUser(final JabberId jabberId) throws ParityException {
         return getInternalSessionModel().readUser(jabberId);
+    }
+
+    /**
+     * Revert a document draft to a version.
+     * 
+     * @param documentId
+     *            A document id.
+     * @param versionId
+     *            A version id.
+     */
+    private void revertDraft(final Long documentId, final Long versionId) {
+        logApiId();
+        debugVariable("documentId", documentId);
+        debugVariable("versionId", versionId);
+        throw Assert.createNotYetImplemented("DocumentModelImpl#revertDraft");
     }
 }

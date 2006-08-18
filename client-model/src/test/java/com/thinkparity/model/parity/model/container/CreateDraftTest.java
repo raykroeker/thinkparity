@@ -3,8 +3,11 @@
  */
 package com.thinkparity.model.parity.model.container;
 
+import java.util.List;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.ContainerEvent;
+import com.thinkparity.model.parity.model.document.Document;
 
 /**
  * <b>Title:</b>thinkParity Container Create Draft Test<br>
@@ -36,6 +39,13 @@ public class CreateDraftTest extends ContainerTestCase {
                 datum.containerId, draft.getContainerId());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotify);
 
+        final ContainerVersion latestVersion =
+                datum.containerModel.readLatestVersion(datum.containerId);
+        final List<Document> latestVersionDocuments =
+                datum.containerModel.readDocuments(latestVersion.getArtifactId(), latestVersion.getVersionId());
+        assertEquals(
+                "LATEST VERSION DOCUMENT LIST SIZE DOES NOT MATCH DRAFT DOCUMENT LIST SIZE",
+                latestVersionDocuments.size(), draft.getDocuments().size());
         try {
             assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
                     getSessionModel().isLoggedInUserKeyHolder(datum.containerId));

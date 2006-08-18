@@ -13,16 +13,16 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
+import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.Mode;
+import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.Version;
 import com.thinkparity.browser.Constants.DirectoryNames;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
-
-import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.Mode;
-import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.assertion.Assert;
 
 public class ProfileManager {
 
@@ -49,9 +49,9 @@ public class ProfileManager {
             managerAvatar.setInput(readProfiles());
             openWindow(managerAvatar.getTitle(), managerAvatar);
     
-            return managerAvatar.getSelectedProfile();
+            return managerAvatar.getSelectedProfile().setLastModified();
         }
-        else { return readDefaultProfile(); }
+        else { return readDefaultProfile().setLastModified(); }
     }
 
     /**

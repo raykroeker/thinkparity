@@ -116,4 +116,14 @@ public class Profile implements Comparable<Profile> {
     void setFileSystem(final FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
+
+    /**
+     * Update the last modified date.
+     * 
+     * @return The profile.
+     */
+    Profile setLastModified() {
+        FileUtil.touch(fileSystem.getRoot());
+        return this;
+    }
 }

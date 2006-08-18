@@ -356,6 +356,7 @@ class XMPPContainer {
             method.setParameter(Xml.Artifact.NAME, entry.getKey().getName());
             method.setParameter(Xml.Artifact.TYPE, entry.getKey().getArtifactType());
             method.setParameter(Xml.Artifact.BYTES, StreamUtil.read(entry.getValue()));
+//            method.setParameter(Xml.Artifact.CHECKSUM, entry.getKey().getChecksum());
             method.execute(core.getConnection());
         }
     }

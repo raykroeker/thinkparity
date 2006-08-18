@@ -23,6 +23,7 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.container.RemoveDocument;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.Rename;
 
@@ -167,7 +168,9 @@ public class DraftDocumentCell extends Document implements TabCell  {
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
-    public void triggerPopup(Connection connection, Component invoker, MouseEvent e, int x, int y) {
+    public void triggerPopup(final Connection connection,
+            final Component invoker, final MouseEvent e, final int x,
+            final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
         final Data openData = new Data(1);
@@ -184,7 +187,10 @@ public class DraftDocumentCell extends Document implements TabCell  {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_REVERT, revertData));
 
         final Data removeData = new Data(1);
+        removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+        removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData));
+        jPopupMenu.show(invoker, x, y);
 
     }
 }

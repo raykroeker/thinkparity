@@ -107,12 +107,10 @@ class ContactModelImpl extends AbstractModelImpl {
         final InternalSessionModel sessionModel = getInternalSessionModel();
         sessionModel.acceptInvitation(invitation.getInvitedBy());
         // create contact data
-        final Contact contact = readRemote(invitation.getInvitedBy());
-        final User user = getInternalUserModel().read(contact.getId());
-        contact.setLocalId(user.getLocalId());
-        contactIO.create(contact);
+        final Contact remoteContact = readRemote(invitation.getInvitedBy());
+        final Contact localContact = createLocal(remoteContact);
         // fire event
-        notifyIncomingInvitationAccepted(contact, invitation, localEventGenerator);
+        notifyIncomingInvitationAccepted(localContact, invitation, localEventGenerator);
     }
 
     /**
@@ -210,11 +208,15 @@ class ContactModelImpl extends AbstractModelImpl {
      *
      */
     void download() {
-        logger.info(getApiId("[DOWNLOAD]"));
-        logger.warn(getApiId("[DOWNLOAD]"));
+        logApiId();
         final List<Contact> remoteContacts = getInternalSessionModel().readContactList();
+        Contact localContact; 
         for(final Contact remoteContact : remoteContacts) {
-//            contactIO.create(remoteContact);
+            debugVariable("remoteContact", remoteContact);
+            localContact = read(remoteContact.getId());
+            if (null == localContact) {
+                createLocal(remoteContact);
+            }
         }
     }
 
@@ -231,28 +233,41 @@ class ContactModelImpl extends AbstractModelImpl {
        logApiId();
        debugVariable("acceptedBy", acceptedBy);
        debugVariable("acceptedOn", acceptedOn);
-       final Contact contact = readRemote(acceptedBy);
+       final Contact remoteContact = readRemote(acceptedBy);
        // delete invitation(s)
        final List<OutgoingInvitation> outgoingInvitations = new ArrayList<OutgoingInvitation>();
-       for (final String email : contact.getEmails()) {
+       for (final String email : remoteContact.getEmails()) {
            outgoingInvitations.add(contactIO.readOutgoingInvitation(email));
            contactIO.deleteOutgoingInvitation(
                    outgoingInvitations.get(
                            outgoingInvitations.size() - 1).getId());
        }
-       // create the contact data
-       final InternalUserModel userModel = getInternalUserModel();
-       User user = userModel.read(contact.getId());
-       if (null == user) {
-           user = userModel.create(contact.getId());
-       }
-       contact.setLocalId(user.getLocalId());
-       contactIO.create(contact);
+       final Contact localContact = createLocal(remoteContact);
        // fire event(s)
        for (final OutgoingInvitation outgoingInvitation : outgoingInvitations) {
-           notifyOutgoingInvitationAccepted(contact, outgoingInvitation, remoteEventGenerator);
+           notifyOutgoingInvitationAccepted(localContact, outgoingInvitation, remoteEventGenerator);
        }
-   }
+    }
+
+    /**
+     * Create the local contact data.
+     * 
+     * @param contact
+     *            A contact.
+     * @return The new contact.
+     */
+    private Contact createLocal(final Contact contact) {
+        // create the contact data
+        final InternalUserModel userModel = getInternalUserModel();
+        User user = userModel.read(contact.getId());
+        if (null == user) {
+            user = userModel.create(contact.getId());
+        }
+
+        contact.setLocalId(user.getLocalId());
+        contactIO.create(contact);
+        return contactIO.read(contact.getId());
+    }
 
     /**
      * Handle the invitation declined remote event.
@@ -312,7 +327,7 @@ class ContactModelImpl extends AbstractModelImpl {
      * @return A list of contacts.
      */
     List<Contact> read() {
-        logger.info(getApiId("[READ]"));
+        logApiId();
         return read(defaultComparator, defaultFilter);
     }
 
@@ -324,8 +339,8 @@ class ContactModelImpl extends AbstractModelImpl {
      * @return A list of contacts.
      */
     List<Contact> read(final Comparator<Contact> comparator) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(comparator);
+        logApiId();
+        debugVariable("comparator", comparator);
         return read(comparator, defaultFilter);
     }
 
@@ -340,9 +355,9 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     List<Contact> read(final Comparator<Contact> comparator,
             final Filter<? super Contact> filter) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(comparator);
-        logger.debug(filter);
+        logApiId();
+        debugVariable("comparator", comparator);
+        debugVariable("filter", filter);
         final List<Contact> contacts = contactIO.read();
         FilterManager.filter(contacts, filter);
         ModelSorter.sortContacts(contacts, comparator);
@@ -357,8 +372,8 @@ class ContactModelImpl extends AbstractModelImpl {
      * @return A list of contacts.
      */
     List<Contact> read(final Filter<? super Contact> filter) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(filter);
+        logApiId();
+        debugVariable("filter", filter);
         return read(defaultComparator, filter);
     }
 
@@ -370,14 +385,8 @@ class ContactModelImpl extends AbstractModelImpl {
      * @return A contact.
      */
     Contact read(final JabberId contactId) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(contactId);
-        logger.warn(getApiId("[READ] [NOT YET IMPLEMENTED]"));
-        final List<Contact> contacts = getInternalSessionModel().readContactList();
-        for(final Contact contact : contacts) {
-            if(contact.getId().equals(contactId)) { return contact; }
-        }
-        return null;
+        logApiId();
+        return contactIO.read(contactId);
     }
 
     IncomingInvitation readIncomingInvitation(final Long invitationId) {
@@ -524,19 +533,6 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     private void assertDoesNotExist(final Object assertion, final String email) {
         Assert.assertIsNull(assertion, read(email));
-    }
-
-    /**
-     * Assert that no contact invitation with the given e-mail address exists.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param email
-     *            An e-mail address.
-     */
-    private void assertInvitationDoesNotExist(final Object assertion, final String email) {
-        throw Assert
-                .createNotYetImplemented("ContactModelImpl#assertInvitationDoesNotExist(Object,String)");
     }
 
     /**

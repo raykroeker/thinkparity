@@ -13,6 +13,7 @@ import com.thinkparity.model.parity.model.contact.IncomingInvitation;
 import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -77,12 +78,12 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join USER U on C.CONTACT_ID=U.USER_ID ")
             .toString();
 
-    /** Sql to read a contact from an e-mail. */
-    private static final String SQL_READ_BY_EMAIL =
-            new StringBuffer("select ")
-            .append("from CONTACT ")
-            .append("")
+    /** Sql to read a contact by its id. */
+    private static final String SQL_READ_BY_ID =
+            new StringBuffer(SQL_READ)
+            .append("where U.JABBER_ID=?")
             .toString();
+
 
     /** Sql to read contact e-mail addresses. */
     private static final String SQL_READ_EMAIL =
@@ -92,7 +93,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join EMAIL E on CER.EMAIL_ID=E.EMAIL_ID ")
             .append("where C.CONTACT_ID=?")
             .toString();
-   
+
     /** Sql to read an incoming contact invitation. */
     private static final String SQL_READ_INCOMING_INVITATION =
             new StringBuffer("select CI.CREATED_BY,CI.CREATED_ON,")
@@ -117,7 +118,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             .append("inner join EMAIL E on CII.INVITED_AS=E.EMAIL_ID ")
             .append("inner join USER U on CI.CREATED_BY=U.USER_ID ")
             .toString();
-
+   
     /** Sql to read an outgoing contact invitation. */
     private static final String SQL_READ_OUTGOING_INVITATION_BY_EMAIL =
             new StringBuffer("select U.JABBER_ID,CI.CREATED_BY,CI.CREATED_ON,")
@@ -306,12 +307,14 @@ public class ContactIOHandler extends AbstractIOHandler implements
     public void deleteOutgoingInvitation(final Long invitationId) {
         final Session session = openSession();
         try {
+            final Long emailId =
+                readOutgoingInvitationEmailId(session, invitationId);
             session.prepareStatement(SQL_DELETE_OUTGOING_INVITATION);
             session.setLong(1, invitationId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("DELETE OUTGOING INVITATION", "COULD NOT DELETE OUTGOING INVITATION"));
             deleteInvitation(session, invitationId);
-            emailIO.delete(session, readOutgoingInvitationEmailId(session, invitationId));
+            emailIO.delete(session, emailId);
             session.commit();
         } catch(final HypersonicException hx) {
             session.rollback();
@@ -339,19 +342,24 @@ public class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#read(java.lang.String)
+     * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#read(com.thinkparity.model.xmpp.JabberId)
      */
-    public Contact read(final String email) {
+    public Contact read(final JabberId contactId) {
         final Session session = openSession();
         try {
-            session.prepareStatement(SQL_READ_BY_EMAIL);
-            session.setString(1, email);
+            session.prepareStatement(SQL_READ_BY_ID);
+            session.setQualifiedUsername(1, contactId);
             session.executeQuery();
-            if(session.nextResult()) { return extractContact(session); }
-            else { return null; }
+            if (session.nextResult()) {
+                return extractContact(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
         }
-        finally { session.close(); }
     }
+
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#readIncomingInvitation(java.lang.Long)
      */

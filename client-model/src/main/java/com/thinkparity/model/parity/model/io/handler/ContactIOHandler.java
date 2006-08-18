@@ -5,9 +5,9 @@ package com.thinkparity.model.parity.model.io.handler;
 
 import java.util.List;
 
-import com.thinkparity.model.parity.model.contact.ContactInvitation;
 import com.thinkparity.model.parity.model.contact.IncomingInvitation;
 import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
+import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -42,7 +42,6 @@ public interface ContactIOHandler {
      */
     public void createOutgoingInvitation(final OutgoingInvitation outgoing);
 
-    public void delete();
     /**
      * Delete an incoming invitation.
      * 
@@ -50,6 +49,7 @@ public interface ContactIOHandler {
      *            An invitation id.
      */
     public void deleteIncomingInvitation(final Long invitationId);
+
     /**
      * Delete an outgoing invitation.
      * 
@@ -58,9 +58,21 @@ public interface ContactIOHandler {
      */
     public void deleteOutgoingInvitation(final Long invitationId);
 
+    /**
+     * Read a list of contacts.
+     * 
+     * @return A list of contacts.
+     */
     public List<Contact> read();
 
-    public Contact read(final String email);
+    /**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
+    public Contact read(final JabberId contactId);
 
     /**
      * Read an outgoing invitation.
@@ -77,8 +89,6 @@ public interface ContactIOHandler {
      * @return A list of incoming invitation.
      */
     public List<IncomingInvitation> readIncomingInvitations();
-
-    public List<ContactInvitation> readInvitations();
 
     /**
      * Read an outgoing invitation.

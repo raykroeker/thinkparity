@@ -50,6 +50,7 @@ class TrayMenuBuilder {
                     application.runRestartPlatform();
                 }
             };
+            this.restart.putValue(Action.MNEMONIC_KEY, new Integer(getString("Menu.RestartMnemonic").charAt(0)));
         }
         else { this.restart = null; }
 
@@ -70,6 +71,9 @@ class TrayMenuBuilder {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
         jPopupMenu.add(browser);
         jPopupMenu.addSeparator();
+        if (application.isDevelopmentMode()) {
+            jPopupMenu.add(restart);
+        }
         jPopupMenu.add(exit);
         return jPopupMenu;
     }

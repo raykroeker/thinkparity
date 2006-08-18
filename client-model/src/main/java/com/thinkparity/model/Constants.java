@@ -129,6 +129,7 @@ public final class Constants {
         }
         public static final class Artifact {
             public static final String BYTES = "bytes";
+            public static final String CHECKSUM = "checksum";
             public static final String NAME = "name";
             public static final String TYPE = "type";
             public static final String UNIQUE_ID = "uniqueId";

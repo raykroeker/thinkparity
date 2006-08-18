@@ -275,11 +275,12 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey,
             final Object[] errorMessageArguments, final Throwable error) {
         final Data input = new Data(3);
-        if(null != error)
-            input.set(ErrorAvatar.DataKey.ERROR, error);
+        if (null != errorMessageKey)
+            input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
         if(null != errorMessageArguments)
             input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_ARGUMENTS, errorMessageArguments);
-        input.set(ErrorAvatar.DataKey.ERROR_MESSAGE_KEY, errorMessageKey);
+        if(null != error)
+            input.set(ErrorAvatar.DataKey.ERROR, error);
         open(WindowId.ERROR, AvatarId.DIALOG_ERROR, input);
     }
 

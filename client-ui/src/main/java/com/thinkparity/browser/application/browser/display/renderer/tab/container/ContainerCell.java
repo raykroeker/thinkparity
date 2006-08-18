@@ -27,7 +27,6 @@ import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.container.CreateDraft;
-import com.thinkparity.browser.platform.action.container.UpdateTeam;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -279,11 +278,7 @@ public class ContainerCell extends Container implements TabCell  {
     public void triggerPopup(final Connection connection, final Component invoker, final MouseEvent e, final int x, final int y) {
         final JPopupMenu jPopupMenu = MenuFactory.createPopup();
 
-        final Data updateTeamData = new Data(1);
-        updateTeamData.set(UpdateTeam.DataKey.CONTAINER_ID, getId());
-        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_UPDATE_TEAM, updateTeamData));
-
-        if(!isSetDraft()) {
+        if (!isSetDraft()) {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));        

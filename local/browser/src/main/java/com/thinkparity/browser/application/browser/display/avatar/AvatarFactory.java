@@ -14,7 +14,6 @@ import com.thinkparity.browser.application.browser.display.avatar.dialog.RenameA
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.CreateInvitationAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
-import com.thinkparity.browser.application.browser.display.avatar.dialog.container.UpdateTeamAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
@@ -101,10 +100,6 @@ public class AvatarFactory {
             break;
         case DIALOG_CONTAINER_CREATE:
             avatar = new CreateContainerAvatar();
-            break;
-        case DIALOG_CONTAINER_UPDATE_TEAM:
-            avatar = new UpdateTeamAvatar();
-            avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
             break;
 		default: throw Assert.createUnreachable("UNKNOWN AVATAR");
 		}

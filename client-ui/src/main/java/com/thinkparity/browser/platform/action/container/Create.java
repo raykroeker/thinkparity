@@ -58,11 +58,9 @@ public class Create extends AbstractAction {
             } else {
                 // otherwise run the add document action; then manage the team
                 browser.runAddContainerDocuments(container.getId());
-                browser.runUpdateContainerTeam(container.getId());
             }
         }                   
     }
 
     public enum DataKey { NAME, FILES }
-
 }

@@ -29,7 +29,6 @@ import com.thinkparity.browser.application.browser.display.avatar.dialog.ErrorAv
 import com.thinkparity.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
-import com.thinkparity.browser.application.browser.display.avatar.dialog.container.UpdateTeamAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -50,7 +49,6 @@ import com.thinkparity.browser.platform.action.container.AddDocument;
 import com.thinkparity.browser.platform.action.container.Create;
 import com.thinkparity.browser.platform.action.container.CreateDraft;
 import com.thinkparity.browser.platform.action.container.Publish;
-import com.thinkparity.browser.platform.action.container.UpdateTeam;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
 import com.thinkparity.browser.platform.action.document.Rename;
@@ -69,7 +67,6 @@ import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.model.parity.model.artifact.ArtifactModel;
 import com.thinkparity.model.parity.model.index.IndexHit;
 import com.thinkparity.model.xmpp.JabberId;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -337,19 +334,6 @@ public class Browser extends AbstractApplication {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTAINER);
     }
 
-	/**
-     * Display the manage team dialog.
-     * 
-     * @param containerId
-     *            A container id.
-     */
-    public void displayUpdateContainerTeamDialog(final Long containerId) {
-        final Data input = new Data(1);
-        input.set(UpdateTeamAvatar.DataKey.CONTAINER_ID, containerId);
-        setInput(AvatarId.DIALOG_CONTAINER_UPDATE_TEAM, input);
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTAINER_UPDATE_TEAM);        
-    }
-
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
@@ -536,22 +520,6 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE); }
         });
-    }
-    
-    /**
-     * Notify the application that the team has changed.
-     * 
-     * @param containerId
-     *            The container id.
-     * @param remote
-     *            True if the action was the result of a remote event; false if
-     *            the action was a local event.   
-     */
-    public void fireContainerTeamChanged(final Long containerId, final Boolean remote) {
-        setStatus("ContainerTeamChanged");
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, remote); }
-        });        
     }
 
     /**
@@ -1179,35 +1147,6 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
-     * Manage the team for the container. The user will set team members
-     * in a dialog.
-     * 
-     * @param containerId
-     *            The container id.
-     */
-    public void runUpdateContainerTeam(final Long containerId) {
-        final Data data = new Data(1);
-        data.set(UpdateTeam.DataKey.CONTAINER_ID, containerId);
-        invoke(ActionId.CONTAINER_UPDATE_TEAM, data);           
-    }
-
-    /**
-     * Manage the team for the container. Team members are specified
-     * as a parameter.
-     *
-     * @param containerId
-     *            The container id.
-     * @param teamMembers
-     *            List of team members      
-     */
-    public void runUpdateContainerTeam(final Long containerId, final List<User> teamMembers) {
-        final Data data = new Data(2);
-        data.set(UpdateTeam.DataKey.CONTAINER_ID, containerId);
-        data.set(UpdateTeam.DataKey.TEAM_MEMBERS, teamMembers);
-        invoke(ActionId.CONTAINER_UPDATE_TEAM, data);
-    }
-
-    /**
      * Update the document with the file.
      * 
      * @param documentId
@@ -1387,20 +1326,6 @@ public class Browser extends AbstractApplication {
 		final Object input = getAvatarInput(avatarId);
 		if(null == input) { logger.info("Null input:  " + avatarId); }
 		else { avatar.setInput(getAvatarInput(avatarId)); }
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() { window.open(avatar); }
-		});
-	}
-
-    private void displayAvatar(final WindowId windowId,
-			final AvatarId avatarId, final Data input) {
-		Assert.assertNotNull("Cannot display on a null window.", windowId);
-		Assert.assertNotNull("Cannot display a null avatar.", avatarId);
-		final Window window = WindowFactory.create(windowId, mainWindow);
-
-		final Avatar avatar = getAvatar(avatarId);
-		avatar.setInput(input);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() { window.open(avatar); }

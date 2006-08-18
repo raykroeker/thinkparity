@@ -9,7 +9,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
-import com.thinkparity.browser.application.browser.display.provider.dialog.container.ManageTeamProvider;
 import com.thinkparity.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
@@ -104,9 +103,6 @@ public class ProviderFactory {
     private ContentProvider doGetProvider(final AvatarId avatarId) {
         final ContentProvider provider;
         switch(avatarId) {
-        case DIALOG_CONTAINER_UPDATE_TEAM:
-            provider = new ManageTeamProvider(profile, containerModel, contactModel);
-            break;
         case DIALOG_CONTACT_READ:
             provider = new ReadContactProvider(profile, contactModel);
             break;

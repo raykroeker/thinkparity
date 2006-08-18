@@ -20,7 +20,6 @@ import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.contact.Contact;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Container Model<br>
@@ -162,7 +161,9 @@ public class ContainerModel {
      */
     public void publish(final Long containerId, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
-        synchronized(implLock) { impl.publish(containerId); }
+        synchronized (getImplLock()) {
+            getImpl().publish(containerId, contacts, teamMembers);
+        }
     }
 
     /**
@@ -483,18 +484,6 @@ public class ContainerModel {
         synchronized (getImplLock()) {
             getImpl().revertDocument(containerId, documentId);
         }
-    }
-
-    /**
-     * Update the team for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param team
-     *            A list of users.
-     */
-    public void updateTeam(final Long containerId, final List<User> teamMembers) {
-        synchronized(getImplLock()) { getImpl().updateTeam(containerId, teamMembers); }
     }
 
     /**

@@ -86,27 +86,6 @@ public abstract class AbstractAction {
     }
 
 	/**
-	 * Create a AbstractAction.
-	 * 
-	 * @param l18nContext
-	 *            The localization context.
-	 * @param id
-	 *            The action id.
-	 * @param name
-	 *            The action name.
-	 * @param icon
-	 *            The action icon.
-	 */
-	protected AbstractAction(final String l18nContext, final ActionId id,
-			final String name, final Icon icon) {
-		super();
-		this.id = id;
-		this.icon = icon;
-		this.localization = new ActionLocalization(l18nContext);
-		this.name = name;
-	}
-
-	/**
 	 * Obtain the action ICON.
 	 * 
 	 * @return The action ICON.

@@ -80,7 +80,7 @@ public class CreateInvitationAvatar extends Avatar {
      * 
      * @return The avatar id.
      */
-    public AvatarId getId() { return AvatarId.DIALOG_CONTACT_CREATE_INVITATION; }
+    public AvatarId getId() { return AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION; }
 
     /**
      * @see com.thinkparity.codebase.swing.AbstractJPanel#isInputValid()

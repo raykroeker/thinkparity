@@ -3,8 +3,6 @@
  */
 package com.thinkparity.browser.platform.action.platform;
 
-import javax.swing.ImageIcon;
-
 import com.thinkparity.browser.platform.Platform;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -16,18 +14,6 @@ import com.thinkparity.browser.platform.action.Data;
  */
 public class Restart extends AbstractAction {
 
-    private static final ImageIcon ICON;
-
-    private static final ActionId ID;
-
-    private static final String NAME;
-
-    static {
-        ICON = null;
-        ID = ActionId.PLATFORM_RESTART;
-        NAME = "Quit";
-    }
-
     /** The browser platform. */
     private final Platform platform;
 
@@ -38,7 +24,7 @@ public class Restart extends AbstractAction {
      *            The browser platform.
      */
     public Restart(final Platform platform) {
-        super("RestartPlatform", ID, NAME, ICON);
+        super(ActionId.PLATFORM_RESTART);
         this.platform = platform;
     }
 

@@ -56,7 +56,7 @@ public class LoginAvatar extends Avatar {
     }
 
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId() */
-    public AvatarId getId() { return AvatarId.PLATFORM_LOGIN; }
+    public AvatarId getId() { return AvatarId.DIALOG_PLATFORM_LOGIN; }
 
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState() */
     public State getState() {

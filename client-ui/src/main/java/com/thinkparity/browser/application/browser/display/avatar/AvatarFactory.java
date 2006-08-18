@@ -89,7 +89,7 @@ public class AvatarFactory {
         case DIALOG_ERROR:
             avatar = new ErrorAvatar();
             break;
-        case DIALOG_CONTACT_CREATE_INVITATION:
+        case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:
             avatar = new CreateInvitationAvatar();
             break;
         case DIALOG_RENAME:

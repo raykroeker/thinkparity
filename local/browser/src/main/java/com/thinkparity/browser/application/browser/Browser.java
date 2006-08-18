@@ -203,7 +203,7 @@ public class Browser extends AbstractApplication {
      *
      */   
     public void displayContactCreateInvitation() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_INVITATION);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_INVITATION);
     }
 
     /**

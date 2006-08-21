@@ -62,7 +62,6 @@ public class CreateDraftTest extends ContainerTestCase {
         login();
         final ContainerModel containerModel = getContainerModel();
         final Container container = createContainer(NAME);
-        addTeam(container);
         addDocuments(container);
         publish(container);
         datum = new Fixture(containerModel, container.getId());

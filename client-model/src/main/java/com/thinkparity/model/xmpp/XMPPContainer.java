@@ -13,8 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
-
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
@@ -26,17 +24,16 @@ import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.StreamUtil;
 
-import com.thinkparity.model.Constants.Xml;
+import com.thinkparity.model.Constants.Xml.Service;
+import com.thinkparity.model.Constants.Xml.Container.Method.PublishArtifact;
+import com.thinkparity.model.Constants.Xml.Container.Method.SendArtifact;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
-import com.thinkparity.model.parity.model.user.TeamMember;
-import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQ;
 import com.thinkparity.model.smackx.packet.AbstractThinkParityIQProvider;
 import com.thinkparity.model.xmpp.events.XMPPContainerListener;
-import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity XMPP Container <br>
@@ -48,7 +45,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @version
  * @see XMPPCore
  */
-class XMPPContainer {
+class XMPPContainer extends AbstractXMPP {
 
     /** Container xmpp event LISTENERS. */
     private static final List<XMPPContainerListener> LISTENERS;
@@ -56,76 +53,38 @@ class XMPPContainer {
     static {
         LISTENERS = new ArrayList<XMPPContainerListener>();
 
-        ProviderManager.addIQProvider("query", Xml.EventHandler.Container.ARTIFACT_PUBLISHED, new AbstractThinkParityIQProvider() {
+        ProviderManager.addIQProvider(Service.NAME, PublishArtifact.EVENT_NAME, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser(parser);
+                setParser2(parser);
                 final HandleArtifactPublishedIQ query = new HandleArtifactPublishedIQ();
-
                 Boolean isComplete = Boolean.FALSE;
                 while(Boolean.FALSE == isComplete) {
-                    next(1);
-                    if (isStartTag(Xml.Container.PUBLISHED_BY)) {
-                        next(1);
-                        query.publishedBy = readJabberId();
-                        next(1);
-                    }
-                    else if (isEndTag(Xml.Container.PUBLISHED_BY)) {
-                        next(1);  
-                    } else if (isStartTag(Xml.Container.PUBLISHED_ON)) {
-                        next(1);
-                        query.publishedOn = readCalendar();
-                        next(1);
-                    }
-                    else if (isEndTag(Xml.Container.PUBLISHED_ON)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
-                        next(1);
-                        query.containerUniqueId = readUniqueId();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
-                        next(1);
-                    } else if(isStartTag(Xml.Container.CONTAINER_VERSION_ID)) {
-                        next(1);
-                        query.containerVersionId = readLong();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.CONTAINER_VERSION_ID)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.ARTIFACT_COUNT)) {
-                        next(1);
-                        query.count = readInteger();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.ARTIFACT_COUNT)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.ARTIFACT_INDEX)) {
-                        next(1);
-                        query.index = readInteger();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.ARTIFACT_INDEX)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.UNIQUE_ID)) {
-                        next(1);
-                        query.uniqueId = readUniqueId();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.UNIQUE_ID)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.VERSION_ID)) {
-                        next(1);
-                        query.versionId = readLong();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.VERSION_ID)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.TYPE)) {
-                        next(1);
-                        query.type = readArtifactType();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.TYPE)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.BYTES)) {
-                        next(1);
-                        query.bytes = readBytes();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.BYTES)) {
-                        next(1);
+                    if (isStartTag("uniqueId")) {
+                        query.containerUniqueId = readUniqueId2();
+                    } else if(isStartTag("versionId")) {
+                        query.containerVersionId = readLong2();
+                    } else if (isStartTag("name")) {
+                        query.containerName = readString2();
+                    } else if (isStartTag("artifactCount")) {
+                        query.containerArtifactCount = readInteger2();
+                    } else if (isStartTag("artifactIndex")) {
+                        query.containerArtifactIndex = readInteger2();
+                    } else if (isStartTag("artifactUniqueId")) {
+                        query.artifactUniqueId = readUniqueId2();
+                    } else if (isStartTag("artifactVersionId")) {
+                        query.artifactVersionId = readLong2();
+                    } else if (isStartTag("artifactName")) {
+                        query.artifactName = readString2();
+                    } else if (isStartTag("artifactType")) {
+                        query.artifactType = readArtifactType2();
+                    } else if (isStartTag("artifactChecksum")) {
+                        query.artifactChecksum = readString2();
+                    } else if (isStartTag("artifactBytes")) {
+                        query.artifactBytes = readBytes2();
+                    } else if (isStartTag("publishedBy")) {
+                        query.publishedBy = readJabberId2();
+                    } else if (isStartTag("publishedOn")) {
+                        query.publishedOn = readCalendar2();
                     } else {
                         isComplete = Boolean.TRUE;
                     }
@@ -133,86 +92,38 @@ class XMPPContainer {
                 return query;
             }
         });
-        ProviderManager.addIQProvider("query", Xml.EventHandler.Container.ARTIFACT_SENT, new AbstractThinkParityIQProvider() {
+        ProviderManager.addIQProvider(Service.NAME, SendArtifact.EVENT_NAME, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
-                setParser(parser);
+                setParser2(parser);
                 final HandleArtifactSentIQ query = new HandleArtifactSentIQ();
-
                 Boolean isComplete = Boolean.FALSE;
                 while(Boolean.FALSE == isComplete) {
-                    next(1);
-                    if (isStartTag(Xml.Container.SENT_BY)) {
-                        next(1);
-                        query.sentBy = readJabberId();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.SENT_BY)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.SENT_ON)) {
-                        next(1);
-                        query.sentOn = readCalendar();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.SENT_ON)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
-                        next(1);
-                        query.containerUniqueId = readUniqueId();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.CONTAINER_UNIQUE_ID)) {
-                        next(1);
-                    } else if(isStartTag(Xml.Container.CONTAINER_VERSION_ID)) {
-                        next(1);
-                        query.containerVersionId = readLong();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.CONTAINER_VERSION_ID)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.CONTAINER_NAME)) {
-                        next(1);
-                        query.containerName = readString();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.CONTAINER_NAME)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.ARTIFACT_COUNT)) {
-                        next(1);
-                        query.count = readInteger();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.ARTIFACT_COUNT)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Container.ARTIFACT_INDEX)) {
-                        next(1);
-                        query.index = readInteger();
-                        next(1);
-                    } else if (isEndTag(Xml.Container.ARTIFACT_INDEX)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.UNIQUE_ID)) {
-                        next(1);
-                        query.uniqueId = readUniqueId();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.UNIQUE_ID)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.VERSION_ID)) {
-                        next(1);
-                        query.versionId = readLong();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.VERSION_ID)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.NAME)) {
-                        next(1);
-                        query.name = readString();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.NAME)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.TYPE)) {
-                        next(1);
-                        query.type = readArtifactType();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.TYPE)) {
-                        next(1);
-                    } else if (isStartTag(Xml.Artifact.BYTES)) {
-                        next(1);
-                        query.bytes = readBytes();
-                        next(1);
-                    } else if (isEndTag(Xml.Artifact.BYTES)) {
-                        next(1);
+                    if (isStartTag("uniqueId")) {
+                        query.containerUniqueId = readUniqueId2();
+                    } else if(isStartTag("versionId")) {
+                        query.containerVersionId = readLong2();
+                    } else if (isStartTag("name")) {
+                        query.containerName = readString2();
+                    } else if (isStartTag("artifactCount")) {
+                        query.containerArtifactCount = readInteger2();
+                    } else if (isStartTag("artifactIndex")) {
+                        query.containerArtifactIndex = readInteger2();
+                    } else if (isStartTag("artifactUniqueId")) {
+                        query.artifactUniqueId = readUniqueId2();
+                    } else if (isStartTag("artifactVersionId")) {
+                        query.artifactVersionId = readLong2();
+                    } else if (isStartTag("artifactName")) {
+                        query.artifactName = readString2();
+                    } else if (isStartTag("artifactType")) {
+                        query.artifactType = readArtifactType2();
+                    } else if (isStartTag("artifactChecksum")) {
+                        query.artifactChecksum = readString2();
+                    } else if (isStartTag("artifactBytes")) {
+                        query.artifactBytes = readBytes2();
+                    } else if (isStartTag("sentBy")) {
+                        query.sentBy = readJabberId2();
+                    } else if (isStartTag("sentOn")) {
+                        query.sentOn = readCalendar2();
                     } else {
                         isComplete = Boolean.TRUE;
                     }
@@ -220,30 +131,15 @@ class XMPPContainer {
                 return query;
             }
         });
-    }
-
-    /**
-     * Obtain an api id.
-     * 
-     * @param api
-     *            An api.
-     * @return An api id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return new StringBuffer("[XMPP] [CONTAINER] ").append(api);
     }
 
     /** Core xmpp functionality. */
     private final XMPPCore core;
 
-    /** An apache logger. */
-    private final Logger logger;
-
     /** Create XMPPContainer. */
     XMPPContainer(final XMPPCore core) {
         super();
         this.core = core;
-        this.logger = Logger.getLogger(getClass());
     }
 
     /**
@@ -253,13 +149,16 @@ class XMPPContainer {
      *            The xmpp container event listener.
      */
     void addListener(final XMPPContainerListener l) {
-        logger.info("[LMODEL] [XMPP] [CONTAINER] [ADD LISTENER");
-        logger.debug(l);
+        logApiId();
+        logVariable("l", l);
         synchronized(LISTENERS) {
-            if(LISTENERS.contains(l)) { return; }
+            if (LISTENERS.contains(l)) {
+                return;
+            }
             LISTENERS.add(l);
         }
     }
+
     /**
      * Add the requisite packet LISTENERS to the xmpp connection.
      * 
@@ -277,7 +176,6 @@ class XMPPContainer {
         xmppConnection.addPacketListener(
                 new PacketListener() {
                     public void processPacket(final Packet packet) {
-                        logger.debug("packet:" + packet.toXML());
                         handleArtifactSent((HandleArtifactSentIQ) packet);
                     }
                 },
@@ -287,89 +185,116 @@ class XMPPContainer {
     /**
      * Publish a container.
      * 
-     * @param version
-     *            A container version.
-     * @param teamMembers
-     *            A list of team members.
-     * @param documentVersions
-     *            A list of document versions and their input streams.
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents and their content.
+     * @param publishTo
+     *            Whom the container is to be published to.
      * @param publishedBy
-     *            The publisher.
+     *            Who the container is published by.
      * @param publishedOn
-     *            The publish date.
-     * @throws SmackException
+     *            When the container is published.
+     * @throws IOException
      */
-    void publish(final ContainerVersion version,
-            final List<TeamMember> teamMembers,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final JabberId publishedBy, final Calendar publishedOn)
-            throws IOException {
-        logger.info(getApiId("[PUBLISH]"));
-        logger.debug(version);
-        final XMPPMethod publishArtifact = new XMPPMethod(Xml.Method.Container.PUBLISH_ARTIFACT);
-
+    void publish(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) throws IOException {
+        logApiId();
+        logVariable("container", container);
+        logVariable("documents", documents);
+        logVariable("publishTo", publishTo);
+        logVariable("publishedBy", publishedBy);
+        logVariable("publishedOn", publishedOn);
         int i = 0;
-        final Set<Entry<DocumentVersion, InputStream>> entries = documentVersions.entrySet();
-        for(final Entry<DocumentVersion, InputStream> entry : entries) {
-            publishArtifact.setParameter(Xml.Container.PUBLISHED_BY, publishedBy);
-            publishArtifact.setParameter(Xml.Container.PUBLISHED_ON, publishedOn);
-            publishArtifact.setParameter(Xml.Container.CONTAINER_UNIQUE_ID, version.getArtifactUniqueId());
-            publishArtifact.setParameter(Xml.Container.CONTAINER_VERSION_ID, version.getVersionId());
-            publishArtifact.setParameter(Xml.Container.ARTIFACT_TEAM_MEMBERS, Xml.Container.ARTIFACT_TEAM_MEMBER, teamMembers);
-            publishArtifact.setParameter(Xml.Container.ARTIFACT_COUNT, entries.size());
-            publishArtifact.setParameter(Xml.Container.ARTIFACT_INDEX, i++);
-            publishArtifact.setParameter(Xml.Artifact.UNIQUE_ID, entry.getKey().getArtifactUniqueId());
-            publishArtifact.setParameter(Xml.Artifact.VERSION_ID, entry.getKey().getVersionId());
-            publishArtifact.setParameter(Xml.Artifact.TYPE, entry.getKey().getArtifactType());
-            publishArtifact.setParameter(Xml.Artifact.BYTES, StreamUtil.read(entry.getValue()));
+        final Set<Entry<DocumentVersion, InputStream>> entries = documents.entrySet();
+        for (final Entry<DocumentVersion, InputStream> entry : entries) {
+            // publish artifact
+            final XMPPMethod publishArtifact = new XMPPMethod(Service.Container.PUBLISH_ARTIFACT);
+            publishArtifact.setParameter("uniqueId", container.getArtifactUniqueId());
+            publishArtifact.setParameter("versionId", container.getVersionId());
+            publishArtifact.setParameter("name", container.getName());
+            publishArtifact.setParameter("artifactCount", entries.size());
+            publishArtifact.setParameter("artifactIndex", i++);
+            publishArtifact.setParameter("artifactUniqueId", entry.getKey().getArtifactUniqueId());
+            publishArtifact.setParameter("artifactVersionId", entry.getKey().getVersionId());
+            publishArtifact.setParameter("artifactName", entry.getKey().getName());
+            publishArtifact.setParameter("artifactType", entry.getKey().getArtifactType());
+            publishArtifact.setParameter("artifactChecksum", entry.getKey().getChecksum());
+            publishArtifact.setParameter("artifactBytes", StreamUtil.read(entry.getValue()));
+            publishArtifact.setParameter("publishTo", "publishTo", publishTo);
+            publishArtifact.setParameter("publishedBy", publishedBy);
+            publishArtifact.setParameter("publishedOn", publishedOn);
             publishArtifact.execute(core.getConnection());
         }
-        // publish the container
-        final XMPPMethod publish = new XMPPMethod(Xml.Method.Container.PUBLISH);
-        publish.setParameter(Xml.Artifact.UNIQUE_ID, version.getArtifactUniqueId());
+        // publish
+        final XMPPMethod publish = new XMPPMethod(Service.Container.PUBLISH);
+        publish.setParameter("uniqueId", container.getArtifactUniqueId());
+        publish.setParameter("versionId", container.getVersionId());
+        publish.setParameter("name", container.getName());
+        publish.setParameter("artifactCount", entries.size());
+        publish.setParameter("publishedBy", publishedBy);
+        publish.setParameter("publishedTo", "publishedTo", publishTo);
+        publish.setParameter("publishedOn", publishedOn);
         publish.execute(core.getConnection());
     }
 
     /**
      * Send a container.
      * 
-     * @param version
-     *            A container version.
-     * @param documentVersions
-     *            A list of document versions.
-     * @param user
-     *            A user.
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents and their content.
+     * @param publishTo
+     *            Whom the container is to be published to.
+     * @param publishedBy
+     *            Who the container is published by.
+     * @param publishedOn
+     *            When the container is published.
+     * @throws IOException
      */
-    void send(final ContainerVersion version,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final User user, final JabberId sentBy, final Calendar sentOn)
-            throws IOException {
-        logger.info(getApiId("[SEND]"));
-        logger.debug(version);
-        logger.debug(documentVersions);
-        logger.debug(user);
-        final XMPPMethod method = new XMPPMethod(Xml.Method.Container.SEND);
-
+    void send(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<JabberId> sendTo, final JabberId sentBy,
+            final Calendar sentOn) throws IOException {
+        logApiId();
+        logVariable("container", container);
+        logVariable("documents", documents);
+        logVariable("sendTo", sendTo);
+        logVariable("sentBy", sentBy);
+        logVariable("sentOn", sentOn);
         int i = 0;
-        final Set<Entry<DocumentVersion, InputStream>> entries = documentVersions.entrySet();
+        final Set<Entry<DocumentVersion, InputStream>> entries = documents.entrySet();
         for(final Entry<DocumentVersion, InputStream> entry : entries) {
-            method.setParameter(Xml.User.JABBER_ID, user.getId());
-            method.setParameter(Xml.Container.SENT_BY, sentBy);
-            method.setParameter(Xml.Container.SENT_ON, sentOn);
-            method.setParameter(Xml.Container.CONTAINER_UNIQUE_ID, version.getArtifactUniqueId());
-            method.setParameter(Xml.Container.CONTAINER_VERSION_ID, version.getVersionId());
-            method.setParameter(Xml.Container.CONTAINER_NAME, version.getName());
-            method.setParameter(Xml.Container.ARTIFACT_COUNT, entries.size());
-            method.setParameter(Xml.Container.ARTIFACT_INDEX, i++);
-
-            method.setParameter(Xml.Artifact.UNIQUE_ID, entry.getKey().getArtifactUniqueId());
-            method.setParameter(Xml.Artifact.VERSION_ID, entry.getKey().getVersionId());
-            method.setParameter(Xml.Artifact.NAME, entry.getKey().getName());
-            method.setParameter(Xml.Artifact.TYPE, entry.getKey().getArtifactType());
-            method.setParameter(Xml.Artifact.BYTES, StreamUtil.read(entry.getValue()));
-//            method.setParameter(Xml.Artifact.CHECKSUM, entry.getKey().getChecksum());
-            method.execute(core.getConnection());
+            // send artifact
+            final XMPPMethod sendArtifact = new XMPPMethod(Service.Container.SEND_ARTIFACT);
+            sendArtifact.setParameter("uniqueId", container.getArtifactUniqueId());
+            sendArtifact.setParameter("versionId", container.getVersionId());
+            sendArtifact.setParameter("name", container.getName());
+            sendArtifact.setParameter("artifactCount", entries.size());
+            sendArtifact.setParameter("artifactIndex", i++);
+            sendArtifact.setParameter("artifactUniqueId", entry.getKey().getArtifactUniqueId());
+            sendArtifact.setParameter("artifactVersionId", entry.getKey().getVersionId());
+            sendArtifact.setParameter("artifactName", entry.getKey().getName());
+            sendArtifact.setParameter("artifactType", entry.getKey().getArtifactType());
+            sendArtifact.setParameter("artifactChecksum", entry.getKey().getChecksum());
+            sendArtifact.setParameter("artifactBytes", StreamUtil.read(entry.getValue()));
+            sendArtifact.setParameter("sendTo", "sendTo", sendTo);
+            sendArtifact.setParameter("sentBy", sentBy);
+            sendArtifact.setParameter("sentOn", sentOn);
+            sendArtifact.execute(core.getConnection());
         }
+        final XMPPMethod send = new XMPPMethod(Service.Container.SEND);
+        send.setParameter("uniqueId", container.getArtifactUniqueId());
+        send.setParameter("versionId", container.getVersionId());
+        send.setParameter("name", container.getName());
+        send.setParameter("artifactCount", entries.size());
+        send.setParameter("sentBy", sentBy);
+        send.setParameter("sentTo", "sentTo", sendTo);
+        send.setParameter("sentOn", sentOn);
+        send.execute(core.getConnection());
     }
 
     /**
@@ -381,8 +306,11 @@ class XMPPContainer {
             for(final XMPPContainerListener l : LISTENERS) {
                 l.handleArtifactPublished(query.publishedBy, query.publishedOn,
                         query.containerUniqueId, query.containerVersionId,
-                        query.count, query.index, query.uniqueId,
-                        query.versionId, query.name, query.type, query.bytes);
+                        query.containerName, query.containerArtifactCount,
+                        query.containerArtifactIndex, query.artifactUniqueId,
+                        query.artifactVersionId, query.artifactName,
+                        query.artifactType, query.artifactChecksum,
+                        query.artifactBytes);
             }
         }
     }
@@ -396,9 +324,11 @@ class XMPPContainer {
             for(final XMPPContainerListener l : LISTENERS) {
                 l.handleArtifactSent(query.sentBy, query.sentOn,
                         query.containerUniqueId, query.containerVersionId,
-                        query.containerName, query.count, query.index,
-                        query.uniqueId, query.versionId, query.name,
-                        query.type, query.bytes);
+                        query.containerName, query.containerArtifactCount,
+                        query.containerArtifactIndex, query.artifactUniqueId,
+                        query.artifactVersionId, query.artifactName,
+                        query.artifactType, query.artifactChecksum,
+                        query.artifactBytes);
             }
         }
     }
@@ -434,7 +364,31 @@ class XMPPContainer {
     private static class HandleArtifactSentIQ extends AbstractThinkParityIQ {
 
         /** The bytes. */
-        protected byte[] bytes;
+        protected byte[] artifactBytes;
+
+        /** The checksum. */
+        protected String artifactChecksum;
+
+        /** The artifact name. */
+        protected String artifactName;
+
+        /** The type. */
+        protected ArtifactType artifactType;
+
+        /** The unique id. */
+        protected UUID artifactUniqueId;
+
+        /** The version id. */
+        protected Long artifactVersionId;
+
+        /** The artifact count. */
+        protected Integer containerArtifactCount;
+
+        /** The artifact index. */
+        protected Integer containerArtifactIndex;
+
+        /** The container name. */
+        protected String containerName;
 
         /** The container unique id. */
         protected UUID containerUniqueId;
@@ -442,34 +396,13 @@ class XMPPContainer {
         /** The container version id. */
         protected Long containerVersionId;
 
-        /** The artifact count. */
-        protected Integer count;
-
-        /** The artifact index. */
-        protected Integer index;
-
-        /** The type. */
-        protected ArtifactType type;
-
-        /** The unique id. */
-        protected UUID uniqueId;
-
-        /** The version id. */
-        protected Long versionId;
-
-        /** The container name. */
-        private String containerName;
-
-        /** The artifact name. */
-        protected String name;
-
         /** Who sent the artifact. */
         private JabberId sentBy;
 
         /** When the artifact was sent. */
         private Calendar sentOn;
 
-        /** Create HandleArtifactPublishedIQ. */
+        /** Create HandleArtifactSentIQ. */
         private HandleArtifactSentIQ() { super(); }
     }
 }

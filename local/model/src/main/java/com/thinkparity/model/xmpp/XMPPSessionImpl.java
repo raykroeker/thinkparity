@@ -23,14 +23,14 @@ import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.IParityModelConstants;
+import com.thinkparity.model.Constants.Jabber;
+import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.session.KeyResponse;
-import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.*;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -69,13 +69,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		// set the subscription mode such that all requests are manual
 		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
 
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:acceptkeyrequest", new IQAcceptKeyRequestProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:closeartifact", new IQCloseArtifactProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:denykeyrequest", new IQDenyKeyRequestProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:getkeyholder", new IQGetKeyHolderProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:getkeys", new IQGetKeysProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:getsubscriptions", new IQGetSubscriptionProvider());
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:keyrequest", new IQKeyRequestProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:acceptkeyrequest", new IQAcceptKeyRequestProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:closeartifact", new IQCloseArtifactProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:denykeyrequest", new IQDenyKeyRequestProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:getkeyholder", new IQGetKeyHolderProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:getkeys", new IQGetKeysProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:getsubscriptions", new IQGetSubscriptionProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:keyrequest", new IQKeyRequestProvider());
 	}
 
 	private XMPPConnection smackXMPPConnection;
@@ -422,8 +422,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 			// add the user listeners
 			xmppUser.addPacketListeners(smackXMPPConnection);
 
-			smackXMPPConnection.login(username, password,
-					IParityModelConstants.PARITY_CONNECTION_RESOURCE);
+			smackXMPPConnection.login(username, password, Jabber.RESOURCE);
 		}
 		catch(final XMPPException xmppx) {
 			logger.error("login(String,Integer,String,String)", xmppx);
@@ -450,20 +449,16 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(processOfflineQueue);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#publish(com.thinkparity.model.parity.model.container.ContainerVersion,
-     *      java.util.List, java.util.Map, com.thinkparity.model.xmpp.JabberId,
+     *      java.util.Map, java.util.List, com.thinkparity.model.xmpp.JabberId,
      *      java.util.Calendar)
      * 
      */
-    public void publish(final ContainerVersion version,
-            final List<TeamMember> teamMembers,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final JabberId publishedBy, final Calendar publishedOn)
-            throws SmackException {
+    public void publish(ContainerVersion container, Map<DocumentVersion, InputStream> documents, List<JabberId> publishTo, JabberId publishedBy, Calendar publishedOn) throws SmackException {
         try {
-            xmppContainer.publish(version, teamMembers, documentVersions,
-                    publishedBy, publishedOn);
+            xmppContainer.publish(container, documents, publishTo, publishedBy,
+                    publishedOn);
         } catch (final IOException iox) {
             throw XMPPErrorTranslator.translate(iox);
         }
@@ -625,12 +620,15 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *      User, JabberId, Calendar)
      *
      */
-    public void send(final ContainerVersion version,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final User user, final JabberId sentBy, final Calendar sentOn)
+    public void send(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<JabberId> sendTo, final JabberId sentBy, final Calendar sentOn)
             throws SmackException {
-        try { xmppContainer.send(version, documentVersions, user, sentBy, sentOn); }
-        catch(final IOException iox) { throw XMPPErrorTranslator.translate(iox); }
+        try {
+            xmppContainer.send(container, documents, sendTo, sentBy, sentOn);
+        } catch (final IOException iox) {
+            throw XMPPErrorTranslator.translate(iox);
+        }
     }
 
     /**
@@ -659,17 +657,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
         return confirmationPacket;
 	}
-
-    /**
-     * Execute a remote method call to reactivate a document.
-     * 
-     * @throws SmackException
-     */
-    public void sendDocumentReactivate(final List<JabberId> team,
-            final UUID uniqueId, final Long versionId, final String name,
-            final byte[] bytes) throws SmackException {
-        xmppDocument.sendReactivate(team, uniqueId, versionId, name, bytes);
-    }
 
 	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#sendDocument(java.util.Set,

@@ -52,7 +52,6 @@ public class ReadDocumentsTest extends ContainerTestCase {
         final ContainerModel containerModel = getContainerModel();
         final Container container = createContainer(NAME);
         final List<Document> documents = addDocuments(container);
-        addTeam(container);
         publish(container);
         final ContainerVersion version = containerModel.readLatestVersion(container.getId());
         datum = new Fixture(container, containerModel, documents, version);

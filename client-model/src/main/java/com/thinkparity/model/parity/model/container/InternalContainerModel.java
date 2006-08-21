@@ -75,13 +75,15 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
      */
     public void handleArtifactPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID containerUniqueId,
-            final Long containerId, final Long containerVersionId,
-            final UUID uniqueId, final Long id, final Long versionId,
-            final String name, final ArtifactType type, final byte[] bytes) {
+            final Long containerVersionId, final String containerName,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType artifactType,
+            final String artifactChecksum, final byte[] artifactBytes) {
         synchronized(getImplLock()) {
             getImpl().handleArtifactPublished(publishedBy, publishedOn,
-                    containerUniqueId, containerVersionId, uniqueId, id,
-                    versionId, name, type, bytes);
+                    containerUniqueId, containerVersionId, containerName,
+                    artifactUniqueId, artifactVersionId, artifactName,
+                    artifactType, artifactChecksum, artifactBytes);
         }
     }
     /**
@@ -110,14 +112,15 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
      */
     public void handleArtifactSent(final JabberId sentBy,
             final Calendar sentOn, final UUID containerUniqueId,
-            final Long containerId, final Long containerVersionId,
-            final String containerName, final UUID uniqueId, final Long id,
-            final Long versionId, final String name, final ArtifactType type,
-            final byte[] bytes) {
+            final Long containerVersionId, final String containerName,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType artifactType,
+            final String artifactChecksum, final byte[] artifactBytes) {
         synchronized(getImplLock()) {
             getImpl().handleArtifactSent(sentBy, sentOn, containerUniqueId,
-                    containerVersionId, containerName, uniqueId, id, versionId,
-                    name, type, bytes);
+                    containerVersionId, containerName, artifactUniqueId,
+                    artifactVersionId, artifactName, artifactType,
+                    artifactChecksum, artifactBytes);
         }
     }
     /**

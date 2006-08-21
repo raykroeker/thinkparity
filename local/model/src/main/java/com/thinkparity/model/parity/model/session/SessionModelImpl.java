@@ -155,17 +155,17 @@ class SessionModelImpl extends AbstractModelImpl {
      */
     static void handleContainerArtifactPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID containerUniqueId,
-            final Long containerVersionId, final Integer count,
-            final Integer index, final UUID uniqueId, final Long versionId,
-            final String name, final ArtifactType type, final byte[] bytes)
-            throws ParityException {
-        final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
-        final Long containerId = artifactModel.readId(containerUniqueId);
-        final Long id = artifactModel.readId(uniqueId);
+            final Long containerVersionId, final String containerName,
+            final Integer containerArtifactCount,
+            final Integer containerArtifactIndex, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final byte[] artifactBytes) throws ParityException {
         final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
         containerModel.handleArtifactPublished(publishedBy, publishedOn,
-                containerUniqueId, containerId, containerVersionId, uniqueId,
-                id, versionId, name, type, bytes);
+                containerUniqueId, containerVersionId, containerName,
+                artifactUniqueId, artifactVersionId, artifactName,
+                artifactType, artifactChecksum, artifactBytes);
     }
 
     /**
@@ -191,16 +191,16 @@ class SessionModelImpl extends AbstractModelImpl {
     static void handleContainerArtifactSent(final JabberId sentBy,
             final Calendar sentOn, final UUID containerUniqueId,
             final Long containerVersionId, final String containerName,
-            final Integer count, final Integer index, final UUID uniqueId,
-            final Long versionId, final String name, final ArtifactType type,
-            final byte[] bytes) throws ParityException {
-        final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
-        final Long containerId = artifactModel.readId(containerUniqueId);
-        final Long id = artifactModel.readId(uniqueId);
+            final Integer containerArtifactCount,
+            final Integer containerArtifactIndex, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final byte[] artifactBytes) throws ParityException {
         final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
         containerModel.handleArtifactSent(sentBy, sentOn, containerUniqueId,
-                containerId, containerVersionId, containerName, uniqueId, id,
-                versionId, name, type, bytes);
+                containerVersionId, containerName, artifactUniqueId,
+                artifactVersionId, artifactName, artifactType,
+                artifactChecksum, artifactBytes);
     }
 
 	/**
@@ -372,7 +372,7 @@ class SessionModelImpl extends AbstractModelImpl {
      */
     public Contact readContact(final JabberId contactId) {
         logApiId();
-        debugVariable("contactId", contactId);
+        logVariable("contactId", contactId);
         synchronized (xmppHelper) {
             try {
                 return xmppHelper.readContact(contactId);
@@ -496,7 +496,7 @@ class SessionModelImpl extends AbstractModelImpl {
      */
 	void createArtifact(final UUID uniqueId) {
 		logApiId();
-		debugVariable("uniqueId", uniqueId);
+		logVariable("uniqueId", uniqueId);
 		synchronized (xmppHelper) {
 			try { xmppHelper.createArtifact(uniqueId); }
             catch(final Throwable t) {
@@ -542,7 +542,7 @@ class SessionModelImpl extends AbstractModelImpl {
      */
     void deleteArtifact(final UUID uniqueId) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
+        logVariable("uniqueId", uniqueId);
         synchronized (xmppHelper) {
             try { xmppHelper.deleteArtifact(uniqueId); }
             catch(final Throwable t) {
@@ -656,15 +656,18 @@ class SessionModelImpl extends AbstractModelImpl {
             final Map<DocumentVersion, InputStream> documents,
             final JabberId publishedBy, final Calendar publishedOn) {
         logApiId();
-        debugVariable("container", container);
-        debugVariable("teamMembers", teamMembers);
-        debugVariable("documents", documents);
-        debugVariable("publishedBy", publishedBy);
-        debugVariable("publishedOn", publishedOn);
+        logVariable("container", container);
+        logVariable("teamMembers", teamMembers);
+        logVariable("documents", documents);
+        logVariable("publishedBy", publishedBy);
+        logVariable("publishedOn", publishedOn);
         synchronized (xmppHelper) {
             try {
-                xmppHelper.publish(container, teamMembers, documents,
-                        publishedBy, publishedOn);
+                final List<JabberId> publishTo = new ArrayList<JabberId>(teamMembers.size());
+                for (final TeamMember teamMember : teamMembers)
+                    publishTo.add(teamMember.getId());
+                xmppHelper.getXMPPSession().publish(container, documents,
+                        publishTo, publishedBy, publishedOn);
             } catch(final Throwable t) {
                 throw translateError("PUBLISH", t);
             }
@@ -674,29 +677,26 @@ class SessionModelImpl extends AbstractModelImpl {
     /**
      * Read the artifact team.
      * 
-     * @param artifactId
-     *            The artifact id.
-     * @return A set of users.
-     * @throws ParityException
+     * @param uniqueId
+     *            An artifact unique id.
+     * @return A list of jabber ids.
      */
-	List<User> readArtifactTeam(final Long artifactId)
-            throws ParityException {
-		logger.info("[LMODEL] [SESSION] [READ ARTIFACT TEAM]");
-		logger.debug(artifactId);
-		synchronized(xmppHelper) {
-			assertIsLoggedIn("[LMODEL] [SESSION] [READ ARTIFACT TEAM]",
-					xmppHelper);
+	List<JabberId> readArtifactTeam(final UUID uniqueId) {
+		logApiId();
+        logVariable("uniqueId", uniqueId);
+		synchronized (xmppHelper) {
 			try {
-				final UUID uniqueId = readArtifactUniqueId(artifactId);
-				return xmppHelper.readArtifactTeam(uniqueId);
+			    /* TODO Change this xmpp session api to return a list of jabber
+                 * ids */
+				final List<User> teamUsers =
+                    xmppHelper.getXMPPSession().readArtifactTeam(uniqueId);
+                final List<JabberId> team = new ArrayList<JabberId>(teamUsers.size());
+                for (final User user : teamUsers)
+                    team.add(user.getId());
+                return team;
 			}
-			catch(final SmackException sx) {
-				logger.error("[LMODEL] [SESSION] [READ ARTIFACT TEAM] [XMPP ERROR]", sx);
-				throw ParityErrorTranslator.translate(sx);
-			}
-			catch(final RuntimeException rx) {
-				logger.error("[LMODEL] [SESSION] [READ ARTIFACT TEAM] [UNKNOWN ERROR]", rx);
-				throw ParityErrorTranslator.translate(rx);
+			catch(final Throwable t) {
+				throw translateError("READ ARTIFACT TEAM", t);
 			}
 		}
 	}
@@ -736,12 +736,12 @@ class SessionModelImpl extends AbstractModelImpl {
      */
     JabberId readKeyHolder(final UUID uniqueId) {
 		logApiId();
-        debugVariable("uniqueId", uniqueId);
+        logVariable("uniqueId", uniqueId);
 		synchronized (xmppHelper) {
 			try {
                 return xmppHelper.readKeyHolder(uniqueId);
 			} catch (final Throwable t) {
-				throw translateError("[READ ARTIFACT KEY HOLDER]", t);
+				throw translateError("READ KEY HOLDER", t);
 			}
 		}
 	}
@@ -908,15 +908,21 @@ class SessionModelImpl extends AbstractModelImpl {
      * @param user
      *            A user.
      */
-    void send(final ContainerVersion version,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final User user, final JabberId sentBy, final Calendar sentOn) {
-        logger.info(getApiId("[SEND]"));
-        logger.debug(version);
-        logger.debug(documentVersions);
-        logger.debug(user);
-        synchronized(xmppHelper) {
-            try { xmppHelper.send(version, documentVersions, user, sentBy, sentOn); }
+    void send(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<JabberId> sendTo, final JabberId sentBy,
+            final Calendar sentOn) {
+        logApiId();
+        logVariable("container", container);
+        logVariable("documents", documents);
+        logVariable("sendTo", sendTo);
+        logVariable("sentBy", sentBy);
+        logVariable("sentOn", sentOn);
+        synchronized (xmppHelper) {
+            try {
+                xmppHelper.getXMPPSession().send(container, documents, sendTo,
+                        sentBy, sentOn);
+            }
             catch(final SmackException sx) {
                 throw translateError(getApiId("[SEND]"), sx);
             }

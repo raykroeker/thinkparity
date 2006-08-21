@@ -13,7 +13,7 @@ import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.model.parity.IParityModelConstants;
+import com.thinkparity.model.Constants.DirectoryNames;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 
 /**
@@ -60,7 +60,7 @@ class AbstractIOHandler {
 		final String tempDirectoryName =
 			MessageFormat.format(tempDirectoryNamePattern,
 					new Object[] {
-						IParityModelConstants.ARCHIVE_TEMP_DIRECTORY,
+						DirectoryNames.Workspace.TEMP,
 						System.currentTimeMillis() + ""});
 		final File tempDirectory = new File(tempRoot, tempDirectoryName);
 		Assert.assertTrue("Could not create temp directory.", tempDirectory.mkdir());

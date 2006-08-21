@@ -160,8 +160,17 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    public List<User> readArtifactTeamList(final Long artifactId) throws ParityException {
-        synchronized(getImplLock()) { return getImpl().readArtifactTeam(artifactId); }
+    /**
+     * Read the artifact team.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @return A list of jabber ids.
+     */
+    public List<JabberId> readArtifactTeam(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            return getImpl().readArtifactTeam(uniqueId);
+        }
     }
 
 	/**
@@ -244,16 +253,23 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     /**
      * Send a container.
      * 
-     * @param version
-     *            A container version.
+     * @param container
+     *            A container.
      * @param documents
      *            A list of documents and their input.
+     * @param sendTo
+     *            A send to list.
+     * @param sentBy
+     *            A sent by id.
+     * @param sentOn
+     *            A sent on calendar.
      */
-    public void send(final ContainerVersion version,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final User user, final JabberId sentBy, final Calendar sentOn) {
+    public void send(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<JabberId> sendTo, final JabberId sentBy,
+            final Calendar sentOn) {
         synchronized(getImplLock()) {
-            getImpl().send(version, documentVersions, user, sentBy, sentOn);
+            getImpl().send(container, documents, sendTo, sentBy, sentOn);
         }
     }
 

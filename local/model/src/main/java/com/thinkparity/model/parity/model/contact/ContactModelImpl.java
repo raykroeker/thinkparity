@@ -99,7 +99,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     void acceptIncomingInvitation(final Long invitationId) {
         logApiId();
-        debugVariable("invitationId", invitationId);
+        logVariable("invitationId", invitationId);
         final IncomingInvitation invitation = readIncomingInvitation(invitationId);
         // delete the invitation
         contactIO.deleteIncomingInvitation(invitation.getId());
@@ -121,7 +121,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     void addListener(final ContactListener listener) {
         logApiId();
-        debugVariable("listener", listener);
+        logVariable("listener", listener);
         Assert.assertNotNull("LISTENER IS NULL", listener);
         synchronized (LISTENERS) {
             if (LISTENERS.contains(listener)) {
@@ -139,7 +139,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     OutgoingInvitation createOutgoingInvitation(final String email) {
         logApiId();
-        debugVariable("email", email);
+        logVariable("email", email);
         assertOnline("USER NOT ONLINE");
         assertDoesNotExist("CONTACT ALREADY EXISTS", email);
 //assertInvitationDoesNotExist(getApiId("[CREATE INVITATION] [CONTACT INVITATION ALREADY EXISTS]"), email);
@@ -164,7 +164,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     void declineIncomingInvitation(final Long invitationId) {
         logApiId();
-        debugVariable("invitationId", invitationId);
+        logVariable("invitationId", invitationId);
         // decline
         final IncomingInvitation invitation = readIncomingInvitation(invitationId);
         getInternalSessionModel().declineInvitation(
@@ -196,7 +196,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     void deleteOutgoingInvitation(final Long invitationId) {
         logApiId();
-        debugVariable("invitationId", invitationId);
+        logVariable("invitationId", invitationId);
         final OutgoingInvitation preDeletion = readOutgoingInvitation(invitationId);
         contactIO.deleteOutgoingInvitation(invitationId);
         // fire event
@@ -212,7 +212,7 @@ class ContactModelImpl extends AbstractModelImpl {
         final List<Contact> remoteContacts = getInternalSessionModel().readContactList();
         Contact localContact; 
         for(final Contact remoteContact : remoteContacts) {
-            debugVariable("remoteContact", remoteContact);
+            logVariable("remoteContact", remoteContact);
             localContact = read(remoteContact.getId());
             if (null == localContact) {
                 createLocal(remoteContact);
@@ -231,8 +231,8 @@ class ContactModelImpl extends AbstractModelImpl {
     void handleInvitationAccepted(final JabberId acceptedBy,
             final Calendar acceptedOn) {
        logApiId();
-       debugVariable("acceptedBy", acceptedBy);
-       debugVariable("acceptedOn", acceptedOn);
+       logVariable("acceptedBy", acceptedBy);
+       logVariable("acceptedOn", acceptedOn);
        final Contact remoteContact = readRemote(acceptedBy);
        // delete invitation(s)
        final List<OutgoingInvitation> outgoingInvitations = new ArrayList<OutgoingInvitation>();
@@ -280,8 +280,8 @@ class ContactModelImpl extends AbstractModelImpl {
     void handleInvitationDeclined(final String invitedAs,
             final JabberId declinedBy, final Calendar declinedOn) {
        logApiId();
-       debugVariable("declinedBy", declinedBy);
-       debugVariable("declinedOn", declinedOn);
+       logVariable("declinedBy", declinedBy);
+       logVariable("declinedOn", declinedOn);
        // delete invitation
        final OutgoingInvitation invitation =
                contactIO.readOutgoingInvitation(invitedAs);
@@ -301,9 +301,9 @@ class ContactModelImpl extends AbstractModelImpl {
     void handleInvitationExtended(final String invitedAs,
             final JabberId invitedBy, final Calendar invitedOn) {
         logApiId();
-        debugVariable("invitedAs", invitedAs);
-        debugVariable("invitedBy", invitedBy);
-        debugVariable("invitedOn", invitedOn);
+        logVariable("invitedAs", invitedAs);
+        logVariable("invitedBy", invitedBy);
+        logVariable("invitedOn", invitedOn);
         // create user data
         final InternalUserModel userModel = getInternalUserModel();
         User invitedByUser = userModel.read(invitedBy);
@@ -340,7 +340,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     List<Contact> read(final Comparator<Contact> comparator) {
         logApiId();
-        debugVariable("comparator", comparator);
+        logVariable("comparator", comparator);
         return read(comparator, defaultFilter);
     }
 
@@ -356,8 +356,8 @@ class ContactModelImpl extends AbstractModelImpl {
     List<Contact> read(final Comparator<Contact> comparator,
             final Filter<? super Contact> filter) {
         logApiId();
-        debugVariable("comparator", comparator);
-        debugVariable("filter", filter);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
         final List<Contact> contacts = contactIO.read();
         FilterManager.filter(contacts, filter);
         ModelSorter.sortContacts(contacts, comparator);
@@ -373,7 +373,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     List<Contact> read(final Filter<? super Contact> filter) {
         logApiId();
-        debugVariable("filter", filter);
+        logVariable("filter", filter);
         return read(defaultComparator, filter);
     }
 
@@ -391,7 +391,7 @@ class ContactModelImpl extends AbstractModelImpl {
 
     IncomingInvitation readIncomingInvitation(final Long invitationId) {
         logApiId();
-        debugVariable("invitationId", invitationId);
+        logVariable("invitationId", invitationId);
         return contactIO.readIncomingInvitation(invitationId);
     }
 
@@ -413,7 +413,7 @@ class ContactModelImpl extends AbstractModelImpl {
     List<IncomingInvitation> readIncomingInvitations(
             final Comparator<ContactInvitation> comparator) {
         logApiId();
-        debugVariable("comparator",comparator);
+        logVariable("comparator",comparator);
         return readIncomingInvitations(comparator, defaultInvitationFilter);
     }
 
@@ -426,8 +426,8 @@ class ContactModelImpl extends AbstractModelImpl {
             final Comparator<ContactInvitation> comparator,
             final Filter<? super ContactInvitation> filter) {
         logApiId();
-        debugVariable("comparator", comparator);
-        debugVariable("filter", filter);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
         final List<IncomingInvitation> invitations =
                 contactIO.readIncomingInvitations();
         FilterManager.filterIncomingInvitations(invitations, filter);
@@ -443,13 +443,13 @@ class ContactModelImpl extends AbstractModelImpl {
     List<IncomingInvitation> readIncomingInvitations(
             final Filter<? super ContactInvitation> filter) {
         logApiId();
-        debugVariable("filter", filter);
+        logVariable("filter", filter);
         return readIncomingInvitations(defaultInvitationComparator, filter);
     }
 
     OutgoingInvitation readOutgoingInvitation(final Long invitationId) {
         logApiId();
-        debugVariable("invitationId", invitationId);
+        logVariable("invitationId", invitationId);
         return contactIO.readOutgoingInvitation(invitationId);
     }
 
@@ -471,7 +471,7 @@ class ContactModelImpl extends AbstractModelImpl {
     List<OutgoingInvitation> readOutgoingInvitations(
             final Comparator<ContactInvitation> comparator) {
         logApiId();
-        debugVariable("comparator",comparator);
+        logVariable("comparator",comparator);
         return readOutgoingInvitations(comparator, defaultInvitationFilter);
     }
 
@@ -484,8 +484,8 @@ class ContactModelImpl extends AbstractModelImpl {
             final Comparator<ContactInvitation> comparator,
             final Filter<? super ContactInvitation> filter) {
         logApiId();
-        debugVariable("comparator", comparator);
-        debugVariable("filter", filter);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
         final List<OutgoingInvitation> invitations =
                 contactIO.readOutgoingInvitations();
         FilterManager.filterOutgoingInvitations(invitations, filter);
@@ -501,7 +501,7 @@ class ContactModelImpl extends AbstractModelImpl {
     List<OutgoingInvitation> readOutgoingInvitations(
             final Filter<? super ContactInvitation> filter) {
         logApiId();
-        debugVariable("filter", filter);
+        logVariable("filter", filter);
         return readOutgoingInvitations(defaultInvitationComparator, filter);
     }
 
@@ -513,7 +513,7 @@ class ContactModelImpl extends AbstractModelImpl {
      */
     void removeListener(final ContactListener listener) {
         logApiId();
-        debugVariable("listener", listener);
+        logVariable("listener", listener);
         Assert.assertNotNull("[LISTENER IS NULL]", listener);
         synchronized (LISTENERS) {
             if (!LISTENERS.contains(listener)) {

@@ -80,9 +80,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
 	TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
 	    logApiId();
-        debugVariable("artifactId", artifactId);
-        debugVariable("artifactId", userId);
+        logVariable("artifactId", artifactId);
+        logVariable("artifactId", userId);
         assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
+        assertOnline("USER NOT ONLINE");
 
         final InternalUserModel userModel = getInternalUserModel();
         User user = userModel.read(userId);
@@ -90,6 +91,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
             user = userModel.create(userId);
         }
 
+        // create team data
         artifactIO.createTeamRel(artifactId, user.getLocalId());
         return artifactIO.readTeamRel(artifactId, user.getLocalId());
     }
@@ -195,7 +197,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     List<TeamMember> createTeam(final Long artifactId) {
         logApiId();
-        debugVariable("artifactId", artifactId);
+        logVariable("artifactId", artifactId);
         addTeamMember(artifactId, localUserId());
         return readTeam2(artifactId);
     }
@@ -232,8 +234,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
 
     Boolean doesVersionExist(final Long artifactId, final Long versionId) {
         logApiId();
-        debugVariable("artifactId", artifactId);
-        debugVariable("versionId", versionId);
+        logVariable("artifactId", artifactId);
+        logVariable("versionId", versionId);
         return null != artifactIO.doesVersionExist(artifactId, versionId);
     }
 
@@ -248,17 +250,17 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void handleTeamMemberAdded(final UUID uniqueId, final JabberId jabberId) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("jabberId", jabberId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("jabberId", jabberId);
         try {
             final Long artifactId = readId(uniqueId);
             // if receiving your own team member added event you have just been
             // added to the team; so download the entire team.
             if(jabberId.equals(localUserId())) {
-                final List<User> remoteTeam =
-                    getInternalSessionModel().readArtifactTeamList(artifactId);
-                for (final User remoteUser : remoteTeam) {
-                    addTeamMember(artifactId, remoteUser.getId());
+                final List<JabberId> remoteTeam =
+                    getInternalSessionModel().readArtifactTeam(uniqueId);
+                for (final JabberId remoteUser : remoteTeam) {
+                    addTeamMember(artifactId, remoteUser);
                 }
             } else {
                 addTeamMember(artifactId, jabberId);
@@ -278,8 +280,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     void handleTeamMemberRemoved(final UUID uniqueId, final JabberId jabberId) {
         logApiId();
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("jabberId", jabberId);
+        logVariable("uniqueId", uniqueId);
+        logVariable("jabberId", jabberId);
         try {
             final Long artifactId = readId(uniqueId);
             artifactIO.deleteTeamRel(artifactId);
@@ -337,9 +339,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
      *            The artifact id.
      * @return The artifact key holder.
      */
-    JabberId readKeyHolder(final Long artifactId) throws ParityException {
-        logger.info(getApiId("[READ KEY HOLDER]"));
-        logger.debug(artifactId);
+    JabberId readKeyHolder(final Long artifactId) {
+        logApiId();
+        logVariable("artifactId", artifactId);
         assertOnline(getApiId("[READ KEY HOLDER]"));
         return getInternalSessionModel().readKeyHolder(readUniqueId(artifactId));
     }
@@ -385,7 +387,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
     Long readLatestVersionId(final Long artifactId) {
         logApiId();
-        debugVariable("artifactId", artifactId);
+        logVariable("artifactId", artifactId);
         return artifactIO.readLatestVersionId(artifactId);
     }
 
@@ -460,8 +462,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
      */
 	void removeTeamMember(final Long artifactId, final JabberId userId) {
         logApiId();
-        debugVariable("artifactId", artifactId);
-        debugVariable("userId", userId);
+        logVariable("artifactId", artifactId);
+        logVariable("userId", userId);
         assertTeamMember("USER IS NOT A TEAM MEMBER", artifactId, userId);
         final User user = getInternalUserModel().read(userId);
         artifactIO.deleteTeamRel(artifactId, user.getLocalId());

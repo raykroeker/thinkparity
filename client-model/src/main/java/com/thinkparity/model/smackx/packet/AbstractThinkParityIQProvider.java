@@ -5,8 +5,11 @@ package com.thinkparity.model.smackx.packet;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.SimpleTimeZone;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
@@ -34,11 +37,16 @@ import com.thinkparity.model.xmpp.JabberIdBuilder;
  */
 public abstract class AbstractThinkParityIQProvider implements IQProvider {
 
+    private final Stack<String> nameStack;
+
     /** The xml parser. */
     private XmlPullParser parser;
 
     /** Create AbstractThinkParityIQ. */
-    protected AbstractThinkParityIQProvider() { super(); }
+    protected AbstractThinkParityIQProvider() {
+        super();
+        this.nameStack = new Stack<String>();
+    }
 
     /**
      * Determine if the parser is currently pointed at the end tag for the
@@ -95,12 +103,34 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
     }
 
     /**
+     * Read an artifact type at the current parser location.
+     * 
+     * @return An artifact type.
+     */
+    protected final ArtifactType readArtifactType2() throws IOException,
+            XmlPullParserException {
+        return ArtifactType.valueOf(readString2());
+    }
+
+    /**
      * Read a byte array at the current parser location.
      * 
      * @return A byte array.
      */
     protected final byte[] readBytes() throws DataFormatException, IOException {
         return CompressionUtil.decompress(Base64.decodeBytes(readString()));
+    }
+
+    protected final byte[] readBytes2() throws DataFormatException,
+            IOException, XmlPullParserException {
+        pushName();
+        next(1);
+        final byte[] bytes = readBytes();
+        next(1);
+        if (isEndTag(popName())) {
+            next(1);
+        }
+        return bytes;
     }
 
     /**
@@ -114,12 +144,33 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
     }
 
     /**
+     * Read a calendar at the current parser location.
+     * 
+     * @return A calendar.
+     */
+    protected final Calendar readCalendar2() throws IOException,
+            ParseException, XmlPullParserException {
+        return DateUtil.parse(readString2(), DateUtil.DateImage.ISO,
+                new SimpleTimeZone(0, "GMT"));
+    }
+
+    /**
      * Read an integer at the current parser location.
      * 
      * @return An integer.
      */
     protected final Integer readInteger() {
         return Integer.valueOf(readString());
+    }
+
+    /**
+     * Read an integer at the current parser location.
+     * 
+     * @return An integer.
+     */
+    protected final Integer readInteger2() throws IOException,
+            XmlPullParserException {
+        return Integer.valueOf(readString2());
     }
 
     /**
@@ -132,6 +183,68 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
     }
 
     /**
+     * Read a jabber id at the current parser location.
+     * 
+     * @return A jabber id.
+     */
+    protected final JabberId readJabberId2() throws IOException,
+            XmlPullParserException {
+        return JabberIdBuilder.parseQualifiedJabberId(readString2());
+    }
+
+    /**
+     * Read a list of jabber ids.
+     * 
+     * @return A list of jabber ids.
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    protected final List<JabberId> readJabberIds() throws IOException,
+            XmlPullParserException {
+        final List<JabberId> jabberIds = new ArrayList<JabberId>();
+        final String name = parser.getName();
+
+        next(1);
+        while (!isEndTag(name)) {
+            next(1);
+            jabberIds.add(readJabberId());
+            next(1);
+        }
+        next(1);
+        
+        return jabberIds;
+    }
+
+    /**
+     * Read a list of jabber ids.
+     * 
+     * @return A list of jabber ids.
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    protected final List<JabberId> readJabberIds2() throws IOException,
+            XmlPullParserException {
+        final List<JabberId> jabberIds = new ArrayList<JabberId>();
+        pushName();
+        pushName();
+
+        next(1);
+        while (!isEndTag(peekName())) {
+            next(1);
+            jabberIds.add(readJabberId());
+            next(1);
+        }
+        popName();
+        next(1);
+
+        if (isEndTag(popName())) {
+            next(1);
+        }
+        
+        return jabberIds;
+    }
+
+    /**
      * Read a long at the current parser location.
      * 
      * @return A long.
@@ -141,12 +254,33 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
     }
 
     /**
+     * Read a long at the current parser location.
+     * 
+     * @return A long.
+     */
+    protected final Long readLong2() throws IOException, XmlPullParserException {
+        return Long.valueOf(readString2());
+    }
+
+    /**
      * Read a string at the current parser location.
      * 
      * @return A string.
      */
     protected final String readString() {
         return parser.getText();
+    }
+
+    protected final String readString2() throws IOException,
+            XmlPullParserException {
+        pushName();
+        next(1);
+        final String string = readString();
+        next(1);
+        if (isEndTag(popName())) {
+            next(1);
+        }
+        return string;
     }
 
     /**
@@ -159,6 +293,16 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
     }
 
     /**
+     * Read a unique id at the current parser location.
+     * 
+     * @return A unique id.
+     */
+    protected final UUID readUniqueId2() throws IOException,
+            XmlPullParserException {
+        return UUID.fromString(readString2());
+    }
+
+    /**
      * Set the parser.
      * 
      * @param parser
@@ -166,5 +310,29 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
      */
     protected void setParser(final XmlPullParser parser) {
         this.parser = parser;
+    }
+
+    /**
+     * Set the parser.
+     * 
+     * @param parser
+     *            The xml parser.
+     */
+    protected void setParser2(final XmlPullParser parser) throws IOException,
+            XmlPullParserException {
+        this.parser = parser;
+        next(1);
+    }
+
+    private String popName() {
+        return nameStack.pop();
+    }
+
+    private String peekName() {
+        return nameStack.peek();
+    }
+
+    private void pushName() {
+        nameStack.push(parser.getName());
     }
 }

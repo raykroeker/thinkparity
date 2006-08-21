@@ -14,7 +14,6 @@ import java.util.UUID;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
@@ -201,23 +200,22 @@ public interface XMPPSession {
     /**
      * Publish a container.
      * 
-     * @param version
-     *            A container version.
-     * @param teamMembers
-     *            A list of team members.
-     * @param documentVersions
-     *            A list of document versions and their input streams.
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents and their content.
+     * @param publishTo
+     *            A publish to list.
      * @param publishedBy
-     *            The publisher.
+     *            By whom the container was published.
      * @param publishedOn
-     *            The publish date.
+     *            When the container was published.
      * @throws SmackException
      */
-    public void publish(final ContainerVersion version,
-            final List<TeamMember> teamMembers,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final JabberId publishedBy, final Calendar publishedOn)
-            throws SmackException;
+    public void publish(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) throws SmackException;
 
 	/**
      * Read the artifact team.
@@ -231,14 +229,6 @@ public interface XMPPSession {
             throws SmackException;
 
     /**
-     * Read the logged in user's contacts.
-     * 
-     * @return The logge in user's contacts.
-     * @throws SmackException
-     */
-    public List<Contact> readContacts() throws SmackException;
-
-    /**
      * Read a contact.
      * 
      * @param contactId
@@ -246,6 +236,14 @@ public interface XMPPSession {
      * @return A contact.
      */
     public Contact readContact(final JabberId contactId) throws SmackException;
+
+    /**
+     * Read the logged in user's contacts.
+     * 
+     * @return The logge in user's contacts.
+     * @throws SmackException
+     */
+    public List<Contact> readContacts() throws SmackException;
 
     /**
      * Read the logged in user.
@@ -300,23 +298,24 @@ public interface XMPPSession {
     public void removeTeamMember(final UUID uniqueId, final JabberId jabberId);
 
     /**
-     * Send a container to a user.
+     * Send a container.
      * 
-     * @param version
-     *            A container version.
-     * @param documentVersions
-     *            A list of document versions.
-     * @param user
-     *            A user.
+     * @param container
+     *            A container.
+     * @param documents
+     *            A list of documents and their content.
+     * @param sendTo
+     *            To whom to send the container to.
      * @param sentBy
-     *            By whom the container was sent.
+     *            Who sent the container.
      * @param sentOn
      *            When the container was sent.
+     * @throws SmackException
      */
-    public void send(final ContainerVersion version,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final User user, final JabberId sentBy, final Calendar sentOn)
-            throws SmackException;
+    public void send(final ContainerVersion container,
+            final Map<DocumentVersion, InputStream> documents,
+            final List<JabberId> sendTo, final JabberId sentBy,
+            final Calendar sentOn) throws SmackException;
 
     public void sendLogFileArchive(final File logFileArchive, final User user)
 			throws SmackException;

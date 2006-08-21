@@ -23,6 +23,7 @@ import com.thinkparity.codebase.VCardBuilder;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.Constants.Xml;
+import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.smack.SmackException;
@@ -48,7 +49,7 @@ class XMPPContact {
 		listeners = new LinkedList<XMPPContactListener>();
 		listenersLock = new Object();
 
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:invitationextended", new AbstractThinkParityIQProvider() {
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationextended", new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser(parser);
                 final HandleInvitationExtendedIQ query = new HandleInvitationExtendedIQ();
@@ -81,7 +82,7 @@ class XMPPContact {
                 return query;
             }
         });
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:invitationaccepted", new AbstractThinkParityIQProvider() {
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationaccepted", new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser(parser);
                 final HandleInvitationAcceptedIQ query = new HandleInvitationAcceptedIQ();
@@ -108,7 +109,7 @@ class XMPPContact {
                 return query;
             }
         });
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:invitationdeclined", new AbstractThinkParityIQProvider() {
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:invitationdeclined", new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser(parser);
                 final HandleInvitationDeclinedIQ query = new HandleInvitationDeclinedIQ();
@@ -141,7 +142,7 @@ class XMPPContact {
                 return query;
             }
         });
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:readcontacts", new IQReadContactsProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:readcontacts", new IQReadContactsProvider());
 	}
 
 	/**

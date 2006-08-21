@@ -194,8 +194,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     Document create(final String name, final InputStream content) {
         logApiId();
-        debugVariable("name", name);
-        debugVariable("content", content);
+        logVariable("name", name);
+        logVariable("content", content);
         assertIsSetCredentials();
         // create
         final Document document = create(UUIDGenerator.nextUUID(), name,
@@ -215,7 +215,7 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     DocumentVersion createVersion(final Long documentId) {
         logApiId();
-        debugVariable("documentId", documentId);
+        logVariable("documentId", documentId);
         assertDraftIsModified("[DRAFT IS NOT MODIFIED]", documentId);
         final LocalFile localFile = getLocalFile(read(documentId));
         try {
@@ -239,7 +239,7 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     void delete(final Long documentId) {
         logApiId();
-        debugVariable("documentId", documentId);
+        logVariable("documentId", documentId);
         deleteLocal(documentId);
         // fire event
         notifyDocumentDeleted(null, localEventGen);
@@ -285,16 +285,17 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     DocumentVersion handleDocumentPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID uniqueId, final Long versionId,
-            final String name, final InputStream content) {
+            final String name, final String checksum, final InputStream content) {
         logApiId();
-        debugVariable("publishedBy", publishedBy);
-        debugVariable("publishedOn", publishedOn);
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("content", content);
+        logVariable("publishedBy", publishedBy);
+        logVariable("publishedOn", publishedOn);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("checksum", checksum);
+        logVariable("content", content);
         return handleDocumentSent(publishedBy, publishedOn, uniqueId,
-                versionId, name, content);
+                versionId, name, checksum, content);
     }
 
     /**
@@ -317,14 +318,15 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     DocumentVersion handleDocumentSent(final JabberId sentBy,
             final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final InputStream content) {
+            final String name, final String checksum, final InputStream content) {
         logApiId();
-        debugVariable("sentBy", sentBy);
-        debugVariable("sentOn", sentOn);
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("content", content);
+        logVariable("sentBy", sentBy);
+        logVariable("sentOn", sentOn);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("checksum", checksum);
+        logVariable("content", content);
         try {
             final InternalArtifactModel artifactModel  = getInternalArtifactModel();
             final Document document;
@@ -590,8 +592,8 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	void openVersion(final Long documentId, final Long versionId) {
         logApiId();
-        debugVariable("documentId", documentId);
-        debugVariable("versionId", versionId);
+        logVariable("documentId", documentId);
+        logVariable("versionId", versionId);
 		try {
 			final Document document = read(documentId);
 			final DocumentVersion version = readVersion(documentId, versionId);
@@ -640,7 +642,7 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 */
 	Document read(final UUID uniqueId) {
 		logApiId();
-        debugVariable("uniqueId", uniqueId);
+        logVariable("uniqueId", uniqueId);
 		try { return documentIO.get(uniqueId); }
 		catch(final Throwable t) { throw translateError("[READ]", t); }
 	}
@@ -760,8 +762,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     DocumentVersion readVersion(final Long documentId, final Long versionId) {
         logApiId();
-        debugVariable("documentId", documentId);
-        debugVariable("versionId", versionId);
+        logVariable("documentId", documentId);
+        logVariable("versionId", versionId);
         try { return documentIO.getVersion(documentId, versionId); }
         catch(final Throwable t) {
             throw translateError("[READ VERSION]", t);
@@ -794,8 +796,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     void rename(final Long documentId, final String documentName) {
         logApiId();
-        debugVariable("documentId", documentId);
-        debugVariable("documentName", documentName);
+        logVariable("documentId", documentId);
+        logVariable("documentName", documentName);
         try {
             final Document document = read(documentId);
             final String originalName = document.getName();
@@ -841,12 +843,12 @@ class DocumentModelImpl extends AbstractModelImpl {
      * 
      * @param documentId
      *            A document id.
-     * @param versionId
+     * @param artifactVersionId
      *            A version id.
      */
     void revertDraft(final Long documentId) {
         logApiId();
-        debugVariable("documentId", documentId);
+        logVariable("documentId", documentId);
         revertDraft(documentId, readLatestVersion(documentId).getVersionId());
     }
 
@@ -861,8 +863,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
 	void updateDraft(final Long documentId, final InputStream content) {
 	    logApiId();
-        debugVariable("documentId", documentId);
-        debugVariable("content", content);
+        logVariable("documentId", documentId);
+        logVariable("content", content);
         final LocalFile localFile = getLocalFile(read(documentId));
         try { localFile.write(content); }
         catch(final Throwable t) {
@@ -1165,8 +1167,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     private void revertDraft(final Long documentId, final Long versionId) {
         logApiId();
-        debugVariable("documentId", documentId);
-        debugVariable("versionId", versionId);
+        logVariable("documentId", documentId);
+        logVariable("versionId", versionId);
         throw Assert.createNotYetImplemented("DocumentModelImpl#revertDraft");
     }
 }

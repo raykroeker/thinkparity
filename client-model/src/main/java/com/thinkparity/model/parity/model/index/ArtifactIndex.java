@@ -131,7 +131,7 @@ public class ArtifactIndex {
 	}
 
 	/**
-	 * @param name The name to set.
+	 * @param artifactName The name to set.
 	 */
 	public void setName(String artifactName) {
 		this.name = artifactName;

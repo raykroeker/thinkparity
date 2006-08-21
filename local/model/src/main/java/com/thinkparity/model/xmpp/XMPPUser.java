@@ -15,6 +15,7 @@ import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.user.IQReadUsers;
 import com.thinkparity.model.smackx.packet.user.IQReadUsersProvider;
@@ -30,7 +31,7 @@ import com.thinkparity.model.xmpp.user.UserNameTokenizer;
 class XMPPUser {
 
 	static {
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:readusers", new IQReadUsersProvider());
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:readusers", new IQReadUsersProvider());
 	}
 
 	/**

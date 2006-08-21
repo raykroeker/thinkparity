@@ -34,6 +34,7 @@ import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.ContainerIOHandler;
 import com.thinkparity.model.parity.model.session.Credentials;
+import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
 import com.thinkparity.model.parity.model.user.TeamMember;
@@ -49,7 +50,7 @@ import com.thinkparity.model.xmpp.contact.Contact;
  * @author CreateModel.groovy
  * @version 1.1.2.3
  */
-public class ContainerModelImpl extends AbstractModelImpl {
+class ContainerModelImpl extends AbstractModelImpl {
 
     /** A list of container listeners. */
     private static final List<ContainerListener> LISTENERS = new LinkedList<ContainerListener>();
@@ -204,7 +205,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     Container create(final String name) {
         logApiId();
-        debugVariable("name", name);
+        logVariable("name", name);
         try {
             final Credentials credentials = readCredentials();
             final Calendar currentDateTime = currentDateTime();
@@ -301,7 +302,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     ContainerVersion createVersion(final Long containerId) {
         logApiId();
-        debugVariable("containerId", containerId);
+        logVariable("containerId", containerId);
         return createVersion(containerId, readNextVersionId(containerId),
                 localUserId(), currentDateTime());
     }
@@ -314,7 +315,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     void delete(final Long containerId) {
         logApiId();
-        debugVariable("containerId", containerId);
+        logVariable("containerId", containerId);
         try {
             final Container container = read(containerId);
             if (isDistributed(container.getUniqueId())) {
@@ -345,53 +346,83 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     void handleArtifactPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID containerUniqueId,
-            final Long containerVersionId, final UUID uniqueId, final Long id,
-            final Long versionId, final String name, final ArtifactType type,
-            final byte[] bytes) {
+            final Long containerVersionId, final String containerName,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType artifactType,
+            final String artifactChecksum, final byte[] artifactBytes) {
         logApiId();
-        debugVariable("sentBy", publishedBy);
-        debugVariable("sentOn", publishedOn);
-        debugVariable("containerUniqueId", containerUniqueId);
-        debugVariable("containerVersionId", containerVersionId);
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("id", id);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("type", type);
+        logVariable("publishedBy", publishedBy);
+        logVariable("publishedOn", publishedOn);
+        logVariable("containerUniqueId", containerUniqueId);
+        logVariable("containerVersionId", containerVersionId);
+        logVariable("containerName", containerName);
+        logVariable("artifactUniqueId", artifactUniqueId);
+        logVariable("artifactVersionId", artifactVersionId);
+        logVariable("artifactName", artifactName);
+        logVariable("artifactType", artifactType);
+        logVariable("artifactChecksum", artifactChecksum);
+        logVariable("artifactBytes", artifactBytes);
         try {
+            // determine the existance of the container and the version.
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            final Container container = read(artifactModel.readId(containerUniqueId));
+            final Boolean doesExist = artifactModel.doesExist(containerUniqueId);
+            final Boolean doesVersionExist;
+            final Long containerId;
+            final Container container;
             final ContainerVersion version;
-            final Boolean doesVersionExist =
-                artifactModel.doesVersionExist(container.getId(), containerVersionId);
-            if(doesVersionExist) {
-                version = readVersion(container.getId(), containerVersionId);
-            }
-            else {
-                version = createVersion(container.getId(),
-                        containerVersionId, publishedBy, publishedOn);
+            if (doesExist) {
+                containerId = artifactModel.readId(containerUniqueId);
+                container = read(containerId);
+                doesVersionExist = artifactModel.doesVersionExist(containerId, containerVersionId);
+
+                if (doesVersionExist) {
+                    version = readVersion(container.getId(), containerVersionId);
+                } else {
+                    version = createVersion(container.getId(),
+                            containerVersionId, publishedBy, publishedOn);
+                }
+            } else { 
+                doesVersionExist = Boolean.FALSE;
+
+                container = new Container();
+                container.setCreatedBy(publishedBy.getUsername());
+                container.setCreatedOn(publishedOn);
+                container.setName(containerName);
+                container.setState(ArtifactState.ACTIVE);
+                container.setType(ArtifactType.CONTAINER);
+                container.setUniqueId(containerUniqueId);
+                container.setUpdatedBy(container.getCreatedBy());
+                container.setUpdatedOn(container.getCreatedOn());
+                // create
+                containerIO.create(container);
+
+                // create version
+                version = createVersion(container.getId(), containerVersionId,
+                        publishedBy, publishedOn);
+    
+                // create remote info
+                artifactModel.createRemoteInfo(container.getId(), publishedBy, container.getCreatedOn());
+    
+                // index
+                indexor.create(container.getId(), container.getName());
             }
 
             // handle the artifact by specific type
             final ArtifactVersion artifactVersion;
-            switch(type) {
+            switch(artifactType) {
             case DOCUMENT:
                 artifactVersion = handleDocumentPublished(publishedBy,
-                        publishedOn, uniqueId, versionId, name, bytes);
+                        publishedOn, artifactUniqueId, artifactVersionId,
+                        artifactName, artifactChecksum, artifactBytes);
                 break;
             case CONTAINER:
             default:
-                throw Assert.createUnreachable("[UNSUPPORTED ARTIFACT TYPE]");
+                throw Assert.createUnreachable("UNKNOWN ARTIFACT TYPE");
             }
-
-            // if the user is new with this publish event; the version will already
-            // exist
-            if(!doesVersionExist) {
-                containerIO.addVersion(version.getArtifactId(), version
-                        .getVersionId(), artifactVersion.getArtifactId(),
-                        artifactVersion.getVersionId(), artifactVersion
-                        .getArtifactType());
-            }
+            containerIO.addVersion(version.getArtifactId(),
+                    version.getVersionId(), artifactVersion.getArtifactId(),
+                    artifactVersion.getVersionId(),
+                    artifactVersion.getArtifactType());
 
             final Container postPublish = read(container.getId());
             final ContainerVersion postPublishVersion =
@@ -417,20 +448,22 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     void handleArtifactSent(final JabberId sentBy, final Calendar sentOn,
             final UUID containerUniqueId, final Long containerVersionId,
-            final String containerName, final UUID uniqueId, final Long id,
-            final Long versionId, final String name, final ArtifactType type,
-            final byte[] bytes) {
+            final String containerName, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final byte[] artifactBytes) {
         logApiId();
-        debugVariable("sentBy", sentBy);
-        debugVariable("sentOn", sentOn);
-        debugVariable("containerUniqueId", containerUniqueId);
-        debugVariable("containerVersionId", containerVersionId);
-        debugVariable("containerName", containerName);
-        debugVariable("uniqueId", uniqueId);
-        debugVariable("id", id);
-        debugVariable("versionId", versionId);
-        debugVariable("name", name);
-        debugVariable("type", type);
+        logVariable("sentBy", sentBy);
+        logVariable("sentOn", sentOn);
+        logVariable("containerUniqueId", containerUniqueId);
+        logVariable("containerVersionId", containerVersionId);
+        logVariable("containerName", containerName);
+        logVariable("artifactUniqueId", artifactUniqueId);
+        logVariable("artifactVersionId", artifactVersionId);
+        logVariable("artifactName", artifactName);
+        logVariable("artifactType", artifactType);
+        logVariable("artifactChecksum", artifactChecksum);
+        logVariable("artifactBytes", artifactBytes);
         try {
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             final Container container;
@@ -477,10 +510,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
     
             // handle the artifact by specific type
             final ArtifactVersion artifactVersion;
-            switch(type) {
+            switch(artifactType) {
             case DOCUMENT:
-                artifactVersion = handleDocumentSent(sentBy, sentOn, uniqueId,
-                        versionId, name, bytes);
+                artifactVersion = handleDocumentSent(sentBy, sentOn, artifactUniqueId,
+                        artifactVersionId, artifactName, artifactChecksum, artifactBytes);
                 break;
             case CONTAINER:
             default:
@@ -534,9 +567,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
     void publish(final Long containerId, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
         logApiId();
-        debugVariable("containerId", containerId);
-        debugVariable("contacts", contacts);
-        debugVariable("teamMembers", teamMembers);
+        logVariable("containerId", containerId);
+        logVariable("contacts", contacts);
+        logVariable("teamMembers", teamMembers);
         publish(containerId, null, contacts, teamMembers);
     }
 
@@ -555,12 +588,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
     void publish(final Long containerId, final String comment,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
         logApiId();
-        debugVariable("containerId", containerId);
-        debugVariable("comment", comment);
-        debugVariable("contacts", contacts);
-        debugVariable("teamMembers", teamMembers);
-        assertOnline("[USER NOT ONLINE]");
-        assertDoesExistLocalDraft("[LOCAL DRAFT DOES NOT EXIST]", containerId);
+        logVariable("containerId", containerId);
+        logVariable("comment", comment);
+        logVariable("contacts", contacts);
+        logVariable("teamMembers", teamMembers);
+        assertOnline("USER NOT ONLINE");
+        assertDoesExistLocalDraft("LOCAL DRAFT DOES NOT EXIST", containerId);
         try {
             final Container container = read(containerId);
             final ContainerDraft draft = readDraft(containerId);
@@ -570,7 +603,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
                 createDistributed(container);
             }
             // ensure the user is the key holder
-            assertIsKeyHolder("[USER NOT KEY HOLDER]", containerId);
+            assertIsKeyHolder("USER NOT KEY HOLDER", containerId);
 
             // create a version
             final ContainerVersion version = createVersion(container.getId());
@@ -604,14 +637,41 @@ public class ContainerModelImpl extends AbstractModelImpl {
             }
             containerIO.deleteDraft(container.getId());
 
-            // add all contacts as team members
+// HACK
+if (contains(teamMembers, localUser()))
+        teamMembers.remove(indexOf(teamMembers, localUser()));
+            // call remote publish
+            publish(version, teamMembers, localUserId(), currentDateTime);
+
+            // call local add team member
+            // create team data
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             for (final Contact contact : contacts) {
                 teamMembers.add(artifactModel.addTeamMember(
                         container.getId(), contact.getId()));
             }
-            // call remote publish
-            publish(version, teamMembers, localUserId(), currentDateTime);
+
+            // call remote add team member - note that this is done after the
+            // actual publish so that the event handler for addTeamMember does
+            // not have to create the container in the even that this is the
+            // first revision they receive
+            final InternalSessionModel sessionModel = getInternalSessionModel();
+            final List<JabberId> remoteTeam = sessionModel.readArtifactTeam(container.getUniqueId());
+            final List<TeamMember> localTeam = artifactModel.readTeam2(container.getId());
+            Boolean didFindTeamMember;
+            for (final TeamMember localTeamMember : localTeam) {
+                didFindTeamMember = Boolean.FALSE;
+                for (final JabberId remoteTeamMemberId : remoteTeam) {
+                    if (remoteTeamMemberId.equals(localTeamMember.getId())) {
+                        didFindTeamMember = Boolean.TRUE;
+                        break;
+                    }
+                }
+                if (!didFindTeamMember) {
+                    getInternalSessionModel().addTeamMember(
+                            container.getUniqueId(), localTeamMember.getId());
+                }
+            }
 
             // fire event
             final Container postPublish = read(container.getId());
@@ -1069,8 +1129,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     void removeDocument(final Long containerId, final Long documentId) {
         logApiId();
-        debugVariable("containerId", containerId);
-        debugVariable("documentId", documentId);
+        logVariable("containerId", containerId);
+        logVariable("documentId", documentId);
         assertDraftExists("DRAFT DOES NOT EXIST", containerId);
         assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
                 containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
@@ -1120,8 +1180,8 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     void revertDocument(final Long containerId, final Long documentId) {
         logApiId();
-        debugVariable("containerId", containerId);
-        debugVariable("documentId", documentId);
+        logVariable("containerId", containerId);
+        logVariable("documentId", documentId);
         assertDraftExists("DRAFT DOES NOT EXIST", containerId);
         assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
                 containerId, documentId, ContainerDraft.ArtifactState.NONE);
@@ -1378,14 +1438,16 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private DocumentVersion handleDocumentPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID uniqueId,
-            final Long versionId, final String name, final byte[] bytes)
-            throws IOException {
+            final Long versionId, final String name, final String checksum,
+            final byte[] bytes) throws IOException {
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final InputStream inputStream =
             new BufferedInputStream(new ByteArrayInputStream(bytes), IO.BUFFER_SIZE);
         try {
-            final DocumentVersion version = documentModel.handleDocumentPublished(
-                    publishedBy, publishedOn, uniqueId, versionId, name, inputStream);
+            final DocumentVersion version =
+                    documentModel.handleDocumentPublished(publishedBy,
+                            publishedOn, uniqueId, versionId, name, checksum,
+                            inputStream);
             return version;
         }
         finally { inputStream.close(); }
@@ -1409,13 +1471,14 @@ public class ContainerModelImpl extends AbstractModelImpl {
      */
     private DocumentVersion handleDocumentSent(final JabberId sentBy,
             final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final byte[] bytes) throws IOException {
+            final String name, final String checksum, final byte[] bytes)
+            throws IOException {
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final InputStream inputStream =
             new BufferedInputStream(new ByteArrayInputStream(bytes), IO.BUFFER_SIZE);
         try {
             final DocumentVersion version = documentModel.handleDocumentSent(
-                    sentBy, sentOn, uniqueId, versionId, name, inputStream);
+                    sentBy, sentOn, uniqueId, versionId, checksum, name, inputStream);
             return version;
         }
         finally { inputStream.close(); }

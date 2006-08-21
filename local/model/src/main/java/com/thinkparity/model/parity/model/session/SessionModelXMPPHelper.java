@@ -4,10 +4,8 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,10 +14,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImplHelper;
-import com.thinkparity.model.parity.model.container.ContainerVersion;
-import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.XMPPSession;
@@ -88,24 +83,31 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         this.xmppContainerListener = new XMPPContainerListener() {
             public void handleArtifactPublished(final JabberId publishedBy,
                     final Calendar publishedOn, final UUID containerUniqueId,
-                    final Long containerVersionId, final Integer count,
-                    final Integer index, final UUID uniqueId,
-                    final Long versionId, final String name,
-                    final ArtifactType type, final byte[] bytes) {
+                    final Long containerVersionId, final String containerName,
+                    final Integer containerArtifactCount,
+                    final Integer containerArtifactIndex,
+                    final UUID artifactUniqueId, final Long artifactVersionId,
+                    final String artifactName, final ArtifactType artifactType,
+                    final String artifactChecksum, final byte[] artifactBytes) {
                 handleContainerArtifactPublished(publishedBy, publishedOn,
-                        containerUniqueId, containerVersionId, count, index,
-                        uniqueId, versionId, name, type, bytes);
+                        containerUniqueId, containerVersionId, containerName,
+                        containerArtifactCount, containerArtifactIndex,
+                        artifactUniqueId, artifactVersionId, artifactName,
+                        artifactType, artifactChecksum, artifactBytes);
             }
             public void handleArtifactSent(final JabberId sentBy,
                     final Calendar sentOn, final UUID containerUniqueId,
                     final Long containerVersionId, final String containerName,
-                    final Integer count, final Integer index,
-                    final UUID uniqueId, final Long versionId,
-                    final String name, final ArtifactType type,
-                    final byte[] bytes) {
+                    final Integer containerArtifactCount,
+                    final Integer containerArtifactIndex,
+                    final UUID artifactUniqueId, final Long artifactVersionId,
+                    final String artifactName, final ArtifactType artifactType,
+                    final String artifactChecksum, final byte[] artifactBytes) {
                 handleContainerArtifactSent(sentBy, sentOn, containerUniqueId,
-                        containerVersionId, containerName, count, index,
-                        uniqueId, versionId, name, type, bytes);
+                        containerVersionId, containerName,
+                        containerArtifactCount, containerArtifactIndex,
+                        artifactUniqueId, artifactVersionId, artifactName,
+                        artifactType, artifactChecksum, artifactBytes);
             }
         };
         this.xmppDocumentListener = new XMPPDocumentListener() {
@@ -254,6 +256,15 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	User getUser() throws SmackException { return xmppSession.readCurrentUser(); }
 
 	/**
+     * Obtain the xmpp session.
+     * 
+     * @return The xmpp session.
+     */
+    XMPPSession getXMPPSession () {
+        return xmppSession;
+    }
+
+	/**
 	 * Send a contact invitation.
 	 * 
 	 * @param email
@@ -296,7 +307,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	 */
 	void logout() throws SmackException { xmppSession.logout(); }
 
-	/**
+    /**
 	 * Process the remote offline queue.
 	 * 
 	 * @throws SmackException
@@ -306,42 +317,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
     /**
-     * Publish a container.
-     * 
-     * @param version
-     *            A container version.
-     * @param teamMembers
-     *            A list of team members.
-     * @param documentVersions
-     *            A list of document versions and their input streams.
-     * @param publishedBy
-     *            The publisher.
-     * @param publishedOn
-     *            The publish date.
-     * @throws SmackException
-     */
-    void publish(final ContainerVersion version,
-            final List<TeamMember> teamMembers,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final JabberId publishedBy, final Calendar publishedOn)
-            throws SmackException {
-        xmppSession.publish(version, teamMembers, documentVersions,
-                publishedBy, publishedOn);
-    }
-
-    /**
-	 * Obtain a list of contacts for an artifact.
-	 * 
-	 * @param uniqueId
-	 *            The artifact unqique id.
-	 * @return A list of contacts.
-	 * @throws SmackException
-	 */
-	List<User> readArtifactTeam(final UUID uniqueId) throws SmackException {
-		return xmppSession.readArtifactTeam(uniqueId);
-	}
-
-	/**
      * Read a contact.
      * 
      * @param contactId
@@ -362,7 +337,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readContacts();
 	}
 
-    /**
+	/**
 	 * Obtain the artifact key holder.
 	 * 
 	 * @param uniqueId
@@ -380,7 +355,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      */
 	Profile readProfile() throws SmackException { return xmppSession.readProfile(); }
 
-	/**
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -392,7 +367,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		return xmppSession.readUsers(jabberIds);
 	}
 
-    /**
+	/**
      * Remove a team member from the artifact team.
      * 
      * @param uniqueId
@@ -402,22 +377,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      */
     void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
         xmppSession.removeTeamMember(uniqueId, jabberId);
-    }
-
-	/**
-     * Send a container.
-     * 
-     * @param version
-     *            A container version.
-     * @param documentVersions
-     *            A list of document versions.
-     * @param user
-     *            A user.
-     */
-    void send(final ContainerVersion version,
-            final Map<DocumentVersion, InputStream> documentVersions,
-            final User user, final JabberId sentBy, final Calendar sentOn) throws SmackException {
-        xmppSession.send(version, documentVersions, user, sentBy, sentOn);
     }
 
 	/**
@@ -520,13 +479,19 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      */
     private void handleContainerArtifactPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID containerUniqueId,
-            final Long containerVersionId, final Integer count,
-            final Integer index, final UUID uniqueId, final Long versionId,
-            final String name, final ArtifactType type, final byte[] bytes) {
+            final Long containerVersionId, final String containerName,
+            final Integer containerArtifactCount,
+            final Integer containerArtifactIndex, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final byte[] artifactBytes) {
         try {
             SessionModelImpl.handleContainerArtifactPublished(publishedBy,
-                    publishedOn, containerUniqueId, containerVersionId, count,
-                    index, uniqueId, versionId, name, type, bytes);
+                    publishedOn, containerUniqueId, containerVersionId,
+                    containerName, containerArtifactCount,
+                    containerArtifactIndex, artifactUniqueId,
+                    artifactVersionId, artifactName, artifactType,
+                    artifactChecksum, artifactBytes);
         }
         catch(final ParityException px) { unexpectedOccured(px); }
     }
@@ -554,13 +519,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     private void handleContainerArtifactSent(final JabberId sentBy,
             final Calendar sentOn, final UUID containerUniqueId,
             final Long containerVersionId, final String containerName,
-            final Integer count, final Integer index, final UUID uniqueId,
-            final Long versionId, final String name, final ArtifactType type,
-            final byte[] bytes) {
+            final Integer containerArtifactCount,
+            final Integer containerArtifactIndex, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final byte[] artifactBytes) {
         try {
             SessionModelImpl.handleContainerArtifactSent(sentBy, sentOn,
                     containerUniqueId, containerVersionId, containerName,
-                    count, index, uniqueId, versionId, name, type, bytes);
+                    containerArtifactCount, containerArtifactIndex,
+                    artifactUniqueId, artifactVersionId, artifactName,
+                    artifactType, artifactChecksum, artifactBytes);
         }
         catch(final ParityException px) { unexpectedOccured(px); }
     }

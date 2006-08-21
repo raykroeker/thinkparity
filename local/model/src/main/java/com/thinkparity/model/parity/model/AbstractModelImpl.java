@@ -50,7 +50,6 @@ import com.thinkparity.model.parity.model.contact.ContactModel;
 import com.thinkparity.model.parity.model.contact.InternalContactModel;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.container.InternalContainerModel;
-import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.download.DownloadModel;
@@ -198,17 +197,6 @@ public abstract class AbstractModelImpl {
             return false;
         }
         return shutdownHooks.remove(shutdownHook);
-    }
-
-	/**
-     * Obtain an api id for the model abstraction.
-     * 
-     * @param api
-     *            An api.
-     * @return An api id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("ABSTRACTION").append(" ").append(api);
     }
 
 	/** The configuration io. */
@@ -489,6 +477,8 @@ public abstract class AbstractModelImpl {
      *            The variable name.
      * @param value
      *            The variable value.
+     * 
+     * @deprecated Use {@link #logVarible(String, Object)} instead.
      */
     protected void debugVariable(final String name, final Object value) {
         if(logger.isDebugEnabled()) {
@@ -510,18 +500,6 @@ public abstract class AbstractModelImpl {
     protected TeamMember get(final List<TeamMember> team, final User user) {
         return team.get(indexOf(team, user));
     }
-
-    protected Long getArtifactId(final UUID artifactUniqueId)
-			throws ParityException {
-		// NOTE I'm assuming document
-		final InternalDocumentModel iDModel = getInternalDocumentModel();
-		final Document d = iDModel.get(artifactUniqueId);
-		if(null == d) {
-			logger.warn("Local document:  " + artifactUniqueId + " does not exist.");
-			return null;
-		}
-		else { return d.getId(); }
-	}
 
     /**
 	 * Obtain the model's context.
@@ -688,6 +666,22 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Obtain the index of the user in the team.
+     * 
+     * @param team
+     *            The team.
+     * @param user
+     *            A user.
+     * @return The index of the user in the team; or -1 if the user does not
+     *         exist in the list.
+     */
+    protected int indexOf(final List<TeamMember> team, final User user) {
+        for(int i = 0; i < team.size(); i++)
+            if(team.get(i).getId().equals(user.getId())) { return i; }
+        return -1;
+    }
+
+    /**
      * Determine whether or not the artifact is closed.
      * 
      * @param artifact
@@ -706,7 +700,7 @@ public abstract class AbstractModelImpl {
      * @return True if the user is the keyholder; false otherwise.
      */
     protected Boolean isKeyHolder(final Long artifactId) throws ParityException {
-        assertOnline(getApiId("[IS KEY HOLDER] [USER NOT ONLINE]"));
+        assertOnline("USER NOT ONLINE");
         return getInternalArtifactModel().isFlagApplied(artifactId, ArtifactFlag.KEY) &&
             getInternalSessionModel().isLoggedInUserKeyHolder(artifactId);
     }
@@ -764,6 +758,18 @@ public abstract class AbstractModelImpl {
                     StackUtil.getCallerClassName(),
                     StackUtil.getCallerMethodName()));
         }
+    }
+
+    /**
+     * Log a variable.  Note that only the variable value will be rendered.
+     * 
+     * @param name
+     *            The variable name.
+     * @param value
+     *            The variable value.
+     */
+    protected void logVariable(final String name, final Object value) {
+        debugVariable(name, value);
     }
 
     /**
@@ -990,22 +996,6 @@ public abstract class AbstractModelImpl {
             secretKeySpec = new SecretKeySpec(rawKey, "AES");
         }
         return secretKeySpec;
-    }
-
-    /**
-     * Obtain the index of the user in the team.
-     * 
-     * @param team
-     *            The team.
-     * @param user
-     *            A user.
-     * @return The index of the user in the team; or -1 if the user does not
-     *         exist in the list.
-     */
-    private int indexOf(final List<TeamMember> team, final User user) {
-        for(int i = 0; i < team.size(); i++)
-            if(team.get(i).getId().equals(user.getId())) { return i; }
-        return -1;
     }
 
     /**

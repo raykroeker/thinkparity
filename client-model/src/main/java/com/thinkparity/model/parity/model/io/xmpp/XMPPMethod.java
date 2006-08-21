@@ -29,9 +29,9 @@ import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.Constants.Xml;
+import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
-import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -54,7 +54,7 @@ public class XMPPMethod extends IQ {
     static {
         logger = Logger.getLogger(XMPPMethod.class);
 
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:response", new XMPPMethodResponseProvider());
+        ProviderManager.addIQProvider(Xml.Service.NAME, Xml.Service.NAMESPACE_RESPONSE, new XMPPMethodResponseProvider());
     }
 
     /** The remote method name. */
@@ -215,7 +215,7 @@ public class XMPPMethod extends IQ {
     }
 
     /**
-     * Set a list of team members parameter.
+     * Set a list of jabber id parameters.
      * 
      * @param listName
      *            The list parameter name.
@@ -225,10 +225,10 @@ public class XMPPMethod extends IQ {
      *            The item value.
      */
     public final void setParameter(final String listName,
-            final String itemName, final List<TeamMember> values) {
+            final String itemName, final List<JabberId> values) {
         final List<Parameter> parameters = new ArrayList<Parameter>(values.size());
-        for (final TeamMember value : values) {
-            parameters.add(new Parameter(itemName, JabberId.class, value.getId()));
+        for (final JabberId value : values) {
+            parameters.add(new Parameter(itemName, JabberId.class, value));
         }
         this.parameters.add(new Parameter(listName, List.class, parameters));
     }
@@ -381,7 +381,7 @@ public class XMPPMethod extends IQ {
 
                 // stop processing when we hit the trailing query tag
                 if(XmlPullParser.END_TAG == parser.getEventType()) {
-                    if("query".equals(parser.getName())) { break; }
+                    if(Service.NAME.equals(parser.getName())) { break; }
                     else { Assert.assertUnreachable("Query end tag."); }
                 }
                 else {

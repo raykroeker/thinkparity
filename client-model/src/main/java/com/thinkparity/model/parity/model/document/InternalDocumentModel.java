@@ -105,10 +105,10 @@ public class InternalDocumentModel extends DocumentModel implements
      */
     public DocumentVersion handleDocumentPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID uniqueId, final Long versionId,
-            final String name, final InputStream content) {
+            final String name, final String checksum, final InputStream content) {
         synchronized(getImplLock()) {
             return getImpl().handleDocumentPublished(publishedBy, publishedOn, uniqueId,
-                    versionId, name, content);
+                    versionId, name, checksum, content);
         }
     }
     /**
@@ -130,10 +130,10 @@ public class InternalDocumentModel extends DocumentModel implements
      */
     public DocumentVersion handleDocumentSent(final JabberId sentBy,
             final Calendar sentOn, final UUID uniqueId, final Long versionId,
-            final String name, final InputStream content) {
+            final String name, final String checksum, final InputStream content) {
         synchronized(getImplLock()) {
             return getImpl().handleDocumentSent(sentBy, sentOn, uniqueId,
-                    versionId, name, content);
+                    versionId, name, checksum, content);
         }
     }
 

@@ -20,6 +20,7 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.model.Constants.Xml;
+import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.smack.SmackException;
@@ -44,10 +45,9 @@ class XMPPArtifact {
     static {
 		listeners = new LinkedList<XMPPArtifactListener>();
 
-		ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactreadcontacts", new IQArtifactReadContactsProvider());
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:artifactconfirmreceipt", new IQConfirmReceiptProvider());
-
-        ProviderManager.addIQProvider("query", Xml.EventHandler.Artifact.TEAM_MEMBER_ADDED, new IQProvider() {
+		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifactreadcontacts", new IQArtifactReadContactsProvider());
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifactconfirmreceipt", new IQConfirmReceiptProvider());
+        ProviderManager.addIQProvider(Service.NAME, Xml.EventHandler.Artifact.TEAM_MEMBER_ADDED, new IQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 final HandleTeamMemberAddedIQ query = new HandleTeamMemberAddedIQ();
 
@@ -79,7 +79,7 @@ class XMPPArtifact {
                 return query;
             }
         });
-        ProviderManager.addIQProvider("query", Xml.EventHandler.Artifact.TEAM_MEMBER_REMOVED, new AbstractThinkParityIQProvider() {
+        ProviderManager.addIQProvider(Service.NAME, Xml.EventHandler.Artifact.TEAM_MEMBER_REMOVED, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
                 setParser(parser);
                 final HandleTeamMemberRemovedIQ query = new HandleTeamMemberRemovedIQ();

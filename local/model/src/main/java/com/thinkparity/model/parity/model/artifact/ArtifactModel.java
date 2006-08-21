@@ -106,8 +106,10 @@ public class ArtifactModel extends AbstractModel {
      *            The artifact id.
      * @return The artifact key holder.
      */
-    public JabberId readKeyHolder(final Long artifactId) throws ParityException {
-        synchronized(getImplLock()) { return getImpl().readKeyHolder(artifactId); }
+    public JabberId readKeyHolder(final Long artifactId) {
+        synchronized (getImplLock()) {
+            return getImpl().readKeyHolder(artifactId);
+        }
     }
 
 	/**

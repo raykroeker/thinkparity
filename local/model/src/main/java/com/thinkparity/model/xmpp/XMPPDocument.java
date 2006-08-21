@@ -5,7 +5,6 @@
 package com.thinkparity.model.xmpp;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,8 +16,7 @@ import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.provider.ProviderManager;
 
-import com.thinkparity.model.Constants.Xml;
-import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
+import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.smackx.packet.document.IQHandleReactivate;
 import com.thinkparity.model.smackx.packet.document.IQHandleReactivateProvider;
@@ -45,8 +43,8 @@ class XMPPDocument {
     static {
         listeners = new HashSet<XMPPDocumentListener>();
 
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:documentsend", new IQSendDocumentProvider());
-        ProviderManager.addIQProvider("query", "jabber:iq:parity:documentreactivate", new IQHandleReactivateProvider());
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:documentsend", new IQSendDocumentProvider());
+        ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:documentreactivate", new IQHandleReactivateProvider());
     }
 
     /**
@@ -106,24 +104,6 @@ class XMPPDocument {
                     }
                 },
                 new PacketTypeFilter(IQHandleReactivate.class));
-    }
-
-    void sendReactivate(final List<JabberId> team,
-            final UUID uniqueId, final Long versionId, final String name,
-            final byte[] bytes) throws SmackException {
-        logger.info("[LMODEL] [XMPP] [DOCUMENT] [SEND REACTIVATE]");
-        logger.debug(team);
-        logger.debug(uniqueId);
-        logger.debug(versionId);
-        logger.debug(name);
-        logger.debug(null == bytes ? -1 : bytes.length);
-        final XMPPMethod method = new XMPPMethod("document:reactivate");
-        method.setJabberIdParameters(Xml.User.JABBER_IDS, Xml.User.JABBER_ID, team);
-        method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
-        method.setParameter(Xml.Artifact.VERSION_ID, versionId);
-        method.setParameter(Xml.Artifact.NAME, name);
-        method.setParameter(Xml.Artifact.BYTES, bytes);
-        method.execute(xmppCore.getConnection());
     }
 
     /**

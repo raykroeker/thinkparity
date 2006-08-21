@@ -16,13 +16,18 @@ import com.thinkparity.model.xmpp.JabberId;
 public interface XMPPContainerListener {
     public void handleArtifactPublished(final JabberId publishedBy,
             final Calendar publishedOn, final UUID containerUniqueId,
-            final Long containerVersionId, final Integer count,
-            final Integer index, final UUID uniqueId, final Long versionId,
-            final String name, final ArtifactType type, final byte[] bytes);
+            final Long containerVersionId, final String containerName,
+            final Integer containerArtifactCount,
+            final Integer containerArtifactIndex, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final byte[] artifactBytes);
     public void handleArtifactSent(final JabberId sentBy,
             final Calendar sentOn, final UUID containerUniqueId,
             final Long containerVersionId, final String containerName,
-            final Integer count, final Integer index, final UUID uniqueId,
-            final Long versionId, final String name, final ArtifactType type,
-            final byte[] bytes);
+            final Integer containerArtifactCount,
+            final Integer containerArtifactIndex, final UUID artifactUniqueId,
+            final Long artifactVersionId, final String artifactName,
+            final ArtifactType artifactType, final String artifactChecksum,
+            final byte[] artifactBytes);
 }

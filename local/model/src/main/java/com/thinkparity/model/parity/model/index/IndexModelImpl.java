@@ -149,7 +149,7 @@ class IndexModelImpl extends AbstractModelImpl {
 	/**
 	 * Create an index entry for an artifact.
 	 * 
-	 * @param index
+	 * @param containerArtifactIndex
 	 *            The artifact index entry.
 	 * @throws ParityException
 	 */

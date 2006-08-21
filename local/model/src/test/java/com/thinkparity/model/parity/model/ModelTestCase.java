@@ -44,6 +44,7 @@ import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.release.InternalReleaseModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
+import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.user.TeamMember;
@@ -52,6 +53,7 @@ import com.thinkparity.model.parity.model.workspace.Preferences;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
 import com.thinkparity.model.xmpp.JabberId;
+import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -480,6 +482,8 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 
     private InternalLibraryModel ilModel;
 
+	private InternalSessionModel internalSessionModel;
+
 	private InternalReleaseModel irModel;
 
 	private InternalUserModel iuModel;
@@ -492,7 +496,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 */
 	private Preferences preferences;
 
-	/**
+    /**
      * The session model.
      * 
      */
@@ -504,7 +508,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 */
 	private Workspace workspace;
 
-    /**
+	/**
 	 * The workspace model.
 	 * 
 	 */
@@ -518,7 +522,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 */
 	protected ModelTestCase(final String name) { super(name); }
 
-	/**
+    /**
      * Add a document to a container.
      * 
      * @param container
@@ -691,6 +695,13 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
         return irModel;
     }
 
+    protected InternalSessionModel getInternalSessionModel() {
+        if (null == internalSessionModel) {
+            internalSessionModel = SessionModel.getInternalModel(new Context(getClass()));
+        }
+        return internalSessionModel;
+    }
+
     protected InternalUserModel getInternalUserModel() {
         if(null == iuModel) {
             iuModel = UserModel.getInternalModel(new Context(getClass()));
@@ -853,8 +864,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      *            The container.
      */
     protected void publish(final Container container) {
-//        getContainerModel().publish(container.getId());
-        throw Assert.createNotYetImplemented("ModelTestCase#publish(Container)");
+        getContainerModel().publish(container.getId(), readContacts(), null);
     }
 
     /**
@@ -864,8 +874,16 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      *            A container.
      */
     protected void publishContainer(final Container container) {
-//        getInternalContainerModel().publish(container.getId());
-        throw Assert.createNotYetImplemented("ModelTestCase#publishContainer(Container)");
+        publish(container);
+    }
+
+    /**
+     * Read the contacts.
+     * 
+     * @return A list of contacts.
+     */
+    protected List<Contact> readContacts() {
+        return getContactModel().read();
     }
 
     /**

@@ -11,16 +11,20 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
+import com.thinkparity.browser.platform.action.ActionId;
+import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.document.Open;
 
 import com.thinkparity.model.parity.model.document.Document;
 
@@ -44,9 +48,12 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     /** An image cache. */
     private final MainCellImageCache imageCache;
 
+    /** A popup menu item factory. */
+    private final PopupItemFactory popupItemFactory;
+
     /** The document's version. */
     private final ContainerVersionCell version;
-
+    
     /** Create a CellDocument. */
     public ContainerVersionDocumentCell(final ContainerVersionCell version, final Document document) {
         super(document.getCreatedBy(), document.getCreatedOn(), document.getDescription(),
@@ -55,10 +62,23 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
         setId(document.getId());
         setRemoteInfo(document.getRemoteInfo());
         setState(document.getState());
+        this.popupItemFactory = PopupItemFactory.getInstance();
         this.version = version;
         this.imageCache = new MainCellImageCache();
     }
-    
+
+    /**
+     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ContainerVersionDocumentCell) {
+            return ((ContainerVersionDocumentCell) obj).getId().equals(getId()) &&
+                ((ContainerVersionDocumentCell) obj).version.equals(version);
+        }
+        return false;
+    }
+
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBackground()
      */
@@ -151,25 +171,6 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
-     */
-    public void triggerPopup(Connection connection, Component invoker, MouseEvent e, int x, int y) {
-        throw Assert.createNotYetImplemented("ContainerVersionDocumentCell#triggerPopup");
-    }
-
-    /**
-     * @see com.thinkparity.model.parity.model.artifact.Artifact#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        if (null != obj && obj instanceof ContainerVersionDocumentCell) {
-            return ((ContainerVersionDocumentCell) obj).getId().equals(getId()) &&
-                ((ContainerVersionDocumentCell) obj).version.equals(version);
-        }
-        return false;
-    }
-
-    /**
      * @see com.thinkparity.model.parity.model.artifact.Artifact#hashCode()
      */
     @Override
@@ -186,5 +187,20 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
             .append(getId()).append("/")
             .append(version.getVersionId())
             .toString();
+    }
+
+    /**
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
+     */
+    public void triggerPopup(final Connection connection,
+            final Component invoker, final MouseEvent e, final int x,
+            final int y) {
+        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+
+        final Data openData = new Data(1);
+        openData.set(Open.DataKey.DOCUMENT_ID, getId());
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.DOCUMENT_OPEN, openData));
+
+        jPopupMenu.show(invoker, x, y);
     }
 }

@@ -34,7 +34,7 @@ public class DocumentDefault extends AbstractBorder {
 	 * 
 	 */
 	public Insets getBorderInsets(Component c) {
-		return new Insets(1, 0, 0, 0);
+		return new Insets(1, 0, 1, 0);
 	}
 
 	/**

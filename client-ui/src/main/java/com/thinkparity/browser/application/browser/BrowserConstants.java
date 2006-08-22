@@ -40,7 +40,8 @@ public final class BrowserConstants {
     public static final class Colours {
 
         /** COLOR The colour of the separator for the cells in the main list. */
-        public static final Color MAIN_CELL_DEFAULT_BORDER1 = Color.WHITE;
+        // Changed from Color.WHITE.
+        public static final Color MAIN_CELL_DEFAULT_BORDER1 = new Color(207, 207, 207, 255);
 
         /** COLOR The colour of the border for the cells in the main list. */
         public static final Color MAIN_CELL_DEFAULT_BORDER2 = new Color(107, 111, 115, 255);

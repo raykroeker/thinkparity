@@ -312,7 +312,8 @@ public class ContainerAvatar extends Avatar {
         final GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
         c.insets.left = c.insets.right = 2;
-        c.insets.top = c.insets.bottom = 1;
+        c.insets.top = 10;
+        c.insets.bottom = 1;
         c.weightx = 1;
         c.weighty = 1;
         add(jListScrollPane, c.clone());

@@ -82,26 +82,41 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
         setOpaque(false);
         containersJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContainersTabSelected.png")));
+        containersJLabel.setMaximumSize(new java.awt.Dimension(78, 20));
         containersJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                containersJLabelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                containersJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                containersJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                containersJLabelMouseExited(evt);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
         add(containersJLabel, gridBagConstraints);
 
         contactsJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_ContactsTab.png")));
+        contactsJLabel.setMaximumSize(new java.awt.Dimension(78, 18));
         contactsJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                contactsJLabelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                contactsJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                contactsJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                contactsJLabelMouseExited(evt);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
         add(contactsJLabel, gridBagConstraints);
 
         nameJLabel.setFont(Fonts.DefaultFontBold);
@@ -113,6 +128,30 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         add(nameJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void containersJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseExited
+        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTAINER)) {
+            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB);            
+        }
+    }//GEN-LAST:event_containersJLabelMouseExited
+
+    private void containersJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_containersJLabelMouseEntered
+        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTAINER)) {
+            containersJLabel.setIcon(Icons.BrowserTitle.CONTAINERS_TAB_ROLLOVER);
+        }
+    }//GEN-LAST:event_containersJLabelMouseEntered
+
+    private void contactsJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseExited
+        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTACT)) {
+            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB);            
+        }
+    }//GEN-LAST:event_contactsJLabelMouseExited
+
+    private void contactsJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_contactsJLabelMouseEntered
+        if ((null!=tab) && (tab!=MainTitleAvatar.Tab.CONTACT)) {
+            contactsJLabel.setIcon(Icons.BrowserTitle.CONTACTS_TAB_ROLLOVER);
+        }
+    }//GEN-LAST:event_contactsJLabelMouseEntered
 
     /**
      * Reload the display.  This will examine the current tab; then call the

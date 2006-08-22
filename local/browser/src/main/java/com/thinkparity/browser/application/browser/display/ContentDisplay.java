@@ -29,7 +29,9 @@ class ContentDisplay extends Display {
 		// COLOR ContentDisplayBackground WHITE
 		super("ContentDisplay", Color.WHITE);
 		// BORDER ContentDisplay Multiline 153,153,153,255, WHITE
-		setBorder(new MultiLineBorder(new Color[] { new Color(153, 153, 153, 255), Color.WHITE}));
+        
+        // The following line of code draws a line between the title and the main area.
+		//setBorder(new MultiLineBorder(new Color[] { new Color(153, 153, 153, 255), Color.WHITE}));
 	}
 
 	/**

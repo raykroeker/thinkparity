@@ -122,7 +122,11 @@ public class ContactCell extends Contact implements TabCell {
      * 
      */
     public ImageIcon getNodeIcon() {
-        return imageCache.read(DocumentIcon.NODE_DEFAULT);
+        if (isExpanded()) {
+            return imageCache.read(DocumentIcon.NODE_EXPANDED);
+        } else {
+            return imageCache.read(DocumentIcon.NODE_DEFAULT);
+        }
     }
 
     /**
@@ -130,8 +134,11 @@ public class ContactCell extends Contact implements TabCell {
      * 
      */
     public ImageIcon getNodeIconSelected() {
-        if(isExpanded()) { return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED); }
-        else { return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT); }
+        if (isExpanded()) {
+            return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED);
+        } else {
+            return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT);
+        }
     }
 
     /**

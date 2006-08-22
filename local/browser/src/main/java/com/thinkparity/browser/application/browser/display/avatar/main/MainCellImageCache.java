@@ -194,7 +194,7 @@ public class MainCellImageCache {
         INFO_IS_KEYHOLDER("Invisible20x20.png"),
         INFO_IS_NOT_KEYHOLDER("Lock.png"),
 
-        NODE_DEFAULT("Invisible12x12.png"),
+        NODE_DEFAULT("Invisible9x9.png"),
         NODE_EXPANDED("MainCellCollapse.png"),
 
         NODE_SEL_DEFAULT("MainCellExpand.png"),
@@ -218,11 +218,11 @@ public class MainCellImageCache {
     public enum DocumentImage {
 
         BG_CLOSED("MainCellGray.png"),
-        BG_DEFAULT("MainCellGreen.png"),
+        BG_DEFAULT("MainCellDefault.png"),
         BG_URGENT("MainCellOrange.png"),
 
         BG_SEL_CLOSED("MainCellGraySelected.png"),
-        BG_SEL_DEFAULT("MainCellGreenSelected.png"),
+        BG_SEL_DEFAULT("MainCellDefaultSelected.png"),
         BG_SEL_URGENT("MainCellOrangeSelected.png");
 
         /** The image file name. */

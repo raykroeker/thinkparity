@@ -226,16 +226,13 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
             XmlPullParserException {
         final List<JabberId> jabberIds = new ArrayList<JabberId>();
         pushName();
-        pushName();
 
         next(1);
         while (!isEndTag(peekName())) {
             next(1);
             jabberIds.add(readJabberId());
-            next(1);
+            next(2);
         }
-        popName();
-        next(1);
 
         if (isEndTag(popName())) {
             next(1);

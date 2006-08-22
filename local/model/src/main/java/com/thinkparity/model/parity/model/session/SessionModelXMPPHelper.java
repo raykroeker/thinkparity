@@ -95,6 +95,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                         artifactUniqueId, artifactVersionId, artifactName,
                         artifactType, artifactChecksum, artifactBytes);
             }
+            public void handlePublished(final UUID uniqueId,
+                    final Long versionId, final String name,
+                    final Integer artifactCount, final JabberId publishedBy,
+                    final List<JabberId> publishedTo, final Calendar publishedOn) {
+                handleContainerPublished(uniqueId, versionId, name,
+                        artifactCount, publishedBy, publishedTo, publishedOn);
+            }
             public void handleArtifactSent(final JabberId sentBy,
                     final Calendar sentOn, final UUID containerUniqueId,
                     final Long containerVersionId, final String containerName,
@@ -496,7 +503,33 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         catch(final ParityException px) { unexpectedOccured(px); }
     }
 
-	/**
+    /**
+     * Handle the container published event.
+     * 
+     * @param uniqueId
+     *            The container unique id.
+     * @param versionId
+     *            The container version id.
+     * @param name
+     *            The container name.
+     * @param artifactCount
+     *            The container artifact count.
+     * @param publishedBy
+     *            The publisher.
+     * @param publishedTo
+     *            The publishees.
+     * @param publishedOn
+     *            The publish date.
+     */
+    private void handleContainerPublished(final UUID uniqueId,
+            final Long versionId, final String name,
+            final Integer artifactCount, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
+        SessionModelImpl.handleContainerPublished(uniqueId, versionId, name,
+                artifactCount, publishedBy, publishedTo, publishedOn);
+    }
+
+    /**
      * Handle the artifact sent event for the container.
      * 
      * @param containerUniqueId

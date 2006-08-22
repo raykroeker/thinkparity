@@ -219,8 +219,8 @@ public final class Constants {
         }
         public static final class EventHandler {
             public static final class Artifact {
-                public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:teammemberadded";
-                public static final String TEAM_MEMBER_REMOVED = "jabber:iq:parity:teammemberremoved";
+                public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:artifact:teammemberadded";
+                public static final String TEAM_MEMBER_REMOVED = "jabber:iq:parity:artifact:teammemberremoved";
             }
         }
 

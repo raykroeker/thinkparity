@@ -86,6 +86,17 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
                     artifactType, artifactChecksum, artifactBytes);
         }
     }
+
+    public void handlePublished(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handlePublished(uniqueId, versionId, name, artifactCount,
+                    publishedBy, publishedTo, publishedOn);
+        }
+    }
+
     /**
      * Handle the artifact sent event for the container.
      * 

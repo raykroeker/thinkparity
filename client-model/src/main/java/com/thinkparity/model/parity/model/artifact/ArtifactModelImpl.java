@@ -256,7 +256,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
             final Long artifactId = readId(uniqueId);
             // if receiving your own team member added event you have just been
             // added to the team; so download the entire team.
-            if(jabberId.equals(localUserId())) {
+            if (jabberId.equals(localUserId())) {
                 final List<JabberId> remoteTeam =
                     getInternalSessionModel().readArtifactTeam(uniqueId);
                 for (final JabberId remoteUser : remoteTeam) {
@@ -542,7 +542,9 @@ class ArtifactModelImpl extends AbstractModelImpl {
     private void assertNotTeamMember(final Object assertion,
             final Long artifactId, final JabberId userId) {
         final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
-        Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
+        final User user = getInternalUserModel().read(userId);
+        if (null != user)
+            Assert.assertNotTrue(assertion, contains(team, user));
     }
 
     /**

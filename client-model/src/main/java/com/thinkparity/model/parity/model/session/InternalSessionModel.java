@@ -16,7 +16,6 @@ import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -152,11 +151,11 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            The publish date.
      */
     public void publish(final ContainerVersion container,
-            final List<TeamMember> teamMembers,
             final Map<DocumentVersion, InputStream> documents,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
         synchronized (getImplLock()) {
-            getImpl().publish(container, teamMembers, documents, publishedBy, publishedOn);
+            getImpl().publish(container, documents, publishTo, publishedBy, publishedOn);
         }
     }
 

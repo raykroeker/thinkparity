@@ -534,6 +534,45 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Handle the container published event.
+     * 
+     * @param uniqueId
+     *            The container unique id.
+     * @param versionId
+     *            The container version id.
+     * @param name
+     *            The container name.
+     * @param artifactCount
+     *            The container artifact count.
+     * @param publishedBy
+     *            The publish date.
+     * @param publishedTo
+     *            The publish to list.
+     * @param publishedOn
+     *            The published on date.
+     */
+    void handlePublished(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("artifactCount", artifactCount);
+        logVariable("publishedBy", publishedBy);
+        logVariable("publishedTo", publishedTo);
+        logVariable("publishedOn", publishedOn);
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        final Long containerId = artifactModel.readId(uniqueId);
+        final List<JabberId> remoteTeam =
+            getInternalSessionModel().readArtifactTeam(uniqueId);
+        for (final JabberId remoteTeamMemberId : remoteTeam) {
+            getInternalArtifactModel().addTeamMember(containerId, remoteTeamMemberId);
+        }
+    }
+
+    /**
      * Determine if the container has been locally modified.
      * 
      * @param containerId
@@ -542,7 +581,6 @@ class ContainerModelImpl extends AbstractModelImpl {
     Boolean isLocallyModified(final Long containerId) throws ParityException {
         throw Assert.createNotYetImplemented("ContainerModelImpl#isLocallyModified(Long)");
     }
-
     /**
      * Lock the container.
      * 
@@ -552,6 +590,7 @@ class ContainerModelImpl extends AbstractModelImpl {
     void lock(final Long containerId) throws ParityException {
         throw Assert.createNotYetImplemented("ContainerModelImpl#lock(Long)");
     }
+
     /**
      * Publish the container. Publishing involves determining if the working
      * version of a document differes from the latest version and if so creating
@@ -594,6 +633,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         logVariable("teamMembers", teamMembers);
         assertOnline("USER NOT ONLINE");
         assertDoesExistLocalDraft("LOCAL DRAFT DOES NOT EXIST", containerId);
+        assertDoesNotContain("CANNOT PUBLISH TO SELF", teamMembers, localUser());
         try {
             final Container container = read(containerId);
             final ContainerDraft draft = readDraft(containerId);
@@ -637,27 +677,18 @@ class ContainerModelImpl extends AbstractModelImpl {
             }
             containerIO.deleteDraft(container.getId());
 
-// HACK
-if (contains(teamMembers, localUser()))
-        teamMembers.remove(indexOf(teamMembers, localUser()));
-            // call remote publish
-            publish(version, teamMembers, localUserId(), currentDateTime);
-
-            // call local add team member
-            // create team data
+            // update local team
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
-            for (final Contact contact : contacts) {
-                teamMembers.add(artifactModel.addTeamMember(
-                        container.getId(), contact.getId()));
-            }
+            for (final Contact contact : contacts)
+                artifactModel.addTeamMember(container.getId(), contact.getId());
 
-            // call remote add team member - note that this is done after the
-            // actual publish so that the event handler for addTeamMember does
-            // not have to create the container in the even that this is the
-            // first revision they receive
+            // call remote add team member - note that this is done before the
+            // actual publish so that the new team members don't get team member
+            // added notifications - their local team data is built within
+            // handle publish
             final InternalSessionModel sessionModel = getInternalSessionModel();
             final List<JabberId> remoteTeam = sessionModel.readArtifactTeam(container.getUniqueId());
-            final List<TeamMember> localTeam = artifactModel.readTeam2(container.getId());
+            final List<TeamMember> localTeam = getInternalArtifactModel().readTeam2(container.getId());
             Boolean didFindTeamMember;
             for (final TeamMember localTeamMember : localTeam) {
                 didFindTeamMember = Boolean.FALSE;
@@ -672,6 +703,14 @@ if (contains(teamMembers, localUser()))
                             container.getUniqueId(), localTeamMember.getId());
                 }
             }
+
+            // build the publish to list then publish
+            final List<JabberId> publishTo = new ArrayList<JabberId>();
+            for (final Contact contact : contacts)
+                publishTo.add(contact.getId());
+            for (final TeamMember teamMember : teamMembers)
+                publishTo.add(teamMember.getId());
+            publish(version, publishTo, localUserId(), currentDateTime);
 
             // fire event
             final Container postPublish = read(container.getId());
@@ -1205,7 +1244,7 @@ if (contains(teamMembers, localUser()))
             final Long containerId) {
         Assert.assertTrue(assertion, doesExistLocalDraft(containerId));
     }
-   
+
     /**
      * Assert the state transition for a draft artifact is valid.
      * 
@@ -1359,7 +1398,7 @@ if (contains(teamMembers, localUser()))
         return containerIO.readVersion(version.getArtifactId(), version.getVersionId());
         
     }
-
+    
     /**
      * Delete the local info for this container.
      * 
@@ -1402,7 +1441,7 @@ if (contains(teamMembers, localUser()))
         // delete the container
         containerIO.delete(containerId);
     }
-    
+
     /**
      * Determine whether or not a local draft exists.
      * 
@@ -1657,24 +1696,24 @@ if (contains(teamMembers, localUser()))
     }
 
     /**
-     * Publish a container version.
+     * Publish a container.
      * 
-     * @param version
-     *            A container version.
-     * @param teamMembers
-     *            A list of team members to publish to.
+     * @param container
+     *            A container.
+     * @param publishTo
+     *            A list of ids to publish to.
      * @param publishedBy
      *            The publisher.
      * @param publishedOn
      *            The publish date.
      */
-    private void publish(final ContainerVersion version,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
+    private void publish(final ContainerVersion container,
+            final List<JabberId> publishTo, final JabberId publishedBy,
             final Calendar publishedOn) {
         getInternalSessionModel().publish(
-                version, teamMembers,
-                readDocumentVersionStreams(version.getArtifactId(), version
-                        .getVersionId()), publishedBy, publishedOn);
+                container,
+                readDocumentVersionStreams(container.getArtifactId(), container
+                        .getVersionId()), publishTo, publishedBy, publishedOn);
     }
 
     /**

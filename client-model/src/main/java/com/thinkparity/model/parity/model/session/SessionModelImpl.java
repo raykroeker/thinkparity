@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -28,7 +29,6 @@ import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
@@ -201,6 +201,33 @@ class SessionModelImpl extends AbstractModelImpl {
                 containerVersionId, containerName, artifactUniqueId,
                 artifactVersionId, artifactName, artifactType,
                 artifactChecksum, artifactBytes);
+    }
+
+    /**
+     * Handle the container published event.
+     * 
+     * @param uniqueId
+     *            The container unique id.
+     * @param versionId
+     *            The container version id.
+     * @param name
+     *            The container name.
+     * @param artifactCount
+     *            The container artifact count.
+     * @param publishedBy
+     *            The publisher.
+     * @param publishedTo
+     *            The publishees.
+     * @param publishedOn
+     *            The publish date.
+     */
+    static void handleContainerPublished(final UUID uniqueId,
+            final Long versionId, final String name,
+            final Integer artifactCount, final JabberId publishedBy,
+            final List<JabberId> publishedTo, final Calendar publishedOn) {
+        final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
+        containerModel.handlePublished(uniqueId, versionId, name,
+                artifactCount, publishedBy, publishedTo, publishedOn);
     }
 
 	/**
@@ -641,31 +668,32 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
-     * Send a container to a list of users.
+    /**
+     * Publish a container.
      * 
      * @param container
      *            A container.
      * @param documents
-     *            A list of documents.
-     * @param users
-     *            A list of users.
+     *            A list of documents and their content.
+     * @param publishTo
+     *            A list of ids to publish to.
+     * @param publishedBy
+     *            By whom the container was published.
+     * @param publishedOn
+     *            When the container was published.
      */
     void publish(final ContainerVersion container,
-            final List<TeamMember> teamMembers,
             final Map<DocumentVersion, InputStream> documents,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final List<JabberId> publishTo, final JabberId publishedBy,
+            final Calendar publishedOn) {
         logApiId();
         logVariable("container", container);
-        logVariable("teamMembers", teamMembers);
         logVariable("documents", documents);
+        logVariable("publishTo", publishTo);
         logVariable("publishedBy", publishedBy);
         logVariable("publishedOn", publishedOn);
         synchronized (xmppHelper) {
             try {
-                final List<JabberId> publishTo = new ArrayList<JabberId>(teamMembers.size());
-                for (final TeamMember teamMember : teamMembers)
-                    publishTo.add(teamMember.getId());
                 xmppHelper.getXMPPSession().publish(container, documents,
                         publishTo, publishedBy, publishedOn);
             } catch(final Throwable t) {
@@ -1052,6 +1080,12 @@ class SessionModelImpl extends AbstractModelImpl {
                 xmppHelper.processOfflineQueue();
             }
             catch(final SmackException sx) {
+                if("No response from the server.".equals(sx.getMessage())) {
+                    logWarning(MessageFormat.format(
+                            "NO RESPONSE FROM SERVER:  {0}", attempt), sx);
+                    login(attempt.intValue() + 1, environment, credentials);
+                }
+
                 throw translateError(getApiId("[LOGIN]"), sx);
             }
         }        

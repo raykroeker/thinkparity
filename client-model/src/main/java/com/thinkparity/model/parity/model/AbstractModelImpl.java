@@ -267,6 +267,21 @@ public abstract class AbstractModelImpl {
     }
 
 	/**
+     * Assert that the list of team members does not contain the user.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param teamMembers
+     *            A list of team members.
+     * @param user
+     *            A user.
+     */
+    protected void assertDoesNotContain(final Object assertion,
+            final List<TeamMember> teamMembers, final User user) {
+        Assert.assertNotTrue(assertion, contains(teamMembers, user));
+    }
+
+	/**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -279,7 +294,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-	/**
+    /**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -468,24 +483,6 @@ public abstract class AbstractModelImpl {
         catch(final NoSuchPaddingException nspx) { throw new RuntimeException("", nspx); }
 
         return readCredentials();
-    }
-
-    /**
-     * Debug a variable. Note that only the variable value will be rendered.
-     * 
-     * @param name
-     *            The variable name.
-     * @param value
-     *            The variable value.
-     * 
-     * @deprecated Use {@link #logVarible(String, Object)} instead.
-     */
-    protected void debugVariable(final String name, final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
-                    Log4JHelper.render(logger, value)));
-        }
     }
 
     /**
@@ -769,7 +766,11 @@ public abstract class AbstractModelImpl {
      *            The variable value.
      */
     protected void logVariable(final String name, final Object value) {
-        debugVariable(name, value);
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0}:{1}",
+                    name,
+                    Log4JHelper.render(logger, value)));
+        }
     }
 
     /**

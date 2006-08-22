@@ -27,6 +27,7 @@ public class TopBorder extends AbstractBorder {
 	 * 
 	 */
 	private final Color color;
+    private int offsetTop = 1;
 
 	/**
 	 * Create a black TopBorder.
@@ -44,13 +45,26 @@ public class TopBorder extends AbstractBorder {
 		super();
 		this.color = color;
 	}
+    
+    /**
+     * Create a TopBorder.
+     *
+     * @param color
+     *            The border color.
+     * @param offsetTop
+     *             The top offset
+     */
+    public TopBorder(final Color color, int offsetTop) {
+        this(color);
+        this.offsetTop = offsetTop;
+    }
 
 	/**
 	 * @see javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
 	 * 
 	 */
 	public Insets getBorderInsets(Component c) {
-		return new Insets(1, 0, 0, 0);
+		return new Insets(offsetTop, 0, 0, 0);
 	}
 
 	/**
@@ -59,7 +73,7 @@ public class TopBorder extends AbstractBorder {
 	 * 
 	 */
 	public Insets getBorderInsets(Component c, Insets insets) {
-		insets.top = 1;
+		insets.top = offsetTop;
 		insets.left = insets.bottom = insets.right = 0;
 		return insets;
 	}

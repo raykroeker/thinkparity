@@ -74,6 +74,7 @@ public class DocumentDefault extends AbstractBorder {
         g.setColor(BrowserConstants.Colours.MAIN_CELL_DEFAULT_BORDER1);
         // top first color
         g.drawLine(x, y, x + width - 1, y);
+        g.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
 		g.setColor(oColor);
 	}
 }

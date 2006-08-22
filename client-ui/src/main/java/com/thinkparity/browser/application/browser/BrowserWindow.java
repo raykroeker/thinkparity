@@ -11,6 +11,9 @@ import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
@@ -19,9 +22,11 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.Swing.Constants.Images;
 
 import com.thinkparity.browser.Constants.Dimensions;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.display.DisplayId;
 import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.window.WindowBorder2;
+import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
 
@@ -82,6 +87,17 @@ public class BrowserWindow extends AbstractJFrame {
                 persist();
                 browser.hibernate();
             }});
+        final JMenuBar menuBar = new BrowserMenuBar();
+        final JMenu newMenu = MenuFactory.create("New");
+        final JMenu profileMenu = MenuFactory.create("Profile");
+        final JMenu helpMenu = MenuFactory.create("Help");
+        final JMenu signupMenu = MenuFactory.create("Sign-Up");
+        menuBar.add(newMenu);
+        menuBar.add(profileMenu);
+        menuBar.add(helpMenu);
+        menuBar.add(signupMenu);
+        menuBar.add(new JLabel(ImageIOUtil.readIcon("CloseButton.png")));
+        setJMenuBar(menuBar);
 		setIconImage(Images.WINDOW_ICON_IMAGE);
 		setTitle(getString("Title"));
 		setUndecorated(true);

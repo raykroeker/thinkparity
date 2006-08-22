@@ -16,16 +16,16 @@ import com.thinkparity.model.parity.model.document.Document;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class RemoveDocumentTest extends ContainerTestCase {
+public class RemoveAddedDocumentTest extends ContainerTestCase {
 
     /** Test test name. */
-    private static final String NAME = "[LMODEL] [CONTAINER] [REMOVE DOCUMENT TEST]";
+    private static final String NAME = "REMOVE ADDED DOCUMENT TEST";
 
     /** Test datum. */
     private Fixture datum;
 
     /** Create RemoveDocumentTest. */
-    public RemoveDocumentTest() { super(NAME); }
+    public RemoveAddedDocumentTest() { super(NAME); }
 
     /**
      * Test the container model's add document api.
@@ -34,15 +34,11 @@ public class RemoveDocumentTest extends ContainerTestCase {
     public void testRemoveDocument() {
         datum.containerModel.removeDocument(datum.container.getId(), datum.document.getId());
         assertTrue(NAME + " [REMOVE DOCUMENT EVENT NOT FIRED]", datum.didNotify);
-        final Container container = datum.containerModel.read(datum.container.getId());
-        assertNotNull(NAME + " [CONTAINER IS NULL]", container);
+
         final ContainerDraft draft = datum.containerModel.readDraft(datum.container.getId());
-        assertNotNull(NAME + " [CONTAINER DRAFT IS NULL]", draft);
         final List<Document> documents = draft.getDocuments();
         assertNotNull(NAME + " [CONTAINER DRAFT DOCUMENTS ARE NULL]", documents);
-        assertTrue(NAME + " [DRAFT DOCUMENTS CONTAINS ADDED DOCUMENT]", documents.contains(datum.document));
-        assertEquals(NAME + " [DRAFT DOCUMENT STATE DOES NOT MATCH EXPECTATION]",
-                ContainerDraft.ArtifactState.REMOVED, draft.getState(datum.document));
+        assertTrue(NAME + " [DRAFT DOCUMENTS CONTAINS REMOVED DOCUMENT]", !documents.contains(datum.document));
     }
 
     /**

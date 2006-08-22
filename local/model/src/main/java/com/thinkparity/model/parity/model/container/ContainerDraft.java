@@ -279,5 +279,5 @@ public class ContainerDraft {
         return indexOfArtifact(documentId);
     }
 
-    public enum ArtifactState { ADDED, NONE, REMOVED }
+    public enum ArtifactState { ADDED, MODIFIED, NONE, REMOVED }
 }

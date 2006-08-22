@@ -90,6 +90,18 @@ import com.thinkparity.migrator.Release;
  */
 public abstract class AbstractModelImpl {
 
+    /**
+     * Assert that the reference is not null.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param reference
+     *            An object reference.
+     */
+    protected void assertNotNull(final Object assertion, final Object reference) {
+        Assert.assertNotNull(assertion, reference);
+    }
+
 	/**
 	 * Assertion message to be displayed if the username is not set in the
 	 * parity preferences.

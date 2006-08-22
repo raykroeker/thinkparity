@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -864,7 +865,8 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      *            The container.
      */
     protected void publish(final Container container) {
-        getContainerModel().publish(container.getId(), readContacts(), null);
+        final List<TeamMember> teamMembers = Collections.emptyList();
+        getContainerModel().publish(container.getId(), readContacts(), teamMembers);
     }
 
     /**

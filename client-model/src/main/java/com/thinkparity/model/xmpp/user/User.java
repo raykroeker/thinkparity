@@ -10,7 +10,7 @@ import com.thinkparity.model.xmpp.JabberIdBuilder;
  * Represents a parity user.
  * 
  * @author raykroeker@gmail.com
- * @version 1.2.2.1
+ * @version 1.2.2.13
  */
 public class User {
 
@@ -27,7 +27,7 @@ public class User {
 	/** The user's jabber id. */
 	private JabberId id;
 
-	/** The local user pk. */
+    /** The local user pk. */
     private Long localId;
 
 	/** The user's name. */
@@ -35,6 +35,9 @@ public class User {
 
 	/** The user's organization. */
 	private String organization;
+
+	/** The user's title. */
+    private String title;
 
     /** Create User. */
 	public User() { super(); }
@@ -83,13 +86,25 @@ public class User {
 	public String getSimpleUsername() { return id.getUsername(); }
 
 	/**
+     * Obtain the title
+     *
+     * @return The String.
+     */
+    public String getTitle() {
+        return title;
+    }
+
+	/**
 	 * Obtain the username of the user.
 	 * 
 	 * @return The username of the user.
 	 */
 	public String getUsername() { return id.getQualifiedUsername(); }
 
-	/** @see java.lang.Object#hashCode() */
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
 	public int hashCode() { return id.hashCode(); }
 
     /**
@@ -159,6 +174,15 @@ public class User {
 	public void setOrganization(final String organization) {
 		this.organization = organization;
 	}
+
+    /**
+     * Set title.
+     *
+     * @param title The String.
+     */
+    public void setTitle(final String title) {
+        this.title = title;
+    }
 
     /**
      * @see java.lang.Object#toString()

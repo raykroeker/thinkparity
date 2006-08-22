@@ -92,8 +92,26 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
 
         // create team data
-        artifactIO.createTeamRel(artifactId, user.getLocalId());
-        return artifactIO.readTeamRel(artifactId, user.getLocalId());
+        return addTeamMember(artifactId, user.getLocalId());
+    }
+
+    /**
+     * Add a team member. Since we are using a local user id instead of a remote
+     * one we know the user info has already been downloaded and the api does
+     * not require the user to be online.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     * @param user
+     *            A local user id.
+     * @return A team member.
+     */
+    TeamMember addTeamMember(final Long artifactId, final Long userId) {
+        logApiId();
+        logVariable("artifactId", artifactId);
+        logVariable("userId", userId);
+        artifactIO.createTeamRel(artifactId, userId);
+        return artifactIO.readTeamRel(artifactId, userId);
     }
 
     /**
@@ -198,7 +216,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
     List<TeamMember> createTeam(final Long artifactId) {
         logApiId();
         logVariable("artifactId", artifactId);
-        addTeamMember(artifactId, localUserId());
+        // note that we are calling the "offline" version of the api
+        addTeamMember(artifactId, localUser().getLocalId());
         return readTeam2(artifactId);
     }
 

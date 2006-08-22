@@ -127,7 +127,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         this.defaultHistoryFilter = new com.thinkparity.model.parity.model.filter.history.DefaultFilter();
         this.defaultKeyRequestComparator = null;
         this.defaultKeyRequestFilter = null;
-        this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
+        this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultVersionFilter = new com.thinkparity.model.parity.model.filter.container.DefaultVersionFilter();
         this.indexor = new ContainerIndexor(getContext());
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
@@ -327,7 +327,7 @@ class ContainerModelImpl extends AbstractModelImpl {
                 deleteLocal(container.getId());
             }
             // fire event
-            notifyContainerDeleted(null, localEventGenerator);
+            notifyContainerDeleted(container, localEventGenerator);
         } catch (final Throwable t) {
             throw translateError("[DELETE]", t);
         }
@@ -911,7 +911,16 @@ class ContainerModelImpl extends AbstractModelImpl {
     ContainerDraft readDraft(final Long containerId) {
         logger.info(getApiId("[READ DRAFT]"));
         logger.debug(containerId);
-        return containerIO.readDraft(containerId);
+        final InternalDocumentModel documentModel = getInternalDocumentModel();
+        final ContainerDraft draft = containerIO.readDraft(containerId);
+        for (final Document document : draft.getDocuments()) {
+            if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
+                if (documentModel.isDraftModified(document.getId())) {
+                    draft.putState(document, ContainerDraft.ArtifactState.MODIFIED);
+                }
+            }
+        }
+        return draft;
     }
 
     /**
@@ -1268,7 +1277,26 @@ class ContainerModelImpl extends AbstractModelImpl {
             case ADDED:
                 Assert.assertUnreachable(assertion);
                 break;
-            case REMOVED:   // fall through
+            case MODIFIED:
+                Assert.assertUnreachable(assertion);
+                break;
+            case REMOVED:   // valid state
+            case NONE:      // valid state
+                break;
+            default:
+                Assert.assertUnreachable("UNKNOWN STATE");
+            }
+            break;
+        case MODIFIED:
+            switch (targetState) {
+            case ADDED:
+                Assert.assertUnreachable(assertion);
+                break;
+            case MODIFIED:
+                Assert.assertUnreachable(assertion);
+                break;
+            case REMOVED:   // valid state
+                break;
             case NONE:      // valid state
                 break;
             default:
@@ -1278,6 +1306,9 @@ class ContainerModelImpl extends AbstractModelImpl {
         case REMOVED:
             switch (targetState) {
             case ADDED:     // valid state
+                break;
+            case MODIFIED:
+                Assert.assertUnreachable(assertion);
                 break;
             case REMOVED:
                 Assert.assertUnreachable(assertion);
@@ -1292,6 +1323,8 @@ class ContainerModelImpl extends AbstractModelImpl {
             switch (targetState) {
             case ADDED:
                 Assert.assertUnreachable(assertion);
+                break;
+            case MODIFIED:  // valid state
                 break;
             case REMOVED:   // valid state
                 break;

@@ -1169,6 +1169,19 @@ class DocumentModelImpl extends AbstractModelImpl {
         logApiId();
         logVariable("documentId", documentId);
         logVariable("versionId", versionId);
-        throw Assert.createNotYetImplemented("DocumentModelImpl#revertDraft");
+        assertDraftIsModified("DRAFT IS NOT MODIFIED", documentId);
+        try {
+            final Document document = read(documentId);
+            final LocalFile draftFile = getLocalFile(document);
+            draftFile.delete();
+            final InputStream inputStream = openVersionStream(documentId, versionId);
+            try {
+                draftFile.write(inputStream);
+            } finally {
+                inputStream.close();
+            }
+        } catch(final Throwable t) {
+            throw translateError("REVERT DRAFT", t);
+        }
     }
 }

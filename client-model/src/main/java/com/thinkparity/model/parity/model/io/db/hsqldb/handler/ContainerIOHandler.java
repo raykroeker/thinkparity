@@ -5,6 +5,7 @@ package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.Artifact;
@@ -695,7 +696,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
        version.setUpdatedBy(session.getString("UPDATED_BY"));
        version.setUpdatedOn(session.getCalendar("UPDATED_ON"));
        version.setVersionId(session.getLong("CONTAINER_VERSION_ID"));
-       version.setMetaData(artifactIO.getVersionMetaData(session, version.getArtifactId(), version.getVersionId()));
+       version.setMetaData(getVersionMetaData(version.getArtifactId(), version.getVersionId()));
        return version;
     }
 
@@ -738,5 +739,22 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
         dv.setMetaData(documentIO.getVersionMetaData(dv.getArtifactId(), dv.getVersionId()));
         return dv;
+    }
+
+    /**
+     * Obtain the version meta data.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param versionId
+     *            The version id.
+     * @return The version meta data.
+     */
+    private Properties getVersionMetaData(final Long containerId, final Long versionId) {
+        final Session session = openSession();
+        try {
+            return artifactIO.getVersionMetaData(session, containerId, versionId);
+        }
+        finally { session.close(); }
     }
 }

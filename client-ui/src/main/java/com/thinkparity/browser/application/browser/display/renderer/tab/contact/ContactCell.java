@@ -9,18 +9,22 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.border.TopBorder;
+
 import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCellRenderer;
 import com.thinkparity.browser.platform.Platform.Connection;
@@ -39,7 +43,15 @@ import com.thinkparity.model.xmpp.contact.Contact;
  * @version $Revision$
  */
 public class ContactCell extends Contact implements TabCell {
-    
+    /** The border for the bottom of the container cell. */
+    private static final Border BORDER_BOTTOM;
+
+    /** The border for the top of the first container cell. */
+    private static final Border BORDER_TOP_0;
+
+    /** The border for the top of the rest of the container cells. */
+    private static final Border BORDER_TOP_N;
+
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
 
@@ -47,6 +59,10 @@ public class ContactCell extends Contact implements TabCell {
     private static final Integer TEXT_MAX_LENGTH;
 
     static {
+        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
+        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
+        BORDER_TOP_N = new TopBorder(Color.WHITE);
+
         TEXT_FG = Color.BLACK;
         TEXT_MAX_LENGTH = 60;
     }
@@ -102,10 +118,18 @@ public class ContactCell extends Contact implements TabCell {
     }
     
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder()
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
-    public Border getBorder() { return new DocumentDefault(); }
+    public Border getBorder(final int index) {
+        final Border topBorder;
+        if (0 == index) {
+            topBorder = BORDER_TOP_0;
+        } else {
+            topBorder = BORDER_TOP_N;
+        }
+        return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
+    }
 
     /**
      * Obtain an info icon.

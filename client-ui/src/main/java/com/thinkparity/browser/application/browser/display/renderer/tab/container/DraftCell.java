@@ -21,7 +21,6 @@ import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -103,10 +102,12 @@ public class DraftCell extends ContainerDraft implements TabCell  {
     }
     
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder()
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
-    public Border getBorder() { return new DocumentDefault(); }
+    public Border getBorder(final int index) {
+        return getParent().getBorder(index);
+    }
 
     /**
      * Obtain the container display cell.

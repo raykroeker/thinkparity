@@ -7,26 +7,38 @@ package com.thinkparity.browser.application.browser.display.renderer.tab.contain
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
+import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.border.TopBorder;
+
 import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants;
+import com.thinkparity.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
-import com.thinkparity.browser.application.browser.display.avatar.main.border.DocumentDefault;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.container.CreateDraft;
+import com.thinkparity.browser.platform.action.container.Delete;
 
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
@@ -38,6 +50,15 @@ import com.thinkparity.model.parity.model.container.Container;
  */
 public class ContainerCell extends Container implements TabCell  {
 
+    /** The border for the bottom of the container cell. */
+    private static final Border BORDER_BOTTOM;
+
+    /** The border for the top of the first container cell. */
+    private static final Border BORDER_TOP_0;
+
+    /** The border for the top of the rest of the container cells. */
+    private static final Border BORDER_TOP_N;
+
     /** The cell's text foreground color. */
     private static final Color TEXT_FG;
 
@@ -46,17 +67,21 @@ public class ContainerCell extends Container implements TabCell  {
 
     /** Maximum length of a container cell's text. */
     private static final Integer TEXT_MAX_LENGTH;
-
+    
     static {
+        BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
+        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
+        BORDER_TOP_N = new TopBorder(Color.WHITE);
+
         TEXT_FG = Color.BLACK;
         TEXT_FG_CLOSED = new Color(127, 131, 134, 255);
 
         TEXT_MAX_LENGTH = 60;
     }
-
+    
     /** A flag indicating whether or not the container is closed. */
-    private Boolean closed = Boolean.FALSE;
-
+    private Boolean closed = Boolean.FALSE; 
+    
     /** A flag indicating the expand\collapse status. */
     private Boolean expanded = Boolean.FALSE;
     
@@ -64,17 +89,17 @@ public class ContainerCell extends Container implements TabCell  {
     private final MainCellImageCache imageCache;
     
     /** A flag indicating whether or not the user is the key holder. */
-    private Boolean keyHolder = Boolean.FALSE; 
-    
+    private Boolean keyHolder = Boolean.FALSE;
+
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
-    
+
     /** A flag indicating whether or not the cell has been seen. */
     private Boolean seen = Boolean.FALSE;
-    
+
     /** A flag indicating whether or not the cell is urgent. */
     private Boolean urgent = Boolean.FALSE;
-
+    
     /** Create CellContainer. */
     public ContainerCell(final Container container) {
         super();
@@ -114,7 +139,7 @@ public class ContainerCell extends Container implements TabCell  {
         else if(isUrgent()) { return imageCache.read(DocumentImage.BG_URGENT); }
         else { return imageCache.read(DocumentImage.BG_DEFAULT); }
     }
-    
+
     /**
      * Obtain the background image for a selected cell.
      * 
@@ -128,10 +153,18 @@ public class ContainerCell extends Container implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder()
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
      */
-    public Border getBorder() { return new DocumentDefault(); }
+    public Border getBorder(final int index) {
+        final Border topBorder;
+        if (0 == index) {
+            topBorder = BORDER_TOP_0;
+        } else {
+            topBorder = BORDER_TOP_N;
+        }
+        return BorderFactory.createCompoundBorder(topBorder, BORDER_BOTTOM);
+    }
 
     /**
      * Obtain an info icon.
@@ -289,6 +322,34 @@ public class ContainerCell extends Container implements TabCell  {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, getId());
             jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE_DRAFT, createDraftData));        
+
+            final Data deleteData = new Data(1);
+            deleteData.set(Delete.DataKey.CONTAINER_ID, getId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_DELETE, deleteData));        
+        }
+
+        // include the container's id and unique id in the menu
+        if(e.isShiftDown()) {
+            final Clipboard systemClipboard =
+                Toolkit.getDefaultToolkit().getSystemClipboard();
+            final ActionListener debugActionListener = new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    final StringSelection stringSelection =
+                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+                    systemClipboard.setContents(stringSelection, null);
+                }
+            };
+            final JMenuItem idJMenuItem = new JMenuItem("Id - " + getId());
+            idJMenuItem.putClientProperty("COPY_ME", getId());
+            idJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem uidJMenuItem = new JMenuItem("Unique id - " + getUniqueId());
+            uidJMenuItem.putClientProperty("COPY_ME", getUniqueId());
+            uidJMenuItem.addActionListener(debugActionListener);
+
+            jPopupMenu.addSeparator();
+            jPopupMenu.add(idJMenuItem);
+            jPopupMenu.add(uidJMenuItem);
         }
         jPopupMenu.show(invoker, x, y);
     }

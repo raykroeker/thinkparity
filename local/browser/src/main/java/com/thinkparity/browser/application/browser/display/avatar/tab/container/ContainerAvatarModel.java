@@ -391,6 +391,15 @@ public class ContainerAvatarModel {
         syncModel();
     }
 
+    /*
+     * <<<<<<<<<<<<<<<<<<<<<<<
+     * DO NOT COMMIT
+     * >>>>>>>>>>>>>>>>>>>>>>>
+     */
+    void reload() {
+        initModel();
+    }
+
     /**
      * Read a container from the provider.
      * 

@@ -48,7 +48,7 @@ public class BrowserPlatformInitializer {
             }
             break;
         default:
-            Assert.assertUnreachable("");
+            Assert.assertUnreachable("UNKNOWN MODE");
         }
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(log4j);

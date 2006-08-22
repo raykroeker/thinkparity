@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.platform.action.container;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.thinkparity.browser.application.browser.Browser;
@@ -10,6 +11,8 @@ import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 
+import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -41,13 +44,23 @@ public class Publish extends AbstractAction {
 	public void invoke(final Data data) {
 		final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
 		if (browser.confirm("Publish.Temp")) {
+            final Profile profile = ProfileModel.getModel().read();
             final List<Contact> contacts = getContactModel().read();
             final List<TeamMember> teamMembers = getContainerModel().readTeam(containerId);
-            for (final Contact contact : contacts) {
+            Contact contact;
+            for (final Iterator<Contact> iContact = contacts.iterator(); iContact.hasNext(); ) {
+                contact = iContact.next();
                 for (final TeamMember teamMember : teamMembers) {
                     if (teamMember.getId().equals(contact.getId())) {
-                        contacts.remove(contact);
+                        iContact.remove();
                     }
+                }
+            }
+            TeamMember teamMember;
+            for (final Iterator<TeamMember> iTeamMember = teamMembers.iterator(); iTeamMember.hasNext(); ) {
+                teamMember = iTeamMember.next();
+                if (teamMember.getId().equals(profile.getId())) {
+                    iTeamMember.remove();
                 }
             }
 

@@ -65,7 +65,9 @@ public class TabCellRenderer extends AbstractJPanel implements
      * @see ListSelectionModel
      * @see ListModel
      */
-    public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
+    public Component getListCellRendererComponent(final JList list,
+            final Object value, final int index, final boolean isSelected,
+            final boolean cellHasFocus) {
         final TabCell cell = (TabCell) value;
 
         remove(paddingJLabel);
@@ -83,7 +85,7 @@ public class TabCellRenderer extends AbstractJPanel implements
             background = cell.getBackground();
             nodeIconJLabel.setIcon(cell.getNodeIcon());
         }
-        setBorder(cell.getBorder());
+        setBorder(cell.getBorder(index));
 
 
         textJLabel.setFont(cell.getTextFont());

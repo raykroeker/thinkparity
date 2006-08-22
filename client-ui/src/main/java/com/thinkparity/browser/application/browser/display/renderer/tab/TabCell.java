@@ -41,10 +41,11 @@ public interface TabCell {
 
     /**
      * Obtain the border to be installed around the edge of the main cell.
+     * @param index TODO
      * 
      * @return A border.
      */
-    public Border getBorder();
+    public Border getBorder(int index);
 
     /**
      * Obtain an info icon.

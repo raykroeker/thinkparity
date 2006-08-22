@@ -25,7 +25,7 @@ class EventDispatcher {
     private ContainerListener containerListener;
 
 	/** A thinkParity session interface listener.*/
-	private SessionListener sessionSessionListener;
+	private SessionListener sessionListener;
 
     /** A thinkParity system message interface listener. */
 	private SystemMessageListener systemMessageListener;
@@ -52,8 +52,8 @@ class EventDispatcher {
         browser.getContainerModel().removeListener(containerListener);
         containerListener = null;
         
-		browser.getSessionModel().removeListener(sessionSessionListener);
-		sessionSessionListener = null;
+		browser.getSessionModel().removeListener(sessionListener);
+		sessionListener = null;
 
 		browser.getSystemMessageModel().removeListener(systemMessageListener);
 		systemMessageListener = null;
@@ -70,8 +70,8 @@ class EventDispatcher {
         containerListener = createContainerListener();
         browser.getContainerModel().addListener(containerListener);
         
-		sessionSessionListener = createSessionModelSessionListener();
-		browser.getSessionModel().addListener(sessionSessionListener);
+		sessionListener = createSessionListener();
+		browser.getSessionModel().addListener(sessionListener);
 
 		systemMessageListener = createSystemMessageListener();
 		browser.getSystemMessageModel().addListener(systemMessageListener);
@@ -160,7 +160,7 @@ class EventDispatcher {
      * 
      * @return A session listener.
      */
-	private SessionListener createSessionModelSessionListener() {
+	private SessionListener createSessionListener() {
         return new SessionAdapter() {
             @Override
             public void sessionEstablished() { browser.fireConnectionOnline(); }

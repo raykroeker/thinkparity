@@ -117,7 +117,14 @@ public class ContainerAvatar extends Avatar {
      * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
      *
      */
-    public void reload() {}
+    public void reload() {
+        /*
+         * <<<<<<<<<<<<<<<
+         * DO NOT COMMIT
+         * >>>>>>>>>>>>>>
+         */
+        model.reload();
+    }
 
     /**
      * Remove the key holder filter.

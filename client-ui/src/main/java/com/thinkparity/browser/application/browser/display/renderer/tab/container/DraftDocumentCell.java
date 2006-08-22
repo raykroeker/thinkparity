@@ -24,6 +24,7 @@ import com.thinkparity.browser.platform.Platform.Connection;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.container.RemoveDocument;
+import com.thinkparity.browser.platform.action.container.RevertDocument;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.Rename;
 
@@ -102,10 +103,10 @@ public class DraftDocumentCell extends Document implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder()
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      */
-    public Border getBorder() {
-        return null;
+    public Border getBorder(final int index) {
+        return getParent().getBorder(index);
     }
 
     /**
@@ -214,7 +215,9 @@ public class DraftDocumentCell extends Document implements TabCell  {
 
         jPopupMenu.addSeparator();
 
-        final Data revertData = new Data(1);
+        final Data revertData = new Data(2);
+        revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+        revertData.set(RevertDocument.DataKey.DOCUMENT_ID, getId());
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REVERT_DOCUMENT, revertData));
 
         final Data removeData = new Data(1);

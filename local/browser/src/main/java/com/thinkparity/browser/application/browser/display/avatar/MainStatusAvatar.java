@@ -208,7 +208,7 @@ public class MainStatusAvatar extends Avatar {
                 connectionText = getString(Connection.ONLINE);
                 break;
             case OFFLINE:
-                connectionText = getString(Connection.ONLINE);
+                connectionText = getString(Connection.OFFLINE);
                 break;
             default:
                 throw Assert.createUnreachable("UNKNOWN CONNECTION");

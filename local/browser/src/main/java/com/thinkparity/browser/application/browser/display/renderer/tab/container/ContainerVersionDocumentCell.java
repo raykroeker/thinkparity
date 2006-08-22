@@ -94,10 +94,10 @@ public class ContainerVersionDocumentCell extends Document implements TabCell  {
     }
 
     /**
-     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder()
+     * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      */
-    public Border getBorder() {
-        return null;
+    public Border getBorder(final int index) {
+        return getParent().getBorder(index);
     }
 
     /**

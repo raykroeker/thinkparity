@@ -7,6 +7,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.Constants.Icons;
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 
 import com.thinkparity.model.parity.model.profile.Profile;
 
@@ -61,6 +62,14 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }//GEN-LAST:event_contactsJLabelMouseClicked
 
     private void containersJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_containersJLabelMouseClicked
+        if (2 == e.getClickCount()) {
+            /*
+             * <<<<<<<<<<<<<<<<<<<<<
+             * DO NOT COMMIT
+             * >>>>>>>>>>>>>>>>>>>>>
+             */
+            ((ContainerAvatar) new AvatarRegistry().get(AvatarId.TAB_CONTAINER)).reload();
+        }
         setTab(MainTitleAvatar.Tab.CONTAINER);
     }//GEN-LAST:event_containersJLabelMouseClicked
 

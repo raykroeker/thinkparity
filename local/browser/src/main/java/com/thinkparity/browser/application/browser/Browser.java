@@ -442,7 +442,9 @@ public class Browser extends AbstractApplication {
     public void fireContainerDeleted(final Long containerId, final Boolean remote) {
         setStatus("ContainerDeleted");
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, remote); }
+            public void run() {
+                getTabContainerAvatar().syncContainer(containerId, remote);
+            }
         });
     }
 

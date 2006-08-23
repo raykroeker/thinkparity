@@ -5,7 +5,6 @@
 package com.thinkparity.browser.application.browser.display.provider.tab.container;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -14,17 +13,15 @@ import com.thinkparity.browser.application.browser.display.provider.CompositeFla
 import com.thinkparity.browser.application.browser.display.provider.FlatContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerCell;
-import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerVersionCell;
+import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerVersionDocumentCell;
 
-import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.container.Container;
 import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.profile.Profile;
-import com.thinkparity.model.parity.model.sort.VersionIdComparator;
 
 /**
  * <b>Title:</b>thinkParity Container Tab Provider<br>
@@ -60,10 +57,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /** Reads a list of documents. */
     private final FlatContentProvider versionDocuments;
 
-    /** Used by the container versions provider to sort the list of versions. */
-    private final Comparator<ArtifactVersion> versionIdAscending =
-            new VersionIdComparator(Boolean.TRUE);
-
     /** Reads a list of container versions. */
     private final FlatContentProvider versions;
 
@@ -92,7 +85,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
                 Assert.assertNotNull("[NULL INPUT]", input);
                 Assert.assertOfType("[INPUT IS OF WRONG TYPE]", ContainerCell.class, input);
                 final ContainerCell container = (ContainerCell) input;
-                return toDisplay(container, containerModel.readVersions(container.getId(), versionIdAscending));
+                return toDisplay(container, containerModel.readVersions(container.getId()));
             }
         };
         this.containers = new FlatContentProvider(profile) {

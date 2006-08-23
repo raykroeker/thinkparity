@@ -743,10 +743,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @return The latest version.
 	 */
 	DocumentVersion readLatestVersion(final Long documentId) {
-		logger.info("getLatestVersion(Long)");
-		logger.debug(documentId);
-		try { return documentIO.readLatestVersion(documentId); }
-		catch(final Throwable t) {
+		logApiId();
+		logVariable("documentId", documentId);
+		try {
+            if (doesExistLatestVersion(documentId)) {
+                return documentIO.readLatestVersion(documentId);
+            } else {
+                return null;
+            }
+		} catch (final Throwable t) {
             throw translateError(getApiId("[READ LATEST VERSION]"), t);
 		}
 	}
@@ -849,6 +854,7 @@ class DocumentModelImpl extends AbstractModelImpl {
     void revertDraft(final Long documentId) {
         logApiId();
         logVariable("documentId", documentId);
+        
         revertDraft(documentId, readLatestVersion(documentId).getVersionId());
     }
 

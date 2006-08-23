@@ -12,7 +12,6 @@ import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
-import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.progress.ProgressIndicator;
@@ -328,61 +327,6 @@ public class ContainerModel {
     }
 
     /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A list of key requests.
-     */
-    public List<KeyRequest> readKeyRequests(final Long containerId) {
-        synchronized(implLock) { return impl.readKeyRequests(containerId); }
-    }
-
-    /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A key request comparator.
-     * @return A list of key requests.
-     */
-    public List<KeyRequest> readKeyRequests(final Long containerId,
-            final Comparator<KeyRequest> comparator) {
-        synchronized(implLock) { return impl.readKeyRequests(containerId, comparator); }
-    }
-
-    /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A key request comparator.
-     * @param filter
-     *            A key request filter.
-     * @return A list of key requests.
-     */
-    public List<KeyRequest> readKeyRequests(final Long containerId,
-            final Comparator<KeyRequest> comparator,
-            final Filter<? super KeyRequest> filter) {
-        synchronized(implLock) { return impl.readKeyRequests(containerId, comparator, filter); }
-    }
-
-    /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param filter
-     *            A key request filter.
-     * @return A list of key requests.
-     */
-    public List<KeyRequest> readKeyRequests(final Long containerId, final Filter<? super KeyRequest> filter) {
-        synchronized(implLock) { return impl.readKeyRequests(containerId, filter); }
-    }
-
-    /**
      * Read the latest container version.
      * 
      * @param containerId
@@ -390,7 +334,9 @@ public class ContainerModel {
      * @return A container version.
      */
     public ContainerVersion readLatestVersion(final Long containerId) {
-        synchronized(implLock) { return impl.readLatestVersion(containerId); }
+        synchronized (getImplLock()) {
+            return getImpl().readLatestVersion(containerId);
+        }
     }
 
     public List<TeamMember> readPublishedTo(final Long containerId,
@@ -411,7 +357,9 @@ public class ContainerModel {
      * @return A list of users.
      */
     public List<TeamMember> readTeam(final Long containerId) {
-        synchronized(getImplLock()) { return getImpl().readTeam(containerId); }
+        synchronized (getImplLock()) {
+            return getImpl().readTeam(containerId);
+        }
     }
 
     /**

@@ -21,7 +21,6 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactState;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.artifact.InternalArtifactModel;
-import com.thinkparity.model.parity.model.artifact.KeyRequest;
 import com.thinkparity.model.parity.model.audit.HistoryItem;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
 import com.thinkparity.model.parity.model.document.Document;
@@ -50,7 +49,7 @@ import com.thinkparity.model.xmpp.contact.Contact;
  * @author CreateModel.groovy
  * @version 1.1.2.3
  */
-class ContainerModelImpl extends AbstractModelImpl {
+public class ContainerModelImpl extends AbstractModelImpl {
 
     /** A list of container listeners. */
     private static final List<ContainerListener> LISTENERS = new LinkedList<ContainerListener>();
@@ -88,12 +87,6 @@ class ContainerModelImpl extends AbstractModelImpl {
     /** A default history item filter. */
     private final Filter<? super HistoryItem> defaultHistoryFilter;
 
-    /** A default key request comparator. */
-    private final Comparator<KeyRequest> defaultKeyRequestComparator;
-
-    /** A default key request filter. */
-    private final Filter<? super KeyRequest> defaultKeyRequestFilter;
-
     /** The default container version comparator. */
     private final Comparator<ArtifactVersion> defaultVersionComparator;
 
@@ -125,8 +118,6 @@ class ContainerModelImpl extends AbstractModelImpl {
         this.defaultFilter = new DefaultFilter();
         this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
         this.defaultHistoryFilter = new com.thinkparity.model.parity.model.filter.history.DefaultFilter();
-        this.defaultKeyRequestComparator = null;
-        this.defaultKeyRequestFilter = null;
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultVersionFilter = new com.thinkparity.model.parity.model.filter.container.DefaultVersionFilter();
         this.indexor = new ContainerIndexor(getContext());
@@ -142,9 +133,13 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return A container version.
      */
     public ContainerVersion readLatestVersion(final Long containerId) {
-        logger.info(getApiId("[READ LATEST VERSION]"));
-        logger.debug(containerId);
-        return containerIO.readLatestVersion(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
+        if (doesExistLatestVersion(containerId)) {
+            return containerIO.readLatestVersion(containerId);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -264,6 +259,7 @@ class ContainerModelImpl extends AbstractModelImpl {
     ContainerDraft createDraft(final Long containerId) {
         logApiId();
         logVariable("containerId", containerId);
+        assertContainerDraftDoesNotExist("DRAFT ALREADY EXISTS", containerId);
         assertOnline("USER NOT ONLINE");
         final Container container = read(containerId);
         if (!isDistributed(container.getId())) {
@@ -340,8 +336,9 @@ class ContainerModelImpl extends AbstractModelImpl {
     void deleteDraft(final Long containerId) {
         logApiId();
         logVariable("containerId", containerId);
-        assertOnline("USER NOT ONLINE");
         assertDoesExistLocalDraft("DRAFT DOES NOT EXIST", containerId);
+        assertIsDistributed("CANNOT DELETE FIRST DRAFT", containerId);
+        assertOnline("USER NOT ONLINE");
         final Container container = read(containerId);
         getInternalSessionModel().deleteDraft(container.getUniqueId());
         // delete local data
@@ -350,6 +347,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
         }
         containerIO.deleteDraft(containerId);
+        notifyDraftDeleted(container, draft, localEventGenerator);
     }
 
     /**
@@ -1112,76 +1110,6 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A list of key requests.
-     */
-    List<KeyRequest> readKeyRequests(final Long containerId) {
-        logger.info(getApiId("[READ KEY REQUESTS]"));
-        logger.debug(containerId);
-        return readKeyRequests(containerId, defaultKeyRequestComparator);
-    }
-
-    /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A key request comparator.
-     * @return A list of key requests.
-     */
-    List<KeyRequest> readKeyRequests(final Long containerId,
-            final Comparator<KeyRequest> comparator) {
-        logger.info(getApiId("[READ KEY REQUESTS]"));
-        logger.debug(containerId);
-        logger.debug(comparator);
-        return readKeyRequests(containerId, comparator, defaultKeyRequestFilter);
-    }
-
-    /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param comparator
-     *            A key request comparator.
-     * @param filter
-     *            A key request filter.
-     * @return A list of key requests.
-     */
-    List<KeyRequest> readKeyRequests(final Long containerId,
-            final Comparator<KeyRequest> comparator,
-            final Filter<? super KeyRequest> filter) {
-        logger.info(getApiId("[READ KEY REQUESTS]"));
-        logger.debug(containerId);
-        logger.debug(comparator);
-        logger.debug(filter);
-        logger.warn(getApiId("[READ KEY REQUESTS] [COMPARATOR NOT USED]"));
-        logger.warn(getApiId("[READ KEY REQUESTS] [FILTER NOT USED]"));
-        return getInternalArtifactModel().readKeyRequests(containerId);
-    }
-
-    /**
-     * Read a list of key requests for the container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param filter
-     *            A key request filter.
-     * @return A list of key requests.
-     */
-    List<KeyRequest> readKeyRequests(final Long containerId,
-            final Filter<? super KeyRequest> filter) {
-        logger.info(getApiId("[READ KEY REQUESTS]"));
-        logger.debug(containerId);
-        logger.debug(filter);
-        return readKeyRequests(containerId, defaultKeyRequestComparator, filter);
-    }
-
-    /**
      * Read the team for the container.
      * 
      * @param containerId
@@ -1189,8 +1117,8 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return A list of users.
      */
     List<TeamMember> readTeam(final Long containerId) {
-        logger.info(getApiId("[READ TEAM]"));
-        logger.debug(containerId);
+        logApiId();
+        logVariable("containerId", containerId);
         return getInternalArtifactModel().readTeam2(containerId);
     }
 
@@ -1366,6 +1294,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         assertDraftExists("DRAFT DOES NOT EXIST", containerId);
         assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
                 containerId, documentId, ContainerDraft.ArtifactState.NONE);
+        assertDoesExistLatestVersion("LATEST VERSION DOES NOT EXIST", containerId);
         final ContainerDraft draft = readDraft(containerId);
         final Document document = draft.getDocument(documentId);
         containerIO.deleteDraftArtifactRel(containerId, document.getId());
@@ -1517,6 +1446,19 @@ class ContainerModelImpl extends AbstractModelImpl {
     private void assertDraftExists(final Object assertion,
             final Long containerId) {
         assertContainerDraftExists(assertion, containerId);
+    }
+
+    /**
+     * Assert that the container has been distributed.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param containerId
+     *            A container id.
+     */
+    private void assertIsDistributed(final Object assertion,
+            final Long containerId) {
+        Assert.assertTrue(assertion, isDistributed(containerId));
     }
 
     /**

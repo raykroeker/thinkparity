@@ -255,6 +255,18 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Assert a draft doesn't exist for the container.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param containerId
+     *            A container id.
+     */
+    protected void assertContainerDraftDoesNotExist(final Object assertion, final Long containerId) {
+        Assert.assertIsNull(assertion, getInternalContainerModel().readDraft(containerId));
+    }
+
+    /**
      * Assert a draft exists for the container.
      * 
      * @param assertion
@@ -267,6 +279,36 @@ public abstract class AbstractModelImpl {
     }
 
     /**
+     * Assert that a latest version exists.
+     * 
+     * @param assertion
+     *            An assertion <code>Object</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @see #doesExistLatestVersion(Long)
+     */
+    protected void assertDoesExistLatestVersion(final Object assertion,
+            final Long artifactId) {
+        Assert.assertTrue(assertion, doesExistLatestVersion(artifactId));
+    }
+
+	/**
+     * Assert that a version exists.
+     * 
+     * @param assertion
+     *            An assertion <code>Object</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @see #doesExistLatestVersion(Long)
+     */
+    protected void assertDoesExistVersion(final Object assertion,
+            final Long artifactId, final Long versionId) {
+        Assert.assertTrue(assertion, doesExistVersion(artifactId, versionId));
+    }
+
+	/**
      * Assert that the list of team members does not contain the user.
      * 
      * @param assertion
@@ -281,7 +323,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotTrue(assertion, contains(teamMembers, user));
     }
 
-	/**
+    /**
      * Assert that the artifact is closed.
      * 
      * @param assertion
@@ -294,7 +336,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-	/**
+    /**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -309,7 +351,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isKeyHolder(artifactId));
     }
 
-    /**
+	/**
      * Assert that the logged in user is not the key holder.
      * 
      * @param assertion
@@ -336,7 +378,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isReachable(environment));
     }
 
-	/**
+    /**
 	 * Assert that the model framework is initialized to a state where the user
 	 * can start to create artifacts. This requires:
 	 * <ol>
@@ -358,7 +400,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotTrue(assertion, isOnline());
     }
 
-    /**
+	/**
      * Assert that the reference is not null.
      * 
      * @param assertion
@@ -370,7 +412,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotNull(assertion, reference);
     }
 
-    /**
+	/**
      * Assert that the user is not a team member.
      * 
      * @param assertion
@@ -405,11 +447,11 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isOnline());
     }
 
-	protected void assertOnline(final StringBuffer api) {
+    protected void assertOnline(final StringBuffer api) {
         assertOnline(api.toString());
     }
 
-	/**
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -491,7 +533,7 @@ public abstract class AbstractModelImpl {
         return -1 != indexOf(team, user);
     }
 
-    /**
+	/**
      * Determine if the list of users contains the team member.
      * 
      * @param users
@@ -529,7 +571,18 @@ public abstract class AbstractModelImpl {
         return readCredentials();
     }
 
-	/**
+    /**
+     * Determine whether or not a latest version exists.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return True if a version exists; false otherwise.
+     */
+    protected Boolean doesExistLatestVersion(final Long artifactId) {
+        return doesExistVersion(artifactId, Versioning.START);
+    }
+
+    /**
      * Find the user in a team.
      * 
      * @param team
@@ -558,7 +611,7 @@ public abstract class AbstractModelImpl {
 		return ArtifactModel.getInternalModel(context);
 	}
 
-    /**
+	/**
      * Obtain the internal parity audit interface.
      * 
      * @return The internal parity audit interface.
@@ -567,7 +620,7 @@ public abstract class AbstractModelImpl {
 		return AuditModel.getInternalModel(context);
 	}
 
-	/**
+    /**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -576,14 +629,14 @@ public abstract class AbstractModelImpl {
         return ContactModel.getInternalModel(context);
     }
 
-    /**
+	/**
      * Obtain the internal thinkParity container interface.
      * 
      * @return The internal thinkParity container interface.
      */
     protected InternalContainerModel getInternalContainerModel() {
         return ContainerModel.getInternalModel(context);
-    }
+    };
 
 	/**
      * Obtain the internal parity document interface.
@@ -592,7 +645,7 @@ public abstract class AbstractModelImpl {
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(context);
-	};
+	}
 
 	/**
      * Obtain the internal parity download interface.
@@ -612,7 +665,7 @@ public abstract class AbstractModelImpl {
         return LibraryModel.getInternalModel(context);
     }
 
-	/**
+    /**
      * Obtain the thinkParity internal message interface.
      * 
      * @return The thinkParity internal message interface.
@@ -960,6 +1013,19 @@ public abstract class AbstractModelImpl {
             NoSuchPaddingException {
         final Cipher cipher = getDecryptionCipher();
         return new String(cipher.doFinal(Base64.decodeBytes(cipherText)));
+    }
+
+    /**
+     * Determine whether or not a version exists.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return True if a version exists; false otherwise.
+     */
+    private Boolean doesExistVersion(final Long artifactId, final Long versionId) {
+        return getInternalArtifactModel().doesVersionExist(artifactId, versionId);
     }
 
     /**

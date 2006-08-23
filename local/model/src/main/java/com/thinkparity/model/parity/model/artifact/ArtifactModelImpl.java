@@ -255,7 +255,7 @@ public class ArtifactModelImpl extends AbstractModelImpl {
         logApiId();
         logVariable("artifactId", artifactId);
         logVariable("versionId", versionId);
-        return null != artifactIO.doesVersionExist(artifactId, versionId);
+        return artifactIO.doesVersionExist(artifactId, versionId);
     }
 
     /**

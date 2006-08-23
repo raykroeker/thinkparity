@@ -365,15 +365,15 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info(getApiId("[IS DRAFT MODIFIED]"));
 		logger.debug(documentId);
         try {
-            final DocumentVersion latestVersion = readLatestVersion(documentId);
-            if (null == latestVersion) {
+            final List<DocumentVersion> versions = listVersions(documentId);
+            if (0 == versions.size()) {
                 return Boolean.TRUE;
             } else {
                 final Document document = read(documentId);
                 final LocalFile localFile = getLocalFile(document);
                 localFile.read();
                 final String draftChecksum = localFile.getFileChecksum();
-                return !latestVersion.getChecksum().equals(draftChecksum);
+                return !versions.get(versions.size() - 1).getChecksum().equals(draftChecksum);
             }
         } catch (final Throwable t) {
             throw translateError("[IS DRAFT MODIFIED]", t);

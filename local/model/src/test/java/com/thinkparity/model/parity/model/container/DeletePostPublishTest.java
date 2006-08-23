@@ -12,7 +12,7 @@ import com.thinkparity.model.parity.api.events.ContainerEvent;
 public class DeletePostPublishTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "[TEST DELETE POST PUBLISH]";
+    private static final String NAME = "TEST DELETE POST PUBLISH";
 
     /** Test datum. */
     private Fixture datum;
@@ -72,7 +72,7 @@ public class DeletePostPublishTest extends ContainerTestCase {
             didNotify = Boolean.TRUE;
             assertTrue(NAME + " [EVENT GENERATED IS NOT LOCAL]", e.isLocal());
             assertTrue(NAME + " [EVENT GENERATED IS REMOTE]", !e.isRemote());
-            assertNull(NAME + " [EVENT CONTAINER IS NOT NULL]", e.getContainer());
+            assertNotNull(NAME + " EVENT CONTAINER IS NOT NULL", e.getContainer());
             assertNull(NAME + " [EVENT DOCUMENT IS NOT NULL]", e.getDocument());
             assertNull(NAME + " [EVENT DRAFT IS NOT NULL]", e.getDraft());
             assertNull(NAME + " [EVENT TEAM MEMBER IS NOT NULL]", e.getTeamMember());

@@ -985,10 +985,12 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final ContainerDraft draft = containerIO.readDraft(containerId);
-        for (final Document document : draft.getDocuments()) {
-            if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
-                if (documentModel.isDraftModified(document.getId())) {
-                    draft.putState(document, ContainerDraft.ArtifactState.MODIFIED);
+        if (null != draft) {
+            for (final Document document : draft.getDocuments()) {
+                if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
+                    if (documentModel.isDraftModified(document.getId())) {
+                        draft.putState(document, ContainerDraft.ArtifactState.MODIFIED);
+                    }
                 }
             }
         }
@@ -1701,8 +1703,8 @@ class ContainerModelImpl extends AbstractModelImpl {
      * @return True if the container has been distributed; false otherwise.
      */
     private Boolean isDistributed(final Long containerId) {
-        final ContainerVersion latestVersion = readLatestVersion(containerId);
-        return null != latestVersion;
+        final List<ContainerVersion> versions = readVersions(containerId);
+        return 0 < versions.size();
     }
 
     /**

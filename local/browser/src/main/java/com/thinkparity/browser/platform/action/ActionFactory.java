@@ -98,11 +98,14 @@ public class ActionFactory extends AbstractFactory {
 		case CONTAINER_CREATE:
             action = new com.thinkparity.browser.platform.action.container.Create(browser);
             break;
-        case CONTAINER_DELETE:
-            action = new com.thinkparity.browser.platform.action.container.Delete(browser);
-            break;
 		case CONTAINER_CREATE_DRAFT:
             action = new com.thinkparity.browser.platform.action.container.CreateDraft(browser);
+            break;
+		case CONTAINER_DELETE:
+		    action = new com.thinkparity.browser.platform.action.container.Delete(browser);
+		    break;
+        case CONTAINER_DELETE_DRAFT:
+            action = new com.thinkparity.browser.platform.action.container.DeleteDraft(browser);
             break;
         case CONTAINER_PUBLISH:
             action = new com.thinkparity.browser.platform.action.container.Publish(browser);

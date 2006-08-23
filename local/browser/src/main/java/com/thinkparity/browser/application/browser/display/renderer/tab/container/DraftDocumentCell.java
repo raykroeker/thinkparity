@@ -27,6 +27,7 @@ import com.thinkparity.browser.platform.action.container.RemoveDocument;
 import com.thinkparity.browser.platform.action.container.RevertDocument;
 import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.Rename;
+import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
 import com.thinkparity.model.parity.model.document.Document;
 
@@ -53,6 +54,9 @@ public class DraftDocumentCell extends Document implements TabCell  {
     /** An image cache. */
     private final MainCellImageCache imageCache;
 
+    /** Localization for the draft document cell. */
+    private final MainCellL18n localization;
+
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
 
@@ -73,6 +77,7 @@ public class DraftDocumentCell extends Document implements TabCell  {
         setState(document.getState());
         this.draft = draft;
         this.imageCache = new MainCellImageCache();
+        this.localization = new MainCellL18n("DraftDocumentCell");
         this.popupItemFactory = PopupItemFactory.getInstance();
     }
 
@@ -141,12 +146,9 @@ public class DraftDocumentCell extends Document implements TabCell  {
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getText()
      */
     public String getText() {
-        if(TEXT_MAX_LENGTH < getName().length()) {
-            return getName().substring(0, TEXT_MAX_LENGTH - 1 - 3) + "...";
-        }
-        else {
-            return getName();
-        }
+        final String messageKey = new StringBuffer("Text.")
+                .append(draft.getState(getId())).toString();
+        return getString(messageKey, getName());
     }
 
     /**
@@ -226,5 +228,19 @@ public class DraftDocumentCell extends Document implements TabCell  {
         jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData));
         jPopupMenu.show(invoker, x, y);
 
+    }
+
+    /**
+     * Obtain localized text.
+     * 
+     * @param messagKey
+     *            The message key.
+     * @param messageArguments
+     *            The message arguments.
+     * @return Localized text.
+     */
+    private String getString(final String messageKey,
+            final Object... messageArguments) {
+        return localization.getString(messageKey, messageArguments);
     }
 }

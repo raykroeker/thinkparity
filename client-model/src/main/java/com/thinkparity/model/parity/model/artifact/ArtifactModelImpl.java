@@ -30,7 +30,7 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class ArtifactModelImpl extends AbstractModelImpl {
+public class ArtifactModelImpl extends AbstractModelImpl {
 
     /**
      * Obtain a logging api id.
@@ -44,16 +44,16 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
 	/**
+	 * Artifact persistance io.
+	 * 
+	 */
+	public final ArtifactIOHandler artifactIO;
+
+	/**
 	 * The artifact model's auditor.
 	 * 
 	 */
 	protected final ArtifactModelAuditor auditor;
-
-	/**
-	 * Artifact persistance io.
-	 * 
-	 */
-	private final ArtifactIOHandler artifactIO;
 
 	/**
 	 * Create a ArtifactModelImpl.
@@ -259,6 +259,58 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Handle the remote event generated when a draft is created.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param createdBy
+     *            Who created the draft.
+     * @param createdOn
+     *            When the draft was created.
+     */
+    void handleDraftCreated(final UUID uniqueId,
+            final JabberId createdBy, final Calendar createdOn) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("createdBy", createdBy);
+        logVariable("createdOn", createdOn);
+        final Long artifactId = artifactIO.readId(uniqueId);
+        switch (artifactIO.readType(artifactId)) {
+        case CONTAINER:
+            getInternalContainerModel().handleDraftCreated(artifactId, createdBy, createdOn);
+            break;
+        default:
+            Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+        }
+    }
+
+    /**
+     * Handle the remote event generated when a draft is deleted.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param createdBy
+     *            Who deleted the draft.
+     * @param createdOn
+     *            When the draft was deleted.
+     */
+    void handleDraftDeleted(final UUID uniqueId,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("deletedBy", deletedBy);
+        logVariable("deletedOn", deletedOn);
+        final Long artifactId = artifactIO.readId(uniqueId);
+        switch (artifactIO.readType(artifactId)) {
+        case CONTAINER:
+            getInternalContainerModel().handleDraftDeleted(artifactId, deletedBy, deletedOn);
+            break;
+        default:
+            Assert.assertUnreachable("UNSUPPORTED ARTIFACT TYPE");
+        }
+    }
+
+    /**
      * Handle the remote event generated when a team member is added. This will
      * download the user's info if required and create the team data locally.
      * 
@@ -309,7 +361,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
 	 * Determine whether or not the artifact has been seen.
 	 * 
 	 * @param artifactId
@@ -321,7 +373,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return isFlagApplied(artifactId, ArtifactFlag.SEEN);
 	}
 
-    /**
+	/**
 	 * Determine whether or not an artifact has a flag applied.
 	 * 
 	 * @param artifactId
@@ -338,7 +390,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return flags.contains(flag);
 	}
 
-	/**
+    /**
      * Read the artifact id.
      * 
      * @param uniqueId
@@ -351,7 +403,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readId(uniqueId);
     }
 
-	/**
+    /**
      * Read the artifact key holder.
      * 
      * @param artifactId
@@ -378,7 +430,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return createKeyRequest((KeyRequestMessage) getInternalMessageModel().read(keyRequestId));
     }
 
-    /**
+	/**
 	 * Read all key requests for the given artifact.
 	 * 
 	 * @param artifactId
@@ -397,7 +449,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return requests;
 	}
 
-    /**
+	/**
      * Read the latest version id for an artifact.
      * 
      * @param artifactId
@@ -422,7 +474,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readTeamRel(artifactId);
     }
 
-	/**
+    /**
      * Read the artifact team.
      * 
      * @param artifactId
@@ -434,7 +486,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
         return artifactIO.readTeamRel2(artifactId);
     }
 
-	/**
+    /**
      * Read the artifact unique id.
      * 
      * @param artifactId
@@ -547,41 +599,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-
-    /**
-     * Assert that the user is not a team member.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param artifactId
-     *            An artifact id.
-     * @param userId
-     *            A user id.
-     */
-    private void assertNotTeamMember(final Object assertion,
-            final Long artifactId, final JabberId userId) {
-        final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
-        final User user = getInternalUserModel().read(userId);
-        if (null != user)
-            Assert.assertNotTrue(assertion, contains(team, user));
-    }
-
-    /**
-     * Assert that the user is a team member.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param artifactId
-     *            An artifact id.
-     * @param userId
-     *            A user id.
-     */
-    private void assertTeamMember(final Object assertion,
-            final Long artifactId, final JabberId userId) {
-        final List<TeamMember> team = artifactIO.readTeamRel2(artifactId);
-        Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
-    }
-
     /**
 	 * Create a key request based upon a key request system message.
 	 * 
@@ -597,7 +614,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		request.setId(message.getId());
 		return request;
 	}
-
+    
     /**
 	 * Remove a flag from an artifact.
 	 * 

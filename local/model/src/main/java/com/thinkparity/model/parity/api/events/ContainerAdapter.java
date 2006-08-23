@@ -33,6 +33,11 @@ public class ContainerAdapter implements ContainerListener {
     public void containerDeleted(final ContainerEvent e) {}
 
     /**
+     * @see com.thinkparity.model.parity.api.events.ContainerListener#containerUpdated(com.thinkparity.model.parity.api.events.ContainerEvent)
+     */
+    public void containerUpdated(final ContainerEvent e) {}
+
+    /**
      * @see com.thinkparity.model.parity.api.events.ContainerListener#documentAdded(com.thinkparity.model.parity.api.events.ContainerEvent)
      * 
      */
@@ -49,6 +54,11 @@ public class ContainerAdapter implements ContainerListener {
      * 
      */
     public void draftCreated(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.model.parity.api.events.ContainerListener#draftDeleted(com.thinkparity.model.parity.api.events.ContainerEvent)
+     */
+    public void draftDeleted(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.model.parity.api.events.ContainerListener#draftPublished(com.thinkparity.model.parity.api.events.ContainerEvent)

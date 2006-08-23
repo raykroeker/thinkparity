@@ -4,6 +4,7 @@
  */
 package com.thinkparity.model.xmpp.events;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import com.thinkparity.model.xmpp.JabberId;
@@ -26,6 +27,12 @@ public interface XMPPArtifactListener {
      */
     public void confirmReceipt(final UUID uniqueId, final Long verionId,
             final JabberId receivedFrom);
+
+    public void handleDraftCreated(final UUID uniqueId,
+            final JabberId createdBy, final Calendar createdOn);
+
+    public void handleDraftDeleted(final UUID uniqueId,
+            final JabberId deletedBy, final Calendar deletedOn);
 
 	public void teamMemberAdded(final UUID uniqueId, final JabberId jabberId);
 

@@ -152,6 +152,14 @@ public interface XMPPSession {
     public void deleteArtifact(final UUID uniqueId);
 
     /**
+     * Delete an artifact draft.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    public void deleteDraft(final UUID uniqueId);
+
+    /**
      * Invite a contact.
      * 
      * @param email

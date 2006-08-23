@@ -3,6 +3,7 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +21,7 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.model.Constants.Xml;
+import com.thinkparity.model.Constants.Xml.EventHandler;
 import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
@@ -38,13 +40,51 @@ import com.thinkparity.model.xmpp.user.User;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-class XMPPArtifact {
+class XMPPArtifact extends AbstractXMPP {
 
     private static final List<XMPPArtifactListener> listeners;
 
     static {
 		listeners = new LinkedList<XMPPArtifactListener>();
 
+        ProviderManager.addIQProvider(Service.NAME, EventHandler.Artifact.DRAFT_CREATED, new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser2(parser);
+                final HandleDraftCreatedIQ query = new HandleDraftCreatedIQ();
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                    if (isStartTag("uniqueId")) {
+                        query.uniqueId = readUniqueId2();
+                    } else if (isStartTag("createdBy")) {
+                        query.createdBy = readJabberId2();
+                    } else if (isStartTag("createdOn")) {
+                        query.createdOn = readCalendar2();
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
+        ProviderManager.addIQProvider(Service.NAME, EventHandler.Artifact.DRAFT_DELETED, new AbstractThinkParityIQProvider() {
+            public IQ parseIQ(final XmlPullParser parser) throws Exception {
+                setParser2(parser);
+                final HandleDraftDeletedIQ query = new HandleDraftDeletedIQ();
+                Boolean isComplete = Boolean.FALSE;
+                while (Boolean.FALSE == isComplete) {
+                    if (isStartTag("uniqueId")) {
+                        query.uniqueId = readUniqueId2();
+                    } else if (isStartTag("deletedBy")) {
+                        query.deletedBy = readJabberId2();
+                    } else if (isStartTag("deletedOn")) {
+                        query.deletedOn = readCalendar2();
+                    } else {
+                        isComplete = Boolean.TRUE;
+                    }
+                }
+                return query;
+            }
+        });
 		ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifactreadcontacts", new IQArtifactReadContactsProvider());
         ProviderManager.addIQProvider(Service.NAME, "jabber:iq:parity:artifactconfirmreceipt", new IQConfirmReceiptProvider());
         ProviderManager.addIQProvider(Service.NAME, Xml.EventHandler.Artifact.TEAM_MEMBER_ADDED, new IQProvider() {
@@ -168,6 +208,20 @@ class XMPPArtifact {
         xmppConnection.addPacketListener(
                 new PacketListener() {
                     public void processPacket(final Packet packet) {
+                        handleDraftCreated((HandleDraftCreatedIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleDraftCreatedIQ.class));
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
+                        handleDraftDeleted((HandleDraftDeletedIQ) packet);
+                    }
+                },
+                new PacketTypeFilter(HandleDraftDeletedIQ.class));
+        xmppConnection.addPacketListener(
+                new PacketListener() {
+                    public void processPacket(final Packet packet) {
                         handleTeamMemberRemoved((HandleTeamMemberRemovedIQ) packet);
                     }
                 },
@@ -250,6 +304,14 @@ class XMPPArtifact {
         delete.execute(xmppCore.getConnection());
     }
 
+    void deleteDraft(final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        final XMPPMethod deleteDraft = new XMPPMethod("artifact:deletedraft");
+        deleteDraft.setParameter("uniqueId", uniqueId);
+        deleteDraft.execute(xmppCore.getConnection());
+    }
+
 	/**
      * Read the artifact key holder.
      * 
@@ -313,6 +375,24 @@ class XMPPArtifact {
         method.execute(xmppCore.getConnection());
     }
 
+    private void handleDraftCreated(final HandleDraftCreatedIQ query) {
+        synchronized (listeners) {
+            for (final XMPPArtifactListener l : listeners) {
+                l.handleDraftCreated(query.uniqueId, query.createdBy,
+                        query.createdOn);
+            }
+        }
+    }
+
+    private void handleDraftDeleted(final HandleDraftDeletedIQ query) {
+        synchronized (listeners) {
+            for (final XMPPArtifactListener l : listeners) {
+                l.handleDraftDeleted(query.uniqueId, query.deletedBy,
+                        query.deletedOn);
+            }
+        }
+    }
+
     /**
      * Receive a notification re team member addition
      * 
@@ -358,6 +438,47 @@ class XMPPArtifact {
     }
 
     /**
+     * <b>Title:</b>thinkparity XMPP Artifact Handle Draft Created Query<br>
+     * <b>Description:</b>Provides a wrapper for the team member removed remote
+     * event data.
+     */
+    private static class HandleDraftCreatedIQ extends AbstractThinkParityIQ {
+
+        /** The creator. */
+        private JabberId createdBy;
+
+        /** The creation date. */
+        private Calendar createdOn;
+
+        /** The artifact unique id. */
+        private UUID uniqueId;
+
+        /** Create HandleDraftCreatedIQ. */
+        private HandleDraftCreatedIQ() { super(); }
+    }
+
+    /**
+     * <b>Title:</b>thinkparity XMPP Artifact Handle Draft Deleted Query<br>
+     * <b>Description:</b>Provides a wrapper for the draft deleted remote
+     * event data.
+     */
+    private static class HandleDraftDeletedIQ extends AbstractThinkParityIQ {
+
+        /** The creator. */
+        private JabberId deletedBy;
+
+        /** The creation date. */
+        private Calendar deletedOn;
+
+        /** The artifact unique id. */
+        private UUID uniqueId;
+
+        /** Create HandleDraftDeletedIQ. */
+        private HandleDraftDeletedIQ() { super(); }
+
+    }
+
+    /**
      * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Added Query<br>
      * <b>Description:</b>Provides a wrapper for the team member added remote
      * event data.
@@ -369,7 +490,7 @@ class XMPPArtifact {
         /** The artifact unique id. */
         private UUID uniqueId;
     }
-
+    
     /**
      * <b>Title:</b>thinkparity XMPP Artifact Handle Team Member Removed Query<br>
      * <b>Description:</b>Provides a wrapper for the team member removed remote

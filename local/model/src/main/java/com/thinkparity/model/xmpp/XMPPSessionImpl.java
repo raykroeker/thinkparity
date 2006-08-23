@@ -286,6 +286,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#deleteDraft(java.util.UUID)
+     */
+    public void deleteDraft(final UUID uniqueId) {
+        xmppArtifact.deleteDraft(uniqueId);
+    }
+
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#flag(java.util.UUID,
 	 *      com.thinkparity.model.parity.model.artifact.ArtifactFlag)
 	 */

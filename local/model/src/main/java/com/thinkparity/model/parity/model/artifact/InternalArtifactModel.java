@@ -221,6 +221,40 @@ public class InternalArtifactModel extends ArtifactModel {
     }
 
     /**
+     * Handle the remote event generated when a draft is created.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param createdBy
+     *            Who created the draft.
+     * @param createdOn
+     *            When the draft was created.
+     */
+    public void handleDraftCreated(final UUID uniqueId,
+            final JabberId createdBy, final Calendar createdOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleDraftCreated(uniqueId, createdBy, createdOn);
+        }
+    }
+    
+    /**
+     * Handle the remote event generated when a draft is deleted.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param createdBy
+     *            Who deleted the draft.
+     * @param createdOn
+     *            When the draft was deleted.
+     */
+    public void handleDraftDeleted(final UUID uniqueId,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleDraftDeleted(uniqueId, deletedBy, deletedOn);
+        }
+    }
+
+    /**
      * Handle the team member removed remote event.
      * 
      * @param uniqueId

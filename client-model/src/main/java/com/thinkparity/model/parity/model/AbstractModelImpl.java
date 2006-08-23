@@ -91,18 +91,6 @@ import com.thinkparity.migrator.Release;
 public abstract class AbstractModelImpl {
 
     /**
-     * Assert that the reference is not null.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param reference
-     *            An object reference.
-     */
-    protected void assertNotNull(final Object assertion, final Object reference) {
-        Assert.assertNotNull(assertion, reference);
-    }
-
-	/**
 	 * Assertion message to be displayed if the username is not set in the
 	 * parity preferences.
 	 */
@@ -120,7 +108,7 @@ public abstract class AbstractModelImpl {
 	/** A list of runnables to execute when the JVM shuts down. */
     private static final List<ShutdownHook> shutdownHooks;
 
-    /** A static logger instance. */
+	/** A static logger instance. */
     private static final Logger sLogger;
 
     static {
@@ -160,7 +148,7 @@ public abstract class AbstractModelImpl {
         });
     }
 
-	/**
+    /**
      * Add a shutdown hook.
      * 
      * @param hook
@@ -214,13 +202,13 @@ public abstract class AbstractModelImpl {
 	/** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
-    /**
+	/**
 	 * The parity model context.
 	 * 
 	 */
 	protected final Context context;
 
-	/**
+    /**
 	 * The model's l18n.
 	 * 
 	 */
@@ -232,7 +220,7 @@ public abstract class AbstractModelImpl {
 	 */
 	protected final Logger logger;
 
-    /**
+	/**
 	 * Handle to the parity model preferences.
 	 */
 	protected final Preferences preferences;
@@ -245,10 +233,10 @@ public abstract class AbstractModelImpl {
     /** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-	/** The encryption cipher. */
+    /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
-    /** The secret key spec. */
+	/** The secret key spec. */
     private transient SecretKeySpec secretKeySpec;
 
     /**
@@ -278,7 +266,7 @@ public abstract class AbstractModelImpl {
         Assert.assertNotNull(assertion, getInternalContainerModel().readDraft(containerId));
     }
 
-	/**
+    /**
      * Assert that the list of team members does not contain the user.
      * 
      * @param assertion
@@ -306,7 +294,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isClosed(artifact));
     }
 
-    /**
+	/**
      * Assert the user is the key holder. An assertion that the user is online
      * is also made.
      * 
@@ -335,7 +323,7 @@ public abstract class AbstractModelImpl {
 		Assert.assertNotTrue(assertion, isKeyHolder(artifactId));
 	}
 
-	/**
+    /**
      * Assert that the environment is online.
      * 
      * @param assertion
@@ -348,7 +336,7 @@ public abstract class AbstractModelImpl {
         Assert.assertTrue(assertion, isReachable(environment));
     }
 
-    /**
+	/**
 	 * Assert that the model framework is initialized to a state where the user
 	 * can start to create artifacts. This requires:
 	 * <ol>
@@ -371,6 +359,35 @@ public abstract class AbstractModelImpl {
     }
 
     /**
+     * Assert that the reference is not null.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param reference
+     *            An object reference.
+     */
+    protected void assertNotNull(final Object assertion, final Object reference) {
+        Assert.assertNotNull(assertion, reference);
+    }
+
+    /**
+     * Assert that the user is not a team member.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param artifactId
+     *            An artifact id.
+     * @param userId
+     *            A user id.
+     */
+    protected void assertNotTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
+        final List<TeamMember> team = getInternalArtifactModel().readTeam2(artifactId);
+        final User user = getInternalUserModel().read(userId);
+        if (null != user)
+            Assert.assertNotTrue(assertion, contains(team, user));
+    }
+
+	/**
 	 * Assert that the calling method has not yet been implemented.
 	 *
 	 */
@@ -422,7 +439,22 @@ public abstract class AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
+     * Assert that the user is a team member.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param artifactId
+     *            An artifact id.
+     * @param userId
+     *            A user id.
+     */
+    protected void assertTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
+        final List<TeamMember> team = getInternalArtifactModel().readTeam2(artifactId);
+        Assert.assertNotTrue(assertion, contains(team, getInternalUserModel().read(userId)));
+    }
+
+    /**
 	 * Build a jabber id from a parity user.
 	 * 
 	 * @param user
@@ -497,7 +529,7 @@ public abstract class AbstractModelImpl {
         return readCredentials();
     }
 
-    /**
+	/**
      * Find the user in a team.
      * 
      * @param team
@@ -517,7 +549,7 @@ public abstract class AbstractModelImpl {
 	 */
 	protected Context getContext() { return context; }
 
-	/**
+    /**
      * Obtain the internal parity artifact interface.
      * 
      * @return The internal parity artifact interface.
@@ -535,7 +567,7 @@ public abstract class AbstractModelImpl {
 		return AuditModel.getInternalModel(context);
 	}
 
-    /**
+	/**
      * Obtain the internal thinkParity contact interface.
      * 
      * @return The internal thinkParity contact interface.
@@ -560,9 +592,9 @@ public abstract class AbstractModelImpl {
      */
 	protected InternalDocumentModel getInternalDocumentModel() {
 		return DocumentModel.getInternalModel(context);
-	}
+	};
 
-    /**
+	/**
      * Obtain the internal parity download interface.
      *
      * @return The internal parity download interface.
@@ -578,7 +610,7 @@ public abstract class AbstractModelImpl {
      */
     protected InternalLibraryModel getInternalLibraryModel() {
         return LibraryModel.getInternalModel(context);
-    };
+    }
 
 	/**
      * Obtain the thinkParity internal message interface.
@@ -589,7 +621,7 @@ public abstract class AbstractModelImpl {
         return getInternalSystemMessageModel();
     }
 
-	/**
+    /**
      * Obtain the internal parity release interface.
      *
      * @return The internal parity release interface.
@@ -598,7 +630,7 @@ public abstract class AbstractModelImpl {
         return ReleaseModel.getInternalModel(getContext());
     }
 
-	/**
+    /**
      * Obtain the internal parity session interface.
      * 
      * @return The internal parity session interface.
@@ -675,6 +707,25 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Obtain the index of a user id in a team.
+     * 
+     * @param team
+     *            A team.
+     * @param userId
+     *            A user id.
+     * @return The index of the user id in the list; or -1 if the user does not
+     *         exist in the list.
+     */
+    protected int indexOf(final List<TeamMember> team, final JabberId userId) {
+        for (int i = 0; i < team.size(); i++) {
+            if (team.get(i).getId().equals(userId)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Obtain the index of the user in the team.
      * 
      * @param team
@@ -685,8 +736,11 @@ public abstract class AbstractModelImpl {
      *         exist in the list.
      */
     protected int indexOf(final List<TeamMember> team, final User user) {
-        for(int i = 0; i < team.size(); i++)
-            if(team.get(i).getId().equals(user.getId())) { return i; }
+        for (int i = 0; i < team.size(); i++) {
+            if (team.get(i).getId().equals(user.getId())) {
+                return i;
+            }
+        }
         return -1;
     }
 

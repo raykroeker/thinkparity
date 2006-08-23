@@ -220,4 +220,14 @@ public interface ContainerIOHandler {
      *            A version id.
      */
     public void removeVersions(final Long containerId, final Long versionId);
+
+    /**
+     * Update a container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param container
+     *            A container.
+     */
+    public void updateName(final Long containerId, final String name);
 }

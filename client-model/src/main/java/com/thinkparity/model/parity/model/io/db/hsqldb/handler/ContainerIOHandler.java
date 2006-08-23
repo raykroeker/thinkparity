@@ -203,6 +203,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=? ")
             .toString();
 
+    /** Sql to update the container name. */
+    private static final String SQL_UPDATE_NAME =
+            new StringBuffer("update ARTIFACT ")
+            .append("set ARTIFACT_NAME=? ")
+            .append("where ARTIFACT_ID=?")
+            .toString();
+
     /**
      * Obtain a log4j api id.
      * 
@@ -637,6 +644,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#updateName(java.lang.Long, java.lang.String)
+     */
+    public void updateName(final Long containerId, final String name) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_NAME);
+            session.setString(1, name);
+            session.setLong(2, containerId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("UPDATE NAME", "COULD NOT UPDATE NAME"));
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Extract a container from the session.
      * 
      * @param session
@@ -649,8 +677,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         container.setCreatedOn(session.getCalendar("CREATED_ON"));
         container.setId(session.getLong("CONTAINER_ID"));
         final Long draftOwnerId = session.getLong("CONTAINER_DRAFT_USER_ID");
-        container.setLocalDraft(null != draftOwnerId &&
-                draftOwnerId.equals(localUser.getLocalId()));
+        container.setDraft(null != draftOwnerId);
+        container.setLocalDraft(null != draftOwnerId && localUser.getLocalId().equals(draftOwnerId));
         container.setName(session.getString("ARTIFACT_NAME"));
         container.setRemoteInfo(artifactIO.extractRemoteInfo(session));
         container.setState(session.getStateFromInteger("ARTIFACT_STATE_ID"));

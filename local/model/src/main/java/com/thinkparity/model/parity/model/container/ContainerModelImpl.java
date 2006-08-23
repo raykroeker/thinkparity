@@ -263,7 +263,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         logger.debug(containerId);
         assertOnline(getApiId("[CREATE DRAFT] [USER NOT ONLINE]"));
         final Container container = read(containerId);
-        if(!isDistributed(container.getUniqueId())) {
+        if(!isDistributed(container.getId())) {
             createDistributed(container);
         }
 
@@ -318,7 +318,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         logVariable("containerId", containerId);
         try {
             final Container container = read(containerId);
-            if (isDistributed(container.getUniqueId())) {
+            if (isDistributed(container.getId())) {
                 final TeamMember localTeamMember = localTeamMember(container.getId());
                 deleteLocal(container.getId());
                 getInternalSessionModel().removeTeamMember(
@@ -331,6 +331,27 @@ class ContainerModelImpl extends AbstractModelImpl {
         } catch (final Throwable t) {
             throw translateError("[DELETE]", t);
         }
+    }
+
+    /**
+     * Delete a draft.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    void deleteDraft(final Long containerId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        assertOnline("USER NOT ONLINE");
+        assertDoesExistLocalDraft("DRAFT DOES NOT EXIST", containerId);
+        final Container container = read(containerId);
+        getInternalSessionModel().deleteDraft(container.getUniqueId());
+        // delete local data
+        final ContainerDraft draft = readDraft(containerId);
+        for (final Artifact artifact : draft.getArtifacts()) {
+            containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+        }
+        containerIO.deleteDraft(containerId);
     }
 
     /**
@@ -534,6 +555,56 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Handle the remote draft created event.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param deletedBy
+     *            Who created the draft.
+     * @param deletedOn
+     *            When the draft was created.
+     */
+    void handleDraftCreated(final Long containerId,
+            final JabberId createdBy, final Calendar createdOn) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("createdBy", createdBy);
+        logVariable("createdOn", createdOn);
+        final ContainerDraft draft = new ContainerDraft();
+        draft.setContainerId(containerId);
+        final List<TeamMember> team = readTeam(containerId);
+        draft.setOwner(team.get(indexOf(team, createdBy)));
+        containerIO.createDraft(draft);
+        // fire event
+        notifyDraftCreated(read(containerId), readDraft(containerId),
+                remoteEventGenerator);
+    }
+
+    /**
+     * Handle the remote draft deleted event.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param deletedBy
+     *            Who deleted the draft.
+     * @param deletedOn
+     *            When the draft was deleted.
+     */
+    void handleDraftDeleted(final Long containerId,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("createdBy", deletedBy);
+        logVariable("createdOn", deletedOn);
+        final ContainerDraft draft = readDraft(containerId);
+        for (final Artifact artifact : draft.getArtifacts()) {
+            containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+        }
+        containerIO.deleteDraft(containerId);
+        // fire event
+        notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
+    }
+    /**
      * Handle the container published event.
      * 
      * @param uniqueId
@@ -581,6 +652,7 @@ class ContainerModelImpl extends AbstractModelImpl {
     Boolean isLocallyModified(final Long containerId) throws ParityException {
         throw Assert.createNotYetImplemented("ContainerModelImpl#isLocallyModified(Long)");
     }
+
     /**
      * Lock the container.
      * 
@@ -639,7 +711,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             final ContainerDraft draft = readDraft(containerId);
             final Calendar currentDateTime = currentDateTime();
             // if the artfiact doesn't exist on the server; create it there
-            if (!isDistributed(container.getUniqueId())) {
+            if (!isDistributed(container.getId())) {
                 createDistributed(container);
             }
             // ensure the user is the key holder
@@ -1221,6 +1293,24 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Rename the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param name
+     *            The new container name.
+     */
+    void rename(final Long containerId, final String name) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("name", name);
+        assertIsNotDistributed("CONTAINER HAS BEEN DISTRIBUTED", containerId);
+        containerIO.updateName(containerId, name);
+        // fire event
+        notifyContainerUpdated(read(containerId), localEventGenerator);
+    }
+
+    /**
      * Revert a document to it's pre-draft state.
      * 
      * @param documentId
@@ -1239,6 +1329,38 @@ class ContainerModelImpl extends AbstractModelImpl {
         containerIO.createDraftArtifactRel(containerId, document.getId(),
                 ContainerDraft.ArtifactState.NONE);
         getInternalDocumentModel().revertDraft(documentId);
+    }
+
+    /**
+     * Subscribe to the container's team.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    void subscribe(final Long containerId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        assertNotTeamMember("USER A TEAM MEMBER", containerId, localUserId());
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        final UUID containerUniqueId = artifactModel.readUniqueId(containerId);
+        artifactModel.removeTeamMember(containerId, localUserId());
+        getInternalSessionModel().removeTeamMember(containerUniqueId, localUserId());
+    }
+
+    /**
+     * Unsubscribe from the container's team.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    void unsubscribe(final Long containerId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        assertTeamMember("USER NOT A TEAM MEMBER", containerId, localUserId());
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        final UUID containerUniqueId = artifactModel.readUniqueId(containerId);
+        artifactModel.addTeamMember(containerId, localUserId());
+        getInternalSessionModel().addTeamMember(containerUniqueId, localUserId());
     }
 
     /**
@@ -1355,6 +1477,19 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Assert that the container has been distributed.
+     * 
+     * @param assertion
+     *            An assertion.
+     * @param containerId
+     *            A container id.
+     */
+    private void assertIsNotDistributed(final Object assertion,
+            final Long containerId) {
+        Assert.assertNotTrue(assertion, isDistributed(containerId));
+    }
+
+    /**
      * Create the container in the distributed network.
      * 
      * @param container
@@ -1431,7 +1566,7 @@ class ContainerModelImpl extends AbstractModelImpl {
         return containerIO.readVersion(version.getArtifactId(), version.getVersionId());
         
     }
-    
+
     /**
      * Delete the local info for this container.
      * 
@@ -1557,16 +1692,17 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Determine if the container has been distributed.
+     * Determine if the container has been distributed. If a container is
+     * distributed it will have 1 or more versions. If it has not been
+     * distributed it will have no versions.
      * 
      * @param container
      *            A container.
      * @return True if the container has been distributed; false otherwise.
      */
-    private Boolean isDistributed(final UUID uniqueId) {
-        final JabberId keyHolder =
-            getInternalSessionModel().readKeyHolder(uniqueId);
-        return keyHolder != null;
+    private Boolean isDistributed(final Long containerId) {
+        final ContainerVersion latestVersion = readLatestVersion(containerId);
+        return null != latestVersion;
     }
 
     /**
@@ -1619,6 +1755,23 @@ class ContainerModelImpl extends AbstractModelImpl {
         synchronized(LISTENERS) {
             for(final ContainerListener l : LISTENERS) {
                 l.draftPublished(eventGenerator.generate(container, draft, version));
+            }
+        }
+    }
+
+    /**
+     * Notify that a container has been updated.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerUpdated(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized (LISTENERS) {
+            for (final ContainerListener l : LISTENERS) {
+                l.containerUpdated(eventGenerator.generate(container));
             }
         }
     }
@@ -1687,6 +1840,27 @@ class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Notify that a container draft was deleted.
+     * 
+     * @param container
+     *            The container.
+     * @param draft
+     *            The draft.
+     * @param eventGenerator
+     *            The container event generator.
+     */
+    private void notifyDraftDeleted(final Container container,
+            final ContainerDraft draft,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized (LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.draftDeleted(eventGenerator.generate(container, draft));
+            }
+        }
+    }
+
+
+    /**
      * Notify that a team member was added to the container's team.
      * 
      * @param container
@@ -1727,6 +1901,7 @@ class ContainerModelImpl extends AbstractModelImpl {
             }
         }
     }
+
 
     /**
      * Publish a container.

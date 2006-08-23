@@ -15,7 +15,10 @@ import com.thinkparity.model.parity.model.artifact.Artifact;
  */
 public class Container extends Artifact {
 
-    /** A flag indicating whether or not there exists a local draft. */
+    /** A flag indicating whether or not there exists a draft. */
+    private Boolean draft;
+
+    /** A flag indicating whether or not the draft is local. */
     private Boolean localDraft;
 
     /** Create Container. */
@@ -28,19 +31,33 @@ public class Container extends Artifact {
     public ArtifactType getType() { return ArtifactType.CONTAINER; }
 
     /**
-     * @see #isSetLocalDraft()
-     */
-    public Boolean isSetDraft() { return isSetLocalDraft(); }
-
-    /**
-     * Determine if there exists a local draft.
+     * Determine whether or not there exists a draft.
      * 
-     * @return True if there exists a local draft; false otherwise.
+     * @return True if there exists a draft; false otherwise.
      */
-    public Boolean isSetLocalDraft() { return localDraft; }
+    public Boolean isDraft() { return draft; }
 
     /**
-     * Set the local draft flag.
+     * Determine whether or not the draft is local.
+     * 
+     * @return True if the draft is local; false otherwise.
+     */
+    public Boolean isLocalDraft() {
+        return localDraft;
+    }
+
+    /**
+     * Set the draft flag.
+     * 
+     * @param draft
+     *            The draft flag.
+     */
+    public void setDraft(final Boolean draft) {
+        this.draft = draft;
+    }
+
+    /**
+     * Set the draft local flag.
      * 
      * @param localDraft
      *            The local draft flag.

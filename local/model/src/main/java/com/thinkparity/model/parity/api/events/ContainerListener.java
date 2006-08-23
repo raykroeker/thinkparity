@@ -36,6 +36,14 @@ public interface ContainerListener {
     public void containerDeleted(final ContainerEvent e);
 
     /**
+     * A container was updated.
+     * 
+     * @param e
+     *            A container event.
+     */
+    public void containerUpdated(final ContainerEvent e);
+
+    /**
      * A document was added to a container.
      * 
      * @param e
@@ -58,6 +66,14 @@ public interface ContainerListener {
      *            The container event.
      */
     public void draftCreated(final ContainerEvent e);
+
+    /**
+     * A container draft was deleted.
+     * 
+     * @param e
+     *            The container event.
+     */
+    public void draftDeleted(final ContainerEvent e);
 
     /**
      * A container draft was published.

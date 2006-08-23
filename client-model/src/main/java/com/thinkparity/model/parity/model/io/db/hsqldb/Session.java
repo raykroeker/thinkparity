@@ -159,23 +159,34 @@ public class Session {
 		assertOpen("getAuditEventTypeFromInteger(String)");
 		assertOpenResult("getAuditEventTypeFromInteger(String)");
 		debugSql(columnName);
-		try { return AuditEventType.fromId(resultSet.getInt(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final Integer value = resultSet.getInt(columnName);
+            return resultSet.wasNull() ? null : AuditEventType.fromId(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
     public Boolean getBoolean(final String columnName) {
         assertOpen("[GET BOOLEAN]");
         assertOpenResult("[GET BOOLEAN]");
         debugSql(columnName);
-        try { return resultSet.getBoolean(columnName); }
+        try {
+            final Boolean value = resultSet.getBoolean(columnName);
+            return resultSet.wasNull() ? null : value;
+        }
         catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
     }
 
     public byte[] getBytes(final String columnName) {
 		assertOpen("getBytes(String)");
 		assertOpenResult("getBytes(String)");
-		try { return resultSet.getBytes(columnName); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final byte[] value = resultSet.getBytes(columnName);
+            return resultSet.wasNull() ? null : value;
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public Calendar getCalendar(final String columnName) {
@@ -184,13 +195,14 @@ public class Session {
 		try {
 			final Calendar calendar = DateUtil.getInstance();
 			final Timestamp timestamp = resultSet.getTimestamp(columnName, calendar);
-			if(resultSet.wasNull()) { return null; }
+			if (resultSet.wasNull()) { return null; }
 			else {
 				calendar.setTime(timestamp);
 				return calendar;
 			}
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
 		}
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
 	public ContainerDraft.ArtifactState getContainerStateFromString(
@@ -198,24 +210,36 @@ public class Session {
         assertOpen("getStateFromString(String)");
         assertOpenResult("getStateFromString(String)");
         debugSql(columnName);
-        try { return ContainerDraft.ArtifactState.valueOf(resultSet.getString(columnName)); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+        try {
+            final String value = resultSet.getString(columnName);
+            return resultSet.wasNull() ? null : ContainerDraft.ArtifactState.valueOf(value);
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
     }
 
 	public ArtifactFlag getFlagFromInteger(final String columnName) {
 		assertOpen("getFlagFromInteger(String)");
 		assertOpenResult("getFlagFromInteger(String)");
 		debugSql(columnName);
-		try { return ArtifactFlag.fromId(resultSet.getInt(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final Integer value = resultSet.getInt(columnName);
+            return resultSet.wasNull() ? null : ArtifactFlag.fromId(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public ArtifactFlag getFlagFromString(final String columnName) {
 		assertOpen("getFlagFromString(String)");
 		assertOpenResult("getFlagFromString(String)");
 		debugSql(columnName);
-		try { return ArtifactFlag.valueOf(resultSet.getString(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final String value = resultSet.getString(columnName);
+            return resultSet.wasNull() ? null : ArtifactFlag.valueOf(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	/**
@@ -225,14 +249,20 @@ public class Session {
 	 */
 	public JVMUniqueId getId() { return id; }
 
+    /**
+     * Execute a query to obtain the identity created.
+     * 
+     * @return The identity value.
+     */
 	public Long getIdentity() {
 		ResultSet resultSet = null;
 		try {
 			resultSet = list("CALL IDENTITY()");
 			resultSet.next();
 			return resultSet.getLong(1);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
 		}
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 		finally { close(resultSet); }
 	}
 
@@ -248,32 +278,48 @@ public class Session {
         assertOpen("[GET INPUT STREAM]");
         assertOpenResult("[GET INPUT STREAM]");
         debugSql(columnName);
-        try { return resultSet.getBinaryStream(columnName); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+        try {
+            final InputStream value = resultSet.getBinaryStream(columnName);
+            return resultSet.wasNull() ? null : value;
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
     }
 
 	public Integer getInteger(final String columnName) {
         assertOpen("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         assertOpenResult("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         debugSql(columnName);
-        try { return resultSet.getInt(columnName); }
-        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+        try {
+            final Integer value = resultSet.getInt(columnName);
+            return resultSet.wasNull() ? null : value;
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
     }
 
 	public Long getLong(final String columnName) {
 		assertOpen("getLong(String)");
 		assertOpenResult("getLong(String)");
 		debugSql(columnName);
-		try { return resultSet.getLong(columnName); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final Long value = resultSet.getLong(columnName);
+            return resultSet.wasNull() ? null : value;
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
 	}
 
 	public MetaDataType getMetaDataTypeFromInteger(final String columnName) {
 		assertOpen("getMetaDataTypeFromInteger(String)");
 		assertOpenResult("getMetaDataTypeFromInteger(String)");
 		debugSql(columnName);
-		try { return MetaDataType.fromId(resultSet.getInt(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final Integer value = resultSet.getInt(columnName);
+            return resultSet.wasNull() ? null : MetaDataType.fromId(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public JabberId getQualifiedUsername(final String columnName) {
@@ -281,36 +327,53 @@ public class Session {
 		assertOpenResult("Cannot get values if the result is not open.");
 		debugSql(columnName);
 		try {
-			final String qualifiedUsername = resultSet.getString(columnName);
-			if(resultSet.wasNull()) { return null; }
-			else { return JabberIdBuilder.parseQualifiedUsername(qualifiedUsername); }
+			final String value = resultSet.getString(columnName);
+			if (resultSet.wasNull()) {
+                return null;
+			} else {
+                return JabberIdBuilder.parseQualifiedUsername(value);
+			}
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		} catch (final IllegalArgumentException iax) {
+            throw new HypersonicException(iax);
 		}
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
-		catch(final IllegalArgumentException iax) { throw new HypersonicException(iax); }
 	}
 
 	public ArtifactState getStateFromInteger(final String columnName) {
 		assertOpen("getStateFromInteger(String)");
 		assertOpenResult("getStateFromInteger(String)");
 		debugSql(columnName);
-		try { return ArtifactState.fromId(resultSet.getInt(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final Integer value = resultSet.getInt(columnName);
+            return resultSet.wasNull() ? null : ArtifactState.fromId(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public ArtifactState getStateFromString(final String columnName) {
 		assertOpen("getStateFromString(String)");
 		assertOpenResult("getStateFromString(String)");
 		debugSql(columnName);
-		try { return ArtifactState.valueOf(resultSet.getString(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final String value = resultSet.getString(columnName);
+            return resultSet.wasNull() ? null : ArtifactState.valueOf(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public String getString(final String columnName) {
 		assertOpen("getString(String)");
 		assertOpenResult("getString(String)");
 		debugSql(columnName);
-		try { return resultSet.getString(columnName); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final String value = resultSet.getString(columnName);
+            return resultSet.wasNull() ? null : value;
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public SystemMessageType getSystemMessageTypeFromInteger(
@@ -318,29 +381,43 @@ public class Session {
 		assertOpen("getSystemMessageTypeFromInteger(String)");
 		assertOpenResult("getSystemMessageTypeFromInteger(String)");
 		debugSql(columnName);
-		try { return SystemMessageType.fromId(resultSet.getInt(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final Integer value = resultSet.getInt(columnName);
+            return resultSet.wasNull() ? null : SystemMessageType.fromId(value);
+		} catch(final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public ArtifactType getTypeFromInteger(final String columnName) {
 		assertOpen("getTypeFromInteger(String)");
 		assertOpenResult("getTypeFromInteger(String)");
 		debugSql(columnName);
-		try { return ArtifactType.fromId(resultSet.getInt(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final Integer value = resultSet.getInt(columnName);
+            return resultSet.wasNull() ? null : ArtifactType.fromId(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
 
 	public ArtifactType getTypeFromString(final String columnName) {
 		assertOpen("getTypeFromString(String)");
 		assertOpenResult("getTypeFromString(String)");
 		debugSql(columnName);
-		try { return ArtifactType.valueOf(resultSet.getString(columnName)); }
-		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+		try {
+            final String value = resultSet.getString(columnName);
+            return resultSet.wasNull() ? null : ArtifactType.valueOf(value);
+		} catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+		}
 	}
+
 	public UUID getUniqueId(final String columnName) {
 		assertOpen("getString(String)");
 		assertOpenResult("getString(String)");
-		return UUID.fromString(getString(columnName));
+        final String value = getString(columnName);
+		return null == value ? null : UUID.fromString(value);
 	}
 
 	/**

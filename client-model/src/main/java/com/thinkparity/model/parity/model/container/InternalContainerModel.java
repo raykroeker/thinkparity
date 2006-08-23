@@ -87,16 +87,6 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
         }
     }
 
-    public void handlePublished(final UUID uniqueId, final Long versionId,
-            final String name, final Integer artifactCount,
-            final JabberId publishedBy, final List<JabberId> publishedTo,
-            final Calendar publishedOn) {
-        synchronized (getImplLock()) {
-            getImpl().handlePublished(uniqueId, versionId, name, artifactCount,
-                    publishedBy, publishedTo, publishedOn);
-        }
-    }
-
     /**
      * Handle the artifact sent event for the container.
      * 
@@ -134,6 +124,50 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
                     artifactChecksum, artifactBytes);
         }
     }
+
+    /**
+     * Handle the remote draft created event.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param deletedBy
+     *            Who created the draft.
+     * @param deletedOn
+     *            When the draft was created.
+     */
+    public void handleDraftCreated(final Long containerId,
+            final JabberId createdBy, final Calendar createdOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleDraftCreated(containerId, createdBy, createdOn);
+        }
+    }
+    /**
+     * Handle the remote draft deleted event.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param deletedBy
+     *            Who deleted the draft.
+     * @param deletedOn
+     *            When the draft was deleted.
+     */
+    public void handleDraftDeleted(final Long containerId,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handleDraftDeleted(containerId, deletedBy, deletedOn);
+        }
+    }
+
+    public void handlePublished(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
+        synchronized (getImplLock()) {
+            getImpl().handlePublished(uniqueId, versionId, name, artifactCount,
+                    publishedBy, publishedTo, publishedOn);
+        }
+    }
+
     /**
      * Determine if the container has been locally modified.
      * 
@@ -180,5 +214,4 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
     public ContainerDraft readDraft(final Long containerId) {
         synchronized(getImplLock()) { return getImpl().readDraft(containerId); }
     }
-
 }

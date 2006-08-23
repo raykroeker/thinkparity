@@ -221,6 +221,8 @@ public final class Constants {
             public static final class Artifact {
                 public static final String TEAM_MEMBER_ADDED = "jabber:iq:parity:artifact:teammemberadded";
                 public static final String TEAM_MEMBER_REMOVED = "jabber:iq:parity:artifact:teammemberremoved";
+                public static final String DRAFT_CREATED = Service.NAMESPACE + "artifact:draftcreated";
+                public static final String DRAFT_DELETED = Service.NAMESPACE + "artifact:draftdeleted";
             }
         }
 
@@ -251,6 +253,7 @@ public final class Constants {
                 public static final String CONFIRM_RECEIPT = NAMESPACE + "artifactconfirmreceipt";
                 public static final String CREATE_ARTIFACT = NAMESPACE + "createartifact";
                 public static final String CREATE_DRAFT = NAMESPACE + "artifact:createdraft";
+                public static final String DELETE_DRAFT = NAMESPACE + "artifact:deletedraft";
                 public static final String FLAG_ARTIFACT = NAMESPACE + "flagartifact";
                 public static final String GET_SUBSCRIPTION = NAMESPACE + "getsubscription";
                 public static final String READ_CONTACTS = NAMESPACE + "artifactreadcontacts";

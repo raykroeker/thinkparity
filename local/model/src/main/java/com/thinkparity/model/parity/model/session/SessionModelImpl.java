@@ -106,6 +106,38 @@ class SessionModelImpl extends AbstractModelImpl {
 	}
 
     /**
+     * Handle the artifact draft created remote event.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param createdBy
+     *            The creation user.
+     * @param deletedOn
+     *            The creation date.
+     */
+    static void handleArtifactDraftCreated(final UUID uniqueId,
+            final JabberId createdBy, final Calendar createdOn) {
+        final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
+        artifactModel.handleDraftCreated(uniqueId, createdBy, createdOn);
+    }
+
+    /**
+     * Handle the artifact draft deleted remote event.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     * @param deletedBy
+     *            The deletion user.
+     * @param deletedOn
+     *            The deletion date.
+     */
+    static void handleArtifactDraftDeleted(final UUID uniqueId,
+            final JabberId deletedBy, final Calendar deletedOn) {
+        final InternalArtifactModel artifactModel = ArtifactModel.getInternalModel(sContext);
+        artifactModel.handleDraftDeleted(uniqueId, deletedBy, deletedOn);
+    }
+
+    /**
      * Handle the acceptance of an invitation.
      * 
      * @param acceptedBy
@@ -575,6 +607,20 @@ class SessionModelImpl extends AbstractModelImpl {
             catch(final Throwable t) {
                 throw translateError("[DELETE ARTIFACT]", t);
             }
+        }
+    }
+
+    /**
+     * Delete a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    void deleteDraft(final UUID uniqueId) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        synchronized (xmppHelper) {
+            xmppHelper.getXMPPSession().deleteDraft(uniqueId);
         }
     }
 

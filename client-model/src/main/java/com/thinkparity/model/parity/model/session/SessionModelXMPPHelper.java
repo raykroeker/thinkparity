@@ -67,7 +67,17 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 		super();
 		this.xmppSession = XMPPSessionFactory.createSession();
 		this.xmppArtifactListener = new XMPPArtifactListener() {
-			public void confirmReceipt(final UUID uniqueId,
+            public void handleDraftCreated(final UUID uniqueId,
+                    final JabberId createdBy, final Calendar createdOn) {
+                SessionModelImpl.handleArtifactDraftCreated(uniqueId,
+                        createdBy, createdOn);
+            }
+            public void handleDraftDeleted(final UUID uniqueId,
+                    final JabberId deletedBy, final Calendar deletedOn) {
+                SessionModelImpl.handleArtifactDraftDeleted(uniqueId,
+                        deletedBy, deletedOn);
+            }
+            public void confirmReceipt(final UUID uniqueId,
                     final Long versionId, final JabberId receivedFrom) {
                 handleConfirmationReceipt(uniqueId, versionId, receivedFrom);
             }

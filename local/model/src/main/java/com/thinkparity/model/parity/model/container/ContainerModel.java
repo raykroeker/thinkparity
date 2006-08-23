@@ -86,7 +86,7 @@ public class ContainerModel {
         }
     }
 
-	/**
+    /**
      * Add a container listener.
      * 
      * @param listener
@@ -96,7 +96,7 @@ public class ContainerModel {
         synchronized(implLock) { impl.addListener(listener); }
     }
 
-	/**
+    /**
      * Archive a container.
      * 
      * @param containerId
@@ -119,7 +119,7 @@ public class ContainerModel {
         Assert.assertNotYetImplemented("");
     }
 
-    /**
+	/**
      * Create a container.
      * 
      * @param name
@@ -130,7 +130,7 @@ public class ContainerModel {
         synchronized(getImplLock()) { return getImpl().create(name); }
     }
 
-    /**
+	/**
      * Create a container draft.
      * 
      * @param containerId
@@ -149,6 +149,18 @@ public class ContainerModel {
      */
     public void delete(final Long containerId) {
         synchronized(implLock) { impl.delete(containerId); }
+    }
+
+    /**
+     * Delete a draft.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void deleteDraft(final Long containerId) {
+        synchronized (getImplLock()) {
+            getImpl().deleteDraft(containerId);
+        }
     }
 
     /**
@@ -381,7 +393,7 @@ public class ContainerModel {
         synchronized(implLock) { return impl.readLatestVersion(containerId); }
     }
 
-	public List<TeamMember> readPublishedTo(final Long containerId,
+    public List<TeamMember> readPublishedTo(final Long containerId,
             final Long versionId) {
         throw Assert.createNotYetImplemented("ContainerModel#readPublishedTo(Long,Long)");
     }
@@ -391,7 +403,7 @@ public class ContainerModel {
         throw Assert.createNotYetImplemented("ContainerModel#sharedWith(Long,Long)");
     }
 
-    /**
+	/**
      * Read the team for the container.
      * 
      * @param containerId
@@ -504,6 +516,20 @@ public class ContainerModel {
     }
 
     /**
+     * Rename the container.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param name
+     *            The new container name.
+     */
+    public void rename(final Long containerId, final String name) {
+        synchronized (getImplLock()) {
+            getImpl().rename(containerId, name);
+        }
+    }
+
+    /**
      * Revert a document to it's pre-draft state.
      * 
      * @param documentId
@@ -518,6 +544,30 @@ public class ContainerModel {
     public void share(final Long containerId, final Long versionId,
             final JabberId userId) {
         throw Assert.createNotYetImplemented("ContainerModel#getImpl");
+    }
+
+    /**
+     * Subscribe to the container's team.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void subscribe(final Long containerId) {
+        synchronized (getImplLock()) {
+            getImpl().subscribe(containerId);
+        }
+    }
+
+    /**
+     * Unsubscribe from the container's team.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void unsubscribe(final Long containerId) {
+        synchronized (getImplLock()) {
+            getImpl().unsubscribe(containerId);
+        }
     }
 
     /**

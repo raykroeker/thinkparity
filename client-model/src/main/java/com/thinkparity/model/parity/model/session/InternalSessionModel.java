@@ -115,6 +115,18 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
+     * Delete a draft for an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    public void deleteDraft(final UUID uniqueId) {
+        synchronized (getImplLock()) {
+            getImpl().deleteDraft(uniqueId);
+        }
+    }
+
+    /**
 	 * Obtain the currently logged in user.
 	 * 
 	 * @return The logged in user.

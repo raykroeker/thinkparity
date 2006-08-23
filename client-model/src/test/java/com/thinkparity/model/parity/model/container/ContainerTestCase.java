@@ -94,6 +94,9 @@ abstract class ContainerTestCase extends ModelTestCase {
         public void containerReactivated(ContainerEvent e) {
             fail(getName() + " [CONTAINER REACTIVATED EVENT FIRED]");
         }
+        public void containerUpdated(ContainerEvent e) {
+            fail(getName() + " [CONTAINER UPDATED EVENT FIRED]");
+        }
         public void documentAdded(ContainerEvent e) {
             fail(getName() + " [DOCUMENT ADDED EVENT FIRED]");
         }
@@ -102,6 +105,9 @@ abstract class ContainerTestCase extends ModelTestCase {
         }
         public void draftCreated(ContainerEvent e) {
             fail(getName() + " [DRAFT CREATED EVENT FIRED]");
+        }
+        public void draftDeleted(ContainerEvent e) {
+            fail(getName() + " [CONTAINER DRAFT DELETED EVENT FIRED]");
         }
         public void draftPublished(ContainerEvent e) {
             fail(getName() + " [DRAFT PUBLISHED EVENT FIRED]");

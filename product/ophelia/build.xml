@@ -9,7 +9,7 @@
 
     <!-- release configuration -->
     <property name="release.name" value="${ant.project.name}"/>
-    <property name="release.version" value="1.0.0-RC11"/>
+    <property name="release.version" value="1.0.0-RC12"/>
     <property name="release.serverhost" value="thinkparity.dyndns.org"/>
 
     <!-- cvs configuration -->

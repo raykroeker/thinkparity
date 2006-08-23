@@ -63,11 +63,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
 
     private void containersJLabelMouseClicked(java.awt.event.MouseEvent e) {//GEN-FIRST:event_containersJLabelMouseClicked
         if (2 == e.getClickCount()) {
-            /*
-             * <<<<<<<<<<<<<<<<<<<<<
-             * DO NOT COMMIT
-             * >>>>>>>>>>>>>>>>>>>>>
-             */
+            /* NOCOMMIT */
             ((ContainerAvatar) new AvatarRegistry().get(AvatarId.TAB_CONTAINER)).reload();
         }
         setTab(MainTitleAvatar.Tab.CONTAINER);

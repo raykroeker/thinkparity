@@ -118,11 +118,7 @@ public class ContainerAvatar extends Avatar {
      *
      */
     public void reload() {
-        /*
-         * <<<<<<<<<<<<<<<
-         * DO NOT COMMIT
-         * >>>>>>>>>>>>>>
-         */
+        /* NOCOMMIT */
         model.reload();
     }
 

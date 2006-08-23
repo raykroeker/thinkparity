@@ -369,7 +369,7 @@ public class ContainerAvatarModel {
         draftDocumentCells.clear();
         versionDocumentCells.clear();
         for(final ContainerCell container : containerCells) {
-            if(container.isSetDraft()) {
+            if (container.isDraft() && container.isLocalDraft()) {
                 final DraftCell draft = readDraft(container);
                 draftCells.put(container, draft);
                 final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
@@ -391,11 +391,7 @@ public class ContainerAvatarModel {
         syncModel();
     }
 
-    /*
-     * <<<<<<<<<<<<<<<<<<<<<<<
-     * DO NOT COMMIT
-     * >>>>>>>>>>>>>>>>>>>>>>>
-     */
+    /* NOCOMMIT */
     void reload() {
         initModel();
     }
@@ -434,7 +430,7 @@ public class ContainerAvatarModel {
         final ContainerDraft draft = (ContainerDraft) contentProvider.getElement(1, container.getId());
         return toDisplay(container, draft);
     }
-    
+
     /**
      * Read from the provider whether or not the draft for the document has been
      * modified.
@@ -476,7 +472,7 @@ public class ContainerAvatarModel {
         for(final ContainerVersionCell c : a) { l.add(c); }
         return l;
     }
-    
+
     /**
      * Synchronize the container with the list. The content provider is queried
      * for the container and if it can be obtained; it will either be added to or
@@ -516,7 +512,7 @@ public class ContainerAvatarModel {
                 containerCells.add(0, container);
                 
                 // Get the draft
-                if(container.isSetDraft()) {
+                if(container.isDraft() && container.isLocalDraft()) {
                     final DraftCell draft = readDraft(container);
                     draftCells.put(container, draft);
                     final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
@@ -567,7 +563,7 @@ public class ContainerAvatarModel {
             final Long documentId, final Boolean remote) {
         final ContainerCell container = readContainer(containerId);
         // get the draft
-        if(container.isSetDraft()) {
+        if (container.isDraft() && container.isLocalDraft()) {
             final DraftCell draft = readDraft(container);
             draftCells.put(container, draft);
             final List<DraftDocumentCell> draftDocuments = toDisplay(draft, draft.getDocuments());
@@ -681,10 +677,11 @@ public class ContainerAvatarModel {
      */
     private List<DraftDocumentCell> toDisplay(final DraftCell draft,
             final List<Document> documents) {
-        final List<DraftDocumentCell> mcDocuments = new ArrayList<DraftDocumentCell>(documents.size());
-        for(final Document document : documents) {
-            mcDocuments.add(new DraftDocumentCell(draft, document));
+        final List<DraftDocumentCell> documentCells =
+            new ArrayList<DraftDocumentCell>(documents.size());
+        for (final Document document : documents) {
+            documentCells.add(new DraftDocumentCell(draft, document));
         }
-        return mcDocuments;
+        return documentCells;
     }
 }

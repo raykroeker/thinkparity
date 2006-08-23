@@ -36,9 +36,9 @@ public class FuzzyDateFormat {
     }
 
     /**
-     * Create FuzzyDateUtil.
+     * Create FuzzyDateFormat.
      * 
-     * @param deafultPattern
+     * @param defaultPattern
      *            The default date pattern.
      * @param sameDayPattern
      *            The pattern to use when the target occurs today.
@@ -64,11 +64,14 @@ public class FuzzyDateFormat {
     }
 
     /**
-     * Format the calendar.
+     * Format a <code>Calendar</code>. Determine which time-frame the
+     * <code>Calendar</code> exists within; and use the pattern from the
+     * constructor to format the date\time.
      * 
-     * @param calendar
-     *            A calendar.
+     * @param target
+     *            A target calendar.
      * @return A fuzzy date/time format.
+     * @see SimpleDateFormat#format(java.util.Date)
      */
     public String format(final Calendar target) {
         final Calendar now = DateUtil.getInstance();

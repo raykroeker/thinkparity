@@ -36,13 +36,13 @@ public class ResourceBundleHelper {
 	private final L18nContext l18nContext;
 
 	/**
-	 * Create a ResourceBundleHelper
-	 * 
-	 * @param bundle
-	 *            The bundle to use.
-	 * @param l18Context
-	 *            The l18Context to use.
-	 */
+     * Create ResourceBundleHelper
+     * 
+     * @param bundle
+     *            A resource bundle.
+     * @param l18nContext
+     *            A localization context.
+     */
 	public ResourceBundleHelper(final ResourceBundle bundle,
 			final L18nContext l18nContext) {
 		super();

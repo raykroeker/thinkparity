@@ -23,12 +23,12 @@ public class ResourceBundleManager {
 	static { singleton = new ResourceBundleManager(); }
 
 	/**
-	 * Obtain a resource bundle for a given resource bundle type.
-	 * 
-	 * @param bundleType
-	 *            Type of resource bundle to obtain.
-	 * @return The resource bundle.
-	 */
+     * Obtain a resource bundle for a given localization resource.
+     * 
+     * @param l18nResource
+     *            A localization resource.
+     * @return A resource bundle.
+     */
 	public static ResourceBundle getBundle(final L18nResource l18nResource) {
 		return singleton.doGetBundle(l18nResource);
 	}
@@ -40,10 +40,10 @@ public class ResourceBundleManager {
 	private ResourceBundleManager() { super(); }
 
 	/**
-	 * Obtain a resource bundle for a given resource bundle type.
+	 * Obtain a resource bundle for a given localization resource.
 	 * 
-	 * @param bundleType
-	 *            The type of bundle to obtain.
+	 * @param l18nResource
+	 *            A localization resource.
 	 * @return The resource bundle.
 	 */
 	private ResourceBundle doGetBundle(final L18nResource l18nResource) {

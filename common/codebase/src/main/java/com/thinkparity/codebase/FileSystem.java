@@ -293,32 +293,36 @@ public class FileSystem {
     }
 
     /**
-     * Create a relative path of the file to the root.
+     * Print the <code>File</code> within the
+     * <code>FileSystem</code. to the given <code>PrintStream</code>.
      * 
      * @param printStream
      *            A print stream.
      * @param file
      *            A file.
-     * @return A path relative to the root.
      */
     private void print(final PrintStream printStream, final File file) {
-        for(int i = 0; i < depth(file) + 1; i++) { printStream.print("  "); }
+        for (int i = 0; i < depth(file) + 1; i++) {
+            printStream.print("  ");
+        }
         printStream.print("[");
         printStream.print(file.getName());
         printStream.println("]");
     }
 
     /**
-     * Create a relative path of the file to the root.
+     * Print the given <code>File</code> within the <code>FileSystem</code>
+     * to the <code>PrintWriter</code>
      * 
-     * @param printStream
-     *            A print stream.
+     * @param printWriter
+     *            A print writer.
      * @param file
      *            A file.
-     * @return A path relative to the root.
      */
     private void print(final PrintWriter printWriter, final File file) {
-        for(int i = 0; i < depth(file) + 1; i++) { printWriter.print("  "); }
+        for (int i = 0; i < depth(file) + 1; i++) {
+            printWriter.print("  ");
+        }
         printWriter.print("[");
         printWriter.print(file.getName());
         printWriter.println("]");

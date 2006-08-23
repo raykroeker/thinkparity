@@ -14,25 +14,26 @@ import java.util.ResourceBundle;
 public abstract class L18n {
 
 	/**
-	 * Create a new resource bundle helper.
-	 * 
-	 * @param l18nClass The localization class.
-	 * @param l18nType
-	 *            The resource bundle type.
-	 * @param l18nContext
-	 *            The localization context.
-	 * @return The resource bundle helper.
-	 */
+     * Create a new resource bundle helper.
+     * 
+     * @param l18nResource
+     *            A localization resource.
+     * @param l18nContext
+     *            A localization context.
+     * @return A resource bundle helper.
+     */
 	private static ResourceBundleHelper createBundleHelper(
 			final L18nResource l18nResource, final L18nContext l18nContext) {
 		return new ResourceBundleHelper(getBundle(l18nResource), l18nContext);
 	}
 
 	/**
-	 * Obtain a resource bundle.
-	 * 
-	 * @return A resource bundle.
-	 */
+     * Obtain a resource bundle.
+     * 
+     * @param l18nContext
+     *            A localization context.
+     * @return A resource bundle.
+     */
 	private static ResourceBundle getBundle(final L18nResource l18nContext) {
 		return ResourceBundleManager.getBundle(l18nContext);
 	}
@@ -44,13 +45,15 @@ public abstract class L18n {
 	protected final ResourceBundleHelper bundleHelper;
 
 	/**
-	 * Create a L18n.
-	 * 
-	 * @param l18nType
-	 *            The localization type.
-	 * @param l18nContext
-	 *            The localization context.
-	 */
+     * Create L18n.
+     * 
+     * @param l18nResource
+     *            The localization resource.
+     * @param l18nContext
+     *            The localization context.
+     * @see L18nResource
+     * @see L18nContext
+     */
 	public L18n(final L18nResource l18nResource,
 			final L18nContext l18nContext) {
 		super();

@@ -46,9 +46,13 @@ public class LinkFactory {
     /**
      * Obtain an instance of a link factory.
      * 
-     * @param application.
+     * @param application
      *            A thinkParity application.
+     * @param mode
+     *            A thinkParity mode of operation.
      * @return A link factory.
+     * @see Application
+     * @see Mode
      */
     public static LinkFactory getInstance(final Application application,
             final Mode mode) {

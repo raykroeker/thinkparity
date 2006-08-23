@@ -105,22 +105,6 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	}
 
     /**
-     * Assert that the expected draft matches the actual.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param expected
-     *            The expected draft.
-     * @param actual
-     *            The actual draft.
-     */
-    protected static void assertEquals(final Object assertion,
-            final ContainerDraft expected, final ContainerDraft actual) {
-        assertEquals(assertion + " [CONTAINER DRAFT DOES NOT MATCH EXPECTATION]", (Object) expected, (Object) actual);
-        assertEquals(assertion + " [CONTAINER'S ARTIFACTS DO NOT MATCH EXPECTATION]", expected.getContainerId(), actual.getContainerId());
-    }
-
-    /**
      * Assert that the expected container matches the actual.
      * 
      * @param assertion
@@ -595,6 +579,17 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
      */
     protected ContainerDraft createContainerDraft(final Long containerId) {
         return getInternalContainerModel().createDraft(containerId);
+    }
+
+    /**
+     * Create a container draft.
+     * 
+     * @param container
+     *            A container.
+     * @return A container draft.
+     */
+    protected ContainerDraft createContainerDraft(final Container container) {
+        return createContainerDraft(container.getId());
     }
 
     /**

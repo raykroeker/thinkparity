@@ -1,31 +1,30 @@
 /*
- * Created On: Aug 2, 2006 2:34:59 PM
+ * Created On: Aug 23, 2006 12:04:52 PM
  */
 package com.thinkparity.model.parity.model.container;
 
-import java.util.List;
-
-import com.thinkparity.model.parity.model.user.TeamMember;
-
+import com.thinkparity.model.Constants.Versioning;
 
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class ReadTeamTest extends ContainerTestCase {
+public class ReadVersionPrePublishTest extends ContainerTestCase {
 
-    /** The test name. */
-    private static final String NAME = "TEST READ TEAM";
+    /** Test name. */
+    private static final String NAME = "READ VERSIION PRE PUBLISH";
 
     /** Test datum. */
     private Fixture datum;
 
-    /** Create ReadTeamTest. */
-    public ReadTeamTest() { super(NAME); }
+    /** Create ReadVersionPrePublishTest. */
+    public ReadVersionPrePublishTest() { super(NAME); }
 
-    public void testReadTeam() {
-        final List<TeamMember> team = datum.containerModel.readTeam(datum.container.getId());
-        assertNotNull(NAME + " [TEAM IS NULL]", team);
+    /** Test the read version api. */
+    public void testReadVersion() {
+        final ContainerVersion version =
+            datum.containerModel.readVersion(datum.container.getId(), Versioning.START);
+        assertNull(NAME + " NON EXISTANT VERSION IS NOT NULL", version);
     }
 
     /**
@@ -37,6 +36,7 @@ public class ReadTeamTest extends ContainerTestCase {
         final InternalContainerModel containerModel = getInternalContainerModel();
         final Container container = createContainer(NAME);
         datum = new Fixture(container, containerModel);
+        datum.containerModel.addListener(datum);
     }
 
     /**
@@ -44,12 +44,13 @@ public class ReadTeamTest extends ContainerTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
+        datum.containerModel.removeListener(datum);
         datum = null;
         super.tearDown();
     }
 
     /** Test datum definition. */
-    private class Fixture {
+    private class Fixture extends ContainerTestCase.Fixture {
         private final Container container;
         private final InternalContainerModel containerModel;
         private Fixture(final Container container,
@@ -58,5 +59,4 @@ public class ReadTeamTest extends ContainerTestCase {
             this.containerModel = containerModel;
         }
     }
-    
 }

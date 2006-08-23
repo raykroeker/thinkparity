@@ -15,7 +15,7 @@ import com.thinkparity.model.parity.model.user.TeamMember;
 public class ReadTeamTest extends ContainerTestCase {
 
     /** The test name. */
-    private static final String NAME = "[MODEL] [CONTAINER] [TEST READ TEAM]";
+    private static final String NAME = "TEST READ TEAM";
 
     /** Test datum. */
     private Fixture datum;
@@ -24,7 +24,7 @@ public class ReadTeamTest extends ContainerTestCase {
     public ReadTeamTest() { super(NAME); }
 
     public void testReadTeam() {
-        final List<TeamMember> team = datum.cModel.readTeam(datum.containerId);
+        final List<TeamMember> team = datum.containerModel.readTeam(datum.container.getId());
         assertNotNull(NAME + " [TEAM IS NULL]", team);
     }
 
@@ -34,9 +34,9 @@ public class ReadTeamTest extends ContainerTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        final ContainerModel cModel = getContainerModel();
+        final InternalContainerModel containerModel = getInternalContainerModel();
         final Container container = createContainer(NAME);
-        datum = new Fixture(cModel, container.getId());
+        datum = new Fixture(container, containerModel);
     }
 
     /**
@@ -50,11 +50,12 @@ public class ReadTeamTest extends ContainerTestCase {
 
     /** Test datum definition. */
     private class Fixture {
-        private final ContainerModel cModel;
-        private final Long containerId;
-        private Fixture(final ContainerModel cModel ,final Long containerId) {
-            this.cModel = cModel;
-            this.containerId = containerId;
+        private final Container container;
+        private final InternalContainerModel containerModel;
+        private Fixture(final Container container,
+                final InternalContainerModel containerModel) {
+            this.container = container;
+            this.containerModel = containerModel;
         }
     }
     

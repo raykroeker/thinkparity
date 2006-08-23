@@ -10,7 +10,7 @@ package com.thinkparity.model.parity.model.container;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class ReadLatestVersionTest extends ContainerTestCase {
+public class ReadLatestVersionPrePublishTest extends ContainerTestCase {
 
     /** Test test name. */
     private static final String NAME = "[LMODEL] [CONTAINER] [READ LATEST VERSION TEST]";
@@ -19,7 +19,7 @@ public class ReadLatestVersionTest extends ContainerTestCase {
     private Fixture datum;
 
     /** Create ReadLatestVersionTest. */
-    public ReadLatestVersionTest() { super(NAME); }
+    public ReadLatestVersionPrePublishTest() { super(NAME); }
 
     /**
      * Test the container model's read api.
@@ -28,8 +28,7 @@ public class ReadLatestVersionTest extends ContainerTestCase {
     public void testReadLatestVersion() {
         final ContainerVersion version =
             datum.containerModel.readLatestVersion(datum.container.getId());
-
-        assertNotNull(NAME, version);
+        assertNull(NAME + " LATEST VERSION IS NOT NULL", version);
     }
 
     /**
@@ -41,8 +40,6 @@ public class ReadLatestVersionTest extends ContainerTestCase {
         login();
         final InternalContainerModel containerModel = getInternalContainerModel();
         final Container container = createContainer(NAME);
-        publishContainer(container);
-
         datum = new Fixture(container, containerModel);
     }
 

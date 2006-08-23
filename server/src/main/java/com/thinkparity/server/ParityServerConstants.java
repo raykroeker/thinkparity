@@ -27,6 +27,7 @@ public interface ParityServerConstants {
         public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.dyndns.org/parity";
     }
 
+    /** Jive Messenger Property Names */
     public static final class JivePropertyNames {
         public static final String XMPP_DOMAIN = "xmpp.domain";
     }
@@ -39,23 +40,15 @@ public interface ParityServerConstants {
         public static final Object SQL_LOG_ID = Application.DESDEMONA + "] [SQL IO";
     }
 
-    public static final class PackageNames {
-        public static final String SERVER_HANDLER = "com.thinkparity.server.handler";
-    }
-
     /** Xml constants. */
 	public static final class Xml {
         public static final class All {
             public static final String EXECUTED_ON = "executedOn";
         }
         public static final class Artifact {
-            public static final String BYTES = "bytes";
-            public static final String NAME = "name";
-            public static final String TYPE = "type";
             public static final String UNIQUE_ID = "uniqueId";
-            public static final String VERSION_ID = "versionId";
         }
-	    public static final class Contact {
+        public static final class Contact {
             public static final String ACCEPTED_BY = "acceptedBy";
             public static final String ACCEPTED_ON = "acceptedOn";
             public static final String DECLINED_BY = "declinedBy";
@@ -70,22 +63,77 @@ public interface ParityServerConstants {
             public static final String ORGANIZATION = "organization";
             public static final String VCARD = "vCard";
         }
-        public static final class Container {
-            public static final String ARTIFACT_COUNT = "artifactCount";
-            public static final String ARTIFACT_INDEX = "artifactIndex";
-            public static final String CONTAINER_NAME = "containerName";
-            public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
-            public static final String CONTAINER_VERSION_ID = "containerVersionId";
-            public static final String PUBLISHED_BY = "publishedBy";
-            public static final String PUBLISHED_ON = "publishedOn";
-            public static final String SENT_BY = "sentBy";
-            public static final String SENT_ON = "sentOn";
+	    public static final class Container {
+            public static final class Method {
+                public static final class Publish {
+                    public static final String EVENT_NAME = "jabber:iq:parity:container:published";
+                    public static final String NAME = "";
+                    public static final class Parameter {
+                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
+                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
+                        public static final String PUBLISHED_BY = "publishedBy";
+                        public static final String PUBLISHED_ON = "publishedOn";
+                    }
+                }
+                public static final class PublishArtifact {
+                    public static final String EVENT_NAME = "jabber:iq:parity:artifactpublished";
+                    public static final String NAME = "jabber:iq:parity:container:publishartifact";
+                    public static final class Parameter {
+                        public static final String ARTIFACT_BYTES = "artifactBytes";
+                        public static final String ARTIFACT_CHECKSUM = "artifactChecksum";
+                        public static final String ARTIFACT_NAME = "artifactName";
+                        public static final String ARTIFACT_TYPE = "artifactType";
+                        public static final String ARTIFACT_UNIQUE_ID = "artifactUniqueId";
+                        public static final String ARTIFACT_VERSION_ID = "artifactVersionId";
+                        public static final String CONTAINER_ARTIFACT_COUNT = "containerArtifactCount";
+                        public static final String CONTAINER_ARTIFACT_INDEX = "containerArtifactIndex";
+                        public static final String CONTAINER_NAME = "containerName";
+                        public static final String CONTAINER_TEAM_MEMBER = "containerTeamMember";
+                        public static final String CONTAINER_TEAM_MEMBERS = "containerTeamMembers";
+                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
+                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
+                        public static final String PUBLISHED_BY = "publishedBy";
+                        public static final String PUBLISHED_ON = "publishedOn";
+                    }
+                }
+                public static final class Send {
+                    public static final String EVENT_NAME = "jabber:iq:parity:container:sent";
+                    public static final String NAME = "jabber:iq:parity:container:send";
+                    public static final class Parameter {
+                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
+                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
+                        public static final String SENT_BY = "sentBy";
+                        public static final String SENT_ON = "sentOn";
+                    }
+                }
+                public static final class SendArtifact {
+                    public static final String EVENT_NAME = "jabber:iq:parity:artifactsent";
+                    public static final String NAME = "jabber:iq:parity:container:sendartifact";
+                    public static final class Parameter {
+                        public static final String ARTIFACT_BYTES = "artifactBytes";
+                        public static final String ARTIFACT_CHECKSUM = "artifactChecksum";
+                        public static final String ARTIFACT_NAME = "artifactName";
+                        public static final String ARTIFACT_TEAM_MEMBER = "artifactTeamMember";
+                        public static final String ARTIFACT_TEAM_MEMBERS = "artifactTeamMembers";
+                        public static final String ARTIFACT_TYPE = "artifactType";
+                        public static final String ARTIFACT_UNIQUE_ID = "artifactUniqueId";
+                        public static final String ARTIFACT_VERSION_ID = "artifactVersionId";
+                        public static final String CONTAINER_ARTIFACT_COUNT = "containerArtifactCount";
+                        public static final String CONTAINER_ARTIFACT_INDEX = "containerArtifactIndex";
+                        public static final String CONTAINER_NAME = "containerName";
+                        public static final String CONTAINER_UNIQUE_ID = "containerUniqueId";
+                        public static final String CONTAINER_VERSION_ID = "containerVersionId";
+                        public static final String SENT_BY = "sentBy";
+                        public static final String SENT_ON = "sentOn";
+                        public static final String SENT_TO = "sentTo";
+                    }
+                }
+            }
         }
         public static final class Event {
             public static final class Artifact {
-                public static final String DRAFT_CREATED = "draftcreate";
-                public static final String TEAM_MEMBER_ADDED = "teammemberadded";
-                public static final String TEAM_MEMBER_REMOVED = "teammemberremoved";
+                public static final String DRAFT_CREATED = "draftcreated";
+                public static final String DRAFT_DELETED = "draftdeleted";
             }
             public static final class Contact {
                 public static final String INVITATION_ACCEPTED = "invitationaccepted";
@@ -103,6 +151,45 @@ public interface ParityServerConstants {
             public static final String JABBER_ID = "jabberId";
             public static final String NAME = "name";
             public static final String ORGANIZATION = "organization";
+        }
+        public static final class Service {
+            public static final class Artifact {
+                public static final String ADD_TEAM_MEMBER = "artifact:addteammember";
+                public static final String CONFIRM_RECEIPT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifactconfirmreceipt";
+                public static final String CREATE_ARTIFACT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "createartifact";
+                public static final String CREATE_DRAFT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifact:createdraft";
+                public static final String DELETE_DRAFT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifact:deletedraft";
+                public static final String FLAG_ARTIFACT = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "flagartifact";
+                public static final String GET_SUBSCRIPTION = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "getsubscription";
+                public static final String READ_CONTACTS = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifactreadcontacts";
+                public static final String READ_KEY_HOLDER = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifact:readkeyholder";
+                public static final String REMOVE_TEAM_MEMBER = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "artifact:removeteammember";
+            }
+            public static final class Contact {
+                public static final String ACCEPT_INVITATION = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "contact:acceptinvitation";
+                public static final String DECLINE_INVITATION = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "contact:declineinvitation";
+                public static final String EXTEND_INVITATION = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "contact:invite";
+                public static final String READ = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "contact:read";
+                public static final String READ_CONTACTS = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "readcontacts";
+            }
+            public static final class Container {
+                public static final String PUBLISH = "container:publish";
+                public static final String PUBLISH_ARTIFACT = "container:publishartifact";
+                public static final String SEND = "container:send";
+                public static final String SEND_ARTIFACT = "container:sendartifact";
+            }
+            public static final class Document {
+                public static final String SEND = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "documentsend";
+            }
+            public static final class Profile {
+                public static final String READ = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "profile:read";
+            }
+            public static final class Queue {
+                public static final String PROCESS_OFFLINE_QUEUE = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "processofflinequeue";
+            }
+            public static final class User {
+                public static final String READ = com.thinkparity.codebase.Constants.Xml.NAMESPACE + "readusers";
+            }
         }
         public static final class User {
             public static final String JABBER_ID = "jabberId";

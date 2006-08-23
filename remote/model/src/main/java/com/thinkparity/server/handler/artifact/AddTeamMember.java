@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.ParityServerConstants.Xml.Service;
 import com.thinkparity.server.handler.AbstractController;
 
 /**
@@ -17,7 +17,7 @@ import com.thinkparity.server.handler.AbstractController;
 public class AddTeamMember extends AbstractController {
 
     /** Create AddTeamMember. */
-    public AddTeamMember() { super("artifact:addteammember"); }
+    public AddTeamMember() { super(Service.Artifact.ADD_TEAM_MEMBER); }
 
     /**
      * @see com.thinkparity.codebase.controller.AbstractController#service()
@@ -25,7 +25,7 @@ public class AddTeamMember extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        addTeamMember(readUUID(Xml.Artifact.UNIQUE_ID), readJabberId(Xml.User.JABBER_ID));
+        addTeamMember(readUUID("uniqueId"), readJabberId("jabberId"));
     }
 
     /**

@@ -3,9 +3,13 @@
  */
 package com.thinkparity.server.handler.container;
 
+import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.server.ParityServerConstants.Xml.Service;
 import com.thinkparity.server.handler.AbstractController;
 
 /**
@@ -15,7 +19,7 @@ import com.thinkparity.server.handler.AbstractController;
 public class Publish extends AbstractController {
 
     /** Create Publish. */
-    public Publish() { super("container:publish"); }
+    public Publish() { super(Service.Container.PUBLISH); }
 
     /**
      * @see com.thinkparity.codebase.controller.AbstractController#service()
@@ -23,16 +27,36 @@ public class Publish extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        publish(readUUID(Xml.Artifact.UNIQUE_ID));
+        publish(readUUID("uniqueId"), readLong("versionId"),
+                readString("name"), readInteger("artifactCount"),
+                readJabberId("publishedBy"),
+                readJabberIds("publishedTo", "publishedTo"),
+                readCalendar("publishedOn"));
     }
 
     /**
-     * Publish the artifact version.
+     * Publish the container version.
      * 
      * @param uniqueId
-     *            The unique id.
+     *            A container unique id.
+     * @param versionId
+     *            A container version id.
+     * @param name
+     *            A container name.
+     * @param artifactCount
+     *            A container version artifact count.
+     * @param publishedBy
+     *            By whom the container was published.
+     * @param publishedTo
+     *            To whom the container was published.
+     * @param publishedOn
+     *            When the container was published.
      */
-    private void publish(final UUID uniqueId) {
-        getContainerModel().publish(uniqueId);
+    private void publish(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId publishedBy, final List<JabberId> publishedTo,
+            final Calendar publishedOn) {
+        getContainerModel().publish(uniqueId, versionId, name, artifactCount,
+                publishedBy, publishedTo, publishedOn);
     }
 }

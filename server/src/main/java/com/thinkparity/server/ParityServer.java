@@ -118,6 +118,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.artifact.ConfirmReceipt");
             initializeController("com.thinkparity.server.handler.artifact.CreateArtifact");
             initializeController("com.thinkparity.server.handler.artifact.CreateDraft");
+            initializeController("com.thinkparity.server.handler.artifact.DeleteDraft");
             initializeController("com.thinkparity.server.handler.artifact.FlagArtifact");
             initializeController("com.thinkparity.server.handler.artifact.GetSubscription");
             initializeController("com.thinkparity.server.handler.artifact.ReadContacts");
@@ -131,6 +132,7 @@ public class ParityServer implements Plugin {
             initializeController("com.thinkparity.server.handler.container.Publish");
             initializeController("com.thinkparity.server.handler.container.PublishArtifact");
             initializeController("com.thinkparity.server.handler.container.Send");
+            initializeController("com.thinkparity.server.handler.container.SendArtifact");
             initializeController("com.thinkparity.server.handler.document.SendDocument");
             initializeController("com.thinkparity.server.handler.profile.Read");
             initializeController("com.thinkparity.server.handler.queue.ProcessOfflineQueue");

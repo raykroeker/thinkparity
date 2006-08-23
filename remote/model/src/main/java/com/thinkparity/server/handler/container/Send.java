@@ -4,13 +4,12 @@
 package com.thinkparity.server.handler.container;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.model.artifact.ArtifactType;
-
-import com.thinkparity.server.ParityServerConstants.Xml;
+import com.thinkparity.server.ParityServerConstants.Xml.Service;
 import com.thinkparity.server.handler.AbstractController;
 
 /**
@@ -20,7 +19,7 @@ import com.thinkparity.server.handler.AbstractController;
 public class Send extends AbstractController {
 
     /** Create SendVersion. */
-    public Send() { super("container:send"); }
+    public Send() { super(Service.Container.SEND); }
 
     /**
      * @see com.thinkparity.codebase.controller.AbstractController#service()
@@ -28,51 +27,35 @@ public class Send extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        sendArtifact(readJabberId(Xml.Container.SENT_BY),
-                readCalendar(Xml.Container.SENT_ON),
-                readJabberId(Xml.User.JABBER_ID),
-                readUUID(Xml.Container.CONTAINER_UNIQUE_ID),
-                readLong(Xml.Container.CONTAINER_VERSION_ID),
-                readString(Xml.Container.CONTAINER_NAME),
-                readInteger(Xml.Container.ARTIFACT_COUNT),
-                readInteger(Xml.Container.ARTIFACT_INDEX),
-                readUUID(Xml.Artifact.UNIQUE_ID),
-                readLong(Xml.Artifact.VERSION_ID),
-                readString(Xml.Artifact.NAME),
-                readArtifactType(Xml.Artifact.TYPE),
-                readByteArray(Xml.Artifact.BYTES));
+        sendArtifact(readUUID("uniqueId"), readLong("versionId"),
+                readString("name"), readInteger("artifactCount"),
+                readJabberId("sentBy"), readJabberIds("sentTo", "sentTo"),
+                readCalendar("sentOn"));
     }
 
     /**
-     * Send the artifact version.
+     * Send a container version.
      * 
-     * @param jabberId
-     *            The jabber id.
      * @param uniqueId
-     *            The unique id.
+     *            A container unique id.
      * @param versionId
-     *            The version id.
-     * @param count
-     *            The total count.
-     * @param index
-     *            The index.
-     * @param artifactUniqueId
-     *            The artifact unique id.
-     * @param artifactVersionId
-     *            The artifact version id.
-     * @param type
-     *            The artifact type.
-     * @param bytes
-     *            The artifact bytes.
+     *            A container version id.
+     * @param name
+     *            A container name.
+     * @param artifactCount
+     *            The number of artifacts in the version.
+     * @param sentBy
+     *            By whom the container version was sent.
+     * @param sentTo
+     *            To whom to sent the container was sent.
+     * @param sentOn
+     *            When the container version was sent.
      */
-    private void sendArtifact(final JabberId sentBy, final Calendar sentOn,
-            final JabberId jabberId, final UUID uniqueId, final Long versionId,
-            final String name, final Integer count, final Integer index,
-            final UUID artifactUniqueId, final Long artifactVersionId,
-            final String artifactName, final ArtifactType type,
-            final byte[] bytes) {
-        getContainerModel().sendArtifact(sentBy, sentOn, jabberId, uniqueId,
-                versionId, name, count, index, artifactUniqueId,
-                artifactVersionId, artifactName, type, bytes);
+    private void sendArtifact(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId sentBy, final List<JabberId> sentTo,
+            final Calendar sentOn) {
+        getContainerModel().send(uniqueId, versionId, name, artifactCount,
+                sentBy, sentTo, sentOn);
     }
 }

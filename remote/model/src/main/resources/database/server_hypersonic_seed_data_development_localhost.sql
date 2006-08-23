@@ -1,7 +1,7 @@
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.auth.anonymous', 'true');
 insert into jiveProperty (NAME,PROPVALUE)
-    values('xmpp.domain', 'rk-mobile.raykroeker.com');
+    values('xmpp.domain', 'thinkparity.dyndns.org');
 insert into jiveProperty (NAME,PROPVALUE)
     values('xmpp.socket.plain.port', '5226');
 insert into jiveProperty (NAME,PROPVALUE)
@@ -93,95 +93,95 @@ insert into parityUserEmail (USERNAME,EMAIL)
     values('junit.z', 'junit.z@thinkparity.com');
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'ahalaby@rk-mobile.raykroeker.com', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'ahalaby@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'rwaterhouse@rk-mobile.raykroeker.com', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'rwaterhouse@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'ashaftoe@rk-mobile.raykroeker.com', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'ashaftoe@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'brussell@rk-mobile.raykroeker.com', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'brussell@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rkroeker', 'gdengo@rk-mobile.raykroeker.com', 'rkroeker', NOW(), 'rkroeker', NOW());
+    values ('rkroeker', 'gdengo@thinkparity.dyndns.org', 'rkroeker', NOW(), 'rkroeker', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'rkroeker@rk-mobile.raykroeker.com', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'rkroeker@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'ahalaby@rk-mobile.raykroeker.com', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'ahalaby@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'ashaftoe@rk-mobile.raykroeker.com', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'ashaftoe@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'brussell@rk-mobile.raykroeker.com', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'brussell@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('rwaterhouse', 'gdengo@rk-mobile.raykroeker.com', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
+    values ('rwaterhouse', 'gdengo@thinkparity.dyndns.org', 'rwaterhouse', NOW(), 'rwaterhouse', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'rkroeker@rk-mobile.raykroeker.com', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'rkroeker@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'rwaterhouse@rk-mobile.raykroeker.com', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'rwaterhouse@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'ashaftoe@rk-mobile.raykroeker.com', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'ashaftoe@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'brussell@rk-mobile.raykroeker.com', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'brussell@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ahalaby', 'gdengo@rk-mobile.raykroeker.com', 'ahalaby', NOW(), 'ahalaby', NOW());
+    values ('ahalaby', 'gdengo@thinkparity.dyndns.org', 'ahalaby', NOW(), 'ahalaby', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'rkroeker@rk-mobile.raykroeker.com', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'rkroeker@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'ahalaby@rk-mobile.raykroeker.com', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'ahalaby@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'rwaterhouse@rk-mobile.raykroeker.com', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'rwaterhouse@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'brussell@rk-mobile.raykroeker.com', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'brussell@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('ashaftoe', 'gdengo@rk-mobile.raykroeker.com', 'ashaftoe', NOW(), 'ashaftoe', NOW());
+    values ('ashaftoe', 'gdengo@thinkparity.dyndns.org', 'ashaftoe', NOW(), 'ashaftoe', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'rkroeker@rk-mobile.raykroeker.com', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'rkroeker@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'ahalaby@rk-mobile.raykroeker.com', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'ahalaby@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'rwaterhouse@rk-mobile.raykroeker.com', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'rwaterhouse@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'ashaftoe@rk-mobile.raykroeker.com', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'ashaftoe@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('brussell', 'gdengo@rk-mobile.raykroeker.com', 'brussell', NOW(), 'brussell', NOW());
+    values ('brussell', 'gdengo@thinkparity.dyndns.org', 'brussell', NOW(), 'brussell', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'rkroeker@rk-mobile.raykroeker.com', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'rkroeker@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'ahalaby@rk-mobile.raykroeker.com', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'ahalaby@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'rwaterhouse@rk-mobile.raykroeker.com', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'rwaterhouse@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'ashaftoe@rk-mobile.raykroeker.com', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'ashaftoe@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('gdengo', 'brussell@rk-mobile.raykroeker.com', 'gdengo', NOW(), 'gdengo', NOW());
+    values ('gdengo', 'brussell@thinkparity.dyndns.org', 'gdengo', NOW(), 'gdengo', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.x@rk-mobile.raykroeker.com', 'junit', NOW(), 'junit', NOW());
+    values ('junit', 'junit.x@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.y@rk-mobile.raykroeker.com', 'junit', NOW(), 'junit', NOW());
+    values ('junit', 'junit.y@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit', 'junit.z@rk-mobile.raykroeker.com', 'junit', NOW(), 'junit', NOW());
+    values ('junit', 'junit.z@thinkparity.dyndns.org', 'junit', NOW(), 'junit', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit@rk-mobile.raykroeker.com', 'junit.x', NOW(), 'junit.x', NOW());
+    values ('junit.x', 'junit@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit.y@rk-mobile.raykroeker.com', 'junit.x', NOW(), 'junit.x', NOW());
+    values ('junit.x', 'junit.y@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.x', 'junit.z@rk-mobile.raykroeker.com', 'junit.x', NOW(), 'junit.x', NOW());
+    values ('junit.x', 'junit.z@thinkparity.dyndns.org', 'junit.x', NOW(), 'junit.x', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit@rk-mobile.raykroeker.com', 'junit.y', NOW(), 'junit.y', NOW());
+    values ('junit.y', 'junit@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit.x@rk-mobile.raykroeker.com', 'junit.y', NOW(), 'junit.y', NOW());
+    values ('junit.y', 'junit.x@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.y', 'junit.z@rk-mobile.raykroeker.com', 'junit.y', NOW(), 'junit.y', NOW());
+    values ('junit.y', 'junit.z@thinkparity.dyndns.org', 'junit.y', NOW(), 'junit.y', NOW());
 
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit@rk-mobile.raykroeker.com', 'junit.z', NOW(), 'junit.z', NOW());
+    values ('junit.z', 'junit@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit.x@rk-mobile.raykroeker.com', 'junit.z', NOW(), 'junit.z', NOW());
+    values ('junit.z', 'junit.x@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());
 insert into parityContact (USERNAME,CONTACTUSERNAME,CREATEDBY,CREATEDON,UPDATEDBY,UPDATEDON)
-    values ('junit.z', 'junit.y@rk-mobile.raykroeker.com', 'junit.z', NOW(), 'junit.z', NOW());
+    values ('junit.z', 'junit.y@thinkparity.dyndns.org', 'junit.z', NOW(), 'junit.z', NOW());

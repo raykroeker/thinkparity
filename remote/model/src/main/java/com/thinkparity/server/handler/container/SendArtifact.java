@@ -18,10 +18,10 @@ import com.thinkparity.server.handler.AbstractController;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class PublishArtifact extends AbstractController {
+public class SendArtifact extends AbstractController {
 
-    /** Create PublishArtifact. */
-    public PublishArtifact() { super(Service.Container.PUBLISH_ARTIFACT); }
+    /** Create SendVersion. */
+    public SendArtifact() { super(Service.Container.SEND_ARTIFACT); }
 
     /**
      * @see com.thinkparity.codebase.controller.AbstractController#service()
@@ -29,18 +29,18 @@ public class PublishArtifact extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        publishArtifact(readUUID("uniqueId"), readLong("versionId"),
+        sendArtifact(readUUID("uniqueId"), readLong("versionId"),
                 readString("name"), readInteger("artifactCount"),
                 readInteger("artifactIndex"), readUUID("artifactUniqueId"),
                 readLong("artifactVersionId"), readString("artifactName"),
                 readArtifactType("artifactType"),
                 readString("artifactChecksum"), readByteArray("artifactBytes"),
-                readJabberIds("publishTo", "publishTo"),
-                readJabberId("publishedBy"), readCalendar("publishedOn"));
+                readJabberIds("sendTo", "sendTo"), readJabberId("sentBy"),
+                readCalendar("sentOn"));
     }
 
     /**
-     * Publish the artifact version.
+     * Send a container version's artifact version.
      * 
      * @param uniqueId
      *            The container unique id.
@@ -49,9 +49,9 @@ public class PublishArtifact extends AbstractController {
      * @param name
      *            The container name.
      * @param artifactCount
-     *            The number of artifacts in the container version.
+     *            The artifact count.
      * @param artifactIndex
-     *            The index of this artifact in the container version.
+     *            The artifact index.
      * @param artifactUniqueId
      *            The artifact unique id.
      * @param artifactVersionId
@@ -64,24 +64,23 @@ public class PublishArtifact extends AbstractController {
      *            The artifact checksum.
      * @param artifactBytes
      *            The artifact bytes.
-     * @param publishTo
-     *            To whom the artifact should be published.
-     * @param publishedBy
-     *            By whom the artifact was published.
-     * @param publishedOn
-     *            When the artifact was published.
+     * @param sendTo
+     *            To whom to send the artifact.
+     * @param sentBy
+     *            Whom the artifact was sent by.
+     * @param sentOn
+     *            When the artifact was sent.
      */
-    private void publishArtifact(final UUID uniqueId,
-            final Long versionId, final String name, final Integer artifactCount,
+    private void sendArtifact(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
             final Integer artifactIndex, final UUID artifactUniqueId,
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
-            final byte[] artifactBytes, final List<JabberId> publishTo,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        getContainerModel().publishArtifact(uniqueId, versionId, name,
+            final byte[] artifactBytes, final List<JabberId> sendTo,
+            final JabberId sentBy, final Calendar sentOn) {
+        getContainerModel().sendArtifact(uniqueId, versionId, name,
                 artifactCount, artifactIndex, artifactUniqueId,
                 artifactVersionId, artifactName, artifactType,
-                artifactChecksum, artifactBytes, publishTo, publishedBy,
-                publishedOn);
+                artifactChecksum, artifactBytes, sendTo, sentBy, sentOn);
     }
 }

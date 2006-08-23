@@ -3,6 +3,8 @@
  */
 package com.thinkparity.server.org.dom4j;
 
+import com.thinkparity.codebase.Constants.Xml;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -25,14 +27,7 @@ public enum NamespaceName {
 	IQ_READ_CONTACTS("readcontacts"),
 	IQ_READ_USERS("readusers");;
 
-	/**
-	 * The root parity xml namespace.
-	 */
-	private static final String ROOT = "jabber:iq:parity:";
-
-	/**
-	 * The namespace name.
-	 */
+	/** The namespace suffix. */
 	private final String name;
 
 	/**
@@ -47,6 +42,6 @@ public enum NamespaceName {
 	 * @return Returns the name.
 	 */
 	public String getName() {
-		return new StringBuffer(ROOT).append(name).toString();
+		return new StringBuffer(Xml.NAMESPACE).append(":").append(name).toString();
 	}
 }

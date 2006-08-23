@@ -87,6 +87,21 @@ public abstract class IQWriter {
     }
 
     /**
+     * Write a list of jabber id values.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+    public final void writeJabberIds(final String parentName,
+            final String name, final List<JabberId> values) {
+        ElementBuilder.addJabberIdElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    /**
      * Write a long value.
      * 
      * @param name

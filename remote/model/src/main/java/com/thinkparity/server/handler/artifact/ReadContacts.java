@@ -6,6 +6,7 @@ package com.thinkparity.server.handler.artifact;
 import java.util.List;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
+
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.server.handler.IQAction;

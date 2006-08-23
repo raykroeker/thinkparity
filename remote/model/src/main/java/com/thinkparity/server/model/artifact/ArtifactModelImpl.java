@@ -4,6 +4,7 @@
 package com.thinkparity.server.model.artifact;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,11 +17,13 @@ import org.jivesoftware.messenger.vcard.VCardManager;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
+import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.server.ParityServerConstants.Xml.Event;
+import com.thinkparity.model.xmpp.IQWriter;
+
 import com.thinkparity.server.model.AbstractModelImpl;
 import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
@@ -60,9 +63,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
     /** Artifact subscription sql io. */
 	private final ArtifactSubscriptionSql artifactSubscriptionSql;
 
-	/** An event generator. */
-    private final ArtifactEventGenerator eventGenerator;
-
 	/** The jive VCard manager. */
 	private final VCardManager vCardManager;
 
@@ -73,7 +73,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		super(session);
 		this.artifactSql = new ArtifactSql();
 		this.artifactSubscriptionSql = new ArtifactSubscriptionSql();
-        this.eventGenerator = new ArtifactEventGenerator();
 		this.vCardManager = VCardManager.getInstance();
 	}
 
@@ -167,7 +166,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
             final String username = jabberId.getUsername();
             artifactSubscriptionSql.insert(artifact.getArtifactId(), username,
                     session.getJabberId());
-            notifyTeamMemberAdded(get(uniqueId), user, eventGenerator);
+            notifyTeamMemberAdded(get(uniqueId), user);
         }
         catch(final Throwable t) { throw translateError(t); }
     }
@@ -283,7 +282,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
             artifactSql.updateKeyHolder(
                     artifact.getArtifactId(), session.getJabberId().getUsername(),
                     session.getJabberId());
-            notifyDraftCreated(artifact, eventGenerator);
+            notifyDraftCreated(artifact, session.getJabberId(), DateUtil
+                    .getInstance());
         }
         catch(final ParityServerModelException psmx) {
             throw translateError(psmx);
@@ -293,6 +293,27 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
         catch(final UnauthorizedException ux) {
             throw translateError(ux);
+        }
+    }
+
+    /**
+     * Delete a draft from an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    void deleteDraft(final UUID uniqueId) {
+        logApiId();
+        debugVariable("uniqueId", uniqueId);
+        try {
+            final Artifact artifact = get(uniqueId);
+            assertIsKeyHolder(artifact);
+            final JabberId sessionJabberId = session.getJabberId();
+            artifactSql.updateKeyHolder(artifact.getArtifactId(),
+                    sessionJabberId.getUsername(), sessionJabberId);
+            notifyDraftDeleted(artifact, session.getJabberId(), DateUtil.getInstance());
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -482,12 +503,11 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-	List<Contact> readContacts(final UUID artifactUniqueId)
-			throws ParityServerModelException {
+	List<Contact> readContacts(final UUID artifactUniqueId) {
         logApiId();
 		logger.debug(artifactUniqueId);
 		try {
-			final List<ArtifactSubscription> s =getSubscription(artifactUniqueId);
+			final List<ArtifactSubscription> s = getSubscription(artifactUniqueId);
 			final List<Contact> contacts = new LinkedList<Contact>();
 			Contact contact;
 			for(final ArtifactSubscription as : s) {
@@ -497,10 +517,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
 				contacts.add(contact);
 			}
 			return contacts;
-		}
-		catch(final RuntimeException rx) {
-			logger.error("[SERVER] [MODEL] [ARTIFACT] [READ CONTACTS]", rx);
-			throw ParityErrorTranslator.translate(rx);
+		} catch( final Throwable t) {
+            throw translateError(t);
 		}
 	}
 
@@ -528,9 +546,8 @@ class ArtifactModelImpl extends AbstractModelImpl {
                     artifactSql.delete(artifactId);
                 }
             }
-
             final User user = getUserModel().readUser(jabberId);
-            notifyTeamMemberRemoved(artifact, user, eventGenerator);
+            notifyTeamMemberRemoved(artifact, user);
         }
         catch(final Throwable t) { throw translateError(t); }
     }
@@ -712,7 +729,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
 		return assertion.toString();
 	}
 
-	/**
+    /**
      * Notify an artifact's team a draft was created.
      * 
      * @param teamIds
@@ -720,12 +737,32 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @param eventGenerator
      *            An artifact event generator.
      */
-	private void notifyDraftCreated(final Artifact artifact,
-            final ArtifactEventGenerator eventGenerator)
+    private void notifyDraftCreated(final Artifact artifact,
+            final JabberId createdBy, final Calendar createdOn)
             throws ParityServerModelException, UnauthorizedException {
-	    final IQ notification = eventGenerator.generate(
-                Event.Artifact.DRAFT_CREATED, artifact.getArtifactUUID());
-        notifyTeam(artifact.getArtifactUUID(), notification);
+        final IQWriter notification = createIQWriter("artifact:draftcreated");
+        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeJabberId("createdBy", createdBy);
+        notification.writeCalendar("createdOn", createdOn);
+        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
+    }
+
+    /**
+     * Notify an artifact's team a draft was created.
+     * 
+     * @param teamIds
+     *            A list of team members.
+     * @param eventGenerator
+     *            An artifact event generator.
+     */
+    private void notifyDraftDeleted(final Artifact artifact,
+            final JabberId deletedBy, final Calendar deletedOn)
+            throws ParityServerModelException, UnauthorizedException {
+        final IQWriter notification = createIQWriter("artifact:draftdeleted");
+        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeJabberId("deletedBy", deletedBy);
+        notification.writeCalendar("deletedOn", deletedOn);
+        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
     }
 
     /**
@@ -740,13 +777,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @throws ParityServerModelException
      * @throws UnauthorizedException
      */
-    private void notifyTeamMemberAdded(final Artifact artifact,
-            final User user, final ArtifactEventGenerator eventGenerator)
+    private void notifyTeamMemberAdded(final Artifact artifact, final User user)
             throws ParityServerModelException, UnauthorizedException {
-        final IQ notification = eventGenerator.generate(
-                Event.Artifact.TEAM_MEMBER_ADDED, artifact.getArtifactUUID(),
-                user.getId());
-        notifyTeam(artifact.getArtifactUUID(), notification);
+        final IQWriter notification = createIQWriter("artifact:teammemberadded");
+        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeJabberId("jabberId", user.getId());
+        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
     }
 
     /**
@@ -762,12 +798,12 @@ class ArtifactModelImpl extends AbstractModelImpl {
      * @throws UnauthorizedException
      */
     private void notifyTeamMemberRemoved(final Artifact artifact,
-            final User user, final ArtifactEventGenerator eventGenerator)
-            throws ParityServerModelException, UnauthorizedException {
-        final IQ notification = eventGenerator.generate(
-                Event.Artifact.TEAM_MEMBER_REMOVED, artifact.getArtifactUUID(),
-                user.getId());
-        notifyTeam(artifact.getArtifactUUID(), notification);
+            final User user) throws ParityServerModelException,
+            UnauthorizedException {
+        final IQWriter notification = createIQWriter("artifact:teammemberremoved");
+        notification.writeUniqueId("uniqueId", artifact.getArtifactUUID());
+        notification.writeJabberId("jabberId", user.getId());
+        notifyTeam(artifact.getArtifactUUID(), notification.getIQ());
     }
 
     /**

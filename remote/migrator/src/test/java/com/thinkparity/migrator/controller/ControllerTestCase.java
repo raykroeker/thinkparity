@@ -57,7 +57,7 @@ public abstract class ControllerTestCase extends MigratorTestCase {
      */
     protected IQ createGetIQ() {
         final IQ iq = new IQ(IQ.Type.get);
-        iq.setChildElement("query", "jabber:iq:parity");
+        iq.setChildElement(Xml.NAME, Xml.NAMESPACE);
         return iq;
     }
 

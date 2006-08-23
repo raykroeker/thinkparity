@@ -6,6 +6,7 @@ package com.thinkparity.model.handler;
 import org.xmpp.packet.IQ;
 import org.xmpp.packet.PacketError;
 
+import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.StringUtil.Separator;
 
 import com.thinkparity.model.ModelTestCase;
@@ -66,7 +67,7 @@ public abstract class HandlerTestCase extends ModelTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         final IQ iq = new IQ(IQ.Type.get);
-        iq.setChildElement("query", "jabber:iq:parity");
+        iq.setChildElement(Xml.NAME, Xml.NAMESPACE);
         iq.setFrom(ModelTestUser.getJUnit().getJabberId().getQualifiedJabberId());
         this.handlerDatum = new HandlerFixture(iq);
     }

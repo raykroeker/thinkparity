@@ -5,6 +5,8 @@ package com.thinkparity.model;
 
 import org.xmpp.packet.IQ;
 
+import com.thinkparity.codebase.Constants.Xml;
+
 import com.thinkparity.model.xmpp.IQWriter;
 
 /**
@@ -16,7 +18,7 @@ public abstract class EventGenerator {
     protected IQWriter createEventWriter(final String eventName) {
         final IQ iq = new IQ();
         iq.setType(IQ.Type.set);
-        iq.setChildElement("query", "jabber:iq:parity:" + eventName);
+        iq.setChildElement(Xml.NAME, Xml.NAMESPACE + eventName);
         return new IQWriter(iq);
     }
 }

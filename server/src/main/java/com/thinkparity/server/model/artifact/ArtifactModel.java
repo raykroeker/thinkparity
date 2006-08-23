@@ -131,6 +131,18 @@ public class ArtifactModel extends AbstractModel {
     }
 
     /**
+     * Delete a draft from an artifact.
+     * 
+     * @param uniqueId
+     *            An artifact unique id.
+     */
+    public void deleteDraft(final UUID uniqueId) {
+        synchronized (implLock) {
+            impl.deleteDraft(uniqueId);
+        }
+    }
+
+    /**
 	 * Deny the key request for the artifact from the jid.
 	 * 
 	 * @param artifactUniqueId
@@ -193,8 +205,7 @@ public class ArtifactModel extends AbstractModel {
         }
     }
 
-    public List<Contact> readContacts(final UUID artifactUniqueId)
-			throws ParityServerModelException {
+    public List<Contact> readContacts(final UUID artifactUniqueId) {
 		synchronized(implLock) { return impl.readContacts(artifactUniqueId); }
 	}
 

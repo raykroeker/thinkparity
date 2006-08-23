@@ -18,11 +18,14 @@ import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
 
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
+
+import com.thinkparity.model.xmpp.IQWriter;
 
 import com.thinkparity.server.ParityServerConstants.Logging;
 import com.thinkparity.server.model.artifact.Artifact;
@@ -107,7 +110,7 @@ public abstract class AbstractModelImpl {
 						session.getJID().getNode()));
 	}
 
-	/**
+    /**
      * Assert that the thinkParity system is the current key holder.
      * 
      * @param assertion
@@ -132,6 +135,38 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Create an iq writer for a query.
+     * 
+     * @param queryName
+     *            A query name.
+     * @return An iq writer.
+     */
+    protected IQWriter createIQWriter(final String queryName) {
+        final IQ iq = new IQ();
+        iq.setType(IQ.Type.set);
+        iq.setChildElement(Xml.NAME, new StringBuffer(Xml.NAMESPACE)
+                .append(":").append(queryName).toString());
+        return new IQWriter(iq);
+    }
+
+    /**
+     * Debug a named variable. Note that the logging renderer will be used only
+     * for the value.
+     * 
+     * @param name
+     *            A variable name.
+     * @param value
+     *            A variable.
+     */
+    protected final void debugVariable(final String name, final Object value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0}:{1}",
+                    name,
+                    Log4JHelper.render(logger, value)));
+        }
+    }
+
+    /**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -140,6 +175,7 @@ public abstract class AbstractModelImpl {
 		final ArtifactModel artifactModel = ArtifactModel.getModel(session);
 		return artifactModel;
 	}
+
 
     /**
      * Obtain the parity contact interface.
@@ -150,7 +186,7 @@ public abstract class AbstractModelImpl {
 		return ContactModel.getModel(session);
 	}
 
-    /**
+	/**
      * Obtain the parity document interface.
      * 
      * @return The parity document interface.
@@ -159,8 +195,7 @@ public abstract class AbstractModelImpl {
         return DocumentModel.getModel(session);
     }
 
-
-    /**
+	/**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -183,7 +218,7 @@ public abstract class AbstractModelImpl {
 		return sModel;
 	}
 
-	/**
+    /**
      * Obtain the parity user interface.
      * 
      * @return The parity user interface.
@@ -203,7 +238,7 @@ public abstract class AbstractModelImpl {
      */
     protected Boolean isActive(final JabberId jabberId) { return Boolean.TRUE; }
 
-    /**
+	/**
 	 * Determine whether or not the user represented by the jabber id is
 	 * currently online.
 	 * 
@@ -219,7 +254,7 @@ public abstract class AbstractModelImpl {
 		else { return Boolean.FALSE; }
 	}
 
-	protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
+    protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		final ArtifactModel aModel = getArtifactModel();
 		return aModel.get(artifactUniqueId).getArtifactKeyHolder().equals(
@@ -233,23 +268,6 @@ public abstract class AbstractModelImpl {
                     Logging.MODEL_LOG_ID,
                     StackUtil.getCallerClassName().toUpperCase(),
                     StackUtil.getCallerMethodName().toUpperCase()));
-        }
-    }
-
-    /**
-     * Debug a named variable. Note that the logging renderer will be used only
-     * for the value.
-     * 
-     * @param name
-     *            A variable name.
-     * @param value
-     *            A variable.
-     */
-    protected final void debugVariable(final String name, final Object value) {
-        if(logger.isDebugEnabled()) {
-            logger.debug(MessageFormat.format("{0}:{1}",
-                    name,
-                    Log4JHelper.render(logger, value)));
         }
     }
 
@@ -269,7 +287,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-	/**
+    /**
      * Send a notification to an artifact team. Note that the user this session
      * belongs to will *NOT* be notified. This eases data integrity concerns on
      * the network; for example if a team member is added and the person adding
@@ -294,7 +312,7 @@ public abstract class AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Read the key holder.
      * 
      * @param uniqueId
@@ -383,7 +401,7 @@ public abstract class AbstractModelImpl {
 		return getXMPPServer().getSessionManager();
 	}
 
-	/**
+    /**
 	 * Obtain a handle to the underlying xmpp server.
 	 * 
 	 * @return The xmpp server.

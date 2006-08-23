@@ -1,6 +1,5 @@
 /*
  * Created On: Sun May 07 2006 10:47 PDT
- * $Id$
  */
 package com.thinkparity.migrator;
 
@@ -8,6 +7,10 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+/**
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.3
+ */
 public class Library {
 
     /** The library artifact id. */

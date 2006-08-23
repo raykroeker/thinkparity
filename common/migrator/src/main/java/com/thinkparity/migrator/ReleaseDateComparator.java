@@ -1,6 +1,5 @@
 /*
  * Created On: Fri May 19 2006 11:52 PDT
- * $Id$
  */
 package com.thinkparity.migrator;
 
@@ -8,7 +7,7 @@ package com.thinkparity.migrator;
  * Provides an ability to compare the release dates of two releases.
  * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.2
  */
 public class ReleaseDateComparator {
 
@@ -17,9 +16,9 @@ public class ReleaseDateComparator {
 
     /**
      * Create ReleaseDateComparator.
-     *
-     * @param release.
-     *      A release.
+     * 
+     * @param release
+     *            A release.
      */
     public ReleaseDateComparator(final Release release) {
         this.release = release;

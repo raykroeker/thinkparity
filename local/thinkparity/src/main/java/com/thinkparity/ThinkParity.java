@@ -50,9 +50,12 @@ public class ThinkParity {
 
     /**
      * Look for the file; and if it is not found; report an error and exit.
-     *
-     * @param file
-     *      A file.
+     * 
+     * @param parent
+     *            The parent abstract pathname
+     * @param child
+     *            The child pathname string
+     * @see File#File(File, String)
      */
     static void checkFileExists(final File parent, final String child) {
         final File file = new File(parent, child);

@@ -27,7 +27,7 @@ public class InternalIndexModel extends IndexModel {
 	}
 
     public void createContainer(final Long containerId,
-            final String containerName) throws ParityException {
+            final String containerName) {
         synchronized(getImplLock()) {
             getImpl().createContainer(containerId, containerName);
         }

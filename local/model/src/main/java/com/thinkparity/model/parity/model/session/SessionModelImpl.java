@@ -194,10 +194,10 @@ class SessionModelImpl extends AbstractModelImpl {
             final ArtifactType artifactType, final String artifactChecksum,
             final byte[] artifactBytes) throws ParityException {
         final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
-        containerModel.handleArtifactPublished(publishedBy, publishedOn,
-                containerUniqueId, containerVersionId, containerName,
-                artifactUniqueId, artifactVersionId, artifactName,
-                artifactType, artifactChecksum, artifactBytes);
+        containerModel.handleArtifactPublished(containerUniqueId, containerVersionId,
+                containerName, artifactUniqueId, artifactVersionId,
+                artifactName, artifactType, artifactChecksum,
+                artifactBytes, publishedBy, publishedOn);
     }
 
     /**
@@ -229,10 +229,10 @@ class SessionModelImpl extends AbstractModelImpl {
             final ArtifactType artifactType, final String artifactChecksum,
             final byte[] artifactBytes) throws ParityException {
         final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
-        containerModel.handleArtifactSent(sentBy, sentOn, containerUniqueId,
-                containerVersionId, containerName, artifactUniqueId,
-                artifactVersionId, artifactName, artifactType,
-                artifactChecksum, artifactBytes);
+        containerModel.handleArtifactSent(containerUniqueId, containerVersionId, containerName,
+                artifactUniqueId, artifactVersionId, artifactName,
+                artifactType, artifactChecksum, artifactBytes,
+                sentBy, sentOn);
     }
 
     /**

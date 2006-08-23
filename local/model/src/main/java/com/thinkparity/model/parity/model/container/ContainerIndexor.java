@@ -1,16 +1,14 @@
 /*
  * Created On: Jun 28, 2006 9:09:49 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.container;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractIndexor;
 import com.thinkparity.model.parity.model.Context;
 
 /**
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.4.3
  */
 class ContainerIndexor extends AbstractIndexor {
 
@@ -22,12 +20,11 @@ class ContainerIndexor extends AbstractIndexor {
      */
     ContainerIndexor(final Context context) { super(context); }
 
-    void create(final Long containerId, final String containerName)
-            throws ParityException {
+    void create(final Long containerId, final String containerName) {
         getInternalIndexModel().createContainer(containerId, containerName);
     }
 
-    void delete(final Long containerId) throws ParityException {
+    void delete(final Long containerId) {
         getInternalIndexModel().deleteArtifact(containerId);
     }
 }

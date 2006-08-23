@@ -86,13 +86,14 @@ class ContainerEventGenerator {
     }
 
     /**
-     * Generate a container event for a container and a user.
+     * Generate a container event for a <code>Container</code> and a
+     * <code>TeamMember</code>.
      * 
      * @param container
-     *            A container.
-     * @param user
-     *            A user.
-     * @return A container event.
+     *            A <code>Container</code>.
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @return A <code>ContainerEvent</code>.
      */
     ContainerEvent generate(final Container container, final TeamMember teamMember) {
         return new ContainerEvent(source, container, teamMember);

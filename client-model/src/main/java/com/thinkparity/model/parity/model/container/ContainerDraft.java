@@ -17,21 +17,26 @@ import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.user.TeamMember;
 
 /**
+ * <b>Title:</b>thinkParity Container Draft<br>
+ * <b>Description:</b>A <code>ContainerDraft</code> contains a list of
+ * artifacts. They represent "working" or "draft" iterations of an artifact.
+ * They can be discarded or turned into actual versions.</br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.9
  */
 public class ContainerDraft {
 
-    /** The artifacts. */
+    /** A list of draft <code>Artifact</code>. */
     private final List<Artifact> artifacts;
 
-    /** A map of artifact ids to their respective states. */
+    /** A list of the draft <code>Artifact</code>'s states. */
     private final Map<Long, ArtifactState> artifactsState;
 
-    /** The container id. */
+    /** The container the draft belongs to. */
     private Long containerId;
 
-    /** The draft owner. */
+    /** The <code>TeamMember</code> the draft belongs to. */
     private TeamMember owner;
 
     /** Create ContainerDraft. */
@@ -40,6 +45,7 @@ public class ContainerDraft {
         this.artifacts = new ArrayList<Artifact>();
         this.artifactsState = new HashMap<Long, ArtifactState>(7, 0.75F);
     }
+
     /**
      * Add a document to the draft.
      * 
@@ -122,14 +128,22 @@ public class ContainerDraft {
         return Collections.unmodifiableList(documents);
     }
 
-    public TeamMember getOwner() { return owner; }
+    /**
+     * Obtain the <code>TeamMember</code> by whom the draft is being modified.
+     * 
+     * @return A team member.
+     */
+    public TeamMember getOwner() {
+        return owner;
+    }
 
     /**
      * Obtain the artifact's state.
      * 
-     * @param artifactId
-     *            The artifact id.
+     * @param artifact
+     *            The artifact.
      * @return The artifact state.
+     * @see ContainerDraft#getState(Long)
      */
     public ArtifactState getState(final Artifact artifact) {
         return artifactsState.get(artifact.getId());
@@ -196,15 +210,24 @@ public class ContainerDraft {
     }
 
     /**
-     * Set id.
-     *
-     * @param id The Long.
+     * Set the container id.
+     * 
+     * @param containerId
+     *            A container id.
      */
     public void setContainerId(final Long containerId) {
         this.containerId = containerId;
     }
 
-    public void setOwner(final TeamMember owner) { this.owner = owner; }
+    /**
+     * Set the <code>TeamMember</code> owner.
+     * 
+     * @param owner
+     *            The draft owner.
+     */
+    public void setOwner(final TeamMember owner) {
+        this.owner = owner;
+    }
 
     /**
      * @see java.lang.Object#toString()
@@ -223,7 +246,9 @@ public class ContainerDraft {
      *            An artifact id.
      */
     private void assertContainsArtifact(final Long artifactId) {
-        Assert.assertTrue("ARTIFACT LIST DOES NOT CONTAIN ARTIFACT", containsArtifact(artifactId));
+        Assert.assertTrue(
+                "ARTIFACT LIST DOES NOT CONTAIN ARTIFACT",
+                containsArtifact(artifactId));
     }
 
     /**
@@ -257,7 +282,7 @@ public class ContainerDraft {
      * 
      * @param artifactId
      *            An artifact id.
-     * @return The index of the artifact.
+     * @return The index of the artifact in the artifact list.
      */
     private Integer indexOfArtifact(final Long artifactId) {
         for (int i = 0; i < artifacts.size(); i++) {
@@ -271,13 +296,17 @@ public class ContainerDraft {
     /**
      * Obtain the index of a document in the artifacts list.
      * 
-     * @param document
-     *            A document.
-     * @return The index of the document.
+     * @param documentId
+     *            A document id.
+     * @return The index of the document in the artifact list.
      */
     private Integer indexOfDocument(final Long documentId) {
         return indexOfArtifact(documentId);
     }
 
+    /**
+     * An enumeration of states for an <code>Artifact</code> in the
+     * <code>ContainerDraft</code>.
+     */
     public enum ArtifactState { ADDED, MODIFIED, NONE, REMOVED }
 }

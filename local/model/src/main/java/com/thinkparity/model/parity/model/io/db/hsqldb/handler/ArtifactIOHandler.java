@@ -674,26 +674,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-	 * Obtain the next version id for the given artifact.
-	 * 
-	 * @param session
-	 *            The database session.
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return The next version id.
-	 */
-	protected Long getNextVersionId(final Session session,
-			final Long artifactId) {
-		session.prepareStatement(SELECT_PREVIOUS_ARTIFACT_VERSION_ID);
-		session.setLong(1, artifactId);
-		session.executeQuery();
-		if(session.nextResult()) {
-			return session.getLong("PREVIOUS_VERSION_ID") + 1L;
-		}
-		else { return 1L; }
-	}
-
-	/**
 	 * Create the artifact.
 	 * 
 	 * @param session

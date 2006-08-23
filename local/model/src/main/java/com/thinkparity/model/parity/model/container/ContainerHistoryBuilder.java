@@ -17,7 +17,7 @@ import com.thinkparity.model.parity.model.audit.event.AuditVersionEvent;
  * <b>Description:</b>A history builder for the container module.
  * 
  * @author raymond@thinkparity.com
- * @see {@link HistoryItemBuilder}
+ * @see HistoryItemBuilder
  */
 class ContainerHistoryBuilder extends HistoryItemBuilder<ContainerHistoryItem> {
 

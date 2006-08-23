@@ -13,6 +13,9 @@ import javax.swing.JMenuBar;
  */
 public class BrowserMenuBar extends JMenuBar {
 
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
+
     /**
      * @see javax.swing.JMenuBar#paintBorder(java.awt.Graphics)
      */

@@ -1,6 +1,5 @@
 /*
  * Generated On: Jun 27 06 12:13:12 PM
- * $Id$
  */
 package com.thinkparity.model.parity.model.container;
 
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.audit.event.AuditEvent;
@@ -18,10 +16,11 @@ import com.thinkparity.model.xmpp.JabberId;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>
- * <b>Description:</b>
- *
+ * <b>Description:</b>A model internal interface to the container
+ * implementation.<br>
+ * 
  * @author CreateModel.groovy
- * @version $Revision$
+ * @version 1.1.2.12
  */
 public class InternalContainerModel extends ContainerModel implements InternalModel {
 
@@ -50,90 +49,102 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
     }
 
     /**
-     * Handle the artifact sent event for the container.
+     * Handle the container artifact published remote event. If the container
+     * does not yet exist it will be created; same goes for the version. The
+     * artifact will then be passed off to the appropriate model then attached
+     * to the version.
      * 
-     * @param sentBy
-     *            Who sent the artifact.
-     * @param sentOn
-     *            When the artifact was sent.
-     * @param containerUniqueId
-     *            The container unique id.
-     * @param containerVersionId
-     *            The container version id.
-     * @param count
-     *            The artifact count.
-     * @param index
-     *            The artifact index.
      * @param uniqueId
-     *            The artifact unique id.
+     *            The container <code>UUID</code>.
      * @param versionId
-     *            The artifact version id.
-     * @param type
-     *            The artifact type.
-     * @param bytes
-     *            The artifact bytes.
+     *            The container version id <code>Long</code>.
+     * @param name
+     *            The container name <code>String</code>.
+     * @param artifactUniqueId
+     *            The artifact <code>UUID</code>
+     * @param artifactVersionId
+     *            The artifact version id <code>Long</code>.
+     * @param artifactName
+     *            The artifact name <code>String</code>.
+     * @param artifactType
+     *            The artifact's <code>ArtifactType</code>.
+     * @param artifactChecksum
+     *            The artifact checksum <code>String</code>.
+     * @param artifactBytes
+     *            The artifact bytes <code>byte[]</code>.
+     * @param publishedBy
+     *            The publisher <code>JabberId</code>.
+     * @param publishedOn
+     *            The publish date <code>Calendar</code>.
      */
-    public void handleArtifactPublished(final JabberId publishedBy,
-            final Calendar publishedOn, final UUID containerUniqueId,
-            final Long containerVersionId, final String containerName,
+    public void handleArtifactPublished(final UUID uniqueId,
+            final Long versionId, final String name,
             final UUID artifactUniqueId, final Long artifactVersionId,
             final String artifactName, final ArtifactType artifactType,
-            final String artifactChecksum, final byte[] artifactBytes) {
+            final String artifactChecksum, final byte[] artifactBytes,
+            final JabberId publishedBy, final Calendar publishedOn) {
         synchronized(getImplLock()) {
-            getImpl().handleArtifactPublished(publishedBy, publishedOn,
-                    containerUniqueId, containerVersionId, containerName,
+            getImpl().handleArtifactPublished(uniqueId, versionId,
+                    name, artifactUniqueId, artifactVersionId,
+                    artifactName, artifactType, artifactChecksum,
+                    artifactBytes, publishedBy, publishedOn);
+        }
+    }
+
+    /**
+     * Handle the artifact sent remote event. If the container does not yet
+     * exist it will be created; same goes for the version. The artifact will
+     * then be passed off to the appropriate model then attached to the version.
+     * 
+     * @param uniqueId
+     *            The container <code>UUID</code>
+     * @param versionId
+     *            The container version id <code>Long</code>.
+     * @param name
+     *            The container name <code>String</code>.
+     * @param artifactUniqueId
+     *            The artifact <code>UUID</code>.
+     * @param artifactVersionId
+     *            The artifact version id <code>Long</code>.
+     * @param artifactName
+     *            The artifact name <code>String</code>.
+     * @param artifactType
+     *            The artifact's <code>ArtifactType</code>.
+     * @param artifactChecksum
+     *            The artifact checksum <code>String</code>.
+     * @param artifactBytes
+     *            The artifact's bytes <code>byte[]</code>.
+     * @param sentBy
+     *            The sender <code>JabberId</code>.
+     * @param sentOn
+     *            The sent date <code>Calendar</code>.
+     */
+    public void handleArtifactSent(final UUID uniqueId,
+            final Long versionId, final String name,
+            final UUID artifactUniqueId, final Long artifactVersionId,
+            final String artifactName, final ArtifactType artifactType,
+            final String artifactChecksum, final byte[] artifactBytes,
+            final JabberId sentBy, final Calendar sentOn) {
+        synchronized(getImplLock()) {
+            getImpl().handleArtifactSent(uniqueId, versionId, name,
                     artifactUniqueId, artifactVersionId, artifactName,
-                    artifactType, artifactChecksum, artifactBytes);
+                    artifactType, artifactChecksum, artifactBytes,
+                    sentBy, sentOn);
         }
     }
 
     /**
-     * Handle the artifact sent event for the container.
-     * 
-     * @param sentBy
-     *            Who sent the artifact.
-     * @param sentOn
-     *            When the artifact was sent.
-     * @param containerUniqueId
-     *            The container unique id.
-     * @param containerVersionId
-     *            The container version id.
-     * @param count
-     *            The artifact count.
-     * @param index
-     *            The artifact index.
-     * @param uniqueId
-     *            The artifact unique id.
-     * @param versionId
-     *            The artifact version id.
-     * @param type
-     *            The artifact type.
-     * @param bytes
-     *            The artifact bytes.
-     */
-    public void handleArtifactSent(final JabberId sentBy,
-            final Calendar sentOn, final UUID containerUniqueId,
-            final Long containerVersionId, final String containerName,
-            final UUID artifactUniqueId, final Long artifactVersionId,
-            final String artifactName, final ArtifactType artifactType,
-            final String artifactChecksum, final byte[] artifactBytes) {
-        synchronized(getImplLock()) {
-            getImpl().handleArtifactSent(sentBy, sentOn, containerUniqueId,
-                    containerVersionId, containerName, artifactUniqueId,
-                    artifactVersionId, artifactName, artifactType,
-                    artifactChecksum, artifactBytes);
-        }
-    }
-
-    /**
-     * Handle the remote draft created event.
+     * Handle the remote draft created event. A
+     * <code>ContainerDraft</code is created;
+     * and the created by <code>JabberId</code> is set as the owner; and a 
+     * notification is fired.
      * 
      * @param containerId
-     *            A container id.
-     * @param deletedBy
-     *            Who created the draft.
-     * @param deletedOn
-     *            When the draft was created.
+     *            The container id <code>Long</code>.
+     * @param createdBy
+     *            The creation user <code>JabberId</code>.
+     * @param createdOn
+     *            The creation date <code>Calendar</code>.
      */
     public void handleDraftCreated(final Long containerId,
             final JabberId createdBy, final Calendar createdOn) {
@@ -141,6 +152,7 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
             getImpl().handleDraftCreated(containerId, createdBy, createdOn);
         }
     }
+
     /**
      * Handle the remote draft deleted event.
      * 
@@ -166,29 +178,6 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
             getImpl().handlePublished(uniqueId, versionId, name, artifactCount,
                     publishedBy, publishedTo, publishedOn);
         }
-    }
-
-    /**
-     * Determine if the container has been locally modified.
-     * 
-     * @param containerId
-     * @return True if the container has been locally modified.
-     */
-    public Boolean isLocallyModified(final Long containerId)
-            throws ParityException {
-        synchronized(getImplLock()) {
-            return getImpl().isLocallyModified(containerId);
-        }
-    }
-
-    /**
-     * Lock the container.
-     * 
-     * @param containerId
-     *            The container id.
-     */
-    public void lock(final Long containerId) throws ParityException {
-        synchronized(getImplLock()) { getImpl().lock(containerId); }
     }
 
     /**

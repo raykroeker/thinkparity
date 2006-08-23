@@ -129,21 +129,23 @@ class IndexModelImpl extends AbstractModelImpl {
      * @param containerName
      *            The container name.
      */
-    void createContainer(final Long containerId, final String containerName)
-            throws ParityException {
-        logger.info(getApiId("[CREATE CONTAINER]"));
-        logger.debug(containerId);
-        logger.debug(containerName);
+    void createContainer(final Long containerId, final String containerName) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("containerName", containerName);
+        try {
+            final Set<User> team = getInternalArtifactModel().readTeam(containerId);
+    
+            final DocumentBuilder documentBuilder = new DocumentBuilder(6);
+            documentBuilder.append(IDX_ARTIFACT_ID.setValue(containerId).toField())
+                .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.CONTAINER).toField())
+                .append(IDX_ARTIFACT_NAME.setValue(containerName).toField())
+                .append(IDX_ARTIFACT_CONTACTS.setValue(team).toField());
 
-        final Set<User> team = getInternalArtifactModel().readTeam(containerId);
-
-        final DocumentBuilder documentBuilder = new DocumentBuilder(6);
-        documentBuilder.append(IDX_ARTIFACT_ID.setValue(containerId).toField())
-            .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.CONTAINER).toField())
-            .append(IDX_ARTIFACT_NAME.setValue(containerName).toField())
-            .append(IDX_ARTIFACT_CONTACTS.setValue(team).toField());
-
-        index(documentBuilder.toDocument());
+            index(documentBuilder.toDocument());
+        } catch (final Throwable t) {
+            throw translateError("CREATE CONTAINER", t);
+        }
     }
 
 	/**

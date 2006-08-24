@@ -150,7 +150,7 @@ public class BrowserWindow extends AbstractJFrame {
      * Add the menu to the window.
      */
     private void initMenu() {
-        final JMenuBar menuBar = new BrowserMenuBar();
+        final JMenuBar menuBar = new BrowserMenuBar(browser);
         setJMenuBar(menuBar);
     }
 

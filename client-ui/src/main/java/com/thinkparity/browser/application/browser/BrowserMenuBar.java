@@ -6,13 +6,16 @@ package com.thinkparity.browser.application.browser;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 
 import javax.swing.Box;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.event.MouseInputAdapter;
 
-import com.thinkparity.browser.Constants.Colors.Browser;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -31,11 +34,37 @@ public class BrowserMenuBar extends JMenuBar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
     
+    /** The browser application. */
+    private final Browser browser;
+    
     /** Resource bundle based localization. */
     private final JFrameLocalization localization;
     
     /** A popup menu item factory. */
     private final PopupItemFactory popupItemFactory;
+    
+    /** Used to drag the window by this avatar. */
+    private final MouseInputAdapter mouseInputAdapter;
+    
+    /** Close label icon. */
+    private static final Icon CLOSE_ICON;
+    
+    /** Close label rollover icon. */
+    private static final Icon CLOSE_ROLLOVER_ICON;
+
+    /** Min label icon. */
+    private static final Icon MIN_ICON;
+    
+    /** Min label rollover icon. */
+    private static final Icon MIN_ROLLOVER_ICON;
+    
+    static {
+        CLOSE_ICON = ImageIOUtil.readIcon("CloseButton.png");
+        CLOSE_ROLLOVER_ICON = ImageIOUtil.readIcon("CloseButtonRollover.png");
+
+        MIN_ICON = ImageIOUtil.readIcon("MinimizeButton.png");
+        MIN_ROLLOVER_ICON = ImageIOUtil.readIcon("MinimizeButtonRollover.png");
+    }
 
     /**
      * @see javax.swing.JMenuBar#paintBorder(java.awt.Graphics)
@@ -54,19 +83,40 @@ public class BrowserMenuBar extends JMenuBar {
         final Graphics2D g2 = (Graphics2D) g.create();
         try {
             GradientPainter.paintVertical(g2, getSize(),
-                    Browser.MainTitleTop.BG_GRAD_START,
-                    Browser.MainTitleTop.BG_GRAD_FINISH);
+                    com.thinkparity.browser.Constants.Colors.Browser.MainTitleTop.BG_GRAD_START,
+                    com.thinkparity.browser.Constants.Colors.Browser.MainTitleTop.BG_GRAD_FINISH);
         }
         finally { g2.dispose(); }
     }
 
     /**
-     * Create a BrowserMenuBar.
+     * Create a Browser menu bar.
+     * @param browser
+     *          The Browser.
      */
-    public BrowserMenuBar() {
+    public BrowserMenuBar(final Browser browser) {
         super();
+        this.browser = browser;
+        this.localization = new JFrameLocalization("BrowserWindow.Menu");        
         this.popupItemFactory = PopupItemFactory.getInstance();
-        this.localization = new JFrameLocalization("BrowserWindow.Menu");
+       
+        // Support moving the dialog
+        this.mouseInputAdapter = new MouseInputAdapter() {
+            int offsetX;
+            int offsetY;
+            public void mouseDragged(final MouseEvent e) {
+                browser.moveBrowserWindow(
+                        new Point(
+                                e.getPoint().x - offsetX,
+                                e.getPoint().y - offsetY));
+            }
+            public void mousePressed(MouseEvent e) {
+                offsetX = e.getPoint().x;
+                offsetY = e.getPoint().y;
+            }
+        };
+        addMouseListener(mouseInputAdapter);
+        addMouseMotionListener(mouseInputAdapter);
 
         // Create JMenus
         final JMenu newMenu = MenuFactory.create(localization.getString("New"),
@@ -88,9 +138,9 @@ public class BrowserMenuBar extends JMenuBar {
 
         // Add minimize and close buttons
         this.add(Box.createHorizontalGlue());
-        this.add(new JLabel(ImageIOUtil.readIcon("MinimizeButton.png")));
+        this.add(getMinimizeButton());
         this.add(Box.createRigidArea(new Dimension(3,0)));
-        this.add(new JLabel(ImageIOUtil.readIcon("CloseButton.png")));
+        this.add(getCloseButton());
         this.add(Box.createRigidArea(new Dimension(3,0)));
     }
     
@@ -98,7 +148,67 @@ public class BrowserMenuBar extends JMenuBar {
      * @see JFrameLocalization#getString(String)
      * 
      */
-    protected String getString(final String localKey) {
+    private String getString(final String localKey) {
         return localization.getString(localKey);
-    }    
+    }
+    
+    private JLabel getMinimizeButton() {
+        javax.swing.JLabel minimizeJLabel = new JLabel(ImageIOUtil.readIcon("MinimizeButton.png"));
+        minimizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                minimizeJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                minimizeJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                minimizeJLabelMouseExited(evt);
+            }
+        });
+        
+        return minimizeJLabel;        
+    }
+    
+    private JLabel getCloseButton() {
+        javax.swing.JLabel closeJLabel = new JLabel(ImageIOUtil.readIcon("CloseButton.png"));
+        closeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                closeJLabelMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                closeJLabelMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                closeJLabelMouseExited(evt);
+            }
+        });
+        
+        return closeJLabel;        
+    }
+    
+    private void closeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
+        browser.closeBrowserWindow();
+        closeJLabelMouseExited(evt);
+    }
+
+    private void closeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    }
+
+    private void closeJLabelMouseExited(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(CLOSE_ICON);
+    }
+    
+    private void minimizeJLabelMouseClicked(java.awt.event.MouseEvent evt) {
+        browser.minimize();
+        minimizeJLabelMouseExited(evt);
+    }
+
+    private void minimizeJLabelMouseEntered(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(MIN_ROLLOVER_ICON);
+    }
+
+    private void minimizeJLabelMouseExited(java.awt.event.MouseEvent evt) {
+        ((JLabel) evt.getSource()).setIcon(MIN_ICON);
+    }
 }

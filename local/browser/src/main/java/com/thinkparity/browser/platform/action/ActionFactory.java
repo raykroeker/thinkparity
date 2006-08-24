@@ -136,6 +136,13 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.browser.platform.action.document.UpdateDraft(browser);
             break;
 
+        case HELP:
+            action = new com.thinkparity.browser.platform.action.help.Help(browser);
+            break;            
+        case HELP_ABOUT:
+            action = new com.thinkparity.browser.platform.action.help.HelpAbout(browser);
+            break;
+
         case PLATFORM_QUIT:
             action = new com.thinkparity.browser.platform.action.platform.Quit(platform);
             break;
@@ -152,6 +159,11 @@ public class ActionFactory extends AbstractFactory {
         case PROFILE_UPDATE:
             action = new com.thinkparity.browser.platform.action.profile.Update(browser);
             break;
+            
+        case SIGN_UP:
+            action = new com.thinkparity.browser.platform.action.signup.SignUp(browser);
+            break;
+            
         default:
 			throw Assert.createUnreachable("UNKNOWN ACTION ID");
 		}

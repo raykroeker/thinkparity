@@ -11,13 +11,13 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.Box;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.event.MouseInputAdapter;
 
-import com.thinkparity.codebase.swing.GradientPainter;
-
+import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -25,6 +25,8 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.profile.Update;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.l10n.JFrameLocalization;
+
+import com.thinkparity.codebase.swing.GradientPainter;
 
 /**
  * @author raymond@thinkparity.com
@@ -129,18 +131,24 @@ public class BrowserMenuBar extends JMenuBar {
         final JMenu helpMenu = MenuFactory.create(localization.getString("Help"),
                 new Integer(localization.getString("HelpMnemonic").charAt(0)));
         this.add(helpMenu);
-        final JMenu signUpMenu = MenuFactory.create(localization.getString("SignUp"),
-                new Integer(localization.getString("SignUpMnemonic").charAt(0)));
-        this.add(signUpMenu);
 
         // Create the New popup menu
         newMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
         newMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
 
-        // create profile menu
+        // Create the Profile menu
         final Data updateProfileData = new Data(1);
         updateProfileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
         profileMenu.add(popupItemFactory.createPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));
+        
+        // Create the Help menu
+        helpMenu.add(popupItemFactory.createPopupItem(ActionId.HELP, new Data(0)));
+        helpMenu.add(popupItemFactory.createPopupItem(ActionId.HELP_ABOUT, new Data(0)));
+        
+        // Create the Sign-Up label (it will act like a button)
+        this.add(Box.createRigidArea(new Dimension(3,0)));
+        this.add(ButtonFactory.create(ActionId.SIGN_UP, new Data(0)));        
+        //this.add(new JButton(localization.getString("SignUp")));
 
         // Add minimize and close buttons
         this.add(Box.createHorizontalGlue());

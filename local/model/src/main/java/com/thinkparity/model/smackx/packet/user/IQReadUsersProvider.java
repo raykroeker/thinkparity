@@ -15,6 +15,7 @@ import org.jivesoftware.smackx.provider.VCardProvider;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import com.thinkparity.model.Constants.VCardFields;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -89,6 +90,7 @@ public class IQReadUsersProvider implements IQProvider {
 				userVCard = (VCard) vCardProvider.parseIQ(parser);
 				user.setName(userVCard.getFirstName(), userVCard.getLastName());
 				user.setOrganization(userVCard.getOrganization());
+                user.setTitle(userVCard.getField(VCardFields.TITLE));
 			}
 			else if(XmlPullParser.END_TAG == eventType && "user".equals(name)) {
 				users.add(user);

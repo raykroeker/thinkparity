@@ -73,7 +73,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
     /** Sql to read contacts. */
     private static final String SQL_READ =
             new StringBuffer("select C.CONTACT_ID,U.USER_ID,U.JABBER_ID,")
-            .append("U.NAME,U.ORGANIZATION ")
+            .append("U.NAME,U.ORGANIZATION,U.TITLE ")
             .append("from CONTACT C ")
             .append("inner join USER U on C.CONTACT_ID=U.USER_ID ")
             .toString();
@@ -471,6 +471,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
         contact.setLocalId(session.getLong("USER_ID"));
         contact.setName(session.getString("NAME"));
         contact.setOrganization(session.getString("ORGANIZATION"));
+        contact.setTitle(session.getString("TITLE"));
         contact.addAllEmails(readEmails(contact.getLocalId()));
         return contact;
     }

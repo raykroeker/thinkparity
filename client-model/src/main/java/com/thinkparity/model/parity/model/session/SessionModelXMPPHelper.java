@@ -379,18 +379,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      */
 	Profile readProfile() throws SmackException { return xmppSession.readProfile(); }
 
-    /**
-     * Read a set of users.
-     * 
-     * @param jabberIds
-     *            The user ids to read.
-     * @return A set of users.
-     * @throws SmackException
-     */
-	Set<User> readUsers(final Set<JabberId> jabberIds) throws SmackException {
-		return xmppSession.readUsers(jabberIds);
-	}
-
 	/**
      * Remove a team member from the artifact team.
      * 

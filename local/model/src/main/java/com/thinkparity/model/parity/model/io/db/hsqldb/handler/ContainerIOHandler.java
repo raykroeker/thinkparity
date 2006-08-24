@@ -194,7 +194,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the container published to list. */
     private static final String SQL_READ_PUBLISHED_TO =
-            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,U.ORGANIZATION ")
+            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
+            .append("U.ORGANIZATION,U.TITLE ")
             .append("from CONTAINER C ")
             .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
@@ -215,7 +216,8 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the container published to list. */
     private static final String SQL_READ_SHARED_WITH =
-            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,U.ORGANIZATION ")
+            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,")
+            .append("U.ORGANIZATION,U.TITLE ")
             .append("from CONTAINER C ")
             .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
             .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")

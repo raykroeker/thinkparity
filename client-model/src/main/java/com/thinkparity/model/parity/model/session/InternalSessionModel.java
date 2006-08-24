@@ -230,8 +230,17 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { return getImpl().readProfile(); }
     }
 
-    public User readUser(final JabberId jabberId) {
-		synchronized(getImplLock()) { return getImpl().readUser(jabberId); }
+    /**
+     * Read a thinkParity user from the server.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>User</code>
+     */
+    public User readUser(final JabberId userId) {
+		synchronized (getImplLock()) {
+            return getImpl().readUser(userId);
+		}
 	}
 	
     /**

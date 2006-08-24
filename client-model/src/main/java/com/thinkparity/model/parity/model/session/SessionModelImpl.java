@@ -899,7 +899,6 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
->>>>>>> 1.7.2.57
      * Read a single user.
      * 
      * @param jabberId
@@ -907,10 +906,12 @@ class SessionModelImpl extends AbstractModelImpl {
      * @return The user.
      * @throws ParityException
      */
-	User readUser(final JabberId jabberId) {
-		final Set<JabberId> jabberIds = new HashSet<JabberId>();
-		jabberIds.add(jabberId);
-		return readUsers(jabberIds).iterator().next();
+	User readUser(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+		final Set<JabberId> userIds = new HashSet<JabberId>();
+		userIds.add(userId);
+		return readUsers(userIds).iterator().next();
 	}
 
 	/**
@@ -923,7 +924,7 @@ class SessionModelImpl extends AbstractModelImpl {
      */
 	Set<User> readUsers(final Set<JabberId> jabberIds) {
 		synchronized(xmppHelper) {
-			try { return xmppHelper.readUsers(jabberIds); }
+			try { return xmppHelper.getXMPPSession().readUsers(jabberIds); }
 			catch(final Throwable t) {
 				throw translateError("[READ USERS]", t);
 			}

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.VCardBuilder;
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
@@ -28,6 +27,13 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             .append("values (?,?)")
             .toString();
 
+    /** Sql to update a profile. */
+    private static final String SQL_UPDATE =
+            new StringBuffer("update PROFILE ")
+            .append("set PROFILE_VCARD=? ")
+            .append("where PROFILE_ID=?")
+            .toString();
+
     /** Sql to create an e-mail address. */
     private static final String SQL_CREATE_EMAIL =
             new StringBuffer("insert into PROFILE_EMAIL_REL ")
@@ -37,8 +43,8 @@ public class ProfileIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the profile by jabber id. */
     private static final String SQL_READ =
-            new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,U.ORGANIZATION, ")
-            .append("P.PROFILE_VCARD ")
+            new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
+            .append("U.ORGANIZATION,U.TITLE,P.PROFILE_VCARD ")
             .append("from PROFILE P ")
             .append("inner join USER U on P.PROFILE_ID=U.USER_ID ")
             .append("where U.JABBER_ID=?")
@@ -119,7 +125,24 @@ public class ProfileIOHandler extends AbstractIOHandler implements
      * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#update(com.thinkparity.model.parity.model.profile.Profile)
      */
     public void update(final Profile profile) {
-        throw Assert.createNotYetImplemented("ProfileIOHandler#update");
+        final Session session = openSession();
+        try {
+            userIO.update(session, profile);
+
+            session.prepareStatement(SQL_UPDATE);
+            session.setString(1, profile.getVCard().toXML());
+            session.setLong(2, profile.getLocalId());
+            if(1 != session.executeUpdate())
+                throw new HypersonicException(getErrorId("[UPDATE]", "[CANNOT UPDATE PROFILE]"));
+
+            session.commit();
+        }
+        catch(final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        }
+        finally { session.close(); }
+
     }
 
     /**
@@ -135,6 +158,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
         profile.setLocalId(session.getLong("PROFILE_ID"));
         profile.setName(session.getString("NAME"));
         profile.setOrganization(session.getString("ORGANIZATION"));
+        profile.setTitle(session.getString("TITLE"));
         profile.setVCard(VCardBuilder.createVCard(session.getString("PROFILE_VCARD")));
         profile.addAllEmails(readEmail(profile.getLocalId()));
         return profile;

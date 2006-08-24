@@ -197,7 +197,7 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
      */
     private static final String SQL_READ_TEAM_REL =
         new StringBuffer("select U.NAME,U.JABBER_ID,")
-        .append("U.USER_ID,U.ORGANIZATION,ATR.ARTIFACT_ID ")
+        .append("U.USER_ID,U.ORGANIZATION,U.TITLE,ATR.ARTIFACT_ID ")
         .append("from ARTIFACT_TEAM_REL ATR ")
         .append("inner join USER U on ATR.USER_ID = U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=?")
@@ -496,7 +496,9 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
             session.executeQuery();
 
             final Set<User> team = new HashSet<User>();
-            while(session.nextResult()) { team.add(extractUser(session)); }
+            while (session.nextResult()) {
+                team.add(userIO.extractUser(session));
+            }
             return team;
         }
         catch(final HypersonicException hx) {
@@ -874,18 +876,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		session.setLong(1, artifactId);
 		session.executeUpdate();
 	}
-
-    /**
-     * Extract a user from the session.
-     * 
-     * @param session
-     *            The database session.
-     * @return A user.
-     * @see UserIOHandler#extractUser(Session)
-     */
-    private User extractUser(final Session session) {
-        return userIO.extractUser(session);
-    }
 
     /**
 	 * Obtain the artifact's flags.

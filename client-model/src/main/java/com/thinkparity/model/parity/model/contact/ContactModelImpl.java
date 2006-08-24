@@ -259,11 +259,7 @@ class ContactModelImpl extends AbstractModelImpl {
     private Contact createLocal(final Contact contact) {
         // create the contact data
         final InternalUserModel userModel = getInternalUserModel();
-        User user = userModel.read(contact.getId());
-        if (null == user) {
-            user = userModel.create(contact.getId());
-        }
-
+        final User user = userModel.readLazyCreate(contact.getId());
         contact.setLocalId(user.getLocalId());
         contactIO.create(contact);
         return contactIO.read(contact.getId());

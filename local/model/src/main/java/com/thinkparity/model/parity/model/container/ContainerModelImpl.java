@@ -819,13 +819,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
                 }
             }
 
-            // delete draft
-            for(final Artifact artifact : draft.getArtifacts()) {
-                containerIO.deleteDraftArtifactRel(
-                        container.getId(), artifact.getId());
-            }
-            containerIO.deleteDraft(container.getId());
-
             // update local team
             final InternalArtifactModel artifactModel = getInternalArtifactModel();
             for (final Contact contact : contacts)
@@ -843,6 +836,13 @@ public class ContainerModelImpl extends AbstractModelImpl {
             final InternalSessionModel sessionModel = getInternalSessionModel();
             for (final Contact contact : contacts)
                 sessionModel.addTeamMember(container.getUniqueId(), contact.getId());
+
+            // delete draft
+            for(final Artifact artifact : draft.getArtifacts()) {
+                containerIO.deleteDraftArtifactRel(
+                        container.getId(), artifact.getId());
+            }
+            containerIO.deleteDraft(container.getId());
 
             // fire event
             final Container postPublish = read(container.getId());

@@ -18,21 +18,28 @@ public class UserIOHandler extends AbstractIOHandler implements
 
     private static final String SQL_CREATE =
         new StringBuffer("insert into USER ")
-        .append("(JABBER_ID,NAME,ORGANIZATION) ")
-        .append("values (?,?,?)")
+        .append("(JABBER_ID,NAME,ORGANIZATION,TITLE) ")
+        .append("values (?,?,?,?)")
         .toString();
+
+    /** Sql to update a user. */
+    private static final String SQL_UPDATE =
+            new StringBuffer("update USER ")
+            .append("set NAME=?,ORGANIZATION=?,TITLE=? ")
+            .append("where USER_ID=?")
+            .toString();
 
     /** Sql to read a user by their jabber id. */
     private static final String SQL_READ_BY_JABBER_ID =
         new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
-        .append("U.ORGANIZATION ")
+        .append("U.ORGANIZATION,U.TITLE ")
         .append("from USER U ")
         .append("where U.JABBER_ID=?")
         .toString();
 
     private static final String SQL_READ_BY_USER_ID =
         new StringBuffer("select U.USER_ID,U.JABBER_ID,U.NAME,")
-        .append("U.ORGANIZATION ")
+        .append("U.ORGANIZATION,U.TITLE ")
         .append("from USER U ")
         .append("where U.USER_ID=?")
         .toString();
@@ -123,6 +130,24 @@ public class UserIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * Update a user.
+     * 
+     * @param session
+     *            A database <code>Session</code>.
+     * @param user
+     *            A <code>User</code>.
+     */
+    void update(final Session session, final User user) {
+        session.prepareStatement(SQL_UPDATE);
+        session.setString(1, user.getName());
+        session.setString(2, user.getOrganization());
+        session.setString(3, user.getTitle());
+        session.setLong(4, user.getLocalId());
+        if (1 != session.executeUpdate())
+            throw new HypersonicException(getErrorId("UPDATE", "CANNOT UPDATE USER"));
+    }
+
+    /**
      * Create a user.
      * 
      * @param session
@@ -135,6 +160,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         session.setQualifiedUsername(1, user.getId());
         session.setString(2, user.getName());
         session.setString(3, user.getOrganization());
+        session.setString(4, user.getTitle());
         if(1 != session.executeUpdate())
             throw new HypersonicException(getErrorId("[CREATE]", "[COULD NOT CREATE USER]"));
         user.setLocalId(session.getIdentity());
@@ -142,10 +168,11 @@ public class UserIOHandler extends AbstractIOHandler implements
 
     /**
      * Extract a user from a database session.  The fields required are:<ul>
-     * <li>JABBER_ID - <code>com.thinkparity.model.xmpp.JabberId</code>
-     * <li>USER_ID - <code>java.lang.Long</code>
-     * <li>NAME - <code>java.lang.String</code>
-     * <li>ORGANIZATION - <code>java.lang.String</code></ul>
+     * <li>JABBER_ID - <code>JabberId</code>
+     * <li>USER_ID - <code>Long</code>
+     * <li>NAME - <code>String</code>
+     * <li>ORGANIZATION - <code>String</code>
+     * <li>TITLE - <code>String</code></ul>
      * 
      * @param session
      *            The database session.
@@ -157,6 +184,7 @@ public class UserIOHandler extends AbstractIOHandler implements
         u.setLocalId(session.getLong("USER_ID"));
         u.setName(session.getString("NAME"));
         u.setOrganization(session.getString("ORGANIZATION"));
+        u.setTitle(session.getString("TITLE"));
         return u;
     }
 }

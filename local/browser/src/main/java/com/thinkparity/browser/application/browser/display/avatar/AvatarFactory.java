@@ -104,6 +104,7 @@ public class AvatarFactory {
             break;
         case DIALOG_PROFILE_UPDATE:
             avatar = new UpdateProfileAvatar();
+            avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
             break;
 		default: throw Assert.createUnreachable("UNKNOWN AVATAR");
 		}

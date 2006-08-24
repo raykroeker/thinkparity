@@ -3,11 +3,18 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.dialog.profile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.DefaultListModel;
 
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
+import com.thinkparity.browser.platform.util.SwingUtil;
+
+import com.thinkparity.model.parity.model.profile.Profile;
 
 /**
  * @author raymond@thinkparity.com
@@ -20,7 +27,7 @@ public class UpdateProfileAvatar extends Avatar {
 
     /** The email address list model. */
     private final DefaultListModel emailsModel;
-    
+
     /** Creates new form UpdateProfileAvatar */
     public UpdateProfileAvatar() {
         super("UpdateProfileAvatar");
@@ -28,16 +35,74 @@ public class UpdateProfileAvatar extends Avatar {
         initComponents();
     }
 
-    public void setState(final State state) {}
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getId()
+     * 
+     */
+    public AvatarId getId() {
+        return AvatarId.DIALOG_PROFILE_UPDATE;
+    }
 
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#getState()
+     * 
+     */
     public State getState() {
         return null;
     }
 
-    public AvatarId getId() {
-        return AvatarId.DIALOG_PROFILE_UPDATE;
+    /**
+     * @see com.thinkparity.codebase.swing.AbstractJPanel#isInputValid()
+     */
+    @Override
+    public Boolean isInputValid() {
+        final String name = extractInputName();
+        final String organization = extractInputOrganization();
+        final String title = extractInputTitle();
+        if (null != name && null != organization && null != title) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
     }
-    
+
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload()
+     */
+    @Override
+    public void reload() {
+        final Profile  profile = readProfile();
+        reloadName(profile);
+        reloadOrganization(profile);
+        reloadTitle(profile);
+        reloadEmails(profile);
+    }
+
+    /**
+     * @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.browser.platform.util.State)
+     * 
+     */
+    public void setState(final State state) {}
+
+    private void addJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_addJButtonActionPerformed
+    }//GEN-LAST:event_addJButtonActionPerformed
+
+    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    private String extractInputName() {
+        return SwingUtil.extract(nameJTextField);
+    }
+
+    private String extractInputOrganization() {
+        return SwingUtil.extract(organizationJTextField);
+    }
+
+    private String extractInputTitle() {
+        return SwingUtil.extract(titleJTextField);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -52,7 +117,6 @@ public class UpdateProfileAvatar extends Avatar {
         javax.swing.JScrollPane emailsJScrollPane;
         javax.swing.JPanel innerJPanel;
         javax.swing.JSeparator jSeparator1;
-        javax.swing.JSeparator jSeparator2;
         javax.swing.JLabel nameJLabel;
         javax.swing.JLabel organizationJLabel;
         javax.swing.JButton removeJButton;
@@ -67,16 +131,16 @@ public class UpdateProfileAvatar extends Avatar {
         organizationJTextField = new javax.swing.JTextField();
         nameJTextField = new javax.swing.JTextField();
         titleJTextField = new javax.swing.JTextField();
-        saveJButton = new javax.swing.JButton();
-        cancelJButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         emailsJLabel = new javax.swing.JLabel();
         emailsJScrollPane = new javax.swing.JScrollPane();
         emailsJList = new javax.swing.JList();
         addJButton = new javax.swing.JButton();
         removeJButton = new javax.swing.JButton();
-        jSeparator2 = new javax.swing.JSeparator();
+        saveJButton = new javax.swing.JButton();
+        cancelJButton = new javax.swing.JButton();
 
+        setOpaque(false);
         innerJPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.InnerPanelTitle")));
         eaJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.EmbeddedAssistance"));
 
@@ -85,10 +149,6 @@ public class UpdateProfileAvatar extends Avatar {
         organizationJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.OrganizationLabel"));
 
         titleJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.TitleLabel"));
-
-        saveJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.SaveButton"));
-
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.CancelButton"));
 
         emailsJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.EmailsLabel"));
 
@@ -121,38 +181,28 @@ public class UpdateProfileAvatar extends Avatar {
                     .add(titleJLabel))
                 .add(13, 13, 13)
                 .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
-                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
-                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE))
+                    .add(emailsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE))
                 .addContainerGap())
             .add(innerJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                 .addContainerGap())
             .add(innerJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
-                .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, innerJPanelLayout.createSequentialGroup()
-                .addContainerGap(276, Short.MAX_VALUE)
-                .add(cancelJButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(saveJButton)
+                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
                 .addContainerGap())
             .add(innerJPanelLayout.createSequentialGroup()
                 .add(10, 10, 10)
-                .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-                .addContainerGap(43, Short.MAX_VALUE))
+                .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .addContainerGap(52, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, innerJPanelLayout.createSequentialGroup()
-                .addContainerGap(276, Short.MAX_VALUE)
+                .addContainerGap(292, Short.MAX_VALUE)
                 .add(removeJButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(addJButton)
-                .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, innerJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                 .addContainerGap())
         );
         innerJPanelLayout.setVerticalGroup(
@@ -182,47 +232,108 @@ public class UpdateProfileAvatar extends Avatar {
                 .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(addJButton)
                     .add(removeJButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(innerJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(saveJButton)
-                    .add(cancelJButton))
-                .addContainerGap())
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        saveJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.SaveButton"));
+        saveJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                saveJButtonActionPerformed(e);
+            }
+        });
+
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("DIALOG_PROFILE_UPDATE.CancelButton"));
+        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(innerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, innerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(cancelJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(saveJButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(innerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(saveJButton)
+                    .add(cancelJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Read the profile from the content provider.
+     * @return
+     */
+    private Profile readProfile() {
+        return (Profile) ((SingleContentProvider) contentProvider).getElement(null);
+    }
+
+    private void reloadEmails(final Profile profile) {
+        emailsModel.clear();
+        for (final String email : profile.getEmails()) {
+            emailsModel.addElement(email);
+        }
+    }
+
+    private void reloadName(final Profile profile) {
+        nameJTextField.setText("");
+        final String name = profile.getName();
+        if (null != name) {
+            nameJTextField.setText(name);
+        }
+    }
+
+    private void reloadOrganization(final Profile profile) {
+        organizationJTextField.setText("");
+        final String organization = profile.getOrganization();
+        if (null != organization) {
+            organizationJTextField.setText(organization);
+        }
+    }
+
+    private void reloadTitle(final Profile profile) {
+        titleJTextField.setText("");
+        final String title = profile.getTitle();
+        if (null != title) {
+            titleJTextField.setText(title);
+        }
+    }
 
     private void removeJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_removeJButtonActionPerformed
 // TODO add your handling code here:
     }//GEN-LAST:event_removeJButtonActionPerformed
 
-    private void addJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_addJButtonActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_addJButtonActionPerformed
-    
-    
+    private void saveJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_saveJButtonActionPerformed
+        if (isInputValid()) {
+            final List<String> emails = new ArrayList<String>(0);
+            final String name = extractInputName();
+            final String organization = extractInputOrganization();
+            final String title = extractInputTitle();
+            getController().runUpdateProfile(emails, name, organization, title);
+            disposeWindow();
+        }
+    }//GEN-LAST:event_saveJButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList emailsJList;
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JTextField organizationJTextField;
     private javax.swing.JTextField titleJTextField;
     // End of variables declaration//GEN-END:variables
-    
 }

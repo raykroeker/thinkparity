@@ -54,6 +54,7 @@ public class ReadContactAvatar extends Avatar {
         nameJTextField.setText("");
         companyJTextField.setText("");
         emailJTextField.setText("");
+        titleJTextField.setText("");
         
         // Get the contact id from Data, populate controls to show
         // contact name, company and email
@@ -65,8 +66,9 @@ public class ReadContactAvatar extends Avatar {
             if (c != null) {
                 nameJTextField.setText(c.getName());
                 companyJTextField.setText(c.getOrganization());
+                titleJTextField.setText(c.getTitle());
                 final List<String> emails = c.getEmails();
-                if(0 < emails.size()) {
+                if (0 < emails.size()) {
                     emailJTextField.setText(emails.get(0));
                 }
             }
@@ -108,11 +110,13 @@ public class ReadContactAvatar extends Avatar {
         nameJTextField = new javax.swing.JTextField();
         companyJTextField = new javax.swing.JTextField();
         emailJTextField = new javax.swing.JTextField();
+        titleJLabel = new javax.swing.JLabel();
+        titleJTextField = new javax.swing.JTextField();
 
         closeJButton.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ContactInfoDialog.Close"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
             }
         });
 
@@ -135,23 +139,28 @@ public class ReadContactAvatar extends Avatar {
         emailJTextField.setEditable(false);
         emailJTextField.setFocusable(false);
 
+        titleJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("ContactInfoDialog.TitleLabel"));
+
+        titleJTextField.setEditable(false);
+
         org.jdesktop.layout.GroupLayout contactInfoJPanelLayout = new org.jdesktop.layout.GroupLayout(contactInfoJPanel);
         contactInfoJPanel.setLayout(contactInfoJPanelLayout);
         contactInfoJPanelLayout.setHorizontalGroup(
             contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(contactInfoJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(companyJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(emailJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, companyJLabel)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, titleJLabel)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, emailJLabel))
+                    .add(nameJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                    .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contactInfoJPanelLayout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)))
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                    .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE))
                 .addContainerGap())
         );
         contactInfoJPanelLayout.setVerticalGroup(
@@ -162,12 +171,16 @@ public class ReadContactAvatar extends Avatar {
                     .add(nameJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(companyJLabel))
+                    .add(companyJLabel)
+                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(emailJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(emailJLabel))
+                    .add(titleJLabel)
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(5, 5, 5)
+                .add(contactInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(emailJLabel)
+                    .add(emailJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -175,21 +188,21 @@ public class ReadContactAvatar extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(contactInfoJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, closeJButton))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, contactInfoJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(closeJButton))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(contactInfoJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(contactInfoJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(closeJButton)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -206,6 +219,8 @@ public class ReadContactAvatar extends Avatar {
     private javax.swing.JTextField emailJTextField;
     private javax.swing.JLabel nameJLabel;
     private javax.swing.JTextField nameJTextField;
+    private javax.swing.JLabel titleJLabel;
+    private javax.swing.JTextField titleJTextField;
     // End of variables declaration//GEN-END:variables
     
     public enum DataKey { CONTACT_ID }

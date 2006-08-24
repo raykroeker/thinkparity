@@ -34,8 +34,6 @@ class WindowSize {
 		// DIMENSION Platform Login Window 385x173
 		REGISTRY.put(AvatarId.DIALOG_PLATFORM_LOGIN, new Dimension(358, 129));
 
-        // DIMENSION Contact Info
-        REGISTRY.put(AvatarId.DIALOG_CONTACT_READ, new Dimension(300,170));
         // DIMENSION New Container
         REGISTRY.put(AvatarId.DIALOG_CONTAINER_CREATE, new Dimension(350,150));
         // DIMENSION Add Contact

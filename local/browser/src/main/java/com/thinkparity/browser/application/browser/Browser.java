@@ -1180,6 +1180,7 @@ public class Browser extends AbstractApplication {
     public void runUpdateProfile(final List<String> emails, final String name,
             final String organization, final String title) {
         final Data data = new Data(4);
+        data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
         data.set(Update.DataKey.EMAILS, emails);
         data.set(Update.DataKey.NAME, name);
         if (null != organization)

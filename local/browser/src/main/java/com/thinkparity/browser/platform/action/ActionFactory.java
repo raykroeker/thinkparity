@@ -116,6 +116,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_SEARCH:
             action = new com.thinkparity.browser.platform.action.container.Search(browser);
             break;
+        case CONTAINER_SHARE:
+            action = new com.thinkparity.browser.platform.action.container.Share(browser);
+            break;
 
 		case DOCUMENT_OPEN:
             action = new com.thinkparity.browser.platform.action.document.Open(browser);

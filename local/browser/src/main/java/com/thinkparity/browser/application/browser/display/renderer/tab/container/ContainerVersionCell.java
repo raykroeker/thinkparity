@@ -10,17 +10,21 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
-
-import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.platform.Platform.Connection;
+import com.thinkparity.browser.platform.action.ActionId;
+import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.container.Share;
 import com.thinkparity.browser.platform.util.l10n.MainCellL18n;
 
 import com.thinkparity.model.parity.model.container.ContainerVersion;
@@ -49,6 +53,9 @@ public class ContainerVersionCell extends ContainerVersion implements
     /** The draft cell localization. */
     private final MainCellL18n localization; 
     
+    /** A popup item factory. */
+    private final PopupItemFactory popupItemFactory;
+
     /** Create MainCellContainerVersion. */
     public ContainerVersionCell(final ContainerCell container,
             final ContainerVersion containerVersion) {
@@ -65,6 +72,7 @@ public class ContainerVersionCell extends ContainerVersion implements
         this.container = container;
         this.imageCache = new MainCellImageCache();
         this.localization = new MainCellL18n("MainCellContainerVersion");
+        this.popupItemFactory = PopupItemFactory.getInstance();
     }
 
     /**
@@ -82,7 +90,7 @@ public class ContainerVersionCell extends ContainerVersion implements
     public BufferedImage getBackground() {
         return imageCache.read(DocumentImage.BG_DEFAULT);
     }
-
+    
     /**
      * Obtain the background image for a selected cell.
      * 
@@ -92,7 +100,7 @@ public class ContainerVersionCell extends ContainerVersion implements
     public BufferedImage getBackgroundSelected() {
         return imageCache.read(DocumentImage.BG_SEL_DEFAULT);
     }
-    
+
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#getBorder(int)
      * 
@@ -202,7 +210,18 @@ public class ContainerVersionCell extends ContainerVersion implements
     /**
      * @see com.thinkparity.browser.application.browser.display.renderer.tab.TabCell#triggerPopup(com.thinkparity.browser.platform.Platform.Connection, java.awt.Component, java.awt.event.MouseEvent, int, int)
      */
-    public void triggerPopup(Connection connection, Component invoker, MouseEvent e, int x, int y) {
-        throw Assert.createNotYetImplemented("ContainerVersionCell#triggerPopup");
+    public void triggerPopup(final Connection connection,
+            final Component invoker, final MouseEvent e, final int x,
+            final int y) {
+        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+
+        if (Connection.ONLINE == connection) {
+            final Data shareData = new Data(1);
+            shareData.set(Share.DataKey.CONTAINER_ID, getArtifactId());
+            shareData.set(Share.DataKey.VERSION_ID, getVersionId());
+            jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_SHARE, shareData));        
+        }
+
+        jPopupMenu.show(invoker, x, y);
     }
 }

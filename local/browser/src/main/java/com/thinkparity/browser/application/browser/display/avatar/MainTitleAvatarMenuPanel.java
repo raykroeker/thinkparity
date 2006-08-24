@@ -72,32 +72,48 @@ public class MainTitleAvatarMenuPanel extends MainTitleAvatarAbstractPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
         javax.swing.JLabel helpJLabel;
+        javax.swing.JFrame jFrame1;
+        javax.swing.JMenuBar mainJMenuBar1;
         javax.swing.JLabel newJLabel;
+        javax.swing.JMenu newJMenu1;
         javax.swing.JLabel profileJLabel;
+        javax.swing.JMenu profileJMenu1;
         javax.swing.JLabel spacerJLabel;
 
+        jFrame1 = new javax.swing.JFrame();
+        mainJMenuBar1 = new javax.swing.JMenuBar();
+        newJMenu1 = new javax.swing.JMenu();
+        profileJMenu1 = new javax.swing.JMenu();
         newJLabel = new javax.swing.JLabel();
         profileJLabel = new javax.swing.JLabel();
         helpJLabel = new javax.swing.JLabel();
         signUpJLabel = new javax.swing.JLabel();
         spacerJLabel = new javax.swing.JLabel();
 
+        newJMenu1.setText("NewMenu");
+        mainJMenuBar1.add(newJMenu1);
+
+        profileJMenu1.setText("ProfileMenu");
+        mainJMenuBar1.add(profileJMenu1);
+
+        jFrame1.setJMenuBar(mainJMenuBar1);
+
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
         newJLabel.setText(java.util.ResourceBundle.getBundle("localization/BrowserLocalization").getString("com.thinkparity.browser.application.browser.display.avatar.BrowserTitle.New"));
         newJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                newJLabelMouseClicked(e);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                newJLabelMouseClicked(evt);
             }
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                newJLabelMouseEntered(e);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                newJLabelMouseEntered(evt);
             }
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                newJLabelMouseExited(e);
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                newJLabelMouseExited(evt);
             }
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                newJLabelMouseReleased(e);
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                newJLabelMouseReleased(evt);
             }
         });
 
@@ -141,7 +157,7 @@ public class MainTitleAvatarMenuPanel extends MainTitleAvatarAbstractPanel {
         final Rectangle jLabelBounds = ((JLabel) evt.getSource()).getBounds();
         newJPopupMenu.show(this, jLabelBounds.x, jLabelBounds.y + jLabelBounds.height);
     }//GEN-LAST:event_newJLabelMouseClicked
-    
+
     private void newJLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseEntered
 // TODO add your handling code here:
     }//GEN-LAST:event_newJLabelMouseEntered
@@ -149,10 +165,11 @@ public class MainTitleAvatarMenuPanel extends MainTitleAvatarAbstractPanel {
     private void newJLabelMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseExited
 // TODO add your handling code here:
     }//GEN-LAST:event_newJLabelMouseExited
-    
-    private void newJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseReleased
-    }//GEN-LAST:event_newJLabelMouseReleased
 
+    private void newJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newJLabelMouseReleased
+        
+    }//GEN-LAST:event_newJLabelMouseReleased
+        
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel signUpJLabel;
     // End of variables declaration//GEN-END:variables

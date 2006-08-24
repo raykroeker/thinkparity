@@ -9,8 +9,11 @@ import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.platform.AbstractFactory;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
@@ -37,6 +40,13 @@ public class PopupItemFactory extends AbstractFactory {
 
     /** A singleton instance. */
     private static PopupItemFactory SINGLETON;
+    
+    static {
+        final UIDefaults defaults = UIManager.getDefaults();
+        defaults.put("MenuItem.selectionBackground", BrowserConstants.SelectionBackground);
+        defaults.put("MenuItem.selectionForeground", BrowserConstants.SelectionForeground);
+        defaults.put("MenuItem.font", BrowserConstants.Fonts.DefaultFont);
+    }
 
     /**
      * Obtain an instance of a browser popup item factory
@@ -74,7 +84,7 @@ public class PopupItemFactory extends AbstractFactory {
      */
     public JMenuItem createPopupItem(final ActionId actionId,
             final Data data) {
-        return SINGLETON.doCeatePopupItem(actionId, data);
+        return SINGLETON.doCreatePopupItem(actionId, data);
     }
 
     /**
@@ -86,7 +96,7 @@ public class PopupItemFactory extends AbstractFactory {
      *            The action data.
      * @return A popup menu item.
      */
-    private JMenuItem doCeatePopupItem(final ActionId actionId, final Data data) {
+    private JMenuItem doCreatePopupItem(final ActionId actionId, final Data data) {
         final AbstractAction action;
         if (actionRegistry.contains(actionId)) {
             action = actionRegistry.get(actionId);
@@ -132,6 +142,9 @@ public class PopupItemFactory extends AbstractFactory {
             this.action = action;
             this.data = null;
             putValue(Action.NAME, action.isSetName() ? action.getName() : "!No name set.!");
+            if (action.isSetMnemonic()) {
+                putValue(MNEMONIC_KEY, new Integer(action.getMnemonic().charAt(0)));
+            }
         }
 
         /**

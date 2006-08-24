@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.1" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Container class="javax.swing.JFrame" name="jFrame1">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+      <SubComponents>
+        <Menu class="javax.swing.JMenuBar" name="mainJMenuBar1">
+          <SubComponents>
+            <Menu class="javax.swing.JMenu" name="newJMenu1">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="NewMenu"/>
+              </Properties>
+            </Menu>
+            <Menu class="javax.swing.JMenu" name="profileJMenu1">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="ProfileMenu"/>
+              </Properties>
+            </Menu>
+          </SubComponents>
+        </Menu>
+      </SubComponents>
+    </Container>
+  </NonVisualComponents>
   <Properties>
     <Property name="opaque" type="boolean" value="false"/>
   </Properties>

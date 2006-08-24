@@ -35,10 +35,14 @@ public final class Constants {
             }
             public static final class MainTitle {
                 public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
-                public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);
+                public static final Color BG_GRAD_START = new Color(239, 241, 242, 255);
                 public static final Color SEARCH_BACKGROUND = new Color(237, 241, 244, 255);
                 public static final Color SEARCH_OUTLINE = new Color(204, 215, 226, 255);
                 public static final Color SIGN_UP_BACKGROUND = new Color(255, 199, 60, 70);
+            }
+            public static final class MainTitleTop {
+                public static final Color BG_GRAD_FINISH = new Color(239, 241, 242, 255);  // about 25% of the gradient
+                public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
             }
         }
     }

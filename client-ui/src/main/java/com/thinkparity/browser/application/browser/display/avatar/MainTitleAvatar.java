@@ -89,11 +89,12 @@ public class MainTitleAvatar extends Avatar {
         final Graphics g2 = g.create();
         try {
             GradientPainter.paintVertical(g2, getSize(),
-                    Browser.MainStatus.BG_GRAD_START,
-                    Browser.MainStatus.BG_GRAD_FINISH);
+                    Browser.MainTitle.BG_GRAD_START,
+                    Browser.MainTitle.BG_GRAD_FINISH);
+            // Note subtract 10 pixels from height to account for menu bar
             g2.drawImage(Images.BrowserTitle.LOGO,
                     (getWidth() - Images.BrowserTitle.LOGO.getWidth()) / 2,
-                    (getHeight() - Images.BrowserTitle.LOGO.getHeight()) / 2,
+                    (getHeight() - Images.BrowserTitle.LOGO.getHeight()) / 2 - 10,
                     Images.BrowserTitle.LOGO.getWidth(),
                     Images.BrowserTitle.LOGO.getHeight(), MainTitleAvatar.this);
         }
@@ -134,19 +135,15 @@ public class MainTitleAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarButtonPanel buttonPanel;
-        com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarMenuPanel menuPanel;
         com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel searchPanel;
 
         buttonPanel = new com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarButtonPanel();
         searchPanel = new com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel();
-        menuPanel = new com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarMenuPanel();
         tabPanel = new com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarTabPanel();
 
         buttonPanel.setMainTitleAvatar(this);
 
         searchPanel.setMainTitleAvatar(this);
-
-        menuPanel.setMainTitleAvatar(this);
 
         tabPanel.setMainTitleAvatar(this);
 
@@ -158,18 +155,15 @@ public class MainTitleAvatar extends Avatar {
                 .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(searchPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(layout.createSequentialGroup()
-                .add(menuPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(401, Short.MAX_VALUE)
                 .add(buttonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(buttonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(menuPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(buttonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 18, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(searchPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(tabPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))

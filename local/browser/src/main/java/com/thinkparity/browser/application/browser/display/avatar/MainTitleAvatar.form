@@ -16,9 +16,8 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="searchPanel" min="-2" max="-2" attributes="0"/>
           </Group>
-          <Group type="102" attributes="0">
-              <Component id="menuPanel" pref="395" max="32767" attributes="1"/>
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace pref="401" max="32767" attributes="0"/>
               <Component id="buttonPanel" min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -26,11 +25,8 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="buttonPanel" min="-2" max="-2" attributes="0"/>
-                  <Component id="menuPanel" min="-2" pref="29" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <Component id="buttonPanel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="18" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="searchPanel" min="-2" max="-2" attributes="0"/>
                   <Component id="tabPanel" min="-2" max="-2" attributes="0"/>
@@ -48,11 +44,6 @@
     <Component class="com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarSearchPanel" name="searchPanel">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="searchPanel.setMainTitleAvatar(this);"/>
-      </AuxValues>
-    </Component>
-    <Component class="com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarMenuPanel" name="menuPanel">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="menuPanel.setMainTitleAvatar(this);"/>
       </AuxValues>
     </Component>
     <Component class="com.thinkparity.browser.application.browser.display.avatar.MainTitleAvatarTabPanel" name="tabPanel">

@@ -70,6 +70,12 @@ public abstract class AbstractAction {
 	 * 
 	 */
 	private String name;
+    
+    /**
+     * The action MNEMONIC.
+     * 
+     */
+    private String mnemonic;
 
     /**
      * Create AbstractAction.
@@ -83,6 +89,7 @@ public abstract class AbstractAction {
         this.icon = null;
         this.localization = new ActionLocalization(id.toString());
         this.name = localization.getString("NAME");
+        this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
     }
 
 	/**
@@ -105,6 +112,13 @@ public abstract class AbstractAction {
 	 * @return The action NAME.
 	 */
 	public String getName() { return name; }
+    
+    /**
+     * Obtain the action MNEMONIC.
+     * 
+     * @return The action MNEMONIC.
+     */
+    public String getMnemonic() { return mnemonic; }
 
 	/**
 	 * Invoke the action.
@@ -122,6 +136,15 @@ public abstract class AbstractAction {
 	public Boolean isSetName() {
         return null != name;
 	}
+    
+    /**
+     * Determine if the mnemonic is set.
+     * 
+     * @return True if the mnemonic is set; false otherwise.
+     */
+    public Boolean isSetMnemonic() {
+        return null != mnemonic;
+    }
 
 	/**
 	 * Set the action ICON.
@@ -138,6 +161,14 @@ public abstract class AbstractAction {
 	 *            The action NAME.
 	 */
 	public void setName(String name) { this.name = name; }
+    
+    /**
+     * Set the action MNEMONIC.
+     * 
+     * @param MNEMONIC
+     *            The action MNEMONIC.
+     */
+    public void setMnemonic(String mnemonic) { this.mnemonic = mnemonic; }
 
 	/**
 	 * Obtain the parity artifact interface.

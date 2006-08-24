@@ -11,12 +11,10 @@ import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-
-import com.thinkparity.codebase.swing.AbstractJFrame;
-import com.thinkparity.codebase.swing.Swing.Constants.Images;
 
 import com.thinkparity.browser.Constants.Dimensions;
 import com.thinkparity.browser.application.browser.display.DisplayId;
@@ -24,6 +22,9 @@ import com.thinkparity.browser.platform.application.display.Display;
 import com.thinkparity.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.browser.platform.util.persistence.Persistence;
 import com.thinkparity.browser.platform.util.persistence.PersistenceFactory;
+
+import com.thinkparity.codebase.swing.AbstractJFrame;
+import com.thinkparity.codebase.swing.Swing.Constants.Images;
 
 /**
  * @author raykroeker@gmail.com
@@ -82,6 +83,7 @@ public class BrowserWindow extends AbstractJFrame {
                 persist();
                 browser.hibernate();
             }});
+        initMenu();
 		setIconImage(Images.WINDOW_ICON_IMAGE);
 		setTitle(getString("Title"));
 		setUndecorated(true);
@@ -142,6 +144,14 @@ public class BrowserWindow extends AbstractJFrame {
         browser.displayMainStatusAvatar();
 
         browser.displayTabContainerAvatar();
+    }
+    
+    /**
+     * Add the menu to the window.
+     */
+    private void initMenu() {
+        final JMenuBar menuBar = new BrowserMenuBar();
+        setJMenuBar(menuBar);
     }
 
 	/**

@@ -94,13 +94,13 @@ public class WindowBorder2 extends AbstractBorder {
         g.setColor(new Color(109, 109, 109, 255));
         g.drawLine(0, 0, width, 0);                         // top line 1
         g.drawLine(1, 1, 1, height - 2);                    // left line 2
-        g.drawLine(width - 2, 0, width - 2, height);        // right line 1
+        g.drawLine(width - 2, 1, width - 2, height - 2);    // right line 1
 
         g.setColor(new Color(226, 226, 226, 255));
-        g.drawLine(2, 1, width, 1);                         // top line 2
+        g.drawLine(2, 1, width - 4, 1);                     // top line 2
 
         g.setColor(new Color(71, 71, 71, 255));
-        g.drawLine(0, 1, 0, height - 2);                    // left line 1
+        g.drawLine(0, 0, 0, height - 1);                    // left line 1
         g.drawLine(width - 1, 0, width - 1, height);        // right line 2
         g.drawLine(0, height - 1, width, height - 1);       // bottom
 

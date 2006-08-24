@@ -1052,21 +1052,20 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Update the user.
+     * Update the user's profile.
      * 
-     * @param user
-     *            The user.
+     * @param profile
+     *            The user's <code>Profile</code>.
      * @throws ParityException
      */
-    void updateUser(final User user) throws ParityException {
-        logger.info(getApiId("[UPDATE USER]"));
-        logger.debug(user);
-        synchronized(SessionModelImpl.xmppHelper) {
-            assertIsLoggedIn(getApiId("[UPDATE USER]"), xmppHelper);
-            try { xmppHelper.updateUser(user); }
-            catch(final SmackException sx) {
-                logger.error(getErrorId("[UPDATE USER]", "[SMACK ERROR]"), sx);
-                throw ParityErrorTranslator.translate(sx);
+    void updateProfile(final Profile profile) {
+        logApiId();
+        logVariable("profile", profile);
+        synchronized (xmppHelper) {
+            try {
+                xmppHelper.getXMPPSession().updateProfile(profile);
+            } catch (final Throwable t) {
+                throw translateError("UPDATE PROFILE", t);
             }
         }
     }
@@ -1083,20 +1082,6 @@ class SessionModelImpl extends AbstractModelImpl {
     private void assertIsLoggedIn(final String message,
             final SessionModelXMPPHelper xmppHelper) {
         Assert.assertTrue(message + " [NOT LOGGED IN]", xmppHelper.isLoggedIn());
-    }
-
-    /**
-     * Assert that the user is currently logged in.
-     * 
-     * @param message
-     *            Message to display in the assertion.
-     * @param xmppHelper
-     *            A handle to the xmpp helper in order to determine logged in
-     *            status.
-     */
-    private void assertIsLoggedIn(final StringBuffer message,
-            final SessionModelXMPPHelper xmppHelper) {
-        assertIsLoggedIn(message.toString(), xmppHelper);
     }
 
     /**

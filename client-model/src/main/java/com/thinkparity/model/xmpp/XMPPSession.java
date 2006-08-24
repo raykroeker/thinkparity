@@ -329,11 +329,10 @@ public interface XMPPSession {
 			throws SmackException;
 
     /**
-     * Update the current user.
+     * Update the user's profile.
      * 
-     * @param user
-     *            The user.
-     * @throws SmackException
+     * @param profile
+     *            The user's <code>Profile</code>.
      */
-    public void updateUser(final User user) throws SmackException;
+    public void updateProfile(final Profile profile);
 }

@@ -1524,8 +1524,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
      *            A container id.
      * @param versionId
      *            A version id.
-     * @param userIds
-     *            A list of user ids.
+     * @param contacts
+     *            A <code>List&lt;Contact&gt;</code>.
+     * @param teamMembers
+     *            A <code>List&lt;TeamMember&gt;</code>.
      */
     void share(final Long containerId, final Long versionId,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {

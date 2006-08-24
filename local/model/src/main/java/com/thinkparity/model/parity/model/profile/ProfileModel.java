@@ -70,7 +70,9 @@ public class ProfileModel {
      *            A profile.
      */
     public void update(final Profile profile) {
-        synchronized(implLock) { impl.update(profile); }
+        synchronized (getImplLock()) {
+            getImpl().update(profile);
+        }
     }
 
     /**

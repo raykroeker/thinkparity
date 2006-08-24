@@ -43,7 +43,7 @@ public class XMPPErrorTranslator {
         return SINGLETON.doTranslate(xmppError);
 	}
 
-	/**
+    /**
 	 * Create a new smack interface error based upon an xmppp error.
 	 * 
 	 * @param xmppx
@@ -53,6 +53,22 @@ public class XMPPErrorTranslator {
 	static SmackException translate(final XMPPException xmppx) {
         return SINGLETON.doTranslate(xmppx);
 	}
+
+	/**
+     * Translate an error into an xmpp unechecked error.
+     * 
+     * @param xmppCore
+     *            The xmpp core.
+     * @param errorId
+     *            An error id.
+     * @param t
+     *            An error.
+     * @return An unchecked xmpp exception.
+     */
+    static XMPPUncheckedException translateUnchecked(final XMPPCore xmppCore,
+            final Object errorId, final Throwable t) {
+        return SINGLETON.doTranslateUnchecked(xmppCore, errorId, t);
+    }
 
 	/**
 	 * Create a XMPPErrorTranslator [Singleton]
@@ -70,7 +86,11 @@ public class XMPPErrorTranslator {
 		return new SmackException(x);
 	}
 
-	private SmackException doTranslate(final XMPPError xmppError) {
+    private SmackException doTranslate(final XMPPError xmppError) {
         return new SmackException(xmppError);
-	}
+    }
+
+    private XMPPUncheckedException doTranslateUnchecked(final XMPPCore xmppCore, final Object errorId, final Throwable t) {
+        return new XMPPUncheckedException(errorId.toString(), t);
+    }
 }

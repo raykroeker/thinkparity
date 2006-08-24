@@ -8,8 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
@@ -42,10 +40,10 @@ import com.thinkparity.model.xmpp.user.User;
  */
 class XMPPArtifact extends AbstractXMPP {
 
-    private static final List<XMPPArtifactListener> listeners;
+    private static final List<XMPPArtifactListener> LISTENERS;
 
     static {
-		listeners = new LinkedList<XMPPArtifactListener>();
+		LISTENERS = new LinkedList<XMPPArtifactListener>();
 
         ProviderManager.addIQProvider(Service.NAME, EventHandler.Artifact.DRAFT_CREATED, new AbstractThinkParityIQProvider() {
             public IQ parseIQ(final XmlPullParser parser) throws Exception {
@@ -147,29 +145,6 @@ class XMPPArtifact extends AbstractXMPP {
         });
 	}
 
-    /**
-     * Obtain an api id.
-     * 
-     * @param api
-     *            An api.
-     * @return An api id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return new StringBuffer("[XMPP] [ARTIFACT] ").append(api);
-    }
-
-    /**
-	 * An apache logger.
-	 * 
-	 */
-	private final Logger logger;
-
-    /**
-	 * The xmpp core functionality.
-	 * 
-	 */
-	private final XMPPCore xmppCore;
-
 	/**
 	 * Create a XMPPArtifact.
 	 * 
@@ -177,17 +152,18 @@ class XMPPArtifact extends AbstractXMPP {
 	 *            The xmpp core functionality.
 	 */
 	XMPPArtifact(final XMPPCore xmppCore) {
-		super();
-		this.xmppCore = xmppCore;
-		this.logger = Logger.getLogger(getClass());
+		super(xmppCore);
 	}
 
 	void addListener(final XMPPArtifactListener l) {
-		logger.info("[LMODEL] [XMPP] [ARTIFACT] [ADD ARTIFACT LISTENER");
-		logger.debug(l);
-		synchronized(listeners) {
-			if(listeners.contains(l)) { return; }
-			listeners.add(l);
+		logApiId();
+		logVariable("l", l);
+		synchronized (LISTENERS) {
+			if (LISTENERS.contains(l)) {
+                return;
+			} else {
+			    LISTENERS.add(l);
+            }
 		}
 	}
 
@@ -246,9 +222,9 @@ class XMPPArtifact extends AbstractXMPP {
      * @throws SmackException
      */
     void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        logger.info(getApiId("[ADD TEAM MEMBER]"));
-        logger.debug(uniqueId);
-        logger.debug(jabberId);
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("jabberId", jabberId);
         final XMPPMethod method = new XMPPMethod(Xml.Method.Artifact.ADD_TEAM_MEMBER);
         method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         method.setParameter(Xml.User.JABBER_ID, jabberId);
@@ -267,9 +243,10 @@ class XMPPArtifact extends AbstractXMPP {
      */
 	void confirmReceipt(final JabberId receivedFrom, final UUID uniqueId,
             final Long versionId) throws SmackException {
-	    logger.info("[LMODEL] [XMPP] [CONFIRM ARTIFACT RECEIPT]");
-	    logger.debug(receivedFrom);
-	    logger.debug(uniqueId);
+	    logApiId();
+        logVariable("receivedFrom", receivedFrom);
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
         final IQConfirmArtifactReceipt iq = new IQConfirmArtifactReceipt();
         iq.setArtifactUUID(uniqueId);
         iq.setArtifactVersionId(versionId);
@@ -285,8 +262,8 @@ class XMPPArtifact extends AbstractXMPP {
      *            An artifact unique id.
      */
     void createDraft(final UUID uniqueId) {
-        logger.info(getApiId("[CREATE DRAFT"));
-        logger.debug(uniqueId);
+        logApiId();
+        logVariable("uniqueId", uniqueId);
         final XMPPMethod method = new XMPPMethod("artifact:createdraft");
         method.setParameter("uniqueId", uniqueId);
         method.execute(xmppCore.getConnection());
@@ -297,8 +274,8 @@ class XMPPArtifact extends AbstractXMPP {
      * @param uniqueId An artifact unique id.
      */
     void delete(final UUID uniqueId) {
-        logger.info(getApiId("[DELETE]"));
-        logger.debug(uniqueId);
+        logApiId();
+        logVariable("uniqueId", uniqueId);
         final XMPPMethod delete = new XMPPMethod(Xml.Method.Artifact.DELETE);
         delete.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         delete.execute(xmppCore.getConnection());
@@ -339,8 +316,8 @@ class XMPPArtifact extends AbstractXMPP {
      * @throws SmackException
      */
 	List<User> readTeam(final UUID uniqueId) throws SmackException {
-		logger.info("[LMODEL] [XMPP] [ARTIFACT] [READ TEAM]");
-		logger.debug(uniqueId);
+		logApiId();
+		logVariable("uniqueId", uniqueId);
 		final IQ iq = new IQReadContacts(uniqueId);
 		iq.setType(IQ.Type.GET);
 		final IQArtifactReadContactsResult result =
@@ -349,11 +326,14 @@ class XMPPArtifact extends AbstractXMPP {
 	}
 
 	void removeListener(final XMPPArtifactListener l) {
-		logger.info("[LMODEL] [XMPP] [REMOVE ARTIFACT LISTENER]");
-		logger.debug(l);
-		synchronized(listeners) {
-			if(!listeners.contains(l)) { return; }
-			listeners.remove(l);
+		logApiId();
+		logVariable("l", l);
+		synchronized (LISTENERS) {
+			if (!LISTENERS.contains(l)) {
+                return;
+			} else {
+			    LISTENERS.remove(l);
+            }
 		}
 	}
 
@@ -366,9 +346,9 @@ class XMPPArtifact extends AbstractXMPP {
      *            A jabber id.
      */
     void removeTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        logger.info(getApiId("[REMOVE TEAM MEMBER]"));
-        logger.debug(uniqueId);
-        logger.debug(jabberId);
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("jabberId", jabberId);
         final XMPPMethod method = new XMPPMethod("artifact:removeteammember");
         method.setParameter(Xml.Artifact.UNIQUE_ID, uniqueId);
         method.setParameter(Xml.User.JABBER_ID, jabberId);
@@ -376,8 +356,8 @@ class XMPPArtifact extends AbstractXMPP {
     }
 
     private void handleDraftCreated(final HandleDraftCreatedIQ query) {
-        synchronized (listeners) {
-            for (final XMPPArtifactListener l : listeners) {
+        synchronized (LISTENERS) {
+            for (final XMPPArtifactListener l : LISTENERS) {
                 l.handleDraftCreated(query.uniqueId, query.createdBy,
                         query.createdOn);
             }
@@ -385,8 +365,8 @@ class XMPPArtifact extends AbstractXMPP {
     }
 
     private void handleDraftDeleted(final HandleDraftDeletedIQ query) {
-        synchronized (listeners) {
-            for (final XMPPArtifactListener l : listeners) {
+        synchronized (LISTENERS) {
+            for (final XMPPArtifactListener l : LISTENERS) {
                 l.handleDraftDeleted(query.uniqueId, query.deletedBy,
                         query.deletedOn);
             }
@@ -400,8 +380,8 @@ class XMPPArtifact extends AbstractXMPP {
      *            The internet query.
      */
 	private void handleTeamMemberAdded(final HandleTeamMemberAddedIQ query) {
-		synchronized(listeners) {
-			for(final XMPPArtifactListener l : listeners) {
+		synchronized(LISTENERS) {
+			for(final XMPPArtifactListener l : LISTENERS) {
 				l.teamMemberAdded(query.uniqueId, query.jabberId);
 			}
 		}
@@ -414,8 +394,8 @@ class XMPPArtifact extends AbstractXMPP {
      *            The internet query.
      */
     private void handleTeamMemberRemoved(final HandleTeamMemberRemovedIQ query) {
-        synchronized (listeners) {
-            for(final XMPPArtifactListener l : listeners) {
+        synchronized (LISTENERS) {
+            for(final XMPPArtifactListener l : LISTENERS) {
                 l.teamMemberRemoved(query.uniqueId, query.jabberId);
             }
         }
@@ -429,8 +409,8 @@ class XMPPArtifact extends AbstractXMPP {
      */
     private void notifyArtifactConfirmation(
             final IQConfirmArtifactReceipt packet) {
-        synchronized(listeners) {
-            for(final XMPPArtifactListener l : listeners) {
+        synchronized(LISTENERS) {
+            for(final XMPPArtifactListener l : LISTENERS) {
                 l.confirmReceipt(packet.getArtifactUUID(),
                         packet.getArtifactVersionId(), packet.getFromJabberId());
             }

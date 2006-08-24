@@ -23,6 +23,7 @@ import com.thinkparity.model.parity.model.container.ContainerModel;
 import com.thinkparity.model.parity.model.document.DocumentModel;
 import com.thinkparity.model.parity.model.index.IndexModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.session.SessionModel;
 import com.thinkparity.model.parity.model.user.UserModel;
 import com.thinkparity.model.xmpp.JabberId;
@@ -34,48 +35,27 @@ import com.thinkparity.model.xmpp.user.User;
  */
 public abstract class AbstractAction {
 
-	/**
-	 * Action localization.
-	 * 
-	 */
+	/** Action localization. */
 	protected final ActionLocalization localization;
-	
-	/**
-	 * Handle to an apache logger.
-	 * 
-	 */
+
+	/** An apache logger. */
 	protected final Logger logger =
 		Logger.getLogger(getClass());
 
-	/**
-	 * Parity model factory.
-	 * 
-	 */
+	/** The thinkParity model factory. */
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
-	/**
-	 * The action ICON.
-	 * 
-	 */
+	/** The action icon. */
 	private Icon icon;
 
-	/**
-	 * The action id.
-	 * 
-	 */
+	/** The action id. */
 	private ActionId id;
 
-	/**
-	 * The action NAME.
-	 * 
-	 */
-	private String name;
-    
-    /**
-     * The action MNEMONIC.
-     * 
-     */
+	/** The action mnemonic. */
     private String mnemonic;
+    
+    /** The action name. */
+	private String name;
 
     /**
      * Create AbstractAction.
@@ -107,18 +87,18 @@ public abstract class AbstractAction {
 	public ActionId getId() { return id; }
 
     /**
-	 * Obtain the action NAME.
-	 * 
-	 * @return The action NAME.
-	 */
-	public String getName() { return name; }
-    
-    /**
      * Obtain the action MNEMONIC.
      * 
      * @return The action MNEMONIC.
      */
     public String getMnemonic() { return mnemonic; }
+    
+    /**
+	 * Obtain the action NAME.
+	 * 
+	 * @return The action NAME.
+	 */
+	public String getName() { return name; }
 
 	/**
 	 * Invoke the action.
@@ -129,15 +109,6 @@ public abstract class AbstractAction {
 	public abstract void invoke(final Data data);
 
 	/**
-     * Determine if the name is set.
-     * 
-     * @return True if the name is set; false otherwise.
-     */
-	public Boolean isSetName() {
-        return null != name;
-	}
-    
-    /**
      * Determine if the mnemonic is set.
      * 
      * @return True if the mnemonic is set; false otherwise.
@@ -145,41 +116,56 @@ public abstract class AbstractAction {
     public Boolean isSetMnemonic() {
         return null != mnemonic;
     }
-
-	/**
-	 * Set the action ICON.
-	 * 
-	 * @param ICON
-	 *            The action ICON.
-	 */
-	public void setIcon(Icon icon) { this.icon = icon; }
-
-	/**
-	 * Set the action NAME.
-	 * 
-	 * @param NAME
-	 *            The action NAME.
-	 */
-	public void setName(String name) { this.name = name; }
     
     /**
-     * Set the action MNEMONIC.
+     * Determine if the name is set.
      * 
-     * @param MNEMONIC
-     *            The action MNEMONIC.
+     * @return True if the name is set; false otherwise.
      */
-    public void setMnemonic(String mnemonic) { this.mnemonic = mnemonic; }
+	public Boolean isSetName() {
+        return null != name;
+	}
 
 	/**
-	 * Obtain the parity artifact interface.
+     * Set the icon.
+     * 
+     * @param icon
+     *            The <code>Icon</code>.
+     */
+	public void setIcon(final Icon icon) {
+        this.icon = icon;
+    }
+
+	/**
+     * Set the action mnemonic.
+     * 
+     * @param mnemonic
+     *            The action mnemonic.
+     */
+    public void setMnemonic(final String mnemonic) {
+        this.mnemonic = mnemonic;
+    }
+    
+    /**
+	 * Set the name.
 	 * 
-	 * @return The parity artifact interface.
+	 * @param name
+	 *            A name <code>String</code>.
+	 */
+	public void setName(final String name) {
+        this.name = name;
+	}
+
+	/**
+	 * Obtain a thinkParity artifact interface.
+	 * 
+	 * @return A <code>ArtifactModel</code>.
 	 */
 	protected ArtifactModel getArtifactModel() {
 		return modelFactory.getArtifactModel(getClass());
 	}
 
-	/**
+    /**
      * Obtain the contact model api.
      * 
      * @return The contact model api.
@@ -188,7 +174,7 @@ public abstract class AbstractAction {
         return modelFactory.getContactModel(getClass());
     }
 
-    /**
+	/**
      * Obtain the container model api.
      * 
      * @return The container model api.
@@ -230,7 +216,7 @@ public abstract class AbstractAction {
         for(final Object o : list) { jabberIds.add((JabberId) o); }
         return jabberIds;
     }
-    
+
     /**
      * Convert the data element found at the given key to a list of users.
      * 
@@ -246,25 +232,34 @@ public abstract class AbstractAction {
         final List<User> users = new ArrayList<User>();
         for(final Object o : list) { users.add((User) o); }
         return users;
-    }  
-
-	/**
+    }
+    
+    /**
 	 * Obtain the document model api.
 	 * 
 	 * @return The document model api.
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}   
-    
-    /**
+	}  
+
+	/**
      * Obtain the parity index interface.
      * 
      * @return The parity index interface.
      */
 	protected IndexModel getIndexModel() {
 		return modelFactory.getIndexModel(getClass());
-	}
+	}   
+    
+    /**
+     * Obtain a thinkParity profile interface.
+     * 
+     * @return A <code>ProfileModel</code>.
+     */
+    protected ProfileModel getProfileModel() {
+        return modelFactory.getProfileModel(getClass());
+    }
 
 	/**
      * Obtain the parity session interface.

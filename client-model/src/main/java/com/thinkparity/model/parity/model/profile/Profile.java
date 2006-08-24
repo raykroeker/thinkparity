@@ -44,7 +44,9 @@ public class Profile extends User {
      */
     public boolean addAllEmails(final List<String> emails) {
         final int originalSize = this.emails.size();
-        for(final String email : emails) { addEmail(email); }
+        for (final String email : emails) {
+            addEmail(email);
+        }
         return originalSize < this.emails.size();
     }
 
@@ -56,15 +58,20 @@ public class Profile extends User {
      * @return True if the list is modified false otherwise.
      */
     public boolean addEmail(final String email) {
-        if(emails.contains(email)) { return false; }
-        else { return emails.add(email); }
+        if (emails.contains(email)) {
+            return false;
+        } else {
+            return emails.add(email);
+        }
     }
 
     /**
      * Clear the list of e-mail addresses.
      *
      */
-    public void clearEmails() { emails.clear(); }
+    public void clearEmails() {
+        emails.clear();
+    }
 
     /**
      * Obtain the emails
@@ -80,7 +87,9 @@ public class Profile extends User {
      *
      * @return The VCard.
      */
-    public VCard getVCard() { return vCard; }
+    public VCard getVCard() {
+        return vCard;
+    }
 
     /**
      * Remove a list of e-mail addresses.
@@ -109,5 +118,7 @@ public class Profile extends User {
      *
      * @param card The VCard.
      */
-    public void setVCard(final VCard vCard) { this.vCard = vCard; }
+    public void setVCard(final VCard vCard) {
+        this.vCard = vCard;
+    }
 }

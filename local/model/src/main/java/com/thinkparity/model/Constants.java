@@ -13,6 +13,9 @@ import java.io.File;
  */
 public final class Constants {
 
+    public static final class VCardFields {
+        public static final String TITLE = "TITLE";
+    }
     public static final class Compression {
         public static final Integer NONE = 0;
     }

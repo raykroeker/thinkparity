@@ -53,6 +53,7 @@ import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
 import com.thinkparity.browser.platform.action.document.Rename;
 import com.thinkparity.browser.platform.action.document.UpdateDraft;
+import com.thinkparity.browser.platform.action.profile.Update;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
@@ -78,9 +79,6 @@ import com.thinkparity.model.xmpp.JabberId;
  */
 public class Browser extends AbstractApplication {
 
-    /** An apache logger. */
-	protected final Logger logger;
-
 	/** Action registry. */
 	private final ActionRegistry actionRegistry;
 
@@ -103,10 +101,7 @@ public class Browser extends AbstractApplication {
 	 */
 	private JFileChooser jFileChooser;
 
-	/**
-	 * Main window.
-	 * 
-	 */
+	/** The thinkParity browser application window. */
 	private BrowserWindow mainWindow;
 
 	/** A persistence for browser settings. */
@@ -116,14 +111,13 @@ public class Browser extends AbstractApplication {
 	private final BrowserSession session;
 
 	/**
-	 * Create a Browser [Singleton]
+	 * Create Browser.
 	 * 
 	 */
 	public Browser(final Platform platform) {
 		super(platform, L18nContext.BROWSER2);
 		this.actionRegistry = new ActionRegistry();
 		this.avatarInputMap = new Hashtable<AvatarId, Object>(AvatarId.values().length, 1.0F);
-		this.logger = Logger.getLogger(getClass());
         this.persistence = PersistenceFactory.getPersistence(getClass());
 		this.session= new BrowserSession(this);
 	}
@@ -306,7 +300,15 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTACT_READ, input);
         displayAvatar(WindowId.POPUP, AvatarId.DIALOG_CONTACT_READ);        
     }
-    
+
+    /**
+     * Display the update profile dialog.
+     *
+     */
+    public void displayUpdateProfileDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE);
+    }
+
     /**
      * Display a document rename dialog.
      * 
@@ -1163,6 +1165,30 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
   
+    /**
+     * Update the user's profile.
+     * 
+     * @param emails
+     *            The user's e-mail addresses <code>List&lt;String&gt;</code>.
+     * @param name
+     *            The user's name <code>String</code>.
+     * @param organization
+     *            The user's organization <code>String</code>.
+     * @param title
+     *            The user's title <code>String</code>.
+     */
+    public void runUpdateProfile(final List<String> emails, final String name,
+            final String organization, final String title) {
+        final Data data = new Data(4);
+        data.set(Update.DataKey.EMAILS, emails);
+        data.set(Update.DataKey.NAME, name);
+        if (null != organization)
+            data.set(Update.DataKey.ORGANIZATION, organization);
+        if (null != title)
+            data.set(Update.DataKey.TITLE, title);
+        invoke(ActionId.PROFILE_UPDATE, data);
+    }
+
     /**
 	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
 	 * 

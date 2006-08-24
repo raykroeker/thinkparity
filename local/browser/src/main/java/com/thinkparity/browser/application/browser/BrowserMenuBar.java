@@ -16,14 +16,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.event.MouseInputAdapter;
 
+import com.thinkparity.codebase.swing.GradientPainter;
+
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+import com.thinkparity.browser.platform.action.profile.Update;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.l10n.JFrameLocalization;
-
-import com.thinkparity.codebase.swing.GradientPainter;
 
 /**
  * @author raymond@thinkparity.com
@@ -136,20 +137,17 @@ public class BrowserMenuBar extends JMenuBar {
         newMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
         newMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
 
+        // create profile menu
+        final Data updateProfileData = new Data(1);
+        updateProfileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        profileMenu.add(popupItemFactory.createPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));
+
         // Add minimize and close buttons
         this.add(Box.createHorizontalGlue());
         this.add(getMinimizeButton());
         this.add(Box.createRigidArea(new Dimension(3,0)));
         this.add(getCloseButton());
         this.add(Box.createRigidArea(new Dimension(3,0)));
-    }
-    
-    /**
-     * @see JFrameLocalization#getString(String)
-     * 
-     */
-    private String getString(final String localKey) {
-        return localization.getString(localKey);
     }
     
     private JLabel getMinimizeButton() {

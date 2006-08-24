@@ -3,11 +3,9 @@
  */
 package com.thinkparity.model.parity.model.user;
 
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.io.IOFactory;
 import com.thinkparity.model.parity.model.io.handler.UserIOHandler;
-import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.user.User;
@@ -38,30 +36,6 @@ class UserModelImpl extends AbstractModelImpl {
         final User remoteUser = getInternalSessionModel().readUser(jabberId);
         userIO.create(remoteUser);
         return read(jabberId);
-    }
-
-    /**
-     * Create a user.
-     * 
-     * @param name
-     *            A user's name.
-     * @param organization
-     *            A user's organization.
-     * @return A user.
-     * @throws ParityException
-     */
-    User create(final String name, final String organization)
-            throws ParityException {
-        logger.info(getApiId("[CREATE]"));
-        logger.debug(name);
-        logger.debug(organization);
-        final InternalSessionModel isModel = getInternalSessionModel();
-        final User remoteUser = isModel.readUser(localUserId());
-        remoteUser.setName(name);
-        remoteUser.setOrganization(organization);
-        userIO.create(remoteUser);
-        isModel.updateUser(remoteUser);
-        return read();
     }
 
     User read() {

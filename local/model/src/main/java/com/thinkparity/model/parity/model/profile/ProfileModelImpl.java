@@ -17,17 +17,6 @@ import com.thinkparity.model.parity.model.workspace.Workspace;
  */
 class ProfileModelImpl extends AbstractModelImpl {
 
-   /**
-     * Obtain an apache api log id.
-     * 
-     * @param api
-     *            The api.
-     * @return The log id.
-     */
-    private static StringBuffer getApiId(final String api) {
-        return getModelId("[PROFILE]").append(" ").append(api);
-    }
-
     /** The profile db io. */
     private final ProfileIOHandler profileIO;
 
@@ -66,7 +55,10 @@ class ProfileModelImpl extends AbstractModelImpl {
      *            A profile.
      */
     void update(final Profile profile) {
-        logger.info(getApiId("[UPDATE]"));
-//        throw Assert.createNotYetImplemented("ProfileModelImpl#update(Profile)");
+        logApiId();
+        logVariable("profile", profile);
+        // update local data
+        profileIO.update(profile);
+        getInternalSessionModel().updateProfile(profile);
     }
 }

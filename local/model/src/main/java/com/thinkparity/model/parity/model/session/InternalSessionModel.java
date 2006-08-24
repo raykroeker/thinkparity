@@ -285,15 +285,14 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
-     * Update the local user's remote information.
+     * Update the local user's profile.
      * 
-     * @param user
-     *            The user.
-     * @throws ParityException
+     * @param profile
+     *            The user's profile.
      */
-    public void updateUser(final User user) throws ParityException {
-        synchronized(getImplLock()) {
-            getImpl().updateUser(user);
+    public void updateProfile(final Profile profile) {
+        synchronized (getImplLock()) {
+            getImpl().updateProfile(profile);
         }
     }
 }

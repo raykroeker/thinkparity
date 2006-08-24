@@ -418,17 +418,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
 	}
 
     /**
-     * Update the user.
-     * 
-     * @param user
-     *            The user.
-     * @throws SmackException
-     */
-    void updateUser(final User user) throws SmackException {
-        xmppSession.updateUser(user);
-    }
-
-    /**
      * Event handler for confirmation receipts.
      * 
      * @param uniqueId

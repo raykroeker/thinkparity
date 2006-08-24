@@ -713,10 +713,11 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		logger.debug(logFileArchive);
 	}
 
-	public void updateUser(final User user) throws SmackException {
-        logger.info("[XMPP] [UPDATE USER]");
-        logger.debug(user);
-        xmppUser.update(user);
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#updateProfile(com.thinkparity.model.parity.model.profile.Profile)
+     */
+    public void updateProfile(final Profile profile) {
+        xmppUser.updateProfile(profile);
     }
 
 	/**

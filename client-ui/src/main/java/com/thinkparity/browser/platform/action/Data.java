@@ -4,7 +4,10 @@
  */
 package com.thinkparity.browser.platform.action;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -41,6 +44,18 @@ public class Data implements Cloneable {
 	}
 
 	/**
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() {
+        final Data clone = new Data(data.size());
+        for (final Entry<Enum<?>, Object> entry : data.entrySet()) {
+            clone.set(entry.getKey(), entry.getValue());
+        }
+        return clone;
+    }
+
+	/**
 	 * Obtain a data item.
 	 * 
 	 * @param key
@@ -49,7 +64,25 @@ public class Data implements Cloneable {
 	 */
 	public Object get(final Enum<?> key) { return data.get(key); }
 
-	/**
+    /**
+     * Extract a typed list from the data.
+     * 
+     * @param <T>
+     *            The list type.
+     * @param key
+     *            The data key.
+     * @return A <code>List&lt;T&gt;</code>.
+     */
+    public <T> List<T> getList(final Enum<?> key) {
+        final List unknownList = (List) data.get(key);
+        final List<T> list = new ArrayList<T>(unknownList.size());
+        for (Iterator i = unknownList.iterator(); i.hasNext(); ) {
+            list.add((T) i.next());
+        }
+        return list;
+    }
+
+    /**
 	 * Set a data item.
 	 * 
 	 * @param key
@@ -71,17 +104,5 @@ public class Data implements Cloneable {
      */
     public Object unset(final Enum<?> key) {
         return data.remove(key);
-    }
-
-    /**
-     * @see java.lang.Object#clone()
-     */
-    @Override
-    public Object clone() {
-        final Data clone = new Data(data.size());
-        for (final Entry<Enum<?>, Object> entry : data.entrySet()) {
-            clone.set(entry.getKey(), entry.getValue());
-        }
-        return clone;
     }
 }

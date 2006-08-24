@@ -36,8 +36,8 @@ public class StatusDisplay extends Display {
     /** The current background image. */
     private BufferedImage backgroundImage;
 
-    /** Create a StatusDisplay. */
-    public StatusDisplay() {
+    /** Create StatusDisplay. */
+    StatusDisplay() {
         super("StatusDisplay", Color.WHITE);
         this.backgroundImage = BG_IMAGE;
     }

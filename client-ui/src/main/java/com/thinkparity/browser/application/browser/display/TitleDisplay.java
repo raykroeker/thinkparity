@@ -25,8 +25,10 @@ public class TitleDisplay extends Display {
 
 	static { BACKGROUND = ImageIOUtil.read("TitleDisplay.png"); }
 
-	/** Create a TitleDisplay. */
-	public TitleDisplay() { super("TitleDisplay", Color.WHITE); }
+	/** Create TitleDisplay. */
+	TitleDisplay() {
+        super("TitleDisplay", Color.WHITE);
+	}
 
     /**
 	 * @see com.thinkparity.browser.platform.application.display.Display#getId()

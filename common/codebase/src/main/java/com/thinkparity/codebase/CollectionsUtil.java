@@ -8,12 +8,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
 public class CollectionsUtil {
+
+    public static <T> List<T> extract(final Map map, final Object key) {
+        return null;
+    }
 
 	/**
      * Clone a list 1 level deep.

@@ -521,6 +521,20 @@ public abstract class AbstractModelImpl {
 	}
 
     /**
+     * Determine if the list of team members contains the user id..
+     * 
+     * @param team
+     *            A <code>List&lt;TeamMember&gt;</code>.
+     * @param user
+     *            A user id <code>JabberId</code>.
+     * @return True if the user id matches one of the team members.
+     */
+    protected Boolean contains(final List<TeamMember> team,
+            final JabberId userId) {
+        return -1 != indexOf(team, userId);
+    }
+
+    /**
      * Determine if the list of team members contains the user.
      * 
      * @param team
@@ -533,7 +547,7 @@ public abstract class AbstractModelImpl {
         return -1 != indexOf(team, user);
     }
 
-	/**
+    /**
      * Determine if the list of users contains the team member.
      * 
      * @param users

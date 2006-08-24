@@ -65,13 +65,13 @@ public class ReadTest extends ContainerTestCase {
 
         data = new HashMap<String, Fixture>(2, 1.0F);
 
-        final ContainerModel cModel = getContainerModel();
-        final Container eContainer = cModel.create(NAME + ".0");
-        data.put("testReadContainer", new Fixture(cModel, eContainer.getId(), eContainer));
+        final ContainerModel containerModel = getContainerModel();
+        final Container container = containerModel.create(NAME + ".0");
+        data.put("testReadContainer", new Fixture(containerModel, container.getId(), container));
 
-        final List<Container> eContainers = cModel.read();
-        eContainers.add(cModel.create(NAME + ".1"));
-        data.put("testReadContainers", new Fixture(cModel, eContainer.getId(), eContainers));
+        final List<Container> containers = containerModel.read();
+        containers.add(containerModel.create(NAME + ".1"));
+        data.put("testReadContainers", new Fixture(containerModel, container.getId(), containers));
     }
 
     /**

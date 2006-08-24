@@ -83,4 +83,22 @@ class UserModelImpl extends AbstractModelImpl {
         logger.debug(userId);
         return userIO.read(userId);
     }
+
+    /**
+     * Read a user. If the user does not exist then create the user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>User</code>.
+     */
+    User readLazyCreate(final JabberId userId) {
+        logApiId();
+        logVariable("userId", userId);
+        final User localUser = read(userId);
+        if (null == localUser) {
+            return create(userId);
+        } else {
+            return localUser;
+        }
+    }
 }

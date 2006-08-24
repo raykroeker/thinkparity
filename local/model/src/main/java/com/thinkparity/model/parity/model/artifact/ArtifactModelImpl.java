@@ -84,14 +84,13 @@ public class ArtifactModelImpl extends AbstractModelImpl {
         logVariable("artifactId", userId);
         assertNotTeamMember("TEAM MEMBER ALREADY ADDED", artifactId, userId);
         assertOnline("USER NOT ONLINE");
-
+        // create local user data
         final InternalUserModel userModel = getInternalUserModel();
         User user = userModel.read(userId);
         if (null == user) {
             user = userModel.create(userId);
         }
-
-        // create team data
+        // create local team data
         return addTeamMember(artifactId, user.getLocalId());
     }
 

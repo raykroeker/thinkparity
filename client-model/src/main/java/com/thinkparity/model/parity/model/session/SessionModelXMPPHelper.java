@@ -105,6 +105,13 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                         artifactUniqueId, artifactVersionId, artifactName,
                         artifactType, artifactChecksum, artifactBytes);
             }
+            public void handleSent(final UUID uniqueId, final Long versionId,
+                    final String name, final Integer artifactCount,
+                    final JabberId sentBy, final Calendar sentOn,
+                    final List<JabberId> sentTo) {
+                SessionModelImpl.handleContainerSent(uniqueId, versionId, name,
+                        artifactCount, sentBy, sentOn, sentTo);
+            }
             public void handlePublished(final UUID uniqueId,
                     final Long versionId, final String name,
                     final Integer artifactCount, final JabberId publishedBy,

@@ -18,7 +18,9 @@ import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
+import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * Utility convenience class for sorting lists.
@@ -53,7 +55,7 @@ public class ModelSorter {
 		Collections.sort(list, comparator);
 	}
 
-	/**
+    /**
      * Sort a history.
      * 
      * @param history
@@ -72,7 +74,7 @@ public class ModelSorter {
         Collections.sort(list, comparator);
     }
 
-    public static void sortMessages(final List<SystemMessage> list,
+	public static void sortMessages(final List<SystemMessage> list,
             final Comparator<SystemMessage> comparator) {
 		Collections.sort(list, comparator);
 	}
@@ -80,6 +82,16 @@ public class ModelSorter {
     public static void sortOutgoingContactInvitations(
             final List<OutgoingInvitation> list,
             final Comparator<? super ContactInvitation> comparator) {
+        Collections.sort(list, comparator);
+    }
+
+    public static void sortTeamMembers(final List<TeamMember> list,
+            final Comparator<User> comparator) {
+        Collections.sort(list, comparator);
+    }
+
+    public static void sortUsers(final List<User> list,
+            final Comparator<User> comparator) {
         Collections.sort(list, comparator);
     }
 

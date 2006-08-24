@@ -6,6 +6,7 @@ package com.thinkparity.model.parity.model.sort.user;
 
 import java.util.Comparator;
 
+import com.thinkparity.model.parity.model.sort.AbstractComparator;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -23,6 +24,13 @@ public class UserComparatorFactory {
      */
     public static Comparator<User> createName(final Boolean isAsending) {
         return new NameComparator(isAsending);
+    }
+
+    public static Comparator<User> createOrganizationAndName(
+            final Boolean ascending) {
+        final AbstractComparator<User> comparator = new NameComparator(ascending);
+        comparator.add(new OrganizationComparator(ascending));
+        return comparator;
     }
 
     /** Create UserComparatorFactory. */

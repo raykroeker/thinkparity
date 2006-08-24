@@ -113,12 +113,6 @@ public class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-	private static final String SELECT_PREVIOUS_ARTIFACT_VERSION_ID =
-		new StringBuffer("select MAX(ARTIFACT_VERSION_ID) PREVIOUS_VERSION_ID ")
-		.append("from ARTIFACT_VERSION ")
-		.append("where ARTIFACT_ID=?")
-		.toString();
-
 	/**
 	 * Sql to extract the artifact version meta data.
 	 * 

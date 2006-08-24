@@ -110,6 +110,9 @@ abstract class ContainerTestCase extends ModelTestCase {
         public void containerReactivated(ContainerEvent e) {
             fail(getName() + " [CONTAINER REACTIVATED EVENT FIRED]");
         }
+        public void containerShared(ContainerEvent e) {
+            fail(getName() + " CONTAINER SHARED EVENT FIRED");
+        }
         public void containerUpdated(ContainerEvent e) {
             fail(getName() + " [CONTAINER UPDATED EVENT FIRED]");
         }

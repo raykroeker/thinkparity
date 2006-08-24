@@ -1,7 +1,7 @@
 /*
  * Created On: Jul 20, 2006 8:25:39 AM
  */
-package com.thinkparity.model.profile;
+package com.thinkparity.model.parity.model.profile;
 
 import com.thinkparity.model.parity.model.ModelTestCase;
 import com.thinkparity.model.parity.model.profile.Profile;
@@ -32,4 +32,23 @@ abstract class ProfileTestCase extends ModelTestCase {
 
     /** Create ProfileTestCase. */
     protected ProfileTestCase(final String name) { super(name); }
+
+    /**
+     * @see com.thinkparity.model.parity.model.ModelTestCase#setUp()
+     */
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.ModelTestCase#tearDown()
+     */
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    /** A datum definition abstraction. */
+    protected abstract class Fixture {}
 }

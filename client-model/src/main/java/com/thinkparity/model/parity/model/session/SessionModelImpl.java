@@ -262,6 +262,33 @@ class SessionModelImpl extends AbstractModelImpl {
                 artifactCount, publishedBy, publishedTo, publishedOn);
     }
 
+    /**
+     * Handle the container sent event.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param name
+     *            A container name <code>String</code>.
+     * @param artifactCount
+     *            An artifact count <code>Integer</code>.
+     * @param sentBy
+     *            The sent by user <code>JabberId</code>.
+     * @param sentOn
+     *            The sent on date <code>Calendar</code>.
+     * @param sentTo
+     *            The sent to <code>List&lt;JabberId&gt;</code>.
+     */
+    static void handleContainerSent(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId sentBy, final Calendar sentOn,
+            final List<JabberId> sentTo) {
+        final InternalContainerModel containerModel = ContainerModel.getInternalModel(sContext);
+        containerModel.handleSent(uniqueId, versionId, name, artifactCount,
+                sentBy, sentOn, sentTo);
+    }
+
 	/**
      * Create an incoming invitation for the user.
      * 

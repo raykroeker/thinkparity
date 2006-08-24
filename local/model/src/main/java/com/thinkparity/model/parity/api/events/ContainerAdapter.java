@@ -33,6 +33,11 @@ public class ContainerAdapter implements ContainerListener {
     public void containerDeleted(final ContainerEvent e) {}
 
     /**
+     * @see com.thinkparity.model.parity.api.events.ContainerListener#containerShared(com.thinkparity.model.parity.api.events.ContainerEvent)
+     */
+    public void containerShared(final ContainerEvent e) {}
+
+    /**
      * @see com.thinkparity.model.parity.api.events.ContainerListener#containerUpdated(com.thinkparity.model.parity.api.events.ContainerEvent)
      */
     public void containerUpdated(final ContainerEvent e) {}

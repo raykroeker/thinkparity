@@ -68,6 +68,32 @@ public interface ContainerIOHandler {
             final Long artifactId, final ContainerDraft.ArtifactState state);
 
     /**
+     * Create a published to list for a container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param publishedTo
+     *            A <code>List&lt;User&gt;</code>.
+     */
+    public void createPublishedTo(final Long containerId, final Long versionId,
+            final List<User> publishedTo);
+
+    /**
+     * Create a shared with list for a container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param sharedWith
+     *            A <code>List&lt;User&gt;</code>.
+     */
+    public void createSharedWith(final Long containerId, final Long versionId,
+            final List<User> sharedWith);
+
+    /**
      * Create a container version.
      * 
      * @param version
@@ -173,6 +199,30 @@ public interface ContainerIOHandler {
      * @return A container version.
      */
     public ContainerVersion readLatestVersion(final Long containerId);
+
+    /**
+     * Read the published to list for the container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readPublishedTo(final Long containerId,
+            final Long versionId);
+
+    /**
+     * Read the shared with list for the container version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readSharedWith(final Long containerId,
+            final Long versionId);
 
     /**
      * Read a container version.

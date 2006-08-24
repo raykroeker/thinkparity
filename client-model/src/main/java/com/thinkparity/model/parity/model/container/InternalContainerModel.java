@@ -38,17 +38,6 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
     }
 
     /**
-     * Create a new version for a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A new container version.
-     */
-    public ContainerVersion createVersion(final Long containerId) {
-        synchronized(getImplLock()) { return getImpl().createVersion(containerId); }
-    }
-
-    /**
      * Handle the container artifact published remote event. If the container
      * does not yet exist it will be created; same goes for the version. The
      * artifact will then be passed off to the appropriate model then attached
@@ -177,6 +166,35 @@ public class InternalContainerModel extends ContainerModel implements InternalMo
         synchronized (getImplLock()) {
             getImpl().handlePublished(uniqueId, versionId, name, artifactCount,
                     publishedBy, publishedTo, publishedOn);
+        }
+    }
+
+    /**
+     * Handle the container shared remote event.  All we're doing here is saving
+     * the sent to list and firing an event.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param name
+     *            A container name <code>String</code>.
+     * @param artifactCount
+     *            An artifact count <code>Integer</code>.
+     * @param sentBy
+     *            The sent by user's <code>JabberId</code>.
+     * @param sentOn
+     *            The sent date <code>Calendar</code>.
+     * @param sentTo
+     *            The sent to <code>List&lt;JabberId&gt;</code>.
+     */
+    public void handleSent(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId sentBy, final Calendar sentOn,
+            final List<JabberId> sentTo) {
+        synchronized (getImplLock()) {
+            getImpl().handleSent(uniqueId, versionId, name, artifactCount,
+                    sentBy, sentOn, sentTo);
         }
     }
 

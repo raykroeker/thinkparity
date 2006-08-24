@@ -1,7 +1,7 @@
 /*
  * Created On: Jul 20, 2006 8:28:11 AM
  */
-package com.thinkparity.model.profile;
+package com.thinkparity.model.parity.model.profile;
 
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.profile.ProfileModel;

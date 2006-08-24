@@ -6,19 +6,15 @@ package com.thinkparity.model.parity.model.container;
 import java.util.Comparator;
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.model.parity.api.events.ContainerListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.artifact.Artifact;
 import com.thinkparity.model.parity.model.artifact.ArtifactVersion;
 import com.thinkparity.model.parity.model.document.Document;
 import com.thinkparity.model.parity.model.filter.Filter;
-import com.thinkparity.model.parity.model.progress.ProgressIndicator;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
-import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.user.User;
 
@@ -93,29 +89,6 @@ public class ContainerModel {
      */
     public void addListener(final ContainerListener listener) {
         synchronized(implLock) { impl.addListener(listener); }
-    }
-
-    /**
-     * Archive a container.
-     * 
-     * @param containerId
-     *            A container id.
-     */
-    public void archive(final Long containerId) {
-        Assert.assertNotYetImplemented("");
-    }
-
-	/**
-     * Archive a container.
-     * 
-     * @param containerId
-     *            A container id.
-     * @param progressIndicator
-     *            A progress indicator.
-     */
-    public void archive(final Long containerId,
-            final ProgressIndicator progressIndicator) {
-        Assert.assertNotYetImplemented("");
     }
 
 	/**
@@ -339,14 +312,151 @@ public class ContainerModel {
         }
     }
 
-    public List<TeamMember> readPublishedTo(final Long containerId,
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readPublishedTo(final Long containerId,
             final Long versionId) {
-        throw Assert.createNotYetImplemented("ContainerModel#readPublishedTo(Long,Long)");
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(containerId, versionId);
+        }
     }
 
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<User> comparator) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(containerId, versionId, comparator);
+        }
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(containerId, versionId, comparator, filter);
+        }
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readPublishedTo(final Long containerId,
+            final Long versionId, final Filter<? super User> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readPublishedTo(containerId, versionId, filter);
+        }
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
     public List<User> readSharedWith(final Long containerId,
             final Long versionId) {
-        throw Assert.createNotYetImplemented("ContainerModel#sharedWith(Long,Long)");
+        synchronized (getImplLock()) {
+            return getImpl().readSharedWith(containerId, versionId);
+        }
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.\
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readSharedWith(final Long containerId,
+            final Long versionId, final Comparator<User> comparator) {
+        synchronized (getImplLock()) {
+            return getImpl().readSharedWith(containerId, versionId, comparator);
+        }
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readSharedWith(final Long containerId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readSharedWith(containerId, versionId, comparator,
+                    filter);
+        }
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    public List<User> readSharedWith(final Long containerId,
+            final Long versionId, final Filter<? super User> filter) {
+        synchronized (getImplLock()) {
+            return getImpl().readSharedWith(containerId, versionId, filter);
+        }
     }
 
 	/**
@@ -489,9 +599,23 @@ public class ContainerModel {
         }
     }
 
+    /**
+     * Share a version of the container with a list of users.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param versionId
+     *            A version id.
+     * @param contacts
+     *            A <code>List&lt;Contact&gt;</code>.
+     * @param teamMembers
+     *            A <code>List&lt;TeamMember&gt;</code>.
+     */
     public void share(final Long containerId, final Long versionId,
-            final JabberId userId) {
-        throw Assert.createNotYetImplemented("ContainerModel#getImpl");
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        synchronized (getImplLock()) {
+            getImpl().share(containerId, versionId, contacts, teamMembers);
+        }
     }
 
     /**

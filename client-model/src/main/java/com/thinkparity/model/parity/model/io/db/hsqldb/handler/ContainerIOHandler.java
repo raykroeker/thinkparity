@@ -53,7 +53,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             .append("(CONTAINER_DRAFT_ID,ARTIFACT_ID,ARTIFACT_STATE) ")
             .append("values (?,?,?)")
             .toString();
-                    
+    
+    /** Sql to read the container published to list. */
+    private static final String SQL_CREATE_PUBLISHED_TO =
+            new StringBuffer("insert into CONTAINER_VERSION_PUBLISHED_TO ")
+            .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID) ")
+            .append("values (?,?,?)")
+            .toString();
+    
+    /** Sql to read the container shared with list. */
+    private static final String SQL_CREATE_SHARED_WITH =
+            new StringBuffer("insert into CONTAINER_VERSION_SHARED_WITH ")
+            .append("(CONTAINER_ID,CONTAINER_VERSION_ID,USER_ID) ")
+            .append("values (?,?,?)")
+            .toString();
+
     /** Sql to create a container version. */
     private static final String SQL_CREATE_VERSION =
             new StringBuffer("insert into CONTAINER_VERSION ")
@@ -78,6 +92,18 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             new StringBuffer("delete from CONTAINER_DRAFT_ARTIFACT_REL ")
             .append("where CONTAINER_DRAFT_ID=? ")
             .append("and ARTIFACT_ID=?")
+            .toString();
+
+    /** Sql to delete the published to user list. */
+    private static final String SQL_DELETE_PUBLISHED_TO =
+            new StringBuffer("delete from CONTAINER_VERSION_PUBLISHED_TO ")
+            .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
+            .toString();
+
+    /** Sql to delete the shared with user list. */
+    private static final String SQL_DELETE_SHARED_WITH =
+            new StringBuffer("delete from CONTAINER_VERSION_SHARED_WITH ")
+            .append("where CONTAINER_ID=? and CONTAINER_VERSION_ID=?")
             .toString();
 
     /** Sql to delete a container version. */
@@ -166,6 +192,48 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CDAVR.CONTAINER_DRAFT_ID=?")
         .toString();
 
+    /** Sql to read the container published to list. */
+    private static final String SQL_READ_PUBLISHED_TO =
+            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,U.ORGANIZATION ")
+            .append("from CONTAINER C ")
+            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+            .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
+            .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
+            .append("inner join USER U on CVPT.USER_ID=U.USER_ID ")
+            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
+            .toString();
+
+    /** Sql to read the published to count. */
+    private static final String SQL_READ_PUBLISHED_TO_COUNT =
+            new StringBuffer("select COUNT(*) PUBLISHED_TO_COUNT ")
+            .append("from CONTAINER_VERSION_PUBLISHED_TO CVPT ")
+            .append("where CVPT.CONTAINER_ID=? and CVPT.CONTAINER_VERSION_ID=? ")
+            .toString();
+
+    /** Sql to read the container published to list. */
+    private static final String SQL_READ_SHARED_WITH =
+            new StringBuffer("select U.JABBER_ID,U.USER_ID,U.NAME,U.ORGANIZATION ")
+            .append("from CONTAINER C ")
+            .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+            .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+            .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+            .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+            .append("inner join CONTAINER_VERSION_SHARED_WITH CVSW on CV.CONTAINER_ID=CVSW.CONTAINER_ID ")
+            .append("and CV.CONTAINER_VERSION_ID=CVSW.CONTAINER_VERSION_ID ")
+            .append("inner join USER U on CVSW.USER_ID=U.USER_ID ")
+            .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=?")
+            .toString();
+
+    /** Sql to read the shared with count. */
+    private static final String SQL_READ_SHARED_WITH_COUNT =
+            new StringBuffer("select COUNT(*) SHARED_WITH_COUNT ")
+            .append("from CONTAINER_VERSION_SHARED_WITH CVSW ")
+            .append("where CVSW.CONTAINER_ID=? and CVSW.CONTAINER_VERSION_ID=? ")
+            .toString();
+
     /** Sql to read a container version. */
     private static final String SQL_READ_VERSION =
             new StringBuffer("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
@@ -240,11 +308,15 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Document io. */
     private final DocumentIOHandler documentIO;
 
+    /** User io. */
+    private final UserIOHandler userIO;
+
     /** Create ContainerIOHandler. */
     public ContainerIOHandler() {
         super();
         this.artifactIO = new ArtifactIOHandler();
         this.documentIO = new DocumentIOHandler();
+        this.userIO = new UserIOHandler();
     }
 
     /**
@@ -349,6 +421,58 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createPublishedTo(java.lang.Long,
+     *      java.lang.Long, java.util.List)
+     * 
+     */
+    public void createPublishedTo(final Long containerId, final Long versionId,
+            final List<User> publishedTo) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_PUBLISHED_TO);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            for (final User publishedToUser : publishedTo) {
+                session.setLong(3, publishedToUser.getLocalId());
+                if (1 != session.executeUpdate())
+                    throw new HypersonicException(getErrorId("CREATE PUBLISHED TO", "CANNOT CREATE PUBLISHED TO"));
+            }
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createSharedWith(java.lang.Long, java.lang.Long, java.util.List)
+     */
+    public void createSharedWith(final Long containerId, final Long versionId,
+            final List<User> sharedWith) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_SHARED_WITH);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            for (final User sharedWithUser : sharedWith) {
+                session.setLong(3, sharedWithUser.getLocalId());
+                if (1 != session.executeUpdate())
+                    throw new HypersonicException(getErrorId("CREATE SHARED WITH", "CANNOT CREATE SHARED WITH"));
+            }
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#createVersion(com.thinkparity.model.parity.model.container.ContainerVersion)
      * 
      */
@@ -439,6 +563,20 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     public void deleteVersion(Long containerId, Long versionId) {
         final Session session = openSession();
         try {
+            final Integer publishedToCount = readPublishedToCount(containerId, versionId);
+            session.prepareStatement(SQL_DELETE_PUBLISHED_TO);
+            session.setLong(1, containerId);
+            session.setLong(1, versionId);
+            if (publishedToCount != session.executeUpdate())
+                throw new HypersonicException(getErrorId("DELETE VERSION", "COULD NOT DELETE PUBLISHED TO"));
+
+            final Integer sharedWithCount = readSharedWithCount(containerId, versionId);
+            session.prepareStatement(SQL_DELETE_SHARED_WITH);
+            session.setLong(1, containerId);
+            session.setLong(1, versionId);
+            if (sharedWithCount != session.executeUpdate())
+                throw new HypersonicException(getErrorId("DELETE VERSION", "COULD NOT DELETE SHARED WITH"));
+
             session.prepareStatement(SQL_DELETE_VERSION);
             session.setLong(1, containerId);
             session.setLong(2, versionId);
@@ -554,6 +692,48 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             return readVersion(containerId, artifactIO.getLatestVersionId(session, containerId));
         }
         finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#readPublishedTo(java.lang.Long, java.lang.Long)
+     */
+    public List<User> readPublishedTo(final Long containerId,
+            final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PUBLISHED_TO);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            final List<User> publishedTo = new ArrayList<User>();
+            while (session.nextResult()) {
+                publishedTo.add(userIO.extractUser(session));
+            }
+            return publishedTo;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ContainerIOHandler#readSharedWith(java.lang.Long, java.lang.Long)
+     */
+    public List<User> readSharedWith(final Long containerId,
+            final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_SHARED_WITH);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            final List<User> sharedWith = new ArrayList<User>();
+            while (session.nextResult()) {
+                sharedWith.add(userIO.extractUser(session));
+            }
+            return sharedWith;
+        } finally {
+            session.close();
+        }
     }
 
     /**
@@ -784,5 +964,53 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             return artifactIO.getVersionMetaData(session, containerId, versionId);
         }
         finally { session.close(); }
+    }
+
+    /**
+     * Read the number of published to rows.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A row count <code>Integer</code>.
+     */
+    private Integer readPublishedToCount(final Long containerId,
+            final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PUBLISHED_TO_COUNT);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            session.nextResult();
+            return session.getInteger("PUBLISHED_TO_COUNT");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the number of shared with rows.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A row count <code>Integer</code>.
+     */
+    private Integer readSharedWithCount(final Long containerId,
+            final Long versionId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_SHARED_WITH_COUNT);
+            session.setLong(1, containerId);
+            session.setLong(2, versionId);
+            session.executeQuery();
+            session.nextResult();
+            return session.getInteger("SHARED_WITH_COUNT");
+        } finally {
+            session.close();
+        }
     }
 }

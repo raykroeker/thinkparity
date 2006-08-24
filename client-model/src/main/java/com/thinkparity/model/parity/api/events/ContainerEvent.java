@@ -51,6 +51,21 @@ public class ContainerEvent {
      * @param source
      *            The event source
      * @param container
+     *            The <code>Container</code>.
+     * @param version
+     *            The <code>ContainerVersion</code>.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final ContainerVersion version) {
+        this(source, container, null, version, null, null);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event source
+     * @param container
      *            A container.
      * @param draft
      *            A container draft.

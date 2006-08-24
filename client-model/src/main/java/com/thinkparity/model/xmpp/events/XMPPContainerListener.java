@@ -31,6 +31,10 @@ public interface XMPPContainerListener {
             final Long artifactVersionId, final String artifactName,
             final ArtifactType artifactType, final String artifactChecksum,
             final byte[] artifactBytes);
+    public void handleSent(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId sentBy, final Calendar sentOn,
+            final List<JabberId> sentTo);
     public void handlePublished(final UUID uniqueId, final Long versionId,
             final String name, final Integer artifactCount,
             final JabberId publishedBy, final List<JabberId> publishedTo,

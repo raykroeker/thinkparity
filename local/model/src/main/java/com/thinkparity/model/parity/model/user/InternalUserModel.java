@@ -45,4 +45,18 @@ public class InternalUserModel extends UserModel implements InternalModel {
     public User read(final Long userId) {
         synchronized(getImplLock()) { return getImpl().read(userId); }
     }
+
+    /**
+     * Read a user. If the user does not exist then create the user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>User</code>.
+     */
+    public User readLazyCreate(final JabberId userId) {
+        synchronized (getImplLock()) {
+            return getImpl().readLazyCreate(userId);
+        }
+    }
+
 }

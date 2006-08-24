@@ -28,6 +28,7 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.filter.ArtifactFilterManager;
 import com.thinkparity.model.parity.model.filter.Filter;
+import com.thinkparity.model.parity.model.filter.UserFilterManager;
 import com.thinkparity.model.parity.model.filter.artifact.DefaultFilter;
 import com.thinkparity.model.parity.model.filter.history.HistoryFilterManager;
 import com.thinkparity.model.parity.model.io.IOFactory;
@@ -36,11 +37,14 @@ import com.thinkparity.model.parity.model.session.Credentials;
 import com.thinkparity.model.parity.model.session.InternalSessionModel;
 import com.thinkparity.model.parity.model.sort.ComparatorBuilder;
 import com.thinkparity.model.parity.model.sort.ModelSorter;
+import com.thinkparity.model.parity.model.sort.user.UserComparatorFactory;
+import com.thinkparity.model.parity.model.user.InternalUserModel;
 import com.thinkparity.model.parity.model.user.TeamMember;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.util.UUIDGenerator;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
+import com.thinkparity.model.xmpp.user.User;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -87,6 +91,12 @@ public class ContainerModelImpl extends AbstractModelImpl {
     /** A default history item filter. */
     private final Filter<? super HistoryItem> defaultHistoryFilter;
 
+    /** A default user comparator. */
+    private final Comparator<User> defaultUserComparator;
+
+    /** A default user filter. */
+    private final Filter<? super User> defaultUserFilter;
+
     /** The default container version comparator. */
     private final Comparator<ArtifactVersion> defaultVersionComparator;
 
@@ -118,28 +128,13 @@ public class ContainerModelImpl extends AbstractModelImpl {
         this.defaultFilter = new DefaultFilter();
         this.defaultHistoryComparator = new ComparatorBuilder().createDateDescending();
         this.defaultHistoryFilter = new com.thinkparity.model.parity.model.filter.history.DefaultFilter();
+        this.defaultUserComparator = UserComparatorFactory.createOrganizationAndName(Boolean.TRUE);
+        this.defaultUserFilter = new com.thinkparity.model.parity.model.filter.user.DefaultFilter();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultVersionFilter = new com.thinkparity.model.parity.model.filter.container.DefaultVersionFilter();
         this.indexor = new ContainerIndexor(getContext());
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
         this.remoteEventGenerator = new ContainerEventGenerator(Source.REMOTE);
-    }
-
-    /**
-     * Read the latest container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container version.
-     */
-    public ContainerVersion readLatestVersion(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        if (doesExistLatestVersion(containerId)) {
-            return containerIO.readLatestVersion(containerId);
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -285,20 +280,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         final ContainerDraft postCreationDraft = readDraft(containerId);
         notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
         return postCreationDraft;
-    }
-
-    /**
-     * Create a container version.
-     * 
-     * @param containerId
-     *            A container id.
-     * @return A container version.
-     */
-    ContainerVersion createVersion(final Long containerId) {
-        logApiId();
-        logVariable("containerId", containerId);
-        return createVersion(containerId, readNextVersionId(containerId),
-                localUserId(), currentDateTime());
     }
 
     /**
@@ -663,8 +644,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
         // fire event
         notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
     }
+
     /**
-     * Handle the container published event.
+     * Handle the container published event. The local team definition is built
+     * from the publishedTo list. The published to list is also saved.
      * 
      * @param uniqueId
      *            The container unique id.
@@ -695,11 +678,65 @@ public class ContainerModelImpl extends AbstractModelImpl {
         logVariable("publishedOn", publishedOn);
         final InternalArtifactModel artifactModel = getInternalArtifactModel();
         final Long containerId = artifactModel.readId(uniqueId);
-        final List<JabberId> remoteTeam =
-            getInternalSessionModel().readArtifactTeam(uniqueId);
-        for (final JabberId remoteTeamMemberId : remoteTeam) {
-            getInternalArtifactModel().addTeamMember(containerId, remoteTeamMemberId);
+        // add to local team
+        final InternalUserModel userModel = getInternalUserModel();
+        final List<TeamMember> localTeam = artifactModel.readTeam2(containerId);
+        final List<User> publishedToUsers = new ArrayList<User>();
+        for (final JabberId publishedToId : publishedTo) {
+            if (!contains(localTeam, publishedToId)) {
+                artifactModel.addTeamMember(containerId, publishedToId);
+            }
+            publishedToUsers.add(userModel.read(publishedToId));
         }
+        // create published to list
+        containerIO.createPublishedTo(containerId, versionId, publishedToUsers);
+        // fire event
+        notifyContainerPublished(read(containerId), readDraft(containerId),
+                readVersion(containerId, versionId), remoteEventGenerator);
+    }
+
+    /**
+     * Handle the container shared remote event.  All we're doing here is saving
+     * the sent to list and firing an event.
+     * 
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @param name
+     *            A container name <code>String</code>.
+     * @param artifactCount
+     *            An artifact count <code>Integer</code>.
+     * @param sentBy
+     *            The sent by user's <code>JabberId</code>.
+     * @param sentOn
+     *            The sent date <code>Calendar</code>.
+     * @param sentTo
+     *            The sent to <code>List&lt;JabberId&gt;</code>.
+     */
+    void handleSent(final UUID uniqueId, final Long versionId,
+            final String name, final Integer artifactCount,
+            final JabberId sentBy, final Calendar sentOn,
+            final List<JabberId> sentTo) {
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("versionId", versionId);
+        logVariable("name", name);
+        logVariable("artifactCount", artifactCount);
+        logVariable("sentBy", sentBy);
+        logVariable("sentBy", sentBy);
+        logVariable("sentTo", sentTo);
+        final InternalArtifactModel artifactModel = getInternalArtifactModel();
+        final InternalUserModel userModel = getInternalUserModel();
+        final Long containerId = artifactModel.readId(uniqueId);
+        final List<User> sharedWithUsers = new ArrayList<User>(sentTo.size());
+        for (final JabberId sentToId : sentTo) {
+            sharedWithUsers.add(userModel.readLazyCreate(sentToId));
+        }
+        containerIO.createSharedWith(containerId, versionId, sharedWithUsers);
+        // fire event
+        notifyContainerShared(read(containerId), readVersion(containerId,
+                versionId), remoteEventGenerator);
     }
 
     /**
@@ -756,9 +793,10 @@ public class ContainerModelImpl extends AbstractModelImpl {
             // ensure the user is the key holder
             assertIsKeyHolder("USER NOT KEY HOLDER", containerId);
 
-            // create a version
+            // create version
             final ContainerVersion version = createVersion(container.getId());
 
+            // attach artifacts to the version
             final InternalDocumentModel documentModel = getInternalDocumentModel();
             final List<Document> draftDocuments = draft.getDocuments();
             DocumentVersion draftDocumentLatestVersion;
@@ -793,28 +831,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
             for (final Contact contact : contacts)
                 artifactModel.addTeamMember(container.getId(), contact.getId());
 
-            // call remote add team member - note that this is done before the
-            // actual publish so that the new team members don't get team member
-            // added notifications - their local team data is built within
-            // handle publish
-            final InternalSessionModel sessionModel = getInternalSessionModel();
-            final List<JabberId> remoteTeam = sessionModel.readArtifactTeam(container.getUniqueId());
-            final List<TeamMember> localTeam = getInternalArtifactModel().readTeam2(container.getId());
-            Boolean didFindTeamMember;
-            for (final TeamMember localTeamMember : localTeam) {
-                didFindTeamMember = Boolean.FALSE;
-                for (final JabberId remoteTeamMemberId : remoteTeam) {
-                    if (remoteTeamMemberId.equals(localTeamMember.getId())) {
-                        didFindTeamMember = Boolean.TRUE;
-                        break;
-                    }
-                }
-                if (!didFindTeamMember) {
-                    getInternalSessionModel().addTeamMember(
-                            container.getUniqueId(), localTeamMember.getId());
-                }
-            }
-
             // build the publish to list then publish
             final List<JabberId> publishTo = new ArrayList<JabberId>();
             for (final Contact contact : contacts)
@@ -822,6 +838,11 @@ public class ContainerModelImpl extends AbstractModelImpl {
             for (final TeamMember teamMember : teamMembers)
                 publishTo.add(teamMember.getId());
             publish(version, publishTo, localUserId(), currentDateTime);
+
+            // update remote team
+            final InternalSessionModel sessionModel = getInternalSessionModel();
+            for (final Contact contact : contacts)
+                sessionModel.addTeamMember(container.getUniqueId(), contact.getId());
 
             // fire event
             final Container postPublish = read(container.getId());
@@ -1110,6 +1131,199 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Read the latest container version.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container version.
+     */
+    ContainerVersion readLatestVersion(final Long containerId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        if (doesExistLatestVersion(containerId)) {
+            return containerIO.readLatestVersion(containerId);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readPublishedTo(final Long containerId,
+            final Long versionId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        return readPublishedTo(containerId, versionId, defaultUserComparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<User> comparator) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("comparator", comparator);
+        return readPublishedTo(containerId, versionId, comparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readPublishedTo(final Long containerId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
+        final List<User> publishedTo =
+            containerIO.readPublishedTo(containerId, versionId);
+        UserFilterManager.filter(publishedTo, filter);
+        ModelSorter.sortUsers(publishedTo, comparator);
+        return publishedTo;
+    }
+
+    /**
+     * Read a list of team members the container version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readPublishedTo(final Long containerId,
+            final Long versionId, final Filter<? super User> filter) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("filter", filter);
+        return readPublishedTo(containerId, versionId, defaultUserComparator,
+                filter); 
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readSharedWith(final Long containerId,
+            final Long versionId) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        return readSharedWith(containerId, versionId, defaultUserComparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.\
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readSharedWith(final Long containerId,
+            final Long versionId, final Comparator<User> comparator) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("comparator", comparator);
+        return readSharedWith(containerId, versionId, comparator,
+                defaultUserFilter);
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param comparator
+     *            A <code>Comparator&lt;User&gt;</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readSharedWith(final Long containerId,
+            final Long versionId, final Comparator<User> comparator,
+            final Filter<? super User> filter) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
+        final List<User> sharedWith =
+            containerIO.readSharedWith(containerId, versionId);
+        UserFilterManager.filter(sharedWith, filter);
+        ModelSorter.sortUsers(sharedWith, comparator);
+        return sharedWith;
+    }
+
+    /**
+     * Read a list of users the container version was shared with.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @param filter
+     *            A <code>Filter&lt;? super User&gt;</code>.
+     * @return A <code>List&lt;User&gt;</code>.
+     */
+    List<User> readSharedWith(final Long containerId,
+            final Long versionId, final Filter<? super User> filter) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("filter", filter);
+        return readSharedWith(containerId, versionId, defaultUserComparator,
+                filter);
+    }
+
+    /**
      * Read the team for the container.
      * 
      * @param containerId
@@ -1304,6 +1518,40 @@ public class ContainerModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Share a version of the container with a list of users.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param versionId
+     *            A version id.
+     * @param userIds
+     *            A list of user ids.
+     */
+    void share(final Long containerId, final Long versionId,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        logApiId();
+        logVariable("containerId", containerId);
+        logVariable("versionId", versionId);
+        logVariable("contacts", contacts);
+        logVariable("teamMembers", teamMembers);
+        assertDoesExistVersion("VERSION DOES NOT EXIST", containerId, versionId);
+        assertOnline("USER NOT ONLINE");
+        final List<JabberId> shareWith = new ArrayList<JabberId>(contacts.size() + teamMembers.size());
+        for (final Contact contact : contacts) {
+            if (!contains(teamMembers, contact)) {
+                shareWith.add(contact.getId());
+            }
+        }
+        for (final TeamMember teamMember : teamMembers) {
+            shareWith.add(teamMember.getId());
+        }
+        getInternalSessionModel().send(
+                readVersion(containerId, versionId),
+                readDocumentVersionStreams(containerId, versionId),
+                shareWith, localUserId(), currentDateTime());
+    }
+
+    /**
      * Subscribe to the container's team.
      * 
      * @param containerId
@@ -1481,7 +1729,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
      *            The container.
      */
     private void createDistributed(final Container container) {
-        getInternalSessionModel().createArtifact(container.getUniqueId());
+        final InternalSessionModel sessionModel = getInternalSessionModel();
+        sessionModel.createArtifact(container.getUniqueId());
+        sessionModel.addTeamMember(container.getUniqueId(), localUserId());
     }
 
     /**
@@ -1530,6 +1780,18 @@ public class ContainerModelImpl extends AbstractModelImpl {
      * 
      * @param containerId
      *            A container id.
+     * @return A container version.
+     */
+    private ContainerVersion createVersion(final Long containerId) {
+        return createVersion(containerId, readNextVersionId(containerId),
+                localUserId(), currentDateTime());
+    }
+
+    /**
+     * Create a container version.
+     * 
+     * @param containerId
+     *            A container id.
      * @param versionId
      *            A container version id.
      * @param createdBy
@@ -1568,7 +1830,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
     private void deleteLocal(final Long containerId) {
         // delete the draft
         final ContainerDraft draft = readDraft(containerId);
-        if(null != draft) {
+        if (null != draft) {
             for(final Artifact artifact : draft.getArtifacts()) {
                 containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
             }
@@ -1585,7 +1847,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         final InternalDocumentModel documentModel = getInternalDocumentModel();
         final List<ContainerVersion> versions = readVersions(containerId);
         List<Document> documents;
-        for(final ContainerVersion version : versions) {
+        for (final ContainerVersion version : versions) {
             // remove the version's artifact versions
             containerIO.removeVersions(containerId, version.getVersionId());
 
@@ -1688,6 +1950,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
         finally { inputStream.close(); }
     }
 
+
     /**
      * Determine if the container has been distributed. If a container is
      * distributed it will have 1 or more versions. If it has not been
@@ -1751,6 +2014,26 @@ public class ContainerModelImpl extends AbstractModelImpl {
         synchronized(LISTENERS) {
             for(final ContainerListener l : LISTENERS) {
                 l.draftPublished(eventGenerator.generate(container, draft, version));
+            }
+        }
+    }
+
+    /**
+     * Fire a container shared event.
+     * 
+     * @param container
+     *            A container.
+     * @param version
+     *            A container version.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerShared(final Container container,
+            final ContainerVersion version,
+            final ContainerEventGenerator eventGenerator) {
+        synchronized (LISTENERS) {
+            for(final ContainerListener l : LISTENERS) {
+                l.containerShared(eventGenerator.generate(container, version));
             }
         }
     }
@@ -1855,7 +2138,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
         }
     }
 
-
     /**
      * Notify that a team member was added to the container's team.
      * 
@@ -1897,7 +2179,6 @@ public class ContainerModelImpl extends AbstractModelImpl {
             }
         }
     }
-
 
     /**
      * Publish a container.

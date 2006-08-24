@@ -42,6 +42,7 @@ import com.thinkparity.model.parity.model.library.LibraryModel;
 import com.thinkparity.model.parity.model.message.system.InternalSystemMessageModel;
 import com.thinkparity.model.parity.model.message.system.SystemMessage;
 import com.thinkparity.model.parity.model.message.system.SystemMessageModel;
+import com.thinkparity.model.parity.model.profile.InternalProfileModel;
 import com.thinkparity.model.parity.model.profile.ProfileModel;
 import com.thinkparity.model.parity.model.release.InternalReleaseModel;
 import com.thinkparity.model.parity.model.release.ReleaseModel;
@@ -481,13 +482,15 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 */
 	private Preferences preferences;
 
+    private InternalProfileModel profileModel;
+
     /**
      * The session model.
      * 
      */
     private SessionModel sessionModel;
 
-    /**
+	/**
 	 * The parity workspace.
 	 * 
 	 */
@@ -499,7 +502,7 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
 	 */
 	private WorkspaceModel workspaceModel;
 
-	/**
+    /**
 	 * Create a ModelTestCase
 	 * 
 	 * @param name
@@ -573,23 +576,23 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
     /**
      * Create a container draft.
      * 
-     * @param containerId
-     *            A container id.
-     * @return A container draft.
-     */
-    protected ContainerDraft createContainerDraft(final Long containerId) {
-        return getInternalContainerModel().createDraft(containerId);
-    }
-
-    /**
-     * Create a container draft.
-     * 
      * @param container
      *            A container.
      * @return A container draft.
      */
     protected ContainerDraft createContainerDraft(final Container container) {
         return createContainerDraft(container.getId());
+    }
+
+    /**
+     * Create a container draft.
+     * 
+     * @param containerId
+     *            A container id.
+     * @return A container draft.
+     */
+    protected ContainerDraft createContainerDraft(final Long containerId) {
+        return getInternalContainerModel().createDraft(containerId);
     }
 
     /**
@@ -682,6 +685,13 @@ public abstract class ModelTestCase extends com.thinkparity.model.ModelTestCase 
             messageModel = SystemMessageModel.getInternalModel(new Context(getClass()));
         }
         return messageModel;
+    }
+
+    protected InternalProfileModel getInternalProfileModel() {
+        if(null == profileModel) {
+            profileModel = ProfileModel.getInternalModel(new Context(getClass()));
+        }
+        return profileModel;
     }
 
     protected InternalReleaseModel getInternalReleaseModel() {

@@ -4,7 +4,8 @@
 package com.thinkparity.codebase.email;
 
 /**
- * A singleton builder object user to create EMail objects by parsing text.
+ * A singleton builder object user to create EMail objects by parsing text.  The
+ * basis for parsing is {@link http://tools.ietf.org/html/rfc2822 RFC2822}.
  * 
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -44,14 +45,27 @@ public class EMailBuilder {
      * @throws EMailFormatException
      */
 	private EMail doParse(final String s) throws EMailFormatException {
-		if(null == s) { throw new NullPointerException("[CODEBASE] [EMAIL] [PARSE] [IS NULL]"); }
+		if (null == s) {
+            throw new NullPointerException("CODEBASE EMAIL IS NULL");
+		}
 		final int indexOfAt = s.indexOf('@');
-		if(-1 == indexOfAt) { throw new EMailFormatException("[CODEBASE] [EMAIL] [PARSE] [DOES NOT CONTAIN '@']", s); }
+		if (-1 == indexOfAt) {
+            throw new EMailFormatException("CODEBASE EMAIL DOES NOT CONTAIN '@'", s);
+		}
 		final int indexOfDot = s.indexOf('.', indexOfAt);
-		if(-1 == indexOfDot) { throw new EMailFormatException("[CODEBASE] [EMAIL] [PARSE] [DOES NOT CONTAIN '.']", s); }
-		final EMail eMail = new EMail();
-		eMail.setDomain(s.substring(indexOfAt + 1, indexOfDot));
-		eMail.setUsername(s.substring(0, indexOfAt));
-		return eMail;
+		if (-1 == indexOfDot) {
+            throw new EMailFormatException("CODEBASE EMAIL DOES NOT CONTAIN '.'", s);
+		}
+        int indexOfWhitespace = s.length() - 1;
+        for (int i = indexOfDot; i < s.length(); i++) {
+            if (Character.isWhitespace(s.charAt(i))) {
+                indexOfWhitespace = i;
+                break;
+            }
+        }
+		final EMail email = new EMail();
+        email.setDomain(s.substring(indexOfAt + 1, indexOfWhitespace + 1));
+        email.setUsername(s.substring(0, indexOfAt));
+		return email;
 	}
 }

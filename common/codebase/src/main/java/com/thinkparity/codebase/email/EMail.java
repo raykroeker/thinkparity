@@ -1,5 +1,5 @@
 /*
- * Apr 1, 2006
+ * Created On: Apr 1, 2006
  */
 package com.thinkparity.codebase.email;
 
@@ -7,32 +7,24 @@ package com.thinkparity.codebase.email;
  * A wrapper for the 2 string fields used to represent an e-mail.
  * 
  * @author raykroeker@gmail.com
- * @version 1.1
+ * @version 1.1.2.2
  */
 public class EMail {
 
-	/**
-	 * The domain portion of an e-mail address.
-	 * 
-	 */
+	/** The domain portion of an e-mail address. */
 	private String domain;
 
-	/**
-	 * The username portion of an e-mail address.
-	 * 
-	 */
+	/** The username portion of an e-mail address. */
 	private String username;
 
-	/**
-	 * Create a EMail.
-	 * 
-	 */
-	public EMail() { super(); }
+	/** Create EMail. */
+	EMail() { super(); }
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * 
 	 */
+    @Override
 	public boolean equals(final Object obj) {
 		if(null != obj && obj instanceof EMail) {
 			return obj.toString().equals(toString());
@@ -58,6 +50,7 @@ public class EMail {
 	 * @see java.lang.Object#hashCode()
 	 * 
 	 */
+    @Override
 	public int hashCode() { return toString().hashCode(); }
 
 	/**
@@ -66,7 +59,7 @@ public class EMail {
      * @param domain
      *            The domain.
      */
-	public void setDomain(final String domain) { this.domain = domain; }
+	void setDomain(final String domain) { this.domain = domain; }
 
 	/**
      * Set the username portion of the e-mail address.
@@ -74,12 +67,13 @@ public class EMail {
      * @param username
      *            The username.
      */
-	public void setUsername(final String username) { this.username = username; }
+	void setUsername(final String username) { this.username = username; }
 
 	/**
 	 * @see java.lang.Object#toString()
 	 * 
 	 */
+    @Override
 	public String toString() {
 		return new StringBuffer(username).append("@").append(domain).toString();
 	}

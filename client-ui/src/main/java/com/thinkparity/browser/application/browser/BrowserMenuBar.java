@@ -11,11 +11,12 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.Box;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.event.MouseInputAdapter;
+
+import com.thinkparity.codebase.swing.GradientPainter;
 
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
@@ -25,8 +26,6 @@ import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.profile.Update;
 import com.thinkparity.browser.platform.util.ImageIOUtil;
 import com.thinkparity.browser.platform.util.l10n.JFrameLocalization;
-
-import com.thinkparity.codebase.swing.GradientPainter;
 
 /**
  * @author raymond@thinkparity.com

@@ -54,6 +54,9 @@ public abstract class AbstractAction {
 	/** The action mnemonic. */
     private String mnemonic;
     
+    /** The action accelerator. */
+    private String accelerator;
+    
     /** The action name. */
 	private String name;
 
@@ -70,6 +73,7 @@ public abstract class AbstractAction {
         this.localization = new ActionLocalization(id.toString());
         this.name = localization.getString("NAME");
         this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
+        this.accelerator = localization.getString("ACCELERATOR");
     }
 
 	/**
@@ -94,6 +98,13 @@ public abstract class AbstractAction {
     public String getMnemonic() { return mnemonic; }
     
     /**
+     * Obtain the action ACCELERATOR.
+     * 
+     * @return The action ACCELERATOR.
+     */
+    public String getAccelerator() { return accelerator; }
+    
+    /**
 	 * Obtain the action NAME.
 	 * 
 	 * @return The action NAME.
@@ -114,7 +125,16 @@ public abstract class AbstractAction {
      * @return True if the mnemonic is set; false otherwise.
      */
     public Boolean isSetMnemonic() {
-        return null != mnemonic;
+        return ((null != mnemonic) && (mnemonic.charAt(0) != '!'));
+    }
+    
+    /**
+     * Determine if the accelerator is set.
+     * 
+     * @return True if the accelerator is set; false otherwise.
+     */
+    public Boolean isSetAccelerator() {
+        return ((null != accelerator) && (accelerator.charAt(0) != '!'));
     }
     
     /**
@@ -144,6 +164,16 @@ public abstract class AbstractAction {
      */
     public void setMnemonic(final String mnemonic) {
         this.mnemonic = mnemonic;
+    }
+    
+    /**
+     * Set the accelerator.
+     * 
+     * @param accelerator
+     *             The action accelerator.
+     */
+    public void setAccelerator(final String accelerator) {
+        this.accelerator = accelerator;
     }
     
     /**

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
@@ -144,6 +145,13 @@ public class PopupItemFactory extends AbstractFactory {
             putValue(Action.NAME, action.isSetName() ? action.getName() : "!No name set.!");
             if (action.isSetMnemonic()) {
                 putValue(MNEMONIC_KEY, new Integer(action.getMnemonic().charAt(0)));
+            }
+            if (action.isSetAccelerator()) {
+                final String s = action.getAccelerator();
+                final KeyStroke k = KeyStroke.getKeyStroke(s);
+                final KeyStroke k2 = KeyStroke.getKeyStroke("F1");
+                putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke((String)action.getAccelerator()));
+                //putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F1,0));
             }
         }
 

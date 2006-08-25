@@ -144,10 +144,9 @@ public class BrowserMenuBar extends JMenuBar {
         helpMenu.add(popupItemFactory.createPopupItem(ActionId.HELP, new Data(0)));
         helpMenu.add(popupItemFactory.createPopupItem(ActionId.HELP_ABOUT, new Data(0)));
         
-        // Create the Sign-Up label (it will act like a button)
+        // Create the Sign-Up button
         this.add(Box.createRigidArea(new Dimension(3,0)));
         this.add(ButtonFactory.create(ActionId.SIGN_UP, new Data(0)));        
-        //this.add(new JButton(localization.getString("SignUp")));
 
         // Add minimize and close buttons
         this.add(Box.createHorizontalGlue());

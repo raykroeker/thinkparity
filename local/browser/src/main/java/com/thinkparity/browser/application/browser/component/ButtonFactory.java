@@ -3,6 +3,7 @@
  */
 package com.thinkparity.browser.application.browser.component;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 
 import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.application.browser.BrowserColourButton;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionFactory;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -152,7 +154,18 @@ public class ButtonFactory extends ComponentFactory {
             actionWrapper = wrapperRegistry.get(actionId);
         }
         actionWrapper.setData(data);
-        return new JButton(actionWrapper);
+        
+        BrowserColourButton button = new BrowserColourButton(actionWrapper);
+
+        // This call allows us to take over drawing of the button.
+        button.setContentAreaFilled(false);
+        button.setOpaque(true);
+        
+        // Background is transparent so it won't draw.
+        // Then, BrowserColourButton overrides paintComponent.       
+        button.setBackground(new Color(255,255,255,0));        
+       
+        return button;
     }
     
     /**
@@ -183,9 +196,6 @@ public class ButtonFactory extends ComponentFactory {
             this.action = action;
             this.data = null;
             putValue(Action.NAME, action.isSetName() ? action.getName() : "!No name set.!");
-            if (action.isSetMnemonic()) {
-                putValue(MNEMONIC_KEY, new Integer(action.getMnemonic().charAt(0)));
-            }
         }
 
         /**

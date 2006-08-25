@@ -27,6 +27,8 @@ import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.CompressionUtil.Level;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.Constants.Xml.Service;
@@ -168,6 +170,10 @@ public class XMPPMethod extends IQ {
 
     public final void setParameter(final String name, final ArtifactType value) {
         parameters.add(new Parameter(name, ArtifactType.class, value));
+    }
+
+    public final void setParameter(final String name, final EMail value) {
+        parameters.add(new Parameter(name, EMail.class, value));
     }
 
     public final void setParameter(final String name, final byte[] value) {
@@ -316,6 +322,8 @@ public class XMPPMethod extends IQ {
                     .append(getParameterXML(new Parameter("versionId", Long.class, dvc.getVersion().getVersionId())))
                     .append(getParameterXML(new Parameter("bytes", byte[].class, dvc.getContent())))
                     .toString();
+        } else if (parameter.javaType.equals(EMail.class)) {
+            return parameter.javaValue.toString();
         }
         else if(parameter.javaType.equals(Integer.class)) {
             return parameter.javaValue.toString();
@@ -426,6 +434,12 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return cValue;
+            } else if (javaType.equals(EMail.class)) {
+                parser.next();
+                final EMail value = EMailBuilder.parse(parser.getText());
+                parser.next();
+                parser.next();
+                return value;
             }
             else if(javaType.equals(String.class)) {
                 parser.next();

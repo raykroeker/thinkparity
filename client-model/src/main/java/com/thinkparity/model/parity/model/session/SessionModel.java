@@ -4,6 +4,7 @@
 package com.thinkparity.model.parity.model.session;
 
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.api.events.KeyListener;
@@ -107,7 +108,7 @@ public class SessionModel extends AbstractModel {
 	 * @see SessionModel#acceptPresence(User)
 	 * @throws ParityException
 	 */
-	public void declineInvitation(final String invitedAs, final JabberId invitedBy) {
+	public void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
 		synchronized(implLock) { impl.declineInvitation(invitedAs, invitedBy); }
 	}
 

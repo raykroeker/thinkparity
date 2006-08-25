@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.VCardBuilder;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
@@ -94,7 +95,7 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE PROFILE]"));
 
-            for(final String email : profile.getEmails()) {
+            for(final EMail email : profile.getEmails()) {
                 createEmail(session, profile.getLocalId(), email);
             }
             session.commit();
@@ -160,12 +161,12 @@ public class ProfileIOHandler extends AbstractIOHandler implements
         profile.setOrganization(session.getString("ORGANIZATION"));
         profile.setTitle(session.getString("TITLE"));
         profile.setVCard(VCardBuilder.createVCard(session.getString("PROFILE_VCARD")));
-        profile.addAllEmails(readEmail(profile.getLocalId()));
+        profile.addAllEmails(readEmails(profile.getLocalId()));
         return profile;
     }
 
     private void createEmail(final Session session, final Long profileId,
-            final String email) {
+            final EMail email) {
         final Long emailId = emailIO.create(session, email);
         session.prepareStatement(SQL_CREATE_EMAIL);
         session.setLong(1, profileId);
@@ -174,14 +175,16 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             throw new HypersonicException(getErrorId("[CREATE EMAIL]", "[CANNOT CREATE EMAIL]"));
     }
 
-    private List<String> readEmail(final Long profileId) {
+    private List<EMail> readEmails(final Long profileId) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_READ_EMAIL);
             session.setLong(1, profileId);
             session.executeQuery();
-            final List<String> emails = new ArrayList<String>();
-            while(session.nextResult()) { emails.add(session.getString("EMAIL")); }
+            final List<EMail> emails = new ArrayList<EMail>();
+            while(session.nextResult()) {
+                emails.add(emailIO.extractEMail(session));
+            }
             return emails;
         }
         finally { session.close(); }

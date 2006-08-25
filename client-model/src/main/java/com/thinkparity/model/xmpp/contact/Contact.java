@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.VCard;
+import com.thinkparity.codebase.email.EMail;
 
-import com.thinkparity.model.parity.model.user.UserEmail;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
@@ -19,7 +19,7 @@ import com.thinkparity.model.xmpp.user.User;
 public class Contact extends User {
 
 	/** The contact's e-mails. */
-    private final List<String> emails;
+    private final List<EMail> emails;
 
     /** The contact's vcard. */
     private VCard vCard;
@@ -27,7 +27,7 @@ public class Contact extends User {
     /** Create Contact. */
 	public Contact() {
         super();
-        this.emails = new ArrayList<String>();
+        this.emails = new ArrayList<EMail>();
 	}
 
     /**
@@ -37,7 +37,7 @@ public class Contact extends User {
      *            A list of e-mails
      * @return True if the list is modified.
      */
-    public boolean addAllEmails(final List<String> emails) {
+    public boolean addAllEmails(final List<EMail> emails) {
         final int originalSize = this.emails.size();
         for(int i = 0; i < emails.size(); i++) {
             if(!this.emails.contains(emails.get(i))) {
@@ -54,7 +54,7 @@ public class Contact extends User {
      *            An e-mail.
      * @return True if the list is modified.
      */
-    public boolean addEmail(final String email) {
+    public boolean addEmail(final EMail email) {
         if(emails.contains(email)) { return false; }
         return emails.add(email);
     }
@@ -70,7 +70,7 @@ public class Contact extends User {
      * 
      * @return An immutable list of user e-mails.
      */
-    public List<String> getEmails() {
+    public List<EMail> getEmails() {
         return Collections.unmodifiableList(emails);
     }
 
@@ -88,7 +88,7 @@ public class Contact extends User {
      *            A list of e-mails
      * @return True if the list is modified.
      */
-    public boolean removeAllEmails(final List<UserEmail> emails) {
+    public boolean removeAllEmails(final List<EMail> emails) {
         return this.emails.removeAll(emails);
     }
 
@@ -99,7 +99,7 @@ public class Contact extends User {
      *            An e-mail.
      * @return True if the list is modified.
      */
-    public boolean removeEmail(final UserEmail email) {
+    public boolean removeEmail(final EMail email) {
         return emails.remove(email);
     }
 

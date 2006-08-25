@@ -22,6 +22,7 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.Constants.Jabber;
 import com.thinkparity.model.Constants.Xml.Service;
@@ -273,7 +274,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      *      com.thinkparity.model.xmpp.JabberId)
      * 
      */
-    public void declineInvitation(final String invitedAs,
+    public void declineInvitation(final EMail invitedAs,
             final JabberId invitedBy) throws SmackException {
 		xmppContact.decline(invitedAs, invitedBy);
 	}
@@ -343,7 +344,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 * @see com.thinkparity.model.xmpp.XMPPSession#sendInvitation(com.thinkparity.model.xmpp.JabberId)
 	 * 
 	 */
-	public void inviteContact(final String email) throws SmackException {
+	public void inviteContact(final EMail email) throws SmackException {
 		xmppContact.invite(email);
 	}
 

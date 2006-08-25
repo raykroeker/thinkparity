@@ -6,6 +6,8 @@ package com.thinkparity.model.parity.model.contact;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
 import com.thinkparity.model.parity.model.workspace.Workspace;
@@ -58,7 +60,7 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param declinedOn
      *            When the invitation was declined.
      */
-    public void handleInvitationDeclined(final String invitedAs,
+    public void handleInvitationDeclined(final EMail invitedAs,
             final JabberId declinedBy, final Calendar declinedOn) {
         synchronized (getImplLock()) {
             getImpl().handleInvitationDeclined(invitedAs, declinedBy, declinedOn);
@@ -73,7 +75,7 @@ public class InternalContactModel extends ContactModel implements InternalModel 
      * @param invitedOn
      *            When the invitation was extended.
      */
-    public void handleInvitationExtended(final String invitedAs, final JabberId invitedBy,
+    public void handleInvitationExtended(final EMail invitedAs, final JabberId invitedBy,
             final Calendar invitedOn) {
         synchronized (getImplLock()) {
             getImpl().handleInvitationExtended(invitedAs, invitedBy, invitedOn);

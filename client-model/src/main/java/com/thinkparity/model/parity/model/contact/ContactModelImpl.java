@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.api.events.ContactEvent;
 import com.thinkparity.model.parity.api.events.ContactListener;
@@ -137,12 +138,11 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param email
      *            An e-mail address.
      */
-    OutgoingInvitation createOutgoingInvitation(final String email) {
+    OutgoingInvitation createOutgoingInvitation(final EMail email) {
         logApiId();
         logVariable("email", email);
         assertOnline("USER NOT ONLINE");
         assertDoesNotExist("CONTACT ALREADY EXISTS", email);
-//assertInvitationDoesNotExist(getApiId("[CREATE INVITATION] [CONTACT INVITATION ALREADY EXISTS]"), email);
 
         final OutgoingInvitation outgoing = new OutgoingInvitation();
         outgoing.setCreatedBy(localUser().getLocalId());
@@ -236,7 +236,7 @@ class ContactModelImpl extends AbstractModelImpl {
        final Contact remoteContact = readRemote(acceptedBy);
        // delete invitation(s)
        final List<OutgoingInvitation> outgoingInvitations = new ArrayList<OutgoingInvitation>();
-       for (final String email : remoteContact.getEmails()) {
+       for (final EMail email : remoteContact.getEmails()) {
            outgoingInvitations.add(contactIO.readOutgoingInvitation(email));
            contactIO.deleteOutgoingInvitation(
                    outgoingInvitations.get(
@@ -273,7 +273,7 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    void handleInvitationDeclined(final String invitedAs,
+    void handleInvitationDeclined(final EMail invitedAs,
             final JabberId declinedBy, final Calendar declinedOn) {
        logApiId();
        logVariable("declinedBy", declinedBy);
@@ -294,7 +294,7 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param invitedOn
      *            When the invitation was extended.
      */
-    void handleInvitationExtended(final String invitedAs,
+    void handleInvitationExtended(final EMail invitedAs,
             final JabberId invitedBy, final Calendar invitedOn) {
         logApiId();
         logVariable("invitedAs", invitedAs);
@@ -527,7 +527,7 @@ class ContactModelImpl extends AbstractModelImpl {
      * @param email
      *            An e-mail address.
      */
-    private void assertDoesNotExist(final Object assertion, final String email) {
+    private void assertDoesNotExist(final Object assertion, final EMail email) {
         Assert.assertIsNull(assertion, read(email));
     }
 
@@ -670,7 +670,7 @@ class ContactModelImpl extends AbstractModelImpl {
      *            An e-mail address.
      * @return A contact.
      */
-    private Contact read(final String email) {
+    private Contact read(final EMail email) {
         return null;
     }
 

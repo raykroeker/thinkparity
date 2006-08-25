@@ -6,10 +6,10 @@ package com.thinkparity.model.parity.model.session;
 import java.io.File;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityException;
@@ -166,11 +166,11 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
                     final Calendar acceptedOn) {
 				handleContactInvitationAccepted(acceptedBy, acceptedOn);
 			}
-			public void handleInvitationDeclined(final String invitedAs,
+			public void handleInvitationDeclined(final EMail invitedAs,
                     final JabberId declinedBy, final Calendar declinedOn) {
 				handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
 			}
-			public void handleInvitationExtended(final String invitedAs,
+			public void handleInvitationExtended(final EMail invitedAs,
                     final JabberId invitedBy, final Calendar invitedOn) {
 				handleContactInvitationExtended(invitedAs, invitedBy, invitedOn);
 			}
@@ -252,17 +252,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     void createDraft(final UUID uniqueId) { xmppSession.createDraft(uniqueId); }
 
 	/**
-	 * Decline an invitation to the user's contact list.
-	 * 
-	 * @param jabberId
-	 *            The user's jabber id.
-	 * @throws SmackException
-	 */
-	void declineInvitation(final String invitedAs, final JabberId jabberId) throws SmackException {
-		xmppSession.declineInvitation(invitedAs, jabberId);
-	}
-
-	/**
      * Delete an artifact.
      * 
      * @param uniqueId
@@ -287,17 +276,6 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
     XMPPSession getXMPPSession () {
         return xmppSession;
     }
-
-	/**
-	 * Send a contact invitation.
-	 * 
-	 * @param email
-	 *            An e-mail address.
-	 * @throws SmackException
-	 */
-	void inviteContact(final String email) throws SmackException {
-		xmppSession.inviteContact(email);
-	}
 
 	/**
 	 * Determine if the user is logged in.
@@ -435,7 +413,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
         }
 	}
 
-    private void handleContactInvitationDeclined(final String invitedAs,
+    private void handleContactInvitationDeclined(final EMail invitedAs,
             final JabberId declinedBy, final Calendar declinedOn) {
 		try {
             SessionModelImpl.handleContactInvitationDeclined(invitedAs, declinedBy, declinedOn);
@@ -452,7 +430,7 @@ class SessionModelXMPPHelper extends AbstractModelImplHelper {
      * @param invitedOn
      *            When the invitation was extended.
      */
-	private void handleContactInvitationExtended(final String invitedAs,
+	private void handleContactInvitationExtended(final EMail invitedAs,
             final JabberId invitedBy, final Calendar invitedOn) {
 		try { SessionModelImpl.handleInvitationExtended(invitedAs,invitedBy, invitedOn); }
 		catch(final RuntimeException rx) { unexpectedOccured(rx); }

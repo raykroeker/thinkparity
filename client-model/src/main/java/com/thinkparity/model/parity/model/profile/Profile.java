@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.VCard;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.xmpp.user.User;
 
@@ -24,7 +25,7 @@ import com.thinkparity.model.xmpp.user.User;
 public class Profile extends User {
 
     /** A list of e-mail addresses. */
-    private final List<String> emails;
+    private final List<EMail> emails;
 
     /** A vCard. */
     private VCard vCard;
@@ -32,7 +33,7 @@ public class Profile extends User {
 	/** Create Profile. */
 	public Profile() {
         super();
-        this.emails = new ArrayList<String>();
+        this.emails = new ArrayList<EMail>();
     }
 
     /**
@@ -42,9 +43,9 @@ public class Profile extends User {
      *            A list of e-mail addresses.
      * @return True if the list is modified false otherwise.
      */
-    public boolean addAllEmails(final List<String> emails) {
+    public boolean addAllEmails(final List<EMail> emails) {
         final int originalSize = this.emails.size();
-        for (final String email : emails) {
+        for (final EMail email : emails) {
             addEmail(email);
         }
         return originalSize < this.emails.size();
@@ -57,7 +58,7 @@ public class Profile extends User {
      *            An e-mail address.
      * @return True if the list is modified false otherwise.
      */
-    public boolean addEmail(final String email) {
+    public boolean addEmail(final EMail email) {
         if (emails.contains(email)) {
             return false;
         } else {
@@ -78,7 +79,7 @@ public class Profile extends User {
      *
      * @return The List<String>.
      */
-    public List<String> getEmails() {
+    public List<EMail> getEmails() {
         return Collections.unmodifiableList(emails);
     }
 
@@ -98,7 +99,7 @@ public class Profile extends User {
      *            A list of e-mail addresses.
      * @return True if the list is modified; false otherwise.
      */
-    public boolean removeAllEmails(final List<String> emails) {
+    public boolean removeAllEmails(final List<EMail> emails) {
         return this.emails.removeAll(emails);
     }
 
@@ -109,7 +110,7 @@ public class Profile extends User {
      *            An e-mail address.
      * @return True if the list is modified; false otherwise.
      */
-    public boolean removeEmail(final String email) {
+    public boolean removeEmail(final EMail email) {
         return emails.remove(email);
     }
 

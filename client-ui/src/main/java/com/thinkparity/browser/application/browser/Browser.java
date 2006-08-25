@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.browser.Constants.Keys;
 import com.thinkparity.browser.application.AbstractApplication;
@@ -944,10 +945,10 @@ public class Browser extends AbstractApplication {
      * @param newContactEmail
      *              New contact email.
      */
-    public void runCreateContactInvitation(final String newContactEmail) {
+    public void runCreateContactInvitation(final EMail email) {
         final Data data = new Data(1);
-        if(null != newContactEmail)
-            data.set(CreateIncomingInvitation.DataKey.CONTACT_EMAIL, newContactEmail);
+        if(null != email)
+            data.set(CreateIncomingInvitation.DataKey.CONTACT_EMAIL, email);
         invoke(ActionId.CONTACT_CREATE_INCOMING_INVITATION, data);
     }
     

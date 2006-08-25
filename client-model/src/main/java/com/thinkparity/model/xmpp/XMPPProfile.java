@@ -97,7 +97,7 @@ class XMPPProfile {
             throw XMPPErrorTranslator.translate(xmppx);
         }
         profile.setVCard(VCardBuilder.createVCard(jiveVCard));
-        profile.addAllEmails(response.readResultStrings("emails"));
+        profile.addAllEmails(response.readResultEMails("emails"));
         return profile;
     }
 }

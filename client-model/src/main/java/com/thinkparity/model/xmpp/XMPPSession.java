@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
@@ -140,7 +142,7 @@ public interface XMPPSession {
      *            The inviting user.
      * @throws SmackException
      */
-    public void declineInvitation(final String invitedAs,
+    public void declineInvitation(final EMail invitedAs,
             final JabberId invitedBy) throws SmackException;
 
     /**
@@ -163,10 +165,10 @@ public interface XMPPSession {
      * Invite a contact.
      * 
      * @param email
-     *            An e-mail address.
+     *            An <code>EMail</code>.
      * @throws SmackException
      */
-	public void inviteContact(final String email) throws SmackException;
+	public void inviteContact(final EMail email) throws SmackException;
 
     /**
      * Determine if the user is logged in.

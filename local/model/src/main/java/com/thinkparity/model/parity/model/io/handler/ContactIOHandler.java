@@ -5,6 +5,8 @@ package com.thinkparity.model.parity.model.io.handler;
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.parity.model.contact.IncomingInvitation;
 import com.thinkparity.model.parity.model.contact.OutgoingInvitation;
 import com.thinkparity.model.xmpp.JabberId;
@@ -106,7 +108,7 @@ public interface ContactIOHandler {
      *            An e-mail address.
      * @return An outgoing invitation.
      */
-    public OutgoingInvitation readOutgoingInvitation(final String email);
+    public OutgoingInvitation readOutgoingInvitation(final EMail email);
 
     /**
      * Read outgoing invitations.

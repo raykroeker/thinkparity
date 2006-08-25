@@ -9,6 +9,7 @@ import java.util.*;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.ParityErrorTranslator;
@@ -160,7 +161,7 @@ class SessionModelImpl extends AbstractModelImpl {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    static void handleContactInvitationDeclined(final String invitedAs,
+    static void handleContactInvitationDeclined(final EMail invitedAs,
             final JabberId declinedBy, final Calendar declinedOn) {
         ContactModel.getInternalModel(sContext).handleInvitationDeclined(invitedAs, declinedBy, declinedOn);
     }
@@ -295,7 +296,7 @@ class SessionModelImpl extends AbstractModelImpl {
      * @param invitedBy
      *            From whome the invitation was extended.
      */
-	static void handleInvitationExtended(final String invitedAs,
+	static void handleInvitationExtended(final EMail invitedAs,
             final JabberId invitedBy, final Calendar invitedOn) {
 		ContactModel.getInternalModel(sContext).handleInvitationExtended(invitedAs, invitedBy, invitedOn);
 	}
@@ -611,9 +612,9 @@ class SessionModelImpl extends AbstractModelImpl {
 	 *            The user's jabber id.
 	 * @throws ParityException
 	 */
-	void declineInvitation(final String invitedAs, final JabberId invitedBy) {
+	void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
 		synchronized(xmppHelper) {
-			try { xmppHelper.declineInvitation(invitedAs, invitedBy); }
+			try { xmppHelper.getXMPPSession().declineInvitation(invitedAs, invitedBy); }
 			catch(final Throwable t) {
                 throw translateError("[DECLINE INVITATION]", t);
 			}
@@ -657,12 +658,11 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @param email
 	 *            An e-mail address.
 	 */
-	void inviteContact(final String email) {
-        logger.info(getApiId("[INVITE CONTACT]"));
-        logger.debug(email);
-        assertOnline("[INVITE CONTACT] [USER NOT ONLINE]");
-		synchronized(xmppHelper) {
-			try { xmppHelper.inviteContact(email); }
+	void inviteContact(final EMail email) {
+        logApiId();
+        logVariable("email", email);
+		synchronized (xmppHelper) {
+			try { xmppHelper.getXMPPSession().inviteContact(email); }
 			catch(final SmackException sx) {
 				throw translateError(getApiId("[INVITE CONTACT]"), sx);
 			}

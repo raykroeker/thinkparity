@@ -7,6 +7,8 @@ package com.thinkparity.model.parity.model.contact;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.parity.api.events.ContactListener;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.filter.Filter;
@@ -95,7 +97,7 @@ public class ContactModel {
      *            An e-mail address.
      * @return The new contact invitation.
      */
-    public OutgoingInvitation createOutgoingInvitation(final String email) {
+    public OutgoingInvitation createOutgoingInvitation(final EMail email) {
         synchronized(implLock) { return impl.createOutgoingInvitation(email); }
     }
 

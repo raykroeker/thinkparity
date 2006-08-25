@@ -14,6 +14,9 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.DateUtil.DateImage;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.email.EMailFormatException;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.artifact.ArtifactFlag;
@@ -188,6 +191,22 @@ public class Session {
             throw new HypersonicException(sqlx);
 		}
 	}
+
+    public EMail getEMail(final String columnName) {
+        assertOpen("getCalendar(String)");
+        assertOpenResult("getCalendar(String)");
+        try {
+            final String value = resultSet.getString(columnName);
+            if (resultSet.wasNull()) { return null; }
+            else {
+                return EMailBuilder.parse(value);
+            }
+        } catch (final EMailFormatException efx) {
+            throw new HypersonicException(efx);
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
 	public Calendar getCalendar(final String columnName) {
 		assertOpen("getCalendar(String)");
@@ -459,6 +478,17 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+    public void setEMail(final Integer index, final EMail email) {
+        assertOpen("setEMail(Integer,EMail)");
+        assertPreparedStatement("setEMail(Integer,EMail)");
+        debugSql(email, index);
+        try {
+            preparedStatement.setString(index, email.toString());
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
 	public void setCalendar(final Integer index, final Calendar calendar) {
 		assertOpen("setCalendar(Integer,Calendar)");
 		assertPreparedStatement("setCalendar(Integer,Calendar)");
@@ -707,9 +737,13 @@ public class Session {
 		else { debugSql((String) null, null); }
 	}
 
-	private void debugSql(final byte[] bytes, final Integer sqlIndex) {
-		debugSql(null == bytes ? null : bytes.length, sqlIndex);
-	}
+    private void debugSql(final byte[] bytes, final Integer sqlIndex) {
+        debugSql(null == bytes ? null : bytes.length, sqlIndex);
+    }
+
+    private void debugSql(final EMail email, final Integer sqlIndex) {
+        debugSql(null == email ? null : email.toString(), sqlIndex);
+    }
 
 	private void debugSql(final Calendar calendar, final Integer sqlIndex) {
 		debugSql(null == calendar ? null : DateUtil.format(calendar, DateImage.ISO), sqlIndex);

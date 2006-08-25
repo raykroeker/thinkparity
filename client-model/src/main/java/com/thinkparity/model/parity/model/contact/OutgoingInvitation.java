@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.contact;
 
+import com.thinkparity.codebase.email.EMail;
+
 
 /**
  * @author raymond@thinkparity.com
@@ -11,7 +13,7 @@ package com.thinkparity.model.parity.model.contact;
 public class OutgoingInvitation extends ContactInvitation {
 
     /** An e-mail address. */
-    private String email;
+    private EMail email;
 
     /** Create OutgoingInvitation. */
     public OutgoingInvitation() {
@@ -23,7 +25,7 @@ public class OutgoingInvitation extends ContactInvitation {
      *
      * @return The String.
      */
-    public String getEmail() {
+    public EMail getEmail() {
         return email;
     }
 
@@ -32,7 +34,7 @@ public class OutgoingInvitation extends ContactInvitation {
      *
      * @param email The String.
      */
-    public void setEmail(final String email) {
+    public void setEmail(final EMail email) {
         this.email = email;
     }
 

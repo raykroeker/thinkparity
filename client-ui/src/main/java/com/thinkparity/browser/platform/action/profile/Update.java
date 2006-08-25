@@ -5,6 +5,8 @@ package com.thinkparity.browser.platform.action.profile;
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -42,7 +44,7 @@ public class Update extends AbstractAction {
         if (displayAvatar) {
             browser.displayUpdateProfileDialog();
         } else {
-            final List<String> emails = data.getList(DataKey.EMAILS);
+            final List<EMail> emails = data.getList(DataKey.EMAILS);
             final String name = (String) data.get(DataKey.NAME);
             final String organization = (String) data.get(DataKey.ORGANIZATION);
             final String title = (String) data.get(DataKey.TITLE);

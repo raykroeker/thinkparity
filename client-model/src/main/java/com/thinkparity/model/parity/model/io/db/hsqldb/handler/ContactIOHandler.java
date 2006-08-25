@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.contact.ContactInvitation;
 import com.thinkparity.model.parity.model.contact.IncomingInvitation;
@@ -210,7 +211,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE CONTACT]", "[CREATE CONTACT] [COULD NOT CREATE CONTACT]"));
 
-            for(final String email : contact.getEmails())
+            for(final EMail email : contact.getEmails())
                 emailIO.create(session, email);
 
             session.commit();
@@ -429,11 +430,11 @@ public class ContactIOHandler extends AbstractIOHandler implements
      * @see com.thinkparity.model.parity.model.io.handler.ContactIOHandler#readInvitation(java.lang.String)
      * 
      */
-    public OutgoingInvitation readOutgoingInvitation(final String email) {
+    public OutgoingInvitation readOutgoingInvitation(final EMail email) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_READ_OUTGOING_INVITATION_BY_EMAIL);
-            session.setString(1, email);
+            session.setEMail(1, email);
             session.executeQuery();
             if(session.nextResult()) { return extractOutgoingInvitation(session); }
             else { return null; }
@@ -477,17 +478,6 @@ public class ContactIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * Extract an e-mail address from the session.
-     * 
-     * @param session
-     *            A database session.
-     * @return An e-mail address.
-     */
-    String extractEmail(final Session session) {
-        return session.getString("EMAIL");
-    }
-
-    /**
      * Extract an incoming contact invitation from the session.
      * 
      * @param session
@@ -497,7 +487,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
     IncomingInvitation extractIncomingInvitation(final Session session) {
         final IncomingInvitation incoming = new IncomingInvitation();
         extractInvitation(session, incoming);
-        incoming.setInvitedAs(session.getString("EMAIL"));
+        incoming.setInvitedAs(emailIO.extractEMail(session));
         incoming.setInvitedBy(session.getQualifiedUsername("JABBER_ID"));
         return incoming;
     }
@@ -512,7 +502,7 @@ public class ContactIOHandler extends AbstractIOHandler implements
     OutgoingInvitation extractOutgoingInvitation(final Session session) {
         final OutgoingInvitation outgoing = new OutgoingInvitation();
         extractInvitation(session, outgoing);
-        outgoing.setEmail(session.getString("EMAIL"));
+        outgoing.setEmail(emailIO.extractEMail(session));
         return outgoing;
     }
 
@@ -571,14 +561,16 @@ public class ContactIOHandler extends AbstractIOHandler implements
      *            A contact id.
      * @return A list of e-mail addresses.
      */
-    private List<String> readEmails(final Long contactId) {
+    private List<EMail> readEmails(final Long contactId) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_READ_EMAIL);
             session.setLong(1, contactId);
             session.executeQuery();
-            final List<String> emails = new ArrayList<String>();
-            while(session.nextResult()) { emails.add(extractEmail(session)); }
+            final List<EMail> emails = new ArrayList<EMail>();
+            while (session.nextResult()) {
+                emails.add(emailIO.extractEMail(session));
+            }
             return emails;
         }
         finally { session.close(); }

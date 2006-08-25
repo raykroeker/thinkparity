@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.contact;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -12,7 +14,7 @@ import com.thinkparity.model.xmpp.JabberId;
 public class IncomingInvitation extends ContactInvitation {
 
     /** The invitation e-mail address. */
-    private String invitedAs;
+    private EMail invitedAs;
 
     /** A the inviting user. */
     private JabberId invitedBy;
@@ -27,7 +29,7 @@ public class IncomingInvitation extends ContactInvitation {
      *
      * @return The String.
      */
-    public String getInvitedAs() {
+    public EMail getInvitedAs() {
         return invitedAs;
     }
 
@@ -45,7 +47,7 @@ public class IncomingInvitation extends ContactInvitation {
      *
      * @param invitedAs The String.
      */
-    public void setInvitedAs(final String invitedAs) {
+    public void setInvitedAs(final EMail invitedAs) {
         this.invitedAs = invitedAs;
     }
 

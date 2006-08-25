@@ -5,6 +5,8 @@ package com.thinkparity.browser.application.browser.display.avatar.dialog.contac
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.SingleContentProvider;
@@ -67,9 +69,9 @@ public class ReadContactAvatar extends Avatar {
                 nameJTextField.setText(c.getName());
                 companyJTextField.setText(c.getOrganization());
                 titleJTextField.setText(c.getTitle());
-                final List<String> emails = c.getEmails();
+                final List<EMail> emails = c.getEmails();
                 if (0 < emails.size()) {
-                    emailJTextField.setText(emails.get(0));
+                    emailJTextField.setText(emails.get(0).toString());
                 }
             }
         }

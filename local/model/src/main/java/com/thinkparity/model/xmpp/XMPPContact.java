@@ -21,6 +21,7 @@ import org.xmlpull.v1.XmlPullParser;
 
 import com.thinkparity.codebase.VCardBuilder;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.Constants.Xml.Service;
@@ -59,7 +60,7 @@ class XMPPContact {
                     next(1);
                     if (isStartTag(Xml.Contact.INVITED_AS)) {
                         next(1);
-                        query.invitedAs = readString();
+                        query.invitedAs = readEMail();
                         next(1);
                     } else if (isEndTag(Xml.Contact.INVITED_AS)) {
                         next(1);
@@ -119,7 +120,7 @@ class XMPPContact {
                     next(1);
                     if (isStartTag(Xml.Contact.INVITED_AS)) {
                         next(1);
-                        query.invitedAs = readString();
+                        query.invitedAs = readEMail();
                         next(1);
                     } else if (isEndTag(Xml.Contact.INVITED_AS)) {
                         next(1);
@@ -240,7 +241,7 @@ class XMPPContact {
      *            The user who extended the invitation.
      * @throws SmackException
      */
-	void decline(final String invitedAs, final JabberId invitedBy)
+	void decline(final EMail invitedAs, final JabberId invitedBy)
             throws SmackException {
 		final XMPPMethod decline = new XMPPMethod("contact:declineinvitation");
         decline.setParameter(Xml.Contact.INVITED_AS, invitedAs);
@@ -256,7 +257,7 @@ class XMPPContact {
      *            An e-mail address.
      * @throw SmackException
      */
-	void invite(final String email) throws SmackException {
+	void invite(final EMail email) throws SmackException {
 		logger.info("[XMPP] [CONTACT] [INVITE]");
 		logger.debug(email);
         final XMPPMethod method = new XMPPMethod("contact:invite");
@@ -293,7 +294,7 @@ class XMPPContact {
         contact.setName(response.readResultString(Xml.Contact.NAME));
         contact.setOrganization(response.readResultString(Xml.Contact.ORGANIZATION));
         contact.setVCard(VCardBuilder.createVCard(response.readResultString(Xml.Contact.VCARD)));
-        contact.addAllEmails(response.readResultStrings("emails"));
+        contact.addAllEmails(response.readResultEMails("emails"));
         return contact;
     }
 
@@ -368,7 +369,7 @@ class XMPPContact {
         private Calendar declinedOn;
 
         /** The original invitation e-mail address. */
-        private String invitedAs;
+        private EMail invitedAs;
     }
 
     /**
@@ -379,7 +380,7 @@ class XMPPContact {
     private static class HandleInvitationExtendedIQ extends AbstractThinkParityIQ {
 
         /** The invitation e-mail address. */
-        private String invitedAs;
+        private EMail invitedAs;
 
         /** The inviter. */
         private JabberId invitedBy;

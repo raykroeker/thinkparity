@@ -10,6 +10,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.email.EMailFormatException;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.LabelFactory;
@@ -87,14 +90,12 @@ public class CreateInvitationAvatar extends Avatar {
      */
     @Override
     public Boolean isInputValid() {
-        final String emailAddress = extractEmail();
-        if(null == emailAddress) { return Boolean.FALSE; }
-        final int indexOfAt = emailAddress.indexOf('@');
-        if(-1 == indexOfAt) { return Boolean.FALSE; }
-        final int indexOfDot = emailAddress.indexOf('.', indexOfAt + 1);
-        if(-1 == indexOfDot) { return Boolean.FALSE; }
-        if(emailAddress.length() <= indexOfDot + 1) { return Boolean.FALSE; }
-        return Boolean.TRUE;
+        try {
+            extractEmail();
+            return Boolean.TRUE;
+        } catch(final EMailFormatException efx) {
+            return Boolean.FALSE;
+        }
     }
 
     /**
@@ -110,8 +111,8 @@ public class CreateInvitationAvatar extends Avatar {
      * 
      * @return The e-mail address.
      */
-    private String extractEmail() {
-        return SwingUtil.extract(emailJTextField);
+    private EMail extractEmail() {
+        return EMailBuilder.parse(SwingUtil.extract(emailJTextField));
     }
 
     /** This method is called from within the constructor to
@@ -207,8 +208,8 @@ public class CreateInvitationAvatar extends Avatar {
     private void addJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_addJButtonActionPerformed
         if(isInputValid()) {
             disposeWindow();
-            final String emailAddress = extractEmail();
-            getController().runCreateContactInvitation(emailAddress);
+            final EMail email = extractEmail();
+            getController().runCreateContactInvitation(email);
         }
     }//GEN-LAST:event_addJButtonActionPerformed
 

@@ -20,6 +20,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.util.Base64;
@@ -152,6 +154,15 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
             ParseException, XmlPullParserException {
         return DateUtil.parse(readString2(), DateUtil.DateImage.ISO,
                 new SimpleTimeZone(0, "GMT"));
+    }
+
+    protected final EMail readEMail() {
+        return EMailBuilder.parse(readString());
+    }
+
+    protected final EMail readEMail2() throws IOException,
+            XmlPullParserException {
+        return EMailBuilder.parse(readString2());
     }
 
     /**
@@ -321,12 +332,12 @@ public abstract class AbstractThinkParityIQProvider implements IQProvider {
         next(1);
     }
 
-    private String popName() {
-        return nameStack.pop();
-    }
-
     private String peekName() {
         return nameStack.peek();
+    }
+
+    private String popName() {
+        return nameStack.pop();
     }
 
     private void pushName() {

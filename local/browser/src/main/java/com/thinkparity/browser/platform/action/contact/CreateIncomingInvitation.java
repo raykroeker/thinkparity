@@ -4,6 +4,8 @@
  */
 package com.thinkparity.browser.platform.action.contact;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -32,7 +34,7 @@ public class CreateIncomingInvitation extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
-        final String contactEmail = (String) data.get(DataKey.CONTACT_EMAIL);
+        final EMail contactEmail = (EMail) data.get(DataKey.CONTACT_EMAIL);
         if (null == contactEmail) {
             browser.displayContactCreateInvitation();
         }

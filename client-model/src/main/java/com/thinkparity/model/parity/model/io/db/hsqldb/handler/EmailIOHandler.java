@@ -3,6 +3,8 @@
  */
 package com.thinkparity.model.parity.model.io.db.hsqldb.handler;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 
@@ -53,9 +55,9 @@ class EmailIOHandler extends AbstractIOHandler {
      *            The e-mail address.
      * @return The e-mail id.
      */
-    Long create(final Session session, final String email) {
+    Long create(final Session session, final EMail email) {
         session.prepareStatement(SQL_CREATE);
-        session.setString(1, email);
+        session.setEMail(1, email);
         if(1 != session.executeUpdate())
             throw new HypersonicException(getErrorId("CREATE", "COULD NOT CREATE E-MAIL"));
         return session.getIdentity();
@@ -68,9 +70,20 @@ class EmailIOHandler extends AbstractIOHandler {
             throw new HypersonicException(getErrorId("DELETE", "COULD NOT DELETE E-MAIL"));
     }
 
-    Long readId(final Session session, final String email) {
+    /**
+     * Extract an <code>EMail</code> from the <code>Session</code>.
+     * 
+     * @param session
+     *            A database <code>Session</code>.
+     * @return An <code>Email</code>.
+     */
+    EMail extractEMail(final Session session) {
+        return session.getEMail("EMAIL");
+    }
+
+    Long readId(final Session session, final EMail email) {
         session.prepareStatement(SQL_READ_ID);
-        session.setString(1, email);
+        session.setEMail(1, email);
         session.executeQuery();
         if (session.nextResult()) {
             return session.getLong("EMAIL_ID");

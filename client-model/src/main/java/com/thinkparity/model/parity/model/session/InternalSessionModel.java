@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.InternalModel;
@@ -144,7 +146,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      *            The user to add to the roster.
      * @throws ParityException
      */
-    public void inviteContact(final String email) {
+    public void inviteContact(final EMail email) {
         synchronized(getImplLock()) { getImpl().inviteContact(email); }
     }
 

@@ -18,7 +18,7 @@ public class EMail {
 	private String username;
 
 	/** Create EMail. */
-	EMail() { super(); }
+	protected EMail() { super(); }
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -54,22 +54,6 @@ public class EMail {
 	public int hashCode() { return toString().hashCode(); }
 
 	/**
-     * Set the domain portion of the e-mail address.
-     * 
-     * @param domain
-     *            The domain.
-     */
-	void setDomain(final String domain) { this.domain = domain; }
-
-	/**
-     * Set the username portion of the e-mail address.
-     * 
-     * @param username
-     *            The username.
-     */
-	void setUsername(final String username) { this.username = username; }
-
-	/**
 	 * @see java.lang.Object#toString()
 	 * 
 	 */
@@ -77,4 +61,24 @@ public class EMail {
 	public String toString() {
 		return new StringBuffer(username).append("@").append(domain).toString();
 	}
+
+	/**
+     * Set the domain portion of the e-mail address.
+     * 
+     * @param domain
+     *            The domain.
+     */
+	protected void setDomain(final String domain) {
+        this.domain = domain;
+    }
+
+	/**
+     * Set the username portion of the e-mail address.
+     * 
+     * @param username
+     *            The username.
+     */
+    protected void setUsername(final String username) {
+        this.username = username;
+    }
 }

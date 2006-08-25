@@ -14,7 +14,7 @@ package com.thinkparity.codebase.email;
  */
 public class EMailBuilder {
 
-	private static final EMailBuilder SINGLETON;
+	protected static final EMailBuilder SINGLETON;
 
 	static { SINGLETON = new EMailBuilder(); }
 
@@ -34,7 +34,7 @@ public class EMailBuilder {
 	 * Create a EMailBuilder.
 	 * 
 	 */
-	private EMailBuilder() { super(); }
+	protected EMailBuilder() { super(); }
 
 	/**
      * Parses the string as an e-mail address.
@@ -44,7 +44,7 @@ public class EMailBuilder {
      * @return An <code>EMail</code>.
      * @throws EMailFormatException
      */
-	private EMail doParse(final String s) throws EMailFormatException {
+	protected EMail doParse(final String s) throws EMailFormatException {
 		if (null == s) {
             throw new NullPointerException("CODEBASE EMAIL IS NULL");
 		}

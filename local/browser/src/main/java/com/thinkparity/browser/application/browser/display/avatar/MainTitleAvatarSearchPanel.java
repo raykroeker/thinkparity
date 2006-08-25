@@ -5,6 +5,9 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -12,10 +15,11 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.thinkparity.browser.Constants.Colors;
-import com.thinkparity.browser.Constants.Search;
-
 import com.thinkparity.codebase.swing.border.TopBottomBorder;
+
+import com.thinkparity.browser.Constants.Colors;
+import com.thinkparity.browser.Constants.Images;
+import com.thinkparity.browser.Constants.Search;
 
 /**
  *
@@ -35,6 +39,23 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         initComponents();
     }
 
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        if (searchJTextField.hasFocus()) {
+            final Graphics2D g2 = (Graphics2D) g.create();
+            try {
+                final Point leftLocation = leftJLabel.getLocation();
+                g2.drawImage(Images.BrowserTitle.HALO, leftLocation.x - 4, leftLocation.y - 4, null);
+            } finally {
+                g2.dispose();
+            }
+        }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -43,7 +64,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-        javax.swing.JLabel leftJLabel;
         javax.swing.JLabel rightJLabel;
 
         rightJLabel = new javax.swing.JLabel();
@@ -70,14 +90,22 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 7);
         add(rightJLabel, gridBagConstraints);
 
         searchJTextField.setPreferredSize(new java.awt.Dimension(11, 20));
         searchJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                searchJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                searchJTextFieldActionPerformed(e);
+            }
+        });
+        searchJTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent e) {
+                searchJTextFieldFocusGained(e);
+            }
+            public void focusLost(java.awt.event.FocusEvent e) {
+                searchJTextFieldFocusLost(e);
             }
         });
 
@@ -85,6 +113,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.ipadx = 82;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(searchJTextField, gridBagConstraints);
 
@@ -92,12 +121,20 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(leftJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    private void searchJTextFieldFocusLost(java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusLost
+        repaint();
+    }//GEN-LAST:event_searchJTextFieldFocusLost
+
+    private void searchJTextFieldFocusGained(java.awt.event.FocusEvent e) {//GEN-FIRST:event_searchJTextFieldFocusGained
+        repaint();
+    }//GEN-LAST:event_searchJTextFieldFocusGained
     
     /**
      * When the search text field's document is updated; initialize a timer to
@@ -159,6 +196,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel leftJLabel;
     private javax.swing.JTextField searchJTextField;
     // End of variables declaration//GEN-END:variables
 }

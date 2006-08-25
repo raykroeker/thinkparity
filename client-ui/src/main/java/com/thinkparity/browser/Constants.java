@@ -92,7 +92,9 @@ public final class Constants {
     public static final class Images {
         public static final class BrowserTitle {
             public static final BufferedImage LOGO =
-                    ImageIOUtil.read("BrowserTitle_Logo.png");
+                ImageIOUtil.read("BrowserTitle_Logo.png");
+            public static final BufferedImage HALO =
+                ImageIOUtil.read("BrowserTitle_SearchHalo.png");
         }
     }
 

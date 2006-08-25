@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -44,7 +46,7 @@ public class UserProfileAvatar extends Avatar {
         return getAvatarId(AvatarId.DIALOG_PROFILE_UPDATE).append(" ").append(api);
     }
 
-    private String email;
+    private EMail email;
 
     private String fullName;
 
@@ -95,7 +97,7 @@ public class UserProfileAvatar extends Avatar {
         throw Assert.createNotYetImplemented("UserProfileAvatar#setState");
     }
 
-    String getEmail() { return email; }
+    EMail getEmail() { return email; }
 
     String getFullName() { return fullName; }
 
@@ -104,11 +106,14 @@ public class UserProfileAvatar extends Avatar {
     String getTitle() { return getString("Title"); }
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
-        fullName = email = organization = null;
+        fullName = organization = null;
+        email = null;
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
-    private String extractEMail() { return SwingUtil.extract(emailJTextField); }
+    private EMail extractEMail() {
+        return EMailBuilder.parse(SwingUtil.extract(emailJTextField));
+    }
 
     private String extractFullName() { return SwingUtil.extract(nameJTextField); }
 
@@ -123,7 +128,7 @@ public class UserProfileAvatar extends Avatar {
         }
     }//GEN-LAST:event_finishJButtonActionPerformed
 
-    private String getInputUserEmail() {
+    private EMail getInputUserEmail() {
         return ((Profile) input).getEmails().get(0);
     }
 
@@ -253,7 +258,9 @@ public class UserProfileAvatar extends Avatar {
 
     private void reloadEMail() {
         emailJTextField.setText("");
-        if(null != input) { emailJTextField.setText(getInputUserEmail()); }
+        if (null != input) {
+            emailJTextField.setText(getInputUserEmail().toString());
+        }
     }
     private void reloadName() {
         nameJTextField.setText("");

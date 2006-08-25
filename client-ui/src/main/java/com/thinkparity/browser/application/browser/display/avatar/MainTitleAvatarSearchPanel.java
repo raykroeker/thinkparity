@@ -12,10 +12,10 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.thinkparity.codebase.swing.border.TopBottomBorder;
-
+import com.thinkparity.browser.Constants.Colors;
 import com.thinkparity.browser.Constants.Search;
-import com.thinkparity.browser.Constants.Colors.Browser;
+
+import com.thinkparity.codebase.swing.border.TopBottomBorder;
 
 /**
  *
@@ -48,8 +48,8 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
 
         rightJLabel = new javax.swing.JLabel();
         searchJTextField = new javax.swing.JTextField();
-        searchJTextField.setBorder(new TopBottomBorder(Browser.MainTitle.SEARCH_OUTLINE));
-        searchJTextField.setBackground(Browser.MainTitle.SEARCH_BACKGROUND);
+        searchJTextField.setBorder(new TopBottomBorder(Colors.Browser.MainTitle.SEARCH_OUTLINE));
+        searchJTextField.setBackground(Colors.Browser.MainTitle.SEARCH_BACKGROUND);
         searchJTextField.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(final DocumentEvent e) {
                 searchJTextFieldChangedUpdate(e);

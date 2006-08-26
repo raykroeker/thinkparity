@@ -398,8 +398,9 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerClosed(final Long containerId, final Boolean remote) {
         setStatus("ContainerClosed");
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, remote); }
+            public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });
     }
 
@@ -410,8 +411,9 @@ public class Browser extends AbstractApplication {
      *            The container id.
      */
     public void fireContainerConfirmationReceived(final Long containerId) {
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.FALSE); }
+            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.FALSE, select); }
         });
     }
     
@@ -426,9 +428,10 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerCreated(final Long containerId, final Boolean remote) {
         setStatus("ContainerCreated");
+        final Boolean select = Boolean.TRUE;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote);
+                getTabContainerAvatar().syncContainer(containerId, remote, select);
             }
         });
     }
@@ -444,9 +447,10 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDeleted(final Long containerId, final Boolean remote) {
         setStatus("ContainerDeleted");
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote);
+                getTabContainerAvatar().syncContainer(containerId, remote, select);
             }
         });
     }
@@ -503,8 +507,9 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerDraftCreated(final Long containerId, final Boolean remote) {
         setStatus("ContainerDraftCreated");
+        final Boolean select = Boolean.TRUE;
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, remote); }
+            public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });         
     }
 
@@ -522,8 +527,9 @@ public class Browser extends AbstractApplication {
         aModel.removeFlagSeen(containerId);
 
         // refresh the container in the main list
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
-                public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE); }
+                public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
 
@@ -535,8 +541,9 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerTeamMemberAdded(final Long containerId) {
         setStatus("ContainerTeamMemberAdded");
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE); }
+            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
 
@@ -548,8 +555,9 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerTeamMemberRemoved(final Long containerId) {
         setStatus("ContainerTeamMemberRemoved");
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
-            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE); }
+            public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
     
@@ -564,9 +572,10 @@ public class Browser extends AbstractApplication {
      */
     public void fireContainerUpdated(final Long containerId, final Boolean remote) {
         setStatus("ContainerUpdated");
+        final Boolean select = Boolean.FALSE;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncContainer(containerId, remote);
+                getTabContainerAvatar().syncContainer(containerId, remote, select);
             }
         });
     }

@@ -45,8 +45,11 @@ public class Create extends AbstractAction {
             // Launch the NewContainerDialog to get the container name.
             // If the user presses OK, it will call back into this action
             // with the name provided.
-            if (null != files) { browser.displayCreateContainerDialog(files); }
-            else { browser.displayCreateContainerDialog(); }
+            if (null != files) {
+                browser.displayCreateContainerDialog(files);
+            } else {
+                browser.displayCreateContainerDialog();
+            }
         }
         else {
             // Create the container
@@ -56,7 +59,7 @@ public class Create extends AbstractAction {
             if (null != files) {
                 browser.runAddContainerDocuments(container.getId(), files.toArray(new File[] {}));
             } else {
-                // otherwise run the add document action; then manage the team
+                // otherwise run the add document action
                 browser.runAddContainerDocuments(container.getId());
             }
         }                   

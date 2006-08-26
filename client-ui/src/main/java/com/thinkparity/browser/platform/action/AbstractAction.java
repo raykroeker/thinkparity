@@ -57,8 +57,11 @@ public abstract class AbstractAction {
     /** The action accelerator. */
     private String accelerator;
     
-    /** The action name. */
+    /** The action name (suited for context menus). */
 	private String name;
+    
+    /** The actin menu name (suited for main menus). */
+    private String menuName;
 
     /**
      * Create AbstractAction.
@@ -72,6 +75,7 @@ public abstract class AbstractAction {
         this.icon = null;
         this.localization = new ActionLocalization(id.toString());
         this.name = localization.getString("NAME");
+        this.menuName = localization.getString("MENUNAME");
         this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
         this.accelerator = localization.getString("ACCELERATOR");
     }
@@ -106,10 +110,19 @@ public abstract class AbstractAction {
     
     /**
 	 * Obtain the action NAME.
+     * (This name is used for context menus.)
 	 * 
 	 * @return The action NAME.
 	 */
 	public String getName() { return name; }
+    
+    /**
+     * Obtain the action MENUNAME.
+     * (This name is used for main menus.)
+     * 
+     * @return The action MENUNAME.
+     */
+    public String getMenuName() { return menuName; }
 
 	/**
 	 * Invoke the action.
@@ -145,6 +158,15 @@ public abstract class AbstractAction {
 	public Boolean isSetName() {
         return null != name;
 	}
+    
+    /**
+     * Determine if the menu name is set.
+     * 
+     * @return True if the name is set; false otherwise.
+     */
+    public Boolean isSetMenuName() {
+        return null != menuName;
+    }
 
 	/**
      * Set the icon.
@@ -185,6 +207,16 @@ public abstract class AbstractAction {
 	public void setName(final String name) {
         this.name = name;
 	}
+    
+    /**
+     * Set the menu name.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     */
+    public void setMenuName(final String menuName) {
+        this.menuName = menuName;
+    }
 
 	/**
 	 * Obtain a thinkParity artifact interface.

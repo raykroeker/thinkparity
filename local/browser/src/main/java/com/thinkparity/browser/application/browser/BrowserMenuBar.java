@@ -132,17 +132,17 @@ public class BrowserMenuBar extends JMenuBar {
         this.add(helpMenu);
 
         // Create the New popup menu
-        newMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
-        newMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
+        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
+        newMenu.add(popupItemFactory.createMenuPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
 
         // Create the Profile menu
         final Data updateProfileData = new Data(1);
         updateProfileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        profileMenu.add(popupItemFactory.createPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));
+        profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));
         
         // Create the Help menu
-        helpMenu.add(popupItemFactory.createPopupItem(ActionId.HELP, new Data(0)));
-        helpMenu.add(popupItemFactory.createPopupItem(ActionId.HELP_ABOUT, new Data(0)));
+        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.HELP, new Data(0)));
+        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.HELP_ABOUT, new Data(0)));
         
         // Create the Sign-Up button
         this.add(Box.createRigidArea(new Dimension(3,0)));

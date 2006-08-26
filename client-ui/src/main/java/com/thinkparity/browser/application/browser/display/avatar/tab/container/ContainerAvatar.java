@@ -3,23 +3,21 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.tab.container;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
@@ -27,6 +25,8 @@ import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCellRenderer;
 import com.thinkparity.browser.application.browser.display.renderer.tab.container.ContainerCell;
 import com.thinkparity.browser.application.browser.dnd.ImportTxHandler;
+import com.thinkparity.browser.platform.action.ActionId;
+import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -58,11 +58,15 @@ public class ContainerAvatar extends Avatar {
     
     /** The model. */
     private final ContainerAvatarModel model;
+    
+    /** A popup menu item factory. */
+    private final PopupItemFactory popupItemFactory;
 
     /** Create ContainerAvatar. */
     public ContainerAvatar() {
         super("BrowserContainersAvatar", ScrollPolicy.NONE, Color.WHITE);
         this.model = new ContainerAvatarModel(getController());
+        this.popupItemFactory = PopupItemFactory.getInstance();
         setLayout(new GridBagLayout());
         initComponents();
     }
@@ -176,12 +180,24 @@ public class ContainerAvatar extends Avatar {
      *            The container id.
      * @param remote
      *            Indicates whether the sync is the result of a remote event
+     * @param select
+     *            Indicates whether the container should be selected.
      */
-    public void syncContainer(final Long containerId, final Boolean remote) {
+    public void syncContainer(final Long containerId, final Boolean remote, final Boolean select) {
         final ContainerCell selectedContainer = getSelectedContainer();
         model.syncContainer(containerId, remote);
-        if(model.isContainerVisible(selectedContainer))
-            selectContainer(selectedContainer);  
+        // If "select" then attempt to select and expand this container,
+        // otherwise select the previously selected container
+        if (select) {
+            final ContainerCell container = model.getContainerCell(containerId);
+            if (null!=container) {
+                model.triggerExpand(container);
+                selectContainer(container);
+            }
+        }
+        else {
+            selectContainer(selectedContainer);
+        }
     }
     
     /**
@@ -198,8 +214,7 @@ public class ContainerAvatar extends Avatar {
             final Boolean remote) {
         final ContainerCell selectedContainer = getSelectedContainer();
         model.syncDocument(containerId, documentId, remote);
-        if(model.isContainerVisible(selectedContainer))
-            selectContainer(selectedContainer);
+        selectContainer(selectedContainer);
     }
 
     /**
@@ -213,8 +228,7 @@ public class ContainerAvatar extends Avatar {
     public void syncDocument(final Long documentId, final Boolean remote) {
         final ContainerCell selectedContainer = getSelectedContainer();
         model.syncDocument(documentId, remote);
-        if(model.isContainerVisible(selectedContainer))
-            selectContainer(selectedContainer);
+        selectContainer(selectedContainer);
     }
     /**
      * Obtain the selected container from the list.
@@ -293,7 +307,7 @@ public class ContainerAvatar extends Avatar {
                     final Integer listIndex = jList.locationToIndex(p);
                     final Integer selectedIndex = jList.getSelectedIndex();
                     if (selectedIndex==-1) {  // No entries in the list
-                        model.triggerPopup(null, jList, e, e.getX(), e.getY());
+                        triggerPopup(jList, e.getX(), e.getY());
                     }
                     else { // Check if the click is below the bottom entry in the list
                         final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
@@ -302,7 +316,7 @@ public class ContainerAvatar extends Avatar {
                             model.triggerPopup((TabCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
                         }
                         else {   // Below the bottom entry
-                            model.triggerPopup(null, jList, e, e.getX(), e.getY());
+                            triggerPopup(jList, e.getX(), e.getY());
                         }
                     }
                 }
@@ -323,12 +337,24 @@ public class ContainerAvatar extends Avatar {
     }
 
     /**
-     * Select a container cell.
+     * Select a container cell, if it is visible.
      * 
      * @param cc
      *            The container cell.
      */
     private void selectContainer(final ContainerCell cc) {
-        jList.setSelectedValue(cc, true);
+        if (model.isContainerVisible(cc)) {
+            jList.setSelectedValue(cc, true);
+        }
     }
+    
+    /**
+     * Trigger a popup when clicking in a blank area.
+     * 
+     */
+    private void triggerPopup(final Component invoker, final int x, final int y) {
+        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTAINER_CREATE, new Data(0)));
+        jPopupMenu.show(invoker, x, y);
+    }    
 }

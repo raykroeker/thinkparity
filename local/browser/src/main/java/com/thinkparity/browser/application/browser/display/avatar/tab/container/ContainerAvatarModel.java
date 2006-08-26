@@ -86,6 +86,24 @@ public class ContainerAvatarModel {
         this.versionDocumentCells = new HashMap<ContainerVersionCell, List<ContainerVersionDocumentCell>>(50, 0.75F);
         this.visibleCells = new LinkedList<TabCell>();
     }
+    
+    /**
+     * Get the container cell, given the container id.
+     * 
+     * @param containerId
+     *            The container id.
+     */
+    public ContainerCell getContainerCell(final Long containerId) {
+        ContainerCell cc = null;
+        for(final ContainerCell mcContainer : containerCells) {
+            if (mcContainer.getId().equals(containerId)) {
+                cc = mcContainer;
+                break;
+            }           
+        }
+        
+        return cc;
+    }
 
     /**
      * Get the document id, given the document name.
@@ -97,11 +115,12 @@ public class ContainerAvatarModel {
      *              The document name
      * @return The document id
      */
-    public Long getDocumentId(final ContainerCell cellContainer,
-            final String name) {
+    public Long getDocumentId(final ContainerCell cellContainer, final String name) {
         final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(cellContainer);
         for(final DraftDocumentCell draftDocument : draftDocuments) {
-            if(draftDocument.getName().equals(name)) { return draftDocument.getId(); }
+            if(draftDocument.getName().equals(name)) {
+                return draftDocument.getId();
+            }
         }
         return null;
     }
@@ -117,8 +136,9 @@ public class ContainerAvatarModel {
     public List<String> getDocumentNames(final ContainerCell cellContainer) {
         final List<DraftDocumentCell> draftDocuments = this.draftDocumentCells.get(cellContainer);
         final List<String> l = new ArrayList<String>(draftDocuments.size());
-        for(final DraftDocumentCell draftDocument : draftDocuments)
+        for (final DraftDocumentCell draftDocument : draftDocuments) {
             l.add(draftDocument.getName());
+        }
         return l;
     }
 

@@ -4,6 +4,7 @@
 package com.thinkparity.browser.application.browser.display.avatar.tab.contact;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -14,16 +15,22 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.thinkparity.browser.application.browser.component.MenuFactory;
+import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCellRenderer;
+import com.thinkparity.browser.platform.action.ActionId;
+import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.browser.platform.util.State;
 import com.thinkparity.browser.platform.util.SwingUtil;
@@ -49,10 +56,14 @@ public class ContactAvatar extends Avatar {
     /** The model. */
     private final ContactAvatarModel model;
     
+    /** A popup menu item factory. */
+    private final PopupItemFactory popupItemFactory;
+    
     /** Create a BrowserContactsAvatar. */
     public ContactAvatar() {
         super("BrowserContactsAvatar", ScrollPolicy.NONE, Color.WHITE);
         this.model = new ContactAvatarModel(getController());
+        this.popupItemFactory = PopupItemFactory.getInstance();
         setLayout(new GridBagLayout());   // Layout manager for this container
         initComponents();
     }
@@ -197,14 +208,25 @@ public class ContactAvatar extends Avatar {
                         model.triggerDoubleClick((TabCell) jList.getSelectedValue());    
                     }
                 }
-
             }
             public void mouseReleased(final MouseEvent e) {
                 if(e.isPopupTrigger()) {
                     final Point p = e.getPoint();
                     final Integer listIndex = jList.locationToIndex(p);
-                    jList.setSelectedIndex(listIndex);
-                    model.triggerPopup((TabCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
+                    final Integer selectedIndex = jList.getSelectedIndex();
+                    if (selectedIndex==-1) {  // No entries in the list
+                        triggerPopup(jList, e.getX(), e.getY());
+                    } 
+                    else { // Check if the click is below the bottom entry in the list
+                        final Rectangle cellBounds = jList.getCellBounds(listIndex, listIndex);
+                        if (SwingUtil.regionContains(cellBounds,p)) {
+                            jList.setSelectedIndex(listIndex);
+                            model.triggerPopup((TabCell) jList.getSelectedValue(), jList, e, e.getX(), e.getY());
+                        }
+                        else {   // Below the bottom entry
+                            triggerPopup(jList, e.getX(), e.getY());
+                        }
+                    }
                 }
             }
         });
@@ -219,10 +241,19 @@ public class ContactAvatar extends Avatar {
         final JScrollPane jListScrollPane = new JScrollPane(jList);
         jListScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         
+        // If the user clicks on the tab above the jList, show a popup menu.
+        addMouseListener(new MouseAdapter() {
+            public void mouseReleased(final MouseEvent e) {
+                if(e.isPopupTrigger()) {
+                    triggerPopup(ContactAvatar.this, e.getX(), e.getY());
+                }
+            }
+        });
+        
         final GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
         c.insets.left = c.insets.right = 2;
-        c.insets.top = 10;
+        c.insets.top = 15;
         c.insets.bottom = 1;
         c.weightx = 1;
         c.weighty = 1;
@@ -238,4 +269,14 @@ public class ContactAvatar extends Avatar {
     private void selectCell(final TabCell tabCell) {
         jList.setSelectedValue(tabCell, true);
     }
+    
+    /**
+     * Trigger a popup when clicking in a blank area.
+     * 
+     */
+    private void triggerPopup(final Component invoker, final int x, final int y) {
+        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
+        jPopupMenu.add(popupItemFactory.createPopupItem(ActionId.CONTACT_CREATE_INCOMING_INVITATION, new Data(0)));
+        jPopupMenu.show(invoker, x, y);
+    }   
 }

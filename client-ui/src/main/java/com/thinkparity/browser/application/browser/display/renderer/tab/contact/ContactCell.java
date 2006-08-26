@@ -14,16 +14,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.border.Border;
 
-import com.thinkparity.codebase.swing.border.BottomBorder;
-import com.thinkparity.codebase.swing.border.TopBorder;
-
 import com.thinkparity.browser.Constants.InsetFactors;
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache;
-import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentIcon;
+import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.ContactIcon;
 import com.thinkparity.browser.application.browser.display.avatar.main.MainCellImageCache.DocumentImage;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCellRenderer;
@@ -32,6 +29,9 @@ import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
 import com.thinkparity.browser.platform.action.contact.Delete;
 import com.thinkparity.browser.platform.action.contact.Read;
+
+import com.thinkparity.codebase.swing.border.BottomBorder;
+import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.model.xmpp.contact.Contact;
 
@@ -60,7 +60,7 @@ public class ContactCell extends Contact implements TabCell {
 
     static {
         BORDER_BOTTOM = new BottomBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
-        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1);
+        BORDER_TOP_0 = new TopBorder(Colours.MAIN_CELL_DEFAULT_BORDER1,2);
         BORDER_TOP_N = new TopBorder(Color.WHITE);
 
         TEXT_FG = Color.BLACK;
@@ -138,7 +138,7 @@ public class ContactCell extends Contact implements TabCell {
      * @return An image icon.
      */
     public ImageIcon getInfoIcon() {
-        return imageCache.read(DocumentIcon.INFO_IS_KEYHOLDER);
+        return imageCache.read(ContactIcon.INFO);
     }
 
     /**
@@ -146,11 +146,7 @@ public class ContactCell extends Contact implements TabCell {
      * 
      */
     public ImageIcon getNodeIcon() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_EXPANDED);
-        } else {
-            return imageCache.read(DocumentIcon.NODE_DEFAULT);
-        }
+        return imageCache.read(ContactIcon.NODE);
     }
 
     /**
@@ -158,11 +154,7 @@ public class ContactCell extends Contact implements TabCell {
      * 
      */
     public ImageIcon getNodeIconSelected() {
-        if (isExpanded()) {
-            return imageCache.read(DocumentIcon.NODE_SEL_EXPANDED);
-        } else {
-            return imageCache.read(DocumentIcon.NODE_SEL_DEFAULT);
-        }
+        return imageCache.read(ContactIcon.NODE_SELECTED);
     }
 
     /**

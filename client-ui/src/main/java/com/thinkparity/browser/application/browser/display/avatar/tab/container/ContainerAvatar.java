@@ -299,7 +299,8 @@ public class ContainerAvatar extends Avatar {
             public void mouseReleased(final MouseEvent e) {
                 if(e.isPopupTrigger()) {
                     // Desired behavior: if click on an entry in the list then trigger a popup for that entry.
-                    // If click in the blank area below the last entry in the list then trigger a popup for entry "null".
+                    // If click in the blank area below the last entry in the list then trigger a popup that
+                    // allows the user to create a container.
                     // If there are no containers then expect getSelectedIndex() to return -1.
                     // If there are 1 or more containers and the user clicks below the final entry then expect
                     // locationToIndex() to return the last entry.
@@ -325,11 +326,20 @@ public class ContainerAvatar extends Avatar {
 
         final JScrollPane jListScrollPane = new JScrollPane(jList);
         jListScrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+       
+        // If the user clicks on the tab above the jList, show a popup menu.
+        addMouseListener(new MouseAdapter() {
+            public void mouseReleased(final MouseEvent e) {
+                if(e.isPopupTrigger()) {
+                    triggerPopup(ContainerAvatar.this, e.getX(), e.getY());
+                }
+            }
+        });
         
         final GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
         c.insets.left = c.insets.right = 2;
-        c.insets.top = 10;
+        c.insets.top = 15;
         c.insets.bottom = 1;
         c.weightx = 1;
         c.weighty = 1;

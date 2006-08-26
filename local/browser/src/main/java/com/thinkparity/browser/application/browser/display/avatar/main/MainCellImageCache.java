@@ -46,7 +46,16 @@ public class MainCellImageCache {
     private static void cacheIcons() {
         synchronized(ICON_CACHE) {
             ICON_CACHE.clear();
-
+            
+            for(final ContactIcon ci : ContactIcon.values()) {
+                if(!ICON_CACHE.containsKey(ci.iconName)) {
+                    slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
+                            "[CACHING " + ci.iconName + "]");
+                    ICON_CACHE.put(
+                            ci.iconName,
+                            ImageIOUtil.readIcon(ci.iconName));
+                }
+            }
             for(final DocumentIcon di : DocumentIcon.values()) {
                 if(!ICON_CACHE.containsKey(di.iconName)) {
                     slogger.debug("[BROWSER2] [APP] [B2] [MAIN CELL IMAGE CACHE] " +
@@ -107,6 +116,18 @@ public class MainCellImageCache {
     void debug() {
         debug("Icon Cache", ICON_CACHE);
         debug("Image Cache", IMAGE_CACHE);
+    }
+    
+    /**
+     * Read a contact icon from the cache.
+     * 
+     * @param icon
+     *            The icon.
+     * @return The icon.
+     * @see ImageIOUtil#readIcon(java.lang.String)
+     */
+    public ImageIcon read(final ContactIcon icon) {
+        return (ImageIcon) read(ICON_CACHE, icon.iconName);
     }
 
     /**
@@ -186,6 +207,26 @@ public class MainCellImageCache {
     private Object read(final Map<String, Object> cache,
             final String cacheKey) {
         synchronized(cache) { return cache.get(cacheKey); }
+    }
+    
+    /** All contact cell icons. */
+    public enum ContactIcon {
+        INFO("Invisible20x20.png"),
+        NODE("Invisible9x9.png"),
+        NODE_SELECTED("Invisible9x9.png");
+        
+        /** The icon file name. */
+        private final String iconName;
+
+        /**
+         * Create a ContactIcon.
+         * 
+         * @param iconName
+         *            The icon file name.
+         */
+        private ContactIcon(final String iconName) {
+            this.iconName = iconName;
+        }        
     }
 
     /** All document cell icons. */

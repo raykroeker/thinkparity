@@ -15,6 +15,7 @@ import com.thinkparity.browser.application.browser.display.avatar.dialog.contact
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.display.provider.ProviderFactory;
@@ -66,6 +67,16 @@ public class AvatarFactory {
 	private Avatar doCreate(final AvatarId id) {
 		final Avatar avatar;
 		switch(id) {
+		case MAIN_CONTENT:
+		    avatar = new MainContentAvatar();
+		    break;
+		case MAIN_STATUS:
+		    avatar = new MainStatusAvatar();
+		    break;
+		case MAIN_TITLE:
+		    avatar = new MainTitleAvatar();
+		    break;
+
         case TAB_CONTAINER:
             avatar = new ContainerAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));            
@@ -73,40 +84,40 @@ public class AvatarFactory {
         case TAB_CONTACT:
             avatar = new ContactAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
-            break;
-        case MAIN_CONTENT:
-            avatar = new MainContentAvatar();
-            break;
-        case MAIN_STATUS:
-            avatar = new MainStatusAvatar();
-            break;
-		case MAIN_TITLE:
-			avatar = new MainTitleAvatar();
 			break;
+
         case DIALOG_CONFIRM:
             avatar = new ConfirmDialog();
             break;
         case DIALOG_ERROR:
             avatar = new ErrorAvatar();
             break;
-        case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:
-            avatar = new CreateInvitationAvatar();
-            break;
         case DIALOG_RENAME:
             avatar = new RenameAvatar();
+            break;
+
+        case DIALOG_CONTACT_CREATE_OUTGOING_INVITATION:
+            avatar = new CreateInvitationAvatar();
             break;
         case DIALOG_CONTACT_READ:
             avatar = new ReadContactAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
             break;
+
         case DIALOG_CONTAINER_CREATE:
             avatar = new CreateContainerAvatar();
             break;
+
         case DIALOG_PROFILE_UPDATE:
             avatar = new UpdateProfileAvatar();
             avatar.setContentProvider(ProviderFactory.getProvider(avatar.getId()));
             break;
-		default: throw Assert.createUnreachable("UNKNOWN AVATAR");
+        case DIALOG_PROFILE_VERIFY_EMAIL:
+            avatar = new VerifyEMailAvatar();
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+		default:
+            throw Assert.createUnreachable("UNKNOWN AVATAR");
 		}
 		register(avatar);
 		return avatar;

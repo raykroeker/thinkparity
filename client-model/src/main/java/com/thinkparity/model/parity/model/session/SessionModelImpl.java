@@ -461,13 +461,12 @@ class SessionModelImpl extends AbstractModelImpl {
     public Contact readContact(final JabberId contactId) {
         logApiId();
         logVariable("contactId", contactId);
-        synchronized (xmppHelper) {
-            try {
+        try {
+            synchronized (xmppHelper) {
                 return xmppHelper.readContact(contactId);
-            } catch (final Throwable t) {
-                throw translateError("READ CONTACT", t);
             }
-            
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -479,12 +478,13 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void acceptInvitation(final JabberId invitedBy) {
-		synchronized(xmppHelper) {
-			try { xmppHelper.acceptInvitation(invitedBy); }
-			catch(final Throwable t) {
-                throw translateError("[ACCEPT INVITATION]", t);
-			}
-		}
+	    try {
+	        synchronized (xmppHelper) {
+                xmppHelper.acceptInvitation(invitedBy);
+	        }
+        } catch (final Throwable t) {
+            throw translateError(t);
+	    }
 	}
 
 	/**
@@ -558,14 +558,15 @@ class SessionModelImpl extends AbstractModelImpl {
      *            A jabber id.
      */
     void addTeamMember(final UUID uniqueId, final JabberId jabberId) {
-        logger.info(getApiId("[ADD TEAM MEMBER]"));
-        logger.debug(uniqueId);
-        logger.debug(jabberId);
-        synchronized(xmppHelper) {
-            try { xmppHelper.addTeamMember(uniqueId, jabberId); }
-            catch(final SmackException sx) {
-                throw translateError(getApiId("[ADD TEAM MEMBER]"), sx);
+        logApiId();
+        logVariable("uniqueId", uniqueId);
+        logVariable("jabberId", jabberId);
+        try {
+            synchronized (xmppHelper) {
+                xmppHelper.addTeamMember(uniqueId, jabberId);
             }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -600,12 +601,13 @@ class SessionModelImpl extends AbstractModelImpl {
 	void createArtifact(final UUID uniqueId) {
 		logApiId();
 		logVariable("uniqueId", uniqueId);
-		synchronized (xmppHelper) {
-			try { xmppHelper.createArtifact(uniqueId); }
-            catch(final Throwable t) {
-                throw translateError("[CREATE ARTIFACT]", t);
-            }
-		}
+		try {
+		    synchronized (xmppHelper) {
+		        xmppHelper.createArtifact(uniqueId);
+		    }
+		} catch (final Throwable t) {
+            throw translateError(t);
+        }
 	}
 
     /**
@@ -629,11 +631,15 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void declineInvitation(final EMail invitedAs, final JabberId invitedBy) {
-		synchronized(xmppHelper) {
-			try { xmppHelper.getXMPPSession().declineInvitation(invitedAs, invitedBy); }
-			catch(final Throwable t) {
-                throw translateError("[DECLINE INVITATION]", t);
-			}
+        logApiId();
+        logVariable("invitedAs", invitedAs);
+        logVariable("invitedBy", invitedBy);
+		try {
+		    synchronized(xmppHelper) {
+		        xmppHelper.getXMPPSession().declineInvitation(invitedAs, invitedBy);
+            }
+		} catch(final Throwable t) {
+            throw translateError(t);
 		}
 	}
 
@@ -646,11 +652,13 @@ class SessionModelImpl extends AbstractModelImpl {
     void deleteArtifact(final UUID uniqueId) {
         logApiId();
         logVariable("uniqueId", uniqueId);
-        synchronized (xmppHelper) {
-            try { xmppHelper.deleteArtifact(uniqueId); }
-            catch(final Throwable t) {
-                throw translateError("[DELETE ARTIFACT]", t);
+        try {
+            synchronized (xmppHelper) {
+                xmppHelper.deleteArtifact(uniqueId);
             }
+        }
+        catch(final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -950,11 +958,14 @@ class SessionModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
 	Set<User> readUsers(final Set<JabberId> jabberIds) {
-		synchronized(xmppHelper) {
-			try { return xmppHelper.getXMPPSession().readUsers(jabberIds); }
-			catch(final Throwable t) {
-				throw translateError("[READ USERS]", t);
-			}
+        logApiId();
+        logVariable("jabberIds", jabberIds);
+		try {
+		    synchronized (xmppHelper) {
+		        return xmppHelper.getXMPPSession().readUsers(jabberIds);
+            }
+		} catch(final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -1064,14 +1075,13 @@ class SessionModelImpl extends AbstractModelImpl {
         logVariable("sendTo", sendTo);
         logVariable("sentBy", sentBy);
         logVariable("sentOn", sentOn);
-        synchronized (xmppHelper) {
-            try {
+        try {
+            synchronized (xmppHelper) {
                 xmppHelper.getXMPPSession().send(container, documents, sendTo,
                         sentBy, sentOn);
             }
-            catch(final SmackException sx) {
-                throw translateError(getApiId("[SEND]"), sx);
-            }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -1106,12 +1116,12 @@ class SessionModelImpl extends AbstractModelImpl {
     void updateProfile(final Profile profile) {
         logApiId();
         logVariable("profile", profile);
-        synchronized (xmppHelper) {
-            try {
+        try {
+            synchronized (xmppHelper) {
                 xmppHelper.getXMPPSession().updateProfile(profile);
-            } catch (final Throwable t) {
-                throw translateError("UPDATE PROFILE", t);
             }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -1156,10 +1166,10 @@ class SessionModelImpl extends AbstractModelImpl {
             final Credentials credentials) {
         logger.debug(environment);
         logger.debug(credentials);
-        assertNotIsOnline("USER ALREADY ONLINE");
-        assertIsReachable("ENVIRONMENT NOT REACHABLE", environment);
-        synchronized(xmppHelper) {
-            try {
+        try {
+            assertNotIsOnline("USER ALREADY ONLINE");
+            assertIsReachable("ENVIRONMENT NOT REACHABLE", environment);
+            synchronized (xmppHelper) {
                 // check that the user's credentials match
                 final Credentials storedCredentials = readCredentials();
                 if(null != storedCredentials) {
@@ -1182,15 +1192,39 @@ class SessionModelImpl extends AbstractModelImpl {
 
                 xmppHelper.processOfflineQueue();
             }
-            catch(final SmackException sx) {
-                if("No response from the server.".equals(sx.getMessage())) {
-                    logWarning(MessageFormat.format(
-                            "NO RESPONSE FROM SERVER:  {0}", attempt), sx);
-                    login(attempt.intValue() + 1, environment, credentials);
-                }
-
-                throw translateError(getApiId("[LOGIN]"), sx);
+        } catch(final Throwable t) {
+            if("No response from the server.".equals(t.getMessage())) {
+                logWarning(MessageFormat.format(
+                        "NO RESPONSE FROM SERVER:  {0}", attempt), t);
+                login(attempt.intValue() + 1, environment, credentials);
             }
-        }        
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     * @param key
+     *            A verification key <code>String</code>.
+     */
+    void verifyProfileEmail(final JabberId userId,
+            final ProfileEMail email, final String key) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("email", email);
+        logVariable("key", key);
+        try {
+            synchronized (xmppHelper) {
+                xmppHelper.getXMPPSession().verifyProfileEmail(userId,
+                        email.getEmail(), key);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 }

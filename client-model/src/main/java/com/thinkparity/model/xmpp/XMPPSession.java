@@ -96,6 +96,19 @@ public interface XMPPSession {
     public void addProfileEmail(final JabberId userId, final EMail email);
 
     /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEmail</code>.
+     * @param key
+     *            A verification key <code>String</code>.
+     */
+    public void verifyProfileEmail(final JabberId userId, final EMail email,
+            final String key);
+
+    /**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 

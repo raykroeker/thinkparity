@@ -3,12 +3,12 @@
  */
 package com.thinkparity.browser.platform.action.profile;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
 import com.thinkparity.browser.platform.action.Data;
+
+import com.thinkparity.model.parity.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -31,6 +31,17 @@ public class VerifyEmail extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        throw Assert.createNotYetImplemented("VerifyEmail#invoke");
+        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
+        final Long emailId = (Long) data.get(DataKey.EMAIL_ID);
+
+        if (displayAvatar) {
+            getBrowserApplication().displayVerifyProfileEmailDialog(emailId);
+        } else {
+            final String key = (String) data.get(DataKey.KEY);
+            final ProfileModel profileModel = getProfileModel();
+            profileModel.verifyEmail(emailId, key);
+        }
     }
+
+    public enum DataKey { DISPLAY_AVATAR, EMAIL_ID, KEY }
 }

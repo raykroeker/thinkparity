@@ -67,7 +67,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	 */
 	private static final int SEND_PACKET_SLEEP_DURATION = 75;
 
-	static {
+    static {
 		// set the subscription mode such that all requests are manual
 		Roster.setDefaultSubscriptionMode(Roster.SUBSCRIPTION_MANUAL);
 
@@ -91,14 +91,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 	/** The container xmpp interface. */
     private final XMPPContainer xmppContainer;
 
-    /** The document xmpp interface. */
+	/** The document xmpp interface. */
     private final XMPPDocument xmppDocument;
 
     private Vector<XMPPExtensionListener> xmppExtensionListeners;
 
     private final Object xmppExtensionListenersLock = new Object();
 
-	private Vector<XMPPContactListener> xmppPresenceListeners;
+    private Vector<XMPPContactListener> xmppPresenceListeners;
 
 	/** The thinkParity xmpp profile interface. */
     private final XMPPProfile xmppProfile;
@@ -152,7 +152,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppArtifact.addListener(l);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPContactListener)
 	 * 
 	 */
@@ -160,7 +160,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.addListener(l);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPContainerListener)
      * 
      */
@@ -191,7 +191,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppExtensionListeners.add(xmppExtensionListener);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#addListener(com.thinkparity.model.xmpp.events.XMPPSessionListener)
 	 */
 	public void addListener(final XMPPSessionListener xmppSessionListener) {
@@ -204,7 +204,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppSessionListeners.add(xmppSessionListener);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#addProfileEmail(com.thinkparity.model.xmpp.JabberId, com.thinkparity.model.profile.ProfileEMail)
      */
     public void addProfileEmail(final JabberId userId, final EMail email) {
@@ -212,13 +212,6 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
     }
 
 	/**
-     * @see com.thinkparity.model.xmpp.XMPPSession#removeProfileEmail(com.thinkparity.model.xmpp.JabberId, com.thinkparity.codebase.email.EMail)
-     */
-    public void removeProfileEmail(final JabberId userId, final EMail email) {
-        xmppProfile.removeEmail(userId, email);
-    }
-
-    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#addTeamMember(java.util.UUID,
      *      com.thinkparity.model.xmpp.JabberId)
      * 
@@ -238,7 +231,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         Assert.assertTrue(assertion, response.containsResult());
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#closeArtifact(java.util.UUID)
 	 * 
 	 */
@@ -284,7 +277,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.createDraft(uniqueId);
     }
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#declineInvitation(java.lang.String,
      *      com.thinkparity.model.xmpp.JabberId)
      * 
@@ -301,14 +294,14 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         xmppArtifact.delete(uniqueId);
     }
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#deleteDraft(java.util.UUID)
      */
     public void deleteDraft(final UUID uniqueId) {
         xmppArtifact.deleteDraft(uniqueId);
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#flag(java.util.UUID,
 	 *      com.thinkparity.model.parity.model.artifact.ArtifactFlag)
 	 */
@@ -340,7 +333,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return keys;
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPCore#getConnection()
 	 * 
 	 */
@@ -363,7 +356,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppContact.invite(email);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#isLoggedIn()
 	 */
 	public Boolean isLoggedIn() {
@@ -453,7 +446,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		}
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#logout()
 	 */
 	public void logout() throws SmackException {
@@ -511,7 +504,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         }
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#getContacts()
 	 * 
 	 */
@@ -531,7 +524,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppUser.read(jabberId);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#readKeyHolder(java.util.UUID)
      * 
      */
@@ -539,7 +532,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		return xmppArtifact.readKeyHolder(uniqueId);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#readProfile()
      * 
      */
@@ -571,7 +564,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppArtifact.removeListener(l);
 	}
 
-	/**
+    /**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPContactListener)
 	 * 
 	 */
@@ -586,7 +579,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		xmppPresenceListeners.remove(xmppPresenceListener);
 	}
 
-    /**
+	/**
 	 * @see com.thinkparity.model.xmpp.XMPPSession#removeListener(com.thinkparity.model.xmpp.events.XMPPExtensionListener)
 	 */
 	public void removeListener(XMPPExtensionListener xmppExtensionListener) {
@@ -613,6 +606,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 				xmppSessionListeners.contains(xmppSessionListener));
 		xmppSessionListeners.remove(xmppSessionListener);
 	}
+
+    /**
+     * @see com.thinkparity.model.xmpp.XMPPSession#removeProfileEmail(com.thinkparity.model.xmpp.JabberId, com.thinkparity.codebase.email.EMail)
+     */
+    public void removeProfileEmail(final JabberId userId, final EMail email) {
+        xmppProfile.removeEmail(userId, email);
+    }
 
 	/**
      * Remove a team member from the artifact team.
@@ -645,7 +645,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
 		sendAndConfirmPacket(vCard);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.model.xmpp.XMPPSession#send(ContainerVersion, Map,
      *      User, JabberId, Calendar)
      *
@@ -688,7 +688,7 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
         return confirmationPacket;
 	}
 
-	/**
+    /**
      * @see com.thinkparity.model.xmpp.XMPPSession#sendDocument(java.util.Set,
      *      java.util.UUID, java.lang.String, byte[])
      * 
@@ -741,6 +741,13 @@ public class XMPPSessionImpl implements XMPPCore, XMPPSession {
      */
     public void updateProfile(final Profile profile) {
         xmppUser.updateProfile(profile);
+    }
+
+	/**
+     * @see com.thinkparity.model.xmpp.XMPPSession#verifyProfileEmail(com.thinkparity.model.xmpp.JabberId, com.thinkparity.codebase.email.EMail, java.lang.String)
+     */
+    public void verifyProfileEmail(final JabberId userId, final EMail email, final String key) {
+        xmppProfile.verifyEmail(userId, email, key);
     }
 
 	/**

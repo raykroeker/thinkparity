@@ -15,11 +15,84 @@ import com.thinkparity.model.xmpp.JabberId;
  * @version
  */
 public interface ProfileIOHandler extends IOHandler {
+
+    /**
+     * Create a profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param emails
+     *            A <code>List&lt;ProfileEMail&gt;</code>.
+     */
     public void create(final Profile profile, final List<ProfileEMail> emails);
-    public void createEmail(final ProfileEMail email);
+
+    /**
+     * Create a profile email.
+     * 
+     * @param profileId
+     *            A profile id <code>Long</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     */
+    public void createEmail(final Long profileId, final ProfileEMail email);
+
+    /**
+     * Delete a profile email.
+     * 
+     * @param profileId
+     *            A profile id <code>Long</code>.
+     * @param emailId
+     *            An email id <code>Long</code>.
+     */
     public void deleteEmail(final Long profileId, final Long emailId);
-    public Profile read(final JabberId jabberId);
+
+    /**
+     * Read a profile.
+     * 
+     * @param profileId
+     *            A profile id <code>JabberId</code>.
+     * @return A <code>Profile</code>.
+     */
+    public Profile read(final JabberId profileId);
+
+    /**
+     * Read a profile email.
+     * 
+     * @param profileId
+     *            A profile id <code>Long</code>.
+     * @param emailId
+     *            An email id <code>Long</code>.
+     * @return A <code>ProfileEMail</code>.
+     */
     public ProfileEMail readEmail(final Long profileId, final Long emailId);
+
+    /**
+     * Read the profile emails.
+     * 
+     * @param profileId
+     *            A profile id <code>Long</code>.
+     * @return A <code>List&lt;ProfileEMail&gt;</code>.
+     */
     public List<ProfileEMail> readEmails(final Long profileId);
+
+    /**
+     * Update a profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
     public void update(final Profile profile);
+
+    /**
+     * Verify a profile email.
+     * 
+     * @param profileId
+     *            A profile id <code>Long</code>.
+     * @param emailId
+     *            An email id <code>Long</code>.
+     * @param verified
+     *            The verification <code>Boolean</code> flag.
+     */
+    public void verifyEmail(final Long profileId, final Long emailId,
+            final Boolean verified);
 }

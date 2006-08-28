@@ -78,6 +78,13 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             .append("where PROFILE_ID=?")
             .toString();
 
+    /** Sql to verify a profile email. */
+    private static final String SQL_VERIFY_EMAIL =
+            new StringBuffer("update PROFILE_EMAIL_REL ")
+            .append("set VERIFIED=? ")
+            .append("where PROFILE_ID=? and EMAIL_ID=?")
+            .toString();
+
     private static StringBuffer getApiId(final String api) {
         return getIOId("[PROFILE]").append(" ").append(api);
     }
@@ -123,14 +130,14 @@ public class ProfileIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#createEmail(com.thinkparity.model.profile.ProfileEMail)
      */
-    public void createEmail(final ProfileEMail email) {
+    public void createEmail(final Long profileId, final ProfileEMail email) {
         final Session session = openSession();
         try {
             final Long emailId = emailIO.create(session, email.getEmail());
             email.setEmailId(emailId);
 
             session.prepareStatement(SQL_CREATE_EMAIL);
-            session.setLong(1, email.getProfileId());
+            session.setLong(1, profileId);
             session.setLong(2, email.getEmailId());
             session.setBoolean(3, email.isVerified());
             if (1 != session.executeUpdate())
@@ -238,6 +245,29 @@ public class ProfileIOHandler extends AbstractIOHandler implements
         }
         finally { session.close(); }
 
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#verifyEmail(java.lang.Long, java.lang.Long)
+     */
+    public void verifyEmail(final Long profileId, final Long emailId,
+            final Boolean verified) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_VERIFY_EMAIL);
+            session.setBoolean(1, verified);
+            session.setLong(2, profileId);
+            session.setLong(3, emailId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT VERIFY EMAIL");
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
     }
 
     /**

@@ -10,6 +10,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.browser.application.browser.display.provider.dialog.contact.ReadContactProvider;
 import com.thinkparity.browser.application.browser.display.provider.dialog.profile.UpdateProvider;
+import com.thinkparity.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
 import com.thinkparity.browser.application.browser.display.provider.tab.contact.ContactProvider;
 import com.thinkparity.browser.application.browser.display.provider.tab.container.ContainerProvider;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
@@ -53,23 +54,23 @@ public class ProviderFactory {
     /** A thinkParity contact interface. */
     protected final ContactModel contactModel;
 
-    /** A thinkParity user interface. */
-    protected final UserModel userModel;
-
     /** A thinkParity container interface. */
     protected final ContainerModel containerModel;
 
     /** The parity document interface. */
 	protected final DocumentModel documentModel;
-    
-	/** An apache logger. */
-	protected final Logger logger;
 
-    /** A thinkParity session interface. */
+    /** An apache logger. */
+	protected final Logger logger;
+    
+	/** A thinkParity session interface. */
 	protected final SessionModel sessionModel;
 
     /** A thinkParity system message interface. */
 	protected final SystemMessageModel systemMessageModel;
+
+    /** A thinkParity user interface. */
+    protected final UserModel userModel;
 
 	/** The local user's profile. */
     private final Profile profile;
@@ -115,6 +116,9 @@ public class ProviderFactory {
             break;
         case DIALOG_PROFILE_UPDATE:
             provider = new UpdateProvider(profile, profileModel);
+            break;
+        case DIALOG_PROFILE_VERIFY_EMAIL:
+            provider = new VerifyEMailProvider(profile, profileModel);
             break;
         default:
             throw Assert.createUnreachable("[UNKNOWN AVATAR ID]");

@@ -3,8 +3,11 @@
  */
 package com.thinkparity.browser.application.browser.display.avatar.dialog.profile;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
@@ -36,6 +39,11 @@ public class UpdateProfileAvatar extends Avatar {
     public UpdateProfileAvatar() {
         super("UpdateProfileAvatar");
         this.model = new UpdateProfileAvatarModel();
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
         initComponents();
     }
 
@@ -104,10 +112,6 @@ public class UpdateProfileAvatar extends Avatar {
     }//GEN-LAST:event_emailJTextFieldActionPerformed
 
     private void emailsJListMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_emailsJListMouseReleased
-        if (e.isPopupTrigger()) {
-            emailsJList.setSelectedIndex(emailsJList.locationToIndex(e.getPoint()));
-            ((ProfileEMailCell) emailsJList.getSelectedValue()).triggerPopup(emailsJList, e.getX(), e.getY());
-        }
     }//GEN-LAST:event_emailsJListMouseReleased
 
     private EMail extractInputEmail() {
@@ -418,6 +422,11 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     private void verifyJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_verifyJButtonActionPerformed
+        final List<ProfileEMail> selectedEmails = extractInputSelectedEmails();
+        for (final ProfileEMail selectedEmail : selectedEmails) {
+            getController().runVerifyProfileEmail(selectedEmail.getEmailId());
+        }
+        reloadEmails(readProfileEmails());
     }//GEN-LAST:event_verifyJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

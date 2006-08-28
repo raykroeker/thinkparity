@@ -80,7 +80,20 @@ public class ProfileModel {
      */
     public Profile read() { synchronized(implLock) { return impl.read(); } }
 
-	/**
+    /**
+     * Read a profile email.
+     * 
+     * @param emailId
+     *            An email id <code>Long</code>.
+     * @return A <code>ProfileEmail</code>.
+     */
+    public ProfileEMail readEmail(final Long emailId) {
+        synchronized (getImplLock()) {
+            return getImpl().readEmail(emailId);
+        }
+    }
+
+    /**
      * Read a list of profile email addresses.
      * 
      * @return A list of email addresses.
@@ -91,7 +104,7 @@ public class ProfileModel {
         }
     }
 
-    /**
+	/**
      * Remove an email.
      * 
      * @param emailId
@@ -103,7 +116,7 @@ public class ProfileModel {
         }
     }
 
-     /**
+    /**
      * Update the logged in user's profile.
      * 
      * @param profile
@@ -112,6 +125,20 @@ public class ProfileModel {
     public void update(final Profile profile) {
         synchronized (getImplLock()) {
             getImpl().update(profile);
+        }
+    }
+
+    /**
+     * Verify an email.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @param key
+     *            A verification key <code>String</code>.
+     */
+    public void verifyEmail(final Long emailId, final String key) {
+        synchronized (getImplLock()) {
+            getImpl().verifyEmail(emailId, key);
         }
     }
 

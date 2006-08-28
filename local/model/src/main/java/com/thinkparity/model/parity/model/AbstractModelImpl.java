@@ -983,26 +983,30 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Translate an error into a parity unchecked error.
+     * @deprecated Use {@link #translateError(Throwable)} instead.
      * 
-     * @param message
-     *            An error message.
-     * @param t
-     *            An error.
      */
     protected RuntimeException translateError(final Object errorId,
             final Throwable t) {
+        return translateError(t);
+    }
+
+    /**
+     * Translate an error into a parity unchecked error.
+     * 
+     * @param t
+     *            An error.
+     */
+    protected RuntimeException translateError(final Throwable t) {
         if (ParityUncheckedException.class.isAssignableFrom(t.getClass())) {
             return (ParityUncheckedException) t;
         } else if (Assertion.class.isAssignableFrom(t.getClass())) {
             return (Assertion) t;
         }
         else {
-            final Object internalErrorId = new StringBuffer()
-                    .append(errorId).append(" - ").append(t.getMessage());
-
-            logger.error(internalErrorId, t);
-            return ParityErrorTranslator.translateUnchecked(context, internalErrorId, t);
+            final Object errorId = getErrorId(t);
+            logger.error(errorId, t);
+            return ParityErrorTranslator.translateUnchecked(context, errorId, t);
         }
     }
 
@@ -1127,6 +1131,18 @@ public abstract class AbstractModelImpl {
             encryptionCipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec());
         }
         return encryptionCipher;
+    }
+
+    /**
+     * Obtain an error id.
+     * 
+     * @return An error id.
+     */
+    private Object getErrorId(final Throwable t) {
+        return MessageFormat.format("[{1}] [{2}] - [{3}]",
+                    StackUtil.getFrameClassName(2).toUpperCase(),
+                    StackUtil.getFrameMethodName(2).toUpperCase(),
+                    t.getMessage());
     }
 
     /**

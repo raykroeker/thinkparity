@@ -46,16 +46,20 @@ class ProfileModelImpl extends AbstractModelImpl {
     void addEmail(final EMail email) {
         logApiId();
         logVariable("email", email);
-        assertOnline("USER NOT ONLINE");
-        final Profile profile = read();
-        // add email data
-        final ProfileEMail profileEMail = new ProfileEMail();
-        profileEMail.setEmail(email);
-        profileEMail.setProfileId(profile.getLocalId());
-        profileEMail.setVerified(Boolean.FALSE);
-        profileIO.createEmail(profileEMail);
-        // add email remotely
-        getInternalSessionModel().addProfileEmail(localUserId(), profileEMail);
+        try {
+            assertOnline("USER NOT ONLINE");
+            final Profile profile = read();
+            // add email data
+            final ProfileEMail profileEMail = new ProfileEMail();
+            profileEMail.setEmail(email);
+            profileEMail.setProfileId(profile.getLocalId());
+            profileEMail.setVerified(Boolean.FALSE);
+            profileIO.createEmail(profile.getLocalId(), profileEMail);
+            // add email remotely
+            getInternalSessionModel().addProfileEmail(localUserId(), profileEMail);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -67,11 +71,33 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     Profile read() {
         logApiId();
-        final Profile profile = profileIO.read(localUserId());
-        if (null == profile) {
-            return lazyCreateProfile();
-        } else {
-            return profile;
+        try {
+            final Profile profile = profileIO.read(localUserId());
+            if (null == profile) {
+                return lazyCreateProfile();
+            } else {
+                return profile;
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
+     * Read a profile email.
+     * 
+     * @param emailId
+     *            An email id <code>Long</code>.
+     * @return A <code>ProfileEmail</code>.
+     */
+    ProfileEMail readEmail(final Long emailId) {
+        logApiId();
+        logVariable("emailId", emailId);
+        try {
+            final Profile profile = read();
+            return profileIO.readEmail(profile.getLocalId(), emailId);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -82,8 +108,12 @@ class ProfileModelImpl extends AbstractModelImpl {
      */
     List<ProfileEMail> readEmails() {
         logApiId();
-        final Profile profile = read();
-        return profileIO.readEmails(profile.getLocalId());
+        try {
+            final Profile profile = read();
+            return profileIO.readEmails(profile.getLocalId());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 
     /**
@@ -95,13 +125,17 @@ class ProfileModelImpl extends AbstractModelImpl {
     void removeEmail(final Long emailId) {
         logApiId();
         logVariable("emailId", emailId);
-        assertOnline("USER NOT ONLINE");
-        final Profile profile = read();
-        final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
-        // remove email data
-        profileIO.deleteEmail(email.getProfileId(), email.getEmailId());
-        // remove email remotely
-        getInternalSessionModel().removeProfileEmail(localUserId(), email);
+        try {
+            assertOnline("USER NOT ONLINE");
+            final Profile profile = read();
+            final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
+            // remove email data
+            profileIO.deleteEmail(email.getProfileId(), email.getEmailId());
+            // remove email remotely
+            getInternalSessionModel().removeProfileEmail(localUserId(), email);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
 
     }
 
@@ -114,10 +148,38 @@ class ProfileModelImpl extends AbstractModelImpl {
     void update(final Profile profile) {
         logApiId();
         logVariable("profile", profile);
-        // update local data
-        profileIO.update(profile);
-        getInternalSessionModel().updateProfile(profile);
+        try {
+            // update local data
+            profileIO.update(profile);
+            getInternalSessionModel().updateProfile(profile);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
+
+    /**
+     * Verify an email.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @param key
+     *            A verification key <code>String</code>.
+     */
+    void verifyEmail(final Long emailId, final String key) {
+        logApiId();
+        logVariable("emailId", emailId);
+        logVariable("key", key);
+        try {
+            assertOnline("USER NOT ONLINE");
+            final Profile profile = read();
+            final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
+            getInternalSessionModel().verifyProfileEmail(localUserId(), email, key);
+            profileIO.verifyEmail(email.getProfileId(), email.getEmailId(), Boolean.TRUE);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
 
     /**
      * Read the profile from the server; along with any email addresses and

@@ -138,4 +138,26 @@ class XMPPProfile extends AbstractXMPP {
         addEmail.setParameter("email", email);
         execute(addEmail);
     }
+
+    /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @param key
+     *            An email verification key <code>String</code>.
+     */
+    void verifyEmail(final JabberId userId, final EMail email, final String key) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("email", email);
+        logVariable("key", key);
+        final XMPPMethod verifyEmail = new XMPPMethod("profile:verifyemail");
+        verifyEmail.setParameter("userId", userId);
+        verifyEmail.setParameter("email", email);
+        verifyEmail.setParameter("key", key);
+        execute(verifyEmail);
+    }
 }

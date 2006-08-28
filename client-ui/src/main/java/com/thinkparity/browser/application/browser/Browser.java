@@ -30,6 +30,7 @@ import com.thinkparity.browser.application.browser.display.avatar.dialog.ErrorAv
 import com.thinkparity.browser.application.browser.display.avatar.dialog.RenameAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.contact.ReadContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
+import com.thinkparity.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.contact.ContactAvatar;
 import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.window.WindowFactory;
@@ -57,6 +58,7 @@ import com.thinkparity.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.browser.platform.action.profile.AddEmail;
 import com.thinkparity.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.browser.platform.action.profile.Update;
+import com.thinkparity.browser.platform.action.profile.VerifyEmail;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
 import com.thinkparity.browser.platform.application.L18nContext;
@@ -340,6 +342,19 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the verify profile email dialog.
+     * 
+     * @param emailId
+     *            An email id <code>Long</code>.
+     */
+    public void displayVerifyProfileEmailDialog(final Long emailId) {
+        final Data input = new Data(1);
+        input.set(VerifyEMailAvatar.DataKey.EMAIL_ID, emailId);
+        setInput(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL, input);
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
+    }
+
+    /**
 	 * @see com.thinkparity.browser.platform.application.Application#end()
 	 * 
 	 */
@@ -355,7 +370,7 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.ENDING);
 		notifyEnd();
 	}
-   
+    
     /**
      * Notify the application that a contact has been added.
      * 
@@ -372,7 +387,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContactAvatar().syncContact(contactId, remote); }
         });
     }
-    
+
     /**
      * 
      * Notify the application that a contact has been deleted.
@@ -405,7 +420,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, remote, select); }
         });
     }
-
+    
     /**
      * Notify the application a container confirmation has been received.
      *
@@ -418,7 +433,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.FALSE, select); }
         });
     }
-    
+
     /**
      * Notify the application that a container has been created.
      * 
@@ -456,7 +471,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-
+    
     /**
      * Notify the application that a document has been added.
      * 
@@ -497,7 +512,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
+
     /**
      * Notify the application that the draft has been added.
      * 
@@ -548,7 +563,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
-
+    
     /**
      * Notify the application a team member has been removed from the document.
      *
@@ -562,7 +577,7 @@ public class Browser extends AbstractApplication {
             public void run() { getTabContainerAvatar().syncContainer(containerId, Boolean.TRUE, select); }
         });
     }
-    
+
     /**
      * Notify the application that a container has in some way been updated.
      *
@@ -736,7 +751,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-    /**
+	/**
      * @see com.thinkparity.browser.platform.application.Application#getConnection()
      */
     public Connection getConnection() { return connection; }
@@ -786,12 +801,12 @@ public class Browser extends AbstractApplication {
 	 */
 	public Object getSelectedSystemMessage() { return null; }
 
-	/**
+    /**
 	 * Close the main window.
 	 *
 	 */
 	public void hibernate() { getPlatform().hibernate(getId()); }
-
+    
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#hibernate()
 	 * 
@@ -804,13 +819,13 @@ public class Browser extends AbstractApplication {
 		setStatus(ApplicationStatus.HIBERNATING);
 		notifyHibernate();
 	}
-    
+
     /** @see com.thinkparity.browser.platform.application.Application#isDevelopmentMode() */
     public Boolean isDevelopmentMode() { 
         return getPlatform().isDevelopmentMode();
     }
 
-    /**
+	/**
      * Determine whether or not the main avatar's filter is enabled.
      * 
      * @return True if it is; false otherwise.
@@ -864,7 +879,7 @@ public class Browser extends AbstractApplication {
         }
     }
 
-	/**
+    /**
      * Resize the browser window.
      * 
      * @param s
@@ -875,7 +890,7 @@ public class Browser extends AbstractApplication {
         newS.width += s.width;
         newS.height += s.height;
         mainWindow.setSize(newS);
-    }
+    }    
 
     /**
 	 * @see com.thinkparity.browser.platform.application.Application#restore(com.thinkparity.browser.platform.Platform)
@@ -892,14 +907,14 @@ public class Browser extends AbstractApplication {
 		assertStatusChange(ApplicationStatus.RUNNING);
 		setStatus(ApplicationStatus.RUNNING);
 	}    
-
-    /**
+  
+	/**
 	 * @see com.thinkparity.browser.platform.Saveable#restoreState(com.thinkparity.browser.platform.util.State)
 	 * 
 	 */
-	public void restoreState(final State state) {}    
-  
-	/**
+	public void restoreState(final State state) {}
+
+    /**
 	 * Accept an invitation.
 	 * 
 	 * @param systemMessageId
@@ -959,7 +974,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContactInvitation() {
         runCreateContactInvitation(null);
     }
-
+    
     /**
      * Run the add contact action.
      * 
@@ -972,7 +987,7 @@ public class Browser extends AbstractApplication {
             data.set(CreateIncomingInvitation.DataKey.CONTACT_EMAIL, email);
         invoke(ActionId.CONTACT_CREATE_INCOMING_INVITATION, data);
     }
-    
+
     /**
      * Run the create container (package) action. The user will
      * determine the container name.
@@ -981,7 +996,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer() {
         runCreateContainer(null, null);
     }
-
+    
     /**
      * Create a container (package) with one or more new documents.
      * The user will determine the container name.
@@ -992,7 +1007,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-    
+
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1032,7 +1047,7 @@ public class Browser extends AbstractApplication {
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
     }
-
+    
     /**
      * Decline an invitation.
      * 
@@ -1056,7 +1071,7 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
-    }
+    }        
     
     /**
 	 * Run the open document action.
@@ -1070,7 +1085,7 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
-	}        
+	}    
     
     /**
 	 * Run the open document version action.
@@ -1088,9 +1103,9 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
-	}    
+	}
     
-    /**
+	/**
      *  Publish the selected container.
      *  
      *  @param containerId
@@ -1104,7 +1119,7 @@ public class Browser extends AbstractApplication {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
         });
     }
-    
+
 	/**
      * Run the open contact action.
      * 
@@ -1118,7 +1133,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTACT_READ, data);
     }
 
-	/**
+    /**
      * Run the profile's remove email action.
      *
      */
@@ -1196,7 +1211,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-
+  
     /**
      * Update the user's profile.
      * 
@@ -1218,16 +1233,40 @@ public class Browser extends AbstractApplication {
             data.set(Update.DataKey.TITLE, title);
         invoke(ActionId.PROFILE_UPDATE, data);
     }
-  
+
     /**
-     * Run the profile's verify email action.
+     * Run the profile's verify email action.  Since no key is specified; this
+     * will display a dialog.
      *
      */
-    public void runVerifyProfileEmail() {
-        final Data data = new Data(0);
+    public void runVerifyProfileEmail(final Long emailId) {
+        runVerifyProfileEmail(emailId, null);
+    }
+
+    /**
+     * Run the profile's verify email action.
+     * 
+     * @param emailId
+     *            An email id <code>Long</code>.
+     * @param key
+     *            An email verification key <code>String</code>.
+     */
+    public void runVerifyProfileEmail(final Long emailId, final String key) {
+        final Data data = new Data(3);
+        data.set(VerifyEmail.DataKey.EMAIL_ID, emailId);
+        if (null == key) {
+            data.set(VerifyEmail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        } else {
+            data.set(VerifyEmail.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+            data.set(VerifyEmail.DataKey.KEY, key);
+        }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
 
+    /*
+     *
+
+     */
     /**
 	 * @see com.thinkparity.browser.platform.Saveable#saveState(com.thinkparity.browser.platform.util.State)
 	 * 

@@ -1,5 +1,5 @@
 /*
- * Jan 10, 2006
+ * Created On: Jan 10, 2006
  */
 package com.thinkparity.browser.platform.action;
 
@@ -14,6 +14,9 @@ import org.apache.log4j.Logger;
 import com.thinkparity.codebase.assertion.Assertion;
 
 import com.thinkparity.browser.BrowserException;
+import com.thinkparity.browser.application.browser.Browser;
+import com.thinkparity.browser.platform.application.ApplicationId;
+import com.thinkparity.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.browser.platform.util.l10n.ActionLocalization;
 import com.thinkparity.browser.platform.util.model.ModelFactory;
 
@@ -45,25 +48,28 @@ public abstract class AbstractAction {
 	/** The thinkParity model factory. */
 	protected final ModelFactory modelFactory = ModelFactory.getInstance();
 
+	/** The action accelerator. */
+    private String accelerator;
+
+	/** The thinkParity application registry. */
+    private final ApplicationRegistry applicationRegistry;
+
 	/** The action icon. */
 	private Icon icon;
-
-	/** The action id. */
+    
+    /** The action id. */
 	private ActionId id;
-
-	/** The action mnemonic. */
-    private String mnemonic;
-    
-    /** The action accelerator. */
-    private String accelerator;
-    
-    /** The action name (suited for context menus). */
-	private String name;
     
     /** The actin menu name (suited for main menus). */
     private String menuName;
+    
+    /** The action mnemonic. */
+    private String mnemonic;
 
-    /**
+    /** The action name (suited for context menus). */
+	private String name;
+
+	/**
      * Create AbstractAction.
      * 
      * @param id
@@ -71,6 +77,7 @@ public abstract class AbstractAction {
      */
     protected AbstractAction(final ActionId id) {
         super();
+        this.applicationRegistry = new ApplicationRegistry();
         this.id = id;
         this.icon = null;
         this.localization = new ActionLocalization(id.toString());
@@ -81,40 +88,25 @@ public abstract class AbstractAction {
     }
 
 	/**
-	 * Obtain the action ICON.
-	 * 
-	 * @return The action ICON.
-	 */
-	public Icon getIcon() { return icon; }
-
-	/**
-	 * Obtain the action id.
-	 * 
-	 * @return The action id.
-	 */
-	public ActionId getId() { return id; }
-
-    /**
-     * Obtain the action MNEMONIC.
-     * 
-     * @return The action MNEMONIC.
-     */
-    public String getMnemonic() { return mnemonic; }
-    
-    /**
      * Obtain the action ACCELERATOR.
      * 
      * @return The action ACCELERATOR.
      */
     public String getAccelerator() { return accelerator; }
+
+    /**
+	 * Obtain the action ICON.
+	 * 
+	 * @return The action ICON.
+	 */
+	public Icon getIcon() { return icon; }
     
     /**
-	 * Obtain the action NAME.
-     * (This name is used for context menus.)
+	 * Obtain the action id.
 	 * 
-	 * @return The action NAME.
+	 * @return The action id.
 	 */
-	public String getName() { return name; }
+	public ActionId getId() { return id; }
     
     /**
      * Obtain the action MENUNAME.
@@ -123,6 +115,21 @@ public abstract class AbstractAction {
      * @return The action MENUNAME.
      */
     public String getMenuName() { return menuName; }
+    
+    /**
+     * Obtain the action MNEMONIC.
+     * 
+     * @return The action MNEMONIC.
+     */
+    public String getMnemonic() { return mnemonic; }
+
+	/**
+	 * Obtain the action NAME.
+     * (This name is used for context menus.)
+	 * 
+	 * @return The action NAME.
+	 */
+	public String getName() { return name; }
 
 	/**
 	 * Invoke the action.
@@ -131,15 +138,6 @@ public abstract class AbstractAction {
 	 *            The action data.
 	 */
 	public abstract void invoke(final Data data);
-
-	/**
-     * Determine if the mnemonic is set.
-     * 
-     * @return True if the mnemonic is set; false otherwise.
-     */
-    public Boolean isSetMnemonic() {
-        return ((null != mnemonic) && (mnemonic.charAt(0) != '!'));
-    }
     
     /**
      * Determine if the accelerator is set.
@@ -151,15 +149,6 @@ public abstract class AbstractAction {
     }
     
     /**
-     * Determine if the name is set.
-     * 
-     * @return True if the name is set; false otherwise.
-     */
-	public Boolean isSetName() {
-        return null != name;
-	}
-    
-    /**
      * Determine if the menu name is set.
      * 
      * @return True if the name is set; false otherwise.
@@ -167,28 +156,26 @@ public abstract class AbstractAction {
     public Boolean isSetMenuName() {
         return null != menuName;
     }
-
-	/**
-     * Set the icon.
-     * 
-     * @param icon
-     *            The <code>Icon</code>.
-     */
-	public void setIcon(final Icon icon) {
-        this.icon = icon;
-    }
-
-	/**
-     * Set the action mnemonic.
-     * 
-     * @param mnemonic
-     *            The action mnemonic.
-     */
-    public void setMnemonic(final String mnemonic) {
-        this.mnemonic = mnemonic;
-    }
     
     /**
+     * Determine if the mnemonic is set.
+     * 
+     * @return True if the mnemonic is set; false otherwise.
+     */
+    public Boolean isSetMnemonic() {
+        return ((null != mnemonic) && (mnemonic.charAt(0) != '!'));
+    }
+
+	/**
+     * Determine if the name is set.
+     * 
+     * @return True if the name is set; false otherwise.
+     */
+	public Boolean isSetName() {
+        return null != name;
+	}
+
+	/**
      * Set the accelerator.
      * 
      * @param accelerator
@@ -199,14 +186,14 @@ public abstract class AbstractAction {
     }
     
     /**
-	 * Set the name.
-	 * 
-	 * @param name
-	 *            A name <code>String</code>.
-	 */
-	public void setName(final String name) {
-        this.name = name;
-	}
+     * Set the icon.
+     * 
+     * @param icon
+     *            The <code>Icon</code>.
+     */
+	public void setIcon(final Icon icon) {
+        this.icon = icon;
+    }
     
     /**
      * Set the menu name.
@@ -217,8 +204,28 @@ public abstract class AbstractAction {
     public void setMenuName(final String menuName) {
         this.menuName = menuName;
     }
+    
+    /**
+     * Set the action mnemonic.
+     * 
+     * @param mnemonic
+     *            The action mnemonic.
+     */
+    public void setMnemonic(final String mnemonic) {
+        this.mnemonic = mnemonic;
+    }
 
 	/**
+	 * Set the name.
+	 * 
+	 * @param name
+	 *            A name <code>String</code>.
+	 */
+	public void setName(final String name) {
+        this.name = name;
+	}
+
+    /**
 	 * Obtain a thinkParity artifact interface.
 	 * 
 	 * @return A <code>ArtifactModel</code>.
@@ -226,6 +233,15 @@ public abstract class AbstractAction {
 	protected ArtifactModel getArtifactModel() {
 		return modelFactory.getArtifactModel(getClass());
 	}
+
+	/**
+     * Obtain the thinkParity browser application from the registry.
+     * 
+     * @return The thinkParity browser application.
+     */
+    protected Browser getBrowserApplication() {
+        return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
+    }
 
     /**
      * Obtain the contact model api.
@@ -236,7 +252,7 @@ public abstract class AbstractAction {
         return modelFactory.getContactModel(getClass());
     }
 
-	/**
+    /**
      * Obtain the container model api.
      * 
      * @return The container model api.
@@ -261,7 +277,7 @@ public abstract class AbstractAction {
         for(final Object o : list) { files.add((File) o); }
         return files;
     }
-
+    
     /**
      * Convert the data element found at the given key to a list of jabber ids.
      * 
@@ -277,9 +293,9 @@ public abstract class AbstractAction {
         final List<JabberId> jabberIds = new ArrayList<JabberId>();
         for(final Object o : list) { jabberIds.add((JabberId) o); }
         return jabberIds;
-    }
+    }  
 
-    /**
+	/**
      * Convert the data element found at the given key to a list of users.
      * 
      * @param data
@@ -294,7 +310,7 @@ public abstract class AbstractAction {
         final List<User> users = new ArrayList<User>();
         for(final Object o : list) { users.add((User) o); }
         return users;
-    }
+    }   
     
     /**
 	 * Obtain the document model api.
@@ -303,7 +319,7 @@ public abstract class AbstractAction {
 	 */
 	protected DocumentModel getDocumentModel() {
 		return modelFactory.getDocumentModel(getClass());
-	}  
+	}
 
 	/**
      * Obtain the parity index interface.
@@ -312,9 +328,9 @@ public abstract class AbstractAction {
      */
 	protected IndexModel getIndexModel() {
 		return modelFactory.getIndexModel(getClass());
-	}   
-    
-    /**
+	}
+
+	/**
      * Obtain a thinkParity profile interface.
      * 
      * @return A <code>ProfileModel</code>.
@@ -322,7 +338,7 @@ public abstract class AbstractAction {
     protected ProfileModel getProfileModel() {
         return modelFactory.getProfileModel(getClass());
     }
-
+    
 	/**
      * Obtain the parity session interface.
      * 
@@ -342,7 +358,7 @@ public abstract class AbstractAction {
 	protected String getString(final String localKey) {
 		return localization.getString(localKey);
 	}
-    
+
 	/**
 	 * Obtain localized text.
 	 * 
@@ -356,11 +372,11 @@ public abstract class AbstractAction {
 		return localization.getString(localKey, arguments);
 	}
 
-	protected SystemMessageModel getSystemMessageModel() {
+    protected SystemMessageModel getSystemMessageModel() {
 		return modelFactory.getSystemMessageModel(getClass());
 	}
 
-	/**
+    /**
      * Obtain the thinkParity user interface.
      * 
      * @return A thinkParity user interface.

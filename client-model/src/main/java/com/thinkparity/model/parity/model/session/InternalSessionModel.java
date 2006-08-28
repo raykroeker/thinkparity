@@ -70,20 +70,6 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     }
 
     /**
-     * Remove an email from a user's profile.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param email
-     *            A <code>ProfileEMail</code>.
-     */
-    public void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
-        synchronized (getImplLock()) {
-            getImpl().removeProfileEmail(userId, email);
-        }
-    }
-
-	/**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -157,7 +143,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
 	 * Obtain the currently logged in user.
 	 * 
 	 * @return The logged in user.
@@ -215,7 +201,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Read a contact.
      * 
      * @param contactId
@@ -238,7 +224,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         synchronized(getImplLock()) { return getImpl().readContacts(); }
     }
 
-    /**
+	/**
      * Read the artifact key holder.
      * 
      * @param artifactUniqueId
@@ -252,7 +238,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-	/**
+    /**
      * Read the user's profile.
      * 
      * @return A profile.
@@ -274,7 +260,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
         }
     }
 
-    /**
+	/**
      * Read a thinkParity user from the server.
      * 
      * @param userId
@@ -286,7 +272,7 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
             return getImpl().readUser(userId);
 		}
 	}
-	
+
     /**
      * Read a set of users.
      * 
@@ -300,6 +286,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
 		synchronized(getImplLock()) { return getImpl().readUsers(jabberIds); }
 	}
 
+    /**
+     * Remove an email from a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     */
+    public void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
+        synchronized (getImplLock()) {
+            getImpl().removeProfileEmail(userId, email);
+        }
+    }
+	
     /**
      * Remove a team member from the artifact team.
      * 
@@ -346,6 +346,23 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void updateProfile(final Profile profile) {
         synchronized (getImplLock()) {
             getImpl().updateProfile(profile);
+        }
+    }
+
+    /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     * @param key
+     *            A verification key <code>String</code>.
+     */
+    public void verifyProfileEmail(final JabberId userId,
+            final ProfileEMail email, final String key) {
+        synchronized (getImplLock()) {
+            getImpl().verifyProfileEmail(userId, email, key);
         }
     }
 }

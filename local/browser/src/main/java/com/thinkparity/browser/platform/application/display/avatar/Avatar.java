@@ -57,6 +57,16 @@ public abstract class Avatar extends AbstractJPanel {
 	private final ScrollPolicy scrollPolicy;
 
     /**
+     * Create Avatar.
+     * 
+     * @param id
+     *            The <code>AvatarId</code>.
+     */
+    protected Avatar(final AvatarId id) {
+        this(id.toString());
+    }
+
+    /**
 	 * Create a Avatar.
 	 * 
 	 * @param l18nContext

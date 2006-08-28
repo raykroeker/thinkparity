@@ -14,7 +14,7 @@ import java.util.TooManyListenersException;
 /**
  * A drop target adapter that monitors the
  * {@link #dragEnter(DropTargetDragEvent)} and
- * {@link #dragOver(DropTargetDragEvent) events and checks whether or not their
+ * {@link #dragOver(DropTargetDragEvent)} events and checks whether or not their
  * underlying drop action is COPY. If they are not COPY actions; a new event is
  * cloned with a COPY action.
  * 

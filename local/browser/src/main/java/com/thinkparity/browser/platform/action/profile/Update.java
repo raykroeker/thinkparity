@@ -3,10 +3,6 @@
  */
 package com.thinkparity.browser.platform.action.profile;
 
-import java.util.List;
-
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
 import com.thinkparity.browser.platform.action.ActionId;
@@ -44,15 +40,13 @@ public class Update extends AbstractAction {
         if (displayAvatar) {
             browser.displayUpdateProfileDialog();
         } else {
-            final List<EMail> emails = data.getList(DataKey.EMAILS);
+            final ProfileModel profileModel = getProfileModel();
+            final Profile profile = profileModel.read();
+
+            // update profile
             final String name = (String) data.get(DataKey.NAME);
             final String organization = (String) data.get(DataKey.ORGANIZATION);
             final String title = (String) data.get(DataKey.TITLE);
-    
-            final ProfileModel profileModel = getProfileModel();
-            final Profile profile = profileModel.read();
-            profile.clearEmails();
-            profile.addAllEmails(emails);
             profile.setName(name);
             profile.setOrganization(organization);
             profile.setTitle(title);
@@ -61,5 +55,5 @@ public class Update extends AbstractAction {
     }
 
     /** Data keys. */
-    public enum DataKey { DISPLAY_AVATAR, EMAILS, NAME, ORGANIZATION, TITLE }
+    public enum DataKey { DISPLAY_AVATAR, NAME, ORGANIZATION, TITLE }
 }

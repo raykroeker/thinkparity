@@ -61,18 +61,18 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="emailsJLabel" pref="486" max="32767" attributes="0"/>
+                  <Component id="emailsJLabel" pref="432" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jSeparator1" pref="486" max="32767" attributes="0"/>
+                  <Component id="jSeparator" pref="432" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="10" pref="10" max="10" attributes="0"/>
-                  <Component id="eaJLabel" pref="405" max="32767" attributes="0"/>
-                  <EmptySpace pref="91" max="32767" attributes="0"/>
+                  <Component id="eaJLabel" pref="373" max="32767" attributes="0"/>
+                  <EmptySpace pref="69" max="32767" attributes="0"/>
               </Group>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -83,18 +83,23 @@
                   </Group>
                   <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="emailJTextField" min="-2" pref="231" max="-2" attributes="0"/>
+                      <Component id="emailsJScrollPane" alignment="0" pref="340" max="32767" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="emailJTextField" pref="283" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="addJButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="35" max="32767" attributes="0"/>
-                          <Component id="removeJButton" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="emailsJScrollPane" alignment="0" pref="394" max="32767" attributes="0"/>
-                      <Component id="titleJTextField" alignment="0" pref="394" max="32767" attributes="0"/>
-                      <Component id="organizationJTextField" alignment="0" pref="394" max="32767" attributes="0"/>
-                      <Component id="nameJTextField" alignment="0" pref="394" max="32767" attributes="0"/>
+                      <Component id="titleJTextField" alignment="0" pref="340" max="32767" attributes="0"/>
+                      <Component id="organizationJTextField" alignment="0" pref="340" max="32767" attributes="0"/>
+                      <Component id="nameJTextField" alignment="0" pref="340" max="32767" attributes="0"/>
                   </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace pref="292" max="32767" attributes="0"/>
+                  <Component id="removeJButton" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="verifyJButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -120,16 +125,20 @@
                       <Component id="titleJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jSeparator1" min="-2" pref="10" max="-2" attributes="0"/>
+                  <Component id="jSeparator" min="-2" pref="10" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="emailsJLabel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="addJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="emailsJScrollPane" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="addJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="verifyJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="removeJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -183,7 +192,7 @@
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JSeparator" name="jSeparator1">
+        <Component class="javax.swing.JSeparator" name="jSeparator">
         </Component>
         <Component class="javax.swing.JLabel" name="emailsJLabel">
           <Properties>
@@ -191,6 +200,25 @@
               <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DIALOG_PROFILE_UPDATE.EmailsLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="emailJTextField">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="emailJTextFieldActionPerformed"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JButton" name="addJButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DIALOG_PROFILE_UPDATE.AddEmailButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addJButtonActionPerformed"/>
+          </Events>
         </Component>
         <Container class="javax.swing.JScrollPane" name="emailsJScrollPane">
           <AuxValues>
@@ -202,9 +230,15 @@
             <Component class="javax.swing.JList" name="emailsJList">
               <Properties>
                 <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="emailsModel" type="code"/>
+                  <Connection code="model.getEmailsListModel()" type="code"/>
+                </Property>
+                <Property name="cellRenderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new ProfileEMailCellRenderer()" type="code"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="emailsJListMouseReleased"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
@@ -212,34 +246,25 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JButton" name="addJButton">
+        <Component class="javax.swing.JButton" name="verifyJButton">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DIALOG_PROFILE_UPDATE.AddEmailButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DIALOG_PROFILE_UPDATE.VerifyButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addJButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="verifyJButtonActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="removeJButton">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DIALOG_PROFILE_UPDATE.RemoveEmailButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="DIALOG_PROFILE_UPDATE.RemoveButton" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="removeJButtonActionPerformed"/>
           </Events>
-        </Component>
-        <Component class="javax.swing.JTextField" name="emailJTextField">
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="emailJTextFieldActionPerformed"/>
-          </Events>
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
-          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

@@ -47,25 +47,25 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="nameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="emailJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="organizationJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="nameJLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="organizationJLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="titleJLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="nameJTextField" alignment="0" pref="226" max="32767" attributes="0"/>
-                      <Component id="emailJTextField" alignment="0" pref="226" max="32767" attributes="0"/>
-                      <Component id="organizationJTextField" alignment="0" pref="226" max="32767" attributes="0"/>
+                      <Component id="nameJTextField" alignment="0" pref="213" max="32767" attributes="0"/>
+                      <Component id="organizationJTextField" alignment="0" pref="213" max="32767" attributes="0"/>
+                      <Component id="titleJTextField" alignment="0" pref="213" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="10" pref="10" max="10" attributes="0"/>
-                  <Component id="eaJLabel" pref="309" max="32767" attributes="0"/>
-                  <EmptySpace pref="10" max="32767" attributes="0"/>
+                  <Component id="eaJLabel" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace pref="191" max="32767" attributes="0"/>
+                  <EmptySpace pref="178" max="32767" attributes="0"/>
                   <Component id="cancelJButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="finishJButton" min="-2" max="-2" attributes="0"/>
@@ -84,13 +84,13 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="emailJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="organizationJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="organizationJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="organizationJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="organizationJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="titleJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="titleJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -113,20 +113,20 @@
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.create();"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JLabel" name="emailJLabel">
+        <Component class="javax.swing.JLabel" name="organizationJLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="UserProfileAvatar.EMailLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="UserProfileAvatar.OrganizationLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.create();"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JLabel" name="organizationJLabel">
+        <Component class="javax.swing.JLabel" name="titleJLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="UserProfileAvatar.OrganizationLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="com/thinkparity/browser/platform/util/l10n/JPanel_Messages.properties" key="UserProfileAvatar.TitleLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <AuxValues>
@@ -147,14 +147,14 @@
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JTextField" name="emailJTextField">
+        <Component class="javax.swing.JTextField" name="organizationJTextField">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
             <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JTextField" name="organizationJTextField">
+        <Component class="javax.swing.JTextField" name="titleJTextField">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
             <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>

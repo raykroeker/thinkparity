@@ -44,6 +44,10 @@ public final class Constants {
                 public static final Color BG_GRAD_FINISH = new Color(239, 241, 242, 255);  // about 25% of the gradient
                 public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
             }
+            public static final class UpdateProfile {
+                public static final Color EMAIL_CELL_BG = new Color(255, 255, 255, 255);
+                public static final Color EMAIL_CELL_BG_SELECTED = new Color(255, 0, 0, 255);
+            }
         }
     }
 
@@ -76,25 +80,25 @@ public final class Constants {
         public static final class BrowserTitle {
             public static final Icon CONTACTS_TAB =
                 ImageIOUtil.readIcon("BrowserTitle_ContactsTab.png");
-        public static final Icon CONTACTS_TAB_SELECTED =
-                ImageIOUtil.readIcon("BrowserTitle_ContactsTabSelected.png");
         public static final Icon CONTACTS_TAB_ROLLOVER =
                 ImageIOUtil.readIcon("BrowserTitle_ContactsTabRollover.png");
+        public static final Icon CONTACTS_TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_ContactsTabSelected.png");
         public static final Icon CONTAINERS_TAB =
                 ImageIOUtil.readIcon("BrowserTitle_ContainersTab.png");
-        public static final Icon CONTAINERS_TAB_SELECTED =
-                ImageIOUtil.readIcon("BrowserTitle_ContainersTabSelected.png");
         public static final Icon CONTAINERS_TAB_ROLLOVER =
                 ImageIOUtil.readIcon("BrowserTitle_ContainersTabRollover.png");
+        public static final Icon CONTAINERS_TAB_SELECTED =
+                ImageIOUtil.readIcon("BrowserTitle_ContainersTabSelected.png");
         }
     }
 
     public static final class Images {
         public static final class BrowserTitle {
-            public static final BufferedImage LOGO =
-                ImageIOUtil.read("BrowserTitle_Logo.png");
             public static final BufferedImage HALO =
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
+            public static final BufferedImage LOGO =
+                ImageIOUtil.read("BrowserTitle_Logo.png");
         }
     }
 

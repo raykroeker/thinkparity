@@ -1,8 +1,6 @@
 /*
  * Created on June 10, 2006, 12:00 PM
- * $Id$
  */
-
 package com.thinkparity.browser.platform.firstrun;
 
 import java.awt.event.ActionEvent;
@@ -10,8 +8,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.email.EMailBuilder;
 
 import com.thinkparity.browser.application.browser.BrowserConstants;
 import com.thinkparity.browser.application.browser.component.ButtonFactory;
@@ -26,14 +22,10 @@ import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.xmpp.user.User;
 
 /**
- *
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.6
  */
 public class UserProfileAvatar extends Avatar {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
 
     /**
      * Obtain a logging api id.
@@ -46,11 +38,11 @@ public class UserProfileAvatar extends Avatar {
         return getAvatarId(AvatarId.DIALOG_PROFILE_UPDATE).append(" ").append(api);
     }
 
-    private EMail email;
-
-    private String fullName;
+    private String name;
 
     private String organization;
+
+    private String title;
 
     /** Creates new form UserProfileAvatar */
     UserProfileAvatar(final FirstRunHelper firstRun) {
@@ -81,8 +73,8 @@ public class UserProfileAvatar extends Avatar {
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#reload() */
     public void reload() {
         reloadName();
-        reloadEMail();
         reloadOrganization();
+        reloadTitle();
     }
 
     /** @see com.thinkparity.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object) */
@@ -97,45 +89,48 @@ public class UserProfileAvatar extends Avatar {
         throw Assert.createNotYetImplemented("UserProfileAvatar#setState");
     }
 
-    EMail getEmail() { return email; }
-
-    String getFullName() { return fullName; }
+    String getFullName() { return name; }
 
     String getOrganization() { return organization; }
 
-    String getTitle() { return getString("Title"); }
+    String getTitle() { return title; }
 
     private void cancelJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
-        fullName = organization = null;
-        email = null;
+        name = organization = title = null;
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
-    private EMail extractEMail() {
-        return EMailBuilder.parse(SwingUtil.extract(emailJTextField));
+    private String extractName() {
+        return SwingUtil.extract(nameJTextField);
     }
 
-    private String extractFullName() { return SwingUtil.extract(nameJTextField); }
+    private String extractOrganization() {
+        return SwingUtil.extract(organizationJTextField);
+    }
 
-    private String extractOrganization() { return SwingUtil.extract(organizationJTextField); }
+    private String extractTitle() {
+        return SwingUtil.extract(titleJTextField);
+    }
 
     private void finishJButtonActionPerformed(java.awt.event.ActionEvent e) {//GEN-FIRST:event_finishJButtonActionPerformed
         if(isInputValid()) {
-            fullName = extractFullName();
-            email = extractEMail();
+            name = extractName();
             organization = extractOrganization();
+            title = extractTitle();
             disposeWindow();
         }
     }//GEN-LAST:event_finishJButtonActionPerformed
 
-    private EMail getInputUserEmail() {
-        return ((Profile) input).getEmails().get(0);
+    private String getInputName() {
+        return ((User) input).getName();
     }
 
-    private String getInputUserName() { return ((User) input).getName(); }
-
-    private String getInputUserOrganization() {
+    private String getInputOrganization() {
         return ((User) input).getOrganization();
+    }
+
+    private String getInputTitle() {
+        return ((User) input).getTitle();
     }
 
     /** This method is called from within the constructor to
@@ -147,20 +142,20 @@ public class UserProfileAvatar extends Avatar {
     private void initComponents() {
         javax.swing.JButton cancelJButton;
         javax.swing.JLabel eaJLabel;
-        javax.swing.JLabel emailJLabel;
         javax.swing.JButton finishJButton;
         javax.swing.JLabel nameJLabel;
         javax.swing.JLabel organizationJLabel;
+        javax.swing.JLabel titleJLabel;
         javax.swing.JPanel userInfoJPanel;
 
         userInfoJPanel = new javax.swing.JPanel();
         nameJLabel = LabelFactory.create();
-        emailJLabel = LabelFactory.create();
         organizationJLabel = LabelFactory.create();
+        titleJLabel = LabelFactory.create();
         eaJLabel = new javax.swing.JLabel();
         nameJTextField = TextFactory.create();
-        emailJTextField = TextFactory.create();
         organizationJTextField = TextFactory.create();
+        titleJTextField = TextFactory.create();
         finishJButton = ButtonFactory.create(getString("SaveButton"));
         cancelJButton = ButtonFactory.create(getString("CancelButton"));
 
@@ -168,9 +163,9 @@ public class UserProfileAvatar extends Avatar {
         userInfoJPanel.setOpaque(false);
         nameJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("UserProfileAvatar.NameLabel"));
 
-        emailJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("UserProfileAvatar.EMailLabel"));
-
         organizationJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("UserProfileAvatar.OrganizationLabel"));
+
+        titleJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("UserProfileAvatar.TitleLabel"));
 
         eaJLabel.setText(java.util.ResourceBundle.getBundle("com/thinkparity/browser/platform/util/l10n/JPanel_Messages").getString("UserProfileAvatar.EmbeddedAssistance"));
 
@@ -195,21 +190,21 @@ public class UserProfileAvatar extends Avatar {
             .add(userInfoJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(userInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(nameJLabel)
-                    .add(emailJLabel)
-                    .add(organizationJLabel))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, nameJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, organizationJLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, titleJLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(userInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
-                    .add(emailJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
-                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
+                    .add(organizationJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE))
                 .addContainerGap())
             .add(userInfoJPanelLayout.createSequentialGroup()
                 .add(10, 10, 10)
-                .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
-                .addContainerGap(10, Short.MAX_VALUE))
+                .add(eaJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, userInfoJPanelLayout.createSequentialGroup()
-                .addContainerGap(191, Short.MAX_VALUE)
+                .addContainerGap(178, Short.MAX_VALUE)
                 .add(cancelJButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(finishJButton)
@@ -225,12 +220,12 @@ public class UserProfileAvatar extends Avatar {
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(userInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(emailJLabel)
-                    .add(emailJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(userInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(organizationJLabel)
                     .add(organizationJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(userInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(titleJLabel)
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(userInfoJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(finishJButton)
@@ -256,26 +251,29 @@ public class UserProfileAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void reloadEMail() {
-        emailJTextField.setText("");
-        if (null != input) {
-            emailJTextField.setText(getInputUserEmail().toString());
-        }
-    }
     private void reloadName() {
         nameJTextField.setText("");
-        if(null != input) { nameJTextField.setText(getInputUserName()); }
+        if(null != input) { nameJTextField.setText(getInputName()); }
     }
+
     private void reloadOrganization() {
         organizationJTextField.setText("");
         if(null != input) {
-            organizationJTextField.setText(getInputUserOrganization());
+            organizationJTextField.setText(getInputOrganization());
+        }
+    }
+
+    private void reloadTitle() {
+        titleJTextField.setText("");
+        if (null != input) {
+            titleJTextField.setText(getInputTitle());
         }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField emailJTextField;
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JTextField organizationJTextField;
+    private javax.swing.JTextField titleJTextField;
     // End of variables declaration//GEN-END:variables
+
 }

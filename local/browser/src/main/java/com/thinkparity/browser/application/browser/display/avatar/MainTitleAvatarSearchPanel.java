@@ -1,6 +1,4 @@
 /*
- * BrowserTitleSearch.java
- *
  * Created on July 30, 2006, 3:30 PM
  */
 package com.thinkparity.browser.application.browser.display.avatar;

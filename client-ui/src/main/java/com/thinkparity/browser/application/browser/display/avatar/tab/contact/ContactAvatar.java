@@ -24,7 +24,6 @@ import javax.swing.event.ListSelectionListener;
 import com.thinkparity.browser.application.browser.component.MenuFactory;
 import com.thinkparity.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.browser.application.browser.display.avatar.tab.container.ContainerAvatar;
 import com.thinkparity.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
 import com.thinkparity.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.browser.application.browser.display.renderer.tab.TabCell;

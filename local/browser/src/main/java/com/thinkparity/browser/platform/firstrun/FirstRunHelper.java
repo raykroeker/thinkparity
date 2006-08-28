@@ -12,7 +12,6 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.browser.BrowserException;
 import com.thinkparity.browser.platform.Platform;
@@ -112,15 +111,12 @@ public class FirstRunHelper {
             userProfileAvatar.setInput(profile);
             openWindow(userProfileAvatar.getTitle(), userProfileAvatar);
             
-            final String name = userProfileAvatar.getFullName();
-            final EMail email = userProfileAvatar.getEmail();
-            if(null != name && null != email) {
-                profile.addEmail(email);
-                profileModel.update(profile);
-                contactModel.download();
-                return Boolean.TRUE;
-            }
-            else { return Boolean.FALSE; }
+            profile.setName(userProfileAvatar.getFullName());
+            profile.setOrganization(userProfileAvatar.getOrganization());
+            profile.setTitle(userProfileAvatar.getTitle());
+            profileModel.update(profile);
+            contactModel.download();
+            return Boolean.TRUE;
         }
         else { return Boolean.FALSE; }
     }

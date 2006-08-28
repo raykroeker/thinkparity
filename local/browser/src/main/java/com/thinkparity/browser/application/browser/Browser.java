@@ -54,6 +54,8 @@ import com.thinkparity.browser.platform.action.document.Open;
 import com.thinkparity.browser.platform.action.document.OpenVersion;
 import com.thinkparity.browser.platform.action.document.Rename;
 import com.thinkparity.browser.platform.action.document.UpdateDraft;
+import com.thinkparity.browser.platform.action.profile.AddEmail;
+import com.thinkparity.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.browser.platform.action.profile.Update;
 import com.thinkparity.browser.platform.application.ApplicationId;
 import com.thinkparity.browser.platform.application.ApplicationStatus;
@@ -303,14 +305,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display the update profile dialog.
-     *
-     */
-    public void displayUpdateProfileDialog() {
-        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE);
-    }
-
-    /**
      * Display a document rename dialog.
      * 
      * @param documentId
@@ -326,15 +320,23 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_RENAME, input);
         displayAvatar(WindowId.RENAME, AvatarId.DIALOG_RENAME);
     }
-    
+
     /** Display the contact avatar tab. */
     public void displayTabContactAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTACT);
     }
-
-	/** Display the container avatar tab. */
+    
+    /** Display the container avatar tab. */
     public void displayTabContainerAvatar() {
         displayAvatar(DisplayId.CONTENT, AvatarId.TAB_CONTAINER);
+    }
+
+	/**
+     * Display the update profile dialog.
+     *
+     */
+    public void displayUpdateProfileDialog() {
+        displayAvatar(WindowId.POPUP, AvatarId.DIALOG_PROFILE_UPDATE);
     }
 
     /**
@@ -924,7 +926,7 @@ public class Browser extends AbstractApplication {
             runAddContainerDocuments(containerId, jFileChooser.getSelectedFiles());
         }
     }
-    
+
     /**
      * Run the create document action.
      * 
@@ -939,7 +941,17 @@ public class Browser extends AbstractApplication {
         data.set(AddDocument.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_ADD_DOCUMENT, data);
     }
-    
+
+    /**
+     * Run the profile's add email action.
+     *
+     */
+    public void runAddProfileEmail(final EMail email) {
+        final Data data = new Data(1);
+        data.set(AddEmail.DataKey.EMAIL, email);
+        invoke(ActionId.PROFILE_ADD_EMAIL, data);
+    }
+
     /**
      * Run the add contact action.
      *
@@ -980,7 +992,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-
+    
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1008,7 +1020,7 @@ public class Browser extends AbstractApplication {
             data.set(Create.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
-    
+
     /**
      * Create a draft for the container.
      * 
@@ -1020,7 +1032,7 @@ public class Browser extends AbstractApplication {
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
     }
-    
+
     /**
      * Decline an invitation.
      * 
@@ -1031,7 +1043,7 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(DeclineIncomingInvitation.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_DECLINE_INCOMING_INVITATION, data);
-    }        
+    }
     
     /**
      * Run the delete contact action.
@@ -1044,7 +1056,7 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Delete.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_DELETE, data);        
-    }    
+    }
     
     /**
 	 * Run the open document action.
@@ -1058,9 +1070,9 @@ public class Browser extends AbstractApplication {
 		final Data data = new Data(1);
 		data.set(Open.DataKey.DOCUMENT_ID, documentId);
 		invoke(ActionId.DOCUMENT_OPEN, data);
-	}
+	}        
     
-	/**
+    /**
 	 * Run the open document version action.
 	 *
 	 * @param documentId
@@ -1076,9 +1088,9 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.DOCUMENT_ID, documentId);
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
-	}
-
-	/**
+	}    
+    
+    /**
      *  Publish the selected container.
      *  
      *  @param containerId
@@ -1092,8 +1104,8 @@ public class Browser extends AbstractApplication {
             public void run() { invoke(ActionId.CONTAINER_PUBLISH, data); }
         });
     }
-
-    /**
+    
+	/**
      * Run the open contact action.
      * 
      * @param contactId
@@ -1104,6 +1116,16 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(Read.DataKey.CONTACT_ID, contactId);
         invoke(ActionId.CONTACT_READ, data);
+    }
+
+	/**
+     * Run the profile's remove email action.
+     *
+     */
+    public void runRemoveProfileEmail(final Long emailId) {
+        final Data data = new Data(1);
+        data.set(RemoveEmail.DataKey.EMAIL_ID, emailId);
+        invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
     }
 
     /**
@@ -1174,12 +1196,10 @@ public class Browser extends AbstractApplication {
         data.set(UpdateDraft.DataKey.FILE, file);
         invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
-  
+
     /**
      * Update the user's profile.
      * 
-     * @param emails
-     *            The user's e-mail addresses <code>List&lt;String&gt;</code>.
      * @param name
      *            The user's name <code>String</code>.
      * @param organization
@@ -1187,17 +1207,25 @@ public class Browser extends AbstractApplication {
      * @param title
      *            The user's title <code>String</code>.
      */
-    public void runUpdateProfile(final List<String> emails, final String name,
-            final String organization, final String title) {
+    public void runUpdateProfile(final String name, final String organization,
+            final String title) {
         final Data data = new Data(4);
         data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-        data.set(Update.DataKey.EMAILS, emails);
         data.set(Update.DataKey.NAME, name);
         if (null != organization)
             data.set(Update.DataKey.ORGANIZATION, organization);
         if (null != title)
             data.set(Update.DataKey.TITLE, title);
         invoke(ActionId.PROFILE_UPDATE, data);
+    }
+  
+    /**
+     * Run the profile's verify email action.
+     *
+     */
+    public void runVerifyProfileEmail() {
+        final Data data = new Data(0);
+        invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
 
     /**

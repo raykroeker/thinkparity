@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.xmpp.packet.IQ;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 
@@ -63,6 +64,21 @@ public abstract class IQWriter {
     }
 
     /**
+     * Write email values.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param values
+     *            The element values.
+     */
+    public final void writeEMails(final String parentName, final String name,
+            final List<EMail> values) {
+        ElementBuilder.addEMailElements(iq.getChildElement(), parentName, name, values);
+    }
+
+    /**
      * Write an integer value.
      * 
      * @param name
@@ -83,6 +99,10 @@ public abstract class IQWriter {
      *            The element value.
      */
     public final void writeJabberId(final String name, final JabberId value) {
+        ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    public final void writeEMail(final String name, final EMail value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
     }
 

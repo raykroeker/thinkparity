@@ -17,6 +17,8 @@ import org.xmpp.packet.IQ;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.util.Base64;
@@ -164,6 +166,10 @@ public abstract class IQReader {
      */
     public final String readString(final String name) {
         return (String) readObject(name);
+    }
+
+    public final EMail readEMail(final String name) {
+        return EMailBuilder.parse(readString(name));
     }
 
     /**

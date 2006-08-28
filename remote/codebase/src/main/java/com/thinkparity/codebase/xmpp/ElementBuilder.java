@@ -13,6 +13,7 @@ import org.dom4j.Element;
 
 import com.thinkparity.codebase.CompressionUtil;
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.util.Base64;
 
@@ -62,6 +63,23 @@ public class ElementBuilder {
         final String valueString = DateUtil.format(
                 valueGMT, DateUtil.DateImage.ISO);
         return addElement(parent, name, Calendar.class, valueString);
+    }
+
+    /**
+     * Add an email value.
+     *
+     * @param parent
+     *      The parent element.
+     * @param name
+     *      The element name.
+     * @param value
+     *      The element value.
+     * @return The element.
+     */
+    public static final Element addElement(final Element parent, final String name,
+            final EMail value) {
+        final String valueString = value.toString();
+        return addElement(parent, name, EMail.class, valueString);
     }
 
     /**
@@ -142,6 +160,27 @@ public class ElementBuilder {
     public static final Element addElement(final Element parent, final String name,
             final UUID value) {
         return addElement(parent, name, UUID.class, value.toString());
+    }
+
+    /**
+     * Add a list of string values.
+     * 
+     * @param parent
+     *            The parent element.
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param values
+     *            A list of strings.
+     * @return The root element added.
+     */
+    public static final Element addEMailElements(final Element parent,
+            final String parentName, final String name,
+            final List<EMail> values) {
+        final Element element = addElement(parent, parentName, List.class);
+        for(final EMail value : values) { addElement(element, name, value); }
+        return element;
     }
 
     /**

@@ -17,6 +17,7 @@ import org.xmpp.packet.PacketError;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.Xml;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.xmpp.IQReader;
 import com.thinkparity.codebase.xmpp.IQWriter;
@@ -192,6 +193,10 @@ public abstract class AbstractController extends
         return iqReader.readString(name);
     }
 
+    protected final EMail readEMail(final String name) {
+        return iqReader.readEMail(name);
+    }
+
     /**
      * Write a byte array to the response query.
      * 
@@ -214,6 +219,21 @@ public abstract class AbstractController extends
      */
     protected final void writeCalendar(final String name, final Calendar value) {
         iqWriter.writeCalendar(name, value);
+    }
+
+    /**
+     * Write a list of e-mail values to the response query.
+     * 
+     * @param parentName
+     *            The parent element name.
+     * @param name
+     *            The element name.
+     * @param values
+     *            The element values.
+     */
+    protected final void writeEMails(final String parentName,
+            final String name, final List<EMail> values) {
+        iqWriter.writeEMails(parentName, name, values);
     }
 
     /**

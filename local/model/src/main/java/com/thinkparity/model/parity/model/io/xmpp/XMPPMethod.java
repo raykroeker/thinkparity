@@ -49,6 +49,7 @@ import com.thinkparity.migrator.Library;
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
+@SuppressWarnings("unchecked")
 public class XMPPMethod extends IQ {
 
     /** An apache logger. */

@@ -11,12 +11,10 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>full,incremental,</triggers>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>			<triggers>full,</triggers>
 			<arguments>
 				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/desdemona - ant process-resources.launch</value>
+					<key>LaunchConfigHandle</key>					<value>&lt;project&gt;/.externalToolBuilders/desdemona - ant process-resources test-process-resources.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>

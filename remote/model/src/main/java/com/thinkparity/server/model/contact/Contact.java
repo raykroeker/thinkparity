@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.server.model.user.User;
 
 /**
@@ -16,7 +18,7 @@ import com.thinkparity.server.model.user.User;
 public class Contact extends User {
 
     /** A list of e-mail addresses. */
-    private final List<String> emails;
+    private final List<EMail> emails;
 
     /** The user's name. */
     private String name;
@@ -27,16 +29,16 @@ public class Contact extends User {
     /** Create Contact. */
     public Contact() {
         super();
-        this.emails = new ArrayList<String>();
+        this.emails = new ArrayList<EMail>();
     }
 
-    public boolean addAllEmails(final List<String> emails) {
+    public boolean addAllEmails(final List<EMail> emails) {
         final int originalSize = this.emails.size();
-        for(final String email : emails) { addEmail(email); }
+        for(final EMail email : emails) { addEmail(email); }
         return originalSize < this.emails.size();
     }
 
-    public boolean addEmail(final String email) {
+    public boolean addEmail(final EMail email) {
         if(emails.contains(email)) { return false; }
         else { return emails.add(email); }
     }
@@ -48,7 +50,7 @@ public class Contact extends User {
      *
      * @return The List<String>.
      */
-    public List<String> getEmails() {
+    public List<EMail> getEmails() {
         return Collections.unmodifiableList(emails);
     }
 

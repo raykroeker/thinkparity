@@ -3,9 +3,12 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.util.List;
+
 import org.dom4j.Element;
 
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.profile.ProfileEMail;
 
 
 /**
@@ -29,6 +32,20 @@ public class ElementBuilder extends
     public static final Element addElement(final Element parent,
             final String name, final ArtifactType value) {
         return addElement(parent, name, ArtifactType.class, value.toString());
+    }
+
+    public static final Element addProfileEMailElements(final Element parent,
+            final String parentName, final String name,
+            final List<ProfileEMail> values) {
+        final Element element = addElement(parent, parentName, List.class);
+        for(final ProfileEMail value : values) { addElement(element, name, value); }
+        return element;
+    }
+
+    public static final Element addElement(final Element parent,
+            final String name, final ProfileEMail value) {
+        final String valueString = value.toString();
+        return addElement(parent, name, ProfileEMail.class, valueString);
     }
 
     /** Create ElementBuilder. */

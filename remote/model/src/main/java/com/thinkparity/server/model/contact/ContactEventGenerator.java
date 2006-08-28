@@ -7,6 +7,7 @@ import java.util.Calendar;
 
 import org.xmpp.packet.IQ;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.EventGenerator;
@@ -51,10 +52,10 @@ class ContactEventGenerator extends EventGenerator {
      *            The invitation date.
      * @return The invitation notification.
      */
-    IQ generateInvitationExtended(final String invitedAs,
+    IQ generateInvitationExtended(final EMail invitedAs,
             final JabberId invitedBy, final Calendar invitedOn) {
         final IQWriter iqWriter = createEventWriter(Event.Contact.INVITATION_EXTENDED);
-        iqWriter.writeString(Xml.Contact.INVITED_AS, invitedAs);
+        iqWriter.writeEMail(Xml.Contact.INVITED_AS, invitedAs);
         iqWriter.writeJabberId(Xml.Contact.INVITED_BY, invitedBy);
         iqWriter.writeCalendar(Xml.Contact.INVITED_ON, invitedOn);
         return iqWriter.getIQ();

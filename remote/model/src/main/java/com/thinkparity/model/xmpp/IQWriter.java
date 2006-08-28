@@ -4,9 +4,12 @@
  */
 package com.thinkparity.model.xmpp;
 
+import java.util.List;
+
 import org.xmpp.packet.IQ;
 
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.profile.ProfileEMail;
 
 /**
  * <b>Title:</b>thinkParity Model IQ Writer <br>
@@ -31,5 +34,19 @@ public class IQWriter extends com.thinkparity.codebase.xmpp.IQWriter {
     public final void writeArtifactType(final String name,
             final ArtifactType value) {
         ElementBuilder.addElement(iq.getChildElement(), name, value);
+    }
+
+    /**
+     * Write the artifact type to the internet query.
+     * 
+     * @param name
+     *            The element name.
+     * @param value
+     *            The element value.
+     */
+    public final void writeProfileEMails(final String name,
+            final List<ProfileEMail> value) {
+        ElementBuilder.addProfileEMailElements(iq.getChildElement(), name,
+                name, value);
     }
 }

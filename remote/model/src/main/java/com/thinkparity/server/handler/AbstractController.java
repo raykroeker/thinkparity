@@ -5,6 +5,7 @@
 package com.thinkparity.server.handler;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.UUID;
 
 import org.jivesoftware.messenger.auth.UnauthorizedException;
@@ -18,6 +19,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.model.artifact.ArtifactType;
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.profile.ProfileModel;
 import com.thinkparity.model.xmpp.IQReader;
 import com.thinkparity.model.xmpp.IQWriter;
@@ -163,5 +165,10 @@ public abstract class AbstractController extends
      */
     protected final UUID readUUID(final String name) {
         return iqReader.readUUID(name);
+    }
+
+    protected final void writeProfileEMails(final String name,
+            final List<ProfileEMail> profileEMails) {
+        iqWriter.writeProfileEMails(name, profileEMails);
     }
 }

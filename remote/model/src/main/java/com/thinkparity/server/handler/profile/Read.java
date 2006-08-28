@@ -29,7 +29,6 @@ public class Read extends AbstractController {
         final Profile profile = read(readJabberId("jabberId"));
 
         if(null != profile) {
-            writeStrings(Xml.Profile.EMAILS, Xml.Profile.EMAIL, profile.getEmails());
             writeJabberId(Xml.Profile.JABBER_ID, profile.getId());
             writeString(Xml.Profile.NAME, profile.getName());
             writeString(Xml.Profile.ORGANIZATION, profile.getOrganization());

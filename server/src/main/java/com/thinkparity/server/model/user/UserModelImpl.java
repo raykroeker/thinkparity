@@ -11,6 +11,7 @@ import org.jivesoftware.messenger.vcard.VCardManager;
 import org.dom4j.Element;
 
 import com.thinkparity.codebase.Constants.Jabber;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
@@ -61,7 +62,7 @@ class UserModelImpl extends AbstractModelImpl {
 		return user;
 	}
 
-    User readUser(final String email) {
+    User readUser(final EMail email) {
         logApiId();
         debugVariable("email", email);
         try {

@@ -37,6 +37,9 @@ public class User {
     /** The user's organization. */
     private String organization;
 
+    /** The user's title. */
+    private String title;
+
     /** The user's vCard. */
 	private Element vCard;
 
@@ -63,6 +66,15 @@ public class User {
     public String getOrganization() { return organization; }
 
 	/**
+     * Obtain the title
+     *
+     * @return The String.
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
 	 * @return Returns the vCard.
 	 */
 	public Element getVCard() { return vCard; }
@@ -86,6 +98,15 @@ public class User {
      */
     public void setOrganization(final String organization) {
         this.organization = organization;
+    }
+
+    /**
+     * Set title.
+     *
+     * @param title The String.
+     */
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**

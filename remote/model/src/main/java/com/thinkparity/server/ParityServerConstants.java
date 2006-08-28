@@ -11,6 +11,10 @@ import com.thinkparity.codebase.Application;
  */
 public interface ParityServerConstants {
 
+    public static final class VCardFields {
+        public static final String TITLE = "TITLE";
+    }
+
     /** Internet Constants */
     public static final class Internet {
         /** Internet Mail Constants. */
@@ -151,6 +155,7 @@ public interface ParityServerConstants {
             public static final String JABBER_ID = "jabberId";
             public static final String NAME = "name";
             public static final String ORGANIZATION = "organization";
+            public static final String TITLE = "title";
         }
         public static final class Service {
             public static final class Artifact {

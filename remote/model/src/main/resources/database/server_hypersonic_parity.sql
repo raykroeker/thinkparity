@@ -109,6 +109,8 @@ create table parityContact (
 create table parityUserEmail (
   username varchar(32) not null,
   email varchar not null,
+  verified boolean not null,
+  verificationKey varchar null,
   primary key (email),
   foreign key (username) references jiveUser(username)
-)
+);

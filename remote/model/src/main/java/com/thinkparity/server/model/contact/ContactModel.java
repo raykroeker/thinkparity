@@ -6,6 +6,7 @@ package com.thinkparity.server.model.contact;
 import java.util.Calendar;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModel;
@@ -116,7 +117,7 @@ public class ContactModel extends AbstractModel {
      * 
      * @param email
      */
-    public void invite(final String email, final Calendar invitedOn) {
+    public void invite(final EMail email, final Calendar invitedOn) {
         synchronized(implLock) { impl.invite(email, invitedOn); }
     }
 

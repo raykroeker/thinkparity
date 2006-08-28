@@ -3,6 +3,9 @@
  */
 package com.thinkparity.model.profile;
 
+import java.util.List;
+
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModel;
@@ -18,7 +21,7 @@ import com.thinkparity.server.model.session.Session;
  */
 public class ProfileModel extends AbstractModel {
 
-	/**
+    /**
 	 * Create a Profile interface.
 	 * 
 	 * @return The Profile interface.
@@ -46,6 +49,20 @@ public class ProfileModel extends AbstractModel {
 	}
 
     /**
+     * Add an email to a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    public void addEmail(final JabberId userId, final EMail email) {
+        synchronized (implLock) {
+            impl.addEmail(userId, email);
+        }
+    }
+
+    /**
      * Read a profile.
      * 
      * @param jabberId
@@ -54,6 +71,43 @@ public class ProfileModel extends AbstractModel {
      */
     public Profile read(final JabberId jabberId) throws ParityServerModelException {
         synchronized(implLock) { return impl.read(jabberId); }
+    }
+
+    public List<ProfileEMail> readEMails(final JabberId userId) {
+        synchronized (implLock) {
+            return impl.readEMails(userId);
+        }
+    }
+
+    /**
+     * Remove an email from a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    public void removeEmail(final JabberId userId, final EMail email) {
+        synchronized (implLock) {
+            impl.removeEmail(userId, email);
+        }
+    }
+
+    /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @param key
+     *            A verification code <code>String</code>.
+     */
+    public void verifyEmail(final JabberId userId, final EMail email,
+            final String key) {
+        synchronized (implLock) {
+            impl.verifyEmail(userId, email, key);
+        }
     }
 
 	/**

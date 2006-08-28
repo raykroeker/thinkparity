@@ -5,6 +5,8 @@ package com.thinkparity.server.handler.contact;
 
 import java.util.Calendar;
 
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.server.ParityServerConstants.Xml;
 import com.thinkparity.server.handler.AbstractController;
 
@@ -24,7 +26,7 @@ public class InviteContact extends AbstractController {
     @Override
     public void service() {
         logApiId();
-        invite(readString(Xml.Contact.EMAIL), readCalendar(Xml.All.EXECUTED_ON));
+        invite(readEMail(Xml.Contact.EMAIL), readCalendar(Xml.All.EXECUTED_ON));
     }
 
     /**
@@ -33,7 +35,7 @@ public class InviteContact extends AbstractController {
      * @param email
      *            An e-mail address.
      */
-    private void invite(final String email, final Calendar invitedOn) {
+    private void invite(final EMail email, final Calendar invitedOn) {
         getContactModel().invite(email, invitedOn);
     }
 }

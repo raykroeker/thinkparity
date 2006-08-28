@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 import org.apache.log4j.Logger;
 
 import org.jivesoftware.messenger.SessionManager;
@@ -21,6 +26,7 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.log4j.Log4JHelper;
@@ -150,13 +156,8 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * Debug a named variable. Note that the logging renderer will be used only
-     * for the value.
+     * @deprecated Use {@link #logVariable(String, Object)} instead.
      * 
-     * @param name
-     *            A variable name.
-     * @param value
-     *            A variable.
      */
     protected final void debugVariable(final String name, final Object value) {
         if(logger.isDebugEnabled()) {
@@ -176,7 +177,6 @@ public abstract class AbstractModelImpl {
 		return artifactModel;
 	}
 
-
     /**
      * Obtain the parity contact interface.
      * 
@@ -186,7 +186,8 @@ public abstract class AbstractModelImpl {
 		return ContactModel.getModel(session);
 	}
 
-	/**
+
+    /**
      * Obtain the parity document interface.
      * 
      * @return The parity document interface.
@@ -218,7 +219,7 @@ public abstract class AbstractModelImpl {
 		return sModel;
 	}
 
-    /**
+	/**
      * Obtain the parity user interface.
      * 
      * @return The parity user interface.
@@ -228,7 +229,7 @@ public abstract class AbstractModelImpl {
 		return uModel;
 	}
 
-	/**
+    /**
      * Determine if the user account is still active.
      * 
      * @param jabberId
@@ -254,14 +255,14 @@ public abstract class AbstractModelImpl {
 		else { return Boolean.FALSE; }
 	}
 
-    protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
+	protected Boolean isSessionUserKeyHolder(final UUID artifactUniqueId)
 			throws ParityServerModelException {
 		final ArtifactModel aModel = getArtifactModel();
 		return aModel.get(artifactUniqueId).getArtifactKeyHolder().equals(
 				session.getJID().getNode());
 	}
 
-	/** Log an api id. */
+    /** Log an api id. */
     protected final void logApiId() {
         if(logger.isInfoEnabled()) {
             logger.info(MessageFormat.format("[{0}] [{1}] [{2}]",
@@ -284,6 +285,23 @@ public abstract class AbstractModelImpl {
                     StackUtil.getCallerClassName().toUpperCase(),
                     StackUtil.getCallerMethodName().toUpperCase(),
                     message));
+        }
+    }
+
+	/**
+     * Log a named variable. Note that the logging renderer will be used only
+     * for the value.
+     * 
+     * @param name
+     *            A variable name.
+     * @param value
+     *            A variable.
+     */
+    protected final void logVariable(final String name, final Object value) {
+        if(logger.isDebugEnabled()) {
+            logger.debug(MessageFormat.format("{0}:{1}",
+                    name,
+                    Log4JHelper.render(logger, value)));
         }
     }
 
@@ -437,5 +455,21 @@ public abstract class AbstractModelImpl {
             team.add(s.getJabberId());
         }
         return team;
+    }
+
+    /**
+     * Add a to email recipient to a mime message.
+     * 
+     * @param mimeMessage
+     *            A <code>MimeMessage</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @throws MessagingException
+     */
+    protected void addRecipient(final MimeMessage mimeMessage, final EMail email)
+            throws MessagingException {
+        mimeMessage.addRecipient(
+                Message.RecipientType.TO,
+                new InternetAddress(email.toString(), Boolean.TRUE));
     }
 }

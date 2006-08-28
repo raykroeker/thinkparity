@@ -27,7 +27,7 @@ public class Read extends AbstractController {
         final Contact contact = read(readJabberId(Xml.Contact.JABBER_ID));
 
         if(null != contact) {
-            writeStrings(Xml.Contact.EMAILS, Xml.Contact.EMAIL, contact.getEmails());
+            writeEMails(Xml.Contact.EMAILS, Xml.Contact.EMAIL, contact.getEmails());
             writeJabberId(Xml.Contact.JABBER_ID, contact.getId());
             writeString(Xml.Contact.NAME, contact.getName());
             writeString(Xml.Contact.ORGANIZATION, contact.getOrganization());

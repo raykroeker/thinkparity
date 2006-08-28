@@ -5,6 +5,7 @@ package com.thinkparity.server.model.user;
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.server.model.AbstractModel;
@@ -53,7 +54,7 @@ public class UserModel extends AbstractModel {
 		this.implLock = new Object();
 	}
 
-    public User readUser(final String email) {
+    public User readUser(final EMail email) {
         synchronized (implLock) {
             return impl.readUser(email);
         }

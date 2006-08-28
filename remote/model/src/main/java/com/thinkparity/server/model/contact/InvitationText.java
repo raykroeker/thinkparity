@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.Application;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.http.Link;
 import com.thinkparity.codebase.http.LinkFactory;
 
@@ -21,7 +22,7 @@ import com.thinkparity.server.model.user.User;
 public class InvitationText {
 
     /** The invitee e-mail address. */
-    private final String invitee;
+    private final EMail invitee;
 
     /** The inviting user. */
     private final User inviter;
@@ -42,7 +43,7 @@ public class InvitationText {
      * @param inviter
      *            The inviter user.
      */
-    InvitationText(final Locale locale, final String invitee, final User inviter) {
+    InvitationText(final Locale locale, final EMail invitee, final User inviter) {
         super();
         this.invitee = invitee;
         this.inviter = inviter;
@@ -63,7 +64,7 @@ public class InvitationText {
         acceptInvitation.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
 
         final Link createAccount = linkFactory.create("user", "create");
-        createAccount.addParameter("Email", invitee);
+        createAccount.addParameter("Email", invitee.toString());
         createAccount.addParameter("JabberId", inviter.getId().getQualifiedJabberId());
         createAccount.addParameter("PostCompletion", "AcceptInvitation");
 

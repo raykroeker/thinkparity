@@ -9,10 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -22,6 +20,7 @@ import org.jivesoftware.messenger.auth.UnauthorizedException;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.model.util.smtp.MessageFactory;
@@ -32,7 +31,6 @@ import com.thinkparity.server.model.ParityErrorTranslator;
 import com.thinkparity.server.model.ParityServerModelException;
 import com.thinkparity.server.model.io.sql.contact.ContactSql;
 import com.thinkparity.server.model.io.sql.contact.InvitationSql;
-import com.thinkparity.server.model.io.sql.user.UserSql;
 import com.thinkparity.server.model.session.Session;
 import com.thinkparity.server.model.user.User;
 import com.thinkparity.server.model.user.UserModel;
@@ -59,9 +57,6 @@ class ContactModelImpl extends AbstractModelImpl {
 	 */
 	private final InvitationSql invitationSql;
 
-	/** User sql io. */
-    private final UserSql userSql;
-
     /**
 	 * Create a ArtifactModelImpl.
 	 * 
@@ -71,7 +66,6 @@ class ContactModelImpl extends AbstractModelImpl {
 		this.contactSql = new ContactSql();
         this.eventGenerator = new ContactEventGenerator();
 		this.invitationSql = new InvitationSql();
-        this.userSql = new UserSql();
 	}
 
     /**
@@ -90,9 +84,9 @@ class ContactModelImpl extends AbstractModelImpl {
     void acceptInvitation(final JabberId invitedBy, final JabberId acceptedBy,
             final Calendar acceptedOn) {
 		logApiId();
-        debugVariable("invitedBy", invitedBy);
-        debugVariable("acceptedBy", acceptedBy);
-        debugVariable("acceptedOn", acceptedOn);
+        logVariable("invitedBy", invitedBy);
+        logVariable("acceptedBy", acceptedBy);
+        logVariable("acceptedOn", acceptedOn);
 		try {
 			contactSql.create(acceptedBy, invitedBy, session.getJabberId());
 			contactSql.create(invitedBy, acceptedBy, session.getJabberId());
@@ -147,10 +141,10 @@ class ContactModelImpl extends AbstractModelImpl {
 	void declineInvitation(final String invitedAs, final JabberId invitedBy,
             final JabberId declinedBy, final Calendar declinedOn) {
         logApiId();
-        debugVariable("invitedBy", invitedBy);
-        debugVariable("invitedAs", invitedAs);
-        debugVariable("declinedBy", declinedBy);
-        debugVariable("declinedOn", declinedOn);
+        logVariable("invitedBy", invitedBy);
+        logVariable("invitedAs", invitedAs);
+        logVariable("declinedBy", declinedBy);
+        logVariable("declinedOn", declinedOn);
         try {
             final IQ notification = eventGenerator.generateInvitationDeclined(
                     invitedAs, declinedBy, declinedOn);
@@ -185,9 +179,10 @@ class ContactModelImpl extends AbstractModelImpl {
      * TODO read user for e-mail 0.5; create e-mail invitation data 0.5; create
      * invitation data 0.5; create distributed invitation 0.5
      */
-	void invite(final String email, final Calendar invitedOn) {
+	void invite(final EMail email, final Calendar invitedOn) {
         logApiId();
-        debugVariable("email", email);
+        logVariable("email", email);
+        logVariable("invitedOn", invitedOn);
         try {
             final UserModel userModel = getUserModel();
             final User invitee = userModel.readUser(email);
@@ -196,7 +191,7 @@ class ContactModelImpl extends AbstractModelImpl {
                 try {
                     final User user = getUserModel().readUser(session.getJabberId());
                     createInvitation(mimeMessage, email, user);
-                    addRecipients(mimeMessage, email);
+                    addRecipient(mimeMessage, email);
                 }
                 catch(final MessagingException mx) { throw translateError(mx); }
                 TransportManager.deliver(mimeMessage);
@@ -213,13 +208,12 @@ class ContactModelImpl extends AbstractModelImpl {
 
 	Contact readContact(final JabberId contactId) {
         logApiId();
-		debugVariable("contactId", contactId);
+		logVariable("contactId", contactId);
 		try {
 		    final User user = getUserModel().readUser(contactId);
             final Element vCardElement = user.getVCard();
 
             final Contact contact = new Contact();
-            contact.addAllEmails(userSql.readEmail(contactId));
             contact.setId(user.getId());
             contact.setName((String) vCardElement.element("FN").getData());
             contact.setOrganization((String) vCardElement.element("ORG").element("ORGNAME").getData());
@@ -263,15 +257,8 @@ class ContactModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	private void addRecipients(final MimeMessage mimeMessage, final String email)
-            throws MessagingException {
-        mimeMessage.addRecipient(
-                Message.RecipientType.TO,
-                new InternetAddress(email, Boolean.TRUE));
-    }
-
 	private void createInvitation(final MimeMessage mimeMessage,
-            final String email, final User inviter) throws MessagingException {
+            final EMail email, final User inviter) throws MessagingException {
         final InvitationText text = new InvitationText(Locale.getDefault(), email, inviter);
 	    mimeMessage.setSubject(text.getSubject());
 

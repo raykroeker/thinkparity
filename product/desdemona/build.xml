@@ -14,7 +14,7 @@
     <!-- cvs configuration -->
     <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
     <property name="cvs.branch" value="v1_0"/>
-    <property name="cvs.modules" value="common/codebase common/junitx remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/model remote/codebase remote/model lib/hsqldb lib/junit lib/log4j lib/commons-codec lib/messenger"/>
     <property name="cvs.modules.ide" value="ide/eclipse/product/desdemona"/>
 
     <!-- output directories -->
@@ -33,7 +33,8 @@
 
     <!-- classpath -->
     <path id="project.classpath">
-		<pathelement location="${target.classes.dir}/common/codebase"/>
+        <pathelement location="${target.classes.dir}/common/codebase"/>
+        <pathelement location="${target.classes.dir}/common/model"/>
 		<pathelement location="${target.classes.dir}/remote/codebase"/>
 		<pathelement location="${target.classes.dir}/remote/model"/>
 
@@ -96,10 +97,15 @@
         </condition>
 
         <!-- common/codebase -->
-		<javac srcdir="common/codebase/src/main/java"
+        <javac srcdir="common/codebase/src/main/java"
                 destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
-			<classpath refid="project.classpath"/>
-		</javac>
+            <classpath refid="project.classpath"/>
+        </javac>
+        <!-- common/model -->
+        <javac srcdir="common/model/src/main/java"
+                destdir="${target.classes.dir}/common/model" debug="${compile.innerDebug}">
+            <classpath refid="project.classpath"/>
+        </javac>
         <!-- remote/codebase -->
 		<javac srcdir="remote/codebase/src/main/java"
                 destdir="${target.classes.dir}/remote/codebase" debug="${compile.innerDebug}">
@@ -147,6 +153,7 @@ Examples:
 	<target name="init">
         <!-- target/classes/* -->
         <mkdir dir="${target.classes.dir}/common/codebase"/>
+        <mkdir dir="${target.classes.dir}/common/model"/>
         <mkdir dir="${target.classes.dir}/remote/codebase"/>
         <mkdir dir="${target.classes.dir}/remote/model"/>
 
@@ -176,7 +183,7 @@ Examples:
                 destdir="${target.javadoc.dir}/remote/model"
                 doctitle="thinkParity Remote Model"
                 packagenames="com.thinkparity.*"
-                sourcepath="${basedir}/remote/model/src/main/java"/>
+                sourcepath="${basedir}/common/model/src/main/java:${basedir}/remote/model/src/main/java"/>
     </target>
 
     <!-- process resources -->
@@ -205,7 +212,11 @@ Examples:
         <antcall target="test" inheritAll="true" inheritRefs="true"/>
         <antcall target="clean" inheritAll="true" inheritRefs="true"/>
         <antcall target="compile" inheritAll="true" inheritRefs="true"/>
+        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
+    </target>
 
+    <!-- release-impl -->   
+    <target name="release-impl">
         <property name="target.release.plugin.dir"
                 value="${target.release.dir}/plugin"/>
         <!-- ${target.release.plugin.dir} -->
@@ -235,14 +246,14 @@ Examples:
             <fileset file="${vendor.log4j.lib}"/>
             <fileset file="${vendor.commons-codec.lib}"/>
         </copy>
-        <!-- remote/model -->
+        <!-- common/model:remote/model -->
         <jar destfile="${target.release.plugin.dir}/lib/model.jar">
             <manifest>
             </manifest>
+            <fileset dir="${target.classes.dir}/common/model"/>
             <fileset dir="${target.classes.dir}/remote/model"/>
         </jar>
-        <!-- common/codebase -->
-        <!-- remote/codebase -->
+        <!-- common/codebase:remote/codebase -->
         <jar destfile="${target.release.plugin.dir}/lib/codebase.jar">
             <manifest>
             </manifest>
@@ -260,7 +271,7 @@ Examples:
         <checksum file="${target.release.dir}/${release.name}-${release.version}-plugin.jar"
             algorithm="SHA"/>
     </target>
-
+   
     <!-- unit test -->
 	<target name="test" depends="test-compile">
 		<junit fork="on" forkmode="once" reloading="false"
@@ -329,4 +340,12 @@ Examples:
             <fileset dir="${basedir}/common/junitx/src/main/resources"/>
         </copy>
     </target>
+
+    <!-- quick release -->
+    <target name="quick-release">
+        <antcall target="clean" inheritAll="true" inheritRefs="true"/>
+        <antcall target="compile" inheritAll="true" inheritRefs="true"/>
+        <antcall target="release-impl" inheritAll="true" inheritRefs="true"/>
+    </target>
+
 </project>

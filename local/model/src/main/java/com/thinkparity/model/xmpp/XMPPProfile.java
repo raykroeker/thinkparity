@@ -6,17 +6,17 @@ package com.thinkparity.model.xmpp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.packet.VCard;
 
 import com.thinkparity.codebase.VCardBuilder;
+import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
 import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.events.XMPPProfileListener;
 
@@ -30,7 +30,7 @@ import com.thinkparity.model.xmpp.events.XMPPProfileListener;
  * @version
  * @see XMPPCore
  */
-class XMPPProfile {
+class XMPPProfile extends AbstractXMPP {
 
     /** Container xmpp event LISTENERS. */
     private static final List<XMPPProfileListener> LISTENERS;
@@ -39,17 +39,27 @@ class XMPPProfile {
         LISTENERS = new ArrayList<XMPPProfileListener>();
     }
 
-    /** Core xmpp functionality. */
-    private final XMPPCore core;
-
-    /** An apache logger. */
-    private final Logger logger;
-
     /** Create XMPPContainer. */
-    XMPPProfile(final XMPPCore core) {
-        super();
-        this.core = core;
-        this.logger = Logger.getLogger(getClass());
+    XMPPProfile(final XMPPCore xmppCore) {
+        super(xmppCore);
+    }
+
+    /**
+     * Add an email to a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    void addEmail(final JabberId userId, final EMail email) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("email", email);
+        final XMPPMethod addEmail = new XMPPMethod("profile:addemail");
+        addEmail.setParameter("userId", userId);
+        addEmail.setParameter("email", email);
+        execute(addEmail);
     }
 
     /**
@@ -59,11 +69,14 @@ class XMPPProfile {
      *            The xmpp container event listener.
      */
     void addListener(final XMPPProfileListener l) {
-        logger.info("[LMODEL] [XMPP] [PROFILE] [ADD LISTENER");
-        logger.debug(l);
-        synchronized(LISTENERS) {
-            if(LISTENERS.contains(l)) { return; }
-            LISTENERS.add(l);
+        logApiId();
+        logVariable("l", l);
+        synchronized (LISTENERS) {
+            if (LISTENERS.contains(l)) {
+                return;
+            } else {
+                LISTENERS.add(l);
+            }
         }
     }
 
@@ -81,23 +94,48 @@ class XMPPProfile {
      * @return A profile.
      */
     Profile read(final JabberId jabberId) throws SmackException {
-        logger.info("[LMODEL] [XMPP] [PROFILE] [READ]");
-        logger.debug(jabberId);
+        logApiId();
+        logVariable("jabberId", jabberId);
         final XMPPMethod method = new XMPPMethod("profile:read");
         method.setParameter("jabberId", jabberId);
-        final XMPPMethodResponse response = method.execute(core.getConnection());
-        core.assertContainsResult("[LMODEL] [XMPP] [PROFILE] [READ] [RESPONSE IS EMPTY]", response);
+        final XMPPMethodResponse response = execute(method, Boolean.TRUE);
         final Profile profile = new Profile();
         profile.setId(response.readResultJabberId("jabberId"));
         profile.setName(response.readResultString("name"));
         profile.setOrganization(response.readResultString("organization"));
         final VCard jiveVCard = new VCard();
-        try { jiveVCard.load(core.getConnection()); }
+        try { jiveVCard.load(xmppCore.getConnection()); }
         catch(final XMPPException xmppx) {
             throw XMPPErrorTranslator.translate(xmppx);
         }
         profile.setVCard(VCardBuilder.createVCard(jiveVCard));
-        profile.addAllEmails(response.readResultEMails("emails"));
         return profile;
+    }
+
+    List<ProfileEMail> readEMails(final JabberId jabberId) {
+        logApiId();
+        logVariable("jabberId", jabberId);
+        final XMPPMethod readEMails = new XMPPMethod("profile:reademails");
+        readEMails.setParameter("jabberId", jabberId);
+        final XMPPMethodResponse response = execute(readEMails, Boolean.TRUE);
+        return response.readResultProfileEMails("emails");
+    }
+
+    /**
+     * Remove an email from a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    void removeEmail(final JabberId userId, final EMail email) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("email", email);
+        final XMPPMethod addEmail = new XMPPMethod("profile:removeemail");
+        addEmail.setParameter("userId", userId);
+        addEmail.setParameter("email", email);
+        execute(addEmail);
     }
 }

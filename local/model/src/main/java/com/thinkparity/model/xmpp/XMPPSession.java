@@ -16,6 +16,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.contact.Contact;
 import com.thinkparity.model.xmpp.events.XMPPArtifactListener;
@@ -84,7 +85,17 @@ public interface XMPPSession {
 
     public void addListener(final XMPPSessionListener l);
 
-	/**
+    /**
+     * Add an email to a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEmail</code>.
+     */
+    public void addProfileEmail(final JabberId userId, final EMail email);
+
+    /**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -280,6 +291,13 @@ public interface XMPPSession {
     public Profile readProfile() throws SmackException;
 
     /**
+     * Read the user's profile emails addresses.
+     * 
+     * @return A list of profile emails addresses.
+     */
+    public List<ProfileEMail> readProfileEMails();
+
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -296,6 +314,16 @@ public interface XMPPSession {
     public void removeListener(final XMPPExtensionListener l);
 
     public void removeListener(final XMPPSessionListener l);
+
+    /**
+     * Remove an email from a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEmail</code>.
+     */
+    public void removeProfileEmail(final JabberId userId, final EMail email);
 
     /**
      * Remove a team member from the artifact team.

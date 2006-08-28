@@ -14,6 +14,7 @@ import org.jivesoftware.smack.packet.IQ;
 
 import com.thinkparity.codebase.email.EMail;
 
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.xmpp.JabberId;
 
 import com.thinkparity.migrator.Library;
@@ -128,6 +129,10 @@ public class XMPPMethodResponse extends IQ {
 
     public List<EMail> readResultEMails(final String name) {
         return (List<EMail>) result.get(name).javaValue;
+    }
+
+    public List<ProfileEMail> readResultProfileEMails(final String name) {
+        return (List<ProfileEMail>) result.get(name).javaValue;
     }
 
     public byte[] readSmallBytes(final String name) {

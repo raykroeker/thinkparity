@@ -3,9 +3,14 @@
  */
 package com.thinkparity.model.parity.model.profile;
 
+import java.util.List;
+
+import com.thinkparity.codebase.email.EMail;
+
 import com.thinkparity.model.parity.model.Context;
 import com.thinkparity.model.parity.model.workspace.Workspace;
 import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
+import com.thinkparity.model.profile.ProfileEMail;
 
 /**
  * <b>Title:</b>thinkParity Profile Model<br>
@@ -16,7 +21,7 @@ import com.thinkparity.model.parity.model.workspace.WorkspaceModel;
  */
 public class ProfileModel {
 
-	/**
+    /**
 	 * Create a Profile interface.
 	 * 
 	 * @param context
@@ -28,7 +33,7 @@ public class ProfileModel {
 		return new InternalProfileModel(workspace, context);
 	}
 
-	/**
+    /**
 	 * Create a Profile interface.
 	 * 
 	 * @return The Profile interface.
@@ -56,12 +61,47 @@ public class ProfileModel {
 		this.implLock = new Object();
 	}
 
-	/**
+    /**
+     * Add an email to the profile.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     */
+	public void addEmail(final EMail email) {
+        synchronized (getImplLock()) {
+            getImpl().addEmail(email);
+        }
+    }
+
+    /**
      * Read the logged in user's profile.
      * 
      * @return A profile.
      */
     public Profile read() { synchronized(implLock) { return impl.read(); } }
+
+	/**
+     * Read a list of profile email addresses.
+     * 
+     * @return A list of email addresses.
+     */
+    public List<ProfileEMail> readEmails() {
+        synchronized (getImplLock()) {
+            return getImpl().readEmails();
+        }
+    }
+
+    /**
+     * Remove an email.
+     * 
+     * @param emailId
+     *            An email id <code>Long</code>.
+     */
+	public void removeEmail(final Long emailId) {
+        synchronized (getImplLock()) {
+            getImpl().removeEmail(emailId);
+        }
+    }
 
      /**
      * Update the logged in user's profile.

@@ -29,6 +29,18 @@ public class ProfileEMail {
     }
 
     /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (null != obj && obj instanceof ProfileEMail) {
+            return ((ProfileEMail) obj).profileId.equals(profileId) &&
+                    ((ProfileEMail) obj).emailId.equals(emailId);
+        }
+        return false;
+    }
+
+    /**
      * Obtain the email
      *
      * @return The EMail.
@@ -53,6 +65,14 @@ public class ProfileEMail {
      */
     public Long getProfileId() {
         return profileId;
+    }
+
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
     }
 
     /**
@@ -98,5 +118,16 @@ public class ProfileEMail {
      */
     public void setVerified(final Boolean verified) {
         this.verified = verified;
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return new StringBuffer(getClass().getName()).append("//")
+            .append(profileId).append("/")
+            .append(emailId)
+            .toString();
     }
 }

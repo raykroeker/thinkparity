@@ -31,6 +31,7 @@ import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.document.InternalDocumentModel;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -502,7 +503,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
 	 * Add a presence listener to the session.
 	 * 
 	 * @param presenceListener
@@ -532,7 +533,22 @@ class SessionModelImpl extends AbstractModelImpl {
 		sessionListeners.add(sessionListener);
 	}
 
-	/**
+    /**
+     * Add an email to a user's profile.
+     * 
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     */
+    void addProfileEmail(final JabberId userId, final ProfileEMail email) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("email", email);
+        synchronized (xmppHelper) {
+            xmppHelper.getXMPPSession().addProfileEmail(userId, email.getEmail());
+        }
+    }
+
+    /**
      * Add a team member. This will create the team member relationship in the
      * distributed network with a pending state.
      * 
@@ -575,7 +591,7 @@ class SessionModelImpl extends AbstractModelImpl {
 	    }
 	}
 
-    /**
+	/**
      * Send an artifact creation packet to the parity server.
      * 
      * @param uniqueId
@@ -592,7 +608,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-	/**
+    /**
      * Create a draft for an artifact.
      * 
      * @param uniqueId
@@ -638,7 +654,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-    /**
+	/**
      * Delete a draft for an artifact.
      * 
      * @param uniqueId
@@ -652,7 +668,7 @@ class SessionModelImpl extends AbstractModelImpl {
         }
     }
 
-	/**
+    /**
 	 * Invite a contact.
 	 * 
 	 * @param email
@@ -669,7 +685,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
 	 * Determine whether or not a user is logged in.
 	 * 
 	 * @return True if the user is logged in, false otherwise.
@@ -726,7 +742,7 @@ class SessionModelImpl extends AbstractModelImpl {
         login(environment, credentials);
     }
 
-	/**
+    /**
 	 * Terminate the current session.
 	 * 
 	 * @throws ParityException
@@ -741,7 +757,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Publish a container.
      * 
      * @param container
@@ -812,7 +828,7 @@ class SessionModelImpl extends AbstractModelImpl {
         throw Assert.createNotYetImplemented("SessionModelImpl#readContact()");
     }
 
-	/**
+    /**
      * Read the logged in user's contacts.
      * 
      * @return A set of contacts.
@@ -827,7 +843,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    /**
+	/**
      * Read the artifact key holder from the server.
      * 
      * @param artifactId
@@ -859,6 +875,17 @@ class SessionModelImpl extends AbstractModelImpl {
             try { return xmppHelper.readProfile(); }
             catch(final SmackException sx) {
                 throw translateError(getApiId("[READ PROFILE]"), sx);
+            }
+        }
+    }
+
+    List<ProfileEMail> readProfileEMails() {
+        logApiId();
+        synchronized (xmppHelper) {
+            try {
+                return xmppHelper.getXMPPSession().readProfileEMails();
+            } catch (final Throwable t) {
+                throw translateError("READ PROFILE", t);
             }
         }
     }
@@ -914,7 +941,7 @@ class SessionModelImpl extends AbstractModelImpl {
 		return readUsers(userIds).iterator().next();
 	}
 
-	/**
+    /**
      * Read a set of users.
      * 
      * @param jabberIds
@@ -982,6 +1009,23 @@ class SessionModelImpl extends AbstractModelImpl {
 			SessionModelImpl.sessionListeners.remove(sessionListener);
 		}
 	}
+
+	/**
+     * Remove an email from a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     */
+    void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("email", email);
+        synchronized (xmppHelper) {
+            xmppHelper.getXMPPSession().removeProfileEmail(userId, email.getEmail());
+        }
+    }
 
     /**
      * Remove a team member from the artifact team.

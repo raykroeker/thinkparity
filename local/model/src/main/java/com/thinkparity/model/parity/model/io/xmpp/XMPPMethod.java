@@ -34,6 +34,7 @@ import com.thinkparity.model.Constants.Xml;
 import com.thinkparity.model.Constants.Xml.Service;
 import com.thinkparity.model.artifact.ArtifactType;
 import com.thinkparity.model.parity.model.document.DocumentVersionContent;
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.JabberIdBuilder;
 
@@ -59,11 +60,11 @@ public class XMPPMethod extends IQ {
         ProviderManager.addIQProvider(Xml.Service.NAME, Xml.Service.NAMESPACE_RESPONSE, new XMPPMethodResponseProvider());
     }
 
+    /** A map of remote method parameters to their values. */
+    protected final List<XMPPMethodParameter> parameters;
+
     /** The remote method name. */
     private final String name;
-
-    /** A map of remote method parameters to their values. */
-    private final List<Parameter> parameters;
 
     /**
      * Create RemoteMethod.
@@ -73,7 +74,7 @@ public class XMPPMethod extends IQ {
      */
     public XMPPMethod(final String name) {
         super();
-        this.parameters = new LinkedList<Parameter>();
+        this.parameters = new LinkedList<XMPPMethodParameter>();
         this.name = name;
     }
 
@@ -124,11 +125,11 @@ public class XMPPMethod extends IQ {
 
     public final void setDocumentVersionParameters(final String listname,
             final String name, final List<DocumentVersionContent> values) {
-        final List<Parameter> parameters = new ArrayList<Parameter>(values.size());
+        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
         for(final DocumentVersionContent value : values) {
-            parameters.add(new Parameter(name, DocumentVersionContent.class, value));
+            parameters.add(new XMPPMethodParameter(name, DocumentVersionContent.class, value));
         }
-        this.parameters.add(new Parameter(listname, List.class, parameters));
+        this.parameters.add(new XMPPMethodParameter(listname, List.class, parameters));
     }
 
     /**
@@ -143,57 +144,57 @@ public class XMPPMethod extends IQ {
      */
     public final void setJabberIdParameters(final String listName, final String name,
             final List<JabberId> values) {
-        final List<Parameter> parameters = new LinkedList<Parameter>();
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
         for(final JabberId value : values) {
-            parameters.add(new Parameter(name, JabberId.class, value));
+            parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
         }
-        this.parameters.add(new Parameter(listName, List.class, parameters));
+        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
     public final void setLibraryParameters(final String listName, final String name,
             final List<Library> values) {
-        final List<Parameter> parameters = new LinkedList<Parameter>();
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
         for(final Library value : values)
-            parameters.add(new Parameter(name, Library.class, value));
+            parameters.add(new XMPPMethodParameter(name, Library.class, value));
 
-        this.parameters.add(new Parameter(listName, List.class, parameters));
+        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
     public final void setLongParameters(final String listName, final String name,
             final List<Long> values) {
-        final List<Parameter> parameters = new LinkedList<Parameter>();
+        final List<XMPPMethodParameter> parameters = new LinkedList<XMPPMethodParameter>();
         for(final Long value : values)
-            parameters.add(new Parameter(name, Long.class, value));
+            parameters.add(new XMPPMethodParameter(name, Long.class, value));
 
-        this.parameters.add(new Parameter(listName, List.class, parameters));
+        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
     public final void setParameter(final String name, final ArtifactType value) {
-        parameters.add(new Parameter(name, ArtifactType.class, value));
-    }
-
-    public final void setParameter(final String name, final EMail value) {
-        parameters.add(new Parameter(name, EMail.class, value));
+        parameters.add(new XMPPMethodParameter(name, ArtifactType.class, value));
     }
 
     public final void setParameter(final String name, final byte[] value) {
-        parameters.add(new Parameter(name, byte[].class, value));
+        parameters.add(new XMPPMethodParameter(name, byte[].class, value));
     }
 
     public final void setParameter(final String name, final Calendar value) {
-        parameters.add(new Parameter(name, Calendar.class, value));
+        parameters.add(new XMPPMethodParameter(name, Calendar.class, value));
+    }
+
+    public final void setParameter(final String name, final EMail value) {
+        parameters.add(new XMPPMethodParameter(name, EMail.class, value));
     }
 
     public final void setParameter(final String name, final Integer value) {
-        parameters.add(new Parameter(name, Integer.class, value));
+        parameters.add(new XMPPMethodParameter(name, Integer.class, value));
     }
 
     public final void setParameter(final String name, final JabberId value) {
-        parameters.add(new Parameter(name, JabberId.class, value));
+        parameters.add(new XMPPMethodParameter(name, JabberId.class, value));
     }
 
     public final void setParameter(final String name, final Library.Type value) {
-        parameters.add(new Parameter(name, Library.Type.class, value));
+        parameters.add(new XMPPMethodParameter(name, Library.Type.class, value));
     }
 
     /**
@@ -205,7 +206,11 @@ public class XMPPMethod extends IQ {
      *            The parameter value.
      */
     public final void setParameter(final String name, final Long value) {
-        parameters.add(new Parameter(name, Long.class, value));
+        parameters.add(new XMPPMethodParameter(name, Long.class, value));
+    }
+
+    public final void setParameter(final String name, final ProfileEMail value) {
+        parameters.add(new XMPPMethodParameter(name, ProfileEMail.class, value));
     }
 
     /**
@@ -217,7 +222,7 @@ public class XMPPMethod extends IQ {
      *            The parameter value.
      */
     public final void setParameter(final String name, final String value) {
-        parameters.add(new Parameter(name, String.class, value));
+        parameters.add(new XMPPMethodParameter(name, String.class, value));
     }
 
     /**
@@ -232,11 +237,11 @@ public class XMPPMethod extends IQ {
      */
     public final void setParameter(final String listName,
             final String itemName, final List<JabberId> values) {
-        final List<Parameter> parameters = new ArrayList<Parameter>(values.size());
+        final List<XMPPMethodParameter> parameters = new ArrayList<XMPPMethodParameter>(values.size());
         for (final JabberId value : values) {
-            parameters.add(new Parameter(itemName, JabberId.class, value));
+            parameters.add(new XMPPMethodParameter(itemName, JabberId.class, value));
         }
-        this.parameters.add(new Parameter(listName, List.class, parameters));
+        this.parameters.add(new XMPPMethodParameter(listName, List.class, parameters));
     }
 
     /**
@@ -248,14 +253,28 @@ public class XMPPMethod extends IQ {
      *            The parameter value.
      */
     public final void setParameter(final String name, final UUID value) {
-        parameters.add(new Parameter(name, UUID.class, value));
+        parameters.add(new XMPPMethodParameter(name, UUID.class, value));
+    }
+
+    /**
+     * Flush the internal parameter map.
+     *
+     * @return A buffer of xml containing the parameters.
+     */
+    protected String getParametersXML() {
+        final StringBuffer xml = new StringBuffer();
+
+        for(final XMPPMethodParameter parameter : parameters)
+            xml.append(getParameterXML(parameter));
+
+        return xml.toString();
     }
 
     private byte[] compress(final byte[] bytes) {
         try { return CompressionUtil.compress(bytes, Level.Nine); }
         catch(final IOException iox) { throw new XMPPException(iox); }
     }
-
+    
     /**
      * Create a packet collector that will filter on packets with the same
      * query id.
@@ -264,31 +283,17 @@ public class XMPPMethod extends IQ {
      *      The internet query.
      * @return A packet collector.
      */
-    private PacketCollector createPacketCollector(
+    protected PacketCollector createPacketCollector(
             final XMPPConnection xmppConnection) {
         return xmppConnection.createPacketCollector(
                 new PacketIDFilter(getPacketID()));
     }
-    
+
     private String encode(final byte[] bytes) {
         return new String(Base64.encodeBase64(bytes));
     }
 
-    /**
-     * Flush the internal parameter map.
-     *
-     * @return A buffer of xml containing the parameters.
-     */
-    private String getParametersXML() {
-        final StringBuffer xml = new StringBuffer();
-
-        for(final Parameter parameter : parameters)
-            xml.append(getParameterXML(parameter));
-
-        return xml.toString();
-    }
-
-    private String getParameterXML(final Parameter parameter) {
+    private String getParameterXML(final XMPPMethodParameter parameter) {
         final StringBuffer xml = new StringBuffer();
         xml.append("<").append(parameter.name).append(" javaType=\"")
                 .append(parameter.javaType.getName())
@@ -303,7 +308,7 @@ public class XMPPMethod extends IQ {
         return xml.toString();
     }
 
-    private String getParameterXMLValue(final Parameter parameter) {
+    private String getParameterXMLValue(final XMPPMethodParameter parameter) {
         if(parameter.javaType.equals(ArtifactType.class)) {
             return parameter.javaValue.toString();
         }
@@ -318,10 +323,12 @@ public class XMPPMethod extends IQ {
         else if(parameter.javaType.equals(DocumentVersionContent.class)) {
             final DocumentVersionContent dvc = (DocumentVersionContent) parameter.javaValue;
             return new StringBuffer("")
-                    .append(getParameterXML(new Parameter("uniqueId", UUID.class, dvc.getVersion().getArtifactUniqueId())))
-                    .append(getParameterXML(new Parameter("versionId", Long.class, dvc.getVersion().getVersionId())))
-                    .append(getParameterXML(new Parameter("bytes", byte[].class, dvc.getContent())))
+                    .append(getParameterXML(new XMPPMethodParameter("uniqueId", UUID.class, dvc.getVersion().getArtifactUniqueId())))
+                    .append(getParameterXML(new XMPPMethodParameter("versionId", Long.class, dvc.getVersion().getVersionId())))
+                    .append(getParameterXML(new XMPPMethodParameter("bytes", byte[].class, dvc.getContent())))
                     .toString();
+        } else if (parameter.javaType.equals(EMail.class)) {
+            return parameter.javaValue.toString();
         } else if (parameter.javaType.equals(EMail.class)) {
             return parameter.javaValue.toString();
         }
@@ -338,11 +345,11 @@ public class XMPPMethod extends IQ {
             return parameter.javaValue.toString();
         }
         else if(parameter.javaType.equals(List.class)) {
-            final List<Parameter> listItems = (List<Parameter>) parameter.javaValue;
+            final List<XMPPMethodParameter> listItems = (List<XMPPMethodParameter>) parameter.javaValue;
             final StringBuffer xmlValue = new StringBuffer("");
 
             if(null != listItems && 0 < listItems.size()) {
-                for(final Parameter listItem : listItems) {
+                for(final XMPPMethodParameter listItem : listItems) {
                     xmlValue.append(getParameterXML(listItem));
                 }
             }
@@ -360,18 +367,6 @@ public class XMPPMethod extends IQ {
                 MessageFormat.format("[XMPP METHOD] [GET PARAMTER XML VALUE] [UNKNOWN JAVA TYPE] [{0}]",
                         parameter.javaType.getName());
             throw new XMPPException(assertion);
-        }
-    }
-
-    private final class Parameter {
-        private final Class javaType;
-        private final Object javaValue;
-        private final String name;
-        private Parameter(final String name, final Class javaType,
-                final Object javaValue) {
-            this.name = name;
-            this.javaType = javaType;
-            this.javaValue = javaValue;
         }
     }
 
@@ -440,8 +435,7 @@ public class XMPPMethod extends IQ {
                 parser.next();
                 parser.next();
                 return value;
-            }
-            else if(javaType.equals(String.class)) {
+            } else if(javaType.equals(String.class)) {
                 parser.next();
                 final String sValue = parser.getText();
                 parser.next();

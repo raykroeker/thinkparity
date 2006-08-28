@@ -19,6 +19,7 @@ import com.thinkparity.model.parity.model.container.ContainerVersion;
 import com.thinkparity.model.parity.model.document.DocumentVersion;
 import com.thinkparity.model.parity.model.profile.Profile;
 import com.thinkparity.model.parity.model.workspace.Workspace;
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.smack.SmackException;
 import com.thinkparity.model.xmpp.JabberId;
 import com.thinkparity.model.xmpp.contact.Contact;
@@ -51,6 +52,34 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
     public void acceptInvitation(final JabberId invitedBy) {
         synchronized (getImplLock()) {
             getImpl().acceptInvitation(invitedBy);
+        }
+    }
+
+    /**
+     * Add an email to a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     */
+    public void addProfileEmail(final JabberId userId, final ProfileEMail email) {
+        synchronized (getImplLock()) {
+            getImpl().addProfileEmail(userId, email);
+        }
+    }
+
+    /**
+     * Remove an email from a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     */
+    public void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
+        synchronized (getImplLock()) {
+            getImpl().removeProfileEmail(userId, email);
         }
     }
 
@@ -229,7 +258,20 @@ public class InternalSessionModel extends SessionModel implements InternalModel 
      * @return A profile.
      */
     public Profile readProfile() {
-        synchronized(getImplLock()) { return getImpl().readProfile(); }
+        synchronized (getImplLock()) {
+            return getImpl().readProfile();
+        }
+    }
+
+    /**
+     * Read the user's profile email addresses.
+     * 
+     * @return A list of profile email addresses.
+     */
+    public List<ProfileEMail> readProfileEMails() {
+        synchronized (getImplLock()) {
+            return getImpl().readProfileEMails();
+        }
     }
 
     /**

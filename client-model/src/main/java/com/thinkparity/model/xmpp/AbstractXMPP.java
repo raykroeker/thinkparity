@@ -12,23 +12,62 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.log4j.Log4JHelper;
 
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethod;
+import com.thinkparity.model.parity.model.io.xmpp.XMPPMethodResponse;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 abstract class AbstractXMPP {
 
-    /** An apache logger. */
-    private final Logger logger;
-
     /** The xmpp core functionality. */
     protected final XMPPCore xmppCore;
+
+    /** An apache logger. */
+    private final Logger logger;
 
     /** Create AbstractXMPP. */
     protected AbstractXMPP(final XMPPCore xmppCore) {
         super();
         this.logger = Logger.getLogger(getClass());
         this.xmppCore = xmppCore;
+    }
+
+    /**
+     * @param response
+     */
+    protected void assertContainsResult(final XMPPMethodResponse response) {
+        xmppCore.assertContainsResult("XMPP RESPONSE IS EMPTY", response);
+    }
+
+    /**
+     * Execute an xmpp method.
+     * 
+     * @param method
+     *            An xmpp method.
+     * @return An xmpp method response.
+     */
+    protected XMPPMethodResponse execute(final XMPPMethod method) {
+        return execute(method, Boolean.FALSE);
+    }
+
+    /**
+     * Execute an xmpp method.
+     * 
+     * @param method
+     *            An xmpp method.
+     * @param expectedResponse
+     *            A <code>Boolean</code> flag indicating an expected response.
+     * @return An xmpp method response.
+     */
+    protected XMPPMethodResponse execute(final XMPPMethod method,
+            final Boolean expectedResponse) {
+        final XMPPMethodResponse response = method.execute(xmppCore.getConnection());
+        if (expectedResponse) {
+            assertContainsResult(response);
+        }
+        return response;
     }
 
     /**

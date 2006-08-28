@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.VCardBuilder;
-import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.model.parity.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.model.parity.model.io.db.hsqldb.Session;
 import com.thinkparity.model.parity.model.profile.Profile;
+import com.thinkparity.model.profile.ProfileEMail;
 import com.thinkparity.model.xmpp.JabberId;
 
 /**
@@ -28,18 +28,18 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             .append("values (?,?)")
             .toString();
 
-    /** Sql to update a profile. */
-    private static final String SQL_UPDATE =
-            new StringBuffer("update PROFILE ")
-            .append("set PROFILE_VCARD=? ")
-            .append("where PROFILE_ID=?")
-            .toString();
-
     /** Sql to create an e-mail address. */
     private static final String SQL_CREATE_EMAIL =
             new StringBuffer("insert into PROFILE_EMAIL_REL ")
-            .append("(PROFILE_ID,EMAIL_ID) ")
-            .append("values (?,?)")
+            .append("(PROFILE_ID,EMAIL_ID,VERIFIED) ")
+            .append("values (?,?,?)")
+            .toString();
+
+    /** Sql to delete an email. */
+    private static final String SQL_DELETE_EMAIL =
+            new StringBuffer("delete from ")
+            .append("PROFILE_EMAIL_REL ")
+            .append("where PROFILE_ID=? and EMAIL_ID=?")
             .toString();
 
     /** Sql to read the profile by jabber id. */
@@ -51,13 +51,31 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             .append("where U.JABBER_ID=?")
             .toString();
 
-    /** Sql to read the e-mail addresses. */
+    /** Sql to read a profile email. */
     private static final String SQL_READ_EMAIL =
-            new StringBuffer("select E.EMAIL ")
+            new StringBuffer("select P.PROFILE_ID,E.EMAIL_ID,E.EMAIL,")
+            .append("PER.VERIFIED ")
+            .append("from PROFILE_EMAIL_REL PER ")
+            .append("inner join PROFILE P on PER.PROFILE_ID=P.PROFILE_ID ")
+            .append("inner join EMAIL E ON PER.EMAIL_ID=E.EMAIL_ID ")
+            .append("where P.PROFILE_ID=? AND E.EMAIL_ID=?")
+            .toString();
+
+    /** Sql to read the e-mail addresses. */
+    private static final String SQL_READ_EMAILS =
+            new StringBuffer("select P.PROFILE_ID,E.EMAIL_ID,E.EMAIL,")
+            .append("PER.VERIFIED ")
             .append("from PROFILE_EMAIL_REL PER ")
             .append("inner join PROFILE P on PER.PROFILE_ID=P.PROFILE_ID ")
             .append("inner join EMAIL E on PER.EMAIL_ID=E.EMAIL_ID ")
             .append("where P.PROFILE_ID=?")
+            .toString();
+
+    /** Sql to update a profile. */
+    private static final String SQL_UPDATE =
+            new StringBuffer("update PROFILE ")
+            .append("set PROFILE_VCARD=? ")
+            .append("where PROFILE_ID=?")
             .toString();
 
     private static StringBuffer getApiId(final String api) {
@@ -84,20 +102,15 @@ public class ProfileIOHandler extends AbstractIOHandler implements
     /**
      * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#create(com.thinkparity.model.parity.model.profile.Profile)
      */
-    public void create(final Profile profile) {
+    public void create(final Profile profile, final List<ProfileEMail> emails) {
         final Session session = openSession();
         try {
             userIO.create(session, profile);
-
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, profile.getLocalId());
             session.setString(2, profile.getVCard().toXML());
             if(1 != session.executeUpdate())
                 throw new HypersonicException(getErrorId("[CREATE]", "[CANNOT CREATE PROFILE]"));
-
-            for(final EMail email : profile.getEmails()) {
-                createEmail(session, profile.getLocalId(), email);
-            }
             session.commit();
         }
         catch(final HypersonicException hx) {
@@ -105,6 +118,52 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             throw hx;
         }
         finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#createEmail(com.thinkparity.model.profile.ProfileEMail)
+     */
+    public void createEmail(final ProfileEMail email) {
+        final Session session = openSession();
+        try {
+            final Long emailId = emailIO.create(session, email.getEmail());
+            email.setEmailId(emailId);
+
+            session.prepareStatement(SQL_CREATE_EMAIL);
+            session.setLong(1, email.getProfileId());
+            session.setLong(2, email.getEmailId());
+            session.setBoolean(3, email.isVerified());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT CREATE EMAIL");
+
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#deleteEmail(java.lang.Long)
+     */
+    public void deleteEmail(final Long profileId, final Long emailId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_EMAIL);
+            session.setLong(1, profileId);
+            session.setLong(2, emailId);
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("COULD NOT DELETE EMAIL");
+            emailIO.delete(session, emailId);
+            session.commit();
+        } catch (final HypersonicException hx) {
+            session.rollback();
+            throw hx;
+        } finally { 
+            session.close();
+        }
     }
 
     /**
@@ -118,6 +177,41 @@ public class ProfileIOHandler extends AbstractIOHandler implements
             session.executeQuery();
             if(session.nextResult()) { return extractProfile(session); }
             else { return null; }
+        }
+        finally { session.close(); }
+    }
+
+    /**
+     * @see com.thinkparity.model.parity.model.io.handler.ProfileIOHandler#readEmail(java.lang.Long, java.lang.Long)
+     */
+    public ProfileEMail readEmail(final Long profileId, final Long emailId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EMAIL);
+            session.setLong(1, profileId);
+            session.setLong(2, emailId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractEMail(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    public List<ProfileEMail> readEmails(final Long profileId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EMAILS);
+            session.setLong(1, profileId);
+            session.executeQuery();
+            final List<ProfileEMail> emails = new ArrayList<ProfileEMail>();
+            while(session.nextResult()) {
+                emails.add(extractEMail(session));
+            }
+            return emails;
         }
         finally { session.close(); }
     }
@@ -147,6 +241,22 @@ public class ProfileIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * Extract a profile email from the session.
+     * 
+     * @param session
+     *            A database session.
+     * @return A profile email.
+     */
+    ProfileEMail extractEMail(final Session session) {
+        final ProfileEMail email = new ProfileEMail();
+        email.setEmail(session.getEMail("EMAIL"));
+        email.setEmailId(session.getLong("EMAIL_ID"));
+        email.setProfileId(session.getLong("PROFILE_ID"));
+        email.setVerified(session.getBoolean("VERIFIED"));
+        return email;
+    }
+
+    /**
      * Extract the profile from the database session.
      * 
      * @param session
@@ -161,32 +271,6 @@ public class ProfileIOHandler extends AbstractIOHandler implements
         profile.setOrganization(session.getString("ORGANIZATION"));
         profile.setTitle(session.getString("TITLE"));
         profile.setVCard(VCardBuilder.createVCard(session.getString("PROFILE_VCARD")));
-        profile.addAllEmails(readEmails(profile.getLocalId()));
         return profile;
-    }
-
-    private void createEmail(final Session session, final Long profileId,
-            final EMail email) {
-        final Long emailId = emailIO.create(session, email);
-        session.prepareStatement(SQL_CREATE_EMAIL);
-        session.setLong(1, profileId);
-        session.setLong(2, emailId);
-        if(1 != session.executeUpdate())
-            throw new HypersonicException(getErrorId("[CREATE EMAIL]", "[CANNOT CREATE EMAIL]"));
-    }
-
-    private List<EMail> readEmails(final Long profileId) {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_EMAIL);
-            session.setLong(1, profileId);
-            session.executeQuery();
-            final List<EMail> emails = new ArrayList<EMail>();
-            while(session.nextResult()) {
-                emails.add(emailIO.extractEMail(session));
-            }
-            return emails;
-        }
-        finally { session.close(); }
     }
 }

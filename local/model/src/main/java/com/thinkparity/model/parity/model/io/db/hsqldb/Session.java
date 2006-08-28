@@ -192,23 +192,7 @@ public class Session {
 		}
 	}
 
-    public EMail getEMail(final String columnName) {
-        assertOpen("getCalendar(String)");
-        assertOpenResult("getCalendar(String)");
-        try {
-            final String value = resultSet.getString(columnName);
-            if (resultSet.wasNull()) { return null; }
-            else {
-                return EMailBuilder.parse(value);
-            }
-        } catch (final EMailFormatException efx) {
-            throw new HypersonicException(efx);
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-    }
-
-	public Calendar getCalendar(final String columnName) {
+    public Calendar getCalendar(final String columnName) {
 		assertOpen("getCalendar(String)");
 		assertOpenResult("getCalendar(String)");
 		try {
@@ -224,7 +208,7 @@ public class Session {
 		}
 	}
 
-	public ContainerDraft.ArtifactState getContainerStateFromString(
+    public ContainerDraft.ArtifactState getContainerStateFromString(
             final String columnName) {
         assertOpen("getStateFromString(String)");
         assertOpenResult("getStateFromString(String)");
@@ -232,6 +216,22 @@ public class Session {
         try {
             final String value = resultSet.getString(columnName);
             return resultSet.wasNull() ? null : ContainerDraft.ArtifactState.valueOf(value);
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
+	public EMail getEMail(final String columnName) {
+        assertOpen("getCalendar(String)");
+        assertOpenResult("getCalendar(String)");
+        try {
+            final String value = resultSet.getString(columnName);
+            if (resultSet.wasNull()) { return null; }
+            else {
+                return EMailBuilder.parse(value);
+            }
+        } catch (final EMailFormatException efx) {
+            throw new HypersonicException(efx);
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }
@@ -268,7 +268,7 @@ public class Session {
 	 */
 	public JVMUniqueId getId() { return id; }
 
-    /**
+	/**
      * Execute a query to obtain the identity created.
      * 
      * @return The identity value.
@@ -305,7 +305,7 @@ public class Session {
         }
     }
 
-	public Integer getInteger(final String columnName) {
+    public Integer getInteger(final String columnName) {
         assertOpen("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         assertOpenResult("[LMODEL] [IO] [HSQL] [GET INTEGER]");
         debugSql(columnName);
@@ -470,6 +470,14 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
+	public void setBoolean(final Integer index, final Boolean value) {
+        assertOpen("setBoolean(Integer,Boolean)");
+        assertPreparedStatement("setBoolean(Integer,Boolean)");
+        debugSql(value, index);
+        try { preparedStatement.setBoolean(index, value); }
+        catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
+    }
+
 	public void setBytes(final Integer index, final byte[] bytes) {
 		assertOpen("setBytes(Integer,Byte[])");
 		assertPreparedStatement("setBytes(Integer,Byte[])");
@@ -478,18 +486,7 @@ public class Session {
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
 
-    public void setEMail(final Integer index, final EMail email) {
-        assertOpen("setEMail(Integer,EMail)");
-        assertPreparedStatement("setEMail(Integer,EMail)");
-        debugSql(email, index);
-        try {
-            preparedStatement.setString(index, email.toString());
-        } catch (final SQLException sqlx) {
-            throw new HypersonicException(sqlx);
-        }
-    }
-
-	public void setCalendar(final Integer index, final Calendar calendar) {
+    public void setCalendar(final Integer index, final Calendar calendar) {
 		assertOpen("setCalendar(Integer,Calendar)");
 		assertPreparedStatement("setCalendar(Integer,Calendar)");
 		debugSql(calendar, index);
@@ -499,6 +496,17 @@ public class Session {
 		}
 		catch(final SQLException sqlx) { throw new HypersonicException(sqlx); }
 	}
+
+	public void setEMail(final Integer index, final EMail email) {
+        assertOpen("setEMail(Integer,EMail)");
+        assertPreparedStatement("setEMail(Integer,EMail)");
+        debugSql(email, index);
+        try {
+            preparedStatement.setString(index, email.toString());
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
 	public void setEnumTypeAsString(final Integer index, final Enum<?> enumType) {
         assertOpen("setEnumAsString(Integer,Enum<?>)");
@@ -741,13 +749,17 @@ public class Session {
         debugSql(null == bytes ? null : bytes.length, sqlIndex);
     }
 
-    private void debugSql(final EMail email, final Integer sqlIndex) {
-        debugSql(null == email ? null : email.toString(), sqlIndex);
+    private void debugSql(final Boolean value, final Integer index) {
+        debugSql(null == value ? null : value.toString(), index);
     }
 
-	private void debugSql(final Calendar calendar, final Integer sqlIndex) {
+    private void debugSql(final Calendar calendar, final Integer sqlIndex) {
 		debugSql(null == calendar ? null : DateUtil.format(calendar, DateImage.ISO), sqlIndex);
 	}
+
+	private void debugSql(final EMail email, final Integer sqlIndex) {
+        debugSql(null == email ? null : email.toString(), sqlIndex);
+    }
 
 	private void debugSql(final Integer integer, final Integer sqlIndex) {
 		debugSql(null == integer ? null : integer.toString(), sqlIndex);

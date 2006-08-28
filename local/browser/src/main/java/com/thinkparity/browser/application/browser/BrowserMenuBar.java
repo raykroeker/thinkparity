@@ -140,13 +140,13 @@ public class BrowserMenuBar extends JMenuBar {
         updateProfileData.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
         profileMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PROFILE_UPDATE, updateProfileData));
         
-        // Create the Help menu
-        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.HELP, new Data(0)));
-        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.HELP_ABOUT, new Data(0)));
+        // Create the OpenHelp menu
+        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_OPEN_HELP, new Data(0)));
+        helpMenu.add(popupItemFactory.createMenuPopupItem(ActionId.PLATFORM_BROWSER_DISPLAY_INFO, new Data(0)));
         
         // Create the Sign-Up button
         this.add(Box.createRigidArea(new Dimension(3,0)));
-        this.add(ButtonFactory.create(ActionId.SIGN_UP, new Data(0)));        
+        this.add(ButtonFactory.create(ActionId.PROFILE_SIGN_UP, new Data(0)));        
 
         // Add minimize and close buttons
         this.add(Box.createHorizontalGlue());

@@ -113,6 +113,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_REMOVE_DOCUMENT:
             action = new com.thinkparity.browser.platform.action.container.RemoveDocument(browser);
             break;
+        case CONTAINER_REVERT_DOCUMENT:
+            action = new com.thinkparity.browser.platform.action.container.RevertDocument(browser);
+            break;
         case CONTAINER_SEARCH:
             action = new com.thinkparity.browser.platform.action.container.Search(browser);
             break;
@@ -129,31 +132,27 @@ public class ActionFactory extends AbstractFactory {
 		case DOCUMENT_RENAME:
             action = new com.thinkparity.browser.platform.action.document.Rename(browser);
             break;
-        case CONTAINER_REVERT_DOCUMENT:
-            action = new com.thinkparity.browser.platform.action.container.RevertDocument(browser);
-            break;
 		case DOCUMENT_UPDATE_DRAFT:
             action = new com.thinkparity.browser.platform.action.document.UpdateDraft(browser);
             break;
 
-        case HELP:
-            action = new com.thinkparity.browser.platform.action.help.Help(browser);
-            break;            
-        case HELP_ABOUT:
-            action = new com.thinkparity.browser.platform.action.help.HelpAbout(browser);
-            break;
-
+		case PLATFORM_BROWSER_DISPLAY_INFO:
+		    action = new com.thinkparity.browser.platform.action.platform.browser.DisplayInfo(browser);
+		    break;
+		case PLATFORM_BROWSER_MOVE_TO_FRONT:
+		    action = new com.thinkparity.browser.platform.action.platform.browser.MoveToFront(platform);
+		    break;
+		case PLATFORM_BROWSER_OPEN_HELP:
+		    action = new com.thinkparity.browser.platform.action.platform.browser.OpenHelp(browser);
+		    break;            
+		case PLATFORM_BROWSER_RESTORE:
+		    action = new com.thinkparity.browser.platform.action.platform.browser.Restore(platform);
+		    break;
         case PLATFORM_QUIT:
             action = new com.thinkparity.browser.platform.action.platform.Quit(platform);
             break;
         case PLATFORM_RESTART:
             action = new com.thinkparity.browser.platform.action.platform.Restart(platform);
-            break;
-        case PLATFORM_BROWSER_MOVE_TO_FRONT:
-            action = new com.thinkparity.browser.platform.action.platform.browser.MoveToFront(platform);
-            break;
-        case PLATFORM_BROWSER_RESTORE:
-            action = new com.thinkparity.browser.platform.action.platform.browser.Restore(platform);
             break;
 
         case PROFILE_ADD_EMAIL:
@@ -162,15 +161,14 @@ public class ActionFactory extends AbstractFactory {
         case PROFILE_REMOVE_EMAIL:
             action = new com.thinkparity.browser.platform.action.profile.RemoveEmail(browser);
             break;
-        case PROFILE_VERIFY_EMAIL:
-            action = new com.thinkparity.browser.platform.action.profile.VerifyEmail(browser);
+        case PROFILE_SIGN_UP:
+            action = new com.thinkparity.browser.platform.action.profile.SignUp(browser);
             break;
         case PROFILE_UPDATE:
             action = new com.thinkparity.browser.platform.action.profile.Update(browser);
             break;
-            
-        case SIGN_UP:
-            action = new com.thinkparity.browser.platform.action.signup.SignUp(browser);
+        case PROFILE_VERIFY_EMAIL:
+            action = new com.thinkparity.browser.platform.action.profile.VerifyEmail(browser);
             break;
             
         default:

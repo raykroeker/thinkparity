@@ -73,6 +73,7 @@ public class Data implements Cloneable {
      *            The data key.
      * @return A <code>List&lt;T&gt;</code>.
      */
+    @SuppressWarnings("unchecked")
     public <T> List<T> getList(final Enum<?> key) {
         final List unknownList = (List) data.get(key);
         final List<T> list = new ArrayList<T>(unknownList.size());

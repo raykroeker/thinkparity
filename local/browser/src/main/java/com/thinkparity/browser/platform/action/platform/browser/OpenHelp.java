@@ -2,7 +2,7 @@
  * Created On: 24-Aug-06 1:06:35 PM
  * $Id$
  */
-package com.thinkparity.browser.platform.action.help;
+package com.thinkparity.browser.platform.action.platform.browser;
 
 import com.thinkparity.browser.application.browser.Browser;
 import com.thinkparity.browser.platform.action.AbstractAction;
@@ -15,20 +15,16 @@ import com.thinkparity.codebase.assertion.Assert;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class Help extends AbstractAction {
+public class OpenHelp extends AbstractAction {
     
-    /** The browser application. */
-    private final Browser browser;
-
     /**
      * Create a Create.
      * 
      * @param browser
      *            The browser application.
      */
-    public Help(final Browser browser) {
-        super(ActionId.HELP);
-        this.browser = browser;
+    public OpenHelp(final Browser browser) {
+        super(ActionId.PLATFORM_BROWSER_OPEN_HELP);
     }
     
     /**
@@ -36,6 +32,6 @@ public class Help extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
-        Assert.assertNotYetImplemented("Help");               
+        Assert.assertNotYetImplemented("OpenHelp");               
     }
 }

@@ -78,7 +78,8 @@ public class SwingUtil {
 		return jCheckBox.isSelected();
 	}
 
-	private <T extends Object> List<T> doExtract(final JList jList) {
+	@SuppressWarnings("unchecked")
+    private <T extends Object> List<T> doExtract(final JList jList) {
 		final List<T> l = new LinkedList<T>();
 		final Object[] a = jList.getSelectedValues();
 		for(final Object o : a) { l.add((T) o); }

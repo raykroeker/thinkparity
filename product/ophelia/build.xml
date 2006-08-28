@@ -280,7 +280,6 @@ Examples:
         <mkdir dir="${target.classes.dir}/local/thinkparity"/>
         <mkdir dir="${target.javadoc.dir}/common/codebase"/>
         <mkdir dir="${target.javadoc.dir}/common/migrator"/>
-        <mkdir dir="${target.javadoc.dir}/common/model"/>
         <mkdir dir="${target.javadoc.dir}/local/browser"/>
         <mkdir dir="${target.javadoc.dir}/local/model"/>
         <mkdir dir="${target.javadoc.dir}/local/thinkparity"/>

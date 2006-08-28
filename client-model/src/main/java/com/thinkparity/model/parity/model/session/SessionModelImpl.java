@@ -1,5 +1,5 @@
 /*
- * Mar 7, 2005
+ * Created On: Mar 7, 2005
  */
 package com.thinkparity.model.parity.model.session;
 
@@ -40,8 +40,8 @@ import com.thinkparity.model.xmpp.user.User;
 /**
  * The implementation of the parity session interface.
  *
- * @author raykroeker@gmail.com
- * @version 1.1
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.37
  */
 class SessionModelImpl extends AbstractModelImpl {
 
@@ -685,11 +685,12 @@ class SessionModelImpl extends AbstractModelImpl {
 	void inviteContact(final EMail email) {
         logApiId();
         logVariable("email", email);
-		synchronized (xmppHelper) {
-			try { xmppHelper.getXMPPSession().inviteContact(email); }
-			catch(final SmackException sx) {
-				throw translateError(getApiId("[INVITE CONTACT]"), sx);
-			}
+		try {
+		    synchronized (xmppHelper) {
+		        xmppHelper.getXMPPSession().inviteContact(email);
+		    }
+		} catch(final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -716,14 +717,14 @@ class SessionModelImpl extends AbstractModelImpl {
 	Boolean isLoggedInUserKeyHolder(final Long artifactId) {
 		logger.info("isLoggedInUserKeyHolder(Long)");
 		logger.debug(artifactId);
-		final UUID uniqueId = readArtifactUniqueId(artifactId);
-		synchronized(xmppHelper) {
-			try {
+		try {
+		    final UUID uniqueId = readArtifactUniqueId(artifactId);
+		    synchronized(xmppHelper) {
 				final JabberId keyHolder = xmppHelper.readKeyHolder(uniqueId);
 				return keyHolder.equals(localUserId());
-			} catch (final Throwable t) {
-				throw translateError("[IS LOGGED IN USER KEY HOLDER]", t);
-			}
+		    }
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -756,12 +757,14 @@ class SessionModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void logout() {
-        assertOnline(getApiId("[LOGOUT]"));
-		synchronized(xmppHelper) {
-			try { xmppHelper.logout(); }
-			catch(final SmackException sx) {
-				throw translateError(getApiId("[LOGOUT]"), sx);
-			}
+		try {
+		    assertOnline(getApiId("[LOGOUT]"));
+		    synchronized(xmppHelper) {
+		        xmppHelper.logout();
+            }
+		}
+		catch(final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -789,13 +792,13 @@ class SessionModelImpl extends AbstractModelImpl {
         logVariable("publishTo", publishTo);
         logVariable("publishedBy", publishedBy);
         logVariable("publishedOn", publishedOn);
-        synchronized (xmppHelper) {
-            try {
+        try {
+            synchronized (xmppHelper) {
                 xmppHelper.getXMPPSession().publish(container, documents,
                         publishTo, publishedBy, publishedOn);
-            } catch(final Throwable t) {
-                throw translateError("PUBLISH", t);
             }
+        } catch(final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -809,20 +812,19 @@ class SessionModelImpl extends AbstractModelImpl {
 	List<JabberId> readArtifactTeam(final UUID uniqueId) {
 		logApiId();
         logVariable("uniqueId", uniqueId);
-		synchronized (xmppHelper) {
-			try {
-			    /* TODO Change this xmpp session api to return a list of jabber
+		try {
+		    synchronized (xmppHelper) {
+    		    /* TODO Change this xmpp session api to return a list of jabber
                  * ids */
-				final List<User> teamUsers =
+    			final List<User> teamUsers =
                     xmppHelper.getXMPPSession().readArtifactTeam(uniqueId);
                 final List<JabberId> team = new ArrayList<JabberId>(teamUsers.size());
                 for (final User user : teamUsers)
                     team.add(user.getId());
                 return team;
-			}
-			catch(final Throwable t) {
-				throw translateError("READ ARTIFACT TEAM", t);
-			}
+		    }
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -843,11 +845,12 @@ class SessionModelImpl extends AbstractModelImpl {
      * @throws ParityException
      */
 	List<Contact> readContacts() {
-		synchronized(xmppHelper) {
-			try { return xmppHelper.readContacts(); }
-			catch(final Throwable t) {
-                throw translateError("[READ CONTACTS]", t);
-			}
+		try {
+		    synchronized(xmppHelper) {
+		        return xmppHelper.readContacts(); 
+		    }
+        } catch (final Throwable t) {
+            throw translateError(t);
 		}
 	}
 
@@ -862,12 +865,12 @@ class SessionModelImpl extends AbstractModelImpl {
     JabberId readKeyHolder(final UUID uniqueId) {
 		logApiId();
         logVariable("uniqueId", uniqueId);
-		synchronized (xmppHelper) {
-			try {
-                return xmppHelper.readKeyHolder(uniqueId);
-			} catch (final Throwable t) {
-				throw translateError("READ KEY HOLDER", t);
-			}
+		try {
+		    synchronized (xmppHelper) {
+		        return xmppHelper.readKeyHolder(uniqueId);
+		    }
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -878,23 +881,24 @@ class SessionModelImpl extends AbstractModelImpl {
      */
     Profile readProfile() {
         logger.info(getApiId("[READ PROFILE]"));
-        assertOnline(getApiId("[READ PROFILE] [USER NOT ONLINE]"));
-        synchronized(xmppHelper) {
-            try { return xmppHelper.readProfile(); }
-            catch(final SmackException sx) {
-                throw translateError(getApiId("[READ PROFILE]"), sx);
+        try {
+            assertOnline(getApiId("[READ PROFILE] [USER NOT ONLINE]"));
+            synchronized(xmppHelper) {
+                return xmppHelper.readProfile();
             }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
     List<ProfileEMail> readProfileEMails() {
         logApiId();
-        synchronized (xmppHelper) {
-            try {
+        try {
+            synchronized (xmppHelper) {
                 return xmppHelper.getXMPPSession().readProfileEMails();
-            } catch (final Throwable t) {
-                throw translateError("READ PROFILE", t);
             }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -905,13 +909,14 @@ class SessionModelImpl extends AbstractModelImpl {
      */
     Session readSession() {
         logger.info(getApiId("[READ SESSION]"));
-        assertOnline(getApiId("[READ SESSION] [USER NOT ONLINE]"));
-        final Session session = new Session();
-        try { session.setJabberId(xmppHelper.getUser().getId()); }
-        catch(final SmackException sx) {
-            throw translateError(getApiId("[READ SESSION]"), sx);
+        try {
+            assertOnline(getApiId("[READ SESSION] [USER NOT ONLINE]"));
+            final Session session = new Session();
+            session.setJabberId(xmppHelper.getUser().getId());
+            return session;
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        return session;
     }
 
     /**
@@ -1126,6 +1131,32 @@ class SessionModelImpl extends AbstractModelImpl {
     }
 
     /**
+     * Verify an email in a user's profile.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
+     * @param key
+     *            A verification key <code>String</code>.
+     */
+    void verifyProfileEmail(final JabberId userId,
+            final ProfileEMail email, final String key) {
+        logApiId();
+        logVariable("userId", userId);
+        logVariable("email", email);
+        logVariable("key", key);
+        try {
+            synchronized (xmppHelper) {
+                xmppHelper.getXMPPSession().verifyProfileEmail(userId,
+                        email.getEmail(), key);
+            }
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
+
+    /**
      * Assert that the user is currently logged in.
      * 
      * @param message
@@ -1198,32 +1229,6 @@ class SessionModelImpl extends AbstractModelImpl {
                         "NO RESPONSE FROM SERVER:  {0}", attempt), t);
                 login(attempt.intValue() + 1, environment, credentials);
             }
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Verify an email in a user's profile.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param email
-     *            A <code>ProfileEMail</code>.
-     * @param key
-     *            A verification key <code>String</code>.
-     */
-    void verifyProfileEmail(final JabberId userId,
-            final ProfileEMail email, final String key) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("email", email);
-        logVariable("key", key);
-        try {
-            synchronized (xmppHelper) {
-                xmppHelper.getXMPPSession().verifyProfileEmail(userId,
-                        email.getEmail(), key);
-            }
-        } catch (final Throwable t) {
             throw translateError(t);
         }
     }

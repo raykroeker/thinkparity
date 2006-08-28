@@ -52,10 +52,6 @@ class DocumentModelImpl extends AbstractModelImpl {
     /** A list of document listeners. */
 	private static final List<DocumentListener> LISTENERS = new LinkedList<DocumentListener>();
 
-	private static StringBuffer getApiId(final String api) {
-        return getModelId("DOCUMENT").append(" ").append(api);
-    }
-
 	/** A document auditor. */
 	private final DocumentModelAuditor auditor;
 
@@ -216,9 +212,9 @@ class DocumentModelImpl extends AbstractModelImpl {
     DocumentVersion createVersion(final Long documentId) {
         logApiId();
         logVariable("documentId", documentId);
-        assertDraftIsModified("[DRAFT IS NOT MODIFIED]", documentId);
-        final LocalFile localFile = getLocalFile(read(documentId));
         try {
+            assertDraftIsModified("[DRAFT IS NOT MODIFIED]", documentId);
+            final LocalFile localFile = getLocalFile(read(documentId));
             final InputStream content = localFile.openStream();
             try {
                 return createVersion(documentId, readNextVersionId(documentId),
@@ -226,8 +222,9 @@ class DocumentModelImpl extends AbstractModelImpl {
             } finally {
                 content.close();
             }
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
-        catch(final Throwable t) { throw translateError("[CREATE VERSION]", t); }
     }
 
     /**
@@ -260,9 +257,10 @@ class DocumentModelImpl extends AbstractModelImpl {
 		logger.info("getVersionContent(Long,Long)");
 		logger.debug(documentId);
 		logger.debug(versionId);
-		try { return documentIO.readVersionContent(documentId, versionId); }
-		catch(final Throwable t) {
-			throw translateError(getApiId("[GET VERSION CONTENT]"), t);
+		try {
+            return documentIO.readVersionContent(documentId, versionId);
+		} catch (final Throwable t) {
+			throw translateError(t);
 		}
 	}
 
@@ -349,9 +347,8 @@ class DocumentModelImpl extends AbstractModelImpl {
                         sentBy, sentOn);
             }
             return version;
-        }
-        catch(final Throwable t) {
-            throw translateError("[HANDLE DOCUMENT SENT]", t);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -362,8 +359,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @return True if the draft is different from the latest version.
      */
 	Boolean isDraftModified(final Long documentId) {
-		logger.info(getApiId("[IS DRAFT MODIFIED]"));
-		logger.debug(documentId);
+		logApiId();
+		logVariable("documentId", documentId);
         try {
             final List<DocumentVersion> versions = listVersions(documentId);
             if (0 == versions.size()) {
@@ -376,7 +373,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 return !versions.get(versions.size() - 1).getChecksum().equals(draftChecksum);
             }
         } catch (final Throwable t) {
-            throw translateError("[IS DRAFT MODIFIED]", t);
+            throw translateError(t);
         }
     }
 
@@ -568,17 +565,16 @@ class DocumentModelImpl extends AbstractModelImpl {
 	 * @throws ParityException
 	 */
 	void open(final Long documentId) {
-		logger.info("[LMODEL] [DOCUMENT] [OPEN]");
-		logger.debug(documentId);
+		logApiId();
+        logVariable("documentId", documentId);
 		try {
 			final Document document = read(documentId);
 
 			// open the local file
 			final LocalFile localFile = getLocalFile(document);
 			localFile.open();
-		}
-		catch(final Throwable t) {
-            throw translateError(getApiId("[OPEN]"), t);
+		} catch (final Throwable t) {
+            throw translateError(t);
 		}
 	}
 
@@ -599,8 +595,9 @@ class DocumentModelImpl extends AbstractModelImpl {
 			final DocumentVersion version = readVersion(documentId, versionId);
 			final LocalFile localFile = getLocalFile(document, version);
 			localFile.open();
+		} catch (final Throwable t) {
+            throw translateError(t);
 		}
-		catch(final Throwable t) { throw translateError("[OPEN VERSION]", t); }
 	}
 
 	/**
@@ -614,9 +611,9 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @return A list of document versions and their streams.
      */
     InputStream openVersionStream(final Long documentId, final Long versionId) {
-        logger.info(getApiId("[OPEN VERSION STREAM]"));
-        logger.debug(documentId);
-        logger.debug(versionId);
+        logApiId();
+        logVariable("documentId", documentId);
+        logVariable("versionId", versionId);
         return documentIO.openStream(documentId, versionId);
     }
 
@@ -628,8 +625,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @return A document.
      */
     Document read(final Long documentId) {
-        logger.info(getApiId("[READ]"));
-        logger.debug(documentId);
+        logApiId();
+        logVariable("documentId", documentId);
         return documentIO.get(documentId);
     }
 
@@ -643,8 +640,11 @@ class DocumentModelImpl extends AbstractModelImpl {
 	Document read(final UUID uniqueId) {
 		logApiId();
         logVariable("uniqueId", uniqueId);
-		try { return documentIO.get(uniqueId); }
-		catch(final Throwable t) { throw translateError("[READ]", t); }
+		try {
+            return documentIO.get(uniqueId);
+		} catch (final Throwable t) {
+            throw translateError(t);
+		}
 	}
 
 	/**
@@ -655,8 +655,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @return A list of audit events.
      */
     List<AuditEvent> readAuditEvents(final Long documentId) {
-        logger.info(getApiId("[READ AUDIT EVENTS]"));
-        logger.debug(documentId);
+        logApiId();
+        logVariable("documentId", documentId);
         return getInternalAuditModel().read(documentId);
     }
 
@@ -668,8 +668,8 @@ class DocumentModelImpl extends AbstractModelImpl {
      * @return A list of history items.
      */
     List<DocumentHistoryItem> readHistory(final Long documentId) {
-		logger.info(getApiId("[READ HISTORY]"));
-		logger.debug(documentId);
+        logApiId();
+        logVariable("documentId", documentId);
 		return readHistory(documentId, defaultHistoryComparator);
 	}
 
@@ -684,9 +684,9 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     List<DocumentHistoryItem> readHistory(final Long documentId,
             final Comparator<? super HistoryItem> comparator) {
-        logger.info(getApiId("[READ HISTORY]"));
-        logger.debug(documentId);
-        logger.debug(comparator);
+        logApiId();
+        logVariable("documentId", documentId);
+        logVariable("comparator", comparator);
         return readHistory(documentId, comparator, defaultHistoryFilter);
     }
 
@@ -705,10 +705,10 @@ class DocumentModelImpl extends AbstractModelImpl {
     List<DocumentHistoryItem> readHistory(final Long documentId,
             final Comparator<? super HistoryItem> comparator,
             final Filter<? super HistoryItem> filter) {
-		logger.info(getApiId("[READ HISTORY]"));
-		logger.debug(documentId);
-        logger.debug(comparator);
-        logger.debug(filter);
+        logApiId();
+        logVariable("documentId", documentId);
+        logVariable("comparator", comparator);
+        logVariable("filter", filter);
 		final DocumentHistoryBuilder historyBuilder =
 		        new DocumentHistoryBuilder(getInternalDocumentModel(), l18n);
 		final List<DocumentHistoryItem> history =
@@ -729,9 +729,9 @@ class DocumentModelImpl extends AbstractModelImpl {
      */
     List<DocumentHistoryItem> readHistory(final Long documentId,
             final Filter<? super HistoryItem> filter) {
-        logger.info(getApiId("[READ HISTORY]"));
-        logger.debug(documentId);
-        logger.debug(filter);
+        logApiId();
+        logVariable("documentId", documentId);
+        logVariable("filter", filter);
         return readHistory(documentId, defaultHistoryComparator, filter);
     }
 
@@ -752,7 +752,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 return null;
             }
 		} catch (final Throwable t) {
-            throw translateError(getApiId("[READ LATEST VERSION]"), t);
+            throw translateError(t);
 		}
 	}
 
@@ -771,7 +771,7 @@ class DocumentModelImpl extends AbstractModelImpl {
         logVariable("versionId", versionId);
         try { return documentIO.getVersion(documentId, versionId); }
         catch(final Throwable t) {
-            throw translateError("[READ VERSION]", t);
+            throw translateError(t);
         }
     }
 
@@ -818,9 +818,8 @@ class DocumentModelImpl extends AbstractModelImpl {
             // audit the rename
             auditor.rename(documentId, currentDateTime(), localUserId(),
                     originalName,documentName);
-        }
-        catch(final Throwable t) {
-            throw translateError(getApiId("[RENAME]"), t);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -872,9 +871,10 @@ class DocumentModelImpl extends AbstractModelImpl {
         logVariable("documentId", documentId);
         logVariable("content", content);
         final LocalFile localFile = getLocalFile(read(documentId));
-        try { localFile.write(content); }
-        catch(final Throwable t) {
-            throw translateError("[UPDATE WORKING VERSION]", t);
+        try {
+            localFile.write(content);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -932,9 +932,8 @@ class DocumentModelImpl extends AbstractModelImpl {
             final LocalFile localFile = getLocalFile(document);
             localFile.write(StreamUtil.read(content));
             return read(document.getId());
-        }
-        catch(final Throwable t) {
-            throw translateError(getApiId("[CREATE]"), t);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -1187,7 +1186,7 @@ class DocumentModelImpl extends AbstractModelImpl {
                 inputStream.close();
             }
         } catch(final Throwable t) {
-            throw translateError("REVERT DRAFT", t);
+            throw translateError(t);
         }
     }
 }

@@ -21,8 +21,6 @@ import org.apache.lucene.store.FSDirectory;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.model.artifact.ArtifactType;
-import com.thinkparity.model.parity.ParityErrorTranslator;
-import com.thinkparity.model.parity.ParityException;
 import com.thinkparity.model.parity.model.AbstractModelImpl;
 import com.thinkparity.model.parity.model.filter.Filter;
 import com.thinkparity.model.parity.model.filter.index.IndexFilterManager;
@@ -76,17 +74,6 @@ class IndexModelImpl extends AbstractModelImpl {
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 	}
-
-	/**
-     * Obtain a log4j api id.
-     * 
-     * @param api
-     *            The api.
-     * @return The log4j api id.
-     */
-    protected static StringBuffer getApiId(final String api) {
-        return getModelId("INDEX").append(" ").append(api);
-    }
 
 	/** Index filter for containers. */
     private final Filter<? super IndexHit> containerFilter;
@@ -144,7 +131,7 @@ class IndexModelImpl extends AbstractModelImpl {
 
             index(documentBuilder.toDocument());
         } catch (final Throwable t) {
-            throw translateError("CREATE CONTAINER", t);
+            throw translateError(t);
         }
     }
 
@@ -153,23 +140,22 @@ class IndexModelImpl extends AbstractModelImpl {
 	 * 
 	 * @param containerArtifactIndex
 	 *            The artifact index entry.
-	 * @throws ParityException
 	 */
-	void createDocument(final Long documentId, final String documentName)
-			throws ParityException {
-		logger.info(getApiId("[CREATE DOCUMENT]"));
-		logger.debug(documentId);
-		logger.debug(documentName);
-
-		final Set<User> documentTeam = getInternalArtifactModel().readTeam(documentId);
-
-		final DocumentBuilder db = new DocumentBuilder(6);
-		db.append(IDX_ARTIFACT_ID.setValue(documentId).toField())
-            .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.DOCUMENT).toField())
-			.append(IDX_ARTIFACT_NAME.setValue(documentName).toField())
-			.append(IDX_ARTIFACT_CONTACTS.setValue(documentTeam).toField());
-
-		index(db.toDocument());
+	void createDocument(final Long documentId, final String documentName) {
+		logApiId();
+        logVariable("documentId", documentId);
+        logVariable("documentName", documentName);
+        try {
+    		final Set<User> documentTeam = getInternalArtifactModel().readTeam(documentId);
+    		final DocumentBuilder db = new DocumentBuilder(6);
+    		db.append(IDX_ARTIFACT_ID.setValue(documentId).toField())
+                .append(IDX_ARTIFACT_TYPE.setValue(ArtifactType.DOCUMENT).toField())
+    			.append(IDX_ARTIFACT_NAME.setValue(documentName).toField())
+    			.append(IDX_ARTIFACT_CONTACTS.setValue(documentTeam).toField());
+    		index(db.toDocument());
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
 	}
 
 	/**
@@ -177,29 +163,25 @@ class IndexModelImpl extends AbstractModelImpl {
      * 
      * @param artifactId
      *            The artifact id.
-     * @throws ParityException
      */
 	void deleteArtifactIndex(final Long artifactId) {
-		logger.info("[LMODEL] [INDEX] [DELETE ARTIFACT INDEX]");
-		logger.debug(artifactId);
+		logApiId();
+		logVariable("artifactId", artifactId);
 		IndexReader indexReader = null;
 		try {
             indexReader = openIndexReader();
 			final Field idField = IDX_ARTIFACT_ID.toSearchField();
 			final Term idTerm = new Term(idField.name(), artifactId.toString());
-			Assert.assertTrue(
-					"[LMODEL] [INDEX] [DELETE ARTIFACT INDEX] [CORRUPT INDEX]",
+			Assert.assertTrue("COULD NOT DELETE ARTIFACT FROM INDEX",
 					1 == indexReader.deleteDocuments(idTerm));
 		} catch(final Throwable t) {
-            throw translateError("[DELETE ARTIFACT INDEX]", t);
+            throw translateError(t);
 		} finally {
             if (null != indexReader) {
                 try {
                     closeIndexReader(indexReader);
                 } catch(final Throwable t) {
-                    throw translateError(
-                            "[DELETE ARTIFACT INDEX] [COULD NOT CLOSE INDEX READER]",
-                            t);
+                    throw translateError(t);
                 }
             }
 		}
@@ -211,7 +193,6 @@ class IndexModelImpl extends AbstractModelImpl {
      * @param expression
      *            The search expression.
      * @return A list of index hits representing containers.
-     * @throws ParityException
      */
     List<IndexHit> searchContainers(final String expression) {
         return searchArtifacts(expression, containerFilter);
@@ -223,9 +204,8 @@ class IndexModelImpl extends AbstractModelImpl {
      * @param expression
      *            The search expression.
      * @return A list of index hits representing documents.
-     * @throws ParityException
      */
-	List<IndexHit> searchDocuments(final String expression) throws ParityException {
+	List<IndexHit> searchDocuments(final String expression) {
         return searchArtifacts(expression, documentFilter);
 	}
 
@@ -234,7 +214,7 @@ class IndexModelImpl extends AbstractModelImpl {
      * 
      * @param indexReader
      *            The index reader.
-     * @throws ParityException
+     * @throws IOException
      */
 	private void closeIndexReader(final IndexReader indexReader)
             throws IOException {
@@ -247,18 +227,12 @@ class IndexModelImpl extends AbstractModelImpl {
      * 
      * @param indexWriter
      *            The index writer.
-     * @throws ParityException
+     * @throws IOException
      */
 	private void closeIndexWriter(final IndexWriter indexWriter)
-			throws ParityException {
-		try {
-			indexWriter.close();
-			getIndexDirectory().close();
-		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [INDEX] [INDEX DOCUMENT] [CLOSE WRITER IO ERROR]", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+            throws IOException {
+		indexWriter.close();
+		getIndexDirectory().close();
 	}
 
 	/**
@@ -272,32 +246,28 @@ class IndexModelImpl extends AbstractModelImpl {
 	}
 
 	/**
-	 * Index a lucene document.
-	 * 
-	 * @param document
-	 *            The lucene document.
-	 * @throws ParityException
-	 *             If the document could not be indexed.
-	 */
-	private void index(final Document document) throws ParityException {
+     * Index a lucene document.
+     * 
+     * @param document
+     *            The lucene document.
+     * @throws IOException
+     *             If the document could not be indexed.
+     */
+	private void index(final Document document) throws IOException {
 		final IndexWriter indexWriter = openIndexWriter();
 		try {
 			indexWriter.addDocument(document);
 			indexWriter.optimize();
+		} finally {
+            closeIndexWriter(indexWriter);
 		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [INDEX] [INDEX DOCUMENT] [IO ERROR]", iox);
-			logger.error(document);
-			throw ParityErrorTranslator.translate(iox);
-		}
-		finally { closeIndexWriter(indexWriter); }
 	}
 
 	/**
 	 * Create a lucene index reader.
 	 * 
 	 * @return A lucene index reader.
-	 * @throws ParityException
+	 * @throws IOException
 	 *             If the index reader cannot be opened.
 	 */
 	private IndexReader openIndexReader() throws IOException {
@@ -308,24 +278,18 @@ class IndexModelImpl extends AbstractModelImpl {
 	 * Create a lucene index writer.
 	 * 
 	 * @return The lucene index writer.
-	 * @throws ParityException
+	 * @throws IOException
 	 *             If the index writer cannot be created.
 	 * @see #indexAnalyzer
 	 */
-	private IndexWriter openIndexWriter() throws ParityException {
-		try {
-			final Directory directory = getIndexDirectory();
+	private IndexWriter openIndexWriter() throws IOException {
+		final Directory directory = getIndexDirectory();
 
-			final Boolean doCreate;
-			if(0 == directory.list().length) { doCreate = Boolean.TRUE; }
-			else { doCreate = Boolean.FALSE; }		
+		final Boolean doCreate;
+		if(0 == directory.list().length) { doCreate = Boolean.TRUE; }
+		else { doCreate = Boolean.FALSE; }		
 
-			return new IndexWriter(directory, indexAnalyzer, doCreate);
-		}
-		catch(final IOException iox) {
-			logger.error("[LMODEL] [INDEX] [OPEN WRITER] [IO ERROR]", iox);
-			throw ParityErrorTranslator.translate(iox);
-		}
+		return new IndexWriter(directory, indexAnalyzer, doCreate);
 	}
 
 	/**
@@ -336,13 +300,12 @@ class IndexModelImpl extends AbstractModelImpl {
      * @param filter
      *            A result filter.
      * @return A list of index hits.
-     * @throws ParityException
      */
     private List<IndexHit> searchArtifacts(final String expression,
             final Filter<? super IndexHit> filter) {
-        logger.info(getApiId("[SEARCH ARTIFACTS]"));
-        logger.debug(expression);
-        logger.debug(filter);
+        logApiId();
+        logVariable("expression", expression);
+        logVariable("filter", filter);
         IndexReader indexReader = null;
         try {
             indexReader = openIndexReader();
@@ -362,16 +325,15 @@ class IndexModelImpl extends AbstractModelImpl {
             }
             IndexFilterManager.filter(indexHits, filter);
             return indexHits;
-        }
-        catch(final Throwable t) {
-            throw translateError("[SEARCH ARTIFACTS]", t);
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
         finally {
             if (null != indexReader) {
                 try {
                     closeIndexReader(indexReader);
                 } catch(final Throwable t) {
-                    throw translateError("[SEARCH ARTIFACTS] [CLOSE INDEX READER]", t);
+                    throw translateError(t);
                 }
             }
         }

@@ -226,7 +226,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             notifyContainerCreated(postCreation, localEventGenerator);
             return postCreation;
         } catch (final Throwable t) {
-            throw translateError("CREATE", t);
+            throw translateError(t);
         }
     }
 
@@ -304,7 +304,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             // fire event
             notifyContainerDeleted(container, localEventGenerator);
         } catch (final Throwable t) {
-            throw translateError("[DELETE]", t);
+            throw translateError(t);
         }
     }
 
@@ -460,7 +460,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
                     remoteEventGenerator);
         }
         catch(final Throwable t) {
-            throw translateError(getApiId("[HANDLE ARTIFACT SENT]"), t);
+            throw translateError(t);
         }
     }
 
@@ -584,7 +584,7 @@ public class ContainerModelImpl extends AbstractModelImpl {
             }
         }
         catch(final Throwable t) {
-            throw translateError(getApiId("[HANDLE ARTIFACT SENT]"), t);
+            throw translateError(t);
         }
     }
 
@@ -850,8 +850,9 @@ public class ContainerModelImpl extends AbstractModelImpl {
                     version.getArtifactId(), version.getVersionId());
             notifyContainerPublished(postPublish, draft, postPublishVersion,
                     localEventGenerator);
+        } catch(final Throwable t) {
+            throw translateError(t);
         }
-        catch(final Throwable t) { throw translateError(getApiId("[PUBLISH]"), t); }
     }
 
     /**

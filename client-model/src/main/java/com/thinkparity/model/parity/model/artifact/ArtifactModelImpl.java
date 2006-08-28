@@ -336,7 +336,7 @@ public class ArtifactModelImpl extends AbstractModelImpl {
                 addTeamMember(artifactId, jabberId);
             }
         } catch(final Throwable t) {
-            throw translateError("[HANDLE TEAM MEMBER ADDED]", t);
+            throw translateError(t);
         }
     }
 
@@ -356,7 +356,7 @@ public class ArtifactModelImpl extends AbstractModelImpl {
             final Long artifactId = readId(uniqueId);
             artifactIO.deleteTeamRel(artifactId);
         } catch(final Throwable t) {
-            throw translateError("[HANDLE TEAM MEMBER REMOVED]", t);
+            throw translateError(t);
         }
     }
 

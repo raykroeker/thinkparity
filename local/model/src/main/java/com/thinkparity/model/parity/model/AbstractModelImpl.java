@@ -983,15 +983,6 @@ public abstract class AbstractModelImpl {
     }
 
     /**
-     * @deprecated Use {@link #translateError(Throwable)} instead.
-     * 
-     */
-    protected RuntimeException translateError(final Object errorId,
-            final Throwable t) {
-        return translateError(t);
-    }
-
-    /**
      * Translate an error into a parity unchecked error.
      * 
      * @param t
